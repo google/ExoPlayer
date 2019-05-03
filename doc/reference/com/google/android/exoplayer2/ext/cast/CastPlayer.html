@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li>Prev&nbsp;Class</li>
-<li><a href="../../../../../../com/google/android/exoplayer2/ext/cast/CastPlayer.SessionAvailabilityListener.html" title="interface in com.google.android.exoplayer2.ext.cast"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/ext/cast/DefaultCastOptionsProvider.html" title="class in com.google.android.exoplayer2.ext.cast"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/ext/cast/CastPlayer.html" target="_top">Frames</a></li>
@@ -71,7 +71,7 @@ var activeTableTab = "activeTableTab";
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#nested.classes.inherited.from.class.com.google.android.exoplayer2.BasePlayer">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#fields.inherited.from.class.com.google.android.exoplayer2.BasePlayer">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -120,15 +120,14 @@ extends <a href="../../../../../../com/google/android/exoplayer2/BasePlayer.html
 <div class="block"><a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> implementation that communicates with a Cast receiver app.
 
  <p>The behavior of this class depends on the underlying Cast session, which is obtained from the
- Cast context passed to <a href="../../../../../../com/google/android/exoplayer2/ext/cast/CastPlayer.html#CastPlayer-com.google.android.gms.cast.framework.CastContext-"><code>CastPlayer(com.google.android.gms.cast.framework.CastContext)</code></a>. To keep track of the session,
- <a href="../../../../../../com/google/android/exoplayer2/ext/cast/CastPlayer.html#isCastSessionAvailable--"><code>isCastSessionAvailable()</code></a> can be queried and <a href="../../../../../../com/google/android/exoplayer2/ext/cast/CastPlayer.SessionAvailabilityListener.html" title="interface in com.google.android.exoplayer2.ext.cast"><code>CastPlayer.SessionAvailabilityListener</code></a> can be
- implemented and attached to the player.</p>
+ Cast context passed to <a href="../../../../../../com/google/android/exoplayer2/ext/cast/CastPlayer.html#CastPlayer-com.google.android.gms.cast.framework.CastContext-"><code>CastPlayer(com.google.android.gms.cast.framework.CastContext)</code></a>. To keep track of the session, <a href="../../../../../../com/google/android/exoplayer2/ext/cast/CastPlayer.html#isCastSessionAvailable--"><code>isCastSessionAvailable()</code></a> can be queried and <a href="../../../../../../com/google/android/exoplayer2/ext/cast/SessionAvailabilityListener.html" title="interface in com.google.android.exoplayer2.ext.cast"><code>SessionAvailabilityListener</code></a> can be
+ implemented and attached to the player.
 
- <p> If no session is available, the player state will remain unchanged and calls to methods that
+ <p>If no session is available, the player state will remain unchanged and calls to methods that
  alter it will be ignored. Querying the player state is possible even when no session is
- available, in which case, the last observed receiver app state is reported.</p>
+ available, in which case, the last observed receiver app state is reported.
 
- <p>Methods should be called on the application's main thread.</p></div>
+ <p>Methods should be called on the application's main thread.</div>
 </li>
 </ul>
 </div>
@@ -141,19 +140,13 @@ extends <a href="../../../../../../com/google/android/exoplayer2/BasePlayer.html
 <!--   -->
 </a>
 <h3>Nested Class Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Nested Class Summary table, listing nested classes, and an explanation">
-<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Class and Description</th>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>static interface&nbsp;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cast/CastPlayer.SessionAvailabilityListener.html" title="interface in com.google.android.exoplayer2.ext.cast">CastPlayer.SessionAvailabilityListener</a></span></code>
-<div class="block">Listener of changes in the cast session availability.</div>
-</td>
-</tr>
-</table>
+<ul class="blockList">
+<li class="blockList"><a name="nested.classes.inherited.from.class.com.google.android.exoplayer2.BasePlayer">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from class&nbsp;com.google.android.exoplayer2.<a href="../../../../../../com/google/android/exoplayer2/BasePlayer.html" title="class in com.google.android.exoplayer2">BasePlayer</a></h3>
+<code><a href="../../../../../../com/google/android/exoplayer2/BasePlayer.ListenerHolder.html" title="class in com.google.android.exoplayer2">BasePlayer.ListenerHolder</a>, <a href="../../../../../../com/google/android/exoplayer2/BasePlayer.ListenerInvocation.html" title="interface in com.google.android.exoplayer2">BasePlayer.ListenerInvocation</a></code></li>
+</ul>
 <ul class="blockList">
 <li class="blockList"><a name="nested.classes.inherited.from.class.com.google.android.exoplayer2.Player">
 <!--   -->
@@ -493,7 +486,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/BasePlayer.html
 </tr>
 <tr id="i44" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cast/CastPlayer.html#setSessionAvailabilityListener-com.google.android.exoplayer2.ext.cast.CastPlayer.SessionAvailabilityListener-">setSessionAvailabilityListener</a></span>(<a href="../../../../../../com/google/android/exoplayer2/ext/cast/CastPlayer.SessionAvailabilityListener.html" title="interface in com.google.android.exoplayer2.ext.cast">CastPlayer.SessionAvailabilityListener</a>&nbsp;listener)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cast/CastPlayer.html#setSessionAvailabilityListener-com.google.android.exoplayer2.ext.cast.SessionAvailabilityListener-">setSessionAvailabilityListener</a></span>(<a href="../../../../../../com/google/android/exoplayer2/ext/cast/SessionAvailabilityListener.html" title="interface in com.google.android.exoplayer2.ext.cast">SessionAvailabilityListener</a>&nbsp;listener)</code>
 <div class="block">Sets a listener for updates on the cast session availability.</div>
 </td>
 </tr>
@@ -710,17 +703,17 @@ extends <a href="../../../../../../com/google/android/exoplayer2/BasePlayer.html
 <div class="block">Returns whether a cast session is available.</div>
 </li>
 </ul>
-<a name="setSessionAvailabilityListener-com.google.android.exoplayer2.ext.cast.CastPlayer.SessionAvailabilityListener-">
+<a name="setSessionAvailabilityListener-com.google.android.exoplayer2.ext.cast.SessionAvailabilityListener-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setSessionAvailabilityListener</h4>
-<pre>public&nbsp;void&nbsp;setSessionAvailabilityListener(<a href="../../../../../../com/google/android/exoplayer2/ext/cast/CastPlayer.SessionAvailabilityListener.html" title="interface in com.google.android.exoplayer2.ext.cast">CastPlayer.SessionAvailabilityListener</a>&nbsp;listener)</pre>
+<pre>public&nbsp;void&nbsp;setSessionAvailabilityListener(<a href="../../../../../../com/google/android/exoplayer2/ext/cast/SessionAvailabilityListener.html" title="interface in com.google.android.exoplayer2.ext.cast">SessionAvailabilityListener</a>&nbsp;listener)</pre>
 <div class="block">Sets a listener for updates on the cast session availability.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>listener</code> - The <a href="../../../../../../com/google/android/exoplayer2/ext/cast/CastPlayer.SessionAvailabilityListener.html" title="interface in com.google.android.exoplayer2.ext.cast"><code>CastPlayer.SessionAvailabilityListener</code></a>.</dd>
+<dd><code>listener</code> - The <a href="../../../../../../com/google/android/exoplayer2/ext/cast/SessionAvailabilityListener.html" title="interface in com.google.android.exoplayer2.ext.cast"><code>SessionAvailabilityListener</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -730,7 +723,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/BasePlayer.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getAudioComponent</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>@Nullable
 public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/Player.AudioComponent.html" title="interface in com.google.android.exoplayer2">Player.AudioComponent</a>&nbsp;getAudioComponent()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/Player.html#getAudioComponent--">Player</a></code></span></div>
 <div class="block">Returns the component of this player for audio output, or null if audio is not supported.</div>
@@ -742,7 +735,7 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/Player.Audi
 <ul class="blockList">
 <li class="blockList">
 <h4>getVideoComponent</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>@Nullable
 public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/Player.VideoComponent.html" title="interface in com.google.android.exoplayer2">Player.VideoComponent</a>&nbsp;getVideoComponent()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/Player.html#getVideoComponent--">Player</a></code></span></div>
 <div class="block">Returns the component of this player for video output, or null if video is not supported.</div>
@@ -754,7 +747,7 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/Player.Vide
 <ul class="blockList">
 <li class="blockList">
 <h4>getTextComponent</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>@Nullable
 public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/Player.TextComponent.html" title="interface in com.google.android.exoplayer2">Player.TextComponent</a>&nbsp;getTextComponent()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/Player.html#getTextComponent--">Player</a></code></span></div>
 <div class="block">Returns the component of this player for text output, or null if text is not supported.</div>
@@ -766,7 +759,7 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/Player.Text
 <ul class="blockList">
 <li class="blockList">
 <h4>getMetadataComponent</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>@Nullable
 public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/Player.MetadataComponent.html" title="interface in com.google.android.exoplayer2">Player.MetadataComponent</a>&nbsp;getMetadataComponent()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/Player.html#getMetadataComponent--">Player</a></code></span></div>
 <div class="block">Returns the component of this player for metadata output, or null if metadata is not supported.</div>
@@ -906,7 +899,7 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/Player.Meta
 <ul class="blockList">
 <li class="blockList">
 <h4>setPlaybackParameters</h4>
-<pre>public&nbsp;void&nbsp;setPlaybackParameters(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>public&nbsp;void&nbsp;setPlaybackParameters(@Nullable
                                   <a href="../../../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/Player.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-">Player</a></code></span></div>
 <div class="block">Attempts to set the playback parameters. Passing <code>null</code> sets the parameters to the
@@ -1098,7 +1091,7 @@ public&nbsp;int&nbsp;getRepeatMode()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>getCurrentManifest</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>@Nullable
 public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;getCurrentManifest()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/Player.html#getCurrentManifest--">Player</a></code></span></div>
 <div class="block">Returns the current manifest. The type depends on the type of media being played. May be null.</div>
@@ -1285,7 +1278,7 @@ public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/l
 <div class="subNav">
 <ul class="navList">
 <li>Prev&nbsp;Class</li>
-<li><a href="../../../../../../com/google/android/exoplayer2/ext/cast/CastPlayer.SessionAvailabilityListener.html" title="interface in com.google.android.exoplayer2.ext.cast"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/ext/cast/DefaultCastOptionsProvider.html" title="class in com.google.android.exoplayer2.ext.cast"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/ext/cast/CastPlayer.html" target="_top">Frames</a></li>
@@ -1309,7 +1302,7 @@ public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/l
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#nested.classes.inherited.from.class.com.google.android.exoplayer2.BasePlayer">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#fields.inherited.from.class.com.google.android.exoplayer2.BasePlayer">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>

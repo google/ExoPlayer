@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":38,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":38,"i8":6};
+var methods = {"i0":38,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":38,"i8":6,"i9":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.Type.html" title="annotation in com.google.android.exoplayer2"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../com/google/android/exoplayer2/ExoPlayer.EventListener.html" title="interface in com.google.android.exoplayer2"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../com/google/android/exoplayer2/ExoPlayer.ExoPlayerComponent.html" title="interface in com.google.android.exoplayer2"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../index.html?com/google/android/exoplayer2/ExoPlayer.html" target="_top">Frames</a></li>
@@ -72,13 +72,13 @@ var activeTableTab = "activeTableTab";
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
-<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
@@ -121,7 +121,7 @@ extends <a href="../../../../com/google/android/exoplayer2/Player.html" title="i
  <ul>
    <li>A <b><a href="../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a></b> that defines the media to be played, loads the media, and from
        which the loaded media can be read. A MediaSource is injected via <a href="../../../../com/google/android/exoplayer2/ExoPlayer.html#prepare-com.google.android.exoplayer2.source.MediaSource-"><code>prepare(MediaSource)</code></a> at the start of playback. The library modules provide default
-       implementations for regular media files (<a href="../../../../com/google/android/exoplayer2/source/ExtractorMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>ExtractorMediaSource</code></a>), DASH
+       implementations for progressive media files (<a href="../../../../com/google/android/exoplayer2/source/ProgressiveMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>ProgressiveMediaSource</code></a>), DASH
        (DashMediaSource), SmoothStreaming (SsMediaSource) and HLS (HlsMediaSource), an
        implementation for loading single media samples (<a href="../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>SingleSampleMediaSource</code></a>) that's
        most often used for side-loaded subtitle files, and implementations for building more
@@ -204,21 +204,13 @@ extends <a href="../../../../com/google/android/exoplayer2/Player.html" title="i
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayer.EventListener.html" title="interface in com.google.android.exoplayer2">ExoPlayer.EventListener</a></span></code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2"><code>Player.EventListener</code></a> instead.</span></div>
-</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayer.ExoPlayerComponent.html" title="interface in com.google.android.exoplayer2">ExoPlayer.ExoPlayerComponent</a></span></code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
 <div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2"><code>PlayerMessage.Target</code></a> instead.</span></div>
 </div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayer.ExoPlayerMessage.html" title="class in com.google.android.exoplayer2">ExoPlayer.ExoPlayerMessage</a></span></code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
@@ -232,7 +224,7 @@ extends <a href="../../../../com/google/android/exoplayer2/Player.html" title="i
 <!--   -->
 </a>
 <h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></h3>
-<code><a href="../../../../com/google/android/exoplayer2/Player.AudioComponent.html" title="interface in com.google.android.exoplayer2">Player.AudioComponent</a>, <a href="../../../../com/google/android/exoplayer2/Player.DefaultEventListener.html" title="class in com.google.android.exoplayer2">Player.DefaultEventListener</a>, <a href="../../../../com/google/android/exoplayer2/Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2">Player.DiscontinuityReason</a>, <a href="../../../../com/google/android/exoplayer2/Player.MetadataComponent.html" title="interface in com.google.android.exoplayer2">Player.MetadataComponent</a>, <a href="../../../../com/google/android/exoplayer2/Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">Player.RepeatMode</a>, <a href="../../../../com/google/android/exoplayer2/Player.TextComponent.html" title="interface in com.google.android.exoplayer2">Player.TextComponent</a>, <a href="../../../../com/google/android/exoplayer2/Player.TimelineChangeReason.html" title="annotation in com.google.android.exoplayer2">Player.TimelineChangeReason</a>, <a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html" title="interface in com.google.android.exoplayer2">Player.VideoComponent</a></code></li>
+<code><a href="../../../../com/google/android/exoplayer2/Player.AudioComponent.html" title="interface in com.google.android.exoplayer2">Player.AudioComponent</a>, <a href="../../../../com/google/android/exoplayer2/Player.DefaultEventListener.html" title="class in com.google.android.exoplayer2">Player.DefaultEventListener</a>, <a href="../../../../com/google/android/exoplayer2/Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2">Player.DiscontinuityReason</a>, <a href="../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a>, <a href="../../../../com/google/android/exoplayer2/Player.MetadataComponent.html" title="interface in com.google.android.exoplayer2">Player.MetadataComponent</a>, <a href="../../../../com/google/android/exoplayer2/Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">Player.RepeatMode</a>, <a href="../../../../com/google/android/exoplayer2/Player.TextComponent.html" title="interface in com.google.android.exoplayer2">Player.TextComponent</a>, <a href="../../../../com/google/android/exoplayer2/Player.TimelineChangeReason.html" title="annotation in com.google.android.exoplayer2">Player.TimelineChangeReason</a>, <a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html" title="interface in com.google.android.exoplayer2">Player.VideoComponent</a></code></li>
 </ul>
 </li>
 </ul>
@@ -242,75 +234,12 @@ extends <a href="../../../../com/google/android/exoplayer2/Player.html" title="i
 <!--   -->
 </a>
 <h3>Field Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
-<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Field and Description</th>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayer.html#REPEAT_MODE_ALL">REPEAT_MODE_ALL</a></span></code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/Player.html#REPEAT_MODE_ALL"><code>Player.REPEAT_MODE_ALL</code></a> instead.</span></div>
-</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayer.html#REPEAT_MODE_OFF">REPEAT_MODE_OFF</a></span></code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/Player.html#REPEAT_MODE_OFF"><code>Player.REPEAT_MODE_OFF</code></a> instead.</span></div>
-</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayer.html#REPEAT_MODE_ONE">REPEAT_MODE_ONE</a></span></code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/Player.html#REPEAT_MODE_ONE"><code>Player.REPEAT_MODE_ONE</code></a> instead.</span></div>
-</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayer.html#STATE_BUFFERING">STATE_BUFFERING</a></span></code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/Player.html#STATE_BUFFERING"><code>Player.STATE_BUFFERING</code></a> instead.</span></div>
-</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayer.html#STATE_ENDED">STATE_ENDED</a></span></code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/Player.html#STATE_ENDED"><code>Player.STATE_ENDED</code></a> instead.</span></div>
-</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayer.html#STATE_IDLE">STATE_IDLE</a></span></code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/Player.html#STATE_IDLE"><code>Player.STATE_IDLE</code></a> instead.</span></div>
-</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayer.html#STATE_READY">STATE_READY</a></span></code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/Player.html#STATE_READY"><code>Player.STATE_READY</code></a> instead.</span></div>
-</div>
-</td>
-</tr>
-</table>
 <ul class="blockList">
 <li class="blockList"><a name="fields.inherited.from.class.com.google.android.exoplayer2.Player">
 <!--   -->
 </a>
 <h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></h3>
-<code><a href="../../../../com/google/android/exoplayer2/Player.html#DISCONTINUITY_REASON_AD_INSERTION">DISCONTINUITY_REASON_AD_INSERTION</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#DISCONTINUITY_REASON_INTERNAL">DISCONTINUITY_REASON_INTERNAL</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#DISCONTINUITY_REASON_PERIOD_TRANSITION">DISCONTINUITY_REASON_PERIOD_TRANSITION</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#DISCONTINUITY_REASON_SEEK">DISCONTINUITY_REASON_SEEK</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#DISCONTINUITY_REASON_SEEK_ADJUSTMENT">DISCONTINUITY_REASON_SEEK_ADJUSTMENT</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#TIMELINE_CHANGE_REASON_DYNAMIC">TIMELINE_CHANGE_REASON_DYNAMIC</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#TIMELINE_CHANGE_REASON_PREPARED">TIMELINE_CHANGE_REASON_PREPARED</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#TIMELINE_CHANGE_REASON_RESET">TIMELINE_CHANGE_REASON_RESET</a></code></li>
+<code><a href="../../../../com/google/android/exoplayer2/Player.html#DISCONTINUITY_REASON_AD_INSERTION">DISCONTINUITY_REASON_AD_INSERTION</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#DISCONTINUITY_REASON_INTERNAL">DISCONTINUITY_REASON_INTERNAL</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#DISCONTINUITY_REASON_PERIOD_TRANSITION">DISCONTINUITY_REASON_PERIOD_TRANSITION</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#DISCONTINUITY_REASON_SEEK">DISCONTINUITY_REASON_SEEK</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#DISCONTINUITY_REASON_SEEK_ADJUSTMENT">DISCONTINUITY_REASON_SEEK_ADJUSTMENT</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#REPEAT_MODE_ALL">REPEAT_MODE_ALL</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#REPEAT_MODE_OFF">REPEAT_MODE_OFF</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#REPEAT_MODE_ONE">REPEAT_MODE_ONE</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#STATE_BUFFERING">STATE_BUFFERING</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#STATE_ENDED">STATE_ENDED</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#STATE_IDLE">STATE_IDLE</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#STATE_READY">STATE_READY</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#TIMELINE_CHANGE_REASON_DYNAMIC">TIMELINE_CHANGE_REASON_DYNAMIC</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#TIMELINE_CHANGE_REASON_PREPARED">TIMELINE_CHANGE_REASON_PREPARED</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#TIMELINE_CHANGE_REASON_RESET">TIMELINE_CHANGE_REASON_RESET</a></code></li>
 </ul>
 </li>
 </ul>
@@ -383,6 +312,13 @@ extends <a href="../../../../com/google/android/exoplayer2/Player.html" title="i
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayer.html#setForegroundMode-boolean-">setForegroundMode</a></span>(boolean&nbsp;foregroundMode)</code>
+<div class="block">Sets whether the player is allowed to keep holding limited resources such as video decoders,
+ even when in the idle state.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayer.html#setSeekParameters-com.google.android.exoplayer2.SeekParameters-">setSeekParameters</a></span>(<a href="../../../../com/google/android/exoplayer2/SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a>&nbsp;seekParameters)</code>
 <div class="block">Sets the parameters that control how seek operations are performed.</div>
 </td>
@@ -403,122 +339,6 @@ extends <a href="../../../../com/google/android/exoplayer2/Player.html" title="i
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
-<!-- ============ FIELD DETAIL =========== -->
-<ul class="blockList">
-<li class="blockList"><a name="field.detail">
-<!--   -->
-</a>
-<h3>Field Detail</h3>
-<a name="STATE_IDLE">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>STATE_IDLE</h4>
-<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
-static final&nbsp;int STATE_IDLE</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/Player.html#STATE_IDLE"><code>Player.STATE_IDLE</code></a> instead.</span></div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.ExoPlayer.STATE_IDLE">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-<a name="STATE_BUFFERING">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>STATE_BUFFERING</h4>
-<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
-static final&nbsp;int STATE_BUFFERING</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/Player.html#STATE_BUFFERING"><code>Player.STATE_BUFFERING</code></a> instead.</span></div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.ExoPlayer.STATE_BUFFERING">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-<a name="STATE_READY">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>STATE_READY</h4>
-<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
-static final&nbsp;int STATE_READY</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/Player.html#STATE_READY"><code>Player.STATE_READY</code></a> instead.</span></div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.ExoPlayer.STATE_READY">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-<a name="STATE_ENDED">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>STATE_ENDED</h4>
-<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
-static final&nbsp;int STATE_ENDED</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/Player.html#STATE_ENDED"><code>Player.STATE_ENDED</code></a> instead.</span></div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.ExoPlayer.STATE_ENDED">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-<a name="REPEAT_MODE_OFF">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>REPEAT_MODE_OFF</h4>
-<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
- <a href="../../../../com/google/android/exoplayer2/Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">@Player.RepeatMode</a>
-static final&nbsp;int REPEAT_MODE_OFF</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/Player.html#REPEAT_MODE_OFF"><code>Player.REPEAT_MODE_OFF</code></a> instead.</span></div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.ExoPlayer.REPEAT_MODE_OFF">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-<a name="REPEAT_MODE_ONE">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>REPEAT_MODE_ONE</h4>
-<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
- <a href="../../../../com/google/android/exoplayer2/Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">@Player.RepeatMode</a>
-static final&nbsp;int REPEAT_MODE_ONE</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/Player.html#REPEAT_MODE_ONE"><code>Player.REPEAT_MODE_ONE</code></a> instead.</span></div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.ExoPlayer.REPEAT_MODE_ONE">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-<a name="REPEAT_MODE_ALL">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>REPEAT_MODE_ALL</h4>
-<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
- <a href="../../../../com/google/android/exoplayer2/Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">@Player.RepeatMode</a>
-static final&nbsp;int REPEAT_MODE_ALL</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/Player.html#REPEAT_MODE_ALL"><code>Player.REPEAT_MODE_ALL</code></a> instead.</span></div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.ExoPlayer.REPEAT_MODE_ALL">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-</li>
-</ul>
 <!-- ============ METHOD DETAIL ========== -->
 <ul class="blockList">
 <li class="blockList"><a name="method.detail">
@@ -554,10 +374,7 @@ static final&nbsp;int REPEAT_MODE_ALL</pre>
 <h4>prepare</h4>
 <pre>void&nbsp;prepare(<a href="../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource)</pre>
 <div class="block">Prepares the player to play the provided <a href="../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a>. Equivalent to
- <code>prepare(mediaSource, true, true)</code>.
- <p>
- Note: <a href="../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> instances are not designed to be re-used. If you want to prepare a
- player more than once with the same piece of media, use a new instance each time.</div>
+ <code>prepare(mediaSource, true, true)</code>.</div>
 </li>
 </ul>
 <a name="prepare-com.google.android.exoplayer2.source.MediaSource-boolean-boolean-">
@@ -570,10 +387,7 @@ static final&nbsp;int REPEAT_MODE_ALL</pre>
              boolean&nbsp;resetPosition,
              boolean&nbsp;resetState)</pre>
 <div class="block">Prepares the player to play the provided <a href="../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a>, optionally resetting the playback
- position the default position in the first <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a>.
- <p>
- Note: <a href="../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> instances are not designed to be re-used. If you want to prepare a
- player more than once with the same piece of media, use a new instance each time.</div>
+ position the default position in the first <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mediaSource</code> - The <a href="../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> to play.</dd>
@@ -628,7 +442,7 @@ void&nbsp;blockingSendMessages(<a href="../../../../com/google/android/exoplayer
 <ul class="blockList">
 <li class="blockList">
 <h4>setSeekParameters</h4>
-<pre>void&nbsp;setSeekParameters(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>void&nbsp;setSeekParameters(@Nullable
                        <a href="../../../../com/google/android/exoplayer2/SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a>&nbsp;seekParameters)</pre>
 <div class="block">Sets the parameters that control how seek operations are performed.</div>
 <dl>
@@ -640,11 +454,48 @@ void&nbsp;blockingSendMessages(<a href="../../../../com/google/android/exoplayer
 <a name="getSeekParameters--">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>getSeekParameters</h4>
 <pre><a href="../../../../com/google/android/exoplayer2/SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a>&nbsp;getSeekParameters()</pre>
 <div class="block">Returns the currently active <a href="../../../../com/google/android/exoplayer2/SeekParameters.html" title="class in com.google.android.exoplayer2"><code>SeekParameters</code></a> of the player.</div>
+</li>
+</ul>
+<a name="setForegroundMode-boolean-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>setForegroundMode</h4>
+<pre>void&nbsp;setForegroundMode(boolean&nbsp;foregroundMode)</pre>
+<div class="block">Sets whether the player is allowed to keep holding limited resources such as video decoders,
+ even when in the idle state. By doing so, the player may be able to reduce latency when
+ starting to play another piece of content for which the same resources are required.
+
+ <p>This mode should be used with caution, since holding limited resources may prevent other
+ players of media components from acquiring them. It should only be enabled when <em>both</em>
+ of the following conditions are true:
+
+ <ul>
+   <li>The application that owns the player is in the foreground.
+   <li>The player is used in a way that may benefit from foreground mode. For this to be true,
+       the same player instance must be used to play multiple pieces of content, and there must
+       be gaps between the playbacks (i.e. <a href="../../../../com/google/android/exoplayer2/Player.html#stop--"><code>Player.stop()</code></a> is called to halt one playback, and
+       <a href="../../../../com/google/android/exoplayer2/ExoPlayer.html#prepare-com.google.android.exoplayer2.source.MediaSource-"><code>prepare(com.google.android.exoplayer2.source.MediaSource)</code></a> is called some time later to start a new one).
+ </ul>
+
+ <p>Note that foreground mode is <em>not</em> useful for switching between content without gaps
+ between the playbacks. For this use case <a href="../../../../com/google/android/exoplayer2/Player.html#stop--"><code>Player.stop()</code></a> does not need to be called, and simply
+ calling <a href="../../../../com/google/android/exoplayer2/ExoPlayer.html#prepare-com.google.android.exoplayer2.source.MediaSource-"><code>prepare(com.google.android.exoplayer2.source.MediaSource)</code></a> for the new media will cause limited resources to be retained even if
+ foreground mode is not enabled.
+
+ <p>If foreground mode is enabled, it's the application's responsibility to disable it when the
+ conditions described above no longer hold.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>foregroundMode</code> - Whether the player is allowed to keep limited resources even when in the
+     idle state.</dd>
+</dl>
 </li>
 </ul>
 </li>
@@ -675,7 +526,7 @@ void&nbsp;blockingSendMessages(<a href="../../../../com/google/android/exoplayer
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.Type.html" title="annotation in com.google.android.exoplayer2"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../com/google/android/exoplayer2/ExoPlayer.EventListener.html" title="interface in com.google.android.exoplayer2"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../com/google/android/exoplayer2/ExoPlayer.ExoPlayerComponent.html" title="interface in com.google.android.exoplayer2"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../index.html?com/google/android/exoplayer2/ExoPlayer.html" target="_top">Frames</a></li>
@@ -700,13 +551,13 @@ void&nbsp;blockingSendMessages(<a href="../../../../com/google/android/exoplayer
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
-<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>

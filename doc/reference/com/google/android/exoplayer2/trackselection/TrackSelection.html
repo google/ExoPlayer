@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6,"i15":6,"i16":50,"i17":18};
+var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6,"i15":18,"i16":6,"i17":50,"i18":18};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -46,8 +46,8 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/trackselection/RandomTrackSelection.Factory.html" title="class in com.google.android.exoplayer2.trackselection"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Factory.html" title="interface in com.google.android.exoplayer2.trackselection"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackBitrateEstimator.html" title="interface in com.google.android.exoplayer2.trackselection"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/trackselection/TrackSelection.html" target="_top">Frames</a></li>
@@ -106,8 +106,9 @@ var activeTableTab = "activeTableTab";
 <div class="block">A track selection consisting of a static subset of selected tracks belonging to a <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>, and a possibly varying individual selected track from the subset.
 
  <p>Tracks belonging to the subset are exposed in decreasing bandwidth order. The individual
- selected track may change as a result of calling <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-"><code>updateSelectedTrack(long, long, long,
- List, MediaChunkIterator[])</code></a>.</div>
+ selected track may change dynamically as a result of calling <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-"><code>updateSelectedTrack(long,
+ long, long, List, MediaChunkIterator[])</code></a> or <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#evaluateQueueSize-long-java.util.List-"><code>evaluateQueueSize(long, List)</code></a>. This only
+ happens between calls to <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#enable--"><code>enable()</code></a> and <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#disable--"><code>disable()</code></a>.</div>
 </li>
 </ul>
 </div>
@@ -127,6 +128,12 @@ var activeTableTab = "activeTableTab";
 <th class="colLast" scope="col">Interface and Description</th>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelection.Definition</a></span></code>
+<div class="block">Contains of a subset of selected tracks belonging to a <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Factory.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection.Factory</a></span></code>
 <div class="block">Factory for <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>TrackSelection</code></a> instances.</div>
@@ -243,12 +250,18 @@ var activeTableTab = "activeTableTab";
 </td>
 </tr>
 <tr id="i15" class="rowColor">
+<td class="colFirst"><code>default void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#onDiscontinuity--">onDiscontinuity</a></span>()</code>
+<div class="block">Called to notify the selection of a position discontinuity.</div>
+</td>
+</tr>
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#onPlaybackSpeed-float-">onPlaybackSpeed</a></span>(float&nbsp;speed)</code>
 <div class="block">Called to notify the selection of the current playback speed.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-">updateSelectedTrack</a></span>(long&nbsp;playbackPositionUs,
                    long&nbsp;bufferedDurationUs,
@@ -259,7 +272,7 @@ var activeTableTab = "activeTableTab";
 </div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-">updateSelectedTrack</a></span>(long&nbsp;playbackPositionUs,
                    long&nbsp;bufferedDurationUs,
@@ -291,9 +304,11 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <h4>enable</h4>
 <pre>void&nbsp;enable()</pre>
-<div class="block">Enables the track selection.
- <p>
- This method may not be called when the track selection is already enabled.</div>
+<div class="block">Enables the track selection. Dynamic changes via <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-"><code>updateSelectedTrack(long, long, long,
+ List, MediaChunkIterator[])</code></a> or <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#evaluateQueueSize-long-java.util.List-"><code>evaluateQueueSize(long, List)</code></a> will only happen after
+ this call.
+
+ <p>This method may not be called when the track selection is already enabled.</div>
 </li>
 </ul>
 <a name="disable--">
@@ -303,9 +318,11 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <h4>disable</h4>
 <pre>void&nbsp;disable()</pre>
-<div class="block">Disables this track selection.
- <p>
- This method may only be called when the track selection is already enabled.</div>
+<div class="block">Disables this track selection. No further dynamic changes via <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-"><code>updateSelectedTrack(long,
+ long, long, List, MediaChunkIterator[])</code></a> or <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#evaluateQueueSize-long-java.util.List-"><code>evaluateQueueSize(long, List)</code></a> will happen
+ after this call.
+
+ <p>This method may only be called when the track selection is already enabled.</div>
 </li>
 </ul>
 <a name="getTrackGroup--">
@@ -442,7 +459,7 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>getSelectionData</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>@Nullable
 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;getSelectionData()</pre>
 <div class="block">Returns optional data associated with the current track selection.</div>
 </li>
@@ -460,6 +477,18 @@ var activeTableTab = "activeTableTab";
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>speed</code> - The playback speed.</dd>
 </dl>
+</li>
+</ul>
+<a name="onDiscontinuity--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onDiscontinuity</h4>
+<pre>default&nbsp;void&nbsp;onDiscontinuity()</pre>
+<div class="block">Called to notify the selection of a position discontinuity.
+
+ <p>This happens when the playback position jumps, e.g., as a result of a seek being performed.</div>
 </li>
 </ul>
 <a name="updateSelectedTrack-long-long-long-">
@@ -594,8 +623,8 @@ default&nbsp;void&nbsp;updateSelectedTrack(long&nbsp;playbackPositionUs,
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/trackselection/RandomTrackSelection.Factory.html" title="class in com.google.android.exoplayer2.trackselection"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Factory.html" title="interface in com.google.android.exoplayer2.trackselection"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackBitrateEstimator.html" title="interface in com.google.android.exoplayer2.trackselection"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/trackselection/TrackSelection.html" target="_top">Frames</a></li>

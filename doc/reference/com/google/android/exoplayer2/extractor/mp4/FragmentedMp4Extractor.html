@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -110,7 +110,7 @@ var activeTableTab = "activeTableTab";
 </dl>
 <hr>
 <br>
-<pre>public final class <span class="typeNameLabel">FragmentedMp4Extractor</span>
+<pre>public class <span class="typeNameLabel">FragmentedMp4Extractor</span>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>
 implements <a href="../../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a></pre>
 <div class="block">Extracts data from the FMP4 container format.</div>
@@ -264,26 +264,30 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/Ex
 </td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html" title="class in com.google.android.exoplayer2.extractor.mp4">Track</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/FragmentedMp4Extractor.html#modifyTrack-com.google.android.exoplayer2.extractor.mp4.Track-">modifyTrack</a></span>(<a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html" title="class in com.google.android.exoplayer2.extractor.mp4">Track</a>&nbsp;track)</code>&nbsp;</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/FragmentedMp4Extractor.html#read-com.google.android.exoplayer2.extractor.ExtractorInput-com.google.android.exoplayer2.extractor.PositionHolder-">read</a></span>(<a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
     <a href="../../../../../../com/google/android/exoplayer2/extractor/PositionHolder.html" title="class in com.google.android.exoplayer2.extractor">PositionHolder</a>&nbsp;seekPosition)</code>
 <div class="block">Extracts data read from a provided <a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a>.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/FragmentedMp4Extractor.html#release--">release</a></span>()</code>
 <div class="block">Releases all kept resources.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/FragmentedMp4Extractor.html#seek-long-long-">seek</a></span>(long&nbsp;position,
     long&nbsp;timeUs)</code>
 <div class="block">Notifies the extractor that a seek has occurred.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/FragmentedMp4Extractor.html#sniff-com.google.android.exoplayer2.extractor.ExtractorInput-">sniff</a></span>(<a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input)</code>
 <div class="block">Returns whether this extractor can extract samples from the <a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a>, which must
@@ -422,7 +426,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/Ex
 <h4>FragmentedMp4Extractor</h4>
 <pre>public&nbsp;FragmentedMp4Extractor(<a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/FragmentedMp4Extractor.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.mp4">@FragmentedMp4Extractor.Flags</a>
                               int&nbsp;flags,
-                              <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                              @Nullable
                               <a href="../../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html" title="class in com.google.android.exoplayer2.util">TimestampAdjuster</a>&nbsp;timestampAdjuster)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -439,11 +443,11 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/Ex
 <h4>FragmentedMp4Extractor</h4>
 <pre>public&nbsp;FragmentedMp4Extractor(<a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/FragmentedMp4Extractor.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.mp4">@FragmentedMp4Extractor.Flags</a>
                               int&nbsp;flags,
-                              <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                              @Nullable
                               <a href="../../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html" title="class in com.google.android.exoplayer2.util">TimestampAdjuster</a>&nbsp;timestampAdjuster,
-                              <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                              @Nullable
                               <a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html" title="class in com.google.android.exoplayer2.extractor.mp4">Track</a>&nbsp;sideloadedTrack,
-                              <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                              @Nullable
                               <a href="../../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;sideloadedDrmInitData)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -464,11 +468,11 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/Ex
 <h4>FragmentedMp4Extractor</h4>
 <pre>public&nbsp;FragmentedMp4Extractor(<a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/FragmentedMp4Extractor.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.mp4">@FragmentedMp4Extractor.Flags</a>
                               int&nbsp;flags,
-                              <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                              @Nullable
                               <a href="../../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html" title="class in com.google.android.exoplayer2.util">TimestampAdjuster</a>&nbsp;timestampAdjuster,
-                              <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                              @Nullable
                               <a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html" title="class in com.google.android.exoplayer2.extractor.mp4">Track</a>&nbsp;sideloadedTrack,
-                              <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                              @Nullable
                               <a href="../../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;sideloadedDrmInitData,
                               <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&gt;&nbsp;closedCaptionFormats)</pre>
 <dl>
@@ -492,14 +496,14 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/Ex
 <h4>FragmentedMp4Extractor</h4>
 <pre>public&nbsp;FragmentedMp4Extractor(<a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/FragmentedMp4Extractor.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.mp4">@FragmentedMp4Extractor.Flags</a>
                               int&nbsp;flags,
-                              <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                              @Nullable
                               <a href="../../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html" title="class in com.google.android.exoplayer2.util">TimestampAdjuster</a>&nbsp;timestampAdjuster,
-                              <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                              @Nullable
                               <a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html" title="class in com.google.android.exoplayer2.extractor.mp4">Track</a>&nbsp;sideloadedTrack,
-                              <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                              @Nullable
                               <a href="../../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;sideloadedDrmInitData,
                               <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&gt;&nbsp;closedCaptionFormats,
-                              <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                              @Nullable
                               <a href="../../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a>&nbsp;additionalEmsgTrackOutput)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -611,7 +615,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/Ex
 <a name="read-com.google.android.exoplayer2.extractor.ExtractorInput-com.google.android.exoplayer2.extractor.PositionHolder-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>read</h4>
 <pre>public&nbsp;int&nbsp;read(<a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
@@ -642,6 +646,17 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/Ex
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code> - If an error occurred reading from the input.</dd>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></code> - If the thread was interrupted.</dd>
 </dl>
+</li>
+</ul>
+<a name="modifyTrack-com.google.android.exoplayer2.extractor.mp4.Track-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>modifyTrack</h4>
+<pre>@Nullable
+protected&nbsp;<a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html" title="class in com.google.android.exoplayer2.extractor.mp4">Track</a>&nbsp;modifyTrack(@Nullable
+                                      <a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html" title="class in com.google.android.exoplayer2.extractor.mp4">Track</a>&nbsp;track)</pre>
 </li>
 </ul>
 </li>

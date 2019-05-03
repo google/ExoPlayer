@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var methods = {"i0":10,"i1":42,"i2":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -186,18 +186,26 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/media/MediaCodec.CryptoInfo.html" target="_top" title="class or interface in android.media">MediaCodec.CryptoInfo</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/CryptoInfo.html#getFrameworkCryptoInfoV16--">getFrameworkCryptoInfoV16</a></span>()</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/CryptoInfo.html#getFrameworkCryptoInfo--">getFrameworkCryptoInfo</a></span>()</code>
 <div class="block">Returns an equivalent <a href="https://developer.android.com/reference/android/media/MediaCodec.CryptoInfo.html" target="_top" title="class or interface in android.media"><code>MediaCodec.CryptoInfo</code></a> instance.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/media/MediaCodec.CryptoInfo.html" target="_top" title="class or interface in android.media">MediaCodec.CryptoInfo</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/CryptoInfo.html#getFrameworkCryptoInfoV16--">getFrameworkCryptoInfoV16</a></span>()</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/decoder/CryptoInfo.html#getFrameworkCryptoInfo--"><code>getFrameworkCryptoInfo()</code></a>.</span></div>
+</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/CryptoInfo.html#set-int-int:A-int:A-byte:A-byte:A-int-int-int-">set</a></span>(int&nbsp;numSubSamples,
    int[]&nbsp;numBytesOfClearData,
@@ -381,22 +389,33 @@ public&nbsp;int mode</pre>
 </dl>
 </li>
 </ul>
+<a name="getFrameworkCryptoInfo--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getFrameworkCryptoInfo</h4>
+<pre>public&nbsp;<a href="https://developer.android.com/reference/android/media/MediaCodec.CryptoInfo.html" target="_top" title="class or interface in android.media">MediaCodec.CryptoInfo</a>&nbsp;getFrameworkCryptoInfo()</pre>
+<div class="block">Returns an equivalent <a href="https://developer.android.com/reference/android/media/MediaCodec.CryptoInfo.html" target="_top" title="class or interface in android.media"><code>MediaCodec.CryptoInfo</code></a> instance.
+
+ <p>Successive calls to this method on a single <a href="../../../../../com/google/android/exoplayer2/decoder/CryptoInfo.html" title="class in com.google.android.exoplayer2.decoder"><code>CryptoInfo</code></a> will return the same
+ instance. Changes to the <a href="../../../../../com/google/android/exoplayer2/decoder/CryptoInfo.html" title="class in com.google.android.exoplayer2.decoder"><code>CryptoInfo</code></a> will be reflected in the returned object. The
+ return object should not be modified directly.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The equivalent <a href="https://developer.android.com/reference/android/media/MediaCodec.CryptoInfo.html" target="_top" title="class or interface in android.media"><code>MediaCodec.CryptoInfo</code></a> instance.</dd>
+</dl>
+</li>
+</ul>
 <a name="getFrameworkCryptoInfoV16--">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getFrameworkCryptoInfoV16</h4>
-<pre>public&nbsp;<a href="https://developer.android.com/reference/android/media/MediaCodec.CryptoInfo.html" target="_top" title="class or interface in android.media">MediaCodec.CryptoInfo</a>&nbsp;getFrameworkCryptoInfoV16()</pre>
-<div class="block">Returns an equivalent <a href="https://developer.android.com/reference/android/media/MediaCodec.CryptoInfo.html" target="_top" title="class or interface in android.media"><code>MediaCodec.CryptoInfo</code></a> instance.
- <p>
- Successive calls to this method on a single <a href="../../../../../com/google/android/exoplayer2/decoder/CryptoInfo.html" title="class in com.google.android.exoplayer2.decoder"><code>CryptoInfo</code></a> will return the same instance.
- Changes to the <a href="../../../../../com/google/android/exoplayer2/decoder/CryptoInfo.html" title="class in com.google.android.exoplayer2.decoder"><code>CryptoInfo</code></a> will be reflected in the returned object. The return object
- should not be modified directly.</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The equivalent <a href="https://developer.android.com/reference/android/media/MediaCodec.CryptoInfo.html" target="_top" title="class or interface in android.media"><code>MediaCodec.CryptoInfo</code></a> instance.</dd>
-</dl>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;<a href="https://developer.android.com/reference/android/media/MediaCodec.CryptoInfo.html" target="_top" title="class or interface in android.media">MediaCodec.CryptoInfo</a>&nbsp;getFrameworkCryptoInfoV16()</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/decoder/CryptoInfo.html#getFrameworkCryptoInfo--"><code>getFrameworkCryptoInfo()</code></a>.</span></div>
 </li>
 </ul>
 </li>

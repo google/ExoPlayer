@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6};
+var methods = {"i0":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -98,11 +98,11 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Known Subinterfaces:</dt>
-<dd><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.PlaybackController.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.PlaybackController</a>, <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.PlaybackPreparer.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.PlaybackPreparer</a>, <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.QueueEditor.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueEditor</a>, <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.QueueNavigator.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueNavigator</a>, <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.RatingCallback.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.RatingCallback</a></dd>
+<dd><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.PlaybackPreparer.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.PlaybackPreparer</a>, <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.QueueEditor.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueEditor</a>, <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.QueueNavigator.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueNavigator</a>, <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.RatingCallback.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.RatingCallback</a></dd>
 </dl>
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/DefaultPlaybackController.html" title="class in com.google.android.exoplayer2.ext.mediasession">DefaultPlaybackController</a>, <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueEditor.html" title="class in com.google.android.exoplayer2.ext.mediasession">TimelineQueueEditor</a>, <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueNavigator.html" title="class in com.google.android.exoplayer2.ext.mediasession">TimelineQueueNavigator</a></dd>
+<dd><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueEditor.html" title="class in com.google.android.exoplayer2.ext.mediasession">TimelineQueueEditor</a>, <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueNavigator.html" title="class in com.google.android.exoplayer2.ext.mediasession">TimelineQueueNavigator</a></dd>
 </dl>
 <dl>
 <dt>Enclosing class:</dt>
@@ -131,14 +131,9 @@ var activeTableTab = "activeTableTab";
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>[]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CommandReceiver.html#getCommands--">getCommands</a></span>()</code>
-<div class="block">Returns the commands the receiver handles, or <code>null</code> if no commands need to be handled.</div>
-</td>
-</tr>
-<tr id="i1" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CommandReceiver.html#onCommand-com.google.android.exoplayer2.Player-java.lang.String-android.os.Bundle-android.os.ResultReceiver-">onCommand</a></span>(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CommandReceiver.html#onCommand-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.ControlDispatcher-java.lang.String-android.os.Bundle-android.os.ResultReceiver-">onCommand</a></span>(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+         <a href="../../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher,
          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;command,
          <a href="https://developer.android.com/reference/android/os/Bundle.html" target="_top" title="class or interface in android.os">Bundle</a>&nbsp;extras,
          <a href="https://developer.android.com/reference/android/os/ResultReceiver.html" target="_top" title="class or interface in android.os">ResultReceiver</a>&nbsp;cb)</code>
@@ -160,27 +155,31 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="getCommands--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getCommands</h4>
-<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>[]&nbsp;getCommands()</pre>
-<div class="block">Returns the commands the receiver handles, or <code>null</code> if no commands need to be handled.</div>
-</li>
-</ul>
-<a name="onCommand-com.google.android.exoplayer2.Player-java.lang.String-android.os.Bundle-android.os.ResultReceiver-">
+<a name="onCommand-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.ControlDispatcher-java.lang.String-android.os.Bundle-android.os.ResultReceiver-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>onCommand</h4>
-<pre>void&nbsp;onCommand(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
-               <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;command,
-               <a href="https://developer.android.com/reference/android/os/Bundle.html" target="_top" title="class or interface in android.os">Bundle</a>&nbsp;extras,
-               <a href="https://developer.android.com/reference/android/os/ResultReceiver.html" target="_top" title="class or interface in android.os">ResultReceiver</a>&nbsp;cb)</pre>
-<div class="block">See <code>MediaSessionCompat.Callback#onCommand(String, Bundle, ResultReceiver)</code>.</div>
+<pre>boolean&nbsp;onCommand(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                  <a href="../../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher,
+                  <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;command,
+                  <a href="https://developer.android.com/reference/android/os/Bundle.html" target="_top" title="class or interface in android.os">Bundle</a>&nbsp;extras,
+                  <a href="https://developer.android.com/reference/android/os/ResultReceiver.html" target="_top" title="class or interface in android.os">ResultReceiver</a>&nbsp;cb)</pre>
+<div class="block">See <code>MediaSessionCompat.Callback#onCommand(String, Bundle, ResultReceiver)</code>. The
+ receiver may handle the command, but is not required to do so. Changes to the player should
+ be made via the <a href="../../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>player</code> - The player connected to the media session.</dd>
+<dd><code>controlDispatcher</code> - A <a href="../../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a> that should be used for dispatching
+     changes to the player.</dd>
+<dd><code>command</code> - The command name.</dd>
+<dd><code>extras</code> - Optional parameters for the command, may be null.</dd>
+<dd><code>cb</code> - A result receiver to which a result may be sent by the command, may be null.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Whether the receiver handled the command.</dd>
+</dl>
 </li>
 </ul>
 </li>

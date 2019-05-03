@@ -302,7 +302,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>licenseServerUrl</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>@Nullable
 public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> licenseServerUrl</pre>
 <div class="block">The URL of the server to which license requests should be made. May be null if unknown.</div>
 </li>
@@ -323,7 +323,8 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <ul class="blockList">
 <li class="blockList">
 <h4>data</h4>
-<pre>public final&nbsp;byte[] data</pre>
+<pre>@Nullable
+public final&nbsp;byte[] data</pre>
 <div class="block">The initialization data. May be null for scheme support checks only.</div>
 </li>
 </ul>
@@ -362,6 +363,7 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <h4>SchemeData</h4>
 <pre>public&nbsp;SchemeData(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mimeType,
+                  @Nullable
                   byte[]&nbsp;data)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -380,6 +382,7 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <h4>SchemeData</h4>
 <pre>public&nbsp;SchemeData(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mimeType,
+                  @Nullable
                   byte[]&nbsp;data,
                   boolean&nbsp;requiresSecureDecryption)</pre>
 <dl>
@@ -399,9 +402,10 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <li class="blockList">
 <h4>SchemeData</h4>
 <pre>public&nbsp;SchemeData(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
-                  <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                  @Nullable
                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;licenseServerUrl,
                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mimeType,
+                  @Nullable
                   byte[]&nbsp;data,
                   boolean&nbsp;requiresSecureDecryption)</pre>
 <dl>
@@ -471,7 +475,7 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <ul class="blockList">
 <li class="blockList">
 <h4>copyWithData</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData.SchemeData</a>&nbsp;copyWithData(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData.SchemeData</a>&nbsp;copyWithData(@Nullable
                                            byte[]&nbsp;data)</pre>
 <div class="block">Returns a copy of this instance with the specified data.</div>
 <dl>
@@ -488,7 +492,7 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <ul class="blockList">
 <li class="blockList">
 <h4>equals</h4>
-<pre>public&nbsp;boolean&nbsp;equals(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>public&nbsp;boolean&nbsp;equals(@Nullable
                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;obj)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>

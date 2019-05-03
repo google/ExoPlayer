@@ -46,8 +46,8 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/FilteringHlsPlaylistParserFactory.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Rendition.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../../index.html?com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html" target="_top">Frames</a></li>
@@ -138,8 +138,14 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/hls/p
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.HlsUrl</a></span></code>
-<div class="block">Represents a url in an HLS master playlist.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Rendition.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.Rendition</a></span></code>
+<div class="block">A rendition (i.e.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Variant.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.Variant</a></span></code>
+<div class="block">A variant (i.e.</div>
 </td>
 </tr>
 </table>
@@ -158,28 +164,40 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/hls/p
 <th class="colLast" scope="col">Field and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.HlsUrl</a>&gt;</code></td>
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Rendition.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.Rendition</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html#audios">audios</a></span></code>
-<div class="block">The list of demuxed audios declared by the playlist.</div>
+<div class="block">The audio renditions declared by the playlist.</div>
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Rendition.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.Rendition</a>&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html#closedCaptions">closedCaptions</a></span></code>
+<div class="block">The closed caption renditions declared by the playlist.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>static <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html#EMPTY">EMPTY</a></span></code>
 <div class="block">Represents an empty master playlist, from which no attributes can be inherited.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html#GROUP_INDEX_AUDIO">GROUP_INDEX_AUDIO</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html#GROUP_INDEX_SUBTITLE">GROUP_INDEX_SUBTITLE</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html#GROUP_INDEX_VARIANT">GROUP_INDEX_VARIANT</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html#mediaPlaylistUrls">mediaPlaylistUrls</a></span></code>
+<div class="block">All of the media playlist URLs referenced by the playlist.</div>
+</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
@@ -194,21 +212,33 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/hls/p
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.HlsUrl</a>&gt;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html#subtitles">subtitles</a></span></code>
-<div class="block">The list of subtitles declared by the playlist.</div>
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html#sessionKeyDrmInitData">sessionKeyDrmInitData</a></span></code>
+<div class="block">DRM initialization data derived from #EXT-X-SESSION-KEY tags.</div>
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Rendition.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.Rendition</a>&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html#subtitles">subtitles</a></span></code>
+<div class="block">The subtitle renditions declared by the playlist.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html#variableDefinitions">variableDefinitions</a></span></code>
 <div class="block">Contains variable definitions, as defined by the #EXT-X-DEFINE tag.</div>
 </td>
 </tr>
-<tr class="rowColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.HlsUrl</a>&gt;</code></td>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Variant.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.Variant</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html#variants">variants</a></span></code>
-<div class="block">The list of variants declared by the playlist.</div>
+<div class="block">The variants declared by the playlist.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Rendition.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.Rendition</a>&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html#videos">videos</a></span></code>
+<div class="block">The video renditions declared by the playlist.</div>
 </td>
 </tr>
 </table>
@@ -233,15 +263,18 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/hls/p
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html#HlsMasterPlaylist-java.lang.String-java.util.List-java.util.List-java.util.List-java.util.List-com.google.android.exoplayer2.Format-java.util.List-boolean-java.util.Map-">HlsMasterPlaylist</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;baseUri,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html#HlsMasterPlaylist-java.lang.String-java.util.List-java.util.List-java.util.List-java.util.List-java.util.List-java.util.List-com.google.android.exoplayer2.Format-java.util.List-boolean-java.util.Map-java.util.List-">HlsMasterPlaylist</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;baseUri,
                  <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;tags,
-                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.HlsUrl</a>&gt;&nbsp;variants,
-                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.HlsUrl</a>&gt;&nbsp;audios,
-                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.HlsUrl</a>&gt;&nbsp;subtitles,
+                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Variant.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.Variant</a>&gt;&nbsp;variants,
+                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Rendition.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.Rendition</a>&gt;&nbsp;videos,
+                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Rendition.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.Rendition</a>&gt;&nbsp;audios,
+                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Rendition.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.Rendition</a>&gt;&nbsp;subtitles,
+                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Rendition.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.Rendition</a>&gt;&nbsp;closedCaptions,
                  <a href="../../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;muxedAudioFormat,
                  <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&gt;&nbsp;muxedCaptionFormats,
                  boolean&nbsp;hasIndependentSegments,
-                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;variableDefinitions)</code>&nbsp;</td>
+                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;variableDefinitions,
+                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&gt;&nbsp;sessionKeyDrmInitData)</code>&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -341,14 +374,34 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/hls/p
 </dl>
 </li>
 </ul>
+<a name="mediaPlaylistUrls">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>mediaPlaylistUrls</h4>
+<pre>public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&gt; mediaPlaylistUrls</pre>
+<div class="block">All of the media playlist URLs referenced by the playlist.</div>
+</li>
+</ul>
 <a name="variants">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>variants</h4>
-<pre>public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.HlsUrl</a>&gt; variants</pre>
-<div class="block">The list of variants declared by the playlist.</div>
+<pre>public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Variant.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.Variant</a>&gt; variants</pre>
+<div class="block">The variants declared by the playlist.</div>
+</li>
+</ul>
+<a name="videos">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>videos</h4>
+<pre>public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Rendition.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.Rendition</a>&gt; videos</pre>
+<div class="block">The video renditions declared by the playlist.</div>
 </li>
 </ul>
 <a name="audios">
@@ -357,8 +410,8 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/hls/p
 <ul class="blockList">
 <li class="blockList">
 <h4>audios</h4>
-<pre>public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.HlsUrl</a>&gt; audios</pre>
-<div class="block">The list of demuxed audios declared by the playlist.</div>
+<pre>public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Rendition.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.Rendition</a>&gt; audios</pre>
+<div class="block">The audio renditions declared by the playlist.</div>
 </li>
 </ul>
 <a name="subtitles">
@@ -367,8 +420,18 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/hls/p
 <ul class="blockList">
 <li class="blockList">
 <h4>subtitles</h4>
-<pre>public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.HlsUrl</a>&gt; subtitles</pre>
-<div class="block">The list of subtitles declared by the playlist.</div>
+<pre>public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Rendition.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.Rendition</a>&gt; subtitles</pre>
+<div class="block">The subtitle renditions declared by the playlist.</div>
+</li>
+</ul>
+<a name="closedCaptions">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>closedCaptions</h4>
+<pre>public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Rendition.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.Rendition</a>&gt; closedCaptions</pre>
+<div class="block">The closed caption renditions declared by the playlist.</div>
 </li>
 </ul>
 <a name="muxedAudioFormat">
@@ -397,11 +460,21 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/hls/p
 <a name="variableDefinitions">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>variableDefinitions</h4>
 <pre>public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt; variableDefinitions</pre>
 <div class="block">Contains variable definitions, as defined by the #EXT-X-DEFINE tag.</div>
+</li>
+</ul>
+<a name="sessionKeyDrmInitData">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>sessionKeyDrmInitData</h4>
+<pre>public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&gt; sessionKeyDrmInitData</pre>
+<div class="block">DRM initialization data derived from #EXT-X-SESSION-KEY tags.</div>
 </li>
 </ul>
 </li>
@@ -412,7 +485,7 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/hls/p
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="HlsMasterPlaylist-java.lang.String-java.util.List-java.util.List-java.util.List-java.util.List-com.google.android.exoplayer2.Format-java.util.List-boolean-java.util.Map-">
+<a name="HlsMasterPlaylist-java.lang.String-java.util.List-java.util.List-java.util.List-java.util.List-java.util.List-java.util.List-com.google.android.exoplayer2.Format-java.util.List-boolean-java.util.Map-java.util.List-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -420,24 +493,30 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/hls/p
 <h4>HlsMasterPlaylist</h4>
 <pre>public&nbsp;HlsMasterPlaylist(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;baseUri,
                          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;tags,
-                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.HlsUrl</a>&gt;&nbsp;variants,
-                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.HlsUrl</a>&gt;&nbsp;audios,
-                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.HlsUrl</a>&gt;&nbsp;subtitles,
+                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Variant.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.Variant</a>&gt;&nbsp;variants,
+                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Rendition.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.Rendition</a>&gt;&nbsp;videos,
+                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Rendition.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.Rendition</a>&gt;&nbsp;audios,
+                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Rendition.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.Rendition</a>&gt;&nbsp;subtitles,
+                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Rendition.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.Rendition</a>&gt;&nbsp;closedCaptions,
                          <a href="../../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;muxedAudioFormat,
                          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&gt;&nbsp;muxedCaptionFormats,
                          boolean&nbsp;hasIndependentSegments,
-                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;variableDefinitions)</pre>
+                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;variableDefinitions,
+                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&gt;&nbsp;sessionKeyDrmInitData)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>baseUri</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html#baseUri"><code>HlsPlaylist.baseUri</code></a>.</dd>
 <dd><code>tags</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html#tags"><code>HlsPlaylist.tags</code></a>.</dd>
 <dd><code>variants</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html#variants"><code>variants</code></a>.</dd>
+<dd><code>videos</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html#videos"><code>videos</code></a>.</dd>
 <dd><code>audios</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html#audios"><code>audios</code></a>.</dd>
 <dd><code>subtitles</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html#subtitles"><code>subtitles</code></a>.</dd>
+<dd><code>closedCaptions</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html#closedCaptions"><code>closedCaptions</code></a>.</dd>
 <dd><code>muxedAudioFormat</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html#muxedAudioFormat"><code>muxedAudioFormat</code></a>.</dd>
 <dd><code>muxedCaptionFormats</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html#muxedCaptionFormats"><code>muxedCaptionFormats</code></a>.</dd>
 <dd><code>hasIndependentSegments</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html#hasIndependentSegments"><code>HlsPlaylist.hasIndependentSegments</code></a>.</dd>
 <dd><code>variableDefinitions</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html#variableDefinitions"><code>variableDefinitions</code></a>.</dd>
+<dd><code>sessionKeyDrmInitData</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html#sessionKeyDrmInitData"><code>sessionKeyDrmInitData</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -510,8 +589,8 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/hls/p
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/FilteringHlsPlaylistParserFactory.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Rendition.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../../index.html?com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html" target="_top">Frames</a></li>

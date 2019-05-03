@@ -169,20 +169,20 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/ts
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_IGNORE_AAC_STREAM">FLAG_IGNORE_AAC_STREAM</a></span></code>
-<div class="block">Prevents the creation of <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/AdtsReader.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>AdtsReader</code></a> and <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/LatmReader.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>LatmReader</code></a> instances.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_ENABLE_HDMV_DTS_AUDIO_STREAMS">FLAG_ENABLE_HDMV_DTS_AUDIO_STREAMS</a></span></code>
+<div class="block">Sets whether HDMV DTS audio streams will be handled.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_IGNORE_H264_STREAM">FLAG_IGNORE_H264_STREAM</a></span></code>
-<div class="block">Prevents the creation of <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/H264Reader.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>H264Reader</code></a> instances.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_IGNORE_AAC_STREAM">FLAG_IGNORE_AAC_STREAM</a></span></code>
+<div class="block">Prevents the creation of <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/AdtsReader.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>AdtsReader</code></a> and <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/LatmReader.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>LatmReader</code></a> instances.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_IGNORE_HDMV_DTS_STREAM">FLAG_IGNORE_HDMV_DTS_STREAM</a></span></code>
-<div class="block">Prevents the creation of <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/DtsReader.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>DtsReader</code></a> instances when receiving <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsExtractor.html#TS_STREAM_TYPE_HDMV_DTS"><code>TsExtractor.TS_STREAM_TYPE_HDMV_DTS</code></a> as stream type.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_IGNORE_H264_STREAM">FLAG_IGNORE_H264_STREAM</a></span></code>
+<div class="block">Prevents the creation of <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/H264Reader.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>H264Reader</code></a> instances.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -364,18 +364,18 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/ts
 </dl>
 </li>
 </ul>
-<a name="FLAG_IGNORE_HDMV_DTS_STREAM">
+<a name="FLAG_ENABLE_HDMV_DTS_AUDIO_STREAMS">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>FLAG_IGNORE_HDMV_DTS_STREAM</h4>
-<pre>public static final&nbsp;int FLAG_IGNORE_HDMV_DTS_STREAM</pre>
-<div class="block">Prevents the creation of <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/DtsReader.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>DtsReader</code></a> instances when receiving <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsExtractor.html#TS_STREAM_TYPE_HDMV_DTS"><code>TsExtractor.TS_STREAM_TYPE_HDMV_DTS</code></a> as stream type. Enabling this flag prevents a stream type
- collision between HDMV DTS audio and SCTE-35 subtitles.</div>
+<h4>FLAG_ENABLE_HDMV_DTS_AUDIO_STREAMS</h4>
+<pre>public static final&nbsp;int FLAG_ENABLE_HDMV_DTS_AUDIO_STREAMS</pre>
+<div class="block">Sets whether HDMV DTS audio streams will be handled. If this flag is set, SCTE subtitles will
+ not be detected, as they share the same elementary stream type as HDMV DTS.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.FLAG_IGNORE_HDMV_DTS_STREAM">Constant Field Values</a></dd>
+<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.FLAG_ENABLE_HDMV_DTS_AUDIO_STREAMS">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>

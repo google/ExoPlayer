@@ -274,7 +274,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.html#onBandwidthSample-int-long-long-">onBandwidthSample</a></span>(int&nbsp;elapsedMs,
                  long&nbsp;bytes,
                  long&nbsp;bitrate)</code>
-<div class="block">Called periodically to indicate that bytes have been transferred.</div>
+<div class="block">Called periodically to indicate that bytes have been transferred or the estimated bitrate has
+ changed.</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
@@ -576,7 +577,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 <ul class="blockListLast">
 <li class="blockList">
 <h4>AnalyticsCollector</h4>
-<pre>protected&nbsp;AnalyticsCollector(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>protected&nbsp;AnalyticsCollector(@Nullable
                              <a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                              <a href="../../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</pre>
 <div class="block">Creates an analytics collector for the specified player.</div>
@@ -633,7 +634,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 <h4>setPlayer</h4>
 <pre>public&nbsp;void&nbsp;setPlayer(<a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
 <div class="block">Sets the player for which data will be collected. Must only be called if no player has been set
- yet.</div>
+ yet or the current player is idle.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>player</code> - The <a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> for which data will be collected.</dd>
@@ -932,7 +933,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 <ul class="blockList">
 <li class="blockList">
 <h4>onRenderedFirstFrame</h4>
-<pre>public final&nbsp;void&nbsp;onRenderedFirstFrame(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>public final&nbsp;void&nbsp;onRenderedFirstFrame(@Nullable
                                        <a href="https://developer.android.com/reference/android/view/Surface.html" target="_top" title="class or interface in android.view">Surface</a>&nbsp;surface)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html#onRenderedFirstFrame-android.view.Surface-">VideoRendererEventListener</a></code></span></div>
 <div class="block">Called when a frame is rendered for the first time since setting the surface, and when a frame
@@ -1063,7 +1064,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 <li class="blockList">
 <h4>onLoadStarted</h4>
 <pre>public final&nbsp;void&nbsp;onLoadStarted(int&nbsp;windowIndex,
-                                <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                @Nullable
                                 <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
                                 <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.LoadEventInfo</a>&nbsp;loadEventInfo,
                                 <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.MediaLoadData</a>&nbsp;mediaLoadData)</pre>
@@ -1088,7 +1089,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 <li class="blockList">
 <h4>onLoadCompleted</h4>
 <pre>public final&nbsp;void&nbsp;onLoadCompleted(int&nbsp;windowIndex,
-                                  <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                  @Nullable
                                   <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
                                   <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.LoadEventInfo</a>&nbsp;loadEventInfo,
                                   <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.MediaLoadData</a>&nbsp;mediaLoadData)</pre>
@@ -1115,7 +1116,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 <li class="blockList">
 <h4>onLoadCanceled</h4>
 <pre>public final&nbsp;void&nbsp;onLoadCanceled(int&nbsp;windowIndex,
-                                 <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                 @Nullable
                                  <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
                                  <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.LoadEventInfo</a>&nbsp;loadEventInfo,
                                  <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.MediaLoadData</a>&nbsp;mediaLoadData)</pre>
@@ -1142,7 +1143,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 <li class="blockList">
 <h4>onLoadError</h4>
 <pre>public final&nbsp;void&nbsp;onLoadError(int&nbsp;windowIndex,
-                              <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                              @Nullable
                               <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
                               <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.LoadEventInfo</a>&nbsp;loadEventInfo,
                               <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.MediaLoadData</a>&nbsp;mediaLoadData,
@@ -1203,7 +1204,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 <li class="blockList">
 <h4>onUpstreamDiscarded</h4>
 <pre>public final&nbsp;void&nbsp;onUpstreamDiscarded(int&nbsp;windowIndex,
-                                      <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                      @Nullable
                                       <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
                                       <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.MediaLoadData</a>&nbsp;mediaLoadData)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html#onUpstreamDiscarded-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData-">MediaSourceEventListener</a></code></span></div>
@@ -1226,7 +1227,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 <li class="blockList">
 <h4>onDownstreamFormatChanged</h4>
 <pre>public final&nbsp;void&nbsp;onDownstreamFormatChanged(int&nbsp;windowIndex,
-                                            <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                            @Nullable
                                             <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
                                             <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.MediaLoadData</a>&nbsp;mediaLoadData)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html#onDownstreamFormatChanged-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData-">MediaSourceEventListener</a></code></span></div>
@@ -1249,7 +1250,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 <li class="blockList">
 <h4>onTimelineChanged</h4>
 <pre>public final&nbsp;void&nbsp;onTimelineChanged(<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
-                                    <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                    @Nullable
                                     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;manifest,
                                     <a href="../../../../../com/google/android/exoplayer2/Player.TimelineChangeReason.html" title="annotation in com.google.android.exoplayer2">@Player.TimelineChangeReason</a>
                                     int&nbsp;reason)</pre>
@@ -1451,15 +1452,18 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
                                     long&nbsp;bytes,
                                     long&nbsp;bitrate)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.EventListener.html#onBandwidthSample-int-long-long-">BandwidthMeter.EventListener</a></code></span></div>
-<div class="block">Called periodically to indicate that bytes have been transferred.
+<div class="block">Called periodically to indicate that bytes have been transferred or the estimated bitrate has
+ changed.
 
  <p>Note: The estimated bitrate is typically derived from more information than just <code>bytes</code> and <code>elapsedMs</code>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.EventListener.html#onBandwidthSample-int-long-long-">onBandwidthSample</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter.EventListener</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>elapsedMs</code> - The time taken to transfer the bytes, in milliseconds.</dd>
-<dd><code>bytes</code> - The number of bytes transferred.</dd>
+<dd><code>elapsedMs</code> - The time taken to transfer <code>bytesTransferred</code>, in milliseconds. This
+     is at most the elapsed time since the last callback, but may be less if there were
+     periods during which data was not being transferred.</dd>
+<dd><code>bytes</code> - The number of bytes transferred since the last callback.</dd>
 <dd><code>bitrate</code> - The estimated bitrate in bits/sec.</dd>
 </dl>
 </li>
@@ -1582,7 +1586,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 <pre>@RequiresNonNull(value="player")
 protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;generateEventTime(<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
                                                                                          int&nbsp;windowIndex,
-                                                                                         <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                                                                         @Nullable
                                                                                          <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId)</pre>
 <div class="block">Returns a new <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a> for the specified timeline, window and media period id.</div>
 </li>

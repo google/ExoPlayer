@@ -122,6 +122,18 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <th class="colLast" scope="col">Field and Description</th>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/drm/DecryptionResource.html" title="class in com.google.android.exoplayer2.drm">DecryptionResource</a>&lt;?&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/FormatHolder.html#decryptionResource">decryptionResource</a></span></code>
+<div class="block">An accompanying context for decrypting samples in the format.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/FormatHolder.html#decryptionResourceIsProvided">decryptionResourceIsProvided</a></span></code>
+<div class="block">Whether the object expected to populate <a href="../../../../com/google/android/exoplayer2/FormatHolder.html#format"><code>format</code></a> is also expected to populate <a href="../../../../com/google/android/exoplayer2/FormatHolder.html#decryptionResource"><code>decryptionResource</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/FormatHolder.html#format">format</a></span></code>
 <div class="block">The held <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
@@ -174,13 +186,34 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <!--   -->
 </a>
 <h3>Field Detail</h3>
+<a name="decryptionResourceIsProvided">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>decryptionResourceIsProvided</h4>
+<pre>public&nbsp;boolean decryptionResourceIsProvided</pre>
+<div class="block">Whether the object expected to populate <a href="../../../../com/google/android/exoplayer2/FormatHolder.html#format"><code>format</code></a> is also expected to populate <a href="../../../../com/google/android/exoplayer2/FormatHolder.html#decryptionResource"><code>decryptionResource</code></a>.</div>
+</li>
+</ul>
+<a name="decryptionResource">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>decryptionResource</h4>
+<pre>@Nullable
+public&nbsp;<a href="../../../../com/google/android/exoplayer2/drm/DecryptionResource.html" title="class in com.google.android.exoplayer2.drm">DecryptionResource</a>&lt;?&gt; decryptionResource</pre>
+<div class="block">An accompanying context for decrypting samples in the format.</div>
+</li>
+</ul>
 <a name="format">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>format</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>@Nullable
 public&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a> format</pre>
 <div class="block">The held <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 </li>

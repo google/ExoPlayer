@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -46,8 +46,8 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/offline/DownloadException.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.ProgressListener.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/offline/DownloaderFactory.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" target="_top">Frames</a></li>
@@ -128,14 +128,22 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html#DownloaderConstructorHelper-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.DataSource.Factory-">DownloaderConstructorHelper</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
-                           <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;upstreamDataSourceFactory)</code>&nbsp;</td>
+                           <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;upstreamFactory)</code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html#DownloaderConstructorHelper-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.upstream.DataSink.Factory-com.google.android.exoplayer2.util.PriorityTaskManager-">DownloaderConstructorHelper</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
-                           <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;upstreamDataSourceFactory,
+                           <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;upstreamFactory,
                            <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;cacheReadDataSourceFactory,
                            <a href="../../../../../com/google/android/exoplayer2/upstream/DataSink.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSink.Factory</a>&nbsp;cacheWriteDataSinkFactory,
                            <a href="../../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util">PriorityTaskManager</a>&nbsp;priorityTaskManager)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html#DownloaderConstructorHelper-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.upstream.DataSink.Factory-com.google.android.exoplayer2.util.PriorityTaskManager-com.google.android.exoplayer2.upstream.cache.CacheKeyFactory-">DownloaderConstructorHelper</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
+                           <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;upstreamFactory,
+                           <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;cacheReadDataSourceFactory,
+                           <a href="../../../../../com/google/android/exoplayer2/upstream/DataSink.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSink.Factory</a>&nbsp;cacheWriteDataSinkFactory,
+                           <a href="../../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util">PriorityTaskManager</a>&nbsp;priorityTaskManager,
+                           <a href="../../../../../com/google/android/exoplayer2/upstream/cache/CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheKeyFactory</a>&nbsp;cacheKeyFactory)</code>&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -154,17 +162,30 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html#buildCacheDataSource-boolean-">buildCacheDataSource</a></span>(boolean&nbsp;offline)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html#createCacheDataSource--">createCacheDataSource</a></span>()</code>
 <div class="block">Returns a new <a href="../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheDataSource</code></a> instance.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html#createOfflineCacheDataSource--">createOfflineCacheDataSource</a></span>()</code>
+<div class="block">Returns a new <a href="../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheDataSource</code></a> instance which accesses cache read-only and throws an
+ exception on cache miss.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html#getCache--">getCache</a></span>()</code>
 <div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>Cache</code></a> instance.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/upstream/cache/CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheKeyFactory</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html#getCacheKeyFactory--">getCacheKeyFactory</a></span>()</code>
+<div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/upstream/cache/CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>CacheKeyFactory</code></a>.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util">PriorityTaskManager</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html#getPriorityTaskManager--">getPriorityTaskManager</a></span>()</code>
 <div class="block">Returns a <a href="../../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util"><code>PriorityTaskManager</code></a> instance.</div>
@@ -199,39 +220,73 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>DownloaderConstructorHelper</h4>
 <pre>public&nbsp;DownloaderConstructorHelper(<a href="../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
-                                   <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;upstreamDataSourceFactory)</pre>
+                                   <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;upstreamFactory)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>cache</code> - Cache instance to be used to store downloaded data.</dd>
-<dd><code>upstreamDataSourceFactory</code> - A <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource.Factory</code></a> for downloading data.</dd>
+<dd><code>upstreamFactory</code> - A <code>DataSource.Factory</code> for creating <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a>s for
+     downloading data.</dd>
 </dl>
 </li>
 </ul>
 <a name="DownloaderConstructorHelper-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.upstream.DataSink.Factory-com.google.android.exoplayer2.util.PriorityTaskManager-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>DownloaderConstructorHelper</h4>
 <pre>public&nbsp;DownloaderConstructorHelper(<a href="../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
-                                   <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;upstreamDataSourceFactory,
-                                   <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                   <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;upstreamFactory,
+                                   @Nullable
                                    <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;cacheReadDataSourceFactory,
-                                   <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                   @Nullable
                                    <a href="../../../../../com/google/android/exoplayer2/upstream/DataSink.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSink.Factory</a>&nbsp;cacheWriteDataSinkFactory,
-                                   <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                   @Nullable
                                    <a href="../../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util">PriorityTaskManager</a>&nbsp;priorityTaskManager)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>cache</code> - Cache instance to be used to store downloaded data.</dd>
-<dd><code>upstreamDataSourceFactory</code> - A <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource.Factory</code></a> for downloading data.</dd>
-<dd><code>cacheReadDataSourceFactory</code> - A <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource.Factory</code></a> for reading data from the cache. If null
-     then standard <a href="../../../../../com/google/android/exoplayer2/upstream/FileDataSource.html" title="class in com.google.android.exoplayer2.upstream"><code>FileDataSource</code></a> instances will be used.</dd>
-<dd><code>cacheWriteDataSinkFactory</code> - A <code>DataSink.Factory</code> for writing data to the cache. If
-     null then standard <a href="../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSink.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheDataSink</code></a> instances will be used.</dd>
+<dd><code>upstreamFactory</code> - A <code>DataSource.Factory</code> for creating <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a>s for
+     downloading data.</dd>
+<dd><code>cacheReadDataSourceFactory</code> - A <code>DataSource.Factory</code> for creating <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a>s
+     for reading data from the cache. If null then a <a href="../../../../../com/google/android/exoplayer2/upstream/FileDataSourceFactory.html" title="class in com.google.android.exoplayer2.upstream"><code>FileDataSourceFactory</code></a> will be used.</dd>
+<dd><code>cacheWriteDataSinkFactory</code> - A <code>DataSink.Factory</code> for creating <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a>s
+     for writing data to the cache. If null then a <a href="../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSinkFactory.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheDataSinkFactory</code></a> will be used.</dd>
 <dd><code>priorityTaskManager</code> - A <a href="../../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util"><code>PriorityTaskManager</code></a> to use when downloading. If non-null,
      downloaders will register as tasks with priority <a href="../../../../../com/google/android/exoplayer2/C.html#PRIORITY_DOWNLOAD"><code>C.PRIORITY_DOWNLOAD</code></a> whilst
      downloading.</dd>
+</dl>
+</li>
+</ul>
+<a name="DownloaderConstructorHelper-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.upstream.DataSink.Factory-com.google.android.exoplayer2.util.PriorityTaskManager-com.google.android.exoplayer2.upstream.cache.CacheKeyFactory-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DownloaderConstructorHelper</h4>
+<pre>public&nbsp;DownloaderConstructorHelper(<a href="../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
+                                   <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;upstreamFactory,
+                                   @Nullable
+                                   <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;cacheReadDataSourceFactory,
+                                   @Nullable
+                                   <a href="../../../../../com/google/android/exoplayer2/upstream/DataSink.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSink.Factory</a>&nbsp;cacheWriteDataSinkFactory,
+                                   @Nullable
+                                   <a href="../../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util">PriorityTaskManager</a>&nbsp;priorityTaskManager,
+                                   @Nullable
+                                   <a href="../../../../../com/google/android/exoplayer2/upstream/cache/CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheKeyFactory</a>&nbsp;cacheKeyFactory)</pre>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>cache</code> - Cache instance to be used to store downloaded data.</dd>
+<dd><code>upstreamFactory</code> - A <code>DataSource.Factory</code> for creating <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a>s for
+     downloading data.</dd>
+<dd><code>cacheReadDataSourceFactory</code> - A <code>DataSource.Factory</code> for creating <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a>s
+     for reading data from the cache. If null then a <a href="../../../../../com/google/android/exoplayer2/upstream/FileDataSourceFactory.html" title="class in com.google.android.exoplayer2.upstream"><code>FileDataSourceFactory</code></a> will be used.</dd>
+<dd><code>cacheWriteDataSinkFactory</code> - A <code>DataSink.Factory</code> for creating <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a>s
+     for writing data to the cache. If null then a <a href="../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSinkFactory.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheDataSinkFactory</code></a> will be used.</dd>
+<dd><code>priorityTaskManager</code> - A <a href="../../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util"><code>PriorityTaskManager</code></a> to use when downloading. If non-null,
+     downloaders will register as tasks with priority <a href="../../../../../com/google/android/exoplayer2/C.html#PRIORITY_DOWNLOAD"><code>C.PRIORITY_DOWNLOAD</code></a> whilst
+     downloading.</dd>
+<dd><code>cacheKeyFactory</code> - An optional factory for cache keys.</dd>
 </dl>
 </li>
 </ul>
@@ -253,6 +308,16 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>Cache</code></a> instance.</div>
 </li>
 </ul>
+<a name="getCacheKeyFactory--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getCacheKeyFactory</h4>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/upstream/cache/CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheKeyFactory</a>&nbsp;getCacheKeyFactory()</pre>
+<div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/upstream/cache/CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>CacheKeyFactory</code></a>.</div>
+</li>
+</ul>
 <a name="getPriorityTaskManager--">
 <!--   -->
 </a>
@@ -263,15 +328,25 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <div class="block">Returns a <a href="../../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util"><code>PriorityTaskManager</code></a> instance.</div>
 </li>
 </ul>
-<a name="buildCacheDataSource-boolean-">
+<a name="createCacheDataSource--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createCacheDataSource</h4>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource</a>&nbsp;createCacheDataSource()</pre>
+<div class="block">Returns a new <a href="../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheDataSource</code></a> instance.</div>
+</li>
+</ul>
+<a name="createOfflineCacheDataSource--">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>buildCacheDataSource</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource</a>&nbsp;buildCacheDataSource(boolean&nbsp;offline)</pre>
-<div class="block">Returns a new <a href="../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheDataSource</code></a> instance. If <code>offline</code> is true, it can only read
- data from the cache.</div>
+<h4>createOfflineCacheDataSource</h4>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource</a>&nbsp;createOfflineCacheDataSource()</pre>
+<div class="block">Returns a new <a href="../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheDataSource</code></a> instance which accesses cache read-only and throws an
+ exception on cache miss.</div>
 </li>
 </ul>
 </li>
@@ -301,8 +376,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/offline/DownloadException.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.ProgressListener.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/offline/DownloaderFactory.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" target="_top">Frames</a></li>

@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
+var methods = {"i0":10,"i1":10,"i2":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -46,8 +46,8 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloadAction.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloadHelper.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/offline/FilteringManifestParser.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/offline/ProgressiveDownloader.html" target="_top">Frames</a></li>
@@ -120,6 +120,21 @@ implements <a href="../../../../../com/google/android/exoplayer2/offline/Downloa
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a name="nested.classes.inherited.from.class.com.google.android.exoplayer2.offline.Downloader">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline">Downloader</a></h3>
+<code><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.ProgressListener.html" title="interface in com.google.android.exoplayer2.offline">Downloader.ProgressListener</a></code></li>
+</ul>
+</li>
+</ul>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <ul class="blockList">
 <li class="blockList"><a name="constructor.summary">
@@ -154,32 +169,19 @@ implements <a href="../../../../../com/google/android/exoplayer2/offline/Downloa
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloader.html#cancel--">cancel</a></span>()</code>
-<div class="block">Interrupts any current download operation and prevents future operations from running.</div>
+<div class="block">Cancels the download operation and prevents future download operations from running.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloader.html#download--">download</a></span>()</code>
-<div class="block">Downloads the media.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloader.html#download-com.google.android.exoplayer2.offline.Downloader.ProgressListener-">download</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/Downloader.ProgressListener.html" title="interface in com.google.android.exoplayer2.offline">Downloader.ProgressListener</a>&nbsp;progressListener)</code>
+<div class="block">Downloads the content.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloader.html#getDownloadedBytes--">getDownloadedBytes</a></span>()</code>
-<div class="block">Returns the total number of downloaded bytes.</div>
-</td>
-</tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code>float</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloader.html#getDownloadPercentage--">getDownloadPercentage</a></span>()</code>
-<div class="block">Returns the estimated download percentage, or <a href="../../../../../com/google/android/exoplayer2/C.html#PERCENTAGE_UNSET"><code>C.PERCENTAGE_UNSET</code></a> if no estimate is
- available.</div>
-</td>
-</tr>
-<tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloader.html#remove--">remove</a></span>()</code>
-<div class="block">Removes the media.</div>
+<div class="block">Removes the content.</div>
 </td>
 </tr>
 </table>
@@ -211,6 +213,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/offline/Downloa
 <li class="blockList">
 <h4>ProgressiveDownloader</h4>
 <pre>public&nbsp;ProgressiveDownloader(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri,
+                             @Nullable
                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;customCacheKey,
                              <a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline">DownloaderConstructorHelper</a>&nbsp;constructorHelper)</pre>
 <dl>
@@ -230,23 +233,26 @@ implements <a href="../../../../../com/google/android/exoplayer2/offline/Downloa
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="download--">
+<a name="download-com.google.android.exoplayer2.offline.Downloader.ProgressListener-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>download</h4>
-<pre>public&nbsp;void&nbsp;download()
+<pre>public&nbsp;void&nbsp;download(@Nullable
+                     <a href="../../../../../com/google/android/exoplayer2/offline/Downloader.ProgressListener.html" title="interface in com.google.android.exoplayer2.offline">Downloader.ProgressListener</a>&nbsp;progressListener)
               throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a>,
                      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html#download--">Downloader</a></code></span></div>
-<div class="block">Downloads the media.</div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html#download-com.google.android.exoplayer2.offline.Downloader.ProgressListener-">Downloader</a></code></span></div>
+<div class="block">Downloads the content.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html#download--">download</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline">Downloader</a></code></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html#download-com.google.android.exoplayer2.offline.Downloader.ProgressListener-">download</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline">Downloader</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>progressListener</code> - A listener to receive progress updates, or <code>null</code>.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></code> - If the thread has been interrupted.</dd>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadException.html" title="class in com.google.android.exoplayer2.offline">DownloadException</a></code> - Thrown if the media cannot be downloaded.</dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadException.html" title="class in com.google.android.exoplayer2.offline">DownloadException</a></code> - Thrown if the content cannot be downloaded.</dd>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code> - Thrown when there is an io error while downloading.</dd>
 </dl>
 </li>
@@ -259,41 +265,10 @@ implements <a href="../../../../../com/google/android/exoplayer2/offline/Downloa
 <h4>cancel</h4>
 <pre>public&nbsp;void&nbsp;cancel()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html#cancel--">Downloader</a></code></span></div>
-<div class="block">Interrupts any current download operation and prevents future operations from running.</div>
+<div class="block">Cancels the download operation and prevents future download operations from running.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html#cancel--">cancel</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline">Downloader</a></code></dd>
-</dl>
-</li>
-</ul>
-<a name="getDownloadedBytes--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getDownloadedBytes</h4>
-<pre>public&nbsp;long&nbsp;getDownloadedBytes()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html#getDownloadedBytes--">Downloader</a></code></span></div>
-<div class="block">Returns the total number of downloaded bytes.</div>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html#getDownloadedBytes--">getDownloadedBytes</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline">Downloader</a></code></dd>
-</dl>
-</li>
-</ul>
-<a name="getDownloadPercentage--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getDownloadPercentage</h4>
-<pre>public&nbsp;float&nbsp;getDownloadPercentage()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html#getDownloadPercentage--">Downloader</a></code></span></div>
-<div class="block">Returns the estimated download percentage, or <a href="../../../../../com/google/android/exoplayer2/C.html#PERCENTAGE_UNSET"><code>C.PERCENTAGE_UNSET</code></a> if no estimate is
- available.</div>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html#getDownloadPercentage--">getDownloadPercentage</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline">Downloader</a></code></dd>
 </dl>
 </li>
 </ul>
@@ -305,7 +280,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/offline/Downloa
 <h4>remove</h4>
 <pre>public&nbsp;void&nbsp;remove()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html#remove--">Downloader</a></code></span></div>
-<div class="block">Removes the media.</div>
+<div class="block">Removes the content.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html#remove--">remove</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline">Downloader</a></code></dd>
@@ -339,8 +314,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/offline/Downloa
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloadAction.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloadHelper.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/offline/FilteringManifestParser.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/offline/ProgressiveDownloader.html" target="_top">Frames</a></li>

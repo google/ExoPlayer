@@ -201,26 +201,35 @@ extends <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.ht
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/vp9/LibvpxVideoRenderer.html#LibvpxVideoRenderer-boolean-long-">LibvpxVideoRenderer</a></span>(boolean&nbsp;scaleToFit,
-                   long&nbsp;allowedJoiningTimeMs)</code>&nbsp;</td>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/vp9/LibvpxVideoRenderer.html#LibvpxVideoRenderer-long-">LibvpxVideoRenderer</a></span>(long&nbsp;allowedJoiningTimeMs)</code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/vp9/LibvpxVideoRenderer.html#LibvpxVideoRenderer-boolean-long-android.os.Handler-com.google.android.exoplayer2.video.VideoRendererEventListener-int-">LibvpxVideoRenderer</a></span>(boolean&nbsp;scaleToFit,
-                   long&nbsp;allowedJoiningTimeMs,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/vp9/LibvpxVideoRenderer.html#LibvpxVideoRenderer-long-android.os.Handler-com.google.android.exoplayer2.video.VideoRendererEventListener-int-">LibvpxVideoRenderer</a></span>(long&nbsp;allowedJoiningTimeMs,
                    <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
                    <a href="../../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;eventListener,
                    int&nbsp;maxDroppedFramesToNotify)</code>&nbsp;</td>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/vp9/LibvpxVideoRenderer.html#LibvpxVideoRenderer-boolean-long-android.os.Handler-com.google.android.exoplayer2.video.VideoRendererEventListener-int-com.google.android.exoplayer2.drm.DrmSessionManager-boolean-boolean-boolean-">LibvpxVideoRenderer</a></span>(boolean&nbsp;scaleToFit,
-                   long&nbsp;allowedJoiningTimeMs,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/vp9/LibvpxVideoRenderer.html#LibvpxVideoRenderer-long-android.os.Handler-com.google.android.exoplayer2.video.VideoRendererEventListener-int-com.google.android.exoplayer2.drm.DrmSessionManager-boolean-boolean-">LibvpxVideoRenderer</a></span>(long&nbsp;allowedJoiningTimeMs,
+                   <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
+                   <a href="../../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;eventListener,
+                   int&nbsp;maxDroppedFramesToNotify,
+                   <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;&nbsp;drmSessionManager,
+                   boolean&nbsp;playClearSamplesWithoutKeys,
+                   boolean&nbsp;disableLoopFilter)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/vp9/LibvpxVideoRenderer.html#LibvpxVideoRenderer-long-android.os.Handler-com.google.android.exoplayer2.video.VideoRendererEventListener-int-com.google.android.exoplayer2.drm.DrmSessionManager-boolean-boolean-boolean-int-int-int-">LibvpxVideoRenderer</a></span>(long&nbsp;allowedJoiningTimeMs,
                    <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
                    <a href="../../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;eventListener,
                    int&nbsp;maxDroppedFramesToNotify,
                    <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;&nbsp;drmSessionManager,
                    boolean&nbsp;playClearSamplesWithoutKeys,
                    boolean&nbsp;disableLoopFilter,
-                   boolean&nbsp;useSurfaceYuvOutput)</code>&nbsp;</td>
+                   boolean&nbsp;enableRowMultiThreadMode,
+                   int&nbsp;threads,
+                   int&nbsp;numInputBuffers,
+                   int&nbsp;numOutputBuffers)</code>&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -239,7 +248,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.ht
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/vp9/LibvpxVideoRenderer.html#dropOutputBuffer-com.google.android.exoplayer2.ext.vp9.VpxOutputBuffer-">dropOutputBuffer</a></span>(com.google.android.exoplayer2.ext.vp9.VpxOutputBuffer&nbsp;outputBuffer)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/vp9/LibvpxVideoRenderer.html#dropOutputBuffer-com.google.android.exoplayer2.ext.vp9.VpxOutputBuffer-">dropOutputBuffer</a></span>(<a href="../../../../../../com/google/android/exoplayer2/ext/vp9/VpxOutputBuffer.html" title="class in com.google.android.exoplayer2.ext.vp9">VpxOutputBuffer</a>&nbsp;outputBuffer)</code>
 <div class="block">Drops the specified output buffer and releases it.</div>
 </td>
 </tr>
@@ -355,7 +364,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.ht
 </tr>
 <tr id="i18" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/vp9/LibvpxVideoRenderer.html#renderOutputBuffer-com.google.android.exoplayer2.ext.vp9.VpxOutputBuffer-">renderOutputBuffer</a></span>(com.google.android.exoplayer2.ext.vp9.VpxOutputBuffer&nbsp;outputBuffer)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/vp9/LibvpxVideoRenderer.html#renderOutputBuffer-com.google.android.exoplayer2.ext.vp9.VpxOutputBuffer-">renderOutputBuffer</a></span>(<a href="../../../../../../com/google/android/exoplayer2/ext/vp9/VpxOutputBuffer.html" title="class in com.google.android.exoplayer2.ext.vp9">VpxOutputBuffer</a>&nbsp;outputBuffer)</code>
 <div class="block">Renders the specified output buffer.</div>
 </td>
 </tr>
@@ -383,7 +392,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.ht
 </tr>
 <tr id="i22" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/vp9/LibvpxVideoRenderer.html#skipOutputBuffer-com.google.android.exoplayer2.ext.vp9.VpxOutputBuffer-">skipOutputBuffer</a></span>(com.google.android.exoplayer2.ext.vp9.VpxOutputBuffer&nbsp;outputBuffer)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/vp9/LibvpxVideoRenderer.html#skipOutputBuffer-com.google.android.exoplayer2.ext.vp9.VpxOutputBuffer-">skipOutputBuffer</a></span>(<a href="../../../../../../com/google/android/exoplayer2/ext/vp9/VpxOutputBuffer.html" title="class in com.google.android.exoplayer2.ext.vp9">VpxOutputBuffer</a>&nbsp;outputBuffer)</code>
 <div class="block">Skips the specified output buffer and releases it.</div>
 </td>
 </tr>
@@ -406,7 +415,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.ht
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.<a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html" title="class in com.google.android.exoplayer2">BaseRenderer</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#disable--">disable</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#enable-com.google.android.exoplayer2.RendererConfiguration-com.google.android.exoplayer2.Format:A-com.google.android.exoplayer2.source.SampleStream-long-boolean-long-">enable</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getCapabilities--">getCapabilities</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getConfiguration--">getConfiguration</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getIndex--">getIndex</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getMediaClock--">getMediaClock</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getState--">getState</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getStream--">getStream</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getStreamFormats--">getStreamFormats</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getTrackType--">getTrackType</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#hasReadStreamToEnd--">hasReadStreamToEnd</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#isCurrentStreamFinal--">isCurrentStreamFinal</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#isSourceReady--">isSourceReady</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#maybeThrowStreamError--">maybeThrowStreamError</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#readSource-com.google.android.exoplayer2.FormatHolder-com.google.android.exoplayer2.decoder.DecoderInputBuffer-boolean-">readSource</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#replaceStream-com.google.android.exoplayer2.Format:A-com.google.android.exoplayer2.source.SampleStream-long-">replaceStream</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#resetPosition-long-">resetPosition</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#setCurrentStreamFinal--">setCurrentStreamFinal</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#setIndex-int-">setIndex</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#skipSource-long-">skipSource</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#start--">start</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#stop--">stop</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#supportsFormatDrm-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.drm.DrmInitData-">supportsFormatDrm</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#supportsMixedMimeTypeAdaptation--">supportsMixedMimeTypeAdaptation</a></code></li>
+<code><a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#disable--">disable</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#enable-com.google.android.exoplayer2.RendererConfiguration-com.google.android.exoplayer2.Format:A-com.google.android.exoplayer2.source.SampleStream-long-boolean-long-">enable</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getCapabilities--">getCapabilities</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getConfiguration--">getConfiguration</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getIndex--">getIndex</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getMediaClock--">getMediaClock</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getReadingPositionUs--">getReadingPositionUs</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getState--">getState</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getStream--">getStream</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getStreamFormats--">getStreamFormats</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getTrackType--">getTrackType</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#hasReadStreamToEnd--">hasReadStreamToEnd</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#isCurrentStreamFinal--">isCurrentStreamFinal</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#isSourceReady--">isSourceReady</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#maybeThrowStreamError--">maybeThrowStreamError</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#onReset--">onReset</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#readSource-com.google.android.exoplayer2.FormatHolder-com.google.android.exoplayer2.decoder.DecoderInputBuffer-boolean-">readSource</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#replaceStream-com.google.android.exoplayer2.Format:A-com.google.android.exoplayer2.source.SampleStream-long-">replaceStream</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#reset--">reset</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#resetPosition-long-">resetPosition</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#setCurrentStreamFinal--">setCurrentStreamFinal</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#setIndex-int-">setIndex</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#skipSource-long-">skipSource</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#start--">start</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#stop--">stop</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#supportsFormatDrm-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.drm.DrmInitData-">supportsFormatDrm</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#supportsMixedMimeTypeAdaptation--">supportsMixedMimeTypeAdaptation</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -467,36 +476,32 @@ extends <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.ht
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="LibvpxVideoRenderer-boolean-long-">
+<a name="LibvpxVideoRenderer-long-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>LibvpxVideoRenderer</h4>
-<pre>public&nbsp;LibvpxVideoRenderer(boolean&nbsp;scaleToFit,
-                           long&nbsp;allowedJoiningTimeMs)</pre>
+<pre>public&nbsp;LibvpxVideoRenderer(long&nbsp;allowedJoiningTimeMs)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>scaleToFit</code> - Whether video frames should be scaled to fit when rendering.</dd>
 <dd><code>allowedJoiningTimeMs</code> - The maximum duration in milliseconds for which this video renderer
      can attempt to seamlessly join an ongoing playback.</dd>
 </dl>
 </li>
 </ul>
-<a name="LibvpxVideoRenderer-boolean-long-android.os.Handler-com.google.android.exoplayer2.video.VideoRendererEventListener-int-">
+<a name="LibvpxVideoRenderer-long-android.os.Handler-com.google.android.exoplayer2.video.VideoRendererEventListener-int-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>LibvpxVideoRenderer</h4>
-<pre>public&nbsp;LibvpxVideoRenderer(boolean&nbsp;scaleToFit,
-                           long&nbsp;allowedJoiningTimeMs,
+<pre>public&nbsp;LibvpxVideoRenderer(long&nbsp;allowedJoiningTimeMs,
                            <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
                            <a href="../../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;eventListener,
                            int&nbsp;maxDroppedFramesToNotify)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>scaleToFit</code> - Whether video frames should be scaled to fit when rendering.</dd>
 <dd><code>allowedJoiningTimeMs</code> - The maximum duration in milliseconds for which this video renderer
      can attempt to seamlessly join an ongoing playback.</dd>
 <dd><code>eventHandler</code> - A handler to use when delivering events to <code>eventListener</code>. May be
@@ -507,24 +512,21 @@ extends <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.ht
 </dl>
 </li>
 </ul>
-<a name="LibvpxVideoRenderer-boolean-long-android.os.Handler-com.google.android.exoplayer2.video.VideoRendererEventListener-int-com.google.android.exoplayer2.drm.DrmSessionManager-boolean-boolean-boolean-">
+<a name="LibvpxVideoRenderer-long-android.os.Handler-com.google.android.exoplayer2.video.VideoRendererEventListener-int-com.google.android.exoplayer2.drm.DrmSessionManager-boolean-boolean-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>LibvpxVideoRenderer</h4>
-<pre>public&nbsp;LibvpxVideoRenderer(boolean&nbsp;scaleToFit,
-                           long&nbsp;allowedJoiningTimeMs,
+<pre>public&nbsp;LibvpxVideoRenderer(long&nbsp;allowedJoiningTimeMs,
                            <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
                            <a href="../../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;eventListener,
                            int&nbsp;maxDroppedFramesToNotify,
                            <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;&nbsp;drmSessionManager,
                            boolean&nbsp;playClearSamplesWithoutKeys,
-                           boolean&nbsp;disableLoopFilter,
-                           boolean&nbsp;useSurfaceYuvOutput)</pre>
+                           boolean&nbsp;disableLoopFilter)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>scaleToFit</code> - Whether video frames should be scaled to fit when rendering.</dd>
 <dd><code>allowedJoiningTimeMs</code> - The maximum duration in milliseconds for which this video renderer
      can attempt to seamlessly join an ongoing playback.</dd>
 <dd><code>eventHandler</code> - A handler to use when delivering events to <code>eventListener</code>. May be
@@ -540,7 +542,47 @@ extends <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.ht
      permitted to play clear regions of encrypted media files before <code>drmSessionManager</code>
      has obtained the keys necessary to decrypt encrypted regions of the media.</dd>
 <dd><code>disableLoopFilter</code> - Disable the libvpx in-loop smoothing filter.</dd>
-<dd><code>useSurfaceYuvOutput</code> - Directly output YUV to the Surface via ANativeWindow.</dd>
+</dl>
+</li>
+</ul>
+<a name="LibvpxVideoRenderer-long-android.os.Handler-com.google.android.exoplayer2.video.VideoRendererEventListener-int-com.google.android.exoplayer2.drm.DrmSessionManager-boolean-boolean-boolean-int-int-int-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>LibvpxVideoRenderer</h4>
+<pre>public&nbsp;LibvpxVideoRenderer(long&nbsp;allowedJoiningTimeMs,
+                           <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
+                           <a href="../../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;eventListener,
+                           int&nbsp;maxDroppedFramesToNotify,
+                           <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;&nbsp;drmSessionManager,
+                           boolean&nbsp;playClearSamplesWithoutKeys,
+                           boolean&nbsp;disableLoopFilter,
+                           boolean&nbsp;enableRowMultiThreadMode,
+                           int&nbsp;threads,
+                           int&nbsp;numInputBuffers,
+                           int&nbsp;numOutputBuffers)</pre>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>allowedJoiningTimeMs</code> - The maximum duration in milliseconds for which this video renderer
+     can attempt to seamlessly join an ongoing playback.</dd>
+<dd><code>eventHandler</code> - A handler to use when delivering events to <code>eventListener</code>. May be
+     null if delivery of events is not required.</dd>
+<dd><code>eventListener</code> - A listener of events. May be null if delivery of events is not required.</dd>
+<dd><code>maxDroppedFramesToNotify</code> - The maximum number of frames that can be dropped between
+     invocations of <a href="../../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html#onDroppedFrames-int-long-"><code>VideoRendererEventListener.onDroppedFrames(int, long)</code></a>.</dd>
+<dd><code>drmSessionManager</code> - For use with encrypted media. May be null if support for encrypted
+     media is not required.</dd>
+<dd><code>playClearSamplesWithoutKeys</code> - Encrypted media may contain clear (un-encrypted) regions.
+     For example a media file may start with a short clear region so as to allow playback to
+     begin in parallel with key acquisition. This parameter specifies whether the renderer is
+     permitted to play clear regions of encrypted media files before <code>drmSessionManager</code>
+     has obtained the keys necessary to decrypt encrypted regions of the media.</dd>
+<dd><code>disableLoopFilter</code> - Disable the libvpx in-loop smoothing filter.</dd>
+<dd><code>enableRowMultiThreadMode</code> - Whether row multi threading decoding is enabled.</dd>
+<dd><code>threads</code> - Number of threads libvpx will use to decode.</dd>
+<dd><code>numInputBuffers</code> - Number of input buffers.</dd>
+<dd><code>numOutputBuffers</code> - Number of output buffers.</dd>
 </dl>
 </li>
 </ul>
@@ -800,7 +842,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.ht
 <ul class="blockList">
 <li class="blockList">
 <h4>onDecoderInitialized</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.CallSuper.html" target="_top" title="class or interface in android">@CallSuper</a>
+<pre>@CallSuper
 protected&nbsp;void&nbsp;onDecoderInitialized(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;name,
                                                long&nbsp;initializedTimestampMs,
                                                long&nbsp;initializationDurationMs)</pre>
@@ -822,7 +864,7 @@ protected&nbsp;void&nbsp;onDecoderInitialized(<a href="https://docs.oracle.com/j
 <ul class="blockList">
 <li class="blockList">
 <h4>flushDecoder</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.CallSuper.html" target="_top" title="class or interface in android">@CallSuper</a>
+<pre>@CallSuper
 protected&nbsp;void&nbsp;flushDecoder()
                                 throws <a href="../../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
 <div class="block">Flushes the decoder.</div>
@@ -838,7 +880,7 @@ protected&nbsp;void&nbsp;flushDecoder()
 <ul class="blockList">
 <li class="blockList">
 <h4>releaseDecoder</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.CallSuper.html" target="_top" title="class or interface in android">@CallSuper</a>
+<pre>@CallSuper
 protected&nbsp;void&nbsp;releaseDecoder()</pre>
 <div class="block">Releases the decoder.</div>
 </li>
@@ -849,7 +891,7 @@ protected&nbsp;void&nbsp;releaseDecoder()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>onInputFormatChanged</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.CallSuper.html" target="_top" title="class or interface in android">@CallSuper</a>
+<pre>@CallSuper
 protected&nbsp;void&nbsp;onInputFormatChanged(<a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;newFormat)
                                         throws <a href="../../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
 <div class="block">Called when a new format is read from the upstream source.</div>
@@ -883,7 +925,7 @@ protected&nbsp;void&nbsp;onInputFormatChanged(<a href="../../../../../../com/goo
 <ul class="blockList">
 <li class="blockList">
 <h4>onProcessedOutputBuffer</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.CallSuper.html" target="_top" title="class or interface in android">@CallSuper</a>
+<pre>@CallSuper
 protected&nbsp;void&nbsp;onProcessedOutputBuffer(long&nbsp;presentationTimeUs)</pre>
 <div class="block">Called when an output buffer is successfully processed.</div>
 <dl>
@@ -955,7 +997,7 @@ protected&nbsp;void&nbsp;onProcessedOutputBuffer(long&nbsp;presentationTimeUs)</
 <ul class="blockList">
 <li class="blockList">
 <h4>skipOutputBuffer</h4>
-<pre>protected&nbsp;void&nbsp;skipOutputBuffer(com.google.android.exoplayer2.ext.vp9.VpxOutputBuffer&nbsp;outputBuffer)</pre>
+<pre>protected&nbsp;void&nbsp;skipOutputBuffer(<a href="../../../../../../com/google/android/exoplayer2/ext/vp9/VpxOutputBuffer.html" title="class in com.google.android.exoplayer2.ext.vp9">VpxOutputBuffer</a>&nbsp;outputBuffer)</pre>
 <div class="block">Skips the specified output buffer and releases it.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -969,7 +1011,7 @@ protected&nbsp;void&nbsp;onProcessedOutputBuffer(long&nbsp;presentationTimeUs)</
 <ul class="blockList">
 <li class="blockList">
 <h4>dropOutputBuffer</h4>
-<pre>protected&nbsp;void&nbsp;dropOutputBuffer(com.google.android.exoplayer2.ext.vp9.VpxOutputBuffer&nbsp;outputBuffer)</pre>
+<pre>protected&nbsp;void&nbsp;dropOutputBuffer(<a href="../../../../../../com/google/android/exoplayer2/ext/vp9/VpxOutputBuffer.html" title="class in com.google.android.exoplayer2.ext.vp9">VpxOutputBuffer</a>&nbsp;outputBuffer)</pre>
 <div class="block">Drops the specified output buffer and releases it.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -983,12 +1025,12 @@ protected&nbsp;void&nbsp;onProcessedOutputBuffer(long&nbsp;presentationTimeUs)</
 <ul class="blockList">
 <li class="blockList">
 <h4>renderOutputBuffer</h4>
-<pre>protected&nbsp;void&nbsp;renderOutputBuffer(com.google.android.exoplayer2.ext.vp9.VpxOutputBuffer&nbsp;outputBuffer)
+<pre>protected&nbsp;void&nbsp;renderOutputBuffer(<a href="../../../../../../com/google/android/exoplayer2/ext/vp9/VpxOutputBuffer.html" title="class in com.google.android.exoplayer2.ext.vp9">VpxOutputBuffer</a>&nbsp;outputBuffer)
                            throws <a href="../../../../../../com/google/android/exoplayer2/ext/vp9/VpxDecoderException.html" title="class in com.google.android.exoplayer2.ext.vp9">VpxDecoderException</a></pre>
 <div class="block">Renders the specified output buffer.
 
  <p>The implementation of this method takes ownership of the output buffer and is responsible
- for calling <code>VpxOutputBuffer.release()</code> either immediately or in the future.</div>
+ for calling <a href="../../../../../../com/google/android/exoplayer2/ext/vp9/VpxOutputBuffer.html#release--"><code>VpxOutputBuffer.release()</code></a> either immediately or in the future.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>outputBuffer</code> - The buffer to render.</dd>
@@ -1040,7 +1082,7 @@ protected&nbsp;void&nbsp;onProcessedOutputBuffer(long&nbsp;presentationTimeUs)</
 <li class="blockList">
 <h4>handleMessage</h4>
 <pre>public&nbsp;void&nbsp;handleMessage(int&nbsp;messageType,
-                          <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                          @Nullable
                           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;message)
                    throws <a href="../../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/PlayerMessage.Target.html#handleMessage-int-java.lang.Object-">PlayerMessage.Target</a></code></span></div>

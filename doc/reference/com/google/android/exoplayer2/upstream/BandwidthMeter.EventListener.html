@@ -129,9 +129,10 @@ var activeTableTab = "activeTableTab";
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.EventListener.html#onBandwidthSample-int-long-long-">onBandwidthSample</a></span>(int&nbsp;elapsedMs,
-                 long&nbsp;bytes,
-                 long&nbsp;bitrate)</code>
-<div class="block">Called periodically to indicate that bytes have been transferred.</div>
+                 long&nbsp;bytesTransferred,
+                 long&nbsp;bitrateEstimate)</code>
+<div class="block">Called periodically to indicate that bytes have been transferred or the estimated bitrate has
+ changed.</div>
 </td>
 </tr>
 </table>
@@ -156,16 +157,19 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <h4>onBandwidthSample</h4>
 <pre>void&nbsp;onBandwidthSample(int&nbsp;elapsedMs,
-                       long&nbsp;bytes,
-                       long&nbsp;bitrate)</pre>
-<div class="block">Called periodically to indicate that bytes have been transferred.
+                       long&nbsp;bytesTransferred,
+                       long&nbsp;bitrateEstimate)</pre>
+<div class="block">Called periodically to indicate that bytes have been transferred or the estimated bitrate has
+ changed.
 
  <p>Note: The estimated bitrate is typically derived from more information than just <code>bytes</code> and <code>elapsedMs</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>elapsedMs</code> - The time taken to transfer the bytes, in milliseconds.</dd>
-<dd><code>bytes</code> - The number of bytes transferred.</dd>
-<dd><code>bitrate</code> - The estimated bitrate in bits/sec.</dd>
+<dd><code>elapsedMs</code> - The time taken to transfer <code>bytesTransferred</code>, in milliseconds. This
+     is at most the elapsed time since the last callback, but may be less if there were
+     periods during which data was not being transferred.</dd>
+<dd><code>bytesTransferred</code> - The number of bytes transferred since the last callback.</dd>
+<dd><code>bitrateEstimate</code> - The estimated bitrate in bits/sec.</dd>
 </dl>
 </li>
 </ul>

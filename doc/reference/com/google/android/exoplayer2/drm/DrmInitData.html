@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":9,"i3":10,"i4":10,"i5":10,"i6":42,"i7":10,"i8":10};
+var methods = {"i0":10,"i1":10,"i2":9,"i3":10,"i4":10,"i5":10,"i6":42,"i7":10,"i8":10,"i9":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -271,6 +271,12 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/ut
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html#hashCode--">hashCode</a></span>()</code>&nbsp;</td>
 </tr>
 <tr id="i8" class="altColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html#merge-com.google.android.exoplayer2.drm.DrmInitData-">merge</a></span>(<a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</code>
+<div class="block">Returns an instance containing the <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html#schemeDatas"><code>schemeDatas</code></a> from both this and <code>other</code>.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html#writeToParcel-android.os.Parcel-int-">writeToParcel</a></span>(<a href="https://developer.android.com/reference/android/os/Parcel.html" target="_top" title="class or interface in android.os">Parcel</a>&nbsp;dest,
              int&nbsp;flags)</code>&nbsp;</td>
@@ -310,7 +316,7 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/ut
 <ul class="blockList">
 <li class="blockList">
 <h4>schemeType</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>@Nullable
 public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> schemeType</pre>
 <div class="block">The protection scheme type, or null if not applicable or unknown.</div>
 </li>
@@ -361,7 +367,8 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <ul class="blockList">
 <li class="blockList">
 <h4>DrmInitData</h4>
-<pre>public&nbsp;DrmInitData(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;schemeType,
+<pre>public&nbsp;DrmInitData(@Nullable
+                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;schemeType,
                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData.SchemeData</a>&gt;&nbsp;schemeDatas)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -389,7 +396,7 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <ul class="blockListLast">
 <li class="blockList">
 <h4>DrmInitData</h4>
-<pre>public&nbsp;DrmInitData(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>public&nbsp;DrmInitData(@Nullable
                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;schemeType,
                    <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData.SchemeData</a>...&nbsp;schemeDatas)</pre>
 <dl>
@@ -413,10 +420,10 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <ul class="blockList">
 <li class="blockList">
 <h4>createSessionCreationData</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
-public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;createSessionCreationData(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>@Nullable
+public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;createSessionCreationData(@Nullable
                                                               <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;manifestData,
-                                                              <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                                              @Nullable
                                                               <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;mediaData)</pre>
 <div class="block">Merges <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm"><code>DrmInitData</code></a> obtained from a media manifest and a media stream.
 
@@ -446,6 +453,7 @@ public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/Drm
 <li class="blockList">
 <h4>get</h4>
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+ @Nullable
 public&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData.SchemeData</a>&nbsp;get(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid)</pre>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html#get-int-"><code>get(int)</code></a> and <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html#matches-java.util.UUID-"><code>DrmInitData.SchemeData.matches(UUID)</code></a> instead.</span></div>
 <div class="block">Retrieves data for a given DRM scheme, specified by its UUID.</div>
@@ -479,7 +487,7 @@ public&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/DrmInitDat
 <ul class="blockList">
 <li class="blockList">
 <h4>copyWithSchemeType</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;copyWithSchemeType(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;copyWithSchemeType(@Nullable
                                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;schemeType)</pre>
 <div class="block">Returns a copy with the specified protection scheme type.</div>
 <dl>
@@ -487,6 +495,24 @@ public&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/DrmInitDat
 <dd><code>schemeType</code> - A protection scheme type. May be null.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>A copy with the specified protection scheme type.</dd>
+</dl>
+</li>
+</ul>
+<a name="merge-com.google.android.exoplayer2.drm.DrmInitData-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>merge</h4>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;merge(<a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</pre>
+<div class="block">Returns an instance containing the <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html#schemeDatas"><code>schemeDatas</code></a> from both this and <code>other</code>. The
+ <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html#schemeType"><code>schemeType</code></a> of the instances being merged must either match, or at least one scheme
+ type must be <code>null</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>drmInitData</code> - The instance to merge.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The merged result.</dd>
 </dl>
 </li>
 </ul>
@@ -509,7 +535,7 @@ public&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/DrmInitDat
 <ul class="blockList">
 <li class="blockList">
 <h4>equals</h4>
-<pre>public&nbsp;boolean&nbsp;equals(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>public&nbsp;boolean&nbsp;equals(@Nullable
                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;obj)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>

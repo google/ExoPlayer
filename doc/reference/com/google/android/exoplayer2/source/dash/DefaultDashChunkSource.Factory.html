@@ -158,7 +158,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashChunkSource.html" title="interface in com.google.android.exoplayer2.source.dash">DashChunkSource</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.Factory.html#createDashChunkSource-com.google.android.exoplayer2.upstream.LoaderErrorThrower-com.google.android.exoplayer2.source.dash.manifest.DashManifest-int-int:A-com.google.android.exoplayer2.trackselection.TrackSelection-int-long-boolean-boolean-com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler-com.google.android.exoplayer2.upstream.TransferListener-">createDashChunkSource</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream">LoaderErrorThrower</a>&nbsp;manifestLoaderErrorThrower,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.Factory.html#createDashChunkSource-com.google.android.exoplayer2.upstream.LoaderErrorThrower-com.google.android.exoplayer2.source.dash.manifest.DashManifest-int-int:A-com.google.android.exoplayer2.trackselection.TrackSelection-int-long-boolean-java.util.List-com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler-com.google.android.exoplayer2.upstream.TransferListener-">createDashChunkSource</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream">LoaderErrorThrower</a>&nbsp;manifestLoaderErrorThrower,
                      <a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;manifest,
                      int&nbsp;periodIndex,
                      int[]&nbsp;adaptationSetIndices,
@@ -166,7 +166,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
                      int&nbsp;trackType,
                      long&nbsp;elapsedRealtimeOffsetMs,
                      boolean&nbsp;enableEventMessageTrack,
-                     boolean&nbsp;enableCea608Track,
+                     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&gt;&nbsp;closedCaptionFormats,
                      <a href="../../../../../../com/google/android/exoplayer2/source/dash/PlayerEmsgHandler.PlayerTrackEmsgHandler.html" title="class in com.google.android.exoplayer2.source.dash">PlayerEmsgHandler.PlayerTrackEmsgHandler</a>&nbsp;playerEmsgHandler,
                      <a href="../../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;transferListener)</code>&nbsp;</td>
 </tr>
@@ -219,7 +219,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="createDashChunkSource-com.google.android.exoplayer2.upstream.LoaderErrorThrower-com.google.android.exoplayer2.source.dash.manifest.DashManifest-int-int:A-com.google.android.exoplayer2.trackselection.TrackSelection-int-long-boolean-boolean-com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler-com.google.android.exoplayer2.upstream.TransferListener-">
+<a name="createDashChunkSource-com.google.android.exoplayer2.upstream.LoaderErrorThrower-com.google.android.exoplayer2.source.dash.manifest.DashManifest-int-int:A-com.google.android.exoplayer2.trackselection.TrackSelection-int-long-boolean-java.util.List-com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler-com.google.android.exoplayer2.upstream.TransferListener-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -233,14 +233,14 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
                                              int&nbsp;trackType,
                                              long&nbsp;elapsedRealtimeOffsetMs,
                                              boolean&nbsp;enableEventMessageTrack,
-                                             boolean&nbsp;enableCea608Track,
-                                             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&gt;&nbsp;closedCaptionFormats,
+                                             @Nullable
                                              <a href="../../../../../../com/google/android/exoplayer2/source/dash/PlayerEmsgHandler.PlayerTrackEmsgHandler.html" title="class in com.google.android.exoplayer2.source.dash">PlayerEmsgHandler.PlayerTrackEmsgHandler</a>&nbsp;playerEmsgHandler,
-                                             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                             @Nullable
                                              <a href="../../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;transferListener)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashChunkSource.Factory.html#createDashChunkSource-com.google.android.exoplayer2.upstream.LoaderErrorThrower-com.google.android.exoplayer2.source.dash.manifest.DashManifest-int-int:A-com.google.android.exoplayer2.trackselection.TrackSelection-int-long-boolean-boolean-com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler-com.google.android.exoplayer2.upstream.TransferListener-">createDashChunkSource</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashChunkSource.Factory.html" title="interface in com.google.android.exoplayer2.source.dash">DashChunkSource.Factory</a></code></dd>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashChunkSource.Factory.html#createDashChunkSource-com.google.android.exoplayer2.upstream.LoaderErrorThrower-com.google.android.exoplayer2.source.dash.manifest.DashManifest-int-int:A-com.google.android.exoplayer2.trackselection.TrackSelection-int-long-boolean-java.util.List-com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler-com.google.android.exoplayer2.upstream.TransferListener-">createDashChunkSource</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashChunkSource.Factory.html" title="interface in com.google.android.exoplayer2.source.dash">DashChunkSource.Factory</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>manifestLoaderErrorThrower</code> - Throws errors affecting loading of manifests.</dd>
 <dd><code>manifest</code> - The initial manifest.</dd>
@@ -250,10 +250,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 <dd><code>elapsedRealtimeOffsetMs</code> - If known, an estimate of the instantaneous difference between
      server-side unix time and <a href="https://developer.android.com/reference/android/os/SystemClock.html?is-external=true#elapsedRealtime--" title="class or interface in android.os"><code>SystemClock.elapsedRealtime()</code></a> in milliseconds,
      specified as the server's unix time minus the local elapsed time. If unknown, set to 0.</dd>
-<dd><code>enableEventMessageTrack</code> - Whether the chunks generated by the source may output an event
-     message track.</dd>
-<dd><code>enableCea608Track</code> - Whether the chunks generated by the source may output a CEA-608
-     track.</dd>
+<dd><code>enableEventMessageTrack</code> - Whether to output an event message track.</dd>
+<dd><code>closedCaptionFormats</code> - The <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Formats</code></a> of closed caption tracks to be output.</dd>
 <dd><code>transferListener</code> - The transfer listener which should be informed of any data transfers.
      May be null if no listener is available.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>

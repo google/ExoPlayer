@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -46,7 +46,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/offline/DownloadHelper.Callback.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/offline/DownloadIndex.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.Listener.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -108,7 +108,11 @@ var activeTableTab = "activeTableTab";
 <br>
 <pre>public final class <span class="typeNameLabel">DownloadManager</span>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></pre>
-<div class="block">Manages multiple stream download and remove requests.
+<div class="block">Manages downloads.
+
+ <p>Normally a download manager should be accessed via a <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadService</code></a>. When a download
+ manager is used directly instead, downloads will be initially paused and so must be resumed by
+ calling <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#resumeDownloads--"><code>resumeDownloads()</code></a>.
 
  <p>A download manager instance must be accessed only from the thread that created it, unless that
  thread does not have a <a href="https://developer.android.com/reference/android/os/Looper.html" target="_top" title="class or interface in android.os"><code>Looper</code></a>. In that case, it must be accessed only from the
@@ -137,12 +141,6 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <div class="block">Listener for <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadManager</code></a> events.</div>
 </td>
 </tr>
-<tr class="rowColor">
-<td class="colFirst"><code>static class&nbsp;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.TaskState.html" title="class in com.google.android.exoplayer2.offline">DownloadManager.TaskState</a></span></code>
-<div class="block">Represents state of a task.</div>
-</td>
-</tr>
 </table>
 </li>
 </ul>
@@ -160,14 +158,20 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#DEFAULT_MAX_SIMULTANEOUS_DOWNLOADS">DEFAULT_MAX_SIMULTANEOUS_DOWNLOADS</a></span></code>
-<div class="block">The default maximum number of simultaneous download tasks.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#DEFAULT_MAX_PARALLEL_DOWNLOADS">DEFAULT_MAX_PARALLEL_DOWNLOADS</a></span></code>
+<div class="block">The default maximum number of parallel downloads.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#DEFAULT_MIN_RETRY_COUNT">DEFAULT_MIN_RETRY_COUNT</a></span></code>
-<div class="block">The default minimum number of times a task must be retried before failing.</div>
+<div class="block">The default minimum number of times a download must be retried before failing.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/scheduler/Requirements.html" title="class in com.google.android.exoplayer2.scheduler">Requirements</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#DEFAULT_REQUIREMENTS">DEFAULT_REQUIREMENTS</a></span></code>
+<div class="block">The default requirement is that the device has network connectivity.</div>
 </td>
 </tr>
 </table>
@@ -185,26 +189,17 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#DownloadManager-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.DataSource.Factory-java.io.File-com.google.android.exoplayer2.offline.DownloadAction.Deserializer...-">DownloadManager</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
-               <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;upstreamDataSourceFactory,
-               <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;actionSaveFile,
-               <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.Deserializer.html" title="class in com.google.android.exoplayer2.offline">DownloadAction.Deserializer</a>...&nbsp;deserializers)</code>
-<div class="block">Creates a <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadManager</code></a>.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#DownloadManager-com.google.android.exoplayer2.offline.DownloaderConstructorHelper-java.io.File-com.google.android.exoplayer2.offline.DownloadAction.Deserializer...-">DownloadManager</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline">DownloaderConstructorHelper</a>&nbsp;constructorHelper,
-               <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;actionFile,
-               <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.Deserializer.html" title="class in com.google.android.exoplayer2.offline">DownloadAction.Deserializer</a>...&nbsp;deserializers)</code>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#DownloadManager-android.content.Context-com.google.android.exoplayer2.database.DatabaseProvider-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.DataSource.Factory-">DownloadManager</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+               <a href="../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database">DatabaseProvider</a>&nbsp;databaseProvider,
+               <a href="../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
+               <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;upstreamFactory)</code>
 <div class="block">Constructs a <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadManager</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#DownloadManager-com.google.android.exoplayer2.offline.DownloaderConstructorHelper-int-int-java.io.File-com.google.android.exoplayer2.offline.DownloadAction.Deserializer...-">DownloadManager</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline">DownloaderConstructorHelper</a>&nbsp;constructorHelper,
-               int&nbsp;maxSimultaneousDownloads,
-               int&nbsp;minRetryCount,
-               <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;actionFile,
-               <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.Deserializer.html" title="class in com.google.android.exoplayer2.offline">DownloadAction.Deserializer</a>...&nbsp;deserializers)</code>
+<tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#DownloadManager-android.content.Context-com.google.android.exoplayer2.offline.WritableDownloadIndex-com.google.android.exoplayer2.offline.DownloaderFactory-">DownloadManager</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+               <a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html" title="interface in com.google.android.exoplayer2.offline">WritableDownloadIndex</a>&nbsp;downloadIndex,
+               <a href="../../../../../com/google/android/exoplayer2/offline/DownloaderFactory.html" title="interface in com.google.android.exoplayer2.offline">DownloaderFactory</a>&nbsp;downloaderFactory)</code>
 <div class="block">Constructs a <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadManager</code></a>.</div>
 </td>
 </tr>
@@ -225,80 +220,137 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#addDownload-com.google.android.exoplayer2.offline.DownloadRequest-">addDownload</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a>&nbsp;request)</code>
+<div class="block">Adds a download defined by the given request.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#addDownload-com.google.android.exoplayer2.offline.DownloadRequest-int-">addDownload</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a>&nbsp;request,
+           int&nbsp;stopReason)</code>
+<div class="block">Adds a download defined by the given request and with the specified stop reason.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#addListener-com.google.android.exoplayer2.offline.DownloadManager.Listener-">addListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.Listener.html" title="interface in com.google.android.exoplayer2.offline">DownloadManager.Listener</a>&nbsp;listener)</code>
 <div class="block">Adds a <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.Listener.html" title="interface in com.google.android.exoplayer2.offline"><code>DownloadManager.Listener</code></a>.</div>
 </td>
 </tr>
-<tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.TaskState.html" title="class in com.google.android.exoplayer2.offline">DownloadManager.TaskState</a>[]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#getAllTaskStates--">getAllTaskStates</a></span>()</code>
-<div class="block">Returns the states of all current tasks.</div>
-</td>
-</tr>
-<tr id="i2" class="altColor">
-<td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#getDownloadCount--">getDownloadCount</a></span>()</code>
-<div class="block">Returns the number of download tasks.</div>
-</td>
-</tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#getTaskCount--">getTaskCount</a></span>()</code>
-<div class="block">Returns the number of tasks.</div>
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#getCurrentDownloads--">getCurrentDownloads</a></span>()</code>
+<div class="block">Returns current downloads.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.TaskState.html" title="class in com.google.android.exoplayer2.offline">DownloadManager.TaskState</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#getTaskState-int-">getTaskState</a></span>(int&nbsp;taskId)</code>
-<div class="block">Returns the state of a task, or null if no such task exists</div>
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadIndex.html" title="interface in com.google.android.exoplayer2.offline">DownloadIndex</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#getDownloadIndex--">getDownloadIndex</a></span>()</code>
+<div class="block">Returns the used <a href="../../../../../com/google/android/exoplayer2/offline/DownloadIndex.html" title="interface in com.google.android.exoplayer2.offline"><code>DownloadIndex</code></a>.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#handleAction-byte:A-">handleAction</a></span>(byte[]&nbsp;actionData)</code>
-<div class="block">Deserializes an action from <code>actionData</code>, and calls <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#handleAction-com.google.android.exoplayer2.offline.DownloadAction-"><code>handleAction(DownloadAction)</code></a>.</div>
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#getDownloadsPaused--">getDownloadsPaused</a></span>()</code>
+<div class="block">Returns whether downloads are currently paused.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#handleAction-com.google.android.exoplayer2.offline.DownloadAction-">handleAction</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html" title="class in com.google.android.exoplayer2.offline">DownloadAction</a>&nbsp;action)</code>
-<div class="block">Handles the given action.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#getMaxParallelDownloads--">getMaxParallelDownloads</a></span>()</code>
+<div class="block">Returns the maximum number of parallel downloads.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
-<td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#isIdle--">isIdle</a></span>()</code>
-<div class="block">Returns whether there are no active tasks.</div>
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#getMinRetryCount--">getMinRetryCount</a></span>()</code>
+<div class="block">Returns the minimum number of times that a download will be retried.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#getNotMetRequirements--">getNotMetRequirements</a></span>()</code>
+<div class="block">Returns the requirements needed for downloads to progress that are not currently met.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/scheduler/Requirements.html" title="class in com.google.android.exoplayer2.scheduler">Requirements</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#getRequirements--">getRequirements</a></span>()</code>
+<div class="block">Returns the requirements needed to be met to progress.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#isIdle--">isIdle</a></span>()</code>
+<div class="block">Returns whether the manager is currently idle.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#isInitialized--">isInitialized</a></span>()</code>
 <div class="block">Returns whether the manager has completed initialization.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#release--">release</a></span>()</code>
-<div class="block">Stops all of the tasks and releases resources.</div>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#isWaitingForRequirements--">isWaitingForRequirements</a></span>()</code>
+<div class="block">Returns whether this manager has one or more downloads that are not progressing for the sole
+ reason that the <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#getRequirements--"><code>Requirements</code></a> are not met.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#pauseDownloads--">pauseDownloads</a></span>()</code>
+<div class="block">Pauses downloads.</div>
+</td>
+</tr>
+<tr id="i14" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#release--">release</a></span>()</code>
+<div class="block">Stops the downloads and releases resources.</div>
+</td>
+</tr>
+<tr id="i15" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#removeDownload-java.lang.String-">removeDownload</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id)</code>
+<div class="block">Cancels the download with the <code>id</code> and removes all downloaded data.</div>
+</td>
+</tr>
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#removeListener-com.google.android.exoplayer2.offline.DownloadManager.Listener-">removeListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.Listener.html" title="interface in com.google.android.exoplayer2.offline">DownloadManager.Listener</a>&nbsp;listener)</code>
 <div class="block">Removes a <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.Listener.html" title="interface in com.google.android.exoplayer2.offline"><code>DownloadManager.Listener</code></a>.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#startDownloads--">startDownloads</a></span>()</code>
-<div class="block">Starts the download tasks.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#resumeDownloads--">resumeDownloads</a></span>()</code>
+<div class="block">Resumes downloads.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#stopDownloads--">stopDownloads</a></span>()</code>
-<div class="block">Stops all of the download tasks.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#setMaxParallelDownloads-int-">setMaxParallelDownloads</a></span>(int&nbsp;maxParallelDownloads)</code>
+<div class="block">Sets the maximum number of parallel downloads.</div>
+</td>
+</tr>
+<tr id="i19" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#setMinRetryCount-int-">setMinRetryCount</a></span>(int&nbsp;minRetryCount)</code>
+<div class="block">Sets the minimum number of times that a download will be retried.</div>
+</td>
+</tr>
+<tr id="i20" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#setRequirements-com.google.android.exoplayer2.scheduler.Requirements-">setRequirements</a></span>(<a href="../../../../../com/google/android/exoplayer2/scheduler/Requirements.html" title="class in com.google.android.exoplayer2.scheduler">Requirements</a>&nbsp;requirements)</code>
+<div class="block">Sets the requirements that need to be met for downloads to progress.</div>
+</td>
+</tr>
+<tr id="i21" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#setStopReason-java.lang.String-int-">setStopReason</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+             int&nbsp;stopReason)</code>
+<div class="block">Sets the stop reason for one or all downloads.</div>
 </td>
 </tr>
 </table>
@@ -323,32 +375,42 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a name="DEFAULT_MAX_SIMULTANEOUS_DOWNLOADS">
+<a name="DEFAULT_MAX_PARALLEL_DOWNLOADS">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>DEFAULT_MAX_SIMULTANEOUS_DOWNLOADS</h4>
-<pre>public static final&nbsp;int DEFAULT_MAX_SIMULTANEOUS_DOWNLOADS</pre>
-<div class="block">The default maximum number of simultaneous download tasks.</div>
+<h4>DEFAULT_MAX_PARALLEL_DOWNLOADS</h4>
+<pre>public static final&nbsp;int DEFAULT_MAX_PARALLEL_DOWNLOADS</pre>
+<div class="block">The default maximum number of parallel downloads.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.offline.DownloadManager.DEFAULT_MAX_SIMULTANEOUS_DOWNLOADS">Constant Field Values</a></dd>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.offline.DownloadManager.DEFAULT_MAX_PARALLEL_DOWNLOADS">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
 <a name="DEFAULT_MIN_RETRY_COUNT">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>DEFAULT_MIN_RETRY_COUNT</h4>
 <pre>public static final&nbsp;int DEFAULT_MIN_RETRY_COUNT</pre>
-<div class="block">The default minimum number of times a task must be retried before failing.</div>
+<div class="block">The default minimum number of times a download must be retried before failing.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.offline.DownloadManager.DEFAULT_MIN_RETRY_COUNT">Constant Field Values</a></dd>
 </dl>
+</li>
+</ul>
+<a name="DEFAULT_REQUIREMENTS">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DEFAULT_REQUIREMENTS</h4>
+<pre>public static final&nbsp;<a href="../../../../../com/google/android/exoplayer2/scheduler/Requirements.html" title="class in com.google.android.exoplayer2.scheduler">Requirements</a> DEFAULT_REQUIREMENTS</pre>
+<div class="block">The default requirement is that the device has network connectivity.</div>
 </li>
 </ul>
 </li>
@@ -359,66 +421,42 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="DownloadManager-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.DataSource.Factory-java.io.File-com.google.android.exoplayer2.offline.DownloadAction.Deserializer...-">
+<a name="DownloadManager-android.content.Context-com.google.android.exoplayer2.database.DatabaseProvider-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.DataSource.Factory-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>DownloadManager</h4>
-<pre>public&nbsp;DownloadManager(<a href="../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
-                       <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;upstreamDataSourceFactory,
-                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;actionSaveFile,
-                       <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.Deserializer.html" title="class in com.google.android.exoplayer2.offline">DownloadAction.Deserializer</a>...&nbsp;deserializers)</pre>
-<div class="block">Creates a <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadManager</code></a>.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>cache</code> - Cache instance to be used to store downloaded data.</dd>
-<dd><code>upstreamDataSourceFactory</code> - A <code>DataSource.Factory</code> for creating data sources for
-     downloading upstream data.</dd>
-<dd><code>actionSaveFile</code> - File to save active actions.</dd>
-<dd><code>deserializers</code> - Used to deserialize <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadAction</code></a>s. If empty, <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#getDefaultDeserializers--"><code>DownloadAction.getDefaultDeserializers()</code></a> is used instead.</dd>
-</dl>
-</li>
-</ul>
-<a name="DownloadManager-com.google.android.exoplayer2.offline.DownloaderConstructorHelper-java.io.File-com.google.android.exoplayer2.offline.DownloadAction.Deserializer...-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>DownloadManager</h4>
-<pre>public&nbsp;DownloadManager(<a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline">DownloaderConstructorHelper</a>&nbsp;constructorHelper,
-                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;actionFile,
-                       <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.Deserializer.html" title="class in com.google.android.exoplayer2.offline">DownloadAction.Deserializer</a>...&nbsp;deserializers)</pre>
+<pre>public&nbsp;DownloadManager(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+                       <a href="../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database">DatabaseProvider</a>&nbsp;databaseProvider,
+                       <a href="../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
+                       <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;upstreamFactory)</pre>
 <div class="block">Constructs a <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadManager</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>constructorHelper</code> - A <a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline"><code>DownloaderConstructorHelper</code></a> to create <a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline"><code>Downloader</code></a>s
-     for downloading data.</dd>
-<dd><code>actionFile</code> - The file in which active actions are saved.</dd>
-<dd><code>deserializers</code> - Used to deserialize <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadAction</code></a>s. If empty, <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#getDefaultDeserializers--"><code>DownloadAction.getDefaultDeserializers()</code></a> is used instead.</dd>
+<dd><code>context</code> - Any context.</dd>
+<dd><code>databaseProvider</code> - Provides the SQLite database in which downloads are persisted.</dd>
+<dd><code>cache</code> - A cache to be used to store downloaded data. The cache should be configured with
+     an <a href="../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>CacheEvictor</code></a> that will not evict downloaded content, for example <a href="../../../../../com/google/android/exoplayer2/upstream/cache/NoOpCacheEvictor.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>NoOpCacheEvictor</code></a>.</dd>
+<dd><code>upstreamFactory</code> - A <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource.Factory</code></a> for creating <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a>s for downloading data.</dd>
 </dl>
 </li>
 </ul>
-<a name="DownloadManager-com.google.android.exoplayer2.offline.DownloaderConstructorHelper-int-int-java.io.File-com.google.android.exoplayer2.offline.DownloadAction.Deserializer...-">
+<a name="DownloadManager-android.content.Context-com.google.android.exoplayer2.offline.WritableDownloadIndex-com.google.android.exoplayer2.offline.DownloaderFactory-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>DownloadManager</h4>
-<pre>public&nbsp;DownloadManager(<a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline">DownloaderConstructorHelper</a>&nbsp;constructorHelper,
-                       int&nbsp;maxSimultaneousDownloads,
-                       int&nbsp;minRetryCount,
-                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;actionFile,
-                       <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.Deserializer.html" title="class in com.google.android.exoplayer2.offline">DownloadAction.Deserializer</a>...&nbsp;deserializers)</pre>
+<pre>public&nbsp;DownloadManager(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+                       <a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html" title="interface in com.google.android.exoplayer2.offline">WritableDownloadIndex</a>&nbsp;downloadIndex,
+                       <a href="../../../../../com/google/android/exoplayer2/offline/DownloaderFactory.html" title="interface in com.google.android.exoplayer2.offline">DownloaderFactory</a>&nbsp;downloaderFactory)</pre>
 <div class="block">Constructs a <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadManager</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>constructorHelper</code> - A <a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline"><code>DownloaderConstructorHelper</code></a> to create <a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline"><code>Downloader</code></a>s
-     for downloading data.</dd>
-<dd><code>maxSimultaneousDownloads</code> - The maximum number of simultaneous download tasks.</dd>
-<dd><code>minRetryCount</code> - The minimum number of times a task must be retried before failing.</dd>
-<dd><code>actionFile</code> - The file in which active actions are saved.</dd>
-<dd><code>deserializers</code> - Used to deserialize <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadAction</code></a>s. If empty, <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#getDefaultDeserializers--"><code>DownloadAction.getDefaultDeserializers()</code></a> is used instead.</dd>
+<dd><code>context</code> - Any context.</dd>
+<dd><code>downloadIndex</code> - The download index used to hold the download information.</dd>
+<dd><code>downloaderFactory</code> - A factory for creating <a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline"><code>Downloader</code></a>s.</dd>
 </dl>
 </li>
 </ul>
@@ -430,6 +468,39 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="isInitialized--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isInitialized</h4>
+<pre>public&nbsp;boolean&nbsp;isInitialized()</pre>
+<div class="block">Returns whether the manager has completed initialization.</div>
+</li>
+</ul>
+<a name="isIdle--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isIdle</h4>
+<pre>public&nbsp;boolean&nbsp;isIdle()</pre>
+<div class="block">Returns whether the manager is currently idle. The manager is idle if all downloads are in a
+ terminal state (i.e. completed or failed), or if no progress can be made (e.g. because the
+ download requirements are not met).</div>
+</li>
+</ul>
+<a name="isWaitingForRequirements--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isWaitingForRequirements</h4>
+<pre>public&nbsp;boolean&nbsp;isWaitingForRequirements()</pre>
+<div class="block">Returns whether this manager has one or more downloads that are not progressing for the sole
+ reason that the <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#getRequirements--"><code>Requirements</code></a> are not met.</div>
+</li>
+</ul>
 <a name="addListener-com.google.android.exoplayer2.offline.DownloadManager.Listener-">
 <!--   -->
 </a>
@@ -458,121 +529,210 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </dl>
 </li>
 </ul>
-<a name="startDownloads--">
+<a name="getRequirements--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>startDownloads</h4>
-<pre>public&nbsp;void&nbsp;startDownloads()</pre>
-<div class="block">Starts the download tasks.</div>
+<h4>getRequirements</h4>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/scheduler/Requirements.html" title="class in com.google.android.exoplayer2.scheduler">Requirements</a>&nbsp;getRequirements()</pre>
+<div class="block">Returns the requirements needed to be met to progress.</div>
 </li>
 </ul>
-<a name="stopDownloads--">
+<a name="getNotMetRequirements--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>stopDownloads</h4>
-<pre>public&nbsp;void&nbsp;stopDownloads()</pre>
-<div class="block">Stops all of the download tasks. Call <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#startDownloads--"><code>startDownloads()</code></a> to restart tasks.</div>
-</li>
-</ul>
-<a name="handleAction-byte:A-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>handleAction</h4>
-<pre>public&nbsp;int&nbsp;handleAction(byte[]&nbsp;actionData)
-                 throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
-<div class="block">Deserializes an action from <code>actionData</code>, and calls <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#handleAction-com.google.android.exoplayer2.offline.DownloadAction-"><code>handleAction(DownloadAction)</code></a>.</div>
+<h4>getNotMetRequirements</h4>
+<pre><a href="../../../../../com/google/android/exoplayer2/scheduler/Requirements.RequirementFlags.html" title="annotation in com.google.android.exoplayer2.scheduler">@Requirements.RequirementFlags</a>
+public&nbsp;int&nbsp;getNotMetRequirements()</pre>
+<div class="block">Returns the requirements needed for downloads to progress that are not currently met.</div>
 <dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>actionData</code> - Serialized version of the action to be executed.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The id of the newly created task.</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code> - If an error occurs deserializing the action.</dd>
+<dd>The not met <code>Requirements.RequirementFlags</code>, or 0 if all requirements are met.</dd>
 </dl>
 </li>
 </ul>
-<a name="handleAction-com.google.android.exoplayer2.offline.DownloadAction-">
+<a name="setRequirements-com.google.android.exoplayer2.scheduler.Requirements-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>handleAction</h4>
-<pre>public&nbsp;int&nbsp;handleAction(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html" title="class in com.google.android.exoplayer2.offline">DownloadAction</a>&nbsp;action)</pre>
-<div class="block">Handles the given action. A task is created and added to the task queue. If it's a remove
- action then any download tasks for the same media are immediately canceled.</div>
+<h4>setRequirements</h4>
+<pre>public&nbsp;void&nbsp;setRequirements(<a href="../../../../../com/google/android/exoplayer2/scheduler/Requirements.html" title="class in com.google.android.exoplayer2.scheduler">Requirements</a>&nbsp;requirements)</pre>
+<div class="block">Sets the requirements that need to be met for downloads to progress.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>action</code> - The action to be executed.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The id of the newly created task.</dd>
+<dd><code>requirements</code> - A <a href="../../../../../com/google/android/exoplayer2/scheduler/Requirements.html" title="class in com.google.android.exoplayer2.scheduler"><code>Requirements</code></a>.</dd>
 </dl>
 </li>
 </ul>
-<a name="getTaskCount--">
+<a name="getMaxParallelDownloads--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getTaskCount</h4>
-<pre>public&nbsp;int&nbsp;getTaskCount()</pre>
-<div class="block">Returns the number of tasks.</div>
+<h4>getMaxParallelDownloads</h4>
+<pre>public&nbsp;int&nbsp;getMaxParallelDownloads()</pre>
+<div class="block">Returns the maximum number of parallel downloads.</div>
 </li>
 </ul>
-<a name="getDownloadCount--">
+<a name="setMaxParallelDownloads-int-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getDownloadCount</h4>
-<pre>public&nbsp;int&nbsp;getDownloadCount()</pre>
-<div class="block">Returns the number of download tasks.</div>
+<h4>setMaxParallelDownloads</h4>
+<pre>public&nbsp;void&nbsp;setMaxParallelDownloads(int&nbsp;maxParallelDownloads)</pre>
+<div class="block">Sets the maximum number of parallel downloads.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>maxParallelDownloads</code> - The maximum number of parallel downloads. Must be greater than 0.</dd>
+</dl>
 </li>
 </ul>
-<a name="getTaskState-int-">
+<a name="getMinRetryCount--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getTaskState</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
-public&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.TaskState.html" title="class in com.google.android.exoplayer2.offline">DownloadManager.TaskState</a>&nbsp;getTaskState(int&nbsp;taskId)</pre>
-<div class="block">Returns the state of a task, or null if no such task exists</div>
+<h4>getMinRetryCount</h4>
+<pre>public&nbsp;int&nbsp;getMinRetryCount()</pre>
+<div class="block">Returns the minimum number of times that a download will be retried. A download will fail if
+ the specified number of retries is exceeded without any progress being made.</div>
 </li>
 </ul>
-<a name="getAllTaskStates--">
+<a name="setMinRetryCount-int-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getAllTaskStates</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.TaskState.html" title="class in com.google.android.exoplayer2.offline">DownloadManager.TaskState</a>[]&nbsp;getAllTaskStates()</pre>
-<div class="block">Returns the states of all current tasks.</div>
+<h4>setMinRetryCount</h4>
+<pre>public&nbsp;void&nbsp;setMinRetryCount(int&nbsp;minRetryCount)</pre>
+<div class="block">Sets the minimum number of times that a download will be retried. A download will fail if the
+ specified number of retries is exceeded without any progress being made.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>minRetryCount</code> - The minimum number of times that a download will be retried.</dd>
+</dl>
 </li>
 </ul>
-<a name="isInitialized--">
+<a name="getDownloadIndex--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>isInitialized</h4>
-<pre>public&nbsp;boolean&nbsp;isInitialized()</pre>
-<div class="block">Returns whether the manager has completed initialization.</div>
+<h4>getDownloadIndex</h4>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/DownloadIndex.html" title="interface in com.google.android.exoplayer2.offline">DownloadIndex</a>&nbsp;getDownloadIndex()</pre>
+<div class="block">Returns the used <a href="../../../../../com/google/android/exoplayer2/offline/DownloadIndex.html" title="interface in com.google.android.exoplayer2.offline"><code>DownloadIndex</code></a>.</div>
 </li>
 </ul>
-<a name="isIdle--">
+<a name="getCurrentDownloads--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>isIdle</h4>
-<pre>public&nbsp;boolean&nbsp;isIdle()</pre>
-<div class="block">Returns whether there are no active tasks.</div>
+<h4>getCurrentDownloads</h4>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&gt;&nbsp;getCurrentDownloads()</pre>
+<div class="block">Returns current downloads. Downloads that are in terminal states (i.e. completed or failed) are
+ not included. To query all downloads including those in terminal states, use <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#getDownloadIndex--"><code>getDownloadIndex()</code></a> instead.</div>
+</li>
+</ul>
+<a name="getDownloadsPaused--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDownloadsPaused</h4>
+<pre>public&nbsp;boolean&nbsp;getDownloadsPaused()</pre>
+<div class="block">Returns whether downloads are currently paused.</div>
+</li>
+</ul>
+<a name="resumeDownloads--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>resumeDownloads</h4>
+<pre>public&nbsp;void&nbsp;resumeDownloads()</pre>
+<div class="block">Resumes downloads.
+
+ <p>If the <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#setRequirements-com.google.android.exoplayer2.scheduler.Requirements-"><code>Requirements</code></a> are met up to <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#getMaxParallelDownloads--"><code>maxParallelDownloads</code></a> will be started, excluding those with non-zero
+ <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#stopReason"><code>stopReasons</code></a>.</div>
+</li>
+</ul>
+<a name="pauseDownloads--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>pauseDownloads</h4>
+<pre>public&nbsp;void&nbsp;pauseDownloads()</pre>
+<div class="block">Pauses downloads. Downloads that would otherwise be making progress transition to <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_QUEUED"><code>Download.STATE_QUEUED</code></a>.</div>
+</li>
+</ul>
+<a name="setStopReason-java.lang.String-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setStopReason</h4>
+<pre>public&nbsp;void&nbsp;setStopReason(@Nullable
+                          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+                          int&nbsp;stopReason)</pre>
+<div class="block">Sets the stop reason for one or all downloads. To clear the stop reason, pass <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STOP_REASON_NONE"><code>Download.STOP_REASON_NONE</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>id</code> - The content id of the download to update, or <code>null</code> to set the stop reason for
+     all downloads.</dd>
+<dd><code>stopReason</code> - The stop reason, or <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STOP_REASON_NONE"><code>Download.STOP_REASON_NONE</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a name="addDownload-com.google.android.exoplayer2.offline.DownloadRequest-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addDownload</h4>
+<pre>public&nbsp;void&nbsp;addDownload(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a>&nbsp;request)</pre>
+<div class="block">Adds a download defined by the given request.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>request</code> - The download request.</dd>
+</dl>
+</li>
+</ul>
+<a name="addDownload-com.google.android.exoplayer2.offline.DownloadRequest-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addDownload</h4>
+<pre>public&nbsp;void&nbsp;addDownload(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a>&nbsp;request,
+                        int&nbsp;stopReason)</pre>
+<div class="block">Adds a download defined by the given request and with the specified stop reason.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>request</code> - The download request.</dd>
+<dd><code>stopReason</code> - An initial stop reason for the download, or <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STOP_REASON_NONE"><code>Download.STOP_REASON_NONE</code></a>
+     if the download should be started.</dd>
+</dl>
+</li>
+</ul>
+<a name="removeDownload-java.lang.String-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>removeDownload</h4>
+<pre>public&nbsp;void&nbsp;removeDownload(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id)</pre>
+<div class="block">Cancels the download with the <code>id</code> and removes all downloaded data.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>id</code> - The unique content id of the download to be started.</dd>
+</dl>
 </li>
 </ul>
 <a name="release--">
@@ -582,8 +742,8 @@ public&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/Downlo
 <li class="blockList">
 <h4>release</h4>
 <pre>public&nbsp;void&nbsp;release()</pre>
-<div class="block">Stops all of the tasks and releases resources. If the action file isn't up to date, waits for
- the changes to be written. The manager must not be accessed after this method has been called.</div>
+<div class="block">Stops the downloads and releases resources. Waits until the downloads are persisted to the
+ download index. The manager must not be accessed after this method has been called.</div>
 </li>
 </ul>
 </li>
@@ -613,7 +773,7 @@ public&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/Downlo
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/offline/DownloadHelper.Callback.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/offline/DownloadIndex.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.Listener.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">

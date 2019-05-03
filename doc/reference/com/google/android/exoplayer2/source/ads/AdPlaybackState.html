@@ -264,7 +264,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdPlaybackState.html#getAdGroupIndexAfterPositionUs-long-">getAdGroupIndexAfterPositionUs</a></span>(long&nbsp;positionUs)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdPlaybackState.html#getAdGroupIndexAfterPositionUs-long-long-">getAdGroupIndexAfterPositionUs</a></span>(long&nbsp;positionUs,
+                              long&nbsp;periodDurationUs)</code>
 <div class="block">Returns the index of the next ad group after <code>positionUs</code> that has ads remaining to be
  played.</div>
 </td>
@@ -536,24 +537,29 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
  ads remaining to be played, or if there is no such ad group.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>positionUs</code> - The position at or before which to find an ad group, in microseconds.</dd>
+<dd><code>positionUs</code> - The position at or before which to find an ad group, in microseconds, or
+     <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> for the end of the stream (in which case the index of any
+     unplayed postroll ad group will be returned).</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The index of the ad group, or <a href="../../../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a>.</dd>
 </dl>
 </li>
 </ul>
-<a name="getAdGroupIndexAfterPositionUs-long-">
+<a name="getAdGroupIndexAfterPositionUs-long-long-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getAdGroupIndexAfterPositionUs</h4>
-<pre>public&nbsp;int&nbsp;getAdGroupIndexAfterPositionUs(long&nbsp;positionUs)</pre>
+<pre>public&nbsp;int&nbsp;getAdGroupIndexAfterPositionUs(long&nbsp;positionUs,
+                                          long&nbsp;periodDurationUs)</pre>
 <div class="block">Returns the index of the next ad group after <code>positionUs</code> that has ads remaining to be
  played. Returns <a href="../../../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if there is no such ad group.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>positionUs</code> - The position after which to find an ad group, in microseconds.</dd>
+<dd><code>positionUs</code> - The position after which to find an ad group, in microseconds, or <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> for the end of the stream (in which case there can be no ad group
+     after the position).</dd>
+<dd><code>periodDurationUs</code> - The duration of the containing period in microseconds, or <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not known.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The index of the ad group, or <a href="../../../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a>.</dd>
 </dl>
@@ -565,7 +571,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>withAdCount</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.CheckResult.html" target="_top" title="class or interface in android">@CheckResult</a>
+<pre>@CheckResult
 public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/ads/AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withAdCount(int&nbsp;adGroupIndex,
                                                 int&nbsp;adCount)</pre>
 <div class="block">Returns an instance with the number of ads in <code>adGroupIndex</code> resolved to <code>adCount</code>.
@@ -578,7 +584,7 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/ads/
 <ul class="blockList">
 <li class="blockList">
 <h4>withAdUri</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.CheckResult.html" target="_top" title="class or interface in android">@CheckResult</a>
+<pre>@CheckResult
 public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/ads/AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withAdUri(int&nbsp;adGroupIndex,
                                               int&nbsp;adIndexInAdGroup,
                                               <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri)</pre>
@@ -591,7 +597,7 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/ads/
 <ul class="blockList">
 <li class="blockList">
 <h4>withPlayedAd</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.CheckResult.html" target="_top" title="class or interface in android">@CheckResult</a>
+<pre>@CheckResult
 public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/ads/AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withPlayedAd(int&nbsp;adGroupIndex,
                                                  int&nbsp;adIndexInAdGroup)</pre>
 <div class="block">Returns an instance with the specified ad marked as played.</div>
@@ -603,7 +609,7 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/ads/
 <ul class="blockList">
 <li class="blockList">
 <h4>withSkippedAd</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.CheckResult.html" target="_top" title="class or interface in android">@CheckResult</a>
+<pre>@CheckResult
 public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/ads/AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withSkippedAd(int&nbsp;adGroupIndex,
                                                   int&nbsp;adIndexInAdGroup)</pre>
 <div class="block">Returns an instance with the specified ad marked as skipped.</div>
@@ -615,7 +621,7 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/ads/
 <ul class="blockList">
 <li class="blockList">
 <h4>withAdLoadError</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.CheckResult.html" target="_top" title="class or interface in android">@CheckResult</a>
+<pre>@CheckResult
 public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/ads/AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withAdLoadError(int&nbsp;adGroupIndex,
                                                     int&nbsp;adIndexInAdGroup)</pre>
 <div class="block">Returns an instance with the specified ad marked as having a load error.</div>
@@ -627,7 +633,7 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/ads/
 <ul class="blockList">
 <li class="blockList">
 <h4>withSkippedAdGroup</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.CheckResult.html" target="_top" title="class or interface in android">@CheckResult</a>
+<pre>@CheckResult
 public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/ads/AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withSkippedAdGroup(int&nbsp;adGroupIndex)</pre>
 <div class="block">Returns an instance with all ads in the specified ad group skipped (except for those already
  marked as played or in the error state).</div>
@@ -639,7 +645,7 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/ads/
 <ul class="blockList">
 <li class="blockList">
 <h4>withAdDurationsUs</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.CheckResult.html" target="_top" title="class or interface in android">@CheckResult</a>
+<pre>@CheckResult
 public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/ads/AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withAdDurationsUs(long[][]&nbsp;adDurationUs)</pre>
 <div class="block">Returns an instance with the specified ad durations, in microseconds.</div>
 </li>
@@ -650,7 +656,7 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/ads/
 <ul class="blockList">
 <li class="blockList">
 <h4>withAdResumePositionUs</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.CheckResult.html" target="_top" title="class or interface in android">@CheckResult</a>
+<pre>@CheckResult
 public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/ads/AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withAdResumePositionUs(long&nbsp;adResumePositionUs)</pre>
 <div class="block">Returns an instance with the specified ad resume position, in microseconds.</div>
 </li>
@@ -661,7 +667,7 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/ads/
 <ul class="blockList">
 <li class="blockList">
 <h4>withContentDurationUs</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.CheckResult.html" target="_top" title="class or interface in android">@CheckResult</a>
+<pre>@CheckResult
 public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/ads/AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withContentDurationUs(long&nbsp;contentDurationUs)</pre>
 <div class="block">Returns an instance with the specified content duration, in microseconds.</div>
 </li>

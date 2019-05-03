@@ -202,7 +202,7 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="type parameter in ExoMediaDrm">T</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#createMediaCrypto-byte:A-">createMediaCrypto</a></span>(byte[]&nbsp;initData)</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#createMediaCrypto-byte:A-">createMediaCrypto</a></span>(byte[]&nbsp;sessionId)</code>&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.KeyRequest</a></code></td>
@@ -438,10 +438,10 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <h4>getKeyRequest</h4>
 <pre><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.KeyRequest</a>&nbsp;getKeyRequest(byte[]&nbsp;scope,
-                                     <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                     @Nullable
                                      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData.SchemeData</a>&gt;&nbsp;schemeDatas,
                                      int&nbsp;keyType,
-                                     <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                     @Nullable
                                      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/HashMap.html" target="_top" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalParameters)
                               throws <a href="https://developer.android.com/reference/android/media/NotProvisionedException.html" target="_top" title="class or interface in android.media">NotProvisionedException</a></pre>
 <div class="block">Generates a key request.</div>
@@ -614,11 +614,11 @@ var activeTableTab = "activeTableTab";
 <ul class="blockListLast">
 <li class="blockList">
 <h4>createMediaCrypto</h4>
-<pre><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="type parameter in ExoMediaDrm">T</a>&nbsp;createMediaCrypto(byte[]&nbsp;initData)
+<pre><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="type parameter in ExoMediaDrm">T</a>&nbsp;createMediaCrypto(byte[]&nbsp;sessionId)
              throws <a href="https://developer.android.com/reference/android/media/MediaCryptoException.html" target="_top" title="class or interface in android.media">MediaCryptoException</a></pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>initData</code> - Opaque initialization data specific to the crypto scheme.</dd>
+<dd><code>sessionId</code> - The DRM session ID.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>An object extends <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a>, using opaque crypto scheme specific data.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>

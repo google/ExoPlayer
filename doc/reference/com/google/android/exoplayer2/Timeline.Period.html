@@ -178,7 +178,9 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Period.html#Period--">Period</a></span>()</code>&nbsp;</td>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Period.html#Period--">Period</a></span>()</code>
+<div class="block">Creates a new instance with no ad playback state.</div>
+</td>
 </tr>
 </table>
 </li>
@@ -348,8 +350,10 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>id</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a> id</pre>
-<div class="block">An identifier for the period. Not necessarily unique.</div>
+<pre>@Nullable
+public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a> id</pre>
+<div class="block">An identifier for the period. Not necessarily unique. May be null if the ids of the period
+ are not required.</div>
 </li>
 </ul>
 <a name="uid">
@@ -358,8 +362,9 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>uid</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a> uid</pre>
-<div class="block">A unique identifier for the period.</div>
+<pre>@Nullable
+public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a> uid</pre>
+<div class="block">A unique identifier for the period. May be null if the ids of the period are not required.</div>
 </li>
 </ul>
 <a name="windowIndex">
@@ -397,6 +402,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>Period</h4>
 <pre>public&nbsp;Period()</pre>
+<div class="block">Creates a new instance with no ad playback state.</div>
 </li>
 </ul>
 </li>
@@ -413,7 +419,9 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>set</h4>
-<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a>&nbsp;set(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;id,
+<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a>&nbsp;set(@Nullable
+                           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;id,
+                           @Nullable
                            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;uid,
                            int&nbsp;windowIndex,
                            long&nbsp;durationUs,
@@ -421,8 +429,10 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <div class="block">Sets the data held by this period.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>id</code> - An identifier for the period. Not necessarily unique.</dd>
-<dd><code>uid</code> - A unique identifier for the period.</dd>
+<dd><code>id</code> - An identifier for the period. Not necessarily unique. May be null if the ids of the
+     period are not required.</dd>
+<dd><code>uid</code> - A unique identifier for the period. May be null if the ids of the period are not
+     required.</dd>
 <dd><code>windowIndex</code> - The index of the window to which this period belongs.</dd>
 <dd><code>durationUs</code> - The duration of this period in microseconds, or <a href="../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if
      unknown.</dd>
@@ -440,7 +450,9 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>set</h4>
-<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a>&nbsp;set(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;id,
+<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a>&nbsp;set(@Nullable
+                           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;id,
+                           @Nullable
                            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;uid,
                            int&nbsp;windowIndex,
                            long&nbsp;durationUs,
@@ -449,8 +461,10 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <div class="block">Sets the data held by this period.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>id</code> - An identifier for the period. Not necessarily unique.</dd>
-<dd><code>uid</code> - A unique identifier for the period.</dd>
+<dd><code>id</code> - An identifier for the period. Not necessarily unique. May be null if the ids of the
+     period are not required.</dd>
+<dd><code>uid</code> - A unique identifier for the period. May be null if the ids of the period are not
+     required.</dd>
 <dd><code>windowIndex</code> - The index of the window to which this period belongs.</dd>
 <dd><code>durationUs</code> - The duration of this period in microseconds, or <a href="../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if
      unknown.</dd>

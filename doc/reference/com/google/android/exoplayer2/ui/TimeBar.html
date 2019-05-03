@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6};
+var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -151,12 +151,19 @@ var activeTableTab = "activeTableTab";
 </td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/TimeBar.html#getPreferredUpdateDelay--">getPreferredUpdateDelay</a></span>()</code>
+<div class="block">Returns the preferred delay in milliseconds of media time after which the time bar position
+ should be updated.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/TimeBar.html#removeListener-com.google.android.exoplayer2.ui.TimeBar.OnScrubListener-">removeListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/ui/TimeBar.OnScrubListener.html" title="interface in com.google.android.exoplayer2.ui">TimeBar.OnScrubListener</a>&nbsp;listener)</code>
 <div class="block">Removes a listener for scrubbing events.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/TimeBar.html#setAdGroupTimesMs-long:A-boolean:A-int-">setAdGroupTimesMs</a></span>(long[]&nbsp;adGroupTimesMs,
                  boolean[]&nbsp;playedAdGroups,
@@ -164,36 +171,36 @@ var activeTableTab = "activeTableTab";
 <div class="block">Sets the times of ad groups and whether each ad group has been played.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/TimeBar.html#setBufferedPosition-long-">setBufferedPosition</a></span>(long&nbsp;bufferedPosition)</code>
 <div class="block">Sets the buffered position.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/TimeBar.html#setDuration-long-">setDuration</a></span>(long&nbsp;duration)</code>
 <div class="block">Sets the duration.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/TimeBar.html#setEnabled-boolean-">setEnabled</a></span>(boolean&nbsp;enabled)</code>&nbsp;</td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/TimeBar.html#setKeyCountIncrement-int-">setKeyCountIncrement</a></span>(int&nbsp;count)</code>
 <div class="block">Sets the position increment for key presses and accessibility actions, as a number of
  increments that divide the duration of the media.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/TimeBar.html#setKeyTimeIncrement-long-">setKeyTimeIncrement</a></span>(long&nbsp;time)</code>
 <div class="block">Sets the position increment for key presses and accessibility actions, in milliseconds.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/TimeBar.html#setPosition-long-">setPosition</a></span>(long&nbsp;position)</code>
 <div class="block">Sets the current position.</div>
@@ -331,15 +338,30 @@ var activeTableTab = "activeTableTab";
 </dl>
 </li>
 </ul>
+<a name="getPreferredUpdateDelay--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getPreferredUpdateDelay</h4>
+<pre>long&nbsp;getPreferredUpdateDelay()</pre>
+<div class="block">Returns the preferred delay in milliseconds of media time after which the time bar position
+ should be updated.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Preferred delay, in milliseconds of media time.</dd>
+</dl>
+</li>
+</ul>
 <a name="setAdGroupTimesMs-long:A-boolean:A-int-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>setAdGroupTimesMs</h4>
-<pre>void&nbsp;setAdGroupTimesMs(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>void&nbsp;setAdGroupTimesMs(@Nullable
                        long[]&nbsp;adGroupTimesMs,
-                       <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                       @Nullable
                        boolean[]&nbsp;playedAdGroups,
                        int&nbsp;adGroupCount)</pre>
 <div class="block">Sets the times of ad groups and whether each ad group has been played.</div>

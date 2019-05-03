@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6};
+var methods = {"i0":6,"i1":6,"i2":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -46,8 +46,8 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.Deserializer.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.ProgressListener.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/offline/Downloader.html" target="_top">Frames</a></li>
@@ -71,7 +71,7 @@ var activeTableTab = "activeTableTab";
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -103,13 +103,34 @@ var activeTableTab = "activeTableTab";
 <hr>
 <br>
 <pre>public interface <span class="typeNameLabel">Downloader</span></pre>
-<div class="block">An interface for stream downloaders.</div>
+<div class="block">Downloads and removes a piece of content.</div>
 </li>
 </ul>
 </div>
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Interface and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.ProgressListener.html" title="interface in com.google.android.exoplayer2.offline">Downloader.ProgressListener</a></span></code>
+<div class="block">Receives progress updates during download operations.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
 <!-- ========== METHOD SUMMARY =========== -->
 <ul class="blockList">
 <li class="blockList"><a name="method.summary">
@@ -125,32 +146,19 @@ var activeTableTab = "activeTableTab";
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html#cancel--">cancel</a></span>()</code>
-<div class="block">Interrupts any current download operation and prevents future operations from running.</div>
+<div class="block">Cancels the download operation and prevents future download operations from running.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html#download--">download</a></span>()</code>
-<div class="block">Downloads the media.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html#download-com.google.android.exoplayer2.offline.Downloader.ProgressListener-">download</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/Downloader.ProgressListener.html" title="interface in com.google.android.exoplayer2.offline">Downloader.ProgressListener</a>&nbsp;progressListener)</code>
+<div class="block">Downloads the content.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html#getDownloadedBytes--">getDownloadedBytes</a></span>()</code>
-<div class="block">Returns the total number of downloaded bytes.</div>
-</td>
-</tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code>float</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html#getDownloadPercentage--">getDownloadPercentage</a></span>()</code>
-<div class="block">Returns the estimated download percentage, or <a href="../../../../../com/google/android/exoplayer2/C.html#PERCENTAGE_UNSET"><code>C.PERCENTAGE_UNSET</code></a> if no estimate is
- available.</div>
-</td>
-</tr>
-<tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html#remove--">remove</a></span>()</code>
-<div class="block">Removes the media.</div>
+<div class="block">Removes the content.</div>
 </td>
 </tr>
 </table>
@@ -168,19 +176,22 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="download--">
+<a name="download-com.google.android.exoplayer2.offline.Downloader.ProgressListener-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>download</h4>
-<pre>void&nbsp;download()
+<pre>void&nbsp;download(@Nullable
+              <a href="../../../../../com/google/android/exoplayer2/offline/Downloader.ProgressListener.html" title="interface in com.google.android.exoplayer2.offline">Downloader.ProgressListener</a>&nbsp;progressListener)
        throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a>,
               <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
-<div class="block">Downloads the media.</div>
+<div class="block">Downloads the content.</div>
 <dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>progressListener</code> - A listener to receive progress updates, or <code>null</code>.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadException.html" title="class in com.google.android.exoplayer2.offline">DownloadException</a></code> - Thrown if the media cannot be downloaded.</dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadException.html" title="class in com.google.android.exoplayer2.offline">DownloadException</a></code> - Thrown if the content cannot be downloaded.</dd>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></code> - If the thread has been interrupted.</dd>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code> - Thrown when there is an io error while downloading.</dd>
 </dl>
@@ -193,28 +204,7 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <h4>cancel</h4>
 <pre>void&nbsp;cancel()</pre>
-<div class="block">Interrupts any current download operation and prevents future operations from running.</div>
-</li>
-</ul>
-<a name="getDownloadedBytes--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getDownloadedBytes</h4>
-<pre>long&nbsp;getDownloadedBytes()</pre>
-<div class="block">Returns the total number of downloaded bytes.</div>
-</li>
-</ul>
-<a name="getDownloadPercentage--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getDownloadPercentage</h4>
-<pre>float&nbsp;getDownloadPercentage()</pre>
-<div class="block">Returns the estimated download percentage, or <a href="../../../../../com/google/android/exoplayer2/C.html#PERCENTAGE_UNSET"><code>C.PERCENTAGE_UNSET</code></a> if no estimate is
- available.</div>
+<div class="block">Cancels the download operation and prevents future download operations from running.</div>
 </li>
 </ul>
 <a name="remove--">
@@ -225,7 +215,7 @@ var activeTableTab = "activeTableTab";
 <h4>remove</h4>
 <pre>void&nbsp;remove()
      throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></pre>
-<div class="block">Removes the media.</div>
+<div class="block">Removes the content.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></code> - Thrown if the thread was interrupted.</dd>
@@ -259,8 +249,8 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.Deserializer.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.ProgressListener.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/offline/Downloader.html" target="_top">Frames</a></li>
@@ -284,7 +274,7 @@ var activeTableTab = "activeTableTab";
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>

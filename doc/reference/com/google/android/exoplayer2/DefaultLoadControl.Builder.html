@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -188,12 +188,6 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLoadControl.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.Builder.html#setPriorityTaskManager-com.google.android.exoplayer2.util.PriorityTaskManager-">setPriorityTaskManager</a></span>(<a href="../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util">PriorityTaskManager</a>&nbsp;priorityTaskManager)</code>
-<div class="block">Sets the <a href="../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util"><code>PriorityTaskManager</code></a> to use.</div>
-</td>
-</tr>
-<tr id="i6" class="altColor">
-<td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLoadControl.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.Builder.html#setTargetBufferBytes-int-">setTargetBufferBytes</a></span>(int&nbsp;targetBufferBytes)</code>
 <div class="block">Sets the target buffer size in bytes.</div>
 </td>
@@ -317,24 +311,6 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>prioritizeTimeOverSizeThresholds</code> - Whether the load control prioritizes buffer time
      constraints over buffer size constraints.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>This builder, for convenience.</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/IllegalStateException.html" target="_top" title="class or interface in java.lang">IllegalStateException</a></code> - If <a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.Builder.html#createDefaultLoadControl--"><code>createDefaultLoadControl()</code></a> has already been called.</dd>
-</dl>
-</li>
-</ul>
-<a name="setPriorityTaskManager-com.google.android.exoplayer2.util.PriorityTaskManager-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setPriorityTaskManager</h4>
-<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLoadControl.Builder</a>&nbsp;setPriorityTaskManager(<a href="../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util">PriorityTaskManager</a>&nbsp;priorityTaskManager)</pre>
-<div class="block">Sets the <a href="../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util"><code>PriorityTaskManager</code></a> to use.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>priorityTaskManager</code> - The <a href="../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util"><code>PriorityTaskManager</code></a> to use.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder, for convenience.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>

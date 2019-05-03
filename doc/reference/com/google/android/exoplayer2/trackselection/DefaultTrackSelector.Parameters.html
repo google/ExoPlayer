@@ -71,7 +71,7 @@ var activeTableTab = "activeTableTab";
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.classes.inherited.from.class.com.google.android.exoplayer2.trackselection.TrackSelectionParameters">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -97,7 +97,12 @@ var activeTableTab = "activeTableTab";
 <li><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
+<li><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">com.google.android.exoplayer2.trackselection.TrackSelectionParameters</a></li>
+<li>
+<ul class="inheritance">
 <li>com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -115,9 +120,8 @@ var activeTableTab = "activeTableTab";
 <hr>
 <br>
 <pre>public static final class <span class="typeNameLabel">DefaultTrackSelector.Parameters</span>
-extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>
-implements <a href="https://developer.android.com/reference/android/os/Parcelable.html" target="_top" title="class or interface in android.os">Parcelable</a></pre>
-<div class="block">Constraint parameters for <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector</code></a>.</div>
+extends <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a></pre>
+<div class="block">Extends <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectionParameters</code></a> by adding fields that are specific to <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector</code></a>.</div>
 </li>
 </ul>
 </div>
@@ -130,6 +134,13 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <!--   -->
 </a>
 <h3>Nested Class Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a name="nested.classes.inherited.from.class.com.google.android.exoplayer2.trackselection.TrackSelectionParameters">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from class&nbsp;com.google.android.exoplayer2.trackselection.<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a></h3>
+<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></li>
+</ul>
 <ul class="blockList">
 <li class="blockList"><a name="nested.classes.inherited.from.class.android.os.Parcelable">
 <!--   -->
@@ -153,14 +164,42 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#allowAudioMixedMimeTypeAdaptiveness">allowAudioMixedMimeTypeAdaptiveness</a></span></code>
+<div class="block">Whether to allow adaptive audio selections containing mixed mime types.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#allowAudioMixedSampleRateAdaptiveness">allowAudioMixedSampleRateAdaptiveness</a></span></code>
+<div class="block">Whether to allow adaptive audio selections containing mixed sample rates.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#allowMixedMimeAdaptiveness">allowMixedMimeAdaptiveness</a></span></code>
-<div class="block">Whether to allow adaptive selections containing mixed mime types.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#allowVideoMixedMimeTypeAdaptiveness"><code>allowVideoMixedMimeTypeAdaptiveness</code></a> and <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#allowAudioMixedMimeTypeAdaptiveness"><code>allowAudioMixedMimeTypeAdaptiveness</code></a>.</span></div>
+</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#allowNonSeamlessAdaptiveness">allowNonSeamlessAdaptiveness</a></span></code>
-<div class="block">Whether to allow adaptive selections where adaptation may not be completely seamless.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#allowVideoNonSeamlessAdaptiveness"><code>allowVideoNonSeamlessAdaptiveness</code></a>.</span></div>
+</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#allowVideoMixedMimeTypeAdaptiveness">allowVideoMixedMimeTypeAdaptiveness</a></span></code>
+<div class="block">Whether to allow adaptive video selections containing mixed mime types.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#allowVideoNonSeamlessAdaptiveness">allowVideoNonSeamlessAdaptiveness</a></span></code>
+<div class="block">Whether to allow adaptive video selections where adaptation may not be completely seamless.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -174,9 +213,10 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#disabledTextTrackSelectionFlags">disabledTextTrackSelectionFlags</a></span></code>
-<div class="block">Bitmask of selection flags that are disabled for text track selections.</div>
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#exceedAudioConstraintsIfNecessary">exceedAudioConstraintsIfNecessary</a></span></code>
+<div class="block">Whether to exceed the <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#maxAudioChannelCount"><code>maxAudioChannelCount</code></a> and <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#maxAudioBitrate"><code>maxAudioBitrate</code></a> constraints
+ when no selection can be made otherwise.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -207,6 +247,18 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#maxAudioBitrate">maxAudioBitrate</a></span></code>
+<div class="block">Maximum audio bitrate.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#maxAudioChannelCount">maxAudioChannelCount</a></span></code>
+<div class="block">Maximum allowed audio channel count.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#maxVideoBitrate">maxVideoBitrate</a></span></code>
 <div class="block">Maximum video bitrate.</div>
 </td>
@@ -230,49 +282,38 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#preferredAudioLanguage">preferredAudioLanguage</a></span></code>
-<div class="block">The preferred language for audio and forced text tracks, as an ISO 639-2/T tag.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#preferredTextLanguage">preferredTextLanguage</a></span></code>
-<div class="block">The preferred language for text tracks as an ISO 639-2/T tag.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#selectUndeterminedTextLanguage">selectUndeterminedTextLanguage</a></span></code>
-<div class="block">Whether a text track with undetermined language should be selected if no track with <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#preferredTextLanguage"><code>preferredTextLanguage</code></a> is available, or if <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#preferredTextLanguage"><code>preferredTextLanguage</code></a> is unset.</div>
-</td>
-</tr>
-<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#tunnelingAudioSessionId">tunnelingAudioSessionId</a></span></code>
 <div class="block">The audio session id to use when tunneling, or <a href="../../../../../com/google/android/exoplayer2/C.html#AUDIO_SESSION_ID_UNSET"><code>C.AUDIO_SESSION_ID_UNSET</code></a> if tunneling
  is disabled.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#viewportHeight">viewportHeight</a></span></code>
 <div class="block">Viewport height in pixels.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#viewportOrientationMayChange">viewportOrientationMayChange</a></span></code>
 <div class="block">Whether the viewport orientation may change during playback.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#viewportWidth">viewportWidth</a></span></code>
 <div class="block">Viewport width in pixels.</div>
 </td>
 </tr>
 </table>
+<ul class="blockList">
+<li class="blockList"><a name="fields.inherited.from.class.com.google.android.exoplayer2.trackselection.TrackSelectionParameters">
+<!--   -->
+</a>
+<h3>Fields inherited from class&nbsp;com.google.android.exoplayer2.trackselection.<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a></h3>
+<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html#disabledTextTrackSelectionFlags">disabledTextTrackSelectionFlags</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html#preferredAudioLanguage">preferredAudioLanguage</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html#preferredTextLanguage">preferredTextLanguage</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html#selectUndeterminedTextLanguage">selectUndeterminedTextLanguage</a></code></li>
+</ul>
 <ul class="blockList">
 <li class="blockList"><a name="fields.inherited.from.class.android.os.Parcelable">
 <!--   -->
@@ -369,52 +410,6 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <div class="block">An instance with default values.</div>
 </li>
 </ul>
-<a name="preferredAudioLanguage">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>preferredAudioLanguage</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
-public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> preferredAudioLanguage</pre>
-<div class="block">The preferred language for audio and forced text tracks, as an ISO 639-2/T tag. <code>null</code>
- selects the default track, or the first track if there's no default. The default value is
- <code>null</code>.</div>
-</li>
-</ul>
-<a name="preferredTextLanguage">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>preferredTextLanguage</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
-public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> preferredTextLanguage</pre>
-<div class="block">The preferred language for text tracks as an ISO 639-2/T tag. <code>null</code> selects the
- default track if there is one, or no track otherwise. The default value is <code>null</code>.</div>
-</li>
-</ul>
-<a name="selectUndeterminedTextLanguage">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>selectUndeterminedTextLanguage</h4>
-<pre>public final&nbsp;boolean selectUndeterminedTextLanguage</pre>
-<div class="block">Whether a text track with undetermined language should be selected if no track with <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#preferredTextLanguage"><code>preferredTextLanguage</code></a> is available, or if <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#preferredTextLanguage"><code>preferredTextLanguage</code></a> is unset. The
- default value is <code>false</code>.</div>
-</li>
-</ul>
-<a name="disabledTextTrackSelectionFlags">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>disabledTextTrackSelectionFlags</h4>
-<pre>public final&nbsp;int disabledTextTrackSelectionFlags</pre>
-<div class="block">Bitmask of selection flags that are disabled for text track selections. See <code>C.SelectionFlags</code>. The default value is <code>0</code> (i.e. no flags).</div>
-</li>
-</ul>
 <a name="maxVideoWidth">
 <!--   -->
 </a>
@@ -475,6 +470,29 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
  <code>true</code>.</div>
 </li>
 </ul>
+<a name="allowVideoMixedMimeTypeAdaptiveness">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>allowVideoMixedMimeTypeAdaptiveness</h4>
+<pre>public final&nbsp;boolean allowVideoMixedMimeTypeAdaptiveness</pre>
+<div class="block">Whether to allow adaptive video selections containing mixed mime types. Adaptations between
+ different mime types may not be completely seamless, in which case <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#allowVideoNonSeamlessAdaptiveness"><code>allowVideoNonSeamlessAdaptiveness</code></a> also needs to be <code>true</code> for mixed mime type
+ selections to be made. The default value is <code>false</code>.</div>
+</li>
+</ul>
+<a name="allowVideoNonSeamlessAdaptiveness">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>allowVideoNonSeamlessAdaptiveness</h4>
+<pre>public final&nbsp;boolean allowVideoNonSeamlessAdaptiveness</pre>
+<div class="block">Whether to allow adaptive video selections where adaptation may not be completely seamless.
+ The default value is <code>true</code>.</div>
+</li>
+</ul>
 <a name="viewportWidth">
 <!--   -->
 </a>
@@ -510,6 +528,60 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
  The default value is <code>true</code>.</div>
 </li>
 </ul>
+<a name="maxAudioChannelCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>maxAudioChannelCount</h4>
+<pre>public final&nbsp;int maxAudioChannelCount</pre>
+<div class="block">Maximum allowed audio channel count. The default value is <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true#MAX_VALUE" title="class or interface in java.lang"><code>Integer.MAX_VALUE</code></a> (i.e. no
+ constraint).</div>
+</li>
+</ul>
+<a name="maxAudioBitrate">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>maxAudioBitrate</h4>
+<pre>public final&nbsp;int maxAudioBitrate</pre>
+<div class="block">Maximum audio bitrate. The default value is <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true#MAX_VALUE" title="class or interface in java.lang"><code>Integer.MAX_VALUE</code></a> (i.e. no constraint).</div>
+</li>
+</ul>
+<a name="exceedAudioConstraintsIfNecessary">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>exceedAudioConstraintsIfNecessary</h4>
+<pre>public final&nbsp;boolean exceedAudioConstraintsIfNecessary</pre>
+<div class="block">Whether to exceed the <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#maxAudioChannelCount"><code>maxAudioChannelCount</code></a> and <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#maxAudioBitrate"><code>maxAudioBitrate</code></a> constraints
+ when no selection can be made otherwise. The default value is <code>true</code>.</div>
+</li>
+</ul>
+<a name="allowAudioMixedMimeTypeAdaptiveness">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>allowAudioMixedMimeTypeAdaptiveness</h4>
+<pre>public final&nbsp;boolean allowAudioMixedMimeTypeAdaptiveness</pre>
+<div class="block">Whether to allow adaptive audio selections containing mixed mime types. Adaptations between
+ different mime types may not be completely seamless. The default value is <code>false</code>.</div>
+</li>
+</ul>
+<a name="allowAudioMixedSampleRateAdaptiveness">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>allowAudioMixedSampleRateAdaptiveness</h4>
+<pre>public final&nbsp;boolean allowAudioMixedSampleRateAdaptiveness</pre>
+<div class="block">Whether to allow adaptive audio selections containing mixed sample rates. Adaptations between
+ different sample rates may not be completely seamless. The default value is <code>false</code>.</div>
+</li>
+</ul>
 <a name="forceLowestBitrate">
 <!--   -->
 </a>
@@ -538,8 +610,9 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <ul class="blockList">
 <li class="blockList">
 <h4>allowMixedMimeAdaptiveness</h4>
-<pre>public final&nbsp;boolean allowMixedMimeAdaptiveness</pre>
-<div class="block">Whether to allow adaptive selections containing mixed mime types. The default value is <code>false</code>.</div>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public final&nbsp;boolean allowMixedMimeAdaptiveness</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#allowVideoMixedMimeTypeAdaptiveness"><code>allowVideoMixedMimeTypeAdaptiveness</code></a> and <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#allowAudioMixedMimeTypeAdaptiveness"><code>allowAudioMixedMimeTypeAdaptiveness</code></a>.</span></div>
 </li>
 </ul>
 <a name="allowNonSeamlessAdaptiveness">
@@ -548,9 +621,9 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <ul class="blockList">
 <li class="blockList">
 <h4>allowNonSeamlessAdaptiveness</h4>
-<pre>public final&nbsp;boolean allowNonSeamlessAdaptiveness</pre>
-<div class="block">Whether to allow adaptive selections where adaptation may not be completely seamless. The
- default value is <code>true</code>.</div>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public final&nbsp;boolean allowNonSeamlessAdaptiveness</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#allowVideoNonSeamlessAdaptiveness"><code>allowVideoNonSeamlessAdaptiveness</code></a>.</span></div>
 </li>
 </ul>
 <a name="exceedRendererCapabilitiesIfNecessary">
@@ -638,7 +711,7 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <ul class="blockList">
 <li class="blockList">
 <h4>getSelectionOverride</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>@Nullable
 public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.SelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.SelectionOverride</a>&nbsp;getSelectionOverride(int&nbsp;rendererIndex,
                                                                                    <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;groups)</pre>
 <div class="block">Returns the override for the specified renderer and <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroupArray</code></a>.</div>
@@ -659,6 +732,10 @@ public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/tracksel
 <h4>buildUpon</h4>
 <pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.ParametersBuilder.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.ParametersBuilder</a>&nbsp;buildUpon()</pre>
 <div class="block">Creates a new <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.ParametersBuilder.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.ParametersBuilder</code></a>, copying the initial values from this instance.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html#buildUpon--">buildUpon</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a></code></dd>
+</dl>
 </li>
 </ul>
 <a name="equals-java.lang.Object-">
@@ -667,11 +744,11 @@ public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/tracksel
 <ul class="blockList">
 <li class="blockList">
 <h4>equals</h4>
-<pre>public&nbsp;boolean&nbsp;equals(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>public&nbsp;boolean&nbsp;equals(@Nullable
                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;obj)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></code></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html#equals-java.lang.Object-">equals</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a></code></dd>
 </dl>
 </li>
 </ul>
@@ -684,7 +761,7 @@ public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/tracksel
 <pre>public&nbsp;int&nbsp;hashCode()</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></code></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html#hashCode--">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a></code></dd>
 </dl>
 </li>
 </ul>
@@ -698,6 +775,8 @@ public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/tracksel
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/os/Parcelable.html?is-external=true#describeContents--" title="class or interface in android.os">describeContents</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/android/os/Parcelable.html" target="_top" title="class or interface in android.os">Parcelable</a></code></dd>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html#describeContents--">describeContents</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a></code></dd>
 </dl>
 </li>
 </ul>
@@ -712,6 +791,8 @@ public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/tracksel
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/os/Parcelable.html?is-external=true#writeToParcel-android.os.Parcel-int-" title="class or interface in android.os">writeToParcel</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/android/os/Parcelable.html" target="_top" title="class or interface in android.os">Parcelable</a></code></dd>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html#writeToParcel-android.os.Parcel-int-">writeToParcel</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a></code></dd>
 </dl>
 </li>
 </ul>
@@ -767,7 +848,7 @@ public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/tracksel
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.classes.inherited.from.class.com.google.android.exoplayer2.trackselection.TrackSelectionParameters">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>

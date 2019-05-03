@@ -303,8 +303,8 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSo
 <ul class="blockList">
 <li class="blockList">
 <h4>prepareSourceInternal</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.CallSuper.html" target="_top" title="class or interface in android">@CallSuper</a>
-public&nbsp;void&nbsp;prepareSourceInternal(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>@CallSuper
+public&nbsp;void&nbsp;prepareSourceInternal(@Nullable
                                              <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;mediaTransferListener)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.upstream.TransferListener-">BaseMediaSource</a></code></span></div>
 <div class="block">Starts source preparation. This method is called at most once until the next call to <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#releaseSourceInternal--"><code>BaseMediaSource.releaseSourceInternal()</code></a>.</div>
@@ -325,7 +325,7 @@ public&nbsp;void&nbsp;prepareSourceInternal(<a href="https://developer.android.c
 <ul class="blockList">
 <li class="blockList">
 <h4>maybeThrowSourceInfoRefreshError</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.CallSuper.html" target="_top" title="class or interface in android">@CallSuper</a>
+<pre>@CallSuper
 public&nbsp;void&nbsp;maybeThrowSourceInfoRefreshError()
                                                  throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#maybeThrowSourceInfoRefreshError--">MediaSource</a></code></span></div>
@@ -344,7 +344,7 @@ public&nbsp;void&nbsp;maybeThrowSourceInfoRefreshError()
 <ul class="blockList">
 <li class="blockList">
 <h4>releaseSourceInternal</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.CallSuper.html" target="_top" title="class or interface in android">@CallSuper</a>
+<pre>@CallSuper
 public&nbsp;void&nbsp;releaseSourceInternal()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#releaseSourceInternal--">BaseMediaSource</a></code></span></div>
 <div class="block">Releases the source. This method is called exactly once after each call to <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.upstream.TransferListener-"><code>BaseMediaSource.prepareSourceInternal(TransferListener)</code></a>.</div>
@@ -365,7 +365,7 @@ public&nbsp;void&nbsp;releaseSourceInternal()</pre>
 <pre>protected abstract&nbsp;void&nbsp;onChildSourceInfoRefreshed(<a href="../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html" title="type parameter in CompositeMediaSource">T</a>&nbsp;id,
                                                    <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
                                                    <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
-                                                   <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                                   @Nullable
                                                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;manifest)</pre>
 <div class="block">Called when the source info of a child source has been refreshed.</div>
 <dl>
@@ -447,7 +447,7 @@ public&nbsp;void&nbsp;releaseSourceInternal()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>getMediaPeriodIdForChildMediaPeriodId</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>@Nullable
 protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;getMediaPeriodIdForChildMediaPeriodId(<a href="../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html" title="type parameter in CompositeMediaSource">T</a>&nbsp;id,
                                                                                     <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId)</pre>
 <div class="block">Returns the <code>MediaPeriodId</code> in the composite source corresponding to the specified <code>MediaPeriodId</code> in a child source. The default implementation does not change the media period
@@ -470,7 +470,7 @@ protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/Medi
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getMediaTimeForChildMediaTime</h4>
-<pre>protected&nbsp;long&nbsp;getMediaTimeForChildMediaTime(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>protected&nbsp;long&nbsp;getMediaTimeForChildMediaTime(@Nullable
                                              <a href="../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html" title="type parameter in CompositeMediaSource">T</a>&nbsp;id,
                                              long&nbsp;mediaTimeMs)</pre>
 <div class="block">Returns the media time in the composite source corresponding to the specified media time in a

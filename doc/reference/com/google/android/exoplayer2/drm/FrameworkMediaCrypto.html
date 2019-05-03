@@ -16,12 +16,6 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
-var altColor = "altColor";
-var rowColor = "rowColor";
-var tableTab = "tableTab";
-var activeTableTab = "activeTableTab";
 </script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
@@ -72,15 +66,15 @@ var activeTableTab = "activeTableTab";
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
-<li><a href="#method.summary">Method</a></li>
+<li><a href="#methods.inherited.from.class.java.lang.Object">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
-<li><a href="#method.detail">Method</a></li>
+<li>Method</li>
 </ul>
 </div>
 <a name="skip.navbar.top">
@@ -113,13 +107,48 @@ var activeTableTab = "activeTableTab";
 <pre>public final class <span class="typeNameLabel">FrameworkMediaCrypto</span>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>
 implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a></pre>
-<div class="block">An <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> implementation that wraps the framework <a href="https://developer.android.com/reference/android/media/MediaCrypto.html" target="_top" title="class or interface in android.media"><code>MediaCrypto</code></a>.</div>
+<div class="block">An <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> implementation that contains the necessary information to build or
+ update a framework <a href="https://developer.android.com/reference/android/media/MediaCrypto.html" target="_top" title="class or interface in android.media"><code>MediaCrypto</code></a>.</div>
 </li>
 </ul>
 </div>
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html#forceAllowInsecureDecoderComponents">forceAllowInsecureDecoderComponents</a></span></code>
+<div class="block">Whether to allow use of insecure decoder components even if the underlying platform says
+ otherwise.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>byte[]</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html#sessionId">sessionId</a></span></code>
+<div class="block">The DRM session id.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html#uuid">uuid</a></span></code>
+<div class="block">The DRM scheme UUID.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <ul class="blockList">
 <li class="blockList"><a name="constructor.summary">
@@ -132,10 +161,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCry
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html#FrameworkMediaCrypto-android.media.MediaCrypto-">FrameworkMediaCrypto</a></span>(<a href="https://developer.android.com/reference/android/media/MediaCrypto.html" target="_top" title="class or interface in android.media">MediaCrypto</a>&nbsp;mediaCrypto)</code>&nbsp;</td>
-</tr>
-<tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html#FrameworkMediaCrypto-android.media.MediaCrypto-boolean-">FrameworkMediaCrypto</a></span>(<a href="https://developer.android.com/reference/android/media/MediaCrypto.html" target="_top" title="class or interface in android.media">MediaCrypto</a>&nbsp;mediaCrypto,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html#FrameworkMediaCrypto-java.util.UUID-byte:A-boolean-">FrameworkMediaCrypto</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
+                    byte[]&nbsp;sessionId,
                     boolean&nbsp;forceAllowInsecureDecoderComponents)</code>&nbsp;</td>
 </tr>
 </table>
@@ -147,23 +174,6 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCry
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
-<tr>
-<th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Method and Description</th>
-</tr>
-<tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/android/media/MediaCrypto.html" target="_top" title="class or interface in android.media">MediaCrypto</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html#getWrappedMediaCrypto--">getWrappedMediaCrypto</a></span>()</code>
-<div class="block">Returns the wrapped <a href="https://developer.android.com/reference/android/media/MediaCrypto.html" target="_top" title="class or interface in android.media"><code>MediaCrypto</code></a>.</div>
-</td>
-</tr>
-<tr id="i1" class="rowColor">
-<td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html#requiresSecureDecoderComponent-java.lang.String-">requiresSecureDecoderComponent</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mimeType)</code>&nbsp;</td>
-</tr>
-</table>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
 <!--   -->
@@ -179,73 +189,66 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCry
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="uuid">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>uuid</h4>
+<pre>public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a> uuid</pre>
+<div class="block">The DRM scheme UUID.</div>
+</li>
+</ul>
+<a name="sessionId">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sessionId</h4>
+<pre>public final&nbsp;byte[] sessionId</pre>
+<div class="block">The DRM session id.</div>
+</li>
+</ul>
+<a name="forceAllowInsecureDecoderComponents">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>forceAllowInsecureDecoderComponents</h4>
+<pre>public final&nbsp;boolean forceAllowInsecureDecoderComponents</pre>
+<div class="block">Whether to allow use of insecure decoder components even if the underlying platform says
+ otherwise.</div>
+</li>
+</ul>
+</li>
+</ul>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 <ul class="blockList">
 <li class="blockList"><a name="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="FrameworkMediaCrypto-android.media.MediaCrypto-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>FrameworkMediaCrypto</h4>
-<pre>public&nbsp;FrameworkMediaCrypto(<a href="https://developer.android.com/reference/android/media/MediaCrypto.html" target="_top" title="class or interface in android.media">MediaCrypto</a>&nbsp;mediaCrypto)</pre>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>mediaCrypto</code> - The <a href="https://developer.android.com/reference/android/media/MediaCrypto.html" target="_top" title="class or interface in android.media"><code>MediaCrypto</code></a> to wrap.</dd>
-</dl>
-</li>
-</ul>
-<a name="FrameworkMediaCrypto-android.media.MediaCrypto-boolean-">
+<a name="FrameworkMediaCrypto-java.util.UUID-byte:A-boolean-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>FrameworkMediaCrypto</h4>
-<pre>public&nbsp;FrameworkMediaCrypto(<a href="https://developer.android.com/reference/android/media/MediaCrypto.html" target="_top" title="class or interface in android.media">MediaCrypto</a>&nbsp;mediaCrypto,
+<pre>public&nbsp;FrameworkMediaCrypto(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
+                            byte[]&nbsp;sessionId,
                             boolean&nbsp;forceAllowInsecureDecoderComponents)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>mediaCrypto</code> - The <a href="https://developer.android.com/reference/android/media/MediaCrypto.html" target="_top" title="class or interface in android.media"><code>MediaCrypto</code></a> to wrap.</dd>
-<dd><code>forceAllowInsecureDecoderComponents</code> - Whether to force
-     <a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html#requiresSecureDecoderComponent-java.lang.String-"><code>requiresSecureDecoderComponent(String)</code></a> to return <code>false</code>, rather than
-     <a href="https://developer.android.com/reference/android/media/MediaCrypto.html?is-external=true#requiresSecureDecoderComponent-java.lang.String-" title="class or interface in android.media"><code>MediaCrypto.requiresSecureDecoderComponent(String)</code></a> of the wrapped
-     <a href="https://developer.android.com/reference/android/media/MediaCrypto.html" target="_top" title="class or interface in android.media"><code>MediaCrypto</code></a>.</dd>
-</dl>
-</li>
-</ul>
-</li>
-</ul>
-<!-- ============ METHOD DETAIL ========== -->
-<ul class="blockList">
-<li class="blockList"><a name="method.detail">
-<!--   -->
-</a>
-<h3>Method Detail</h3>
-<a name="getWrappedMediaCrypto--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getWrappedMediaCrypto</h4>
-<pre>public&nbsp;<a href="https://developer.android.com/reference/android/media/MediaCrypto.html" target="_top" title="class or interface in android.media">MediaCrypto</a>&nbsp;getWrappedMediaCrypto()</pre>
-<div class="block">Returns the wrapped <a href="https://developer.android.com/reference/android/media/MediaCrypto.html" target="_top" title="class or interface in android.media"><code>MediaCrypto</code></a>.</div>
-</li>
-</ul>
-<a name="requiresSecureDecoderComponent-java.lang.String-">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>requiresSecureDecoderComponent</h4>
-<pre>public&nbsp;boolean&nbsp;requiresSecureDecoderComponent(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mimeType)</pre>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html#requiresSecureDecoderComponent-java.lang.String-">requiresSecureDecoderComponent</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a></code></dd>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://developer.android.com/reference/android/media/MediaCrypto.html?is-external=true#requiresSecureDecoderComponent-java.lang.String-" title="class or interface in android.media"><code>MediaCrypto.requiresSecureDecoderComponent(String)</code></a></dd>
+<dd><code>uuid</code> - The DRM scheme UUID.</dd>
+<dd><code>sessionId</code> - The DRM session id.</dd>
+<dd><code>forceAllowInsecureDecoderComponents</code> - Whether to allow use of insecure decoder components
+     even if the underlying platform says otherwise.</dd>
 </dl>
 </li>
 </ul>
@@ -302,15 +305,15 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCry
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
-<li><a href="#method.summary">Method</a></li>
+<li><a href="#methods.inherited.from.class.java.lang.Object">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
-<li><a href="#method.detail">Method</a></li>
+<li>Method</li>
 </ul>
 </div>
 <a name="skip.navbar.bottom">

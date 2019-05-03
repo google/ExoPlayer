@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -207,30 +207,42 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/metadata/Metadata.html#copyWithAppendedEntries-com.google.android.exoplayer2.metadata.Metadata.Entry...-">copyWithAppendedEntries</a></span>(<a href="../../../../../com/google/android/exoplayer2/metadata/Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata">Metadata.Entry</a>...&nbsp;entriesToAppend)</code>
+<div class="block">Returns a copy of this metadata with the specified entries appended.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/metadata/Metadata.html#copyWithAppendedEntriesFrom-com.google.android.exoplayer2.metadata.Metadata-">copyWithAppendedEntriesFrom</a></span>(<a href="../../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;other)</code>
+<div class="block">Returns a copy of this metadata with the entries of the specified metadata appended.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/metadata/Metadata.html#describeContents--">describeContents</a></span>()</code>&nbsp;</td>
 </tr>
-<tr id="i1" class="rowColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/metadata/Metadata.html#equals-java.lang.Object-">equals</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;obj)</code>&nbsp;</td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/metadata/Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata">Metadata.Entry</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/metadata/Metadata.html#get-int-">get</a></span>(int&nbsp;index)</code>
 <div class="block">Returns the entry at the specified index.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/metadata/Metadata.html#hashCode--">hashCode</a></span>()</code>&nbsp;</td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/metadata/Metadata.html#length--">length</a></span>()</code>
 <div class="block">Returns the number of metadata entries.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/metadata/Metadata.html#writeToParcel-android.os.Parcel-int-">writeToParcel</a></span>(<a href="https://developer.android.com/reference/android/os/Parcel.html" target="_top" title="class or interface in android.os">Parcel</a>&nbsp;dest,
              int&nbsp;flags)</code>&nbsp;</td>
@@ -334,13 +346,48 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </dl>
 </li>
 </ul>
+<a name="copyWithAppendedEntriesFrom-com.google.android.exoplayer2.metadata.Metadata-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>copyWithAppendedEntriesFrom</h4>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;copyWithAppendedEntriesFrom(@Nullable
+                                            <a href="../../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;other)</pre>
+<div class="block">Returns a copy of this metadata with the entries of the specified metadata appended. Returns
+ this instance if <code>other</code> is null.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>other</code> - The metadata that holds the entries to append. If null, this methods returns this
+     instance.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The metadata instance with the appended entries.</dd>
+</dl>
+</li>
+</ul>
+<a name="copyWithAppendedEntries-com.google.android.exoplayer2.metadata.Metadata.Entry...-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>copyWithAppendedEntries</h4>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;copyWithAppendedEntries(<a href="../../../../../com/google/android/exoplayer2/metadata/Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata">Metadata.Entry</a>...&nbsp;entriesToAppend)</pre>
+<div class="block">Returns a copy of this metadata with the specified entries appended.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>entriesToAppend</code> - The entries to append.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The metadata instance with the appended entries.</dd>
+</dl>
+</li>
+</ul>
 <a name="equals-java.lang.Object-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>equals</h4>
-<pre>public&nbsp;boolean&nbsp;equals(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>public&nbsp;boolean&nbsp;equals(@Nullable
                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;obj)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>

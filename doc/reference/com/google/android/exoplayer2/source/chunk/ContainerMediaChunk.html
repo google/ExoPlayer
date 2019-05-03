@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -217,12 +217,19 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ba
 </td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code>protected <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkExtractorWrapper.TrackOutputProvider</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ContainerMediaChunk.html#getTrackOutputProvider-com.google.android.exoplayer2.source.chunk.BaseMediaChunkOutput-">getTrackOutputProvider</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkOutput.html" title="class in com.google.android.exoplayer2.source.chunk">BaseMediaChunkOutput</a>&nbsp;baseMediaChunkOutput)</code>
+<div class="block">Returns the <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>ChunkExtractorWrapper.TrackOutputProvider</code></a> to be used by the wrapped
+ extractor.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ContainerMediaChunk.html#isLoadCompleted--">isLoadCompleted</a></span>()</code>
 <div class="block">Returns whether the chunk has been fully loaded.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ContainerMediaChunk.html#load--">load</a></span>()</code>
 <div class="block">Performs the load, returning on completion or cancellation.</div>
@@ -355,7 +362,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ba
 <a name="load--">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>load</h4>
 <pre>public final&nbsp;void&nbsp;load()
@@ -367,6 +374,24 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ba
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code> - If the input could not be loaded.</dd>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></code> - If the thread was interrupted.</dd>
+</dl>
+</li>
+</ul>
+<a name="getTrackOutputProvider-com.google.android.exoplayer2.source.chunk.BaseMediaChunkOutput-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getTrackOutputProvider</h4>
+<pre>protected&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkExtractorWrapper.TrackOutputProvider</a>&nbsp;getTrackOutputProvider(<a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkOutput.html" title="class in com.google.android.exoplayer2.source.chunk">BaseMediaChunkOutput</a>&nbsp;baseMediaChunkOutput)</pre>
+<div class="block">Returns the <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>ChunkExtractorWrapper.TrackOutputProvider</code></a> to be used by the wrapped
+ extractor.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>baseMediaChunkOutput</code> - The <a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkOutput.html" title="class in com.google.android.exoplayer2.source.chunk"><code>BaseMediaChunkOutput</code></a> most recently passed to <a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunk.html#init-com.google.android.exoplayer2.source.chunk.BaseMediaChunkOutput-"><code>BaseMediaChunk.init(BaseMediaChunkOutput)</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>A <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>ChunkExtractorWrapper.TrackOutputProvider</code></a> to be used by the wrapped
+     extractor.</dd>
 </dl>
 </li>
 </ul>

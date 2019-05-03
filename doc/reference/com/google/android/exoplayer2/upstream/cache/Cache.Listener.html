@@ -149,7 +149,7 @@ var activeTableTab = "activeTableTab";
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.Listener.html#onSpanTouched-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.cache.CacheSpan-com.google.android.exoplayer2.upstream.cache.CacheSpan-">onSpanTouched</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
              <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;oldSpan,
              <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;newSpan)</code>
-<div class="block">Called when an existing <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> is accessed, causing it to be replaced.</div>
+<div class="block">Called when an existing <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> is touched, causing it to be replaced.</div>
 </td>
 </tr>
 </table>
@@ -208,12 +208,11 @@ var activeTableTab = "activeTableTab";
 <pre>void&nbsp;onSpanTouched(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
                    <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;oldSpan,
                    <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;newSpan)</pre>
-<div class="block">Called when an existing <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> is accessed, causing it to be replaced. The new
+<div class="block">Called when an existing <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> is touched, causing it to be replaced. The new
  <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> is guaranteed to represent the same data as the one it replaces, however
- <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html#file"><code>CacheSpan.file</code></a> and <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html#lastAccessTimestamp"><code>CacheSpan.lastAccessTimestamp</code></a> may have changed.
- <p>
- Note that for span replacement, <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.Listener.html#onSpanAdded-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.cache.CacheSpan-"><code>onSpanAdded(Cache, CacheSpan)</code></a> and
- <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.Listener.html#onSpanRemoved-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.cache.CacheSpan-"><code>onSpanRemoved(Cache, CacheSpan)</code></a> are not called in addition to this method.</div>
+ <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html#file"><code>CacheSpan.file</code></a> and <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html#lastTouchTimestamp"><code>CacheSpan.lastTouchTimestamp</code></a> may have changed.
+
+ <p>Note that for span replacement, <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.Listener.html#onSpanAdded-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.cache.CacheSpan-"><code>onSpanAdded(Cache, CacheSpan)</code></a> and <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.Listener.html#onSpanRemoved-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.cache.CacheSpan-"><code>onSpanRemoved(Cache, CacheSpan)</code></a> are not called in addition to this method.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>cache</code> - The source of the event.</dd>

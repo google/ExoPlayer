@@ -170,19 +170,22 @@ extends <a href="../../../../../../com/google/android/exoplayer2/ext/mediasessio
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.QueueNavigator.html#onSkipToNext-com.google.android.exoplayer2.Player-">onSkipToNext</a></span>(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.QueueNavigator.html#onSkipToNext-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.ControlDispatcher-">onSkipToNext</a></span>(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+            <a href="../../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher)</code>
 <div class="block">See <code>MediaSessionCompat.Callback#onSkipToNext()</code>.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.QueueNavigator.html#onSkipToPrevious-com.google.android.exoplayer2.Player-">onSkipToPrevious</a></span>(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.QueueNavigator.html#onSkipToPrevious-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.ControlDispatcher-">onSkipToPrevious</a></span>(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                <a href="../../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher)</code>
 <div class="block">See <code>MediaSessionCompat.Callback#onSkipToPrevious()</code>.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.QueueNavigator.html#onSkipToQueueItem-com.google.android.exoplayer2.Player-long-">onSkipToQueueItem</a></span>(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.QueueNavigator.html#onSkipToQueueItem-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.ControlDispatcher-long-">onSkipToQueueItem</a></span>(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                 <a href="../../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher,
                  long&nbsp;id)</code>
 <div class="block">See <code>MediaSessionCompat.Callback#onSkipToQueueItem(long)</code>.</div>
 </td>
@@ -199,7 +202,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/ext/mediasessio
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.ext.mediasession.<a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CommandReceiver.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CommandReceiver</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CommandReceiver.html#getCommands--">getCommands</a>, <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CommandReceiver.html#onCommand-com.google.android.exoplayer2.Player-java.lang.String-android.os.Bundle-android.os.ResultReceiver-">onCommand</a></code></li>
+<code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CommandReceiver.html#onCommand-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.ControlDispatcher-java.lang.String-android.os.Bundle-android.os.ResultReceiver-">onCommand</a></code></li>
 </ul>
 </li>
 </ul>
@@ -242,13 +245,12 @@ extends <a href="../../../../../../com/google/android/exoplayer2/ext/mediasessio
 <ul class="blockList">
 <li class="blockList">
 <h4>getSupportedQueueNavigatorActions</h4>
-<pre>long&nbsp;getSupportedQueueNavigatorActions(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
-                                       <a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<pre>long&nbsp;getSupportedQueueNavigatorActions(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
 <div class="block">Returns the actions which are supported by the navigator. The supported actions must be a
  bitmask combined out of <code>PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM</code>, <code>PlaybackStateCompat.ACTION_SKIP_TO_NEXT</code>, <code>PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>player</code> - The <a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a>.</dd>
+<dd><code>player</code> - The player connected to the media session.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The bitmask of the supported media actions.</dd>
 </dl>
@@ -264,7 +266,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/ext/mediasessio
 <div class="block">Called when the timeline of the player has changed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>player</code> - The player of which the timeline has changed.</dd>
+<dd><code>player</code> - The player connected to the media session.</dd>
 </dl>
 </li>
 </ul>
@@ -278,7 +280,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/ext/mediasessio
 <div class="block">Called when the current window index changed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>player</code> - The player of which the current window index of the timeline has changed.</dd>
+<dd><code>player</code> - The player connected to the media session.</dd>
 </dl>
 </li>
 </ul>
@@ -288,7 +290,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/ext/mediasessio
 <ul class="blockList">
 <li class="blockList">
 <h4>getActiveQueueItemId</h4>
-<pre>long&nbsp;getActiveQueueItemId(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>long&nbsp;getActiveQueueItemId(@Nullable
                           <a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
 <div class="block">Gets the id of the currently active queue item, or <code>MediaSessionCompat.QueueItem#UNKNOWN_ID</code> if the active item is unknown.
 
@@ -302,35 +304,56 @@ extends <a href="../../../../../../com/google/android/exoplayer2/ext/mediasessio
 </dl>
 </li>
 </ul>
-<a name="onSkipToPrevious-com.google.android.exoplayer2.Player-">
+<a name="onSkipToPrevious-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.ControlDispatcher-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onSkipToPrevious</h4>
-<pre>void&nbsp;onSkipToPrevious(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<pre>void&nbsp;onSkipToPrevious(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                      <a href="../../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher)</pre>
 <div class="block">See <code>MediaSessionCompat.Callback#onSkipToPrevious()</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>player</code> - The player connected to the media session.</dd>
+<dd><code>controlDispatcher</code> - A <a href="../../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a> that should be used for dispatching
+     changes to the player.</dd>
+</dl>
 </li>
 </ul>
-<a name="onSkipToQueueItem-com.google.android.exoplayer2.Player-long-">
+<a name="onSkipToQueueItem-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.ControlDispatcher-long-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onSkipToQueueItem</h4>
 <pre>void&nbsp;onSkipToQueueItem(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                       <a href="../../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher,
                        long&nbsp;id)</pre>
 <div class="block">See <code>MediaSessionCompat.Callback#onSkipToQueueItem(long)</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>player</code> - The player connected to the media session.</dd>
+<dd><code>controlDispatcher</code> - A <a href="../../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a> that should be used for dispatching
+     changes to the player.</dd>
+</dl>
 </li>
 </ul>
-<a name="onSkipToNext-com.google.android.exoplayer2.Player-">
+<a name="onSkipToNext-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.ControlDispatcher-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>onSkipToNext</h4>
-<pre>void&nbsp;onSkipToNext(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<pre>void&nbsp;onSkipToNext(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                  <a href="../../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher)</pre>
 <div class="block">See <code>MediaSessionCompat.Callback#onSkipToNext()</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>player</code> - The player connected to the media session.</dd>
+<dd><code>controlDispatcher</code> - A <a href="../../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a> that should be used for dispatching
+     changes to the player.</dd>
+</dl>
 </li>
 </ul>
 </li>

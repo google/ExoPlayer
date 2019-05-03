@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var methods = {"i0":50,"i1":18,"i2":18,"i3":50};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],16:["t5","Default Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -103,7 +103,7 @@ var activeTableTab = "activeTableTab";
 <hr>
 <br>
 <pre>public static interface <span class="typeNameLabel">PlayerNotificationManager.NotificationListener</span></pre>
-<div class="block">A listener for start and cancellation of the notification.</div>
+<div class="block">A listener for changes to the notification.</div>
 </li>
 </ul>
 </div>
@@ -117,22 +117,41 @@ var activeTableTab = "activeTableTab";
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>void</code></td>
+<td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html#onNotificationCancelled-int-">onNotificationCancelled</a></span>(int&nbsp;notificationId)</code>
-<div class="block">Called after the notification has been cancelled.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html#onNotificationCancelled-int-boolean-"><code>onNotificationCancelled(int, boolean)</code></a>.</span></div>
+</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>void</code></td>
+<td class="colFirst"><code>default void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html#onNotificationCancelled-int-boolean-">onNotificationCancelled</a></span>(int&nbsp;notificationId,
+                       boolean&nbsp;dismissedByUser)</code>
+<div class="block">Called after the notification has been cancelled.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>default void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html#onNotificationPosted-int-android.app.Notification-boolean-">onNotificationPosted</a></span>(int&nbsp;notificationId,
+                    <a href="https://developer.android.com/reference/android/app/Notification.html" target="_top" title="class or interface in android.app">Notification</a>&nbsp;notification,
+                    boolean&nbsp;ongoing)</code>
+<div class="block">Called each time after the notification has been posted.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html#onNotificationStarted-int-android.app.Notification-">onNotificationStarted</a></span>(int&nbsp;notificationId,
                      <a href="https://developer.android.com/reference/android/app/Notification.html" target="_top" title="class or interface in android.app">Notification</a>&nbsp;notification)</code>
-<div class="block">Called after the notification has been started.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html#onNotificationPosted-int-android.app.Notification-boolean-"><code>onNotificationPosted(int, Notification, boolean)</code></a> instead.</span></div>
+</div>
 </td>
 </tr>
 </table>
@@ -156,8 +175,10 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>onNotificationStarted</h4>
-<pre>void&nbsp;onNotificationStarted(int&nbsp;notificationId,
-                           <a href="https://developer.android.com/reference/android/app/Notification.html" target="_top" title="class or interface in android.app">Notification</a>&nbsp;notification)</pre>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+default&nbsp;void&nbsp;onNotificationStarted(int&nbsp;notificationId,
+                                               <a href="https://developer.android.com/reference/android/app/Notification.html" target="_top" title="class or interface in android.app">Notification</a>&nbsp;notification)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html#onNotificationPosted-int-android.app.Notification-boolean-"><code>onNotificationPosted(int, Notification, boolean)</code></a> instead.</span></div>
 <div class="block">Called after the notification has been started.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -169,14 +190,54 @@ var activeTableTab = "activeTableTab";
 <a name="onNotificationCancelled-int-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>onNotificationCancelled</h4>
-<pre>void&nbsp;onNotificationCancelled(int&nbsp;notificationId)</pre>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+default&nbsp;void&nbsp;onNotificationCancelled(int&nbsp;notificationId)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html#onNotificationCancelled-int-boolean-"><code>onNotificationCancelled(int, boolean)</code></a>.</span></div>
 <div class="block">Called after the notification has been cancelled.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>notificationId</code> - The id of the notification which has been cancelled.</dd>
+</dl>
+</li>
+</ul>
+<a name="onNotificationCancelled-int-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onNotificationCancelled</h4>
+<pre>default&nbsp;void&nbsp;onNotificationCancelled(int&nbsp;notificationId,
+                                     boolean&nbsp;dismissedByUser)</pre>
+<div class="block">Called after the notification has been cancelled.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>notificationId</code> - The id of the notification which has been cancelled.</dd>
+<dd><code>dismissedByUser</code> - <code>true</code> if the notification is cancelled because the user
+     dismissed the notification.</dd>
+</dl>
+</li>
+</ul>
+<a name="onNotificationPosted-int-android.app.Notification-boolean-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>onNotificationPosted</h4>
+<pre>default&nbsp;void&nbsp;onNotificationPosted(int&nbsp;notificationId,
+                                  <a href="https://developer.android.com/reference/android/app/Notification.html" target="_top" title="class or interface in android.app">Notification</a>&nbsp;notification,
+                                  boolean&nbsp;ongoing)</pre>
+<div class="block">Called each time after the notification has been posted.
+
+ <p>For a service, the <code>ongoing</code> flag can be used as an indicator as to whether it
+ should be in the foreground.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>notificationId</code> - The id of the notification which has been posted.</dd>
+<dd><code>notification</code> - The <a href="https://developer.android.com/reference/android/app/Notification.html" target="_top" title="class or interface in android.app"><code>Notification</code></a>.</dd>
+<dd><code>ongoing</code> - Whether the notification is ongoing.</dd>
 </dl>
 </li>
 </ul>

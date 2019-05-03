@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistParserFactory.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/FilteringHlsPlaylistParserFactory.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../../index.html?com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html" target="_top">Frames</a></li>
@@ -148,6 +148,13 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/source/hl
 <th class="colLast" scope="col">Field and Description</th>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>static double</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#DEFAULT_PLAYLIST_STUCK_TARGET_DURATION_COEFFICIENT">DEFAULT_PLAYLIST_STUCK_TARGET_DURATION_COEFFICIENT</a></span></code>
+<div class="block">Default coefficient applied on the target duration of a playlist to determine the amount of
+ time after which an unchanging playlist is considered stuck.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.Factory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.Factory</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#FACTORY">FACTORY</a></span></code>
 <div class="block">Factory for <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>DefaultHlsPlaylistTracker</code></a> instances.</div>
@@ -170,18 +177,16 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/source/hl
 <tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#DefaultHlsPlaylistTracker-com.google.android.exoplayer2.source.hls.HlsDataSourceFactory-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParserFactory-">DefaultHlsPlaylistTracker</a></span>(<a href="../../../../../../../com/google/android/exoplayer2/source/hls/HlsDataSourceFactory.html" title="interface in com.google.android.exoplayer2.source.hls">HlsDataSourceFactory</a>&nbsp;dataSourceFactory,
                          <a href="../../../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy,
-                         <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistParserFactory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistParserFactory</a>&nbsp;playlistParserFactory)</code>&nbsp;</td>
+                         <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistParserFactory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistParserFactory</a>&nbsp;playlistParserFactory)</code>
+<div class="block">Creates an instance.</div>
+</td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#DefaultHlsPlaylistTracker-com.google.android.exoplayer2.source.hls.HlsDataSourceFactory-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-com.google.android.exoplayer2.upstream.ParsingLoadable.Parser-">DefaultHlsPlaylistTracker</a></span>(<a href="../../../../../../../com/google/android/exoplayer2/source/hls/HlsDataSourceFactory.html" title="interface in com.google.android.exoplayer2.source.hls">HlsDataSourceFactory</a>&nbsp;dataSourceFactory,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#DefaultHlsPlaylistTracker-com.google.android.exoplayer2.source.hls.HlsDataSourceFactory-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParserFactory-double-">DefaultHlsPlaylistTracker</a></span>(<a href="../../../../../../../com/google/android/exoplayer2/source/hls/HlsDataSourceFactory.html" title="interface in com.google.android.exoplayer2.source.hls">HlsDataSourceFactory</a>&nbsp;dataSourceFactory,
                          <a href="../../../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy,
-                         <a href="../../../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>&gt;&nbsp;playlistParser)</code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#DefaultHlsPlaylistTracker-com.google.android.exoplayer2.source.hls.HlsDataSourceFactory-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParserFactory-"><code>DefaultHlsPlaylistTracker(HlsDataSourceFactory,
-     LoadErrorHandlingPolicy, HlsPlaylistParserFactory)</code></a> instead. Using this constructor
-     prevents support for attributes that are carried over from the master playlist to the media
-     playlists.</span></div>
-</div>
+                         <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistParserFactory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistParserFactory</a>&nbsp;playlistParserFactory,
+                         double&nbsp;playlistStuckTargetDurationCoefficient)</code>
+<div class="block">Creates an instance.</div>
 </td>
 </tr>
 </table>
@@ -220,9 +225,9 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/source/hl
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#getPlaylistSnapshot-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-boolean-">getPlaylistSnapshot</a></span>(<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.HlsUrl</a>&nbsp;url,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#getPlaylistSnapshot-android.net.Uri-boolean-">getPlaylistSnapshot</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;url,
                    boolean&nbsp;isForPlayback)</code>
-<div class="block">Returns the most recent snapshot available of the playlist referenced by the provided <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMasterPlaylist.HlsUrl</code></a>.</div>
+<div class="block">Returns the most recent snapshot available of the playlist referenced by the provided <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a>.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
@@ -233,15 +238,16 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/source/hl
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#isSnapshotValid-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-">isSnapshotValid</a></span>(<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.HlsUrl</a>&nbsp;url)</code>
-<div class="block">Returns whether the snapshot of the playlist referenced by the provided <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMasterPlaylist.HlsUrl</code></a> is
- valid, meaning all the segments referenced by the playlist are expected to be available.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#isSnapshotValid-android.net.Uri-">isSnapshotValid</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;url)</code>
+<div class="block">Returns whether the snapshot of the playlist referenced by the provided <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a> is valid,
+ meaning all the segments referenced by the playlist are expected to be available.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#maybeThrowPlaylistRefreshError-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-">maybeThrowPlaylistRefreshError</a></span>(<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.HlsUrl</a>&nbsp;url)</code>
-<div class="block">If the playlist is having trouble refreshing the playlist referenced by the given <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMasterPlaylist.HlsUrl</code></a>, this method throws the underlying error.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#maybeThrowPlaylistRefreshError-android.net.Uri-">maybeThrowPlaylistRefreshError</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;url)</code>
+<div class="block">If the playlist is having trouble refreshing the playlist referenced by the given <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a>,
+ this method throws the underlying error.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
@@ -280,7 +286,7 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/source/hl
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#refreshPlaylist-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-">refreshPlaylist</a></span>(<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.HlsUrl</a>&nbsp;url)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#refreshPlaylist-android.net.Uri-">refreshPlaylist</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;url)</code>
 <div class="block">Requests a playlist refresh and whitelists it.</div>
 </td>
 </tr>
@@ -329,11 +335,26 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/source/hl
 <a name="FACTORY">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>FACTORY</h4>
 <pre>public static final&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.Factory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.Factory</a> FACTORY</pre>
 <div class="block">Factory for <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>DefaultHlsPlaylistTracker</code></a> instances.</div>
+</li>
+</ul>
+<a name="DEFAULT_PLAYLIST_STUCK_TARGET_DURATION_COEFFICIENT">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DEFAULT_PLAYLIST_STUCK_TARGET_DURATION_COEFFICIENT</h4>
+<pre>public static final&nbsp;double DEFAULT_PLAYLIST_STUCK_TARGET_DURATION_COEFFICIENT</pre>
+<div class="block">Default coefficient applied on the target duration of a playlist to determine the amount of
+ time after which an unchanging playlist is considered stuck.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../../constant-values.html#com.google.android.exoplayer2.source.hls.playlist.DefaultHlsPlaylistTracker.DEFAULT_PLAYLIST_STUCK_TARGET_DURATION_COEFFICIENT">Constant Field Values</a></dd>
+</dl>
 </li>
 </ul>
 </li>
@@ -344,29 +365,25 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/source/hl
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="DefaultHlsPlaylistTracker-com.google.android.exoplayer2.source.hls.HlsDataSourceFactory-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-com.google.android.exoplayer2.upstream.ParsingLoadable.Parser-">
+<a name="DefaultHlsPlaylistTracker-com.google.android.exoplayer2.source.hls.HlsDataSourceFactory-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParserFactory-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>DefaultHlsPlaylistTracker</h4>
-<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
-public&nbsp;DefaultHlsPlaylistTracker(<a href="../../../../../../../com/google/android/exoplayer2/source/hls/HlsDataSourceFactory.html" title="interface in com.google.android.exoplayer2.source.hls">HlsDataSourceFactory</a>&nbsp;dataSourceFactory,
-                                             <a href="../../../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy,
-                                             <a href="../../../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>&gt;&nbsp;playlistParser)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#DefaultHlsPlaylistTracker-com.google.android.exoplayer2.source.hls.HlsDataSourceFactory-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParserFactory-"><code>DefaultHlsPlaylistTracker(HlsDataSourceFactory,
-     LoadErrorHandlingPolicy, HlsPlaylistParserFactory)</code></a> instead. Using this constructor
-     prevents support for attributes that are carried over from the master playlist to the media
-     playlists.</span></div>
+<pre>public&nbsp;DefaultHlsPlaylistTracker(<a href="../../../../../../../com/google/android/exoplayer2/source/hls/HlsDataSourceFactory.html" title="interface in com.google.android.exoplayer2.source.hls">HlsDataSourceFactory</a>&nbsp;dataSourceFactory,
+                                 <a href="../../../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy,
+                                 <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistParserFactory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistParserFactory</a>&nbsp;playlistParserFactory)</pre>
+<div class="block">Creates an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>dataSourceFactory</code> - A factory for <a href="../../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> instances.</dd>
 <dd><code>loadErrorHandlingPolicy</code> - The <a href="../../../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>.</dd>
-<dd><code>playlistParser</code> - A <code>ParsingLoadable.Parser</code> for HLS playlists.</dd>
+<dd><code>playlistParserFactory</code> - An <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistParserFactory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist"><code>HlsPlaylistParserFactory</code></a>.</dd>
 </dl>
 </li>
 </ul>
-<a name="DefaultHlsPlaylistTracker-com.google.android.exoplayer2.source.hls.HlsDataSourceFactory-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParserFactory-">
+<a name="DefaultHlsPlaylistTracker-com.google.android.exoplayer2.source.hls.HlsDataSourceFactory-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParserFactory-double-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -374,12 +391,17 @@ public&nbsp;DefaultHlsPlaylistTracker(<a href="../../../../../../../com/google/a
 <h4>DefaultHlsPlaylistTracker</h4>
 <pre>public&nbsp;DefaultHlsPlaylistTracker(<a href="../../../../../../../com/google/android/exoplayer2/source/hls/HlsDataSourceFactory.html" title="interface in com.google.android.exoplayer2.source.hls">HlsDataSourceFactory</a>&nbsp;dataSourceFactory,
                                  <a href="../../../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy,
-                                 <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistParserFactory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistParserFactory</a>&nbsp;playlistParserFactory)</pre>
+                                 <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistParserFactory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistParserFactory</a>&nbsp;playlistParserFactory,
+                                 double&nbsp;playlistStuckTargetDurationCoefficient)</pre>
+<div class="block">Creates an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>dataSourceFactory</code> - A factory for <a href="../../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> instances.</dd>
 <dd><code>loadErrorHandlingPolicy</code> - The <a href="../../../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>.</dd>
 <dd><code>playlistParserFactory</code> - An <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistParserFactory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist"><code>HlsPlaylistParserFactory</code></a>.</dd>
+<dd><code>playlistStuckTargetDurationCoefficient</code> - A coefficient to apply to the target duration of
+     media playlists in order to determine that a non-changing playlist is stuck. Once a
+     playlist is deemed stuck, a <code>PlaylistStuckException</code> is thrown via <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#maybeThrowPlaylistRefreshError-android.net.Uri-"><code>maybeThrowPlaylistRefreshError(Uri)</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -473,7 +495,7 @@ public&nbsp;DefaultHlsPlaylistTracker(<a href="../../../../../../../com/google/a
 <ul class="blockList">
 <li class="blockList">
 <h4>getMasterPlaylist</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>@Nullable
 public&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist</a>&nbsp;getMasterPlaylist()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#getMasterPlaylist--">HlsPlaylistTracker</a></code></span></div>
 <div class="block">Returns the master playlist.
@@ -488,26 +510,26 @@ public&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/h
 </dl>
 </li>
 </ul>
-<a name="getPlaylistSnapshot-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-boolean-">
+<a name="getPlaylistSnapshot-android.net.Uri-boolean-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getPlaylistSnapshot</h4>
-<pre>public&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist</a>&nbsp;getPlaylistSnapshot(<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.HlsUrl</a>&nbsp;url,
+<pre>public&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist</a>&nbsp;getPlaylistSnapshot(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;url,
                                             boolean&nbsp;isForPlayback)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#getPlaylistSnapshot-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-boolean-">HlsPlaylistTracker</a></code></span></div>
-<div class="block">Returns the most recent snapshot available of the playlist referenced by the provided <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMasterPlaylist.HlsUrl</code></a>.</div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#getPlaylistSnapshot-android.net.Uri-boolean-">HlsPlaylistTracker</a></code></span></div>
+<div class="block">Returns the most recent snapshot available of the playlist referenced by the provided <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#getPlaylistSnapshot-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-boolean-">getPlaylistSnapshot</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></code></dd>
+<dd><code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#getPlaylistSnapshot-android.net.Uri-boolean-">getPlaylistSnapshot</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>url</code> - The <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMasterPlaylist.HlsUrl</code></a> corresponding to the requested media playlist.</dd>
+<dd><code>url</code> - The <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a> corresponding to the requested media playlist.</dd>
 <dd><code>isForPlayback</code> - Whether the caller might use the snapshot to request media segments for
      playback. If true, the primary playlist may be updated to the one requested.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The most recent snapshot of the playlist referenced by the provided <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMasterPlaylist.HlsUrl</code></a>. May
-     be null if no snapshot has been loaded yet.</dd>
+<dd>The most recent snapshot of the playlist referenced by the provided <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a>. May be
+     null if no snapshot has been loaded yet.</dd>
 </dl>
 </li>
 </ul>
@@ -527,25 +549,24 @@ public&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/h
 </dl>
 </li>
 </ul>
-<a name="isSnapshotValid-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-">
+<a name="isSnapshotValid-android.net.Uri-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>isSnapshotValid</h4>
-<pre>public&nbsp;boolean&nbsp;isSnapshotValid(<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.HlsUrl</a>&nbsp;url)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#isSnapshotValid-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-">HlsPlaylistTracker</a></code></span></div>
-<div class="block">Returns whether the snapshot of the playlist referenced by the provided <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMasterPlaylist.HlsUrl</code></a> is
- valid, meaning all the segments referenced by the playlist are expected to be available. If the
+<pre>public&nbsp;boolean&nbsp;isSnapshotValid(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;url)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#isSnapshotValid-android.net.Uri-">HlsPlaylistTracker</a></code></span></div>
+<div class="block">Returns whether the snapshot of the playlist referenced by the provided <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a> is valid,
+ meaning all the segments referenced by the playlist are expected to be available. If the
  playlist is not valid then some of the segments may no longer be available.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#isSnapshotValid-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-">isSnapshotValid</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></code></dd>
+<dd><code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#isSnapshotValid-android.net.Uri-">isSnapshotValid</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>url</code> - The <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMasterPlaylist.HlsUrl</code></a>.</dd>
+<dd><code>url</code> - The <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>Whether the snapshot of the playlist referenced by the provided <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMasterPlaylist.HlsUrl</code></a> is
-     valid.</dd>
+<dd>Whether the snapshot of the playlist referenced by the provided <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a> is valid.</dd>
 </dl>
 </li>
 </ul>
@@ -568,43 +589,44 @@ public&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/h
 </dl>
 </li>
 </ul>
-<a name="maybeThrowPlaylistRefreshError-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-">
+<a name="maybeThrowPlaylistRefreshError-android.net.Uri-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>maybeThrowPlaylistRefreshError</h4>
-<pre>public&nbsp;void&nbsp;maybeThrowPlaylistRefreshError(<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.HlsUrl</a>&nbsp;url)
+<pre>public&nbsp;void&nbsp;maybeThrowPlaylistRefreshError(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;url)
                                     throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#maybeThrowPlaylistRefreshError-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-">HlsPlaylistTracker</a></code></span></div>
-<div class="block">If the playlist is having trouble refreshing the playlist referenced by the given <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMasterPlaylist.HlsUrl</code></a>, this method throws the underlying error.</div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#maybeThrowPlaylistRefreshError-android.net.Uri-">HlsPlaylistTracker</a></code></span></div>
+<div class="block">If the playlist is having trouble refreshing the playlist referenced by the given <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a>,
+ this method throws the underlying error.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#maybeThrowPlaylistRefreshError-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-">maybeThrowPlaylistRefreshError</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></code></dd>
+<dd><code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#maybeThrowPlaylistRefreshError-android.net.Uri-">maybeThrowPlaylistRefreshError</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>url</code> - The <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMasterPlaylist.HlsUrl</code></a>.</dd>
+<dd><code>url</code> - The <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a>.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code> - The underyling error.</dd>
 </dl>
 </li>
 </ul>
-<a name="refreshPlaylist-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-">
+<a name="refreshPlaylist-android.net.Uri-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>refreshPlaylist</h4>
-<pre>public&nbsp;void&nbsp;refreshPlaylist(<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.HlsUrl</a>&nbsp;url)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#refreshPlaylist-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-">HlsPlaylistTracker</a></code></span></div>
+<pre>public&nbsp;void&nbsp;refreshPlaylist(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;url)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#refreshPlaylist-android.net.Uri-">HlsPlaylistTracker</a></code></span></div>
 <div class="block">Requests a playlist refresh and whitelists it.
 
  <p>The playlist tracker may choose the delay the playlist refresh. The request is discarded if
  a refresh was already pending.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#refreshPlaylist-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-">refreshPlaylist</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></code></dd>
+<dd><code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#refreshPlaylist-android.net.Uri-">refreshPlaylist</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>url</code> - The <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMasterPlaylist.HlsUrl</code></a> of the playlist to be refreshed.</dd>
+<dd><code>url</code> - The <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a> of the playlist to be refreshed.</dd>
 </dl>
 </li>
 </ul>
@@ -738,7 +760,7 @@ public&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/h
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistParserFactory.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/FilteringHlsPlaylistParserFactory.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../../index.html?com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html" target="_top">Frames</a></li>

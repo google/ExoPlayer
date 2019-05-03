@@ -182,7 +182,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.DrmSessionException.html" title="class in com.google.android.exoplayer2.drm">DrmSession.DrmSessionException</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ErrorStateDrmSession.html#getError--">getError</a></span>()</code>
-<div class="block">Returns the cause of the error state.</div>
+<div class="block">Returns the cause of the error state, or null if <a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html#getState--"><code>DrmSession.getState()</code></a> is not <a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html#STATE_ERROR"><code>DrmSession.STATE_ERROR</code></a>.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
@@ -276,9 +276,10 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.
 <ul class="blockList">
 <li class="blockList">
 <h4>getError</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.DrmSessionException.html" title="class in com.google.android.exoplayer2.drm">DrmSession.DrmSessionException</a>&nbsp;getError()</pre>
+<pre>@Nullable
+public&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.DrmSessionException.html" title="class in com.google.android.exoplayer2.drm">DrmSession.DrmSessionException</a>&nbsp;getError()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html#getError--">DrmSession</a></code></span></div>
-<div class="block">Returns the cause of the error state.</div>
+<div class="block">Returns the cause of the error state, or null if <a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html#getState--"><code>DrmSession.getState()</code></a> is not <a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html#STATE_ERROR"><code>DrmSession.STATE_ERROR</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html#getError--">getError</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/ErrorStateDrmSession.html" title="type parameter in ErrorStateDrmSession">T</a> extends <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;</code></dd>
@@ -291,7 +292,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.
 <ul class="blockList">
 <li class="blockList">
 <h4>getMediaCrypto</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/ErrorStateDrmSession.html" title="type parameter in ErrorStateDrmSession">T</a>&nbsp;getMediaCrypto()</pre>
+<pre>@Nullable
+public&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/ErrorStateDrmSession.html" title="type parameter in ErrorStateDrmSession">T</a>&nbsp;getMediaCrypto()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html#getMediaCrypto--">DrmSession</a></code></span></div>
 <div class="block">Returns a <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> for the open session, or null if called before the session has
  been opened or after it's been released.</div>
@@ -307,12 +309,13 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.
 <ul class="blockList">
 <li class="blockList">
 <h4>queryKeyStatus</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;queryKeyStatus()</pre>
+<pre>@Nullable
+public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;queryKeyStatus()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html#queryKeyStatus--">DrmSession</a></code></span></div>
 <div class="block">Returns a map describing the key status for the session, or null if called before the session
  has been opened or after it's been released.
- <p>
- Since DRM license policies vary by vendor, the specific status field names are determined by
+
+ <p>Since DRM license policies vary by vendor, the specific status field names are determined by
  each DRM vendor. Refer to your DRM provider documentation for definitions of the field names
  for a particular DRM engine plugin.</div>
 <dl>
@@ -332,7 +335,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getOfflineLicenseKeySetId</h4>
-<pre>public&nbsp;byte[]&nbsp;getOfflineLicenseKeySetId()</pre>
+<pre>@Nullable
+public&nbsp;byte[]&nbsp;getOfflineLicenseKeySetId()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html#getOfflineLicenseKeySetId--">DrmSession</a></code></span></div>
 <div class="block">Returns the key set id of the offline license loaded into this session, or null if there isn't
  one.</div>

@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloadAction.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloader.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/offline/FilteringManifestParser.html" target="_top">Frames</a></li>
@@ -105,6 +105,10 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <dl>
+<dt><span class="paramLabel">Type Parameters:</span></dt>
+<dd><code>T</code> - The <a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline"><code>FilterableManifest</code></a> type.</dd>
+</dl>
+<dl>
 <dt>All Implemented Interfaces:</dt>
 <dd><a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;T&gt;</dd>
 </dl>
@@ -132,7 +136,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Parsin
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/FilteringManifestParser.html#FilteringManifestParser-com.google.android.exoplayer2.upstream.ParsingLoadable.Parser-java.util.List-">FilteringManifestParser</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/FilteringManifestParser.html" title="type parameter in FilteringManifestParser">T</a>&gt;&nbsp;parser,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/FilteringManifestParser.html#FilteringManifestParser-com.google.android.exoplayer2.upstream.ParsingLoadable.Parser-java.util.List-">FilteringManifestParser</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/offline/FilteringManifestParser.html" title="type parameter in FilteringManifestParser">T</a>&gt;&nbsp;parser,
                        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline">StreamKey</a>&gt;&nbsp;streamKeys)</code>&nbsp;</td>
 </tr>
 </table>
@@ -185,7 +189,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Parsin
 <ul class="blockListLast">
 <li class="blockList">
 <h4>FilteringManifestParser</h4>
-<pre>public&nbsp;FilteringManifestParser(<a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/FilteringManifestParser.html" title="type parameter in FilteringManifestParser">T</a>&gt;&nbsp;parser,
+<pre>public&nbsp;FilteringManifestParser(<a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/offline/FilteringManifestParser.html" title="type parameter in FilteringManifestParser">T</a>&gt;&nbsp;parser,
+                               @Nullable
                                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline">StreamKey</a>&gt;&nbsp;streamKeys)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -255,7 +260,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Parsin
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloadAction.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloader.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/offline/FilteringManifestParser.html" target="_top">Frames</a></li>

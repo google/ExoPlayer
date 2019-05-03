@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":9};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":9,"i7":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -248,6 +248,15 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Loader
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>static &lt;T&gt;&nbsp;T</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.html#load-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.ParsingLoadable.Parser-com.google.android.exoplayer2.upstream.DataSpec-int-">load</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
+    <a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;? extends T&gt;&nbsp;parser,
+    <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+    int&nbsp;type)</code>
+<div class="block">Loads a single parsable object.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>static &lt;T&gt;&nbsp;T</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.html#load-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.ParsingLoadable.Parser-android.net.Uri-int-">load</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
     <a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;? extends T&gt;&nbsp;parser,
     <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri,
@@ -377,13 +386,38 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Loader
 </dl>
 </li>
 </ul>
+<a name="load-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.ParsingLoadable.Parser-com.google.android.exoplayer2.upstream.DataSpec-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>load</h4>
+<pre>public static&nbsp;&lt;T&gt;&nbsp;T&nbsp;load(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
+                         <a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;? extends T&gt;&nbsp;parser,
+                         <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+                         int&nbsp;type)
+                  throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
+<div class="block">Loads a single parsable object.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>dataSource</code> - The <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> through which the object should be read.</dd>
+<dd><code>parser</code> - The <a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream"><code>ParsingLoadable.Parser</code></a> to parse the object from the response.</dd>
+<dd><code>dataSpec</code> - The <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> of the object to read.</dd>
+<dd><code>type</code> - The type of the data. One of the <a href="../../../../../com/google/android/exoplayer2/C.html" title="class in com.google.android.exoplayer2"><code>C</code></a><code>DATA_TYPE_*</code> constants.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The parsed object</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code> - Thrown if there is an error while loading or parsing.</dd>
+</dl>
+</li>
+</ul>
 <a name="getResult--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getResult</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>@Nullable
 public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.html" title="type parameter in ParsingLoadable">T</a>&nbsp;getResult()</pre>
 <div class="block">Returns the loaded object, or null if an object has not been loaded.</div>
 </li>

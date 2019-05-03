@@ -1,6 +1,7 @@
 com.google.android.exoplayer2
 com.google.android.exoplayer2.analytics
 com.google.android.exoplayer2.audio
+com.google.android.exoplayer2.database
 com.google.android.exoplayer2.decoder
 com.google.android.exoplayer2.drm
 com.google.android.exoplayer2.ext.cast
@@ -29,6 +30,7 @@ com.google.android.exoplayer2.extractor.wav
 com.google.android.exoplayer2.mediacodec
 com.google.android.exoplayer2.metadata
 com.google.android.exoplayer2.metadata.emsg
+com.google.android.exoplayer2.metadata.icy
 com.google.android.exoplayer2.metadata.id3
 com.google.android.exoplayer2.metadata.scte35
 com.google.android.exoplayer2.offline

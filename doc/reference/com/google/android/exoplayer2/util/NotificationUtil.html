@@ -108,7 +108,7 @@ var activeTableTab = "activeTableTab";
 <br>
 <pre>public final class <span class="typeNameLabel">NotificationUtil</span>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></pre>
-<div class="block">Utility methods for displaying <a href="https://developer.android.com/reference/android/app/Notification.html" target="_top" title="class or interface in android.app"><code>Notification</code></a>s.</div>
+<div class="block">Utility methods for displaying <a href="https://developer.android.com/reference/android/app/Notification.html" target="_top" title="class or interface in android.app"><code>Notifications</code></a>.</div>
 </li>
 </ul>
 </div>
@@ -191,7 +191,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/NotificationUtil.html#createNotificationChannel-android.content.Context-java.lang.String-int-int-">createNotificationChannel</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
                          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
-                         int&nbsp;name,
+                         int&nbsp;nameResourceId,
                          int&nbsp;importance)</code>
 <div class="block">Creates a notification channel that notifications can be posted to.</div>
 </td>
@@ -326,19 +326,19 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <h4>createNotificationChannel</h4>
 <pre>public static&nbsp;void&nbsp;createNotificationChannel(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
                                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
-                                             <a href="https://developer.android.com/reference/android/support.annotation.StringRes.html" target="_top" title="class or interface in android">@StringRes</a>
-                                             int&nbsp;name,
+                                             @StringRes
+                                             int&nbsp;nameResourceId,
                                              <a href="../../../../../com/google/android/exoplayer2/util/NotificationUtil.Importance.html" title="annotation in com.google.android.exoplayer2.util">@NotificationUtil.Importance</a>
                                              int&nbsp;importance)</pre>
 <div class="block">Creates a notification channel that notifications can be posted to. See <a href="https://developer.android.com/reference/android/app/NotificationChannel.html" target="_top" title="class or interface in android.app"><code>NotificationChannel</code></a> and <a href="https://developer.android.com/reference/android/app/NotificationManager.html?is-external=true#createNotificationChannel-android.app.NotificationChannel-" title="class or interface in android.app"><code>NotificationManager.createNotificationChannel(NotificationChannel)</code></a> for details.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>context</code> - A <a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content"><code>Context</code></a> to retrieve <a href="https://developer.android.com/reference/android/app/NotificationManager.html" target="_top" title="class or interface in android.app"><code>NotificationManager</code></a>.</dd>
-<dd><code>id</code> - The id of the channel. Must be unique per package. The value may be truncated if it
-     is too long.</dd>
-<dd><code>name</code> - A string resource identifier for the user visible name of the channel. You can
-     rename this channel when the system locale changes by listening for the <a href="https://developer.android.com/reference/android/content/Intent.html?is-external=true#ACTION_LOCALE_CHANGED" title="class or interface in android.content"><code>Intent.ACTION_LOCALE_CHANGED</code></a> broadcast. The recommended maximum length is 40 characters;
-     the value may be truncated if it is too long.</dd>
+<dd><code>context</code> - A <a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content"><code>Context</code></a>.</dd>
+<dd><code>id</code> - The id of the channel. Must be unique per package. The value may be truncated if it's
+     too long.</dd>
+<dd><code>nameResourceId</code> - A string resource identifier for the user visible name of the channel.
+     You can rename this channel when the system locale changes by listening for the <a href="https://developer.android.com/reference/android/content/Intent.html?is-external=true#ACTION_LOCALE_CHANGED" title="class or interface in android.content"><code>Intent.ACTION_LOCALE_CHANGED</code></a> broadcast. The recommended maximum length is 40 characters.
+     The value may be truncated if it is too long.</dd>
 <dd><code>importance</code> - The importance of the channel. This controls how interruptive notifications
      posted to this channel are. One of <a href="../../../../../com/google/android/exoplayer2/util/NotificationUtil.html#IMPORTANCE_UNSPECIFIED"><code>IMPORTANCE_UNSPECIFIED</code></a>, <a href="../../../../../com/google/android/exoplayer2/util/NotificationUtil.html#IMPORTANCE_NONE"><code>IMPORTANCE_NONE</code></a>, <a href="../../../../../com/google/android/exoplayer2/util/NotificationUtil.html#IMPORTANCE_MIN"><code>IMPORTANCE_MIN</code></a>, <a href="../../../../../com/google/android/exoplayer2/util/NotificationUtil.html#IMPORTANCE_LOW"><code>IMPORTANCE_LOW</code></a>, <a href="../../../../../com/google/android/exoplayer2/util/NotificationUtil.html#IMPORTANCE_DEFAULT"><code>IMPORTANCE_DEFAULT</code></a> and <a href="../../../../../com/google/android/exoplayer2/util/NotificationUtil.html#IMPORTANCE_HIGH"><code>IMPORTANCE_HIGH</code></a>.</dd>
 </dl>
@@ -352,18 +352,18 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <h4>setNotification</h4>
 <pre>public static&nbsp;void&nbsp;setNotification(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
                                    int&nbsp;id,
-                                   <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                   @Nullable
                                    <a href="https://developer.android.com/reference/android/app/Notification.html" target="_top" title="class or interface in android.app">Notification</a>&nbsp;notification)</pre>
 <div class="block">Post a notification to be shown in the status bar. If a notification with the same id has
  already been posted by your application and has not yet been canceled, it will be replaced by
- the updated information. If <code>notification</code> is null, then cancels a previously shown
- notification.</div>
+ the updated information. If <code>notification</code> is <code>null</code> then any notification
+ previously shown with the specified id will be cancelled.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>context</code> - A <a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content"><code>Context</code></a> to retrieve <a href="https://developer.android.com/reference/android/app/NotificationManager.html" target="_top" title="class or interface in android.app"><code>NotificationManager</code></a>.</dd>
-<dd><code>id</code> - An identifier for this notification unique within your application.</dd>
-<dd><code>notification</code> - A <a href="https://developer.android.com/reference/android/app/Notification.html" target="_top" title="class or interface in android.app"><code>Notification</code></a> object describing what to show the user. If null,
-     then cancels a previously shown notification.</dd>
+<dd><code>context</code> - A <a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content"><code>Context</code></a>.</dd>
+<dd><code>id</code> - The notification id.</dd>
+<dd><code>notification</code> - The <a href="https://developer.android.com/reference/android/app/Notification.html" target="_top" title="class or interface in android.app"><code>Notification</code></a> to post, or <code>null</code> to cancel a previously
+     shown notification.</dd>
 </dl>
 </li>
 </ul>

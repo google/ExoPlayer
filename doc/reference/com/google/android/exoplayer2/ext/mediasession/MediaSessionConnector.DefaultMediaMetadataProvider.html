@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CustomActionProvider.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.MediaMetadataProvider.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.MediaButtonEventHandler.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.DefaultMediaMetadataProvider.html" target="_top">Frames</a></li>
@@ -117,8 +117,7 @@ var activeTableTab = "activeTableTab";
 <pre>public static final class <span class="typeNameLabel">MediaSessionConnector.DefaultMediaMetadataProvider</span>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>
 implements <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.MediaMetadataProvider.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.MediaMetadataProvider</a></pre>
-<div class="block">Provides a default <a href="https://developer.android.com/reference/android/support.v4.media.MediaMetadataCompat.html" target="_top" title="class or interface in android"><code>MediaMetadataCompat</code></a> with properties and extras propagated from the
- active queue item to the session metadata.</div>
+<div class="block">Provides a default <a href="https://developer.android.com/reference/android/support.v4.media.MediaMetadataCompat.html" target="_top" title="class or interface in android"><code>MediaMetadataCompat</code></a> with properties and extras taken from the <a href="https://developer.android.com/reference/android/support.v4.media.MediaDescriptionCompat.html" target="_top" title="class or interface in android"><code>MediaDescriptionCompat</code></a> of the <code>MediaSessionCompat.QueueItem</code> of the active queue item.</div>
 </li>
 </ul>
 </div>
@@ -192,7 +191,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/ext/mediases
 <li class="blockList">
 <h4>DefaultMediaMetadataProvider</h4>
 <pre>public&nbsp;DefaultMediaMetadataProvider(<a href="https://developer.android.com/reference/android/support.v4.media.session.MediaControllerCompat.html" target="_top" title="class or interface in android">android.support.v4.media.session.MediaControllerCompat</a>&nbsp;mediaController,
-                                    <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                    @Nullable
                                     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;metadataExtrasPrefix)</pre>
 <div class="block">Creates a new instance.</div>
 <dl>
@@ -224,7 +223,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/ext/mediases
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.MediaMetadataProvider.html#getMetadata-com.google.android.exoplayer2.Player-">getMetadata</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.MediaMetadataProvider.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.MediaMetadataProvider</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>player</code> - The player for which to provide metadata.</dd>
+<dd><code>player</code> - The player connected to the media session.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The <a href="https://developer.android.com/reference/android/support.v4.media.MediaMetadataCompat.html" target="_top" title="class or interface in android"><code>MediaMetadataCompat</code></a> to be published to the session.</dd>
 </dl>
@@ -258,7 +257,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/ext/mediases
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CustomActionProvider.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.MediaMetadataProvider.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.MediaButtonEventHandler.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.DefaultMediaMetadataProvider.html" target="_top">Frames</a></li>

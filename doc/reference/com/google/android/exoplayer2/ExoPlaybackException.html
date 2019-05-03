@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":9,"i1":9,"i2":10,"i3":10,"i4":10};
+var methods = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":10,"i6":10,"i7":10,"i8":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -175,7 +175,19 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#type">type</a></span></code>
-<div class="block">The type of the playback failure.</div>
+<div class="block">The <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.Type.html" title="annotation in com.google.android.exoplayer2"><code>ExoPlaybackException.Type</code></a> of the playback failure.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_OUT_OF_MEMORY">TYPE_OUT_OF_MEMORY</a></span></code>
+<div class="block">The error was an <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/OutOfMemoryError.html" target="_top" title="class or interface in java.lang"><code>OutOfMemoryError</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_REMOTE">TYPE_REMOTE</a></span></code>
+<div class="block">The error occurred in a remote component.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -213,30 +225,54 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#createForOutOfMemoryError-java.lang.OutOfMemoryError-">createForOutOfMemoryError</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/OutOfMemoryError.html" target="_top" title="class or interface in java.lang">OutOfMemoryError</a>&nbsp;cause)</code>
+<div class="block">Creates an instance of type <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_OUT_OF_MEMORY"><code>TYPE_OUT_OF_MEMORY</code></a>.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#createForRemote-java.lang.String-">createForRemote</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;message)</code>
+<div class="block">Creates an instance of type <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_REMOTE"><code>TYPE_REMOTE</code></a>.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#createForRenderer-java.lang.Exception-int-">createForRenderer</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Exception.html" target="_top" title="class or interface in java.lang">Exception</a>&nbsp;cause,
                  int&nbsp;rendererIndex)</code>
 <div class="block">Creates an instance of type <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_RENDERER"><code>TYPE_RENDERER</code></a>.</div>
 </td>
 </tr>
-<tr id="i1" class="rowColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#createForSource-java.io.IOException-">createForSource</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>&nbsp;cause)</code>
 <div class="block">Creates an instance of type <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_SOURCE"><code>TYPE_SOURCE</code></a>.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#createForUnexpected-java.lang.RuntimeException-">createForUnexpected</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/RuntimeException.html" target="_top" title="class or interface in java.lang">RuntimeException</a>&nbsp;cause)</code>
+<div class="block">Creates an instance of type <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_UNEXPECTED"><code>TYPE_UNEXPECTED</code></a>.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/OutOfMemoryError.html" target="_top" title="class or interface in java.lang">OutOfMemoryError</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#getOutOfMemoryError--">getOutOfMemoryError</a></span>()</code>
+<div class="block">Retrieves the underlying error when <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#type"><code>type</code></a> is <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_OUT_OF_MEMORY"><code>TYPE_OUT_OF_MEMORY</code></a>.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Exception.html" target="_top" title="class or interface in java.lang">Exception</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#getRendererException--">getRendererException</a></span>()</code>
 <div class="block">Retrieves the underlying error when <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#type"><code>type</code></a> is <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_RENDERER"><code>TYPE_RENDERER</code></a>.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#getSourceException--">getSourceException</a></span>()</code>
 <div class="block">Retrieves the underlying error when <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#type"><code>type</code></a> is <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_SOURCE"><code>TYPE_SOURCE</code></a>.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/RuntimeException.html" target="_top" title="class or interface in java.lang">RuntimeException</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#getUnexpectedException--">getUnexpectedException</a></span>()</code>
 <div class="block">Retrieves the underlying error when <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#type"><code>type</code></a> is <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_UNEXPECTED"><code>TYPE_UNEXPECTED</code></a>.</div>
@@ -319,6 +355,36 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </dl>
 </li>
 </ul>
+<a name="TYPE_REMOTE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TYPE_REMOTE</h4>
+<pre>public static final&nbsp;int TYPE_REMOTE</pre>
+<div class="block">The error occurred in a remote component.
+
+ <p>Call <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Throwable.html?is-external=true#getMessage--" title="class or interface in java.lang"><code>Throwable.getMessage()</code></a> to retrieve the message associated with the error.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.ExoPlaybackException.TYPE_REMOTE">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="TYPE_OUT_OF_MEMORY">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TYPE_OUT_OF_MEMORY</h4>
+<pre>public static final&nbsp;int TYPE_OUT_OF_MEMORY</pre>
+<div class="block">The error was an <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/OutOfMemoryError.html" target="_top" title="class or interface in java.lang"><code>OutOfMemoryError</code></a>.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.ExoPlaybackException.TYPE_OUT_OF_MEMORY">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
 <a name="type">
 <!--   -->
 </a>
@@ -327,8 +393,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <h4>type</h4>
 <pre><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.Type.html" title="annotation in com.google.android.exoplayer2">@ExoPlaybackException.Type</a>
 public final&nbsp;int type</pre>
-<div class="block">The type of the playback failure. One of <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_SOURCE"><code>TYPE_SOURCE</code></a>, <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_RENDERER"><code>TYPE_RENDERER</code></a> and
- <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_UNEXPECTED"><code>TYPE_UNEXPECTED</code></a>.</div>
+<div class="block">The <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.Type.html" title="annotation in com.google.android.exoplayer2"><code>ExoPlaybackException.Type</code></a> of the playback failure.</div>
 </li>
 </ul>
 <a name="rendererIndex">
@@ -383,6 +448,54 @@ public final&nbsp;int type</pre>
 </dl>
 </li>
 </ul>
+<a name="createForUnexpected-java.lang.RuntimeException-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createForUnexpected</h4>
+<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;createForUnexpected(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/RuntimeException.html" target="_top" title="class or interface in java.lang">RuntimeException</a>&nbsp;cause)</pre>
+<div class="block">Creates an instance of type <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_UNEXPECTED"><code>TYPE_UNEXPECTED</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>cause</code> - The cause of the failure.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The created instance.</dd>
+</dl>
+</li>
+</ul>
+<a name="createForRemote-java.lang.String-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createForRemote</h4>
+<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;createForRemote(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;message)</pre>
+<div class="block">Creates an instance of type <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_REMOTE"><code>TYPE_REMOTE</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>message</code> - The message associated with the error.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The created instance.</dd>
+</dl>
+</li>
+</ul>
+<a name="createForOutOfMemoryError-java.lang.OutOfMemoryError-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createForOutOfMemoryError</h4>
+<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;createForOutOfMemoryError(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/OutOfMemoryError.html" target="_top" title="class or interface in java.lang">OutOfMemoryError</a>&nbsp;cause)</pre>
+<div class="block">Creates an instance of type <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_OUT_OF_MEMORY"><code>TYPE_OUT_OF_MEMORY</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>cause</code> - The cause of the failure.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The created instance.</dd>
+</dl>
+</li>
+</ul>
 <a name="getSourceException--">
 <!--   -->
 </a>
@@ -414,7 +527,7 @@ public final&nbsp;int type</pre>
 <a name="getUnexpectedException--">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>getUnexpectedException</h4>
 <pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/RuntimeException.html" target="_top" title="class or interface in java.lang">RuntimeException</a>&nbsp;getUnexpectedException()</pre>
@@ -422,6 +535,20 @@ public final&nbsp;int type</pre>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/IllegalStateException.html" target="_top" title="class or interface in java.lang">IllegalStateException</a></code> - If <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#type"><code>type</code></a> is not <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_UNEXPECTED"><code>TYPE_UNEXPECTED</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a name="getOutOfMemoryError--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getOutOfMemoryError</h4>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/OutOfMemoryError.html" target="_top" title="class or interface in java.lang">OutOfMemoryError</a>&nbsp;getOutOfMemoryError()</pre>
+<div class="block">Retrieves the underlying error when <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#type"><code>type</code></a> is <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_OUT_OF_MEMORY"><code>TYPE_OUT_OF_MEMORY</code></a>.</div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/IllegalStateException.html" target="_top" title="class or interface in java.lang">IllegalStateException</a></code> - If <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#type"><code>type</code></a> is not <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_OUT_OF_MEMORY"><code>TYPE_OUT_OF_MEMORY</code></a>.</dd>
 </dl>
 </li>
 </ul>

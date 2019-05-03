@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -230,19 +230,13 @@ implements <a href="../../../../../../com/google/android/exoplayer2/ext/mediases
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>[]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueEditor.html#getCommands--">getCommands</a></span>()</code>
-<div class="block">Returns the commands the receiver handles, or <code>null</code> if no commands need to be handled.</div>
-</td>
-</tr>
-<tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueEditor.html#onAddQueueItem-com.google.android.exoplayer2.Player-android.support.v4.media.MediaDescriptionCompat-">onAddQueueItem</a></span>(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
               <a href="https://developer.android.com/reference/android/support.v4.media.MediaDescriptionCompat.html" target="_top" title="class or interface in android">android.support.v4.media.MediaDescriptionCompat</a>&nbsp;description)</code>
 <div class="block">See <code>MediaSessionCompat.Callback#onAddQueueItem(MediaDescriptionCompat description)</code>.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueEditor.html#onAddQueueItem-com.google.android.exoplayer2.Player-android.support.v4.media.MediaDescriptionCompat-int-">onAddQueueItem</a></span>(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
               <a href="https://developer.android.com/reference/android/support.v4.media.MediaDescriptionCompat.html" target="_top" title="class or interface in android">android.support.v4.media.MediaDescriptionCompat</a>&nbsp;description,
@@ -251,16 +245,17 @@ implements <a href="../../../../../../com/google/android/exoplayer2/ext/mediases
  index)</code>.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueEditor.html#onCommand-com.google.android.exoplayer2.Player-java.lang.String-android.os.Bundle-android.os.ResultReceiver-">onCommand</a></span>(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueEditor.html#onCommand-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.ControlDispatcher-java.lang.String-android.os.Bundle-android.os.ResultReceiver-">onCommand</a></span>(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+         <a href="../../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher,
          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;command,
          <a href="https://developer.android.com/reference/android/os/Bundle.html" target="_top" title="class or interface in android.os">Bundle</a>&nbsp;extras,
          <a href="https://developer.android.com/reference/android/os/ResultReceiver.html" target="_top" title="class or interface in android.os">ResultReceiver</a>&nbsp;cb)</code>
 <div class="block">See <code>MediaSessionCompat.Callback#onCommand(String, Bundle, ResultReceiver)</code>.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueEditor.html#onRemoveQueueItem-com.google.android.exoplayer2.Player-android.support.v4.media.MediaDescriptionCompat-">onRemoveQueueItem</a></span>(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                  <a href="https://developer.android.com/reference/android/support.v4.media.MediaDescriptionCompat.html" target="_top" title="class or interface in android">android.support.v4.media.MediaDescriptionCompat</a>&nbsp;description)</code>
@@ -343,13 +338,13 @@ implements <a href="../../../../../../com/google/android/exoplayer2/ext/mediases
 <ul class="blockList">
 <li class="blockList">
 <h4>TimelineQueueEditor</h4>
-<pre>public&nbsp;TimelineQueueEditor(<a href="https://developer.android.com/reference/android/support.annotation.NonNull.html" target="_top" title="class or interface in android">@NonNull</a>
+<pre>public&nbsp;TimelineQueueEditor(@NonNull
                            <a href="https://developer.android.com/reference/android/support.v4.media.session.MediaControllerCompat.html" target="_top" title="class or interface in android">android.support.v4.media.session.MediaControllerCompat</a>&nbsp;mediaController,
-                           <a href="https://developer.android.com/reference/android/support.annotation.NonNull.html" target="_top" title="class or interface in android">@NonNull</a>
+                           @NonNull
                            <a href="../../../../../../com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">ConcatenatingMediaSource</a>&nbsp;queueMediaSource,
-                           <a href="https://developer.android.com/reference/android/support.annotation.NonNull.html" target="_top" title="class or interface in android">@NonNull</a>
+                           @NonNull
                            <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueEditor.QueueDataAdapter.html" title="interface in com.google.android.exoplayer2.ext.mediasession">TimelineQueueEditor.QueueDataAdapter</a>&nbsp;queueDataAdapter,
-                           <a href="https://developer.android.com/reference/android/support.annotation.NonNull.html" target="_top" title="class or interface in android">@NonNull</a>
+                           @NonNull
                            <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueEditor.MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.ext.mediasession">TimelineQueueEditor.MediaSourceFactory</a>&nbsp;sourceFactory)</pre>
 <div class="block">Creates a new <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueEditor.html" title="class in com.google.android.exoplayer2.ext.mediasession"><code>TimelineQueueEditor</code></a> with a given mediaSourceFactory.</div>
 <dl>
@@ -367,15 +362,15 @@ implements <a href="../../../../../../com/google/android/exoplayer2/ext/mediases
 <ul class="blockListLast">
 <li class="blockList">
 <h4>TimelineQueueEditor</h4>
-<pre>public&nbsp;TimelineQueueEditor(<a href="https://developer.android.com/reference/android/support.annotation.NonNull.html" target="_top" title="class or interface in android">@NonNull</a>
+<pre>public&nbsp;TimelineQueueEditor(@NonNull
                            <a href="https://developer.android.com/reference/android/support.v4.media.session.MediaControllerCompat.html" target="_top" title="class or interface in android">android.support.v4.media.session.MediaControllerCompat</a>&nbsp;mediaController,
-                           <a href="https://developer.android.com/reference/android/support.annotation.NonNull.html" target="_top" title="class or interface in android">@NonNull</a>
+                           @NonNull
                            <a href="../../../../../../com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">ConcatenatingMediaSource</a>&nbsp;queueMediaSource,
-                           <a href="https://developer.android.com/reference/android/support.annotation.NonNull.html" target="_top" title="class or interface in android">@NonNull</a>
+                           @NonNull
                            <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueEditor.QueueDataAdapter.html" title="interface in com.google.android.exoplayer2.ext.mediasession">TimelineQueueEditor.QueueDataAdapter</a>&nbsp;queueDataAdapter,
-                           <a href="https://developer.android.com/reference/android/support.annotation.NonNull.html" target="_top" title="class or interface in android">@NonNull</a>
+                           @NonNull
                            <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueEditor.MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.ext.mediasession">TimelineQueueEditor.MediaSourceFactory</a>&nbsp;sourceFactory,
-                           <a href="https://developer.android.com/reference/android/support.annotation.NonNull.html" target="_top" title="class or interface in android">@NonNull</a>
+                           @NonNull
                            com.google.android.exoplayer2.ext.mediasession.TimelineQueueEditor.MediaDescriptionEqualityChecker&nbsp;equalityChecker)</pre>
 <div class="block">Creates a new <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueEditor.html" title="class in com.google.android.exoplayer2.ext.mediasession"><code>TimelineQueueEditor</code></a> with a given mediaSourceFactory.</div>
 <dl>
@@ -447,37 +442,33 @@ implements <a href="../../../../../../com/google/android/exoplayer2/ext/mediases
 </dl>
 </li>
 </ul>
-<a name="getCommands--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getCommands</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.NonNull.html" target="_top" title="class or interface in android">@NonNull</a>
-public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>[]&nbsp;getCommands()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CommandReceiver.html#getCommands--">MediaSessionConnector.CommandReceiver</a></code></span></div>
-<div class="block">Returns the commands the receiver handles, or <code>null</code> if no commands need to be handled.</div>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CommandReceiver.html#getCommands--">getCommands</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CommandReceiver.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CommandReceiver</a></code></dd>
-</dl>
-</li>
-</ul>
-<a name="onCommand-com.google.android.exoplayer2.Player-java.lang.String-android.os.Bundle-android.os.ResultReceiver-">
+<a name="onCommand-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.ControlDispatcher-java.lang.String-android.os.Bundle-android.os.ResultReceiver-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>onCommand</h4>
-<pre>public&nbsp;void&nbsp;onCommand(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
-                      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;command,
-                      <a href="https://developer.android.com/reference/android/os/Bundle.html" target="_top" title="class or interface in android.os">Bundle</a>&nbsp;extras,
-                      <a href="https://developer.android.com/reference/android/os/ResultReceiver.html" target="_top" title="class or interface in android.os">ResultReceiver</a>&nbsp;cb)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CommandReceiver.html#onCommand-com.google.android.exoplayer2.Player-java.lang.String-android.os.Bundle-android.os.ResultReceiver-">MediaSessionConnector.CommandReceiver</a></code></span></div>
-<div class="block">See <code>MediaSessionCompat.Callback#onCommand(String, Bundle, ResultReceiver)</code>.</div>
+<pre>public&nbsp;boolean&nbsp;onCommand(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                         <a href="../../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher,
+                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;command,
+                         <a href="https://developer.android.com/reference/android/os/Bundle.html" target="_top" title="class or interface in android.os">Bundle</a>&nbsp;extras,
+                         <a href="https://developer.android.com/reference/android/os/ResultReceiver.html" target="_top" title="class or interface in android.os">ResultReceiver</a>&nbsp;cb)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CommandReceiver.html#onCommand-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.ControlDispatcher-java.lang.String-android.os.Bundle-android.os.ResultReceiver-">MediaSessionConnector.CommandReceiver</a></code></span></div>
+<div class="block">See <code>MediaSessionCompat.Callback#onCommand(String, Bundle, ResultReceiver)</code>. The
+ receiver may handle the command, but is not required to do so. Changes to the player should
+ be made via the <a href="../../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CommandReceiver.html#onCommand-com.google.android.exoplayer2.Player-java.lang.String-android.os.Bundle-android.os.ResultReceiver-">onCommand</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CommandReceiver.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CommandReceiver</a></code></dd>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CommandReceiver.html#onCommand-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.ControlDispatcher-java.lang.String-android.os.Bundle-android.os.ResultReceiver-">onCommand</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CommandReceiver.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CommandReceiver</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>player</code> - The player connected to the media session.</dd>
+<dd><code>controlDispatcher</code> - A <a href="../../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a> that should be used for dispatching
+     changes to the player.</dd>
+<dd><code>command</code> - The command name.</dd>
+<dd><code>extras</code> - Optional parameters for the command, may be null.</dd>
+<dd><code>cb</code> - A result receiver to which a result may be sent by the command, may be null.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Whether the receiver handled the command.</dd>
 </dl>
 </li>
 </ul>

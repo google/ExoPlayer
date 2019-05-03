@@ -125,13 +125,6 @@ var activeTableTab = "activeTableTab";
  the given format.</div>
 </td>
 </tr>
-<tr class="rowColor">
-<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html#DEFAULT_WITH_FALLBACK">DEFAULT_WITH_FALLBACK</a></span></code>
-<div class="block">A <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec"><code>MediaCodecSelector</code></a> that returns a list of decoders in priority order, allowing
- fallback to less preferred decoders if initialization fails.</div>
-</td>
-</tr>
 </table>
 </li>
 </ul>
@@ -149,8 +142,9 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&gt;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html#getDecoderInfos-java.lang.String-boolean-">getDecoderInfos</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mimeType,
-               boolean&nbsp;requiresSecureDecoder)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html#getDecoderInfos-java.lang.String-boolean-boolean-">getDecoderInfos</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mimeType,
+               boolean&nbsp;requiresSecureDecoder,
+               boolean&nbsp;requiresTunnelingDecoder)</code>
 <div class="block">Returns a list of decoders that can decode media in the specified MIME type, in priority order.</div>
 </td>
 </tr>
@@ -178,27 +172,12 @@ var activeTableTab = "activeTableTab";
 <a name="DEFAULT">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>DEFAULT</h4>
 <pre>static final&nbsp;<a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a> DEFAULT</pre>
 <div class="block">Default implementation of <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec"><code>MediaCodecSelector</code></a>, which returns the preferred decoder for
  the given format.</div>
-</li>
-</ul>
-<a name="DEFAULT_WITH_FALLBACK">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>DEFAULT_WITH_FALLBACK</h4>
-<pre>static final&nbsp;<a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a> DEFAULT_WITH_FALLBACK</pre>
-<div class="block">A <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec"><code>MediaCodecSelector</code></a> that returns a list of decoders in priority order, allowing
- fallback to less preferred decoders if initialization fails.
-
- <p>Note: if a hardware-accelerated video decoder fails to initialize, this selector may provide
- a software video decoder to use as a fallback. Using software decoding can be inefficient, and
- the decoder may be too slow to keep up with the playback position.</div>
 </li>
 </ul>
 </li>
@@ -209,20 +188,22 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="getDecoderInfos-java.lang.String-boolean-">
+<a name="getDecoderInfos-java.lang.String-boolean-boolean-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getDecoderInfos</h4>
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&gt;&nbsp;getDecoderInfos(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mimeType,
-                                     boolean&nbsp;requiresSecureDecoder)
+                                     boolean&nbsp;requiresSecureDecoder,
+                                     boolean&nbsp;requiresTunnelingDecoder)
                               throws <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecUtil.DecoderQueryException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecUtil.DecoderQueryException</a></pre>
 <div class="block">Returns a list of decoders that can decode media in the specified MIME type, in priority order.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mimeType</code> - The MIME type for which a decoder is required.</dd>
 <dd><code>requiresSecureDecoder</code> - Whether a secure decoder is required.</dd>
+<dd><code>requiresTunnelingDecoder</code> - Whether a tunneling decoder is required.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>A list of <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec"><code>MediaCodecInfo</code></a>s corresponding to decoders. May be empty.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -236,7 +217,7 @@ var activeTableTab = "activeTableTab";
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getPassthroughDecoderInfo</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>@Nullable
 <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&nbsp;getPassthroughDecoderInfo()
                                             throws <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecUtil.DecoderQueryException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecUtil.DecoderQueryException</a></pre>
 <div class="block">Selects a decoder to instantiate for audio passthrough.</div>

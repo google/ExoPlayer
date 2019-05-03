@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":17,"i5":17};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -46,7 +46,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheUtil.CachingCounters.html" title="class in com.google.android.exoplayer2.upstream.cache"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheUtil.ProgressListener.html" title="interface in com.google.android.exoplayer2.upstream.cache"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadataMutations.html" title="class in com.google.android.exoplayer2.upstream.cache"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -103,10 +103,7 @@ var activeTableTab = "activeTableTab";
 <hr>
 <br>
 <pre>public interface <span class="typeNameLabel">ContentMetadata</span></pre>
-<div class="block">Interface for an immutable snapshot of keyed metadata.
-
- <p>Internal metadata names are prefixed with <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html#INTERNAL_METADATA_NAME_PREFIX">"exo_"</a>. Custom
- metadata names should avoid this prefix to prevent clashes.</div>
+<div class="block">Interface for an immutable snapshot of keyed metadata.</div>
 </li>
 </ul>
 </div>
@@ -127,8 +124,20 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html#INTERNAL_METADATA_NAME_PREFIX">INTERNAL_METADATA_NAME_PREFIX</a></span></code>
-<div class="block">Prefix of internal metadata names.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html#KEY_CONTENT_LENGTH">KEY_CONTENT_LENGTH</a></span></code>
+<div class="block">Key for content length in bytes (type: long).</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html#KEY_CUSTOM_PREFIX">KEY_CUSTOM_PREFIX</a></span></code>
+<div class="block">Prefix for custom metadata keys.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html#KEY_REDIRECTED_URI">KEY_REDIRECTED_URI</a></span></code>
+<div class="block">Key for redirected uri (type: String).</div>
 </td>
 </tr>
 </table>
@@ -141,36 +150,50 @@ var activeTableTab = "activeTableTab";
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html#contains-java.lang.String-">contains</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;name)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html#contains-java.lang.String-">contains</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key)</code>
 <div class="block">Returns whether the metadata is available.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>byte[]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html#get-java.lang.String-byte:A-">get</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;name,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html#get-java.lang.String-byte:A-">get</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
    byte[]&nbsp;defaultValue)</code>
 <div class="block">Returns a metadata value.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html#get-java.lang.String-long-">get</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;name,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html#get-java.lang.String-long-">get</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
    long&nbsp;defaultValue)</code>
 <div class="block">Returns a metadata value.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html#get-java.lang.String-java.lang.String-">get</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;name,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html#get-java.lang.String-java.lang.String-">get</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;defaultValue)</code>
 <div class="block">Returns a metadata value.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>static long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html#getContentLength-com.google.android.exoplayer2.upstream.cache.ContentMetadata-">getContentLength</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html" title="interface in com.google.android.exoplayer2.upstream.cache">ContentMetadata</a>&nbsp;contentMetadata)</code>
+<div class="block">Returns the value stored under <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html#KEY_CONTENT_LENGTH"><code>KEY_CONTENT_LENGTH</code></a>, or <a href="../../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if not
+ set.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html#getRedirectedUri-com.google.android.exoplayer2.upstream.cache.ContentMetadata-">getRedirectedUri</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html" title="interface in com.google.android.exoplayer2.upstream.cache">ContentMetadata</a>&nbsp;contentMetadata)</code>
+<div class="block">Returns the value stored under <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html#KEY_REDIRECTED_URI"><code>KEY_REDIRECTED_URI</code></a> as a <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a>, or {code null} if
+ not set.</div>
 </td>
 </tr>
 </table>
@@ -188,17 +211,46 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a name="INTERNAL_METADATA_NAME_PREFIX">
+<a name="KEY_CUSTOM_PREFIX">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>KEY_CUSTOM_PREFIX</h4>
+<pre>static final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> KEY_CUSTOM_PREFIX</pre>
+<div class="block">Prefix for custom metadata keys. Applications can use keys starting with this prefix without
+ any risk of their keys colliding with ones defined by the ExoPlayer library.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.upstream.cache.ContentMetadata.KEY_CUSTOM_PREFIX">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="KEY_REDIRECTED_URI">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>KEY_REDIRECTED_URI</h4>
+<pre>static final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> KEY_REDIRECTED_URI</pre>
+<div class="block">Key for redirected uri (type: String).</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.upstream.cache.ContentMetadata.KEY_REDIRECTED_URI">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="KEY_CONTENT_LENGTH">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>INTERNAL_METADATA_NAME_PREFIX</h4>
-<pre>static final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> INTERNAL_METADATA_NAME_PREFIX</pre>
-<div class="block">Prefix of internal metadata names.</div>
+<h4>KEY_CONTENT_LENGTH</h4>
+<pre>static final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> KEY_CONTENT_LENGTH</pre>
+<div class="block">Key for content length in bytes (type: long).</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.upstream.cache.ContentMetadata.INTERNAL_METADATA_NAME_PREFIX">Constant Field Values</a></dd>
+<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.upstream.cache.ContentMetadata.KEY_CONTENT_LENGTH">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
@@ -216,12 +268,14 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>get</h4>
-<pre>byte[]&nbsp;get(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;name,
-           byte[]&nbsp;defaultValue)</pre>
+<pre>@Nullable
+byte[]&nbsp;get(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
+                     @Nullable
+                     byte[]&nbsp;defaultValue)</pre>
 <div class="block">Returns a metadata value.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>name</code> - Name of the metadata to be returned.</dd>
+<dd><code>key</code> - Key of the metadata to be returned.</dd>
 <dd><code>defaultValue</code> - Value to return if the metadata doesn't exist.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The metadata value.</dd>
@@ -234,12 +288,14 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>get</h4>
-<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;get(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;name,
-           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;defaultValue)</pre>
+<pre>@Nullable
+<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;get(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
+                     @Nullable
+                     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;defaultValue)</pre>
 <div class="block">Returns a metadata value.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>name</code> - Name of the metadata to be returned.</dd>
+<dd><code>key</code> - Key of the metadata to be returned.</dd>
 <dd><code>defaultValue</code> - Value to return if the metadata doesn't exist.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The metadata value.</dd>
@@ -252,12 +308,12 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>get</h4>
-<pre>long&nbsp;get(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;name,
+<pre>long&nbsp;get(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
          long&nbsp;defaultValue)</pre>
 <div class="block">Returns a metadata value.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>name</code> - Name of the metadata to be returned.</dd>
+<dd><code>key</code> - Key of the metadata to be returned.</dd>
 <dd><code>defaultValue</code> - Value to return if the metadata doesn't exist.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The metadata value.</dd>
@@ -267,11 +323,34 @@ var activeTableTab = "activeTableTab";
 <a name="contains-java.lang.String-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>contains</h4>
-<pre>boolean&nbsp;contains(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;name)</pre>
+<pre>boolean&nbsp;contains(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key)</pre>
 <div class="block">Returns whether the metadata is available.</div>
+</li>
+</ul>
+<a name="getContentLength-com.google.android.exoplayer2.upstream.cache.ContentMetadata-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getContentLength</h4>
+<pre>static&nbsp;long&nbsp;getContentLength(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html" title="interface in com.google.android.exoplayer2.upstream.cache">ContentMetadata</a>&nbsp;contentMetadata)</pre>
+<div class="block">Returns the value stored under <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html#KEY_CONTENT_LENGTH"><code>KEY_CONTENT_LENGTH</code></a>, or <a href="../../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if not
+ set.</div>
+</li>
+</ul>
+<a name="getRedirectedUri-com.google.android.exoplayer2.upstream.cache.ContentMetadata-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getRedirectedUri</h4>
+<pre>@Nullable
+static&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;getRedirectedUri(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html" title="interface in com.google.android.exoplayer2.upstream.cache">ContentMetadata</a>&nbsp;contentMetadata)</pre>
+<div class="block">Returns the value stored under <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html#KEY_REDIRECTED_URI"><code>KEY_REDIRECTED_URI</code></a> as a <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a>, or {code null} if
+ not set.</div>
 </li>
 </ul>
 </li>
@@ -301,7 +380,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheUtil.CachingCounters.html" title="class in com.google.android.exoplayer2.upstream.cache"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheUtil.ProgressListener.html" title="interface in com.google.android.exoplayer2.upstream.cache"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadataMutations.html" title="class in com.google.android.exoplayer2.upstream.cache"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">

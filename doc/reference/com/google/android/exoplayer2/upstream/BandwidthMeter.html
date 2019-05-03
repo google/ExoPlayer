@@ -147,13 +147,13 @@ var activeTableTab = "activeTableTab";
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener-">addEventListener</a></span>(<a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
                 <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter.EventListener</a>&nbsp;eventListener)</code>
-<div class="block">Adds an <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>BandwidthMeter.EventListener</code></a> to be informed of bandwidth samples.</div>
+<div class="block">Adds an <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>BandwidthMeter.EventListener</code></a>.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html#getBitrateEstimate--">getBitrateEstimate</a></span>()</code>
-<div class="block">Returns the estimated bandwidth in bits/sec.</div>
+<div class="block">Returns the estimated bitrate.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
@@ -191,7 +191,7 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <h4>getBitrateEstimate</h4>
 <pre>long&nbsp;getBitrateEstimate()</pre>
-<div class="block">Returns the estimated bandwidth in bits/sec.</div>
+<div class="block">Returns the estimated bitrate.</div>
 </li>
 </ul>
 <a name="getTransferListener--">
@@ -200,10 +200,10 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>getTransferListener</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>@Nullable
 <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;getTransferListener()</pre>
 <div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>TransferListener</code></a> that this instance uses to gather bandwidth information
- from data transfers. May be null, if no transfer listener is used.</div>
+ from data transfers. May be null if the implementation does not listen to data transfers.</div>
 </li>
 </ul>
 <a name="addEventListener-android.os.Handler-com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener-">
@@ -214,7 +214,7 @@ var activeTableTab = "activeTableTab";
 <h4>addEventListener</h4>
 <pre>void&nbsp;addEventListener(<a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
                       <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter.EventListener</a>&nbsp;eventListener)</pre>
-<div class="block">Adds an <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>BandwidthMeter.EventListener</code></a> to be informed of bandwidth samples.</div>
+<div class="block">Adds an <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>BandwidthMeter.EventListener</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>eventHandler</code> - A handler for events.</dd>

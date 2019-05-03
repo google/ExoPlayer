@@ -80,6 +80,18 @@
 </tr>
 <tbody>
 <tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/trackselection/BufferSizeAdaptationBuilder.DynamicFormatFilter.html" title="interface in com.google.android.exoplayer2.trackselection">BufferSizeAdaptationBuilder.DynamicFormatFilter</a></td>
+<td class="colLast">
+<div class="block">Dynamic filter for formats, which is applied when selecting a new track.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackBitrateEstimator.html" title="interface in com.google.android.exoplayer2.trackselection">TrackBitrateEstimator</a></td>
+<td class="colLast">
+<div class="block">Estimates track bitrate values.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a></td>
 <td class="colLast">
 <div class="block">A track selection consisting of a static subset of selected tracks belonging to a <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>, and a possibly varying individual selected track from the subset.</div>
@@ -92,6 +104,12 @@
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionUtil.AdaptiveTrackSelectionFactory.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelectionUtil.AdaptiveTrackSelectionFactory</a></td>
+<td class="colLast">
+<div class="block">Functional interface to create a single adaptive track selection.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelector.InvalidationListener.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelector.InvalidationListener</a></td>
 <td class="colLast">
 <div class="block">Notified when selections previously made by a <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelector</code></a> are no longer valid.</div>
@@ -128,49 +146,56 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/trackselection/BufferSizeAdaptationBuilder.html" title="class in com.google.android.exoplayer2.trackselection">BufferSizeAdaptationBuilder</a></td>
+<td class="colLast">
+<div class="block">Builder for a <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Factory.html" title="interface in com.google.android.exoplayer2.trackselection"><code>TrackSelection.Factory</code></a> and <a href="../../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2"><code>LoadControl</code></a> that implement buffer size
+ based track adaptation.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector</a></td>
 <td class="colLast">
 <div class="block">A default <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelector</code></a> suitable for most use cases.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.AudioTrackScore.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.AudioTrackScore</a></td>
 <td class="colLast">
 <div class="block">Represents how well an audio track matches the selection <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a></td>
 <td class="colLast">
-<div class="block">Constraint parameters for <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector</code></a>.</div>
+<div class="block">Extends <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectionParameters</code></a> by adding fields that are specific to <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.ParametersBuilder.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.ParametersBuilder</a></td>
 <td class="colLast">
 <div class="block">A builder for <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.SelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.SelectionOverride</a></td>
 <td class="colLast">
 <div class="block">A track selection override.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/trackselection/FixedTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection">FixedTrackSelection</a></td>
 <td class="colLast">
 <div class="block">A <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>TrackSelection</code></a> consisting of a single track.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/trackselection/FixedTrackSelection.Factory.html" title="class in com.google.android.exoplayer2.trackselection">FixedTrackSelection.Factory</a></td>
 <td class="colLast">Deprecated
 <div class="block"><span class="deprecationComment">Don't use as adaptive track selection factory as it will throw when multiple tracks
      are selected.</span></div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">MappingTrackSelector</a></td>
 <td class="colLast">
 <div class="block">Base class for <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelector</code></a>s that first establish a mapping between <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>s
@@ -178,22 +203,28 @@
  renderer.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html" title="class in com.google.android.exoplayer2.trackselection">MappingTrackSelector.MappedTrackInfo</a></td>
 <td class="colLast">
 <div class="block">Provides mapped track information for each renderer.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/trackselection/RandomTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection">RandomTrackSelection</a></td>
 <td class="colLast">
 <div class="block">A <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>TrackSelection</code></a> whose selected track is updated randomly.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/trackselection/RandomTrackSelection.Factory.html" title="class in com.google.android.exoplayer2.trackselection">RandomTrackSelection.Factory</a></td>
 <td class="colLast">
 <div class="block">Factory for <a href="../../../../../com/google/android/exoplayer2/trackselection/RandomTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection"><code>RandomTrackSelection</code></a> instances.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelection.Definition</a></td>
+<td class="colLast">
+<div class="block">Contains of a subset of selected tracks belonging to a <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -203,16 +234,40 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a></td>
+<td class="colLast">
+<div class="block">Constraint parameters for track selection.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></td>
+<td class="colLast">
+<div class="block">A builder for <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectionParameters</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionUtil.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionUtil</a></td>
+<td class="colLast">
+<div class="block">Track selection related utility methods.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a></td>
 <td class="colLast">
 <div class="block">The component of an <a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer</code></a> responsible for selecting tracks to be consumed by each of
  the player's <a href="../../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a>s.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectorResult.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectorResult</a></td>
 <td class="colLast">
 <div class="block">The result of a <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelector</code></a> operation.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/trackselection/WindowedTrackBitrateEstimator.html" title="class in com.google.android.exoplayer2.trackselection">WindowedTrackBitrateEstimator</a></td>
+<td class="colLast">
+<div class="block">A <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackBitrateEstimator.html" title="interface in com.google.android.exoplayer2.trackselection"><code>TrackBitrateEstimator</code></a> which derives estimates from a window of time.</div>
 </td>
 </tr>
 </tbody>

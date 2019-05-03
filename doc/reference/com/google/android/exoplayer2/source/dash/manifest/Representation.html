@@ -165,39 +165,33 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#contentId">contentId</a></span></code>
-<div class="block">Identifies the piece of content to which this <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>Representation</code></a> belongs.</div>
-</td>
-</tr>
-<tr class="altColor">
 <td class="colFirst"><code><a href="../../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#format">format</a></span></code>
 <div class="block">The format of the representation.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Descriptor</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#inbandEventStreams">inbandEventStreams</a></span></code>
 <div class="block">The in-band event streams in the representation.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#presentationTimeOffsetUs">presentationTimeOffsetUs</a></span></code>
 <div class="block">The offset of the presentation timestamps in the media stream relative to media time.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#REVISION_ID_DEFAULT">REVISION_ID_DEFAULT</a></span></code>
 <div class="block">A default value for <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#revisionId"><code>revisionId</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#revisionId">revisionId</a></span></code>
-<div class="block">Identifies the revision of the content.</div>
+<div class="block">Identifies the revision of the media contained within the representation.</div>
 </td>
 </tr>
 </table>
@@ -218,8 +212,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>abstract <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#getCacheKey--">getCacheKey</a></span>()</code>
-<div class="block">Returns a cache key for the representation if a custom cache key or content id has been
- provided and there is only single segment.</div>
+<div class="block">Returns a cache key for the representation if set, or null.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
@@ -244,8 +237,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>static <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#newInstance-java.lang.String-long-com.google.android.exoplayer2.Format-java.lang.String-com.google.android.exoplayer2.source.dash.manifest.SegmentBase-">newInstance</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;contentId,
-           long&nbsp;revisionId,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#newInstance-long-com.google.android.exoplayer2.Format-java.lang.String-com.google.android.exoplayer2.source.dash.manifest.SegmentBase-">newInstance</a></span>(long&nbsp;revisionId,
            <a href="../../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;baseUrl,
            <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase</a>&nbsp;segmentBase)</code>
@@ -254,8 +246,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#newInstance-java.lang.String-long-com.google.android.exoplayer2.Format-java.lang.String-com.google.android.exoplayer2.source.dash.manifest.SegmentBase-java.util.List-">newInstance</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;contentId,
-           long&nbsp;revisionId,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#newInstance-long-com.google.android.exoplayer2.Format-java.lang.String-com.google.android.exoplayer2.source.dash.manifest.SegmentBase-java.util.List-">newInstance</a></span>(long&nbsp;revisionId,
            <a href="../../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;baseUrl,
            <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase</a>&nbsp;segmentBase,
@@ -265,13 +256,12 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>static <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#newInstance-java.lang.String-long-com.google.android.exoplayer2.Format-java.lang.String-com.google.android.exoplayer2.source.dash.manifest.SegmentBase-java.util.List-java.lang.String-">newInstance</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;contentId,
-           long&nbsp;revisionId,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#newInstance-long-com.google.android.exoplayer2.Format-java.lang.String-com.google.android.exoplayer2.source.dash.manifest.SegmentBase-java.util.List-java.lang.String-">newInstance</a></span>(long&nbsp;revisionId,
            <a href="../../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;baseUrl,
            <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase</a>&nbsp;segmentBase,
            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Descriptor</a>&gt;&nbsp;inbandEventStreams,
-           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;customCacheKey)</code>
+           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;cacheKey)</code>
 <div class="block">Constructs a new instance.</div>
 </td>
 </tr>
@@ -311,19 +301,6 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </dl>
 </li>
 </ul>
-<a name="contentId">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>contentId</h4>
-<pre>public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> contentId</pre>
-<div class="block">Identifies the piece of content to which this <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>Representation</code></a> belongs.
- <p>
- For example, all <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>Representation</code></a>s belonging to a video should have the same content
- identifier that uniquely identifies that video.</div>
-</li>
-</ul>
 <a name="revisionId">
 <!--   -->
 </a>
@@ -331,12 +308,10 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>revisionId</h4>
 <pre>public final&nbsp;long revisionId</pre>
-<div class="block">Identifies the revision of the content.
- <p>
- If the media for a given (<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#contentId"><code>contentId</code></a> can change over time without a change to the
- <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#format"><code>format</code></a>'s <a href="../../../../../../../com/google/android/exoplayer2/Format.html#id"><code>Format.id</code></a> (e.g. as a result of re-encoding the media with an
- updated encoder), then this identifier must uniquely identify the revision of the media. The
- timestamp at which the media was encoded is often a suitable.</div>
+<div class="block">Identifies the revision of the media contained within the representation. If the media can
+ change over time (e.g. as a result of it being re-encoded), then this identifier can be set to
+ uniquely identify the revision of the media. The timestamp at which the media was encoded is
+ often a suitable.</div>
 </li>
 </ul>
 <a name="format">
@@ -387,21 +362,19 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="newInstance-java.lang.String-long-com.google.android.exoplayer2.Format-java.lang.String-com.google.android.exoplayer2.source.dash.manifest.SegmentBase-">
+<a name="newInstance-long-com.google.android.exoplayer2.Format-java.lang.String-com.google.android.exoplayer2.source.dash.manifest.SegmentBase-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>newInstance</h4>
-<pre>public static&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;newInstance(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;contentId,
-                                         long&nbsp;revisionId,
+<pre>public static&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;newInstance(long&nbsp;revisionId,
                                          <a href="../../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                                          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;baseUrl,
                                          <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase</a>&nbsp;segmentBase)</pre>
 <div class="block">Constructs a new instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>contentId</code> - Identifies the piece of content to which this representation belongs.</dd>
 <dd><code>revisionId</code> - Identifies the revision of the content.</dd>
 <dd><code>format</code> - The format of the representation.</dd>
 <dd><code>baseUrl</code> - The base URL.</dd>
@@ -411,14 +384,13 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </dl>
 </li>
 </ul>
-<a name="newInstance-java.lang.String-long-com.google.android.exoplayer2.Format-java.lang.String-com.google.android.exoplayer2.source.dash.manifest.SegmentBase-java.util.List-">
+<a name="newInstance-long-com.google.android.exoplayer2.Format-java.lang.String-com.google.android.exoplayer2.source.dash.manifest.SegmentBase-java.util.List-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>newInstance</h4>
-<pre>public static&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;newInstance(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;contentId,
-                                         long&nbsp;revisionId,
+<pre>public static&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;newInstance(long&nbsp;revisionId,
                                          <a href="../../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                                          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;baseUrl,
                                          <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase</a>&nbsp;segmentBase,
@@ -426,7 +398,6 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <div class="block">Constructs a new instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>contentId</code> - Identifies the piece of content to which this representation belongs.</dd>
 <dd><code>revisionId</code> - Identifies the revision of the content.</dd>
 <dd><code>format</code> - The format of the representation.</dd>
 <dd><code>baseUrl</code> - The base URL.</dd>
@@ -437,29 +408,27 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </dl>
 </li>
 </ul>
-<a name="newInstance-java.lang.String-long-com.google.android.exoplayer2.Format-java.lang.String-com.google.android.exoplayer2.source.dash.manifest.SegmentBase-java.util.List-java.lang.String-">
+<a name="newInstance-long-com.google.android.exoplayer2.Format-java.lang.String-com.google.android.exoplayer2.source.dash.manifest.SegmentBase-java.util.List-java.lang.String-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>newInstance</h4>
-<pre>public static&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;newInstance(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;contentId,
-                                         long&nbsp;revisionId,
+<pre>public static&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;newInstance(long&nbsp;revisionId,
                                          <a href="../../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                                          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;baseUrl,
                                          <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase</a>&nbsp;segmentBase,
                                          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Descriptor</a>&gt;&nbsp;inbandEventStreams,
-                                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;customCacheKey)</pre>
+                                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;cacheKey)</pre>
 <div class="block">Constructs a new instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>contentId</code> - Identifies the piece of content to which this representation belongs.</dd>
 <dd><code>revisionId</code> - Identifies the revision of the content.</dd>
 <dd><code>format</code> - The format of the representation.</dd>
 <dd><code>baseUrl</code> - The base URL of the representation.</dd>
 <dd><code>segmentBase</code> - A segment base element for the representation.</dd>
 <dd><code>inbandEventStreams</code> - The in-band event streams in the representation. May be null.</dd>
-<dd><code>customCacheKey</code> - A custom value to be returned from <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#getCacheKey--"><code>getCacheKey()</code></a>, or null. This
+<dd><code>cacheKey</code> - An optional key to be returned from <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#getCacheKey--"><code>getCacheKey()</code></a>, or null. This
      parameter is ignored if <code>segmentBase</code> consists of multiple segments.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The constructed instance.</dd>
@@ -505,8 +474,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>getCacheKey</h4>
 <pre>public abstract&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;getCacheKey()</pre>
-<div class="block">Returns a cache key for the representation if a custom cache key or content id has been
- provided and there is only single segment.</div>
+<div class="block">Returns a cache key for the representation if set, or null.</div>
 </li>
 </ul>
 </li>

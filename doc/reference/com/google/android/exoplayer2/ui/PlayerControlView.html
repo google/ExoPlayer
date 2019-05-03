@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -46,7 +46,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/ui/PlaybackControlView.VisibilityListener.html" title="interface in com.google.android.exoplayer2.ui"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/ui/PlaybackControlView.ControlDispatcher.html" title="interface in com.google.android.exoplayer2.ui"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.VisibilityListener.html" title="interface in com.google.android.exoplayer2.ui"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -172,6 +172,12 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
          <li>Corresponding method: <a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#setShowShuffleButton-boolean-"><code>setShowShuffleButton(boolean)</code></a>
          <li>Default: false
        </ul>
+   <li><b><code>time_bar_min_update_interval</code></b> - Specifies the minimum interval between time
+       bar position updates.
+       <ul>
+         <li>Corresponding method: <a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#setTimeBarMinUpdateInterval-int-"><code>setTimeBarMinUpdateInterval(int)</code></a>
+         <li>Default: <a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#DEFAULT_TIME_BAR_MIN_UPDATE_INTERVAL_MS"><code>DEFAULT_TIME_BAR_MIN_UPDATE_INTERVAL_MS</code></a>
+       </ul>
    <li><b><code>controller_layout_id</code></b> - Specifies the id of the layout to be inflated. See
        below for more details.
        <ul>
@@ -220,6 +226,10 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
          <li>Type: <a href="https://developer.android.com/reference/android/view/View.html" target="_top" title="class or interface in android.view"><code>View</code></a>
        </ul>
    <li><b><code>exo_shuffle</code></b> - The shuffle button.
+       <ul>
+         <li>Type: <a href="https://developer.android.com/reference/android/view/View.html" target="_top" title="class or interface in android.view"><code>View</code></a>
+       </ul>
+   <li><b><code>exo_vr</code></b> - The VR mode button.
        <ul>
          <li>Type: <a href="https://developer.android.com/reference/android/view/View.html" target="_top" title="class or interface in android.view"><code>View</code></a>
        </ul>
@@ -333,6 +343,12 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#DEFAULT_TIME_BAR_MIN_UPDATE_INTERVAL_MS">DEFAULT_TIME_BAR_MIN_UPDATE_INTERVAL_MS</a></span></code>
+<div class="block">The default minimum interval between time bar position updates.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#MAX_WINDOWS_FOR_MULTI_WINDOW_TIME_BAR">MAX_WINDOWS_FOR_MULTI_WINDOW_TIME_BAR</a></span></code>
 <div class="block">The maximum number of windows that can be shown in a multi-window time bar.</div>
 </td>
@@ -438,32 +454,38 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 </td>
 </tr>
 <tr id="i7" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#getShowVrButton--">getShowVrButton</a></span>()</code>
+<div class="block">Returns whether the VR button is shown.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#hide--">hide</a></span>()</code>
 <div class="block">Hides the controller.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#isVisible--">isVisible</a></span>()</code>
 <div class="block">Returns whether the controller is currently visible.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#onAttachedToWindow--">onAttachedToWindow</a></span>()</code>&nbsp;</td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#onDetachedFromWindow--">onDetachedFromWindow</a></span>()</code>&nbsp;</td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#setControlDispatcher-com.google.android.exoplayer2.ControlDispatcher-">setControlDispatcher</a></span>(<a href="../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher)</code>
 <div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a>.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#setExtraAdGroupMarkers-long:A-boolean:A-">setExtraAdGroupMarkers</a></span>(long[]&nbsp;extraAdGroupTimesMs,
                       boolean[]&nbsp;extraPlayedAdGroups)</code>
@@ -471,61 +493,79 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
  timeline, if in multi-window mode) and whether each extra ad has been played or not.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#setFastForwardIncrementMs-int-">setFastForwardIncrementMs</a></span>(int&nbsp;fastForwardMs)</code>
 <div class="block">Sets the fast forward increment in milliseconds.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#setPlaybackPreparer-com.google.android.exoplayer2.PlaybackPreparer-">setPlaybackPreparer</a></span>(<a href="../../../../../com/google/android/exoplayer2/PlaybackPreparer.html" title="interface in com.google.android.exoplayer2">PlaybackPreparer</a>&nbsp;playbackPreparer)</code>
 <div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/PlaybackPreparer.html" title="interface in com.google.android.exoplayer2"><code>PlaybackPreparer</code></a>.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#setPlayer-com.google.android.exoplayer2.Player-">setPlayer</a></span>(<a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code>
 <div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to control.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#setRepeatToggleModes-int-">setRepeatToggleModes</a></span>(int&nbsp;repeatToggleModes)</code>
 <div class="block">Sets which repeat toggle modes are enabled.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#setRewindIncrementMs-int-">setRewindIncrementMs</a></span>(int&nbsp;rewindMs)</code>
 <div class="block">Sets the rewind increment in milliseconds.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#setShowMultiWindowTimeBar-boolean-">setShowMultiWindowTimeBar</a></span>(boolean&nbsp;showMultiWindowTimeBar)</code>
 <div class="block">Sets whether the time bar should show all windows, as opposed to just the current one.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#setShowShuffleButton-boolean-">setShowShuffleButton</a></span>(boolean&nbsp;showShuffleButton)</code>
 <div class="block">Sets whether the shuffle button is shown.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#setShowTimeoutMs-int-">setShowTimeoutMs</a></span>(int&nbsp;showTimeoutMs)</code>
 <div class="block">Sets the playback controls timeout.</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i22" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#setShowVrButton-boolean-">setShowVrButton</a></span>(boolean&nbsp;showVrButton)</code>
+<div class="block">Sets whether the VR button is shown.</div>
+</td>
+</tr>
+<tr id="i23" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#setTimeBarMinUpdateInterval-int-">setTimeBarMinUpdateInterval</a></span>(int&nbsp;minUpdateIntervalMs)</code>
+<div class="block">Sets the minimum interval between time bar position updates.</div>
+</td>
+</tr>
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#setVisibilityListener-com.google.android.exoplayer2.ui.PlayerControlView.VisibilityListener-">setVisibilityListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.VisibilityListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerControlView.VisibilityListener</a>&nbsp;listener)</code>
 <div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.VisibilityListener.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerControlView.VisibilityListener</code></a>.</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i25" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#setVrButtonListener-android.view.View.OnClickListener-">setVrButtonListener</a></span>(<a href="https://developer.android.com/reference/android/view/View.OnClickListener.html" target="_top" title="class or interface in android.view">View.OnClickListener</a>&nbsp;onClickListener)</code>
+<div class="block">Sets listener for the VR button.</div>
+</td>
+</tr>
+<tr id="i26" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#show--">show</a></span>()</code>
 <div class="block">Shows the playback controls.</div>
@@ -638,6 +678,20 @@ public static final&nbsp;int DEFAULT_REPEAT_TOGGLE_MODES</pre>
 </dl>
 </li>
 </ul>
+<a name="DEFAULT_TIME_BAR_MIN_UPDATE_INTERVAL_MS">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DEFAULT_TIME_BAR_MIN_UPDATE_INTERVAL_MS</h4>
+<pre>public static final&nbsp;int DEFAULT_TIME_BAR_MIN_UPDATE_INTERVAL_MS</pre>
+<div class="block">The default minimum interval between time bar position updates.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.ui.PlayerControlView.DEFAULT_TIME_BAR_MIN_UPDATE_INTERVAL_MS">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
 <a name="MAX_WINDOWS_FOR_MULTI_WINDOW_TIME_BAR">
 <!--   -->
 </a>
@@ -716,7 +770,8 @@ public static final&nbsp;int DEFAULT_REPEAT_TOGGLE_MODES</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>getPlayer</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;getPlayer()</pre>
+<pre>@Nullable
+public&nbsp;<a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;getPlayer()</pre>
 <div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> currently being controlled by this view, or null if no player is
  set.</div>
 </li>
@@ -727,7 +782,7 @@ public static final&nbsp;int DEFAULT_REPEAT_TOGGLE_MODES</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setPlayer</h4>
-<pre>public&nbsp;void&nbsp;setPlayer(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>public&nbsp;void&nbsp;setPlayer(@Nullable
                       <a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
 <div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to control.</div>
 <dl>
@@ -759,9 +814,9 @@ public static final&nbsp;int DEFAULT_REPEAT_TOGGLE_MODES</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setExtraAdGroupMarkers</h4>
-<pre>public&nbsp;void&nbsp;setExtraAdGroupMarkers(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>public&nbsp;void&nbsp;setExtraAdGroupMarkers(@Nullable
                                    long[]&nbsp;extraAdGroupTimesMs,
-                                   <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                   @Nullable
                                    boolean[]&nbsp;extraPlayedAdGroups)</pre>
 <div class="block">Sets the millisecond positions of extra ad markers relative to the start of the window (or
  timeline, if in multi-window mode) and whether each extra ad has been played or not. The
@@ -770,8 +825,7 @@ public static final&nbsp;int DEFAULT_REPEAT_TOGGLE_MODES</pre>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>extraAdGroupTimesMs</code> - The millisecond timestamps of the extra ad markers to show, or
      <code>null</code> to show no extra ad markers.</dd>
-<dd><code>extraPlayedAdGroups</code> - Whether each ad has been played, or <code>null</code> to show no extra ad
-     markers.</dd>
+<dd><code>extraPlayedAdGroups</code> - Whether each ad has been played. Must be the same length as <code>extraAdGroupTimesMs</code>, or <code>null</code> if <code>extraAdGroupTimesMs</code> is <code>null</code>.</dd>
 </dl>
 </li>
 </ul>
@@ -795,7 +849,7 @@ public static final&nbsp;int DEFAULT_REPEAT_TOGGLE_MODES</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setPlaybackPreparer</h4>
-<pre>public&nbsp;void&nbsp;setPlaybackPreparer(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>public&nbsp;void&nbsp;setPlaybackPreparer(@Nullable
                                 <a href="../../../../../com/google/android/exoplayer2/PlaybackPreparer.html" title="interface in com.google.android.exoplayer2">PlaybackPreparer</a>&nbsp;playbackPreparer)</pre>
 <div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/PlaybackPreparer.html" title="interface in com.google.android.exoplayer2"><code>PlaybackPreparer</code></a>.</div>
 <dl>
@@ -810,7 +864,7 @@ public static final&nbsp;int DEFAULT_REPEAT_TOGGLE_MODES</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setControlDispatcher</h4>
-<pre>public&nbsp;void&nbsp;setControlDispatcher(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>public&nbsp;void&nbsp;setControlDispatcher(@Nullable
                                  <a href="../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher)</pre>
 <div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a>.</div>
 <dl>
@@ -933,6 +987,64 @@ public&nbsp;int&nbsp;getRepeatToggleModes()</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>showShuffleButton</code> - Whether the shuffle button is shown.</dd>
+</dl>
+</li>
+</ul>
+<a name="getShowVrButton--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getShowVrButton</h4>
+<pre>public&nbsp;boolean&nbsp;getShowVrButton()</pre>
+<div class="block">Returns whether the VR button is shown.</div>
+</li>
+</ul>
+<a name="setShowVrButton-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setShowVrButton</h4>
+<pre>public&nbsp;void&nbsp;setShowVrButton(boolean&nbsp;showVrButton)</pre>
+<div class="block">Sets whether the VR button is shown.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>showVrButton</code> - Whether the VR button is shown.</dd>
+</dl>
+</li>
+</ul>
+<a name="setVrButtonListener-android.view.View.OnClickListener-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setVrButtonListener</h4>
+<pre>public&nbsp;void&nbsp;setVrButtonListener(@Nullable
+                                <a href="https://developer.android.com/reference/android/view/View.OnClickListener.html" target="_top" title="class or interface in android.view">View.OnClickListener</a>&nbsp;onClickListener)</pre>
+<div class="block">Sets listener for the VR button.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>onClickListener</code> - Listener for the VR button, or null to clear the listener.</dd>
+</dl>
+</li>
+</ul>
+<a name="setTimeBarMinUpdateInterval-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setTimeBarMinUpdateInterval</h4>
+<pre>public&nbsp;void&nbsp;setTimeBarMinUpdateInterval(int&nbsp;minUpdateIntervalMs)</pre>
+<div class="block">Sets the minimum interval between time bar position updates.
+
+ <p>Note that smaller intervals, e.g. 33ms, will result in a smooth movement but will use more
+ CPU resources while the time bar is visible, whereas larger intervals, e.g. 200ms, will result
+ in a step-wise update with less CPU usage.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>minUpdateIntervalMs</code> - The minimum interval between time bar position updates, in
+     milliseconds.</dd>
 </dl>
 </li>
 </ul>
@@ -1063,7 +1175,7 @@ public&nbsp;int&nbsp;getRepeatToggleModes()</pre>
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/ui/PlaybackControlView.VisibilityListener.html" title="interface in com.google.android.exoplayer2.ui"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/ui/PlaybackControlView.ControlDispatcher.html" title="interface in com.google.android.exoplayer2.ui"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.VisibilityListener.html" title="interface in com.google.android.exoplayer2.ui"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">

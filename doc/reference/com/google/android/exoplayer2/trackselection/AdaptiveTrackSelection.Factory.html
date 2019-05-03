@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -114,7 +114,7 @@ var activeTableTab = "activeTableTab";
 </dl>
 <hr>
 <br>
-<pre>public static final class <span class="typeNameLabel">AdaptiveTrackSelection.Factory</span>
+<pre>public static class <span class="typeNameLabel">AdaptiveTrackSelection.Factory</span>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>
 implements <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Factory.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection.Factory</a></pre>
 <div class="block">Factory for <a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection"><code>AdaptiveTrackSelection</code></a> instances.</div>
@@ -210,11 +210,30 @@ implements <a href="../../../../../com/google/android/exoplayer2/trackselection/
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection">AdaptiveTrackSelection</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.Factory.html#createTrackSelection-com.google.android.exoplayer2.source.TrackGroup-com.google.android.exoplayer2.upstream.BandwidthMeter-int...-">createTrackSelection</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
-                    <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter,
-                    int...&nbsp;tracks)</code>
-<div class="block">Creates a new selection.</div>
+<td class="colFirst"><code>protected <a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection">AdaptiveTrackSelection</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.Factory.html#createAdaptiveTrackSelection-com.google.android.exoplayer2.source.TrackGroup-com.google.android.exoplayer2.upstream.BandwidthMeter-int:A-">createAdaptiveTrackSelection</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
+                            <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter,
+                            int[]&nbsp;tracks)</code>
+<div class="block">Creates a single adaptive selection for the given group, bandwidth meter and tracks.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>@NullableType <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a>[]</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.Factory.html#createTrackSelections-com.google.android.exoplayer2.trackselection.TrackSelection.Definition:A-com.google.android.exoplayer2.upstream.BandwidthMeter-">createTrackSelections</a></span>(@NullableType <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelection.Definition</a>[]&nbsp;definitions,
+                     <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</code>
+<div class="block">Creates a new selection for each <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelection.Definition</code></a>.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.Factory.html#experimental_enableBlockFixedTrackSelectionBandwidth--">experimental_enableBlockFixedTrackSelectionBandwidth</a></span>()</code>
+<div class="block">Enables blocking of the total fixed track selection bandwidth.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.Factory.html#experimental_setTrackBitrateEstimator-com.google.android.exoplayer2.trackselection.TrackBitrateEstimator-">experimental_setTrackBitrateEstimator</a></span>(<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackBitrateEstimator.html" title="interface in com.google.android.exoplayer2.trackselection">TrackBitrateEstimator</a>&nbsp;trackBitrateEstimator)</code>
+<div class="block">Sets a TrackBitrateEstimator.</div>
 </td>
 </tr>
 </table>
@@ -224,6 +243,13 @@ implements <a href="../../../../../com/google/android/exoplayer2/trackselection/
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></h3>
 <code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#clone--" title="class or interface in java.lang">clone</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.trackselection.TrackSelection.Factory">
+<!--   -->
+</a>
+<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.trackselection.<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Factory.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection.Factory</a></h3>
+<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Factory.html#createTrackSelection-com.google.android.exoplayer2.source.TrackGroup-com.google.android.exoplayer2.upstream.BandwidthMeter-int...-">createTrackSelection</a></code></li>
 </ul>
 </li>
 </ul>
@@ -351,7 +377,7 @@ public&nbsp;Factory(<a href="../../../../../com/google/android/exoplayer2/upstre
 <li class="blockList">
 <h4>Factory</h4>
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
-public&nbsp;Factory(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public&nbsp;Factory(@Nullable
                            <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter,
                            int&nbsp;minDurationForQualityIncreaseMs,
                            int&nbsp;maxDurationForQualityDecreaseMs,
@@ -372,27 +398,73 @@ public&nbsp;Factory(<a href="https://developer.android.com/reference/android/sup
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="createTrackSelection-com.google.android.exoplayer2.source.TrackGroup-com.google.android.exoplayer2.upstream.BandwidthMeter-int...-">
+<a name="experimental_setTrackBitrateEstimator-com.google.android.exoplayer2.trackselection.TrackBitrateEstimator-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>experimental_setTrackBitrateEstimator</h4>
+<pre>public final&nbsp;void&nbsp;experimental_setTrackBitrateEstimator(<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackBitrateEstimator.html" title="interface in com.google.android.exoplayer2.trackselection">TrackBitrateEstimator</a>&nbsp;trackBitrateEstimator)</pre>
+<div class="block">Sets a TrackBitrateEstimator.
+
+ <p>This method is experimental, and will be renamed or removed in a future release.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>trackBitrateEstimator</code> - A <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackBitrateEstimator.html" title="interface in com.google.android.exoplayer2.trackselection"><code>TrackBitrateEstimator</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a name="experimental_enableBlockFixedTrackSelectionBandwidth--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>experimental_enableBlockFixedTrackSelectionBandwidth</h4>
+<pre>public final&nbsp;void&nbsp;experimental_enableBlockFixedTrackSelectionBandwidth()</pre>
+<div class="block">Enables blocking of the total fixed track selection bandwidth.
+
+ <p>This method is experimental, and will be renamed or removed in a future release.</div>
+</li>
+</ul>
+<a name="createTrackSelections-com.google.android.exoplayer2.trackselection.TrackSelection.Definition:A-com.google.android.exoplayer2.upstream.BandwidthMeter-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createTrackSelections</h4>
+<pre>public final&nbsp;@NullableType <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a>[]&nbsp;createTrackSelections(@NullableType <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelection.Definition</a>[]&nbsp;definitions,
+                                                                  <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Factory.html#createTrackSelections-com.google.android.exoplayer2.trackselection.TrackSelection.Definition:A-com.google.android.exoplayer2.upstream.BandwidthMeter-">TrackSelection.Factory</a></code></span></div>
+<div class="block">Creates a new selection for each <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelection.Definition</code></a>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Factory.html#createTrackSelections-com.google.android.exoplayer2.trackselection.TrackSelection.Definition:A-com.google.android.exoplayer2.upstream.BandwidthMeter-">createTrackSelections</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Factory.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection.Factory</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>definitions</code> - A <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelection.Definition</code></a> array. May include null values.</dd>
+<dd><code>bandwidthMeter</code> - A <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream"><code>BandwidthMeter</code></a> which can be used to select tracks.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The created selections. Must have the same length as <code>definitions</code> and may
+     include null values.</dd>
+</dl>
+</li>
+</ul>
+<a name="createAdaptiveTrackSelection-com.google.android.exoplayer2.source.TrackGroup-com.google.android.exoplayer2.upstream.BandwidthMeter-int:A-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>createTrackSelection</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection">AdaptiveTrackSelection</a>&nbsp;createTrackSelection(<a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
-                                                   <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter,
-                                                   int...&nbsp;tracks)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Factory.html#createTrackSelection-com.google.android.exoplayer2.source.TrackGroup-com.google.android.exoplayer2.upstream.BandwidthMeter-int...-">TrackSelection.Factory</a></code></span></div>
-<div class="block">Creates a new selection.</div>
+<h4>createAdaptiveTrackSelection</h4>
+<pre>protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection">AdaptiveTrackSelection</a>&nbsp;createAdaptiveTrackSelection(<a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
+                                                              <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter,
+                                                              int[]&nbsp;tracks)</pre>
+<div class="block">Creates a single adaptive selection for the given group, bandwidth meter and tracks.</div>
 <dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Factory.html#createTrackSelection-com.google.android.exoplayer2.source.TrackGroup-com.google.android.exoplayer2.upstream.BandwidthMeter-int...-">createTrackSelection</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Factory.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection.Factory</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>group</code> - The <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>. Must not be null.</dd>
+<dd><code>group</code> - The <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>.</dd>
 <dd><code>bandwidthMeter</code> - A <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream"><code>BandwidthMeter</code></a> which can be used to select tracks.</dd>
-<dd><code>tracks</code> - The indices of the selected tracks within the <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>. Must not be
-     null or empty. May be in any order.</dd>
+<dd><code>tracks</code> - The indices of the selected tracks in the track group.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The created selection.</dd>
+<dd>An <a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection"><code>AdaptiveTrackSelection</code></a> for the specified tracks.</dd>
 </dl>
 </li>
 </ul>

@@ -213,7 +213,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/LoadEr
                   long&nbsp;loadDurationMs,
                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>&nbsp;exception,
                   int&nbsp;errorCount)</code>
-<div class="block">Retries for any exception that is not a subclass of <a href="../../../../../com/google/android/exoplayer2/ParserException.html" title="class in com.google.android.exoplayer2"><code>ParserException</code></a>.</div>
+<div class="block">Retries for any exception that is not a subclass of <a href="../../../../../com/google/android/exoplayer2/ParserException.html" title="class in com.google.android.exoplayer2"><code>ParserException</code></a>, <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/FileNotFoundException.html" target="_top" title="class or interface in java.io"><code>FileNotFoundException</code></a> or <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.UnexpectedLoaderException.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader.UnexpectedLoaderException</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -361,8 +361,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/LoadEr
                                long&nbsp;loadDurationMs,
                                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>&nbsp;exception,
                                int&nbsp;errorCount)</pre>
-<div class="block">Retries for any exception that is not a subclass of <a href="../../../../../com/google/android/exoplayer2/ParserException.html" title="class in com.google.android.exoplayer2"><code>ParserException</code></a>. The retry delay is
- calculated as <code>Math.min((errorCount - 1) * 1000, 5000)</code>.</div>
+<div class="block">Retries for any exception that is not a subclass of <a href="../../../../../com/google/android/exoplayer2/ParserException.html" title="class in com.google.android.exoplayer2"><code>ParserException</code></a>, <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/FileNotFoundException.html" target="_top" title="class or interface in java.io"><code>FileNotFoundException</code></a> or <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.UnexpectedLoaderException.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader.UnexpectedLoaderException</code></a>. The retry delay is calculated as
+ <code>Math.min((errorCount - 1) * 1000, 5000)</code>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html#getRetryDelayMsFor-int-long-java.io.IOException-int-">getRetryDelayMsFor</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a></code></dd>

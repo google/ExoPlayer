@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":41,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":9,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":9,"i5":41,"i6":41,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":9,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -113,8 +113,13 @@ var activeTableTab = "activeTableTab";
 <pre>public final class <span class="typeNameLabel">SimpleCache</span>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>
 implements <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a></pre>
-<div class="block">A <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>Cache</code></a> implementation that maintains an in-memory representation. Note, only one
- instance of SimpleCache is allowed for a given directory at a given time.</div>
+<div class="block">A <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>Cache</code></a> implementation that maintains an in-memory representation.
+
+ <p>Only one instance of SimpleCache is allowed for a given directory at a given time.
+
+ <p>To delete a SimpleCache, use <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#delete-java.io.File-com.google.android.exoplayer2.database.DatabaseProvider-"><code>delete(File, DatabaseProvider)</code></a> rather than deleting the
+ directory and its contents directly. This is necessary to ensure that associated index data is
+ also removed.</div>
 </li>
 </ul>
 </div>
@@ -136,6 +141,21 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/cac
 </ul>
 </li>
 </ul>
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a name="fields.inherited.from.class.com.google.android.exoplayer2.upstream.cache.Cache">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.upstream.cache.<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a></h3>
+<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#UID_UNSET">UID_UNSET</a></code></li>
+</ul>
+</li>
+</ul>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <ul class="blockList">
 <li class="blockList"><a name="constructor.summary">
@@ -150,14 +170,18 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/cac
 <tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#SimpleCache-java.io.File-com.google.android.exoplayer2.upstream.cache.CacheEvictor-">SimpleCache</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;cacheDir,
            <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheEvictor</a>&nbsp;evictor)</code>
-<div class="block">Constructs the cache.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use a constructor that takes a <a href="../../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database"><code>DatabaseProvider</code></a> for improved performance.</span></div>
+</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#SimpleCache-java.io.File-com.google.android.exoplayer2.upstream.cache.CacheEvictor-byte:A-">SimpleCache</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;cacheDir,
            <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheEvictor</a>&nbsp;evictor,
            byte[]&nbsp;secretKey)</code>
-<div class="block">Constructs the cache.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use a constructor that takes a <a href="../../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database"><code>DatabaseProvider</code></a> for improved performance.</span></div>
+</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -165,6 +189,25 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/cac
            <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheEvictor</a>&nbsp;evictor,
            byte[]&nbsp;secretKey,
            boolean&nbsp;encrypt)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use a constructor that takes a <a href="../../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database"><code>DatabaseProvider</code></a> for improved performance.</span></div>
+</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#SimpleCache-java.io.File-com.google.android.exoplayer2.upstream.cache.CacheEvictor-com.google.android.exoplayer2.database.DatabaseProvider-">SimpleCache</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;cacheDir,
+           <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheEvictor</a>&nbsp;evictor,
+           <a href="../../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database">DatabaseProvider</a>&nbsp;databaseProvider)</code>
+<div class="block">Constructs the cache.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#SimpleCache-java.io.File-com.google.android.exoplayer2.upstream.cache.CacheEvictor-com.google.android.exoplayer2.database.DatabaseProvider-byte:A-boolean-boolean-">SimpleCache</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;cacheDir,
+           <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheEvictor</a>&nbsp;evictor,
+           <a href="../../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database">DatabaseProvider</a>&nbsp;databaseProvider,
+           byte[]&nbsp;legacyIndexSecretKey,
+           boolean&nbsp;legacyIndexEncrypt,
+           boolean&nbsp;preferLegacyIndex)</code>
 <div class="block">Constructs the cache.</div>
 </td>
 </tr>
@@ -199,11 +242,25 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/cac
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#commitFile-java.io.File-">commitFile</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;file)</code>
-<div class="block">Commits a file into the cache.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#checkInitialization--">checkInitialization</a></span>()</code>
+<div class="block">Checks whether the cache was initialized successfully.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#commitFile-java.io.File-long-">commitFile</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;file,
+          long&nbsp;length)</code>
+<div class="block">Commits a file into the cache.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#delete-java.io.File-com.google.android.exoplayer2.database.DatabaseProvider-">delete</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;cacheDir,
+      <a href="../../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database">DatabaseProvider</a>&nbsp;databaseProvider)</code>
+<div class="block">Deletes all content belonging to a cache instance.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#disableCacheFolderLocking--">disableCacheFolderLocking</a></span>()</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
@@ -213,7 +270,15 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/cac
 </div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#disableCacheInitializationExceptions--">disableCacheInitializationExceptions</a></span>()</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Don't use this. Provided for problematic upgrade cases only.</span></div>
+</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#getCachedLength-java.lang.String-long-long-">getCachedLength</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
                long&nbsp;position,
@@ -222,37 +287,38 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/cac
  up to <code>length</code> bytes.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/NavigableSet.html" target="_top" title="class or interface in java.util">NavigableSet</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#getCachedSpans-java.lang.String-">getCachedSpans</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key)</code>
 <div class="block">Returns the cached spans for a given cache key.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#getCacheSpace--">getCacheSpace</a></span>()</code>
 <div class="block">Returns the total disk space in bytes used by the cache.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
-<td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#getContentLength-java.lang.String-">getContentLength</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key)</code>
-<div class="block">Returns the content length for the given key if one set, or <a href="../../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> otherwise.</div>
-</td>
-</tr>
-<tr id="i8" class="altColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html" title="interface in com.google.android.exoplayer2.upstream.cache">ContentMetadata</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#getContentMetadata-java.lang.String-">getContentMetadata</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key)</code>
 <div class="block">Returns a <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>ContentMetadata</code></a> for the given key.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Set.html" target="_top" title="class or interface in java.util">Set</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#getKeys--">getKeys</a></span>()</code>
 <div class="block">Returns all keys in the cache.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i12" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#getUid--">getUid</a></span>()</code>
+<div class="block">Returns a non-negative unique identifier for the cache, or <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#UID_UNSET"><code>Cache.UID_UNSET</code></a> if initialization
+ failed before the unique identifier was determined.</div>
+</td>
+</tr>
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#isCached-java.lang.String-long-long-">isCached</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
         long&nbsp;position,
@@ -260,54 +326,47 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/cac
 <div class="block">Queries if a range is entirely available in the cache.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>static boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#isCacheFolderLocked-java.io.File-">isCacheFolderLocked</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;cacheFolder)</code>
 <div class="block">Returns whether <code>cacheFolder</code> is locked by a <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>SimpleCache</code></a> instance.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#release--">release</a></span>()</code>
 <div class="block">Releases the cache.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#releaseHoleSpan-com.google.android.exoplayer2.upstream.cache.CacheSpan-">releaseHoleSpan</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;holeSpan)</code>
 <div class="block">Releases a <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> obtained from <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#startReadWrite-java.lang.String-long-"><code>Cache.startReadWrite(String, long)</code></a> which
  corresponded to a hole in the cache.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#removeListener-java.lang.String-com.google.android.exoplayer2.upstream.cache.Cache.Listener-">removeListener</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
               <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.Listener.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache.Listener</a>&nbsp;listener)</code>
 <div class="block">Unregisters a listener.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#removeSpan-com.google.android.exoplayer2.upstream.cache.CacheSpan-">removeSpan</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;span)</code>
 <div class="block">Removes a cached <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> from the cache, deleting the underlying file.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#setContentLength-java.lang.String-long-">setContentLength</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
-                long&nbsp;length)</code>
-<div class="block">Sets the content length for the given key.</div>
-</td>
-</tr>
-<tr id="i17" class="rowColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#startFile-java.lang.String-long-long-">startFile</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
          long&nbsp;position,
-         long&nbsp;maxLength)</code>
+         long&nbsp;length)</code>
 <div class="block">Obtains a cache file into which data can be written.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>com.google.android.exoplayer2.upstream.cache.SimpleCacheSpan</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#startReadWrite-java.lang.String-long-">startReadWrite</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
               long&nbsp;position)</code>
@@ -315,7 +374,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/cac
  key.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>com.google.android.exoplayer2.upstream.cache.SimpleCacheSpan</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#startReadWriteNonBlocking-java.lang.String-long-">startReadWriteNonBlocking</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
                          long&nbsp;position)</code>
@@ -350,14 +409,17 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/cac
 <ul class="blockList">
 <li class="blockList">
 <h4>SimpleCache</h4>
-<pre>public&nbsp;SimpleCache(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;cacheDir,
-                   <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheEvictor</a>&nbsp;evictor)</pre>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;SimpleCache(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;cacheDir,
+                               <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheEvictor</a>&nbsp;evictor)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use a constructor that takes a <a href="../../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database"><code>DatabaseProvider</code></a> for improved performance.</span></div>
 <div class="block">Constructs the cache. The cache will delete any unrecognized files from the directory. Hence
  the directory cannot be used to store other files.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>cacheDir</code> - A dedicated cache directory.</dd>
-<dd><code>evictor</code> - The evictor to be used.</dd>
+<dd><code>evictor</code> - The evictor to be used. For download use cases where cache eviction should not
+     occur, use <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/NoOpCacheEvictor.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>NoOpCacheEvictor</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -367,15 +429,19 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/cac
 <ul class="blockList">
 <li class="blockList">
 <h4>SimpleCache</h4>
-<pre>public&nbsp;SimpleCache(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;cacheDir,
-                   <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheEvictor</a>&nbsp;evictor,
-                   byte[]&nbsp;secretKey)</pre>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;SimpleCache(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;cacheDir,
+                               <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheEvictor</a>&nbsp;evictor,
+                               @Nullable
+                               byte[]&nbsp;secretKey)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use a constructor that takes a <a href="../../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database"><code>DatabaseProvider</code></a> for improved performance.</span></div>
 <div class="block">Constructs the cache. The cache will delete any unrecognized files from the directory. Hence
  the directory cannot be used to store other files.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>cacheDir</code> - A dedicated cache directory.</dd>
-<dd><code>evictor</code> - The evictor to be used.</dd>
+<dd><code>evictor</code> - The evictor to be used. For download use cases where cache eviction should not
+     occur, use <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/NoOpCacheEvictor.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>NoOpCacheEvictor</code></a>.</dd>
 <dd><code>secretKey</code> - If not null, cache keys will be stored encrypted on filesystem using AES/CBC.
      The key must be 16 bytes long.</dd>
 </dl>
@@ -384,22 +450,79 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/cac
 <a name="SimpleCache-java.io.File-com.google.android.exoplayer2.upstream.cache.CacheEvictor-byte:A-boolean-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>SimpleCache</h4>
-<pre>public&nbsp;SimpleCache(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;cacheDir,
-                   <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheEvictor</a>&nbsp;evictor,
-                   byte[]&nbsp;secretKey,
-                   boolean&nbsp;encrypt)</pre>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;SimpleCache(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;cacheDir,
+                               <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheEvictor</a>&nbsp;evictor,
+                               @Nullable
+                               byte[]&nbsp;secretKey,
+                               boolean&nbsp;encrypt)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use a constructor that takes a <a href="../../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database"><code>DatabaseProvider</code></a> for improved performance.</span></div>
 <div class="block">Constructs the cache. The cache will delete any unrecognized files from the directory. Hence
  the directory cannot be used to store other files.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>cacheDir</code> - A dedicated cache directory.</dd>
-<dd><code>evictor</code> - The evictor to be used.</dd>
+<dd><code>evictor</code> - The evictor to be used. For download use cases where cache eviction should not
+     occur, use <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/NoOpCacheEvictor.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>NoOpCacheEvictor</code></a>.</dd>
 <dd><code>secretKey</code> - If not null, cache keys will be stored encrypted on filesystem using AES/CBC.
      The key must be 16 bytes long.</dd>
 <dd><code>encrypt</code> - Whether the index will be encrypted when written. Must be false if <code>secretKey</code> is null.</dd>
+</dl>
+</li>
+</ul>
+<a name="SimpleCache-java.io.File-com.google.android.exoplayer2.upstream.cache.CacheEvictor-com.google.android.exoplayer2.database.DatabaseProvider-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>SimpleCache</h4>
+<pre>public&nbsp;SimpleCache(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;cacheDir,
+                   <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheEvictor</a>&nbsp;evictor,
+                   <a href="../../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database">DatabaseProvider</a>&nbsp;databaseProvider)</pre>
+<div class="block">Constructs the cache. The cache will delete any unrecognized files from the directory. Hence
+ the directory cannot be used to store other files.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>cacheDir</code> - A dedicated cache directory.</dd>
+<dd><code>evictor</code> - The evictor to be used. For download use cases where cache eviction should not
+     occur, use <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/NoOpCacheEvictor.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>NoOpCacheEvictor</code></a>.</dd>
+<dd><code>databaseProvider</code> - Provides the database in which the cache index is stored.</dd>
+</dl>
+</li>
+</ul>
+<a name="SimpleCache-java.io.File-com.google.android.exoplayer2.upstream.cache.CacheEvictor-com.google.android.exoplayer2.database.DatabaseProvider-byte:A-boolean-boolean-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>SimpleCache</h4>
+<pre>public&nbsp;SimpleCache(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;cacheDir,
+                   <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheEvictor</a>&nbsp;evictor,
+                   @Nullable
+                   <a href="../../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database">DatabaseProvider</a>&nbsp;databaseProvider,
+                   @Nullable
+                   byte[]&nbsp;legacyIndexSecretKey,
+                   boolean&nbsp;legacyIndexEncrypt,
+                   boolean&nbsp;preferLegacyIndex)</pre>
+<div class="block">Constructs the cache. The cache will delete any unrecognized files from the cache directory.
+ Hence the directory cannot be used to store other files.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>cacheDir</code> - A dedicated cache directory.</dd>
+<dd><code>evictor</code> - The evictor to be used. For download use cases where cache eviction should not
+     occur, use <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/NoOpCacheEvictor.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>NoOpCacheEvictor</code></a>.</dd>
+<dd><code>databaseProvider</code> - Provides the database in which the cache index is stored, or <code>null</code> to use a legacy index. Using a database index is highly recommended for performance
+     reasons.</dd>
+<dd><code>legacyIndexSecretKey</code> - A 16 byte AES key for reading, and optionally writing, the legacy
+     index. Not used by the database index, however should still be provided when using the
+     database index in cases where upgrading from the legacy index may be necessary.</dd>
+<dd><code>legacyIndexEncrypt</code> - Whether to encrypt when writing to the legacy index. Must be <code>false</code> if <code>legacyIndexSecretKey</code> is <code>null</code>. Not used by the database index.</dd>
+<dd><code>preferLegacyIndex</code> - Whether to use the legacy index even if a <code>databaseProvider</code> is
+     provided. Should be <code>false</code> in nearly all cases. Setting this to <code>true</code> is only
+     useful for downgrading from the database index back to the legacy index.</dd>
 </dl>
 </li>
 </ul>
@@ -438,6 +561,72 @@ public static&nbsp;void&nbsp;disableCacheFolderLocking()</pre>
 
  <p>The locking prevents multiple <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>SimpleCache</code></a> instances from being created for the same
  folder. Disabling it may cause the cache data to be corrupted. Use at your own risk.</div>
+</li>
+</ul>
+<a name="disableCacheInitializationExceptions--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>disableCacheInitializationExceptions</h4>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public static&nbsp;void&nbsp;disableCacheInitializationExceptions()</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Don't use this. Provided for problematic upgrade cases only.</span></div>
+<div class="block">Disables throwing of cache initialization exceptions.</div>
+</li>
+</ul>
+<a name="delete-java.io.File-com.google.android.exoplayer2.database.DatabaseProvider-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>delete</h4>
+<pre>public static&nbsp;void&nbsp;delete(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;cacheDir,
+                          @Nullable
+                          <a href="../../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database">DatabaseProvider</a>&nbsp;databaseProvider)</pre>
+<div class="block">Deletes all content belonging to a cache instance.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>cacheDir</code> - The cache directory.</dd>
+<dd><code>databaseProvider</code> - The database in which index data is stored, or <code>null</code> if the
+     cache used a legacy index.</dd>
+</dl>
+</li>
+</ul>
+<a name="checkInitialization--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>checkInitialization</h4>
+<pre>public&nbsp;void&nbsp;checkInitialization()
+                         throws <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></pre>
+<div class="block">Checks whether the cache was initialized successfully.</div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code>CacheException</code> - If an error occurred during initialization.</dd>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="getUid--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getUid</h4>
+<pre>public&nbsp;long&nbsp;getUid()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#getUid--">Cache</a></code></span></div>
+<div class="block">Returns a non-negative unique identifier for the cache, or <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#UID_UNSET"><code>Cache.UID_UNSET</code></a> if initialization
+ failed before the unique identifier was determined.
+
+ <p>Implementations are expected to generate and store the unique identifier alongside the
+ cached content. If the location of the cache is deleted or swapped, it is expected that a new
+ unique identifier will be generated when the cache is recreated.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#getUid--">getUid</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a></code></dd>
+</dl>
 </li>
 </ul>
 <a name="release--">
@@ -506,7 +695,7 @@ public static&nbsp;void&nbsp;disableCacheFolderLocking()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>getCachedSpans</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.NonNull.html" target="_top" title="class or interface in android">@NonNull</a>
+<pre>@NonNull
 public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/NavigableSet.html" target="_top" title="class or interface in java.util">NavigableSet</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&gt;&nbsp;getCachedSpans(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#getCachedSpans-java.lang.String-">Cache</a></code></span></div>
 <div class="block">Returns the cached spans for a given cache key.</div>
@@ -577,8 +766,8 @@ public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/u
  obtains the data from some other source. The returned <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> serves as a lock.
  Whilst the caller holds the lock it may write data into the hole. It may split data into
  multiple files. When the caller has finished writing a file it should commit it to the cache by
- calling <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#commitFile-java.io.File-"><code>Cache.commitFile(File)</code></a>. When the caller has finished writing, it must release the
- lock by calling <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#releaseHoleSpan-com.google.android.exoplayer2.upstream.cache.CacheSpan-"><code>Cache.releaseHoleSpan(com.google.android.exoplayer2.upstream.cache.CacheSpan)</code></a>.</div>
+ calling <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#commitFile-java.io.File-long-"><code>Cache.commitFile(File, long)</code></a>. When the caller has finished writing, it must release
+ the lock by calling <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#releaseHoleSpan-com.google.android.exoplayer2.upstream.cache.CacheSpan-"><code>Cache.releaseHoleSpan(com.google.android.exoplayer2.upstream.cache.CacheSpan)</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#startReadWrite-java.lang.String-long-">startReadWrite</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a></code></dd>
@@ -599,7 +788,7 @@ public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/u
 <ul class="blockList">
 <li class="blockList">
 <h4>startReadWriteNonBlocking</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>@Nullable
 public&nbsp;com.google.android.exoplayer2.upstream.cache.SimpleCacheSpan&nbsp;startReadWriteNonBlocking(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
                                                                                                         long&nbsp;position)
                                                                                                  throws <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></pre>
@@ -627,7 +816,7 @@ public&nbsp;com.google.android.exoplayer2.upstream.cache.SimpleCacheSpan&nbsp;st
 <h4>startFile</h4>
 <pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;startFile(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
                       long&nbsp;position,
-                      long&nbsp;maxLength)
+                      long&nbsp;length)
                throws <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#startFile-java.lang.String-long-long-">Cache</a></code></span></div>
 <div class="block">Obtains a cache file into which data can be written. Must only be called when holding a
@@ -638,8 +827,8 @@ public&nbsp;com.google.android.exoplayer2.upstream.cache.SimpleCacheSpan&nbsp;st
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>key</code> - The cache key for the data.</dd>
 <dd><code>position</code> - The starting position of the data.</dd>
-<dd><code>maxLength</code> - The maximum length of the data to be written. Used only to ensure that there
-     is enough space in the cache.</dd>
+<dd><code>length</code> - The length of the data being written, or <a href="../../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if unknown. Used
+     only to ensure that there is enough space in the cache.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The file into which data should be written.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -647,21 +836,23 @@ public&nbsp;com.google.android.exoplayer2.upstream.cache.SimpleCacheSpan&nbsp;st
 </dl>
 </li>
 </ul>
-<a name="commitFile-java.io.File-">
+<a name="commitFile-java.io.File-long-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>commitFile</h4>
-<pre>public&nbsp;void&nbsp;commitFile(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;file)
+<pre>public&nbsp;void&nbsp;commitFile(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;file,
+                       long&nbsp;length)
                 throws <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#commitFile-java.io.File-">Cache</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#commitFile-java.io.File-long-">Cache</a></code></span></div>
 <div class="block">Commits a file into the cache. Must only be called when holding a corresponding hole <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> obtained from <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#startReadWrite-java.lang.String-long-"><code>Cache.startReadWrite(String, long)</code></a></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#commitFile-java.io.File-">commitFile</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a></code></dd>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#commitFile-java.io.File-long-">commitFile</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>file</code> - A newly written cache file.</dd>
+<dd><code>length</code> - The length of the newly written cache file in bytes.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></code> - If an error is encountered.</dd>
 </dl>
@@ -747,47 +938,6 @@ public&nbsp;com.google.android.exoplayer2.upstream.cache.SimpleCacheSpan&nbsp;st
 <dd><code>length</code> - The maximum length of the data to be returned.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The length of the cached or not cached data block length.</dd>
-</dl>
-</li>
-</ul>
-<a name="setContentLength-java.lang.String-long-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setContentLength</h4>
-<pre>public&nbsp;void&nbsp;setContentLength(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
-                             long&nbsp;length)
-                      throws <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#setContentLength-java.lang.String-long-">Cache</a></code></span></div>
-<div class="block">Sets the content length for the given key.</div>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#setContentLength-java.lang.String-long-">setContentLength</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a></code></dd>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>key</code> - The cache key for the data.</dd>
-<dd><code>length</code> - The length of the data.</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></code> - If an error is encountered.</dd>
-</dl>
-</li>
-</ul>
-<a name="getContentLength-java.lang.String-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getContentLength</h4>
-<pre>public&nbsp;long&nbsp;getContentLength(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#getContentLength-java.lang.String-">Cache</a></code></span></div>
-<div class="block">Returns the content length for the given key if one set, or <a href="../../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> otherwise.</div>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#getContentLength-java.lang.String-">getContentLength</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a></code></dd>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>key</code> - The cache key for the data.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The content length for the given key if one set, or <a href="../../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> otherwise.</dd>
 </dl>
 </li>
 </ul>

@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -179,7 +179,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/cac
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/LeastRecentlyUsedCacheEvictor.html#onSpanTouched-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.cache.CacheSpan-com.google.android.exoplayer2.upstream.cache.CacheSpan-">onSpanTouched</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
              <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;oldSpan,
              <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;newSpan)</code>
-<div class="block">Called when an existing <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> is accessed, causing it to be replaced.</div>
+<div class="block">Called when an existing <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> is touched, causing it to be replaced.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
@@ -187,8 +187,15 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/cac
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/LeastRecentlyUsedCacheEvictor.html#onStartFile-com.google.android.exoplayer2.upstream.cache.Cache-java.lang.String-long-long-">onStartFile</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
            long&nbsp;position,
-           long&nbsp;maxLength)</code>
+           long&nbsp;length)</code>
 <div class="block">Called when a writer starts writing to the cache.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/LeastRecentlyUsedCacheEvictor.html#requiresCacheSpanTouches--">requiresCacheSpanTouches</a></span>()</code>
+<div class="block">Returns whether the evictor requires the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>Cache</code></a> to touch <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpans</code></a>
+ when it accesses them.</div>
 </td>
 </tr>
 </table>
@@ -237,6 +244,23 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/cac
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="requiresCacheSpanTouches--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>requiresCacheSpanTouches</h4>
+<pre>public&nbsp;boolean&nbsp;requiresCacheSpanTouches()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html#requiresCacheSpanTouches--">CacheEvictor</a></code></span></div>
+<div class="block">Returns whether the evictor requires the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>Cache</code></a> to touch <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpans</code></a>
+ when it accesses them. Implementations that do not use <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html#lastTouchTimestamp"><code>CacheSpan.lastTouchTimestamp</code></a>
+ should return <code>false</code>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html#requiresCacheSpanTouches--">requiresCacheSpanTouches</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheEvictor</a></code></dd>
+</dl>
+</li>
+</ul>
 <a name="onCacheInitialized--">
 <!--   -->
 </a>
@@ -261,7 +285,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/cac
 <pre>public&nbsp;void&nbsp;onStartFile(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
                         long&nbsp;position,
-                        long&nbsp;maxLength)</pre>
+                        long&nbsp;length)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html#onStartFile-com.google.android.exoplayer2.upstream.cache.Cache-java.lang.String-long-long-">CacheEvictor</a></code></span></div>
 <div class="block">Called when a writer starts writing to the cache.</div>
 <dl>
@@ -271,7 +295,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/cac
 <dd><code>cache</code> - The source of the event.</dd>
 <dd><code>key</code> - The key being written.</dd>
 <dd><code>position</code> - The starting position of the data being written.</dd>
-<dd><code>maxLength</code> - The maximum length of the data being written.</dd>
+<dd><code>length</code> - The length of the data being written, or <a href="../../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if unknown.</dd>
 </dl>
 </li>
 </ul>
@@ -323,12 +347,11 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/cac
                           <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;oldSpan,
                           <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;newSpan)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.Listener.html#onSpanTouched-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.cache.CacheSpan-com.google.android.exoplayer2.upstream.cache.CacheSpan-">Cache.Listener</a></code></span></div>
-<div class="block">Called when an existing <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> is accessed, causing it to be replaced. The new
+<div class="block">Called when an existing <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> is touched, causing it to be replaced. The new
  <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> is guaranteed to represent the same data as the one it replaces, however
- <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html#file"><code>CacheSpan.file</code></a> and <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html#lastAccessTimestamp"><code>CacheSpan.lastAccessTimestamp</code></a> may have changed.
- <p>
- Note that for span replacement, <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.Listener.html#onSpanAdded-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.cache.CacheSpan-"><code>Cache.Listener.onSpanAdded(Cache, CacheSpan)</code></a> and
- <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.Listener.html#onSpanRemoved-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.cache.CacheSpan-"><code>Cache.Listener.onSpanRemoved(Cache, CacheSpan)</code></a> are not called in addition to this method.</div>
+ <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html#file"><code>CacheSpan.file</code></a> and <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html#lastTouchTimestamp"><code>CacheSpan.lastTouchTimestamp</code></a> may have changed.
+
+ <p>Note that for span replacement, <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.Listener.html#onSpanAdded-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.cache.CacheSpan-"><code>Cache.Listener.onSpanAdded(Cache, CacheSpan)</code></a> and <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.Listener.html#onSpanRemoved-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.cache.CacheSpan-"><code>Cache.Listener.onSpanRemoved(Cache, CacheSpan)</code></a> are not called in addition to this method.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.Listener.html#onSpanTouched-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.cache.CacheSpan-com.google.android.exoplayer2.upstream.cache.CacheSpan-">onSpanTouched</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.Listener.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache.Listener</a></code></dd>

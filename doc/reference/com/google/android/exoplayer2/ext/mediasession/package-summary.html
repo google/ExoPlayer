@@ -93,15 +93,15 @@
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.MediaMetadataProvider.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.MediaMetadataProvider</a></td>
+<td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.MediaButtonEventHandler.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.MediaButtonEventHandler</a></td>
 <td class="colLast">
-<div class="block">Provides a <a href="https://developer.android.com/reference/android/support.v4.media.MediaMetadataCompat.html" target="_top" title="class or interface in android"><code>MediaMetadataCompat</code></a> for a given player state.</div>
+<div class="block">Handles a media button event.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.PlaybackController.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.PlaybackController</a></td>
+<td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.MediaMetadataProvider.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.MediaMetadataProvider</a></td>
 <td class="colLast">
-<div class="block">Interface to which playback actions are delegated.</div>
+<div class="block">Provides a <a href="https://developer.android.com/reference/android/support.v4.media.MediaMetadataCompat.html" target="_top" title="class or interface in android"><code>MediaMetadataCompat</code></a> for a given player state.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -154,47 +154,57 @@
 </tr>
 <tbody>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/DefaultPlaybackController.html" title="class in com.google.android.exoplayer2.ext.mediasession">DefaultPlaybackController</a></td>
-<td class="colLast">
-<div class="block">A default implementation of <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.PlaybackController.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.PlaybackController</code></a>.</div>
-</td>
-</tr>
-<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.html" title="class in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector</a></td>
 <td class="colLast">
 <div class="block">Connects a <a href="https://developer.android.com/reference/android/support.v4.media.session.MediaSessionCompat.html" target="_top" title="class or interface in android"><code>MediaSessionCompat</code></a> to a <a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.DefaultMediaMetadataProvider.html" title="class in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.DefaultMediaMetadataProvider</a></td>
 <td class="colLast">
-<div class="block">Provides a default <a href="https://developer.android.com/reference/android/support.v4.media.MediaMetadataCompat.html" target="_top" title="class or interface in android"><code>MediaMetadataCompat</code></a> with properties and extras propagated from the
- active queue item to the session metadata.</div>
+<div class="block">Provides a default <a href="https://developer.android.com/reference/android/support.v4.media.MediaMetadataCompat.html" target="_top" title="class or interface in android"><code>MediaMetadataCompat</code></a> with properties and extras taken from the <a href="https://developer.android.com/reference/android/support.v4.media.MediaDescriptionCompat.html" target="_top" title="class or interface in android"><code>MediaDescriptionCompat</code></a> of the <code>MediaSessionCompat.QueueItem</code> of the active queue item.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/RepeatModeActionProvider.html" title="class in com.google.android.exoplayer2.ext.mediasession">RepeatModeActionProvider</a></td>
 <td class="colLast">
 <div class="block">Provides a custom action for toggling repeat modes.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueEditor.html" title="class in com.google.android.exoplayer2.ext.mediasession">TimelineQueueEditor</a></td>
 <td class="colLast">
 <div class="block">A <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.QueueEditor.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.QueueEditor</code></a> implementation based on the <a href="../../../../../../com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>ConcatenatingMediaSource</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueEditor.MediaIdEqualityChecker.html" title="class in com.google.android.exoplayer2.ext.mediasession">TimelineQueueEditor.MediaIdEqualityChecker</a></td>
 <td class="colLast">
 <div class="block">Media description comparator comparing the media IDs.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueNavigator.html" title="class in com.google.android.exoplayer2.ext.mediasession">TimelineQueueNavigator</a></td>
 <td class="colLast">
 <div class="block">An abstract implementation of the <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.QueueNavigator.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.QueueNavigator</code></a> that maps the
  windows of a <a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a>'s <a href="../../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> to the media session queue.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList">
+<table class="typeSummary" border="0" cellpadding="3" cellspacing="0" summary="Annotation Types Summary table, listing annotation types, and an explanation">
+<caption><span>Annotation Types Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Annotation Type</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.PlaybackActions.html" title="annotation in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.PlaybackActions</a></td>
+<td class="colLast">
+<div class="block">Playback actions supported by the connector.</div>
 </td>
 </tr>
 </tbody>

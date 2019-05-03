@@ -129,7 +129,7 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/support.v4.media.session.PlaybackStateCompat.CustomAction.html" target="_top" title="class or interface in android">android.support.v4.media.session.PlaybackStateCompat.CustomAction</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CustomActionProvider.html#getCustomAction--">getCustomAction</a></span>()</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CustomActionProvider.html#getCustomAction-com.google.android.exoplayer2.Player-">getCustomAction</a></span>(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code>
 <div class="block">Returns a <code>PlaybackStateCompat.CustomAction</code> which will be published to the media
  session by the connector or <code>null</code> if this action should not be published at the given
  player state.</div>
@@ -137,7 +137,9 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CustomActionProvider.html#onCustomAction-java.lang.String-android.os.Bundle-">onCustomAction</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;action,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CustomActionProvider.html#onCustomAction-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.ControlDispatcher-java.lang.String-android.os.Bundle-">onCustomAction</a></span>(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+              <a href="../../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher,
+              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;action,
               <a href="https://developer.android.com/reference/android/os/Bundle.html" target="_top" title="class or interface in android.os">Bundle</a>&nbsp;extras)</code>
 <div class="block">Called when a custom action provided by this provider is sent to the media session.</div>
 </td>
@@ -157,33 +159,40 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="onCustomAction-java.lang.String-android.os.Bundle-">
+<a name="onCustomAction-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.ControlDispatcher-java.lang.String-android.os.Bundle-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onCustomAction</h4>
-<pre>void&nbsp;onCustomAction(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;action,
+<pre>void&nbsp;onCustomAction(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                    <a href="../../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher,
+                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;action,
                     <a href="https://developer.android.com/reference/android/os/Bundle.html" target="_top" title="class or interface in android.os">Bundle</a>&nbsp;extras)</pre>
 <div class="block">Called when a custom action provided by this provider is sent to the media session.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>player</code> - The player connected to the media session.</dd>
+<dd><code>controlDispatcher</code> - A <a href="../../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a> that should be used for dispatching
+     changes to the player.</dd>
 <dd><code>action</code> - The name of the action which was sent by a media controller.</dd>
 <dd><code>extras</code> - Optional extras sent by a media controller.</dd>
 </dl>
 </li>
 </ul>
-<a name="getCustomAction--">
+<a name="getCustomAction-com.google.android.exoplayer2.Player-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getCustomAction</h4>
-<pre><a href="https://developer.android.com/reference/android/support.v4.media.session.PlaybackStateCompat.CustomAction.html" target="_top" title="class or interface in android">android.support.v4.media.session.PlaybackStateCompat.CustomAction</a>&nbsp;getCustomAction()</pre>
+<pre><a href="https://developer.android.com/reference/android/support.v4.media.session.PlaybackStateCompat.CustomAction.html" target="_top" title="class or interface in android">android.support.v4.media.session.PlaybackStateCompat.CustomAction</a>&nbsp;getCustomAction(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
 <div class="block">Returns a <code>PlaybackStateCompat.CustomAction</code> which will be published to the media
  session by the connector or <code>null</code> if this action should not be published at the given
  player state.</div>
 <dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>player</code> - The player connected to the media session.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The custom action to be included in the session playback state or <code>null</code>.</dd>
 </dl>

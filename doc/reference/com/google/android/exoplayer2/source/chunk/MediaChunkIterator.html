@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6};
+var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/SingleSampleMediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkListIterator.html" title="class in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html" target="_top">Frames</a></li>
@@ -98,7 +98,7 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkIterator.html" title="class in com.google.android.exoplayer2.source.chunk">BaseMediaChunkIterator</a>, <a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationSegmentIterator.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationSegmentIterator</a></dd>
+<dd><a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkIterator.html" title="class in com.google.android.exoplayer2.source.chunk">BaseMediaChunkIterator</a>, <a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationSegmentIterator.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationSegmentIterator</a>, <a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkListIterator.html" title="class in com.google.android.exoplayer2.source.chunk">MediaChunkListIterator</a></dd>
 </dl>
 <hr>
 <br>
@@ -175,6 +175,12 @@ var activeTableTab = "activeTableTab";
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html#next--">next</a></span>()</code>
 <div class="block">Moves the iterator to the next media chunk.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html#reset--">reset</a></span>()</code>
+<div class="block">Resets the iterator to the initial position.</div>
 </td>
 </tr>
 </table>
@@ -270,7 +276,7 @@ var activeTableTab = "activeTableTab";
 <a name="getChunkEndTimeUs--">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>getChunkEndTimeUs</h4>
 <pre>long&nbsp;getChunkEndTimeUs()</pre>
@@ -280,6 +286,16 @@ var activeTableTab = "activeTableTab";
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/NoSuchElementException.html" target="_top" title="class or interface in java.util">NoSuchElementException</a></code> - If the method is called before the first call to
      <a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html#next--"><code>next()</code></a> or when <a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html#isEnded--"><code>isEnded()</code></a> is true.</dd>
 </dl>
+</li>
+</ul>
+<a name="reset--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>reset</h4>
+<pre>void&nbsp;reset()</pre>
+<div class="block">Resets the iterator to the initial position.</div>
 </li>
 </ul>
 </li>
@@ -310,7 +326,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/SingleSampleMediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkListIterator.html" title="class in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html" target="_top">Frames</a></li>

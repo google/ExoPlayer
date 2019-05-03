@@ -732,11 +732,12 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>getPeriodPosition</h4>
-<pre>public final&nbsp;<a href="https://developer.android.com/reference/android/util/Pair.html" target="_top" title="class or interface in android.util">Pair</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Long.html" target="_top" title="class or interface in java.lang">Long</a>&gt;&nbsp;getPeriodPosition(<a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;window,
-                                                 <a href="../../../../com/google/android/exoplayer2/Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a>&nbsp;period,
-                                                 int&nbsp;windowIndex,
-                                                 long&nbsp;windowPositionUs,
-                                                 long&nbsp;defaultPositionProjectionUs)</pre>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/android/util/Pair.html" target="_top" title="class or interface in android.util">Pair</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Long.html" target="_top" title="class or interface in java.lang">Long</a>&gt;&nbsp;getPeriodPosition(<a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;window,
+                                                           <a href="../../../../com/google/android/exoplayer2/Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a>&nbsp;period,
+                                                           int&nbsp;windowIndex,
+                                                           long&nbsp;windowPositionUs,
+                                                           long&nbsp;defaultPositionProjectionUs)</pre>
 <div class="block">Converts (windowIndex, windowPositionUs) to the corresponding (periodUid, periodPositionUs).</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -780,8 +781,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <h4>getPeriod</h4>
 <pre>public final&nbsp;<a href="../../../../com/google/android/exoplayer2/Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a>&nbsp;getPeriod(int&nbsp;periodIndex,
                                        <a href="../../../../com/google/android/exoplayer2/Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a>&nbsp;period)</pre>
-<div class="block">Populates a <a href="../../../../com/google/android/exoplayer2/Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a> with data for the period at the specified index. Does not populate
- <a href="../../../../com/google/android/exoplayer2/Timeline.Period.html#id"><code>Timeline.Period.id</code></a> and <a href="../../../../com/google/android/exoplayer2/Timeline.Period.html#uid"><code>Timeline.Period.uid</code></a>.</div>
+<div class="block">Populates a <a href="../../../../com/google/android/exoplayer2/Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a> with data for the period at the specified index. <a href="../../../../com/google/android/exoplayer2/Timeline.Period.html#id"><code>Timeline.Period.id</code></a>
+ and <a href="../../../../com/google/android/exoplayer2/Timeline.Period.html#uid"><code>Timeline.Period.uid</code></a> will be set to null.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>periodIndex</code> - The index of the period.</dd>

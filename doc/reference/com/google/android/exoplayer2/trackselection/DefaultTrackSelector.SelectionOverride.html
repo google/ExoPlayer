@@ -157,11 +157,19 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.SelectionOverride.html#groupIndex">groupIndex</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.SelectionOverride.html#data">data</a></span></code>&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.SelectionOverride.html#groupIndex">groupIndex</a></span></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.SelectionOverride.html#length">length</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.SelectionOverride.html#reason">reason</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>int[]</code></td>
@@ -191,6 +199,12 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.SelectionOverride.html#SelectionOverride-int-int...-">SelectionOverride</a></span>(int&nbsp;groupIndex,
                  int...&nbsp;tracks)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.SelectionOverride.html#SelectionOverride-int-int:A-int-int-">SelectionOverride</a></span>(int&nbsp;groupIndex,
+                 int[]&nbsp;tracks,
+                 int&nbsp;reason,
+                 int&nbsp;data)</code>&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -279,6 +293,24 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <pre>public final&nbsp;int length</pre>
 </li>
 </ul>
+<a name="reason">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>reason</h4>
+<pre>public final&nbsp;int reason</pre>
+</li>
+</ul>
+<a name="data">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>data</h4>
+<pre>public final&nbsp;int data</pre>
+</li>
+</ul>
 <a name="CREATOR">
 <!--   -->
 </a>
@@ -299,7 +331,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <a name="SelectionOverride-int-int...-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>SelectionOverride</h4>
 <pre>public&nbsp;SelectionOverride(int&nbsp;groupIndex,
@@ -308,6 +340,25 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>groupIndex</code> - The overriding track group index.</dd>
 <dd><code>tracks</code> - The overriding track indices within the track group.</dd>
+</dl>
+</li>
+</ul>
+<a name="SelectionOverride-int-int:A-int-int-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>SelectionOverride</h4>
+<pre>public&nbsp;SelectionOverride(int&nbsp;groupIndex,
+                         int[]&nbsp;tracks,
+                         int&nbsp;reason,
+                         int&nbsp;data)</pre>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>groupIndex</code> - The overriding track group index.</dd>
+<dd><code>tracks</code> - The overriding track indices within the track group.</dd>
+<dd><code>reason</code> - The reason for the override. One of the <a href="../../../../../com/google/android/exoplayer2/C.html" title="class in com.google.android.exoplayer2"><code>C</code></a> SELECTION_REASON_ constants.</dd>
+<dd><code>data</code> - Optional data associated with this override.</dd>
 </dl>
 </li>
 </ul>
@@ -348,7 +399,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>equals</h4>
-<pre>public&nbsp;boolean&nbsp;equals(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>public&nbsp;boolean&nbsp;equals(@Nullable
                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;obj)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>

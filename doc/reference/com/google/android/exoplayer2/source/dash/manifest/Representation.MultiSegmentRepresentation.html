@@ -155,7 +155,7 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/source/da
 <!--   -->
 </a>
 <h3>Fields inherited from class&nbsp;com.google.android.exoplayer2.source.dash.manifest.<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a></h3>
-<code><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#baseUrl">baseUrl</a>, <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#contentId">contentId</a>, <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#format">format</a>, <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#inbandEventStreams">inbandEventStreams</a>, <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#presentationTimeOffsetUs">presentationTimeOffsetUs</a>, <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#REVISION_ID_DEFAULT">REVISION_ID_DEFAULT</a>, <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#revisionId">revisionId</a></code></li>
+<code><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#baseUrl">baseUrl</a>, <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#format">format</a>, <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#inbandEventStreams">inbandEventStreams</a>, <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#presentationTimeOffsetUs">presentationTimeOffsetUs</a>, <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#REVISION_ID_DEFAULT">REVISION_ID_DEFAULT</a>, <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#revisionId">revisionId</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="fields.inherited.from.class.com.google.android.exoplayer2.source.dash.DashSegmentIndex">
@@ -178,8 +178,7 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/source/da
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.MultiSegmentRepresentation.html#MultiSegmentRepresentation-java.lang.String-long-com.google.android.exoplayer2.Format-java.lang.String-com.google.android.exoplayer2.source.dash.manifest.SegmentBase.MultiSegmentBase-java.util.List-">MultiSegmentRepresentation</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;contentId,
-                          long&nbsp;revisionId,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.MultiSegmentRepresentation.html#MultiSegmentRepresentation-long-com.google.android.exoplayer2.Format-java.lang.String-com.google.android.exoplayer2.source.dash.manifest.SegmentBase.MultiSegmentBase-java.util.List-">MultiSegmentRepresentation</a></span>(long&nbsp;revisionId,
                           <a href="../../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;baseUrl,
                           <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.MultiSegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.MultiSegmentBase</a>&nbsp;segmentBase,
@@ -203,8 +202,7 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/source/da
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.MultiSegmentRepresentation.html#getCacheKey--">getCacheKey</a></span>()</code>
-<div class="block">Returns a cache key for the representation if a custom cache key or content id has been
- provided and there is only single segment.</div>
+<div class="block">Returns a cache key for the representation if set, or null.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
@@ -271,7 +269,7 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/source/da
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.source.dash.manifest.<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a></h3>
-<code><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#getInitializationUri--">getInitializationUri</a>, <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#newInstance-java.lang.String-long-com.google.android.exoplayer2.Format-java.lang.String-com.google.android.exoplayer2.source.dash.manifest.SegmentBase-">newInstance</a>, <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#newInstance-java.lang.String-long-com.google.android.exoplayer2.Format-java.lang.String-com.google.android.exoplayer2.source.dash.manifest.SegmentBase-java.util.List-">newInstance</a>, <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#newInstance-java.lang.String-long-com.google.android.exoplayer2.Format-java.lang.String-com.google.android.exoplayer2.source.dash.manifest.SegmentBase-java.util.List-java.lang.String-">newInstance</a></code></li>
+<code><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#getInitializationUri--">getInitializationUri</a>, <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#newInstance-long-com.google.android.exoplayer2.Format-java.lang.String-com.google.android.exoplayer2.source.dash.manifest.SegmentBase-">newInstance</a>, <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#newInstance-long-com.google.android.exoplayer2.Format-java.lang.String-com.google.android.exoplayer2.source.dash.manifest.SegmentBase-java.util.List-">newInstance</a>, <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#newInstance-long-com.google.android.exoplayer2.Format-java.lang.String-com.google.android.exoplayer2.source.dash.manifest.SegmentBase-java.util.List-java.lang.String-">newInstance</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -294,21 +292,19 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/source/da
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="MultiSegmentRepresentation-java.lang.String-long-com.google.android.exoplayer2.Format-java.lang.String-com.google.android.exoplayer2.source.dash.manifest.SegmentBase.MultiSegmentBase-java.util.List-">
+<a name="MultiSegmentRepresentation-long-com.google.android.exoplayer2.Format-java.lang.String-com.google.android.exoplayer2.source.dash.manifest.SegmentBase.MultiSegmentBase-java.util.List-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>MultiSegmentRepresentation</h4>
-<pre>public&nbsp;MultiSegmentRepresentation(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;contentId,
-                                  long&nbsp;revisionId,
+<pre>public&nbsp;MultiSegmentRepresentation(long&nbsp;revisionId,
                                   <a href="../../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;baseUrl,
                                   <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.MultiSegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.MultiSegmentBase</a>&nbsp;segmentBase,
                                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Descriptor</a>&gt;&nbsp;inbandEventStreams)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>contentId</code> - Identifies the piece of content to which this representation belongs.</dd>
 <dd><code>revisionId</code> - Identifies the revision of the content.</dd>
 <dd><code>format</code> - The format of the representation.</dd>
 <dd><code>baseUrl</code> - The base URL of the representation.</dd>
@@ -364,8 +360,7 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/source/da
 <h4>getCacheKey</h4>
 <pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;getCacheKey()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#getCacheKey--">Representation</a></code></span></div>
-<div class="block">Returns a cache key for the representation if a custom cache key or content id has been
- provided and there is only single segment.</div>
+<div class="block">Returns a cache key for the representation if set, or null.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#getCacheKey--">getCacheKey</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a></code></dd>

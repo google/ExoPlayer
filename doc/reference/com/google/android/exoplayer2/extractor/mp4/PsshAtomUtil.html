@@ -196,7 +196,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>buildPsshAtom</h4>
 <pre>public static&nbsp;byte[]&nbsp;buildPsshAtom(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;systemId,
-                                   <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                   @Nullable
                                    byte[]&nbsp;data)</pre>
 <div class="block">Builds a version 0 PSSH atom for a given system id, containing the given data.</div>
 <dl>
@@ -215,9 +215,9 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>buildPsshAtom</h4>
 <pre>public static&nbsp;byte[]&nbsp;buildPsshAtom(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;systemId,
-                                   <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                   @Nullable
                                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>[]&nbsp;keyIds,
-                                   <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                   @Nullable
                                    byte[]&nbsp;data)</pre>
 <div class="block">Builds a PSSH atom for the given system id, containing the given key ids and data.</div>
 <dl>
@@ -252,7 +252,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>parseUuid</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>@Nullable
 public static&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;parseUuid(byte[]&nbsp;atom)</pre>
 <div class="block">Parses the UUID from a PSSH atom. Version 0 and 1 PSSH atoms are supported.
 
@@ -291,7 +291,7 @@ public static&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html
 <ul class="blockListLast">
 <li class="blockList">
 <h4>parseSchemeSpecificData</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>@Nullable
 public static&nbsp;byte[]&nbsp;parseSchemeSpecificData(byte[]&nbsp;atom,
                                                        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid)</pre>
 <div class="block">Parses the scheme specific data from a PSSH atom. Version 0 and 1 PSSH atoms are supported.

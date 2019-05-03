@@ -46,7 +46,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionArray.html" title="class in com.google.android.exoplayer2.trackselection"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionUtil.AdaptiveTrackSelectionFactory.html" title="interface in com.google.android.exoplayer2.trackselection"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelector.InvalidationListener.html" title="interface in com.google.android.exoplayer2.trackselection"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -124,9 +124,9 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 
  <ul>
    <li>When the player is created it will initialize the track selector by calling <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html#init-com.google.android.exoplayer2.trackselection.TrackSelector.InvalidationListener-com.google.android.exoplayer2.upstream.BandwidthMeter-"><code>init(InvalidationListener, BandwidthMeter)</code></a>.
-   <li>When the player needs to make a track selection it will call <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html#selectTracks-com.google.android.exoplayer2.RendererCapabilities:A-com.google.android.exoplayer2.source.TrackGroupArray-"><code>selectTracks(RendererCapabilities[], TrackGroupArray)</code></a>. This typically occurs at the start
-       of playback, when the player starts to buffer a new period of the media being played, and
-       when the track selector invalidates its previous selections.
+   <li>When the player needs to make a track selection it will call <code>#selectTracks(RendererCapabilities[], TrackGroupArray, MediaPeriodId, Timeline)</code>. This
+       typically occurs at the start of playback, when the player starts to buffer a new period of
+       the media being played, and when the track selector invalidates its previous selections.
    <li>The player may perform a track selection well in advance of the selected tracks becoming
        active, where active is defined to mean that the renderers are actually consuming media
        corresponding to the selection that was made. For example when playing media containing
@@ -147,14 +147,15 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 
  <h3>Renderer configuration</h3>
 
- The <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectorResult.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectorResult</code></a> returned by <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html#selectTracks-com.google.android.exoplayer2.RendererCapabilities:A-com.google.android.exoplayer2.source.TrackGroupArray-"><code>selectTracks(RendererCapabilities[],
- TrackGroupArray)</code></a> contains not only <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>TrackSelection</code></a>s for each renderer, but also <a href="../../../../../com/google/android/exoplayer2/RendererConfiguration.html" title="class in com.google.android.exoplayer2"><code>RendererConfiguration</code></a>s defining configuration parameters that the renderers should apply when
- consuming the corresponding media. Whilst it may seem counter-intuitive for a track selector to
- also specify renderer configuration information, in practice the two are tightly bound together.
- It may only be possible to play a certain combination tracks if the renderers are configured in a
- particular way. Equally, it may only be possible to configure renderers in a particular way if
- certain tracks are selected. Hence it makes sense to determined the track selection and
- corresponding renderer configurations in a single step.
+ The <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectorResult.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectorResult</code></a> returned by <code>#selectTracks(RendererCapabilities[],
+ TrackGroupArray, MediaPeriodId, Timeline)</code> contains not only <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>TrackSelection</code></a>s for each
+ renderer, but also <a href="../../../../../com/google/android/exoplayer2/RendererConfiguration.html" title="class in com.google.android.exoplayer2"><code>RendererConfiguration</code></a>s defining configuration parameters that the
+ renderers should apply when consuming the corresponding media. Whilst it may seem counter-
+ intuitive for a track selector to also specify renderer configuration information, in practice
+ the two are tightly bound together. It may only be possible to play a certain combination tracks
+ if the renderers are configured in a particular way. Equally, it may only be possible to
+ configure renderers in a particular way if certain tracks are selected. Hence it makes sense to
+ determined the track selection and corresponding renderer configurations in a single step.
 
  <h3>Threading model</h3>
 
@@ -240,14 +241,15 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>abstract void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html#onSelectionActivated-java.lang.Object-">onSelectionActivated</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;info)</code>
-<div class="block">Called by the player when a <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectorResult.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectorResult</code></a> previously generated by
- <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html#selectTracks-com.google.android.exoplayer2.RendererCapabilities:A-com.google.android.exoplayer2.source.TrackGroupArray-"><code>selectTracks(RendererCapabilities[], TrackGroupArray)</code></a> is activated.</div>
+<div class="block">Called by the player when a <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectorResult.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectorResult</code></a> previously generated by <code>#selectTracks(RendererCapabilities[], TrackGroupArray, MediaPeriodId, Timeline)</code> is activated.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>abstract <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectorResult.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectorResult</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html#selectTracks-com.google.android.exoplayer2.RendererCapabilities:A-com.google.android.exoplayer2.source.TrackGroupArray-">selectTracks</a></span>(<a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html" title="interface in com.google.android.exoplayer2">RendererCapabilities</a>[]&nbsp;rendererCapabilities,
-            <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;trackGroups)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html#selectTracks-com.google.android.exoplayer2.RendererCapabilities:A-com.google.android.exoplayer2.source.TrackGroupArray-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.Timeline-">selectTracks</a></span>(<a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html" title="interface in com.google.android.exoplayer2">RendererCapabilities</a>[]&nbsp;rendererCapabilities,
+            <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;trackGroups,
+            <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;periodId,
+            <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline)</code>
 <div class="block">Called by the player to perform a track selection.</div>
 </td>
 </tr>
@@ -307,14 +309,16 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </dl>
 </li>
 </ul>
-<a name="selectTracks-com.google.android.exoplayer2.RendererCapabilities:A-com.google.android.exoplayer2.source.TrackGroupArray-">
+<a name="selectTracks-com.google.android.exoplayer2.RendererCapabilities:A-com.google.android.exoplayer2.source.TrackGroupArray-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.Timeline-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>selectTracks</h4>
 <pre>public abstract&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectorResult.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectorResult</a>&nbsp;selectTracks(<a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html" title="interface in com.google.android.exoplayer2">RendererCapabilities</a>[]&nbsp;rendererCapabilities,
-                                                 <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;trackGroups)
+                                                 <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;trackGroups,
+                                                 <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;periodId,
+                                                 <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline)
                                           throws <a href="../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
 <div class="block">Called by the player to perform a track selection.</div>
 <dl>
@@ -322,6 +326,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <dd><code>rendererCapabilities</code> - The <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html" title="interface in com.google.android.exoplayer2"><code>RendererCapabilities</code></a> of the renderers for which tracks
      are to be selected.</dd>
 <dd><code>trackGroups</code> - The available track groups.</dd>
+<dd><code>periodId</code> - The <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a> of the period for which tracks are to be selected.</dd>
+<dd><code>timeline</code> - The <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> holding the period for which tracks are to be selected.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>A <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectorResult.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectorResult</code></a> describing the track selections.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -336,8 +342,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>onSelectionActivated</h4>
 <pre>public abstract&nbsp;void&nbsp;onSelectionActivated(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;info)</pre>
-<div class="block">Called by the player when a <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectorResult.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectorResult</code></a> previously generated by
- <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html#selectTracks-com.google.android.exoplayer2.RendererCapabilities:A-com.google.android.exoplayer2.source.TrackGroupArray-"><code>selectTracks(RendererCapabilities[], TrackGroupArray)</code></a> is activated.</div>
+<div class="block">Called by the player when a <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectorResult.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectorResult</code></a> previously generated by <code>#selectTracks(RendererCapabilities[], TrackGroupArray, MediaPeriodId, Timeline)</code> is activated.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>info</code> - The value of <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectorResult.html#info"><code>TrackSelectorResult.info</code></a> in the activated selection.</dd>
@@ -393,7 +398,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionArray.html" title="class in com.google.android.exoplayer2.trackselection"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionUtil.AdaptiveTrackSelectionFactory.html" title="interface in com.google.android.exoplayer2.trackselection"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelector.InvalidationListener.html" title="interface in com.google.android.exoplayer2.trackselection"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">

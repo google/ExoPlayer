@@ -241,9 +241,11 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/la
        boolean&nbsp;hasGapTag)</code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#Segment-java.lang.String-long-long-">Segment</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;uri,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#Segment-java.lang.String-long-long-java.lang.String-java.lang.String-">Segment</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;uri,
        long&nbsp;byterangeOffset,
-       long&nbsp;byterangeLength)</code>&nbsp;</td>
+       long&nbsp;byterangeLength,
+       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;fullSegmentEncryptionKeyUri,
+       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;encryptionIV)</code>&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -302,7 +304,7 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/la
 <ul class="blockList">
 <li class="blockList">
 <h4>initializationSegment</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>@Nullable
 public final&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist.Segment</a> initializationSegment</pre>
 <div class="block">The media initialization section for this segment, as defined by #EXT-X-MAP. May be null if
  the media playlist does not define a media section for this segment. The same instance is
@@ -355,7 +357,7 @@ public final&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/so
 <ul class="blockList">
 <li class="blockList">
 <h4>drmInitData</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>@Nullable
 public final&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a> drmInitData</pre>
 <div class="block">DRM initialization data for sample decryption, or null if the segment does not use CDM-DRM
  protection.</div>
@@ -367,7 +369,7 @@ public final&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/dr
 <ul class="blockList">
 <li class="blockList">
 <h4>fullSegmentEncryptionKeyUri</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>@Nullable
 public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> fullSegmentEncryptionKeyUri</pre>
 <div class="block">The encryption identity key uri as defined by #EXT-X-KEY, or null if the segment does not use
  full segment encryption with identity key.</div>
@@ -379,7 +381,7 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <ul class="blockList">
 <li class="blockList">
 <h4>encryptionIV</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>@Nullable
 public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> encryptionIV</pre>
 <div class="block">The encryption initialization vector as defined by #EXT-X-KEY, or null if the segment is not
  encrypted.</div>
@@ -424,7 +426,7 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="Segment-java.lang.String-long-long-">
+<a name="Segment-java.lang.String-long-long-java.lang.String-java.lang.String-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -432,12 +434,16 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <h4>Segment</h4>
 <pre>public&nbsp;Segment(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;uri,
                long&nbsp;byterangeOffset,
-               long&nbsp;byterangeLength)</pre>
+               long&nbsp;byterangeLength,
+               <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;fullSegmentEncryptionKeyUri,
+               <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;encryptionIV)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>uri</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#url"><code>url</code></a>.</dd>
 <dd><code>byterangeOffset</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#byterangeOffset"><code>byterangeOffset</code></a>.</dd>
 <dd><code>byterangeLength</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#byterangeLength"><code>byterangeLength</code></a>.</dd>
+<dd><code>fullSegmentEncryptionKeyUri</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#fullSegmentEncryptionKeyUri"><code>fullSegmentEncryptionKeyUri</code></a>.</dd>
+<dd><code>encryptionIV</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#encryptionIV"><code>encryptionIV</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -448,17 +454,17 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <li class="blockList">
 <h4>Segment</h4>
 <pre>public&nbsp;Segment(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;url,
-               <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+               @Nullable
                <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist.Segment</a>&nbsp;initializationSegment,
                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;title,
                long&nbsp;durationUs,
                int&nbsp;relativeDiscontinuitySequence,
                long&nbsp;relativeStartTimeUs,
-               <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+               @Nullable
                <a href="../../../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData,
-               <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+               @Nullable
                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;fullSegmentEncryptionKeyUri,
-               <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+               @Nullable
                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;encryptionIV,
                long&nbsp;byterangeOffset,
                long&nbsp;byterangeLength,
@@ -494,7 +500,7 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <ul class="blockListLast">
 <li class="blockList">
 <h4>compareTo</h4>
-<pre>public&nbsp;int&nbsp;compareTo(<a href="https://developer.android.com/reference/android/support.annotation.NonNull.html" target="_top" title="class or interface in android">@NonNull</a>
+<pre>public&nbsp;int&nbsp;compareTo(@NonNull
                      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Long.html" target="_top" title="class or interface in java.lang">Long</a>&nbsp;relativeStartTimeUs)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>

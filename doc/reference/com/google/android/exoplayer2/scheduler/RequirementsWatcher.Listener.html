@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6};
+var methods = {"i0":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -124,14 +124,9 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/scheduler/RequirementsWatcher.Listener.html#requirementsMet-com.google.android.exoplayer2.scheduler.RequirementsWatcher-">requirementsMet</a></span>(<a href="../../../../../com/google/android/exoplayer2/scheduler/RequirementsWatcher.html" title="class in com.google.android.exoplayer2.scheduler">RequirementsWatcher</a>&nbsp;requirementsWatcher)</code>
-<div class="block">Called when the requirements are met.</div>
-</td>
-</tr>
-<tr id="i1" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/scheduler/RequirementsWatcher.Listener.html#requirementsNotMet-com.google.android.exoplayer2.scheduler.RequirementsWatcher-">requirementsNotMet</a></span>(<a href="../../../../../com/google/android/exoplayer2/scheduler/RequirementsWatcher.html" title="class in com.google.android.exoplayer2.scheduler">RequirementsWatcher</a>&nbsp;requirementsWatcher)</code>
-<div class="block">Called when the requirements are not met.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/scheduler/RequirementsWatcher.Listener.html#onRequirementsStateChanged-com.google.android.exoplayer2.scheduler.RequirementsWatcher-int-">onRequirementsStateChanged</a></span>(<a href="../../../../../com/google/android/exoplayer2/scheduler/RequirementsWatcher.html" title="class in com.google.android.exoplayer2.scheduler">RequirementsWatcher</a>&nbsp;requirementsWatcher,
+                          int&nbsp;notMetRequirements)</code>
+<div class="block">Called when there is a change on the met requirements.</div>
 </td>
 </tr>
 </table>
@@ -149,31 +144,21 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="requirementsMet-com.google.android.exoplayer2.scheduler.RequirementsWatcher-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>requirementsMet</h4>
-<pre>void&nbsp;requirementsMet(<a href="../../../../../com/google/android/exoplayer2/scheduler/RequirementsWatcher.html" title="class in com.google.android.exoplayer2.scheduler">RequirementsWatcher</a>&nbsp;requirementsWatcher)</pre>
-<div class="block">Called when the requirements are met.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>requirementsWatcher</code> - Calling instance.</dd>
-</dl>
-</li>
-</ul>
-<a name="requirementsNotMet-com.google.android.exoplayer2.scheduler.RequirementsWatcher-">
+<a name="onRequirementsStateChanged-com.google.android.exoplayer2.scheduler.RequirementsWatcher-int-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>requirementsNotMet</h4>
-<pre>void&nbsp;requirementsNotMet(<a href="../../../../../com/google/android/exoplayer2/scheduler/RequirementsWatcher.html" title="class in com.google.android.exoplayer2.scheduler">RequirementsWatcher</a>&nbsp;requirementsWatcher)</pre>
-<div class="block">Called when the requirements are not met.</div>
+<h4>onRequirementsStateChanged</h4>
+<pre>void&nbsp;onRequirementsStateChanged(<a href="../../../../../com/google/android/exoplayer2/scheduler/RequirementsWatcher.html" title="class in com.google.android.exoplayer2.scheduler">RequirementsWatcher</a>&nbsp;requirementsWatcher,
+                                <a href="../../../../../com/google/android/exoplayer2/scheduler/Requirements.RequirementFlags.html" title="annotation in com.google.android.exoplayer2.scheduler">@Requirements.RequirementFlags</a>
+                                int&nbsp;notMetRequirements)</pre>
+<div class="block">Called when there is a change on the met requirements.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>requirementsWatcher</code> - Calling instance.</dd>
+<dd><code>notMetRequirements</code> - <a href="../../../../../com/google/android/exoplayer2/scheduler/Requirements.RequirementFlags.html" title="annotation in com.google.android.exoplayer2.scheduler"><code>RequirementFlags</code></a> that are not
+     met, or 0.</dd>
 </dl>
 </li>
 </ul>

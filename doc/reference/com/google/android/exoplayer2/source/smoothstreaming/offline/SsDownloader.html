@@ -46,8 +46,8 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/offline/SsDownloadAction.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/offline/SsDownloadHelper.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li>Prev&nbsp;Class</li>
+<li>Next&nbsp;Class</li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../../index.html?com/google/android/exoplayer2/source/smoothstreaming/offline/SsDownloader.html" target="_top">Frames</a></li>
@@ -122,7 +122,7 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/offline/Segm
  <p>Example usage:
 
  <pre><code>
- SimpleCache cache = new SimpleCache(downloadFolder, new NoOpCacheEvictor());
+ SimpleCache cache = new SimpleCache(downloadFolder, new NoOpCacheEvictor(), databaseProvider);
  DefaultHttpDataSourceFactory factory = new DefaultHttpDataSourceFactory("ExoPlayer", null);
  DownloaderConstructorHelper constructorHelper =
      new DownloaderConstructorHelper(cache, factory);
@@ -133,7 +133,7 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/offline/Segm
          Collections.singletonList(new StreamKey(0, 0)),
          constructorHelper);
  // Perform the download.
- ssDownloader.download();
+ ssDownloader.download(progressListener);
  // Access downloaded data using CacheDataSource
  CacheDataSource cacheDataSource =
      new CacheDataSource(cache, factory.createDataSource(), CacheDataSource.FLAG_BLOCK_ON_CACHE);
@@ -156,6 +156,13 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/offline/Segm
 </a>
 <h3>Nested classes/interfaces inherited from class&nbsp;com.google.android.exoplayer2.offline.<a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloader</a></h3>
 <code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.Segment.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloader.Segment</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="nested.classes.inherited.from.class.com.google.android.exoplayer2.offline.Downloader">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.offline.<a href="../../../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline">Downloader</a></h3>
+<code><a href="../../../../../../../com/google/android/exoplayer2/offline/Downloader.ProgressListener.html" title="interface in com.google.android.exoplayer2.offline">Downloader.ProgressListener</a></code></li>
 </ul>
 </li>
 </ul>
@@ -192,8 +199,8 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/offline/Segm
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>protected <a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/offline/SsDownloader.html#getManifest-com.google.android.exoplayer2.upstream.DataSource-android.net.Uri-">getManifest</a></span>(<a href="../../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
-           <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/offline/SsDownloader.html#getManifest-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-">getManifest</a></span>(<a href="../../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
+           <a href="../../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code>
 <div class="block">Loads and parses the manifest.</div>
 </td>
 </tr>
@@ -211,7 +218,7 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/offline/Segm
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.offline.<a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloader</a></h3>
-<code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#cancel--">cancel</a>, <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#download--">download</a>, <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getDownloadedBytes--">getDownloadedBytes</a>, <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getDownloadPercentage--">getDownloadPercentage</a>, <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#remove--">remove</a></code></li>
+<code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#cancel--">cancel</a>, <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#download-com.google.android.exoplayer2.offline.Downloader.ProgressListener-">download</a>, <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getCompressibleDataSpec-android.net.Uri-">getCompressibleDataSpec</a>, <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#remove--">remove</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -260,23 +267,23 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/offline/Segm
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="getManifest-com.google.android.exoplayer2.upstream.DataSource-android.net.Uri-">
+<a name="getManifest-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getManifest</h4>
 <pre>protected&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&nbsp;getManifest(<a href="../../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
-                                 <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri)
+                                 <a href="../../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)
                           throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getManifest-com.google.android.exoplayer2.upstream.DataSource-android.net.Uri-">SegmentDownloader</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getManifest-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-">SegmentDownloader</a></code></span></div>
 <div class="block">Loads and parses the manifest.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getManifest-com.google.android.exoplayer2.upstream.DataSource-android.net.Uri-">getManifest</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloader</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&gt;</code></dd>
+<dd><code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getManifest-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-">getManifest</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloader</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&gt;</code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>dataSource</code> - The <a href="../../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> through which to load.</dd>
-<dd><code>uri</code> - The manifest uri.</dd>
+<dd><code>dataSpec</code> - The manifest <a href="../../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The manifest.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -336,8 +343,8 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/offline/Segm
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/offline/SsDownloadAction.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/offline/SsDownloadHelper.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li>Prev&nbsp;Class</li>
+<li>Next&nbsp;Class</li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../../index.html?com/google/android/exoplayer2/source/smoothstreaming/offline/SsDownloader.html" target="_top">Frames</a></li>

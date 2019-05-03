@@ -104,29 +104,27 @@ var activeTableTab = "activeTableTab";
 <br>
 <pre>public interface <span class="typeNameLabel">AudioSink</span></pre>
 <div class="block">A sink that consumes audio data.
- <p>
- Before starting playback, specify the input audio format by calling
- <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#configure-int-int-int-int-int:A-int-int-"><code>configure(int, int, int, int, int[], int, int)</code></a>.
- <p>
- Call <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#handleBuffer-java.nio.ByteBuffer-long-"><code>handleBuffer(ByteBuffer, long)</code></a> to write data, and <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#handleDiscontinuity--"><code>handleDiscontinuity()</code></a>
+
+ <p>Before starting playback, specify the input audio format by calling <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#configure-int-int-int-int-int:A-int-int-"><code>configure(int,
+ int, int, int, int[], int, int)</code></a>.
+
+ <p>Call <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#handleBuffer-java.nio.ByteBuffer-long-"><code>handleBuffer(ByteBuffer, long)</code></a> to write data, and <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#handleDiscontinuity--"><code>handleDiscontinuity()</code></a>
  when the data being fed is discontinuous. Call <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#play--"><code>play()</code></a> to start playing the written data.
- <p>
- Call <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#configure-int-int-int-int-int:A-int-int-"><code>configure(int, int, int, int, int[], int, int)</code></a> whenever the input format changes.
- The sink will be reinitialized on the next call to <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#handleBuffer-java.nio.ByteBuffer-long-"><code>handleBuffer(ByteBuffer, long)</code></a>.
- <p>
- Call <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#reset--"><code>reset()</code></a> to prepare the sink to receive audio data from a new playback position.
- <p>
- Call <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#playToEndOfStream--"><code>playToEndOfStream()</code></a> repeatedly to play out all data when no more input buffers will
- be provided via <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#handleBuffer-java.nio.ByteBuffer-long-"><code>handleBuffer(ByteBuffer, long)</code></a> until the next <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#reset--"><code>reset()</code></a>. Call
- <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#release--"><code>release()</code></a> when the instance is no longer required.
- <p>
- The implementation may be backed by a platform <a href="https://developer.android.com/reference/android/media/AudioTrack.html" target="_top" title="class or interface in android.media"><code>AudioTrack</code></a>. In this case,
- <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#setAudioSessionId-int-"><code>setAudioSessionId(int)</code></a>, <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#setAudioAttributes-com.google.android.exoplayer2.audio.AudioAttributes-"><code>setAudioAttributes(AudioAttributes)</code></a>,
- <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#enableTunnelingV21-int-"><code>enableTunnelingV21(int)</code></a> and/or <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#disableTunneling--"><code>disableTunneling()</code></a> may be called before writing
- data to the sink. These methods may also be called after writing data to the sink, in which case
- it will be reinitialized as required. For implementations that are not based on platform
- <a href="https://developer.android.com/reference/android/media/AudioTrack.html" target="_top" title="class or interface in android.media"><code>AudioTrack</code></a>s, calling methods relating to audio sessions, audio attributes, and tunneling
- may have no effect.</div>
+
+ <p>Call <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#configure-int-int-int-int-int:A-int-int-"><code>configure(int, int, int, int, int[], int, int)</code></a> whenever the input format
+ changes. The sink will be reinitialized on the next call to <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#handleBuffer-java.nio.ByteBuffer-long-"><code>handleBuffer(ByteBuffer,
+ long)</code></a>.
+
+ <p>Call <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#flush--"><code>flush()</code></a> to prepare the sink to receive audio data from a new playback position.
+
+ <p>Call <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#playToEndOfStream--"><code>playToEndOfStream()</code></a> repeatedly to play out all data when no more input buffers
+ will be provided via <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#handleBuffer-java.nio.ByteBuffer-long-"><code>handleBuffer(ByteBuffer, long)</code></a> until the next <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#flush--"><code>flush()</code></a>.
+ Call <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#reset--"><code>reset()</code></a> when the instance is no longer required.
+
+ <p>The implementation may be backed by a platform <a href="https://developer.android.com/reference/android/media/AudioTrack.html" target="_top" title="class or interface in android.media"><code>AudioTrack</code></a>. In this case, <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#setAudioSessionId-int-"><code>setAudioSessionId(int)</code></a>, <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#setAudioAttributes-com.google.android.exoplayer2.audio.AudioAttributes-"><code>setAudioAttributes(AudioAttributes)</code></a>, <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#enableTunnelingV21-int-"><code>enableTunnelingV21(int)</code></a> and/or <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#disableTunneling--"><code>disableTunneling()</code></a> may be called before writing data to
+ the sink. These methods may also be called after writing data to the sink, in which case it will
+ be reinitialized as required. For implementations that are not based on platform <a href="https://developer.android.com/reference/android/media/AudioTrack.html" target="_top" title="class or interface in android.media"><code>AudioTrack</code></a>s, calling methods relating to audio sessions, audio attributes, and tunneling may
+ have no effect.</div>
 </li>
 </ul>
 </div>
@@ -230,19 +228,25 @@ var activeTableTab = "activeTableTab";
 </td>
 </tr>
 <tr id="i3" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#flush--">flush</a></span>()</code>
+<div class="block">Flushes the sink, after which it is ready to receive buffers from a new playback position.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#getCurrentPositionUs-boolean-">getCurrentPositionUs</a></span>(boolean&nbsp;sourceEnded)</code>
 <div class="block">Returns the playback position in the stream starting at zero, in microseconds, or
  <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#CURRENT_POSITION_NOT_SET"><code>CURRENT_POSITION_NOT_SET</code></a> if it is not yet available.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#getPlaybackParameters--">getPlaybackParameters</a></span>()</code>
 <div class="block">Gets the active <a href="../../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2"><code>PlaybackParameters</code></a>.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#handleBuffer-java.nio.ByteBuffer-long-">handleBuffer</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio">ByteBuffer</a>&nbsp;buffer,
             long&nbsp;presentationTimeUs)</code>
@@ -250,52 +254,46 @@ var activeTableTab = "activeTableTab";
  ending at its limit (exclusive).</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#handleDiscontinuity--">handleDiscontinuity</a></span>()</code>
 <div class="block">Signals to the sink that the next buffer may be discontinuous with the previous buffer.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#hasPendingData--">hasPendingData</a></span>()</code>
 <div class="block">Returns whether the sink has data pending that has not been consumed yet.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#isEnded--">isEnded</a></span>()</code>
 <div class="block">Returns whether <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#playToEndOfStream--"><code>playToEndOfStream()</code></a> has been called and all buffers have been processed.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#pause--">pause</a></span>()</code>
 <div class="block">Pauses playback.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#play--">play</a></span>()</code>
 <div class="block">Starts or resumes consuming audio if initialized.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#playToEndOfStream--">playToEndOfStream</a></span>()</code>
 <div class="block">Processes any remaining data.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#release--">release</a></span>()</code>
-<div class="block">Releases any resources associated with this instance.</div>
-</td>
-</tr>
 <tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#reset--">reset</a></span>()</code>
-<div class="block">Resets the sink, after which it is ready to receive buffers from a new playback position.</div>
+<div class="block">Resets the renderer, releasing any resources that it currently holds.</div>
 </td>
 </tr>
 <tr id="i14" class="altColor">
@@ -440,7 +438,7 @@ var activeTableTab = "activeTableTab";
                int&nbsp;inputChannelCount,
                int&nbsp;inputSampleRate,
                int&nbsp;specifiedBufferSize,
-               <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+               @Nullable
                int[]&nbsp;outputChannels,
                int&nbsp;trimStartFrames,
                int&nbsp;trimEndFrames)
@@ -461,7 +459,7 @@ var activeTableTab = "activeTableTab";
 <dd><code>trimStartFrames</code> - The number of audio frames to trim from the start of data written to the
      sink after this call.</dd>
 <dd><code>trimEndFrames</code> - The number of audio frames to trim from data written to the sink
-     immediately preceding the next call to <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#reset--"><code>reset()</code></a> or this method.</dd>
+     immediately preceding the next call to <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#flush--"><code>flush()</code></a> or this method.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.ConfigurationException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.ConfigurationException</a></code> - If an error occurs configuring the sink.</dd>
 </dl>
@@ -501,11 +499,11 @@ var activeTableTab = "activeTableTab";
  ending at its limit (exclusive). The position of the <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio"><code>ByteBuffer</code></a> is advanced by the
  number of bytes that were handled. <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.Listener.html#onPositionDiscontinuity--"><code>AudioSink.Listener.onPositionDiscontinuity()</code></a> will be called if
  <code>presentationTimeUs</code> is discontinuous with the last buffer handled since the last reset.
- <p>
- Returns whether the data was handled in full. If the data was not handled in full then the same
- <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio"><code>ByteBuffer</code></a> must be provided to subsequent calls until it has been fully consumed,
- except in the case of an intervening call to <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#reset--"><code>reset()</code></a> (or to
- <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#configure-int-int-int-int-int:A-int-int-"><code>configure(int, int, int, int, int[], int, int)</code></a> that causes the sink to be reset).</div>
+
+ <p>Returns whether the data was handled in full. If the data was not handled in full then the
+ same <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio"><code>ByteBuffer</code></a> must be provided to subsequent calls until it has been fully consumed,
+ except in the case of an intervening call to <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#flush--"><code>flush()</code></a> (or to <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#configure-int-int-int-int-int:A-int-int-"><code>configure(int,
+ int, int, int, int[], int, int)</code></a> that causes the sink to be flushed).</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>buffer</code> - The buffer containing audio data.</dd>
@@ -672,26 +670,26 @@ var activeTableTab = "activeTableTab";
 <div class="block">Pauses playback.</div>
 </li>
 </ul>
-<a name="reset--">
+<a name="flush--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>reset</h4>
-<pre>void&nbsp;reset()</pre>
-<div class="block">Resets the sink, after which it is ready to receive buffers from a new playback position.
- <p>
- The audio session may remain active until <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#release--"><code>release()</code></a> is called.</div>
+<h4>flush</h4>
+<pre>void&nbsp;flush()</pre>
+<div class="block">Flushes the sink, after which it is ready to receive buffers from a new playback position.
+
+ <p>The audio session may remain active until <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#reset--"><code>reset()</code></a> is called.</div>
 </li>
 </ul>
-<a name="release--">
+<a name="reset--">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>release</h4>
-<pre>void&nbsp;release()</pre>
-<div class="block">Releases any resources associated with this instance.</div>
+<h4>reset</h4>
+<pre>void&nbsp;reset()</pre>
+<div class="block">Resets the renderer, releasing any resources that it currently holds.</div>
 </li>
 </ul>
 </li>

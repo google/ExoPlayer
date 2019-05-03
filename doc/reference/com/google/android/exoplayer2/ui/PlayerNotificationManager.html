@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":9,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var methods = {"i0":10,"i1":9,"i2":9,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":42,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -112,7 +112,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
  player state.
 
  <p>The notification is cancelled when <code>null</code> is passed to <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setPlayer-com.google.android.exoplayer2.Player-"><code>setPlayer(Player)</code></a> or
- when an intent with action <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#ACTION_STOP"><code>ACTION_STOP</code></a> is received.
+ when the notification is dismissed by the user.
 
  <p>If the player is released it must be removed from the manager by calling <code>setPlayer(null)</code> which will cancel the notification.
 
@@ -125,11 +125,23 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
        are displayed.
        <ul>
          <li>Corresponding setter: <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseNavigationActions-boolean-"><code>setUseNavigationActions(boolean)</code></a>
+         <li>Default: <code>true</code>
        </ul>
-   <li><b><code>stopAction</code></b> - Sets which stop action should be used. If set to null, the stop
-       action is not displayed.
+   <li><b><code>useNavigationActionsInCompactView</code></b> - Sets whether the navigation previous and
+       next actions should are displayed in compact view (including the lock screen notification).
        <ul>
-         <li>Corresponding setter: <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setStopAction-java.lang.String-"><code>setStopAction(String)</code></a>}
+         <li>Corresponding setter: <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseNavigationActionsInCompactView-boolean-"><code>setUseNavigationActionsInCompactView(boolean)</code></a>
+         <li>Default: <code>false</code>
+       </ul>
+   <li><b><code>usePlayPauseActions</code></b> - Sets whether the play and pause actions are displayed.
+       <ul>
+         <li>Corresponding setter: <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUsePlayPauseActions-boolean-"><code>setUsePlayPauseActions(boolean)</code></a>
+         <li>Default: <code>true</code>
+       </ul>
+   <li><b><code>useStopAction</code></b> - Sets whether the stop action is displayed.
+       <ul>
+         <li>Corresponding setter: <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseStopAction-boolean-"><code>setUseStopAction(boolean)</code></a>
+         <li>Default: <code>false</code>
        </ul>
    <li><b><code>rewindIncrementMs</code></b> - Sets the rewind increment. If set to zero the rewind
        action is not displayed.
@@ -140,7 +152,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
    <li><b><code>fastForwardIncrementMs</code></b> - Sets the fast forward increment. If set to zero the
        fast forward action is not included in the notification.
        <ul>
-         <li>Corresponding setter: <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setFastForwardIncrementMs-long-"><code>setFastForwardIncrementMs(long)</code></a>}
+         <li>Corresponding setter: <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setFastForwardIncrementMs-long-"><code>setFastForwardIncrementMs(long)</code></a>
          <li>Default: <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#DEFAULT_FAST_FORWARD_MS"><code>DEFAULT_FAST_FORWARD_MS</code></a> (5000)
        </ul>
  </ul></div>
@@ -183,7 +195,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <tr class="rowColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.NotificationListener</a></span></code>
-<div class="block">A listener for start and cancellation of the notification.</div>
+<div class="block">A listener for changes to the notification.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -252,7 +264,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#ACTION_STOP">ACTION_STOP</a></span></code>
-<div class="block">The action which cancels the notification and stops playback.</div>
+<div class="block">The action which stops playback.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -304,6 +316,25 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <div class="block">Creates a notification manager using the specified notification <code>channelId</code> and <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.CustomActionReceiver.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.CustomActionReceiver</code></a>.</div>
 </td>
 </tr>
+<tr class="altColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#PlayerNotificationManager-android.content.Context-java.lang.String-int-com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter-com.google.android.exoplayer2.ui.PlayerNotificationManager.NotificationListener-">PlayerNotificationManager</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;channelId,
+                         int&nbsp;notificationId,
+                         <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter,
+                         <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.NotificationListener</a>&nbsp;notificationListener)</code>
+<div class="block">Creates a notification manager using the specified notification <code>channelId</code> and <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.NotificationListener</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#PlayerNotificationManager-android.content.Context-java.lang.String-int-com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter-com.google.android.exoplayer2.ui.PlayerNotificationManager.NotificationListener-com.google.android.exoplayer2.ui.PlayerNotificationManager.CustomActionReceiver-">PlayerNotificationManager</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;channelId,
+                         int&nbsp;notificationId,
+                         <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter,
+                         <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.NotificationListener</a>&nbsp;notificationListener,
+                         <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.CustomActionReceiver.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.CustomActionReceiver</a>&nbsp;customActionReceiver)</code>
+<div class="block">Creates a notification manager using the specified notification <code>channelId</code>, <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.NotificationListener</code></a> and <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.CustomActionReceiver.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.CustomActionReceiver</code></a>.</div>
+</td>
+</tr>
 </table>
 </li>
 </ul>
@@ -314,14 +345,16 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>protected <a href="https://developer.android.com/reference/android/app/Notification.html" target="_top" title="class or interface in android.app">Notification</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#createNotification-com.google.android.exoplayer2.Player-android.graphics.Bitmap-">createNotification</a></span>(<a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+<td class="colFirst"><code>protected androidx.core.app.NotificationCompat.Builder</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#createNotification-com.google.android.exoplayer2.Player-androidx.core.app.NotificationCompat.Builder-boolean-android.graphics.Bitmap-">createNotification</a></span>(<a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                  androidx.core.app.NotificationCompat.Builder&nbsp;builder,
+                  boolean&nbsp;ongoing,
                   <a href="https://developer.android.com/reference/android/graphics/Bitmap.html" target="_top" title="class or interface in android.graphics">Bitmap</a>&nbsp;largeIcon)</code>
 <div class="block">Creates the notification given the current player state.</div>
 </td>
@@ -338,128 +371,154 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#createWithNotificationChannel-android.content.Context-java.lang.String-int-int-com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter-com.google.android.exoplayer2.ui.PlayerNotificationManager.NotificationListener-">createWithNotificationChannel</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;channelId,
+                             int&nbsp;channelName,
+                             int&nbsp;notificationId,
+                             <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter,
+                             <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.NotificationListener</a>&nbsp;notificationListener)</code>
+<div class="block">Creates a notification manager and a low-priority notification channel with the specified
+ <code>channelId</code> and <code>channelName</code>.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>protected int[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#getActionIndicesForCompactView-java.util.List-com.google.android.exoplayer2.Player-">getActionIndicesForCompactView</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;actionNames,
                               <a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code>
 <div class="block">Gets an array with the indices of the buttons to be shown in compact mode.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>protected <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#getActions-com.google.android.exoplayer2.Player-">getActions</a></span>(<a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code>
 <div class="block">Gets the names and order of the actions to be included in the notification at the current
  player state.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>protected boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#getOngoing-com.google.android.exoplayer2.Player-">getOngoing</a></span>(<a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code>
+<div class="block">Returns whether the generated notification should be ongoing.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#invalidate--">invalidate</a></span>()</code>
 <div class="block">Forces an update of the notification if already started.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setBadgeIconType-int-">setBadgeIconType</a></span>(int&nbsp;badgeIconType)</code>
 <div class="block">Sets the badge icon type of the notification.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setColor-int-">setColor</a></span>(int&nbsp;color)</code>
 <div class="block">Sets the accent color of the notification.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setColorized-boolean-">setColorized</a></span>(boolean&nbsp;colorized)</code>
 <div class="block">Sets whether the notification should be colorized.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setControlDispatcher-com.google.android.exoplayer2.ControlDispatcher-">setControlDispatcher</a></span>(<a href="../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher)</code>
 <div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a>.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setDefaults-int-">setDefaults</a></span>(int&nbsp;defaults)</code>
 <div class="block">Sets the defaults.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setFastForwardIncrementMs-long-">setFastForwardIncrementMs</a></span>(long&nbsp;fastForwardMs)</code>
 <div class="block">Sets the fast forward increment in milliseconds.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setMediaSessionToken-android.support.v4.media.session.MediaSessionCompat.Token-">setMediaSessionToken</a></span>(<a href="https://developer.android.com/reference/android/support.v4.media.session.MediaSessionCompat.Token.html" target="_top" title="class or interface in android">android.support.v4.media.session.MediaSessionCompat.Token</a>&nbsp;token)</code>
 <div class="block">Sets the <code>MediaSessionCompat.Token</code>.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setNotificationListener-com.google.android.exoplayer2.ui.PlayerNotificationManager.NotificationListener-">setNotificationListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.NotificationListener</a>&nbsp;notificationListener)</code>
-<div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.NotificationListener</code></a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Pass the notification listener to the constructor instead.</span></div>
+</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setOngoing-boolean-">setOngoing</a></span>(boolean&nbsp;ongoing)</code>
-<div class="block">Sets whether the notification should be ongoing.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setPlaybackPreparer-com.google.android.exoplayer2.PlaybackPreparer-">setPlaybackPreparer</a></span>(<a href="../../../../../com/google/android/exoplayer2/PlaybackPreparer.html" title="interface in com.google.android.exoplayer2">PlaybackPreparer</a>&nbsp;playbackPreparer)</code>
+<div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/PlaybackPreparer.html" title="interface in com.google.android.exoplayer2"><code>PlaybackPreparer</code></a>.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setPlayer-com.google.android.exoplayer2.Player-">setPlayer</a></span>(<a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code>
 <div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a>.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setPriority-int-">setPriority</a></span>(int&nbsp;priority)</code>
 <div class="block">Sets the priority of the notification required for API 25 and lower.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setRewindIncrementMs-long-">setRewindIncrementMs</a></span>(long&nbsp;rewindMs)</code>
 <div class="block">Sets the rewind increment in milliseconds.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setSmallIcon-int-">setSmallIcon</a></span>(int&nbsp;smallIconResourceId)</code>
 <div class="block">Sets the small icon of the notification which is also shown in the system status bar.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setStopAction-java.lang.String-">setStopAction</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;stopAction)</code>
-<div class="block">Sets the name of the action to be used as stop action to cancel the notification.</div>
-</td>
-</tr>
-<tr id="i19" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseChronometer-boolean-">setUseChronometer</a></span>(boolean&nbsp;useChronometer)</code>
 <div class="block">Sets whether the elapsed time of the media playback should be displayed</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseNavigationActions-boolean-">setUseNavigationActions</a></span>(boolean&nbsp;useNavigationActions)</code>
 <div class="block">Sets whether the navigation actions should be used.</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i22" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseNavigationActionsInCompactView-boolean-">setUseNavigationActionsInCompactView</a></span>(boolean&nbsp;useNavigationActionsInCompactView)</code>
+<div class="block">Sets whether navigation actions should be displayed in compact view.</div>
+</td>
+</tr>
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUsePlayPauseActions-boolean-">setUsePlayPauseActions</a></span>(boolean&nbsp;usePlayPauseActions)</code>
 <div class="block">Sets whether the play and pause actions should be used.</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i24" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseStopAction-boolean-">setUseStopAction</a></span>(boolean&nbsp;useStopAction)</code>
+<div class="block">Sets whether the stop action should be used.</div>
+</td>
+</tr>
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setVisibility-int-">setVisibility</a></span>(int&nbsp;visibility)</code>
 <div class="block">Sets the visibility of the notification which determines whether and how the notification is
@@ -579,7 +638,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>ACTION_STOP</h4>
 <pre>public static final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> ACTION_STOP</pre>
-<div class="block">The action which cancels the notification and stops playback.</div>
+<div class="block">The action which stops playback.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.ui.PlayerNotificationManager.ACTION_STOP">Constant Field Values</a></dd>
@@ -647,7 +706,10 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
                                  int&nbsp;notificationId,
                                  <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter)</pre>
 <div class="block">Creates a notification manager using the specified notification <code>channelId</code>. The caller
- is responsible for creating the notification channel.</div>
+ is responsible for creating the notification channel.
+
+ <p>When used within a service, consider using <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#PlayerNotificationManager-android.content.Context-java.lang.String-int-com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter-com.google.android.exoplayer2.ui.PlayerNotificationManager.NotificationListener-"><code>PlayerNotificationManager(Context,
+ String, int, MediaDescriptionAdapter, NotificationListener)</code></a> to which a <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.NotificationListener</code></a> can be passed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>context</code> - The <a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content"><code>Context</code></a>.</dd>
@@ -657,7 +719,57 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </dl>
 </li>
 </ul>
+<a name="PlayerNotificationManager-android.content.Context-java.lang.String-int-com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter-com.google.android.exoplayer2.ui.PlayerNotificationManager.NotificationListener-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PlayerNotificationManager</h4>
+<pre>public&nbsp;PlayerNotificationManager(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+                                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;channelId,
+                                 int&nbsp;notificationId,
+                                 <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter,
+                                 @Nullable
+                                 <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.NotificationListener</a>&nbsp;notificationListener)</pre>
+<div class="block">Creates a notification manager using the specified notification <code>channelId</code> and <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.NotificationListener</code></a>. The caller is responsible for creating the notification channel.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>context</code> - The <a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content"><code>Context</code></a>.</dd>
+<dd><code>channelId</code> - The id of the notification channel.</dd>
+<dd><code>notificationId</code> - The id of the notification.</dd>
+<dd><code>mediaDescriptionAdapter</code> - The <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.MediaDescriptionAdapter</code></a>.</dd>
+<dd><code>notificationListener</code> - The <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.NotificationListener</code></a>.</dd>
+</dl>
+</li>
+</ul>
 <a name="PlayerNotificationManager-android.content.Context-java.lang.String-int-com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter-com.google.android.exoplayer2.ui.PlayerNotificationManager.CustomActionReceiver-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PlayerNotificationManager</h4>
+<pre>public&nbsp;PlayerNotificationManager(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+                                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;channelId,
+                                 int&nbsp;notificationId,
+                                 <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter,
+                                 @Nullable
+                                 <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.CustomActionReceiver.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.CustomActionReceiver</a>&nbsp;customActionReceiver)</pre>
+<div class="block">Creates a notification manager using the specified notification <code>channelId</code> and <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.CustomActionReceiver.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.CustomActionReceiver</code></a>. The caller is responsible for creating the notification channel.
+
+ <p>When used within a service, consider using <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#PlayerNotificationManager-android.content.Context-java.lang.String-int-com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter-com.google.android.exoplayer2.ui.PlayerNotificationManager.NotificationListener-com.google.android.exoplayer2.ui.PlayerNotificationManager.CustomActionReceiver-"><code>PlayerNotificationManager(Context,
+ String, int, MediaDescriptionAdapter, NotificationListener, CustomActionReceiver)</code></a> to which a
+ <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.NotificationListener</code></a> can be passed.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>context</code> - The <a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content"><code>Context</code></a>.</dd>
+<dd><code>channelId</code> - The id of the notification channel.</dd>
+<dd><code>notificationId</code> - The id of the notification.</dd>
+<dd><code>mediaDescriptionAdapter</code> - The <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.MediaDescriptionAdapter</code></a>.</dd>
+<dd><code>customActionReceiver</code> - The <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.CustomActionReceiver.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.CustomActionReceiver</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a name="PlayerNotificationManager-android.content.Context-java.lang.String-int-com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter-com.google.android.exoplayer2.ui.PlayerNotificationManager.NotificationListener-com.google.android.exoplayer2.ui.PlayerNotificationManager.CustomActionReceiver-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -667,15 +779,19 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
                                  <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;channelId,
                                  int&nbsp;notificationId,
                                  <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter,
-                                 <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                 @Nullable
+                                 <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.NotificationListener</a>&nbsp;notificationListener,
+                                 @Nullable
                                  <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.CustomActionReceiver.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.CustomActionReceiver</a>&nbsp;customActionReceiver)</pre>
-<div class="block">Creates a notification manager using the specified notification <code>channelId</code> and <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.CustomActionReceiver.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.CustomActionReceiver</code></a>. The caller is responsible for creating the notification channel.</div>
+<div class="block">Creates a notification manager using the specified notification <code>channelId</code>, <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.NotificationListener</code></a> and <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.CustomActionReceiver.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.CustomActionReceiver</code></a>. The caller is responsible for creating
+ the notification channel.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>context</code> - The <a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content"><code>Context</code></a>.</dd>
 <dd><code>channelId</code> - The id of the notification channel.</dd>
 <dd><code>notificationId</code> - The id of the notification.</dd>
 <dd><code>mediaDescriptionAdapter</code> - The <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.MediaDescriptionAdapter</code></a>.</dd>
+<dd><code>notificationListener</code> - The <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.NotificationListener</code></a>.</dd>
 <dd><code>customActionReceiver</code> - The <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.CustomActionReceiver.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.CustomActionReceiver</code></a>.</dd>
 </dl>
 </li>
@@ -696,12 +812,18 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <h4>createWithNotificationChannel</h4>
 <pre>public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager</a>&nbsp;createWithNotificationChannel(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
                                                                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;channelId,
-                                                                      <a href="https://developer.android.com/reference/android/support.annotation.StringRes.html" target="_top" title="class or interface in android">@StringRes</a>
+                                                                      @StringRes
                                                                       int&nbsp;channelName,
                                                                       int&nbsp;notificationId,
                                                                       <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter)</pre>
 <div class="block">Creates a notification manager and a low-priority notification channel with the specified
- <code>channelId</code> and <code>channelName</code>.</div>
+ <code>channelId</code> and <code>channelName</code>.
+
+ <p>If the player notification manager is intended to be used within a foreground service,
+ <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#createWithNotificationChannel-android.content.Context-java.lang.String-int-int-com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter-com.google.android.exoplayer2.ui.PlayerNotificationManager.NotificationListener-"><code>createWithNotificationChannel(Context, String, int, int, MediaDescriptionAdapter,
+ NotificationListener)</code></a> should be used to which a <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.NotificationListener</code></a> can be passed.
+ This way you'll receive the notification to put the service into the foreground by calling
+ <a href="https://developer.android.com/reference/android/app/Service.html?is-external=true#startForeground-int-android.app.Notification-" title="class or interface in android.app"><code>Service.startForeground(int, Notification)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>context</code> - The <a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content"><code>Context</code></a>.</dd>
@@ -713,13 +835,42 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </dl>
 </li>
 </ul>
+<a name="createWithNotificationChannel-android.content.Context-java.lang.String-int-int-com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter-com.google.android.exoplayer2.ui.PlayerNotificationManager.NotificationListener-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createWithNotificationChannel</h4>
+<pre>public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager</a>&nbsp;createWithNotificationChannel(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+                                                                      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;channelId,
+                                                                      @StringRes
+                                                                      int&nbsp;channelName,
+                                                                      int&nbsp;notificationId,
+                                                                      <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter,
+                                                                      @Nullable
+                                                                      <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.NotificationListener</a>&nbsp;notificationListener)</pre>
+<div class="block">Creates a notification manager and a low-priority notification channel with the specified
+ <code>channelId</code> and <code>channelName</code>. The <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.NotificationListener</code></a> passed as the last
+ parameter will be notified when the notification is created and cancelled.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>context</code> - The <a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content"><code>Context</code></a>.</dd>
+<dd><code>channelId</code> - The id of the notification channel.</dd>
+<dd><code>channelName</code> - A string resource identifier for the user visible name of the channel. The
+     recommended maximum length is 40 characters; the value may be truncated if it is too long.</dd>
+<dd><code>notificationId</code> - The id of the notification.</dd>
+<dd><code>mediaDescriptionAdapter</code> - The <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.MediaDescriptionAdapter</code></a>.</dd>
+<dd><code>notificationListener</code> - The <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.NotificationListener</code></a>.</dd>
+</dl>
+</li>
+</ul>
 <a name="setPlayer-com.google.android.exoplayer2.Player-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setPlayer</h4>
-<pre>public final&nbsp;void&nbsp;setPlayer(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>public final&nbsp;void&nbsp;setPlayer(@Nullable
                             <a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
 <div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a>.
 
@@ -731,6 +882,21 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>player</code> - The <a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to use, or <code>null</code> to remove the current player. Only
      players which are accessed on the main thread are supported (<code>player.getApplicationLooper() == Looper.getMainLooper()</code>).</dd>
+</dl>
+</li>
+</ul>
+<a name="setPlaybackPreparer-com.google.android.exoplayer2.PlaybackPreparer-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPlaybackPreparer</h4>
+<pre>public&nbsp;void&nbsp;setPlaybackPreparer(@Nullable
+                                <a href="../../../../../com/google/android/exoplayer2/PlaybackPreparer.html" title="interface in com.google.android.exoplayer2">PlaybackPreparer</a>&nbsp;playbackPreparer)</pre>
+<div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/PlaybackPreparer.html" title="interface in com.google.android.exoplayer2"><code>PlaybackPreparer</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>playbackPreparer</code> - The <a href="../../../../../com/google/android/exoplayer2/PlaybackPreparer.html" title="interface in com.google.android.exoplayer2"><code>PlaybackPreparer</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -754,8 +920,14 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>setNotificationListener</h4>
-<pre>public final&nbsp;void&nbsp;setNotificationListener(<a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.NotificationListener</a>&nbsp;notificationListener)</pre>
-<div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.NotificationListener</code></a>.</div>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public final&nbsp;void&nbsp;setNotificationListener(<a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.NotificationListener</a>&nbsp;notificationListener)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Pass the notification listener to the constructor instead.</span></div>
+<div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.NotificationListener</code></a>.
+
+ <p>Please note that you should call this method before you call <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setPlayer-com.google.android.exoplayer2.Player-"><code>setPlayer(Player)</code></a> or
+ you may not get the <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html#onNotificationStarted-int-android.app.Notification-"><code>PlayerNotificationManager.NotificationListener.onNotificationStarted(int, Notification)</code></a>
+ called on your listener.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>notificationListener</code> - The <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.NotificationListener</code></a>.</dd>
@@ -806,6 +978,24 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </dl>
 </li>
 </ul>
+<a name="setUseNavigationActionsInCompactView-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setUseNavigationActionsInCompactView</h4>
+<pre>public final&nbsp;void&nbsp;setUseNavigationActionsInCompactView(boolean&nbsp;useNavigationActionsInCompactView)</pre>
+<div class="block">Sets whether navigation actions should be displayed in compact view.
+
+ <p>If <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#useNavigationActions"><code>useNavigationActions</code></a> is set to <code>false</code> navigation actions are displayed
+ neither in compact nor in full view mode of the notification.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>useNavigationActionsInCompactView</code> - Whether the navigation actions should be displayed in
+     compact view.</dd>
+</dl>
+</li>
+</ul>
 <a name="setUsePlayPauseActions-boolean-">
 <!--   -->
 </a>
@@ -820,19 +1010,17 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </dl>
 </li>
 </ul>
-<a name="setStopAction-java.lang.String-">
+<a name="setUseStopAction-boolean-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>setStopAction</h4>
-<pre>public final&nbsp;void&nbsp;setStopAction(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
-                                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;stopAction)</pre>
-<div class="block">Sets the name of the action to be used as stop action to cancel the notification. If <code>null</code> is passed the stop action is not displayed.</div>
+<h4>setUseStopAction</h4>
+<pre>public final&nbsp;void&nbsp;setUseStopAction(boolean&nbsp;useStopAction)</pre>
+<div class="block">Sets whether the stop action should be used.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>stopAction</code> - The name of the stop action which must be <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#ACTION_STOP"><code>ACTION_STOP</code></a> or an action
-     provided by the <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.CustomActionReceiver.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.CustomActionReceiver</code></a>. <code>null</code> to omit the stop action.</dd>
+<dd><code>useStopAction</code> - Whether to use the stop action.</dd>
 </dl>
 </li>
 </ul>
@@ -914,24 +1102,6 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </dl>
 </li>
 </ul>
-<a name="setOngoing-boolean-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setOngoing</h4>
-<pre>public final&nbsp;void&nbsp;setOngoing(boolean&nbsp;ongoing)</pre>
-<div class="block">Sets whether the notification should be ongoing. If <code>false</code> the user can dismiss the
- notification by swiping. If in addition the stop action is enabled dismissing the notification
- triggers the stop action.
-
- <p>See <code>NotificationCompat.Builder#setOngoing(boolean)</code>.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ongoing</code> - Whether <code>true</code> the notification is ongoing and not dismissible.</dd>
-</dl>
-</li>
-</ul>
 <a name="setPriority-int-">
 <!--   -->
 </a>
@@ -957,7 +1127,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>setSmallIcon</h4>
-<pre>public final&nbsp;void&nbsp;setSmallIcon(<a href="https://developer.android.com/reference/android/support.annotation.DrawableRes.html" target="_top" title="class or interface in android">@DrawableRes</a>
+<pre>public final&nbsp;void&nbsp;setSmallIcon(@DrawableRes
                                int&nbsp;smallIconResourceId)</pre>
 <div class="block">Sets the small icon of the notification which is also shown in the system status bar.
 
@@ -1013,22 +1183,30 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <div class="block">Forces an update of the notification if already started.</div>
 </li>
 </ul>
-<a name="createNotification-com.google.android.exoplayer2.Player-android.graphics.Bitmap-">
+<a name="createNotification-com.google.android.exoplayer2.Player-androidx.core.app.NotificationCompat.Builder-boolean-android.graphics.Bitmap-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>createNotification</h4>
-<pre>protected&nbsp;<a href="https://developer.android.com/reference/android/app/Notification.html" target="_top" title="class or interface in android.app">Notification</a>&nbsp;createNotification(<a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
-                                          <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
-                                          <a href="https://developer.android.com/reference/android/graphics/Bitmap.html" target="_top" title="class or interface in android.graphics">Bitmap</a>&nbsp;largeIcon)</pre>
+<pre>@Nullable
+protected&nbsp;androidx.core.app.NotificationCompat.Builder&nbsp;createNotification(<a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                                                                                    @Nullable
+                                                                                    androidx.core.app.NotificationCompat.Builder&nbsp;builder,
+                                                                                    boolean&nbsp;ongoing,
+                                                                                    @Nullable
+                                                                                    <a href="https://developer.android.com/reference/android/graphics/Bitmap.html" target="_top" title="class or interface in android.graphics">Bitmap</a>&nbsp;largeIcon)</pre>
 <div class="block">Creates the notification given the current player state.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>player</code> - The player for which state to build a notification.</dd>
+<dd><code>builder</code> - The builder used to build the last notification, or <code>null</code>. Re-using the
+     builder when possible can prevent notification flicker when <code>Util#SDK_INT</code> &lt; 21.</dd>
+<dd><code>ongoing</code> - Whether the notification should be ongoing.</dd>
 <dd><code>largeIcon</code> - The large icon to be used.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The <a href="https://developer.android.com/reference/android/app/Notification.html" target="_top" title="class or interface in android.app"><code>Notification</code></a> which has been built.</dd>
+<dd>The <code>NotificationCompat.Builder</code> on which to call <code>NotificationCompat.Builder#build()</code> to obtain the notification, or <code>null</code> if no
+     notification should be displayed.</dd>
 </dl>
 </li>
 </ul>
@@ -1060,7 +1238,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <a name="getActionIndicesForCompactView-java.util.List-com.google.android.exoplayer2.Player-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>getActionIndicesForCompactView</h4>
 <pre>protected&nbsp;int[]&nbsp;getActionIndicesForCompactView(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;actionNames,
@@ -1072,8 +1250,18 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>actionNames</code> - The names of the actions included in the notification.</dd>
-<dd><code>player</code> - The player for which state to build a notification.</dd>
+<dd><code>player</code> - The player for which a notification is being built.</dd>
 </dl>
+</li>
+</ul>
+<a name="getOngoing-com.google.android.exoplayer2.Player-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getOngoing</h4>
+<pre>protected&nbsp;boolean&nbsp;getOngoing(<a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="block">Returns whether the generated notification should be ongoing.</div>
 </li>
 </ul>
 </li>

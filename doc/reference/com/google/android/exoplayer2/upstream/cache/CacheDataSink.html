@@ -115,8 +115,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 implements <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html" title="interface in com.google.android.exoplayer2.upstream">DataSink</a></pre>
 <div class="block">Writes data into a cache.
 
- <p>If the <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> object used with <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSink.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>open(DataSpec)</code></a> method call has the <code>length</code> field set to <a href="../../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> but <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#FLAG_ALLOW_CACHING_UNKNOWN_LENGTH"><code>DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH</code></a> isn't set then <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSink.html#write-byte:A-int-int-"><code>write(byte[], int, int)</code></a> calls
- are ignored.</div>
+ <p>If the <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> passed to <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSink.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>open(DataSpec)</code></a> has the <code>length</code> field set to
+ <a href="../../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> and <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN"><code>DataSpec.FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN</code></a> set, then <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSink.html#write-byte:A-int-int-"><code>write(byte[], int, int)</code></a> calls are ignored.</div>
 </li>
 </ul>
 </div>
@@ -169,6 +169,12 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 <div class="block">Default buffer size in bytes.</div>
 </td>
 </tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSink.html#DEFAULT_FRAGMENT_SIZE">DEFAULT_FRAGMENT_SIZE</a></span></code>
+<div class="block">Default <code>fragmentSize</code> recommended for caching use cases.</div>
+</td>
+</tr>
 </table>
 </li>
 </ul>
@@ -185,13 +191,13 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 </tr>
 <tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSink.html#CacheDataSink-com.google.android.exoplayer2.upstream.cache.Cache-long-">CacheDataSink</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
-             long&nbsp;maxCacheFileSize)</code>
-<div class="block">Constructs a CacheDataSink using the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSink.html#DEFAULT_BUFFER_SIZE"><code>DEFAULT_BUFFER_SIZE</code></a>.</div>
+             long&nbsp;fragmentSize)</code>
+<div class="block">Constructs an instance using <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSink.html#DEFAULT_BUFFER_SIZE"><code>DEFAULT_BUFFER_SIZE</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSink.html#CacheDataSink-com.google.android.exoplayer2.upstream.cache.Cache-long-int-">CacheDataSink</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
-             long&nbsp;maxCacheFileSize,
+             long&nbsp;fragmentSize,
              int&nbsp;bufferSize)</code>&nbsp;</td>
 </tr>
 </table>
@@ -257,6 +263,20 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 <!--   -->
 </a>
 <h3>Field Detail</h3>
+<a name="DEFAULT_FRAGMENT_SIZE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DEFAULT_FRAGMENT_SIZE</h4>
+<pre>public static final&nbsp;long DEFAULT_FRAGMENT_SIZE</pre>
+<div class="block">Default <code>fragmentSize</code> recommended for caching use cases.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.upstream.cache.CacheDataSink.DEFAULT_FRAGMENT_SIZE">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
 <a name="DEFAULT_BUFFER_SIZE">
 <!--   -->
 </a>
@@ -286,14 +306,16 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 <li class="blockList">
 <h4>CacheDataSink</h4>
 <pre>public&nbsp;CacheDataSink(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
-                     long&nbsp;maxCacheFileSize)</pre>
-<div class="block">Constructs a CacheDataSink using the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSink.html#DEFAULT_BUFFER_SIZE"><code>DEFAULT_BUFFER_SIZE</code></a>.</div>
+                     long&nbsp;fragmentSize)</pre>
+<div class="block">Constructs an instance using <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSink.html#DEFAULT_BUFFER_SIZE"><code>DEFAULT_BUFFER_SIZE</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>cache</code> - The cache into which data should be written.</dd>
-<dd><code>maxCacheFileSize</code> - The maximum size of a cache file, in bytes. If the sink is opened for a
-     <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> whose size exceeds this value, then the data will be fragmented into
-     multiple cache files.</dd>
+<dd><code>fragmentSize</code> - For requests that should be fragmented into multiple cache files, this is
+     the maximum size of a cache file in bytes. If set to <a href="../../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> then no
+     fragmentation will occur. Using a small value allows for finer-grained cache eviction
+     policies, at the cost of increased overhead both on the cache implementation and the file
+     system. Values under <code>(2 * 1024 * 1024)</code> are not recommended.</dd>
 </dl>
 </li>
 </ul>
@@ -304,14 +326,16 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 <li class="blockList">
 <h4>CacheDataSink</h4>
 <pre>public&nbsp;CacheDataSink(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
-                     long&nbsp;maxCacheFileSize,
+                     long&nbsp;fragmentSize,
                      int&nbsp;bufferSize)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>cache</code> - The cache into which data should be written.</dd>
-<dd><code>maxCacheFileSize</code> - The maximum size of a cache file, in bytes. If the sink is opened for a
-     <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> whose size exceeds this value, then the data will be fragmented into
-     multiple cache files.</dd>
+<dd><code>fragmentSize</code> - For requests that should be fragmented into multiple cache files, this is
+     the maximum size of a cache file in bytes. If set to <a href="../../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> then no
+     fragmentation will occur. Using a small value allows for finer-grained cache eviction
+     policies, at the cost of increased overhead both on the cache implementation and the file
+     system. Values under <code>(2 * 1024 * 1024)</code> are not recommended.</dd>
 <dd><code>bufferSize</code> - The buffer size in bytes for writing to a cache file. A zero or negative
      value disables buffering.</dd>
 </dl>
@@ -334,8 +358,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 <pre>public&nbsp;void&nbsp;experimental_setSyncFileDescriptor(boolean&nbsp;syncFileDescriptor)</pre>
 <div class="block">Sets whether file descriptors are synced when closing output streams.
 
- <p>This method is experimental, and will be renamed or removed in a future release. It should
- only be called before the renderer is used.</div>
+ <p>This method is experimental, and will be renamed or removed in a future release.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>syncFileDescriptor</code> - Whether file descriptors are synced when closing output streams.</dd>

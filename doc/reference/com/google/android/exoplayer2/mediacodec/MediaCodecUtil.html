@@ -157,15 +157,17 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecUtil.html#getDecoderInfo-java.lang.String-boolean-">getDecoderInfo</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mimeType,
-              boolean&nbsp;secure)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecUtil.html#getDecoderInfo-java.lang.String-boolean-boolean-">getDecoderInfo</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mimeType,
+              boolean&nbsp;secure,
+              boolean&nbsp;tunneling)</code>
 <div class="block">Returns information about the preferred decoder for a given mime type.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&gt;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecUtil.html#getDecoderInfos-java.lang.String-boolean-">getDecoderInfos</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mimeType,
-               boolean&nbsp;secure)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecUtil.html#getDecoderInfos-java.lang.String-boolean-boolean-">getDecoderInfos</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mimeType,
+               boolean&nbsp;secure,
+               boolean&nbsp;tunneling)</code>
 <div class="block">Returns all <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec"><code>MediaCodecInfo</code></a>s for the given mime type, in the order given by <a href="https://developer.android.com/reference/android/media/MediaCodecList.html" target="_top" title="class or interface in android.media"><code>MediaCodecList</code></a>.</div>
 </td>
 </tr>
@@ -183,8 +185,9 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecUtil.html#warmDecoderInfoCache-java.lang.String-boolean-">warmDecoderInfoCache</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mimeType,
-                    boolean&nbsp;secure)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecUtil.html#warmDecoderInfoCache-java.lang.String-boolean-boolean-">warmDecoderInfoCache</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mimeType,
+                    boolean&nbsp;secure,
+                    boolean&nbsp;tunneling)</code>
 <div class="block">Optional call to warm the codec cache for a given mime type.</div>
 </td>
 </tr>
@@ -210,23 +213,26 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="warmDecoderInfoCache-java.lang.String-boolean-">
+<a name="warmDecoderInfoCache-java.lang.String-boolean-boolean-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>warmDecoderInfoCache</h4>
 <pre>public static&nbsp;void&nbsp;warmDecoderInfoCache(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mimeType,
-                                        boolean&nbsp;secure)</pre>
+                                        boolean&nbsp;secure,
+                                        boolean&nbsp;tunneling)</pre>
 <div class="block">Optional call to warm the codec cache for a given mime type.
- <p>
- Calling this method may speed up subsequent calls to <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecUtil.html#getDecoderInfo-java.lang.String-boolean-"><code>getDecoderInfo(String, boolean)</code></a>
- and <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecUtil.html#getDecoderInfos-java.lang.String-boolean-"><code>getDecoderInfos(String, boolean)</code></a>.</div>
+
+ <p>Calling this method may speed up subsequent calls to <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecUtil.html#getDecoderInfo-java.lang.String-boolean-boolean-"><code>getDecoderInfo(String, boolean,
+ boolean)</code></a> and <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecUtil.html#getDecoderInfos-java.lang.String-boolean-boolean-"><code>getDecoderInfos(String, boolean, boolean)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mimeType</code> - The mime type.</dd>
 <dd><code>secure</code> - Whether the decoder is required to support secure decryption. Always pass false
      unless secure decryption really is required.</dd>
+<dd><code>tunneling</code> - Whether the decoder is required to support tunneling. Always pass false unless
+     tunneling really is required.</dd>
 </dl>
 </li>
 </ul>
@@ -236,7 +242,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>getPassthroughDecoderInfo</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>@Nullable
 public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&nbsp;getPassthroughDecoderInfo()
                                                           throws <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecUtil.DecoderQueryException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecUtil.DecoderQueryException</a></pre>
 <div class="block">Returns information about a decoder suitable for audio passthrough.</div>
@@ -248,15 +254,16 @@ public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/mediaco
 </dl>
 </li>
 </ul>
-<a name="getDecoderInfo-java.lang.String-boolean-">
+<a name="getDecoderInfo-java.lang.String-boolean-boolean-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getDecoderInfo</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>@Nullable
 public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&nbsp;getDecoderInfo(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mimeType,
-                                                      boolean&nbsp;secure)
+                                                      boolean&nbsp;secure,
+                                                      boolean&nbsp;tunneling)
                                                throws <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecUtil.DecoderQueryException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecUtil.DecoderQueryException</a></pre>
 <div class="block">Returns information about the preferred decoder for a given mime type.</div>
 <dl>
@@ -264,6 +271,8 @@ public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/mediaco
 <dd><code>mimeType</code> - The MIME type.</dd>
 <dd><code>secure</code> - Whether the decoder is required to support secure decryption. Always pass false
      unless secure decryption really is required.</dd>
+<dd><code>tunneling</code> - Whether the decoder is required to support tunneling. Always pass false unless
+     tunneling really is required.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>A <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec"><code>MediaCodecInfo</code></a> describing the decoder, or null if no suitable decoder exists.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -271,14 +280,15 @@ public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/mediaco
 </dl>
 </li>
 </ul>
-<a name="getDecoderInfos-java.lang.String-boolean-">
+<a name="getDecoderInfos-java.lang.String-boolean-boolean-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getDecoderInfos</h4>
 <pre>public static&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&gt;&nbsp;getDecoderInfos(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mimeType,
-                                                   boolean&nbsp;secure)
+                                                   boolean&nbsp;secure,
+                                                   boolean&nbsp;tunneling)
                                             throws <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecUtil.DecoderQueryException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecUtil.DecoderQueryException</a></pre>
 <div class="block">Returns all <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec"><code>MediaCodecInfo</code></a>s for the given mime type, in the order given by <a href="https://developer.android.com/reference/android/media/MediaCodecList.html" target="_top" title="class or interface in android.media"><code>MediaCodecList</code></a>.</div>
 <dl>
@@ -286,6 +296,8 @@ public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/mediaco
 <dd><code>mimeType</code> - The MIME type.</dd>
 <dd><code>secure</code> - Whether the decoder is required to support secure decryption. Always pass false
      unless secure decryption really is required.</dd>
+<dd><code>tunneling</code> - Whether the decoder is required to support tunneling. Always pass false unless
+     tunneling really is required.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>A list of all <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec"><code>MediaCodecInfo</code></a>s for the given mime type, in the order given by
      <a href="https://developer.android.com/reference/android/media/MediaCodecList.html" target="_top" title="class or interface in android.media"><code>MediaCodecList</code></a>.</dd>
@@ -317,13 +329,14 @@ public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/mediaco
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getCodecProfileAndLevel</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
-public static&nbsp;<a href="https://developer.android.com/reference/android/util/Pair.html" target="_top" title="class or interface in android.util">Pair</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Integer.html" target="_top" title="class or interface in java.lang">Integer</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Integer.html" target="_top" title="class or interface in java.lang">Integer</a>&gt;&nbsp;getCodecProfileAndLevel(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;codec)</pre>
+<pre>@Nullable
+public static&nbsp;<a href="https://developer.android.com/reference/android/util/Pair.html" target="_top" title="class or interface in android.util">Pair</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Integer.html" target="_top" title="class or interface in java.lang">Integer</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Integer.html" target="_top" title="class or interface in java.lang">Integer</a>&gt;&nbsp;getCodecProfileAndLevel(@Nullable
+                                                                      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;codec)</pre>
 <div class="block">Returns profile and level (as defined by <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.CodecProfileLevel.html" target="_top" title="class or interface in android.media"><code>MediaCodecInfo.CodecProfileLevel</code></a>) corresponding to the given
  codec description string (as defined by RFC 6381).</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>codec</code> - A codec description string, as defined by RFC 6381.</dd>
+<dd><code>codec</code> - A codec description string, as defined by RFC 6381, or <code>null</code> if not known.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>A pair (profile constant, level constant) if <code>codec</code> is well-formed and
      recognized, or null otherwise</dd>

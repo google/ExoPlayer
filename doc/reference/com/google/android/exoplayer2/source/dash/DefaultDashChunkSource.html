@@ -182,7 +182,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.html#DefaultDashChunkSource-com.google.android.exoplayer2.upstream.LoaderErrorThrower-com.google.android.exoplayer2.source.dash.manifest.DashManifest-int-int:A-com.google.android.exoplayer2.trackselection.TrackSelection-int-com.google.android.exoplayer2.upstream.DataSource-long-int-boolean-boolean-com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler-">DefaultDashChunkSource</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream">LoaderErrorThrower</a>&nbsp;manifestLoaderErrorThrower,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.html#DefaultDashChunkSource-com.google.android.exoplayer2.upstream.LoaderErrorThrower-com.google.android.exoplayer2.source.dash.manifest.DashManifest-int-int:A-com.google.android.exoplayer2.trackselection.TrackSelection-int-com.google.android.exoplayer2.upstream.DataSource-long-int-boolean-java.util.List-com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler-">DefaultDashChunkSource</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream">LoaderErrorThrower</a>&nbsp;manifestLoaderErrorThrower,
                       <a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;manifest,
                       int&nbsp;periodIndex,
                       int[]&nbsp;adaptationSetIndices,
@@ -192,7 +192,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
                       long&nbsp;elapsedRealtimeOffsetMs,
                       int&nbsp;maxSegmentsPerLoad,
                       boolean&nbsp;enableEventMessageTrack,
-                      boolean&nbsp;enableCea608Track,
+                      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&gt;&nbsp;closedCaptionFormats,
                       <a href="../../../../../../com/google/android/exoplayer2/source/dash/PlayerEmsgHandler.PlayerTrackEmsgHandler.html" title="class in com.google.android.exoplayer2.source.dash">PlayerEmsgHandler.PlayerTrackEmsgHandler</a>&nbsp;playerTrackEmsgHandler)</code>&nbsp;</td>
 </tr>
 </table>
@@ -325,7 +325,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="DefaultDashChunkSource-com.google.android.exoplayer2.upstream.LoaderErrorThrower-com.google.android.exoplayer2.source.dash.manifest.DashManifest-int-int:A-com.google.android.exoplayer2.trackselection.TrackSelection-int-com.google.android.exoplayer2.upstream.DataSource-long-int-boolean-boolean-com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler-">
+<a name="DefaultDashChunkSource-com.google.android.exoplayer2.upstream.LoaderErrorThrower-com.google.android.exoplayer2.source.dash.manifest.DashManifest-int-int:A-com.google.android.exoplayer2.trackselection.TrackSelection-int-com.google.android.exoplayer2.upstream.DataSource-long-int-boolean-java.util.List-com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -341,8 +341,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
                               long&nbsp;elapsedRealtimeOffsetMs,
                               int&nbsp;maxSegmentsPerLoad,
                               boolean&nbsp;enableEventMessageTrack,
-                              boolean&nbsp;enableCea608Track,
-                              <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&gt;&nbsp;closedCaptionFormats,
+                              @Nullable
                               <a href="../../../../../../com/google/android/exoplayer2/source/dash/PlayerEmsgHandler.PlayerTrackEmsgHandler.html" title="class in com.google.android.exoplayer2.source.dash">PlayerEmsgHandler.PlayerTrackEmsgHandler</a>&nbsp;playerTrackEmsgHandler)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -359,9 +359,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 <dd><code>maxSegmentsPerLoad</code> - The maximum number of segments to combine into a single request. Note
      that segments will only be combined if their <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a>s are the same and if their data
      ranges are adjacent.</dd>
-<dd><code>enableEventMessageTrack</code> - Whether the chunks generated by the source may output an event
-     message track.</dd>
-<dd><code>enableCea608Track</code> - Whether the chunks generated by the source may output a CEA-608 track.</dd>
+<dd><code>enableEventMessageTrack</code> - Whether to output an event message track.</dd>
+<dd><code>closedCaptionFormats</code> - The <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Formats</code></a> of closed caption tracks to be output.</dd>
 <dd><code>playerTrackEmsgHandler</code> - The <a href="../../../../../../com/google/android/exoplayer2/source/dash/PlayerEmsgHandler.PlayerTrackEmsgHandler.html" title="class in com.google.android.exoplayer2.source.dash"><code>PlayerEmsgHandler.PlayerTrackEmsgHandler</code></a> instance to handle emsg
      messages targeting the player. Maybe null if this is not necessary.</dd>
 </dl>

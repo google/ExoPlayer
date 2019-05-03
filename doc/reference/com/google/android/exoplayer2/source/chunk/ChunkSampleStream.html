@@ -591,7 +591,7 @@ public&nbsp;ChunkSampleStream(int&nbsp;primaryTrackType,
 <ul class="blockList">
 <li class="blockList">
 <h4>release</h4>
-<pre>public&nbsp;void&nbsp;release(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>public&nbsp;void&nbsp;release(@Nullable
                     <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.ReleaseCallback.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkSampleStream.ReleaseCallback</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html" title="type parameter in ChunkSampleStream">T</a>&gt;&nbsp;callback)</pre>
 <div class="block">Releases the stream.
 
@@ -669,21 +669,17 @@ public&nbsp;ChunkSampleStream(int&nbsp;primaryTrackType,
                     boolean&nbsp;formatRequired)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/SampleStream.html#readData-com.google.android.exoplayer2.FormatHolder-com.google.android.exoplayer2.decoder.DecoderInputBuffer-boolean-">SampleStream</a></code></span></div>
 <div class="block">Attempts to read from the stream.
- <p>
- If the stream has ended then <a href="../../../../../../com/google/android/exoplayer2/C.html#BUFFER_FLAG_END_OF_STREAM"><code>C.BUFFER_FLAG_END_OF_STREAM</code></a> flag is set on <code>buffer</code>
- and <a href="../../../../../../com/google/android/exoplayer2/C.html#RESULT_BUFFER_READ"><code>C.RESULT_BUFFER_READ</code></a> is returned. Else if no data is available then
- <a href="../../../../../../com/google/android/exoplayer2/C.html#RESULT_NOTHING_READ"><code>C.RESULT_NOTHING_READ</code></a> is returned. Else if the format of the media is changing or if
- <code>formatRequired</code> is set then <code>formatHolder</code> is populated and
- <a href="../../../../../../com/google/android/exoplayer2/C.html#RESULT_FORMAT_READ"><code>C.RESULT_FORMAT_READ</code></a> is returned. Else <code>buffer</code> is populated and
- <a href="../../../../../../com/google/android/exoplayer2/C.html#RESULT_BUFFER_READ"><code>C.RESULT_BUFFER_READ</code></a> is returned.</div>
+
+ <p>If the stream has ended then <a href="../../../../../../com/google/android/exoplayer2/C.html#BUFFER_FLAG_END_OF_STREAM"><code>C.BUFFER_FLAG_END_OF_STREAM</code></a> flag is set on <code>buffer</code> and <a href="../../../../../../com/google/android/exoplayer2/C.html#RESULT_BUFFER_READ"><code>C.RESULT_BUFFER_READ</code></a> is returned. Else if no data is available then <a href="../../../../../../com/google/android/exoplayer2/C.html#RESULT_NOTHING_READ"><code>C.RESULT_NOTHING_READ</code></a> is returned. Else if the format of the media is changing or if <code>formatRequired</code> is set then <code>formatHolder</code> is populated and <a href="../../../../../../com/google/android/exoplayer2/C.html#RESULT_FORMAT_READ"><code>C.RESULT_FORMAT_READ</code></a>
+ is returned. Else <code>buffer</code> is populated and <a href="../../../../../../com/google/android/exoplayer2/C.html#RESULT_BUFFER_READ"><code>C.RESULT_BUFFER_READ</code></a> is returned.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/source/SampleStream.html#readData-com.google.android.exoplayer2.FormatHolder-com.google.android.exoplayer2.decoder.DecoderInputBuffer-boolean-">readData</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source">SampleStream</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>formatHolder</code> - A <a href="../../../../../../com/google/android/exoplayer2/FormatHolder.html" title="class in com.google.android.exoplayer2"><code>FormatHolder</code></a> to populate in the case of reading a format.</dd>
 <dd><code>buffer</code> - A <a href="../../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder"><code>DecoderInputBuffer</code></a> to populate in the case of reading a sample or the
-     end of the stream. If the end of the stream has been reached, the
-     <a href="../../../../../../com/google/android/exoplayer2/C.html#BUFFER_FLAG_END_OF_STREAM"><code>C.BUFFER_FLAG_END_OF_STREAM</code></a> flag will be set on the buffer.</dd>
+     end of the stream. If the end of the stream has been reached, the <a href="../../../../../../com/google/android/exoplayer2/C.html#BUFFER_FLAG_END_OF_STREAM"><code>C.BUFFER_FLAG_END_OF_STREAM</code></a> flag will be set on the buffer. If a <a href="../../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#isFlagsOnly--"><code>flags-only</code></a> buffer is passed, then no <a href="../../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#data"><code>DecoderInputBuffer.data</code></a> will be read and the read position of the stream will not change,
+     but the flags of the buffer will be populated.</dd>
 <dd><code>formatRequired</code> - Whether the caller requires that the format of the stream be read even if
      it's not changing. A sample will never be read if set to true, however it is still possible
      for the end of stream or nothing to be read.</dd>

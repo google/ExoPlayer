@@ -133,7 +133,9 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 </tr>
 <tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSourceFactory.html#CacheDataSourceFactory-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.DataSource.Factory-">CacheDataSourceFactory</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
-                      <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;upstreamFactory)</code>&nbsp;</td>
+                      <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;upstreamFactory)</code>
+<div class="block">Constructs a factory which creates <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheDataSource</code></a> instances with default <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> and <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSink</code></a> instances for reading and writing the cache.</div>
+</td>
 </tr>
 <tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSourceFactory.html#CacheDataSourceFactory-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.upstream.DataSink.Factory-int-com.google.android.exoplayer2.upstream.cache.CacheDataSource.EventListener-">CacheDataSourceFactory</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
@@ -144,15 +146,18 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
                       <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.EventListener.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheDataSource.EventListener</a>&nbsp;eventListener)</code>&nbsp;</td>
 </tr>
 <tr class="altColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSourceFactory.html#CacheDataSourceFactory-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.upstream.DataSink.Factory-int-com.google.android.exoplayer2.upstream.cache.CacheDataSource.EventListener-com.google.android.exoplayer2.upstream.cache.CacheKeyFactory-">CacheDataSourceFactory</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
+                      <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;upstreamFactory,
+                      <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;cacheReadDataSourceFactory,
+                      <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSink.Factory</a>&nbsp;cacheWriteDataSinkFactory,
+                      int&nbsp;flags,
+                      <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.EventListener.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheDataSource.EventListener</a>&nbsp;eventListener,
+                      <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheKeyFactory</a>&nbsp;cacheKeyFactory)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSourceFactory.html#CacheDataSourceFactory-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.DataSource.Factory-int-">CacheDataSourceFactory</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
                       <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;upstreamFactory,
                       int&nbsp;flags)</code>&nbsp;</td>
-</tr>
-<tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSourceFactory.html#CacheDataSourceFactory-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.DataSource.Factory-int-long-">CacheDataSourceFactory</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
-                      <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;upstreamFactory,
-                      int&nbsp;flags,
-                      long&nbsp;maxCacheFileSize)</code>&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -205,9 +210,12 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 <h4>CacheDataSourceFactory</h4>
 <pre>public&nbsp;CacheDataSourceFactory(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
                               <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;upstreamFactory)</pre>
+<div class="block">Constructs a factory which creates <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheDataSource</code></a> instances with default <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> and <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSink</code></a> instances for reading and writing the cache.</div>
 <dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html#CacheDataSource-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.DataSource-"><code>CacheDataSource.CacheDataSource(Cache, DataSource)</code></a></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>cache</code> - The cache.</dd>
+<dd><code>upstreamFactory</code> - A <code>DataSource.Factory</code> for creating upstream <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a>s
+     for reading data not in the cache.</dd>
 </dl>
 </li>
 </ul>
@@ -227,7 +235,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 </dl>
 </li>
 </ul>
-<a name="CacheDataSourceFactory-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.DataSource.Factory-int-long-">
+<a name="CacheDataSourceFactory-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.upstream.DataSink.Factory-int-com.google.android.exoplayer2.upstream.cache.CacheDataSource.EventListener-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -235,16 +243,21 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 <h4>CacheDataSourceFactory</h4>
 <pre>public&nbsp;CacheDataSourceFactory(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
                               <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;upstreamFactory,
+                              <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;cacheReadDataSourceFactory,
+                              @Nullable
+                              <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSink.Factory</a>&nbsp;cacheWriteDataSinkFactory,
                               <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.Flags.html" title="annotation in com.google.android.exoplayer2.upstream.cache">@CacheDataSource.Flags</a>
                               int&nbsp;flags,
-                              long&nbsp;maxCacheFileSize)</pre>
+                              @Nullable
+                              <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.EventListener.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheDataSource.EventListener</a>&nbsp;eventListener)</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html#CacheDataSource-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.DataSource-int-long-"><code>CacheDataSource.CacheDataSource(Cache, DataSource, int, long)</code></a></dd>
+<dd><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html#CacheDataSource-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSink-int-com.google.android.exoplayer2.upstream.cache.CacheDataSource.EventListener-"><code>CacheDataSource.CacheDataSource(Cache, DataSource, DataSource, DataSink, int,
+     CacheDataSource.EventListener)</code></a></dd>
 </dl>
 </li>
 </ul>
-<a name="CacheDataSourceFactory-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.upstream.DataSink.Factory-int-com.google.android.exoplayer2.upstream.cache.CacheDataSource.EventListener-">
+<a name="CacheDataSourceFactory-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.upstream.DataSink.Factory-int-com.google.android.exoplayer2.upstream.cache.CacheDataSource.EventListener-com.google.android.exoplayer2.upstream.cache.CacheKeyFactory-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -253,14 +266,18 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 <pre>public&nbsp;CacheDataSourceFactory(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
                               <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;upstreamFactory,
                               <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;cacheReadDataSourceFactory,
+                              @Nullable
                               <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSink.Factory</a>&nbsp;cacheWriteDataSinkFactory,
                               <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.Flags.html" title="annotation in com.google.android.exoplayer2.upstream.cache">@CacheDataSource.Flags</a>
                               int&nbsp;flags,
-                              <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.EventListener.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheDataSource.EventListener</a>&nbsp;eventListener)</pre>
+                              @Nullable
+                              <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.EventListener.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheDataSource.EventListener</a>&nbsp;eventListener,
+                              @Nullable
+                              <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheKeyFactory</a>&nbsp;cacheKeyFactory)</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html#CacheDataSource-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSink-int-com.google.android.exoplayer2.upstream.cache.CacheDataSource.EventListener-"><code>CacheDataSource.CacheDataSource(Cache, DataSource, DataSource, DataSink, int,
-     EventListener)</code></a></dd>
+<dd><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html#CacheDataSource-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSink-int-com.google.android.exoplayer2.upstream.cache.CacheDataSource.EventListener-com.google.android.exoplayer2.upstream.cache.CacheKeyFactory-"><code>CacheDataSource.CacheDataSource(Cache, DataSource, DataSource, DataSink, int,
+     CacheDataSource.EventListener, CacheKeyFactory)</code></a></dd>
 </dl>
 </li>
 </ul>

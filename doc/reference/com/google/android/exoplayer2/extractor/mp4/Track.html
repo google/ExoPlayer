@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10};
+var methods = {"i0":10,"i1":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -263,6 +263,10 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
+<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html" title="class in com.google.android.exoplayer2.extractor.mp4">Track</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html#copyWithFormat-com.google.android.exoplayer2.Format-">copyWithFormat</a></span>(<a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code>&nbsp;</td>
+</tr>
+<tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/TrackEncryptionBox.html" title="class in com.google.android.exoplayer2.extractor.mp4">TrackEncryptionBox</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html#getSampleDescriptionEncryptionBox-int-">getSampleDescriptionEncryptionBox</a></span>(int&nbsp;sampleDescriptionIndex)</code>
 <div class="block">Returns the <a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/TrackEncryptionBox.html" title="class in com.google.android.exoplayer2.extractor.mp4"><code>TrackEncryptionBox</code></a> for the given sample description index.</div>
@@ -396,7 +400,7 @@ public final&nbsp;int sampleTransformation</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>editListDurations</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>@Nullable
 public final&nbsp;long[] editListDurations</pre>
 <div class="block">Durations of edit list segments in the movie timescale. Null if there is no edit list.</div>
 </li>
@@ -407,7 +411,7 @@ public final&nbsp;long[] editListDurations</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>editListMediaTimes</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>@Nullable
 public final&nbsp;long[] editListMediaTimes</pre>
 <div class="block">Media times for edit list segments in the track timescale. Null if there is no edit list.</div>
 </li>
@@ -445,12 +449,12 @@ public final&nbsp;long[] editListMediaTimes</pre>
              <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
              <a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.Transformation.html" title="annotation in com.google.android.exoplayer2.extractor.mp4">@Track.Transformation</a>
              int&nbsp;sampleTransformation,
-             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+             @Nullable
              <a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/TrackEncryptionBox.html" title="class in com.google.android.exoplayer2.extractor.mp4">TrackEncryptionBox</a>[]&nbsp;sampleDescriptionEncryptionBoxes,
              int&nbsp;nalUnitLengthFieldLength,
-             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+             @Nullable
              long[]&nbsp;editListDurations,
-             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+             @Nullable
              long[]&nbsp;editListMediaTimes)</pre>
 </li>
 </ul>
@@ -465,7 +469,7 @@ public final&nbsp;long[] editListMediaTimes</pre>
 <a name="getSampleDescriptionEncryptionBox-int-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>getSampleDescriptionEncryptionBox</h4>
 <pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/TrackEncryptionBox.html" title="class in com.google.android.exoplayer2.extractor.mp4">TrackEncryptionBox</a>&nbsp;getSampleDescriptionEncryptionBox(int&nbsp;sampleDescriptionIndex)</pre>
@@ -477,6 +481,15 @@ public final&nbsp;long[] editListMediaTimes</pre>
 <dd>The <a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/TrackEncryptionBox.html" title="class in com.google.android.exoplayer2.extractor.mp4"><code>TrackEncryptionBox</code></a> for the given sample description index. Maybe null if no
      such entry exists.</dd>
 </dl>
+</li>
+</ul>
+<a name="copyWithFormat-com.google.android.exoplayer2.Format-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>copyWithFormat</h4>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html" title="class in com.google.android.exoplayer2.extractor.mp4">Track</a>&nbsp;copyWithFormat(<a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
 </li>
 </ul>
 </li>

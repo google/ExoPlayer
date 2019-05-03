@@ -72,13 +72,13 @@ var activeTableTab = "activeTableTab";
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
@@ -120,6 +120,27 @@ implements <a href="../../../../../../com/google/android/exoplayer2/ext/mediases
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/RepeatModeActionProvider.html#DEFAULT_REPEAT_TOGGLE_MODES">DEFAULT_REPEAT_TOGGLE_MODES</a></span></code>
+<div class="block">The default repeat toggle modes.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <ul class="blockList">
 <li class="blockList"><a name="constructor.summary">
@@ -132,14 +153,12 @@ implements <a href="../../../../../../com/google/android/exoplayer2/ext/mediases
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/RepeatModeActionProvider.html#RepeatModeActionProvider-android.content.Context-com.google.android.exoplayer2.Player-">RepeatModeActionProvider</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
-                        <a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/RepeatModeActionProvider.html#RepeatModeActionProvider-android.content.Context-">RepeatModeActionProvider</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context)</code>
 <div class="block">Creates a new instance.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/RepeatModeActionProvider.html#RepeatModeActionProvider-android.content.Context-com.google.android.exoplayer2.Player-int-">RepeatModeActionProvider</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
-                        <a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/RepeatModeActionProvider.html#RepeatModeActionProvider-android.content.Context-int-">RepeatModeActionProvider</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
                         int&nbsp;repeatToggleModes)</code>
 <div class="block">Creates a new instance enabling the given repeat toggle modes.</div>
 </td>
@@ -161,7 +180,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/ext/mediases
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/support.v4.media.session.PlaybackStateCompat.CustomAction.html" target="_top" title="class or interface in android">android.support.v4.media.session.PlaybackStateCompat.CustomAction</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/RepeatModeActionProvider.html#getCustomAction--">getCustomAction</a></span>()</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/RepeatModeActionProvider.html#getCustomAction-com.google.android.exoplayer2.Player-">getCustomAction</a></span>(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code>
 <div class="block">Returns a <code>PlaybackStateCompat.CustomAction</code> which will be published to the media
  session by the connector or <code>null</code> if this action should not be published at the given
  player state.</div>
@@ -169,7 +188,9 @@ implements <a href="../../../../../../com/google/android/exoplayer2/ext/mediases
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/RepeatModeActionProvider.html#onCustomAction-java.lang.String-android.os.Bundle-">onCustomAction</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;action,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/RepeatModeActionProvider.html#onCustomAction-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.ControlDispatcher-java.lang.String-android.os.Bundle-">onCustomAction</a></span>(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+              <a href="../../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher,
+              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;action,
               <a href="https://developer.android.com/reference/android/os/Bundle.html" target="_top" title="class or interface in android.os">Bundle</a>&nbsp;extras)</code>
 <div class="block">Called when a custom action provided by this provider is sent to the media session.</div>
 </td>
@@ -190,46 +211,64 @@ implements <a href="../../../../../../com/google/android/exoplayer2/ext/mediases
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="DEFAULT_REPEAT_TOGGLE_MODES">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DEFAULT_REPEAT_TOGGLE_MODES</h4>
+<pre><a href="../../../../../../com/google/android/exoplayer2/util/RepeatModeUtil.RepeatToggleModes.html" title="annotation in com.google.android.exoplayer2.util">@RepeatModeUtil.RepeatToggleModes</a>
+public static final&nbsp;int DEFAULT_REPEAT_TOGGLE_MODES</pre>
+<div class="block">The default repeat toggle modes.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.ext.mediasession.RepeatModeActionProvider.DEFAULT_REPEAT_TOGGLE_MODES">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 <ul class="blockList">
 <li class="blockList"><a name="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="RepeatModeActionProvider-android.content.Context-com.google.android.exoplayer2.Player-">
+<a name="RepeatModeActionProvider-android.content.Context-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>RepeatModeActionProvider</h4>
-<pre>public&nbsp;RepeatModeActionProvider(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
-                                <a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<pre>public&nbsp;RepeatModeActionProvider(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context)</pre>
 <div class="block">Creates a new instance.
- <p>
- Equivalent to <code>RepeatModeActionProvider(context, player,
-     MediaSessionConnector.DEFAULT_REPEAT_TOGGLE_MODES)</code>.</div>
+
+ <p>Equivalent to <code>RepeatModeActionProvider(context, DEFAULT_REPEAT_TOGGLE_MODES)</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>context</code> - The context.</dd>
-<dd><code>player</code> - The player on which to toggle the repeat mode.</dd>
 </dl>
 </li>
 </ul>
-<a name="RepeatModeActionProvider-android.content.Context-com.google.android.exoplayer2.Player-int-">
+<a name="RepeatModeActionProvider-android.content.Context-int-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>RepeatModeActionProvider</h4>
 <pre>public&nbsp;RepeatModeActionProvider(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
-                                <a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                                 <a href="../../../../../../com/google/android/exoplayer2/util/RepeatModeUtil.RepeatToggleModes.html" title="annotation in com.google.android.exoplayer2.util">@RepeatModeUtil.RepeatToggleModes</a>
                                 int&nbsp;repeatToggleModes)</pre>
 <div class="block">Creates a new instance enabling the given repeat toggle modes.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>context</code> - The context.</dd>
-<dd><code>player</code> - The player on which to toggle the repeat mode.</dd>
 <dd><code>repeatToggleModes</code> - The toggle modes to enable.</dd>
 </dl>
 </li>
@@ -242,39 +281,46 @@ implements <a href="../../../../../../com/google/android/exoplayer2/ext/mediases
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="onCustomAction-java.lang.String-android.os.Bundle-">
+<a name="onCustomAction-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.ControlDispatcher-java.lang.String-android.os.Bundle-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onCustomAction</h4>
-<pre>public&nbsp;void&nbsp;onCustomAction(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;action,
+<pre>public&nbsp;void&nbsp;onCustomAction(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                           <a href="../../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher,
+                           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;action,
                            <a href="https://developer.android.com/reference/android/os/Bundle.html" target="_top" title="class or interface in android.os">Bundle</a>&nbsp;extras)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CustomActionProvider.html#onCustomAction-java.lang.String-android.os.Bundle-">MediaSessionConnector.CustomActionProvider</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CustomActionProvider.html#onCustomAction-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.ControlDispatcher-java.lang.String-android.os.Bundle-">MediaSessionConnector.CustomActionProvider</a></code></span></div>
 <div class="block">Called when a custom action provided by this provider is sent to the media session.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CustomActionProvider.html#onCustomAction-java.lang.String-android.os.Bundle-">onCustomAction</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CustomActionProvider.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CustomActionProvider</a></code></dd>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CustomActionProvider.html#onCustomAction-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.ControlDispatcher-java.lang.String-android.os.Bundle-">onCustomAction</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CustomActionProvider.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CustomActionProvider</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>player</code> - The player connected to the media session.</dd>
+<dd><code>controlDispatcher</code> - A <a href="../../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a> that should be used for dispatching
+     changes to the player.</dd>
 <dd><code>action</code> - The name of the action which was sent by a media controller.</dd>
 <dd><code>extras</code> - Optional extras sent by a media controller.</dd>
 </dl>
 </li>
 </ul>
-<a name="getCustomAction--">
+<a name="getCustomAction-com.google.android.exoplayer2.Player-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getCustomAction</h4>
-<pre>public&nbsp;<a href="https://developer.android.com/reference/android/support.v4.media.session.PlaybackStateCompat.CustomAction.html" target="_top" title="class or interface in android">android.support.v4.media.session.PlaybackStateCompat.CustomAction</a>&nbsp;getCustomAction()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CustomActionProvider.html#getCustomAction--">MediaSessionConnector.CustomActionProvider</a></code></span></div>
+<pre>public&nbsp;<a href="https://developer.android.com/reference/android/support.v4.media.session.PlaybackStateCompat.CustomAction.html" target="_top" title="class or interface in android">android.support.v4.media.session.PlaybackStateCompat.CustomAction</a>&nbsp;getCustomAction(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CustomActionProvider.html#getCustomAction-com.google.android.exoplayer2.Player-">MediaSessionConnector.CustomActionProvider</a></code></span></div>
 <div class="block">Returns a <code>PlaybackStateCompat.CustomAction</code> which will be published to the media
  session by the connector or <code>null</code> if this action should not be published at the given
  player state.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CustomActionProvider.html#getCustomAction--">getCustomAction</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CustomActionProvider.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CustomActionProvider</a></code></dd>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CustomActionProvider.html#getCustomAction-com.google.android.exoplayer2.Player-">getCustomAction</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CustomActionProvider.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CustomActionProvider</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>player</code> - The player connected to the media session.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The custom action to be included in the session playback state or <code>null</code>.</dd>
 </dl>
@@ -333,13 +379,13 @@ implements <a href="../../../../../../com/google/android/exoplayer2/ext/mediases
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>

@@ -1,0 +1,387 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<title>MediaItemQueue (ExoPlayer library)</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+<script type="text/javascript" src="../../../../../../script.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="MediaItemQueue (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a name="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a name="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.UriBundle.html" title="class in com.google.android.exoplayer2.ext.cast"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/ext/cast/SessionAvailabilityListener.html" title="interface in com.google.android.exoplayer2.ext.cast"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../../../index.html?com/google/android/exoplayer2/ext/cast/MediaItemQueue.html" target="_top">Frames</a></li>
+<li><a href="MediaItemQueue.html" target="_top">No&nbsp;Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a name="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+<!-- ======== START OF CLASS DATA ======== -->
+<div class="header">
+<div class="subTitle">com.google.android.exoplayer2.ext.cast</div>
+<h2 title="Interface MediaItemQueue" class="title">Interface MediaItemQueue</h2>
+</div>
+<div class="contentContainer">
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<hr>
+<br>
+<pre>public interface <span class="typeNameLabel">MediaItemQueue</span></pre>
+<div class="block">Represents a sequence of <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html" title="class in com.google.android.exoplayer2.ext.cast"><code>MediaItems</code></a>.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========== METHOD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItemQueue.html#add-int-com.google.android.exoplayer2.ext.cast.MediaItem...-">add</a></span>(int&nbsp;index,
+   <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem</a>...&nbsp;items)</code>
+<div class="block">Adds the given sequence of items to the queue at the given position, so that the first of
+ <code>items</code> is placed at the given index.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItemQueue.html#add-com.google.android.exoplayer2.ext.cast.MediaItem...-">add</a></span>(<a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem</a>...&nbsp;items)</code>
+<div class="block">Appends the given sequence of items to the queue.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItemQueue.html#clear--">clear</a></span>()</code>
+<div class="block">Removes all items in the queue.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItemQueue.html#get-int-">get</a></span>(int&nbsp;index)</code>
+<div class="block">Returns the item at the given index.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItemQueue.html#getSize--">getSize</a></span>()</code>
+<div class="block">Returns the number of items in this queue.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItemQueue.html#move-int-int-">move</a></span>(int&nbsp;indexFrom,
+    int&nbsp;indexTo)</code>
+<div class="block">Moves an existing item within the playlist.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItemQueue.html#remove-int-">remove</a></span>(int&nbsp;index)</code>
+<div class="block">Removes an item from the queue.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItemQueue.html#removeRange-int-int-">removeRange</a></span>(int&nbsp;from,
+           int&nbsp;exclusiveTo)</code>
+<div class="block">Removes a range of items from the queue.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="get-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>get</h4>
+<pre><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem</a>&nbsp;get(int&nbsp;index)</pre>
+<div class="block">Returns the item at the given index.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>index</code> - The index of the item to retrieve.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The item at the given index.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/IndexOutOfBoundsException.html" target="_top" title="class or interface in java.lang">IndexOutOfBoundsException</a></code> - If <code>index &lt; 0 || index &gt;= getSize()</code>.</dd>
+</dl>
+</li>
+</ul>
+<a name="getSize--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSize</h4>
+<pre>int&nbsp;getSize()</pre>
+<div class="block">Returns the number of items in this queue.</div>
+</li>
+</ul>
+<a name="add-com.google.android.exoplayer2.ext.cast.MediaItem...-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>add</h4>
+<pre>void&nbsp;add(<a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem</a>...&nbsp;items)</pre>
+<div class="block">Appends the given sequence of items to the queue.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>items</code> - The sequence of items to append.</dd>
+</dl>
+</li>
+</ul>
+<a name="add-int-com.google.android.exoplayer2.ext.cast.MediaItem...-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>add</h4>
+<pre>void&nbsp;add(int&nbsp;index,
+         <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem</a>...&nbsp;items)</pre>
+<div class="block">Adds the given sequence of items to the queue at the given position, so that the first of
+ <code>items</code> is placed at the given index.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>index</code> - The index at which <code>items</code> will be inserted.</dd>
+<dd><code>items</code> - The sequence of items to append.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/IndexOutOfBoundsException.html" target="_top" title="class or interface in java.lang">IndexOutOfBoundsException</a></code> - If <code>index &lt; 0 || index &gt; getSize()</code>.</dd>
+</dl>
+</li>
+</ul>
+<a name="move-int-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>move</h4>
+<pre>void&nbsp;move(int&nbsp;indexFrom,
+          int&nbsp;indexTo)</pre>
+<div class="block">Moves an existing item within the playlist.
+
+ <p>Calling this method is equivalent to removing the item at position <code>indexFrom</code> and
+ immediately inserting it at position <code>indexTo</code>. If the moved item is being played at the
+ moment of the invocation, playback will stick with the moved item.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>indexFrom</code> - The index of the item to move.</dd>
+<dd><code>indexTo</code> - The index at which the item will be placed after this operation.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/IndexOutOfBoundsException.html" target="_top" title="class or interface in java.lang">IndexOutOfBoundsException</a></code> - If for either index, <code>index &lt; 0 || index &gt;= getSize()</code>.</dd>
+</dl>
+</li>
+</ul>
+<a name="remove-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>remove</h4>
+<pre>void&nbsp;remove(int&nbsp;index)</pre>
+<div class="block">Removes an item from the queue.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>index</code> - The index of the item to remove from the queue.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/IndexOutOfBoundsException.html" target="_top" title="class or interface in java.lang">IndexOutOfBoundsException</a></code> - If <code>index &lt; 0 || index &gt;= getSize()</code>.</dd>
+</dl>
+</li>
+</ul>
+<a name="removeRange-int-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>removeRange</h4>
+<pre>void&nbsp;removeRange(int&nbsp;from,
+                 int&nbsp;exclusiveTo)</pre>
+<div class="block">Removes a range of items from the queue.
+
+ <p>Does nothing if an empty range (<code>from == exclusiveTo</code>) is passed.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>from</code> - The inclusive index at which the range to remove starts.</dd>
+<dd><code>exclusiveTo</code> - The exclusive index at which the range to remove ends.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/IndexOutOfBoundsException.html" target="_top" title="class or interface in java.lang">IndexOutOfBoundsException</a></code> - If <code>from &lt; 0 || exclusiveTo &gt; getSize() || from &gt;
+     exclusiveTo</code>.</dd>
+</dl>
+</li>
+</ul>
+<a name="clear--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>clear</h4>
+<pre>void&nbsp;clear()</pre>
+<div class="block">Removes all items in the queue.</div>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- ========= END OF CLASS DATA ========= -->
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a name="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a name="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.UriBundle.html" title="class in com.google.android.exoplayer2.ext.cast"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/ext/cast/SessionAvailabilityListener.html" title="interface in com.google.android.exoplayer2.ext.cast"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../../../index.html?com/google/android/exoplayer2/ext/cast/MediaItemQueue.html" target="_top">Frames</a></li>
+<li><a href="MediaItemQueue.html" target="_top">No&nbsp;Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a name="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</body>
+</html>

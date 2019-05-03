@@ -152,8 +152,8 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/la
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html#lastAccessTimestamp">lastAccessTimestamp</a></span></code>
-<div class="block">The last access timestamp, or <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html#isCached"><code>isCached</code></a> is false.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html#lastTouchTimestamp">lastTouchTimestamp</a></span></code>
+<div class="block">The last touch timestamp, or <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html#isCached"><code>isCached</code></a> is false.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -186,14 +186,15 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/la
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html#CacheSpan-java.lang.String-long-long-">CacheSpan</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
          long&nbsp;position,
          long&nbsp;length)</code>
-<div class="block">Creates a hole CacheSpan which isn't cached, has no last access time and no file associated.</div>
+<div class="block">Creates a hole CacheSpan which isn't cached, has no last touch timestamp and no file
+ associated.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html#CacheSpan-java.lang.String-long-long-long-java.io.File-">CacheSpan</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
          long&nbsp;position,
          long&nbsp;length,
-         long&nbsp;lastAccessTimestamp,
+         long&nbsp;lastTouchTimestamp,
          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;file)</code>
 <div class="block">Creates a CacheSpan.</div>
 </td>
@@ -297,19 +298,19 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/la
 <ul class="blockList">
 <li class="blockList">
 <h4>file</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>@Nullable
 public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a> file</pre>
 <div class="block">The file corresponding to this <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a>, or null if <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html#isCached"><code>isCached</code></a> is false.</div>
 </li>
 </ul>
-<a name="lastAccessTimestamp">
+<a name="lastTouchTimestamp">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>lastAccessTimestamp</h4>
-<pre>public final&nbsp;long lastAccessTimestamp</pre>
-<div class="block">The last access timestamp, or <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html#isCached"><code>isCached</code></a> is false.</div>
+<h4>lastTouchTimestamp</h4>
+<pre>public final&nbsp;long lastTouchTimestamp</pre>
+<div class="block">The last touch timestamp, or <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html#isCached"><code>isCached</code></a> is false.</div>
 </li>
 </ul>
 </li>
@@ -329,7 +330,8 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <pre>public&nbsp;CacheSpan(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
                  long&nbsp;position,
                  long&nbsp;length)</pre>
-<div class="block">Creates a hole CacheSpan which isn't cached, has no last access time and no file associated.</div>
+<div class="block">Creates a hole CacheSpan which isn't cached, has no last touch timestamp and no file
+ associated.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>key</code> - The cache key that uniquely identifies the original stream.</dd>
@@ -348,8 +350,8 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <pre>public&nbsp;CacheSpan(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
                  long&nbsp;position,
                  long&nbsp;length,
-                 long&nbsp;lastAccessTimestamp,
-                 <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                 long&nbsp;lastTouchTimestamp,
+                 @Nullable
                  <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;file)</pre>
 <div class="block">Creates a CacheSpan.</div>
 <dl>
@@ -358,7 +360,7 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <dd><code>position</code> - The position of the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> in the original stream.</dd>
 <dd><code>length</code> - The length of the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a>, or <a href="../../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if this is an
      open-ended hole.</dd>
-<dd><code>lastAccessTimestamp</code> - The last access timestamp, or <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html#isCached"><code>isCached</code></a> is false.</dd>
+<dd><code>lastTouchTimestamp</code> - The last touch timestamp, or <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html#isCached"><code>isCached</code></a> is false.</dd>
 <dd><code>file</code> - The file corresponding to this <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a>, or null if it's a hole.</dd>
 </dl>
 </li>
@@ -397,7 +399,7 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <ul class="blockListLast">
 <li class="blockList">
 <h4>compareTo</h4>
-<pre>public&nbsp;int&nbsp;compareTo(<a href="https://developer.android.com/reference/android/support.annotation.NonNull.html" target="_top" title="class or interface in android">@NonNull</a>
+<pre>public&nbsp;int&nbsp;compareTo(@NonNull
                      <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;another)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>

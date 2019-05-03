@@ -144,9 +144,9 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html#endPositionUs">endPositionUs</a></span></code>
-<div class="block">The end position of the media to play within the media period, in microseconds, or <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> if the end position is the end of the media period.</div>
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html#nextAdGroupIndex">nextAdGroupIndex</a></span></code>
+<div class="block">The index of the next ad group to which the media period's content is clipped, or <a href="../../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if there is no following ad group or if this media period is an ad.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -198,9 +198,9 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html#MediaPeriodId-java.lang.Object-long-long-">MediaPeriodId</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;periodUid,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html#MediaPeriodId-java.lang.Object-long-int-">MediaPeriodId</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;periodUid,
              long&nbsp;windowSequenceNumber,
-             long&nbsp;endPositionUs)</code>
+             int&nbsp;nextAdGroupIndex)</code>
 <div class="block">Creates a media period identifier for the specified clipped period in the timeline.</div>
 </td>
 </tr>
@@ -305,17 +305,14 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
  windows.</div>
 </li>
 </ul>
-<a name="endPositionUs">
+<a name="nextAdGroupIndex">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>endPositionUs</h4>
-<pre>public final&nbsp;long endPositionUs</pre>
-<div class="block">The end position of the media to play within the media period, in microseconds, or <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> if the end position is the end of the media period.
-
- <p>Note that this only applies if the media period is for content (i.e., not for an ad) and
- is clipped to the position of the next ad group.</div>
+<h4>nextAdGroupIndex</h4>
+<pre>public final&nbsp;int nextAdGroupIndex</pre>
+<div class="block">The index of the next ad group to which the media period's content is clipped, or <a href="../../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if there is no following ad group or if this media period is an ad.</div>
 </li>
 </ul>
 </li>
@@ -358,7 +355,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </dl>
 </li>
 </ul>
-<a name="MediaPeriodId-java.lang.Object-long-long-">
+<a name="MediaPeriodId-java.lang.Object-long-int-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -366,15 +363,15 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <h4>MediaPeriodId</h4>
 <pre>public&nbsp;MediaPeriodId(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;periodUid,
                      long&nbsp;windowSequenceNumber,
-                     long&nbsp;endPositionUs)</pre>
+                     int&nbsp;nextAdGroupIndex)</pre>
 <div class="block">Creates a media period identifier for the specified clipped period in the timeline.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>periodUid</code> - The unique id of the timeline period.</dd>
 <dd><code>windowSequenceNumber</code> - The sequence number of the window in the buffered sequence of
      windows this media period is part of.</dd>
-<dd><code>endPositionUs</code> - The end position of the media period within the timeline period, in
-     microseconds.</dd>
+<dd><code>nextAdGroupIndex</code> - The index of the next ad group to which the media period's content is
+     clipped.</dd>
 </dl>
 </li>
 </ul>
@@ -434,7 +431,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>equals</h4>
-<pre>public&nbsp;boolean&nbsp;equals(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>public&nbsp;boolean&nbsp;equals(@Nullable
                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;obj)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>

@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6};
+var methods = {"i0":6,"i1":6,"i2":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -139,8 +139,15 @@ extends <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html#onStartFile-com.google.android.exoplayer2.upstream.cache.Cache-java.lang.String-long-long-">onStartFile</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
            long&nbsp;position,
-           long&nbsp;maxLength)</code>
+           long&nbsp;length)</code>
 <div class="block">Called when a writer starts writing to the cache.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html#requiresCacheSpanTouches--">requiresCacheSpanTouches</a></span>()</code>
+<div class="block">Returns whether the evictor requires the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>Cache</code></a> to touch <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpans</code></a>
+ when it accesses them.</div>
 </td>
 </tr>
 </table>
@@ -165,6 +172,18 @@ extends <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="requiresCacheSpanTouches--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>requiresCacheSpanTouches</h4>
+<pre>boolean&nbsp;requiresCacheSpanTouches()</pre>
+<div class="block">Returns whether the evictor requires the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>Cache</code></a> to touch <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpans</code></a>
+ when it accesses them. Implementations that do not use <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html#lastTouchTimestamp"><code>CacheSpan.lastTouchTimestamp</code></a>
+ should return <code>false</code>.</div>
+</li>
+</ul>
 <a name="onCacheInitialized--">
 <!--   -->
 </a>
@@ -184,14 +203,14 @@ extends <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/
 <pre>void&nbsp;onStartFile(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
                  <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
                  long&nbsp;position,
-                 long&nbsp;maxLength)</pre>
+                 long&nbsp;length)</pre>
 <div class="block">Called when a writer starts writing to the cache.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>cache</code> - The source of the event.</dd>
 <dd><code>key</code> - The key being written.</dd>
 <dd><code>position</code> - The starting position of the data being written.</dd>
-<dd><code>maxLength</code> - The maximum length of the data being written.</dd>
+<dd><code>length</code> - The length of the data being written, or <a href="../../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if unknown.</dd>
 </dl>
 </li>
 </ul>

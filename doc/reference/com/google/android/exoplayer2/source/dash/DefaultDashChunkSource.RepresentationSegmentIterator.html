@@ -156,7 +156,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ba
 </tr>
 <tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationSegmentIterator.html#RepresentationSegmentIterator-com.google.android.exoplayer2.source.dash.DefaultDashChunkSource.RepresentationHolder-long-long-">RepresentationSegmentIterator</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationHolder.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationHolder</a>&nbsp;representation,
-                             long&nbsp;segmentNum,
+                             long&nbsp;firstAvailableSegmentNum,
                              long&nbsp;lastAvailableSegmentNum)</code>
 <div class="block">Creates iterator.</div>
 </td>
@@ -200,7 +200,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ba
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.source.chunk.<a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkIterator.html" title="class in com.google.android.exoplayer2.source.chunk">BaseMediaChunkIterator</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkIterator.html#checkInBounds--">checkInBounds</a>, <a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkIterator.html#getCurrentIndex--">getCurrentIndex</a>, <a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkIterator.html#isEnded--">isEnded</a>, <a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkIterator.html#next--">next</a></code></li>
+<code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkIterator.html#checkInBounds--">checkInBounds</a>, <a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkIterator.html#getCurrentIndex--">getCurrentIndex</a>, <a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkIterator.html#isEnded--">isEnded</a>, <a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkIterator.html#next--">next</a>, <a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkIterator.html#reset--">reset</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -230,13 +230,13 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ba
 <li class="blockList">
 <h4>RepresentationSegmentIterator</h4>
 <pre>public&nbsp;RepresentationSegmentIterator(<a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationHolder.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationHolder</a>&nbsp;representation,
-                                     long&nbsp;segmentNum,
+                                     long&nbsp;firstAvailableSegmentNum,
                                      long&nbsp;lastAvailableSegmentNum)</pre>
 <div class="block">Creates iterator.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>representation</code> - The <a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationHolder.html" title="class in com.google.android.exoplayer2.source.dash"><code>DefaultDashChunkSource.RepresentationHolder</code></a> to wrap.</dd>
-<dd><code>segmentNum</code> - The number of the segment this iterator will be pointing to initially.</dd>
+<dd><code>firstAvailableSegmentNum</code> - The number of the first available segment.</dd>
 <dd><code>lastAvailableSegmentNum</code> - The number of the last available segment.</dd>
 </dl>
 </li>

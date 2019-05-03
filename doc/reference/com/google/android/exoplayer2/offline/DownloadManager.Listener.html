@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var methods = {"i0":18,"i1":18,"i2":18,"i3":18,"i4":18};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.TaskState.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/offline/DownloadProgress.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/offline/DownloadManager.Listener.html" target="_top">Frames</a></li>
@@ -117,28 +117,43 @@ var activeTableTab = "activeTableTab";
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.Listener.html#onIdle-com.google.android.exoplayer2.offline.DownloadManager-">onIdle</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a>&nbsp;downloadManager)</code>
-<div class="block">Called when there is no active task left.</div>
+<td class="colFirst"><code>default void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.Listener.html#onDownloadChanged-com.google.android.exoplayer2.offline.DownloadManager-com.google.android.exoplayer2.offline.Download-">onDownloadChanged</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a>&nbsp;downloadManager,
+                 <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&nbsp;download)</code>
+<div class="block">Called when the state of a download changes.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.Listener.html#onInitialized-com.google.android.exoplayer2.offline.DownloadManager-">onInitialized</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a>&nbsp;downloadManager)</code>
-<div class="block">Called when all actions have been restored.</div>
+<td class="colFirst"><code>default void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.Listener.html#onDownloadRemoved-com.google.android.exoplayer2.offline.DownloadManager-com.google.android.exoplayer2.offline.Download-">onDownloadRemoved</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a>&nbsp;downloadManager,
+                 <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&nbsp;download)</code>
+<div class="block">Called when a download is removed.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.Listener.html#onTaskStateChanged-com.google.android.exoplayer2.offline.DownloadManager-com.google.android.exoplayer2.offline.DownloadManager.TaskState-">onTaskStateChanged</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a>&nbsp;downloadManager,
-                  <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.TaskState.html" title="class in com.google.android.exoplayer2.offline">DownloadManager.TaskState</a>&nbsp;taskState)</code>
-<div class="block">Called when the state of a task changes.</div>
+<td class="colFirst"><code>default void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.Listener.html#onIdle-com.google.android.exoplayer2.offline.DownloadManager-">onIdle</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a>&nbsp;downloadManager)</code>
+<div class="block">Called when there is no active download left.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>default void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.Listener.html#onInitialized-com.google.android.exoplayer2.offline.DownloadManager-">onInitialized</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a>&nbsp;downloadManager)</code>
+<div class="block">Called when all downloads have been restored.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>default void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.Listener.html#onRequirementsStateChanged-com.google.android.exoplayer2.offline.DownloadManager-com.google.android.exoplayer2.scheduler.Requirements-int-">onRequirementsStateChanged</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a>&nbsp;downloadManager,
+                          <a href="../../../../../com/google/android/exoplayer2/scheduler/Requirements.html" title="class in com.google.android.exoplayer2.scheduler">Requirements</a>&nbsp;requirements,
+                          int&nbsp;notMetRequirements)</code>
+<div class="block">Called when the download requirements state changed.</div>
 </td>
 </tr>
 </table>
@@ -162,41 +177,77 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>onInitialized</h4>
-<pre>void&nbsp;onInitialized(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a>&nbsp;downloadManager)</pre>
-<div class="block">Called when all actions have been restored.</div>
+<pre>default&nbsp;void&nbsp;onInitialized(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a>&nbsp;downloadManager)</pre>
+<div class="block">Called when all downloads have been restored.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>downloadManager</code> - The reporting instance.</dd>
 </dl>
 </li>
 </ul>
-<a name="onTaskStateChanged-com.google.android.exoplayer2.offline.DownloadManager-com.google.android.exoplayer2.offline.DownloadManager.TaskState-">
+<a name="onDownloadChanged-com.google.android.exoplayer2.offline.DownloadManager-com.google.android.exoplayer2.offline.Download-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>onTaskStateChanged</h4>
-<pre>void&nbsp;onTaskStateChanged(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a>&nbsp;downloadManager,
-                        <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.TaskState.html" title="class in com.google.android.exoplayer2.offline">DownloadManager.TaskState</a>&nbsp;taskState)</pre>
-<div class="block">Called when the state of a task changes.</div>
+<h4>onDownloadChanged</h4>
+<pre>default&nbsp;void&nbsp;onDownloadChanged(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a>&nbsp;downloadManager,
+                               <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&nbsp;download)</pre>
+<div class="block">Called when the state of a download changes.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>downloadManager</code> - The reporting instance.</dd>
-<dd><code>taskState</code> - The state of the task.</dd>
+<dd><code>download</code> - The state of the download.</dd>
+</dl>
+</li>
+</ul>
+<a name="onDownloadRemoved-com.google.android.exoplayer2.offline.DownloadManager-com.google.android.exoplayer2.offline.Download-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onDownloadRemoved</h4>
+<pre>default&nbsp;void&nbsp;onDownloadRemoved(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a>&nbsp;downloadManager,
+                               <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&nbsp;download)</pre>
+<div class="block">Called when a download is removed.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>downloadManager</code> - The reporting instance.</dd>
+<dd><code>download</code> - The last state of the download before it was removed.</dd>
 </dl>
 </li>
 </ul>
 <a name="onIdle-com.google.android.exoplayer2.offline.DownloadManager-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>onIdle</h4>
-<pre>void&nbsp;onIdle(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a>&nbsp;downloadManager)</pre>
-<div class="block">Called when there is no active task left.</div>
+<pre>default&nbsp;void&nbsp;onIdle(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a>&nbsp;downloadManager)</pre>
+<div class="block">Called when there is no active download left.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>downloadManager</code> - The reporting instance.</dd>
+</dl>
+</li>
+</ul>
+<a name="onRequirementsStateChanged-com.google.android.exoplayer2.offline.DownloadManager-com.google.android.exoplayer2.scheduler.Requirements-int-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>onRequirementsStateChanged</h4>
+<pre>default&nbsp;void&nbsp;onRequirementsStateChanged(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a>&nbsp;downloadManager,
+                                        <a href="../../../../../com/google/android/exoplayer2/scheduler/Requirements.html" title="class in com.google.android.exoplayer2.scheduler">Requirements</a>&nbsp;requirements,
+                                        <a href="../../../../../com/google/android/exoplayer2/scheduler/Requirements.RequirementFlags.html" title="annotation in com.google.android.exoplayer2.scheduler">@Requirements.RequirementFlags</a>
+                                        int&nbsp;notMetRequirements)</pre>
+<div class="block">Called when the download requirements state changed.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>downloadManager</code> - The reporting instance.</dd>
+<dd><code>requirements</code> - Requirements needed to be met to start downloads.</dd>
+<dd><code>notMetRequirements</code> - <code>RequirementFlags</code> that are not
+     met, or 0.</dd>
 </dl>
 </li>
 </ul>
@@ -228,7 +279,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.TaskState.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/offline/DownloadProgress.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/offline/DownloadManager.Listener.html" target="_top">Frames</a></li>

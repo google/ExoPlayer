@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6,"i15":6,"i16":6,"i17":18,"i18":6,"i19":6};
+var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6,"i15":6,"i16":6,"i17":6,"i18":6,"i19":18,"i20":6,"i21":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -219,63 +219,70 @@ extends <a href="../../../../com/google/android/exoplayer2/PlayerMessage.Target.
 </td>
 </tr>
 <tr id="i4" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Renderer.html#getReadingPositionUs--">getReadingPositionUs</a></span>()</code>
+<div class="block">Returns the playback position up to which the renderer has read samples from the current <a href="../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>, in microseconds, or <a href="../../../../com/google/android/exoplayer2/C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> if the renderer has read the
+ current <a href="../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> to the end.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Renderer.html#getState--">getState</a></span>()</code>
 <div class="block">Returns the current state of the renderer.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source">SampleStream</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Renderer.html#getStream--">getStream</a></span>()</code>
 <div class="block">Returns the <a href="../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> being consumed, or null if the renderer is disabled.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Renderer.html#getTrackType--">getTrackType</a></span>()</code>
 <div class="block">Returns the track type that the <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> handles.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Renderer.html#hasReadStreamToEnd--">hasReadStreamToEnd</a></span>()</code>
 <div class="block">Returns whether the renderer has read the current <a href="../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> to the end.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Renderer.html#isCurrentStreamFinal--">isCurrentStreamFinal</a></span>()</code>
 <div class="block">Returns whether the current <a href="../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> will be the final one supplied before the
  renderer is next disabled or reset.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Renderer.html#isEnded--">isEnded</a></span>()</code>
 <div class="block">Whether the renderer is ready for the <a href="../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer</code></a> instance to transition to
  <a href="../../../../com/google/android/exoplayer2/Player.html#STATE_ENDED"><code>Player.STATE_ENDED</code></a>.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Renderer.html#isReady--">isReady</a></span>()</code>
 <div class="block">Whether the renderer is able to immediately render media from the current position.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Renderer.html#maybeThrowStreamError--">maybeThrowStreamError</a></span>()</code>
 <div class="block">Throws an error that's preventing the renderer from reading from its <a href="../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Renderer.html#render-long-long-">render</a></span>(long&nbsp;positionUs,
       long&nbsp;elapsedRealtimeUs)</code>
 <div class="block">Incrementally renders the <a href="../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Renderer.html#replaceStream-com.google.android.exoplayer2.Format:A-com.google.android.exoplayer2.source.SampleStream-long-">replaceStream</a></span>(<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>[]&nbsp;formats,
              <a href="../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source">SampleStream</a>&nbsp;stream,
@@ -283,40 +290,46 @@ extends <a href="../../../../com/google/android/exoplayer2/PlayerMessage.Target.
 <div class="block">Replaces the <a href="../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> from which samples will be consumed.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Renderer.html#reset--">reset</a></span>()</code>
+<div class="block">Forces the renderer to give up any resources (e.g.</div>
+</td>
+</tr>
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Renderer.html#resetPosition-long-">resetPosition</a></span>(long&nbsp;positionUs)</code>
 <div class="block">Signals to the renderer that a position discontinuity has occurred.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Renderer.html#setCurrentStreamFinal--">setCurrentStreamFinal</a></span>()</code>
 <div class="block">Signals to the renderer that the current <a href="../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> will be the final one supplied
  before it is next disabled or reset.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Renderer.html#setIndex-int-">setIndex</a></span>(int&nbsp;index)</code>
 <div class="block">Sets the index of this renderer within the player.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Renderer.html#setOperatingRate-float-">setOperatingRate</a></span>(float&nbsp;operatingRate)</code>
 <div class="block">Sets the operating rate of this renderer, where 1 is the default rate, 2 is twice the default
  rate, 0.5 is half the default rate and so on.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Renderer.html#start--">start</a></span>()</code>
 <div class="block">Starts the renderer, meaning that calls to <a href="../../../../com/google/android/exoplayer2/Renderer.html#render-long-long-"><code>render(long, long)</code></a> will cause media to be
  rendered.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Renderer.html#stop--">stop</a></span>()</code>
 <div class="block">Stops the renderer, transitioning it to the <a href="../../../../com/google/android/exoplayer2/Renderer.html#STATE_ENABLED"><code>STATE_ENABLED</code></a> state.</div>
@@ -351,7 +364,9 @@ extends <a href="../../../../com/google/android/exoplayer2/PlayerMessage.Target.
 <li class="blockList">
 <h4>STATE_DISABLED</h4>
 <pre>static final&nbsp;int STATE_DISABLED</pre>
-<div class="block">The renderer is disabled.</div>
+<div class="block">The renderer is disabled. A renderer in this state may hold resources that it requires for
+ rendering (e.g. media decoders), for use if it's subsequently enabled. <a href="../../../../com/google/android/exoplayer2/Renderer.html#reset--"><code>reset()</code></a> can be
+ called to force the renderer to release these resources.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.Renderer.STATE_DISABLED">Constant Field Values</a></dd>
@@ -365,8 +380,10 @@ extends <a href="../../../../com/google/android/exoplayer2/PlayerMessage.Target.
 <li class="blockList">
 <h4>STATE_ENABLED</h4>
 <pre>static final&nbsp;int STATE_ENABLED</pre>
-<div class="block">The renderer is enabled but not started. A renderer in this state is not actively rendering
- media, but will typically hold resources that it requires for rendering (e.g. media decoders).</div>
+<div class="block">The renderer is enabled but not started. A renderer in this state may render media at the
+ current position (e.g. an initial video frame), but the position will not advance. A renderer
+ in this state will typically hold resources that it requires for rendering (e.g. media
+ decoders).</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.Renderer.STATE_ENABLED">Constant Field Values</a></dd>
@@ -569,6 +586,19 @@ int&nbsp;getState()</pre>
  <a href="../../../../com/google/android/exoplayer2/Renderer.html#STATE_ENABLED"><code>STATE_ENABLED</code></a>, <a href="../../../../com/google/android/exoplayer2/Renderer.html#STATE_STARTED"><code>STATE_STARTED</code></a>.</div>
 </li>
 </ul>
+<a name="getReadingPositionUs--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getReadingPositionUs</h4>
+<pre>long&nbsp;getReadingPositionUs()</pre>
+<div class="block">Returns the playback position up to which the renderer has read samples from the current <a href="../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>, in microseconds, or <a href="../../../../com/google/android/exoplayer2/C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> if the renderer has read the
+ current <a href="../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> to the end.
+
+ <p>This method may be called when the renderer is in the following states: <a href="../../../../com/google/android/exoplayer2/Renderer.html#STATE_ENABLED"><code>STATE_ENABLED</code></a>, <a href="../../../../com/google/android/exoplayer2/Renderer.html#STATE_STARTED"><code>STATE_STARTED</code></a>.</div>
+</li>
+</ul>
 <a name="setCurrentStreamFinal--">
 <!--   -->
 </a>
@@ -755,7 +785,7 @@ int&nbsp;getState()</pre>
 <a name="disable--">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>disable</h4>
 <pre>void&nbsp;disable()</pre>
@@ -763,6 +793,19 @@ int&nbsp;getState()</pre>
  <p>
  This method may be called when the renderer is in the following states:
  <a href="../../../../com/google/android/exoplayer2/Renderer.html#STATE_ENABLED"><code>STATE_ENABLED</code></a>.</div>
+</li>
+</ul>
+<a name="reset--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>reset</h4>
+<pre>void&nbsp;reset()</pre>
+<div class="block">Forces the renderer to give up any resources (e.g. media decoders) that it may be holding. If
+ the renderer is not holding any resources, the call is a no-op.
+
+ <p>This method may be called when the renderer is in the following states: <a href="../../../../com/google/android/exoplayer2/Renderer.html#STATE_DISABLED"><code>STATE_DISABLED</code></a>.</div>
 </li>
 </ul>
 </li>
