@@ -21,7 +21,7 @@
   <string name="exo_download_removing">Odstraňování staženého obsahu</string>
   <string name="exo_track_selection_title_video">Videa</string>
   <string name="exo_track_selection_title_audio">Zvuk</string>
-  <string name="exo_track_selection_title_text">SMS</string>
+  <string name="exo_track_selection_title_text">Text</string>
   <string name="exo_track_selection_none">Žádné</string>
   <string name="exo_track_selection_auto">Automaticky</string>
   <string name="exo_track_unknown">Neznámé</string>

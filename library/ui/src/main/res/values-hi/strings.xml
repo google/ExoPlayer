@@ -31,8 +31,8 @@
   <string name="exo_track_surround">सराउंड साउंड</string>
   <string name="exo_track_surround_5_point_1">5.1 सराउंड साउंड</string>
   <string name="exo_track_surround_7_point_1">7.1 सराउंड साउंड</string>
-  <string name="exo_track_role_alternate">वैकल्पिक</string>
-  <string name="exo_track_role_supplementary">अतिरिक्त</string>
+  <string name="exo_track_role_alternate">विकल्प</string>
+  <string name="exo_track_role_supplementary">सप्लिमेंट्री</string>
   <string name="exo_track_role_commentary">कमेंट्री</string>
   <string name="exo_track_role_closed_captions">सबटाइटल</string>
   <string name="exo_track_bitrate">%1$.2f एमबीपीएस</string>

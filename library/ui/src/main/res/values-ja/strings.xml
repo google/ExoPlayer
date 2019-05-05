@@ -21,7 +21,7 @@
   <string name="exo_download_removing">ダウンロードを削除しています</string>
   <string name="exo_track_selection_title_video">動画</string>
   <string name="exo_track_selection_title_audio">音声</string>
-  <string name="exo_track_selection_title_text">SMS</string>
+  <string name="exo_track_selection_title_text">文字</string>
   <string name="exo_track_selection_none">なし</string>
   <string name="exo_track_selection_auto">自動</string>
   <string name="exo_track_unknown">不明</string>
