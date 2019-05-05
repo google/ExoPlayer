@@ -89,6 +89,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    * efficiently when the index is next stored.
    */
   private final SparseBooleanArray removedIds;
+  /** Tracks ids that are new since the index was last stored. */
+  private final SparseBooleanArray newIds;
 
   private Storage storage;
   @Nullable private Storage previousStorage;
@@ -150,6 +152,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     keyToContent = new HashMap<>();
     idToKey = new SparseArray<>();
     removedIds = new SparseBooleanArray();
+    newIds = new SparseBooleanArray();
     Storage databaseStorage =
         databaseProvider != null ? new DatabaseStorage(databaseProvider) : null;
     Storage legacyStorage =
@@ -206,6 +209,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       idToKey.remove(removedIds.keyAt(i));
     }
     removedIds.clear();
+    newIds.clear();
   }
 
   /**
@@ -250,11 +254,19 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     CachedContent cachedContent = keyToContent.get(key);
     if (cachedContent != null && cachedContent.isEmpty() && !cachedContent.isLocked()) {
       keyToContent.remove(key);
-      storage.onRemove(cachedContent);
-      // Keep an entry in idToKey to stop the id from being reused until the index is next stored.
-      idToKey.put(cachedContent.id, /* value= */ null);
-      // Track that the entry should be removed from idToKey when the index is next stored.
-      removedIds.put(cachedContent.id, /* value= */ true);
+      int id = cachedContent.id;
+      boolean neverStored = newIds.get(id);
+      storage.onRemove(cachedContent, neverStored);
+      if (neverStored) {
+        // The id can be reused immediately.
+        idToKey.remove(id);
+        newIds.delete(id);
+      } else {
+        // Keep an entry in idToKey to stop the id from being reused until the index is next stored,
+        // and add an entry to removedIds to track that it should be removed when this does happen.
+        idToKey.put(id, /* value= */ null);
+        removedIds.put(id, /* value= */ true);
+      }
     }
   }
 
@@ -297,8 +309,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   private CachedContent addNew(String key) {
     int id = getNewId(idToKey);
     CachedContent cachedContent = new CachedContent(id, key);
-    keyToContent.put(cachedContent.key, cachedContent);
-    idToKey.put(cachedContent.id, cachedContent.key);
+    keyToContent.put(key, cachedContent);
+    idToKey.put(id, key);
+    newIds.put(id, true);
     storage.onUpdate(cachedContent);
     return cachedContent;
   }
@@ -435,7 +448,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     /**
      * Ensures incremental changes to the index since the initial {@link #initialize(long)} or last
      * {@link #storeFully(HashMap)} are persisted. The storage will have been notified of all such
-     * changes via {@link #onUpdate(CachedContent)} and {@link #onRemove(CachedContent)}.
+     * changes via {@link #onUpdate(CachedContent)} and {@link #onRemove(CachedContent, boolean)}.
      *
      * @param content The key to content map to persist.
      * @throws IOException If an error occurs persisting the index.
@@ -453,8 +466,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
      * Called when a {@link CachedContent} is removed.
      *
      * @param cachedContent The removed {@link CachedContent}.
+     * @param neverStored True if the {@link CachedContent} was added more recently than when the
+     *     index was last stored.
      */
-    void onRemove(CachedContent cachedContent);
+    void onRemove(CachedContent cachedContent, boolean neverStored);
   }
 
   /** {@link Storage} implementation that uses an {@link AtomicFile}. */
@@ -540,7 +555,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
 
     @Override
-    public void onRemove(CachedContent cachedContent) {
+    public void onRemove(CachedContent cachedContent, boolean neverStored) {
       changed = true;
     }
 
@@ -856,8 +871,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
 
     @Override
-    public void onRemove(CachedContent cachedContent) {
-      pendingUpdates.put(cachedContent.id, null);
+    public void onRemove(CachedContent cachedContent, boolean neverStored) {
+      if (neverStored) {
+        pendingUpdates.delete(cachedContent.id);
+      } else {
+        pendingUpdates.put(cachedContent.id, null);
+      }
     }
 
     private Cursor getCursor() {
