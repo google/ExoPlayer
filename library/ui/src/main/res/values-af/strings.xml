@@ -21,7 +21,7 @@
   <string name="exo_download_removing">Verwyder tans aflaaie</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Oudio</string>
-  <string name="exo_track_selection_title_text">SMS</string>
+  <string name="exo_track_selection_title_text">Teks</string>
   <string name="exo_track_selection_none">Geen</string>
   <string name="exo_track_selection_auto">Outo</string>
   <string name="exo_track_unknown">Onbekend</string>
