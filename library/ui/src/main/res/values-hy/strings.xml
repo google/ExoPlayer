@@ -35,6 +35,6 @@
   <string name="exo_track_role_supplementary">Լրացուցիչ</string>
   <string name="exo_track_role_commentary">Մեկնաբանություններ</string>
   <string name="exo_track_role_closed_captions">Ենթագրեր</string>
-  <string name="exo_track_bitrate">%1$.2f մբ/վ</string>
+  <string name="exo_track_bitrate">%1$.2f Մբիթ/վ</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>
