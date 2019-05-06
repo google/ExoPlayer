@@ -255,10 +255,24 @@ creating the `DownloadManager`, as in the example [above][].
 When a download cannot proceed because the maximum number of parallel downloads
 are already in progress, it will be in the `Download.STATE_QUEUED` state.
 
-## Listening to download state changes ##
+## Querying downloads ##
 
-You can add a listener to `DownloadManager` to be informed of changes in
-download state:
+The `DownloadIndex` of a `DownloadManager` can be queried for the state of all
+downloads, including those that have completed or failed. The `DownloadIndex`
+can be obtained by calling `DownloadManager.getDownloadIndex()`. A cursor that
+iterates over all downloads can then be obtained by calling
+`DownloadIndex.getDownloads()`. Alternatively, the state of a single download
+can be queried by calling `DownloadIndex.getDownload()`.
+
+`DownloadManager` also provides `DownloadManager.getCurrentDownloads()`, which
+returns the state of current (i.e. not completed or failed) downloads only. This
+method is useful for updating notifications and other UI components that display
+the progress and status of current downloads.
+
+## Listening to downloads ##
+
+You can add a listener to `DownloadManager` to be informed when current
+downloads change state:
 
 ~~~
 downloadManager.addListener(
