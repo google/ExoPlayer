@@ -42,7 +42,7 @@ default:
 sources:
   bootcdn:
     font_awesome: 'https://use.fontawesome.com/releases/v5.0.13/css/all.css'
-    jquery: 'https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js'
+    jquery: 'https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js'
     leancloud_js_sdk: '//cdn1.lncld.net/static/js/3.4.1/av-min.js'
     chart: 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js'
     gitalk:
