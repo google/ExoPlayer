@@ -272,4 +272,9 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   public long getContentBufferedPosition() {
     throw new UnsupportedOperationException();
   }
+
+  @Override
+  public void setForegroundMode(boolean foregroundMode) {
+    throw new UnsupportedOperationException();
+  }
 }

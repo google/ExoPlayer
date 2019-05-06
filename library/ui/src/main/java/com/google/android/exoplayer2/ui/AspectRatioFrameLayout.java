@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.ui;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
 import java.lang.annotation.Documented;

@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.text.subrip;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
@@ -247,8 +247,11 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
       case Cue.ANCHOR_TYPE_MIDDLE:
         return SubripDecoder.MID_FRACTION;
       case Cue.ANCHOR_TYPE_END:
-      default:
         return SubripDecoder.END_FRACTION;
+      case Cue.TYPE_UNSET:
+      default:
+        // Should never happen.
+        throw new IllegalArgumentException();
     }
   }
 }

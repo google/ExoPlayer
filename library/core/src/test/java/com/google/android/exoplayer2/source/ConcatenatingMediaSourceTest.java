@@ -18,10 +18,10 @@ package com.google.android.exoplayer2.source;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 import android.os.ConditionVariable;
 import android.os.Handler;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
@@ -44,11 +44,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 /** Unit tests for {@link ConcatenatingMediaSource}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 @Config(shadows = {RobolectricUtil.CustomLooper.class, RobolectricUtil.CustomMessageQueue.class})
 public final class ConcatenatingMediaSourceTest {
 
@@ -417,60 +416,101 @@ public final class ConcatenatingMediaSourceTest {
 
   @Test
   public void testCustomCallbackBeforePreparationAddSingle() {
-    Runnable runnable = mock(Runnable.class);
+    ConditionVariable runnableInvoked = new ConditionVariable();
 
-    mediaSource.addMediaSource(createFakeMediaSource(), new Handler(), runnable);
-    verify(runnable).run();
+    DummyMainThread dummyMainThread = new DummyMainThread();
+    dummyMainThread.runOnMainThread(
+        () ->
+            mediaSource.addMediaSource(
+                createFakeMediaSource(), new Handler(), runnableInvoked::open));
+    runnableInvoked.block(MediaSourceTestRunner.TIMEOUT_MS);
+    dummyMainThread.release();
+
+    assertThat(runnableInvoked.block(0)).isTrue();
   }
 
   @Test
   public void testCustomCallbackBeforePreparationAddMultiple() {
-    Runnable runnable = mock(Runnable.class);
+    ConditionVariable runnableInvoked = new ConditionVariable();
 
-    mediaSource.addMediaSources(
-        Arrays.asList(new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}),
-        new Handler(),
-        runnable);
-    verify(runnable).run();
+    DummyMainThread dummyMainThread = new DummyMainThread();
+    dummyMainThread.runOnMainThread(
+        () ->
+            mediaSource.addMediaSources(
+                Arrays.asList(new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}),
+                new Handler(),
+                runnableInvoked::open));
+    runnableInvoked.block(MediaSourceTestRunner.TIMEOUT_MS);
+    dummyMainThread.release();
+
+    assertThat(runnableInvoked.block(0)).isTrue();
   }
 
   @Test
   public void testCustomCallbackBeforePreparationAddSingleWithIndex() {
-    Runnable runnable = mock(Runnable.class);
+    ConditionVariable runnableInvoked = new ConditionVariable();
 
-    mediaSource.addMediaSource(/* index */ 0, createFakeMediaSource(), new Handler(), runnable);
-    verify(runnable).run();
+    DummyMainThread dummyMainThread = new DummyMainThread();
+    dummyMainThread.runOnMainThread(
+        () ->
+            mediaSource.addMediaSource(
+                /* index */ 0, createFakeMediaSource(), new Handler(), runnableInvoked::open));
+    runnableInvoked.block(MediaSourceTestRunner.TIMEOUT_MS);
+    dummyMainThread.release();
+
+    assertThat(runnableInvoked.block(0)).isTrue();
   }
 
   @Test
   public void testCustomCallbackBeforePreparationAddMultipleWithIndex() {
-    Runnable runnable = mock(Runnable.class);
+    ConditionVariable runnableInvoked = new ConditionVariable();
 
-    mediaSource.addMediaSources(
-        /* index */ 0,
-        Arrays.asList(new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}),
-        new Handler(),
-        runnable);
-    verify(runnable).run();
+    DummyMainThread dummyMainThread = new DummyMainThread();
+    dummyMainThread.runOnMainThread(
+        () ->
+            mediaSource.addMediaSources(
+                /* index */ 0,
+                Arrays.asList(new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}),
+                new Handler(),
+                runnableInvoked::open));
+    runnableInvoked.block(MediaSourceTestRunner.TIMEOUT_MS);
+    dummyMainThread.release();
+
+    assertThat(runnableInvoked.block(0)).isTrue();
   }
 
   @Test
   public void testCustomCallbackBeforePreparationRemove() {
-    Runnable runnable = mock(Runnable.class);
+    ConditionVariable runnableInvoked = new ConditionVariable();
 
-    mediaSource.addMediaSource(createFakeMediaSource());
-    mediaSource.removeMediaSource(/* index */ 0, new Handler(), runnable);
-    verify(runnable).run();
+    DummyMainThread dummyMainThread = new DummyMainThread();
+    dummyMainThread.runOnMainThread(
+        () -> {
+          mediaSource.addMediaSource(createFakeMediaSource());
+          mediaSource.removeMediaSource(/* index */ 0, new Handler(), runnableInvoked::open);
+        });
+    runnableInvoked.block(MediaSourceTestRunner.TIMEOUT_MS);
+    dummyMainThread.release();
+
+    assertThat(runnableInvoked.block(0)).isTrue();
   }
 
   @Test
   public void testCustomCallbackBeforePreparationMove() {
-    Runnable runnable = mock(Runnable.class);
+    ConditionVariable runnableInvoked = new ConditionVariable();
 
-    mediaSource.addMediaSources(
-        Arrays.asList(new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}));
-    mediaSource.moveMediaSource(/* fromIndex */ 1, /* toIndex */ 0, new Handler(), runnable);
-    verify(runnable).run();
+    DummyMainThread dummyMainThread = new DummyMainThread();
+    dummyMainThread.runOnMainThread(
+        () -> {
+          mediaSource.addMediaSources(
+              Arrays.asList(new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}));
+          mediaSource.moveMediaSource(
+              /* fromIndex */ 1, /* toIndex */ 0, new Handler(), runnableInvoked::open);
+        });
+    runnableInvoked.block(MediaSourceTestRunner.TIMEOUT_MS);
+    dummyMainThread.release();
+
+    assertThat(runnableInvoked.block(0)).isTrue();
   }
 
   @Test
@@ -584,6 +624,29 @@ public final class ConcatenatingMediaSourceTest {
                   /* fromIndex */ 1, /* toIndex */ 0, new Handler(), timelineGrabber));
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
       assertThat(timeline.getWindowCount()).isEqualTo(2);
+    } finally {
+      dummyMainThread.release();
+    }
+  }
+
+  @Test
+  public void testCustomCallbackIsCalledAfterRelease() throws IOException {
+    DummyMainThread dummyMainThread = new DummyMainThread();
+    ConditionVariable callbackCalledCondition = new ConditionVariable();
+    try {
+      dummyMainThread.runOnMainThread(
+          () -> {
+            SourceInfoRefreshListener listener = mock(SourceInfoRefreshListener.class);
+            mediaSource.addMediaSources(Arrays.asList(createMediaSources(2)));
+            mediaSource.prepareSource(listener, /* mediaTransferListener= */ null);
+            mediaSource.moveMediaSource(
+                /* currentIndex= */ 0,
+                /* newIndex= */ 1,
+                new Handler(),
+                callbackCalledCondition::open);
+            mediaSource.releaseSource(listener);
+          });
+      assertThat(callbackCalledCondition.block(MediaSourceTestRunner.TIMEOUT_MS)).isTrue();
     } finally {
       dummyMainThread.release();
     }
@@ -974,11 +1037,19 @@ public final class ConcatenatingMediaSourceTest {
 
   @Test
   public void testCustomCallbackBeforePreparationSetShuffleOrder() throws Exception {
-    Runnable runnable = mock(Runnable.class);
-    mediaSource.setShuffleOrder(
-        new ShuffleOrder.UnshuffledShuffleOrder(/* length= */ 0), new Handler(), runnable);
+    ConditionVariable runnableInvoked = new ConditionVariable();
 
-    verify(runnable).run();
+    DummyMainThread dummyMainThread = new DummyMainThread();
+    dummyMainThread.runOnMainThread(
+        () ->
+            mediaSource.setShuffleOrder(
+                new ShuffleOrder.UnshuffledShuffleOrder(/* length= */ 0),
+                new Handler(),
+                runnableInvoked::open));
+    runnableInvoked.block(MediaSourceTestRunner.TIMEOUT_MS);
+    dummyMainThread.release();
+
+    assertThat(runnableInvoked.block(0)).isTrue();
   }
 
   @Test

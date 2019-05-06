@@ -17,12 +17,13 @@ package com.google.android.exoplayer2.ext.mediasession;
 
 import android.os.Bundle;
 import android.os.ResultReceiver;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -186,20 +187,23 @@ public final class TimelineQueueEditor
 
   // CommandReceiver implementation.
 
-  @NonNull
   @Override
-  public String[] getCommands() {
-    return new String[] {COMMAND_MOVE_QUEUE_ITEM};
-  }
-
-  @Override
-  public void onCommand(Player player, String command, Bundle extras, ResultReceiver cb) {
+  public boolean onCommand(
+      Player player,
+      ControlDispatcher controlDispatcher,
+      String command,
+      Bundle extras,
+      ResultReceiver cb) {
+    if (!COMMAND_MOVE_QUEUE_ITEM.equals(command)) {
+      return false;
+    }
     int from = extras.getInt(EXTRA_FROM_INDEX, C.INDEX_UNSET);
     int to = extras.getInt(EXTRA_TO_INDEX, C.INDEX_UNSET);
     if (from != C.INDEX_UNSET && to != C.INDEX_UNSET) {
       queueDataAdapter.move(from, to);
       queueMediaSource.moveMediaSource(from, to);
     }
+    return true;
   }
 
 }

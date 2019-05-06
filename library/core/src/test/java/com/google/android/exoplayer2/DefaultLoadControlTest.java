@@ -17,15 +17,15 @@ package com.google.android.exoplayer2;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.DefaultLoadControl.Builder;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
 /** Unit tests for {@link DefaultLoadControl}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class DefaultLoadControlTest {
 
   private static final float SPEED = 1f;

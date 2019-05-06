@@ -12,6 +12,7 @@
   <string name="exo_controls_repeat_all_description">Повторити всі</string>
   <string name="exo_controls_shuffle_description">Перемішати</string>
   <string name="exo_controls_fullscreen_description">Повноекранний режим</string>
+  <string name="exo_controls_vr_description">Режим віртуальної реальності</string>
   <string name="exo_download_description">Завантажити</string>
   <string name="exo_download_notification_channel_name">Завантаження</string>
   <string name="exo_download_downloading">Завантажується</string>
@@ -30,6 +31,10 @@
   <string name="exo_track_surround">Об’ємний звук</string>
   <string name="exo_track_surround_5_point_1">Об’ємний звук у форматі 5.1</string>
   <string name="exo_track_surround_7_point_1">Об’ємний звук у форматі 7.1</string>
+  <string name="exo_track_role_alternate">Альтернативна</string>
+  <string name="exo_track_role_supplementary">Додаткова</string>
+  <string name="exo_track_role_commentary">Коментарі</string>
+  <string name="exo_track_role_closed_captions">Субтитри</string>
   <string name="exo_track_bitrate">%1$.2f Мбіт/с</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>

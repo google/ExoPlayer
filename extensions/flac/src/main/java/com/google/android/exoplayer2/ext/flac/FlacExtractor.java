@@ -17,8 +17,8 @@ package com.google.android.exoplayer2.ext.flac;
 
 import static com.google.android.exoplayer2.util.Util.getPcmEncoding;
 
-import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.BinarySearchSeeker;
@@ -94,7 +94,7 @@ public final class FlacExtractor implements Extractor {
 
   /** Constructs an instance with flags = 0. */
   public FlacExtractor() {
-    this(0);
+    this(/* flags= */ 0);
   }
 
   /**

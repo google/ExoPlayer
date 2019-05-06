@@ -1,5 +1,129 @@
 # Release notes #
 
+### 2.10.0 ###
+
+* Core library:
+  * Improve decoder re-use between playbacks
+    ([#2826](https://github.com/google/ExoPlayer/issues/2826)). Read
+    [this blog post](https://medium.com/google-exoplayer/improved-decoder-reuse-in-exoplayer-ef4c6d99591d)
+    for more details.
+  * Rename `ExtractorMediaSource` to `ProgressiveMediaSource`.
+  * Fix issue where using `ProgressiveMediaSource.Factory` would mean that
+    `DefaultExtractorsFactory` would be kept by proguard. Custom
+    `ExtractorsFactory` instances must now be passed via the
+    `ProgressiveMediaSource.Factory` constructor, and `setExtractorsFactory` is
+    deprecated.
+  * Move `PriorityTaskManager` from `DefaultLoadControl` to `SimpleExoPlayer`.
+  * Add new `ExoPlaybackException` types for remote exceptions and out-of-memory
+    errors.
+  * Use full BCP 47 language tags in `Format`.
+  * Do not retry failed loads whose error is `FileNotFoundException`.
+  * Fix issue where not resetting the position for a new `MediaSource` in calls
+    to `ExoPlayer.prepare` causes an `IndexOutOfBoundsException`
+    ([#5520](https://github.com/google/ExoPlayer/issues/5520)).
+* Offline:
+  * Improve offline support. `DownloadManager` now tracks all offline content,
+    not just tasks in progress. Read
+    [this page](https://exoplayer.dev/downloading-media.html) for more details.
+* Caching:
+  * Improve performance of `SimpleCache`
+    ([#4253](https://github.com/google/ExoPlayer/issues/4253)).
+  * Cache data with unknown length by default. The previous flag to opt in to
+    this behavior (`DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH`) has been
+    replaced with an opt out flag
+    (`DataSpec.FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN`).
+* Extractors:
+  * MP4/FMP4: Add support for Dolby Vision.
+  * MP4: Fix issue handling meta atoms in some streams
+    ([#5698](https://github.com/google/ExoPlayer/issues/5698),
+    [#5694](https://github.com/google/ExoPlayer/issues/5694)).
+  * MP3: Add support for SHOUTcast ICY metadata
+    ([#3735](https://github.com/google/ExoPlayer/issues/3735)).
+  * MP3: Fix ID3 frame unsychronization
+    ([#5673](https://github.com/google/ExoPlayer/issues/5673)).
+  * MP3: Fix playback of badly clipped files
+    ([#5772](https://github.com/google/ExoPlayer/issues/5772)).
+  * MPEG-TS: Enable HDMV DTS stream detection only if a flag is set. By default
+    (i.e. if the flag is not set), the 0x82 elementary stream type is now
+    treated as an SCTE subtitle track
+    ([#5330](https://github.com/google/ExoPlayer/issues/5330)).
+* Track selection:
+  * Add options for controlling audio track selections to `DefaultTrackSelector`
+    ([#3314](https://github.com/google/ExoPlayer/issues/3314)).
+  * Update `TrackSelection.Factory` interface to support creating all track
+    selections together.
+  * Allow to specify a selection reason for a `SelectionOverride`.
+  * When no text language preference matches, only select forced text tracks
+    whose language matches the selected audio language.
+* UI:
+  * Update `DefaultTimeBar` based on duration of media and add parameter to set
+    the minimum update interval to control the smoothness of the updates
+    ([#5040](https://github.com/google/ExoPlayer/issues/5040)).
+  * Move creation of dialogs for `TrackSelectionView`s to
+    `TrackSelectionDialogBuilder` and add option to select multiple overrides.
+  * Change signature of `PlayerNotificationManager.NotificationListener` to
+    better fit service requirements.
+  * Add option to include navigation actions in the compact mode of
+    notifications created using `PlayerNotificationManager`.
+  * Fix issues with flickering notifications on KitKat when using
+    `PlayerNotificationManager` and `DownloadNotificationUtil`. For the latter,
+    applications should switch to using `DownloadNotificationHelper`.
+  * Fix accuracy of D-pad seeking in `DefaultTimeBar`
+    ([#5767](https://github.com/google/ExoPlayer/issues/5767)).
+* Audio:
+  * Allow `AudioProcessor`s to be drained of pending output after they are
+    reconfigured.
+  * Fix an issue that caused audio to be truncated at the end of a period
+    when switching to a new period where gapless playback information was newly
+    present or newly absent.
+  * Add support for reading AC-4 streams
+    ([#5303](https://github.com/google/ExoPlayer/pull/5303)).
+* Video:
+  * Remove `MediaCodecSelector.DEFAULT_WITH_FALLBACK`. Apps should instead
+    signal that fallback should be used by passing `true` as the
+    `enableDecoderFallback` parameter when instantiating the video renderer.
+  * Support video tunneling when the decoder is not listed first for the MIME
+    type ([#3100](https://github.com/google/ExoPlayer/issues/3100)).
+  * Query `MediaCodecList.ALL_CODECS` when selecting a tunneling decoder
+    ([#5547](https://github.com/google/ExoPlayer/issues/5547)).
+* DRM:
+  * Fix black flicker when keys rotate in DRM protected content
+  ([#3561](https://github.com/google/ExoPlayer/issues/3561)).
+  * Work around lack of LA_URL attribute in PlayReady key request init data.
+* CEA-608: Improved conformance to the specification
+  ([#3860](https://github.com/google/ExoPlayer/issues/3860)).
+* DASH:
+  * Parse role and accessibility descriptors into `Format.roleFlags`.
+  * Support multiple CEA-608 channels muxed into FMP4 representations
+    ([#5656](https://github.com/google/ExoPlayer/issues/5656)).
+* HLS:
+  * Prevent unnecessary reloads of initialization segments.
+  * Form an adaptive track group out of audio renditions with matching name.
+  * Support encrypted initialization segments
+    ([#5441](https://github.com/google/ExoPlayer/issues/5441)).
+  * Parse `EXT-X-MEDIA` `CHARACTERISTICS` attribute into `Format.roleFlags`.
+  * Add metadata entry for HLS tracks to expose master playlist information.
+  * Prevent `IndexOutOfBoundsException` in some live HLS scenarios
+    ([#5816](https://github.com/google/ExoPlayer/issues/5816)).
+* Support for playing spherical videos on Daydream.
+* Cast extension: Work around Cast framework returning a limited-size queue
+  items list ([#4964](https://github.com/google/ExoPlayer/issues/4964)).
+* VP9 extension: Remove RGB output mode and libyuv dependency, and switch to
+  surface YUV output as the default. Remove constructor parameters `scaleToFit`
+  and `useSurfaceYuvOutput`.
+* MediaSession extension:
+  * Let apps intercept media button events
+    ([#5179](https://github.com/google/ExoPlayer/issues/5179)).
+  * Fix issue with `TimelineQueueNavigator` not publishing the queue in shuffled
+    order when in shuffle mode.
+  * Allow handling of custom commands via `registerCustomCommandReceiver`.
+  * Add ability to include an extras `Bundle` when reporting a custom error.
+* LoadControl: Set minimum buffer for playbacks with video equal to maximum
+  buffer ([#2083](https://github.com/google/ExoPlayer/issues/2083)).
+* Log warnings when extension native libraries can't be used, to help with
+  diagnosing playback failures
+  ([#5788](https://github.com/google/ExoPlayer/issues/5788)).
+
 ### 2.9.6 ###
 
 * Remove `player` and `isTopLevelSource` parameters from `MediaSource.prepare`.

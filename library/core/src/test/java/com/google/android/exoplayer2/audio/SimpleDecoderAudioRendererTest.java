@@ -24,6 +24,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererConfiguration;
@@ -39,13 +40,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
-/**
- * Unit test for {@link SimpleDecoderAudioRenderer}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Unit test for {@link SimpleDecoderAudioRenderer}. */
+@RunWith(AndroidJUnit4.class)
 public class SimpleDecoderAudioRendererTest {
 
   private static final Format FORMAT = Format.createSampleFormat(null, MimeTypes.AUDIO_RAW, 0);
@@ -103,7 +101,8 @@ public class SimpleDecoderAudioRendererTest {
     }
     verify(mockAudioSink, times(1)).playToEndOfStream();
     audioRenderer.disable();
-    verify(mockAudioSink, times(1)).release();
+    audioRenderer.reset();
+    verify(mockAudioSink, times(1)).reset();
   }
 
   private static final class FakeDecoder

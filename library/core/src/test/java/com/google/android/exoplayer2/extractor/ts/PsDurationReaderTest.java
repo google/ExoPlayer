@@ -17,6 +17,8 @@ package com.google.android.exoplayer2.extractor.ts;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
@@ -25,11 +27,9 @@ import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
 /** Unit test for {@link PsDurationReader}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class PsDurationReaderTest {
 
   private PsDurationReader tsDurationReader;
@@ -50,7 +50,8 @@ public final class PsDurationReaderTest {
   public void testReadDuration_returnsCorrectDuration() throws IOException, InterruptedException {
     FakeExtractorInput input =
         new FakeExtractorInput.Builder()
-            .setData(TestUtil.getByteArray(RuntimeEnvironment.application, "ts/sample.ps"))
+            .setData(
+                TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), "ts/sample.ps"))
             .build();
 
     int result = Extractor.RESULT_CONTINUE;
@@ -69,7 +70,8 @@ public final class PsDurationReaderTest {
       throws IOException, InterruptedException {
     FakeExtractorInput input =
         new FakeExtractorInput.Builder()
-            .setData(TestUtil.getByteArray(RuntimeEnvironment.application, "ts/sample.ps"))
+            .setData(
+                TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), "ts/sample.ps"))
             .build();
 
     input.setPosition(1234);

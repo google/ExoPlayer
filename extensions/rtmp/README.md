@@ -3,7 +3,7 @@
 The RTMP extension is a [DataSource][] implementation for playing [RTMP][]
 streams using [LibRtmp Client for Android][].
 
-[DataSource]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/upstream/DataSource.html
+[DataSource]: https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/upstream/DataSource.html
 [RTMP]: https://en.wikipedia.org/wiki/Real-Time_Messaging_Protocol
 [LibRtmp Client for Android]: https://github.com/ant-media/LibRtmp-Client-for-Android
 
@@ -53,4 +53,4 @@ doesn't need to handle any other protocols, you can update any `DataSource`s and
 * [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.rtmp.*`
   belong to this module.
 
-[Javadoc]: https://google.github.io/ExoPlayer/doc/reference/index.html
+[Javadoc]: https://exoplayer.dev/doc/reference/index.html

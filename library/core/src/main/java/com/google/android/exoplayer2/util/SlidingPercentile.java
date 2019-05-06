@@ -65,6 +65,14 @@ public class SlidingPercentile {
     currentSortOrder = SORT_ORDER_NONE;
   }
 
+  /** Resets the sliding percentile. */
+  public void reset() {
+    samples.clear();
+    currentSortOrder = SORT_ORDER_NONE;
+    nextSampleIndex = 0;
+    totalWeight = 0;
+  }
+
   /**
    * Adds a new weighted value.
    *

@@ -15,10 +15,8 @@
  */
 package com.google.android.exoplayer2.playbacktests.gts;
 
-import static androidx.test.InstrumentationRegistry.getInstrumentation;
-
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
-import androidx.test.runner.AndroidJUnit4;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.testutil.ActionSchedule;
 import com.google.android.exoplayer2.testutil.HostActivity;
@@ -52,7 +50,7 @@ public final class CommonEncryptionDrmTest {
   @Before
   public void setUp() {
     testRunner =
-        new DashTestRunner(TAG, testRule.getActivity(), getInstrumentation())
+        new DashTestRunner(TAG, testRule.getActivity())
             .setWidevineInfo(MimeTypes.VIDEO_H264, false)
             .setActionSchedule(ACTION_SCHEDULE_WITH_SEEKS)
             .setAudioVideoFormats(ID_AUDIO, IDS_VIDEO)

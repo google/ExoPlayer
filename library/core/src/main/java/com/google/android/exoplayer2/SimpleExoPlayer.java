@@ -23,7 +23,7 @@ import android.media.MediaCodec;
 import android.media.PlaybackParams;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -48,8 +48,10 @@ import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.PriorityTaskManager;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
@@ -63,7 +65,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * An {@link ExoPlayer} implementation that uses default {@link Renderer} components. Instances can
  * be obtained from {@link ExoPlayerFactory}.
  */
-@TargetApi(16)
 public class SimpleExoPlayer extends BasePlayer
     implements ExoPlayer,
         Player.AudioComponent,
@@ -114,6 +115,8 @@ public class SimpleExoPlayer extends BasePlayer
   @Nullable private VideoFrameMetadataListener videoFrameMetadataListener;
   @Nullable private CameraMotionListener cameraMotionListener;
   private boolean hasNotifiedFullWrongThreadWarning;
+  @Nullable private PriorityTaskManager priorityTaskManager;
+  private boolean isPriorityTaskManagerRegistered;
 
   /**
    * @param context A {@link Context}.
@@ -234,6 +237,7 @@ public class SimpleExoPlayer extends BasePlayer
         new ExoPlayerImpl(renderers, trackSelector, loadControl, bandwidthMeter, clock, looper);
     analyticsCollector = analyticsCollectorFactory.createAnalyticsCollector(player, clock);
     addListener(analyticsCollector);
+    addListener(componentListener);
     videoDebugListeners.add(analyticsCollector);
     videoListeners.add(analyticsCollector);
     audioDebugListeners.add(analyticsCollector);
@@ -537,6 +541,31 @@ public class SimpleExoPlayer extends BasePlayer
   public void removeAnalyticsListener(AnalyticsListener listener) {
     verifyApplicationThread();
     analyticsCollector.removeListener(listener);
+  }
+
+  /**
+   * Sets a {@link PriorityTaskManager}, or null to clear a previously set priority task manager.
+   *
+   * <p>The priority {@link C#PRIORITY_PLAYBACK} will be set while the player is loading.
+   *
+   * @param priorityTaskManager The {@link PriorityTaskManager}, or null to clear a previously set
+   *     priority task manager.
+   */
+  public void setPriorityTaskManager(@Nullable PriorityTaskManager priorityTaskManager) {
+    verifyApplicationThread();
+    if (Util.areEqual(this.priorityTaskManager, priorityTaskManager)) {
+      return;
+    }
+    if (isPriorityTaskManagerRegistered) {
+      Assertions.checkNotNull(this.priorityTaskManager).remove(C.PRIORITY_PLAYBACK);
+    }
+    if (priorityTaskManager != null && isLoading()) {
+      priorityTaskManager.add(C.PRIORITY_PLAYBACK);
+      isPriorityTaskManagerRegistered = true;
+    } else {
+      isPriorityTaskManagerRegistered = false;
+    }
+    this.priorityTaskManager = priorityTaskManager;
   }
 
   /**
@@ -960,6 +989,11 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
+  public void setForegroundMode(boolean foregroundMode) {
+    player.setForegroundMode(foregroundMode);
+  }
+
+  @Override
   public void stop(boolean reset) {
     verifyApplicationThread();
     player.stop(reset);
@@ -976,6 +1010,7 @@ public class SimpleExoPlayer extends BasePlayer
 
   @Override
   public void release() {
+    verifyApplicationThread();
     audioFocusManager.handleStop();
     player.release();
     removeSurfaceCallbacks();
@@ -988,6 +1023,10 @@ public class SimpleExoPlayer extends BasePlayer
     if (mediaSource != null) {
       mediaSource.removeEventListener(analyticsCollector);
       mediaSource = null;
+    }
+    if (isPriorityTaskManagerRegistered) {
+      Assertions.checkNotNull(priorityTaskManager).remove(C.PRIORITY_PLAYBACK);
+      isPriorityTaskManagerRegistered = false;
     }
     bandwidthMeter.removeEventListener(analyticsCollector);
     currentCues = Collections.emptyList();
@@ -1192,7 +1231,7 @@ public class SimpleExoPlayer extends BasePlayer
       Log.w(
           TAG,
           "Player is accessed on the wrong thread. See "
-              + "https://google.github.io/ExoPlayer/faqs.html#"
+              + "https://exoplayer.dev/faqs.html#"
               + "what-do-player-is-accessed-on-the-wrong-thread-warnings-mean",
           hasNotifiedFullWrongThreadWarning ? null : new IllegalStateException());
       hasNotifiedFullWrongThreadWarning = true;
@@ -1206,7 +1245,8 @@ public class SimpleExoPlayer extends BasePlayer
           MetadataOutput,
           SurfaceHolder.Callback,
           TextureView.SurfaceTextureListener,
-          AudioFocusManager.PlayerControl {
+          AudioFocusManager.PlayerControl,
+          Player.EventListener {
 
     // VideoRendererEventListener implementation
 
@@ -1415,6 +1455,21 @@ public class SimpleExoPlayer extends BasePlayer
     @Override
     public void executePlayerCommand(@AudioFocusManager.PlayerCommand int playerCommand) {
       updatePlayWhenReady(getPlayWhenReady(), playerCommand);
+    }
+
+    // Player.EventListener implementation.
+
+    @Override
+    public void onLoadingChanged(boolean isLoading) {
+      if (priorityTaskManager != null) {
+        if (isLoading && !isPriorityTaskManagerRegistered) {
+          priorityTaskManager.add(C.PRIORITY_PLAYBACK);
+          isPriorityTaskManagerRegistered = true;
+        } else if (!isLoading && isPriorityTaskManagerRegistered) {
+          priorityTaskManager.remove(C.PRIORITY_PLAYBACK);
+          isPriorityTaskManagerRegistered = false;
+        }
+      }
     }
   }
 }

@@ -18,7 +18,6 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion project.ext.compileSdkVersion
-    buildToolsVersion project.ext.buildToolsVersion
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -29,6 +28,8 @@ android {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
     }
+
+    testOptions.unitTests.includeAndroidResources = true
 }
 
 dependencies {

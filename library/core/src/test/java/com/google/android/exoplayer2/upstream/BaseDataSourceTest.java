@@ -18,15 +18,15 @@ package com.google.android.exoplayer2.upstream;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
 /** Unit test for {@link BaseDataSource}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class BaseDataSourceTest {
 
   @Test

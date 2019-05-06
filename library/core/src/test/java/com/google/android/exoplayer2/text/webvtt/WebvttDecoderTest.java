@@ -26,6 +26,8 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.SubtitleDecoderException;
@@ -33,11 +35,9 @@ import java.io.IOException;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
 /** Unit test for {@link WebvttDecoder}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class WebvttDecoderTest {
 
   private static final String TYPICAL_FILE = "webvtt/typical";
@@ -55,7 +55,7 @@ public class WebvttDecoderTest {
   @Test
   public void testDecodeEmpty() throws IOException {
     WebvttDecoder decoder = new WebvttDecoder();
-    byte[] bytes = TestUtil.getByteArray(RuntimeEnvironment.application, EMPTY_FILE);
+    byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), EMPTY_FILE);
     try {
       decoder.decode(bytes, bytes.length, /* reset= */ false);
       fail();
@@ -394,7 +394,7 @@ public class WebvttDecoderTest {
   private WebvttSubtitle getSubtitleForTestAsset(String asset)
       throws IOException, SubtitleDecoderException {
     WebvttDecoder decoder = new WebvttDecoder();
-    byte[] bytes = TestUtil.getByteArray(RuntimeEnvironment.application, asset);
+    byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), asset);
     return decoder.decode(bytes, bytes.length, /* reset= */ false);
   }
 

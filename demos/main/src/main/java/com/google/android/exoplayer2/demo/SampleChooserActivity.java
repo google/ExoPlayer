@@ -15,14 +15,14 @@
  */
 package com.google.android.exoplayer2.demo;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.JsonReader;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -37,6 +37,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceInputStream;
@@ -54,7 +55,7 @@ import java.util.Collections;
 import java.util.List;
 
 /** An activity for selecting from a list of media samples. */
-public class SampleChooserActivity extends Activity
+public class SampleChooserActivity extends AppCompatActivity
     implements DownloadTracker.Listener, OnChildClickListener {
 
   private static final String TAG = "SampleChooserActivity";
@@ -177,7 +178,15 @@ public class SampleChooserActivity extends Activity
           .show();
     } else {
       UriSample uriSample = (UriSample) sample;
-      downloadTracker.toggleDownload(this, sample.name, uriSample.uri, uriSample.extension);
+      RenderersFactory renderersFactory =
+          ((DemoApplication) getApplication())
+              .buildRenderersFactory(isNonNullAndChecked(preferExtensionDecodersMenuItem));
+      downloadTracker.toggleDownload(
+          getSupportFragmentManager(),
+          sample.name,
+          uriSample.uri,
+          uriSample.extension,
+          renderersFactory);
     }
   }
 
@@ -350,8 +359,7 @@ public class SampleChooserActivity extends Activity
               ? null
               : new DrmInfo(drmScheme, drmLicenseUrl, drmKeyRequestProperties, drmMultiSession);
       if (playlistSamples != null) {
-        UriSample[] playlistSamplesArray = playlistSamples.toArray(
-            new UriSample[playlistSamples.size()]);
+        UriSample[] playlistSamplesArray = playlistSamples.toArray(new UriSample[0]);
         return new PlaylistSample(sampleName, drmInfo, playlistSamplesArray);
       } else {
         return new UriSample(

@@ -19,8 +19,9 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Looper;
 import android.os.SystemClock;
-import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import android.view.View;
 import android.view.ViewGroup;
 import com.google.ads.interactivemedia.v3.api.Ad;
@@ -216,7 +217,7 @@ public final class ImaAdsLoader
       return this;
     }
 
-    // @VisibleForTesting
+    @VisibleForTesting
     /* package */ Builder setImaFactory(ImaFactory imaFactory) {
       this.imaFactory = Assertions.checkNotNull(imaFactory);
       return this;
@@ -755,7 +756,8 @@ public final class ImaAdsLoader
       // until MAXIMUM_PRELOAD_DURATION_MS before the ad so that an ad group load error delivered
       // just after an ad group isn't incorrectly attributed to the next ad group.
       int nextAdGroupIndex =
-          adPlaybackState.getAdGroupIndexAfterPositionUs(C.msToUs(contentPositionMs));
+          adPlaybackState.getAdGroupIndexAfterPositionUs(
+              C.msToUs(contentPositionMs), C.msToUs(contentDurationMs));
       if (nextAdGroupIndex != expectedAdGroupIndex && nextAdGroupIndex != C.INDEX_UNSET) {
         long nextAdGroupTimeMs = C.usToMs(adPlaybackState.adGroupTimesUs[nextAdGroupIndex]);
         if (nextAdGroupTimeMs == C.TIME_END_OF_SOURCE) {
@@ -1389,7 +1391,7 @@ public final class ImaAdsLoader
   }
 
   /** Factory for objects provided by the IMA SDK. */
-  // @VisibleForTesting
+  @VisibleForTesting
   /* package */ interface ImaFactory {
     /** @see ImaSdkSettings */
     ImaSdkSettings createImaSdkSettings();

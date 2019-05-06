@@ -31,6 +31,7 @@ import static org.mockito.Mockito.when;
 import android.net.Uri;
 import android.os.ConditionVariable;
 import android.os.SystemClock;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
@@ -62,10 +63,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricTestRunner;
 
 /** Tests for {@link CronetDataSource}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class CronetDataSourceTest {
 
   private static final int TEST_CONNECT_TIMEOUT_MS = 100;

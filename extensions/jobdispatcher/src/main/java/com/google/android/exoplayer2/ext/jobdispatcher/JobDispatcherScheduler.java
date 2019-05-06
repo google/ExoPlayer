@@ -57,6 +57,7 @@ import com.google.android.exoplayer2.util.Util;
  */
 public final class JobDispatcherScheduler implements Scheduler {
 
+  private static final boolean DEBUG = false;
   private static final String TAG = "JobDispatcherScheduler";
   private static final String KEY_SERVICE_ACTION = "service_action";
   private static final String KEY_SERVICE_PACKAGE = "service_package";
@@ -78,8 +79,8 @@ public final class JobDispatcherScheduler implements Scheduler {
   }
 
   @Override
-  public boolean schedule(Requirements requirements, String serviceAction, String servicePackage) {
-    Job job = buildJob(jobDispatcher, requirements, jobTag, serviceAction, servicePackage);
+  public boolean schedule(Requirements requirements, String servicePackage, String serviceAction) {
+    Job job = buildJob(jobDispatcher, requirements, jobTag, servicePackage, serviceAction);
     int result = jobDispatcher.schedule(job);
     logd("Scheduling job: " + jobTag + " result: " + result);
     return result == FirebaseJobDispatcher.SCHEDULE_RESULT_SUCCESS;
@@ -96,26 +97,18 @@ public final class JobDispatcherScheduler implements Scheduler {
       FirebaseJobDispatcher dispatcher,
       Requirements requirements,
       String tag,
-      String serviceAction,
-      String servicePackage) {
+      String servicePackage,
+      String serviceAction) {
     Job.Builder builder =
         dispatcher
             .newJobBuilder()
             .setService(JobDispatcherSchedulerService.class) // the JobService that will be called
             .setTag(tag);
 
-    switch (requirements.getRequiredNetworkType()) {
-      case Requirements.NETWORK_TYPE_NONE:
-        // do nothing.
-        break;
-      case Requirements.NETWORK_TYPE_ANY:
-        builder.addConstraint(Constraint.ON_ANY_NETWORK);
-        break;
-      case Requirements.NETWORK_TYPE_UNMETERED:
-        builder.addConstraint(Constraint.ON_UNMETERED_NETWORK);
-        break;
-      default:
-        throw new UnsupportedOperationException();
+    if (requirements.isUnmeteredNetworkRequired()) {
+      builder.addConstraint(Constraint.ON_UNMETERED_NETWORK);
+    } else if (requirements.isNetworkRequired()) {
+      builder.addConstraint(Constraint.ON_ANY_NETWORK);
     }
 
     if (requirements.isIdleRequired()) {
@@ -129,7 +122,7 @@ public final class JobDispatcherScheduler implements Scheduler {
     Bundle extras = new Bundle();
     extras.putString(KEY_SERVICE_ACTION, serviceAction);
     extras.putString(KEY_SERVICE_PACKAGE, servicePackage);
-    extras.putInt(KEY_REQUIREMENTS, requirements.getRequirementsData());
+    extras.putInt(KEY_REQUIREMENTS, requirements.getRequirements());
     builder.setExtras(extras);
 
     return builder.build();

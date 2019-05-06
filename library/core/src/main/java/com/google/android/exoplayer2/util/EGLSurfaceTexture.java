@@ -24,8 +24,8 @@ import android.opengl.EGLDisplay;
 import android.opengl.EGLSurface;
 import android.opengl.GLES20;
 import android.os.Handler;
-import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -307,9 +307,6 @@ public final class EGLSurfaceTexture implements SurfaceTexture.OnFrameAvailableL
 
   private static void generateTextureIds(int[] textureIdHolder) {
     GLES20.glGenTextures(/* n= */ 1, textureIdHolder, /* offset= */ 0);
-    int errorCode = GLES20.glGetError();
-    if (errorCode != GLES20.GL_NO_ERROR) {
-      throw new GlException("glGenTextures failed. Error: " + Integer.toHexString(errorCode));
-    }
+    GlUtil.checkGlError();
   }
 }

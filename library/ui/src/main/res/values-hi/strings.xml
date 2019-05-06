@@ -12,6 +12,7 @@
   <string name="exo_controls_repeat_all_description">सभी को दोहराएं</string>
   <string name="exo_controls_shuffle_description">शफ़ल करें</string>
   <string name="exo_controls_fullscreen_description">फ़ुलस्क्रीन मोड</string>
+  <string name="exo_controls_vr_description">VR मोड</string>
   <string name="exo_download_description">डाउनलोड करें</string>
   <string name="exo_download_notification_channel_name">डाउनलोड की गई मीडिया फ़ाइलें</string>
   <string name="exo_download_downloading">डाउनलोड हो रहा है</string>
@@ -30,6 +31,10 @@
   <string name="exo_track_surround">सराउंड साउंड</string>
   <string name="exo_track_surround_5_point_1">5.1 सराउंड साउंड</string>
   <string name="exo_track_surround_7_point_1">7.1 सराउंड साउंड</string>
+  <string name="exo_track_role_alternate">विकल्प</string>
+  <string name="exo_track_role_supplementary">सप्लिमेंट्री</string>
+  <string name="exo_track_role_commentary">कमेंट्री</string>
+  <string name="exo_track_role_closed_captions">सबटाइटल</string>
   <string name="exo_track_bitrate">%1$.2f एमबीपीएस</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>

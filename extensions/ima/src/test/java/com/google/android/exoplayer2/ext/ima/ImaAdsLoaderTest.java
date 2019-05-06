@@ -22,10 +22,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.net.Uri;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.ads.interactivemedia.v3.api.Ad;
 import com.google.ads.interactivemedia.v3.api.AdDisplayContainer;
 import com.google.ads.interactivemedia.v3.api.AdEvent;
@@ -54,11 +56,9 @@ import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
 /** Test for {@link ImaAdsLoader}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class ImaAdsLoaderTest {
 
   private static final long CONTENT_DURATION_US = 10 * C.MICROS_PER_SECOND;
@@ -95,8 +95,8 @@ public class ImaAdsLoaderTest {
             adDisplayContainer,
             fakeAdsRequest,
             fakeAdsLoader);
-    adViewGroup = new FrameLayout(RuntimeEnvironment.application);
-    adOverlayView = new View(RuntimeEnvironment.application);
+    adViewGroup = new FrameLayout(ApplicationProvider.getApplicationContext());
+    adOverlayView = new View(ApplicationProvider.getApplicationContext());
     adViewProvider =
         new AdsLoader.AdViewProvider() {
           @Override
@@ -237,7 +237,7 @@ public class ImaAdsLoaderTest {
     adsLoaderListener = new TestAdsLoaderListener(fakeExoPlayer, contentTimeline, adDurationsUs);
     when(adsManager.getAdCuePoints()).thenReturn(Arrays.asList(cuePoints));
     imaAdsLoader =
-        new ImaAdsLoader.Builder(RuntimeEnvironment.application)
+        new ImaAdsLoader.Builder(ApplicationProvider.getApplicationContext())
             .setImaFactory(testImaFactory)
             .setImaSdkSettings(imaSdkSettings)
             .buildForAdTag(TEST_URI);

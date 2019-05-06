@@ -15,24 +15,66 @@
  */
 package com.google.android.exoplayer2.ext.cast;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
+import android.util.SparseArray;
 import android.util.SparseIntArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.gms.cast.MediaInfo;
-import com.google.android.gms.cast.MediaQueueItem;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 /**
  * A {@link Timeline} for Cast media queues.
  */
 /* package */ final class CastTimeline extends Timeline {
 
+  /** Holds {@link Timeline} related data for a Cast media item. */
+  public static final class ItemData {
+
+    /** Holds no media information. */
+    public static final ItemData EMPTY = new ItemData();
+
+    /** The duration of the item in microseconds, or {@link C#TIME_UNSET} if unknown. */
+    public final long durationUs;
+    /**
+     * The default start position of the item in microseconds, or {@link C#TIME_UNSET} if unknown.
+     */
+    public final long defaultPositionUs;
+
+    private ItemData() {
+      this(/* durationUs= */ C.TIME_UNSET, /* defaultPositionUs */ C.TIME_UNSET);
+    }
+
+    /**
+     * Creates an instance.
+     *
+     * @param durationUs See {@link #durationsUs}.
+     * @param defaultPositionUs See {@link #defaultPositionUs}.
+     */
+    public ItemData(long durationUs, long defaultPositionUs) {
+      this.durationUs = durationUs;
+      this.defaultPositionUs = defaultPositionUs;
+    }
+
+    /** Returns an instance with the given {@link #durationsUs}. */
+    public ItemData copyWithDurationUs(long durationUs) {
+      if (durationUs == this.durationUs) {
+        return this;
+      }
+      return new ItemData(durationUs, defaultPositionUs);
+    }
+
+    /** Returns an instance with the given {@link #defaultPositionsUs}. */
+    public ItemData copyWithDefaultPositionUs(long defaultPositionUs) {
+      if (defaultPositionUs == this.defaultPositionUs) {
+        return this;
+      }
+      return new ItemData(durationUs, defaultPositionUs);
+    }
+  }
+
+  /** {@link Timeline} for a cast queue that has no items. */
   public static final CastTimeline EMPTY_CAST_TIMELINE =
-      new CastTimeline(Collections.emptyList(), Collections.emptyMap());
+      new CastTimeline(new int[0], new SparseArray<>());
 
   private final SparseIntArray idsToIndex;
   private final int[] ids;
@@ -40,28 +82,23 @@ import java.util.Map;
   private final long[] defaultPositionsUs;
 
   /**
-   * @param items A list of cast media queue items to represent.
-   * @param contentIdToDurationUsMap A map of content id to duration in microseconds.
+   * Creates a Cast timeline from the given data.
+   *
+   * @param itemIds The ids of the items in the timeline.
+   * @param itemIdToData Maps item ids to {@link ItemData}.
    */
-  public CastTimeline(List<MediaQueueItem> items, Map<String, Long> contentIdToDurationUsMap) {
-    int itemCount = items.size();
-    int index = 0;
+  public CastTimeline(int[] itemIds, SparseArray<ItemData> itemIdToData) {
+    int itemCount = itemIds.length;
     idsToIndex = new SparseIntArray(itemCount);
-    ids = new int[itemCount];
+    ids = Arrays.copyOf(itemIds, itemCount);
     durationsUs = new long[itemCount];
     defaultPositionsUs = new long[itemCount];
-    for (MediaQueueItem item : items) {
-      int itemId = item.getItemId();
-      ids[index] = itemId;
-      idsToIndex.put(itemId, index);
-      MediaInfo mediaInfo = item.getMedia();
-      String contentId = mediaInfo.getContentId();
-      durationsUs[index] =
-          contentIdToDurationUsMap.containsKey(contentId)
-              ? contentIdToDurationUsMap.get(contentId)
-              : CastUtils.getStreamDurationUs(mediaInfo);
-      defaultPositionsUs[index] = (long) (item.getStartTime() * C.MICROS_PER_SECOND);
-      index++;
+    for (int i = 0; i < ids.length; i++) {
+      int id = ids[i];
+      idsToIndex.put(id, i);
+      ItemData data = itemIdToData.get(id, ItemData.EMPTY);
+      durationsUs[i] = data.durationUs;
+      defaultPositionsUs[i] = data.defaultPositionUs;
     }
   }
 
@@ -108,7 +145,7 @@ import java.util.Map;
   }
 
   @Override
-  public Object getUidOfPeriod(int periodIndex) {
+  public Integer getUidOfPeriod(int periodIndex) {
     return ids[periodIndex];
   }
 

@@ -12,6 +12,7 @@
   <string name="exo_controls_repeat_all_description">എല്ലാം ആവർത്തിക്കുക</string>
   <string name="exo_controls_shuffle_description">ഇടകലര്‍ത്തുക</string>
   <string name="exo_controls_fullscreen_description">പൂർണ്ണ സ്‌ക്രീൻ മോഡ്</string>
+  <string name="exo_controls_vr_description">VR മോഡ്</string>
   <string name="exo_download_description">ഡൗൺലോഡ്</string>
   <string name="exo_download_notification_channel_name">ഡൗൺലോഡുകൾ</string>
   <string name="exo_download_downloading">ഡൗൺലോഡ് ചെയ്യുന്നു</string>
@@ -30,6 +31,10 @@
   <string name="exo_track_surround">സറൗണ്ട് സൗണ്ട്</string>
   <string name="exo_track_surround_5_point_1">5.1 സറൗണ്ട് സൗണ്ട്</string>
   <string name="exo_track_surround_7_point_1">7.1 സറൗണ്ട് സൗണ്ട്</string>
+  <string name="exo_track_role_alternate">ഇതര ട്രാക്ക്</string>
+  <string name="exo_track_role_supplementary">സപ്ലിമെന്ററി</string>
+  <string name="exo_track_role_commentary">വിവരണം</string>
+  <string name="exo_track_role_closed_captions">CC</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>

@@ -16,23 +16,25 @@
 package com.google.android.exoplayer2.ext.rtmp;
 
 import android.net.Uri;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultDataSource;
 import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
 /** Unit test for {@link DefaultDataSource} with RTMP URIs. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class DefaultDataSourceTest {
 
   @Test
   public void openRtmpDataSpec_instantiatesRtmpDataSourceViaReflection() throws IOException {
     DefaultDataSource dataSource =
         new DefaultDataSource(
-            RuntimeEnvironment.application, "userAgent", /* allowCrossProtocolRedirects= */ false);
+            ApplicationProvider.getApplicationContext(),
+            "userAgent",
+            /* allowCrossProtocolRedirects= */ false);
     DataSpec dataSpec = new DataSpec(Uri.parse("rtmp://test.com/stream"));
     try {
       dataSource.open(dataSpec);

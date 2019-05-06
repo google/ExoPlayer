@@ -16,8 +16,8 @@
 package com.google.android.exoplayer2.upstream;
 
 import android.net.Uri;
-import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import java.lang.annotation.Documented;
@@ -31,33 +31,44 @@ import java.util.Arrays;
 public final class DataSpec {
 
   /**
-   * The flags that apply to any request for data. Possible flag values are {@link #FLAG_ALLOW_GZIP}
-   * and {@link #FLAG_ALLOW_CACHING_UNKNOWN_LENGTH}.
+   * The flags that apply to any request for data. Possible flag values are {@link
+   * #FLAG_ALLOW_GZIP}, {@link #FLAG_ALLOW_ICY_METADATA}, {@link #FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN}
+   * and {@link #FLAG_ALLOW_CACHE_FRAGMENTATION}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
       flag = true,
-      value = {FLAG_ALLOW_GZIP, FLAG_ALLOW_CACHING_UNKNOWN_LENGTH})
+      value = {
+        FLAG_ALLOW_GZIP,
+        FLAG_ALLOW_ICY_METADATA,
+        FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN,
+        FLAG_ALLOW_CACHE_FRAGMENTATION
+      })
   public @interface Flags {}
   /**
-   * Permits an underlying network stack to request that the server use gzip compression.
-   * <p>
-   * Should not typically be set if the data being requested is already compressed (e.g. most audio
-   * and video requests). May be set when requesting other data.
-   * <p>
-   * When a {@link DataSource} is used to request data with this flag set, and if the
-   * {@link DataSource} does make a network request, then the value returned from
-   * {@link DataSource#open(DataSpec)} will typically be {@link C#LENGTH_UNSET}. The data read from
-   * {@link DataSource#read(byte[], int, int)} will be the decompressed data.
+   * Allows an underlying network stack to request that the server use gzip compression.
+   *
+   * <p>Should not typically be set if the data being requested is already compressed (e.g. most
+   * audio and video requests). May be set when requesting other data.
+   *
+   * <p>When a {@link DataSource} is used to request data with this flag set, and if the {@link
+   * DataSource} does make a network request, then the value returned from {@link
+   * DataSource#open(DataSpec)} will typically be {@link C#LENGTH_UNSET}. The data read from {@link
+   * DataSource#read(byte[], int, int)} will be the decompressed data.
    */
   public static final int FLAG_ALLOW_GZIP = 1;
-
+  /** Allows an underlying network stack to request that the stream contain ICY metadata. */
+  public static final int FLAG_ALLOW_ICY_METADATA = 1 << 1; // 2
+  /** Prevents caching if the length cannot be resolved when the {@link DataSource} is opened. */
+  public static final int FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN = 1 << 2; // 4
   /**
-   * Permits content to be cached even if its length can not be resolved. Typically this's the case
-   * for progressive live streams and when {@link #FLAG_ALLOW_GZIP} is used.
+   * Allows fragmentation of this request into multiple cache files, meaning a cache eviction policy
+   * will be able to evict individual fragments of the data. Depending on the cache implementation,
+   * setting this flag may also enable more concurrent access to the data (e.g. reading one fragment
+   * whilst writing another).
    */
-  public static final int FLAG_ALLOW_CACHING_UNKNOWN_LENGTH = 1 << 1; // 2
+  public static final int FLAG_ALLOW_CACHE_FRAGMENTATION = 1 << 4; // 8
 
   /**
    * The set of HTTP methods that are supported by ExoPlayer {@link HttpDataSource}s. One of {@link
@@ -108,17 +119,14 @@ public final class DataSpec {
   public final long length;
   /**
    * A key that uniquely identifies the original stream. Used for cache indexing. May be null if the
-   * {@link DataSpec} is not intended to be used in conjunction with a cache.
+   * data spec is not intended to be used in conjunction with a cache.
    */
   public final @Nullable String key;
-  /**
-   * Request flags. Currently {@link #FLAG_ALLOW_GZIP} and
-   * {@link #FLAG_ALLOW_CACHING_UNKNOWN_LENGTH} are the only supported flags.
-   */
+  /** Request {@link Flags flags}. */
   public final @Flags int flags;
 
   /**
-   * Construct a {@link DataSpec} for the given uri and with {@link #key} set to null.
+   * Construct a data spec for the given uri and with {@link #key} set to null.
    *
    * @param uri {@link #uri}.
    */
@@ -127,7 +135,7 @@ public final class DataSpec {
   }
 
   /**
-   * Construct a {@link DataSpec} for the given uri and with {@link #key} set to null.
+   * Construct a data spec for the given uri and with {@link #key} set to null.
    *
    * @param uri {@link #uri}.
    * @param flags {@link #flags}.
@@ -137,7 +145,7 @@ public final class DataSpec {
   }
 
   /**
-   * Construct a {@link DataSpec} where {@link #position} equals {@link #absoluteStreamPosition}.
+   * Construct a data spec where {@link #position} equals {@link #absoluteStreamPosition}.
    *
    * @param uri {@link #uri}.
    * @param absoluteStreamPosition {@link #absoluteStreamPosition}, equal to {@link #position}.
@@ -149,7 +157,7 @@ public final class DataSpec {
   }
 
   /**
-   * Construct a {@link DataSpec} where {@link #position} equals {@link #absoluteStreamPosition}.
+   * Construct a data spec where {@link #position} equals {@link #absoluteStreamPosition}.
    *
    * @param uri {@link #uri}.
    * @param absoluteStreamPosition {@link #absoluteStreamPosition}, equal to {@link #position}.
@@ -163,8 +171,7 @@ public final class DataSpec {
   }
 
   /**
-   * Construct a {@link DataSpec} where {@link #position} may differ from
-   * {@link #absoluteStreamPosition}.
+   * Construct a data spec where {@link #position} may differ from {@link #absoluteStreamPosition}.
    *
    * @param uri {@link #uri}.
    * @param absoluteStreamPosition {@link #absoluteStreamPosition}.
@@ -184,7 +191,7 @@ public final class DataSpec {
   }
 
   /**
-   * Construct a {@link DataSpec} by inferring the {@link #httpMethod} based on the {@code postBody}
+   * Construct a data spec by inferring the {@link #httpMethod} based on the {@code postBody}
    * parameter. If postBody is non-null, then httpMethod is set to {@link #HTTP_METHOD_POST}. If
    * postBody is null, then httpMethod is set to {@link #HTTP_METHOD_GET}.
    *
@@ -217,8 +224,7 @@ public final class DataSpec {
   }
 
   /**
-   * Construct a {@link DataSpec} where {@link #position} may differ from {@link
-   * #absoluteStreamPosition}.
+   * Construct a data spec where {@link #position} may differ from {@link #absoluteStreamPosition}.
    *
    * @param uri {@link #uri}.
    * @param httpMethod {@link #httpMethod}.
@@ -309,22 +315,22 @@ public final class DataSpec {
   }
 
   /**
-   * Returns a {@link DataSpec} that represents a subrange of the data defined by this DataSpec. The
+   * Returns a data spec that represents a subrange of the data defined by this DataSpec. The
    * subrange includes data from the offset up to the end of this DataSpec.
    *
    * @param offset The offset of the subrange.
-   * @return A {@link DataSpec} that represents a subrange of the data defined by this DataSpec.
+   * @return A data spec that represents a subrange of the data defined by this DataSpec.
    */
   public DataSpec subrange(long offset) {
     return subrange(offset, length == C.LENGTH_UNSET ? C.LENGTH_UNSET : length - offset);
   }
 
   /**
-   * Returns a {@link DataSpec} that represents a subrange of the data defined by this DataSpec.
+   * Returns a data spec that represents a subrange of the data defined by this DataSpec.
    *
    * @param offset The offset of the subrange.
    * @param length The length of the subrange.
-   * @return A {@link DataSpec} that represents a subrange of the data defined by this DataSpec.
+   * @return A data spec that represents a subrange of the data defined by this DataSpec.
    */
   public DataSpec subrange(long offset, long length) {
     if (offset == 0 && this.length == length) {
@@ -343,10 +349,10 @@ public final class DataSpec {
   }
 
   /**
-   * Returns a copy of this {@link DataSpec} with the specified Uri.
+   * Returns a copy of this data spec with the specified Uri.
    *
    * @param uri The new source {@link Uri}.
-   * @return The copied {@link DataSpec} with the specified Uri.
+   * @return The copied data spec with the specified Uri.
    */
   public DataSpec withUri(Uri uri) {
     return new DataSpec(

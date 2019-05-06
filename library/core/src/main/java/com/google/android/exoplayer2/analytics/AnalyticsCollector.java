@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.analytics;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -129,12 +129,13 @@ public class AnalyticsCollector
 
   /**
    * Sets the player for which data will be collected. Must only be called if no player has been set
-   * yet.
+   * yet or the current player is idle.
    *
    * @param player The {@link Player} for which data will be collected.
    */
   public void setPlayer(Player player) {
-    Assertions.checkState(this.player == null);
+    Assertions.checkState(
+        this.player == null || mediaPeriodQueueTracker.mediaPeriodInfoQueue.isEmpty());
     this.player = Assertions.checkNotNull(player);
   }
 

@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
@@ -251,7 +251,7 @@ import java.util.Arrays;
       int errorCount) {
     long retryDelay =
         loadErrorHandlingPolicy.getRetryDelayMsFor(
-            C.DATA_TYPE_MEDIA, durationUs, error, errorCount);
+            C.DATA_TYPE_MEDIA, loadDurationMs, error, errorCount);
     boolean errorCanBePropagated =
         retryDelay == C.TIME_UNSET
             || errorCount
@@ -326,8 +326,11 @@ import java.util.Arrays;
         return C.RESULT_FORMAT_READ;
       } else if (loadingFinished) {
         if (loadingSucceeded) {
-          buffer.timeUs = 0;
           buffer.addFlag(C.BUFFER_FLAG_KEY_FRAME);
+          buffer.timeUs = 0;
+          if (buffer.isFlagsOnly()) {
+            return C.RESULT_BUFFER_READ;
+          }
           buffer.ensureSpaceForWrite(sampleSize);
           buffer.data.put(sampleData, 0, sampleSize);
         } else {

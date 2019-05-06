@@ -17,9 +17,9 @@ package com.google.android.exoplayer2.source;
 
 import android.os.Handler;
 import android.os.Message;
-import android.support.annotation.GuardedBy;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Timeline;
@@ -897,6 +897,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
 
     public final MediaSource mediaSource;
     public final Object uid;
+    public final List<DeferredMediaPeriod> activeMediaPeriods;
 
     public DeferredTimeline timeline;
     public int childIndex;
@@ -905,7 +906,6 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     public boolean hasStartedPreparing;
     public boolean isPrepared;
     public boolean isRemoved;
-    public List<DeferredMediaPeriod> activeMediaPeriods;
 
     public MediaSourceHolder(MediaSource mediaSource) {
       this.mediaSource = mediaSource;

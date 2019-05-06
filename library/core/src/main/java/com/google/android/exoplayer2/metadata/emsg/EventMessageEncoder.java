@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.metadata.emsg;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;

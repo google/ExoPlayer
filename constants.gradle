@@ -13,26 +13,17 @@
 // limitations under the License.
 project.ext {
     // ExoPlayer version and version code.
-    releaseVersion = '2.9.6'
-    releaseVersionCode = 2009006
-    // Important: ExoPlayer specifies a minSdkVersion of 14 because various
-    // components provided by the library may be of use on older devices.
-    // However, please note that the core media playback functionality provided
-    // by the library requires API level 16 or greater.
-    minSdkVersion = 14
+    releaseVersion = '2.10.0'
+    releaseVersionCode = 2010000
+    minSdkVersion = 16
     targetSdkVersion = 28
     compileSdkVersion = 28
-    buildToolsVersion = '28.0.2'
-    testSupportLibraryVersion = '0.5'
-    supportLibraryVersion = '27.1.1'
-    dexmakerVersion = '1.2'
-    mockitoVersion = '1.9.5'
-    junitVersion = '4.12'
-    truthVersion = '0.39'
-    robolectricVersion = '3.7.1'
+    dexmakerVersion = '2.21.0'
+    mockitoVersion = '2.25.0'
+    robolectricVersion = '4.2'
     autoValueVersion = '1.6'
     checkerframeworkVersion = '2.5.0'
-    testRunnerVersion = '1.1.0-alpha3'
+    androidXTestVersion = '1.1.0'
     modulePrefix = ':'
     if (gradle.ext.has('exoplayerModulePrefix')) {
         modulePrefix += gradle.ext.exoplayerModulePrefix

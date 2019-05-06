@@ -19,8 +19,11 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
+import android.graphics.SurfaceTexture;
+import androidx.annotation.Nullable;
 import android.view.Surface;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.Player.EventListener;
 import com.google.android.exoplayer2.Timeline.Window;
@@ -65,12 +68,10 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 /** Unit test for {@link ExoPlayer}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 @Config(shadows = {RobolectricUtil.CustomLooper.class, RobolectricUtil.CustomMessageQueue.class})
 public final class ExoPlayerTest {
 
@@ -85,7 +86,7 @@ public final class ExoPlayerTest {
 
   @Before
   public void setUp() {
-    context = RuntimeEnvironment.application;
+    context = ApplicationProvider.getApplicationContext();
   }
 
   /**
@@ -496,12 +497,12 @@ public final class ExoPlayerTest {
             .waitForPlaybackState(Player.STATE_READY)
             .seek(10)
             // Start playback and wait until playback reaches second window.
-            .play()
-            .waitForPositionDiscontinuity()
+            .playUntilStartOfWindow(/* windowIndex= */ 1)
             // Seek twice in concession, expecting the first seek to be replaced (and thus except
             // only on seek processed callback).
             .seek(5)
             .seek(60)
+            .play()
             .build();
     final List<Integer> playbackStatesWhenSeekProcessed = new ArrayList<>();
     EventListener eventListener =
@@ -548,12 +549,9 @@ public final class ExoPlayerTest {
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder("testSeekProcessedCalledWithIllegalSeekPosition")
             .waitForPlaybackState(Player.STATE_BUFFERING)
-            // Cause an illegal seek exception by seeking to an invalid position while the media
-            // source is still being prepared and the player doesn't immediately know it will fail.
-            // Because the media source prepares immediately, the exception will be thrown when the
-            // player processed the seek.
+            // The illegal seek position will end playback.
             .seek(/* windowIndex= */ 100, /* positionMs= */ 0)
-            .waitForPlaybackState(Player.STATE_IDLE)
+            .waitForPlaybackState(Player.STATE_ENDED)
             .build();
     final boolean[] onSeekProcessedCalled = new boolean[1];
     EventListener listener =
@@ -565,13 +563,7 @@ public final class ExoPlayerTest {
         };
     ExoPlayerTestRunner testRunner =
         new Builder().setActionSchedule(actionSchedule).setEventListener(listener).build(context);
-    try {
-      testRunner.start().blockUntilActionScheduleFinished(TIMEOUT_MS).blockUntilEnded(TIMEOUT_MS);
-      fail();
-    } catch (ExoPlaybackException e) {
-      // Expected exception.
-      assertThat(e.getUnexpectedException()).isInstanceOf(IllegalSeekPositionException.class);
-    }
+    testRunner.start().blockUntilActionScheduleFinished(TIMEOUT_MS).blockUntilEnded(TIMEOUT_MS);
     assertThat(onSeekProcessedCalled[0]).isTrue();
   }
 
@@ -771,7 +763,7 @@ public final class ExoPlayerTest {
     }
     // There are 2 renderers, and track selections are made twice. The second time one renderer is
     // disabled, so only one out of the two track selections is enabled.
-    assertThat(createdTrackSelections).hasSize(4);
+    assertThat(createdTrackSelections).hasSize(3);
     assertThat(numSelectionsEnabled).isEqualTo(3);
   }
 
@@ -1124,6 +1116,45 @@ public final class ExoPlayerTest {
   }
 
   @Test
+  public void testReprepareAndKeepPositionWithNewMediaSource() throws Exception {
+    Timeline timeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ new Object()));
+    Timeline secondTimeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ new Object()));
+    MediaSource secondSource = new FakeMediaSource(secondTimeline, /* manifest= */ null);
+    AtomicLong positionAfterReprepare = new AtomicLong();
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("testReprepareAndKeepPositionWithNewMediaSource")
+            .pause()
+            .waitForPlaybackState(Player.STATE_READY)
+            .playUntilPosition(/* windowIndex= */ 0, /* positionMs= */ 2000)
+            .prepareSource(secondSource, /* resetPosition= */ false, /* resetState= */ true)
+            .waitForTimelineChanged(secondTimeline)
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    positionAfterReprepare.set(player.getCurrentPosition());
+                  }
+                })
+            .play()
+            .build();
+    ExoPlayerTestRunner testRunner =
+        new ExoPlayerTestRunner.Builder()
+            .setTimeline(timeline)
+            .setActionSchedule(actionSchedule)
+            .build(context)
+            .start()
+            .blockUntilActionScheduleFinished(TIMEOUT_MS)
+            .blockUntilEnded(TIMEOUT_MS);
+
+    testRunner.assertTimelinesEqual(timeline, Timeline.EMPTY, secondTimeline);
+    assertThat(positionAfterReprepare.get()).isAtLeast(2000L);
+  }
+
+  @Test
   public void testStopDuringPreparationOverwritesPreparation() throws Exception {
     Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
     ActionSchedule actionSchedule =
@@ -1255,59 +1286,51 @@ public final class ExoPlayerTest {
   }
 
   @Test
-  public void testPlaybackErrorDuringSourceInfoRefreshStillUpdatesTimeline() throws Exception {
+  public void testInvalidSeekPositionAfterSourceInfoRefreshStillUpdatesTimeline() throws Exception {
     final Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
     final FakeMediaSource mediaSource =
         new FakeMediaSource(/* timeline= */ null, /* manifest= */ null);
     ActionSchedule actionSchedule =
-        new ActionSchedule.Builder("testPlaybackErrorDuringSourceInfoRefreshStillUpdatesTimeline")
+        new ActionSchedule.Builder("testInvalidSeekPositionSourceInfoRefreshStillUpdatesTimeline")
             .waitForPlaybackState(Player.STATE_BUFFERING)
-            // Cause an internal exception by seeking to an invalid position while the media source
-            // is still being prepared. The error will be thrown while the player handles the new
-            // source info.
+            // Seeking to an invalid position will end playback.
             .seek(/* windowIndex= */ 100, /* positionMs= */ 0)
             .executeRunnable(() -> mediaSource.setNewSourceInfo(timeline, /* newManifest= */ null))
-            .waitForPlaybackState(Player.STATE_IDLE)
+            .waitForPlaybackState(Player.STATE_ENDED)
             .build();
     ExoPlayerTestRunner testRunner =
         new ExoPlayerTestRunner.Builder()
             .setMediaSource(mediaSource)
             .setActionSchedule(actionSchedule)
             .build(context);
-    try {
-      testRunner.start().blockUntilActionScheduleFinished(TIMEOUT_MS).blockUntilEnded(TIMEOUT_MS);
-      fail();
-    } catch (ExoPlaybackException e) {
-      // Expected exception.
-      assertThat(e.getUnexpectedException()).isInstanceOf(IllegalSeekPositionException.class);
-    }
+    testRunner.start().blockUntilActionScheduleFinished(TIMEOUT_MS).blockUntilEnded(TIMEOUT_MS);
+
     testRunner.assertTimelinesEqual(timeline);
     testRunner.assertTimelineChangeReasonsEqual(Player.TIMELINE_CHANGE_REASON_PREPARED);
   }
 
   @Test
-  public void testPlaybackErrorDuringSourceInfoRefreshWithShuffleModeEnabledUsesCorrectFirstPeriod()
-      throws Exception {
+  public void
+      testInvalidSeekPositionAfterSourceInfoRefreshWithShuffleModeEnabledUsesCorrectFirstPeriod()
+          throws Exception {
     FakeMediaSource mediaSource =
         new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1), /* manifest= */ null);
     ConcatenatingMediaSource concatenatingMediaSource =
         new ConcatenatingMediaSource(
             /* isAtomic= */ false, new FakeShuffleOrder(0), mediaSource, mediaSource);
-    AtomicInteger windowIndexAfterError = new AtomicInteger();
+    AtomicInteger windowIndexAfterUpdate = new AtomicInteger();
     ActionSchedule actionSchedule =
-        new ActionSchedule.Builder("testPlaybackErrorDuringSourceInfoRefreshUsesCorrectFirstPeriod")
+        new ActionSchedule.Builder("testInvalidSeekPositionSourceInfoRefreshUsesCorrectFirstPeriod")
             .setShuffleModeEnabled(true)
             .waitForPlaybackState(Player.STATE_BUFFERING)
-            // Cause an internal exception by seeking to an invalid position while the media source
-            // is still being prepared. The error will be thrown while the player handles the new
-            // source info.
+            // Seeking to an invalid position will end playback.
             .seek(/* windowIndex= */ 100, /* positionMs= */ 0)
-            .waitForPlaybackState(Player.STATE_IDLE)
+            .waitForPlaybackState(Player.STATE_ENDED)
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
                   public void run(SimpleExoPlayer player) {
-                    windowIndexAfterError.set(player.getCurrentWindowIndex());
+                    windowIndexAfterUpdate.set(player.getCurrentWindowIndex());
                   }
                 })
             .build();
@@ -1316,14 +1339,9 @@ public final class ExoPlayerTest {
             .setMediaSource(concatenatingMediaSource)
             .setActionSchedule(actionSchedule)
             .build(context);
-    try {
-      testRunner.start().blockUntilActionScheduleFinished(TIMEOUT_MS).blockUntilEnded(TIMEOUT_MS);
-      fail();
-    } catch (ExoPlaybackException e) {
-      // Expected exception.
-      assertThat(e.getUnexpectedException()).isInstanceOf(IllegalSeekPositionException.class);
-    }
-    assertThat(windowIndexAfterError.get()).isEqualTo(1);
+    testRunner.start().blockUntilActionScheduleFinished(TIMEOUT_MS).blockUntilEnded(TIMEOUT_MS);
+
+    assertThat(windowIndexAfterUpdate.get()).isEqualTo(1);
   }
 
   @Test
@@ -2028,15 +2046,17 @@ public final class ExoPlayerTest {
             .blockUntilEnded(TIMEOUT_MS);
     testRunner.assertPlayedPeriodIndices(0, 1);
     // Assert that the second period was re-created from the new timeline.
-    assertThat(mediaSource.getCreatedMediaPeriods())
-        .containsExactly(
-            new MediaPeriodId(
-                timeline1.getUidOfPeriod(/* periodIndex= */ 0), /* windowSequenceNumber= */ 0),
-            new MediaPeriodId(
-                timeline1.getUidOfPeriod(/* periodIndex= */ 1), /* windowSequenceNumber= */ 1),
-            new MediaPeriodId(
-                timeline2.getUidOfPeriod(/* periodIndex= */ 1), /* windowSequenceNumber= */ 2))
-        .inOrder();
+    assertThat(mediaSource.getCreatedMediaPeriods()).hasSize(3);
+    assertThat(mediaSource.getCreatedMediaPeriods().get(0).periodUid)
+        .isEqualTo(timeline1.getUidOfPeriod(/* periodIndex= */ 0));
+    assertThat(mediaSource.getCreatedMediaPeriods().get(1).periodUid)
+        .isEqualTo(timeline1.getUidOfPeriod(/* periodIndex= */ 1));
+    assertThat(mediaSource.getCreatedMediaPeriods().get(2).periodUid)
+        .isEqualTo(timeline2.getUidOfPeriod(/* periodIndex= */ 1));
+    assertThat(mediaSource.getCreatedMediaPeriods().get(1).windowSequenceNumber)
+        .isGreaterThan(mediaSource.getCreatedMediaPeriods().get(0).windowSequenceNumber);
+    assertThat(mediaSource.getCreatedMediaPeriods().get(2).windowSequenceNumber)
+        .isGreaterThan(mediaSource.getCreatedMediaPeriods().get(1).windowSequenceNumber);
   }
 
   @Test
@@ -2056,8 +2076,11 @@ public final class ExoPlayerTest {
             .pause()
             .waitForPlaybackState(Player.STATE_READY)
             .seek(/* windowIndex= */ 0, /* positionMs= */ 9999)
+            .waitForSeekProcessed()
             .seek(/* windowIndex= */ 0, /* positionMs= */ 1)
+            .waitForSeekProcessed()
             .seek(/* windowIndex= */ 0, /* positionMs= */ 9999)
+            .waitForSeekProcessed()
             .play()
             .build();
     ExoPlayerTestRunner testRunner =
@@ -2588,8 +2611,8 @@ public final class ExoPlayerTest {
   // Internal methods.
 
   private static ActionSchedule.Builder addSurfaceSwitch(ActionSchedule.Builder builder) {
-    final Surface surface1 = new Surface(null);
-    final Surface surface2 = new Surface(null);
+    final Surface surface1 = new Surface(new SurfaceTexture(/* texName= */ 0));
+    final Surface surface2 = new Surface(new SurfaceTexture(/* texName= */ 1));
     return builder
         .executeRunnable(
             new PlayerRunnable() {

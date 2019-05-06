@@ -17,8 +17,7 @@ package com.google.android.exoplayer2.ext.vp9;
 
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
+import com.google.android.exoplayer2.util.GlUtil;
 import java.nio.FloatBuffer;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.microedition.khronos.egl.EGLConfig;
@@ -72,11 +71,8 @@ import javax.microedition.khronos.opengles.GL10;
       + "  gl_FragColor = vec4(mColorConversion * yuv, 1.0);\n"
       + "}\n";
 
-  private static final FloatBuffer TEXTURE_VERTICES = nativeFloatBuffer(
-      -1.0f, 1.0f,
-      -1.0f, -1.0f,
-      1.0f, 1.0f,
-      1.0f, -1.0f);
+  private static final FloatBuffer TEXTURE_VERTICES =
+      GlUtil.createBuffer(new float[] {-1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, -1.0f});
   private final int[] yuvTextures = new int[3];
   private final AtomicReference<VpxOutputBuffer> pendingOutputBufferReference;
 
@@ -114,21 +110,7 @@ import javax.microedition.khronos.opengles.GL10;
 
   @Override
   public void onSurfaceCreated(GL10 unused, EGLConfig config) {
-    // Create the GL program.
-    program = GLES20.glCreateProgram();
-
-    // Add the vertex and fragment shaders.
-    addShader(GLES20.GL_VERTEX_SHADER, VERTEX_SHADER, program);
-    addShader(GLES20.GL_FRAGMENT_SHADER, FRAGMENT_SHADER, program);
-
-    // Link the GL program.
-    GLES20.glLinkProgram(program);
-    int[] result = new int[] {
-        GLES20.GL_FALSE
-    };
-    result[0] = GLES20.GL_FALSE;
-    GLES20.glGetProgramiv(program, GLES20.GL_LINK_STATUS, result, 0);
-    abortUnless(result[0] == GLES20.GL_TRUE, GLES20.glGetProgramInfoLog(program));
+    program = GlUtil.compileProgram(VERTEX_SHADER, FRAGMENT_SHADER);
     GLES20.glUseProgram(program);
     int posLocation = GLES20.glGetAttribLocation(program, "in_pos");
     GLES20.glEnableVertexAttribArray(posLocation);
@@ -136,11 +118,11 @@ import javax.microedition.khronos.opengles.GL10;
         posLocation, 2, GLES20.GL_FLOAT, false, 0, TEXTURE_VERTICES);
     texLocation = GLES20.glGetAttribLocation(program, "in_tc");
     GLES20.glEnableVertexAttribArray(texLocation);
-    checkNoGLES2Error();
+    GlUtil.checkGlError();
     colorMatrixLocation = GLES20.glGetUniformLocation(program, "mColorConversion");
-    checkNoGLES2Error();
+    GlUtil.checkGlError();
     setupTextures();
-    checkNoGLES2Error();
+    GlUtil.checkGlError();
   }
 
   @Override
@@ -191,11 +173,8 @@ import javax.microedition.khronos.opengles.GL10;
       float crop = (float) outputBuffer.width / outputBuffer.yuvStrides[0];
       // This buffer is consumed during each call to glDrawArrays. It needs to be a member variable
       // rather than a local variable to ensure that it doesn't get garbage collected.
-      textureCoords = nativeFloatBuffer(
-          0.0f, 0.0f,
-          0.0f, 1.0f,
-          crop, 0.0f,
-          crop, 1.0f);
+      textureCoords =
+          GlUtil.createBuffer(new float[] {0.0f, 0.0f, 0.0f, 1.0f, crop, 0.0f, crop, 1.0f});
       GLES20.glVertexAttribPointer(
           texLocation, 2, GLES20.GL_FLOAT, false, 0, textureCoords);
       previousWidth = outputBuffer.width;
@@ -203,23 +182,7 @@ import javax.microedition.khronos.opengles.GL10;
     }
     GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
     GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
-    checkNoGLES2Error();
-  }
-
-  private void addShader(int type, String source, int program) {
-    int[] result = new int[] {
-        GLES20.GL_FALSE
-    };
-    int shader = GLES20.glCreateShader(type);
-    GLES20.glShaderSource(shader, source);
-    GLES20.glCompileShader(shader);
-    GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, result, 0);
-    abortUnless(result[0] == GLES20.GL_TRUE,
-        GLES20.glGetShaderInfoLog(shader) + ", source: " + source);
-    GLES20.glAttachShader(program, shader);
-    GLES20.glDeleteShader(shader);
-
-    checkNoGLES2Error();
+    GlUtil.checkGlError();
   }
 
   private void setupTextures() {
@@ -237,28 +200,6 @@ import javax.microedition.khronos.opengles.GL10;
       GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
           GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
     }
-    checkNoGLES2Error();
+    GlUtil.checkGlError();
   }
-
-  private void abortUnless(boolean condition, String msg) {
-    if (!condition) {
-      throw new RuntimeException(msg);
-    }
-  }
-
-  private void checkNoGLES2Error() {
-    int error = GLES20.glGetError();
-    if (error != GLES20.GL_NO_ERROR) {
-      throw new RuntimeException("GLES20 error: " + error);
-    }
-  }
-
-  private static FloatBuffer nativeFloatBuffer(float... array) {
-    FloatBuffer buffer = ByteBuffer.allocateDirect(array.length * 4).order(
-        ByteOrder.nativeOrder()).asFloatBuffer();
-    buffer.put(array);
-    buffer.flip();
-    return buffer;
-  }
-
 }

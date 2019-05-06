@@ -12,6 +12,7 @@
   <string name="exo_controls_repeat_all_description">ყველას გამეორება</string>
   <string name="exo_controls_shuffle_description">არეულად დაკვრა</string>
   <string name="exo_controls_fullscreen_description">სრულეკრანიანი რეჟიმი</string>
+  <string name="exo_controls_vr_description">VR რეჟიმი</string>
   <string name="exo_download_description">ჩამოტვირთვა</string>
   <string name="exo_download_notification_channel_name">ჩამოტვირთვები</string>
   <string name="exo_download_downloading">მიმდინარეობს ჩამოტვირთვა</string>
@@ -20,7 +21,7 @@
   <string name="exo_download_removing">მიმდინარეობს ჩამოტვირთვების ამოშლა</string>
   <string name="exo_track_selection_title_video">ვიდეო</string>
   <string name="exo_track_selection_title_audio">აუდიო</string>
-  <string name="exo_track_selection_title_text">SMS</string>
+  <string name="exo_track_selection_title_text">ტექსტი</string>
   <string name="exo_track_selection_none">არცერთი</string>
   <string name="exo_track_selection_auto">ავტომატური</string>
   <string name="exo_track_unknown">უცნობი</string>
@@ -30,6 +31,10 @@
   <string name="exo_track_surround">მოცულობითი ხმა</string>
   <string name="exo_track_surround_5_point_1">5.1 მოცულობითი ხმა</string>
   <string name="exo_track_surround_7_point_1">7.1 მოცულობითი ხმა</string>
+  <string name="exo_track_role_alternate">ალტერნატიული</string>
+  <string name="exo_track_role_supplementary">დამატებითი</string>
+  <string name="exo_track_role_commentary">კომენტარი</string>
+  <string name="exo_track_role_closed_captions">დახურული სუბტიტრები</string>
   <string name="exo_track_bitrate">%1$.2f მბიტ/წმ</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>

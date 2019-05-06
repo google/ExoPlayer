@@ -22,8 +22,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.MessageQueue;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Util;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -165,7 +165,7 @@ public final class RobolectricUtil {
     public boolean enqueueMessage(Message msg, long when) {
       Looper looper = ShadowLooper.getLooperForThread(looperThread);
       if (shadowOf(looper) instanceof CustomLooper
-          && shadowOf(looper) != ShadowLooper.getShadowMainLooper()) {
+          && shadowOf(looper) != shadowOf(Looper.getMainLooper())) {
         ((CustomLooper) shadowOf(looper)).addPendingMessage(msg, when);
       } else {
         super.enqueueMessage(msg, when);
@@ -177,7 +177,7 @@ public final class RobolectricUtil {
     public void removeMessages(Handler handler, int what, Object object) {
       Looper looper = ShadowLooper.getLooperForThread(looperThread);
       if (shadowOf(looper) instanceof CustomLooper
-          && shadowOf(looper) != ShadowLooper.getShadowMainLooper()) {
+          && shadowOf(looper) != shadowOf(Looper.getMainLooper())) {
         ((CustomLooper) shadowOf(looper)).removeMessages(handler, what, object);
       }
     }
@@ -186,7 +186,7 @@ public final class RobolectricUtil {
     public void removeCallbacksAndMessages(Handler handler, Object object) {
       Looper looper = ShadowLooper.getLooperForThread(looperThread);
       if (shadowOf(looper) instanceof CustomLooper
-          && shadowOf(looper) != ShadowLooper.getShadowMainLooper()) {
+          && shadowOf(looper) != shadowOf(Looper.getMainLooper())) {
         ((CustomLooper) shadowOf(looper)).removeMessages(handler, ANY_MESSAGE, object);
       }
     }

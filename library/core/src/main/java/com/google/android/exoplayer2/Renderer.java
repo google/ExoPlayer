@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2;
 
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.MediaClock;
 import java.io.IOException;
@@ -44,12 +44,16 @@ public interface Renderer extends PlayerMessage.Target {
   @IntDef({STATE_DISABLED, STATE_ENABLED, STATE_STARTED})
   @interface State {}
   /**
-   * The renderer is disabled.
+   * The renderer is disabled. A renderer in this state may hold resources that it requires for
+   * rendering (e.g. media decoders), for use if it's subsequently enabled. {@link #reset()} can be
+   * called to force the renderer to release these resources.
    */
   int STATE_DISABLED = 0;
   /**
-   * The renderer is enabled but not started. A renderer in this state is not actively rendering
-   * media, but will typically hold resources that it requires for rendering (e.g. media decoders).
+   * The renderer is enabled but not started. A renderer in this state may render media at the
+   * current position (e.g. an initial video frame), but the position will not advance. A renderer
+   * in this state will typically hold resources that it requires for rendering (e.g. media
+   * decoders).
    */
   int STATE_ENABLED = 1;
   /**
@@ -155,6 +159,16 @@ public interface Renderer extends PlayerMessage.Target {
    * {@link #STATE_ENABLED}, {@link #STATE_STARTED}.
    */
   boolean hasReadStreamToEnd();
+
+  /**
+   * Returns the playback position up to which the renderer has read samples from the current {@link
+   * SampleStream}, in microseconds, or {@link C#TIME_END_OF_SOURCE} if the renderer has read the
+   * current {@link SampleStream} to the end.
+   *
+   * <p>This method may be called when the renderer is in the following states: {@link
+   * #STATE_ENABLED}, {@link #STATE_STARTED}.
+   */
+  long getReadingPositionUs();
 
   /**
    * Signals to the renderer that the current {@link SampleStream} will be the final one supplied
@@ -279,4 +293,12 @@ public interface Renderer extends PlayerMessage.Target {
    */
   void disable();
 
+  /**
+   * Forces the renderer to give up any resources (e.g. media decoders) that it may be holding. If
+   * the renderer is not holding any resources, the call is a no-op.
+   *
+   * <p>This method may be called when the renderer is in the following states: {@link
+   * #STATE_DISABLED}.
+   */
+  void reset();
 }

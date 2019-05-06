@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor;
 
-import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
@@ -69,8 +69,9 @@ public abstract class BinarySearchSeeker {
    */
   public static final class OutputFrameHolder {
 
+    public final ByteBuffer byteBuffer;
+
     public long timeUs;
-    public ByteBuffer byteBuffer;
 
     /** Constructs an instance, wrapping the given byte buffer. */
     public OutputFrameHolder(ByteBuffer outputByteBuffer) {

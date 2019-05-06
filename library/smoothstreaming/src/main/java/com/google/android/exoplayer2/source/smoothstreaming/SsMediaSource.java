@@ -18,11 +18,12 @@ package com.google.android.exoplayer2.source.smoothstreaming;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
-import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.offline.FilteringManifestParser;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.BaseMediaSource;
 import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
 import com.google.android.exoplayer2.source.DefaultCompositeSequenceableLoaderFactory;
@@ -49,6 +50,7 @@ import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 /** A SmoothStreaming {@link MediaSource}. */
 public final class SsMediaSource extends BaseMediaSource
@@ -62,14 +64,15 @@ public final class SsMediaSource extends BaseMediaSource
   public static final class Factory implements AdsMediaSource.MediaSourceFactory {
 
     private final SsChunkSource.Factory chunkSourceFactory;
-    private final @Nullable DataSource.Factory manifestDataSourceFactory;
+    @Nullable private final DataSource.Factory manifestDataSourceFactory;
 
-    private @Nullable ParsingLoadable.Parser<? extends SsManifest> manifestParser;
+    @Nullable private ParsingLoadable.Parser<? extends SsManifest> manifestParser;
+    @Nullable private List<StreamKey> streamKeys;
     private CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
     private long livePresentationDelayMs;
     private boolean isCreateCalled;
-    private @Nullable Object tag;
+    @Nullable private Object tag;
 
     /**
      * Creates a new factory for {@link SsMediaSource}s.
@@ -178,6 +181,19 @@ public final class SsMediaSource extends BaseMediaSource
     }
 
     /**
+     * Sets a list of {@link StreamKey stream keys} by which the manifest is filtered.
+     *
+     * @param streamKeys A list of {@link StreamKey stream keys}.
+     * @return This factory, for convenience.
+     * @throws IllegalStateException If one of the {@code create} methods has already been called.
+     */
+    public Factory setStreamKeys(List<StreamKey> streamKeys) {
+      Assertions.checkState(!isCreateCalled);
+      this.streamKeys = streamKeys;
+      return this;
+    }
+
+    /**
      * Sets the factory to create composite {@link SequenceableLoader}s for when this media source
      * loads data from multiple streams (video, audio etc.). The default is an instance of {@link
      * DefaultCompositeSequenceableLoaderFactory}.
@@ -207,6 +223,9 @@ public final class SsMediaSource extends BaseMediaSource
     public SsMediaSource createMediaSource(SsManifest manifest) {
       Assertions.checkArgument(!manifest.isLive);
       isCreateCalled = true;
+      if (streamKeys != null && !streamKeys.isEmpty()) {
+        manifest = manifest.copy(streamKeys);
+      }
       return new SsMediaSource(
           manifest,
           /* manifestUri= */ null,
@@ -246,6 +265,9 @@ public final class SsMediaSource extends BaseMediaSource
       isCreateCalled = true;
       if (manifestParser == null) {
         manifestParser = new SsManifestParser();
+      }
+      if (streamKeys != null) {
+        manifestParser = new FilteringManifestParser<>(manifestParser, streamKeys);
       }
       return new SsMediaSource(
           /* manifest= */ null,
@@ -605,7 +627,13 @@ public final class SsMediaSource extends BaseMediaSource
       long loadDurationMs,
       IOException error,
       int errorCount) {
-    boolean isFatal = error instanceof ParserException;
+    long retryDelayMs =
+        loadErrorHandlingPolicy.getRetryDelayMsFor(
+            C.DATA_TYPE_MANIFEST, loadDurationMs, error, errorCount);
+    LoadErrorAction loadErrorAction =
+        retryDelayMs == C.TIME_UNSET
+            ? Loader.DONT_RETRY_FATAL
+            : Loader.createRetryAction(/* resetErrorCount= */ false, retryDelayMs);
     manifestEventDispatcher.loadError(
         loadable.dataSpec,
         loadable.getUri(),
@@ -615,8 +643,8 @@ public final class SsMediaSource extends BaseMediaSource
         loadDurationMs,
         loadable.bytesLoaded(),
         error,
-        isFatal);
-    return isFatal ? Loader.DONT_RETRY_FATAL : Loader.RETRY;
+        !loadErrorAction.isRetry());
+    return loadErrorAction;
   }
 
   // Internal methods

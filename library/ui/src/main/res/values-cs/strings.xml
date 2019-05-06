@@ -12,6 +12,7 @@
   <string name="exo_controls_repeat_all_description">Opakovat vše</string>
   <string name="exo_controls_shuffle_description">Náhodně</string>
   <string name="exo_controls_fullscreen_description">Režim celé obrazovky</string>
+  <string name="exo_controls_vr_description">Režim VR</string>
   <string name="exo_download_description">Stáhnout</string>
   <string name="exo_download_notification_channel_name">Stahování</string>
   <string name="exo_download_downloading">Stahování</string>
@@ -20,7 +21,7 @@
   <string name="exo_download_removing">Odstraňování staženého obsahu</string>
   <string name="exo_track_selection_title_video">Videa</string>
   <string name="exo_track_selection_title_audio">Zvuk</string>
-  <string name="exo_track_selection_title_text">SMS</string>
+  <string name="exo_track_selection_title_text">Text</string>
   <string name="exo_track_selection_none">Žádné</string>
   <string name="exo_track_selection_auto">Automaticky</string>
   <string name="exo_track_unknown">Neznámé</string>
@@ -30,6 +31,10 @@
   <string name="exo_track_surround">Prostorový zvuk</string>
   <string name="exo_track_surround_5_point_1">Prostorový zvuk 5.1</string>
   <string name="exo_track_surround_7_point_1">Prostorový zvuk 7.1</string>
+  <string name="exo_track_role_alternate">Alternativní</string>
+  <string name="exo_track_role_supplementary">Dodatkové</string>
+  <string name="exo_track_role_commentary">Komentář</string>
+  <string name="exo_track_role_closed_captions">Titulky</string>
   <string name="exo_track_bitrate">%1$.2f Mb/s</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>

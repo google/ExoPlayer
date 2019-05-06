@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.source.smoothstreaming;
 
 import android.net.Uri;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.SeekParameters;
@@ -317,7 +317,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
      *
      * @param streamElement The {@link StreamElement} to wrap.
      * @param trackIndex The track index in the stream element.
-     * @param chunkIndex The chunk index at which the iterator will start.
+     * @param chunkIndex The index of the first available chunk.
      */
     public StreamElementIterator(StreamElement streamElement, int trackIndex, int chunkIndex) {
       super(/* fromIndex= */ chunkIndex, /* toIndex= */ streamElement.chunkCount - 1);

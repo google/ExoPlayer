@@ -30,6 +30,8 @@ import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.SubtitleDecoderException;
@@ -39,11 +41,9 @@ import java.util.List;
 import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
 /** Unit test for {@link TtmlDecoder}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class TtmlDecoderTest {
 
   private static final String INLINE_ATTRIBUTES_TTML_FILE = "ttml/inline_style_attributes.xml";
@@ -700,7 +700,7 @@ public final class TtmlDecoderTest {
 
   private TtmlSubtitle getSubtitle(String file) throws IOException, SubtitleDecoderException {
     TtmlDecoder ttmlDecoder = new TtmlDecoder();
-    byte[] bytes = TestUtil.getByteArray(RuntimeEnvironment.application, file);
+    byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), file);
     return ttmlDecoder.decode(bytes, bytes.length, false);
   }
 }

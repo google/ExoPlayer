@@ -12,6 +12,7 @@
   <string name="exo_controls_repeat_all_description">Повтори ги сите</string>
   <string name="exo_controls_shuffle_description">Измешај</string>
   <string name="exo_controls_fullscreen_description">Режим на цел екран</string>
+  <string name="exo_controls_vr_description">Режим на VR</string>
   <string name="exo_download_description">Преземи</string>
   <string name="exo_download_notification_channel_name">Преземања</string>
   <string name="exo_download_downloading">Се презема</string>
@@ -30,6 +31,10 @@
   <string name="exo_track_surround">Опкружувачки звук</string>
   <string name="exo_track_surround_5_point_1">5.1 опкружувачки звук</string>
   <string name="exo_track_surround_7_point_1">7.1 опкружувачки звук</string>
+  <string name="exo_track_role_alternate">Алтернативна</string>
+  <string name="exo_track_role_supplementary">Дополнителна</string>
+  <string name="exo_track_role_commentary">Коментар</string>
+  <string name="exo_track_role_closed_captions">Титлови</string>
   <string name="exo_track_bitrate">%1$.2f Mб/с</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>

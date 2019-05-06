@@ -16,8 +16,11 @@
 package com.google.android.exoplayer2.testutil;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
 
-import com.google.android.exoplayer2.offline.DownloadAction;
+import android.os.ConditionVariable;
+import com.google.android.exoplayer2.offline.Download;
+import com.google.android.exoplayer2.offline.Download.State;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import java.util.HashMap;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -28,41 +31,59 @@ import java.util.concurrent.TimeUnit;
 public final class TestDownloadManagerListener implements DownloadManager.Listener {
 
   private static final int TIMEOUT = 1000;
+  private static final int INITIALIZATION_TIMEOUT = 10000;
+  private static final int STATE_REMOVED = -1;
 
   private final DownloadManager downloadManager;
   private final DummyMainThread dummyMainThread;
-  private final HashMap<DownloadAction, ArrayBlockingQueue<Integer>> actionStates;
+  private final HashMap<String, ArrayBlockingQueue<Integer>> downloadStates;
+  private final ConditionVariable initializedCondition;
+  private final int timeout;
 
   private CountDownLatch downloadFinishedCondition;
-  private Throwable downloadError;
+  @Download.FailureReason private int failureReason;
 
   public TestDownloadManagerListener(
       DownloadManager downloadManager, DummyMainThread dummyMainThread) {
+    this(downloadManager, dummyMainThread, TIMEOUT);
+  }
+
+  public TestDownloadManagerListener(
+      DownloadManager downloadManager, DummyMainThread dummyMainThread, int timeout) {
     this.downloadManager = downloadManager;
     this.dummyMainThread = dummyMainThread;
-    actionStates = new HashMap<>();
+    this.timeout = timeout;
+    downloadStates = new HashMap<>();
+    initializedCondition = new ConditionVariable();
+    downloadManager.addListener(this);
   }
 
-  public int pollStateChange(DownloadAction action, long timeoutMs) throws InterruptedException {
-    return getStateQueue(action).poll(timeoutMs, TimeUnit.MILLISECONDS);
-  }
-
-  public void clearDownloadError() {
-    this.downloadError = null;
+  public Integer pollStateChange(String taskId, long timeoutMs) throws InterruptedException {
+    return getStateQueue(taskId).poll(timeoutMs, TimeUnit.MILLISECONDS);
   }
 
   @Override
   public void onInitialized(DownloadManager downloadManager) {
-    // Do nothing.
+    initializedCondition.open();
+  }
+
+  public void waitUntilInitialized() {
+    if (!downloadManager.isInitialized()) {
+      assertThat(initializedCondition.block(INITIALIZATION_TIMEOUT)).isTrue();
+    }
   }
 
   @Override
-  public void onTaskStateChanged(
-      DownloadManager downloadManager, DownloadManager.TaskState taskState) {
-    if (taskState.state == DownloadManager.TaskState.STATE_FAILED && downloadError == null) {
-      downloadError = taskState.error;
+  public void onDownloadChanged(DownloadManager downloadManager, Download download) {
+    if (download.state == Download.STATE_FAILED) {
+      failureReason = download.failureReason;
     }
-    getStateQueue(taskState.action).add(taskState.state);
+    getStateQueue(download.request.id).add(download.state);
+  }
+
+  @Override
+  public void onDownloadRemoved(DownloadManager downloadManager, Download download) {
+    getStateQueue(download.request.id).add(STATE_REMOVED);
   }
 
   @Override
@@ -77,6 +98,14 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
    * error.
    */
   public void blockUntilTasksCompleteAndThrowAnyDownloadError() throws Throwable {
+    blockUntilTasksComplete();
+    if (failureReason != Download.FAILURE_REASON_NONE) {
+      throw new Exception("Failure reason: " + failureReason);
+    }
+  }
+
+  /** Blocks until all remove and download tasks are complete. Task errors are ignored. */
+  public void blockUntilTasksComplete() throws InterruptedException {
     synchronized (this) {
       downloadFinishedCondition = new CountDownLatch(1);
     }
@@ -86,18 +115,41 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
             downloadFinishedCondition.countDown();
           }
         });
-    assertThat(downloadFinishedCondition.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue();
-    if (downloadError != null) {
-      throw new Exception(downloadError);
+    assertThat(downloadFinishedCondition.await(timeout, TimeUnit.MILLISECONDS)).isTrue();
+  }
+
+  private ArrayBlockingQueue<Integer> getStateQueue(String taskId) {
+    synchronized (downloadStates) {
+      if (!downloadStates.containsKey(taskId)) {
+        downloadStates.put(taskId, new ArrayBlockingQueue<>(10));
+      }
+      return downloadStates.get(taskId);
     }
   }
 
-  private ArrayBlockingQueue<Integer> getStateQueue(DownloadAction action) {
-    synchronized (actionStates) {
-      if (!actionStates.containsKey(action)) {
-        actionStates.put(action, new ArrayBlockingQueue<>(10));
+  public void assertRemoved(String taskId, int timeoutMs) {
+    assertStateInternal(taskId, STATE_REMOVED, timeoutMs);
+  }
+
+  public void assertState(String taskId, @State int expectedState, int timeoutMs) {
+    assertStateInternal(taskId, expectedState, timeoutMs);
+  }
+
+  private void assertStateInternal(String taskId, int expectedState, int timeoutMs) {
+    while (true) {
+      Integer state = null;
+      try {
+        state = pollStateChange(taskId, timeoutMs);
+      } catch (InterruptedException e) {
+        fail(e.getMessage());
       }
-      return actionStates.get(action);
+      if (state != null) {
+        if (expectedState == state) {
+          return;
+        }
+      } else {
+        fail("Didn't receive expected state: " + expectedState);
+      }
     }
   }
 }

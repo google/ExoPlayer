@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
@@ -100,7 +100,7 @@ public interface TsPayloadReader {
     public final byte[] initializationData;
 
     /**
-     * @param language The ISO 639-2 three character language.
+     * @param language The ISO 639-2 three-letter language code.
      * @param type The subtitling type.
      * @param initializationData The composition and ancillary page ids.
      */
