@@ -15,21 +15,21 @@
  */
 package com.google.android.exoplayer2.ext.flac;
 
-import static androidx.test.InstrumentationRegistry.getContext;
 import static org.junit.Assert.fail;
 
 import android.content.Context;
 import android.net.Uri;
 import android.os.Looper;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import org.junit.Before;
@@ -56,7 +56,7 @@ public class FlacPlaybackTest {
 
   private void playUri(String uri) throws Exception {
     TestPlaybackRunnable testPlaybackRunnable =
-        new TestPlaybackRunnable(Uri.parse(uri), getContext());
+        new TestPlaybackRunnable(Uri.parse(uri), ApplicationProvider.getApplicationContext());
     Thread thread = new Thread(testPlaybackRunnable);
     thread.start();
     thread.join();
@@ -83,12 +83,12 @@ public class FlacPlaybackTest {
       Looper.prepare();
       LibflacAudioRenderer audioRenderer = new LibflacAudioRenderer();
       DefaultTrackSelector trackSelector = new DefaultTrackSelector();
-      player = ExoPlayerFactory.newInstance(new Renderer[] {audioRenderer}, trackSelector);
+      player = ExoPlayerFactory.newInstance(context, new Renderer[] {audioRenderer}, trackSelector);
       player.addListener(this);
       MediaSource mediaSource =
-          new ExtractorMediaSource.Factory(
-                  new DefaultDataSourceFactory(context, "ExoPlayerExtFlacTest"))
-              .setExtractorsFactory(MatroskaExtractor.FACTORY)
+          new ProgressiveMediaSource.Factory(
+                  new DefaultDataSourceFactory(context, "ExoPlayerExtFlacTest"),
+                  MatroskaExtractor.FACTORY)
               .createMediaSource(uri);
       player.prepare(mediaSource);
       player.setPlayWhenReady(true);

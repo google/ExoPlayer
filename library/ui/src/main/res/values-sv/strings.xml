@@ -12,6 +12,7 @@
   <string name="exo_controls_repeat_all_description">Upprepa alla</string>
   <string name="exo_controls_shuffle_description">Blanda spår</string>
   <string name="exo_controls_fullscreen_description">Helskärmsläge</string>
+  <string name="exo_controls_vr_description">VR-läge</string>
   <string name="exo_download_description">Ladda ned</string>
   <string name="exo_download_notification_channel_name">Nedladdningar</string>
   <string name="exo_download_downloading">Laddar ned</string>
@@ -30,6 +31,10 @@
   <string name="exo_track_surround">Surroundljud</string>
   <string name="exo_track_surround_5_point_1">5.1-kanaligt surroundljud</string>
   <string name="exo_track_surround_7_point_1">7.1-kanaligt surroundljud</string>
+  <string name="exo_track_role_alternate">Alternativ</string>
+  <string name="exo_track_role_supplementary">Tillägg</string>
+  <string name="exo_track_role_commentary">Kommentar</string>
+  <string name="exo_track_role_closed_captions">Undertexter</string>
   <string name="exo_track_bitrate">%1$.2f Mbit/s</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>

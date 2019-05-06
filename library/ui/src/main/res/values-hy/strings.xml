@@ -12,6 +12,7 @@
   <string name="exo_controls_repeat_all_description">Կրկնել բոլորը</string>
   <string name="exo_controls_shuffle_description">Խառնել</string>
   <string name="exo_controls_fullscreen_description">Լիաէկրան ռեժիմ</string>
+  <string name="exo_controls_vr_description">VR ռեժիմ</string>
   <string name="exo_download_description">Ներբեռնել</string>
   <string name="exo_download_notification_channel_name">Ներբեռնումներ</string>
   <string name="exo_download_downloading">Ներբեռնում</string>
@@ -30,6 +31,10 @@
   <string name="exo_track_surround">Ծավալային ձայն</string>
   <string name="exo_track_surround_5_point_1">5․1 ծավալային ձայն</string>
   <string name="exo_track_surround_7_point_1">7․1 ծավալային ձայն</string>
-  <string name="exo_track_bitrate">%1$.2f մբ/վ</string>
+  <string name="exo_track_role_alternate">Այլընտրանքային</string>
+  <string name="exo_track_role_supplementary">Լրացուցիչ</string>
+  <string name="exo_track_role_commentary">Մեկնաբանություններ</string>
+  <string name="exo_track_role_closed_captions">Ենթագրեր</string>
+  <string name="exo_track_bitrate">%1$.2f Մբիթ/վ</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>

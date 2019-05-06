@@ -19,8 +19,8 @@ import android.content.Context;
 import android.media.MediaCodec;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.audio.AudioCapabilities;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
@@ -268,7 +268,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
         extensionRendererMode, renderersList);
     buildCameraMotionRenderers(context, extensionRendererMode, renderersList);
     buildMiscellaneousRenderers(context, eventHandler, extensionRendererMode, renderersList);
-    return renderersList.toArray(new Renderer[renderersList.size()]);
+    return renderersList.toArray(new Renderer[0]);
   }
 
   /**
@@ -323,7 +323,6 @@ public class DefaultRenderersFactory implements RenderersFactory {
       Class<?> clazz = Class.forName("com.google.android.exoplayer2.ext.vp9.LibvpxVideoRenderer");
       Constructor<?> constructor =
           clazz.getConstructor(
-              boolean.class,
               long.class,
               android.os.Handler.class,
               com.google.android.exoplayer2.video.VideoRendererEventListener.class,
@@ -332,7 +331,6 @@ public class DefaultRenderersFactory implements RenderersFactory {
       Renderer renderer =
           (Renderer)
               constructor.newInstance(
-                  true,
                   allowedVideoJoiningTimeMs,
                   eventHandler,
                   eventListener,

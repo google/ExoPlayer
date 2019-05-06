@@ -17,15 +17,13 @@ package com.google.android.exoplayer2.util;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Tests for {@link ParsableBitArray}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Tests for {@link ParsableBitArray}. */
+@RunWith(AndroidJUnit4.class)
 public final class ParsableBitArrayTest {
 
   private static final byte[] TEST_DATA = new byte[] {0x3C, (byte) 0xD2, (byte) 0x5F, (byte) 0x01,

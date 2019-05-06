@@ -20,7 +20,7 @@ import android.content.Context;
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
 import android.os.Handler;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
@@ -41,7 +41,6 @@ import java.util.ArrayList;
  * video buffer timestamp assertions, and modifies the default value for {@link
  * #setAllowedVideoJoiningTimeMs(long)} to be {@code 0}.
  */
-@TargetApi(16)
 public class DebugRenderersFactory extends DefaultRenderersFactory {
 
   public DebugRenderersFactory(Context context) {
@@ -133,9 +132,12 @@ public class DebugRenderersFactory extends DefaultRenderersFactory {
     }
 
     @Override
-    protected void flushCodec() throws ExoPlaybackException {
-      super.flushCodec();
-      clearTimestamps();
+    protected boolean flushOrReleaseCodec() {
+      try {
+        return super.flushOrReleaseCodec();
+      } finally {
+        clearTimestamps();
+      }
     }
 
     @Override

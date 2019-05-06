@@ -12,6 +12,7 @@
   <string name="exo_controls_repeat_all_description">Korda kõiki</string>
   <string name="exo_controls_shuffle_description">Esita juhuslikus järjekorras</string>
   <string name="exo_controls_fullscreen_description">Täisekraani režiim</string>
+  <string name="exo_controls_vr_description">VR-režiim</string>
   <string name="exo_download_description">Allalaadimine</string>
   <string name="exo_download_notification_channel_name">Allalaadimised</string>
   <string name="exo_download_downloading">Allalaadimine</string>
@@ -30,6 +31,10 @@
   <string name="exo_track_surround">Ruumiline heli</string>
   <string name="exo_track_surround_5_point_1">Ruumiline heli 5.1</string>
   <string name="exo_track_surround_7_point_1">Ruumiline heli 7.1</string>
+  <string name="exo_track_role_alternate">Alternatiiv</string>
+  <string name="exo_track_role_supplementary">Lisalugu</string>
+  <string name="exo_track_role_commentary">Kommentaar</string>
+  <string name="exo_track_role_closed_captions">Subtiitrid</string>
   <string name="exo_track_bitrate">%1$.2f Mbit/s</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>

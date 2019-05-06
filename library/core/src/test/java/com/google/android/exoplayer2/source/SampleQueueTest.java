@@ -23,7 +23,8 @@ import static com.google.common.truth.Truth.assertThat;
 import static java.lang.Long.MIN_VALUE;
 import static java.util.Arrays.copyOfRange;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
@@ -36,12 +37,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Test for {@link SampleQueue}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Test for {@link SampleQueue}. */
+@RunWith(AndroidJUnit4.class)
 public final class SampleQueueTest {
 
   private static final int ALLOCATION_SIZE = 16;

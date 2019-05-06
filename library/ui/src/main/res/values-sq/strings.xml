@@ -12,6 +12,7 @@
   <string name="exo_controls_repeat_all_description">Përsërit të gjitha</string>
   <string name="exo_controls_shuffle_description">Përziej</string>
   <string name="exo_controls_fullscreen_description">Modaliteti me ekran të plotë</string>
+  <string name="exo_controls_vr_description">Modaliteti RV</string>
   <string name="exo_download_description">Shkarko</string>
   <string name="exo_download_notification_channel_name">Shkarkimet</string>
   <string name="exo_download_downloading">Po shkarkohet</string>
@@ -30,6 +31,10 @@
   <string name="exo_track_surround">Tingulli rrethues</string>
   <string name="exo_track_surround_5_point_1">Tingull rrethues 5.1</string>
   <string name="exo_track_surround_7_point_1">Tingull rrethues 7.1</string>
+  <string name="exo_track_role_alternate">Alternative</string>
+  <string name="exo_track_role_supplementary">Plotësuese</string>
+  <string name="exo_track_role_commentary">Komente</string>
+  <string name="exo_track_role_closed_captions">Titrat</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>

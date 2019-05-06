@@ -16,7 +16,6 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion project.ext.compileSdkVersion
-    buildToolsVersion project.ext.buildToolsVersion
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -34,13 +33,15 @@ android {
         jniLibs.srcDir 'src/main/libs'
         jni.srcDirs = [] // Disable the automatic ndk-build call by Android Studio.
     }
+
+    testOptions.unitTests.includeAndroidResources = true
 }
 
 dependencies {
-    implementation 'com.android.support:support-annotations:' + supportLibraryVersion
     implementation project(modulePrefix + 'library-core')
-    androidTestImplementation 'androidx.test:runner:' + testRunnerVersion
+    implementation 'androidx.annotation:annotation:1.0.2'
     androidTestImplementation project(modulePrefix + 'testutils')
+    androidTestImplementation 'androidx.test:runner:' + androidXTestVersion
     testImplementation project(modulePrefix + 'testutils-robolectric')
 }
 

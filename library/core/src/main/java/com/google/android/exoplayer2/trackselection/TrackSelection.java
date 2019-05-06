@@ -15,24 +15,61 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
+import com.google.android.exoplayer2.trackselection.TrackSelectionUtil.AdaptiveTrackSelectionFactory;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import java.util.List;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
  * A track selection consisting of a static subset of selected tracks belonging to a {@link
  * TrackGroup}, and a possibly varying individual selected track from the subset.
  *
  * <p>Tracks belonging to the subset are exposed in decreasing bandwidth order. The individual
- * selected track may change as a result of calling {@link #updateSelectedTrack(long, long, long,
- * List, MediaChunkIterator[])}.
+ * selected track may change dynamically as a result of calling {@link #updateSelectedTrack(long,
+ * long, long, List, MediaChunkIterator[])} or {@link #evaluateQueueSize(long, List)}. This only
+ * happens between calls to {@link #enable()} and {@link #disable()}.
  */
 public interface TrackSelection {
+
+  /** Contains of a subset of selected tracks belonging to a {@link TrackGroup}. */
+  final class Definition {
+    /** The {@link TrackGroup} which tracks belong to. */
+    public final TrackGroup group;
+    /** The indices of the selected tracks in {@link #group}. */
+    public final int[] tracks;
+    /** The track selection reason. One of the {@link C} SELECTION_REASON_ constants. */
+    public final int reason;
+    /** Optional data associated with this selection of tracks. */
+    @Nullable public final Object data;
+
+    /**
+     * @param group The {@link TrackGroup}. Must not be null.
+     * @param tracks The indices of the selected tracks within the {@link TrackGroup}. Must not be
+     *     null or empty. May be in any order.
+     */
+    public Definition(TrackGroup group, int... tracks) {
+      this(group, tracks, C.SELECTION_REASON_UNKNOWN, /* data= */ null);
+    }
+
+    /**
+     * @param group The {@link TrackGroup}. Must not be null.
+     * @param tracks The indices of the selected tracks within the {@link TrackGroup}. Must not be
+     * @param reason The track selection reason. One of the {@link C} SELECTION_REASON_ constants.
+     * @param data Optional data associated with this selection of tracks.
+     */
+    public Definition(TrackGroup group, int[] tracks, int reason, @Nullable Object data) {
+      this.group = group;
+      this.tracks = tracks;
+      this.reason = reason;
+      this.data = data;
+    }
+  }
 
   /**
    * Factory for {@link TrackSelection} instances.
@@ -40,29 +77,49 @@ public interface TrackSelection {
   interface Factory {
 
     /**
-     * Creates a new selection.
-     *
-     * @param group The {@link TrackGroup}. Must not be null.
-     * @param bandwidthMeter A {@link BandwidthMeter} which can be used to select tracks.
-     * @param tracks The indices of the selected tracks within the {@link TrackGroup}. Must not be
-     *     null or empty. May be in any order.
-     * @return The created selection.
+     * @deprecated Implement {@link #createTrackSelections(Definition[], BandwidthMeter)} instead.
+     *     Calling {@link TrackSelectionUtil#createTrackSelectionsForDefinitions(Definition[],
+     *     AdaptiveTrackSelectionFactory)} helps to create a single adaptive track selection in the
+     *     same way as using this deprecated method.
      */
-    TrackSelection createTrackSelection(
-        TrackGroup group, BandwidthMeter bandwidthMeter, int... tracks);
+    @Deprecated
+    default TrackSelection createTrackSelection(
+        TrackGroup group, BandwidthMeter bandwidthMeter, int... tracks) {
+      throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Creates a new selection for each {@link Definition}.
+     *
+     * @param definitions A {@link Definition} array. May include null values.
+     * @param bandwidthMeter A {@link BandwidthMeter} which can be used to select tracks.
+     * @return The created selections. Must have the same length as {@code definitions} and may
+     *     include null values.
+     */
+    @SuppressWarnings("deprecation")
+    default @NullableType TrackSelection[] createTrackSelections(
+        @NullableType Definition[] definitions, BandwidthMeter bandwidthMeter) {
+      return TrackSelectionUtil.createTrackSelectionsForDefinitions(
+          definitions,
+          definition -> createTrackSelection(definition.group, bandwidthMeter, definition.tracks));
+    }
   }
 
   /**
-   * Enables the track selection.
-   * <p>
-   * This method may not be called when the track selection is already enabled.
+   * Enables the track selection. Dynamic changes via {@link #updateSelectedTrack(long, long, long,
+   * List, MediaChunkIterator[])} or {@link #evaluateQueueSize(long, List)} will only happen after
+   * this call.
+   *
+   * <p>This method may not be called when the track selection is already enabled.
    */
   void enable();
 
   /**
-   * Disables this track selection.
-   * <p>
-   * This method may only be called when the track selection is already enabled.
+   * Disables this track selection. No further dynamic changes via {@link #updateSelectedTrack(long,
+   * long, long, List, MediaChunkIterator[])} or {@link #evaluateQueueSize(long, List)} will happen
+   * after this call.
+   *
+   * <p>This method may only be called when the track selection is already enabled.
    */
   void disable();
 
@@ -148,6 +205,13 @@ public interface TrackSelection {
    * @param speed The playback speed.
    */
   void onPlaybackSpeed(float speed);
+
+  /**
+   * Called to notify the selection of a position discontinuity.
+   *
+   * <p>This happens when the playback position jumps, e.g., as a result of a seek being performed.
+   */
+  default void onDiscontinuity() {}
 
   /**
    * @deprecated Use and implement {@link #updateSelectedTrack(long, long, long, List,

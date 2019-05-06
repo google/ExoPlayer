@@ -24,7 +24,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.PersistableBundle;
-import android.support.annotation.RequiresPermission;
+import androidx.annotation.RequiresPermission;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 
@@ -44,6 +44,7 @@ import com.google.android.exoplayer2.util.Util;
 @TargetApi(21)
 public final class PlatformScheduler implements Scheduler {
 
+  private static final boolean DEBUG = false;
   private static final String TAG = "PlatformScheduler";
   private static final String KEY_SERVICE_ACTION = "service_action";
   private static final String KEY_SERVICE_PACKAGE = "service_package";
@@ -93,36 +94,11 @@ public final class PlatformScheduler implements Scheduler {
       String servicePackage) {
     JobInfo.Builder builder = new JobInfo.Builder(jobId, jobServiceComponentName);
 
-    int networkType;
-    switch (requirements.getRequiredNetworkType()) {
-      case Requirements.NETWORK_TYPE_NONE:
-        networkType = JobInfo.NETWORK_TYPE_NONE;
-        break;
-      case Requirements.NETWORK_TYPE_ANY:
-        networkType = JobInfo.NETWORK_TYPE_ANY;
-        break;
-      case Requirements.NETWORK_TYPE_UNMETERED:
-        networkType = JobInfo.NETWORK_TYPE_UNMETERED;
-        break;
-      case Requirements.NETWORK_TYPE_NOT_ROAMING:
-        if (Util.SDK_INT >= 24) {
-          networkType = JobInfo.NETWORK_TYPE_NOT_ROAMING;
-        } else {
-          throw new UnsupportedOperationException();
-        }
-        break;
-      case Requirements.NETWORK_TYPE_METERED:
-        if (Util.SDK_INT >= 26) {
-          networkType = JobInfo.NETWORK_TYPE_METERED;
-        } else {
-          throw new UnsupportedOperationException();
-        }
-        break;
-      default:
-        throw new UnsupportedOperationException();
+    if (requirements.isUnmeteredNetworkRequired()) {
+      builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED);
+    } else if (requirements.isNetworkRequired()) {
+      builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY);
     }
-
-    builder.setRequiredNetworkType(networkType);
     builder.setRequiresDeviceIdle(requirements.isIdleRequired());
     builder.setRequiresCharging(requirements.isChargingRequired());
     builder.setPersisted(true);
@@ -130,7 +106,7 @@ public final class PlatformScheduler implements Scheduler {
     PersistableBundle extras = new PersistableBundle();
     extras.putString(KEY_SERVICE_ACTION, serviceAction);
     extras.putString(KEY_SERVICE_PACKAGE, servicePackage);
-    extras.putInt(KEY_REQUIREMENTS, requirements.getRequirementsData());
+    extras.putInt(KEY_REQUIREMENTS, requirements.getRequirements());
     builder.setExtras(extras);
 
     return builder.build();
@@ -153,6 +129,8 @@ public final class PlatformScheduler implements Scheduler {
         logd("Requirements are met");
         String serviceAction = extras.getString(KEY_SERVICE_ACTION);
         String servicePackage = extras.getString(KEY_SERVICE_PACKAGE);
+        // FIXME: incompatible types in argument.
+        @SuppressWarnings("nullness:argument.type.incompatible")
         Intent intent = new Intent(serviceAction).setPackage(servicePackage);
         logd("Starting service action: " + serviceAction + " package: " + servicePackage);
         Util.startForegroundService(this, intent);

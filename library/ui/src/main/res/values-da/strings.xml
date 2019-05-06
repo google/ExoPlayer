@@ -12,6 +12,7 @@
   <string name="exo_controls_repeat_all_description">Gentag alle</string>
   <string name="exo_controls_shuffle_description">Bland</string>
   <string name="exo_controls_fullscreen_description">Fuld skærm</string>
+  <string name="exo_controls_vr_description">VR-tilstand</string>
   <string name="exo_download_description">Download</string>
   <string name="exo_download_notification_channel_name">Downloads</string>
   <string name="exo_download_downloading">Downloader</string>
@@ -30,6 +31,10 @@
   <string name="exo_track_surround">Surroundsound</string>
   <string name="exo_track_surround_5_point_1">5.1 surround sound</string>
   <string name="exo_track_surround_7_point_1">7.1 surroundsound</string>
+  <string name="exo_track_role_alternate">Alternativt spor</string>
+  <string name="exo_track_role_supplementary">Supplerende spor</string>
+  <string name="exo_track_role_commentary">Kommentarspor</string>
+  <string name="exo_track_role_closed_captions">Undertekster</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>

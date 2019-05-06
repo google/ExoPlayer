@@ -12,6 +12,7 @@
   <string name="exo_controls_repeat_all_description">Tout lire en boucle</string>
   <string name="exo_controls_shuffle_description">Aléatoire</string>
   <string name="exo_controls_fullscreen_description">Mode plein écran</string>
+  <string name="exo_controls_vr_description">Mode RV</string>
   <string name="exo_download_description">Télécharger</string>
   <string name="exo_download_notification_channel_name">Téléchargements</string>
   <string name="exo_download_downloading">Téléchargement…</string>
@@ -30,6 +31,10 @@
   <string name="exo_track_surround">Son surround</string>
   <string name="exo_track_surround_5_point_1">Son surround 5.1</string>
   <string name="exo_track_surround_7_point_1">Son surround 7.1</string>
+  <string name="exo_track_role_alternate">Piste alternative</string>
+  <string name="exo_track_role_supplementary">Piste supplémentaire</string>
+  <string name="exo_track_role_commentary">Commentaires</string>
+  <string name="exo_track_role_closed_captions">Sous-titres</string>
   <string name="exo_track_bitrate">%1$.2f Mbit/s</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>

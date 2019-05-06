@@ -28,9 +28,9 @@ import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Looper;
-import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -404,7 +404,6 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
           surfaceView = new TextureView(context);
           break;
         case SURFACE_TYPE_MONO360_VIEW:
-          Assertions.checkState(Util.SDK_INT >= 15);
           SphericalSurfaceView sphericalSurfaceView = new SphericalSurfaceView(context);
           sphericalSurfaceView.setSurfaceListener(componentListener);
           sphericalSurfaceView.setSingleTapListener(componentListener);

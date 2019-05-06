@@ -18,6 +18,8 @@ package com.google.android.exoplayer2.source.dash.manifest;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.metadata.emsg.EventMessage;
@@ -29,11 +31,9 @@ import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
 /** Unit tests for {@link DashManifestParser}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class DashManifestParserTest {
 
   private static final String SAMPLE_MPD_1 = "sample_mpd_1";
@@ -47,10 +47,11 @@ public class DashManifestParserTest {
     DashManifestParser parser = new DashManifestParser();
     parser.parse(
         Uri.parse("https://example.com/test.mpd"),
-        TestUtil.getInputStream(RuntimeEnvironment.application, SAMPLE_MPD_1));
+        TestUtil.getInputStream(ApplicationProvider.getApplicationContext(), SAMPLE_MPD_1));
     parser.parse(
         Uri.parse("https://example.com/test.mpd"),
-        TestUtil.getInputStream(RuntimeEnvironment.application, SAMPLE_MPD_2_UNKNOWN_MIME_TYPE));
+        TestUtil.getInputStream(
+            ApplicationProvider.getApplicationContext(), SAMPLE_MPD_2_UNKNOWN_MIME_TYPE));
   }
 
   @Test
@@ -59,7 +60,8 @@ public class DashManifestParserTest {
     DashManifest mpd =
         parser.parse(
             Uri.parse("https://example.com/test.mpd"),
-            TestUtil.getInputStream(RuntimeEnvironment.application, SAMPLE_MPD_3_SEGMENT_TEMPLATE));
+            TestUtil.getInputStream(
+                ApplicationProvider.getApplicationContext(), SAMPLE_MPD_3_SEGMENT_TEMPLATE));
 
     assertThat(mpd.getPeriodCount()).isEqualTo(1);
 
@@ -90,7 +92,8 @@ public class DashManifestParserTest {
     DashManifest mpd =
         parser.parse(
             Uri.parse("https://example.com/test.mpd"),
-            TestUtil.getInputStream(RuntimeEnvironment.application, SAMPLE_MPD_4_EVENT_STREAM));
+            TestUtil.getInputStream(
+                ApplicationProvider.getApplicationContext(), SAMPLE_MPD_4_EVENT_STREAM));
 
     Period period = mpd.getPeriod(0);
     assertThat(period.eventStreams).hasSize(3);
@@ -159,7 +162,7 @@ public class DashManifestParserTest {
     DashManifest mpd =
         parser.parse(
             Uri.parse("Https://example.com/test.mpd"),
-            TestUtil.getInputStream(RuntimeEnvironment.application, SAMPLE_MPD_1));
+            TestUtil.getInputStream(ApplicationProvider.getApplicationContext(), SAMPLE_MPD_1));
     ProgramInformation expectedProgramInformation =
         new ProgramInformation(
             "MediaTitle", "MediaSource", "MediaCopyright", "www.example.com", "enUs");

@@ -35,37 +35,47 @@ import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCachedDa
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.offline.DefaultDownloaderFactory;
+import com.google.android.exoplayer2.offline.DownloadRequest;
+import com.google.android.exoplayer2.offline.Downloader;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
+import com.google.android.exoplayer2.offline.DownloaderFactory;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
 import com.google.android.exoplayer2.testutil.FakeDataSet;
 import com.google.android.exoplayer2.testutil.FakeDataSource.Factory;
+import com.google.android.exoplayer2.upstream.DummyDataSource;
+import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
 import com.google.android.exoplayer2.upstream.cache.SimpleCache;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
+import org.mockito.Mockito;
 
 /** Unit tests for {@link HlsDownloader}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class HlsDownloaderTest {
 
   private SimpleCache cache;
   private File tempFolder;
+  private ProgressListener progressListener;
   private FakeDataSet fakeDataSet;
 
   @Before
   public void setUp() throws Exception {
-    tempFolder = Util.createTempDirectory(RuntimeEnvironment.application, "ExoPlayerTest");
+    tempFolder =
+        Util.createTempDirectory(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
     cache = new SimpleCache(tempFolder, new NoOpCacheEvictor());
-
+    progressListener = new ProgressListener();
     fakeDataSet =
         new FakeDataSet()
             .setData(MASTER_PLAYLIST_URI, MASTER_PLAYLIST_DATA)
@@ -85,20 +95,37 @@ public class HlsDownloaderTest {
   }
 
   @Test
+  public void testCreateWithDefaultDownloaderFactory() {
+    DownloaderConstructorHelper constructorHelper =
+        new DownloaderConstructorHelper(Mockito.mock(Cache.class), DummyDataSource.FACTORY);
+    DownloaderFactory factory = new DefaultDownloaderFactory(constructorHelper);
+
+    Downloader downloader =
+        factory.createDownloader(
+            new DownloadRequest(
+                "id",
+                DownloadRequest.TYPE_HLS,
+                Uri.parse("https://www.test.com/download"),
+                Collections.singletonList(new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 0)),
+                /* customCacheKey= */ null,
+                /* data= */ null));
+    assertThat(downloader).isInstanceOf(HlsDownloader.class);
+  }
+
+  @Test
   public void testCounterMethods() throws Exception {
     HlsDownloader downloader =
         getHlsDownloader(MASTER_PLAYLIST_URI, getKeys(MASTER_MEDIA_PLAYLIST_1_INDEX));
-    downloader.download();
+    downloader.download(progressListener);
 
-    assertThat(downloader.getDownloadedBytes())
-        .isEqualTo(MEDIA_PLAYLIST_DATA.length + 10 + 11 + 12);
+    progressListener.assertBytesDownloaded(MEDIA_PLAYLIST_DATA.length + 10 + 11 + 12);
   }
 
   @Test
   public void testDownloadRepresentation() throws Exception {
     HlsDownloader downloader =
         getHlsDownloader(MASTER_PLAYLIST_URI, getKeys(MASTER_MEDIA_PLAYLIST_1_INDEX));
-    downloader.download();
+    downloader.download(progressListener);
 
     assertCachedData(
         cache,
@@ -116,7 +143,7 @@ public class HlsDownloaderTest {
         getHlsDownloader(
             MASTER_PLAYLIST_URI,
             getKeys(MASTER_MEDIA_PLAYLIST_1_INDEX, MASTER_MEDIA_PLAYLIST_2_INDEX));
-    downloader.download();
+    downloader.download(progressListener);
 
     assertCachedData(cache, fakeDataSet);
   }
@@ -135,7 +162,7 @@ public class HlsDownloaderTest {
         .setRandomData(MEDIA_PLAYLIST_3_DIR + "fileSequence2.ts", 15);
 
     HlsDownloader downloader = getHlsDownloader(MASTER_PLAYLIST_URI, getKeys());
-    downloader.download();
+    downloader.download(progressListener);
 
     assertCachedData(cache, fakeDataSet);
   }
@@ -146,7 +173,7 @@ public class HlsDownloaderTest {
         getHlsDownloader(
             MASTER_PLAYLIST_URI,
             getKeys(MASTER_MEDIA_PLAYLIST_1_INDEX, MASTER_MEDIA_PLAYLIST_2_INDEX));
-    downloader.download();
+    downloader.download(progressListener);
     downloader.remove();
 
     assertCacheEmpty(cache);
@@ -155,7 +182,7 @@ public class HlsDownloaderTest {
   @Test
   public void testDownloadMediaPlaylist() throws Exception {
     HlsDownloader downloader = getHlsDownloader(MEDIA_PLAYLIST_1_URI, getKeys());
-    downloader.download();
+    downloader.download(progressListener);
 
     assertCachedData(
         cache,
@@ -178,7 +205,7 @@ public class HlsDownloaderTest {
             .setRandomData("fileSequence2.ts", 12);
 
     HlsDownloader downloader = getHlsDownloader(ENC_MEDIA_PLAYLIST_URI, getKeys());
-    downloader.download();
+    downloader.download(progressListener);
     assertCachedData(cache, fakeDataSet);
   }
 
@@ -194,5 +221,19 @@ public class HlsDownloaderTest {
       streamKeys.add(new StreamKey(HlsMasterPlaylist.GROUP_INDEX_VARIANT, variantIndex));
     }
     return streamKeys;
+  }
+
+  private static final class ProgressListener implements Downloader.ProgressListener {
+
+    private long bytesDownloaded;
+
+    @Override
+    public void onProgress(long contentLength, long bytesDownloaded, float percentDownloaded) {
+      this.bytesDownloaded = bytesDownloaded;
+    }
+
+    public void assertBytesDownloaded(long bytesDownloaded) {
+      assertThat(this.bytesDownloaded).isEqualTo(bytesDownloaded);
+    }
   }
 }

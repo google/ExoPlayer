@@ -17,9 +17,11 @@ package com.google.android.exoplayer2.metadata;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 import java.util.List;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
  * A collection of metadata entries.
@@ -76,6 +78,33 @@ public final class Metadata implements Parcelable {
     return entries[index];
   }
 
+  /**
+   * Returns a copy of this metadata with the entries of the specified metadata appended. Returns
+   * this instance if {@code other} is null.
+   *
+   * @param other The metadata that holds the entries to append. If null, this methods returns this
+   *     instance.
+   * @return The metadata instance with the appended entries.
+   */
+  public Metadata copyWithAppendedEntriesFrom(@Nullable Metadata other) {
+    if (other == null) {
+      return this;
+    }
+    return copyWithAppendedEntries(other.entries);
+  }
+
+  /**
+   * Returns a copy of this metadata with the specified entries appended.
+   *
+   * @param entriesToAppend The entries to append.
+   * @return The metadata instance with the appended entries.
+   */
+  public Metadata copyWithAppendedEntries(Entry... entriesToAppend) {
+    @NullableType Entry[] merged = Arrays.copyOf(entries, entries.length + entriesToAppend.length);
+    System.arraycopy(entriesToAppend, 0, merged, entries.length, entriesToAppend.length);
+    return new Metadata(Util.castNonNullTypeArray(merged));
+  }
+
   @Override
   public boolean equals(@Nullable Object obj) {
     if (this == obj) {
@@ -108,16 +137,16 @@ public final class Metadata implements Parcelable {
     }
   }
 
-  public static final Parcelable.Creator<Metadata> CREATOR = new Parcelable.Creator<Metadata>() {
-    @Override
-    public Metadata createFromParcel(Parcel in) {
-      return new Metadata(in);
-    }
+  public static final Parcelable.Creator<Metadata> CREATOR =
+      new Parcelable.Creator<Metadata>() {
+        @Override
+        public Metadata createFromParcel(Parcel in) {
+          return new Metadata(in);
+        }
 
-    @Override
-    public Metadata[] newArray(int size) {
-      return new Metadata[0];
-    }
-  };
-
+        @Override
+        public Metadata[] newArray(int size) {
+          return new Metadata[size];
+        }
+      };
 }

@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.mp3;
 
-import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
@@ -341,9 +341,19 @@ public final class Mp3Extractor implements Extractor {
    */
   private boolean peekEndOfStreamOrHeader(ExtractorInput extractorInput)
       throws IOException, InterruptedException {
-    return (seeker != null && extractorInput.getPeekPosition() == seeker.getDataEndPosition())
-        || !extractorInput.peekFully(
-            scratch.data, /* offset= */ 0, /* length= */ 4, /* allowEndOfInput= */ true);
+    if (seeker != null) {
+      long dataEndPosition = seeker.getDataEndPosition();
+      if (dataEndPosition != C.POSITION_UNSET
+          && extractorInput.getPeekPosition() > dataEndPosition - 4) {
+        return true;
+      }
+    }
+    try {
+      return !extractorInput.peekFully(
+          scratch.data, /* offset= */ 0, /* length= */ 4, /* allowEndOfInput= */ true);
+    } catch (EOFException e) {
+      return true;
+    }
   }
 
   /**

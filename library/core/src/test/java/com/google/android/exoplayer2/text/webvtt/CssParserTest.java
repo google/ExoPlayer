@@ -18,17 +18,15 @@ package com.google.android.exoplayer2.text.webvtt;
 import static com.google.android.exoplayer2.text.webvtt.CssParser.parseNextToken;
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Unit test for {@link CssParser}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Unit test for {@link CssParser}. */
+@RunWith(AndroidJUnit4.class)
 public final class CssParserTest {
 
   private CssParser parser;

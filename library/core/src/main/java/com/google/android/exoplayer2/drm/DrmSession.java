@@ -15,9 +15,9 @@
  */
 package com.google.android.exoplayer2.drm;
 
-import android.annotation.TargetApi;
 import android.media.MediaDrm;
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -26,7 +26,6 @@ import java.util.Map;
 /**
  * A DRM session.
  */
-@TargetApi(16)
 public interface DrmSession<T extends ExoMediaCrypto> {
 
   /**
@@ -77,21 +76,24 @@ public interface DrmSession<T extends ExoMediaCrypto> {
   @State int getState();
 
   /**
-   * Returns the cause of the error state.
+   * Returns the cause of the error state, or null if {@link #getState()} is not {@link
+   * #STATE_ERROR}.
    */
+  @Nullable
   DrmSessionException getError();
 
   /**
    * Returns a {@link ExoMediaCrypto} for the open session, or null if called before the session has
    * been opened or after it's been released.
    */
+  @Nullable
   T getMediaCrypto();
 
   /**
    * Returns a map describing the key status for the session, or null if called before the session
    * has been opened or after it's been released.
-   * <p>
-   * Since DRM license policies vary by vendor, the specific status field names are determined by
+   *
+   * <p>Since DRM license policies vary by vendor, the specific status field names are determined by
    * each DRM vendor. Refer to your DRM provider documentation for definitions of the field names
    * for a particular DRM engine plugin.
    *
@@ -99,12 +101,13 @@ public interface DrmSession<T extends ExoMediaCrypto> {
    *     has been opened or after it's been released.
    * @see MediaDrm#queryKeyStatus(byte[])
    */
+  @Nullable
   Map<String, String> queryKeyStatus();
 
   /**
    * Returns the key set id of the offline license loaded into this session, or null if there isn't
    * one.
    */
+  @Nullable
   byte[] getOfflineLicenseKeySetId();
-
 }

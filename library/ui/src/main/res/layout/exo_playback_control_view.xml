@@ -54,6 +54,9 @@
     <ImageButton android:id="@id/exo_next"
       style="@style/ExoMediaButton.Next"/>
 
+    <ImageButton android:id="@id/exo_vr"
+      style="@style/ExoMediaButton.VR"/>
+
   </LinearLayout>
 
   <LinearLayout

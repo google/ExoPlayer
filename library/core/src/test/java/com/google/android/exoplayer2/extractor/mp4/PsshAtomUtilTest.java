@@ -21,17 +21,15 @@ import static com.google.android.exoplayer2.extractor.mp4.Atom.parseFullAtomFlag
 import static com.google.android.exoplayer2.extractor.mp4.Atom.parseFullAtomVersion;
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.util.UUID;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Tests for {@link PsshAtomUtil}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Tests for {@link PsshAtomUtil}. */
+@RunWith(AndroidJUnit4.class)
 public final class PsshAtomUtilTest {
 
   @Test

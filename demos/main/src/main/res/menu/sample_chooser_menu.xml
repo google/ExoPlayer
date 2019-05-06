@@ -13,13 +13,14 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
   <item android:id="@+id/prefer_extension_decoders"
-    android:title="@string/prefer_extension_decoders"
-    android:showAsAction="never"
-    android:checkable="true"/>
+      android:title="@string/prefer_extension_decoders"
+      android:checkable="true"
+      app:showAsAction="never"/>
   <item android:id="@+id/random_abr"
-    android:title="@string/random_abr"
-    android:showAsAction="never"
-    android:checkable="true"/>
+      android:title="@string/random_abr"
+      android:checkable="true"
+      app:showAsAction="never"/>
 </menu>

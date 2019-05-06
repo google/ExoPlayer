@@ -80,6 +80,7 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
   }
 
   private static final String TAG = "HostActivity";
+  private static final String LOCK_TAG = "ExoPlayerTestUtil:" + TAG;
   private static final long START_TIMEOUT_MS = 5000;
 
   private WakeLock wakeLock;
@@ -99,7 +100,7 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
    *     is exceeded then the test will fail.
    */
   public void runTest(HostedTest hostedTest, long timeoutMs) {
-    runTest(hostedTest, timeoutMs, true);
+    runTest(hostedTest, timeoutMs, /* failOnTimeoutOrForceStop= */ true);
   }
 
   /**
@@ -107,9 +108,11 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
    *
    * @param hostedTest The test to execute.
    * @param timeoutMs The number of milliseconds to wait for the test to finish.
-   * @param failOnTimeout Whether the test fails when the timeout is exceeded.
+   * @param failOnTimeoutOrForceStop Whether the test fails when a timeout is exceeded or the test
+   *     is stopped forcefully.
    */
-  public void runTest(final HostedTest hostedTest, long timeoutMs, boolean failOnTimeout) {
+  public void runTest(
+      final HostedTest hostedTest, long timeoutMs, boolean failOnTimeoutOrForceStop) {
     Assertions.checkArgument(timeoutMs > 0);
     Assertions.checkState(Thread.currentThread() != getMainLooper().getThread());
     Assertions.checkState(this.hostedTest == null);
@@ -128,7 +131,9 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
       String message =
           "Test failed to start. Display may be turned off or keyguard may be present.";
       Log.e(TAG, message);
-      fail(message);
+      if (failOnTimeoutOrForceStop) {
+        fail(message);
+      }
     }
 
     if (hostedTest.blockUntilStopped(timeoutMs)) {
@@ -140,13 +145,15 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
         String message = "Test force stopped. Activity may have been paused whilst "
             + "test was in progress.";
         Log.e(TAG, message);
-        fail(message);
+        if (failOnTimeoutOrForceStop) {
+          fail(message);
+        }
       }
     } else {
       runOnUiThread(hostedTest::forceStop);
       String message = "Test timed out after " + timeoutMs + " ms.";
       Log.e(TAG, message);
-      if (failOnTimeout) {
+      if (failOnTimeoutOrForceStop) {
         fail(message);
       }
     }
@@ -169,10 +176,10 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
   public void onStart() {
     Context appContext = getApplicationContext();
     WifiManager wifiManager = (WifiManager) appContext.getSystemService(Context.WIFI_SERVICE);
-    wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, TAG);
+    wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, LOCK_TAG);
     wifiLock.acquire();
     PowerManager powerManager = (PowerManager) appContext.getSystemService(Context.POWER_SERVICE);
-    wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
+    wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, LOCK_TAG);
     wakeLock.acquire();
     super.onStart();
   }
@@ -234,5 +241,4 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
       forcedStopped = hostedTest.forceStop();
     }
   }
-
 }

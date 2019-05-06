@@ -9,4 +9,4 @@ instantiate a `SsMediaSource` and pass it to `ExoPlayer.prepare`.
   `com.google.android.exoplayer2.source.smoothstreaming.*` belong to this
   module.
 
-[Javadoc]: https://google.github.io/ExoPlayer/doc/reference/index.html
+[Javadoc]: https://exoplayer.dev/doc/reference/index.html

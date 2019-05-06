@@ -16,7 +16,6 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion project.ext.compileSdkVersion
-    buildToolsVersion project.ext.buildToolsVersion
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -33,11 +32,14 @@ android {
         // which is not part of Android.
         disable 'InvalidPackage'
     }
+
+    testOptions.unitTests.includeAndroidResources = true
 }
 
 dependencies {
+    api 'androidx.test:core:' + androidXTestVersion
     api 'org.robolectric:robolectric:' + robolectricVersion
     api project(modulePrefix + 'testutils')
     implementation project(modulePrefix + 'library-core')
-    implementation 'com.android.support:support-annotations:' + supportLibraryVersion
+    implementation 'androidx.annotation:annotation:1.0.2'
 }

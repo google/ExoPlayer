@@ -20,7 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.content.Context;
 import android.os.HandlerThread;
 import android.os.Looper;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
@@ -287,7 +287,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
         trackSelector = new DefaultTrackSelector();
       }
       if (bandwidthMeter == null) {
-        bandwidthMeter = new DefaultBandwidthMeter.Builder().build();
+        bandwidthMeter = new DefaultBandwidthMeter.Builder(context).build();
       }
       if (renderersFactory == null) {
         if (renderers == null) {

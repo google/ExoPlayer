@@ -19,10 +19,8 @@ import com.google.android.exoplayer2.decoder.OutputBuffer;
 import com.google.android.exoplayer2.video.ColorInfo;
 import java.nio.ByteBuffer;
 
-/**
- * Output buffer containing video frame data, populated by {@link VpxDecoder}.
- */
-/* package */ final class VpxOutputBuffer extends OutputBuffer {
+/** Output buffer containing video frame data, populated by {@link VpxDecoder}. */
+public final class VpxOutputBuffer extends OutputBuffer {
 
   public static final int COLORSPACE_UNKNOWN = 0;
   public static final int COLORSPACE_BT601 = 1;
@@ -62,8 +60,8 @@ import java.nio.ByteBuffer;
    * Initializes the buffer.
    *
    * @param timeUs The presentation timestamp for the buffer, in microseconds.
-   * @param mode The output mode. One of {@link VpxDecoder#OUTPUT_MODE_NONE},
-   *     {@link VpxDecoder#OUTPUT_MODE_RGB} and {@link VpxDecoder#OUTPUT_MODE_YUV}.
+   * @param mode The output mode. One of {@link VpxDecoder#OUTPUT_MODE_NONE} and {@link
+   *     VpxDecoder#OUTPUT_MODE_YUV}.
    */
   public void init(long timeUs, int mode) {
     this.timeUs = timeUs;
@@ -71,27 +69,11 @@ import java.nio.ByteBuffer;
   }
 
   /**
-   * Resizes the buffer based on the given dimensions. Called via JNI after decoding completes.
-   * @return Whether the buffer was resized successfully.
-   */
-  public boolean initForRgbFrame(int width, int height) {
-    this.width = width;
-    this.height = height;
-    this.yuvPlanes = null;
-    if (!isSafeToMultiply(width, height) || !isSafeToMultiply(width * height, 2)) {
-      return false;
-    }
-    int minimumRgbSize = width * height * 2;
-    initData(minimumRgbSize);
-    return true;
-  }
-
-  /**
    * Resizes the buffer based on the given stride. Called via JNI after decoding completes.
+   *
    * @return Whether the buffer was resized successfully.
    */
-  public boolean initForYuvFrame(int width, int height, int yStride, int uvStride,
-      int colorspace) {
+  public boolean initForYuvFrame(int width, int height, int yStride, int uvStride, int colorspace) {
     this.width = width;
     this.height = height;
     this.colorspace = colorspace;
