@@ -71,23 +71,15 @@ downloadCache = new SimpleCache(
     new NoOpCacheEvictor(),
     databaseProvider);
 
-// Create the download index.
-WritableDownloadIndex downloadIndex =
-    new DefaultDownloadIndex(databaseProvider);
-
-// Create a factory for instantiating downloaders, which read the data being
-// downloaded from HttpDataSource instances, and write it to the download cache.
-DefaultDownloaderFactory downloaderFactory =
-    new DefaultDownloaderFactory(
-        new DownloaderConstructorHelper(
-            downloadCache,
-            new DefaultHttpDataSourceFactory(userAgent)));
+// Create a factory for reading the data from the network.
+dataSourceFactory = new DefaultHttpDataSourceFactory(userAgent);
 
 // Create the download manager.
 downloadManager = new DownloadManager(
     context,
-    downloadIndex,
-    downloaderFactory);
+    databaseProvider,
+    downloadCache,
+    dataSourceFactory);
 
 // Optionally, setters can be called to configure the download manager.
 downloadManager.setRequirements(requirements);
@@ -244,7 +236,8 @@ DownloadService.sendSetRequirements(
 {: .language-java}
 
 When a download cannot proceed because the requirements are not met, it
-will be in the `Download.STATE_QUEUED` state.
+will be in the `Download.STATE_QUEUED` state. You can query the not met
+requirements with `DownloadManager.getNotMetRequirements()`.
 
 #### Setting the maximum number of parallel downloads ####
 
@@ -327,10 +320,11 @@ follows these steps:
 1. Prepare the helper using `prepare(DownloadHelper.Callback)` and wait for the
    callback.
    ~~~
-   DownloadHelper downloadHelper = DownloadHelper.forDash(
-       Uri.parse("http://mywebsite/movie.mpd"),
-       dataSourceFactory,
-       new DefaultRenderersFactory(context));
+   DownloadHelper downloadHelper =
+       DownloadHelper.forDash(
+           contentUri,
+           dataSourceFactory,
+           new DefaultRenderersFactory(context));
    downloadHelper.prepare(myCallback);
    ~~~
    {: .language-java}
@@ -342,18 +336,19 @@ follows these steps:
    add the download, as described above.
 1. Release the helper using `release()`.
 
-You can create a `MediaSource` for playback by calling
-`DownloadHelper.createMediaSource`;
+You can create a `MediaSource` for playback by setting the same `StreamKeys` as
+in the `DownloadRequest`:
 
 ~~~
-MediaSource mediaSource =
-    DownloadHelper.createMediaSource(downloadRequest, dataSourceFactory);
+new DashMediaSource.Factory(dataSourceFactory)
+    .setStreamKeys(downloadRequest.streamKeys)
+    .createMediaSource(contentUri);
 ~~~
 {: .language-java}
 
-The created `MediaSource` is aware of which tracks have been downloaded, and so
-will only attempt to use these tracks during playback. See [`PlayerActivity`][]
-in the demo app for a concrete example.
+This makes the `MediaSource` aware of the downloaded tracks and it will only
+attempt to use these tracks during playback. See [`PlayerActivity`][] in the
+demo app for a concrete example.
 
 [JobScheduler]: {{ site.android_sdk }}/android/app/job/JobScheduler
 [Firebase JobDispatcher]: https://github.com/firebase/firebase-jobdispatcher-android
