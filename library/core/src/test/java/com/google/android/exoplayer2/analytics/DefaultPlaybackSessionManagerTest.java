@@ -599,6 +599,43 @@ public final class DefaultPlaybackSessionManagerTest {
   }
 
   @Test
+  public void timelineUpdate_withContent_doesNotFinishFuturePostrollAd() {
+    Timeline adTimeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ false,
+                /* durationUs =*/ 10 * C.MICROS_PER_SECOND,
+                new AdPlaybackState(/* adGroupTimesUs= */ C.TIME_END_OF_SOURCE)
+                    .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)));
+    EventTime adEventTime =
+        createEventTime(
+            adTimeline,
+            /* windowIndex= */ 0,
+            new MediaPeriodId(
+                adTimeline.getUidOfPeriod(/* periodIndex= */ 0),
+                /* adGroupIndex= */ 0,
+                /* adIndexInAdGroup= */ 0,
+                /* windowSequenceNumber= */ 0));
+    EventTime contentEventTime =
+        createEventTime(
+            adTimeline,
+            /* windowIndex= */ 0,
+            new MediaPeriodId(
+                adTimeline.getUidOfPeriod(/* periodIndex= */ 0),
+                /* windowSequenceNumber= */ 0,
+                /* nextAdGroupIndex= */ 0));
+    sessionManager.updateSessions(contentEventTime);
+    sessionManager.updateSessions(adEventTime);
+
+    sessionManager.handleTimelineUpdate(contentEventTime);
+
+    verify(mockListener, never()).onSessionFinished(any(), anyString(), anyBoolean());
+  }
+
+  @Test
   public void positionDiscontinuity_withinWindow_doesNotFinishSession() {
     Timeline timeline =
         new FakeTimeline(new TimelineWindowDefinition(/* periodCount= */ 2, /* id= */ 100));
@@ -941,6 +978,70 @@ public final class DefaultPlaybackSessionManagerTest {
     verify(mockListener).onAdPlaybackStarted(adEventTime2, contentSessionId, adSessionId2);
     verify(mockListener).onSessionActive(adEventTime2, adSessionId2);
     verifyNoMoreInteractions(mockListener);
+  }
+
+  @Test
+  public void
+      updateSessions_withNewAd_afterDiscontinuitiesFromContentToAdAndBack_doesNotActivateNewAd() {
+    Timeline adTimeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ false,
+                /* durationUs =*/ 10 * C.MICROS_PER_SECOND,
+                new AdPlaybackState(
+                        /* adGroupTimesUs= */ 2 * C.MICROS_PER_SECOND, 5 * C.MICROS_PER_SECOND)
+                    .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
+                    .withAdCount(/* adGroupIndex= */ 1, /* adCount= */ 1)));
+    EventTime adEventTime1 =
+        createEventTime(
+            adTimeline,
+            /* windowIndex= */ 0,
+            new MediaPeriodId(
+                adTimeline.getUidOfPeriod(/* periodIndex= */ 0),
+                /* adGroupIndex= */ 0,
+                /* adIndexInAdGroup= */ 0,
+                /* windowSequenceNumber= */ 0));
+    EventTime adEventTime2 =
+        createEventTime(
+            adTimeline,
+            /* windowIndex= */ 0,
+            new MediaPeriodId(
+                adTimeline.getUidOfPeriod(/* periodIndex= */ 0),
+                /* adGroupIndex= */ 1,
+                /* adIndexInAdGroup= */ 0,
+                /* windowSequenceNumber= */ 0));
+    EventTime contentEventTime1 =
+        createEventTime(
+            adTimeline,
+            /* windowIndex= */ 0,
+            new MediaPeriodId(
+                adTimeline.getUidOfPeriod(/* periodIndex= */ 0),
+                /* windowSequenceNumber= */ 0,
+                /* nextAdGroupIndex= */ 0));
+    EventTime contentEventTime2 =
+        createEventTime(
+            adTimeline,
+            /* windowIndex= */ 0,
+            new MediaPeriodId(
+                adTimeline.getUidOfPeriod(/* periodIndex= */ 0),
+                /* windowSequenceNumber= */ 0,
+                /* nextAdGroupIndex= */ 1));
+    sessionManager.handleTimelineUpdate(contentEventTime1);
+    sessionManager.updateSessions(contentEventTime1);
+    sessionManager.updateSessions(adEventTime1);
+    sessionManager.handlePositionDiscontinuity(
+        adEventTime1, Player.DISCONTINUITY_REASON_AD_INSERTION);
+    sessionManager.handlePositionDiscontinuity(
+        contentEventTime2, Player.DISCONTINUITY_REASON_AD_INSERTION);
+    String adSessionId2 =
+        sessionManager.getSessionForMediaPeriodId(adTimeline, adEventTime2.mediaPeriodId);
+
+    sessionManager.updateSessions(adEventTime2);
+
+    verify(mockListener, never()).onSessionActive(any(), eq(adSessionId2));
   }
 
   private static EventTime createEventTime(
