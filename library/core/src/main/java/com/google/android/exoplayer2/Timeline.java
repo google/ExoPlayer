@@ -396,7 +396,8 @@ public abstract class Timeline {
      * microseconds.
      *
      * @param adGroupIndex The ad group index.
-     * @return The time of the ad group at the index, in microseconds.
+     * @return The time of the ad group at the index, in microseconds, or {@link
+     *     C#TIME_END_OF_SOURCE} for a post-roll ad group.
      */
     public long getAdGroupTimeUs(int adGroupIndex) {
       return adPlaybackState.adGroupTimesUs[adGroupIndex];

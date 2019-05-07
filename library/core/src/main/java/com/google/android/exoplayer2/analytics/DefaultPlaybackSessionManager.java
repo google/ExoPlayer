@@ -202,10 +202,12 @@ public final class DefaultPlaybackSessionManager implements PlaybackSessionManag
   @RequiresNonNull("listener")
   private void updateActiveSession(EventTime eventTime, SessionDescriptor sessionDescriptor) {
     currentMediaPeriodId = eventTime.mediaPeriodId;
-    if (sessionDescriptor.isCreated && !sessionDescriptor.isActive) {
-      sessionDescriptor.isActive = true;
+    if (sessionDescriptor.isCreated) {
       activeSessionId = sessionDescriptor.sessionId;
-      listener.onSessionActive(eventTime, sessionDescriptor.sessionId);
+      if (!sessionDescriptor.isActive) {
+        sessionDescriptor.isActive = true;
+        listener.onSessionActive(eventTime, sessionDescriptor.sessionId);
+      }
     }
   }
 
@@ -326,13 +328,9 @@ public final class DefaultPlaybackSessionManager implements PlaybackSessionManag
             || (eventAdGroup == adMediaPeriodId.adGroupIndex
                 && eventAdIndex > adMediaPeriodId.adIndexInAdGroup);
       } else {
-        eventTime.timeline.getPeriod(adPeriodIndex, period);
-        long adGroupTimeMs =
-            adMediaPeriodId.adGroupIndex < period.getAdGroupCount()
-                ? C.usToMs(period.getAdGroupTimeUs(adMediaPeriodId.adGroupIndex))
-                : 0;
         // Finished if the event is for content after this ad.
-        return adGroupTimeMs <= eventTime.currentPlaybackPositionMs;
+        return eventTime.mediaPeriodId.nextAdGroupIndex == C.INDEX_UNSET
+            || eventTime.mediaPeriodId.nextAdGroupIndex > adMediaPeriodId.adGroupIndex;
       }
     }
 
