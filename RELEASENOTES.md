@@ -2,6 +2,7 @@
 
 ### dev-v2 (not yet released) ###
 
+* Offline: Add option to remove all downloads.
 * Decoders:
   * Prefer codecs that advertise format support over ones that do not, even if
     they are listed lower in the `MediaCodecList`.
