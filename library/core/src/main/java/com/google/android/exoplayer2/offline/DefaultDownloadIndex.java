@@ -234,6 +234,19 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
   }
 
   @Override
+  public void setStatesToRemoving() throws DatabaseIOException {
+    ensureInitialized();
+    try {
+      ContentValues values = new ContentValues();
+      values.put(COLUMN_STATE, Download.STATE_REMOVING);
+      SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
+      writableDatabase.update(tableName, values, /* whereClause= */ null, /* whereArgs= */ null);
+    } catch (SQLException e) {
+      throw new DatabaseIOException(e);
+    }
+  }
+
+  @Override
   public void setStopReason(int stopReason) throws DatabaseIOException {
     ensureInitialized();
     try {

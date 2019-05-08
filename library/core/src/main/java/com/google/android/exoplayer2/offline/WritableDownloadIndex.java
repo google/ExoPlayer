@@ -45,6 +45,13 @@ public interface WritableDownloadIndex extends DownloadIndex {
   void setDownloadingStatesToQueued() throws IOException;
 
   /**
+   * Sets all states to {@link Download#STATE_REMOVING}.
+   *
+   * @throws IOException If an error occurs updating the state.
+   */
+  void setStatesToRemoving() throws IOException;
+
+  /**
    * Sets the stop reason of the downloads in a terminal state ({@link Download#STATE_COMPLETED},
    * {@link Download#STATE_FAILED}).
    *
