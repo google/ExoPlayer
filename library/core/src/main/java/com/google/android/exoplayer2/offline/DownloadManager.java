@@ -133,10 +133,11 @@ public final class DownloadManager {
   private static final int MSG_SET_MIN_RETRY_COUNT = 5;
   private static final int MSG_ADD_DOWNLOAD = 6;
   private static final int MSG_REMOVE_DOWNLOAD = 7;
-  private static final int MSG_TASK_STOPPED = 8;
-  private static final int MSG_CONTENT_LENGTH_CHANGED = 9;
-  private static final int MSG_UPDATE_PROGRESS = 10;
-  private static final int MSG_RELEASE = 11;
+  private static final int MSG_REMOVE_ALL_DOWNLOADS = 8;
+  private static final int MSG_TASK_STOPPED = 9;
+  private static final int MSG_CONTENT_LENGTH_CHANGED = 10;
+  private static final int MSG_UPDATE_PROGRESS = 11;
+  private static final int MSG_RELEASE = 12;
 
   private static final String TAG = "DownloadManager";
 
@@ -446,6 +447,12 @@ public final class DownloadManager {
     internalHandler.obtainMessage(MSG_REMOVE_DOWNLOAD, id).sendToTarget();
   }
 
+  /** Cancels all pending downloads and removes all downloaded data. */
+  public void removeAllDownloads() {
+    pendingMessages++;
+    internalHandler.obtainMessage(MSG_REMOVE_ALL_DOWNLOADS).sendToTarget();
+  }
+
   /**
    * Stops the downloads and releases resources. Waits until the downloads are persisted to the
    * download index. The manager must not be accessed after this method has been called.
@@ -652,6 +659,9 @@ public final class DownloadManager {
           id = (String) message.obj;
           removeDownload(id);
           break;
+        case MSG_REMOVE_ALL_DOWNLOADS:
+          removeAllDownloads();
+          break;
         case MSG_TASK_STOPPED:
           Task task = (Task) message.obj;
           onTaskStopped(task);
@@ -794,6 +804,36 @@ public final class DownloadManager {
         return;
       }
       putDownloadWithState(download, STATE_REMOVING);
+      syncTasks();
+    }
+
+    private void removeAllDownloads() {
+      List<Download> terminalDownloads = new ArrayList<>();
+      try (DownloadCursor cursor = downloadIndex.getDownloads(STATE_COMPLETED, STATE_FAILED)) {
+        while (cursor.moveToNext()) {
+          terminalDownloads.add(cursor.getDownload());
+        }
+      } catch (IOException e) {
+        Log.e(TAG, "Failed to load downloads.");
+      }
+      for (int i = 0; i < downloads.size(); i++) {
+        downloads.set(i, copyDownloadWithState(downloads.get(i), STATE_REMOVING));
+      }
+      for (int i = 0; i < terminalDownloads.size(); i++) {
+        downloads.add(copyDownloadWithState(terminalDownloads.get(i), STATE_REMOVING));
+      }
+      Collections.sort(downloads, InternalHandler::compareStartTimes);
+      try {
+        downloadIndex.setStatesToRemoving();
+      } catch (IOException e) {
+        Log.e(TAG, "Failed to update index.", e);
+      }
+      ArrayList<Download> updateList = new ArrayList<>(downloads);
+      for (int i = 0; i < downloads.size(); i++) {
+        DownloadUpdate update =
+            new DownloadUpdate(downloads.get(i), /* isRemove= */ false, updateList);
+        mainHandler.obtainMessage(MSG_DOWNLOAD_UPDATE, update).sendToTarget();
+      }
       syncTasks();
     }
 
@@ -1057,16 +1097,7 @@ public final class DownloadManager {
       // to set STATE_STOPPED either, because it doesn't have a stopReason argument.
       Assertions.checkState(
           state != STATE_COMPLETED && state != STATE_FAILED && state != STATE_STOPPED);
-      return putDownload(
-          new Download(
-              download.request,
-              state,
-              download.startTimeMs,
-              /* updateTimeMs= */ System.currentTimeMillis(),
-              download.contentLength,
-              /* stopReason= */ 0,
-              FAILURE_REASON_NONE,
-              download.progress));
+      return putDownload(copyDownloadWithState(download, state));
     }
 
     private Download putDownload(Download download) {
@@ -1118,6 +1149,18 @@ public final class DownloadManager {
         }
       }
       return C.INDEX_UNSET;
+    }
+
+    private static Download copyDownloadWithState(Download download, @Download.State int state) {
+      return new Download(
+          download.request,
+          state,
+          download.startTimeMs,
+          /* updateTimeMs= */ System.currentTimeMillis(),
+          download.contentLength,
+          /* stopReason= */ 0,
+          FAILURE_REASON_NONE,
+          download.progress);
     }
 
     private static int compareStartTimes(Download first, Download second) {
