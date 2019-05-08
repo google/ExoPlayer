@@ -1,5 +1,9 @@
 # Release notes #
 
+### 2.10.1 ###
+
+* Offline: Add option to remove all downloads.
+
 ### 2.10.0 ###
 
 * Core library:
