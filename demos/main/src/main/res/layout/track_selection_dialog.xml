@@ -19,7 +19,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-  <android.support.v4.view.ViewPager
+  <androidx.viewpager.widget.ViewPager
       android:id="@+id/track_selection_dialog_view_pager"
       android:layout_width="match_parent"
       android:layout_height="0dp"
@@ -32,7 +32,7 @@
         app:tabGravity="fill"
         app:tabMode="fixed"/>
 
-  </android.support.v4.view.ViewPager>
+  </androidx.viewpager.widget.ViewPager>
 
   <LinearLayout
       android:orientation="horizontal"
