@@ -42,20 +42,16 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-/**
- * A {@link DrmSession} that supports playbacks using {@link ExoMediaDrm}.
- */
+/** A {@link DrmSession} that supports playbacks using {@link ExoMediaDrm}. */
 @TargetApi(18)
 /* package */ class DefaultDrmSession<T extends ExoMediaCrypto> implements DrmSession<T> {
 
-  /**
-   * Manages provisioning requests.
-   */
+  /** Manages provisioning requests. */
   public interface ProvisioningManager<T extends ExoMediaCrypto> {
 
     /**
-     * Called when a session requires provisioning. The manager <em>may</em> call
-     * {@link #provision()} to have this session perform the provisioning operation. The manager
+     * Called when a session requires provisioning. The manager <em>may</em> call {@link
+     * #provision()} to have this session perform the provisioning operation. The manager
      * <em>will</em> call {@link DefaultDrmSession#onProvisionCompleted()} when provisioning has
      * completed, or {@link DefaultDrmSession#onProvisionError} if provisioning fails.
      *
@@ -70,11 +66,19 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
      */
     void onProvisionError(Exception error);
 
-    /**
-     * Called by a session when it successfully completes a provisioning operation.
-     */
+    /** Called by a session when it successfully completes a provisioning operation. */
     void onProvisionCompleted();
+  }
 
+  /** Callback to be notified when the session is released. */
+  public interface ReleaseCallback<T extends ExoMediaCrypto> {
+
+    /**
+     * Called when the session is released.
+     *
+     * @param session The session.
+     */
+    void onSessionReleased(DefaultDrmSession<T> session);
   }
 
   private static final String TAG = "DefaultDrmSession";
@@ -88,6 +92,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private final ExoMediaDrm<T> mediaDrm;
   private final ProvisioningManager<T> provisioningManager;
+  private final ReleaseCallback<T> releaseCallback;
   private final @DefaultDrmSessionManager.Mode int mode;
   private final @Nullable HashMap<String, String> optionalKeyRequestParameters;
   private final EventDispatcher<DefaultDrmSessionEventListener> eventDispatcher;
@@ -115,6 +120,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @param uuid The UUID of the drm scheme.
    * @param mediaDrm The media DRM.
    * @param provisioningManager The manager for provisioning.
+   * @param releaseCallback The {@link ReleaseCallback}.
    * @param schemeDatas DRM scheme datas for this session, or null if an {@code
    *     offlineLicenseKeySetId} is provided.
    * @param mode The DRM mode.
@@ -131,6 +137,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       UUID uuid,
       ExoMediaDrm<T> mediaDrm,
       ProvisioningManager<T> provisioningManager,
+      ReleaseCallback<T> releaseCallback,
       @Nullable List<SchemeData> schemeDatas,
       @DefaultDrmSessionManager.Mode int mode,
       @Nullable byte[] offlineLicenseKeySetId,
@@ -145,6 +152,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
     this.uuid = uuid;
     this.provisioningManager = provisioningManager;
+    this.releaseCallback = releaseCallback;
     this.mediaDrm = mediaDrm;
     this.mode = mode;
     if (offlineLicenseKeySetId != null) {
@@ -178,10 +186,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
   }
 
-  /** @return True if the session is closed and cleaned up, false otherwise. */
   // Assigning null to various non-null variables for clean-up. Class won't be used after release.
   @SuppressWarnings("assignment.type.incompatible")
-  public boolean release() {
+  public void release() {
     if (--openCount == 0) {
       state = STATE_RELEASED;
       postResponseHandler.removeCallbacksAndMessages(null);
@@ -198,9 +205,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         sessionId = null;
         eventDispatcher.dispatch(DefaultDrmSessionEventListener::onDrmSessionReleased);
       }
-      return true;
+      releaseCallback.onSessionReleased(this);
     }
-    return false;
   }
 
   public boolean hasSessionId(byte[] sessionId) {
@@ -330,8 +336,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           long licenseDurationRemainingSec = getLicenseDurationRemainingSec();
           if (mode == DefaultDrmSessionManager.MODE_PLAYBACK
               && licenseDurationRemainingSec <= MAX_LICENSE_DURATION_TO_RENEW) {
-            Log.d(TAG, "Offline license has expired or will expire soon. "
-                + "Remaining seconds: " + licenseDurationRemainingSec);
+            Log.d(
+                TAG,
+                "Offline license has expired or will expire soon. "
+                    + "Remaining seconds: "
+                    + licenseDurationRemainingSec);
             postKeyRequest(sessionId, ExoMediaDrm.KEY_TYPE_OFFLINE, allowRetry);
           } else if (licenseDurationRemainingSec <= 0) {
             onError(new KeysExpiredException());
@@ -415,8 +424,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       } else {
         byte[] keySetId = mediaDrm.provideKeyResponse(sessionId, responseData);
         if ((mode == DefaultDrmSessionManager.MODE_DOWNLOAD
-            || (mode == DefaultDrmSessionManager.MODE_PLAYBACK && offlineLicenseKeySetId != null))
-            && keySetId != null && keySetId.length != 0) {
+                || (mode == DefaultDrmSessionManager.MODE_PLAYBACK
+                    && offlineLicenseKeySetId != null))
+            && keySetId != null
+            && keySetId.length != 0) {
           offlineLicenseKeySetId = keySetId;
         }
         state = STATE_OPENED_WITH_KEYS;
@@ -480,10 +491,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           break;
         default:
           break;
-
       }
     }
-
   }
 
   @SuppressLint("HandlerLeak")
@@ -541,6 +550,5 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     private long getRetryDelayMillis(int errorCount) {
       return Math.min((errorCount - 1) * 1000, 5000);
     }
-
   }
 }
