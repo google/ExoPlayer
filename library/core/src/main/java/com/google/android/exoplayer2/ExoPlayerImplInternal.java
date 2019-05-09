@@ -1052,11 +1052,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
         && nextInfo.resolvedPeriodIndex == currentPeriodIndex
         && nextInfo.resolvedPeriodTimeUs > oldPeriodPositionUs
         && nextInfo.resolvedPeriodTimeUs <= newPeriodPositionUs) {
-      sendMessageToTarget(nextInfo.message);
-      if (nextInfo.message.getDeleteAfterDelivery() || nextInfo.message.isCanceled()) {
-        pendingMessages.remove(nextPendingMessageIndex);
-      } else {
-        nextPendingMessageIndex++;
+      try {
+        sendMessageToTarget(nextInfo.message);
+      } finally {
+        if (nextInfo.message.getDeleteAfterDelivery() || nextInfo.message.isCanceled()) {
+          pendingMessages.remove(nextPendingMessageIndex);
+        } else {
+          nextPendingMessageIndex++;
+        }
       }
       nextInfo =
           nextPendingMessageIndex < pendingMessages.size()
