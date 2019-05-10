@@ -13,7 +13,9 @@
 * Audio: fix an issue where not all audio was played out when the configuration
   for the underlying track was changing (e.g., at some period transitions).
 * UI: Change playback controls toggle from touch down to touch up events
-  ([#5784](https://github.com/google/ExoPlayer/issues/5784)). 
+  ([#5784](https://github.com/google/ExoPlayer/issues/5784)).
+* Add a workaround for a decoder failure on ZTE Axon7 mini devices when playing
+  48kHz audio ([#5821](https://github.com/google/ExoPlayer/issues/5821)).
 
 ### 2.10.0 ###
 
