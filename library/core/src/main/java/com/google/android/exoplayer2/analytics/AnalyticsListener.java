@@ -59,7 +59,7 @@ public interface AnalyticsListener {
     public final Timeline timeline;
 
     /**
-     * Window index in the {@code timeline} this event belongs to, or the prospective window index
+     * Window index in the {@link #timeline} this event belongs to, or the prospective window index
      * if the timeline is not yet known and empty.
      */
     public final int windowIndex;
@@ -76,7 +76,7 @@ public interface AnalyticsListener {
     public final long eventPlaybackPositionMs;
 
     /**
-     * Position in the current timeline window ({@code timeline.getCurrentWindowIndex()} or the
+     * Position in the current timeline window ({@link Player#getCurrentWindowIndex()}) or the
      * currently playing ad at the time of the event, in milliseconds.
      */
     public final long currentPlaybackPositionMs;
@@ -91,15 +91,15 @@ public interface AnalyticsListener {
      * @param realtimeMs Elapsed real-time as returned by {@code SystemClock.elapsedRealtime()} at
      *     the time of the event, in milliseconds.
      * @param timeline Timeline at the time of the event.
-     * @param windowIndex Window index in the {@code timeline} this event belongs to, or the
+     * @param windowIndex Window index in the {@link #timeline} this event belongs to, or the
      *     prospective window index if the timeline is not yet known and empty.
      * @param mediaPeriodId Media period identifier for the media period this event belongs to, or
      *     {@code null} if the event is not associated with a specific media period.
      * @param eventPlaybackPositionMs Position in the window or ad this event belongs to at the time
      *     of the event, in milliseconds.
-     * @param currentPlaybackPositionMs Position in the current timeline window ({@code
-     *     timeline.getCurrentWindowIndex()} or the currently playing ad at the time of the event,
-     *     in milliseconds.
+     * @param currentPlaybackPositionMs Position in the current timeline window ({@link
+     *     Player#getCurrentWindowIndex()}) or the currently playing ad at the time of the event, in
+     *     milliseconds.
      * @param totalBufferedDurationMs Total buffered duration from {@link
      *     #currentPlaybackPositionMs} at the time of the event, in milliseconds. This includes
      *     pre-buffered data for subsequent ads and windows.
