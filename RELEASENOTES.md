@@ -2,6 +2,8 @@
 
 ### dev-v2 (not yet released) ###
 
+* Fix NPE when using HLS chunkless preparation
+  ([#5868](https://github.com/google/ExoPlayer/issues/5868)).
 * Offline: Add option to remove all downloads.
 * Decoders:
   * Prefer codecs that advertise format support over ones that do not, even if
@@ -11,7 +13,7 @@
 * Audio: fix an issue where not all audio was played out when the configuration
   for the underlying track was changing (e.g., at some period transitions).
 * UI: Change playback controls toggle from touch down to touch up events
-  ([#5784](https://github.com/google/ExoPlayer/issues/5784)).
+  ([#5784](https://github.com/google/ExoPlayer/issues/5784)). 
 
 ### 2.10.0 ###
 
