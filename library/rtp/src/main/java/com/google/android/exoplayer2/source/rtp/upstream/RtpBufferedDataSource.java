@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public final class RtpInternalDataSource extends UdpDataSource {
+public final class RtpBufferedDataSource extends UdpDataSource {
 
     private final class TimeoutMonitor {
         private Timer timer;
@@ -91,29 +91,28 @@ public final class RtpInternalDataSource extends UdpDataSource {
     private volatile long bytesRead;
     private TimeoutMonitor timeoutMonitor;
 
-    private RtcpIncomingReportSink reportSink;
-    private final RtpInternalSamplesSink samplesSink;
+    private RtcpInputReportDispatcher reportDispatcher;
+    private final RtpSamplesHolder samplesHolder;
 
     private RtpStatistics statistics;
-    private RtcpStatsFeedback feedbackSource;
+    private RtcpStatsFeedback statsFeedback;
 
-    public RtpInternalDataSource(RtpInternalSamplesSink samplesSink) {
-        this.samplesSink = samplesSink;
-        timeoutMonitor = new TimeoutMonitor();
+    public RtpBufferedDataSource(RtpSamplesHolder samplesHolder) {
+        this(samplesHolder, null, null);
     }
 
-    public RtpInternalDataSource(RtpInternalSamplesSink samplesSink, RtcpIncomingReportSink reportSink,
-                                 RtcpOutgoingReportSink outgoingReportSink) {
-        this.samplesSink = samplesSink;
+    public RtpBufferedDataSource(RtpSamplesHolder samplesHolder,
+                                 RtcpInputReportDispatcher incomingReportDispatcher,
+                                 RtcpOutputReportDispatcher outgoingReportDispatcher) {
+        this.samplesHolder = samplesHolder;
         timeoutMonitor = new TimeoutMonitor();
 
-        if (reportSink != null && outgoingReportSink != null) {
-            this.reportSink = reportSink;
-
+        if (incomingReportDispatcher != null && outgoingReportDispatcher != null) {
             statistics = new RtpStatistics();
-            feedbackSource = new RtcpStatsFeedback(statistics, outgoingReportSink);
+            statsFeedback = new RtcpStatsFeedback(statistics, outgoingReportDispatcher);
 
-            reportSink.addListener(feedbackSource);
+            reportDispatcher = incomingReportDispatcher;
+            reportDispatcher.addListener(statsFeedback);
         }
     }
 
@@ -124,8 +123,8 @@ public final class RtpInternalDataSource extends UdpDataSource {
 
         transferInitializing(dataSpec);
 
-        if (feedbackSource != null) {
-            feedbackSource.open();
+        if (statsFeedback != null) {
+            statsFeedback.open();
         }
 
         opened = true;
@@ -137,21 +136,24 @@ public final class RtpInternalDataSource extends UdpDataSource {
     @Override
     public int read(byte[] buffer, int offset, int readLength) throws IOException {
         if (opened && !canceled) {
-            RtpSamplesQueue samples = samplesSink.samples();
+            RtpSamplesQueue samples = samplesHolder.samples();
 
             /* There is no reordering on stream sockets */
             RtpPacket packet = samples.pop();
             if (packet != null) {
 
                 if (statistics != null) {
-                    if (feedbackSource.getRemoteSsrc() == Long.MIN_VALUE) {
-                        feedbackSource.setRemoteSsrc(packet.ssrc());
+                    if (statsFeedback.getRemoteSsrc() == Long.MIN_VALUE) {
+                        statsFeedback.setRemoteSsrc(packet.ssrc());
                     }
 
                     statistics.update(samples.getStatsInfo());
                 }
 
                 byte[] bytes = packet.getBytes();
+                /*Log.v("RtpBufferedDataSource", "packet=[" + packet.sequenceNumber() +
+                        "], marker=[" + packet.marker() + "], elapsedTime=[" +
+                        SystemClock.elapsedRealtime() + "]");*/
                 System.arraycopy(bytes, 0, buffer, offset, bytes.length);
 
                 bytesTransferred(bytes.length);
@@ -180,8 +182,8 @@ public final class RtpInternalDataSource extends UdpDataSource {
             timeoutMonitor.stop();
 
             if (statistics != null) {
-                reportSink.removeListener(feedbackSource);
-                feedbackSource.close();
+                reportDispatcher.removeListener(statsFeedback);
+                statsFeedback.close();
                 statistics.clear();
             }
 

@@ -46,6 +46,8 @@ import com.google.android.exoplayer2.util.StandaloneMediaClock;
   private @Nullable Renderer rendererClockSource;
   private @Nullable MediaClock rendererClock;
 
+  private boolean started;
+
   /**
    * Creates a new instance with listener for playback parameter changes and a {@link Clock} to use
    * for the standalone clock implementation.
@@ -63,14 +65,24 @@ import com.google.android.exoplayer2.util.StandaloneMediaClock;
    * Starts the standalone fallback clock.
    */
   public void start() {
-    standaloneMediaClock.start();
+    if (!started) {
+      standaloneMediaClock.start();
+      started= true;
+    }
   }
 
   /**
    * Stops the standalone fallback clock.
    */
   public void stop() {
-    standaloneMediaClock.stop();
+    if (started) {
+      standaloneMediaClock.stop();
+      started = false;
+    }
+  }
+
+  public boolean isStarted() {
+    return started;
   }
 
   /**

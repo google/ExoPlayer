@@ -960,6 +960,29 @@ public final class C {
    */
   public static final int NETWORK_TYPE_OTHER = 8;
 
+
+  /**
+   * Transport protocol. One of {@link #TCP}, {@link #UDP}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+          TCP,
+          UDP
+  })
+  public @interface TransportProtocol {}
+
+  /**
+   * Indicates TCP transport protocol.
+   */
+  public static final int TCP = 0;
+
+  /**
+   * Indicates UDP transport protocol.
+   */
+  public static final int UDP = 1;
+
+
   /**
    * Converts a time in microseconds to the corresponding time in milliseconds, preserving
    * {@link #TIME_UNSET} and {@link #TIME_END_OF_SOURCE} values.

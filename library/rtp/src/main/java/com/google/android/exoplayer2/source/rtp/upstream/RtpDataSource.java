@@ -29,7 +29,7 @@ import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-public final class RtpDataSinkSource extends UdpDataSinkSource  {
+public final class RtpDataSource extends UdpDataSinkSource  {
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(flag = true, value = {FLAG_ENABLE_RTCP_FEEDBACK, FLAG_FORCE_RTCP_MULTIPLEXING})
@@ -45,15 +45,15 @@ public final class RtpDataSinkSource extends UdpDataSinkSource  {
     private RtpStatistics statistics;
     private RtcpStatsFeedback statsFeedback;
 
-    public RtpDataSinkSource(int clockrate) {
+    public RtpDataSource(int clockrate) {
         this(clockrate, 0, RtpPacket.MAX_PACKET_SIZE);
     }
 
-    public RtpDataSinkSource(int clockrate, @Flags int flags) {
+    public RtpDataSource(int clockrate, @Flags int flags) {
         this(clockrate, flags, RtpPacket.MAX_PACKET_SIZE);
     }
 
-    public RtpDataSinkSource(int clockrate, @Flags int flags, int maxPacketSize) {
+    public RtpDataSource(int clockrate, @Flags int flags, int maxPacketSize) {
         super(maxPacketSize);
 
         this.flags = flags;

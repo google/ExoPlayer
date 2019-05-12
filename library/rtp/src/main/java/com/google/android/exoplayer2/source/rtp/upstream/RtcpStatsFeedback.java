@@ -34,7 +34,6 @@ import com.google.android.exoplayer2.upstream.UdpDataSink;
 import com.google.android.exoplayer2.upstream.UdpDataSinkSource;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -69,11 +68,13 @@ import java.util.concurrent.RejectedExecutionException;
     private long localSsrc;
     private long remoteSsrc;
 
+    private boolean isLastReport;
+
     private RtcpReportReceiver receiver;
     private RtcpReportSender sender;
 
     private UdpDataSinkSource dataSinkSource;
-    private RtcpOutgoingReportSink outReportSink;
+    private RtcpOutputReportDispatcher reportDispatcher;
 
     public RtcpStatsFeedback(RtpStatistics statistics) {
         this.statistics = statistics;
@@ -96,9 +97,10 @@ import java.util.concurrent.RejectedExecutionException;
         remoteSsrc = Long.MIN_VALUE;
     }
 
-    public RtcpStatsFeedback(RtpStatistics statistics, RtcpOutgoingReportSink outgoingReportSink) {
+    public RtcpStatsFeedback(RtpStatistics statistics,
+                             RtcpOutputReportDispatcher outgoingReportDispatcher) {
         this.statistics = statistics;
-        this.outReportSink = outgoingReportSink;
+        this.reportDispatcher = outgoingReportDispatcher;
 
         localSsrc = new Random().nextLong();
         remoteSsrc = Long.MIN_VALUE;
@@ -113,7 +115,7 @@ import java.util.concurrent.RejectedExecutionException;
     }
 
     public void open() throws IllegalStateException {
-        if (outReportSink == null && sender == null) {
+        if (reportDispatcher == null && sender == null) {
             throw new IllegalStateException(
                 "None internal outgoing or data sink was found");
         }
@@ -136,12 +138,6 @@ import java.util.concurrent.RejectedExecutionException;
 
             receiver.start();
             executor.execute(scheduler);
-        }
-    }
-
-    public void sendTo(RtcpPacket packet, InetAddress address, int port) {
-        if (sender != null) {
-            sender.sendTo(packet, address, port);
         }
     }
 
@@ -175,11 +171,7 @@ import java.util.concurrent.RejectedExecutionException;
         // Do nothing
     }
 
-
-    // RtcpReportSender.EventListener implementation
-
-    @Override
-    public void onLastReportSent() {
+    private void release() {
         if (!executor.isShutdown()) {
             executor.shutdown();
         }
@@ -194,30 +186,39 @@ import java.util.concurrent.RejectedExecutionException;
         }
     }
 
+
+    // RtcpReportSender.EventListener implementation
+
+    @Override
+    public void onReportSent() {
+        if (isLastReport) {
+            release();
+        }
+    }
+
     // Internal methods
 
     private void sendLastReport() {
-        notifyFeedbackReport(true);
+        isLastReport = true;
+        notifyFeedbackReport();
     }
 
-    private void notifyFeedbackReport (boolean isLastReport) {
-        RtcpPacket packet = buildReportPacket(isLastReport);
-        if (packet != null && outReportSink != null) {
-
-            byte[] buffer = packet.getBytes();
-            outReportSink.write (buffer, 0, buffer.length);
+    private void notifyFeedbackReport() {
+        RtcpPacket packet = buildReportPacket();
+        if (packet != null && reportDispatcher != null) {
+            reportDispatcher.dispatch(packet);
 
             if (isLastReport) {
-                onLastReportSent();
+                release();
             }
 
         } else if (sender != null) {
-            sender.send(packet, isLastReport);
+            sender.send(packet);
         }
     }
 
     @Nullable
-    private RtcpPacket buildReportPacket(boolean isLastReport) {
+    private RtcpPacket buildReportPacket() {
         RtpStatistics.RtpStatsInfo statsInfo = statistics.getStatsInfo();
         if (statsInfo != null) {
             int extendedMax = statsInfo.cycles + statsInfo.maxSequence;
@@ -284,7 +285,7 @@ import java.util.concurrent.RejectedExecutionException;
     }
 
     private void onReceivedDelaySinceLastReport() {
-        notifyFeedbackReport(false);
+        notifyFeedbackReport();
     }
 
     private long delayToSendNextRtcpReport() {

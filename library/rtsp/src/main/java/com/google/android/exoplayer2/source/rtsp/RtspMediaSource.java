@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.util.Assertions;
 
 import java.io.IOException;
 
+import static com.google.android.exoplayer2.C.TCP;
 import static com.google.android.exoplayer2.source.rtsp.core.Client.RTSP_AUTO_DETECT;
 import static com.google.android.exoplayer2.source.rtsp.core.Client.RTSP_INTERLEAVED;
 
@@ -47,6 +48,8 @@ public final class RtspMediaSource extends BaseMediaSource implements Client.Eve
 
     /** Factory for {@link RtspMediaSource}. */
     public static final class Factory {
+        private boolean isLive;
+
         private final Client.Factory<? extends Client> factory;
 
         /**
@@ -59,6 +62,11 @@ public final class RtspMediaSource extends BaseMediaSource implements Client.Eve
             this.factory = Assertions.checkNotNull(factory);
         }
 
+        public Factory setIsLive(boolean isLive) {
+            this.isLive = isLive;
+            return this;
+        }
+
         /**
          * Returns a new {@link RtspMediaSource} using the current parameters. Media source events
          * will not be delivered.
@@ -67,7 +75,7 @@ public final class RtspMediaSource extends BaseMediaSource implements Client.Eve
          * @return The new {@link RtspMediaSource}.
          */
         public RtspMediaSource createMediaSource(Uri uri) {
-            return new RtspMediaSource(uri, factory);
+            return new RtspMediaSource(uri, factory, isLive);
         }
 
         /**
@@ -97,13 +105,28 @@ public final class RtspMediaSource extends BaseMediaSource implements Client.Eve
     private EventDispatcher eventDispatcher;
 
     private Client client;
+    private boolean isLive;
     private int prepareCount;
+
+    private @C.TransportProtocol
+    int transportProtocol;
 
     private @Nullable TransferListener transferListener;
 
-    private RtspMediaSource(Uri uri, Client.Factory<? extends Client> factory) {
+    private RtspMediaSource(Uri uri, Client.Factory<? extends Client> factory, boolean isLive) {
         this.uri = uri;
+        this.isLive = isLive;
         this.factory = factory;
+
+        transportProtocol = TCP;
+    }
+
+    @Override
+    public boolean isTcp() { return transportProtocol == TCP; }
+
+    @Override
+    public boolean isLive() {
+        return isLive;
     }
 
     // MediaTrackSource implementation
@@ -180,6 +203,11 @@ public final class RtspMediaSource extends BaseMediaSource implements Client.Eve
                     new IOException("Media Description Type [" + mediaType + "] is not supported"),
                     false);
         }
+    }
+
+    @Override
+    public void onTransportProtocolChanged(@C.TransportProtocol int protocol) {
+        transportProtocol = protocol;
     }
 
     @Override

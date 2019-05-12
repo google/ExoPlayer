@@ -37,17 +37,18 @@ import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.SequenceableLoader;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.source.rtp.RtpPacket;
 import com.google.android.exoplayer2.source.rtp.extractor.DefaultRtpExtractor;
 import com.google.android.exoplayer2.source.rtp.extractor.RtpExtractorInput;
 import com.google.android.exoplayer2.source.rtp.extractor.RtpMp2tExtractor;
 import com.google.android.exoplayer2.source.rtp.format.RtpPayloadFormat;
 import com.google.android.exoplayer2.source.rtp.format.RtpPayloadFormat.UnsupportedFormatException;
 import com.google.android.exoplayer2.source.rtp.rtcp.RtcpPacket;
-import com.google.android.exoplayer2.source.rtp.upstream.RtcpIncomingReportSink;
-import com.google.android.exoplayer2.source.rtp.upstream.RtcpOutgoingReportSink;
-import com.google.android.exoplayer2.source.rtp.upstream.RtpDataSinkSource;
-import com.google.android.exoplayer2.source.rtp.upstream.RtpInternalSamplesSink;
-import com.google.android.exoplayer2.source.rtp.upstream.RtpInternalDataSource;
+import com.google.android.exoplayer2.source.rtp.upstream.RtcpInputReportDispatcher;
+import com.google.android.exoplayer2.source.rtp.upstream.RtcpOutputReportDispatcher;
+import com.google.android.exoplayer2.source.rtp.upstream.RtpBufferedDataSource;
+import com.google.android.exoplayer2.source.rtp.upstream.RtpDataSource;
+import com.google.android.exoplayer2.source.rtp.upstream.RtpSamplesHolder;
 import com.google.android.exoplayer2.source.rtsp.message.InterleavedFrame;
 import com.google.android.exoplayer2.source.rtsp.message.Transport;
 import com.google.android.exoplayer2.source.rtsp.media.MediaFormat;
@@ -78,15 +79,15 @@ import java.util.Random;
 
 import static android.os.Process.THREAD_PRIORITY_AUDIO;
 import static com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.FLAG_ALLOW_NON_IDR_KEYFRAMES;
-import static com.google.android.exoplayer2.source.rtp.upstream.RtpDataSinkSource.FLAG_ENABLE_RTCP_FEEDBACK;
-import static com.google.android.exoplayer2.source.rtp.upstream.RtpDataSinkSource.FLAG_FORCE_RTCP_MULTIPLEXING;
+import static com.google.android.exoplayer2.source.rtp.upstream.RtpDataSource.FLAG_ENABLE_RTCP_FEEDBACK;
+import static com.google.android.exoplayer2.source.rtp.upstream.RtpDataSource.FLAG_FORCE_RTCP_MULTIPLEXING;
 import static com.google.android.exoplayer2.upstream.UdpDataSource.DEFAULT_SOCKET_TIMEOUT_MILLIS;
 
 public final class RtspSampleStreamWrapper implements
     Loader.Callback<RtspSampleStreamWrapper.MediaStreamLoadable>,
     SequenceableLoader, ExtractorOutput,
     SampleQueue.UpstreamFormatChangedListener, MediaSession.EventListener,
-        RtcpOutgoingReportSink.EventListener {
+    RtcpOutputReportDispatcher.EventListener {
 
     public interface EventListener {
         void onMediaStreamPrepareStarted(RtspSampleStreamWrapper stream);
@@ -160,9 +161,9 @@ public final class RtspSampleStreamWrapper implements
     private final TrackIdGenerator trackIdGenerator;
     private final DefaultExtractorsFactory defaultExtractorsFactory;
 
-    private final RtpInternalSamplesSink samplesSink;
-    private final RtcpIncomingReportSink inReportSink;
-    private final RtcpOutgoingReportSink outReportSink;
+    private final RtpSamplesHolder samplesHolder;
+    private final RtcpInputReportDispatcher inReportDispatcher;
+    private final RtcpOutputReportDispatcher outReporDispatcher;
 
     public RtspSampleStreamWrapper(MediaSession session, MediaTrack track,
                                    TrackIdGenerator trackIdGenerator, long positionUs,
@@ -179,7 +180,7 @@ public final class RtspSampleStreamWrapper implements
         mainHandler = new Handler();
 
         // An Android handler thread internally operates on a looper.
-        handlerThread = new HandlerThread("MediaService.HandlerThread",
+        handlerThread = new HandlerThread("RtspSampleStreamWrapper.HandlerThread",
                 THREAD_PRIORITY_AUDIO);
         handlerThread.start();
 
@@ -197,11 +198,11 @@ public final class RtspSampleStreamWrapper implements
 
         defaultExtractorsFactory = new DefaultExtractorsFactory();
 
-        inReportSink = new RtcpIncomingReportSink();
-        samplesSink = new RtpInternalSamplesSink();
+        samplesHolder = new RtpSamplesHolder();
+        inReportDispatcher = new RtcpInputReportDispatcher();
 
-        outReportSink = new RtcpOutgoingReportSink();
-        outReportSink.addListener(this);
+        outReporDispatcher = new RtcpOutputReportDispatcher();
+        outReporDispatcher.addListener(this);
 
         maybeFinishPrepareRunnable = new Runnable() {
             @Override
@@ -303,11 +304,11 @@ public final class RtspSampleStreamWrapper implements
             byte[] buffer = interleavedFrame.getData();
 
             if (interleavedFrame.getChannel() == interleavedChannels[0]) {
-                samplesSink.write(buffer, 0, buffer.length);
+                samplesHolder.put(RtpPacket.parse(buffer, buffer.length));
 
             } else if (interleavedChannels.length > 1 &&
                 interleavedFrame.getChannel() == interleavedChannels[1]) {
-                inReportSink.write(buffer, 0, buffer.length);
+                inReportDispatcher.dispatch(RtcpPacket.parse(buffer, buffer.length));
             }
         }
     }
@@ -380,11 +381,11 @@ public final class RtspSampleStreamWrapper implements
                 playback = false;
             }
 
-            inReportSink.close();
-            samplesSink.close();
+            inReportDispatcher.close();
+            samplesHolder.close();
 
-            outReportSink.removeListener(this);
-            outReportSink.close();
+            outReporDispatcher.removeListener(this);
+            outReporDispatcher.close();
 
             handler.removeCallbacksAndMessages(null);
             handlerThread.quit();
@@ -469,10 +470,10 @@ public final class RtspSampleStreamWrapper implements
     }
 
 
-    // RtcpOutgoingReportSink implementation
+    // RtcpOutputReportDispatcher implementation
 
     @Override
-    public void onOutgoingReport (RtcpPacket packet) {
+    public void onOutputReport(RtcpPacket packet) {
         if (packet != null) {
             if (interleavedChannels.length > 1) {
                 session.onOutgoingInterleavedFrame(new InterleavedFrame(interleavedChannels[1],
@@ -588,7 +589,6 @@ public final class RtspSampleStreamWrapper implements
                         listener.onMediaStreamPlaybackFailure(RtspSampleStreamWrapper.this,
                                 NO_DATA_RECEIVED);
                     } else {
-
                         listener.onMediaStreamPlaybackFailure(RtspSampleStreamWrapper.this,
                                 DEFAULT_ERROR);
                     }
@@ -812,7 +812,7 @@ public final class RtspSampleStreamWrapper implements
 
                 if (Transport.RTP_PROTOCOL.equals(transport.transportProtocol())) {
                     if (transport.ssrc() != null) {
-                        ((RtpDataSinkSource) dataSource)
+                        ((RtpDataSource) dataSource)
                                 .setSsrc(Long.parseLong(transport.ssrc(), 16));
                     }
 
@@ -961,7 +961,7 @@ public final class RtspSampleStreamWrapper implements
             boolean isUdpSchema = false;
 
             if (Transport.RTP_PROTOCOL.equals(transport.transportProtocol())) {
-                @RtpDataSinkSource.Flags int flags = 0;
+                @RtpDataSource.Flags int flags = 0;
                 RtpPayloadFormat payloadFormat = format.format();
                 if (session.isRtcpSupported()) {
                     flags |= FLAG_ENABLE_RTCP_FEEDBACK;
@@ -971,7 +971,7 @@ public final class RtspSampleStreamWrapper implements
                     flags |= FLAG_FORCE_RTCP_MULTIPLEXING;
                 }
 
-                dataSource = new RtpDataSinkSource(payloadFormat.clockrate(), flags);
+                dataSource = new RtpDataSource(payloadFormat.clockrate(), flags);
 
             } else {
                 dataSource = new UdpDataSinkSource(MAX_UDP_PACKET_SIZE);
@@ -1052,17 +1052,17 @@ public final class RtspSampleStreamWrapper implements
 
             if (Transport.RTP_PROTOCOL.equals(transport.transportProtocol())) {
                 RtpPayloadFormat payloadFormat = format.format();
-                samplesSink.open(payloadFormat.clockrate());
+                samplesHolder.open(payloadFormat.clockrate());
 
                 if (session.isRtcpSupported()) {
-                    inReportSink.open();
-                    outReportSink.open();
+                    inReportDispatcher.open();
+                    outReporDispatcher.open();
 
-                    dataSource = new RtpInternalDataSource(samplesSink, inReportSink,
-                            outReportSink);
+                    dataSource = new RtpBufferedDataSource(samplesHolder, inReportDispatcher,
+                            outReporDispatcher);
 
                 } else {
-                    dataSource = new RtpInternalDataSource(samplesSink);
+                    dataSource = new RtpBufferedDataSource(samplesHolder);
                 }
             }
 
@@ -1079,8 +1079,6 @@ public final class RtspSampleStreamWrapper implements
             while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
                 while (result == Extractor.RESULT_CONTINUE && !loadCanceled && !isPendingReset()) {
                     result = readInternal(null);
-                    // We need to time to avoid cpu overhead.
-                    Thread.sleep(10);
                 }
 
                 if (isPendingReset() && pendingResetPositionUs != C.TIME_UNSET) {

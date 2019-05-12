@@ -82,6 +82,7 @@ import java.util.Collections;
 
   private static final int PREPARING_SOURCE_INTERVAL_MS = 10;
   private static final int RENDERING_INTERVAL_MS = 10;
+  private static final int LOW_RENDERING_INTERVAL_MS = 20;
   private static final int IDLE_INTERVAL_MS = 1000;
 
   private final Renderer[] renderers;
@@ -410,12 +411,12 @@ import java.util.Collections;
     rebuffering = false;
     this.playWhenReady = playWhenReady;
     if (!playWhenReady) {
-      stopRenderers();
+      stopClockAndRenderers();
       setPauseInternal();
       updatePlaybackPositions();
     } else {
       if (playbackInfo.playbackState == Player.STATE_READY) {
-        startRenderers();
+        startClockAndRenderers();
         setResumeInternal();
         handler.sendEmptyMessage(MSG_DO_SOME_WORK);
       } else if (playbackInfo.playbackState == Player.STATE_BUFFERING) {
@@ -476,6 +477,17 @@ import java.util.Collections;
 
   private void startRenderers() throws ExoPlaybackException {
     rebuffering = false;
+    if (!mediaClock.isStarted()) {
+      mediaClock.start();
+    }
+
+    for (Renderer renderer : enabledRenderers) {
+      renderer.start();
+    }
+  }
+
+  private void startClockAndRenderers() throws ExoPlaybackException {
+    rebuffering = false;
     mediaClock.start();
     for (Renderer renderer : enabledRenderers) {
       renderer.start();
@@ -483,6 +495,12 @@ import java.util.Collections;
   }
 
   private void stopRenderers() throws ExoPlaybackException {
+    for (Renderer renderer : enabledRenderers) {
+      ensureStopped(renderer);
+    }
+  }
+
+  private void stopClockAndRenderers() throws ExoPlaybackException {
     mediaClock.stop();
     for (Renderer renderer : enabledRenderers) {
       ensureStopped(renderer);
@@ -569,18 +587,26 @@ import java.util.Collections;
             || playingPeriodDurationUs <= playbackInfo.positionUs)
         && playingPeriodHolder.info.isFinal) {
       setState(Player.STATE_ENDED);
-      stopRenderers();
+      stopClockAndRenderers();
     } else if (playbackInfo.playbackState == Player.STATE_BUFFERING
         && shouldTransitionToReadyState(renderersReadyOrEnded)) {
       setState(Player.STATE_READY);
       if (playWhenReady) {
-        startRenderers();
+        if (mediaSource.isLive()) {
+          startRenderers();
+        } else {
+          startClockAndRenderers();
+        }
       }
     } else if (playbackInfo.playbackState == Player.STATE_READY
         && !(enabledRenderers.length == 0 ? isTimelineReady() : renderersReadyOrEnded)) {
       rebuffering = playWhenReady;
       setState(Player.STATE_BUFFERING);
-      stopRenderers();
+      if (mediaSource.isLive()) {
+        stopRenderers();
+      } else {
+        stopClockAndRenderers();
+      }
     }
 
     if (playbackInfo.playbackState == Player.STATE_BUFFERING) {
@@ -591,7 +617,8 @@ import java.util.Collections;
 
     if ((playWhenReady && playbackInfo.playbackState == Player.STATE_READY)
         || playbackInfo.playbackState == Player.STATE_BUFFERING) {
-      scheduleNextWork(operationStartTimeMs, RENDERING_INTERVAL_MS);
+      scheduleNextWork(operationStartTimeMs, mediaSource.isTcp() ? RENDERING_INTERVAL_MS
+              : LOW_RENDERING_INTERVAL_MS);
     } else if (enabledRenderers.length != 0 && playbackInfo.playbackState != Player.STATE_ENDED) {
       scheduleNextWork(operationStartTimeMs, IDLE_INTERVAL_MS);
     } else {
@@ -683,7 +710,7 @@ import java.util.Collections;
   private long seekToPeriodPosition(
       MediaPeriodId periodId, long periodPositionUs, boolean forceDisableRenderers)
       throws ExoPlaybackException {
-    stopRenderers();
+    stopClockAndRenderers();
     rebuffering = false;
     setState(Player.STATE_BUFFERING);
 

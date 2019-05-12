@@ -1,7 +1,20 @@
+/*
+ * Copyright (C) 2018 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.google.android.exoplayer2.source.rtp.upstream;
 
-import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.source.rtp.RtpPacket;
 import com.google.android.exoplayer2.source.rtp.rtcp.RtcpCompoundPacket;
 import com.google.android.exoplayer2.source.rtp.rtcp.RtcpPacket;
 import com.google.android.exoplayer2.source.rtp.rtcp.RtcpSdesPacket;
@@ -9,28 +22,22 @@ import com.google.android.exoplayer2.source.rtp.rtcp.RtcpSrPacket;
 
 import java.util.concurrent.CopyOnWriteArraySet;
 
-public final class RtcpIncomingReportSink {
+public final class RtcpInputReportDispatcher {
 
-    private final byte[] packetBuffer;
     private final CopyOnWriteArraySet<RtcpReportReceiver.EventListener> listeners;
 
     private boolean opened;
 
-    public RtcpIncomingReportSink() {
+    public RtcpInputReportDispatcher() {
         listeners = new CopyOnWriteArraySet<>();
-        packetBuffer = new byte[RtpPacket.MAX_PACKET_SIZE];
     }
 
     public void open() {
         opened = true;
     }
 
-    public int write(byte[] buffer, int offset, int length) {
+    public void dispatch(RtcpPacket rtcpPacket) {
         if (opened) {
-            System.arraycopy(buffer, offset, packetBuffer, 0, length);
-
-            RtcpPacket rtcpPacket = RtcpPacket.parse(packetBuffer, length);
-
             if (rtcpPacket != null) {
                 @RtcpPacket.PacketType int packetType = rtcpPacket.getPayloadType();
 
@@ -56,14 +63,8 @@ public final class RtcpIncomingReportSink {
 
                         break;
                 }
-
-                return length;
             }
-
-            return 0;
         }
-
-        return C.LENGTH_UNSET;
     }
 
     public void close() {

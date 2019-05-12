@@ -204,6 +204,16 @@ public interface MediaSource {
   }
 
   /**
+   * Returns whether the media source is on TCP.
+   */
+  boolean isTcp();
+
+  /**
+   * Returns whether the media source is a live.
+   */
+  boolean isLive();
+
+  /**
    * Adds a {@link MediaSourceEventListener} to the list of listeners which are notified of media
    * source events.
    *

@@ -19,7 +19,7 @@ import com.google.android.exoplayer2.C;
 
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.source.rtp.RtpPacket;
-import com.google.android.exoplayer2.source.rtp.upstream.RtpDataSinkSource;
+import com.google.android.exoplayer2.source.rtp.upstream.RtpDataSource;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.util.Assertions;
 
@@ -38,7 +38,7 @@ public final class RtpExtractorInput implements ExtractorInput {
   private int peekBufferLength;
 
   /**
-   * @param dataSource The wrapped {@link RtpDataSinkSource }.
+   * @param dataSource The wrapped {@link RtpDataSource }.
    */
   public RtpExtractorInput(DataSource dataSource) {
     this.dataSource = dataSource;

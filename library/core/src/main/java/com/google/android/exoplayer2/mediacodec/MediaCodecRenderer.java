@@ -664,9 +664,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     // We have a format.
     maybeInitCodec();
     if (codec != null) {
-      TraceUtil.beginSection("drainAndFeed");
-      while (drainOutputBuffer(positionUs, elapsedRealtimeUs)) {}
+      TraceUtil.beginSection("feedAndDrain");
       while (feedInputBuffer()) {}
+      while (drainOutputBuffer(positionUs, elapsedRealtimeUs)) {}
       TraceUtil.endSection();
     } else {
       decoderCounters.skippedInputBufferCount += skipSource(positionUs);

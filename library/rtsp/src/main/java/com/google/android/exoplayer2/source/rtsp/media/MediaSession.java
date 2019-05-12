@@ -19,8 +19,6 @@ import android.net.Uri;
 import android.support.annotation.IntDef;
 
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.source.rtp.rtcp.RtcpPacket;
-import com.google.android.exoplayer2.source.rtp.upstream.RtcpOutgoingReportSink;
 import com.google.android.exoplayer2.source.rtsp.RtspSampleStreamWrapper;
 import com.google.android.exoplayer2.source.rtsp.core.Client;
 import com.google.android.exoplayer2.source.rtsp.message.InterleavedFrame;

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.google.android.exoplayer2.source.rtp.upstream;
 
 import com.google.android.exoplayer2.source.rtp.rtcp.RtcpPacket;
@@ -27,7 +26,7 @@ import java.util.concurrent.RejectedExecutionException;
 
 /* package */ final class RtcpReportSender {
     public interface EventListener {
-        void onLastReportSent();
+        void onReportSent();
     }
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -46,7 +45,7 @@ import java.util.concurrent.RejectedExecutionException;
         }
     }
 
-    public synchronized void send(final RtcpPacket packet, final boolean isLast) {
+    public synchronized void send(final RtcpPacket packet) {
         try {
 
             executorService.execute(new Runnable() {
@@ -69,9 +68,7 @@ import java.util.concurrent.RejectedExecutionException;
         } catch (RejectedExecutionException ex) {
 
         } finally {
-            if (isLast) {
-                listener.onLastReportSent();
-            }
+            listener.onReportSent();
         }
     }
 
