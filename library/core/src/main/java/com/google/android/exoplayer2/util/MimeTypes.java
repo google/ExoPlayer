@@ -218,6 +218,8 @@ public final class MimeTypes {
       return MimeTypes.VIDEO_VP9;
     } else if (codec.startsWith("vp8") || codec.startsWith("vp08")) {
       return MimeTypes.VIDEO_VP8;
+    } else if (codec.startsWith("mp4v")) {
+      return MimeTypes.VIDEO_MP4V;
     } else if (codec.startsWith("mp4a")) {
       String mimeType = null;
       if (codec.startsWith("mp4a.")) {

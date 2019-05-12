@@ -31,7 +31,9 @@ import com.google.android.exoplayer2.util.MimeTypes;
   @NonNull @Override
   public RtpPayloadReader createPayloadReader(RtpPayloadFormat format) {
     if (MimeTypes.VIDEO_H264.equals(format.sampleMimeType())) {
-      return new RtpH264PayloadReader((RtpVideoPayload)format);
+      return new RtpH264PayloadReader((RtpVideoPayload) format);
+    } else if (MimeTypes.VIDEO_MP4V.equals(format.sampleMimeType())) {
+      return new RtpMp4vPayloadReader((RtpVideoPayload)format);
     } else if (MimeTypes.AUDIO_ALAW.equals(format.sampleMimeType()) ||
             MimeTypes.AUDIO_MLAW.equals(format.sampleMimeType())) {
       return new RtpG711PayloadReader((RtpAudioPayload)format);

@@ -15,14 +15,14 @@
  */
 package com.google.android.exoplayer2.source.rtp.format;
 
-import android.util.Base64;
+import android.util.Pair;
 
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.android.exoplayer2.util.NalUnitUtil;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public final class RtpVideoPayload extends RtpPayloadFormat {
@@ -72,6 +72,8 @@ public final class RtpVideoPayload extends RtpPayloadFormat {
                 //  2c:  CAVLC 4:4:4
                 codecs = "avc1." + parameters.value(FormatSpecificParameter.PROFILE_LEVEL_ID);
             }
+        } else if (MimeTypes.VIDEO_MP4V.equals(sampleMimeType)) {
+            codecs = "mp4v";
         }
     }
 
@@ -80,40 +82,53 @@ public final class RtpVideoPayload extends RtpPayloadFormat {
         if (codecSpecificData == null) {
             if (MimeTypes.VIDEO_H264.equals(sampleMimeType)) {
                 if (parameters.contains(FormatSpecificParameter.SPROP_PARAMETER_SETS)) {
-                    /*For H.264 MPEG4 Part15, the CodecPrivateData field must contain SPS and PPS
-                    in the following form, base16-encoded: [start code][SPS][start code][PPS],
-                    where [start code] is the following four bytes: 0x00, 0x00, 0x00, 0x01.
-                    */
-                    String[] paramSets = parameters.value(FormatSpecificParameter.SPROP_PARAMETER_SETS).
-                            split(",");
-                    if (paramSets.length == 2) {
-                        codecSpecificData = new ArrayList<>();
-                        for (String s : paramSets) {
-                            if ((s != null) && (s.length() != 0)) {
-                                byte[] nal = Base64.decode(s, Base64.DEFAULT);
 
-                                if ((nal != null) && (nal.length != 0)) {
-                                    codecSpecificData.add(CodecSpecificDataUtil.buildNalUnit
-                                            (nal, 0, nal.length));
-                                }
+                    String spropParamSets = parameters.value(
+                            FormatSpecificParameter.SPROP_PARAMETER_SETS);
+                    if (spropParamSets != null && spropParamSets.length() > 0) {
+                        codecSpecificData = CodecSpecificDataUtil.
+                                buildH264VideoSpecificConfig(spropParamSets);
+
+                        try {
+                            Pair<Float, Pair<Integer, Integer>> h264Config = CodecSpecificDataUtil
+                                    .parseH264VideoSpecificConfig(codecSpecificData);
+
+                            pixelWidthAspectRatio = h264Config.first;
+
+                            if (width == Format.NO_VALUE && height == Format.NO_VALUE) {
+                                width = h264Config.second.first;
+                                height = h264Config.second.second;
+
+                            } else if ((width != Format.NO_VALUE && h264Config.second.first != width) ||
+                                    (height != Format.NO_VALUE && h264Config.second.second != height)) {
+                                codecSpecificData.clear();
+                                codecSpecificData = null;
                             }
-                        }
 
-                        byte[] sps = codecSpecificData.get(0);
-                        NalUnitUtil.SpsData spsData = NalUnitUtil.parseSpsNalUnit(
-                                sps, 4, sps.length);
-
-                        pixelWidthAspectRatio = spsData.pixelWidthAspectRatio;
-
-                        if (width == Format.NO_VALUE && height == Format.NO_VALUE) {
-                            width = spsData.width;
-                            height = spsData.height;
-
-                        } else if ((width != Format.NO_VALUE && spsData.width != width) ||
-                                    (height != Format.NO_VALUE && spsData.height != height)) {
+                        } catch (ParserException ex) {
                             codecSpecificData.clear();
                             codecSpecificData = null;
                         }
+                    }
+                }
+
+            } else if (MimeTypes.VIDEO_MP4V.equals(sampleMimeType)) {
+                String config = parameters.value(FormatSpecificParameter.CONFIG);
+                if (config != null) {
+
+                    try {
+                        byte[] csd = CodecSpecificDataUtil.buildMpeg4VideoSpecificConfig(config);
+                        codecSpecificData = Collections.singletonList(csd);
+
+                        if (width == Format.NO_VALUE && height == Format.NO_VALUE) {
+                            Pair<Integer, Integer> dimensions = CodecSpecificDataUtil.
+                                    parseMpeg4VideoSpecificConfig(csd);
+                            width = dimensions.first;
+                            height = dimensions.second;
+                        }
+
+                    } catch (IllegalArgumentException | ParserException ex) {
+
                     }
                 }
             }

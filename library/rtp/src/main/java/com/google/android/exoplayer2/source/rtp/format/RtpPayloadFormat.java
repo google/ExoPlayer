@@ -50,7 +50,7 @@ public abstract class RtpPayloadFormat {
 
     @Retention(RetentionPolicy.SOURCE)
     @StringDef({AAC, AC3, AMR, G722, EAC3, GSM, H261, H263, H264, H265, L16, MP2T,
-            MP4ALATM, MPEG4GENERIC, MP4VES, MPA, MPV, PCMA, PCMU, PCMA_WB, PCMU_WB, OPUS, VP8, VP9})
+            MP4ALATM, MPEG4GENERIC, MP4V_ES, MPA, MPV, PCMA, PCMU, PCMA_WB, PCMU_WB, OPUS, VP8, VP9})
     public @interface MediaCodec {}
     public static final String AAC = "AAC";
     public static final String AC3 = "AC3";
@@ -66,7 +66,7 @@ public abstract class RtpPayloadFormat {
     public static final String MP2T = "MP2T";
     public static final String MP4ALATM = "MP4A-LATM";
     public static final String MPEG4GENERIC = "MPEG4-GENERIC";
-    public static final String MP4VES = "MP4V-ES";
+    public static final String MP4V_ES = "MP4V-ES";
     public static final String MPA = "MPA";
     public static final String MPV = "MPV";
     public static final String PCMU = "PCMU";
@@ -179,11 +179,14 @@ public abstract class RtpPayloadFormat {
                 break;
 
             default: // rtp payload type dynamic
-                if (payload > 96) {
+                if (payload > 95) {
                     if (encoding.equals(AMR)) {
                         this.clockrate = 8000;
                         this.encoding = encoding;
                     } else if (encoding.equals(H264) || encoding.equals(H265)) {
+                        this.clockrate = 90000;
+                        this.encoding = encoding;
+                    } else if (encoding.equals(MP4V_ES)) {
                         this.clockrate = 90000;
                         this.encoding = encoding;
                     } else if (encoding.equals(OPUS)) {
@@ -266,7 +269,7 @@ public abstract class RtpPayloadFormat {
                     case MPV:
                         this.sampleMimeType = MimeTypes.VIDEO_MP4;
                         break;
-                    case MP4VES:
+                    case MP4V_ES:
                         this.sampleMimeType = MimeTypes.VIDEO_MP4V;
                         break;
                 }

@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.util;
 
 import android.support.annotation.Nullable;
+import android.util.Base64;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
@@ -79,6 +80,13 @@ public final class CodecSpecificDataUtil {
   private static final int AUDIO_OBJECT_TYPE_PS = 29;
   // Escape code for extended audio object types.
   private static final int AUDIO_OBJECT_TYPE_ESCAPE = 31;
+
+
+  private static final int VISUAL_OBJECT_LAYER = 1;
+  private static final int VISUAL_OBJECT_LAYER_START = 0x20;
+  private static final int EXTENDED_PAR = 0x0F;
+  private static final int RECTANGULAR = 0x00;
+  private static final int FINE_GRANULARITY_SCALABLE = 0x12;
 
   private CodecSpecificDataUtil() {}
 
@@ -203,6 +211,163 @@ public final class CodecSpecificDataUtil {
     specificConfig[0] = (byte) (((audioObjectType << 3) & 0xF8) | ((sampleRateIndex >> 1) & 0x07));
     specificConfig[1] = (byte) (((sampleRateIndex << 7) & 0x80) | ((channelConfig << 3) & 0x78));
     return specificConfig;
+  }
+
+  /**
+   * Builds a H.264 configuration information, as defined in RFC 6814 and ISO/IEC 14496-10
+   *
+   * @param config A representation of an octet string that expresses the H.264 configuration information
+   * @return The H.264 configuration information
+   */
+  public static List<byte[]> buildH264VideoSpecificConfig(String config)
+          throws IllegalArgumentException {
+    List<byte[]> codecSpecificData = null;
+
+    /* For H.264 MPEG4 Part15, the CodecPrivateData field must contain SPS and PPS in the following
+      form, base16-encoded: [start code][SPS][start code][PPS], where [start code] is the following
+      four bytes: 0x00, 0x00, 0x00, 0x01 */
+
+    String[] paramSets = config.split(",");
+    if (paramSets.length == 2) {
+      codecSpecificData = new ArrayList<>();
+      for (String s : paramSets) {
+        if ((s != null) && (s.length() != 0)) {
+          byte[] nal = Base64.decode(s, Base64.DEFAULT);
+          if ((nal != null) && (nal.length != 0)) {
+            codecSpecificData.add(buildNalUnit(nal, 0, nal.length));
+          }
+        }
+      }
+    }
+
+    return codecSpecificData;
+  }
+
+  /**
+   * Parses an H.264 configuration information, as defined in ISO/IEC 14496-10
+   *
+   * @param videoSpecificConfig A byte array list containing the H.264 configuration information to parse.
+   * @return A pair consisting of the pixel width aspect ratio and the dimensions.
+   * @throws ParserException If the H.264 configuration information cannot be parsed as it's not
+   *                         supported.
+   */
+  public static Pair<Float, Pair<Integer, Integer>> parseH264VideoSpecificConfig(
+          List<byte[]> videoSpecificConfig) throws ParserException {
+
+    try {
+      byte[] sps = videoSpecificConfig.get(0);
+      NalUnitUtil.SpsData spsData = NalUnitUtil.parseSpsNalUnit(sps, 4, sps.length);
+      return Pair.create(spsData.pixelWidthAspectRatio, Pair.create(spsData.width, spsData.height));
+
+    } catch (IllegalStateException | NullPointerException ex) {
+      throw new ParserException("H.264 configuration information malformed");
+    }
+  }
+
+  /**
+   * Builds a MPEG-4 Visual configuration information, as defined in ISO/IEC14496-2
+   *
+   * @param config A hexadecimal representation of an octet string that expresses
+   *               the MPEG-4 Visual configuration information
+   * @return The MPEG-4 Visual configuration config.
+   */
+  public static byte[] buildMpeg4VideoSpecificConfig(String config)
+          throws IllegalArgumentException {
+    if (config.length() % 2 != 0) {
+      throw new IllegalArgumentException("The binary key cannot have an odd number of digits:"
+              + config);
+    }
+
+    return Util.getBytesFromHexString(config);
+  }
+
+  /**
+   * Parses an MPEG-4 Visual configuration information, as defined in ISO/IEC14496-2
+   *
+   * @param videoSpecificConfig A byte array containing the MPEG-4 Visual configuration
+   *                information to parse.
+   * @return A pair consisting of the width and the height.
+   * @throws ParserException If the MPEG-4 Visual configuration information cannot be parsed as
+   *                        it's not supported.
+   */
+  public static Pair<Integer, Integer> parseMpeg4VideoSpecificConfig(byte[] videoSpecificConfig)
+          throws ParserException {
+    int offset = 0;
+    boolean foundVOL = false;
+
+    ParsableBitArray scdScratchBits = new ParsableBitArray(videoSpecificConfig);
+    ParsableByteArray scdScratchBytes = new ParsableByteArray(videoSpecificConfig);
+
+    while (offset + 3 < videoSpecificConfig.length) {
+      if (scdScratchBytes.readUnsignedInt24() != VISUAL_OBJECT_LAYER
+              || (videoSpecificConfig[offset + 3] & 0xf0) != VISUAL_OBJECT_LAYER_START) {
+        scdScratchBytes.setPosition(scdScratchBytes.getPosition() - 2);
+        offset++;
+        continue;
+      }
+
+      foundVOL = true;
+      break;
+    }
+
+    if (!foundVOL) {
+      throw new ParserException("MPEG-4 Visual configuration information malformed");
+    }
+
+    scdScratchBits.skipBits((offset + 4) * 8);
+    scdScratchBits.skipBits(1);  // random_accessible_vol
+
+    int videoObjectTypeIndication = scdScratchBits.readBits(8);
+    Assertions.checkArgument(videoObjectTypeIndication != FINE_GRANULARITY_SCALABLE);
+
+    if (scdScratchBits.readBit()) { // object_layer_identifier
+      scdScratchBits.skipBits(4); // video_object_layer_verid
+      scdScratchBits.skipBits(3); // video_object_layer_priority
+    }
+
+    int aspectRatioInfo = scdScratchBits.readBits(4);
+    if (aspectRatioInfo == EXTENDED_PAR) {
+      scdScratchBits.skipBits(8);  // par_width
+      scdScratchBits.skipBits(8);  // par_height
+    }
+
+    if (scdScratchBits.readBit()) {  // vol_control_parameters
+      scdScratchBits.skipBits(2);  // chroma_format
+      scdScratchBits.skipBits(1);  // low_delay
+      if (scdScratchBits.readBit()) {  // vbv_parameters
+        throw new ParserException("Should not be here");
+      }
+    }
+
+    int videoObjectLayerShape = scdScratchBits.readBits(2);
+    Assertions.checkArgument(videoObjectLayerShape == RECTANGULAR);
+
+    Assertions.checkArgument(scdScratchBits.readBit());  // marker_bit
+    int vopTimeIncrementResolution= scdScratchBits.readBits(16);
+    Assertions.checkArgument(scdScratchBits.readBit());  // marker_bit
+
+    if (scdScratchBits.readBit()) {  // fixed_vop_rate
+      Assertions.checkArgument(vopTimeIncrementResolution > 0);
+      --vopTimeIncrementResolution;
+
+      int numBits = 0;
+      while (vopTimeIncrementResolution > 0) {
+        ++numBits;
+        vopTimeIncrementResolution >>= 1;
+      }
+
+      scdScratchBits.skipBits(numBits);  // fixed_vop_time_increment
+    }
+
+    Assertions.checkArgument(scdScratchBits.readBit());  // marker_bit
+    int videoObjectLayerWidth = scdScratchBits.readBits(13);
+    Assertions.checkArgument(scdScratchBits.readBit());  // marker_bit
+    int videoObjectLayerHeight = scdScratchBits.readBits(13);
+    Assertions.checkArgument(scdScratchBits.readBit());  // marker_bit
+
+    scdScratchBits.skipBits(1); // interlaced
+
+    return Pair.create(videoObjectLayerWidth, videoObjectLayerHeight);
   }
 
   /**
