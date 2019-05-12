@@ -96,10 +96,12 @@ import java.util.List;
 
         output = extractorOutput.track(trackIdGenerator.getTrackId(), C.TRACK_TYPE_AUDIO);
 
+        List<byte[]> codecSpecificData = payloadFormat.buildCodecSpecificData();
+
         Format format = Format.createAudioSampleFormat(trackIdGenerator.getFormatId(),
                 payloadFormat.sampleMimeType(), payloadFormat.codecs(), payloadFormat.bitrate(),
                 Format.NO_VALUE, payloadFormat.channels(), payloadFormat.clockrate(),
-                payloadFormat.buildCodecSpecificData(), null, 0, null);
+                codecSpecificData, null, 0, null);
 
         output.format(format);
     }

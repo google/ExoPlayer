@@ -1,6 +1,9 @@
 package com.google.android.exoplayer2.source.rtp.format;
 
+import android.util.Pair;
+
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 
@@ -52,9 +55,30 @@ public final class RtpAudioPayload extends RtpPayloadFormat {
     public List<byte[]> buildCodecSpecificData() {
         if (codecSpecificData == null) {
             if (MimeTypes.AUDIO_AAC.equals(sampleMimeType())) {
-                codecSpecificData = Collections.singletonList(
-                        CodecSpecificDataUtil.buildAacLcAudioSpecificConfig(clockrate,
-                                this.channels()));
+                if (channels > 0 && clockrate > 0) {
+                    codecSpecificData = Collections.singletonList(
+                            CodecSpecificDataUtil.buildAacLcAudioSpecificConfig(clockrate,
+                                    channels));
+                } else {
+
+                    if (parameters.contains(FormatSpecificParameter.CONFIG)) {
+                        byte[] config = parameters.value(FormatSpecificParameter.CONFIG).getBytes();
+
+                        try {
+                            Pair<Integer, Integer> specConfigParsed = CodecSpecificDataUtil
+                                    .parseAacAudioSpecificConfig(config);
+
+                            clockrate = (clockrate > 0) ? clockrate : specConfigParsed.first;
+                            channels = (channels > 0) ? channels : specConfigParsed.second;
+
+                            codecSpecificData = Collections.singletonList(CodecSpecificDataUtil
+                                    .buildAacLcAudioSpecificConfig(clockrate, channels));
+
+                        } catch (ParserException ex) {
+                            codecSpecificData = Collections.singletonList(new byte[0]);
+                        }
+                    }
+                }
 
             } else {
                 codecSpecificData = Collections.singletonList(new byte[0]);
