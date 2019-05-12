@@ -21,7 +21,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class Attribute {
-    private static final Pattern regexSDPAttribute = Pattern.compile("(\\w+):\\s*(.+)|(\\w+)",
+    private static final Pattern regexSDPAttribute = Pattern.compile("([a-z-]*):\\s*(.+)|(\\w+)",
             Pattern.CASE_INSENSITIVE);
 
     public final static String CHARSET = "charset";
@@ -45,6 +45,8 @@ public final class Attribute {
     public final static String PTIME = "ptime";
     public final static String QUALITY = "quality";
     public final static String SDPLANG = "sdplang";
+    public final static String TS_REFCLK = "ts-refclk";
+    public final static String MEDIACLK = "mediaclk";
 
     private String name;
     private String value;

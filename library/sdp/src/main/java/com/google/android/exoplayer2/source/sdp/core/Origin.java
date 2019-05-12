@@ -41,8 +41,8 @@ public final class Origin {
     private static final String IP6 = "IP6";
 
     private String username;
-    private long sessId;
-    private long sessVersion;
+    private String sessId;
+    private String sessVersion;
 
     private @NetType String nettype;
     private @AddrType String addrtype;
@@ -62,7 +62,7 @@ public final class Origin {
         this(userName, generateId(), generateId(), nettype, addrtype, unicastAddress);
     }
 
-    Origin(String username, long sessId, long sessVersion, @NetType String nettype,
+    Origin(String username, String sessId, String sessVersion, @NetType String nettype,
            @AddrType String addrtype, String unicastAddress) {
         this.username = username;
         this.sessId = sessId;
@@ -79,11 +79,11 @@ public final class Origin {
         return username;
     }
 
-    public long sessId() {
+    public String sessId() {
         return sessId;
     }
 
-    public long sessVersion() {
+    public String sessVersion() {
         return sessVersion;
     }
 
@@ -101,10 +101,10 @@ public final class Origin {
         return unicastAddress;
     }
 
-    private static long generateId() {
+    private static String generateId() {
         Random rand = new Random(System.nanoTime());
         long id = System.nanoTime() + System.currentTimeMillis() + rand.nextLong();
-        return Math.abs(id);
+        return new String(Long.toString(Math.abs(id)));
     }
 
     @Nullable
@@ -115,14 +115,14 @@ public final class Origin {
             if (matcher.find()) {
                 if (matcher.group(4).trim().equals(IP4)) {
                     return new Origin(matcher.group(1).trim(),
-                            Long.parseLong(matcher.group(2).trim()),
-                            Long.parseLong(matcher.group(3).trim()),
+                            matcher.group(2).trim(),
+                            matcher.group(3).trim(),
                             IN, IP4, matcher.group(5));
                 }
                 else if (matcher.group(4).trim().equals(IP6)) {
                     return new Origin(matcher.group(1).trim(),
-                            Long.parseLong(matcher.group(2).trim()),
-                            Long.parseLong(matcher.group(3).trim()),
+                            matcher.group(2).trim(),
+                            matcher.group(3).trim(),
                             IN, IP6, matcher.group(5));
                 }
             }
