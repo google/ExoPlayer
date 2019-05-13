@@ -298,29 +298,26 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (!MimeTypes.isVideo(mimeType)) {
       return FORMAT_UNSUPPORTED_TYPE;
     }
-    boolean requiresSecureDecryption = false;
     DrmInitData drmInitData = format.drmInitData;
-    if (drmInitData != null) {
-      for (int i = 0; i < drmInitData.schemeDataCount; i++) {
-        requiresSecureDecryption |= drmInitData.get(i).requiresSecureDecryption;
-      }
-    }
+    // Assume encrypted content requires secure decoders.
+    boolean requiresSecureDecryption = drmInitData != null;
     List<MediaCodecInfo> decoderInfos =
         getDecoderInfos(
             mediaCodecSelector,
             format,
             requiresSecureDecryption,
             /* requiresTunnelingDecoder= */ false);
+    if (requiresSecureDecryption && decoderInfos.isEmpty()) {
+      // No secure decoders are available. Fall back to non-secure decoders.
+      decoderInfos =
+          getDecoderInfos(
+              mediaCodecSelector,
+              format,
+              /* requiresSecureDecoder= */ false,
+              /* requiresTunnelingDecoder= */ false);
+    }
     if (decoderInfos.isEmpty()) {
-      return requiresSecureDecryption
-              && !getDecoderInfos(
-                      mediaCodecSelector,
-                      format,
-                      /* requiresSecureDecoder= */ false,
-                      /* requiresTunnelingDecoder= */ false)
-                  .isEmpty()
-          ? FORMAT_UNSUPPORTED_DRM
-          : FORMAT_UNSUPPORTED_SUBTYPE;
+      return FORMAT_UNSUPPORTED_SUBTYPE;
     }
     if (!supportsFormatDrm(drmSessionManager, drmInitData)) {
       return FORMAT_UNSUPPORTED_DRM;
