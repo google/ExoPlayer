@@ -6,6 +6,8 @@
   ([#5868](https://github.com/google/ExoPlayer/issues/5868)).
 * Fix handling of line terminators in SHOUTcast ICY metadata
   ([#5876](https://github.com/google/ExoPlayer/issues/5876)).
+* Assume that encrypted content requires secure decoders in renderer support
+  checks ([#5568](https://github.com/google/ExoPlayer/issues/5568)).
 * Offline: Add option to remove all downloads.
 * Decoders:
   * Prefer codecs that advertise format support over ones that do not, even if

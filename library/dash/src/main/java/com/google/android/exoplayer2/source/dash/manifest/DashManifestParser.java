@@ -397,7 +397,6 @@ public class DashManifestParser extends DefaultHandler
     String licenseServerUrl = null;
     byte[] data = null;
     UUID uuid = null;
-    boolean requiresSecureDecoder = false;
 
     String schemeIdUri = xpp.getAttributeValue(null, "schemeIdUri");
     if (schemeIdUri != null) {
@@ -431,9 +430,6 @@ public class DashManifestParser extends DefaultHandler
       xpp.next();
       if (XmlPullParserUtil.isStartTag(xpp, "ms:laurl")) {
         licenseServerUrl = xpp.getAttributeValue(null, "licenseUrl");
-      } else if (XmlPullParserUtil.isStartTag(xpp, "widevine:license")) {
-        String robustnessLevel = xpp.getAttributeValue(null, "robustness_level");
-        requiresSecureDecoder = robustnessLevel != null && robustnessLevel.startsWith("HW");
       } else if (data == null
           && XmlPullParserUtil.isStartTagIgnorePrefix(xpp, "pssh")
           && xpp.next() == XmlPullParser.TEXT) {
@@ -457,10 +453,7 @@ public class DashManifestParser extends DefaultHandler
       }
     } while (!XmlPullParserUtil.isEndTag(xpp, "ContentProtection"));
     SchemeData schemeData =
-        uuid != null
-            ? new SchemeData(
-                uuid, licenseServerUrl, MimeTypes.VIDEO_MP4, data, requiresSecureDecoder)
-            : null;
+        uuid != null ? new SchemeData(uuid, licenseServerUrl, MimeTypes.VIDEO_MP4, data) : null;
     return Pair.create(schemeType, schemeData);
   }
 

@@ -242,8 +242,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
       for (int i = 0; i < schemeDatas.size(); i++) {
         SchemeData schemeData = schemeDatas.get(i);
         byte[] schemeDataData = Util.castNonNull(schemeData.data);
-        if (schemeData.requiresSecureDecryption == firstSchemeData.requiresSecureDecryption
-            && Util.areEqual(schemeData.mimeType, firstSchemeData.mimeType)
+        if (Util.areEqual(schemeData.mimeType, firstSchemeData.mimeType)
             && Util.areEqual(schemeData.licenseServerUrl, firstSchemeData.licenseServerUrl)
             && PsshAtomUtil.isPsshAtom(schemeDataData)) {
           concatenatedDataLength += schemeDataData.length;
