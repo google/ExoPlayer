@@ -51,13 +51,13 @@ public final class MediaCodecInfo {
   public final String name;
 
   /** The MIME type handled by the codec, or {@code null} if this is a passthrough codec. */
-  public final @Nullable String mimeType;
+  @Nullable public final String mimeType;
 
   /**
-   * The capabilities of the decoder, like the profiles/levels it supports, or {@code null} if this
-   * is a passthrough codec.
+   * The capabilities of the decoder, like the profiles/levels it supports, or {@code null} if not
+   * known.
    */
-  public final @Nullable CodecCapabilities capabilities;
+  @Nullable public final CodecCapabilities capabilities;
 
   /**
    * Whether the decoder supports seamless resolution switches.
@@ -109,11 +109,12 @@ public final class MediaCodecInfo {
    *
    * @param name The name of the {@link MediaCodec}.
    * @param mimeType A mime type supported by the {@link MediaCodec}.
-   * @param capabilities The capabilities of the {@link MediaCodec} for the specified mime type.
+   * @param capabilities The capabilities of the {@link MediaCodec} for the specified mime type, or
+   *     {@code null} if not known.
    * @return The created instance.
    */
-  public static MediaCodecInfo newInstance(String name, String mimeType,
-      CodecCapabilities capabilities) {
+  public static MediaCodecInfo newInstance(
+      String name, String mimeType, @Nullable CodecCapabilities capabilities) {
     return new MediaCodecInfo(
         name,
         mimeType,
@@ -128,7 +129,8 @@ public final class MediaCodecInfo {
    *
    * @param name The name of the {@link MediaCodec}.
    * @param mimeType A mime type supported by the {@link MediaCodec}.
-   * @param capabilities The capabilities of the {@link MediaCodec} for the specified mime type.
+   * @param capabilities The capabilities of the {@link MediaCodec} for the specified mime type, or
+   *     {@code null} if not known.
    * @param forceDisableAdaptive Whether {@link #adaptive} should be forced to {@code false}.
    * @param forceSecure Whether {@link #secure} should be forced to {@code true}.
    * @return The created instance.
@@ -136,7 +138,7 @@ public final class MediaCodecInfo {
   public static MediaCodecInfo newInstance(
       String name,
       String mimeType,
-      CodecCapabilities capabilities,
+      @Nullable CodecCapabilities capabilities,
       boolean forceDisableAdaptive,
       boolean forceSecure) {
     return new MediaCodecInfo(
