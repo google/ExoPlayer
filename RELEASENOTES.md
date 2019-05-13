@@ -16,6 +16,8 @@
   ([#5784](https://github.com/google/ExoPlayer/issues/5784)).
 * Add a workaround for a decoder failure on ZTE Axon7 mini devices when playing
   48kHz audio ([#5821](https://github.com/google/ExoPlayer/issues/5821)).
+* Add a workaround for broken raw audio decoding on Oppo R9
+  ([#5782](https://github.com/google/ExoPlayer/issues/5782)).
 
 ### 2.10.0 ###
 

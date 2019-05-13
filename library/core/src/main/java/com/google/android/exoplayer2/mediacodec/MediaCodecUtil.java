@@ -504,6 +504,16 @@ public final class MediaCodecUtil {
    */
   private static void applyWorkarounds(String mimeType, List<MediaCodecInfo> decoderInfos) {
     if (MimeTypes.AUDIO_RAW.equals(mimeType)) {
+      if (Util.SDK_INT < 26
+          && Util.DEVICE.equals("R9")
+          && decoderInfos.size() == 1
+          && decoderInfos.get(0).name.equals("OMX.MTK.AUDIO.DECODER.RAW")) {
+        // This device does not list a generic raw audio decoder, yet it can be instantiated by
+        // name. See <a href="https://github.com/google/ExoPlayer/issues/5782">Issue #5782</a>.
+        decoderInfos.add(
+            MediaCodecInfo.newInstance(
+                "OMX.google.raw.decoder", MimeTypes.AUDIO_RAW, /* capabilities= */ null));
+      }
       // Work around inconsistent raw audio decoding behavior across different devices.
       sortByScore(
           decoderInfos,
