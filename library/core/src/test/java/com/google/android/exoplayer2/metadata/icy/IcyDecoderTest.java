@@ -71,6 +71,17 @@ public final class IcyDecoderTest {
   }
 
   @Test
+  public void decode_lineTerminatorInTitle() {
+    IcyDecoder decoder = new IcyDecoder();
+    Metadata metadata = decoder.decode("StreamTitle='test\r\ntitle';StreamURL='test_url';");
+
+    assertThat(metadata.length()).isEqualTo(1);
+    IcyInfo streamInfo = (IcyInfo) metadata.get(0);
+    assertThat(streamInfo.title).isEqualTo("test\r\ntitle");
+    assertThat(streamInfo.url).isEqualTo("test_url");
+  }
+
+  @Test
   public void decode_notIcy() {
     IcyDecoder decoder = new IcyDecoder();
     Metadata metadata = decoder.decode("NotIcyData");
