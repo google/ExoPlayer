@@ -9,6 +9,8 @@
 * Offline: Add option to remove all downloads.
 * Add a workaround for a decoder failure on ZTE Axon7 mini devices when playing
   48kHz audio ([#5821](https://github.com/google/ExoPlayer/issues/5821)).
+* Fix DVB subtitles for SDK 28
+  ([#5862](https://github.com/google/ExoPlayer/issues/5862)).
 
 ### 2.10.0 ###
 
