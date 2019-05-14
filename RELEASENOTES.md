@@ -22,6 +22,8 @@
   48kHz audio ([#5821](https://github.com/google/ExoPlayer/issues/5821)).
 * Add a workaround for broken raw audio decoding on Oppo R9
   ([#5782](https://github.com/google/ExoPlayer/issues/5782)).
+* Fix DVB subtitles for SDK 28
+  ([#5862](https://github.com/google/ExoPlayer/issues/5862)).
 
 ### 2.10.0 ###
 
