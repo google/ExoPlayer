@@ -4,7 +4,7 @@
 
 * Fix NPE when using HLS chunkless preparation
   ([#5868](https://github.com/google/ExoPlayer/issues/5868)).
-* Fix handling of line terminators in SHOUTcast ICY metadata
+* Fix handling of empty values and line terminators in SHOUTcast ICY metadata
   ([#5876](https://github.com/google/ExoPlayer/issues/5876)).
 * Offline: Add option to remove all downloads.
 * Add a workaround for a decoder failure on ZTE Axon7 mini devices when playing
