@@ -834,9 +834,10 @@ public final class MediaSessionConnector {
     return player != null && mediaButtonEventHandler != null;
   }
 
-  private void setPlayWhenReady(boolean playWhenReady) {
+  private void stopPlayerForPrepare(boolean playWhenReady) {
     if (player != null) {
-      controlDispatcher.dispatchSetPlayWhenReady(player, playWhenReady);
+      player.stop();
+      player.setPlayWhenReady(playWhenReady);
     }
   }
 
@@ -1051,14 +1052,14 @@ public final class MediaSessionConnector {
         } else if (player.getPlaybackState() == Player.STATE_ENDED) {
           controlDispatcher.dispatchSeekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
         }
-        setPlayWhenReady(/* playWhenReady= */ true);
+        controlDispatcher.dispatchSetPlayWhenReady(player, /* playWhenReady= */ true);
       }
     }
 
     @Override
     public void onPause() {
       if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_PAUSE)) {
-        setPlayWhenReady(/* playWhenReady= */ false);
+        controlDispatcher.dispatchSetPlayWhenReady(player, /* playWhenReady= */ false);
       }
     }
 
@@ -1181,7 +1182,7 @@ public final class MediaSessionConnector {
     @Override
     public void onPrepare() {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PREPARE)) {
-        setPlayWhenReady(/* playWhenReady= */ false);
+        stopPlayerForPrepare(/* playWhenReady= */ false);
         playbackPreparer.onPrepare();
       }
     }
@@ -1189,7 +1190,7 @@ public final class MediaSessionConnector {
     @Override
     public void onPrepareFromMediaId(String mediaId, Bundle extras) {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID)) {
-        setPlayWhenReady(/* playWhenReady= */ false);
+        stopPlayerForPrepare(/* playWhenReady= */ false);
         playbackPreparer.onPrepareFromMediaId(mediaId, extras);
       }
     }
@@ -1197,7 +1198,7 @@ public final class MediaSessionConnector {
     @Override
     public void onPrepareFromSearch(String query, Bundle extras) {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PREPARE_FROM_SEARCH)) {
-        setPlayWhenReady(/* playWhenReady= */ false);
+        stopPlayerForPrepare(/* playWhenReady= */ false);
         playbackPreparer.onPrepareFromSearch(query, extras);
       }
     }
@@ -1205,7 +1206,7 @@ public final class MediaSessionConnector {
     @Override
     public void onPrepareFromUri(Uri uri, Bundle extras) {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PREPARE_FROM_URI)) {
-        setPlayWhenReady(/* playWhenReady= */ false);
+        stopPlayerForPrepare(/* playWhenReady= */ false);
         playbackPreparer.onPrepareFromUri(uri, extras);
       }
     }
@@ -1213,7 +1214,7 @@ public final class MediaSessionConnector {
     @Override
     public void onPlayFromMediaId(String mediaId, Bundle extras) {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID)) {
-        setPlayWhenReady(/* playWhenReady= */ true);
+        stopPlayerForPrepare(/* playWhenReady= */ true);
         playbackPreparer.onPrepareFromMediaId(mediaId, extras);
       }
     }
@@ -1221,7 +1222,7 @@ public final class MediaSessionConnector {
     @Override
     public void onPlayFromSearch(String query, Bundle extras) {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH)) {
-        setPlayWhenReady(/* playWhenReady= */ true);
+        stopPlayerForPrepare(/* playWhenReady= */ true);
         playbackPreparer.onPrepareFromSearch(query, extras);
       }
     }
@@ -1229,7 +1230,7 @@ public final class MediaSessionConnector {
     @Override
     public void onPlayFromUri(Uri uri, Bundle extras) {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PLAY_FROM_URI)) {
-        setPlayWhenReady(/* playWhenReady= */ true);
+        stopPlayerForPrepare(/* playWhenReady= */ true);
         playbackPreparer.onPrepareFromUri(uri, extras);
       }
     }
