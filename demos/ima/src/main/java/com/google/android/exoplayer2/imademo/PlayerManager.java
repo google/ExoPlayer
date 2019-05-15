@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
@@ -35,7 +36,7 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
 /** Manages the {@link ExoPlayer}, the IMA plugin and all video playback. */
-/* package */ final class PlayerManager implements AdsMediaSource.MediaSourceFactory {
+/* package */ final class PlayerManager implements MediaSourceFactory {
 
   private final ImaAdsLoader adsLoader;
   private final DataSource.Factory dataSourceFactory;
@@ -89,7 +90,7 @@ import com.google.android.exoplayer2.util.Util;
     adsLoader.release();
   }
 
-  // AdsMediaSource.MediaSourceFactory implementation.
+  // MediaSourceFactory implementation.
 
   @Override
   public MediaSource createMediaSource(Uri uri) {
