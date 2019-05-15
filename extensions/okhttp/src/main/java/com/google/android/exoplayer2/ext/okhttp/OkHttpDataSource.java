@@ -77,6 +77,15 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
    * @param callFactory A {@link Call.Factory} (typically an {@link okhttp3.OkHttpClient}) for use
    *     by the source.
    * @param userAgent An optional User-Agent string.
+   */
+  public OkHttpDataSource(Call.Factory callFactory, @Nullable String userAgent) {
+    this(callFactory, userAgent, /* contentTypePredicate= */ null);
+  }
+
+  /**
+   * @param callFactory A {@link Call.Factory} (typically an {@link okhttp3.OkHttpClient}) for use
+   *     by the source.
+   * @param userAgent An optional User-Agent string.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
    *     predicate then a {@link InvalidContentTypeException} is thrown from {@link
    *     #open(DataSpec)}.

@@ -27,7 +27,7 @@ import java.io.IOException;
 /** Fake {@link MediaChunk}. */
 public final class FakeMediaChunk extends MediaChunk {
 
-  private static final DataSource DATA_SOURCE = new DefaultHttpDataSource("TEST_AGENT", null);
+  private static final DataSource DATA_SOURCE = new DefaultHttpDataSource("TEST_AGENT");
 
   public FakeMediaChunk(Format trackFormat, long startTimeUs, long endTimeUs) {
     this(new DataSpec(Uri.EMPTY), trackFormat, startTimeUs, endTimeUs);
