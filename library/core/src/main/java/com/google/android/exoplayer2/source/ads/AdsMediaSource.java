@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData;
+import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -53,27 +54,6 @@ import java.util.Map;
  * prepare the player.
  */
 public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
-
-  /** Factory for creating {@link MediaSource}s to play ad media. */
-  public interface MediaSourceFactory {
-
-    /**
-     * Creates a new {@link MediaSource} for loading the ad media with the specified {@code uri}.
-     *
-     * @param uri The URI of the media or manifest to play.
-     * @return The new media source.
-     */
-    MediaSource createMediaSource(Uri uri);
-
-    /**
-     * Returns the content types supported by media sources created by this factory. Each element
-     * should be one of {@link C#TYPE_DASH}, {@link C#TYPE_SS}, {@link C#TYPE_HLS} or {@link
-     * C#TYPE_OTHER}.
-     *
-     * @return The content types supported by media sources created by this factory.
-     */
-    int[] getSupportedTypes();
-  }
 
   /**
    * Wrapper for exceptions that occur while loading ads, which are notified via {@link

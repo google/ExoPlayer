@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
+import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -51,7 +52,6 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -107,13 +107,17 @@ public final class DownloadHelper {
     void onPrepareError(DownloadHelper helper, IOException e);
   }
 
-  private static final MediaSourceFactory DASH_FACTORY =
-      getMediaSourceFactory("com.google.android.exoplayer2.source.dash.DashMediaSource$Factory");
-  private static final MediaSourceFactory SS_FACTORY =
-      getMediaSourceFactory(
-          "com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource$Factory");
-  private static final MediaSourceFactory HLS_FACTORY =
-      getMediaSourceFactory("com.google.android.exoplayer2.source.hls.HlsMediaSource$Factory");
+  @Nullable
+  private static final Constructor<? extends MediaSourceFactory> DASH_FACTORY_CONSTRUCTOR =
+      getConstructor("com.google.android.exoplayer2.source.dash.DashMediaSource$Factory");
+
+  @Nullable
+  private static final Constructor<? extends MediaSourceFactory> SS_FACTORY_CONSTRUCTOR =
+      getConstructor("com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource$Factory");
+
+  @Nullable
+  private static final Constructor<? extends MediaSourceFactory> HLS_FACTORY_CONSTRUCTOR =
+      getConstructor("com.google.android.exoplayer2.source.hls.HlsMediaSource$Factory");
 
   /**
    * Creates a {@link DownloadHelper} for progressive streams.
@@ -186,7 +190,8 @@ public final class DownloadHelper {
         DownloadRequest.TYPE_DASH,
         uri,
         /* cacheKey= */ null,
-        DASH_FACTORY.createMediaSource(uri, dataSourceFactory, /* streamKeys= */ null),
+        createMediaSourceInternal(
+            DASH_FACTORY_CONSTRUCTOR, uri, dataSourceFactory, /* streamKeys= */ null),
         trackSelectorParameters,
         Util.getRendererCapabilities(renderersFactory, drmSessionManager));
   }
@@ -235,7 +240,8 @@ public final class DownloadHelper {
         DownloadRequest.TYPE_HLS,
         uri,
         /* cacheKey= */ null,
-        HLS_FACTORY.createMediaSource(uri, dataSourceFactory, /* streamKeys= */ null),
+        createMediaSourceInternal(
+            HLS_FACTORY_CONSTRUCTOR, uri, dataSourceFactory, /* streamKeys= */ null),
         trackSelectorParameters,
         Util.getRendererCapabilities(renderersFactory, drmSessionManager));
   }
@@ -284,7 +290,8 @@ public final class DownloadHelper {
         DownloadRequest.TYPE_SS,
         uri,
         /* cacheKey= */ null,
-        SS_FACTORY.createMediaSource(uri, dataSourceFactory, /* streamKeys= */ null),
+        createMediaSourceInternal(
+            SS_FACTORY_CONSTRUCTOR, uri, dataSourceFactory, /* streamKeys= */ null),
         trackSelectorParameters,
         Util.getRendererCapabilities(renderersFactory, drmSessionManager));
   }
@@ -299,16 +306,16 @@ public final class DownloadHelper {
    */
   public static MediaSource createMediaSource(
       DownloadRequest downloadRequest, DataSource.Factory dataSourceFactory) {
-    MediaSourceFactory factory;
+    Constructor<? extends MediaSourceFactory> constructor;
     switch (downloadRequest.type) {
       case DownloadRequest.TYPE_DASH:
-        factory = DASH_FACTORY;
+        constructor = DASH_FACTORY_CONSTRUCTOR;
         break;
       case DownloadRequest.TYPE_SS:
-        factory = SS_FACTORY;
+        constructor = SS_FACTORY_CONSTRUCTOR;
         break;
       case DownloadRequest.TYPE_HLS:
-        factory = HLS_FACTORY;
+        constructor = HLS_FACTORY_CONSTRUCTOR;
         break;
       case DownloadRequest.TYPE_PROGRESSIVE:
         return new ProgressiveMediaSource.Factory(dataSourceFactory)
@@ -316,8 +323,8 @@ public final class DownloadHelper {
       default:
         throw new IllegalStateException("Unsupported type: " + downloadRequest.type);
     }
-    return factory.createMediaSource(
-        downloadRequest.uri, dataSourceFactory, downloadRequest.streamKeys);
+    return createMediaSourceInternal(
+        constructor, downloadRequest.uri, dataSourceFactory, downloadRequest.streamKeys);
   }
 
   private final String downloadType;
@@ -752,54 +759,39 @@ public final class DownloadHelper {
     }
   }
 
-  private static MediaSourceFactory getMediaSourceFactory(String className) {
-    Constructor<?> constructor = null;
-    Method setStreamKeysMethod = null;
-    Method createMethod = null;
+  @Nullable
+  private static Constructor<? extends MediaSourceFactory> getConstructor(String className) {
     try {
       // LINT.IfChange
-      Class<?> factoryClazz = Class.forName(className);
-      constructor = factoryClazz.getConstructor(Factory.class);
-      setStreamKeysMethod = factoryClazz.getMethod("setStreamKeys", List.class);
-      createMethod = factoryClazz.getMethod("createMediaSource", Uri.class);
+      Class<? extends MediaSourceFactory> factoryClazz =
+          Class.forName(className).asSubclass(MediaSourceFactory.class);
+      return factoryClazz.getConstructor(Factory.class);
       // LINT.ThenChange(../../../../../../../../proguard-rules.txt)
     } catch (ClassNotFoundException e) {
       // Expected if the app was built without the respective module.
-    } catch (NoSuchMethodException | SecurityException e) {
+      return null;
+    } catch (NoSuchMethodException e) {
       // Something is wrong with the library or the proguard configuration.
       throw new IllegalStateException(e);
     }
-    return new MediaSourceFactory(constructor, setStreamKeysMethod, createMethod);
   }
 
-  private static final class MediaSourceFactory {
-    @Nullable private final Constructor<?> constructor;
-    @Nullable private final Method setStreamKeysMethod;
-    @Nullable private final Method createMethod;
-
-    public MediaSourceFactory(
-        @Nullable Constructor<?> constructor,
-        @Nullable Method setStreamKeysMethod,
-        @Nullable Method createMethod) {
-      this.constructor = constructor;
-      this.setStreamKeysMethod = setStreamKeysMethod;
-      this.createMethod = createMethod;
+  private static MediaSource createMediaSourceInternal(
+      @Nullable Constructor<? extends MediaSourceFactory> constructor,
+      Uri uri,
+      Factory dataSourceFactory,
+      @Nullable List<StreamKey> streamKeys) {
+    if (constructor == null) {
+      throw new IllegalStateException("Module missing to create media source.");
     }
-
-    private MediaSource createMediaSource(
-        Uri uri, Factory dataSourceFactory, @Nullable List<StreamKey> streamKeys) {
-      if (constructor == null || setStreamKeysMethod == null || createMethod == null) {
-        throw new IllegalStateException("Module missing to create media source.");
+    try {
+      MediaSourceFactory factory = constructor.newInstance(dataSourceFactory);
+      if (streamKeys != null) {
+        factory.setStreamKeys(streamKeys);
       }
-      try {
-        Object factory = constructor.newInstance(dataSourceFactory);
-        if (streamKeys != null) {
-          setStreamKeysMethod.invoke(factory, streamKeys);
-        }
-        return (MediaSource) Assertions.checkNotNull(createMethod.invoke(factory, uri));
-      } catch (Exception e) {
-        throw new IllegalStateException("Failed to instantiate media source.", e);
-      }
+      return Assertions.checkNotNull(factory.createMediaSource(uri));
+    } catch (Exception e) {
+      throw new IllegalStateException("Failed to instantiate media source.", e);
     }
   }
 

@@ -50,6 +50,7 @@ import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
@@ -570,8 +571,8 @@ public class PlayerActivity extends AppCompatActivity
         adsLoader = loaderConstructor.newInstance(this, adTagUri);
       }
       adsLoader.setPlayer(player);
-      AdsMediaSource.MediaSourceFactory adMediaSourceFactory =
-          new AdsMediaSource.MediaSourceFactory() {
+      MediaSourceFactory adMediaSourceFactory =
+          new MediaSourceFactory() {
             @Override
             public MediaSource createMediaSource(Uri uri) {
               return PlayerActivity.this.buildMediaSource(uri);

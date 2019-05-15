@@ -21,7 +21,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
-import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
@@ -45,7 +44,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     implements ProgressiveMediaPeriod.Listener {
 
   /** Factory for {@link ProgressiveMediaSource}s. */
-  public static final class Factory implements AdsMediaSource.MediaSourceFactory {
+  public static final class Factory implements MediaSourceFactory {
 
     private final DataSource.Factory dataSourceFactory;
 
@@ -87,7 +86,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
      *     possible formats are known, pass a factory that instantiates extractors for those
      *     formats.
      * @return This factory, for convenience.
-     * @throws IllegalStateException If one of the {@code create} methods has already been called.
+     * @throws IllegalStateException If {@link #createMediaSource(Uri)} has already been called.
      * @deprecated Pass the {@link ExtractorsFactory} via {@link #Factory(DataSource.Factory,
      *     ExtractorsFactory)}. This is necessary so that proguard can treat the default extractors
      *     factory as unused.
@@ -106,7 +105,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
      * @param customCacheKey A custom key that uniquely identifies the original stream. Used for
      *     cache indexing.
      * @return This factory, for convenience.
-     * @throws IllegalStateException If one of the {@code create} methods has already been called.
+     * @throws IllegalStateException If {@link #createMediaSource(Uri)} has already been called.
      */
     public Factory setCustomCacheKey(String customCacheKey) {
       Assertions.checkState(!isCreateCalled);
@@ -121,7 +120,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
      *
      * @param tag A tag for the media source.
      * @return This factory, for convenience.
-     * @throws IllegalStateException If one of the {@code create} methods has already been called.
+     * @throws IllegalStateException If {@link #createMediaSource(Uri)} has already been called.
      */
     public Factory setTag(Object tag) {
       Assertions.checkState(!isCreateCalled);
@@ -135,7 +134,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
      *
      * @param loadErrorHandlingPolicy A {@link LoadErrorHandlingPolicy}.
      * @return This factory, for convenience.
-     * @throws IllegalStateException If one of the {@code create} methods has already been called.
+     * @throws IllegalStateException If {@link #createMediaSource(Uri)} has already been called.
      */
     public Factory setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
       Assertions.checkState(!isCreateCalled);
@@ -152,7 +151,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
      *     each invocation of {@link
      *     MediaPeriod.Callback#onContinueLoadingRequested(SequenceableLoader)}.
      * @return This factory, for convenience.
-     * @throws IllegalStateException If one of the {@code create} methods has already been called.
+     * @throws IllegalStateException If {@link #createMediaSource(Uri)} has already been called.
      */
     public Factory setContinueLoadingCheckIntervalBytes(int continueLoadingCheckIntervalBytes) {
       Assertions.checkState(!isCreateCalled);
