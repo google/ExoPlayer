@@ -86,7 +86,8 @@ public final class FakeExtractorInput implements ExtractorInput {
    * @param position The position to set.
    */
   public void setPosition(int position) {
-    assertThat(0 <= position && position <= data.length).isTrue();
+    assertThat(0 <= position).isTrue();
+    assertThat(position <= data.length).isTrue();
     readPosition = position;
     peekPosition = position;
   }
