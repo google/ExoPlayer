@@ -948,8 +948,8 @@ public final class ImaAdsLoader
   @Override
   public void onTimelineChanged(
       Timeline timeline, @Nullable Object manifest, @Player.TimelineChangeReason int reason) {
-    if (reason == Player.TIMELINE_CHANGE_REASON_RESET) {
-      // The player is being reset and this source will be released.
+    if (timeline.isEmpty()) {
+      // The player is being reset or contains no media.
       return;
     }
     Assertions.checkArgument(timeline.getPeriodCount() == 1);
