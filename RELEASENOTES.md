@@ -15,6 +15,10 @@
 * Add a workaround for broken raw audio decoding on Oppo R9
   ([#5782](https://github.com/google/ExoPlayer/issues/5782)).
 * Offline: Add Scheduler implementation which uses WorkManager.
+* Add a playWhenReady flag to MediaSessionConnector.PlaybackPreparer methods
+  to indicate whether a controller sent a play or only a prepare command. This
+  allows to take advantage of decoder reuse with the MediaSessionConnector
+  ([#5891](https://github.com/google/ExoPlayer/issues/5891)).
 
 ### 2.10.1 ###
 

@@ -172,7 +172,7 @@ public final class MediaSessionConnector {
         ResultReceiver cb);
   }
 
-  /** Interface to which playback preparation actions are delegated. */
+  /** Interface to which playback preparation and play actions are delegated. */
   public interface PlaybackPreparer extends CommandReceiver {
 
     long ACTIONS =
@@ -197,14 +197,36 @@ public final class MediaSessionConnector {
      * @return The bitmask of the supported media actions.
      */
     long getSupportedPrepareActions();
-    /** See {@link MediaSessionCompat.Callback#onPrepare()}. */
-    void onPrepare();
-    /** See {@link MediaSessionCompat.Callback#onPrepareFromMediaId(String, Bundle)}. */
-    void onPrepareFromMediaId(String mediaId, Bundle extras);
-    /** See {@link MediaSessionCompat.Callback#onPrepareFromSearch(String, Bundle)}. */
-    void onPrepareFromSearch(String query, Bundle extras);
-    /** See {@link MediaSessionCompat.Callback#onPrepareFromUri(Uri, Bundle)}. */
-    void onPrepareFromUri(Uri uri, Bundle extras);
+    /**
+     * See {@link MediaSessionCompat.Callback#onPrepare()}.
+     *
+     * @param playWhenReady Whether playback should be started after preparation.
+     */
+    void onPrepare(boolean playWhenReady);
+    /**
+     * See {@link MediaSessionCompat.Callback#onPrepareFromMediaId(String, Bundle)}.
+     *
+     * @param mediaId The media id of the media item to be prepared.
+     * @param playWhenReady Whether playback should be started after preparation.
+     * @param extras A {@link Bundle} of extras passed by the media controller.
+     */
+    void onPrepareFromMediaId(String mediaId, boolean playWhenReady, Bundle extras);
+    /**
+     * See {@link MediaSessionCompat.Callback#onPrepareFromSearch(String, Bundle)}.
+     *
+     * @param query The search query.
+     * @param playWhenReady Whether playback should be started after preparation.
+     * @param extras A {@link Bundle} of extras passed by the media controller.
+     */
+    void onPrepareFromSearch(String query, boolean playWhenReady, Bundle extras);
+    /**
+     * See {@link MediaSessionCompat.Callback#onPrepareFromUri(Uri, Bundle)}.
+     *
+     * @param uri The {@link Uri} of the media item to be prepared.
+     * @param playWhenReady Whether playback should be started after preparation.
+     * @param extras A {@link Bundle} of extras passed by the media controller.
+     */
+    void onPrepareFromUri(Uri uri, boolean playWhenReady, Bundle extras);
   }
 
   /**
@@ -834,12 +856,6 @@ public final class MediaSessionConnector {
     return player != null && mediaButtonEventHandler != null;
   }
 
-  private void setPlayWhenReady(boolean playWhenReady) {
-    if (player != null) {
-      controlDispatcher.dispatchSetPlayWhenReady(player, playWhenReady);
-    }
-  }
-
   private void rewind(Player player) {
     if (player.isCurrentWindowSeekable() && rewindMs > 0) {
       seekTo(player, player.getCurrentPosition() - rewindMs);
@@ -1045,19 +1061,19 @@ public final class MediaSessionConnector {
       if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_PLAY)) {
         if (player.getPlaybackState() == Player.STATE_IDLE) {
           if (playbackPreparer != null) {
-            playbackPreparer.onPrepare();
+            playbackPreparer.onPrepare(/* playWhenReady= */ true);
           }
         } else if (player.getPlaybackState() == Player.STATE_ENDED) {
           controlDispatcher.dispatchSeekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
+          controlDispatcher.dispatchSetPlayWhenReady(player, /* playWhenReady= */ true);
         }
-        setPlayWhenReady(/* playWhenReady= */ true);
       }
     }
 
     @Override
     public void onPause() {
       if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_PAUSE)) {
-        setPlayWhenReady(/* playWhenReady= */ false);
+        controlDispatcher.dispatchSetPlayWhenReady(player, /* playWhenReady= */ false);
       }
     }
 
@@ -1180,56 +1196,49 @@ public final class MediaSessionConnector {
     @Override
     public void onPrepare() {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PREPARE)) {
-        setPlayWhenReady(/* playWhenReady= */ false);
-        playbackPreparer.onPrepare();
+        playbackPreparer.onPrepare(/* playWhenReady= */ false);
       }
     }
 
     @Override
     public void onPrepareFromMediaId(String mediaId, Bundle extras) {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID)) {
-        setPlayWhenReady(/* playWhenReady= */ false);
-        playbackPreparer.onPrepareFromMediaId(mediaId, extras);
+        playbackPreparer.onPrepareFromMediaId(mediaId, /* playWhenReady= */ false, extras);
       }
     }
 
     @Override
     public void onPrepareFromSearch(String query, Bundle extras) {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PREPARE_FROM_SEARCH)) {
-        setPlayWhenReady(/* playWhenReady= */ false);
-        playbackPreparer.onPrepareFromSearch(query, extras);
+        playbackPreparer.onPrepareFromSearch(query, /* playWhenReady= */ false, extras);
       }
     }
 
     @Override
     public void onPrepareFromUri(Uri uri, Bundle extras) {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PREPARE_FROM_URI)) {
-        setPlayWhenReady(/* playWhenReady= */ false);
-        playbackPreparer.onPrepareFromUri(uri, extras);
+        playbackPreparer.onPrepareFromUri(uri, /* playWhenReady= */ false, extras);
       }
     }
 
     @Override
     public void onPlayFromMediaId(String mediaId, Bundle extras) {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID)) {
-        setPlayWhenReady(/* playWhenReady= */ true);
-        playbackPreparer.onPrepareFromMediaId(mediaId, extras);
+        playbackPreparer.onPrepareFromMediaId(mediaId, /* playWhenReady= */ true, extras);
       }
     }
 
     @Override
     public void onPlayFromSearch(String query, Bundle extras) {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH)) {
-        setPlayWhenReady(/* playWhenReady= */ true);
-        playbackPreparer.onPrepareFromSearch(query, extras);
+        playbackPreparer.onPrepareFromSearch(query, /* playWhenReady= */ true, extras);
       }
     }
 
     @Override
     public void onPlayFromUri(Uri uri, Bundle extras) {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PLAY_FROM_URI)) {
-        setPlayWhenReady(/* playWhenReady= */ true);
-        playbackPreparer.onPrepareFromUri(uri, extras);
+        playbackPreparer.onPrepareFromUri(uri, /* playWhenReady= */ true, extras);
       }
     }
 
