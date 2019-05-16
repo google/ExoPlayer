@@ -1,5 +1,12 @@
 # Release notes #
 
+### 2.10.2 ###
+
+* Add a playWhenReady flag to MediaSessionConnector.PlaybackPreparer methods
+  to indicate whether a controller sent a play or only a prepare command. This
+  allows to take advantage of decoder reuse with the MediaSessionConnector
+  ([#5891](https://github.com/google/ExoPlayer/issues/5891)).
+
 ### 2.10.1 ###
 
 * Offline: Add option to remove all downloads.
