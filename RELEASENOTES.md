@@ -2,28 +2,30 @@
 
 ### dev-v2 (not yet released) ###
 
-* Fix NPE when using HLS chunkless preparation
-  ([#5868](https://github.com/google/ExoPlayer/issues/5868)).
-* Fix handling of empty values and line terminators in SHOUTcast ICY metadata
-  ([#5876](https://github.com/google/ExoPlayer/issues/5876)).
 * Assume that encrypted content requires secure decoders in renderer support
   checks ([#5568](https://github.com/google/ExoPlayer/issues/5568)).
-* Offline: Add option to remove all downloads.
-* Decoders:
-  * Prefer codecs that advertise format support over ones that do not, even if
-    they are listed lower in the `MediaCodecList`.
-  * CEA-608: Handle XDS and TEXT modes
-    ([5807](https://github.com/google/ExoPlayer/pull/5807)).
+* Decoders: Prefer decoders that advertise format support over ones that do not,
+  even if they are listed lower in the `MediaCodecList`.
+* CEA-608: Handle XDS and TEXT modes
+  ([5807](https://github.com/google/ExoPlayer/pull/5807)).
 * Audio: fix an issue where not all audio was played out when the configuration
   for the underlying track was changing (e.g., at some period transitions).
 * UI: Change playback controls toggle from touch down to touch up events
   ([#5784](https://github.com/google/ExoPlayer/issues/5784)).
-* Add a workaround for a decoder failure on ZTE Axon7 mini devices when playing
-  48kHz audio ([#5821](https://github.com/google/ExoPlayer/issues/5821)).
 * Add a workaround for broken raw audio decoding on Oppo R9
   ([#5782](https://github.com/google/ExoPlayer/issues/5782)).
+
+### 2.10.1 ###
+
+* Offline: Add option to remove all downloads.
+* HLS: Fix `NullPointerException` when using HLS chunkless preparation
+  ([#5868](https://github.com/google/ExoPlayer/issues/5868)).
+* Fix handling of empty values and line terminators in SHOUTcast ICY metadata
+  ([#5876](https://github.com/google/ExoPlayer/issues/5876)).
 * Fix DVB subtitles for SDK 28
   ([#5862](https://github.com/google/ExoPlayer/issues/5862)).
+* Add a workaround for a decoder failure on ZTE Axon7 mini devices when playing
+  48kHz audio ([#5821](https://github.com/google/ExoPlayer/issues/5821)).
 
 ### 2.10.0 ###
 
