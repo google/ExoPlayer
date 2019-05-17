@@ -8,8 +8,11 @@
   even if they are listed lower in the `MediaCodecList`.
 * CEA-608: Handle XDS and TEXT modes
   ([5807](https://github.com/google/ExoPlayer/pull/5807)).
-* Audio: fix an issue where not all audio was played out when the configuration
-  for the underlying track was changing (e.g., at some period transitions).
+* Audio:
+ * Fix an issue where not all audio was played out when the configuration
+   for the underlying track was changing (e.g., at some period transitions).
+ * Add `SilenceMediaSource` that can be used to play silence of a given
+   duration ([#5735](https://github.com/google/ExoPlayer/issues/5735)).
 * UI: Change playback controls toggle from touch down to touch up events
   ([#5784](https://github.com/google/ExoPlayer/issues/5784)).
 * Add a workaround for broken raw audio decoding on Oppo R9
