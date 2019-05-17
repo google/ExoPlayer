@@ -4,6 +4,8 @@
 
 * Add `ResolvingDataSource` for just-in-time resolution of `DataSpec`s
   ([#5779](https://github.com/google/ExoPlayer/issues/5779)).
+* Add `SilenceMediaSource` that can be used to play silence of a given
+  duration ([#5735](https://github.com/google/ExoPlayer/issues/5735)).
 * Subtitles:
   * CEA-608: Handle XDS and TEXT modes
     ([#5807](https://github.com/google/ExoPlayer/pull/5807)).
