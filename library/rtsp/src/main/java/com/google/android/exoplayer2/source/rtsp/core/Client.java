@@ -441,6 +441,7 @@ public abstract class Client implements Dispatcher.EventListener {
                                 Bandwidth bandwidth = mediaDescription.bandwidth();
                                 if (bandwidth != null && Bandwidth.AS.equals(bandwidth.bwtype())) {
                                     formatBuilder.bitrate(bandwidth.bandwidth());
+                                    payloadBuilder.bitrate(bandwidth.bandwidth());
                                 }
 
                                 for (Attribute attribute : mediaDescription.attributes()) {

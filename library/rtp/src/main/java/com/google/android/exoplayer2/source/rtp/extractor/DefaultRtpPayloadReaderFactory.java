@@ -41,6 +41,8 @@ import com.google.android.exoplayer2.util.MimeTypes;
       return new RtpAc3PayloadReader((RtpAudioPayload)format);
     } else if (MimeTypes.AUDIO_AAC.equals(format.sampleMimeType())) {
       return new RtpAacPayloadReader((RtpAudioPayload)format);
+    } else if (MimeTypes.AUDIO_MP4.equals(format.sampleMimeType())) {
+      return new RtpMp4aPayloadReader((RtpAudioPayload)format);
     }
 
     return null;

@@ -244,7 +244,7 @@ public abstract class RtpPayloadFormat {
                         this.sampleMimeType = MimeTypes.AUDIO_MP4;
                         break;
                     case MP4ALATM:
-                        this.sampleMimeType = MimeTypes.AUDIO_AAC;
+                        this.sampleMimeType = MimeTypes.AUDIO_MP4;
                         break;
                     case OPUS:
                         this.sampleMimeType = MimeTypes.AUDIO_OPUS;

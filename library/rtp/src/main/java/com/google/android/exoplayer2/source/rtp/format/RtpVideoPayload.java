@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 
 import java.util.Collections;
 import java.util.List;
@@ -73,7 +74,12 @@ public final class RtpVideoPayload extends RtpPayloadFormat {
                 codecs = "avc1." + parameters.value(FormatSpecificParameter.PROFILE_LEVEL_ID);
             }
         } else if (MimeTypes.VIDEO_MP4V.equals(sampleMimeType)) {
-            codecs = "mp4v";
+            if (parameters.contains(FormatSpecificParameter.PROFILE_LEVEL_ID)) {
+                codecs = "mp4v.20." + parameters.value(FormatSpecificParameter.PROFILE_LEVEL_ID);
+
+            } else {
+                codecs = "mp4v.20.1";
+            }
         }
     }
 
@@ -117,14 +123,17 @@ public final class RtpVideoPayload extends RtpPayloadFormat {
                 if (config != null) {
 
                     try {
-                        byte[] csd = CodecSpecificDataUtil.buildMpeg4VideoSpecificConfig(config);
-                        codecSpecificData = Collections.singletonList(csd);
 
-                        if (width == Format.NO_VALUE && height == Format.NO_VALUE) {
-                            Pair<Integer, Integer> dimensions = CodecSpecificDataUtil.
-                                    parseMpeg4VideoSpecificConfig(csd);
-                            width = dimensions.first;
-                            height = dimensions.second;
+                        if (config.length() % 2 == 0) {
+                            byte[] csd = Util.getBytesFromHexString(config);
+                            codecSpecificData = Collections.singletonList(csd);
+
+                            if (width == Format.NO_VALUE || height == Format.NO_VALUE) {
+                                Pair<Integer, Integer> dimensions = CodecSpecificDataUtil.
+                                        parseMpeg4VideoSpecificConfig(csd);
+                                width = dimensions.first;
+                                height = dimensions.second;
+                            }
                         }
 
                     } catch (IllegalArgumentException | ParserException ex) {

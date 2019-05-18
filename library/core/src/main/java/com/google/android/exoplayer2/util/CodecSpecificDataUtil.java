@@ -214,6 +214,42 @@ public final class CodecSpecificDataUtil {
   }
 
   /**
+   * Parses an MPEG-4 Audio Stream Mux configuration, as defined in ISO/IEC14496-3
+   *
+   * @param audioStreamMuxConfig A byte array containing the MPEG-4 Audio Stream Mux configuration
+   *                to parse.
+   * @return A pair consisting of the number of subframes, sample rate in Hz and the channel count.
+   * @throws ParserException If the MPEG-4 Audio Stream Mux configuration cannot be parsed as
+   *                        it's not supported.
+   */
+  public static Pair<Integer, Pair<Integer, Integer>> parseMpeg4AudioStreamMuxConfig(byte[] audioStreamMuxConfig)
+          throws ParserException {
+    ParsableBitArray scdScratchBits = new ParsableBitArray(audioStreamMuxConfig);
+
+    int audioMuxVersion = scdScratchBits.readBits(1);
+    if (audioMuxVersion == 0) {
+      int allStreamsSameTimeFraming = scdScratchBits.readBits(1);
+      Assertions.checkArgument(allStreamsSameTimeFraming == 1);
+
+      int numSubFrames = scdScratchBits.readBits(6);
+      int numProgram = scdScratchBits.readBits(4);
+      Assertions.checkArgument(numProgram == 0);
+      int numLayer = scdScratchBits.readBits(3);
+      Assertions.checkArgument(numLayer == 0);
+
+      byte[] audioSpecificConfig = new byte[audioStreamMuxConfig.length - 2];
+      for (int pos = 0; pos < audioSpecificConfig.length; pos++) {
+          audioSpecificConfig[pos] = (byte) (((audioStreamMuxConfig[pos + 1] & 1) << 7) |
+                  ((audioStreamMuxConfig[pos + 2] & 0xfe) >> 1));
+      }
+
+      return Pair.create(numSubFrames, parseAacAudioSpecificConfig(scdScratchBits, true));
+    }
+
+    throw new ParserException("audio mux version wrong");
+  }
+
+  /**
    * Builds a H.264 configuration information, as defined in RFC 6814 and ISO/IEC 14496-10
    *
    * @param config A representation of an octet string that expresses the H.264 configuration information
@@ -262,23 +298,6 @@ public final class CodecSpecificDataUtil {
     } catch (IllegalStateException | NullPointerException ex) {
       throw new ParserException("H.264 configuration information malformed");
     }
-  }
-
-  /**
-   * Builds a MPEG-4 Visual configuration information, as defined in ISO/IEC14496-2
-   *
-   * @param config A hexadecimal representation of an octet string that expresses
-   *               the MPEG-4 Visual configuration information
-   * @return The MPEG-4 Visual configuration config.
-   */
-  public static byte[] buildMpeg4VideoSpecificConfig(String config)
-          throws IllegalArgumentException {
-    if (config.length() % 2 != 0) {
-      throw new IllegalArgumentException("The binary key cannot have an odd number of digits:"
-              + config);
-    }
-
-    return Util.getBytesFromHexString(config);
   }
 
   /**
