@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.ext.ffmpeg;
 
 import android.os.Handler;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
@@ -26,29 +27,27 @@ import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.audio.SimpleDecoderAudioRenderer;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
+import java.util.Collections;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Decodes and renders audio using FFmpeg.
  */
 public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
 
-  /**
-   * The number of input and output buffers.
-   */
+  /** The number of input and output buffers. */
   private static final int NUM_BUFFERS = 16;
-  /**
-   * The initial input buffer size. Input buffers are reallocated dynamically if this value is
-   * insufficient.
-   */
-  private static final int INITIAL_INPUT_BUFFER_SIZE = 960 * 6;
+  /** The default input buffer size. */
+  private static final int DEFAULT_INPUT_BUFFER_SIZE = 960 * 6;
 
   private final boolean enableFloatOutput;
 
-  private FfmpegDecoder decoder;
+  private @MonotonicNonNull FfmpegDecoder decoder;
 
   public FfmpegAudioRenderer() {
-    this(null, null);
+    this(/* eventHandler= */ null, /* eventListener= */ null);
   }
 
   /**
@@ -57,9 +56,15 @@ public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param audioProcessors Optional {@link AudioProcessor}s that will process audio before output.
    */
-  public FfmpegAudioRenderer(Handler eventHandler, AudioRendererEventListener eventListener,
+  public FfmpegAudioRenderer(
+      @Nullable Handler eventHandler,
+      @Nullable AudioRendererEventListener eventListener,
       AudioProcessor... audioProcessors) {
-    this(eventHandler, eventListener, new DefaultAudioSink(null, audioProcessors), false);
+    this(
+        eventHandler,
+        eventListener,
+        new DefaultAudioSink(/* audioCapabilities= */ null, audioProcessors),
+        /* enableFloatOutput= */ false);
   }
 
   /**
@@ -72,19 +77,28 @@ public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
    *     32-bit float output, any audio processing will be disabled, including playback speed/pitch
    *     adjustment.
    */
-  public FfmpegAudioRenderer(Handler eventHandler, AudioRendererEventListener eventListener,
-      AudioSink audioSink, boolean enableFloatOutput) {
-    super(eventHandler, eventListener, null, false, audioSink);
+  public FfmpegAudioRenderer(
+      @Nullable Handler eventHandler,
+      @Nullable AudioRendererEventListener eventListener,
+      AudioSink audioSink,
+      boolean enableFloatOutput) {
+    super(
+        eventHandler,
+        eventListener,
+        /* drmSessionManager= */ null,
+        /* playClearSamplesWithoutKeys= */ false,
+        audioSink);
     this.enableFloatOutput = enableFloatOutput;
   }
 
   @Override
   protected int supportsFormatInternal(DrmSessionManager<ExoMediaCrypto> drmSessionManager,
       Format format) {
-    String sampleMimeType = format.sampleMimeType;
-    if (!FfmpegLibrary.isAvailable() || !MimeTypes.isAudio(sampleMimeType)) {
+    Assertions.checkNotNull(format.sampleMimeType);
+    if (!FfmpegLibrary.isAvailable()) {
       return FORMAT_UNSUPPORTED_TYPE;
-    } else if (!FfmpegLibrary.supportsFormat(sampleMimeType) || !isOutputSupported(format)) {
+    } else if (!FfmpegLibrary.supportsFormat(format.sampleMimeType, format.pcmEncoding)
+        || !isOutputSupported(format)) {
       return FORMAT_UNSUPPORTED_SUBTYPE;
     } else if (!supportsFormatDrm(drmSessionManager, format.drmInitData)) {
       return FORMAT_UNSUPPORTED_DRM;
@@ -101,26 +115,43 @@ public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
   @Override
   protected FfmpegDecoder createDecoder(Format format, ExoMediaCrypto mediaCrypto)
       throws FfmpegDecoderException {
-    decoder = new FfmpegDecoder(NUM_BUFFERS, NUM_BUFFERS, INITIAL_INPUT_BUFFER_SIZE,
-        format.sampleMimeType, format.initializationData, shouldUseFloatOutput(format));
+    int initialInputBufferSize =
+        format.maxInputSize != Format.NO_VALUE ? format.maxInputSize : DEFAULT_INPUT_BUFFER_SIZE;
+    decoder =
+        new FfmpegDecoder(
+            NUM_BUFFERS, NUM_BUFFERS, initialInputBufferSize, format, shouldUseFloatOutput(format));
     return decoder;
   }
 
   @Override
   public Format getOutputFormat() {
+    Assertions.checkNotNull(decoder);
     int channelCount = decoder.getChannelCount();
     int sampleRate = decoder.getSampleRate();
     @C.PcmEncoding int encoding = decoder.getEncoding();
-    return Format.createAudioSampleFormat(null, MimeTypes.AUDIO_RAW, null, Format.NO_VALUE,
-        Format.NO_VALUE, channelCount, sampleRate, encoding, null, null, 0, null);
+    return Format.createAudioSampleFormat(
+        /* id= */ null,
+        MimeTypes.AUDIO_RAW,
+        /* codecs= */ null,
+        Format.NO_VALUE,
+        Format.NO_VALUE,
+        channelCount,
+        sampleRate,
+        encoding,
+        Collections.emptyList(),
+        /* drmInitData= */ null,
+        /* selectionFlags= */ 0,
+        /* language= */ null);
   }
 
   private boolean isOutputSupported(Format inputFormat) {
-    return shouldUseFloatOutput(inputFormat) || supportsOutputEncoding(C.ENCODING_PCM_16BIT);
+    return shouldUseFloatOutput(inputFormat)
+        || supportsOutput(inputFormat.channelCount, C.ENCODING_PCM_16BIT);
   }
 
   private boolean shouldUseFloatOutput(Format inputFormat) {
-    if (!enableFloatOutput || !supportsOutputEncoding(C.ENCODING_PCM_FLOAT)) {
+    Assertions.checkNotNull(inputFormat.sampleMimeType);
+    if (!enableFloatOutput || !supportsOutput(inputFormat.channelCount, C.ENCODING_PCM_FLOAT)) {
       return false;
     }
     switch (inputFormat.sampleMimeType) {

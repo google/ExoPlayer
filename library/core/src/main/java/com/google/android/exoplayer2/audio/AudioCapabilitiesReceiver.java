@@ -16,10 +16,15 @@
 package com.google.android.exoplayer2.audio;
 
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.ContentObserver;
 import android.media.AudioManager;
+import android.net.Uri;
+import android.os.Handler;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 
@@ -45,18 +50,29 @@ public final class AudioCapabilitiesReceiver {
 
   private final Context context;
   private final Listener listener;
-  private final BroadcastReceiver receiver;
+  private final Handler handler;
+  @Nullable private final BroadcastReceiver receiver;
+  @Nullable private final ExternalSurroundSoundSettingObserver externalSurroundSoundSettingObserver;
 
-  /* package */ AudioCapabilities audioCapabilities;
+  /* package */ @Nullable AudioCapabilities audioCapabilities;
+  private boolean registered;
 
   /**
    * @param context A context for registering the receiver.
    * @param listener The listener to notify when audio capabilities change.
    */
   public AudioCapabilitiesReceiver(Context context, Listener listener) {
-    this.context = Assertions.checkNotNull(context);
+    context = context.getApplicationContext();
+    this.context = context;
     this.listener = Assertions.checkNotNull(listener);
-    this.receiver = Util.SDK_INT >= 21 ? new HdmiAudioPlugBroadcastReceiver() : null;
+    handler = new Handler(Util.getLooper());
+    receiver = Util.SDK_INT >= 21 ? new HdmiAudioPlugBroadcastReceiver() : null;
+    Uri externalSurroundSoundUri = AudioCapabilities.getExternalSurroundSoundGlobalSettingUri();
+    externalSurroundSoundSettingObserver =
+        externalSurroundSoundUri != null
+            ? new ExternalSurroundSoundSettingObserver(
+                handler, context.getContentResolver(), externalSurroundSoundUri)
+            : null;
   }
 
   /**
@@ -68,9 +84,21 @@ public final class AudioCapabilitiesReceiver {
    */
   @SuppressWarnings("InlinedApi")
   public AudioCapabilities register() {
-    Intent stickyIntent = receiver == null ? null
-        : context.registerReceiver(receiver, new IntentFilter(AudioManager.ACTION_HDMI_AUDIO_PLUG));
-    audioCapabilities = AudioCapabilities.getCapabilities(stickyIntent);
+    if (registered) {
+      return Assertions.checkNotNull(audioCapabilities);
+    }
+    registered = true;
+    if (externalSurroundSoundSettingObserver != null) {
+      externalSurroundSoundSettingObserver.register();
+    }
+    Intent stickyIntent = null;
+    if (receiver != null) {
+      IntentFilter intentFilter = new IntentFilter(AudioManager.ACTION_HDMI_AUDIO_PLUG);
+      stickyIntent =
+          context.registerReceiver(
+              receiver, intentFilter, /* broadcastPermission= */ null, handler);
+    }
+    audioCapabilities = AudioCapabilities.getCapabilities(context, stickyIntent);
     return audioCapabilities;
   }
 
@@ -79,8 +107,23 @@ public final class AudioCapabilitiesReceiver {
    * changes occur.
    */
   public void unregister() {
+    if (!registered) {
+      return;
+    }
+    audioCapabilities = null;
     if (receiver != null) {
       context.unregisterReceiver(receiver);
+    }
+    if (externalSurroundSoundSettingObserver != null) {
+      externalSurroundSoundSettingObserver.unregister();
+    }
+    registered = false;
+  }
+
+  private void onNewAudioCapabilities(AudioCapabilities newAudioCapabilities) {
+    if (registered && !newAudioCapabilities.equals(audioCapabilities)) {
+      audioCapabilities = newAudioCapabilities;
+      listener.onAudioCapabilitiesChanged(newAudioCapabilities);
     }
   }
 
@@ -89,14 +132,35 @@ public final class AudioCapabilitiesReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
       if (!isInitialStickyBroadcast()) {
-        AudioCapabilities newAudioCapabilities = AudioCapabilities.getCapabilities(intent);
-        if (!newAudioCapabilities.equals(audioCapabilities)) {
-          audioCapabilities = newAudioCapabilities;
-          listener.onAudioCapabilitiesChanged(newAudioCapabilities);
-        }
+        onNewAudioCapabilities(AudioCapabilities.getCapabilities(context, intent));
       }
     }
+  }
 
+  private final class ExternalSurroundSoundSettingObserver extends ContentObserver {
+
+    private final ContentResolver resolver;
+    private final Uri settingUri;
+
+    public ExternalSurroundSoundSettingObserver(
+        Handler handler, ContentResolver resolver, Uri settingUri) {
+      super(handler);
+      this.resolver = resolver;
+      this.settingUri = settingUri;
+    }
+
+    public void register() {
+      resolver.registerContentObserver(settingUri, /* notifyForDescendants= */ false, this);
+    }
+
+    public void unregister() {
+      resolver.unregisterContentObserver(this);
+    }
+
+    @Override
+    public void onChange(boolean selfChange) {
+      onNewAudioCapabilities(AudioCapabilities.getCapabilities(context));
+    }
   }
 
 }

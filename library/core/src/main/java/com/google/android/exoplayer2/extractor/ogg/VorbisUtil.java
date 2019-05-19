@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.ogg;
 
-import android.util.Log;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.util.Arrays;
 
@@ -357,12 +357,12 @@ import java.util.Arrays;
       for (int i = 0; i < lengthMap.length; i++) {
         if (isSparse) {
           if (bitArray.readBit()) {
-            lengthMap[i] = bitArray.readBits(5) + 1;
+            lengthMap[i] = (long) (bitArray.readBits(5) + 1);
           } else { // entry unused
             lengthMap[i] = 0;
           }
         } else { // not sparse
-          lengthMap[i] = bitArray.readBits(5) + 1;
+          lengthMap[i] = (long) (bitArray.readBits(5) + 1);
         }
       }
     } else {
@@ -392,7 +392,7 @@ import java.util.Arrays;
           lookupValuesCount = 0;
         }
       } else {
-        lookupValuesCount = entries * dimensions;
+        lookupValuesCount = (long) entries * dimensions;
       }
       // discard (no decoding required yet)
       bitArray.skipBits((int) (lookupValuesCount * valueBits));
@@ -405,6 +405,10 @@ import java.util.Arrays;
    */
   private static long mapType1QuantValues(long entries, long dimension) {
     return (long) Math.floor(Math.pow(entries, 1.d / dimension));
+  }
+
+  private VorbisUtil() {
+    // Prevent instantiation.
   }
 
   public static final class CodeBook {

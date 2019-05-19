@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.dash;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.drm.DrmInitData;
@@ -30,10 +31,9 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
 /** Unit tests for {@link DashUtil}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class DashUtilTest {
 
   @Test
@@ -76,19 +76,21 @@ public final class DashUtilTest {
     Format format =
         Format.createVideoContainerFormat(
             "id",
+            "label",
             MimeTypes.VIDEO_MP4,
             MimeTypes.VIDEO_H264,
-            "",
+            /* codecs= */ "",
             Format.NO_VALUE,
-            1024,
-            768,
+            /* width= */ 1024,
+            /* height= */ 768,
             Format.NO_VALUE,
-            null,
-            0);
+            /* initializationData= */ null,
+            /* selectionFlags= */ 0,
+            /* roleFlags= */ 0);
     if (drmInitData != null) {
       format = format.copyWithDrmInitData(drmInitData);
     }
-    return Representation.newInstance("", 0, format, "", new SingleSegmentBase());
+    return Representation.newInstance(0, format, "", new SingleSegmentBase());
   }
 
   private static DrmInitData newDrmInitData() {

@@ -20,45 +20,20 @@ import com.google.android.exoplayer2.extractor.ExtractorInput;
 import java.io.IOException;
 
 /**
- * Event-driven EBML reader that delivers events to an {@link EbmlReaderOutput}.
- * <p>
- * EBML can be summarized as a binary XML format somewhat similar to Protocol Buffers. It was
- * originally designed for the Matroska container format. More information about EBML and
- * Matroska is available <a href="http://www.matroska.org/technical/specs/index.html">here</a>.
+ * Event-driven EBML reader that delivers events to an {@link EbmlProcessor}.
+ *
+ * <p>EBML can be summarized as a binary XML format somewhat similar to Protocol Buffers. It was
+ * originally designed for the Matroska container format. More information about EBML and Matroska
+ * is available <a href="http://www.matroska.org/technical/specs/index.html">here</a>.
  */
 /* package */ interface EbmlReader {
 
   /**
-   * Type for unknown elements.
-   */
-  int TYPE_UNKNOWN = 0;
-  /**
-   * Type for elements that contain child elements.
-   */
-  int TYPE_MASTER = 1;
-  /**
-   * Type for integer value elements of up to 8 bytes.
-   */
-  int TYPE_UNSIGNED_INT = 2;
-  /**
-   * Type for string elements.
-   */
-  int TYPE_STRING = 3;
-  /**
-   * Type for binary elements.
-   */
-  int TYPE_BINARY = 4;
-  /**
-   * Type for IEEE floating point value elements of either 4 or 8 bytes.
-   */
-  int TYPE_FLOAT = 5;
-
-  /**
-   * Initializes the extractor with an {@link EbmlReaderOutput}.
+   * Initializes the extractor with an {@link EbmlProcessor}.
    *
-   * @param output An {@link EbmlReaderOutput} to receive events.
+   * @param processor An {@link EbmlProcessor} to process events.
    */
-  void init(EbmlReaderOutput output);
+  void init(EbmlProcessor processor);
 
   /**
    * Resets the state of the reader.

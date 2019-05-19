@@ -20,6 +20,10 @@
 
   <string name="media_route_menu_title">Cast</string>
 
-  <string name="sample_list_dialog_title">Add samples</string>
+  <string name="add_samples">Add samples</string>
+
+  <string name="cast_context_error">Failed to get Cast context. Try updating Google Play Services and restart the app.</string>
+
+  <string name="player_error_msg">Player error encountered. Select a queue item to reprepare. Check the logcat and receiver app\'s console for more info.</string>
 
 </resources>

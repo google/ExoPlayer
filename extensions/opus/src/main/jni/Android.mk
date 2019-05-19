@@ -21,10 +21,10 @@ include $(CLEAR_VARS)
 LOCAL_PATH := $(WORKING_DIR)
 include libopus.mk
 
-# build libopusJNI.so
+# build libopusV2JNI.so
 include $(CLEAR_VARS)
 LOCAL_PATH := $(WORKING_DIR)
-LOCAL_MODULE := libopusJNI
+LOCAL_MODULE := libopusV2JNI
 LOCAL_ARM_MODE := arm
 LOCAL_CPP_EXTENSION := .cc
 LOCAL_SRC_FILES := opus_jni.cc

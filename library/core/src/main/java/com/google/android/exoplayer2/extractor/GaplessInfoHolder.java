@@ -18,7 +18,7 @@ package com.google.android.exoplayer2.extractor;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.CommentFrame;
-import com.google.android.exoplayer2.metadata.id3.Id3Decoder.FramePredicate;
+import com.google.android.exoplayer2.metadata.id3.InternalFrame;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,19 +27,8 @@ import java.util.regex.Pattern;
  */
 public final class GaplessInfoHolder {
 
-  /**
-   * A {@link FramePredicate} suitable for use when decoding {@link Metadata} that will be passed
-   * to {@link #setFromMetadata(Metadata)}. Only frames that might contain gapless playback
-   * information are decoded.
-   */
-  public static final FramePredicate GAPLESS_INFO_ID3_FRAME_PREDICATE = new FramePredicate() {
-    @Override
-    public boolean evaluate(int majorVersion, int id0, int id1, int id2, int id3) {
-      return id0 == 'C' && id1 == 'O' && id2 == 'M' && (id3 == 'M' || majorVersion == 2);
-    }
-  };
-
-  private static final String GAPLESS_COMMENT_ID = "iTunSMPB";
+  private static final String GAPLESS_DOMAIN = "com.apple.iTunes";
+  private static final String GAPLESS_DESCRIPTION = "iTunSMPB";
   private static final Pattern GAPLESS_COMMENT_PATTERN =
       Pattern.compile("^ [0-9a-fA-F]{8} ([0-9a-fA-F]{8}) ([0-9a-fA-F]{8})");
 
@@ -91,7 +80,15 @@ public final class GaplessInfoHolder {
       Metadata.Entry entry = metadata.get(i);
       if (entry instanceof CommentFrame) {
         CommentFrame commentFrame = (CommentFrame) entry;
-        if (setFromComment(commentFrame.description, commentFrame.text)) {
+        if (GAPLESS_DESCRIPTION.equals(commentFrame.description)
+            && setFromComment(commentFrame.text)) {
+          return true;
+        }
+      } else if (entry instanceof InternalFrame) {
+        InternalFrame internalFrame = (InternalFrame) entry;
+        if (GAPLESS_DOMAIN.equals(internalFrame.domain)
+            && GAPLESS_DESCRIPTION.equals(internalFrame.description)
+            && setFromComment(internalFrame.text)) {
           return true;
         }
       }
@@ -103,14 +100,10 @@ public final class GaplessInfoHolder {
    * Populates the holder with data parsed from a gapless playback comment (stored in an ID3 header
    * or MPEG 4 user data), if valid and non-zero.
    *
-   * @param name The comment's identifier.
    * @param data The comment's payload data.
    * @return Whether the holder was populated.
    */
-  private boolean setFromComment(String name, String data) {
-    if (!GAPLESS_COMMENT_ID.equals(name)) {
-      return false;
-    }
+  private boolean setFromComment(String data) {
     Matcher matcher = GAPLESS_COMMENT_PATTERN.matcher(data);
     if (matcher.find()) {
       try {

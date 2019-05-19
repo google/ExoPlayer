@@ -18,8 +18,8 @@ package com.google.android.exoplayer2.metadata.scte35;
 import static com.google.android.exoplayer2.C.TIME_UNSET;
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.MetadataDecoderException;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import java.nio.ByteBuffer;
@@ -27,12 +27,9 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Test for {@link SpliceInfoDecoder}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Test for {@link SpliceInfoDecoder}. */
+@RunWith(AndroidJUnit4.class)
 public final class SpliceInfoDecoderTest {
 
   private SpliceInfoDecoder decoder;
@@ -45,7 +42,7 @@ public final class SpliceInfoDecoderTest {
   }
 
   @Test
-  public void testWrappedAroundTimeSignalCommand() throws MetadataDecoderException {
+  public void testWrappedAroundTimeSignalCommand() {
     byte[] rawTimeSignalSection = new byte[] {
         0, // table_id.
         (byte) 0x80, // section_syntax_indicator, private_indicator, reserved, section_length(4).
@@ -72,7 +69,7 @@ public final class SpliceInfoDecoderTest {
   }
 
   @Test
-  public void test2SpliceInsertCommands() throws MetadataDecoderException {
+  public void test2SpliceInsertCommands() {
     byte[] rawSpliceInsertCommand1 = new byte[] {
         0, // table_id.
         (byte) 0x80, // section_syntax_indicator, private_indicator, reserved, section_length(4).
@@ -165,8 +162,7 @@ public final class SpliceInfoDecoderTest {
     assertThat(command.availsExpected).isEqualTo(2);
   }
 
-  private Metadata feedInputBuffer(byte[] data, long timeUs, long subsampleOffset)
-      throws MetadataDecoderException{
+  private Metadata feedInputBuffer(byte[] data, long timeUs, long subsampleOffset) {
     inputBuffer.clear();
     inputBuffer.data = ByteBuffer.allocate(data.length).put(data);
     inputBuffer.timeUs = timeUs;

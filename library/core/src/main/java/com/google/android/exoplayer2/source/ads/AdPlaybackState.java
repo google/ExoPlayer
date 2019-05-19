@@ -16,10 +16,11 @@
 package com.google.android.exoplayer2.source.ads;
 
 import android.net.Uri;
-import android.support.annotation.CheckResult;
-import android.support.annotation.IntDef;
+import androidx.annotation.CheckResult;
+import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
@@ -94,6 +95,30 @@ public final class AdPlaybackState {
     /** Returns whether the ad group has at least one ad that still needs to be played. */
     public boolean hasUnplayedAds() {
       return count == C.LENGTH_UNSET || getFirstAdIndexToPlay() < count;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      AdGroup adGroup = (AdGroup) o;
+      return count == adGroup.count
+          && Arrays.equals(uris, adGroup.uris)
+          && Arrays.equals(states, adGroup.states)
+          && Arrays.equals(durationsUs, adGroup.durationsUs);
+    }
+
+    @Override
+    public int hashCode() {
+      int result = count;
+      result = 31 * result + Arrays.hashCode(uris);
+      result = 31 * result + Arrays.hashCode(states);
+      result = 31 * result + Arrays.hashCode(durationsUs);
+      return result;
     }
 
     /**
@@ -210,7 +235,12 @@ public final class AdPlaybackState {
     }
   }
 
-  /** Represents the state of an ad in an ad group. */
+  /**
+   * Represents the state of an ad in an ad group. One of {@link #AD_STATE_UNAVAILABLE}, {@link
+   * #AD_STATE_AVAILABLE}, {@link #AD_STATE_SKIPPED}, {@link #AD_STATE_PLAYED} or {@link
+   * #AD_STATE_ERROR}.
+   */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     AD_STATE_UNAVAILABLE,
@@ -280,15 +310,16 @@ public final class AdPlaybackState {
    * unplayed. Returns {@link C#INDEX_UNSET} if the ad group at or before {@code positionUs} has no
    * ads remaining to be played, or if there is no such ad group.
    *
-   * @param positionUs The position at or before which to find an ad group, in microseconds.
+   * @param positionUs The position at or before which to find an ad group, in microseconds, or
+   *     {@link C#TIME_END_OF_SOURCE} for the end of the stream (in which case the index of any
+   *     unplayed postroll ad group will be returned).
    * @return The index of the ad group, or {@link C#INDEX_UNSET}.
    */
   public int getAdGroupIndexForPositionUs(long positionUs) {
     // Use a linear search as the array elements may not be increasing due to TIME_END_OF_SOURCE.
     // In practice we expect there to be few ad groups so the search shouldn't be expensive.
     int index = adGroupTimesUs.length - 1;
-    while (index >= 0
-        && (adGroupTimesUs[index] == C.TIME_END_OF_SOURCE || adGroupTimesUs[index] > positionUs)) {
+    while (index >= 0 && isPositionBeforeAdGroup(positionUs, index)) {
       index--;
     }
     return index >= 0 && adGroups[index].hasUnplayedAds() ? index : C.INDEX_UNSET;
@@ -298,10 +329,18 @@ public final class AdPlaybackState {
    * Returns the index of the next ad group after {@code positionUs} that has ads remaining to be
    * played. Returns {@link C#INDEX_UNSET} if there is no such ad group.
    *
-   * @param positionUs The position after which to find an ad group, in microseconds.
+   * @param positionUs The position after which to find an ad group, in microseconds, or {@link
+   *     C#TIME_END_OF_SOURCE} for the end of the stream (in which case there can be no ad group
+   *     after the position).
+   * @param periodDurationUs The duration of the containing period in microseconds, or {@link
+   *     C#TIME_UNSET} if not known.
    * @return The index of the ad group, or {@link C#INDEX_UNSET}.
    */
-  public int getAdGroupIndexAfterPositionUs(long positionUs) {
+  public int getAdGroupIndexAfterPositionUs(long positionUs, long periodDurationUs) {
+    if (positionUs == C.TIME_END_OF_SOURCE
+        || (periodDurationUs != C.TIME_UNSET && positionUs >= periodDurationUs)) {
+      return C.INDEX_UNSET;
+    }
     // Use a linear search as the array elements may not be increasing due to TIME_END_OF_SOURCE.
     // In practice we expect there to be few ad groups so the search shouldn't be expensive.
     int index = 0;
@@ -341,6 +380,14 @@ public final class AdPlaybackState {
   public AdPlaybackState withPlayedAd(int adGroupIndex, int adIndexInAdGroup) {
     AdGroup[] adGroups = Arrays.copyOf(this.adGroups, this.adGroups.length);
     adGroups[adGroupIndex] = adGroups[adGroupIndex].withAdState(AD_STATE_PLAYED, adIndexInAdGroup);
+    return new AdPlaybackState(adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
+  }
+
+  /** Returns an instance with the specified ad marked as skipped. */
+  @CheckResult
+  public AdPlaybackState withSkippedAd(int adGroupIndex, int adIndexInAdGroup) {
+    AdGroup[] adGroups = Arrays.copyOf(this.adGroups, this.adGroups.length);
+    adGroups[adGroupIndex] = adGroups[adGroupIndex].withAdState(AD_STATE_SKIPPED, adIndexInAdGroup);
     return new AdPlaybackState(adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
   }
 
@@ -393,4 +440,42 @@ public final class AdPlaybackState {
     }
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    AdPlaybackState that = (AdPlaybackState) o;
+    return adGroupCount == that.adGroupCount
+        && adResumePositionUs == that.adResumePositionUs
+        && contentDurationUs == that.contentDurationUs
+        && Arrays.equals(adGroupTimesUs, that.adGroupTimesUs)
+        && Arrays.equals(adGroups, that.adGroups);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = adGroupCount;
+    result = 31 * result + (int) adResumePositionUs;
+    result = 31 * result + (int) contentDurationUs;
+    result = 31 * result + Arrays.hashCode(adGroupTimesUs);
+    result = 31 * result + Arrays.hashCode(adGroups);
+    return result;
+  }
+
+  private boolean isPositionBeforeAdGroup(long positionUs, int adGroupIndex) {
+    if (positionUs == C.TIME_END_OF_SOURCE) {
+      // The end of the content is at (but not before) any postroll ad, and after any other ads.
+      return false;
+    }
+    long adGroupPositionUs = adGroupTimesUs[adGroupIndex];
+    if (adGroupPositionUs == C.TIME_END_OF_SOURCE) {
+      return contentDurationUs == C.TIME_UNSET || positionUs < contentDurationUs;
+    } else {
+      return positionUs < adGroupPositionUs;
+    }
+  }
 }

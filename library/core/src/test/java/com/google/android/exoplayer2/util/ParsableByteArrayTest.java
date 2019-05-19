@@ -19,16 +19,14 @@ import static com.google.common.truth.Truth.assertThat;
 import static java.nio.charset.Charset.forName;
 import static org.junit.Assert.fail;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Tests for {@link ParsableByteArray}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Tests for {@link ParsableByteArray}. */
+@RunWith(AndroidJUnit4.class)
 public final class ParsableByteArrayTest {
 
   private static final byte[] TEST_DATA =

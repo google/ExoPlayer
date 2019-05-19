@@ -19,6 +19,7 @@ import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 
@@ -41,14 +42,6 @@ public final class FakeTimeline extends Timeline {
     public final boolean isDynamic;
     public final long durationUs;
     public final AdPlaybackState adPlaybackState;
-
-    /**
-     * Creates a seekable, non-dynamic window definition with one period with a duration of
-     * {@link #DEFAULT_WINDOW_DURATION_US}.
-     */
-    public TimelineWindowDefinition() {
-      this(1, 0, true, false, DEFAULT_WINDOW_DURATION_US);
-    }
 
     /**
      * Creates a seekable, non-dynamic window definition with a duration of
@@ -172,13 +165,21 @@ public final class FakeTimeline extends Timeline {
   }
 
   @Override
-  public Window getWindow(int windowIndex, Window window, boolean setIds,
-      long defaultPositionProjectionUs) {
+  public Window getWindow(
+      int windowIndex, Window window, boolean setTag, long defaultPositionProjectionUs) {
     TimelineWindowDefinition windowDefinition = windowDefinitions[windowIndex];
-    Object id = setIds ? windowDefinition.id : null;
-    return window.set(id, C.TIME_UNSET, C.TIME_UNSET, windowDefinition.isSeekable,
-        windowDefinition.isDynamic, 0, windowDefinition.durationUs, periodOffsets[windowIndex],
-        periodOffsets[windowIndex + 1] - 1, 0);
+    Object tag = setTag ? windowDefinition.id : null;
+    return window.set(
+        tag,
+        /* presentationStartTimeMs= */ C.TIME_UNSET,
+        /* windowStartTimeMs= */ C.TIME_UNSET,
+        windowDefinition.isSeekable,
+        windowDefinition.isDynamic,
+        /* defaultPositionUs= */ 0,
+        windowDefinition.durationUs,
+        periodOffsets[windowIndex],
+        periodOffsets[windowIndex + 1] - 1,
+        /* positionInFirstPeriodUs= */ 0);
   }
 
   @Override
@@ -206,18 +207,30 @@ public final class FakeTimeline extends Timeline {
 
   @Override
   public int getIndexOfPeriod(Object uid) {
-    Period period = new Period();
     for (int i = 0; i < getPeriodCount(); i++) {
-      if (getPeriod(i, period, true).uid.equals(uid)) {
+      if (getUidOfPeriod(i).equals(uid)) {
         return i;
       }
     }
     return C.INDEX_UNSET;
   }
 
+  @Override
+  public Object getUidOfPeriod(int periodIndex) {
+    Assertions.checkIndex(periodIndex, 0, getPeriodCount());
+    int windowIndex =
+        Util.binarySearchFloor(
+            periodOffsets, periodIndex, /* inclusive= */ true, /* stayInBounds= */ false);
+    int windowPeriodIndex = periodIndex - periodOffsets[windowIndex];
+    TimelineWindowDefinition windowDefinition = windowDefinitions[windowIndex];
+    return Pair.create(windowDefinition.id, windowPeriodIndex);
+  }
+
   private static TimelineWindowDefinition[] createDefaultWindowDefinitions(int windowCount) {
     TimelineWindowDefinition[] windowDefinitions = new TimelineWindowDefinition[windowCount];
-    Arrays.fill(windowDefinitions, new TimelineWindowDefinition());
+    for (int i = 0; i < windowCount; i++) {
+      windowDefinitions[i] = new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ i);
+    }
     return windowDefinitions;
   }
 

@@ -42,7 +42,9 @@ public class LibflacAudioRenderer extends SimpleDecoderAudioRenderer {
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param audioProcessors Optional {@link AudioProcessor}s that will process audio before output.
    */
-  public LibflacAudioRenderer(Handler eventHandler, AudioRendererEventListener eventListener,
+  public LibflacAudioRenderer(
+      Handler eventHandler,
+      AudioRendererEventListener eventListener,
       AudioProcessor... audioProcessors) {
     super(eventHandler, eventListener, audioProcessors);
   }
@@ -53,7 +55,7 @@ public class LibflacAudioRenderer extends SimpleDecoderAudioRenderer {
     if (!FlacLibrary.isAvailable()
         || !MimeTypes.AUDIO_FLAC.equalsIgnoreCase(format.sampleMimeType)) {
       return FORMAT_UNSUPPORTED_TYPE;
-    } else if (!supportsOutputEncoding(C.ENCODING_PCM_16BIT)) {
+    } else if (!supportsOutput(format.channelCount, C.ENCODING_PCM_16BIT)) {
       return FORMAT_UNSUPPORTED_SUBTYPE;
     } else if (!supportsFormatDrm(drmSessionManager, format.drmInitData)) {
       return FORMAT_UNSUPPORTED_DRM;
@@ -65,7 +67,8 @@ public class LibflacAudioRenderer extends SimpleDecoderAudioRenderer {
   @Override
   protected FlacDecoder createDecoder(Format format, ExoMediaCrypto mediaCrypto)
       throws FlacDecoderException {
-    return new FlacDecoder(NUM_BUFFERS, NUM_BUFFERS, format.initializationData);
+    return new FlacDecoder(
+        NUM_BUFFERS, NUM_BUFFERS, format.maxInputSize, format.initializationData);
   }
 
 }

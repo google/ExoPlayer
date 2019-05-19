@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Assertions;
 
 /**
@@ -71,7 +72,7 @@ public final class SeekParameters {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     if (this == obj) {
       return true;
     }

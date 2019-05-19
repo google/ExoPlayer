@@ -11,7 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-apply from: "${rootDir}/javadoc_util.gradle"
+apply from: "${buildscript.sourceFile.parentFile}/javadoc_util.gradle"
 
 android.libraryVariants.all { variant ->
     def name = variant.buildType.name
@@ -21,7 +21,7 @@ android.libraryVariants.all { variant ->
     task("generateJavadoc", type: Javadoc) {
         description = "Generates Javadoc for the ${javadocTitle}."
         title = "ExoPlayer ${javadocTitle}"
-        source = variant.javaCompile.source
+        source = variant.javaCompileProvider.get().source
         options {
             links "http://docs.oracle.com/javase/7/docs/api/"
             linksOffline "https://developer.android.com/reference",
@@ -33,7 +33,7 @@ android.libraryVariants.all { variant ->
         doFirst {
             classpath =
                 files(
-                    variant.javaCompile.classpath.files,
+                    variant.javaCompileProvider.get().classpath.files,
                     project.android.getBootClasspath())
         }
         doLast {

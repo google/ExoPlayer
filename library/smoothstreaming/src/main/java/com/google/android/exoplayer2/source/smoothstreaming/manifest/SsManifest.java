@@ -18,156 +18,37 @@ package com.google.android.exoplayer2.source.smoothstreaming.manifest;
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.extractor.mp4.TrackEncryptionBox;
+import com.google.android.exoplayer2.offline.FilterableManifest;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
 /**
  * Represents a SmoothStreaming manifest.
  *
- * @see <a href="http://msdn.microsoft.com/en-us/library/ee673436(v=vs.90).aspx">
- * IIS Smooth Streaming Client Manifest Format</a>
+ * @see <a href="http://msdn.microsoft.com/en-us/library/ee673436(v=vs.90).aspx">IIS Smooth
+ *     Streaming Client Manifest Format</a>
  */
-public class SsManifest {
+public class SsManifest implements FilterableManifest<SsManifest> {
 
-  public static final int UNSET_LOOKAHEAD = -1;
-
-  /**
-   * The client manifest major version.
-   */
-  public final int majorVersion;
-
-  /**
-   * The client manifest minor version.
-   */
-  public final int minorVersion;
-
-  /**
-   * The number of fragments in a lookahead, or {@link #UNSET_LOOKAHEAD} if the lookahead is
-   * unspecified.
-   */
-  public final int lookAheadCount;
-
-  /**
-   * Whether the manifest describes a live presentation still in progress.
-   */
-  public final boolean isLive;
-
-  /**
-   * Content protection information, or null if the content is not protected.
-   */
-  public final ProtectionElement protectionElement;
-
-  /**
-   * The contained stream elements.
-   */
-  public final StreamElement[] streamElements;
-
-  /**
-   * The overall presentation duration of the media in microseconds, or {@link C#TIME_UNSET}
-   * if the duration is unknown.
-   */
-  public final long durationUs;
-
-  /**
-   * The length of the trailing window for a live broadcast in microseconds, or
-   * {@link C#TIME_UNSET} if the stream is not live or if the window length is unspecified.
-   */
-  public final long dvrWindowLengthUs;
-
-  /**
-   * @param majorVersion The client manifest major version.
-   * @param minorVersion The client manifest minor version.
-   * @param timescale The timescale of the media as the number of units that pass in one second.
-   * @param duration The overall presentation duration in units of the timescale attribute, or 0
-   *     if the duration is unknown.
-   * @param dvrWindowLength The length of the trailing window in units of the timescale attribute,
-   *     or 0 if this attribute is unspecified or not applicable.
-   * @param lookAheadCount The number of fragments in a lookahead, or {@link #UNSET_LOOKAHEAD} if
-   *     this attribute is unspecified or not applicable.
-   * @param isLive True if the manifest describes a live presentation still in progress. False
-   *     otherwise.
-   * @param protectionElement Content protection information, or null if the content is not
-   *     protected.
-   * @param streamElements The contained stream elements.
-   */
-  public SsManifest(int majorVersion, int minorVersion, long timescale, long duration,
-      long dvrWindowLength, int lookAheadCount, boolean isLive, ProtectionElement protectionElement,
-      StreamElement[] streamElements) {
-    this(majorVersion, minorVersion,
-        duration == 0 ? C.TIME_UNSET
-            : Util.scaleLargeTimestamp(duration, C.MICROS_PER_SECOND, timescale),
-        dvrWindowLength == 0 ? C.TIME_UNSET
-            : Util.scaleLargeTimestamp(dvrWindowLength, C.MICROS_PER_SECOND, timescale),
-        lookAheadCount, isLive, protectionElement, streamElements);
-  }
-
-  private SsManifest(int majorVersion, int minorVersion, long durationUs, long dvrWindowLengthUs,
-      int lookAheadCount, boolean isLive, ProtectionElement protectionElement,
-      StreamElement[] streamElements) {
-    this.majorVersion = majorVersion;
-    this.minorVersion = minorVersion;
-    this.durationUs = durationUs;
-    this.dvrWindowLengthUs = dvrWindowLengthUs;
-    this.lookAheadCount = lookAheadCount;
-    this.isLive = isLive;
-    this.protectionElement = protectionElement;
-    this.streamElements = streamElements;
-  }
-
-  /**
-   * Creates a copy of this manifest which includes only the tracks identified by the given keys.
-   *
-   * @param trackKeys List of keys for the tracks to be included in the copy.
-   * @return A copy of this manifest with the selected tracks.
-   * @throws IndexOutOfBoundsException If a key has an invalid index.
-   */
-  public final SsManifest copy(List<TrackKey> trackKeys) {
-    LinkedList<TrackKey> sortedKeys = new LinkedList<>(trackKeys);
-    Collections.sort(sortedKeys);
-
-    StreamElement currentStreamElement = null;
-    List<StreamElement> copiedStreamElements = new ArrayList<>();
-    List<Format> copiedFormats = new ArrayList<>();
-    for (int i = 0; i < sortedKeys.size(); i++) {
-      TrackKey key = sortedKeys.get(i);
-      StreamElement streamElement = streamElements[key.streamElementIndex];
-      if (streamElement != currentStreamElement && currentStreamElement != null) {
-        // We're advancing to a new stream element. Add the current one.
-        copiedStreamElements.add(currentStreamElement.copy(copiedFormats.toArray(new Format[0])));
-        copiedFormats.clear();
-      }
-      currentStreamElement = streamElement;
-      copiedFormats.add(streamElement.formats[key.trackIndex]);
-    }
-    if (currentStreamElement != null) {
-      // Add the last stream element.
-      copiedStreamElements.add(currentStreamElement.copy(copiedFormats.toArray(new Format[0])));
-    }
-
-    StreamElement[] copiedStreamElementsArray = copiedStreamElements.toArray(new StreamElement[0]);
-    return new SsManifest(majorVersion, minorVersion, durationUs, dvrWindowLengthUs, lookAheadCount,
-        isLive, protectionElement, copiedStreamElementsArray);
-  }
-
-  /**
-   * Represents a protection element containing a single header.
-   */
+  /** Represents a protection element containing a single header. */
   public static class ProtectionElement {
 
     public final UUID uuid;
     public final byte[] data;
+    public final TrackEncryptionBox[] trackEncryptionBoxes;
 
-    public ProtectionElement(UUID uuid, byte[] data) {
+    public ProtectionElement(UUID uuid, byte[] data, TrackEncryptionBox[] trackEncryptionBoxes) {
       this.uuid = uuid;
       this.data = data;
+      this.trackEncryptionBoxes = trackEncryptionBoxes;
     }
-
   }
 
   /**
@@ -307,7 +188,136 @@ public class SsManifest {
           .replace(URL_PLACEHOLDER_START_TIME_2, startTimeString);
       return UriUtil.resolveToUri(baseUri, chunkUrl);
     }
-
   }
 
+  public static final int UNSET_LOOKAHEAD = -1;
+
+  /** The client manifest major version. */
+  public final int majorVersion;
+
+  /** The client manifest minor version. */
+  public final int minorVersion;
+
+  /**
+   * The number of fragments in a lookahead, or {@link #UNSET_LOOKAHEAD} if the lookahead is
+   * unspecified.
+   */
+  public final int lookAheadCount;
+
+  /** Whether the manifest describes a live presentation still in progress. */
+  public final boolean isLive;
+
+  /** Content protection information, or null if the content is not protected. */
+  public final ProtectionElement protectionElement;
+
+  /** The contained stream elements. */
+  public final StreamElement[] streamElements;
+
+  /**
+   * The overall presentation duration of the media in microseconds, or {@link C#TIME_UNSET} if the
+   * duration is unknown.
+   */
+  public final long durationUs;
+
+  /**
+   * The length of the trailing window for a live broadcast in microseconds, or {@link C#TIME_UNSET}
+   * if the stream is not live or if the window length is unspecified.
+   */
+  public final long dvrWindowLengthUs;
+
+  /**
+   * @param majorVersion The client manifest major version.
+   * @param minorVersion The client manifest minor version.
+   * @param timescale The timescale of the media as the number of units that pass in one second.
+   * @param duration The overall presentation duration in units of the timescale attribute, or 0 if
+   *     the duration is unknown.
+   * @param dvrWindowLength The length of the trailing window in units of the timescale attribute,
+   *     or 0 if this attribute is unspecified or not applicable.
+   * @param lookAheadCount The number of fragments in a lookahead, or {@link #UNSET_LOOKAHEAD} if
+   *     this attribute is unspecified or not applicable.
+   * @param isLive True if the manifest describes a live presentation still in progress. False
+   *     otherwise.
+   * @param protectionElement Content protection information, or null if the content is not
+   *     protected.
+   * @param streamElements The contained stream elements.
+   */
+  public SsManifest(
+      int majorVersion,
+      int minorVersion,
+      long timescale,
+      long duration,
+      long dvrWindowLength,
+      int lookAheadCount,
+      boolean isLive,
+      ProtectionElement protectionElement,
+      StreamElement[] streamElements) {
+    this(
+        majorVersion,
+        minorVersion,
+        duration == 0
+            ? C.TIME_UNSET
+            : Util.scaleLargeTimestamp(duration, C.MICROS_PER_SECOND, timescale),
+        dvrWindowLength == 0
+            ? C.TIME_UNSET
+            : Util.scaleLargeTimestamp(dvrWindowLength, C.MICROS_PER_SECOND, timescale),
+        lookAheadCount,
+        isLive,
+        protectionElement,
+        streamElements);
+  }
+
+  private SsManifest(
+      int majorVersion,
+      int minorVersion,
+      long durationUs,
+      long dvrWindowLengthUs,
+      int lookAheadCount,
+      boolean isLive,
+      ProtectionElement protectionElement,
+      StreamElement[] streamElements) {
+    this.majorVersion = majorVersion;
+    this.minorVersion = minorVersion;
+    this.durationUs = durationUs;
+    this.dvrWindowLengthUs = dvrWindowLengthUs;
+    this.lookAheadCount = lookAheadCount;
+    this.isLive = isLive;
+    this.protectionElement = protectionElement;
+    this.streamElements = streamElements;
+  }
+
+  @Override
+  public final SsManifest copy(List<StreamKey> streamKeys) {
+    ArrayList<StreamKey> sortedKeys = new ArrayList<>(streamKeys);
+    Collections.sort(sortedKeys);
+
+    StreamElement currentStreamElement = null;
+    List<StreamElement> copiedStreamElements = new ArrayList<>();
+    List<Format> copiedFormats = new ArrayList<>();
+    for (int i = 0; i < sortedKeys.size(); i++) {
+      StreamKey key = sortedKeys.get(i);
+      StreamElement streamElement = streamElements[key.groupIndex];
+      if (streamElement != currentStreamElement && currentStreamElement != null) {
+        // We're advancing to a new stream element. Add the current one.
+        copiedStreamElements.add(currentStreamElement.copy(copiedFormats.toArray(new Format[0])));
+        copiedFormats.clear();
+      }
+      currentStreamElement = streamElement;
+      copiedFormats.add(streamElement.formats[key.trackIndex]);
+    }
+    if (currentStreamElement != null) {
+      // Add the last stream element.
+      copiedStreamElements.add(currentStreamElement.copy(copiedFormats.toArray(new Format[0])));
+    }
+
+    StreamElement[] copiedStreamElementsArray = copiedStreamElements.toArray(new StreamElement[0]);
+    return new SsManifest(
+        majorVersion,
+        minorVersion,
+        durationUs,
+        dvrWindowLengthUs,
+        lookAheadCount,
+        isLive,
+        protectionElement,
+        copiedStreamElementsArray);
+  }
 }

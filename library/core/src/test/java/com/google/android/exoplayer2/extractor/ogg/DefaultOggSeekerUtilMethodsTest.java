@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.extractor.ogg;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.OggTestData;
@@ -27,12 +28,9 @@ import java.io.IOException;
 import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Unit test for {@link DefaultOggSeeker} utility methods.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Unit test for {@link DefaultOggSeeker} utility methods. */
+@RunWith(AndroidJUnit4.class)
 public final class DefaultOggSeekerUtilMethodsTest {
 
   private final Random random = new Random(0);
@@ -85,8 +83,14 @@ public final class DefaultOggSeekerUtilMethodsTest {
 
   private static void skipToNextPage(ExtractorInput extractorInput)
       throws IOException, InterruptedException {
-    DefaultOggSeeker oggSeeker = new DefaultOggSeeker(0, extractorInput.getLength(),
-        new FlacReader(), 1, 2);
+    DefaultOggSeeker oggSeeker =
+        new DefaultOggSeeker(
+            /* startPosition= */ 0,
+            /* endPosition= */ extractorInput.getLength(),
+            /* streamReader= */ new FlacReader(),
+            /* firstPayloadPageSize= */ 1,
+            /* firstPayloadPageGranulePosition= */ 2,
+            /* firstPayloadPageIsLastPage= */ false);
     while (true) {
       try {
         oggSeeker.skipToNextPage(extractorInput);
@@ -157,7 +161,14 @@ public final class DefaultOggSeekerUtilMethodsTest {
 
   private void skipToPageOfGranule(ExtractorInput input, long granule,
       long elapsedSamplesExpected) throws IOException, InterruptedException {
-    DefaultOggSeeker oggSeeker = new DefaultOggSeeker(0, input.getLength(), new FlacReader(), 1, 2);
+    DefaultOggSeeker oggSeeker =
+        new DefaultOggSeeker(
+            /* startPosition= */ 0,
+            /* endPosition= */ input.getLength(),
+            /* streamReader= */ new FlacReader(),
+            /* firstPayloadPageSize= */ 1,
+            /* firstPayloadPageGranulePosition= */ 2,
+            /* firstPayloadPageIsLastPage= */ false);
     while (true) {
       try {
         assertThat(oggSeeker.skipToPageOfGranule(input, granule, -1))
@@ -211,7 +222,14 @@ public final class DefaultOggSeekerUtilMethodsTest {
 
   private void assertReadGranuleOfLastPage(FakeExtractorInput input, int expected)
       throws IOException, InterruptedException {
-    DefaultOggSeeker oggSeeker = new DefaultOggSeeker(0, input.getLength(), new FlacReader(), 1, 2);
+    DefaultOggSeeker oggSeeker =
+        new DefaultOggSeeker(
+            /* startPosition= */ 0,
+            /* endPosition= */ input.getLength(),
+            /* streamReader= */ new FlacReader(),
+            /* firstPayloadPageSize= */ 1,
+            /* firstPayloadPageGranulePosition= */ 2,
+            /* firstPayloadPageIsLastPage= */ false);
     while (true) {
       try {
         assertThat(oggSeeker.readGranuleOfLastPage(input)).isEqualTo(expected);

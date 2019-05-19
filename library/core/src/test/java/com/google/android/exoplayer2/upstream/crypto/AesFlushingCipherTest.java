@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.upstream.crypto;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Random;
@@ -25,12 +26,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Unit tests for {@link AesFlushingCipher}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Unit tests for {@link AesFlushingCipher}. */
+@RunWith(AndroidJUnit4.class)
 public class AesFlushingCipherTest {
 
   private static final int DATA_LENGTH = 65536;

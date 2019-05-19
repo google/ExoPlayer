@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.flv;
 
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -34,25 +35,20 @@ import java.lang.annotation.RetentionPolicy;
  */
 public final class FlvExtractor implements Extractor {
 
-  /**
-   * Factory for {@link FlvExtractor} instances.
-   */
-  public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
+  /** Factory for {@link FlvExtractor} instances. */
+  public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new FlvExtractor()};
 
-    @Override
-    public Extractor[] createExtractors() {
-      return new Extractor[] {new FlvExtractor()};
-    }
-
-  };
-
-  /**
-   * Extractor states.
-   */
+  /** Extractor states. */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({STATE_READING_FLV_HEADER, STATE_SKIPPING_TO_TAG_HEADER, STATE_READING_TAG_HEADER,
-      STATE_READING_TAG_DATA})
+  @IntDef({
+    STATE_READING_FLV_HEADER,
+    STATE_SKIPPING_TO_TAG_HEADER,
+    STATE_READING_TAG_HEADER,
+    STATE_READING_TAG_DATA
+  })
   private @interface States {}
+
   private static final int STATE_READING_FLV_HEADER = 1;
   private static final int STATE_SKIPPING_TO_TAG_HEADER = 2;
   private static final int STATE_READING_TAG_HEADER = 3;

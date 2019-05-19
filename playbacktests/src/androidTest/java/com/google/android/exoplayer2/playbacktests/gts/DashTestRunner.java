@@ -18,13 +18,12 @@ package com.google.android.exoplayer2.playbacktests.gts;
 import static com.google.android.exoplayer2.C.WIDEVINE_UUID;
 
 import android.annotation.TargetApi;
-import android.app.Instrumentation;
 import android.media.MediaDrm;
 import android.media.UnsupportedSchemeException;
 import android.net.Uri;
-import android.util.Log;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Format;
@@ -42,7 +41,6 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
-import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
 import com.google.android.exoplayer2.testutil.ActionSchedule;
 import com.google.android.exoplayer2.testutil.DebugRenderersFactory;
 import com.google.android.exoplayer2.testutil.DecoderCountersUtil;
@@ -50,16 +48,16 @@ import com.google.android.exoplayer2.testutil.ExoHostedTest;
 import com.google.android.exoplayer2.testutil.HostActivity;
 import com.google.android.exoplayer2.testutil.HostActivity.HostedTest;
 import com.google.android.exoplayer2.testutil.MetricsLogger;
-import com.google.android.exoplayer2.trackselection.FixedTrackSelection;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.RandomTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
-import com.google.android.exoplayer2.upstream.TransferListener;
+import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,9 +70,6 @@ public final class DashTestRunner {
   static final int AUDIO_RENDERER_INDEX = 1;
 
   private static final long TEST_TIMEOUT_MS = 5 * 60 * 1000;
-
-  private static final String REPORT_NAME = "GtsExoPlayerTestCases";
-  private static final String REPORT_OBJECT_NAME = "playbacktest";
 
   // Whether adaptive tests should enable video formats beyond those mandated by the Android CDD
   // if the device advertises support for them.
@@ -93,7 +88,6 @@ public final class DashTestRunner {
 
   private final String tag;
   private final HostActivity activity;
-  private final Instrumentation instrumentation;
 
   private String streamName;
   private boolean fullPlaybackNoSeeking;
@@ -112,7 +106,8 @@ public final class DashTestRunner {
     if (Util.SDK_INT >= 18) {
       try {
         // Force L3 if secure decoder is not available.
-        if (MediaCodecUtil.getDecoderInfo(mimeType, true) == null) {
+        if (MediaCodecUtil.getDecoderInfo(mimeType, /* secure= */ true, /* tunneling= */ false)
+            == null) {
           return false;
         }
         MediaDrm mediaDrm = MediaDrmBuilder.build();
@@ -126,10 +121,9 @@ public final class DashTestRunner {
     return false;
   }
 
-  public DashTestRunner(String tag, HostActivity activity, Instrumentation instrumentation) {
+  public DashTestRunner(String tag, HostActivity activity) {
     this.tag = tag;
     this.activity = activity;
-    this.instrumentation = instrumentation;
   }
 
   public DashTestRunner setStreamName(String streamName) {
@@ -183,20 +177,18 @@ public final class DashTestRunner {
   }
 
   public void run() {
-    DashHostedTest test = createDashHostedTest(canIncludeAdditionalVideoFormats, false,
-        instrumentation);
+    DashHostedTest test = createDashHostedTest(canIncludeAdditionalVideoFormats, false);
     activity.runTest(test, TEST_TIMEOUT_MS);
     // Retry test exactly once if adaptive test fails due to excessive dropped buffers when
     // playing non-CDD required formats (b/28220076).
     if (test.needsCddLimitedRetry) {
-      activity.runTest(createDashHostedTest(false, true, instrumentation), TEST_TIMEOUT_MS);
+      activity.runTest(createDashHostedTest(false, true), TEST_TIMEOUT_MS);
     }
   }
 
-  private DashHostedTest createDashHostedTest(boolean canIncludeAdditionalVideoFormats,
-      boolean isCddLimitedRetry, Instrumentation instrumentation) {
-    MetricsLogger metricsLogger = MetricsLogger.Factory.createDefault(instrumentation, tag,
-        REPORT_NAME, REPORT_OBJECT_NAME);
+  private DashHostedTest createDashHostedTest(
+      boolean canIncludeAdditionalVideoFormats, boolean isCddLimitedRetry) {
+    MetricsLogger metricsLogger = MetricsLogger.Factory.createDefault(tag);
     return new DashHostedTest(tag, streamName, manifestUrl, metricsLogger, fullPlaybackNoSeeking,
         audioFormat, canIncludeAdditionalVideoFormats, isCddLimitedRetry, actionSchedule,
         offlineLicenseKeySetId, widevineLicenseUrl, useL1Widevine, dataSourceFactory,
@@ -206,7 +198,6 @@ public final class DashTestRunner {
   /**
    * A {@link HostedTest} for DASH playback tests.
    */
-  @TargetApi(16)
   private static final class DashHostedTest extends ExoHostedTest {
 
     private final String streamName;
@@ -264,8 +255,7 @@ public final class DashTestRunner {
     }
 
     @Override
-    protected MappingTrackSelector buildTrackSelector(HostActivity host,
-        BandwidthMeter bandwidthMeter) {
+    protected DefaultTrackSelector buildTrackSelector(HostActivity host) {
       return trackSelector;
     }
 
@@ -279,7 +269,7 @@ public final class DashTestRunner {
         MediaDrmCallback drmCallback = new HttpMediaDrmCallback(widevineLicenseUrl,
             new DefaultHttpDataSourceFactory(userAgent));
         DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager =
-            DefaultDrmSessionManager.newWidevineInstance(drmCallback, null, null, null);
+            DefaultDrmSessionManager.newWidevineInstance(drmCallback, null);
         if (!useL1Widevine) {
           drmSessionManager.setPropertyString(
               SECURITY_LEVEL_PROPERTY, WIDEVINE_SECURITY_LEVEL_3);
@@ -295,34 +285,36 @@ public final class DashTestRunner {
     }
 
     @Override
-    protected SimpleExoPlayer buildExoPlayer(HostActivity host, Surface surface,
+    protected SimpleExoPlayer buildExoPlayer(
+        HostActivity host,
+        Surface surface,
         MappingTrackSelector trackSelector,
         DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
-      SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(
-          new DebugRenderersFactory(host, drmSessionManager), trackSelector);
+      SimpleExoPlayer player =
+          ExoPlayerFactory.newSimpleInstance(
+              host,
+              new DebugRenderersFactory(host),
+              trackSelector,
+              new DefaultLoadControl(),
+              drmSessionManager);
       player.setVideoSurface(surface);
       return player;
     }
 
     @Override
-    protected MediaSource buildSource(HostActivity host, String userAgent,
-        TransferListener<? super DataSource> mediaTransferListener) {
-      DataSource.Factory manifestDataSourceFactory = dataSourceFactory != null
-          ? dataSourceFactory : new DefaultDataSourceFactory(host, userAgent);
-      DataSource.Factory mediaDataSourceFactory = dataSourceFactory != null
-          ? dataSourceFactory
-          : new DefaultDataSourceFactory(host, userAgent, mediaTransferListener);
+    protected MediaSource buildSource(HostActivity host, String userAgent) {
+      DataSource.Factory dataSourceFactory =
+          this.dataSourceFactory != null
+              ? this.dataSourceFactory
+              : new DefaultDataSourceFactory(host, userAgent);
       Uri manifestUri = Uri.parse(manifestUrl);
-      DefaultDashChunkSource.Factory chunkSourceFactory = new DefaultDashChunkSource.Factory(
-          mediaDataSourceFactory);
-      return new DashMediaSource.Factory(chunkSourceFactory, manifestDataSourceFactory)
-          .setMinLoadableRetryCount(MIN_LOADABLE_RETRY_COUNT)
-          .setLivePresentationDelayMs(0)
+      return new DashMediaSource.Factory(dataSourceFactory)
+          .setLoadErrorHandlingPolicy(new DefaultLoadErrorHandlingPolicy(MIN_LOADABLE_RETRY_COUNT))
           .createMediaSource(manifestUri);
     }
 
     @Override
-    protected void logMetrics(DecoderCounters audioCounters, DecoderCounters videoCounters) {
+    protected void onTestFinished(DecoderCounters audioCounters, DecoderCounters videoCounters) {
       metricsLogger.logMetric(MetricsLogger.KEY_TEST_NAME, streamName);
       metricsLogger.logMetric(MetricsLogger.KEY_IS_CDD_LIMITED_RETRY, isCddLimitedRetry);
       metricsLogger.logMetric(MetricsLogger.KEY_FRAMES_DROPPED_COUNT,
@@ -334,10 +326,7 @@ public final class DashTestRunner {
       metricsLogger.logMetric(MetricsLogger.KEY_FRAMES_RENDERED_COUNT,
           videoCounters.renderedOutputBufferCount);
       metricsLogger.close();
-    }
 
-    @Override
-    protected void assertPassed(DecoderCounters audioCounters, DecoderCounters videoCounters) {
       if (fullPlaybackNoSeeking) {
         // We shouldn't have skipped any output buffers.
         DecoderCountersUtil
@@ -371,10 +360,9 @@ public final class DashTestRunner {
         }
       }
     }
-
   }
 
-  private static final class DashTestTrackSelector extends MappingTrackSelector {
+  private static final class DashTestTrackSelector extends DefaultTrackSelector {
 
     private final String tag;
     private final String audioFormatId;
@@ -385,6 +373,7 @@ public final class DashTestRunner {
 
     private DashTestTrackSelector(String tag, String audioFormatId, String[] videoFormatIds,
         boolean canIncludeAdditionalVideoFormats) {
+      super(new RandomTrackSelection.Factory(/* seed= */ 0));
       this.tag = tag;
       this.audioFormatId = audioFormatId;
       this.videoFormatIds = videoFormatIds;
@@ -392,32 +381,43 @@ public final class DashTestRunner {
     }
 
     @Override
-    protected TrackSelection[] selectTracks(RendererCapabilities[] rendererCapabilities,
-        TrackGroupArray[] rendererTrackGroupArrays, int[][][] rendererFormatSupports)
+    protected TrackSelection.Definition[] selectAllTracks(
+        MappedTrackInfo mappedTrackInfo,
+        int[][][] rendererFormatSupports,
+        int[] rendererMixedMimeTypeAdaptationSupports,
+        Parameters parameters)
         throws ExoPlaybackException {
-      Assertions.checkState(rendererCapabilities[VIDEO_RENDERER_INDEX].getTrackType()
-          == C.TRACK_TYPE_VIDEO);
-      Assertions.checkState(rendererCapabilities[AUDIO_RENDERER_INDEX].getTrackType()
-          == C.TRACK_TYPE_AUDIO);
-      Assertions.checkState(rendererTrackGroupArrays[VIDEO_RENDERER_INDEX].length == 1);
-      Assertions.checkState(rendererTrackGroupArrays[AUDIO_RENDERER_INDEX].length == 1);
-      TrackSelection[] selections = new TrackSelection[rendererCapabilities.length];
-      selections[VIDEO_RENDERER_INDEX] = new RandomTrackSelection(
-          rendererTrackGroupArrays[VIDEO_RENDERER_INDEX].get(0),
-          getVideoTrackIndices(rendererTrackGroupArrays[VIDEO_RENDERER_INDEX].get(0),
-              rendererFormatSupports[VIDEO_RENDERER_INDEX][0], videoFormatIds,
-              canIncludeAdditionalVideoFormats),
-          0 /* seed */);
-      selections[AUDIO_RENDERER_INDEX] = new FixedTrackSelection(
-          rendererTrackGroupArrays[AUDIO_RENDERER_INDEX].get(0),
-          getTrackIndex(rendererTrackGroupArrays[AUDIO_RENDERER_INDEX].get(0), audioFormatId));
+      Assertions.checkState(
+          mappedTrackInfo.getRendererType(VIDEO_RENDERER_INDEX) == C.TRACK_TYPE_VIDEO);
+      Assertions.checkState(
+          mappedTrackInfo.getRendererType(AUDIO_RENDERER_INDEX) == C.TRACK_TYPE_AUDIO);
+      TrackGroupArray videoTrackGroups = mappedTrackInfo.getTrackGroups(VIDEO_RENDERER_INDEX);
+      TrackGroupArray audioTrackGroups = mappedTrackInfo.getTrackGroups(AUDIO_RENDERER_INDEX);
+      Assertions.checkState(videoTrackGroups.length == 1);
+      Assertions.checkState(audioTrackGroups.length == 1);
+      TrackSelection.Definition[] definitions =
+          new TrackSelection.Definition[mappedTrackInfo.getRendererCount()];
+      definitions[VIDEO_RENDERER_INDEX] =
+          new TrackSelection.Definition(
+              videoTrackGroups.get(0),
+              getVideoTrackIndices(
+                  videoTrackGroups.get(0),
+                  rendererFormatSupports[VIDEO_RENDERER_INDEX][0],
+                  videoFormatIds,
+                  canIncludeAdditionalVideoFormats));
+      definitions[AUDIO_RENDERER_INDEX] =
+          new TrackSelection.Definition(
+              audioTrackGroups.get(0), getTrackIndex(audioTrackGroups.get(0), audioFormatId));
       includedAdditionalVideoFormats =
-          selections[VIDEO_RENDERER_INDEX].length() > videoFormatIds.length;
-      return selections;
+          definitions[VIDEO_RENDERER_INDEX].tracks.length > videoFormatIds.length;
+      return definitions;
     }
 
-    private int[] getVideoTrackIndices(TrackGroup trackGroup, int[] formatSupport,
-        String[] formatIds, boolean canIncludeAdditionalFormats) {
+    private int[] getVideoTrackIndices(
+        TrackGroup trackGroup,
+        int[] formatSupports,
+        String[] formatIds,
+        boolean canIncludeAdditionalFormats) {
       List<Integer> trackIndices = new ArrayList<>();
 
       // Always select explicitly listed representations.
@@ -431,7 +431,7 @@ public final class DashTestRunner {
       // Select additional video representations, if supported by the device.
       if (canIncludeAdditionalFormats) {
         for (int i = 0; i < trackGroup.length; i++) {
-          if (!trackIndices.contains(i) && isFormatHandled(formatSupport[i])) {
+          if (!trackIndices.contains(i) && isFormatHandled(formatSupports[i])) {
             Log.d(tag, "Adding extra video format: "
                 + Format.toLogString(trackGroup.getFormat(i)));
             trackIndices.add(i);

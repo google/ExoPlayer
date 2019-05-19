@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MergingMediaSource.IllegalMergeException;
@@ -29,11 +30,10 @@ import com.google.android.exoplayer2.testutil.RobolectricUtil;
 import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 /** Unit tests for {@link MergingMediaSource}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 @Config(shadows = {RobolectricUtil.CustomLooper.class, RobolectricUtil.CustomMessageQueue.class})
 public class MergingMediaSourceTest {
 
@@ -65,6 +65,27 @@ public class MergingMediaSourceTest {
     }
   }
 
+  @Test
+  public void testMergingMediaSourcePeriodCreation() throws Exception {
+    FakeMediaSource[] mediaSources = new FakeMediaSource[2];
+    for (int i = 0; i < mediaSources.length; i++) {
+      mediaSources[i] =
+          new FakeMediaSource(new FakeTimeline(/* windowCount= */ 2), /* manifest= */ null);
+    }
+    MergingMediaSource mediaSource = new MergingMediaSource(mediaSources);
+    MediaSourceTestRunner testRunner = new MediaSourceTestRunner(mediaSource, null);
+    try {
+      testRunner.prepareSource();
+      testRunner.assertPrepareAndReleaseAllPeriods();
+      for (FakeMediaSource element : mediaSources) {
+        assertThat(element.getCreatedMediaPeriods()).isNotEmpty();
+      }
+      testRunner.releaseSource();
+    } finally {
+      testRunner.release();
+    }
+  }
+
   /**
    * Wraps the specified timelines in a {@link MergingMediaSource}, prepares it and checks that it
    * forwards the first of the wrapped timelines.
@@ -74,15 +95,15 @@ public class MergingMediaSourceTest {
     for (int i = 0; i < timelines.length; i++) {
       mediaSources[i] = new FakeMediaSource(timelines[i], null);
     }
-    MergingMediaSource mediaSource = new MergingMediaSource(mediaSources);
-    MediaSourceTestRunner testRunner = new MediaSourceTestRunner(mediaSource, null);
+    MergingMediaSource mergingMediaSource = new MergingMediaSource(mediaSources);
+    MediaSourceTestRunner testRunner = new MediaSourceTestRunner(mergingMediaSource, null);
     try {
       Timeline timeline = testRunner.prepareSource();
       // The merged timeline should always be the one from the first child.
       assertThat(timeline).isEqualTo(timelines[0]);
       testRunner.releaseSource();
-      for (int i = 0; i < mediaSources.length; i++) {
-        mediaSources[i].assertReleased();
+      for (FakeMediaSource mediaSource : mediaSources) {
+        mediaSource.assertReleased();
       }
     } finally {
       testRunner.release();

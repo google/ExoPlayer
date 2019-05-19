@@ -16,12 +16,16 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion project.ext.compileSdkVersion
-    buildToolsVersion project.ext.buildToolsVersion
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 
     defaultConfig {
         versionName project.ext.releaseVersion
         versionCode project.ext.releaseVersionCode
-        minSdkVersion 16
+        minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
     }
 
@@ -37,8 +41,8 @@ android {
     }
 
     lintOptions {
-        // The demo app does not have translations.
-        disable 'MissingTranslation'
+        // The demo app isn't indexed and doesn't have translations.
+        disable 'GoogleAppIndexingWarning','MissingTranslation'
     }
 }
 
@@ -49,5 +53,7 @@ dependencies {
     implementation project(modulePrefix + 'library-hls')
     implementation project(modulePrefix + 'library-smoothstreaming')
     implementation project(modulePrefix + 'extension-ima')
-    implementation 'com.android.support:support-annotations:' + supportLibraryVersion
+    implementation 'androidx.annotation:annotation:1.0.2'
 }
+
+apply plugin: 'com.google.android.gms.strict-version-matcher-plugin'

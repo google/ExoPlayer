@@ -16,7 +16,10 @@
 package com.google.android.exoplayer2.source.dash.manifest;
 
 import android.net.Uri;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.offline.FilterableManifest;
+import com.google.android.exoplayer2.offline.StreamKey;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -26,7 +29,7 @@ import java.util.List;
  * Represents a DASH media presentation description (mpd), as defined by ISO/IEC 23009-1:2014
  * Section 5.3.1.2.
  */
-public class DashManifest {
+public class DashManifest implements FilterableManifest<DashManifest> {
 
   /**
    * The {@code availabilityStartTime} value in milliseconds since epoch, or {@link C#TIME_UNSET} if
@@ -84,12 +87,56 @@ public class DashManifest {
    */
   public final Uri location;
 
+  /** The {@link ProgramInformation}, or null if not present. */
+  @Nullable public final ProgramInformation programInformation;
+
   private final List<Period> periods;
 
-  public DashManifest(long availabilityStartTimeMs, long durationMs, long minBufferTimeMs,
-      boolean dynamic, long minUpdatePeriodMs, long timeShiftBufferDepthMs,
-      long suggestedPresentationDelayMs, long publishTimeMs, UtcTimingElement utcTiming,
-      Uri location, List<Period> periods) {
+  /**
+   * @deprecated Use {@link #DashManifest(long, long, long, boolean, long, long, long, long,
+   *     ProgramInformation, UtcTimingElement, Uri, List)}.
+   */
+  @Deprecated
+  public DashManifest(
+      long availabilityStartTimeMs,
+      long durationMs,
+      long minBufferTimeMs,
+      boolean dynamic,
+      long minUpdatePeriodMs,
+      long timeShiftBufferDepthMs,
+      long suggestedPresentationDelayMs,
+      long publishTimeMs,
+      UtcTimingElement utcTiming,
+      Uri location,
+      List<Period> periods) {
+    this(
+        availabilityStartTimeMs,
+        durationMs,
+        minBufferTimeMs,
+        dynamic,
+        minUpdatePeriodMs,
+        timeShiftBufferDepthMs,
+        suggestedPresentationDelayMs,
+        publishTimeMs,
+        /* programInformation= */ null,
+        utcTiming,
+        location,
+        periods);
+  }
+
+  public DashManifest(
+      long availabilityStartTimeMs,
+      long durationMs,
+      long minBufferTimeMs,
+      boolean dynamic,
+      long minUpdatePeriodMs,
+      long timeShiftBufferDepthMs,
+      long suggestedPresentationDelayMs,
+      long publishTimeMs,
+      @Nullable ProgramInformation programInformation,
+      UtcTimingElement utcTiming,
+      Uri location,
+      List<Period> periods) {
     this.availabilityStartTimeMs = availabilityStartTimeMs;
     this.durationMs = durationMs;
     this.minBufferTimeMs = minBufferTimeMs;
@@ -98,9 +145,10 @@ public class DashManifest {
     this.timeShiftBufferDepthMs = timeShiftBufferDepthMs;
     this.suggestedPresentationDelayMs = suggestedPresentationDelayMs;
     this.publishTimeMs = publishTimeMs;
+    this.programInformation = programInformation;
     this.utcTiming = utcTiming;
     this.location = location;
-    this.periods = periods == null ? Collections.<Period>emptyList() : periods;
+    this.periods = periods == null ? Collections.emptyList() : periods;
   }
 
   public final int getPeriodCount() {
@@ -121,18 +169,11 @@ public class DashManifest {
     return C.msToUs(getPeriodDurationMs(index));
   }
 
-  /**
-   * Creates a copy of this manifest which includes only the representations identified by the given
-   * keys.
-   *
-   * @param representationKeys List of keys for the representations to be included in the copy.
-   * @return A copy of this manifest with the selected representations.
-   * @throws IndexOutOfBoundsException If a key has an invalid index.
-   */
-  public final DashManifest copy(List<RepresentationKey> representationKeys) {
-    LinkedList<RepresentationKey> keys = new LinkedList<>(representationKeys);
+  @Override
+  public final DashManifest copy(List<StreamKey> streamKeys) {
+    LinkedList<StreamKey> keys = new LinkedList<>(streamKeys);
     Collections.sort(keys);
-    keys.add(new RepresentationKey(-1, -1, -1)); // Add a stopper key to the end
+    keys.add(new StreamKey(-1, -1, -1)); // Add a stopper key to the end
 
     ArrayList<Period> copyPeriods = new ArrayList<>();
     long shiftMs = 0;
@@ -153,27 +194,37 @@ public class DashManifest {
       }
     }
     long newDuration = durationMs != C.TIME_UNSET ? durationMs - shiftMs : C.TIME_UNSET;
-    return new DashManifest(availabilityStartTimeMs, newDuration, minBufferTimeMs, dynamic,
-        minUpdatePeriodMs, timeShiftBufferDepthMs, suggestedPresentationDelayMs, publishTimeMs,
-        utcTiming, location, copyPeriods);
+    return new DashManifest(
+        availabilityStartTimeMs,
+        newDuration,
+        minBufferTimeMs,
+        dynamic,
+        minUpdatePeriodMs,
+        timeShiftBufferDepthMs,
+        suggestedPresentationDelayMs,
+        publishTimeMs,
+        programInformation,
+        utcTiming,
+        location,
+        copyPeriods);
   }
 
   private static ArrayList<AdaptationSet> copyAdaptationSets(
-      List<AdaptationSet> adaptationSets, LinkedList<RepresentationKey> keys) {
-    RepresentationKey key = keys.poll();
+      List<AdaptationSet> adaptationSets, LinkedList<StreamKey> keys) {
+    StreamKey key = keys.poll();
     int periodIndex = key.periodIndex;
     ArrayList<AdaptationSet> copyAdaptationSets = new ArrayList<>();
     do {
-      int adaptationSetIndex = key.adaptationSetIndex;
+      int adaptationSetIndex = key.groupIndex;
       AdaptationSet adaptationSet = adaptationSets.get(adaptationSetIndex);
 
       List<Representation> representations = adaptationSet.representations;
       ArrayList<Representation> copyRepresentations = new ArrayList<>();
       do {
-        Representation representation = representations.get(key.representationIndex);
+        Representation representation = representations.get(key.trackIndex);
         copyRepresentations.add(representation);
         key = keys.poll();
-      } while(key.periodIndex == periodIndex && key.adaptationSetIndex == adaptationSetIndex);
+      } while (key.periodIndex == periodIndex && key.groupIndex == adaptationSetIndex);
 
       copyAdaptationSets.add(new AdaptationSet(adaptationSet.id, adaptationSet.type,
           copyRepresentations, adaptationSet.accessibilityDescriptors,

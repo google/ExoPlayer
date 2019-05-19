@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
@@ -30,10 +30,8 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-/**
- * A queue of media samples.
- */
-public final class SampleQueue implements TrackOutput {
+/** A queue of media samples. */
+public class SampleQueue implements TrackOutput {
 
   /**
    * A listener for changes to the upstream format.
@@ -226,6 +224,15 @@ public final class SampleQueue implements TrackOutput {
     return metadataQueue.getLargestQueuedTimestampUs();
   }
 
+  /**
+   * Returns whether the last sample of the stream has knowingly been queued. A return value of
+   * {@code false} means that the last sample had not been queued or that it's unknown whether the
+   * last sample has been queued.
+   */
+  public boolean isLastSampleQueued() {
+    return metadataQueue.isLastSampleQueued();
+  }
+
   /** Returns the timestamp of the first sample, or {@link Long#MIN_VALUE} if the queue is empty. */
   public long getFirstTimestampUs() {
     return metadataQueue.getFirstTimestampUs();
@@ -310,8 +317,10 @@ public final class SampleQueue implements TrackOutput {
    *
    * @param formatHolder A {@link FormatHolder} to populate in the case of reading a format.
    * @param buffer A {@link DecoderInputBuffer} to populate in the case of reading a sample or the
-   *     end of the stream. If the end of the stream has been reached, the
-   *     {@link C#BUFFER_FLAG_END_OF_STREAM} flag will be set on the buffer.
+   *     end of the stream. If the end of the stream has been reached, the {@link
+   *     C#BUFFER_FLAG_END_OF_STREAM} flag will be set on the buffer. If a {@link
+   *     DecoderInputBuffer#isFlagsOnly() flags-only} buffer is passed, only the buffer flags may be
+   *     populated by this method and the read position of the queue will not change.
    * @param formatRequired Whether the caller requires that the format of the stream be read even if
    *     it's not changing. A sample will never be read if set to true, however it is still possible
    *     for the end of stream or nothing to be read.
@@ -321,8 +330,12 @@ public final class SampleQueue implements TrackOutput {
    * @return The result, which can be {@link C#RESULT_NOTHING_READ}, {@link C#RESULT_FORMAT_READ} or
    *     {@link C#RESULT_BUFFER_READ}.
    */
-  public int read(FormatHolder formatHolder, DecoderInputBuffer buffer, boolean formatRequired,
-      boolean loadingFinished, long decodeOnlyUntilUs) {
+  public int read(
+      FormatHolder formatHolder,
+      DecoderInputBuffer buffer,
+      boolean formatRequired,
+      boolean loadingFinished,
+      long decodeOnlyUntilUs) {
     int result = metadataQueue.read(formatHolder, buffer, formatRequired, loadingFinished,
         downstreamFormat, extrasHolder);
     switch (result) {
@@ -334,13 +347,15 @@ public final class SampleQueue implements TrackOutput {
           if (buffer.timeUs < decodeOnlyUntilUs) {
             buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
           }
-          // Read encryption data if the sample is encrypted.
-          if (buffer.isEncrypted()) {
-            readEncryptionData(buffer, extrasHolder);
+          if (!buffer.isFlagsOnly()) {
+            // Read encryption data if the sample is encrypted.
+            if (buffer.isEncrypted()) {
+              readEncryptionData(buffer, extrasHolder);
+            }
+            // Write the sample data into the holder.
+            buffer.ensureSpaceForWrite(extrasHolder.size);
+            readData(extrasHolder.offset, buffer.data, extrasHolder.size);
           }
-          // Write the sample data into the holder.
-          buffer.ensureSpaceForWrite(extrasHolder.size);
-          readData(extrasHolder.offset, buffer.data, extrasHolder.size);
         }
         return C.RESULT_BUFFER_READ;
       case C.RESULT_NOTHING_READ:
@@ -568,18 +583,22 @@ public final class SampleQueue implements TrackOutput {
   }
 
   @Override
-  public void sampleMetadata(long timeUs, @C.BufferFlags int flags, int size, int offset,
-      CryptoData cryptoData) {
+  public void sampleMetadata(
+      long timeUs,
+      @C.BufferFlags int flags,
+      int size,
+      int offset,
+      @Nullable CryptoData cryptoData) {
     if (pendingFormatAdjustment) {
       format(lastUnadjustedFormat);
     }
+    timeUs += sampleOffsetUs;
     if (pendingSplice) {
       if ((flags & C.BUFFER_FLAG_KEY_FRAME) == 0 || !metadataQueue.attemptSplice(timeUs)) {
         return;
       }
       pendingSplice = false;
     }
-    timeUs += sampleOffsetUs;
     long absoluteOffset = totalBytesWritten - size - offset;
     metadataQueue.commitSample(timeUs, flags, absoluteOffset, size, cryptoData);
   }

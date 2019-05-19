@@ -30,12 +30,14 @@ include modulePrefix + 'extension-flac'
 include modulePrefix + 'extension-gvr'
 include modulePrefix + 'extension-ima'
 include modulePrefix + 'extension-cast'
+include modulePrefix + 'extension-cronet'
 include modulePrefix + 'extension-mediasession'
 include modulePrefix + 'extension-okhttp'
 include modulePrefix + 'extension-opus'
 include modulePrefix + 'extension-vp9'
 include modulePrefix + 'extension-rtmp'
 include modulePrefix + 'extension-leanback'
+include modulePrefix + 'extension-jobdispatcher'
 
 project(modulePrefix + 'library').projectDir = new File(rootDir, 'library/all')
 project(modulePrefix + 'library-core').projectDir = new File(rootDir, 'library/core')
@@ -50,15 +52,11 @@ project(modulePrefix + 'extension-flac').projectDir = new File(rootDir, 'extensi
 project(modulePrefix + 'extension-gvr').projectDir = new File(rootDir, 'extensions/gvr')
 project(modulePrefix + 'extension-ima').projectDir = new File(rootDir, 'extensions/ima')
 project(modulePrefix + 'extension-cast').projectDir = new File(rootDir, 'extensions/cast')
+project(modulePrefix + 'extension-cronet').projectDir = new File(rootDir, 'extensions/cronet')
 project(modulePrefix + 'extension-mediasession').projectDir = new File(rootDir, 'extensions/mediasession')
 project(modulePrefix + 'extension-okhttp').projectDir = new File(rootDir, 'extensions/okhttp')
 project(modulePrefix + 'extension-opus').projectDir = new File(rootDir, 'extensions/opus')
 project(modulePrefix + 'extension-vp9').projectDir = new File(rootDir, 'extensions/vp9')
 project(modulePrefix + 'extension-rtmp').projectDir = new File(rootDir, 'extensions/rtmp')
 project(modulePrefix + 'extension-leanback').projectDir = new File(rootDir, 'extensions/leanback')
-
-if (gradle.ext.has('exoplayerIncludeCronetExtension')
-        && gradle.ext.exoplayerIncludeCronetExtension) {
-    include modulePrefix + 'extension-cronet'
-    project(modulePrefix + 'extension-cronet').projectDir = new File(rootDir, 'extensions/cronet')
-}
+project(modulePrefix + 'extension-jobdispatcher').projectDir = new File(rootDir, 'extensions/jobdispatcher')

@@ -15,7 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.mp4;
 
-import android.util.Log;
+import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.nio.ByteBuffer;
 import java.util.UUID;
@@ -36,7 +37,7 @@ public final class PsshAtomUtil {
    * @param data The scheme specific data.
    * @return The PSSH atom.
    */
-  public static byte[] buildPsshAtom(UUID systemId, byte[] data) {
+  public static byte[] buildPsshAtom(UUID systemId, @Nullable byte[] data) {
     return buildPsshAtom(systemId, null, data);
   }
 
@@ -48,27 +49,28 @@ public final class PsshAtomUtil {
    * @param data The scheme specific data.
    * @return The PSSH atom.
    */
-  public static byte[] buildPsshAtom(UUID systemId, UUID[] keyIds, byte[] data) {
-    boolean buildV1Atom = keyIds != null;
+  @SuppressWarnings("ParameterNotNullable")
+  public static byte[] buildPsshAtom(
+      UUID systemId, @Nullable UUID[] keyIds, @Nullable byte[] data) {
     int dataLength = data != null ? data.length : 0;
     int psshBoxLength = Atom.FULL_HEADER_SIZE + 16 /* SystemId */ + 4 /* DataSize */ + dataLength;
-    if (buildV1Atom) {
+    if (keyIds != null) {
       psshBoxLength += 4 /* KID_count */ + (keyIds.length * 16) /* KIDs */;
     }
     ByteBuffer psshBox = ByteBuffer.allocate(psshBoxLength);
     psshBox.putInt(psshBoxLength);
     psshBox.putInt(Atom.TYPE_pssh);
-    psshBox.putInt(buildV1Atom ? 0x01000000 : 0 /* version=(buildV1Atom ? 1 : 0), flags=0 */);
+    psshBox.putInt(keyIds != null ? 0x01000000 : 0 /* version=(buildV1Atom ? 1 : 0), flags=0 */);
     psshBox.putLong(systemId.getMostSignificantBits());
     psshBox.putLong(systemId.getLeastSignificantBits());
-    if (buildV1Atom) {
+    if (keyIds != null) {
       psshBox.putInt(keyIds.length);
       for (UUID keyId : keyIds) {
         psshBox.putLong(keyId.getMostSignificantBits());
         psshBox.putLong(keyId.getLeastSignificantBits());
       }
     }
-    if (dataLength != 0) {
+    if (data != null && data.length != 0) {
       psshBox.putInt(data.length);
       psshBox.put(data);
     } // Else the last 4 bytes are a 0 DataSize.
@@ -76,15 +78,25 @@ public final class PsshAtomUtil {
   }
 
   /**
+   * Returns whether the data is a valid PSSH atom.
+   *
+   * @param data The data to parse.
+   * @return Whether the data is a valid PSSH atom.
+   */
+  public static boolean isPsshAtom(byte[] data) {
+    return parsePsshAtom(data) != null;
+  }
+
+  /**
    * Parses the UUID from a PSSH atom. Version 0 and 1 PSSH atoms are supported.
-   * <p>
-   * The UUID is only parsed if the data is a valid PSSH atom.
+   *
+   * <p>The UUID is only parsed if the data is a valid PSSH atom.
    *
    * @param atom The atom to parse.
-   * @return The parsed UUID. Null if the input is not a valid PSSH atom, or if the PSSH atom has
-   *     an unsupported version.
+   * @return The parsed UUID. Null if the input is not a valid PSSH atom, or if the PSSH atom has an
+   *     unsupported version.
    */
-  public static UUID parseUuid(byte[] atom) {
+  public static @Nullable UUID parseUuid(byte[] atom) {
     PsshAtom parsedAtom = parsePsshAtom(atom);
     if (parsedAtom == null) {
       return null;
@@ -111,8 +123,8 @@ public final class PsshAtomUtil {
 
   /**
    * Parses the scheme specific data from a PSSH atom. Version 0 and 1 PSSH atoms are supported.
-   * <p>
-   * The scheme specific data is only parsed if the data is a valid PSSH atom matching the given
+   *
+   * <p>The scheme specific data is only parsed if the data is a valid PSSH atom matching the given
    * UUID, or if the data is a valid PSSH atom of any type in the case that the passed UUID is null.
    *
    * @param atom The atom to parse.
@@ -120,7 +132,7 @@ public final class PsshAtomUtil {
    * @return The parsed scheme specific data. Null if the input is not a valid PSSH atom, or if the
    *     PSSH atom has an unsupported version, or if the PSSH atom does not match the passed UUID.
    */
-  public static byte[] parseSchemeSpecificData(byte[] atom, UUID uuid) {
+  public static @Nullable byte[] parseSchemeSpecificData(byte[] atom, UUID uuid) {
     PsshAtom parsedAtom = parsePsshAtom(atom);
     if (parsedAtom == null) {
       return null;
@@ -140,7 +152,7 @@ public final class PsshAtomUtil {
    *     has an unsupported version.
    */
   // TODO: Support parsing of the key ids for version 1 PSSH atoms.
-  private static PsshAtom parsePsshAtom(byte[] atom) {
+  private static @Nullable PsshAtom parsePsshAtom(byte[] atom) {
     ParsableByteArray atomData = new ParsableByteArray(atom);
     if (atomData.limit() < Atom.FULL_HEADER_SIZE + 16 /* UUID */ + 4 /* DataSize */) {
       // Data too short.

@@ -15,9 +15,11 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.C.Encoding;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -60,15 +62,15 @@ public final class SonicAudioProcessor implements AudioProcessor {
    */
   private static final int MIN_BYTES_FOR_SPEEDUP_CALCULATION = 1024;
 
-  private int pendingOutputSampleRateHz;
   private int channelCount;
   private int sampleRateHz;
-
-  private Sonic sonic;
   private float speed;
   private float pitch;
   private int outputSampleRateHz;
+  private int pendingOutputSampleRateHz;
 
+  private boolean pendingSonicRecreation;
+  @Nullable private Sonic sonic;
   private ByteBuffer buffer;
   private ShortBuffer shortBuffer;
   private ByteBuffer outputBuffer;
@@ -92,24 +94,36 @@ public final class SonicAudioProcessor implements AudioProcessor {
   }
 
   /**
-   * Sets the playback speed. The new speed will take effect after a call to {@link #flush()}.
+   * Sets the playback speed. Calling this method will discard any data buffered within the
+   * processor, and may update the value returned by {@link #isActive()}.
    *
    * @param speed The requested new playback speed.
    * @return The actual new playback speed.
    */
   public float setSpeed(float speed) {
-    this.speed = Util.constrainValue(speed, MINIMUM_SPEED, MAXIMUM_SPEED);
-    return this.speed;
+    speed = Util.constrainValue(speed, MINIMUM_SPEED, MAXIMUM_SPEED);
+    if (this.speed != speed) {
+      this.speed = speed;
+      pendingSonicRecreation = true;
+    }
+    flush();
+    return speed;
   }
 
   /**
-   * Sets the playback pitch. The new pitch will take effect after a call to {@link #flush()}.
+   * Sets the playback pitch. Calling this method will discard any data buffered within the
+   * processor, and may update the value returned by {@link #isActive()}.
    *
    * @param pitch The requested new pitch.
    * @return The actual new pitch.
    */
   public float setPitch(float pitch) {
-    this.pitch = Util.constrainValue(pitch, MINIMUM_PITCH, MAXIMUM_PITCH);
+    pitch = Util.constrainValue(pitch, MINIMUM_PITCH, MAXIMUM_PITCH);
+    if (this.pitch != pitch) {
+      this.pitch = pitch;
+      pendingSonicRecreation = true;
+    }
+    flush();
     return pitch;
   }
 
@@ -159,13 +173,16 @@ public final class SonicAudioProcessor implements AudioProcessor {
     this.sampleRateHz = sampleRateHz;
     this.channelCount = channelCount;
     this.outputSampleRateHz = outputSampleRateHz;
+    pendingSonicRecreation = true;
     return true;
   }
 
   @Override
   public boolean isActive() {
-    return Math.abs(speed - 1f) >= CLOSE_THRESHOLD || Math.abs(pitch - 1f) >= CLOSE_THRESHOLD
-        || outputSampleRateHz != sampleRateHz;
+    return sampleRateHz != Format.NO_VALUE
+        && (Math.abs(speed - 1f) >= CLOSE_THRESHOLD
+            || Math.abs(pitch - 1f) >= CLOSE_THRESHOLD
+            || outputSampleRateHz != sampleRateHz);
   }
 
   @Override
@@ -185,6 +202,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
 
   @Override
   public void queueInput(ByteBuffer inputBuffer) {
+    Sonic sonic = Assertions.checkNotNull(this.sonic);
     if (inputBuffer.hasRemaining()) {
       ShortBuffer shortBuffer = inputBuffer.asShortBuffer();
       int inputSize = inputBuffer.remaining();
@@ -192,7 +210,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
       sonic.queueInput(shortBuffer);
       inputBuffer.position(inputBuffer.position() + inputSize);
     }
-    int outputSize = sonic.getSamplesAvailable() * channelCount * 2;
+    int outputSize = sonic.getFramesAvailable() * channelCount * 2;
     if (outputSize > 0) {
       if (buffer.capacity() < outputSize) {
         buffer = ByteBuffer.allocateDirect(outputSize).order(ByteOrder.nativeOrder());
@@ -210,7 +228,9 @@ public final class SonicAudioProcessor implements AudioProcessor {
 
   @Override
   public void queueEndOfStream() {
-    sonic.queueEndOfStream();
+    if (sonic != null) {
+      sonic.queueEndOfStream();
+    }
     inputEnded = true;
   }
 
@@ -223,12 +243,18 @@ public final class SonicAudioProcessor implements AudioProcessor {
 
   @Override
   public boolean isEnded() {
-    return inputEnded && (sonic == null || sonic.getSamplesAvailable() == 0);
+    return inputEnded && (sonic == null || sonic.getFramesAvailable() == 0);
   }
 
   @Override
   public void flush() {
-    sonic = new Sonic(sampleRateHz, channelCount, speed, pitch, outputSampleRateHz);
+    if (isActive()) {
+      if (pendingSonicRecreation) {
+        sonic = new Sonic(sampleRateHz, channelCount, speed, pitch, outputSampleRateHz);
+      } else if (sonic != null) {
+        sonic.flush();
+      }
+    }
     outputBuffer = EMPTY_BUFFER;
     inputBytes = 0;
     outputBytes = 0;
@@ -237,17 +263,20 @@ public final class SonicAudioProcessor implements AudioProcessor {
 
   @Override
   public void reset() {
-    sonic = null;
-    buffer = EMPTY_BUFFER;
-    shortBuffer = buffer.asShortBuffer();
-    outputBuffer = EMPTY_BUFFER;
+    speed = 1f;
+    pitch = 1f;
     channelCount = Format.NO_VALUE;
     sampleRateHz = Format.NO_VALUE;
     outputSampleRateHz = Format.NO_VALUE;
+    buffer = EMPTY_BUFFER;
+    shortBuffer = buffer.asShortBuffer();
+    outputBuffer = EMPTY_BUFFER;
+    pendingOutputSampleRateHz = SAMPLE_RATE_NO_CHANGE;
+    pendingSonicRecreation = false;
+    sonic = null;
     inputBytes = 0;
     outputBytes = 0;
     inputEnded = false;
-    pendingOutputSampleRateHz = SAMPLE_RATE_NO_CHANGE;
   }
 
 }

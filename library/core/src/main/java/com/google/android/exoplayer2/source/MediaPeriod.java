@@ -19,8 +19,12 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
  * Loads media corresponding to a {@link Timeline.Period}, and allows that media to be read. All
@@ -53,8 +57,9 @@ public interface MediaPeriod extends SequenceableLoader {
    * {@link #maybeThrowPrepareError()} will throw an {@link IOException}.
    *
    * <p>If preparation succeeds and results in a source timeline change (e.g. the period duration
-   * becoming known), {@link MediaSource.Listener#onSourceInfoRefreshed(MediaSource, Timeline,
-   * Object)} will be called before {@code callback.onPrepared}.
+   * becoming known), {@link
+   * MediaSource.SourceInfoRefreshListener#onSourceInfoRefreshed(MediaSource, Timeline, Object)}
+   * will be called before {@code callback.onPrepared}.
    *
    * @param callback Callback to receive updates from this period, including being notified when
    *     preparation completes.
@@ -66,7 +71,7 @@ public interface MediaPeriod extends SequenceableLoader {
    * Throws an error that's preventing the period from becoming prepared. Does nothing if no such
    * error exists.
    *
-   * <p>This method should only be called before the period has completed preparation.
+   * <p>This method is only called before the period has completed preparation.
    *
    * @throws IOException The underlying error.
    */
@@ -75,11 +80,27 @@ public interface MediaPeriod extends SequenceableLoader {
   /**
    * Returns the {@link TrackGroup}s exposed by the period.
    *
-   * <p>This method should only be called after the period has been prepared.
+   * <p>This method is only called after the period has been prepared.
    *
    * @return The {@link TrackGroup}s.
    */
   TrackGroupArray getTrackGroups();
+
+  /**
+   * Returns a list of {@link StreamKey StreamKeys} which allow to filter the media in this period
+   * to load only the parts needed to play the provided {@link TrackSelection TrackSelections}.
+   *
+   * <p>This method is only called after the period has been prepared.
+   *
+   * @param trackSelections The {@link TrackSelection TrackSelections} describing the tracks for
+   *     which stream keys are requested.
+   * @return The corresponding {@link StreamKey StreamKeys} for the selected tracks, or an empty
+   *     list if filtering is not possible and the entire media needs to be loaded to play the
+   *     selected tracks.
+   */
+  default List<StreamKey> getStreamKeys(List<TrackSelection> trackSelections) {
+    return Collections.emptyList();
+  }
 
   /**
    * Performs a track selection.
@@ -92,7 +113,7 @@ public interface MediaPeriod extends SequenceableLoader {
    * corresponding flag in {@code streamResetFlags} will be set to true. This flag will also be set
    * if a new sample stream is created.
    *
-   * <p>This method should only be called after the period has been prepared.
+   * <p>This method is only called after the period has been prepared.
    *
    * @param selections The renderer track selections.
    * @param mayRetainStreamFlags Flags indicating whether the existing sample stream can be retained
@@ -107,16 +128,16 @@ public interface MediaPeriod extends SequenceableLoader {
    * @return The actual position at which the tracks were enabled, in microseconds.
    */
   long selectTracks(
-      TrackSelection[] selections,
+      @NullableType TrackSelection[] selections,
       boolean[] mayRetainStreamFlags,
-      SampleStream[] streams,
+      @NullableType SampleStream[] streams,
       boolean[] streamResetFlags,
       long positionUs);
 
   /**
    * Discards buffered media up to the specified position.
    *
-   * <p>This method should only be called after the period has been prepared.
+   * <p>This method is only called after the period has been prepared.
    *
    * @param positionUs The position in microseconds.
    * @param toKeyframe If true then for each track discards samples up to the keyframe before or at
@@ -130,7 +151,8 @@ public interface MediaPeriod extends SequenceableLoader {
    * <p>After this method has returned a value other than {@link C#TIME_UNSET}, all {@link
    * SampleStream}s provided by the period are guaranteed to start from a key frame.
    *
-   * <p>This method should only be called after the period has been prepared.
+   * <p>This method is only called after the period has been prepared and before reading from any
+   * {@link SampleStream}s provided by the period.
    *
    * @return If a discontinuity was read then the playback position in microseconds after the
    *     discontinuity. Else {@link C#TIME_UNSET}.
@@ -143,7 +165,7 @@ public interface MediaPeriod extends SequenceableLoader {
    * <p>After this method has been called, all {@link SampleStream}s provided by the period are
    * guaranteed to start from a key frame.
    *
-   * <p>This method should only be called when at least one track is selected.
+   * <p>This method is only called when at least one track is selected.
    *
    * @param positionUs The seek position in microseconds.
    * @return The actual position to which the period was seeked, in microseconds.
@@ -154,7 +176,7 @@ public interface MediaPeriod extends SequenceableLoader {
    * Returns the position to which a seek will be performed, given the specified seek position and
    * {@link SeekParameters}.
    *
-   * <p>This method should only be called after the period has been prepared.
+   * <p>This method is only called after the period has been prepared.
    *
    * @param positionUs The seek position in microseconds.
    * @param seekParameters Parameters that control how the seek is performed. Implementations may
@@ -168,7 +190,7 @@ public interface MediaPeriod extends SequenceableLoader {
   /**
    * Returns an estimate of the position up to which data is buffered for the enabled tracks.
    *
-   * <p>This method should only be called when at least one track is selected.
+   * <p>This method is only called when at least one track is selected.
    *
    * @return An estimate of the absolute position in microseconds up to which data is buffered, or
    *     {@link C#TIME_END_OF_SOURCE} if the track is fully buffered.
@@ -179,8 +201,8 @@ public interface MediaPeriod extends SequenceableLoader {
   /**
    * Returns the next load time, or {@link C#TIME_END_OF_SOURCE} if loading has finished.
    *
-   * <p>This method should only be called after the period has been prepared. It may be called when
-   * no tracks are selected.
+   * <p>This method is only called after the period has been prepared. It may be called when no
+   * tracks are selected.
    */
   @Override
   long getNextLoadPositionUs();
@@ -207,7 +229,7 @@ public interface MediaPeriod extends SequenceableLoader {
   /**
    * Re-evaluates the buffer given the playback position.
    *
-   * <p>This method should only be called after the period has been prepared.
+   * <p>This method is only called after the period has been prepared.
    *
    * <p>A period may choose to discard buffered media so that it can be re-buffered in a different
    * quality.

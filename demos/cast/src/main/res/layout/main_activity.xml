@@ -19,34 +19,42 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:keepScreenOn="true">
+
   <com.google.android.exoplayer2.ui.PlayerView android:id="@+id/local_player_view"
       android:layout_width="match_parent"
       android:layout_height="0dp"
-      android:layout_weight="12"
+      android:layout_weight="1"
+      android:background="@android:color/black"
       app:repeat_toggle_modes="all|one"/>
+
   <RelativeLayout android:layout_width="match_parent"
       android:layout_height="0dp"
-      android:layout_weight="12">
-    <android.support.v7.widget.RecyclerView android:id="@+id/sample_list"
+      android:layout_weight="1">
+
+    <androidx.recyclerview.widget.RecyclerView android:id="@+id/sample_list"
         android:choiceMode="singleChoice"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollbars="vertical"
         android:fadeScrollbars="false"/>
-    <ImageButton android:id="@+id/add_sample_button"
-        android:background="@drawable/ic_add_circle_white_24dp"
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton android:id="@+id/add_sample_button"
+        android:src="@drawable/ic_plus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:padding="30dp"/>
+        android:layout_margin="16dp"
+        android:contentDescription="@string/add_samples"/>
+
   </RelativeLayout>
+
   <com.google.android.exoplayer2.ui.PlayerControlView android:id="@+id/cast_control_view"
       android:layout_width="match_parent"
-      android:layout_height="0dp"
-      android:layout_weight="2"
+      android:layout_height="wrap_content"
       android:visibility="gone"
       app:repeat_toggle_modes="all|one"
       app:show_timeout="-1"/>
+
 </LinearLayout>

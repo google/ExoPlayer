@@ -16,12 +16,16 @@
 package com.google.android.exoplayer2.upstream;
 
 import android.net.Uri;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.upstream.Loader.Loadable;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A {@link Loadable} for objects that can be parsed from binary data using a {@link Parser}.
@@ -49,6 +53,41 @@ public final class ParsingLoadable<T> implements Loadable {
   }
 
   /**
+   * Loads a single parsable object.
+   *
+   * @param dataSource The {@link DataSource} through which the object should be read.
+   * @param parser The {@link Parser} to parse the object from the response.
+   * @param uri The {@link Uri} of the object to read.
+   * @param type The type of the data. One of the {@link C}{@code DATA_TYPE_*} constants.
+   * @return The parsed object
+   * @throws IOException Thrown if there is an error while loading or parsing.
+   */
+  public static <T> T load(DataSource dataSource, Parser<? extends T> parser, Uri uri, int type)
+      throws IOException {
+    ParsingLoadable<T> loadable = new ParsingLoadable<>(dataSource, uri, type, parser);
+    loadable.load();
+    return Assertions.checkNotNull(loadable.getResult());
+  }
+
+  /**
+   * Loads a single parsable object.
+   *
+   * @param dataSource The {@link DataSource} through which the object should be read.
+   * @param parser The {@link Parser} to parse the object from the response.
+   * @param dataSpec The {@link DataSpec} of the object to read.
+   * @param type The type of the data. One of the {@link C}{@code DATA_TYPE_*} constants.
+   * @return The parsed object
+   * @throws IOException Thrown if there is an error while loading or parsing.
+   */
+  public static <T> T load(
+      DataSource dataSource, Parser<? extends T> parser, DataSpec dataSpec, int type)
+      throws IOException {
+    ParsingLoadable<T> loadable = new ParsingLoadable<>(dataSource, dataSpec, type, parser);
+    loadable.load();
+    return Assertions.checkNotNull(loadable.getResult());
+  }
+
+  /**
    * The {@link DataSpec} that defines the data to be loaded.
    */
   public final DataSpec dataSpec;
@@ -58,12 +97,10 @@ public final class ParsingLoadable<T> implements Loadable {
    */
   public final int type;
 
-  private final DataSource dataSource;
+  private final StatsDataSource dataSource;
   private final Parser<? extends T> parser;
 
-  private volatile T result;
-  private volatile boolean isCanceled;
-  private volatile long bytesLoaded;
+  private volatile @Nullable T result;
 
   /**
    * @param dataSource A {@link DataSource} to use when loading the data.
@@ -72,11 +109,7 @@ public final class ParsingLoadable<T> implements Loadable {
    * @param parser Parses the object from the response.
    */
   public ParsingLoadable(DataSource dataSource, Uri uri, int type, Parser<? extends T> parser) {
-    this(
-        dataSource,
-        new DataSpec(uri, DataSpec.FLAG_ALLOW_GZIP | DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH),
-        type,
-        parser);
+    this(dataSource, new DataSpec(uri, DataSpec.FLAG_ALLOW_GZIP), type, parser);
   }
 
   /**
@@ -87,51 +120,58 @@ public final class ParsingLoadable<T> implements Loadable {
    */
   public ParsingLoadable(DataSource dataSource, DataSpec dataSpec, int type,
       Parser<? extends T> parser) {
-    this.dataSource = dataSource;
+    this.dataSource = new StatsDataSource(dataSource);
     this.dataSpec = dataSpec;
     this.type = type;
     this.parser = parser;
   }
 
-  /**
-   * Returns the loaded object, or null if an object has not been loaded.
-   */
-  public final T getResult() {
+  /** Returns the loaded object, or null if an object has not been loaded. */
+  public final @Nullable T getResult() {
     return result;
   }
 
   /**
    * Returns the number of bytes loaded. In the case that the network response was compressed, the
-   * value returned is the size of the data <em>after</em> decompression.
-   *
-   * @return The number of bytes loaded.
+   * value returned is the size of the data <em>after</em> decompression. Must only be called after
+   * the load completed, failed, or was canceled.
    */
   public long bytesLoaded() {
-    return bytesLoaded;
+    return dataSource.getBytesRead();
+  }
+
+  /**
+   * Returns the {@link Uri} from which data was read. If redirection occurred, this is the
+   * redirected uri. Must only be called after the load completed, failed, or was canceled.
+   */
+  public Uri getUri() {
+    return dataSource.getLastOpenedUri();
+  }
+
+  /**
+   * Returns the response headers associated with the load. Must only be called after the load
+   * completed, failed, or was canceled.
+   */
+  public Map<String, List<String>> getResponseHeaders() {
+    return dataSource.getLastResponseHeaders();
   }
 
   @Override
   public final void cancelLoad() {
-    // We don't actually cancel anything, but we need to record the cancellation so that
-    // isLoadCanceled can return the correct value.
-    isCanceled = true;
-  }
-
-  @Override
-  public final boolean isLoadCanceled() {
-    return isCanceled;
+    // Do nothing.
   }
 
   @Override
   public final void load() throws IOException {
+    // We always load from the beginning, so reset bytesRead to 0.
+    dataSource.resetBytesRead();
     DataSourceInputStream inputStream = new DataSourceInputStream(dataSource, dataSpec);
     try {
       inputStream.open();
-      result = parser.parse(dataSource.getUri(), inputStream);
+      Uri dataSourceUri = Assertions.checkNotNull(dataSource.getUri());
+      result = parser.parse(dataSourceUri, inputStream);
     } finally {
-      bytesLoaded = inputStream.bytesRead();
       Util.closeQuietly(inputStream);
     }
   }
-
 }

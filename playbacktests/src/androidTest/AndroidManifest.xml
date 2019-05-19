@@ -18,10 +18,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.google.android.exoplayer2.playbacktests">
 
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-permission android:name="android.permission.WAKE_LOCK"/>
-
-  <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="27"/>
+  <uses-sdk/>
 
   <application android:debuggable="true"
       android:allowBackup="false"
@@ -36,6 +36,6 @@
 
   <instrumentation
       android:targetPackage="com.google.android.exoplayer2.playbacktests"
-      android:name="android.test.InstrumentationTestRunner"/>
+      android:name="androidx.test.runner.AndroidJUnitRunner"/>
 
 </manifest>

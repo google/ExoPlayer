@@ -16,16 +16,15 @@
 package com.google.android.exoplayer2;
 
 import android.os.Looper;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
 import com.google.android.exoplayer2.source.ClippingMediaSource;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
-import com.google.android.exoplayer2.source.DynamicConcatenatingMediaSource;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.LoopingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MergingMediaSource;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.SingleSampleMediaSource;
 import com.google.android.exoplayer2.text.TextRenderer;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
@@ -49,13 +48,12 @@ import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
  *   <li>A <b>{@link MediaSource}</b> that defines the media to be played, loads the media, and from
  *       which the loaded media can be read. A MediaSource is injected via {@link
  *       #prepare(MediaSource)} at the start of playback. The library modules provide default
- *       implementations for regular media files ({@link ExtractorMediaSource}), DASH
+ *       implementations for progressive media files ({@link ProgressiveMediaSource}), DASH
  *       (DashMediaSource), SmoothStreaming (SsMediaSource) and HLS (HlsMediaSource), an
  *       implementation for loading single media samples ({@link SingleSampleMediaSource}) that's
  *       most often used for side-loaded subtitle files, and implementations for building more
  *       complex MediaSources from simpler ones ({@link MergingMediaSource}, {@link
- *       ConcatenatingMediaSource}, {@link DynamicConcatenatingMediaSource}, {@link
- *       LoopingMediaSource} and {@link ClippingMediaSource}).
+ *       ConcatenatingMediaSource}, {@link LoopingMediaSource} and {@link ClippingMediaSource}).
  *   <li><b>{@link Renderer}</b>s that render individual components of the media. The library
  *       provides default implementations for common media types ({@link MediaCodecVideoRenderer},
  *       {@link MediaCodecAudioRenderer}, {@link TextRenderer} and {@link MetadataRenderer}). A
@@ -91,12 +89,18 @@ import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
  * model">
  *
  * <ul>
- *   <li>It is strongly recommended that ExoPlayer instances are created and accessed from a single
- *       application thread. The application's main thread is ideal. Accessing an instance from
- *       multiple threads is discouraged as it may cause synchronization problems.
- *   <li>Registered listeners are called on the thread that created the ExoPlayer instance, unless
- *       the thread that created the ExoPlayer instance does not have a {@link Looper}. In that
- *       case, registered listeners will be called on the application's main thread.
+ *   <li>ExoPlayer instances must be accessed from a single application thread. For the vast
+ *       majority of cases this should be the application's main thread. Using the application's
+ *       main thread is also a requirement when using ExoPlayer's UI components or the IMA
+ *       extension. The thread on which an ExoPlayer instance must be accessed can be explicitly
+ *       specified by passing a `Looper` when creating the player. If no `Looper` is specified, then
+ *       the `Looper` of the thread that the player is created on is used, or if that thread does
+ *       not have a `Looper`, the `Looper` of the application's main thread is used. In all cases
+ *       the `Looper` of the thread from which the player must be accessed can be queried using
+ *       {@link #getApplicationLooper()}.
+ *   <li>Registered listeners are called on the thread associated with {@link
+ *       #getApplicationLooper()}. Note that this means registered listeners are called on the same
+ *       thread which must be used to access the player.
  *   <li>An internal playback thread is responsible for playback. Injected player components such as
  *       Renderers, MediaSources, TrackSelectors and LoadControls are called by the player on this
  *       thread.
@@ -112,12 +116,6 @@ import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
  * </ul>
  */
 public interface ExoPlayer extends Player {
-
-  /**
-   * @deprecated Use {@link Player.EventListener} instead.
-   */
-  @Deprecated
-  interface EventListener extends Player.EventListener {}
 
   /** @deprecated Use {@link PlayerMessage.Target} instead. */
   @Deprecated
@@ -143,65 +141,24 @@ public interface ExoPlayer extends Player {
     }
   }
 
-  /**
-   * @deprecated Use {@link Player#STATE_IDLE} instead.
-   */
-  @Deprecated
-  int STATE_IDLE = Player.STATE_IDLE;
-  /**
-   * @deprecated Use {@link Player#STATE_BUFFERING} instead.
-   */
-  @Deprecated
-  int STATE_BUFFERING = Player.STATE_BUFFERING;
-  /**
-   * @deprecated Use {@link Player#STATE_READY} instead.
-   */
-  @Deprecated
-  int STATE_READY = Player.STATE_READY;
-  /**
-   * @deprecated Use {@link Player#STATE_ENDED} instead.
-   */
-  @Deprecated
-  int STATE_ENDED = Player.STATE_ENDED;
-
-  /**
-   * @deprecated Use {@link Player#REPEAT_MODE_OFF} instead.
-   */
-  @Deprecated
-  @RepeatMode int REPEAT_MODE_OFF = Player.REPEAT_MODE_OFF;
-  /**
-   * @deprecated Use {@link Player#REPEAT_MODE_ONE} instead.
-   */
-  @Deprecated
-  @RepeatMode int REPEAT_MODE_ONE = Player.REPEAT_MODE_ONE;
-  /**
-   * @deprecated Use {@link Player#REPEAT_MODE_ALL} instead.
-   */
-  @Deprecated
-  @RepeatMode int REPEAT_MODE_ALL = Player.REPEAT_MODE_ALL;
-
-  /**
-   * Gets the {@link Looper} associated with the playback thread.
-   *
-   * @return The {@link Looper} associated with the playback thread.
-   */
+  /** Returns the {@link Looper} associated with the playback thread. */
   Looper getPlaybackLooper();
+
+  /**
+   * Retries a failed or stopped playback. Does nothing if the player has been reset, or if playback
+   * has not failed or been stopped.
+   */
+  void retry();
 
   /**
    * Prepares the player to play the provided {@link MediaSource}. Equivalent to
    * {@code prepare(mediaSource, true, true)}.
-   * <p>
-   * Note: {@link MediaSource} instances are not designed to be re-used. If you want to prepare a
-   * player more than once with the same piece of media, use a new instance each time.
    */
   void prepare(MediaSource mediaSource);
 
   /**
    * Prepares the player to play the provided {@link MediaSource}, optionally resetting the playback
    * position the default position in the first {@link Timeline.Window}.
-   * <p>
-   * Note: {@link MediaSource} instances are not designed to be re-used. If you want to prepare a
-   * player more than once with the same piece of media, use a new instance each time.
    *
    * @param mediaSource The {@link MediaSource} to play.
    * @param resetPosition Whether the playback position should be reset to the default position in
@@ -226,6 +183,7 @@ public interface ExoPlayer extends Player {
 
   /** @deprecated Use {@link #createMessage(PlayerMessage.Target)} instead. */
   @Deprecated
+  @SuppressWarnings("deprecation")
   void sendMessages(ExoPlayerMessage... messages);
 
   /**
@@ -233,6 +191,7 @@ public interface ExoPlayer extends Player {
    *     PlayerMessage#blockUntilDelivered()}.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   void blockingSendMessages(ExoPlayerMessage... messages);
 
   /**
@@ -241,4 +200,37 @@ public interface ExoPlayer extends Player {
    * @param seekParameters The seek parameters, or {@code null} to use the defaults.
    */
   void setSeekParameters(@Nullable SeekParameters seekParameters);
+
+  /** Returns the currently active {@link SeekParameters} of the player. */
+  SeekParameters getSeekParameters();
+
+  /**
+   * Sets whether the player is allowed to keep holding limited resources such as video decoders,
+   * even when in the idle state. By doing so, the player may be able to reduce latency when
+   * starting to play another piece of content for which the same resources are required.
+   *
+   * <p>This mode should be used with caution, since holding limited resources may prevent other
+   * players of media components from acquiring them. It should only be enabled when <em>both</em>
+   * of the following conditions are true:
+   *
+   * <ul>
+   *   <li>The application that owns the player is in the foreground.
+   *   <li>The player is used in a way that may benefit from foreground mode. For this to be true,
+   *       the same player instance must be used to play multiple pieces of content, and there must
+   *       be gaps between the playbacks (i.e. {@link #stop} is called to halt one playback, and
+   *       {@link #prepare} is called some time later to start a new one).
+   * </ul>
+   *
+   * <p>Note that foreground mode is <em>not</em> useful for switching between content without gaps
+   * between the playbacks. For this use case {@link #stop} does not need to be called, and simply
+   * calling {@link #prepare} for the new media will cause limited resources to be retained even if
+   * foreground mode is not enabled.
+   *
+   * <p>If foreground mode is enabled, it's the application's responsibility to disable it when the
+   * conditions described above no longer hold.
+   *
+   * @param foregroundMode Whether the player is allowed to keep limited resources even when in the
+   *     idle state.
+   */
+  void setForegroundMode(boolean foregroundMode);
 }

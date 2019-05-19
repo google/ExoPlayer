@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.zip.Inflater;
 
 /** A {@link SimpleSubtitleDecoder} for PGS subtitles. */
 public final class PgsDecoder extends SimpleSubtitleDecoder {
@@ -34,18 +35,25 @@ public final class PgsDecoder extends SimpleSubtitleDecoder {
   private static final int SECTION_TYPE_IDENTIFIER = 0x16;
   private static final int SECTION_TYPE_END = 0x80;
 
+  private static final byte INFLATE_HEADER = 0x78;
+
   private final ParsableByteArray buffer;
+  private final ParsableByteArray inflatedBuffer;
   private final CueBuilder cueBuilder;
+
+  private Inflater inflater;
 
   public PgsDecoder() {
     super("PgsDecoder");
     buffer = new ParsableByteArray();
+    inflatedBuffer = new ParsableByteArray();
     cueBuilder = new CueBuilder();
   }
 
   @Override
   protected Subtitle decode(byte[] data, int size, boolean reset) throws SubtitleDecoderException {
     buffer.reset(data, size);
+    maybeInflateData(buffer);
     cueBuilder.reset();
     ArrayList<Cue> cues = new ArrayList<>();
     while (buffer.bytesLeft() >= 3) {
@@ -55,6 +63,17 @@ public final class PgsDecoder extends SimpleSubtitleDecoder {
       }
     }
     return new PgsSubtitle(Collections.unmodifiableList(cues));
+  }
+
+  private void maybeInflateData(ParsableByteArray buffer) {
+    if (buffer.bytesLeft() > 0 && buffer.peekUnsignedByte() == INFLATE_HEADER) {
+      if (inflater == null) {
+        inflater = new Inflater();
+      }
+      if (Util.inflate(buffer, inflatedBuffer, inflater)) {
+        buffer.reset(inflatedBuffer.data, inflatedBuffer.limit());
+      } // else assume data is not compressed.
+    }
   }
 
   private static Cue readNextSection(ParsableByteArray buffer, CueBuilder cueBuilder) {

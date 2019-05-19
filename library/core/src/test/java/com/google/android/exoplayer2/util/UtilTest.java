@@ -24,19 +24,20 @@ import static com.google.android.exoplayer2.util.Util.parseXsDuration;
 import static com.google.android.exoplayer2.util.Util.unescapeFileName;
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.zip.Deflater;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
-/**
- * Unit tests for {@link Util}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Unit tests for {@link Util}. */
+@RunWith(AndroidJUnit4.class)
 public class UtilTest {
 
   @Test
@@ -247,6 +248,48 @@ public class UtilTest {
     }
   }
 
+  @Test
+  public void testInflate() {
+    byte[] testData = TestUtil.buildTestData(/*arbitrary test data size*/ 256 * 1024);
+    byte[] compressedData = new byte[testData.length * 2];
+    Deflater compresser = new Deflater(9);
+    compresser.setInput(testData);
+    compresser.finish();
+    int compressedDataLength = compresser.deflate(compressedData);
+    compresser.end();
+
+    ParsableByteArray input = new ParsableByteArray(compressedData, compressedDataLength);
+    ParsableByteArray output = new ParsableByteArray();
+    assertThat(Util.inflate(input, output, /* inflater= */ null)).isTrue();
+    assertThat(output.limit()).isEqualTo(testData.length);
+    assertThat(Arrays.copyOf(output.data, output.limit())).isEqualTo(testData);
+  }
+
+  @Test
+  @Config(sdk = 21)
+  public void testNormalizeLanguageCodeV21() {
+    assertThat(Util.normalizeLanguageCode("es")).isEqualTo("spa");
+    assertThat(Util.normalizeLanguageCode("spa")).isEqualTo("spa");
+    assertThat(Util.normalizeLanguageCode("es-AR")).isEqualTo("spa-ar");
+    assertThat(Util.normalizeLanguageCode("SpA-ar")).isEqualTo("spa-ar");
+    assertThat(Util.normalizeLanguageCode("es-AR-dialect")).isEqualTo("spa-ar-dialect");
+    assertThat(Util.normalizeLanguageCode("es-419")).isEqualTo("spa-419");
+    assertThat(Util.normalizeLanguageCode("zh-hans-tw")).isEqualTo("zho-hans-tw");
+    assertThat(Util.normalizeLanguageCode("zh-tw-hans")).isEqualTo("zho-tw");
+    assertThat(Util.normalizeLanguageCode("und")).isEqualTo("und");
+    assertThat(Util.normalizeLanguageCode("DoesNotExist")).isEqualTo("doesnotexist");
+  }
+
+  @Test
+  @Config(sdk = 16)
+  public void testNormalizeLanguageCode() {
+    assertThat(Util.normalizeLanguageCode("es")).isEqualTo("spa");
+    assertThat(Util.normalizeLanguageCode("spa")).isEqualTo("spa");
+    assertThat(Util.normalizeLanguageCode("es-AR")).isEqualTo("es-ar");
+    assertThat(Util.normalizeLanguageCode("und")).isEqualTo("und");
+    assertThat(Util.normalizeLanguageCode("DoesNotExist")).isEqualTo("doesnotexist");
+  }
+
   private static void assertEscapeUnescapeFileName(String fileName, String escapedFileName) {
     assertThat(escapeFileName(fileName)).isEqualTo(escapedFileName);
     assertThat(unescapeFileName(escapedFileName)).isEqualTo(fileName);
@@ -256,5 +299,4 @@ public class UtilTest {
     String escapedFileName = Util.escapeFileName(fileName);
     assertThat(unescapeFileName(escapedFileName)).isEqualTo(fileName);
   }
-
 }

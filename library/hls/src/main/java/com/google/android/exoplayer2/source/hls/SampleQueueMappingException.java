@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.hls;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.source.SampleQueue;
 import com.google.android.exoplayer2.source.TrackGroup;
 import java.io.IOException;
@@ -23,7 +24,7 @@ import java.io.IOException;
 public final class SampleQueueMappingException extends IOException {
 
   /** @param mimeType The mime type of the track group whose mapping failed. */
-  public SampleQueueMappingException(String mimeType) {
+  public SampleQueueMappingException(@Nullable String mimeType) {
     super("Unable to bind a sample queue to TrackGroup with mime type " + mimeType + ".");
   }
 }

@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.source.dash.manifest;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import java.util.Collections;
 import java.util.List;
@@ -51,7 +51,7 @@ public class Period {
    * @param adaptationSets The adaptation sets belonging to the period.
    */
   public Period(@Nullable String id, long startMs, List<AdaptationSet> adaptationSets) {
-    this(id, startMs, adaptationSets, Collections.<EventStream>emptyList());
+    this(id, startMs, adaptationSets, Collections.emptyList());
   }
 
   /**

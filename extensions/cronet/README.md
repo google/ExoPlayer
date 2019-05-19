@@ -2,40 +2,25 @@
 
 The Cronet extension is an [HttpDataSource][] implementation using [Cronet][].
 
-[HttpDataSource]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/upstream/HttpDataSource.html
+[HttpDataSource]: https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/upstream/HttpDataSource.html
 [Cronet]: https://chromium.googlesource.com/chromium/src/+/master/components/cronet?autodive=0%2F%2F
 
-## Build instructions ##
+## Getting the extension ##
 
-To use this extension you need to clone the ExoPlayer repository and depend on
-its modules locally. Instructions for doing this can be found in ExoPlayer's
-[top level README][]. In addition, it's necessary to get the Cronet libraries
-and enable the extension:
+The easiest way to use the extension is to add it as a gradle dependency:
 
-1. Find the latest Cronet release [here][] and navigate to its `Release/cronet`
-   directory
-1. Download `cronet_api.jar`, `cronet_impl_common_java.jar`,
-   `cronet_impl_native_java.jar` and the `libs` directory
-1. Copy the three jar files into the `libs` directory of this extension
-1. Copy the content of the downloaded `libs` directory into the `jniLibs`
-   directory of this extension
-1. In your `settings.gradle` file, add
-   `gradle.ext.exoplayerIncludeCronetExtension = true` before the line that
-   applies `core_settings.gradle`.
-1. In all `build.gradle` files where this extension is linked as a dependency,
-   add
-   ```
-   android {
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-   }
-   ```
-   to enable Java 8 features required by the Cronet library.
+```gradle
+implementation 'com.google.android.exoplayer:extension-cronet:2.X.X'
+```
+
+where `2.X.X` is the version, which must match the version of the ExoPlayer
+library being used.
+
+Alternatively, you can clone the ExoPlayer repository and depend on the module
+locally. Instructions for doing this can be found in ExoPlayer's
+[top level README][].
 
 [top level README]: https://github.com/google/ExoPlayer/blob/release-v2/README.md
-[here]: https://console.cloud.google.com/storage/browser/chromium-cronet/android
 
 ## Using the extension ##
 
@@ -67,4 +52,4 @@ respectively.
 * [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.cronet.*`
   belong to this module.
 
-[Javadoc]: https://google.github.io/ExoPlayer/doc/reference/index.html
+[Javadoc]: https://exoplayer.dev/doc/reference/index.html

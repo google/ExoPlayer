@@ -13,18 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- package com.google.android.exoplayer2.offline;
+package com.google.android.exoplayer2.offline;
 
 import android.net.Uri;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
+import com.google.android.exoplayer2.upstream.cache.CacheKeyFactory;
 import com.google.android.exoplayer2.upstream.cache.CacheUtil;
-import com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A downloader for progressive media streams.
@@ -36,63 +37,78 @@ public final class ProgressiveDownloader implements Downloader {
   private final DataSpec dataSpec;
   private final Cache cache;
   private final CacheDataSource dataSource;
+  private final CacheKeyFactory cacheKeyFactory;
   private final PriorityTaskManager priorityTaskManager;
-  private final CacheUtil.CachingCounters cachingCounters;
+  private final AtomicBoolean isCanceled;
 
   /**
    * @param uri Uri of the data to be downloaded.
    * @param customCacheKey A custom key that uniquely identifies the original stream. Used for cache
    *     indexing. May be null.
-   * @param constructorHelper a {@link DownloaderConstructorHelper} instance.
+   * @param constructorHelper A {@link DownloaderConstructorHelper} instance.
    */
   public ProgressiveDownloader(
-      String uri, String customCacheKey, DownloaderConstructorHelper constructorHelper) {
-    this.dataSpec = new DataSpec(Uri.parse(uri), 0, C.LENGTH_UNSET, customCacheKey, 0);
+      Uri uri, @Nullable String customCacheKey, DownloaderConstructorHelper constructorHelper) {
+    this.dataSpec =
+        new DataSpec(
+            uri,
+            /* absoluteStreamPosition= */ 0,
+            C.LENGTH_UNSET,
+            customCacheKey,
+            /* flags= */ DataSpec.FLAG_ALLOW_CACHE_FRAGMENTATION);
     this.cache = constructorHelper.getCache();
-    this.dataSource = constructorHelper.buildCacheDataSource(false);
+    this.dataSource = constructorHelper.createCacheDataSource();
+    this.cacheKeyFactory = constructorHelper.getCacheKeyFactory();
     this.priorityTaskManager = constructorHelper.getPriorityTaskManager();
-    cachingCounters = new CachingCounters();
+    isCanceled = new AtomicBoolean();
   }
 
   @Override
-  public void init() {
-    CacheUtil.getCached(dataSpec, cache, cachingCounters);
-  }
-
-  @Override
-  public void download(@Nullable ProgressListener listener) throws InterruptedException,
-      IOException {
+  public void download(@Nullable ProgressListener progressListener)
+      throws InterruptedException, IOException {
     priorityTaskManager.add(C.PRIORITY_DOWNLOAD);
     try {
-      byte[] buffer = new byte[BUFFER_SIZE_BYTES];
-      CacheUtil.cache(dataSpec, cache, dataSource, buffer, priorityTaskManager, C.PRIORITY_DOWNLOAD,
-          cachingCounters, true);
-      // TODO: Work out how to call onDownloadProgress periodically during the download, or else
-      // get rid of ProgressListener and move to a model where the manager periodically polls
-      // Downloaders.
-      if (listener != null) {
-        listener.onDownloadProgress(this, 100, cachingCounters.contentLength);
-      }
+      CacheUtil.cache(
+          dataSpec,
+          cache,
+          cacheKeyFactory,
+          dataSource,
+          new byte[BUFFER_SIZE_BYTES],
+          priorityTaskManager,
+          C.PRIORITY_DOWNLOAD,
+          progressListener == null ? null : new ProgressForwarder(progressListener),
+          isCanceled,
+          /* enableEOFException= */ true);
     } finally {
       priorityTaskManager.remove(C.PRIORITY_DOWNLOAD);
     }
   }
 
   @Override
+  public void cancel() {
+    isCanceled.set(true);
+  }
+
+  @Override
   public void remove() {
-    CacheUtil.remove(cache, CacheUtil.getKey(dataSpec));
+    CacheUtil.remove(dataSpec, cache, cacheKeyFactory);
   }
 
-  @Override
-  public long getDownloadedBytes() {
-    return cachingCounters.totalCachedBytes();
-  }
+  private static final class ProgressForwarder implements CacheUtil.ProgressListener {
 
-  @Override
-  public float getDownloadPercentage() {
-    long contentLength = cachingCounters.contentLength;
-    return contentLength == C.LENGTH_UNSET ? Float.NaN
-        : ((cachingCounters.totalCachedBytes() * 100f) / contentLength);
-  }
+    private final ProgressListener progessListener;
 
+    public ProgressForwarder(ProgressListener progressListener) {
+      this.progessListener = progressListener;
+    }
+
+    @Override
+    public void onProgress(long contentLength, long bytesCached, long newBytesCached) {
+      float percentDownloaded =
+          contentLength == C.LENGTH_UNSET || contentLength == 0
+              ? C.PERCENTAGE_UNSET
+              : ((bytesCached * 100f) / contentLength);
+      progessListener.onProgress(contentLength, bytesCached, percentDownloaded);
+    }
+  }
 }

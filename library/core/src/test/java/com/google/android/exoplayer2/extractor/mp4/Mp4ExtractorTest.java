@@ -15,28 +15,17 @@
  */
 package com.google.android.exoplayer2.extractor.mp4;
 
-import android.annotation.TargetApi;
-import com.google.android.exoplayer2.extractor.Extractor;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
-import com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
 /** Tests for {@link Mp4Extractor}. */
-@TargetApi(16)
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class Mp4ExtractorTest {
 
   @Test
   public void testMp4Sample() throws Exception {
-    ExtractorAsserts.assertBehavior(
-        new ExtractorFactory() {
-          @Override
-          public Extractor create() {
-            return new Mp4Extractor();
-          }
-        },
-        "mp4/sample.mp4");
+    ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/sample.mp4");
   }
 }

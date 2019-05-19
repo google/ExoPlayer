@@ -16,17 +16,24 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion project.ext.compileSdkVersion
-    buildToolsVersion project.ext.buildToolsVersion
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion project.ext.targetSdkVersion
     }
+
+    testOptions.unitTests.includeAndroidResources = true
 }
 
 dependencies {
     implementation project(modulePrefix + 'library-core')
-    implementation('com.android.support:leanback-v17:' + supportLibraryVersion)
+    implementation 'androidx.annotation:annotation:1.0.2'
+    implementation 'androidx.leanback:leanback:1.0.0'
 }
 
 ext {

@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.text.cea;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.text.Subtitle;
@@ -24,7 +24,7 @@ import com.google.android.exoplayer2.text.SubtitleDecoderException;
 import com.google.android.exoplayer2.text.SubtitleInputBuffer;
 import com.google.android.exoplayer2.text.SubtitleOutputBuffer;
 import com.google.android.exoplayer2.util.Assertions;
-import java.util.LinkedList;
+import java.util.ArrayDeque;
 import java.util.PriorityQueue;
 
 /**
@@ -35,8 +35,8 @@ import java.util.PriorityQueue;
   private static final int NUM_INPUT_BUFFERS = 10;
   private static final int NUM_OUTPUT_BUFFERS = 2;
 
-  private final LinkedList<CeaInputBuffer> availableInputBuffers;
-  private final LinkedList<SubtitleOutputBuffer> availableOutputBuffers;
+  private final ArrayDeque<CeaInputBuffer> availableInputBuffers;
+  private final ArrayDeque<SubtitleOutputBuffer> availableOutputBuffers;
   private final PriorityQueue<CeaInputBuffer> queuedInputBuffers;
 
   private CeaInputBuffer dequeuedInputBuffer;
@@ -44,11 +44,11 @@ import java.util.PriorityQueue;
   private long queuedInputBufferCount;
 
   public CeaDecoder() {
-    availableInputBuffers = new LinkedList<>();
+    availableInputBuffers = new ArrayDeque<>();
     for (int i = 0; i < NUM_INPUT_BUFFERS; i++) {
       availableInputBuffers.add(new CeaInputBuffer());
     }
-    availableOutputBuffers = new LinkedList<>();
+    availableOutputBuffers = new ArrayDeque<>();
     for (int i = 0; i < NUM_OUTPUT_BUFFERS; i++) {
       availableOutputBuffers.add(new CeaOutputBuffer());
     }

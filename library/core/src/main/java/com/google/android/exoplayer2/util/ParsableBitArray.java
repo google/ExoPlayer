@@ -28,10 +28,10 @@ public final class ParsableBitArray {
   private int bitOffset;
   private int byteLimit;
 
-  /**
-   * Creates a new instance that initially has no backing data.
-   */
-  public ParsableBitArray() {}
+  /** Creates a new instance that initially has no backing data. */
+  public ParsableBitArray() {
+    data = Util.EMPTY_BYTE_ARRAY;
+  }
 
   /**
    * Creates a new instance that wraps an existing array.
@@ -175,7 +175,7 @@ public final class ParsableBitArray {
       bitOffset -= 8;
       returnValue |= (data[byteOffset++] & 0xFF) << bitOffset;
     }
-    returnValue |= (data[byteOffset] & 0xFF) >> 8 - bitOffset;
+    returnValue |= (data[byteOffset] & 0xFF) >> (8 - bitOffset);
     returnValue &= 0xFFFFFFFF >>> (32 - numBits);
     if (bitOffset == 8) {
       bitOffset = 0;
@@ -199,17 +199,18 @@ public final class ParsableBitArray {
     int to = offset + (numBits >> 3) /* numBits / 8 */;
     for (int i = offset; i < to; i++) {
       buffer[i] = (byte) (data[byteOffset++] << bitOffset);
-      buffer[i] |= (data[byteOffset] & 0xFF) >> (8 - bitOffset);
+      buffer[i] = (byte) (buffer[i] | ((data[byteOffset] & 0xFF) >> (8 - bitOffset)));
     }
     // Trailing bits.
     int bitsLeft = numBits & 7 /* numBits % 8 */;
     if (bitsLeft == 0) {
       return;
     }
-    buffer[to] &= 0xFF >> bitsLeft; // Set to 0 the bits that are going to be overwritten.
+    // Set bits that are going to be overwritten to 0.
+    buffer[to] = (byte) (buffer[to] & (0xFF >> bitsLeft));
     if (bitOffset + bitsLeft > 8) {
       // We read the rest of data[byteOffset] and increase byteOffset.
-      buffer[to] |= (byte) ((data[byteOffset++] & 0xFF) << bitOffset);
+      buffer[to] = (byte) (buffer[to] | ((data[byteOffset++] & 0xFF) << bitOffset));
       bitOffset -= 8;
     }
     bitOffset += bitsLeft;
@@ -280,9 +281,10 @@ public final class ParsableBitArray {
     int firstByteReadSize = Math.min(8 - bitOffset, numBits);
     int firstByteRightPaddingSize = 8 - bitOffset - firstByteReadSize;
     int firstByteBitmask = (0xFF00 >> bitOffset) | ((1 << firstByteRightPaddingSize) - 1);
-    data[byteOffset] &= firstByteBitmask;
+    data[byteOffset] = (byte) (data[byteOffset] & firstByteBitmask);
     int firstByteInputBits = value >>> (numBits - firstByteReadSize);
-    data[byteOffset] |= firstByteInputBits << firstByteRightPaddingSize;
+    data[byteOffset] =
+        (byte) (data[byteOffset] | (firstByteInputBits << firstByteRightPaddingSize));
     remainingBitsToRead -= firstByteReadSize;
     int currentByteIndex = byteOffset + 1;
     while (remainingBitsToRead > 8) {
@@ -290,9 +292,11 @@ public final class ParsableBitArray {
       remainingBitsToRead -= 8;
     }
     int lastByteRightPaddingSize = 8 - remainingBitsToRead;
-    data[currentByteIndex] &= (1 << lastByteRightPaddingSize) - 1;
+    data[currentByteIndex] =
+        (byte) (data[currentByteIndex] & ((1 << lastByteRightPaddingSize) - 1));
     int lastByteInput = value & ((1 << remainingBitsToRead) - 1);
-    data[currentByteIndex] |= lastByteInput << lastByteRightPaddingSize;
+    data[currentByteIndex] =
+        (byte) (data[currentByteIndex] | (lastByteInput << lastByteRightPaddingSize));
     skipBits(numBits);
     assertValidOffset();
   }

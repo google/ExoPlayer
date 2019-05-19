@@ -17,17 +17,15 @@ package com.google.android.exoplayer2.metadata.emsg;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
 import java.nio.ByteBuffer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Test for {@link EventMessageDecoder}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Test for {@link EventMessageDecoder}. */
+@RunWith(AndroidJUnit4.class)
 public final class EventMessageDecoderTest {
 
   @Test
@@ -51,7 +49,6 @@ public final class EventMessageDecoderTest {
     assertThat(eventMessage.durationMs).isEqualTo(3000);
     assertThat(eventMessage.id).isEqualTo(1000403);
     assertThat(eventMessage.messageData).isEqualTo(new byte[]{0, 1, 2, 3, 4});
-    assertThat(eventMessage.presentationTimeUs).isEqualTo(1000000);
   }
 
 }

@@ -19,18 +19,16 @@ import static com.google.android.exoplayer2.C.INDEX_UNSET;
 import static com.google.common.truth.Truth.assertThat;
 import static java.lang.Long.MAX_VALUE;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.text.Cue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Unit test for {@link WebvttSubtitle}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Unit test for {@link WebvttSubtitle}. */
+@RunWith(AndroidJUnit4.class)
 public class WebvttSubtitleTest {
 
   private static final String FIRST_SUBTITLE_STRING = "This is the first subtitle.";
@@ -38,8 +36,7 @@ public class WebvttSubtitleTest {
   private static final String FIRST_AND_SECOND_SUBTITLE_STRING =
       FIRST_SUBTITLE_STRING + "\n" + SECOND_SUBTITLE_STRING;
 
-  private static final WebvttSubtitle emptySubtitle = new WebvttSubtitle(
-      Collections.<WebvttCue>emptyList());
+  private static final WebvttSubtitle emptySubtitle = new WebvttSubtitle(Collections.emptyList());
 
   private static final WebvttSubtitle simpleSubtitle;
   static {

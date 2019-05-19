@@ -22,10 +22,13 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * A fake {@link TrackOutput}.
@@ -42,7 +45,7 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
   public Format format;
 
   public FakeTrackOutput() {
-    sampleData = new byte[0];
+    sampleData = Util.EMPTY_BYTE_ARRAY;
     sampleTimesUs = new ArrayList<>();
     sampleFlags = new ArrayList<>();
     sampleStartOffsets = new ArrayList<>();
@@ -51,7 +54,7 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
   }
 
   public void clear() {
-    sampleData = new byte[0];
+    sampleData = Util.EMPTY_BYTE_ARRAY;
     sampleTimesUs.clear();
     sampleFlags.clear();
     sampleStartOffsets.clear();
@@ -112,6 +115,26 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
   public byte[] getSampleData(int index) {
     return Arrays.copyOfRange(sampleData, sampleStartOffsets.get(index),
         sampleEndOffsets.get(index));
+  }
+
+  public long getSampleTimeUs(int index) {
+    return sampleTimesUs.get(index);
+  }
+
+  public int getSampleFlags(int index) {
+    return sampleFlags.get(index);
+  }
+
+  public CryptoData getSampleCryptoData(int index) {
+    return cryptoDatas.get(index);
+  }
+
+  public int getSampleCount() {
+    return sampleTimesUs.size();
+  }
+
+  public List<Long> getSampleTimesUs() {
+    return Collections.unmodifiableList(sampleTimesUs);
   }
 
   public void assertEquals(FakeTrackOutput expected) {

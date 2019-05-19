@@ -15,78 +15,46 @@
  */
 package com.google.android.exoplayer2.offline;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import java.io.IOException;
 
-/**
- * An interface for stream downloaders.
- */
+/** Downloads and removes a piece of content. */
 public interface Downloader {
 
-  /**
-   * Listener notified when download progresses.
-   * <p>
-   * No guarantees are made about the thread or threads on which the listener is called, but it is
-   * guaranteed that listener methods will be called in a serial fashion (i.e. one at a time) and in
-   * the same order as events occurred.
-   */
+  /** Receives progress updates during download operations. */
   interface ProgressListener {
+
     /**
-     * Called during the download. Calling intervals depend on the {@link Downloader}
-     * implementation.
+     * Called when progress is made during a download operation.
      *
-     * @param downloader The reporting instance.
-     * @param downloadPercentage The download percentage. This value can be an estimation.
-     * @param downloadedBytes Total number of downloaded bytes.
-     * @see #download(ProgressListener)
+     * @param contentLength The length of the content in bytes, or {@link C#LENGTH_UNSET} if
+     *     unknown.
+     * @param bytesDownloaded The number of bytes that have been downloaded.
+     * @param percentDownloaded The percentage of the content that has been downloaded, or {@link
+     *     C#PERCENTAGE_UNSET}.
      */
-    void onDownloadProgress(Downloader downloader, float downloadPercentage, long downloadedBytes);
+    void onProgress(long contentLength, long bytesDownloaded, float percentDownloaded);
   }
 
   /**
-   * Initializes the downloader.
+   * Downloads the content.
    *
-   * @throws DownloadException Thrown if the media cannot be downloaded.
-   * @throws InterruptedException If the thread has been interrupted.
-   * @throws IOException Thrown when there is an io error while reading from cache.
-   * @see #getDownloadedBytes()
-   * @see #getDownloadPercentage()
-   */
-  void init() throws InterruptedException, IOException;
-
-  /**
-   * Downloads the media.
-   *
-   * @param listener If not null, called during download.
-   * @throws DownloadException Thrown if the media cannot be downloaded.
+   * @param progressListener A listener to receive progress updates, or {@code null}.
+   * @throws DownloadException Thrown if the content cannot be downloaded.
    * @throws InterruptedException If the thread has been interrupted.
    * @throws IOException Thrown when there is an io error while downloading.
    */
-  void download(@Nullable ProgressListener listener)
+  void download(@Nullable ProgressListener progressListener)
       throws InterruptedException, IOException;
 
+  /** Cancels the download operation and prevents future download operations from running. */
+  void cancel();
+
   /**
-   * Removes all of the downloaded data of the media.
+   * Removes the content.
    *
    * @throws InterruptedException Thrown if the thread was interrupted.
    */
   void remove() throws InterruptedException;
-
-  /**
-   * Returns the total number of downloaded bytes, or {@link C#LENGTH_UNSET} if it hasn't been
-   * calculated yet.
-   *
-   * @see #init()
-   */
-  long getDownloadedBytes();
-
-  /**
-   * Returns the download percentage, or {@link Float#NaN} if it can't be calculated yet. This
-   * value can be an estimation.
-   *
-   * @see #init()
-   */
-  float getDownloadPercentage();
-
 }

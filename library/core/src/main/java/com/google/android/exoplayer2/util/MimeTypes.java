@@ -15,9 +15,10 @@
  */
 package com.google.android.exoplayer2.util;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
+import java.util.ArrayList;
 
 /**
  * Defines common MIME types and helper methods.
@@ -36,10 +37,13 @@ public final class MimeTypes {
   public static final String VIDEO_H265 = BASE_TYPE_VIDEO + "/hevc";
   public static final String VIDEO_VP8 = BASE_TYPE_VIDEO + "/x-vnd.on2.vp8";
   public static final String VIDEO_VP9 = BASE_TYPE_VIDEO + "/x-vnd.on2.vp9";
+  public static final String VIDEO_AV1 = BASE_TYPE_VIDEO + "/av01";
   public static final String VIDEO_MP4V = BASE_TYPE_VIDEO + "/mp4v-es";
   public static final String VIDEO_MPEG = BASE_TYPE_VIDEO + "/mpeg";
   public static final String VIDEO_MPEG2 = BASE_TYPE_VIDEO + "/mpeg2";
   public static final String VIDEO_VC1 = BASE_TYPE_VIDEO + "/wvc1";
+  public static final String VIDEO_DIVX = BASE_TYPE_VIDEO + "/divx";
+  public static final String VIDEO_DOLBY_VISION = BASE_TYPE_VIDEO + "/dolby-vision";
   public static final String VIDEO_UNKNOWN = BASE_TYPE_VIDEO + "/x-unknown";
 
   public static final String AUDIO_MP4 = BASE_TYPE_AUDIO + "/mp4";
@@ -54,6 +58,7 @@ public final class MimeTypes {
   public static final String AUDIO_AC3 = BASE_TYPE_AUDIO + "/ac3";
   public static final String AUDIO_E_AC3 = BASE_TYPE_AUDIO + "/eac3";
   public static final String AUDIO_E_AC3_JOC = BASE_TYPE_AUDIO + "/eac3-joc";
+  public static final String AUDIO_AC4 = BASE_TYPE_AUDIO + "/ac4";
   public static final String AUDIO_TRUEHD = BASE_TYPE_AUDIO + "/true-hd";
   public static final String AUDIO_DTS = BASE_TYPE_AUDIO + "/vnd.dts";
   public static final String AUDIO_DTS_HD = BASE_TYPE_AUDIO + "/vnd.dts.hd";
@@ -91,49 +96,51 @@ public final class MimeTypes {
   public static final String APPLICATION_EMSG = BASE_TYPE_APPLICATION + "/x-emsg";
   public static final String APPLICATION_DVBSUBS = BASE_TYPE_APPLICATION + "/dvbsubs";
   public static final String APPLICATION_EXIF = BASE_TYPE_APPLICATION + "/x-exif";
+  public static final String APPLICATION_ICY = BASE_TYPE_APPLICATION + "/x-icy";
 
-  private MimeTypes() {}
+  private static final ArrayList<CustomMimeType> customMimeTypes = new ArrayList<>();
 
   /**
-   * Whether the top-level type of {@code mimeType} is audio.
+   * Registers a custom MIME type. Most applications do not need to call this method, as handling of
+   * standard MIME types is built in. These built-in MIME types take precedence over any registered
+   * via this method. If this method is used, it must be called before creating any player(s).
    *
-   * @param mimeType The mimeType to test.
-   * @return Whether the top level type is audio.
+   * @param mimeType The custom MIME type to register.
+   * @param codecPrefix The RFC 6381-style codec string prefix associated with the MIME type.
+   * @param trackType The {@link C}{@code .TRACK_TYPE_*} constant associated with the MIME type.
+   *     This value is ignored if the top-level type of {@code mimeType} is audio, video or text.
    */
-  public static boolean isAudio(String mimeType) {
+  public static void registerCustomMimeType(String mimeType, String codecPrefix, int trackType) {
+    CustomMimeType customMimeType = new CustomMimeType(mimeType, codecPrefix, trackType);
+    int customMimeTypeCount = customMimeTypes.size();
+    for (int i = 0; i < customMimeTypeCount; i++) {
+      if (mimeType.equals(customMimeTypes.get(i).mimeType)) {
+        customMimeTypes.remove(i);
+        break;
+      }
+    }
+    customMimeTypes.add(customMimeType);
+  }
+
+  /** Returns whether the given string is an audio mime type. */
+  public static boolean isAudio(@Nullable String mimeType) {
     return BASE_TYPE_AUDIO.equals(getTopLevelType(mimeType));
   }
 
-  /**
-   * Whether the top-level type of {@code mimeType} is video.
-   *
-   * @param mimeType The mimeType to test.
-   * @return Whether the top level type is video.
-   */
-  public static boolean isVideo(String mimeType) {
+  /** Returns whether the given string is a video mime type. */
+  public static boolean isVideo(@Nullable String mimeType) {
     return BASE_TYPE_VIDEO.equals(getTopLevelType(mimeType));
   }
 
-  /**
-   * Whether the top-level type of {@code mimeType} is text.
-   *
-   * @param mimeType The mimeType to test.
-   * @return Whether the top level type is text.
-   */
-  public static boolean isText(String mimeType) {
+  /** Returns whether the given string is a text mime type. */
+  public static boolean isText(@Nullable String mimeType) {
     return BASE_TYPE_TEXT.equals(getTopLevelType(mimeType));
   }
 
-  /**
-   * Whether the top-level type of {@code mimeType} is application.
-   *
-   * @param mimeType The mimeType to test.
-   * @return Whether the top level type is application.
-   */
-  public static boolean isApplication(String mimeType) {
+  /** Returns whether the given string is an application mime type. */
+  public static boolean isApplication(@Nullable String mimeType) {
     return BASE_TYPE_APPLICATION.equals(getTopLevelType(mimeType));
   }
-
 
   /**
    * Derives a video sample mimeType from a codecs attribute.
@@ -141,11 +148,11 @@ public final class MimeTypes {
    * @param codecs The codecs attribute.
    * @return The derived video mimeType, or null if it could not be derived.
    */
-  public static String getVideoMediaMimeType(String codecs) {
+  public static @Nullable String getVideoMediaMimeType(@Nullable String codecs) {
     if (codecs == null) {
       return null;
     }
-    String[] codecList = codecs.split(",");
+    String[] codecList = Util.splitCodecs(codecs);
     for (String codec : codecList) {
       String mimeType = getMediaMimeType(codec);
       if (mimeType != null && isVideo(mimeType)) {
@@ -161,11 +168,11 @@ public final class MimeTypes {
    * @param codecs The codecs attribute.
    * @return The derived audio mimeType, or null if it could not be derived.
    */
-  public static String getAudioMediaMimeType(String codecs) {
+  public static @Nullable String getAudioMediaMimeType(@Nullable String codecs) {
     if (codecs == null) {
       return null;
     }
-    String[] codecList = codecs.split(",");
+    String[] codecList = Util.splitCodecs(codecs);
     for (String codec : codecList) {
       String mimeType = getMediaMimeType(codec);
       if (mimeType != null && isAudio(mimeType)) {
@@ -181,15 +188,22 @@ public final class MimeTypes {
    * @param codec The codec identifier to derive.
    * @return The mimeType, or null if it could not be derived.
    */
-  public static String getMediaMimeType(String codec) {
+  public static @Nullable String getMediaMimeType(@Nullable String codec) {
     if (codec == null) {
       return null;
     }
-    codec = codec.trim();
+    codec = Util.toLowerInvariant(codec.trim());
     if (codec.startsWith("avc1") || codec.startsWith("avc3")) {
       return MimeTypes.VIDEO_H264;
     } else if (codec.startsWith("hev1") || codec.startsWith("hvc1")) {
       return MimeTypes.VIDEO_H265;
+    } else if (codec.startsWith("dvav")
+        || codec.startsWith("dva1")
+        || codec.startsWith("dvhe")
+        || codec.startsWith("dvh1")) {
+      return MimeTypes.VIDEO_DOLBY_VISION;
+    } else if (codec.startsWith("av01")) {
+      return MimeTypes.VIDEO_AV1;
     } else if (codec.startsWith("vp9") || codec.startsWith("vp09")) {
       return MimeTypes.VIDEO_VP9;
     } else if (codec.startsWith("vp8") || codec.startsWith("vp08")) {
@@ -215,6 +229,8 @@ public final class MimeTypes {
       return MimeTypes.AUDIO_E_AC3;
     } else if (codec.startsWith("ec+3")) {
       return MimeTypes.AUDIO_E_AC3_JOC;
+    } else if (codec.startsWith("ac-4") || codec.startsWith("dac4")) {
+      return MimeTypes.AUDIO_AC4;
     } else if (codec.startsWith("dtsc") || codec.startsWith("dtse")) {
       return MimeTypes.AUDIO_DTS;
     } else if (codec.startsWith("dtsh") || codec.startsWith("dtsl")) {
@@ -223,13 +239,16 @@ public final class MimeTypes {
       return MimeTypes.AUDIO_OPUS;
     } else if (codec.startsWith("vorbis")) {
       return MimeTypes.AUDIO_VORBIS;
+    } else if (codec.startsWith("flac")) {
+      return MimeTypes.AUDIO_FLAC;
+    } else {
+      return getCustomMimeTypeForCodec(codec);
     }
-    return null;
   }
 
   /**
    * Derives a mimeType from MP4 object type identifier, as defined in RFC 6381 and
-   * http://www.mp4ra.org/object.html.
+   * https://mp4ra.org/#/object_types.
    *
    * @param objectType The objectType identifier to derive.
    * @return The mimeType, or null if it could not be derived.
@@ -237,18 +256,28 @@ public final class MimeTypes {
   @Nullable
   public static String getMimeTypeFromMp4ObjectType(int objectType) {
     switch (objectType) {
-      case 0x60:
-      case 0x61:
-        return MimeTypes.VIDEO_MPEG2;
       case 0x20:
         return MimeTypes.VIDEO_MP4V;
       case 0x21:
         return MimeTypes.VIDEO_H264;
       case 0x23:
         return MimeTypes.VIDEO_H265;
+      case 0x60:
+      case 0x61:
+      case 0x62:
+      case 0x63:
+      case 0x64:
+      case 0x65:
+        return MimeTypes.VIDEO_MPEG2;
+      case 0x6A:
+        return MimeTypes.VIDEO_MPEG;
       case 0x69:
       case 0x6B:
         return MimeTypes.AUDIO_MPEG;
+      case 0xA3:
+        return MimeTypes.VIDEO_VC1;
+      case 0xB1:
+        return MimeTypes.VIDEO_VP9;
       case 0x40:
       case 0x66:
       case 0x67:
@@ -266,6 +295,8 @@ public final class MimeTypes {
         return MimeTypes.AUDIO_DTS_HD;
       case 0xAD:
         return MimeTypes.AUDIO_OPUS;
+      case 0xAE:
+        return MimeTypes.AUDIO_AC4;
       default:
         return null;
     }
@@ -279,7 +310,7 @@ public final class MimeTypes {
    * @param mimeType The MIME type.
    * @return The {@link C}{@code .TRACK_TYPE_*} constant that corresponds to a specified MIME type.
    */
-  public static int getTrackType(String mimeType) {
+  public static int getTrackType(@Nullable String mimeType) {
     if (TextUtils.isEmpty(mimeType)) {
       return C.TRACK_TYPE_UNKNOWN;
     } else if (isAudio(mimeType)) {
@@ -295,11 +326,12 @@ public final class MimeTypes {
       return C.TRACK_TYPE_TEXT;
     } else if (APPLICATION_ID3.equals(mimeType)
         || APPLICATION_EMSG.equals(mimeType)
-        || APPLICATION_SCTE35.equals(mimeType)
-        || APPLICATION_CAMERA_MOTION.equals(mimeType)) {
+        || APPLICATION_SCTE35.equals(mimeType)) {
       return C.TRACK_TYPE_METADATA;
+    } else if (APPLICATION_CAMERA_MOTION.equals(mimeType)) {
+      return C.TRACK_TYPE_CAMERA_MOTION;
     } else {
-      return C.TRACK_TYPE_UNKNOWN;
+      return getTrackTypeForCustomMimeType(mimeType);
     }
   }
 
@@ -318,6 +350,8 @@ public final class MimeTypes {
       case MimeTypes.AUDIO_E_AC3:
       case MimeTypes.AUDIO_E_AC3_JOC:
         return C.ENCODING_E_AC3;
+      case MimeTypes.AUDIO_AC4:
+        return C.ENCODING_AC4;
       case MimeTypes.AUDIO_DTS:
         return C.ENCODING_DTS;
       case MimeTypes.AUDIO_DTS_HD:
@@ -340,20 +374,55 @@ public final class MimeTypes {
   }
 
   /**
-   * Returns the top-level type of {@code mimeType}.
-   *
-   * @param mimeType The mimeType whose top-level type is required.
-   * @return The top-level type, or null if the mimeType is null.
+   * Returns the top-level type of {@code mimeType}, or null if {@code mimeType} is null or does not
+   * contain a forward slash character ({@code '/'}).
    */
-  private static String getTopLevelType(String mimeType) {
+  private static @Nullable String getTopLevelType(@Nullable String mimeType) {
     if (mimeType == null) {
       return null;
     }
     int indexOfSlash = mimeType.indexOf('/');
     if (indexOfSlash == -1) {
-      throw new IllegalArgumentException("Invalid mime type: " + mimeType);
+      return null;
     }
     return mimeType.substring(0, indexOfSlash);
   }
 
+  private static @Nullable String getCustomMimeTypeForCodec(String codec) {
+    int customMimeTypeCount = customMimeTypes.size();
+    for (int i = 0; i < customMimeTypeCount; i++) {
+      CustomMimeType customMimeType = customMimeTypes.get(i);
+      if (codec.startsWith(customMimeType.codecPrefix)) {
+        return customMimeType.mimeType;
+      }
+    }
+    return null;
+  }
+
+  private static int getTrackTypeForCustomMimeType(String mimeType) {
+    int customMimeTypeCount = customMimeTypes.size();
+    for (int i = 0; i < customMimeTypeCount; i++) {
+      CustomMimeType customMimeType = customMimeTypes.get(i);
+      if (mimeType.equals(customMimeType.mimeType)) {
+        return customMimeType.trackType;
+      }
+    }
+    return C.TRACK_TYPE_UNKNOWN;
+  }
+
+  private MimeTypes() {
+    // Prevent instantiation.
+  }
+
+  private static final class CustomMimeType {
+    public final String mimeType;
+    public final String codecPrefix;
+    public final int trackType;
+
+    public CustomMimeType(String mimeType, String codecPrefix, int trackType) {
+      this.mimeType = mimeType;
+      this.codecPrefix = codecPrefix;
+      this.trackType = trackType;
+    }
+  }
 }

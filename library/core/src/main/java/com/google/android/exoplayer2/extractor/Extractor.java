@@ -15,8 +15,12 @@
  */
 package com.google.android.exoplayer2.extractor;
 
+import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import java.io.IOException;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * Extracts media data from a container format.
@@ -42,6 +46,15 @@ public interface Extractor {
   int RESULT_END_OF_INPUT = C.RESULT_END_OF_INPUT;
 
   /**
+   * Result values that can be returned by {@link #read(ExtractorInput, PositionHolder)}. One of
+   * {@link #RESULT_CONTINUE}, {@link #RESULT_SEEK} or {@link #RESULT_END_OF_INPUT}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef(value = {RESULT_CONTINUE, RESULT_SEEK, RESULT_END_OF_INPUT})
+  @interface ReadResult {}
+
+  /**
    * Returns whether this extractor can extract samples from the {@link ExtractorInput}, which must
    * provide data from the start of the stream.
    * <p>
@@ -63,14 +76,14 @@ public interface Extractor {
   void init(ExtractorOutput output);
 
   /**
-   * Extracts data read from a provided {@link ExtractorInput}. Must not be called before
-   * {@link #init(ExtractorOutput)}.
-   * <p>
-   * A single call to this method will block until some progress has been made, but will not block
-   * for longer than this. Hence each call will consume only a small amount of input data.
-   * <p>
-   * In the common case, {@link #RESULT_CONTINUE} is returned to indicate that the
-   * {@link ExtractorInput} passed to the next read is required to provide data continuing from the
+   * Extracts data read from a provided {@link ExtractorInput}. Must not be called before {@link
+   * #init(ExtractorOutput)}.
+   *
+   * <p>A single call to this method will block until some progress has been made, but will not
+   * block for longer than this. Hence each call will consume only a small amount of input data.
+   *
+   * <p>In the common case, {@link #RESULT_CONTINUE} is returned to indicate that the {@link
+   * ExtractorInput} passed to the next read is required to provide data continuing from the
    * position in the stream reached by the returning call. If the extractor requires data to be
    * provided from a different position, then that position is set in {@code seekPosition} and
    * {@link #RESULT_SEEK} is returned. If the extractor reached the end of the data provided by the
@@ -83,6 +96,7 @@ public interface Extractor {
    * @throws IOException If an error occurred reading from the input.
    * @throws InterruptedException If the thread was interrupted.
    */
+  @ReadResult
   int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException;
 

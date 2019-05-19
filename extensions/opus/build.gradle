@@ -16,22 +16,32 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion project.ext.compileSdkVersion
-    buildToolsVersion project.ext.buildToolsVersion
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 
     defaultConfig {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
         consumerProguardFiles 'proguard-rules.txt'
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 
     sourceSets.main {
         jniLibs.srcDir 'src/main/libs'
         jni.srcDirs = [] // Disable the automatic ndk-build call by Android Studio.
     }
+
+    testOptions.unitTests.includeAndroidResources = true
 }
 
 dependencies {
     implementation project(modulePrefix + 'library-core')
+    testImplementation project(modulePrefix + 'testutils-robolectric')
+    androidTestImplementation 'androidx.test:runner:' + androidXTestVersion
+    androidTestImplementation 'androidx.test.ext:junit:' + androidXTestVersion
 }
 
 ext {

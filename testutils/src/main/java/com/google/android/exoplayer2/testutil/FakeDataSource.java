@@ -16,14 +16,13 @@
 package com.google.android.exoplayer2.testutil;
 
 import android.net.Uri;
-import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.FakeDataSet.FakeData;
 import com.google.android.exoplayer2.testutil.FakeDataSet.FakeData.Segment;
+import com.google.android.exoplayer2.upstream.BaseDataSource;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,38 +31,38 @@ import java.util.ArrayList;
  * A fake {@link DataSource} capable of simulating various scenarios. It uses a {@link FakeDataSet}
  * instance which determines the response to data access calls.
  */
-public class FakeDataSource implements DataSource {
+public class FakeDataSource extends BaseDataSource {
 
   /**
    * Factory to create a {@link FakeDataSource}.
    */
   public static class Factory implements DataSource.Factory {
 
-    protected final TransferListener<? super FakeDataSource> transferListener;
     protected FakeDataSet fakeDataSet;
-
-    public Factory(@Nullable TransferListener<? super FakeDataSource> transferListener) {
-      this.transferListener = transferListener;
-    }
+    protected boolean isNetwork;
 
     public final Factory setFakeDataSet(FakeDataSet fakeDataSet) {
       this.fakeDataSet = fakeDataSet;
       return this;
     }
 
-    @Override
-    public DataSource createDataSource() {
-      return new FakeDataSource(fakeDataSet, transferListener);
+    public final Factory setIsNetwork(boolean isNetwork) {
+      this.isNetwork = isNetwork;
+      return this;
     }
 
+    @Override
+    public DataSource createDataSource() {
+      return new FakeDataSource(fakeDataSet, isNetwork);
+    }
   }
 
   private final FakeDataSet fakeDataSet;
-  private final TransferListener<? super FakeDataSource> transferListener;
   private final ArrayList<DataSpec> openedDataSpecs;
 
   private Uri uri;
-  private boolean opened;
+  private boolean openCalled;
+  private boolean sourceOpened;
   private FakeData fakeData;
   private int currentSegmentIndex;
   private long bytesRemaining;
@@ -73,14 +72,13 @@ public class FakeDataSource implements DataSource {
   }
 
   public FakeDataSource(FakeDataSet fakeDataSet) {
-    this(fakeDataSet, null);
+    this(fakeDataSet, /* isNetwork= */ false);
   }
 
-  public FakeDataSource(FakeDataSet fakeDataSet,
-      @Nullable TransferListener<? super FakeDataSource> transferListener) {
+  public FakeDataSource(FakeDataSet fakeDataSet, boolean isNetwork) {
+    super(isNetwork);
     Assertions.checkNotNull(fakeDataSet);
     this.fakeDataSet = fakeDataSet;
-    this.transferListener = transferListener;
     this.openedDataSpecs = new ArrayList<>();
   }
 
@@ -90,12 +88,14 @@ public class FakeDataSource implements DataSource {
 
   @Override
   public final long open(DataSpec dataSpec) throws IOException {
-    Assertions.checkState(!opened);
+    Assertions.checkState(!openCalled);
+    openCalled = true;
+
     // DataSpec requires a matching close call even if open fails.
-    opened = true;
     uri = dataSpec.uri;
     openedDataSpecs.add(dataSpec);
 
+    transferInitializing(dataSpec);
     fakeData = fakeDataSet.getData(uri.toString());
     if (fakeData == null) {
       throw new IOException("Data not found: " + dataSpec.uri);
@@ -129,9 +129,8 @@ public class FakeDataSource implements DataSource {
         currentSegmentIndex++;
       }
     }
-    if (transferListener != null) {
-      transferListener.onTransferStart(this, dataSpec);
-    }
+    sourceOpened = true;
+    transferStarted(dataSpec);
     // Configure bytesRemaining, and return.
     if (dataSpec.length == C.LENGTH_UNSET) {
       bytesRemaining = totalLength - dataSpec.position;
@@ -144,7 +143,7 @@ public class FakeDataSource implements DataSource {
 
   @Override
   public final int read(byte[] buffer, int offset, int readLength) throws IOException {
-    Assertions.checkState(opened);
+    Assertions.checkState(sourceOpened);
     while (true) {
       if (currentSegmentIndex == fakeData.getSegments().size() || bytesRemaining == 0) {
         return C.RESULT_END_OF_INPUT;
@@ -171,9 +170,7 @@ public class FakeDataSource implements DataSource {
           System.arraycopy(current.data, current.bytesRead, buffer, offset, readLength);
         }
         onDataRead(readLength);
-        if (transferListener != null) {
-          transferListener.onBytesTransferred(this, readLength);
-        }
+        bytesTransferred(readLength);
         bytesRemaining -= readLength;
         current.bytesRead += readLength;
         if (current.bytesRead == current.length) {
@@ -191,8 +188,8 @@ public class FakeDataSource implements DataSource {
 
   @Override
   public final void close() throws IOException {
-    Assertions.checkState(opened);
-    opened = false;
+    Assertions.checkState(openCalled);
+    openCalled = false;
     uri = null;
     if (fakeData != null && currentSegmentIndex < fakeData.getSegments().size()) {
       Segment current = fakeData.getSegments().get(currentSegmentIndex);
@@ -200,8 +197,9 @@ public class FakeDataSource implements DataSource {
         current.exceptionCleared = true;
       }
     }
-    if (transferListener != null) {
-      transferListener.onTransferEnd(this);
+    if (sourceOpened) {
+      sourceOpened = false;
+      transferEnded();
     }
     fakeData = null;
   }
@@ -215,6 +213,11 @@ public class FakeDataSource implements DataSource {
     openedDataSpecs.toArray(dataSpecs);
     openedDataSpecs.clear();
     return dataSpecs;
+  }
+
+  /** Returns whether the data source is currently opened. */
+  public final boolean isOpened() {
+    return sourceOpened;
   }
 
   protected void onDataRead(int bytesRead) throws IOException {

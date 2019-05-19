@@ -15,9 +15,16 @@
 -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-  <style name="PlayerTheme" parent="android:Theme.Holo">
-    <item name="android:windowNoTitle">true</item>
+  <style name="TrackSelectionDialogThemeOverlay" parent="ThemeOverlay.AppCompat.Dialog.Alert">
+    <item name="windowNoTitle">false</item>
+  </style>
+
+  <style name="PlayerTheme" parent="Theme.AppCompat.NoActionBar">
     <item name="android:windowBackground">@android:color/black</item>
+  </style>
+
+  <style name="PlayerTheme.Spherical">
+    <item name="surface_type">spherical_view</item>
   </style>
 
 </resources>

@@ -18,18 +18,16 @@ package com.google.android.exoplayer2.text.webvtt;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.text.SubtitleDecoderException;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Unit test for {@link Mp4WebvttDecoder}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Unit test for {@link Mp4WebvttDecoder}. */
+@RunWith(AndroidJUnit4.class)
 public final class Mp4WebvttDecoderTest {
 
   private static final byte[] SINGLE_CUE_SAMPLE = {

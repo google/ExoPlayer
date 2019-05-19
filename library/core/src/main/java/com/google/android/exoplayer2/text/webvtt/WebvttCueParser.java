@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.text.webvtt;
 
 import android.graphics.Typeface;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.text.Layout.Alignment;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -31,14 +31,15 @@ import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
-import android.util.Log;
 import com.google.android.exoplayer2.text.Cue;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.Util;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -157,7 +158,7 @@ public final class WebvttCueParser {
   /* package */ static void parseCueText(String id, String markup, WebvttCue.Builder builder,
       List<WebvttCssStyle> styles) {
     SpannableStringBuilder spannedText = new SpannableStringBuilder();
-    Stack<StartTag> startTagStack = new Stack<>();
+    ArrayDeque<StartTag> startTagStack = new ArrayDeque<>();
     List<StyleMatch> scratchStyleMatches = new ArrayList<>();
     int pos = 0;
     while (pos < markup.length()) {
@@ -456,7 +457,7 @@ public final class WebvttCueParser {
     if (tagExpression.isEmpty()) {
       return null;
     }
-    return tagExpression.split("[ \\.]")[0];
+    return Util.splitAtFirst(tagExpression, "[ \\.]")[0];
   }
 
   private static void getApplicableStyles(List<WebvttCssStyle> declaredStyles, String id,
@@ -518,7 +519,7 @@ public final class WebvttCueParser {
         voice = fullTagExpression.substring(voiceStartIndex).trim();
         fullTagExpression = fullTagExpression.substring(0, voiceStartIndex);
       }
-      String[] nameAndClasses = fullTagExpression.split("\\.");
+      String[] nameAndClasses = Util.split(fullTagExpression, "\\.");
       String name = nameAndClasses[0];
       String[] classes;
       if (nameAndClasses.length > 1) {

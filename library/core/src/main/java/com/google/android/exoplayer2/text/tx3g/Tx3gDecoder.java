@@ -56,8 +56,8 @@ public final class Tx3gDecoder extends SimpleSubtitleDecoder {
   private static final int FONT_FACE_ITALIC = 0x0002;
   private static final int FONT_FACE_UNDERLINE = 0x0004;
 
-  private static final int SPAN_PRIORITY_LOW = (0xFF << Spanned.SPAN_PRIORITY_SHIFT);
-  private static final int SPAN_PRIORITY_HIGH = (0x00 << Spanned.SPAN_PRIORITY_SHIFT);
+  private static final int SPAN_PRIORITY_LOW = 0xFF << Spanned.SPAN_PRIORITY_SHIFT;
+  private static final int SPAN_PRIORITY_HIGH = 0;
 
   private static final int DEFAULT_FONT_FACE = 0;
   private static final int DEFAULT_COLOR = Color.WHITE;
@@ -92,7 +92,8 @@ public final class Tx3gDecoder extends SimpleSubtitleDecoder {
           | ((initializationBytes[27] & 0xFF) << 16)
           | ((initializationBytes[28] & 0xFF) << 8)
           | (initializationBytes[29] & 0xFF);
-      String fontFamily = new String(initializationBytes, 43, initializationBytes.length - 43);
+      String fontFamily =
+          Util.fromUtf8Bytes(initializationBytes, 43, initializationBytes.length - 43);
       defaultFontFamily = TX3G_SERIF.equals(fontFamily) ? C.SERIF_NAME : C.SANS_SERIF_NAME;
       //font size (initializationBytes[25]) is 5% of video height
       calculatedVideoTrackHeight = 20 * initializationBytes[25];

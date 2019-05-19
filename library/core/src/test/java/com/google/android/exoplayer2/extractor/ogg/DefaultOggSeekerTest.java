@@ -19,6 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.fail;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -26,16 +27,21 @@ import java.io.IOException;
 import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
 /** Unit test for {@link DefaultOggSeeker}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class DefaultOggSeekerTest {
 
   @Test
   public void testSetupWithUnsetEndPositionFails() {
     try {
-      new DefaultOggSeeker(0, C.LENGTH_UNSET, new TestStreamReader(), 1, 1);
+      new DefaultOggSeeker(
+          /* startPosition= */ 0,
+          /* endPosition= */ C.LENGTH_UNSET,
+          /* streamReader= */ new TestStreamReader(),
+          /* firstPayloadPageSize= */ 1,
+          /* firstPayloadPageGranulePosition= */ 1,
+          /* firstPayloadPageIsLastPage= */ false);
       fail();
     } catch (IllegalArgumentException e) {
       // ignored
@@ -56,11 +62,12 @@ public final class DefaultOggSeekerTest {
     TestStreamReader streamReader = new TestStreamReader();
     DefaultOggSeeker oggSeeker =
         new DefaultOggSeeker(
-            0,
-            testFile.data.length,
-            streamReader,
-            testFile.firstPayloadPageSize,
-            testFile.firstPayloadPageGranulePosition);
+            /* startPosition= */ 0,
+            /* endPosition= */ testFile.data.length,
+            /* streamReader= */ streamReader,
+            /* firstPayloadPageSize= */ testFile.firstPayloadPageSize,
+            /* firstPayloadPageGranulePosition= */ testFile.firstPayloadPageGranulePosition,
+            /* firstPayloadPageIsLastPage= */ false);
     OggPageHeader pageHeader = new OggPageHeader();
 
     while (true) {

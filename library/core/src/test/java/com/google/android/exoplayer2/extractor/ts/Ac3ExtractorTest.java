@@ -15,26 +15,22 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
-import com.google.android.exoplayer2.extractor.Extractor;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
-import com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
 /** Unit test for {@link Ac3Extractor}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class Ac3ExtractorTest {
 
   @Test
-  public void testSample() throws Exception {
-    ExtractorAsserts.assertBehavior(
-        new ExtractorFactory() {
-          @Override
-          public Extractor create() {
-            return new Ac3Extractor();
-          }
-        },
-        "ts/sample.ac3");
+  public void testAc3Sample() throws Exception {
+    ExtractorAsserts.assertBehavior(Ac3Extractor::new, "ts/sample.ac3");
+  }
+
+  @Test
+  public void testEAc3Sample() throws Exception {
+    ExtractorAsserts.assertBehavior(Ac3Extractor::new, "ts/sample.eac3");
   }
 }

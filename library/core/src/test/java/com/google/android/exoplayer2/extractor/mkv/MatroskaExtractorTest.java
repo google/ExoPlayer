@@ -15,50 +15,28 @@
  */
 package com.google.android.exoplayer2.extractor.mkv;
 
-import com.google.android.exoplayer2.extractor.Extractor;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
-import com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
 /** Tests for {@link MatroskaExtractor}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class MatroskaExtractorTest {
 
   @Test
   public void testMkvSample() throws Exception {
-    ExtractorAsserts.assertBehavior(
-        new ExtractorFactory() {
-          @Override
-          public Extractor create() {
-            return new MatroskaExtractor();
-          }
-        },
-        "mkv/sample.mkv");
+    ExtractorAsserts.assertBehavior(MatroskaExtractor::new, "mkv/sample.mkv");
   }
 
   @Test
   public void testWebmSubsampleEncryption() throws Exception {
     ExtractorAsserts.assertBehavior(
-        new ExtractorFactory() {
-          @Override
-          public Extractor create() {
-            return new MatroskaExtractor();
-          }
-        },
-        "mkv/subsample_encrypted_noaltref.webm");
+        MatroskaExtractor::new, "mkv/subsample_encrypted_noaltref.webm");
   }
 
   @Test
   public void testWebmSubsampleEncryptionWithAltrefFrames() throws Exception {
-    ExtractorAsserts.assertBehavior(
-        new ExtractorFactory() {
-          @Override
-          public Extractor create() {
-            return new MatroskaExtractor();
-          }
-        },
-        "mkv/subsample_encrypted_altref.webm");
+    ExtractorAsserts.assertBehavior(MatroskaExtractor::new, "mkv/subsample_encrypted_altref.webm");
   }
 }

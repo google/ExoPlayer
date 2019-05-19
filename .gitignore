@@ -37,11 +37,20 @@ local.properties
 proguard.cfg
 proguard-project.txt
 
+# Bazel
+bazel-bin
+bazel-genfiles
+bazel-out
+bazel-testlogs
+
 # Other
 .DS_Store
 cmake-build-debug
 dist
 tmp
+
+# External native builds
+.externalNativeBuild
 
 # VP9 extension
 extensions/vp9/src/main/jni/libvpx
@@ -62,3 +71,7 @@ extensions/cronet/jniLibs/*
 !extensions/cronet/jniLibs/README.md
 extensions/cronet/libs/*
 !extensions/cronet/libs/README.md
+
+# Cast receiver
+cast_receiver_app/external-js
+cast_receiver_app/bazel-cast_receiver_app

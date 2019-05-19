@@ -46,7 +46,7 @@ HOST_PLATFORM="linux-x86_64"
   be supported. See the [Supported formats][] page for more details of the
   available flags.
 
-For example, to fetch and build for armeabi-v7a,
+For example, to fetch and build FFmpeg release 4.0 for armeabi-v7a,
   arm64-v8a and x86 on Linux x86_64:
 
 ```
@@ -70,7 +70,8 @@ COMMON_OPTIONS="\
     --enable-decoder=flac \
     " && \
 cd "${FFMPEG_EXT_PATH}/jni" && \
-git clone git://source.ffmpeg.org/ffmpeg ffmpeg && cd ffmpeg && \
+(git -C ffmpeg pull || git clone git://source.ffmpeg.org/ffmpeg ffmpeg) && \
+cd ffmpeg && git checkout release/4.0 && \
 ./configure \
     --libdir=android-libs/armeabi-v7a \
     --arch=arm \
@@ -146,11 +147,11 @@ then implement your own logic to use the renderer for a given track.
 [top level README]: https://github.com/google/ExoPlayer/blob/release-v2/README.md
 [Android NDK]: https://developer.android.com/tools/sdk/ndk/index.html
 [#2781]: https://github.com/google/ExoPlayer/issues/2781
-[Supported formats]: https://google.github.io/ExoPlayer/supported-formats.html#ffmpeg-extension
+[Supported formats]: https://exoplayer.dev/supported-formats.html#ffmpeg-extension
 
 ## Links ##
 
 * [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.ffmpeg.*`
   belong to this module.
 
-[Javadoc]: https://google.github.io/ExoPlayer/doc/reference/index.html
+[Javadoc]: https://exoplayer.dev/doc/reference/index.html

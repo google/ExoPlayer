@@ -15,21 +15,22 @@
  */
 package com.google.android.exoplayer2.decoder;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
-import java.util.LinkedList;
+import java.util.ArrayDeque;
 
-/**
- * Base class for {@link Decoder}s that use their own decode thread.
- */
-public abstract class SimpleDecoder<I extends DecoderInputBuffer, O extends OutputBuffer,
-    E extends Exception> implements Decoder<I, O, E> {
+/** Base class for {@link Decoder}s that use their own decode thread. */
+@SuppressWarnings("UngroupedOverloads")
+public abstract class SimpleDecoder<
+        I extends DecoderInputBuffer, O extends OutputBuffer, E extends Exception>
+    implements Decoder<I, O, E> {
 
   private final Thread decodeThread;
 
   private final Object lock;
-  private final LinkedList<I> queuedInputBuffers;
-  private final LinkedList<O> queuedOutputBuffers;
+  private final ArrayDeque<I> queuedInputBuffers;
+  private final ArrayDeque<O> queuedOutputBuffers;
   private final I[] availableInputBuffers;
   private final O[] availableOutputBuffers;
 
@@ -48,8 +49,8 @@ public abstract class SimpleDecoder<I extends DecoderInputBuffer, O extends Outp
    */
   protected SimpleDecoder(I[] inputBuffers, O[] outputBuffers) {
     lock = new Object();
-    queuedInputBuffers = new LinkedList<>();
-    queuedOutputBuffers = new LinkedList<>();
+    queuedInputBuffers = new ArrayDeque<>();
+    queuedOutputBuffers = new ArrayDeque<>();
     availableInputBuffers = inputBuffers;
     availableInputBufferCount = inputBuffers.length;
     for (int i = 0; i < availableInputBufferCount; i++) {
@@ -142,7 +143,7 @@ public abstract class SimpleDecoder<I extends DecoderInputBuffer, O extends Outp
         releaseInputBufferInternal(queuedInputBuffers.removeFirst());
       }
       while (!queuedOutputBuffers.isEmpty()) {
-        releaseOutputBufferInternal(queuedOutputBuffers.removeFirst());
+        queuedOutputBuffers.removeFirst().release();
       }
     }
   }
@@ -240,10 +241,10 @@ public abstract class SimpleDecoder<I extends DecoderInputBuffer, O extends Outp
 
     synchronized (lock) {
       if (flushed) {
-        releaseOutputBufferInternal(outputBuffer);
+        outputBuffer.release();
       } else if (outputBuffer.isDecodeOnly()) {
         skippedOutputBufferCount++;
-        releaseOutputBufferInternal(outputBuffer);
+        outputBuffer.release();
       } else {
         outputBuffer.skippedOutputBufferCount = skippedOutputBufferCount;
         skippedOutputBufferCount = 0;
@@ -292,14 +293,13 @@ public abstract class SimpleDecoder<I extends DecoderInputBuffer, O extends Outp
    * Decodes the {@code inputBuffer} and stores any decoded output in {@code outputBuffer}.
    *
    * @param inputBuffer The buffer to decode.
-   * @param outputBuffer The output buffer to store decoded data. The flag
-   *     {@link C#BUFFER_FLAG_DECODE_ONLY} will be set if the same flag is set on
-   *     {@code inputBuffer}, but may be set/unset as required. If the flag is set when the call
-   *     returns then the output buffer will not be made available to dequeue. The output buffer
-   *     may not have been populated in this case.
+   * @param outputBuffer The output buffer to store decoded data. The flag {@link
+   *     C#BUFFER_FLAG_DECODE_ONLY} will be set if the same flag is set on {@code inputBuffer}, but
+   *     may be set/unset as required. If the flag is set when the call returns then the output
+   *     buffer will not be made available to dequeue. The output buffer may not have been populated
+   *     in this case.
    * @param reset Whether the decoder must be reset before decoding.
    * @return A decoder exception if an error occurred, or null if decoding was successful.
    */
-  protected abstract E decode(I inputBuffer, O outputBuffer, boolean reset);
-
+  protected abstract @Nullable E decode(I inputBuffer, O outputBuffer, boolean reset);
 }

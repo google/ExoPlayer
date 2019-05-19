@@ -20,18 +20,15 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import android.net.Uri;
-import com.google.android.exoplayer2.C;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Unit tests for {@link DataSchemeDataSource}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Unit tests for {@link DataSchemeDataSource}. */
+@RunWith(AndroidJUnit4.class)
 public final class DataSchemeDataSourceTest {
 
   private DataSource schemeDataDataSource;
@@ -46,16 +43,20 @@ public final class DataSchemeDataSourceTest {
     DataSpec dataSpec = buildDataSpec("data:text/plain;base64,eyJwcm92aWRlciI6IndpZGV2aW5lX3Rlc3QiL"
         + "CJjb250ZW50X2lkIjoiTWpBeE5WOTBaV0Z5Y3c9PSIsImtleV9pZHMiOlsiMDAwMDAwMDAwMDAwMDAwMDAwMDAwM"
         + "DAwMDAwMDAwMDAiXX0=");
-    DataSourceAsserts.assertDataSourceContent(schemeDataDataSource, dataSpec,
-        ("{\"provider\":\"widevine_test\",\"content_id\":\"MjAxNV90ZWFycw==\",\"key_ids\":"
-        + "[\"00000000000000000000000000000000\"]}").getBytes(Charset.forName(C.UTF8_NAME)));
+    DataSourceAsserts.assertDataSourceContent(
+        schemeDataDataSource,
+        dataSpec,
+        Util.getUtf8Bytes(
+            "{\"provider\":\"widevine_test\",\"content_id\":\"MjAxNV90ZWFycw==\",\"key_ids\":"
+                + "[\"00000000000000000000000000000000\"]}"));
   }
 
   @Test
   public void testAsciiData() throws IOException {
-    DataSourceAsserts.assertDataSourceContent(schemeDataDataSource,
+    DataSourceAsserts.assertDataSourceContent(
+        schemeDataDataSource,
         buildDataSpec("data:,A%20brief%20note"),
-        "A brief note".getBytes(Charset.forName(C.UTF8_NAME)));
+        Util.getUtf8Bytes("A brief note"));
   }
 
   @Test
@@ -68,7 +69,7 @@ public final class DataSchemeDataSourceTest {
     assertThat(schemeDataDataSource.read(buffer, 9, 15)).isEqualTo(9);
     assertThat(schemeDataDataSource.read(buffer, 1, 0)).isEqualTo(0);
     assertThat(schemeDataDataSource.read(buffer, 1, 1)).isEqualTo(RESULT_END_OF_INPUT);
-    assertThat(new String(buffer, 0, 18, C.UTF8_NAME)).isEqualTo("012345678901234567");
+    assertThat(Util.fromUtf8Bytes(buffer, 0, 18)).isEqualTo("012345678901234567");
   }
 
   @Test

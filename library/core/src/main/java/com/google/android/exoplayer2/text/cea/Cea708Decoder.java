@@ -25,7 +25,6 @@ import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
-import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.text.Cue;
@@ -34,11 +33,11 @@ import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.text.SubtitleDecoder;
 import com.google.android.exoplayer2.text.SubtitleInputBuffer;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -153,10 +152,10 @@ public final class Cea708Decoder extends CeaDecoder {
   private DtvCcPacket currentDtvCcPacket;
   private int currentWindow;
 
-  public Cea708Decoder(int accessibilityChannel) {
+  public Cea708Decoder(int accessibilityChannel, List<byte[]> initializationData) {
     ccData = new ParsableByteArray();
     serviceBlockPacket = new ParsableBitArray();
-    selectedServiceNumber = (accessibilityChannel == Format.NO_VALUE) ? 1 : accessibilityChannel;
+    selectedServiceNumber = accessibilityChannel == Format.NO_VALUE ? 1 : accessibilityChannel;
 
     cueBuilders = new CueBuilder[NUM_WINDOWS];
     for (int i = 0; i < NUM_WINDOWS; i++) {
@@ -196,7 +195,10 @@ public final class Cea708Decoder extends CeaDecoder {
 
   @Override
   protected void decode(SubtitleInputBuffer inputBuffer) {
-    ccData.reset(inputBuffer.data.array(), inputBuffer.data.limit());
+    // Subtitle input buffers are non-direct and the position is zero, so calling array() is safe.
+    @SuppressWarnings("ByteBufferBackingArray")
+    byte[] inputBufferData = inputBuffer.data.array();
+    ccData.reset(inputBufferData, inputBuffer.data.limit());
     while (ccData.bytesLeft() >= 3) {
       int ccTypeAndValid = (ccData.readUnsignedByte() & 0x07);
 
@@ -270,7 +272,10 @@ public final class Cea708Decoder extends CeaDecoder {
     if (serviceNumber == 7) {
       // extended service numbers
       serviceBlockPacket.skipBits(2);
-      serviceNumber += serviceBlockPacket.readBits(6);
+      serviceNumber = serviceBlockPacket.readBits(6);
+      if (serviceNumber < 7) {
+        Log.w(TAG, "Invalid extended service number: " + serviceNumber);
+      }
     }
 
     // Ignore packets in which blockSize is 0
@@ -741,7 +746,7 @@ public final class Cea708Decoder extends CeaDecoder {
       }
     }
     Collections.sort(displayCues);
-    return Collections.<Cue>unmodifiableList(displayCues);
+    return Collections.unmodifiableList(displayCues);
   }
 
   private void resetCueBuilders() {
@@ -879,7 +884,7 @@ public final class Cea708Decoder extends CeaDecoder {
     private int row;
 
     public CueBuilder() {
-      rolledUpCaptions = new LinkedList<>();
+      rolledUpCaptions = new ArrayList<>();
       captionStringBuilder = new SpannableStringBuilder();
       reset();
     }

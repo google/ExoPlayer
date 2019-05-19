@@ -21,11 +21,12 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import android.net.Uri;
 import com.google.android.exoplayer2.testutil.FakeDataSet.FakeData;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DataSourceInputStream;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DummyDataSource;
 import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
-import com.google.android.exoplayer2.upstream.cache.CacheUtil;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -77,24 +78,12 @@ public final class CacheAsserts {
   }
 
   /**
-   * Asserts that the cache contains the given subset of data in the {@code fakeDataSet}.
-   *
-   * @throws IOException If an error occurred reading from the Cache.
-   */
-  public static void assertDataCached(Cache cache, FakeDataSet fakeDataSet, Uri... uris)
-      throws IOException {
-    for (Uri uri : uris) {
-      assertDataCached(cache, uri, fakeDataSet.getData(uri).getData());
-    }
-  }
-
-  /**
    * Asserts that the cache contains the given data for {@code uriString}.
    *
    * @throws IOException If an error occurred reading from the Cache.
    */
   public static void assertDataCached(Cache cache, Uri uri, byte[] expected) throws IOException {
-    DataSpec dataSpec = new DataSpec(uri, DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH);
+    DataSpec dataSpec = new DataSpec(uri);
     assertDataCached(cache, dataSpec, expected);
   }
 
@@ -117,13 +106,24 @@ public final class CacheAsserts {
     }
   }
 
-  /** Asserts that there is no cache content for the given {@code uriStrings}. */
-  public static void assertDataNotCached(Cache cache, String... uriStrings) {
-    for (String uriString : uriStrings) {
-      assertWithMessage("There is cached data for '" + uriString + "',")
-          .that(cache.getCachedSpans(CacheUtil.generateKey(Uri.parse(uriString))).isEmpty())
-          .isTrue();
+  /**
+   * Asserts that the read data from {@code dataSource} specified by {@code dataSpec} is equal to
+   * {@code expected} or not.
+   *
+   * @throws IOException If an error occurred reading from the Cache.
+   */
+  public static void assertReadData(DataSource dataSource, DataSpec dataSpec, byte[] expected)
+      throws IOException {
+    DataSourceInputStream inputStream = new DataSourceInputStream(dataSource, dataSpec);
+    byte[] bytes = null;
+    try {
+      bytes = Util.toByteArray(inputStream);
+    } catch (IOException e) {
+      // Ignore
+    } finally {
+      inputStream.close();
     }
+    assertThat(bytes).isEqualTo(expected);
   }
 
   /** Asserts that the cache is empty. */

@@ -22,6 +22,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.DefaultMediaClock.PlaybackParameterListener;
 import com.google.android.exoplayer2.testutil.FakeClock;
 import com.google.android.exoplayer2.testutil.FakeMediaClockRenderer;
@@ -29,18 +30,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Unit test for {@link DefaultMediaClock}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Unit test for {@link DefaultMediaClock}. */
+@RunWith(AndroidJUnit4.class)
 public class DefaultMediaClockTest {
 
   private static final long TEST_POSITION_US = 123456789012345678L;
   private static final long SLEEP_TIME_MS = 1_000;
   private static final PlaybackParameters TEST_PLAYBACK_PARAMETERS =
-      new PlaybackParameters(2.0f, 1.0f);
+      new PlaybackParameters(/* speed= */ 2f);
 
   @Mock private PlaybackParameterListener listener;
   private FakeClock fakeClock;

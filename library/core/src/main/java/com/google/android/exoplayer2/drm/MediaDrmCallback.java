@@ -43,5 +43,4 @@ public interface MediaDrmCallback {
    * @throws Exception If an error occurred executing the request.
    */
   byte[] executeKeyRequest(UUID uuid, KeyRequest request) throws Exception;
-
 }

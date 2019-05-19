@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 
@@ -92,7 +93,7 @@ public interface SeekMap {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
       if (this == obj) {
         return true;
       }

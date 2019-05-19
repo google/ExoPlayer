@@ -15,10 +15,8 @@
  */
 package com.google.android.exoplayer2.drm;
 
-import android.util.Log;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,7 +27,6 @@ import org.json.JSONObject;
 /* package */ final class ClearKeyUtil {
 
   private static final String TAG = "ClearKeyUtil";
-  private static final Pattern REQUEST_KIDS_PATTERN = Pattern.compile("\"kids\":\\[\"(.*?)\"]");
 
   private ClearKeyUtil() {}
 
@@ -43,21 +40,12 @@ import org.json.JSONObject;
     if (Util.SDK_INT >= 27) {
       return request;
     }
-    // Prior to O-MR1 the ClearKey CDM encoded the values in the "kids" array using Base64 rather
-    // than Base64Url. See [Internal: b/64388098]. Any "/" characters that ended up in the request
-    // as a result were not escaped as "\/". We know the exact request format from the platform's
-    // InitDataParser.cpp, so we can use a regexp rather than parsing the JSON.
+    // Prior to O-MR1 the ClearKey CDM encoded the values in the "kids" array using Base64 encoding
+    // rather than Base64Url encoding. See [Internal: b/64388098]. We know the exact request format
+    // from the platform's InitDataParser.cpp. Since there aren't any "+" or "/" symbols elsewhere
+    // in the request, it's safe to fix the encoding by replacement through the whole request.
     String requestString = Util.fromUtf8Bytes(request);
-    Matcher requestKidsMatcher = REQUEST_KIDS_PATTERN.matcher(requestString);
-    if (!requestKidsMatcher.find()) {
-      Log.e(TAG, "Failed to adjust request data: " + requestString);
-      return request;
-    }
-    int kidsStartIndex = requestKidsMatcher.start(1);
-    int kidsEndIndex = requestKidsMatcher.end(1);
-    StringBuilder adjustedRequestBuilder = new StringBuilder(requestString);
-    base64ToBase64Url(adjustedRequestBuilder, kidsStartIndex, kidsEndIndex);
-    return Util.getUtf8Bytes(adjustedRequestBuilder.toString());
+    return Util.getUtf8Bytes(base64ToBase64Url(requestString));
   }
 
   /**
@@ -71,39 +59,39 @@ import org.json.JSONObject;
       return response;
     }
     // Prior to O-MR1 the ClearKey CDM expected Base64 encoding rather than Base64Url encoding for
-    // the "k" and "kid" strings. See [Internal: b/64388098].
+    // the "k" and "kid" strings. See [Internal: b/64388098]. We know that the ClearKey CDM only
+    // looks at the k, kid and kty parameters in each key, so can ignore the rest of the response.
     try {
       JSONObject responseJson = new JSONObject(Util.fromUtf8Bytes(response));
+      StringBuilder adjustedResponseBuilder = new StringBuilder("{\"keys\":[");
       JSONArray keysArray = responseJson.getJSONArray("keys");
       for (int i = 0; i < keysArray.length(); i++) {
+        if (i != 0) {
+          adjustedResponseBuilder.append(",");
+        }
         JSONObject key = keysArray.getJSONObject(i);
-        key.put("k", base64UrlToBase64(key.getString("k")));
-        key.put("kid", base64UrlToBase64(key.getString("kid")));
+        adjustedResponseBuilder.append("{\"k\":\"");
+        adjustedResponseBuilder.append(base64UrlToBase64(key.getString("k")));
+        adjustedResponseBuilder.append("\",\"kid\":\"");
+        adjustedResponseBuilder.append(base64UrlToBase64(key.getString("kid")));
+        adjustedResponseBuilder.append("\",\"kty\":\"");
+        adjustedResponseBuilder.append(key.getString("kty"));
+        adjustedResponseBuilder.append("\"}");
       }
-      return Util.getUtf8Bytes(responseJson.toString());
+      adjustedResponseBuilder.append("]}");
+      return Util.getUtf8Bytes(adjustedResponseBuilder.toString());
     } catch (JSONException e) {
       Log.e(TAG, "Failed to adjust response data: " + Util.fromUtf8Bytes(response), e);
       return response;
     }
   }
 
-  private static void base64ToBase64Url(StringBuilder base64, int startIndex, int endIndex) {
-    for (int i = startIndex; i < endIndex; i++) {
-      switch (base64.charAt(i)) {
-        case '+':
-          base64.setCharAt(i, '-');
-          break;
-        case '/':
-          base64.setCharAt(i, '_');
-          break;
-        default:
-          break;
-      }
-    }
+  private static String base64ToBase64Url(String base64) {
+    return base64.replace('+', '-').replace('/', '_');
   }
 
-  private static String base64UrlToBase64(String base64) {
-    return base64.replace('-', '+').replace('_', '/');
+  private static String base64UrlToBase64(String base64Url) {
+    return base64Url.replace('-', '+').replace('_', '/');
   }
 
 }

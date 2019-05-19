@@ -30,8 +30,10 @@ import com.google.android.exoplayer2.util.MimeTypes;
  */
 public final class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
 
+  /** The number of input and output buffers. */
   private static final int NUM_BUFFERS = 16;
-  private static final int INITIAL_INPUT_BUFFER_SIZE = 960 * 6;
+  /** The default input buffer size. */
+  private static final int DEFAULT_INPUT_BUFFER_SIZE = 960 * 6;
 
   private OpusDecoder decoder;
 
@@ -45,7 +47,9 @@ public final class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param audioProcessors Optional {@link AudioProcessor}s that will process audio before output.
    */
-  public LibopusAudioRenderer(Handler eventHandler, AudioRendererEventListener eventListener,
+  public LibopusAudioRenderer(
+      Handler eventHandler,
+      AudioRendererEventListener eventListener,
       AudioProcessor... audioProcessors) {
     super(eventHandler, eventListener, audioProcessors);
   }
@@ -76,7 +80,7 @@ public final class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
     if (!OpusLibrary.isAvailable()
         || !MimeTypes.AUDIO_OPUS.equalsIgnoreCase(format.sampleMimeType)) {
       return FORMAT_UNSUPPORTED_TYPE;
-    } else if (!supportsOutputEncoding(C.ENCODING_PCM_16BIT)) {
+    } else if (!supportsOutput(format.channelCount, C.ENCODING_PCM_16BIT)) {
       return FORMAT_UNSUPPORTED_SUBTYPE;
     } else if (!supportsFormatDrm(drmSessionManager, format.drmInitData)) {
       return FORMAT_UNSUPPORTED_DRM;
@@ -88,8 +92,15 @@ public final class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
   @Override
   protected OpusDecoder createDecoder(Format format, ExoMediaCrypto mediaCrypto)
       throws OpusDecoderException {
-    decoder = new OpusDecoder(NUM_BUFFERS, NUM_BUFFERS, INITIAL_INPUT_BUFFER_SIZE,
-        format.initializationData, mediaCrypto);
+    int initialInputBufferSize =
+        format.maxInputSize != Format.NO_VALUE ? format.maxInputSize : DEFAULT_INPUT_BUFFER_SIZE;
+    decoder =
+        new OpusDecoder(
+            NUM_BUFFERS,
+            NUM_BUFFERS,
+            initialInputBufferSize,
+            format.initializationData,
+            mediaCrypto);
     return decoder;
   }
 
