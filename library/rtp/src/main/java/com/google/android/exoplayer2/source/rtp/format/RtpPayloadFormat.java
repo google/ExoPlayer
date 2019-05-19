@@ -49,10 +49,9 @@ public abstract class RtpPayloadFormat {
     public static final int APPLICATION = 5;
 
     @Retention(RetentionPolicy.SOURCE)
-    @StringDef({AAC, AC3, AMR, G722, EAC3, GSM, H261, H263, H264, H265, L16, MP2T,
+    @StringDef({AC3, AMR, G722, EAC3, GSM, H261, H263, H264, H265, L16, MP2T,
             MP4ALATM, MPEG4GENERIC, MP4V_ES, MPA, MPV, PCMA, PCMU, PCMA_WB, PCMU_WB, OPUS, VP8, VP9})
     public @interface MediaCodec {}
-    public static final String AAC = "AAC";
     public static final String AC3 = "AC3";
     public static final String AMR = "AMR";
     public static final String G722 = "G722";
@@ -228,9 +227,6 @@ public abstract class RtpPayloadFormat {
                     case AC3:
                         this.sampleMimeType = MimeTypes.AUDIO_AC3;
                         break;
-                    case AAC:
-                        this.sampleMimeType = MimeTypes.AUDIO_AAC;
-                        break;
                     case EAC3:
                         this.sampleMimeType = MimeTypes.AUDIO_E_AC3;
                         break;
@@ -271,6 +267,9 @@ public abstract class RtpPayloadFormat {
                         break;
                     case MP4V_ES:
                         this.sampleMimeType = MimeTypes.VIDEO_MP4V;
+                        break;
+                    case VP8:
+                        this.sampleMimeType = MimeTypes.VIDEO_VP8;
                         break;
                 }
                 break;

@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Extracts individual video frames from MPEG-4 Audio Streams RTP payload, as defined in RFC 6416
+ * Extracts individual audio frames from MPEG-4 Audio Streams RTP payload, as defined in RFC 6416
  */
 /*package*/ final class RtpMp4aPayloadReader implements RtpPayloadReader {
 

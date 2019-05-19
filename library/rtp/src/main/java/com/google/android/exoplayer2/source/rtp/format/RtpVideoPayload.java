@@ -93,11 +93,11 @@ public final class RtpVideoPayload extends RtpPayloadFormat {
                             FormatSpecificParameter.SPROP_PARAMETER_SETS);
                     if (spropParamSets != null && spropParamSets.length() > 0) {
                         codecSpecificData = CodecSpecificDataUtil.
-                                buildH264VideoSpecificConfig(spropParamSets);
+                                buildH264SpecificConfig(spropParamSets);
 
                         try {
                             Pair<Float, Pair<Integer, Integer>> h264Config = CodecSpecificDataUtil
-                                    .parseH264VideoSpecificConfig(codecSpecificData);
+                                    .parseH264SpecificConfig(codecSpecificData);
 
                             pixelWidthAspectRatio = h264Config.first;
 

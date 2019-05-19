@@ -237,12 +237,6 @@ public final class CodecSpecificDataUtil {
       int numLayer = scdScratchBits.readBits(3);
       Assertions.checkArgument(numLayer == 0);
 
-      byte[] audioSpecificConfig = new byte[audioStreamMuxConfig.length - 2];
-      for (int pos = 0; pos < audioSpecificConfig.length; pos++) {
-          audioSpecificConfig[pos] = (byte) (((audioStreamMuxConfig[pos + 1] & 1) << 7) |
-                  ((audioStreamMuxConfig[pos + 2] & 0xfe) >> 1));
-      }
-
       return Pair.create(numSubFrames, parseAacAudioSpecificConfig(scdScratchBits, true));
     }
 
@@ -255,7 +249,7 @@ public final class CodecSpecificDataUtil {
    * @param config A representation of an octet string that expresses the H.264 configuration information
    * @return The H.264 configuration information
    */
-  public static List<byte[]> buildH264VideoSpecificConfig(String config)
+  public static List<byte[]> buildH264SpecificConfig(String config)
           throws IllegalArgumentException {
     List<byte[]> codecSpecificData = null;
 
@@ -287,7 +281,7 @@ public final class CodecSpecificDataUtil {
    * @throws ParserException If the H.264 configuration information cannot be parsed as it's not
    *                         supported.
    */
-  public static Pair<Float, Pair<Integer, Integer>> parseH264VideoSpecificConfig(
+  public static Pair<Float, Pair<Integer, Integer>> parseH264SpecificConfig(
           List<byte[]> videoSpecificConfig) throws ParserException {
 
     try {
