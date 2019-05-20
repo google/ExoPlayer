@@ -207,11 +207,15 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Htt
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-">CronetDataSource</a></span>(org.chromium.net.CronetEngine&nbsp;cronetEngine,
+                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/concurrent/Executor.html" target="_top" title="class or interface in java.util.concurrent">Executor</a>&nbsp;executor)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-com.google.android.exoplayer2.util.Predicate-">CronetDataSource</a></span>(org.chromium.net.CronetEngine&nbsp;cronetEngine,
                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/concurrent/Executor.html" target="_top" title="class or interface in java.util.concurrent">Executor</a>&nbsp;executor,
                 <a href="../../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;contentTypePredicate)</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-com.google.android.exoplayer2.util.Predicate-int-int-boolean-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-">CronetDataSource</a></span>(org.chromium.net.CronetEngine&nbsp;cronetEngine,
                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/concurrent/Executor.html" target="_top" title="class or interface in java.util.concurrent">Executor</a>&nbsp;executor,
                 <a href="../../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;contentTypePredicate,
@@ -220,7 +224,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Htt
                 boolean&nbsp;resetTimeoutOnRedirects,
                 <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties)</code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-com.google.android.exoplayer2.util.Predicate-int-int-boolean-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-boolean-">CronetDataSource</a></span>(org.chromium.net.CronetEngine&nbsp;cronetEngine,
                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/concurrent/Executor.html" target="_top" title="class or interface in java.util.concurrent">Executor</a>&nbsp;executor,
                 <a href="../../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;contentTypePredicate,
@@ -382,6 +386,25 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Htt
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
+<a name="CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>CronetDataSource</h4>
+<pre>public&nbsp;CronetDataSource(org.chromium.net.CronetEngine&nbsp;cronetEngine,
+                        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/concurrent/Executor.html" target="_top" title="class or interface in java.util.concurrent">Executor</a>&nbsp;executor)</pre>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>cronetEngine</code> - A CronetEngine.</dd>
+<dd><code>executor</code> - The <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/concurrent/Executor.html" target="_top" title="class or interface in java.util.concurrent"><code>Executor</code></a> that will handle responses. This may
+     be a direct executor (i.e. executes tasks on the calling thread) in order to avoid a thread
+     hop from Cronet's internal network thread to the response handling thread. However, to
+     avoid slowing down overall network performance, care must be taken to make sure response
+     handling is a fast operation when using a direct executor.</dd>
+</dl>
+</li>
+</ul>
 <a name="CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-com.google.android.exoplayer2.util.Predicate-">
 <!--   -->
 </a>
@@ -390,6 +413,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Htt
 <h4>CronetDataSource</h4>
 <pre>public&nbsp;CronetDataSource(org.chromium.net.CronetEngine&nbsp;cronetEngine,
                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/concurrent/Executor.html" target="_top" title="class or interface in java.util.concurrent">Executor</a>&nbsp;executor,
+                        @Nullable
                         <a href="../../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;contentTypePredicate)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -412,6 +436,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Htt
 <h4>CronetDataSource</h4>
 <pre>public&nbsp;CronetDataSource(org.chromium.net.CronetEngine&nbsp;cronetEngine,
                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/concurrent/Executor.html" target="_top" title="class or interface in java.util.concurrent">Executor</a>&nbsp;executor,
+                        @Nullable
                         <a href="../../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;contentTypePredicate,
                         int&nbsp;connectTimeoutMs,
                         int&nbsp;readTimeoutMs,
@@ -442,6 +467,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Htt
 <h4>CronetDataSource</h4>
 <pre>public&nbsp;CronetDataSource(org.chromium.net.CronetEngine&nbsp;cronetEngine,
                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/concurrent/Executor.html" target="_top" title="class or interface in java.util.concurrent">Executor</a>&nbsp;executor,
+                        @Nullable
                         <a href="../../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;contentTypePredicate,
                         int&nbsp;connectTimeoutMs,
                         int&nbsp;readTimeoutMs,

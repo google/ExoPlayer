@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6};
+var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -147,12 +147,18 @@ extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadIn
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html#setStatesToRemoving--">setStatesToRemoving</a></span>()</code>
+<div class="block">Sets all states to <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_REMOVING"><code>Download.STATE_REMOVING</code></a>.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html#setStopReason-int-">setStopReason</a></span>(int&nbsp;stopReason)</code>
 <div class="block">Sets the stop reason of the downloads in a terminal state (<a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_COMPLETED"><code>Download.STATE_COMPLETED</code></a>,
  <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_FAILED"><code>Download.STATE_FAILED</code></a>).</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html#setStopReason-java.lang.String-int-">setStopReason</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
              int&nbsp;stopReason)</code>
@@ -225,6 +231,21 @@ extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadIn
 <pre>void&nbsp;setDownloadingStatesToQueued()
                            throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
 <div class="block">Sets all <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_DOWNLOADING"><code>Download.STATE_DOWNLOADING</code></a> states to <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_QUEUED"><code>Download.STATE_QUEUED</code></a>.</div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code> - If an error occurs updating the state.</dd>
+</dl>
+</li>
+</ul>
+<a name="setStatesToRemoving--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setStatesToRemoving</h4>
+<pre>void&nbsp;setStatesToRemoving()
+                  throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
+<div class="block">Sets all states to <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_REMOVING"><code>Download.STATE_REMOVING</code></a>.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code> - If an error occurs updating the state.</dd>

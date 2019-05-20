@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":6,"i8":6,"i9":6,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":9,"i19":9,"i20":9,"i21":9,"i22":9,"i23":9,"i24":9,"i25":9,"i26":9};
+var methods = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":6,"i9":6,"i10":6,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":9,"i20":9,"i21":9,"i22":9,"i23":9,"i24":9,"i25":9,"i26":9,"i27":9,"i28":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -166,66 +166,72 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#ACTION_REMOVE_ALL_DOWNLOADS">ACTION_REMOVE_ALL_DOWNLOADS</a></span></code>
+<div class="block">Removes all downloads.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#ACTION_REMOVE_DOWNLOAD">ACTION_REMOVE_DOWNLOAD</a></span></code>
 <div class="block">Removes a download.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#ACTION_RESUME_DOWNLOADS">ACTION_RESUME_DOWNLOADS</a></span></code>
 <div class="block">Resumes all downloads except those that have a non-zero <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#stopReason"><code>Download.stopReason</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#ACTION_SET_REQUIREMENTS">ACTION_SET_REQUIREMENTS</a></span></code>
 <div class="block">Sets the requirements that need to be met for downloads to progress.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#ACTION_SET_STOP_REASON">ACTION_SET_STOP_REASON</a></span></code>
 <div class="block">Sets the stop reason for one or all downloads.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#DEFAULT_FOREGROUND_NOTIFICATION_UPDATE_INTERVAL">DEFAULT_FOREGROUND_NOTIFICATION_UPDATE_INTERVAL</a></span></code>
 <div class="block">Default foreground notification update interval in milliseconds.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#FOREGROUND_NOTIFICATION_ID_NONE">FOREGROUND_NOTIFICATION_ID_NONE</a></span></code>
 <div class="block">Invalid foreground notification id that can be used to run the service in the background.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#KEY_CONTENT_ID">KEY_CONTENT_ID</a></span></code>
 <div class="block">Key for the <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang"><code>String</code></a> content id in <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#ACTION_SET_STOP_REASON"><code>ACTION_SET_STOP_REASON</code></a> and <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#ACTION_REMOVE_DOWNLOAD"><code>ACTION_REMOVE_DOWNLOAD</code></a> intents.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#KEY_DOWNLOAD_REQUEST">KEY_DOWNLOAD_REQUEST</a></span></code>
 <div class="block">Key for the <a href="../../../../../com/google/android/exoplayer2/offline/DownloadRequest.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadRequest</code></a> in <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#ACTION_ADD_DOWNLOAD"><code>ACTION_ADD_DOWNLOAD</code></a> intents.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#KEY_FOREGROUND">KEY_FOREGROUND</a></span></code>
 <div class="block">Key for a boolean extra that can be set on any intent to indicate whether the service was
  started in the foreground.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#KEY_REQUIREMENTS">KEY_REQUIREMENTS</a></span></code>
 <div class="block">Key for the <a href="../../../../../com/google/android/exoplayer2/scheduler/Requirements.html" title="class in com.google.android.exoplayer2.scheduler"><code>Requirements</code></a> in <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#ACTION_SET_REQUIREMENTS"><code>ACTION_SET_REQUIREMENTS</code></a> intents.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#KEY_STOP_REASON">KEY_STOP_REASON</a></span></code>
 <div class="block">Key for the integer stop reason in <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#ACTION_SET_STOP_REASON"><code>ACTION_SET_STOP_REASON</code></a> and <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#ACTION_ADD_DOWNLOAD"><code>ACTION_ADD_DOWNLOAD</code></a> intents.</div>
@@ -333,6 +339,14 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/content/Intent.html" target="_top" title="class or interface in android.content">Intent</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#buildRemoveAllDownloadsIntent-android.content.Context-java.lang.Class-boolean-">buildRemoveAllDownloadsIntent</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline">DownloadService</a>&gt;&nbsp;clazz,
+                             boolean&nbsp;foreground)</code>
+<div class="block">Builds an <a href="https://developer.android.com/reference/android/content/Intent.html" target="_top" title="class or interface in android.content"><code>Intent</code></a> for removing all downloads.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/content/Intent.html" target="_top" title="class or interface in android.content">Intent</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#buildRemoveDownloadIntent-android.content.Context-java.lang.Class-java.lang.String-boolean-">buildRemoveDownloadIntent</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
                          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline">DownloadService</a>&gt;&nbsp;clazz,
                          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
@@ -340,7 +354,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <div class="block">Builds an <a href="https://developer.android.com/reference/android/content/Intent.html" target="_top" title="class or interface in android.content"><code>Intent</code></a> for removing the download with the <code>id</code>.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/content/Intent.html" target="_top" title="class or interface in android.content">Intent</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#buildResumeDownloadsIntent-android.content.Context-java.lang.Class-boolean-">buildResumeDownloadsIntent</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
                           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline">DownloadService</a>&gt;&nbsp;clazz,
@@ -348,7 +362,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <div class="block">Builds an <a href="https://developer.android.com/reference/android/content/Intent.html" target="_top" title="class or interface in android.content"><code>Intent</code></a> for resuming all downloads.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/content/Intent.html" target="_top" title="class or interface in android.content">Intent</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#buildSetRequirementsIntent-android.content.Context-java.lang.Class-com.google.android.exoplayer2.scheduler.Requirements-boolean-">buildSetRequirementsIntent</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
                           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline">DownloadService</a>&gt;&nbsp;clazz,
@@ -358,7 +372,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
  progress.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/content/Intent.html" target="_top" title="class or interface in android.content">Intent</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#buildSetStopReasonIntent-android.content.Context-java.lang.Class-java.lang.String-int-boolean-">buildSetStopReasonIntent</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline">DownloadService</a>&gt;&nbsp;clazz,
@@ -368,68 +382,68 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <div class="block">Builds an <a href="https://developer.android.com/reference/android/content/Intent.html" target="_top" title="class or interface in android.content"><code>Intent</code></a> for setting the stop reason for one or all downloads.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>protected abstract <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#getDownloadManager--">getDownloadManager</a></span>()</code>
 <div class="block">Returns a <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadManager</code></a> to be used to downloaded content.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>protected abstract <a href="https://developer.android.com/reference/android/app/Notification.html" target="_top" title="class or interface in android.app">Notification</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#getForegroundNotification-java.util.List-">getForegroundNotification</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&gt;&nbsp;downloads)</code>
 <div class="block">Returns a notification to be displayed when this service running in the foreground.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>protected abstract <a href="../../../../../com/google/android/exoplayer2/scheduler/Scheduler.html" title="interface in com.google.android.exoplayer2.scheduler">Scheduler</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#getScheduler--">getScheduler</a></span>()</code>
 <div class="block">Returns a <a href="../../../../../com/google/android/exoplayer2/scheduler/Scheduler.html" title="interface in com.google.android.exoplayer2.scheduler"><code>Scheduler</code></a> to restart the service when requirements allowing downloads to take
  place are met.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#invalidateForegroundNotification--">invalidateForegroundNotification</a></span>()</code>
 <div class="block">Invalidates the current foreground notification and causes <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#getForegroundNotification-java.util.List-"><code>getForegroundNotification(List)</code></a> to be invoked again if the service isn't stopped.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/IBinder.html" target="_top" title="class or interface in android.os">IBinder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#onBind-android.content.Intent-">onBind</a></span>(<a href="https://developer.android.com/reference/android/content/Intent.html" target="_top" title="class or interface in android.content">Intent</a>&nbsp;intent)</code>
 <div class="block">Throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/UnsupportedOperationException.html" target="_top" title="class or interface in java.lang"><code>UnsupportedOperationException</code></a> because this service is not designed to be bound.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#onCreate--">onCreate</a></span>()</code>&nbsp;</td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#onDestroy--">onDestroy</a></span>()</code>&nbsp;</td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#onDownloadChanged-com.google.android.exoplayer2.offline.Download-">onDownloadChanged</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&nbsp;download)</code>
 <div class="block">Called when the state of a download changes.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#onDownloadRemoved-com.google.android.exoplayer2.offline.Download-">onDownloadRemoved</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&nbsp;download)</code>
 <div class="block">Called when a download is removed.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#onStartCommand-android.content.Intent-int-int-">onStartCommand</a></span>(<a href="https://developer.android.com/reference/android/content/Intent.html" target="_top" title="class or interface in android.content">Intent</a>&nbsp;intent,
               int&nbsp;flags,
               int&nbsp;startId)</code>&nbsp;</td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#onTaskRemoved-android.content.Intent-">onTaskRemoved</a></span>(<a href="https://developer.android.com/reference/android/content/Intent.html" target="_top" title="class or interface in android.content">Intent</a>&nbsp;rootIntent)</code>&nbsp;</td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#sendAddDownload-android.content.Context-java.lang.Class-com.google.android.exoplayer2.offline.DownloadRequest-boolean-">sendAddDownload</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline">DownloadService</a>&gt;&nbsp;clazz,
@@ -438,7 +452,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <div class="block">Starts the service if not started already and adds a new download.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#sendAddDownload-android.content.Context-java.lang.Class-com.google.android.exoplayer2.offline.DownloadRequest-int-boolean-">sendAddDownload</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline">DownloadService</a>&gt;&nbsp;clazz,
@@ -448,7 +462,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <div class="block">Starts the service if not started already and adds a new download.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#sendPauseDownloads-android.content.Context-java.lang.Class-boolean-">sendPauseDownloads</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline">DownloadService</a>&gt;&nbsp;clazz,
@@ -456,7 +470,15 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <div class="block">Starts the service if not started already and pauses all downloads.</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i22" class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#sendRemoveAllDownloads-android.content.Context-java.lang.Class-boolean-">sendRemoveAllDownloads</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+                      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline">DownloadService</a>&gt;&nbsp;clazz,
+                      boolean&nbsp;foreground)</code>
+<div class="block">Starts the service if not started already and removes all downloads.</div>
+</td>
+</tr>
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#sendRemoveDownload-android.content.Context-java.lang.Class-java.lang.String-boolean-">sendRemoveDownload</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline">DownloadService</a>&gt;&nbsp;clazz,
@@ -465,7 +487,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <div class="block">Starts the service if not started already and removes a download.</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#sendResumeDownloads-android.content.Context-java.lang.Class-boolean-">sendResumeDownloads</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline">DownloadService</a>&gt;&nbsp;clazz,
@@ -473,7 +495,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <div class="block">Starts the service if not started already and resumes all downloads.</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#sendSetRequirements-android.content.Context-java.lang.Class-com.google.android.exoplayer2.scheduler.Requirements-boolean-">sendSetRequirements</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline">DownloadService</a>&gt;&nbsp;clazz,
@@ -483,7 +505,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
  downloads to progress.</div>
 </td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i26" class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#sendSetStopReason-android.content.Context-java.lang.Class-java.lang.String-int-boolean-">sendSetStopReason</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
                  <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline">DownloadService</a>&gt;&nbsp;clazz,
@@ -493,14 +515,14 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <div class="block">Starts the service if not started already and sets the stop reason for one or all downloads.</div>
 </td>
 </tr>
-<tr id="i25" class="rowColor">
+<tr id="i27" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#start-android.content.Context-java.lang.Class-">start</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline">DownloadService</a>&gt;&nbsp;clazz)</code>
 <div class="block">Starts a download service to resume any ongoing downloads.</div>
 </td>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i28" class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#startForeground-android.content.Context-java.lang.Class-">startForeground</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline">DownloadService</a>&gt;&nbsp;clazz)</code>
@@ -605,6 +627,24 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.offline.DownloadService.ACTION_REMOVE_DOWNLOAD">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="ACTION_REMOVE_ALL_DOWNLOADS">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ACTION_REMOVE_ALL_DOWNLOADS</h4>
+<pre>public static final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> ACTION_REMOVE_ALL_DOWNLOADS</pre>
+<div class="block">Removes all downloads. Extras:
+
+ <ul>
+   <li><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#KEY_FOREGROUND"><code>KEY_FOREGROUND</code></a> - See <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#KEY_FOREGROUND"><code>KEY_FOREGROUND</code></a>.
+ </ul></div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.offline.DownloadService.ACTION_REMOVE_ALL_DOWNLOADS">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
@@ -937,6 +977,26 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 </dl>
 </li>
 </ul>
+<a name="buildRemoveAllDownloadsIntent-android.content.Context-java.lang.Class-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>buildRemoveAllDownloadsIntent</h4>
+<pre>public static&nbsp;<a href="https://developer.android.com/reference/android/content/Intent.html" target="_top" title="class or interface in android.content">Intent</a>&nbsp;buildRemoveAllDownloadsIntent(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+                                                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline">DownloadService</a>&gt;&nbsp;clazz,
+                                                   boolean&nbsp;foreground)</pre>
+<div class="block">Builds an <a href="https://developer.android.com/reference/android/content/Intent.html" target="_top" title="class or interface in android.content"><code>Intent</code></a> for removing all downloads.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>context</code> - A <a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content"><code>Context</code></a>.</dd>
+<dd><code>clazz</code> - The concrete download service being targeted by the intent.</dd>
+<dd><code>foreground</code> - Whether this intent will be used to start the service in the foreground.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The created intent.</dd>
+</dl>
+</li>
+</ul>
 <a name="buildResumeDownloadsIntent-android.content.Context-java.lang.Class-boolean-">
 <!--   -->
 </a>
@@ -1085,6 +1145,24 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <dd><code>context</code> - A <a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content"><code>Context</code></a>.</dd>
 <dd><code>clazz</code> - The concrete download service to be started.</dd>
 <dd><code>id</code> - The content id.</dd>
+<dd><code>foreground</code> - Whether the service is started in the foreground.</dd>
+</dl>
+</li>
+</ul>
+<a name="sendRemoveAllDownloads-android.content.Context-java.lang.Class-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sendRemoveAllDownloads</h4>
+<pre>public static&nbsp;void&nbsp;sendRemoveAllDownloads(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+                                          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline">DownloadService</a>&gt;&nbsp;clazz,
+                                          boolean&nbsp;foreground)</pre>
+<div class="block">Starts the service if not started already and removes all downloads.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>context</code> - A <a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content"><code>Context</code></a>.</dd>
+<dd><code>clazz</code> - The concrete download service to be started.</dd>
 <dd><code>foreground</code> - Whether the service is started in the foreground.</dd>
 </dl>
 </li>

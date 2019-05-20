@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -191,12 +191,18 @@ implements <a href="../../../../../com/google/android/exoplayer2/offline/Writabl
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DefaultDownloadIndex.html#setStatesToRemoving--">setStatesToRemoving</a></span>()</code>
+<div class="block">Sets all states to <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_REMOVING"><code>Download.STATE_REMOVING</code></a>.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DefaultDownloadIndex.html#setStopReason-int-">setStopReason</a></span>(int&nbsp;stopReason)</code>
 <div class="block">Sets the stop reason of the downloads in a terminal state (<a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_COMPLETED"><code>Download.STATE_COMPLETED</code></a>,
  <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_FAILED"><code>Download.STATE_FAILED</code></a>).</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DefaultDownloadIndex.html#setStopReason-java.lang.String-int-">setStopReason</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
              int&nbsp;stopReason)</code>
@@ -373,6 +379,24 @@ public&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/Downlo
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html#setDownloadingStatesToQueued--">setDownloadingStatesToQueued</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html" title="interface in com.google.android.exoplayer2.offline">WritableDownloadIndex</a></code></dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/database/DatabaseIOException.html" title="class in com.google.android.exoplayer2.database">DatabaseIOException</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="setStatesToRemoving--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setStatesToRemoving</h4>
+<pre>public&nbsp;void&nbsp;setStatesToRemoving()
+                         throws <a href="../../../../../com/google/android/exoplayer2/database/DatabaseIOException.html" title="class in com.google.android.exoplayer2.database">DatabaseIOException</a></pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html#setStatesToRemoving--">WritableDownloadIndex</a></code></span></div>
+<div class="block">Sets all states to <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_REMOVING"><code>Download.STATE_REMOVING</code></a>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html#setStatesToRemoving--">setStatesToRemoving</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html" title="interface in com.google.android.exoplayer2.offline">WritableDownloadIndex</a></code></dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/database/DatabaseIOException.html" title="class in com.google.android.exoplayer2.database">DatabaseIOException</a></code></dd>
 </dl>

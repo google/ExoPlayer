@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -312,41 +312,47 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#removeAllDownloads--">removeAllDownloads</a></span>()</code>
+<div class="block">Cancels all pending downloads and removes all downloaded data.</div>
+</td>
+</tr>
+<tr id="i16" class="altColor">
+<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#removeDownload-java.lang.String-">removeDownload</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id)</code>
 <div class="block">Cancels the download with the <code>id</code> and removes all downloaded data.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#removeListener-com.google.android.exoplayer2.offline.DownloadManager.Listener-">removeListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.Listener.html" title="interface in com.google.android.exoplayer2.offline">DownloadManager.Listener</a>&nbsp;listener)</code>
 <div class="block">Removes a <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.Listener.html" title="interface in com.google.android.exoplayer2.offline"><code>DownloadManager.Listener</code></a>.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#resumeDownloads--">resumeDownloads</a></span>()</code>
 <div class="block">Resumes downloads.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#setMaxParallelDownloads-int-">setMaxParallelDownloads</a></span>(int&nbsp;maxParallelDownloads)</code>
 <div class="block">Sets the maximum number of parallel downloads.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#setMinRetryCount-int-">setMinRetryCount</a></span>(int&nbsp;minRetryCount)</code>
 <div class="block">Sets the minimum number of times that a download will be retried.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#setRequirements-com.google.android.exoplayer2.scheduler.Requirements-">setRequirements</a></span>(<a href="../../../../../com/google/android/exoplayer2/scheduler/Requirements.html" title="class in com.google.android.exoplayer2.scheduler">Requirements</a>&nbsp;requirements)</code>
 <div class="block">Sets the requirements that need to be met for downloads to progress.</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#setStopReason-java.lang.String-int-">setStopReason</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
              int&nbsp;stopReason)</code>
@@ -733,6 +739,16 @@ public&nbsp;int&nbsp;getNotMetRequirements()</pre>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>id</code> - The unique content id of the download to be started.</dd>
 </dl>
+</li>
+</ul>
+<a name="removeAllDownloads--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>removeAllDownloads</h4>
+<pre>public&nbsp;void&nbsp;removeAllDownloads()</pre>
+<div class="block">Cancels all pending downloads and removes all downloaded data.</div>
 </li>
 </ul>
 <a name="release--">
