@@ -22,6 +22,8 @@
   to indicate whether a controller sent a play or only a prepare command. This
   allows to take advantage of decoder reuse with the MediaSessionConnector
   ([#5891](https://github.com/google/ExoPlayer/issues/5891)).
+* Add ProgressUpdateListener to PlayerControlView
+  ([#5834](https://github.com/google/ExoPlayer/issues/5834)).
 
 ### 2.10.1 ###
 
