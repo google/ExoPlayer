@@ -1,5 +1,9 @@
 # Release notes #
 
+### 2.10.4 ###
+
+* Offline: Add Scheduler implementation which uses WorkManager.
+
 ### 2.10.3 ###
 
 * Display last frame when seeking to end of stream
