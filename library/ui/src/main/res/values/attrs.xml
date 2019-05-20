@@ -24,7 +24,7 @@
     <enum name="zoom" value="4"/>
   </attr>
 
-  <!-- Must be kept in sync with SimpleExoPlayerView -->
+  <!-- Must be kept in sync with PlayerView -->
   <attr name="surface_type" format="enum">
     <enum name="none" value="0"/>
     <enum name="surface_view" value="1"/>
