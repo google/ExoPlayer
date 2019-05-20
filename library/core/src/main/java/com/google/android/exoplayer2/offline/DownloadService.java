@@ -78,6 +78,16 @@ public abstract class DownloadService extends Service {
       "com.google.android.exoplayer.downloadService.action.REMOVE_DOWNLOAD";
 
   /**
+   * Removes all downloads. Extras:
+   *
+   * <ul>
+   *   <li>{@link #KEY_FOREGROUND} - See {@link #KEY_FOREGROUND}.
+   * </ul>
+   */
+  public static final String ACTION_REMOVE_ALL_DOWNLOADS =
+      "com.google.android.exoplayer.downloadService.action.REMOVE_ALL_DOWNLOADS";
+
+  /**
    * Resumes all downloads except those that have a non-zero {@link Download#stopReason}. Extras:
    *
    * <ul>
@@ -297,6 +307,19 @@ public abstract class DownloadService extends Service {
   }
 
   /**
+   * Builds an {@link Intent} for removing all downloads.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service being targeted by the intent.
+   * @param foreground Whether this intent will be used to start the service in the foreground.
+   * @return The created intent.
+   */
+  public static Intent buildRemoveAllDownloadsIntent(
+      Context context, Class<? extends DownloadService> clazz, boolean foreground) {
+    return getIntent(context, clazz, ACTION_REMOVE_ALL_DOWNLOADS, foreground);
+  }
+
+  /**
    * Builds an {@link Intent} for resuming all downloads.
    *
    * @param context A {@link Context}.
@@ -411,6 +434,19 @@ public abstract class DownloadService extends Service {
   public static void sendRemoveDownload(
       Context context, Class<? extends DownloadService> clazz, String id, boolean foreground) {
     Intent intent = buildRemoveDownloadIntent(context, clazz, id, foreground);
+    startService(context, intent, foreground);
+  }
+
+  /**
+   * Starts the service if not started already and removes all downloads.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service to be started.
+   * @param foreground Whether the service is started in the foreground.
+   */
+  public static void sendRemoveAllDownloads(
+      Context context, Class<? extends DownloadService> clazz, boolean foreground) {
+    Intent intent = buildRemoveAllDownloadsIntent(context, clazz, foreground);
     startService(context, intent, foreground);
   }
 
@@ -559,6 +595,9 @@ public abstract class DownloadService extends Service {
         } else {
           downloadManager.removeDownload(contentId);
         }
+        break;
+      case ACTION_REMOVE_ALL_DOWNLOADS:
+        downloadManager.removeAllDownloads();
         break;
       case ACTION_RESUME_DOWNLOADS:
         downloadManager.resumeDownloads();

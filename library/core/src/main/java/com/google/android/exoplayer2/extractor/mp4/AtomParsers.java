@@ -60,7 +60,7 @@ import java.util.List;
    * The threshold number of samples to trim from the start/end of an audio track when applying an
    * edit below which gapless info can be used (rather than removing samples from the sample table).
    */
-  private static final int MAX_GAPLESS_TRIM_SIZE_SAMPLES = 3;
+  private static final int MAX_GAPLESS_TRIM_SIZE_SAMPLES = 4;
 
   /** The magic signature for an Opus Identification header, as defined in RFC-7845. */
   private static final byte[] opusMagic = Util.getUtf8Bytes("OpusHead");

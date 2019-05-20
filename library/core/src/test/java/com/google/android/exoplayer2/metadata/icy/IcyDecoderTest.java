@@ -49,6 +49,17 @@ public final class IcyDecoderTest {
   }
 
   @Test
+  public void decode_emptyTitle() {
+    IcyDecoder decoder = new IcyDecoder();
+    Metadata metadata = decoder.decode("StreamTitle='';StreamURL='test_url';");
+
+    assertThat(metadata.length()).isEqualTo(1);
+    IcyInfo streamInfo = (IcyInfo) metadata.get(0);
+    assertThat(streamInfo.title).isEmpty();
+    assertThat(streamInfo.url).isEqualTo("test_url");
+  }
+
+  @Test
   public void decode_semiColonInTitle() {
     IcyDecoder decoder = new IcyDecoder();
     Metadata metadata = decoder.decode("StreamTitle='test; title';StreamURL='test_url';");
@@ -67,6 +78,17 @@ public final class IcyDecoderTest {
     assertThat(metadata.length()).isEqualTo(1);
     IcyInfo streamInfo = (IcyInfo) metadata.get(0);
     assertThat(streamInfo.title).isEqualTo("test' title");
+    assertThat(streamInfo.url).isEqualTo("test_url");
+  }
+
+  @Test
+  public void decode_lineTerminatorInTitle() {
+    IcyDecoder decoder = new IcyDecoder();
+    Metadata metadata = decoder.decode("StreamTitle='test\r\ntitle';StreamURL='test_url';");
+
+    assertThat(metadata.length()).isEqualTo(1);
+    IcyInfo streamInfo = (IcyInfo) metadata.get(0);
+    assertThat(streamInfo.title).isEqualTo("test\r\ntitle");
     assertThat(streamInfo.url).isEqualTo("test_url");
   }
 
