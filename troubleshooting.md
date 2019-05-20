@@ -11,6 +11,7 @@ redirect_from:
 * [Why do some streams fail with UnrecognizedInputFormatException?][]
 * [Why doesn't setPlaybackParameters work properly on some devices?][]
 * [What do "Player is accessed on the wrong thread" warnings mean?][]
+* [How can I fix "Unexpected status line: ICY 200 OK"?][]
 * [How can I query whether the stream being played is a live stream?][]
 * [How do I keep audio playing when my app is backgrounded?][]
 
@@ -29,9 +30,8 @@ possible and supported by ExoPlayer in these cases.
 If you require seeking but have unseekable media, we suggest converting your
 content to use a more appropriate container format. For MP3, ADTS and AMR files,
 you can also enable seeking under the assumption that the files have a constant
-bitrate using `FLAG_ENABLE_CONSTANT_BITRATE_SEEKING` flags. The simplest way to
-enable this functionality on all extractors that support it is to use
-`DefaultExtractorsFactory.setConstantBitrateSeekingEnabled`.
+bitrate, as described
+[here](progressive.html#enabling-constant-bitrate-seeking).
 
 #### Why do some MPEG-TS files fail to play? ####
 
@@ -44,7 +44,7 @@ ExoPlayer will appear to be stuck in the buffering state when asked to play an
 MPEG-TS file that lacks AUDs or IDR keyframes. If you need to play such files,
 you can do so using [FLAG_DETECT_ACCESS_UNITS][] and
 [FLAG_ALLOW_NON_IDR_KEYFRAMES][] respectively. These flags can be set on a
-DefaultExtractorsFactory using [setTsExtractorFlags][]. Use of
+`DefaultExtractorsFactory` using [`setTsExtractorFlags`][]. Use of
 `FLAG_DETECT_ACCESS_UNITS` has no side effects other than being computationally
 expensive relative to AUD based frame boundary detection. Use of
 `FLAG_ALLOW_NON_IDR_KEYFRAMES` may result in temporary visual corruption at the
@@ -139,6 +139,15 @@ ExoPlayer instances need to be accessed from a single thread only. In most
 cases, this should be the application's main thread. For details, please read
 through the ["Threading model" section of the ExoPlayer Javadoc][].
 
+#### How can I fix "Unexpected status line: ICY 200 OK"? ####
+
+This problem can occur if the server response includes an ICY status line,
+rather than one that's HTTP compliant. ICY status lines are deprecated and
+should not be used, so if you control the server you should update it to provide
+an HTTP compliant response. If you're unable to do this then using the
+[OkHttp extension][] will resolve the problem, since it's able to handle ICY
+status lines correctly.
+
 #### How can I query whether the stream being played is a live stream? ####
 
 You can query ExoPlayer's [isCurrentWindowDynamic][] method. A dynamic window
@@ -165,6 +174,7 @@ is no longer being played.
 [Why do some streams fail with UnrecognizedInputFormatException?]: #why-do-some-streams-fail-with-unrecognizedinputformatexception
 [Why doesn't setPlaybackParameters work properly on some devices?]: #why-doesnt-setplaybackparameters-work-properly-on-some-devices
 [What do "Player is accessed on the wrong thread" warnings mean?]: #what-do-player-is-accessed-on-the-wrong-thread-warnings-mean
+[How can I fix "Unexpected status line: ICY 200 OK"?]:  #how-can-i-fix-unexpected-status-line-icy-200-ok
 [How can I query whether the stream being played is a live stream?]: #how-can-i-query-whether-the-stream-being-played-is-a-live-stream
 [How do I keep audio playing when my app is backgrounded?]: #how-do-i-keep-audio-playing-when-my-app-is-backgrounded
 
@@ -172,7 +182,7 @@ is no longer being played.
 [setMp3ExtractorFlags]: {{ site.exo_sdk }}/extractor/DefaultExtractorsFactory#setMp3ExtractorFlags-int-
 [FLAG_DETECT_ACCESS_UNITS]: {{ site.exo_sdk }}/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_DETECT_ACCESS_UNITS
 [FLAG_ALLOW_NON_IDR_KEYFRAMES]: {{ site.exo_sdk }}/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_ALLOW_NON_IDR_KEYFRAMES
-[setTsExtractorFlags]: {{ site.exo_sdk }}/extractor/DefaultExtractorsFactory#setTsExtractorFlags-int-
+[`setTsExtractorFlags`]: {{ site.exo_sdk }}/extractor/DefaultExtractorsFactory#setTsExtractorFlags-int-
 [Mp4Extractor.FLAG_WORKAROUND_IGNORE_EDIT_LISTS]: {{ site.exo_sdk }}/extractor/mp4/Mp4Extractor.html#FLAG_WORKAROUND_IGNORE_EDIT_LISTS
 [FragmentedMp4Extractor.FLAG_WORKAROUND_IGNORE_EDIT_LISTS]: {{ site.exo_sdk }}/extractor/mp4/FragmentedMp4Extractor.html#FLAG_WORKAROUND_IGNORE_EDIT_LISTS
 [setMp4ExtractorFlags]: {{ site.exo_sdk }}/extractor/DefaultExtractorsFactory#setMp4ExtractorFlags-int-
@@ -189,3 +199,4 @@ is no longer being played.
 [WifiLock]: {{ site.android_sdk }}/android/net/wifi/WifiManager.WifiLock.html
 [WakeLock]: {{ site.android_sdk }}/android/os/PowerManager.WakeLock.html
 ["Threading model" section of the ExoPlayer Javadoc]: {{ site.exo_sdk }}/ExoPlayer.html
+[OkHttp extension]: {{ site.release_v2 }}/extensions/okhttp

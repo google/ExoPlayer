@@ -135,7 +135,7 @@ foreground. If your app is already in the foreground then the `foreground`
 parameter should normally be set to `false`, since the `DownloadService` will
 put itself in the foreground if it determines that it has work to do.
 
-## Removing a download ##
+## Removing downloads ##
 
 A download can be removed by sending a remove command to the `DownloadService`,
 where `contentId` identifies the download to be removed:
@@ -148,6 +148,9 @@ DownloadService.sendRemoveDownload(
     /* foreground= */ false)
 ~~~
 {: .language-java}
+
+You can also remove all downloaded data with
+`DownloadService.sendRemoveAllDownloads`.
 
 ## Starting and stopping downloads ##
 
@@ -278,6 +281,13 @@ downloadManager.addListener(
 See `DownloadManagerListener` in the demo app's [`DownloadTracker`][] class for
 a concrete example.
 
+Download progress updates do not trigger calls on `DownloadManager.Listener`. To
+update a UI component that shows download progress, you should periodically
+query the `DownloadManager` at your desired update rate. [`DownloadService`][]
+contains an example of this, which periodically updates the service foreground
+notification.
+{:.info}
+
 ## Playing downloaded content ##
 
 Playing downloaded content is similar to playing online content, except that
@@ -336,19 +346,18 @@ follows these steps:
    add the download, as described above.
 1. Release the helper using `release()`.
 
-You can create a `MediaSource` for playback by setting the same `StreamKeys` as
-in the `DownloadRequest`:
+You can create a `MediaSource` for playback by calling
+`DownloadHelper.createMediaSource`:
 
 ~~~
-new DashMediaSource.Factory(dataSourceFactory)
-    .setStreamKeys(downloadRequest.streamKeys)
-    .createMediaSource(contentUri);
+MediaSource mediaSource =
+    DownloadHelper.createMediaSource(downloadRequest, dataSourceFactory);
 ~~~
 {: .language-java}
 
-This makes the `MediaSource` aware of the downloaded tracks and it will only
-attempt to use these tracks during playback. See [`PlayerActivity`][] in the
-demo app for a concrete example.
+The created `MediaSource` is aware of which tracks have been downloaded, and so
+will only attempt to use these tracks during playback. See [`PlayerActivity`][]
+in the demo app for a concrete example.
 
 [JobScheduler]: {{ site.android_sdk }}/android/app/job/JobScheduler
 [Firebase JobDispatcher]: https://github.com/firebase/firebase-jobdispatcher-android
@@ -357,6 +366,7 @@ demo app for a concrete example.
 [`DemoApplication`]: {{ site.release_v2 }}/demos/main/src/main/java/com/google/android/exoplayer2/demo/DemoApplication.java
 [`DownloadTracker`]: {{ site.release_v2 }}/demos/main/src/main/java/com/google/android/exoplayer2/demo/DownloadTracker.java
 [`PlayerActivity`]: {{ site.release_v2 }}/demos/main/src/main/java/com/google/android/exoplayer2/demo/PlayerActivity.java
+[`DownloadService`]: {{ site.release_v2 }}/library/core/src/main/java/com/google/android/exoplayer2/offline/DownloadService.java
 [`Requirements`]: {{ site.exo_sdk }}/scheduler/Requirements.html
 [further down this page]: #downloading-and-playing-adaptive-streams
 [above]: #creating-a-downloadmanager

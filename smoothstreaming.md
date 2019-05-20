@@ -15,7 +15,7 @@ DataSource.Factory dataSourceFactory =
     new DefaultHttpDataSourceFactory(Util.getUserAgent(context, "app-name"));
 // Create a SmoothStreaming media source pointing to a manifest uri.
 MediaSource mediaSource =
-    new SsMediaSource.Factory(dataSourceFactory).createMediaSource(smoothUri);
+    new SsMediaSource.Factory(dataSourceFactory).createMediaSource(ssUri);
 // Create a player instance.
 SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(context);
 // Prepare the player with the SmoothStreaming media source.
@@ -40,7 +40,9 @@ player.addListener(
     new Player.EventListener() {
       @Override
       public void onTimelineChanged(
-          Timeline timeline, Object manifest, int reason) {
+          Timeline timeline,
+          @Nullable Object manifest,
+          @Player.TimelineChangeReason int reason) {
         if (manifest != null) {
           SsManifest ssManifest = (SsManifest) manifest;
           // Do something with the manifest.
@@ -88,15 +90,12 @@ create. The following snippet shows an example of request header injection:
 SsMediaSource ssMediaSource =
     new SsMediaSource.Factory(
             () -> {
-              HttpDataSource dataSource =
-                  new DefaultHttpDataSource(
-                      "ExoPlayer",
-                      /* contentTypePredicate= */ null);
+              HttpDataSource dataSource = new DefaultHttpDataSource(userAgent);
               // Set a custom authentication request header.
               dataSource.setRequestProperty("Header", "Value");
               return dataSource;
             })
-        .createMediaSource(uri);
+        .createMediaSource(ssUri);
 ~~~
 {: .language-java}
 
@@ -109,7 +108,7 @@ controls how long the player waits between each retry. The following snippet
 shows how to implement custom back-off logic when creating a `SsMediaSource`:
 
 ~~~
-ssMediaSource =
+SsMediaSource ssMediaSource =
     new SsMediaSource.Factory(dataSourceFactory)
         .setLoadErrorHandlingPolicy(
             new DefaultLoadErrorHandlingPolicy() {
@@ -118,7 +117,7 @@ ssMediaSource =
                 // Implement custom back-off logic here.
               }
             })
-        .createMediaSource(uri);
+        .createMediaSource(ssUri);
 ~~~
 {: .language-java}
 

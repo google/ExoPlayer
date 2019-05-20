@@ -36,16 +36,19 @@ possibly many times for live content. The code snippet below shows how an app
 can do something whenever the manifest is loaded.
 
 ~~~
-player.addListener(new Player.EventListener() {
-  @Override
-  public void onTimelineChanged(
-      Timeline timeline, Object manifest, int reason) {
-    if (manifest != null) {
-      DashManifest dashManifest = (DashManifest) manifest;
-      // Do something with the manifest.
-    }
-  }
- });
+player.addListener(
+    new Player.EventListener() {
+      @Override
+      public void onTimelineChanged(
+          Timeline timeline,
+          @Nullable Object manifest,
+          @Player.TimelineChangeReason int reason) {
+        if (manifest != null) {
+          DashManifest dashManifest = (DashManifest) manifest;
+          // Do something with the manifest.
+        }
+      }
+    });
 ~~~
 {: .language-java}
 
@@ -87,15 +90,12 @@ create. The following snippet shows an example of header injection:
 DashMediaSource dashMediaSource =
     new DashMediaSource.Factory(
             () -> {
-              HttpDataSource dataSource =
-                  new DefaultHttpDataSource(
-                      "ExoPlayer",
-                      /* contentTypePredicate= */ null);
+              HttpDataSource dataSource = new DefaultHttpDataSource(userAgent);
               // Set a custom authentication request header.
               dataSource.setRequestProperty("Header", "Value");
               return dataSource;
             })
-        .createMediaSource(uri);
+        .createMediaSource(dashUri);
 ~~~
 {: .language-java}
 
@@ -108,7 +108,7 @@ controls how long the player waits between each retry. The following snippet
 shows how to implement custom back-off logic when creating a `DashMediaSource`:
 
 ~~~
-DashMediaSource =
+DashMediaSource dashMediaSource =
     new DashMediaSource.Factory(dataSourceFactory)
         .setLoadErrorHandlingPolicy(
             new DefaultLoadErrorHandlingPolicy() {
@@ -117,7 +117,7 @@ DashMediaSource =
                 // Implement custom back-off logic here.
               }
             })
-        .createMediaSource(uri);
+        .createMediaSource(dashUri);
 ~~~
 {: .language-java}
 

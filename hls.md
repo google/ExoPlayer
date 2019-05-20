@@ -4,9 +4,6 @@ title: HLS
 
 {% include_relative supported-formats-hls.md %}
 
-You will find more detailed information about format support in the [supported
-formats page][].
-
 ## Creating a MediaSource ##
 
 To play an HLS stream, create an `HlsMediaSource` and prepare the player with
@@ -42,16 +39,19 @@ possibly many times for live content. The code snippet below shows how an app
 can do something whenever the manifest is loaded.
 
 ~~~
-player.addListener(new Player.EventListener() {
-  @Override
-  public void onTimelineChanged(
-      Timeline timeline, @Nullable Object manifest, int reason) {
-    if (manifest != null) {
-      HlsManifest hlsManifest = (HlsManifest) manifest;
-      // Do something with the manifest.
-    }
-  }
- });
+player.addListener(
+    new Player.EventListener() {
+      @Override
+      public void onTimelineChanged(
+          Timeline timeline,
+          @Nullable Object manifest,
+          @Player.TimelineChangeReason int reason) {
+        if (manifest != null) {
+          HlsManifest hlsManifest = (HlsManifest) manifest;
+          // Do something with the manifest.
+        }
+      }
+    });
 ~~~
 {: .language-java}
 
@@ -73,7 +73,7 @@ preparation. The following snippet shows how to enable chunkless preparation:
 HlsMediaSource hlsMediaSource =
     new HlsMediaSource.Factory(dataSourceFactory)
         .setAllowChunklessPreparation(true)
-        .createMediaSource(uri);
+        .createMediaSource(hlsUri);
 ~~~
 {: .language-java}
 
@@ -93,9 +93,7 @@ HlsMediaSource hlsMediaSource =
     new HlsMediaSource.Factory(
             dataType -> {
               HttpDataSource dataSource =
-                  new DefaultHttpDataSource(
-                      "ExoPlayer",
-                      /* contentTypePredicate= */ null);
+                  new DefaultHttpDataSource(userAgent);
               if (dataType == C.DATA_TYPE_MEDIA) {
                 // The data source will be used for fetching media segments. We
                 // set a custom authentication request header.
@@ -103,7 +101,7 @@ HlsMediaSource hlsMediaSource =
               }
               return dataSource;
             })
-        .createMediaSource(uri);
+        .createMediaSource(hlsUri);
 ~~~
 {: .language-java}
 
@@ -116,7 +114,7 @@ controls how long the player waits between each retry. The following snippet
 shows how to implement custom back-off logic when creating a `HlsMediaSource`:
 
 ~~~
-hlsMediaSource =
+HlsMediaSource hlsMediaSource =
     new HlsMediaSource.Factory(dataSourceFactory)
         .setLoadErrorHandlingPolicy(
             new DefaultLoadErrorHandlingPolicy() {
@@ -125,7 +123,7 @@ hlsMediaSource =
                 // Implement custom back-off logic here.
               }
             })
-        .createMediaSource(uri);
+        .createMediaSource(hlsUri);
 ~~~
 {: .language-java}
 
@@ -154,7 +152,6 @@ The following guidelines apply specifically for live streams:
 
 [HlsMediaSource]: {{ site.exo_sdk }}/source/hls/HlsMediaSource.html
 [HTTP Live Streaming]: https://tools.ietf.org/html/rfc8216
-[supported formats page]: {{ site.baseurl }}/supported-formats.html
 [PlayerView]: {{ site.exo_sdk }}/ui/PlayerView.html
 [UI components]: {{ site.baseurl }}/ui-components.html
 [Customization page]: {{ site.baseurl }}/customization.html

@@ -5,10 +5,10 @@ title: Media sources
 In ExoPlayer every piece of media is represented by `MediaSource`. The ExoPlayer
 library provides `MediaSource` implementations for several stream types:
 
-* `ProgressiveMediaSource` for regular media files.
 * `DashMediaSource` for [DASH][].
 * `SsMediaSource` for [SmoothStreaming][].
 * `HlsMediaSource` for [HLS][].
+* `ProgressiveMediaSource` for [regular media files][].
 
 Examples of instantiating all four can be found in `PlayerActivity` in the [main
 demo app][].
@@ -141,4 +141,5 @@ ConcatenatingMediaSource concatenatedSource =
 [DASH]: {{ site.baseurl }}/dash.html
 [SmoothStreaming]: {{ site.baseurl }}/smoothstreaming.html
 [HLS]: {{ site.baseurl }}/hls.html
+[regular media files]: {{ site.baseurl }}/progressive.html
 [main demo app]: {{ site.release_v2 }}/demos/main/
