@@ -802,7 +802,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
       if (isPrimaryTrackInVariant) {
         channelCount = variantFormat.channelCount;
         selectionFlags = variantFormat.selectionFlags;
-        roleFlags = mediaTagFormat.roleFlags;
+        roleFlags = variantFormat.roleFlags;
         language = variantFormat.language;
         label = variantFormat.label;
       }

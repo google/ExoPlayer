@@ -31,7 +31,7 @@ public final class IcyDecoder implements MetadataDecoder {
 
   private static final String TAG = "IcyDecoder";
 
-  private static final Pattern METADATA_ELEMENT = Pattern.compile("(.+?)='(.+?)';");
+  private static final Pattern METADATA_ELEMENT = Pattern.compile("(.+?)='(.*?)';", Pattern.DOTALL);
   private static final String STREAM_KEY_NAME = "streamtitle";
   private static final String STREAM_KEY_URL = "streamurl";
 

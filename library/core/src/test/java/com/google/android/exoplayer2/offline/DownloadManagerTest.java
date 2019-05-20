@@ -244,6 +244,27 @@ public class DownloadManagerTest {
   }
 
   @Test
+  public void removeAllDownloads_removesAllDownloads() throws Throwable {
+    // Finish one download and keep one running.
+    DownloadRunner runner1 = new DownloadRunner(uri1);
+    DownloadRunner runner2 = new DownloadRunner(uri2);
+    runner1.postDownloadRequest();
+    runner1.getDownloader(0).unblock();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    runner2.postDownloadRequest();
+
+    runner1.postRemoveAllRequest();
+    runner1.getDownloader(1).unblock();
+    runner2.getDownloader(1).unblock();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+
+    runner1.getTask().assertRemoved();
+    runner2.getTask().assertRemoved();
+    assertThat(downloadManager.getCurrentDownloads()).isEmpty();
+    assertThat(downloadIndex.getDownloads().getCount()).isEqualTo(0);
+  }
+
+  @Test
   public void differentDownloadRequestsMerged() throws Throwable {
     DownloadRunner runner = new DownloadRunner(uri1);
     FakeDownloader downloader1 = runner.getDownloader(0);
@@ -602,6 +623,11 @@ public class DownloadManagerTest {
 
     private DownloadRunner postRemoveRequest() {
       runOnMainThread(() -> downloadManager.removeDownload(id));
+      return this;
+    }
+
+    private DownloadRunner postRemoveAllRequest() {
+      runOnMainThread(() -> downloadManager.removeAllDownloads());
       return this;
     }
 

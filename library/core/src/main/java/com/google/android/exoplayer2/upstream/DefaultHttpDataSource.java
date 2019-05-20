@@ -89,6 +89,11 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   private long bytesSkipped;
   private long bytesRead;
 
+  /** @param userAgent The User-Agent string that should be used. */
+  public DefaultHttpDataSource(String userAgent) {
+    this(userAgent, /* contentTypePredicate= */ null);
+  }
+
   /**
    * @param userAgent The User-Agent string that should be used.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
