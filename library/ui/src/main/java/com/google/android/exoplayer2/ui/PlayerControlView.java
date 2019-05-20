@@ -188,6 +188,18 @@ public class PlayerControlView extends FrameLayout {
     void onVisibilityChange(int visibility);
   }
 
+  /** Listener to be notified when progress has been updated. */
+  public interface ProgressUpdateListener {
+
+    /**
+     * Called when progress needs to be updated.
+     *
+     * @param position The current position.
+     * @param bufferedPosition The current buffered position.
+     */
+    void onProgressUpdate(long position, long bufferedPosition);
+  }
+
   /** The default fast forward increment, in milliseconds. */
   public static final int DEFAULT_FAST_FORWARD_MS = 15000;
   /** The default rewind increment, in milliseconds. */
@@ -235,7 +247,8 @@ public class PlayerControlView extends FrameLayout {
 
   @Nullable private Player player;
   private com.google.android.exoplayer2.ControlDispatcher controlDispatcher;
-  private VisibilityListener visibilityListener;
+  @Nullable private VisibilityListener visibilityListener;
+  @Nullable private ProgressUpdateListener progressUpdateListener;
   @Nullable private PlaybackPreparer playbackPreparer;
 
   private boolean isAttachedToWindow;
@@ -452,6 +465,15 @@ public class PlayerControlView extends FrameLayout {
    */
   public void setVisibilityListener(VisibilityListener listener) {
     this.visibilityListener = listener;
+  }
+
+  /**
+   * Sets the {@link ProgressUpdateListener}.
+   *
+   * @param listener The listener to be notified about when progress is updated.
+   */
+  public void setProgressUpdateListener(@Nullable ProgressUpdateListener listener) {
+    this.progressUpdateListener = listener;
   }
 
   /**
@@ -854,6 +876,9 @@ public class PlayerControlView extends FrameLayout {
     if (timeBar != null) {
       timeBar.setPosition(position);
       timeBar.setBufferedPosition(bufferedPosition);
+    }
+    if (progressUpdateListener != null) {
+      progressUpdateListener.onProgressUpdate(position, bufferedPosition);
     }
 
     // Cancel any pending updates and schedule a new one if necessary.
