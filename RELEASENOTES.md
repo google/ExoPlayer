@@ -14,6 +14,7 @@
   ([#5784](https://github.com/google/ExoPlayer/issues/5784)).
 * Add a workaround for broken raw audio decoding on Oppo R9
   ([#5782](https://github.com/google/ExoPlayer/issues/5782)).
+* Offline: Add Scheduler implementation which uses WorkManager.
 
 ### 2.10.1 ###
 
