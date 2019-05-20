@@ -20,6 +20,7 @@ import static com.google.android.exoplayer2.audio.AudioFocusManager.PLAYER_COMMA
 import static com.google.android.exoplayer2.audio.AudioFocusManager.PLAYER_COMMAND_WAIT_FOR_CALLBACK;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
+import static org.robolectric.annotation.Config.TARGET_SDK;
 
 import android.content.Context;
 import android.media.AudioFocusRequest;
@@ -99,7 +100,7 @@ public class AudioFocusManagerTest {
   }
 
   @Test
-  @Config(minSdk = 26)
+  @Config(minSdk = 26, maxSdk = TARGET_SDK)
   public void setAudioAttributes_withNullUsage_releasesAudioFocus_v26() {
     // Create attributes and request audio focus.
     AudioAttributes media = new AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).build();
@@ -301,7 +302,7 @@ public class AudioFocusManagerTest {
   }
 
   @Test
-  @Config(minSdk = 26)
+  @Config(minSdk = 26, maxSdk = TARGET_SDK)
   public void onAudioFocusChange_withAudioFocusLost_sendsDoNotPlayAndAbandondsFocus_v26() {
     // Ensure that AUDIOFOCUS_LOSS causes AudioFocusManager to pause playback and abandon audio
     // focus.
@@ -351,7 +352,7 @@ public class AudioFocusManagerTest {
   }
 
   @Test
-  @Config(minSdk = 26)
+  @Config(minSdk = 26, maxSdk = TARGET_SDK)
   public void handleStop_withAudioFocus_abandonsAudioFocus_v26() {
     // Ensure that handleStop causes AudioFocusManager to abandon audio focus.
     AudioAttributes media =
@@ -421,7 +422,7 @@ public class AudioFocusManagerTest {
   }
 
   @Test
-  @Config(minSdk = 26)
+  @Config(minSdk = 26, maxSdk = TARGET_SDK)
   public void handleStop_withoutHandlingAudioFocus_isNoOp_v26() {
     // Ensure that handleStop is a no-op if audio focus isn't handled.
     Shadows.shadowOf(audioManager)
