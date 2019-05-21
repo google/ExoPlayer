@@ -34,7 +34,6 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
-import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
@@ -49,7 +48,6 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
-import com.google.android.exoplayer2.Player.VideoComponent;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.ApicFrame;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -405,7 +403,6 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
           break;
         case SURFACE_TYPE_MONO360_VIEW:
           SphericalSurfaceView sphericalSurfaceView = new SphericalSurfaceView(context);
-          sphericalSurfaceView.setSurfaceListener(componentListener);
           sphericalSurfaceView.setSingleTapListener(componentListener);
           surfaceView = sphericalSurfaceView;
           break;
@@ -1368,7 +1365,6 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
           TextOutput,
           VideoListener,
           OnLayoutChangeListener,
-          SphericalSurfaceView.SurfaceListener,
           SingleTapListener {
 
     // TextOutput implementation
@@ -1456,18 +1452,6 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
         int oldRight,
         int oldBottom) {
       applyTextureViewRotation((TextureView) view, textureViewRotation);
-    }
-
-    // SphericalSurfaceView.SurfaceTextureListener implementation
-
-    @Override
-    public void surfaceChanged(@Nullable Surface surface) {
-      if (player != null) {
-        VideoComponent videoComponent = player.getVideoComponent();
-        if (videoComponent != null) {
-          videoComponent.setVideoSurface(surface);
-        }
-      }
     }
 
     // SingleTapListener implementation
