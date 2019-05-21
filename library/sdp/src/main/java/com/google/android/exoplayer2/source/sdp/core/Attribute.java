@@ -21,7 +21,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class Attribute {
-    private static final Pattern regexSDPAttribute = Pattern.compile("([a-z-]*):\\s*(.+)|(\\w+)",
+    private static final Pattern regexSDPAttribute = Pattern.compile("([a-zA-Z_-]*):\\s*(.+)|(\\w+)",
             Pattern.CASE_INSENSITIVE);
 
     public final static String CHARSET = "charset";
@@ -30,10 +30,12 @@ public final class Attribute {
     public final static String ETAG = "etag";
     public final static String FMTP = "fmtp";
     public final static String FRAMESIZE = "framesize";
-    public final static String XDIMENSIONS = "x-dimensions";
-    public final static String XFRAMERATE = "x-framerate";
-    public final static String XRTPTS = "x-rtp-ts";
-    public final static String XVENDORID = "x-vendor-id";
+    public final static String X_DIMENSIONS = "x-dimensions";
+    public final static String X_FRAMERATE = "x-framerate";
+    public final static String X_RTP_TS = "x-rtp-ts";
+    public final static String X_QT_TEXT_NAM = "x-qt-text-nam";
+    public final static String X_QT_TEXT_INF = "x-qt-text-inf";
+    public final static String X_VENDORID = "x-vendor-id";
     public final static String FRAMERATE = "framerate";
     public final static String INACTIVE = "inactive";
     public final static String LENGTH = "length";

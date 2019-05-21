@@ -80,6 +80,8 @@ public final class RtpVideoPayload extends RtpPayloadFormat {
             } else {
                 codecs = "mp4v.20.1";
             }
+        } else if (MimeTypes.VIDEO_VP8.equals(sampleMimeType)) {
+            codecs = "vp8";
         }
     }
 

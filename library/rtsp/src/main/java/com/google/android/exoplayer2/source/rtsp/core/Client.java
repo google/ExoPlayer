@@ -543,13 +543,13 @@ public abstract class Client implements Dispatcher.EventListener {
                                                             Integer.parseInt(matcher.group(3)));
                                                 }
                                             }
-                                        } else if (Attribute.XFRAMERATE.equalsIgnoreCase(attrName)) {
+                                        } else if (Attribute.X_FRAMERATE.equalsIgnoreCase(attrName)) {
                                             if (isNumeric(attrValue)) {
                                                 ((RtpVideoPayload.Builder) payloadBuilder).framerate(
                                                         Float.parseFloat(attrValue));
                                             }
 
-                                        } else if (Attribute.XDIMENSIONS.equalsIgnoreCase(attrName)) {
+                                        } else if (Attribute.X_DIMENSIONS.equalsIgnoreCase(attrName)) {
                                             Matcher matcher = regexXDimensions.matcher(attrValue);
                                             if (matcher.find()) {
                                                 if (isNumeric(matcher.group(2)) &&

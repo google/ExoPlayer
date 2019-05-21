@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 
 public final class Origin {
     private static final Pattern regexSDPOrigin =
-            Pattern.compile("(\\S+)\\s(\\d+)\\s(\\d+)\\sIN\\s(\\w+)(?:\\s+(\\S+))?",
+            Pattern.compile("(\\S+)\\s(\\S+)\\s(\\S+)\\sIN\\s(\\w+)(?:\\s+(\\S+))?",
                     Pattern.CASE_INSENSITIVE);
 
     @Retention(RetentionPolicy.SOURCE)

@@ -91,7 +91,7 @@ import java.util.List;
         int limit = packet.bytesLeft();
         sampleLength += limit;
 
-        // Write the audio sample
+        // Write the video sample
         output.sampleData(packet, limit);
 
         // Marker (M) bit: The marker bit is set to 1 to indicate the last RTP
