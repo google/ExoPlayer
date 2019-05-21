@@ -2,6 +2,8 @@
 
 ### 2.10.2 ###
 
+* Add `ResolvingDataSource` for just-in-time resolution of `DataSpec`s
+  ([#5779](https://github.com/google/ExoPlayer/issues/5779)).
 * Subtitles:
   * CEA-608: Handle XDS and TEXT modes
     ([#5807](https://github.com/google/ExoPlayer/pull/5807)).
