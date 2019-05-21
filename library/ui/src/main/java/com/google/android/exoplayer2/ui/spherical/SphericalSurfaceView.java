@@ -53,20 +53,6 @@ import javax.microedition.khronos.opengles.GL10;
  */
 public final class SphericalSurfaceView extends GLSurfaceView {
 
-  /**
-   * This listener can be used to be notified when the {@link Surface} associated with this view is
-   * changed.
-   */
-  public interface SurfaceListener {
-    /**
-     * Invoked when the surface is changed or there isn't one anymore. Any previous surface
-     * shouldn't be used after this call.
-     *
-     * @param surface The new surface or null if there isn't one anymore.
-     */
-    void surfaceChanged(@Nullable Surface surface);
-  }
-
   // Arbitrary vertical field of view.
   private static final int FIELD_OF_VIEW_DEGREES = 90;
   private static final float Z_NEAR = .1f;
@@ -83,7 +69,6 @@ public final class SphericalSurfaceView extends GLSurfaceView {
   private final Handler mainHandler;
   private final TouchTracker touchTracker;
   private final SceneRenderer scene;
-  private @Nullable SurfaceListener surfaceListener;
   private @Nullable SurfaceTexture surfaceTexture;
   private @Nullable Surface surface;
   private @Nullable Player.VideoComponent videoComponent;
@@ -155,15 +140,6 @@ public final class SphericalSurfaceView extends GLSurfaceView {
     }
   }
 
-  /**
-   * Sets the {@link SurfaceListener} used to listen to surface events.
-   *
-   * @param listener The listener for surface events.
-   */
-  public void setSurfaceListener(@Nullable SurfaceListener listener) {
-    surfaceListener = listener;
-  }
-
   /** Sets the {@link SingleTapListener} used to listen to single tap events on this view. */
   public void setSingleTapListener(@Nullable SingleTapListener listener) {
     touchTracker.setSingleTapListener(listener);
@@ -195,8 +171,8 @@ public final class SphericalSurfaceView extends GLSurfaceView {
     mainHandler.post(
         () -> {
           if (surface != null) {
-            if (surfaceListener != null) {
-              surfaceListener.surfaceChanged(null);
+            if (videoComponent != null) {
+              videoComponent.clearVideoSurface(surface);
             }
             releaseSurface(surfaceTexture, surface);
             surfaceTexture = null;
@@ -213,8 +189,8 @@ public final class SphericalSurfaceView extends GLSurfaceView {
           Surface oldSurface = this.surface;
           this.surfaceTexture = surfaceTexture;
           this.surface = new Surface(surfaceTexture);
-          if (surfaceListener != null) {
-            surfaceListener.surfaceChanged(surface);
+          if (videoComponent != null) {
+            videoComponent.setVideoSurface(surface);
           }
           releaseSurface(oldSurfaceTexture, oldSurface);
         });
