@@ -42,18 +42,33 @@ import java.util.Collections;
 import java.util.List;
 
 /** Utility methods for parsing MP4 format atom payloads according to ISO 14496-12. */
-@SuppressWarnings({"ConstantField", "ConstantCaseForConstants"})
+@SuppressWarnings({"ConstantField"})
 /* package */ final class AtomParsers {
 
   private static final String TAG = "AtomParsers";
 
+  @SuppressWarnings("ConstantCaseForConstants")
   private static final int TYPE_vide = Util.getIntegerCodeForString("vide");
+
+  @SuppressWarnings("ConstantCaseForConstants")
   private static final int TYPE_soun = Util.getIntegerCodeForString("soun");
+
+  @SuppressWarnings("ConstantCaseForConstants")
   private static final int TYPE_text = Util.getIntegerCodeForString("text");
+
+  @SuppressWarnings("ConstantCaseForConstants")
   private static final int TYPE_sbtl = Util.getIntegerCodeForString("sbtl");
+
+  @SuppressWarnings("ConstantCaseForConstants")
   private static final int TYPE_subt = Util.getIntegerCodeForString("subt");
+
+  @SuppressWarnings("ConstantCaseForConstants")
   private static final int TYPE_clcp = Util.getIntegerCodeForString("clcp");
+
+  @SuppressWarnings("ConstantCaseForConstants")
   private static final int TYPE_meta = Util.getIntegerCodeForString("meta");
+
+  @SuppressWarnings("ConstantCaseForConstants")
   private static final int TYPE_mdta = Util.getIntegerCodeForString("mdta");
 
   /**
