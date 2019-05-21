@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.ext.rtmp;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import android.net.Uri;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.upstream.BaseDataSource;
