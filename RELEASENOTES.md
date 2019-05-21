@@ -2,6 +2,9 @@
 
 ### 2.10.2 ###
 
+* UI:
+  * Allow setting `DefaultTimeBar` attributes on `PlayerView` and
+    `PlayerControlView`.
 * Add a playWhenReady flag to MediaSessionConnector.PlaybackPreparer methods
   to indicate whether a controller sent a play or only a prepare command. This
   allows to take advantage of decoder reuse with the MediaSessionConnector
