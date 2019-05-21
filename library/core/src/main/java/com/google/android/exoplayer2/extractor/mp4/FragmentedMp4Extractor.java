@@ -55,6 +55,7 @@ import java.util.List;
 import java.util.UUID;
 
 /** Extracts data from the FMP4 container format. */
+@SuppressWarnings("ConstantField")
 public class FragmentedMp4Extractor implements Extractor {
 
   /** Factory for {@link FragmentedMp4Extractor} instances. */
@@ -104,7 +105,7 @@ public class FragmentedMp4Extractor implements Extractor {
 
   private static final String TAG = "FragmentedMp4Extractor";
 
-  @SuppressWarnings("ConstantField")
+  @SuppressWarnings("ConstantCaseForConstants")
   private static final int SAMPLE_GROUP_TYPE_seig = Util.getIntegerCodeForString("seig");
 
   private static final byte[] PIFF_SAMPLE_ENCRYPTION_BOX_EXTENDED_TYPE =

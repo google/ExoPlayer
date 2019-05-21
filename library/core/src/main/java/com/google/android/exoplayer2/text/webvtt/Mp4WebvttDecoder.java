@@ -24,15 +24,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * A {@link SimpleSubtitleDecoder} for Webvtt embedded in a Mp4 container file.
- */
+/** A {@link SimpleSubtitleDecoder} for Webvtt embedded in a Mp4 container file. */
+@SuppressWarnings("ConstantField")
 public final class Mp4WebvttDecoder extends SimpleSubtitleDecoder {
 
   private static final int BOX_HEADER_SIZE = 8;
 
+  @SuppressWarnings("ConstantCaseForConstants")
   private static final int TYPE_payl = Util.getIntegerCodeForString("payl");
+
+  @SuppressWarnings("ConstantCaseForConstants")
   private static final int TYPE_sttg = Util.getIntegerCodeForString("sttg");
+
+  @SuppressWarnings("ConstantCaseForConstants")
   private static final int TYPE_vttc = Util.getIntegerCodeForString("vttc");
 
   private final ParsableByteArray sampleData;
