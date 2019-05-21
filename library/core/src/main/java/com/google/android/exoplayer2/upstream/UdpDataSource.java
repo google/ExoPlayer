@@ -88,50 +88,6 @@ public final class UdpDataSource extends BaseDataSource {
     packet = new DatagramPacket(packetBuffer, 0, maxPacketSize);
   }
 
-  /**
-   * Constructs a new instance.
-   *
-   * @param listener An optional listener.
-   * @deprecated Use {@link #UdpDataSource()} and {@link #addTransferListener(TransferListener)}.
-   */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public UdpDataSource(@Nullable TransferListener listener) {
-    this(listener, DEFAULT_MAX_PACKET_SIZE);
-  }
-
-  /**
-   * Constructs a new instance.
-   *
-   * @param listener An optional listener.
-   * @param maxPacketSize The maximum datagram packet size, in bytes.
-   * @deprecated Use {@link #UdpDataSource(int)} and {@link #addTransferListener(TransferListener)}.
-   */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public UdpDataSource(@Nullable TransferListener listener, int maxPacketSize) {
-    this(listener, maxPacketSize, DEFAULT_SOCKET_TIMEOUT_MILLIS);
-  }
-
-  /**
-   * Constructs a new instance.
-   *
-   * @param listener An optional listener.
-   * @param maxPacketSize The maximum datagram packet size, in bytes.
-   * @param socketTimeoutMillis The socket timeout in milliseconds. A timeout of zero is interpreted
-   *     as an infinite timeout.
-   * @deprecated Use {@link #UdpDataSource(int, int)} and {@link
-   *     #addTransferListener(TransferListener)}.
-   */
-  @Deprecated
-  public UdpDataSource(
-      @Nullable TransferListener listener, int maxPacketSize, int socketTimeoutMillis) {
-    this(maxPacketSize, socketTimeoutMillis);
-    if (listener != null) {
-      addTransferListener(listener);
-    }
-  }
-
   @Override
   public long open(DataSpec dataSpec) throws UdpDataSourceException {
     uri = dataSpec.uri;

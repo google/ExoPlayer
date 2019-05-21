@@ -78,20 +78,6 @@ public final class RawResourceDataSource extends BaseDataSource {
     this.resources = context.getResources();
   }
 
-  /**
-   * @param context A context.
-   * @param listener An optional listener.
-   * @deprecated Use {@link #RawResourceDataSource(Context)} and {@link
-   *     #addTransferListener(TransferListener)}.
-   */
-  @Deprecated
-  public RawResourceDataSource(Context context, @Nullable TransferListener listener) {
-    this(context);
-    if (listener != null) {
-      addTransferListener(listener);
-    }
-  }
-
   @Override
   public long open(DataSpec dataSpec) throws RawResourceDataSourceException {
     try {

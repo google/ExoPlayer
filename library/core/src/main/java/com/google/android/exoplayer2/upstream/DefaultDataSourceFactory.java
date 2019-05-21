@@ -51,7 +51,7 @@ public final class DefaultDataSourceFactory implements Factory {
    * @param context A context.
    * @param baseDataSourceFactory A {@link Factory} to be used to create a base {@link DataSource}
    *     for {@link DefaultDataSource}.
-   * @see DefaultDataSource#DefaultDataSource(Context, TransferListener, DataSource)
+   * @see DefaultDataSource#DefaultDataSource(Context, DataSource)
    */
   public DefaultDataSourceFactory(Context context, DataSource.Factory baseDataSourceFactory) {
     this(context, /* listener= */ null, baseDataSourceFactory);
@@ -62,7 +62,7 @@ public final class DefaultDataSourceFactory implements Factory {
    * @param listener An optional listener.
    * @param baseDataSourceFactory A {@link Factory} to be used to create a base {@link DataSource}
    *     for {@link DefaultDataSource}.
-   * @see DefaultDataSource#DefaultDataSource(Context, TransferListener, DataSource)
+   * @see DefaultDataSource#DefaultDataSource(Context, DataSource)
    */
   public DefaultDataSourceFactory(
       Context context,
