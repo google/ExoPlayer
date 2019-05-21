@@ -18,13 +18,11 @@ package com.google.android.exoplayer2.ext.rtmp;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import android.net.Uri;
-import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.upstream.BaseDataSource;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.upstream.TransferListener;
 import java.io.IOException;
 import net.butterflytv.rtmp_client.RtmpClient;
 import net.butterflytv.rtmp_client.RtmpClient.RtmpIOException;
@@ -41,18 +39,6 @@ public final class RtmpDataSource extends BaseDataSource {
 
   public RtmpDataSource() {
     super(/* isNetwork= */ true);
-  }
-
-  /**
-   * @param listener An optional listener.
-   * @deprecated Use {@link #RtmpDataSource()} and {@link #addTransferListener(TransferListener)}.
-   */
-  @Deprecated
-  public RtmpDataSource(@Nullable TransferListener listener) {
-    this();
-    if (listener != null) {
-      addTransferListener(listener);
-    }
   }
 
   @Override

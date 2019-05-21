@@ -57,20 +57,6 @@ public final class ContentDataSource extends BaseDataSource {
     this.resolver = context.getContentResolver();
   }
 
-  /**
-   * @param context A context.
-   * @param listener An optional listener.
-   * @deprecated Use {@link #ContentDataSource(Context)} and {@link
-   *     #addTransferListener(TransferListener)}.
-   */
-  @Deprecated
-  public ContentDataSource(Context context, @Nullable TransferListener listener) {
-    this(context);
-    if (listener != null) {
-      addTransferListener(listener);
-    }
-  }
-
   @Override
   public long open(DataSpec dataSpec) throws ContentDataSourceException {
     try {

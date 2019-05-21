@@ -51,20 +51,6 @@ public final class AssetDataSource extends BaseDataSource {
     this.assetManager = context.getAssets();
   }
 
-  /**
-   * @param context A context.
-   * @param listener An optional listener.
-   * @deprecated Use {@link #AssetDataSource(Context)} and {@link
-   *     #addTransferListener(TransferListener)}.
-   */
-  @Deprecated
-  public AssetDataSource(Context context, @Nullable TransferListener listener) {
-    this(context);
-    if (listener != null) {
-      addTransferListener(listener);
-    }
-  }
-
   @Override
   public long open(DataSpec dataSpec) throws AssetDataSourceException {
     try {

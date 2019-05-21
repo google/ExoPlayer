@@ -45,18 +45,6 @@ public final class FileDataSource extends BaseDataSource {
     super(/* isNetwork= */ false);
   }
 
-  /**
-   * @param listener An optional listener.
-   * @deprecated Use {@link #FileDataSource()} and {@link #addTransferListener(TransferListener)}
-   */
-  @Deprecated
-  public FileDataSource(@Nullable TransferListener listener) {
-    this();
-    if (listener != null) {
-      addTransferListener(listener);
-    }
-  }
-
   @Override
   public long open(DataSpec dataSpec) throws FileDataSourceException {
     try {

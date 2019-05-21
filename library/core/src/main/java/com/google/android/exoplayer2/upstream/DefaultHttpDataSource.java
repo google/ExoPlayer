@@ -47,8 +47,8 @@ import java.util.regex.Pattern;
  *
  * <p>By default this implementation will not follow cross-protocol redirects (i.e. redirects from
  * HTTP to HTTPS or vice versa). Cross-protocol redirects can be enabled by using the {@link
- * #DefaultHttpDataSource(String, Predicate, TransferListener, int, int, boolean,
- * RequestProperties)} constructor and passing {@code true} as the second last argument.
+ * #DefaultHttpDataSource(String, Predicate, int, int, boolean, RequestProperties)} constructor and
+ * passing {@code true} as the second last argument.
  */
 public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSource {
 
@@ -162,89 +162,6 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     this.readTimeoutMillis = readTimeoutMillis;
     this.allowCrossProtocolRedirects = allowCrossProtocolRedirects;
     this.defaultRequestProperties = defaultRequestProperties;
-  }
-
-  /**
-   * @param userAgent The User-Agent string that should be used.
-   * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
-   *     predicate then a {@link HttpDataSource.InvalidContentTypeException} is thrown from {@link
-   *     #open(DataSpec)}.
-   * @param listener An optional listener.
-   * @deprecated Use {@link #DefaultHttpDataSource(String, Predicate)} and {@link
-   *     #addTransferListener(TransferListener)}.
-   */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public DefaultHttpDataSource(
-      String userAgent,
-      @Nullable Predicate<String> contentTypePredicate,
-      @Nullable TransferListener listener) {
-    this(userAgent, contentTypePredicate, listener, DEFAULT_CONNECT_TIMEOUT_MILLIS,
-        DEFAULT_READ_TIMEOUT_MILLIS);
-  }
-
-  /**
-   * @param userAgent The User-Agent string that should be used.
-   * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
-   *     predicate then a {@link HttpDataSource.InvalidContentTypeException} is thrown from {@link
-   *     #open(DataSpec)}.
-   * @param listener An optional listener.
-   * @param connectTimeoutMillis The connection timeout, in milliseconds. A timeout of zero is
-   *     interpreted as an infinite timeout.
-   * @param readTimeoutMillis The read timeout, in milliseconds. A timeout of zero is interpreted as
-   *     an infinite timeout.
-   * @deprecated Use {@link #DefaultHttpDataSource(String, Predicate, int, int)} and {@link
-   *     #addTransferListener(TransferListener)}.
-   */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public DefaultHttpDataSource(
-      String userAgent,
-      @Nullable Predicate<String> contentTypePredicate,
-      @Nullable TransferListener listener,
-      int connectTimeoutMillis,
-      int readTimeoutMillis) {
-    this(userAgent, contentTypePredicate, listener, connectTimeoutMillis, readTimeoutMillis, false,
-        null);
-  }
-
-  /**
-   * @param userAgent The User-Agent string that should be used.
-   * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
-   *     predicate then a {@link HttpDataSource.InvalidContentTypeException} is thrown from {@link
-   *     #open(DataSpec)}.
-   * @param listener An optional listener.
-   * @param connectTimeoutMillis The connection timeout, in milliseconds. A timeout of zero is
-   *     interpreted as an infinite timeout. Pass {@link #DEFAULT_CONNECT_TIMEOUT_MILLIS} to use the
-   *     default value.
-   * @param readTimeoutMillis The read timeout, in milliseconds. A timeout of zero is interpreted as
-   *     an infinite timeout. Pass {@link #DEFAULT_READ_TIMEOUT_MILLIS} to use the default value.
-   * @param allowCrossProtocolRedirects Whether cross-protocol redirects (i.e. redirects from HTTP
-   *     to HTTPS and vice versa) are enabled.
-   * @param defaultRequestProperties The default request properties to be sent to the server as HTTP
-   *     headers or {@code null} if not required.
-   * @deprecated Use {@link #DefaultHttpDataSource(String, Predicate, int, int, boolean,
-   *     RequestProperties)} and {@link #addTransferListener(TransferListener)}.
-   */
-  @Deprecated
-  public DefaultHttpDataSource(
-      String userAgent,
-      @Nullable Predicate<String> contentTypePredicate,
-      @Nullable TransferListener listener,
-      int connectTimeoutMillis,
-      int readTimeoutMillis,
-      boolean allowCrossProtocolRedirects,
-      @Nullable RequestProperties defaultRequestProperties) {
-    this(
-        userAgent,
-        contentTypePredicate,
-        connectTimeoutMillis,
-        readTimeoutMillis,
-        allowCrossProtocolRedirects,
-        defaultRequestProperties);
-    if (listener != null) {
-      addTransferListener(listener);
-    }
   }
 
   @Override
