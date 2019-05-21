@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.ext.rtmp;
 
+import static com.google.android.exoplayer2.util.Util.castNonNull;
+
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -34,8 +36,8 @@ public final class RtmpDataSource extends BaseDataSource {
     ExoPlayerLibraryInfo.registerModule("goog.exo.rtmp");
   }
 
-  private RtmpClient rtmpClient;
-  private Uri uri;
+  @Nullable private RtmpClient rtmpClient;
+  @Nullable private Uri uri;
 
   public RtmpDataSource() {
     super(/* isNetwork= */ true);
@@ -66,7 +68,7 @@ public final class RtmpDataSource extends BaseDataSource {
 
   @Override
   public int read(byte[] buffer, int offset, int readLength) throws IOException {
-    int bytesRead = rtmpClient.read(buffer, offset, readLength);
+    int bytesRead = castNonNull(rtmpClient).read(buffer, offset, readLength);
     if (bytesRead == -1) {
       return C.RESULT_END_OF_INPUT;
     }
@@ -87,6 +89,7 @@ public final class RtmpDataSource extends BaseDataSource {
   }
 
   @Override
+  @Nullable
   public Uri getUri() {
     return uri;
   }
