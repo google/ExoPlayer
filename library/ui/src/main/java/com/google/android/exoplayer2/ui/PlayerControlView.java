@@ -28,6 +28,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -97,6 +98,9 @@ import java.util.Locale;
  *         <li>Corresponding method: None
  *         <li>Default: {@code R.layout.exo_player_control_view}
  *       </ul>
+ *   <li>All attributes that can be set on {@link DefaultTimeBar} can also be set on a
+ *       PlayerControlView, and will be propagated to the inflated {@link DefaultTimeBar} unless the
+ *       layout is overridden to specify a custom {@code exo_progress} (see below).
  * </ul>
  *
  * <h3>Overriding the layout file</h3>
@@ -154,7 +158,15 @@ import java.util.Locale;
  *       <ul>
  *         <li>Type: {@link TextView}
  *       </ul>
+ *   <li><b>{@code exo_progress_placeholder}</b> - A placeholder that's replaced with the inflated
+ *       {@link DefaultTimeBar}. Ignored if an {@code exo_progress} view exists.
+ *       <ul>
+ *         <li>Type: {@link View}
+ *       </ul>
  *   <li><b>{@code exo_progress}</b> - Time bar that's updated during playback and allows seeking.
+ *       {@link DefaultTimeBar} attributes set on the PlayerControlView will not be automatically
+ *       propagated through to this instance. If a view exists with this id, any {@code
+ *       exo_progress_placeholder} view will be ignored.
  *       <ul>
  *         <li>Type: {@link TimeBar}
  *       </ul>
@@ -330,9 +342,27 @@ public class PlayerControlView extends FrameLayout {
     LayoutInflater.from(context).inflate(controllerLayoutId, this);
     setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
 
+    TimeBar customTimeBar = findViewById(R.id.exo_progress);
+    View timeBarPlaceholder = findViewById(R.id.exo_progress_placeholder);
+    if (customTimeBar != null) {
+      timeBar = customTimeBar;
+    } else if (timeBarPlaceholder != null) {
+      // Propagate attrs as timebarAttrs so that DefaultTimeBar's custom attributes are transferred,
+      // but standard attributes (e.g. background) are not.
+      DefaultTimeBar defaultTimeBar = new DefaultTimeBar(context, null, 0, playbackAttrs);
+      defaultTimeBar.setId(R.id.exo_progress);
+      defaultTimeBar.setLayoutParams(timeBarPlaceholder.getLayoutParams());
+      ViewGroup parent = ((ViewGroup) timeBarPlaceholder.getParent());
+      int timeBarIndex = parent.indexOfChild(timeBarPlaceholder);
+      parent.removeView(timeBarPlaceholder);
+      parent.addView(defaultTimeBar, timeBarIndex);
+      timeBar = defaultTimeBar;
+    } else {
+      timeBar = null;
+    }
     durationView = findViewById(R.id.exo_duration);
     positionView = findViewById(R.id.exo_position);
-    timeBar = findViewById(R.id.exo_progress);
+
     if (timeBar != null) {
       timeBar.addListener(componentListener);
     }
