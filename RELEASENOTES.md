@@ -2,6 +2,8 @@
 
 ### dev-v2 (not yet released) ###
 
+* Add `ResolvingDataSource` for just-in-time resolution of `DataSpec`s
+  ([#5779](https://github.com/google/ExoPlayer/issues/5779)).
 * Assume that encrypted content requires secure decoders in renderer support
   checks ([#5568](https://github.com/google/ExoPlayer/issues/5568)).
 * Decoders: Prefer decoders that advertise format support over ones that do not,
