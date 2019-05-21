@@ -15,8 +15,11 @@
    for the underlying track was changing (e.g., at some period transitions).
  * Add `SilenceMediaSource` that can be used to play silence of a given
    duration ([#5735](https://github.com/google/ExoPlayer/issues/5735)).
-* UI: Change playback controls toggle from touch down to touch up events
-  ([#5784](https://github.com/google/ExoPlayer/issues/5784)).
+* UI:
+  * Allow setting `DefaultTimeBar` attributes on `PlayerView` and
+    `PlayerControlView`.
+  * Change playback controls toggle from touch down to touch up events
+    ([#5784](https://github.com/google/ExoPlayer/issues/5784)).
 * Add a workaround for broken raw audio decoding on Oppo R9
   ([#5782](https://github.com/google/ExoPlayer/issues/5782)).
 * Offline: Add Scheduler implementation which uses WorkManager.

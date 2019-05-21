@@ -162,9 +162,10 @@ import java.util.List;
  *         <li>Corresponding method: None
  *         <li>Default: {@code R.layout.exo_player_control_view}
  *       </ul>
- *   <li>All attributes that can be set on a {@link PlayerControlView} can also be set on a
- *       PlayerView, and will be propagated to the inflated {@link PlayerControlView} unless the
- *       layout is overridden to specify a custom {@code exo_controller} (see below).
+ *   <li>All attributes that can be set on {@link PlayerControlView} and {@link DefaultTimeBar} can
+ *       also be set on a PlayerView, and will be propagated to the inflated {@link
+ *       PlayerControlView} unless the layout is overridden to specify a custom {@code
+ *       exo_controller} (see below).
  * </ul>
  *
  * <h3>Overriding the layout file</h3>
@@ -214,9 +215,10 @@ import java.util.List;
  *         <li>Type: {@link View}
  *       </ul>
  *   <li><b>{@code exo_controller}</b> - An already inflated {@link PlayerControlView}. Allows use
- *       of a custom extension of {@link PlayerControlView}. Note that attributes such as {@code
- *       rewind_increment} will not be automatically propagated through to this instance. If a view
- *       exists with this id, any {@code exo_controller_placeholder} view will be ignored.
+ *       of a custom extension of {@link PlayerControlView}. {@link PlayerControlView} and {@link
+ *       DefaultTimeBar} attributes set on the PlayerView will not be automatically propagated
+ *       through to this instance. If a view exists with this id, any {@code
+ *       exo_controller_placeholder} view will be ignored.
  *       <ul>
  *         <li>Type: {@link PlayerControlView}
  *       </ul>
@@ -456,8 +458,9 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
       this.controller = customController;
     } else if (controllerPlaceholder != null) {
       // Propagate attrs as playbackAttrs so that PlayerControlView's custom attributes are
-      // transferred, but standard FrameLayout attributes (e.g. background) are not.
+      // transferred, but standard attributes (e.g. background) are not.
       this.controller = new PlayerControlView(context, null, 0, attrs);
+      controller.setId(R.id.exo_controller);
       controller.setLayoutParams(controllerPlaceholder.getLayoutParams());
       ViewGroup parent = ((ViewGroup) controllerPlaceholder.getParent());
       int controllerIndex = parent.indexOfChild(controllerPlaceholder);
