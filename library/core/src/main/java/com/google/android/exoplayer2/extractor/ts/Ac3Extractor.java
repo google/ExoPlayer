@@ -27,7 +27,6 @@ import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.util.ParsableByteArray;
-import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /**
@@ -45,7 +44,7 @@ public final class Ac3Extractor implements Extractor {
   private static final int MAX_SNIFF_BYTES = 8 * 1024;
   private static final int AC3_SYNC_WORD = 0x0B77;
   private static final int MAX_SYNC_FRAME_SIZE = 2786;
-  private static final int ID3_TAG = Util.getIntegerCodeForString("ID3");
+  private static final int ID3_TAG = 0x00494433;
 
   private final long firstSampleTimestampUs;
   private final Ac3Reader reader;

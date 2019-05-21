@@ -32,7 +32,6 @@ import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerat
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
-import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -66,7 +65,7 @@ public final class AdtsExtractor implements Extractor {
   public static final int FLAG_ENABLE_CONSTANT_BITRATE_SEEKING = 1;
 
   private static final int MAX_PACKET_SIZE = 2 * 1024;
-  private static final int ID3_TAG = Util.getIntegerCodeForString("ID3");
+  private static final int ID3_TAG = 0x00494433;
   /**
    * The maximum number of bytes to search when sniffing, excluding the header, before giving up.
    * Frame sizes are represented by 13-bit fields, so expect a valid frame in the first 8192 bytes.

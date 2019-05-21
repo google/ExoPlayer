@@ -29,7 +29,6 @@ import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.util.ParsableByteArray;
-import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /** Extracts data from AC-4 bitstreams. */
@@ -53,7 +52,7 @@ public final class Ac4Extractor implements Extractor {
   /** The size of the frame header, in bytes. */
   private static final int FRAME_HEADER_SIZE = 7;
 
-  private static final int ID3_TAG = Util.getIntegerCodeForString("ID3");
+  private static final int ID3_TAG = 0x00494433;
 
   private final long firstSampleTimestampUs;
   private final Ac4Reader reader;

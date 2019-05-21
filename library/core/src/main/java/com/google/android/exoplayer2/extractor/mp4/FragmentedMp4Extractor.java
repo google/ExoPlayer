@@ -106,7 +106,7 @@ public class FragmentedMp4Extractor implements Extractor {
   private static final String TAG = "FragmentedMp4Extractor";
 
   @SuppressWarnings("ConstantCaseForConstants")
-  private static final int SAMPLE_GROUP_TYPE_seig = Util.getIntegerCodeForString("seig");
+  private static final int SAMPLE_GROUP_TYPE_seig = 0x73656967;
 
   private static final byte[] PIFF_SAMPLE_ENCRYPTION_BOX_EXTENDED_TYPE =
       new byte[] {-94, 57, 79, 82, 90, -101, 79, 20, -94, 68, 108, 66, 124, 100, -115, -12};

@@ -48,28 +48,28 @@ import java.util.List;
   private static final String TAG = "AtomParsers";
 
   @SuppressWarnings("ConstantCaseForConstants")
-  private static final int TYPE_vide = Util.getIntegerCodeForString("vide");
+  private static final int TYPE_vide = 0x76696465;
 
   @SuppressWarnings("ConstantCaseForConstants")
-  private static final int TYPE_soun = Util.getIntegerCodeForString("soun");
+  private static final int TYPE_soun = 0x736f756e;
 
   @SuppressWarnings("ConstantCaseForConstants")
-  private static final int TYPE_text = Util.getIntegerCodeForString("text");
+  private static final int TYPE_text = 0x74657874;
 
   @SuppressWarnings("ConstantCaseForConstants")
-  private static final int TYPE_sbtl = Util.getIntegerCodeForString("sbtl");
+  private static final int TYPE_sbtl = 0x7362746c;
 
   @SuppressWarnings("ConstantCaseForConstants")
-  private static final int TYPE_subt = Util.getIntegerCodeForString("subt");
+  private static final int TYPE_subt = 0x73756274;
 
   @SuppressWarnings("ConstantCaseForConstants")
-  private static final int TYPE_clcp = Util.getIntegerCodeForString("clcp");
+  private static final int TYPE_clcp = 0x636c6370;
 
   @SuppressWarnings("ConstantCaseForConstants")
-  private static final int TYPE_meta = Util.getIntegerCodeForString("meta");
+  private static final int TYPE_meta = 0x6d657461;
 
   @SuppressWarnings("ConstantCaseForConstants")
-  private static final int TYPE_mdta = Util.getIntegerCodeForString("mdta");
+  private static final int TYPE_mdta = 0x6d647461;
 
   /**
    * The threshold number of samples to trim from the start/end of an audio track when applying an
