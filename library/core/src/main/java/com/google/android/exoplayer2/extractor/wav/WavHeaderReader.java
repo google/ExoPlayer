@@ -22,7 +22,6 @@ import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
-import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /** Reads a {@code WavHeader} from an input stream; supports resuming from input failures. */
@@ -122,11 +121,13 @@ import java.io.IOException;
     ParsableByteArray scratch = new ParsableByteArray(ChunkHeader.SIZE_IN_BYTES);
     // Skip all chunks until we hit the data header.
     ChunkHeader chunkHeader = ChunkHeader.peek(input, scratch);
-    while (chunkHeader.id != Util.getIntegerCodeForString("data")) {
+    final int data = 0x64617461;
+    while (chunkHeader.id != data) {
       Log.w(TAG, "Ignoring unknown WAV chunk: " + chunkHeader.id);
       long bytesToSkip = ChunkHeader.SIZE_IN_BYTES + chunkHeader.size;
       // Override size of RIFF chunk, since it describes its size as the entire file.
-      if (chunkHeader.id == Util.getIntegerCodeForString("RIFF")) {
+      final int riff = 0x52494646;
+      if (chunkHeader.id == riff) {
         bytesToSkip = ChunkHeader.SIZE_IN_BYTES + 4;
       }
       if (bytesToSkip > Integer.MAX_VALUE) {

@@ -31,13 +31,13 @@ public final class Mp4WebvttDecoder extends SimpleSubtitleDecoder {
   private static final int BOX_HEADER_SIZE = 8;
 
   @SuppressWarnings("ConstantCaseForConstants")
-  private static final int TYPE_payl = Util.getIntegerCodeForString("payl");
+  private static final int TYPE_payl = 0x7061796c;
 
   @SuppressWarnings("ConstantCaseForConstants")
-  private static final int TYPE_sttg = Util.getIntegerCodeForString("sttg");
+  private static final int TYPE_sttg = 0x73747467;
 
   @SuppressWarnings("ConstantCaseForConstants")
-  private static final int TYPE_vttc = Util.getIntegerCodeForString("vttc");
+  private static final int TYPE_vttc = 0x76747463;
 
   private final ParsableByteArray sampleData;
   private final WebvttCue.Builder builder;
