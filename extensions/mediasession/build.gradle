@@ -33,6 +33,7 @@ android {
 dependencies {
     implementation project(modulePrefix + 'library-core')
     api 'androidx.media:media:1.0.1'
+    compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
 }
 
 ext {
