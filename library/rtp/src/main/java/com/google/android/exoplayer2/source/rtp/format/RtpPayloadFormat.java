@@ -78,11 +78,11 @@ public abstract class RtpPayloadFormat {
 
     private final @MediaType int type;
     private final int payload;
-    protected final int bitrate;
+    protected int bitrate;
+    protected int clockrate;
 
     protected String sampleMimeType;
     private @MediaCodec String encoding;
-    protected int clockrate;
 
     protected final FormatSpecificParameters parameters;
 
@@ -90,9 +90,10 @@ public abstract class RtpPayloadFormat {
         this.type = builder.type;
         this.payload = builder.payload;
         this.bitrate = builder.bitrate;
+        this.clockrate = builder.clockrate;
         this.parameters = builder.parameters;
 
-        buildCodecData(builder.encoding, builder.clockrate);
+        buildCodecData(builder.encoding);
         buildSampleMimeType();
         buildCodecProfileLevel();
     }
@@ -111,47 +112,48 @@ public abstract class RtpPayloadFormat {
 
     public FormatSpecificParameters parameters() { return parameters; }
 
-    private void buildCodecData(@MediaCodec String encoding, int clockrate) {
+    private void buildCodecData(@MediaCodec String encoding) {
         switch (payload) {
             case 0:
                 this.encoding = PCMU;
-                this.clockrate = 8000;
+                clockrate = (clockrate == -1) ? 8000 : clockrate;
+                bitrate = (bitrate == -1) ? (clockrate == 8000 ? 64 : 128) : bitrate;
                 ((RtpAudioPayload)this).setChannels(1);
                 break;
 
             case 3:
                 this.encoding = GSM;
-                this.clockrate = 8000;
+                clockrate = 8000;
                 ((RtpAudioPayload)this).setChannels(1);
                 break;
 
             case 8:
                 this.encoding = PCMA;
-                this.clockrate = 8000;
+                bitrate = (bitrate == -1) ? (clockrate == 8000 ? 64 : 128) : bitrate;
                 ((RtpAudioPayload)this).setChannels(1);
                 break;
 
             case 9:
                 this.encoding = G722;
-                this.clockrate = 8000;
+                clockrate = 8000;
                 ((RtpAudioPayload)this).setChannels(1);
                 break;
 
             case 10:
                 this.encoding = L16;
-                this.clockrate = 44100;
+                clockrate = 44100;
                 ((RtpAudioPayload)this).setChannels(2);
                 break;
 
             case 11:
                 this.encoding = L16;
-                this.clockrate = 44100;
+                clockrate = 44100;
                 ((RtpAudioPayload)this).setChannels(1);
                 break;
 
             case 14:
                 this.encoding = MPA;
-                this.clockrate = 90000;
+                clockrate = 90000;
                 if (((RtpAudioPayload)this).channels() == 0) {
                     ((RtpAudioPayload)this).setChannels(1);
                 }
@@ -159,54 +161,52 @@ public abstract class RtpPayloadFormat {
 
             case 31:
                 this.encoding = H261;
-                this.clockrate = 90000;
+                clockrate = 90000;
                 break;
 
             case 32:
                 this.encoding = MPV;
-                this.clockrate = 90000;
+                clockrate = 90000;
                 break;
 
             case 33:
                 this.encoding = MP2T;
-                this.clockrate = 90000;
+                clockrate = 90000;
                 break;
 
             case 34:
                 this.encoding = H263;
-                this.clockrate = 90000;
+                clockrate = 90000;
                 break;
 
             default: // rtp payload type dynamic
                 if (payload > 95) {
                     if (encoding.equals(AMR)) {
-                        this.clockrate = 8000;
+                        clockrate = 8000;
                         this.encoding = encoding;
                     } else if (encoding.equals(H264) || encoding.equals(H265)) {
-                        this.clockrate = 90000;
+                        clockrate = 90000;
                         this.encoding = encoding;
                     } else if (encoding.equals(MP4V_ES)) {
-                        this.clockrate = 90000;
+                        clockrate = 90000;
                         this.encoding = encoding;
                     } else if (encoding.equals(OPUS)) {
-                        this.clockrate = 48000;
+                        clockrate = 48000;
                         this.encoding = encoding;
                         ((RtpAudioPayload)this).setChannels(2);
                     } else if (encoding.equals(PCMA_WB) || encoding.equals(PCMU_WB)) {
-                        this.clockrate = 16000;
+                        clockrate = 16000;
                         this.encoding = encoding;
                         ((RtpAudioPayload)this).setChannels(1);
                     } else if (encoding.equals(VP8) || encoding.equals(VP9)) {
-                        this.clockrate = 90000;
+                        clockrate = 90000;
                         this.encoding = encoding;
                     } else {
                         this.encoding = encoding;
-                        this.clockrate = clockrate;
                     }
 
                 } else {
                     this.encoding = encoding;
-                    this.clockrate = clockrate;
                 }
         }
     }
