@@ -8,9 +8,12 @@ assignees: ''
 
 Before filing a content issue:
 ------------------------------
-- Search existing issues, including issues that are closed.
+- Search existing issues, including issues that are closed:
+  https://github.com/google/ExoPlayer/issues?q=is%3Aissue
 - Consult our supported formats page, which can be found at
   https://exoplayer.dev/supported-formats.html.
+- Learn how to create useful log output by using the EventLogger:
+  https://exoplayer.dev/listening-to-player-events.html#using-eventlogger
 - Try playing your content in the ExoPlayer demo app. Information about the
   ExoPlayer demo app can be found here:
   http://exoplayer.dev/demo-application.html.
