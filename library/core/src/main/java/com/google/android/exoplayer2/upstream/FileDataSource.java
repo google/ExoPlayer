@@ -15,9 +15,12 @@
  */
 package com.google.android.exoplayer2.upstream;
 
+import static com.google.android.exoplayer2.util.Util.castNonNull;
+
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.util.Assertions;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -36,8 +39,8 @@ public final class FileDataSource extends BaseDataSource {
 
   }
 
-  private @Nullable RandomAccessFile file;
-  private @Nullable Uri uri;
+  @Nullable private RandomAccessFile file;
+  @Nullable private Uri uri;
   private long bytesRemaining;
   private boolean opened;
 
@@ -48,9 +51,13 @@ public final class FileDataSource extends BaseDataSource {
   @Override
   public long open(DataSpec dataSpec) throws FileDataSourceException {
     try {
-      uri = dataSpec.uri;
+      Uri uri = dataSpec.uri;
+      this.uri = uri;
+
       transferInitializing(dataSpec);
-      file = new RandomAccessFile(dataSpec.uri.getPath(), "r");
+      RandomAccessFile file = new RandomAccessFile(Assertions.checkNotNull(uri.getPath()), "r");
+      this.file = file;
+
       file.seek(dataSpec.position);
       bytesRemaining = dataSpec.length == C.LENGTH_UNSET ? file.length() - dataSpec.position
           : dataSpec.length;
@@ -76,7 +83,8 @@ public final class FileDataSource extends BaseDataSource {
     } else {
       int bytesRead;
       try {
-        bytesRead = file.read(buffer, offset, (int) Math.min(bytesRemaining, readLength));
+        bytesRead =
+            castNonNull(file).read(buffer, offset, (int) Math.min(bytesRemaining, readLength));
       } catch (IOException e) {
         throw new FileDataSourceException(e);
       }
@@ -91,7 +99,8 @@ public final class FileDataSource extends BaseDataSource {
   }
 
   @Override
-  public @Nullable Uri getUri() {
+  @Nullable
+  public Uri getUri() {
     return uri;
   }
 

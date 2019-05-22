@@ -52,11 +52,11 @@ public final class UdpDataSource extends BaseDataSource {
   private final byte[] packetBuffer;
   private final DatagramPacket packet;
 
-  private @Nullable Uri uri;
-  private @Nullable DatagramSocket socket;
-  private @Nullable MulticastSocket multicastSocket;
-  private @Nullable InetAddress address;
-  private @Nullable InetSocketAddress socketAddress;
+  @Nullable private Uri uri;
+  @Nullable private DatagramSocket socket;
+  @Nullable private MulticastSocket multicastSocket;
+  @Nullable private InetAddress address;
+  @Nullable private InetSocketAddress socketAddress;
   private boolean opened;
 
   private int packetRemaining;
@@ -144,7 +144,8 @@ public final class UdpDataSource extends BaseDataSource {
   }
 
   @Override
-  public @Nullable Uri getUri() {
+  @Nullable
+  public Uri getUri() {
     return uri;
   }
 
