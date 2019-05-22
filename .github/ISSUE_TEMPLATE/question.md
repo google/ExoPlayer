@@ -12,8 +12,12 @@ Before filing a question:
   a general Android development question, please do so on Stack Overflow.
 - Search existing issues, including issues that are closed. It’s often the
   quickest way to get an answer!
-- Consult our FAQs, developer guide and the class reference of ExoPlayer. These
-  can be found at https://exoplayer.dev/.
+  https://github.com/google/ExoPlayer/issues?q=is%3Aissue
+- Consult our developer website, which can be found at https://exoplayer.dev/.
+  It provides detailed information about supported formats, devices as well as
+  information about how to use the ExoPlayer library.
+- The ExoPlayer library Javadoc can be found at
+  https://exoplayer.dev/doc/reference/
 
 When filing a question:
 -----------------------
