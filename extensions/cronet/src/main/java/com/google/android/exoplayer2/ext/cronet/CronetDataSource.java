@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.ext.cronet;
 
+import static com.google.android.exoplayer2.util.Util.castNonNull;
+
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import android.text.TextUtils;
@@ -41,6 +43,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.Executor;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.chromium.net.CronetEngine;
 import org.chromium.net.CronetException;
 import org.chromium.net.NetworkException;
@@ -118,7 +121,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   private final int readTimeoutMs;
   private final boolean resetTimeoutOnRedirects;
   private final boolean handleSetCookieRequests;
-  private final RequestProperties defaultRequestProperties;
+  @Nullable private final RequestProperties defaultRequestProperties;
   private final RequestProperties requestProperties;
   private final ConditionVariable operation;
   private final Clock clock;
@@ -130,18 +133,18 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
 
   // Written from the calling thread only. currentUrlRequest.start() calls ensure writes are visible
   // to reads made by the Cronet thread.
-  private UrlRequest currentUrlRequest;
-  private DataSpec currentDataSpec;
+  @Nullable private UrlRequest currentUrlRequest;
+  @Nullable private DataSpec currentDataSpec;
 
   // Reference written and read by calling thread only. Passed to Cronet thread as a local variable.
   // operation.open() calls ensure writes into the buffer are visible to reads made by the calling
   // thread.
-  private ByteBuffer readBuffer;
+  @Nullable private ByteBuffer readBuffer;
 
   // Written from the Cronet thread only. operation.open() calls ensure writes are visible to reads
   // made by the calling thread.
-  private UrlResponseInfo responseInfo;
-  private IOException exception;
+  @Nullable private UrlResponseInfo responseInfo;
+  @Nullable private IOException exception;
   private boolean finished;
 
   private volatile long currentConnectTimeoutMs;
@@ -197,7 +200,8 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
    * @param connectTimeoutMs The connection timeout, in milliseconds.
    * @param readTimeoutMs The read timeout, in milliseconds.
    * @param resetTimeoutOnRedirects Whether the connect timeout is reset when a redirect occurs.
-   * @param defaultRequestProperties The default request properties to be used.
+   * @param defaultRequestProperties The optional default {@link RequestProperties} to be sent to
+   *     the server as HTTP headers on every request.
    */
   public CronetDataSource(
       CronetEngine cronetEngine,
@@ -206,7 +210,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       int connectTimeoutMs,
       int readTimeoutMs,
       boolean resetTimeoutOnRedirects,
-      RequestProperties defaultRequestProperties) {
+      @Nullable RequestProperties defaultRequestProperties) {
     this(
         cronetEngine,
         executor,
@@ -232,7 +236,8 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
    * @param connectTimeoutMs The connection timeout, in milliseconds.
    * @param readTimeoutMs The read timeout, in milliseconds.
    * @param resetTimeoutOnRedirects Whether the connect timeout is reset when a redirect occurs.
-   * @param defaultRequestProperties The default request properties to be used.
+   * @param defaultRequestProperties The optional default {@link RequestProperties} to be sent to
+   *     the server as HTTP headers on every request.
    * @param handleSetCookieRequests Whether "Set-Cookie" requests on redirect should be forwarded to
    *     the redirect url in the "Cookie" header.
    */
@@ -243,7 +248,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       int connectTimeoutMs,
       int readTimeoutMs,
       boolean resetTimeoutOnRedirects,
-      RequestProperties defaultRequestProperties,
+      @Nullable RequestProperties defaultRequestProperties,
       boolean handleSetCookieRequests) {
     this(
         cronetEngine,
@@ -265,7 +270,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       int readTimeoutMs,
       boolean resetTimeoutOnRedirects,
       Clock clock,
-      RequestProperties defaultRequestProperties,
+      @Nullable RequestProperties defaultRequestProperties,
       boolean handleSetCookieRequests) {
     super(/* isNetwork= */ true);
     this.urlRequestCallback = new UrlRequestCallback();
@@ -305,6 +310,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   }
 
   @Override
+  @Nullable
   public Uri getUri() {
     return responseInfo == null ? null : Uri.parse(responseInfo.getUrl());
   }
@@ -317,22 +323,23 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     operation.close();
     resetConnectTimeout();
     currentDataSpec = dataSpec;
+    UrlRequest urlRequest;
     try {
-      currentUrlRequest = buildRequestBuilder(dataSpec).build();
+      urlRequest = buildRequestBuilder(dataSpec).build();
+      currentUrlRequest = urlRequest;
     } catch (IOException e) {
-      throw new OpenException(e, currentDataSpec, Status.IDLE);
+      throw new OpenException(e, dataSpec, Status.IDLE);
     }
-    currentUrlRequest.start();
+    urlRequest.start();
 
     transferInitializing(dataSpec);
     try {
       boolean connectionOpened = blockUntilConnectTimeout();
       if (exception != null) {
-        throw new OpenException(exception, currentDataSpec, getStatus(currentUrlRequest));
+        throw new OpenException(exception, dataSpec, getStatus(urlRequest));
       } else if (!connectionOpened) {
         // The timeout was reached before the connection was opened.
-        throw new OpenException(
-            new SocketTimeoutException(), dataSpec, getStatus(currentUrlRequest));
+        throw new OpenException(new SocketTimeoutException(), dataSpec, getStatus(urlRequest));
       }
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
@@ -340,6 +347,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     }
 
     // Check for a valid response code.
+    UrlResponseInfo responseInfo = Assertions.checkNotNull(this.responseInfo);
     int responseCode = responseInfo.getHttpStatusCode();
     if (responseCode < 200 || responseCode > 299) {
       InvalidResponseCodeException exception =
@@ -347,7 +355,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
               responseCode,
               responseInfo.getHttpStatusText(),
               responseInfo.getAllHeaders(),
-              currentDataSpec);
+              dataSpec);
       if (responseCode == 416) {
         exception.initCause(new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE));
       }
@@ -358,8 +366,8 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     if (contentTypePredicate != null) {
       List<String> contentTypeHeaders = responseInfo.getAllHeaders().get(CONTENT_TYPE);
       String contentType = isEmpty(contentTypeHeaders) ? null : contentTypeHeaders.get(0);
-      if (!contentTypePredicate.evaluate(contentType)) {
-        throw new InvalidContentTypeException(contentType, currentDataSpec);
+      if (contentType != null && !contentTypePredicate.evaluate(contentType)) {
+        throw new InvalidContentTypeException(contentType, dataSpec);
       }
     }
 
@@ -378,7 +386,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     } else {
       // If the response is compressed then the content length will be that of the compressed data
       // which isn't what we want. Always use the dataSpec length in this case.
-      bytesRemaining = currentDataSpec.length;
+      bytesRemaining = dataSpec.length;
     }
 
     opened = true;
@@ -397,15 +405,17 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       return C.RESULT_END_OF_INPUT;
     }
 
+    ByteBuffer readBuffer = this.readBuffer;
     if (readBuffer == null) {
       readBuffer = ByteBuffer.allocateDirect(READ_BUFFER_SIZE_BYTES);
       readBuffer.limit(0);
+      this.readBuffer = readBuffer;
     }
     while (!readBuffer.hasRemaining()) {
       // Fill readBuffer with more data from Cronet.
       operation.close();
       readBuffer.clear();
-      currentUrlRequest.read(readBuffer);
+      castNonNull(currentUrlRequest).read(readBuffer);
       try {
         if (!operation.block(readTimeoutMs)) {
           throw new SocketTimeoutException();
@@ -413,20 +423,23 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       } catch (InterruptedException e) {
         // The operation is ongoing so replace readBuffer to avoid it being written to by this
         // operation during a subsequent request.
-        readBuffer = null;
+        this.readBuffer = null;
         Thread.currentThread().interrupt();
         throw new HttpDataSourceException(
-            new InterruptedIOException(e), currentDataSpec, HttpDataSourceException.TYPE_READ);
+            new InterruptedIOException(e),
+            castNonNull(currentDataSpec),
+            HttpDataSourceException.TYPE_READ);
       } catch (SocketTimeoutException e) {
         // The operation is ongoing so replace readBuffer to avoid it being written to by this
         // operation during a subsequent request.
-        readBuffer = null;
-        throw new HttpDataSourceException(e, currentDataSpec, HttpDataSourceException.TYPE_READ);
+        this.readBuffer = null;
+        throw new HttpDataSourceException(
+            e, castNonNull(currentDataSpec), HttpDataSourceException.TYPE_READ);
       }
 
       if (exception != null) {
-        throw new HttpDataSourceException(exception, currentDataSpec,
-            HttpDataSourceException.TYPE_READ);
+        throw new HttpDataSourceException(
+            exception, castNonNull(currentDataSpec), HttpDataSourceException.TYPE_READ);
       } else if (finished) {
         bytesRemaining = 0;
         return C.RESULT_END_OF_INPUT;
@@ -631,7 +644,8 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     return statusHolder[0];
   }
 
-  private static boolean isEmpty(List<?> list) {
+  @EnsuresNonNullIf(result = false, expression = "#1")
+  private static boolean isEmpty(@Nullable List<?> list) {
     return list == null || list.isEmpty();
   }
 
@@ -643,13 +657,15 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       if (request != currentUrlRequest) {
         return;
       }
-      if (currentDataSpec.httpMethod == DataSpec.HTTP_METHOD_POST) {
+      UrlRequest urlRequest = Assertions.checkNotNull(currentUrlRequest);
+      DataSpec dataSpec = Assertions.checkNotNull(currentDataSpec);
+      if (dataSpec.httpMethod == DataSpec.HTTP_METHOD_POST) {
         int responseCode = info.getHttpStatusCode();
         // The industry standard is to disregard POST redirects when the status code is 307 or 308.
         if (responseCode == 307 || responseCode == 308) {
           exception =
               new InvalidResponseCodeException(
-                  responseCode, info.getHttpStatusText(), info.getAllHeaders(), currentDataSpec);
+                  responseCode, info.getHttpStatusText(), info.getAllHeaders(), dataSpec);
           operation.open();
           return;
         }
@@ -658,40 +674,46 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
         resetConnectTimeout();
       }
 
-      Map<String, List<String>> headers = info.getAllHeaders();
-      if (!handleSetCookieRequests || isEmpty(headers.get(SET_COOKIE))) {
+      if (!handleSetCookieRequests) {
         request.followRedirect();
-      } else {
-        currentUrlRequest.cancel();
-        DataSpec redirectUrlDataSpec;
-        if (currentDataSpec.httpMethod == DataSpec.HTTP_METHOD_POST) {
-          // For POST redirects that aren't 307 or 308, the redirect is followed but request is
-          // transformed into a GET.
-          redirectUrlDataSpec =
-              new DataSpec(
-                  Uri.parse(newLocationUrl),
-                  DataSpec.HTTP_METHOD_GET,
-                  /* httpBody= */ null,
-                  currentDataSpec.absoluteStreamPosition,
-                  currentDataSpec.position,
-                  currentDataSpec.length,
-                  currentDataSpec.key,
-                  currentDataSpec.flags);
-        } else {
-          redirectUrlDataSpec = currentDataSpec.withUri(Uri.parse(newLocationUrl));
-        }
-        UrlRequest.Builder requestBuilder;
-        try {
-          requestBuilder = buildRequestBuilder(redirectUrlDataSpec);
-        } catch (IOException e) {
-          exception = e;
-          return;
-        }
-        String cookieHeadersValue = parseCookies(headers.get(SET_COOKIE));
-        attachCookies(requestBuilder, cookieHeadersValue);
-        currentUrlRequest = requestBuilder.build();
-        currentUrlRequest.start();
+        return;
       }
+
+      List<String> setCookieHeaders = info.getAllHeaders().get(SET_COOKIE);
+      if (isEmpty(setCookieHeaders)) {
+        request.followRedirect();
+        return;
+      }
+
+      urlRequest.cancel();
+      DataSpec redirectUrlDataSpec;
+      if (dataSpec.httpMethod == DataSpec.HTTP_METHOD_POST) {
+        // For POST redirects that aren't 307 or 308, the redirect is followed but request is
+        // transformed into a GET.
+        redirectUrlDataSpec =
+            new DataSpec(
+                Uri.parse(newLocationUrl),
+                DataSpec.HTTP_METHOD_GET,
+                /* httpBody= */ null,
+                dataSpec.absoluteStreamPosition,
+                dataSpec.position,
+                dataSpec.length,
+                dataSpec.key,
+                dataSpec.flags);
+      } else {
+        redirectUrlDataSpec = dataSpec.withUri(Uri.parse(newLocationUrl));
+      }
+      UrlRequest.Builder requestBuilder;
+      try {
+        requestBuilder = buildRequestBuilder(redirectUrlDataSpec);
+      } catch (IOException e) {
+        exception = e;
+        return;
+      }
+      String cookieHeadersValue = parseCookies(setCookieHeaders);
+      attachCookies(requestBuilder, cookieHeadersValue);
+      currentUrlRequest = requestBuilder.build();
+      currentUrlRequest.start();
     }
 
     @Override
