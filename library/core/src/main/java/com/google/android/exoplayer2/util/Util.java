@@ -316,6 +316,21 @@ public final class Util {
   }
 
   /**
+   * Copies a subset of an array.
+   *
+   * @param input The input array.
+   * @param from The start the range to be copied, inclusive
+   * @param to The end of the range to be copied, exclusive.
+   * @return The copied array.
+   */
+  @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:return.type.incompatible"})
+  public static <T> T[] nullSafeArrayCopyOfRange(T[] input, int from, int to) {
+    Assertions.checkArgument(0 <= from);
+    Assertions.checkArgument(to <= input.length);
+    return Arrays.copyOfRange(input, from, to);
+  }
+
+  /**
    * Concatenates two non-null type arrays.
    *
    * @param first The first array.

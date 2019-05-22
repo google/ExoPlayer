@@ -15,11 +15,11 @@
  */
 package com.google.android.exoplayer2.text.webvtt;
 
+import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import com.google.android.exoplayer2.util.ColorParser;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
-import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -52,13 +52,15 @@ import java.util.regex.Pattern;
   }
 
   /**
-   * Takes a CSS style block and consumes up to the first empty line found. Attempts to parse the
-   * contents of the style block and returns a {@link WebvttCssStyle} instance if successful, or
-   * {@code null} otherwise.
+   * Takes a CSS style block and consumes up to the first empty line. Attempts to parse the contents
+   * of the style block and returns a {@link WebvttCssStyle} instance if successful, or {@code null}
+   * otherwise.
    *
    * @param input The input from which the style block should be read.
-   * @return A {@link WebvttCssStyle} that represents the parsed block.
+   * @return A {@link WebvttCssStyle} that represents the parsed block, or {@code null} if parsing
+   *     failed.
    */
+  @Nullable
   public WebvttCssStyle parseBlock(ParsableByteArray input) {
     stringBuilder.setLength(0);
     int initialInputPosition = input.getPosition();
@@ -86,13 +88,14 @@ import java.util.regex.Pattern;
   }
 
   /**
-   * Returns a string containing the selector. The input is expected to have the form
-   * {@code ::cue(tag#id.class1.class2[voice="someone"]}, where every element is optional.
+   * Returns a string containing the selector. The input is expected to have the form {@code
+   * ::cue(tag#id.class1.class2[voice="someone"]}, where every element is optional.
    *
    * @param input From which the selector is obtained.
-   * @return A string containing the target, empty string if the selector is universal
-   *     (targets all cues) or null if an error was encountered.
+   * @return A string containing the target, empty string if the selector is universal (targets all
+   *     cues) or null if an error was encountered.
    */
+  @Nullable
   private static String parseSelector(ParsableByteArray input, StringBuilder stringBuilder) {
     skipWhitespaceAndComments(input);
     if (input.bytesLeft() < 5) {
@@ -116,7 +119,7 @@ import java.util.regex.Pattern;
       target = readCueTarget(input);
     }
     token = parseNextToken(input, stringBuilder);
-    if (!")".equals(token) || token == null) {
+    if (!")".equals(token)) {
       return null;
     }
     return target;
@@ -196,6 +199,7 @@ import java.util.regex.Pattern;
   }
 
   // Visible for testing.
+  @Nullable
   /* package */ static String parseNextToken(ParsableByteArray input, StringBuilder stringBuilder) {
     skipWhitespaceAndComments(input);
     if (input.bytesLeft() == 0) {
@@ -237,6 +241,7 @@ import java.util.regex.Pattern;
     return (char) input.data[position];
   }
 
+  @Nullable
   private static String parsePropertyValue(ParsableByteArray input, StringBuilder stringBuilder) {
     StringBuilder expressionBuilder = new StringBuilder();
     String token;
@@ -325,7 +330,7 @@ import java.util.regex.Pattern;
       style.setTargetTagName(tagAndIdDivision);
     }
     if (classDivision.length > 1) {
-      style.setTargetClasses(Arrays.copyOfRange(classDivision, 1, classDivision.length));
+      style.setTargetClasses(Util.nullSafeArrayCopyOfRange(classDivision, 1, classDivision.length));
     }
   }
 

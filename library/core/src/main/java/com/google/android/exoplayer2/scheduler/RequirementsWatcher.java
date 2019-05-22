@@ -27,7 +27,9 @@ import android.net.NetworkRequest;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 
 /**
@@ -57,10 +59,10 @@ public final class RequirementsWatcher {
   private final Requirements requirements;
   private final Handler handler;
 
-  private DeviceStatusChangeReceiver receiver;
+  @Nullable private DeviceStatusChangeReceiver receiver;
 
   @Requirements.RequirementFlags private int notMetRequirements;
-  private CapabilityValidatedCallback networkCallback;
+  @Nullable private CapabilityValidatedCallback networkCallback;
 
   /**
    * @param context Any context.
@@ -111,7 +113,7 @@ public final class RequirementsWatcher {
 
   /** Stops watching for changes. */
   public void stop() {
-    context.unregisterReceiver(receiver);
+    context.unregisterReceiver(Assertions.checkNotNull(receiver));
     receiver = null;
     if (networkCallback != null) {
       unregisterNetworkCallback();
@@ -139,7 +141,7 @@ public final class RequirementsWatcher {
     if (Util.SDK_INT >= 21) {
       ConnectivityManager connectivityManager =
           (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-      connectivityManager.unregisterNetworkCallback(networkCallback);
+      connectivityManager.unregisterNetworkCallback(Assertions.checkNotNull(networkCallback));
       networkCallback = null;
     }
   }
