@@ -29,6 +29,9 @@
   ([#5891](https://github.com/google/ExoPlayer/issues/5891)).
 * Add ProgressUpdateListener to PlayerControlView
   ([#5834](https://github.com/google/ExoPlayer/issues/5834)).
+* Prevent unexpected `DownloadHelper.Callback.onPrepared` callbacks after the
+  preparation of the `DownloadHelper` failed
+  ([#5915](https://github.com/google/ExoPlayer/issues/5915)).
 
 ### 2.10.1 ###
 
