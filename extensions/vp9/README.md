@@ -66,7 +66,6 @@ ${NDK_PATH}/ndk-build APP_ABI=all -j4
 
 [top level README]: https://github.com/google/ExoPlayer/blob/release-v2/README.md
 [Android NDK]: https://developer.android.com/tools/sdk/ndk/index.html
-[#3520]: https://github.com/google/ExoPlayer/issues/3520
 
 ## Notes ##
 
