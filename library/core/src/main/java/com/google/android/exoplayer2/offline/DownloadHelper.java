@@ -943,6 +943,7 @@ public final class DownloadHelper {
           downloadHelper.onMediaPrepared();
           return true;
         case DOWNLOAD_HELPER_CALLBACK_MESSAGE_FAILED:
+          release();
           downloadHelper.onMediaPreparationFailed((IOException) Util.castNonNull(msg.obj));
           return true;
         default:
