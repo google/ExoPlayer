@@ -15,13 +15,13 @@
  */
 package com.google.android.exoplayer2.castdemo;
 
-import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /** Utility methods and constants for the Cast demo application. */
@@ -30,49 +30,53 @@ import java.util.UUID;
   /** Represents a media sample. */
   public static final class Sample {
 
-    /** The uri of the media content. */
+    /** The URI of the media content. */
     public final String uri;
     /** The name of the sample. */
     public final String name;
     /** The mime type of the sample media content. */
     public final String mimeType;
-    /**
-     * The {@link UUID} of the DRM scheme that protects the content, or null if the content is not
-     * DRM-protected.
-     */
-    @Nullable public final UUID drmSchemeUuid;
-    /**
-     * The url from which players should obtain DRM licenses, or null if the content is not
-     * DRM-protected.
-     */
-    @Nullable public final Uri licenseServerUri;
+    /** Data to configure DRM license acquisition. May be null if content is not DRM-protected. */
+    @Nullable public final DrmConfiguration drmConfiguration;
 
-    /**
-     * @param uri See {@link #uri}.
-     * @param name See {@link #name}.
-     * @param mimeType See {@link #mimeType}.
-     */
     public Sample(String uri, String name, String mimeType) {
-      this(uri, name, mimeType, /* drmSchemeUuid= */ null, /* licenseServerUriString= */ null);
+      this(uri, name, mimeType, /* drmConfiguration= */ null);
     }
 
     public Sample(
-        String uri,
-        String name,
-        String mimeType,
-        @Nullable UUID drmSchemeUuid,
-        @Nullable String licenseServerUriString) {
+        String uri, String name, String mimeType, @Nullable DrmConfiguration drmConfiguration) {
       this.uri = uri;
       this.name = name;
       this.mimeType = mimeType;
-      this.drmSchemeUuid = drmSchemeUuid;
-      this.licenseServerUri =
-          licenseServerUriString != null ? Uri.parse(licenseServerUriString) : null;
+      this.drmConfiguration = drmConfiguration;
     }
 
     @Override
     public String toString() {
       return name;
+    }
+  }
+
+  /** Holds information required to play DRM-protected content. */
+  public static final class DrmConfiguration {
+
+    /** The {@link UUID} of the DRM scheme that protects the content. */
+    public final UUID drmSchemeUuid;
+    /**
+     * The URI from which players should obtain DRM licenses. May be null if the license server URI
+     * is provided as part of the media.
+     */
+    @Nullable public final String licenseServerUri;
+    /** HTTP request headers to include the in DRM license requests. */
+    public final Map<String, String> httpRequestHeaders;
+
+    public DrmConfiguration(
+        UUID drmSchemeUuid,
+        @Nullable String licenseServerUri,
+        Map<String, String> httpRequestHeaders) {
+      this.drmSchemeUuid = drmSchemeUuid;
+      this.licenseServerUri = licenseServerUri;
+      this.httpRequestHeaders = httpRequestHeaders;
     }
   }
 

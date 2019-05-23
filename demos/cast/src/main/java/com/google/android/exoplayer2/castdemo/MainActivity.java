@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.castdemo;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import androidx.core.graphics.ColorUtils;
 import androidx.appcompat.app.AlertDialog;
@@ -36,6 +37,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.ext.cast.DefaultCastOptionsProvider;
 import com.google.android.exoplayer2.ext.cast.MediaItem;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
@@ -121,6 +123,7 @@ public class MainActivity extends AppCompatActivity
     String applicationId = castContext.getCastOptions().getReceiverApplicationId();
     switch (applicationId) {
       case CastMediaControlIntent.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID:
+      case DefaultCastOptionsProvider.APP_ID_DEFAULT_RECEIVER_WITH_DRM:
         playerManager =
             new DefaultReceiverPlayerManager(
                 /* listener= */ this,
@@ -202,11 +205,17 @@ public class MainActivity extends AppCompatActivity
               .setMedia(sample.uri)
               .setTitle(sample.name)
               .setMimeType(sample.mimeType);
-          if (sample.drmSchemeUuid != null) {
+          DemoUtil.DrmConfiguration drmConfiguration = sample.drmConfiguration;
+          if (drmConfiguration != null) {
             mediaItemBuilder.setDrmSchemes(
                 Collections.singletonList(
                     new MediaItem.DrmScheme(
-                        sample.drmSchemeUuid, new MediaItem.UriBundle(sample.licenseServerUri))));
+                        drmConfiguration.drmSchemeUuid,
+                        new MediaItem.UriBundle(
+                            drmConfiguration.licenseServerUri != null
+                                ? Uri.parse(drmConfiguration.licenseServerUri)
+                                : Uri.EMPTY,
+                            drmConfiguration.httpRequestHeaders))));
           }
           playerManager.addItem(mediaItemBuilder.build());
           mediaQueueListAdapter.notifyItemInserted(playerManager.getMediaQueueSize() - 1);

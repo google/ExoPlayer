@@ -44,11 +44,14 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.cast.MediaQueueItem;
 import com.google.android.gms.cast.framework.CastContext;
 import java.util.ArrayList;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /** Manages players and an internal media queue for the ExoPlayer/Cast demo app. */
 /* package */ class DefaultReceiverPlayerManager
@@ -394,12 +397,47 @@ import java.util.ArrayList;
   private static MediaQueueItem buildMediaQueueItem(MediaItem item) {
     MediaMetadata movieMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE);
     movieMetadata.putString(MediaMetadata.KEY_TITLE, item.title);
-    MediaInfo mediaInfo =
+    MediaInfo.Builder mediaInfoBuilder =
         new MediaInfo.Builder(item.media.uri.toString())
             .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
             .setContentType(item.mimeType)
-            .setMetadata(movieMetadata)
-            .build();
-    return new MediaQueueItem.Builder(mediaInfo).build();
+            .setMetadata(movieMetadata);
+    if (!item.drmSchemes.isEmpty()) {
+      MediaItem.DrmScheme scheme = item.drmSchemes.get(0);
+      try {
+        // This configuration is only intended for testing and should *not* be used in production
+        // environments. See comment in the Cast Demo app's options provider.
+        JSONObject drmConfiguration = getDrmConfigurationJson(scheme);
+        if (drmConfiguration != null) {
+          mediaInfoBuilder.setCustomData(drmConfiguration);
+        }
+      } catch (JSONException e) {
+        throw new RuntimeException(e);
+      }
+    }
+    return new MediaQueueItem.Builder(mediaInfoBuilder.build()).build();
+  }
+
+  @Nullable
+  private static JSONObject getDrmConfigurationJson(MediaItem.DrmScheme scheme)
+      throws JSONException {
+    String drmScheme;
+    if (C.WIDEVINE_UUID.equals(scheme.uuid)) {
+      drmScheme = "widevine";
+    } else if (C.PLAYREADY_UUID.equals(scheme.uuid)) {
+      drmScheme = "playready";
+    } else {
+      return null;
+    }
+    MediaItem.UriBundle licenseServer = Assertions.checkNotNull(scheme.licenseServer);
+    JSONObject exoplayerConfig =
+        new JSONObject().put("withCredentials", false).put("protectionSystem", drmScheme);
+    if (!licenseServer.uri.equals(Uri.EMPTY)) {
+      exoplayerConfig.put("licenseUrl", licenseServer.uri.toString());
+    }
+    if (!licenseServer.requestHeaders.isEmpty()) {
+      exoplayerConfig.put("headers", new JSONObject(licenseServer.requestHeaders));
+    }
+    return new JSONObject().put("exoPlayerConfig", exoplayerConfig);
   }
 }
