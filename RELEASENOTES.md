@@ -2,6 +2,7 @@
 
 ### dev-v2 (not yet released) ###
 
+* Add basic DRM support to the Cast demo app.
 * Add `ResolvingDataSource` for just-in-time resolution of `DataSpec`s
   ([#5779](https://github.com/google/ExoPlayer/issues/5779)).
 * Assume that encrypted content requires secure decoders in renderer support
