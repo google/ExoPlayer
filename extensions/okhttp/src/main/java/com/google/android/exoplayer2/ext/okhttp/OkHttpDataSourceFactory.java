@@ -89,7 +89,6 @@ public final class OkHttpDataSourceFactory extends BaseFactory {
         new OkHttpDataSource(
             callFactory,
             userAgent,
-            /* contentTypePredicate= */ null,
             cacheControl,
             defaultRequestProperties);
     if (listener != null) {

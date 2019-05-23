@@ -74,13 +74,13 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   private final int connectTimeoutMillis;
   private final int readTimeoutMillis;
   private final String userAgent;
-  private final @Nullable Predicate<String> contentTypePredicate;
-  private final @Nullable RequestProperties defaultRequestProperties;
+  @Nullable private final RequestProperties defaultRequestProperties;
   private final RequestProperties requestProperties;
 
-  private @Nullable DataSpec dataSpec;
-  private @Nullable HttpURLConnection connection;
-  private @Nullable InputStream inputStream;
+  @Nullable private Predicate<String> contentTypePredicate;
+  @Nullable private DataSpec dataSpec;
+  @Nullable private HttpURLConnection connection;
+  @Nullable private InputStream inputStream;
   private boolean opened;
 
   private long bytesToSkip;
@@ -91,7 +91,50 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
 
   /** @param userAgent The User-Agent string that should be used. */
   public DefaultHttpDataSource(String userAgent) {
-    this(userAgent, /* contentTypePredicate= */ null);
+    this(userAgent, DEFAULT_CONNECT_TIMEOUT_MILLIS, DEFAULT_READ_TIMEOUT_MILLIS);
+  }
+
+  /**
+   * @param userAgent The User-Agent string that should be used.
+   * @param connectTimeoutMillis The connection timeout, in milliseconds. A timeout of zero is
+   *     interpreted as an infinite timeout.
+   * @param readTimeoutMillis The read timeout, in milliseconds. A timeout of zero is interpreted as
+   *     an infinite timeout.
+   */
+  public DefaultHttpDataSource(String userAgent, int connectTimeoutMillis, int readTimeoutMillis) {
+    this(
+        userAgent,
+        connectTimeoutMillis,
+        readTimeoutMillis,
+        /* allowCrossProtocolRedirects= */ false,
+        /* defaultRequestProperties= */ null);
+  }
+
+  /**
+   * @param userAgent The User-Agent string that should be used.
+   * @param connectTimeoutMillis The connection timeout, in milliseconds. A timeout of zero is
+   *     interpreted as an infinite timeout. Pass {@link #DEFAULT_CONNECT_TIMEOUT_MILLIS} to use the
+   *     default value.
+   * @param readTimeoutMillis The read timeout, in milliseconds. A timeout of zero is interpreted as
+   *     an infinite timeout. Pass {@link #DEFAULT_READ_TIMEOUT_MILLIS} to use the default value.
+   * @param allowCrossProtocolRedirects Whether cross-protocol redirects (i.e. redirects from HTTP
+   *     to HTTPS and vice versa) are enabled.
+   * @param defaultRequestProperties The default request properties to be sent to the server as HTTP
+   *     headers or {@code null} if not required.
+   */
+  public DefaultHttpDataSource(
+      String userAgent,
+      int connectTimeoutMillis,
+      int readTimeoutMillis,
+      boolean allowCrossProtocolRedirects,
+      @Nullable RequestProperties defaultRequestProperties) {
+    super(/* isNetwork= */ true);
+    this.userAgent = Assertions.checkNotEmpty(userAgent);
+    this.requestProperties = new RequestProperties();
+    this.connectTimeoutMillis = connectTimeoutMillis;
+    this.readTimeoutMillis = readTimeoutMillis;
+    this.allowCrossProtocolRedirects = allowCrossProtocolRedirects;
+    this.defaultRequestProperties = defaultRequestProperties;
   }
 
   /**
@@ -99,7 +142,10 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
    *     predicate then a {@link HttpDataSource.InvalidContentTypeException} is thrown from {@link
    *     #open(DataSpec)}.
+   * @deprecated Use {@link #DefaultHttpDataSource(String)} and {@link
+   *     #setContentTypePredicate(Predicate)}.
    */
+  @Deprecated
   public DefaultHttpDataSource(String userAgent, @Nullable Predicate<String> contentTypePredicate) {
     this(
         userAgent,
@@ -117,7 +163,10 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    *     interpreted as an infinite timeout.
    * @param readTimeoutMillis The read timeout, in milliseconds. A timeout of zero is interpreted as
    *     an infinite timeout.
+   * @deprecated Use {@link #DefaultHttpDataSource(String, int, int)} and {@link
+   *     #setContentTypePredicate(Predicate)}.
    */
+  @Deprecated
   public DefaultHttpDataSource(
       String userAgent,
       @Nullable Predicate<String> contentTypePredicate,
@@ -146,7 +195,10 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    *     to HTTPS and vice versa) are enabled.
    * @param defaultRequestProperties The default request properties to be sent to the server as HTTP
    *     headers or {@code null} if not required.
+   * @deprecated Use {@link #DefaultHttpDataSource(String, int, int, boolean, RequestProperties)}
+   *     and {@link #setContentTypePredicate(Predicate)}.
    */
+  @Deprecated
   public DefaultHttpDataSource(
       String userAgent,
       @Nullable Predicate<String> contentTypePredicate,
@@ -162,6 +214,17 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     this.readTimeoutMillis = readTimeoutMillis;
     this.allowCrossProtocolRedirects = allowCrossProtocolRedirects;
     this.defaultRequestProperties = defaultRequestProperties;
+  }
+
+  /**
+   * Sets a content type {@link Predicate}. If a content type is rejected by the predicate then a
+   * {@link HttpDataSource.InvalidContentTypeException} is thrown from {@link #open(DataSpec)}.
+   *
+   * @param contentTypePredicate The content type {@link Predicate}, or {@code null} to clear a
+   *     predicate that was previously set.
+   */
+  public void setContentTypePredicate(@Nullable Predicate<String> contentTypePredicate) {
+    this.contentTypePredicate = contentTypePredicate;
   }
 
   @Override
