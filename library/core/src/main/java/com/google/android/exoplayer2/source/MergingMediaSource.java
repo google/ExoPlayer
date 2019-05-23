@@ -71,9 +71,9 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
   private final ArrayList<MediaSource> pendingTimelineSources;
   private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
 
-  private Object primaryManifest;
+  @Nullable private Object primaryManifest;
   private int periodCount;
-  private IllegalMergeException mergeError;
+  @Nullable private IllegalMergeException mergeError;
 
   /**
    * @param mediaSources The {@link MediaSource}s to merge.
@@ -170,11 +170,13 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
   }
 
   @Override
-  protected @Nullable MediaPeriodId getMediaPeriodIdForChildMediaPeriodId(
+  @Nullable
+  protected MediaPeriodId getMediaPeriodIdForChildMediaPeriodId(
       Integer id, MediaPeriodId mediaPeriodId) {
     return id == 0 ? mediaPeriodId : null;
   }
 
+  @Nullable
   private IllegalMergeException checkTimelineMerges(Timeline timeline) {
     if (periodCount == PERIOD_COUNT_UNSET) {
       periodCount = timeline.getPeriodCount();

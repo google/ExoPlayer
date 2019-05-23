@@ -19,6 +19,7 @@ import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.util.Assertions;
 
 /**
  * Abstract base class for the concatenation of one or more {@link Timeline}s.
@@ -35,6 +36,7 @@ import com.google.android.exoplayer2.Timeline;
    * @param concatenatedUid UID of a period in a concatenated timeline.
    * @return UID of the child timeline this period belongs to.
    */
+  @SuppressWarnings("nullness:return.type.incompatible")
   public static Object getChildTimelineUidFromConcatenatedUid(Object concatenatedUid) {
     return ((Pair<?, ?>) concatenatedUid).first;
   }
@@ -45,6 +47,7 @@ import com.google.android.exoplayer2.Timeline;
    * @param concatenatedUid UID of a period in a concatenated timeline.
    * @return UID of the period in the child timeline.
    */
+  @SuppressWarnings("nullness:return.type.incompatible")
   public static Object getChildPeriodUidFromConcatenatedUid(Object concatenatedUid) {
     return ((Pair<?, ?>) concatenatedUid).second;
   }
@@ -220,7 +223,9 @@ import com.google.android.exoplayer2.Timeline;
         setIds);
     period.windowIndex += firstWindowIndexInChild;
     if (setIds) {
-      period.uid = getConcatenatedUid(getChildUidByChildIndex(childIndex), period.uid);
+      period.uid =
+          getConcatenatedUid(
+              getChildUidByChildIndex(childIndex), Assertions.checkNotNull(period.uid));
     }
     return period;
   }
