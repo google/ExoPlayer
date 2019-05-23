@@ -237,5 +237,7 @@ Supported optional extras for a playlist intent are:
 * `prefer_extension_decoders`, `abr_algorithm`, `drm_scheme`, `drm_license_url`,
   `drm_key_request_properties` and `drm_multi_session`, all as described above
 
+[IMA extension]: {{ site.release_v2 }}/extensions/ima
+[Interactive Media Ads SDK]: https://developers.google.com/interactive-media-ads
 [GitHub project]: https://github.com/google/ExoPlayer
 [Supported devices]: {{ site.baseurl }}/supported-devices.html
