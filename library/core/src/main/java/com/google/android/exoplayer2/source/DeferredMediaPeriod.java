@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static com.google.android.exoplayer2.util.Util.castNonNull;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.SeekParameters;
@@ -22,6 +24,7 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import java.io.IOException;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
  * Media period that wraps a media source and defers calling its {@link
@@ -47,10 +50,10 @@ public final class DeferredMediaPeriod implements MediaPeriod, MediaPeriod.Callb
 
   private final Allocator allocator;
 
-  private MediaPeriod mediaPeriod;
-  private Callback callback;
+  @Nullable private MediaPeriod mediaPeriod;
+  @Nullable private Callback callback;
   private long preparePositionUs;
-  private @Nullable PrepareErrorListener listener;
+  @Nullable private PrepareErrorListener listener;
   private boolean notifiedPrepareError;
   private long preparePositionOverrideUs;
 
@@ -150,53 +153,57 @@ public final class DeferredMediaPeriod implements MediaPeriod, MediaPeriod.Callb
 
   @Override
   public TrackGroupArray getTrackGroups() {
-    return mediaPeriod.getTrackGroups();
+    return castNonNull(mediaPeriod).getTrackGroups();
   }
 
   @Override
-  public long selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
-      SampleStream[] streams, boolean[] streamResetFlags, long positionUs) {
+  public long selectTracks(
+      @NullableType TrackSelection[] selections,
+      boolean[] mayRetainStreamFlags,
+      @NullableType SampleStream[] streams,
+      boolean[] streamResetFlags,
+      long positionUs) {
     if (preparePositionOverrideUs != C.TIME_UNSET && positionUs == preparePositionUs) {
       positionUs = preparePositionOverrideUs;
       preparePositionOverrideUs = C.TIME_UNSET;
     }
-    return mediaPeriod.selectTracks(selections, mayRetainStreamFlags, streams, streamResetFlags,
-        positionUs);
+    return castNonNull(mediaPeriod)
+        .selectTracks(selections, mayRetainStreamFlags, streams, streamResetFlags, positionUs);
   }
 
   @Override
   public void discardBuffer(long positionUs, boolean toKeyframe) {
-    mediaPeriod.discardBuffer(positionUs, toKeyframe);
+    castNonNull(mediaPeriod).discardBuffer(positionUs, toKeyframe);
   }
 
   @Override
   public long readDiscontinuity() {
-    return mediaPeriod.readDiscontinuity();
+    return castNonNull(mediaPeriod).readDiscontinuity();
   }
 
   @Override
   public long getBufferedPositionUs() {
-    return mediaPeriod.getBufferedPositionUs();
+    return castNonNull(mediaPeriod).getBufferedPositionUs();
   }
 
   @Override
   public long seekToUs(long positionUs) {
-    return mediaPeriod.seekToUs(positionUs);
+    return castNonNull(mediaPeriod).seekToUs(positionUs);
   }
 
   @Override
   public long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters) {
-    return mediaPeriod.getAdjustedSeekPositionUs(positionUs, seekParameters);
+    return castNonNull(mediaPeriod).getAdjustedSeekPositionUs(positionUs, seekParameters);
   }
 
   @Override
   public long getNextLoadPositionUs() {
-    return mediaPeriod.getNextLoadPositionUs();
+    return castNonNull(mediaPeriod).getNextLoadPositionUs();
   }
 
   @Override
   public void reevaluateBuffer(long positionUs) {
-    mediaPeriod.reevaluateBuffer(positionUs);
+    castNonNull(mediaPeriod).reevaluateBuffer(positionUs);
   }
 
   @Override
@@ -206,14 +213,14 @@ public final class DeferredMediaPeriod implements MediaPeriod, MediaPeriod.Callb
 
   @Override
   public void onContinueLoadingRequested(MediaPeriod source) {
-    callback.onContinueLoadingRequested(this);
+    castNonNull(callback).onContinueLoadingRequested(this);
   }
 
   // MediaPeriod.Callback implementation
 
   @Override
   public void onPrepared(MediaPeriod mediaPeriod) {
-    callback.onPrepared(this);
+    castNonNull(callback).onPrepared(this);
   }
 
   private long getPreparePositionWithOverride(long preparePositionUs) {

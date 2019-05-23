@@ -18,12 +18,15 @@ package com.google.android.exoplayer2.source.ads;
 import android.net.Uri;
 import androidx.annotation.CheckResult;
 import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
  * Represents ad group times relative to the start of the media and information on the state and
@@ -45,9 +48,9 @@ public final class AdPlaybackState {
     /** The number of ads in the ad group, or {@link C#LENGTH_UNSET} if unknown. */
     public final int count;
     /** The URI of each ad in the ad group. */
-    public final Uri[] uris;
+    public final @NullableType Uri[] uris;
     /** The state of each ad in the ad group. */
-    public final @AdState int[] states;
+    @AdState public final int[] states;
     /** The durations of each ad in the ad group, in microseconds. */
     public final long[] durationsUs;
 
@@ -60,7 +63,8 @@ public final class AdPlaybackState {
           /* durationsUs= */ new long[0]);
     }
 
-    private AdGroup(int count, @AdState int[] states, Uri[] uris, long[] durationsUs) {
+    private AdGroup(
+        int count, @AdState int[] states, @NullableType Uri[] uris, long[] durationsUs) {
       Assertions.checkArgument(states.length == uris.length);
       this.count = count;
       this.states = states;
@@ -98,7 +102,7 @@ public final class AdPlaybackState {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
       if (this == o) {
         return true;
       }
@@ -130,7 +134,7 @@ public final class AdPlaybackState {
       Assertions.checkArgument(this.count == C.LENGTH_UNSET && states.length <= count);
       @AdState int[] states = copyStatesWithSpaceForAdCount(this.states, count);
       long[] durationsUs = copyDurationsUsWithSpaceForAdCount(this.durationsUs, count);
-      Uri[] uris = Arrays.copyOf(this.uris, count);
+      @NullableType Uri[] uris = Arrays.copyOf(this.uris, count);
       return new AdGroup(count, states, uris, durationsUs);
     }
 
@@ -151,7 +155,7 @@ public final class AdPlaybackState {
           this.durationsUs.length == states.length
               ? this.durationsUs
               : copyDurationsUsWithSpaceForAdCount(this.durationsUs, states.length);
-      Uri[] uris = Arrays.copyOf(this.uris, states.length);
+      @NullableType Uri[] uris = Arrays.copyOf(this.uris, states.length);
       uris[index] = uri;
       states[index] = AD_STATE_AVAILABLE;
       return new AdGroup(count, states, uris, durationsUs);
@@ -177,6 +181,7 @@ public final class AdPlaybackState {
           this.durationsUs.length == states.length
               ? this.durationsUs
               : copyDurationsUsWithSpaceForAdCount(this.durationsUs, states.length);
+      @NullableType
       Uri[] uris =
           this.uris.length == states.length ? this.uris : Arrays.copyOf(this.uris, states.length);
       states[index] = state;
@@ -362,7 +367,7 @@ public final class AdPlaybackState {
     if (adGroups[adGroupIndex].count == adCount) {
       return this;
     }
-    AdGroup[] adGroups = Arrays.copyOf(this.adGroups, this.adGroups.length);
+    AdGroup[] adGroups = Util.nullSafeArrayCopy(this.adGroups, this.adGroups.length);
     adGroups[adGroupIndex] = this.adGroups[adGroupIndex].withAdCount(adCount);
     return new AdPlaybackState(adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
   }
@@ -370,7 +375,7 @@ public final class AdPlaybackState {
   /** Returns an instance with the specified ad URI. */
   @CheckResult
   public AdPlaybackState withAdUri(int adGroupIndex, int adIndexInAdGroup, Uri uri) {
-    AdGroup[] adGroups = Arrays.copyOf(this.adGroups, this.adGroups.length);
+    AdGroup[] adGroups = Util.nullSafeArrayCopy(this.adGroups, this.adGroups.length);
     adGroups[adGroupIndex] = adGroups[adGroupIndex].withAdUri(uri, adIndexInAdGroup);
     return new AdPlaybackState(adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
   }
@@ -378,7 +383,7 @@ public final class AdPlaybackState {
   /** Returns an instance with the specified ad marked as played. */
   @CheckResult
   public AdPlaybackState withPlayedAd(int adGroupIndex, int adIndexInAdGroup) {
-    AdGroup[] adGroups = Arrays.copyOf(this.adGroups, this.adGroups.length);
+    AdGroup[] adGroups = Util.nullSafeArrayCopy(this.adGroups, this.adGroups.length);
     adGroups[adGroupIndex] = adGroups[adGroupIndex].withAdState(AD_STATE_PLAYED, adIndexInAdGroup);
     return new AdPlaybackState(adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
   }
@@ -386,7 +391,7 @@ public final class AdPlaybackState {
   /** Returns an instance with the specified ad marked as skipped. */
   @CheckResult
   public AdPlaybackState withSkippedAd(int adGroupIndex, int adIndexInAdGroup) {
-    AdGroup[] adGroups = Arrays.copyOf(this.adGroups, this.adGroups.length);
+    AdGroup[] adGroups = Util.nullSafeArrayCopy(this.adGroups, this.adGroups.length);
     adGroups[adGroupIndex] = adGroups[adGroupIndex].withAdState(AD_STATE_SKIPPED, adIndexInAdGroup);
     return new AdPlaybackState(adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
   }
@@ -394,7 +399,7 @@ public final class AdPlaybackState {
   /** Returns an instance with the specified ad marked as having a load error. */
   @CheckResult
   public AdPlaybackState withAdLoadError(int adGroupIndex, int adIndexInAdGroup) {
-    AdGroup[] adGroups = Arrays.copyOf(this.adGroups, this.adGroups.length);
+    AdGroup[] adGroups = Util.nullSafeArrayCopy(this.adGroups, this.adGroups.length);
     adGroups[adGroupIndex] = adGroups[adGroupIndex].withAdState(AD_STATE_ERROR, adIndexInAdGroup);
     return new AdPlaybackState(adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
   }
@@ -405,7 +410,7 @@ public final class AdPlaybackState {
    */
   @CheckResult
   public AdPlaybackState withSkippedAdGroup(int adGroupIndex) {
-    AdGroup[] adGroups = Arrays.copyOf(this.adGroups, this.adGroups.length);
+    AdGroup[] adGroups = Util.nullSafeArrayCopy(this.adGroups, this.adGroups.length);
     adGroups[adGroupIndex] = adGroups[adGroupIndex].withAllAdsSkipped();
     return new AdPlaybackState(adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
   }
@@ -413,7 +418,7 @@ public final class AdPlaybackState {
   /** Returns an instance with the specified ad durations, in microseconds. */
   @CheckResult
   public AdPlaybackState withAdDurationsUs(long[][] adDurationUs) {
-    AdGroup[] adGroups = Arrays.copyOf(this.adGroups, this.adGroups.length);
+    AdGroup[] adGroups = Util.nullSafeArrayCopy(this.adGroups, this.adGroups.length);
     for (int adGroupIndex = 0; adGroupIndex < adGroupCount; adGroupIndex++) {
       adGroups[adGroupIndex] = adGroups[adGroupIndex].withAdDurationsUs(adDurationUs[adGroupIndex]);
     }
@@ -441,7 +446,7 @@ public final class AdPlaybackState {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     if (this == o) {
       return true;
     }

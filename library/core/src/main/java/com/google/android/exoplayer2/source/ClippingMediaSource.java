@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
+
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -86,9 +87,9 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
   private final ArrayList<ClippingMediaPeriod> mediaPeriods;
   private final Timeline.Window window;
 
-  private @Nullable Object manifest;
-  private ClippingTimeline clippingTimeline;
-  private IllegalClippingException clippingError;
+  @Nullable private Object manifest;
+  @Nullable private ClippingTimeline clippingTimeline;
+  @Nullable private IllegalClippingException clippingError;
   private long periodStartUs;
   private long periodEndUs;
 
@@ -222,7 +223,7 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
     Assertions.checkState(mediaPeriods.remove(mediaPeriod));
     mediaSource.releasePeriod(((ClippingMediaPeriod) mediaPeriod).mediaPeriod);
     if (mediaPeriods.isEmpty() && !allowDynamicClippingUpdates) {
-      refreshClippedTimeline(clippingTimeline.timeline);
+      refreshClippedTimeline(Assertions.checkNotNull(clippingTimeline).timeline);
     }
   }
 
