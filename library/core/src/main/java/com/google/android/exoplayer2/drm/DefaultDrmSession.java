@@ -74,7 +74,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   public interface ReleaseCallback<T extends ExoMediaCrypto> {
 
     /**
-     * Called when the session is released.
+     * Called immediately after releasing session resources.
      *
      * @param session The session.
      */
@@ -85,7 +85,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private static final int MSG_PROVISION = 0;
   private static final int MSG_KEYS = 1;
-  private static final int MAX_LICENSE_DURATION_TO_RENEW = 60;
+  private static final int MAX_LICENSE_DURATION_TO_RENEW_SECONDS = 60;
 
   /** The DRM scheme datas, or null if this session uses offline keys. */
   public final @Nullable List<SchemeData> schemeDatas;
@@ -104,10 +104,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private @DrmSession.State int state;
   private int openCount;
-  private HandlerThread requestHandlerThread;
-  private PostRequestHandler postRequestHandler;
-  private @Nullable T mediaCrypto;
-  private @Nullable DrmSessionException lastException;
+  @Nullable private HandlerThread requestHandlerThread;
+  @Nullable private PostRequestHandler postRequestHandler;
+  @Nullable private T mediaCrypto;
+  @Nullable private DrmSessionException lastException;
   private byte @MonotonicNonNull [] sessionId;
   private byte @MonotonicNonNull [] offlineLicenseKeySetId;
 
@@ -166,35 +166,31 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     this.initialDrmRequestRetryCount = initialDrmRequestRetryCount;
     this.eventDispatcher = eventDispatcher;
     state = STATE_OPENING;
-
     postResponseHandler = new PostResponseHandler(playbackLooper);
-    requestHandlerThread = new HandlerThread("DrmRequestHandler");
-    requestHandlerThread.start();
-    postRequestHandler = new PostRequestHandler(requestHandlerThread.getLooper());
   }
 
   // Life cycle.
 
   public void acquire() {
     if (++openCount == 1) {
-      if (state == STATE_ERROR) {
-        return;
-      }
+      requestHandlerThread = new HandlerThread("DrmRequestHandler");
+      requestHandlerThread.start();
+      postRequestHandler = new PostRequestHandler(requestHandlerThread.getLooper());
       if (openInternal(true)) {
         doLicense(true);
       }
     }
   }
 
-  // Assigning null to various non-null variables for clean-up. Class won't be used after release.
   @SuppressWarnings("assignment.type.incompatible")
   public void release() {
     if (--openCount == 0) {
+      // Assigning null to various non-null variables for clean-up.
       state = STATE_RELEASED;
       postResponseHandler.removeCallbacksAndMessages(null);
-      postRequestHandler.removeCallbacksAndMessages(null);
+      Util.castNonNull(postRequestHandler).removeCallbacksAndMessages(null);
       postRequestHandler = null;
-      requestHandlerThread.quit();
+      Util.castNonNull(requestHandlerThread).quit();
       requestHandlerThread = null;
       mediaCrypto = null;
       lastException = null;
@@ -227,7 +223,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   public void provision() {
     currentProvisionRequest = mediaDrm.getProvisionRequest();
-    postRequestHandler.post(MSG_PROVISION, currentProvisionRequest, /* allowRetry= */ true);
+    Util.castNonNull(postRequestHandler)
+        .post(
+            MSG_PROVISION,
+            Assertions.checkNotNull(currentProvisionRequest),
+            /* allowRetry= */ true);
   }
 
   public void onProvisionCompleted() {
@@ -335,7 +335,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         } else if (state == STATE_OPENED_WITH_KEYS || restoreKeys()) {
           long licenseDurationRemainingSec = getLicenseDurationRemainingSec();
           if (mode == DefaultDrmSessionManager.MODE_PLAYBACK
-              && licenseDurationRemainingSec <= MAX_LICENSE_DURATION_TO_RENEW) {
+              && licenseDurationRemainingSec <= MAX_LICENSE_DURATION_TO_RENEW_SECONDS) {
             Log.d(
                 TAG,
                 "Offline license has expired or will expire soon. "
@@ -398,7 +398,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     try {
       currentKeyRequest =
           mediaDrm.getKeyRequest(scope, schemeDatas, type, optionalKeyRequestParameters);
-      postRequestHandler.post(MSG_KEYS, currentKeyRequest, allowRetry);
+      Util.castNonNull(postRequestHandler)
+          .post(MSG_KEYS, Assertions.checkNotNull(currentKeyRequest), allowRetry);
     } catch (Exception e) {
       onKeysError(e);
     }
