@@ -53,7 +53,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -742,11 +741,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       try {
         List<MediaCodecInfo> allAvailableCodecInfos =
             getAvailableCodecInfos(mediaCryptoRequiresSecureDecoder);
+        availableCodecInfos = new ArrayDeque<>();
         if (enableDecoderFallback) {
-          availableCodecInfos = new ArrayDeque<>(allAvailableCodecInfos);
-        } else {
-          availableCodecInfos =
-              new ArrayDeque<>(Collections.singletonList(allAvailableCodecInfos.get(0)));
+          availableCodecInfos.addAll(allAvailableCodecInfos);
+        } else if (!allAvailableCodecInfos.isEmpty()) {
+          availableCodecInfos.add(allAvailableCodecInfos.get(0));
         }
         preferredDecoderInitializationException = null;
       } catch (DecoderQueryException e) {
