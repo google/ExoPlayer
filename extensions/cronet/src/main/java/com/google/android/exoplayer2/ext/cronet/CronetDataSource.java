@@ -116,7 +116,6 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
 
   private final CronetEngine cronetEngine;
   private final Executor executor;
-  @Nullable private final Predicate<String> contentTypePredicate;
   private final int connectTimeoutMs;
   private final int readTimeoutMs;
   private final boolean resetTimeoutOnRedirects;
@@ -125,6 +124,8 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   private final RequestProperties requestProperties;
   private final ConditionVariable operation;
   private final Clock clock;
+
+  @Nullable private Predicate<String> contentTypePredicate;
 
   // Accessed by the calling thread only.
   private boolean opened;
@@ -158,7 +159,78 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
    *     handling is a fast operation when using a direct executor.
    */
   public CronetDataSource(CronetEngine cronetEngine, Executor executor) {
-    this(cronetEngine, executor, /* contentTypePredicate= */ null);
+    this(
+        cronetEngine,
+        executor,
+        DEFAULT_CONNECT_TIMEOUT_MILLIS,
+        DEFAULT_READ_TIMEOUT_MILLIS,
+        /* resetTimeoutOnRedirects= */ false,
+        /* defaultRequestProperties= */ null);
+  }
+
+  /**
+   * @param cronetEngine A CronetEngine.
+   * @param executor The {@link java.util.concurrent.Executor} that will handle responses. This may
+   *     be a direct executor (i.e. executes tasks on the calling thread) in order to avoid a thread
+   *     hop from Cronet's internal network thread to the response handling thread. However, to
+   *     avoid slowing down overall network performance, care must be taken to make sure response
+   *     handling is a fast operation when using a direct executor.
+   * @param connectTimeoutMs The connection timeout, in milliseconds.
+   * @param readTimeoutMs The read timeout, in milliseconds.
+   * @param resetTimeoutOnRedirects Whether the connect timeout is reset when a redirect occurs.
+   * @param defaultRequestProperties Optional default {@link RequestProperties} to be sent to the
+   *     server as HTTP headers on every request.
+   */
+  public CronetDataSource(
+      CronetEngine cronetEngine,
+      Executor executor,
+      int connectTimeoutMs,
+      int readTimeoutMs,
+      boolean resetTimeoutOnRedirects,
+      @Nullable RequestProperties defaultRequestProperties) {
+    this(
+        cronetEngine,
+        executor,
+        connectTimeoutMs,
+        readTimeoutMs,
+        resetTimeoutOnRedirects,
+        Clock.DEFAULT,
+        defaultRequestProperties,
+        /* handleSetCookieRequests= */ false);
+  }
+
+  /**
+   * @param cronetEngine A CronetEngine.
+   * @param executor The {@link java.util.concurrent.Executor} that will handle responses. This may
+   *     be a direct executor (i.e. executes tasks on the calling thread) in order to avoid a thread
+   *     hop from Cronet's internal network thread to the response handling thread. However, to
+   *     avoid slowing down overall network performance, care must be taken to make sure response
+   *     handling is a fast operation when using a direct executor.
+   * @param connectTimeoutMs The connection timeout, in milliseconds.
+   * @param readTimeoutMs The read timeout, in milliseconds.
+   * @param resetTimeoutOnRedirects Whether the connect timeout is reset when a redirect occurs.
+   * @param defaultRequestProperties Optional default {@link RequestProperties} to be sent to the
+   *     server as HTTP headers on every request.
+   * @param handleSetCookieRequests Whether "Set-Cookie" requests on redirect should be forwarded to
+   *     the redirect url in the "Cookie" header.
+   */
+  public CronetDataSource(
+      CronetEngine cronetEngine,
+      Executor executor,
+      int connectTimeoutMs,
+      int readTimeoutMs,
+      boolean resetTimeoutOnRedirects,
+      @Nullable RequestProperties defaultRequestProperties,
+      boolean handleSetCookieRequests) {
+    this(
+        cronetEngine,
+        executor,
+        connectTimeoutMs,
+        readTimeoutMs,
+        resetTimeoutOnRedirects,
+        Clock.DEFAULT,
+        defaultRequestProperties,
+        handleSetCookieRequests);
   }
 
   /**
@@ -171,7 +243,10 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
    *     predicate then an {@link InvalidContentTypeException} is thrown from {@link
    *     #open(DataSpec)}.
+   * @deprecated Use {@link #CronetDataSource(CronetEngine, Executor)} and {@link
+   *     #setContentTypePredicate(Predicate)}.
    */
+  @Deprecated
   public CronetDataSource(
       CronetEngine cronetEngine,
       Executor executor,
@@ -182,9 +257,8 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
         contentTypePredicate,
         DEFAULT_CONNECT_TIMEOUT_MILLIS,
         DEFAULT_READ_TIMEOUT_MILLIS,
-        false,
-        null,
-        false);
+        /* resetTimeoutOnRedirects= */ false,
+        /* defaultRequestProperties= */ null);
   }
 
   /**
@@ -200,9 +274,12 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
    * @param connectTimeoutMs The connection timeout, in milliseconds.
    * @param readTimeoutMs The read timeout, in milliseconds.
    * @param resetTimeoutOnRedirects Whether the connect timeout is reset when a redirect occurs.
-   * @param defaultRequestProperties The optional default {@link RequestProperties} to be sent to
-   *     the server as HTTP headers on every request.
+   * @param defaultRequestProperties Optional default {@link RequestProperties} to be sent to the
+   *     server as HTTP headers on every request.
+   * @deprecated Use {@link #CronetDataSource(CronetEngine, Executor, int, int, boolean,
+   *     RequestProperties)} and {@link #setContentTypePredicate(Predicate)}.
    */
+  @Deprecated
   public CronetDataSource(
       CronetEngine cronetEngine,
       Executor executor,
@@ -218,9 +295,8 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
         connectTimeoutMs,
         readTimeoutMs,
         resetTimeoutOnRedirects,
-        Clock.DEFAULT,
         defaultRequestProperties,
-        false);
+        /* handleSetCookieRequests= */ false);
   }
 
   /**
@@ -236,11 +312,14 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
    * @param connectTimeoutMs The connection timeout, in milliseconds.
    * @param readTimeoutMs The read timeout, in milliseconds.
    * @param resetTimeoutOnRedirects Whether the connect timeout is reset when a redirect occurs.
-   * @param defaultRequestProperties The optional default {@link RequestProperties} to be sent to
-   *     the server as HTTP headers on every request.
+   * @param defaultRequestProperties Optional default {@link RequestProperties} to be sent to the
+   *     server as HTTP headers on every request.
    * @param handleSetCookieRequests Whether "Set-Cookie" requests on redirect should be forwarded to
    *     the redirect url in the "Cookie" header.
+   * @deprecated Use {@link #CronetDataSource(CronetEngine, Executor, int, int, boolean,
+   *     RequestProperties, boolean)} and {@link #setContentTypePredicate(Predicate)}.
    */
+  @Deprecated
   public CronetDataSource(
       CronetEngine cronetEngine,
       Executor executor,
@@ -253,19 +332,18 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     this(
         cronetEngine,
         executor,
-        contentTypePredicate,
         connectTimeoutMs,
         readTimeoutMs,
         resetTimeoutOnRedirects,
         Clock.DEFAULT,
         defaultRequestProperties,
         handleSetCookieRequests);
+    this.contentTypePredicate = contentTypePredicate;
   }
 
   /* package */ CronetDataSource(
       CronetEngine cronetEngine,
       Executor executor,
-      @Nullable Predicate<String> contentTypePredicate,
       int connectTimeoutMs,
       int readTimeoutMs,
       boolean resetTimeoutOnRedirects,
@@ -276,7 +354,6 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     this.urlRequestCallback = new UrlRequestCallback();
     this.cronetEngine = Assertions.checkNotNull(cronetEngine);
     this.executor = Assertions.checkNotNull(executor);
-    this.contentTypePredicate = contentTypePredicate;
     this.connectTimeoutMs = connectTimeoutMs;
     this.readTimeoutMs = readTimeoutMs;
     this.resetTimeoutOnRedirects = resetTimeoutOnRedirects;
@@ -285,6 +362,17 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     this.handleSetCookieRequests = handleSetCookieRequests;
     requestProperties = new RequestProperties();
     operation = new ConditionVariable();
+  }
+
+  /**
+   * Sets a content type {@link Predicate}. If a content type is rejected by the predicate then a
+   * {@link HttpDataSource.InvalidContentTypeException} is thrown from {@link #open(DataSpec)}.
+   *
+   * @param contentTypePredicate The content type {@link Predicate}, or {@code null} to clear a
+   *     predicate that was previously set.
+   */
+  public void setContentTypePredicate(@Nullable Predicate<String> contentTypePredicate) {
+    this.contentTypePredicate = contentTypePredicate;
   }
 
   // HttpDataSource implementation.
@@ -363,6 +451,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     }
 
     // Check for a valid content type.
+    Predicate<String> contentTypePredicate = this.contentTypePredicate;
     if (contentTypePredicate != null) {
       List<String> contentTypeHeaders = responseInfo.getAllHeaders().get(CONTENT_TYPE);
       String contentType = isEmpty(contentTypeHeaders) ? null : contentTypeHeaders.get(0);

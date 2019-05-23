@@ -38,7 +38,6 @@ import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource.HttpDataSourceException;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Clock;
-import com.google.android.exoplayer2.util.Predicate;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
@@ -85,7 +84,6 @@ public final class CronetDataSourceTest {
 
   @Mock private UrlRequest.Builder mockUrlRequestBuilder;
   @Mock private UrlRequest mockUrlRequest;
-  @Mock private Predicate<String> mockContentTypePredicate;
   @Mock private TransferListener mockTransferListener;
   @Mock private Executor mockExecutor;
   @Mock private NetworkException mockNetworkException;
@@ -95,21 +93,19 @@ public final class CronetDataSourceTest {
   private boolean redirectCalled;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     MockitoAnnotations.initMocks(this);
     dataSourceUnderTest =
         new CronetDataSource(
             mockCronetEngine,
             mockExecutor,
-            mockContentTypePredicate,
             TEST_CONNECT_TIMEOUT_MS,
             TEST_READ_TIMEOUT_MS,
-            true, // resetTimeoutOnRedirects
+            /* resetTimeoutOnRedirects= */ true,
             Clock.DEFAULT,
-            null,
-            false);
+            /* defaultRequestProperties= */ null,
+            /* handleSetCookieRequests= */ false);
     dataSourceUnderTest.addTransferListener(mockTransferListener);
-    when(mockContentTypePredicate.evaluate(anyString())).thenReturn(true);
     when(mockCronetEngine.newUrlRequestBuilder(
             anyString(), any(UrlRequest.Callback.class), any(Executor.class)))
         .thenReturn(mockUrlRequestBuilder);
@@ -283,7 +279,13 @@ public final class CronetDataSourceTest {
   @Test
   public void testRequestOpenValidatesContentTypePredicate() {
     mockResponseStartSuccess();
-    when(mockContentTypePredicate.evaluate(anyString())).thenReturn(false);
+
+    ArrayList<String> testedContentTypes = new ArrayList<>();
+    dataSourceUnderTest.setContentTypePredicate(
+        (String input) -> {
+          testedContentTypes.add(input);
+          return false;
+        });
 
     try {
       dataSourceUnderTest.open(testDataSpec);
@@ -292,7 +294,8 @@ public final class CronetDataSourceTest {
       assertThat(e instanceof HttpDataSource.InvalidContentTypeException).isTrue();
       // Check for connection not automatically closed.
       verify(mockUrlRequest, never()).cancel();
-      verify(mockContentTypePredicate).evaluate(TEST_CONTENT_TYPE);
+      assertThat(testedContentTypes).hasSize(1);
+      assertThat(testedContentTypes.get(0)).isEqualTo(TEST_CONTENT_TYPE);
     }
   }
 
@@ -734,7 +737,6 @@ public final class CronetDataSourceTest {
         new CronetDataSource(
             mockCronetEngine,
             mockExecutor,
-            mockContentTypePredicate,
             TEST_CONNECT_TIMEOUT_MS,
             TEST_READ_TIMEOUT_MS,
             true, // resetTimeoutOnRedirects
@@ -765,13 +767,12 @@ public final class CronetDataSourceTest {
         new CronetDataSource(
             mockCronetEngine,
             mockExecutor,
-            mockContentTypePredicate,
             TEST_CONNECT_TIMEOUT_MS,
             TEST_READ_TIMEOUT_MS,
-            true, // resetTimeoutOnRedirects
+            /* resetTimeoutOnRedirects= */ true,
             Clock.DEFAULT,
-            null,
-            true);
+            /* defaultRequestProperties= */ null,
+            /* handleSetCookieRequests= */ true);
     dataSourceUnderTest.addTransferListener(mockTransferListener);
     dataSourceUnderTest.setRequestProperty("Content-Type", TEST_CONTENT_TYPE);
 
@@ -804,13 +805,12 @@ public final class CronetDataSourceTest {
         new CronetDataSource(
             mockCronetEngine,
             mockExecutor,
-            mockContentTypePredicate,
             TEST_CONNECT_TIMEOUT_MS,
             TEST_READ_TIMEOUT_MS,
-            true, // resetTimeoutOnRedirects
+            /* resetTimeoutOnRedirects= */ true,
             Clock.DEFAULT,
-            null,
-            true);
+            /* defaultRequestProperties= */ null,
+            /* handleSetCookieRequests= */ true);
     dataSourceUnderTest.addTransferListener(mockTransferListener);
     mockSingleRedirectSuccess();
     mockFollowRedirectSuccess();

@@ -107,7 +107,6 @@ public final class DefaultHttpDataSourceFactory extends BaseFactory {
     DefaultHttpDataSource dataSource =
         new DefaultHttpDataSource(
             userAgent,
-            /* contentTypePredicate= */ null,
             connectTimeoutMillis,
             readTimeoutMillis,
             allowCrossProtocolRedirects,
