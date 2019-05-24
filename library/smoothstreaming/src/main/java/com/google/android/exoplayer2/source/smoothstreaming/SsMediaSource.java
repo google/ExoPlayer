@@ -323,12 +323,12 @@ public final class SsMediaSource extends BaseMediaSource
   private final EventDispatcher manifestEventDispatcher;
   private final ParsingLoadable.Parser<? extends SsManifest> manifestParser;
   private final ArrayList<SsMediaPeriod> mediaPeriods;
-  private final @Nullable Object tag;
+  @Nullable private final Object tag;
 
   private DataSource manifestDataSource;
   private Loader manifestLoader;
   private LoaderErrorThrower manifestLoaderErrorThrower;
-  private @Nullable TransferListener mediaTransferListener;
+  @Nullable private TransferListener mediaTransferListener;
 
   private long manifestLoadStartTimestamp;
   private SsManifest manifest;

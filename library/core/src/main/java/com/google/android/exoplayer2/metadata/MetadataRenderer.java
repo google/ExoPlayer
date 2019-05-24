@@ -48,7 +48,7 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
 
   private final MetadataDecoderFactory decoderFactory;
   private final MetadataOutput output;
-  private final @Nullable Handler outputHandler;
+  @Nullable private final Handler outputHandler;
   private final FormatHolder formatHolder;
   private final MetadataInputBuffer buffer;
   private final Metadata[] pendingMetadata;

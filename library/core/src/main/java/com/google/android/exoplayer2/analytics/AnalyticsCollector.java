@@ -687,8 +687,8 @@ public class AnalyticsCollector
     private final HashMap<MediaPeriodId, MediaPeriodInfo> mediaPeriodIdToInfo;
     private final Period period;
 
-    private @Nullable MediaPeriodInfo lastReportedPlayingMediaPeriod;
-    private @Nullable MediaPeriodInfo readingMediaPeriod;
+    @Nullable private MediaPeriodInfo lastReportedPlayingMediaPeriod;
+    @Nullable private MediaPeriodInfo readingMediaPeriod;
     private Timeline timeline;
     private boolean isSeeking;
 
@@ -706,7 +706,8 @@ public class AnalyticsCollector
      * always return null to reflect the uncertainty about the current playing period. May also be
      * null, if the timeline is empty or no media period is active yet.
      */
-    public @Nullable MediaPeriodInfo getPlayingMediaPeriod() {
+    @Nullable
+    public MediaPeriodInfo getPlayingMediaPeriod() {
       return mediaPeriodInfoQueue.isEmpty() || timeline.isEmpty() || isSeeking
           ? null
           : mediaPeriodInfoQueue.get(0);
@@ -719,7 +720,8 @@ public class AnalyticsCollector
      * reported until the seek or preparation is processed. May be null, if no media period is
      * active yet.
      */
-    public @Nullable MediaPeriodInfo getLastReportedPlayingMediaPeriod() {
+    @Nullable
+    public MediaPeriodInfo getLastReportedPlayingMediaPeriod() {
       return lastReportedPlayingMediaPeriod;
     }
 
@@ -727,7 +729,8 @@ public class AnalyticsCollector
      * Returns the {@link MediaPeriodInfo} of the media period currently being read by the player.
      * May be null, if the player is not reading a media period.
      */
-    public @Nullable MediaPeriodInfo getReadingMediaPeriod() {
+    @Nullable
+    public MediaPeriodInfo getReadingMediaPeriod() {
       return readingMediaPeriod;
     }
 
@@ -736,14 +739,16 @@ public class AnalyticsCollector
      * currently loading or will be the next one loading. May be null, if no media period is active
      * yet.
      */
-    public @Nullable MediaPeriodInfo getLoadingMediaPeriod() {
+    @Nullable
+    public MediaPeriodInfo getLoadingMediaPeriod() {
       return mediaPeriodInfoQueue.isEmpty()
           ? null
           : mediaPeriodInfoQueue.get(mediaPeriodInfoQueue.size() - 1);
     }
 
     /** Returns the {@link MediaPeriodInfo} for the given {@link MediaPeriodId}. */
-    public @Nullable MediaPeriodInfo getMediaPeriodInfo(MediaPeriodId mediaPeriodId) {
+    @Nullable
+    public MediaPeriodInfo getMediaPeriodInfo(MediaPeriodId mediaPeriodId) {
       return mediaPeriodIdToInfo.get(mediaPeriodId);
     }
 
@@ -756,7 +761,8 @@ public class AnalyticsCollector
      * Tries to find an existing media period info from the specified window index. Only returns a
      * non-null media period info if there is a unique, unambiguous match.
      */
-    public @Nullable MediaPeriodInfo tryResolveWindowIndex(int windowIndex) {
+    @Nullable
+    public MediaPeriodInfo tryResolveWindowIndex(int windowIndex) {
       MediaPeriodInfo match = null;
       for (int i = 0; i < mediaPeriodInfoQueue.size(); i++) {
         MediaPeriodInfo info = mediaPeriodInfoQueue.get(i);

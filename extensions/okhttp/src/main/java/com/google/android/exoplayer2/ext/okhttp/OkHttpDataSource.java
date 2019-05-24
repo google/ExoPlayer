@@ -167,7 +167,8 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
   }
 
   @Override
-  public @Nullable Uri getUri() {
+  @Nullable
+  public Uri getUri() {
     return response == null ? null : Uri.parse(response.request().url().toString());
   }
 

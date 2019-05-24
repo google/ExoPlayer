@@ -69,7 +69,7 @@ import java.util.regex.Pattern;
 
   /* package */ final int id;
   private final DashChunkSource.Factory chunkSourceFactory;
-  private final @Nullable TransferListener transferListener;
+  @Nullable private final TransferListener transferListener;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final long elapsedRealtimeOffsetMs;
   private final LoaderErrorThrower manifestLoaderErrorThrower;
@@ -82,7 +82,7 @@ import java.util.regex.Pattern;
       trackEmsgHandlerBySampleStream;
   private final EventDispatcher eventDispatcher;
 
-  private @Nullable Callback callback;
+  @Nullable private Callback callback;
   private ChunkSampleStream<DashChunkSource>[] sampleStreams;
   private EventSampleStream[] eventSampleStreams;
   private SequenceableLoader compositeSequenceableLoader;

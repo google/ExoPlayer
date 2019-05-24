@@ -94,7 +94,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
      * to initialize, the {@link DecoderInitializationException} for the fallback decoder. Null if
      * there was no fallback decoder or no suitable decoders were found.
      */
-    public final @Nullable DecoderInitializationException fallbackDecoderInitializationException;
+    @Nullable public final DecoderInitializationException fallbackDecoderInitializationException;
 
     public DecoderInitializationException(Format format, Throwable cause,
         boolean secureDecoderRequired, int errorCode) {

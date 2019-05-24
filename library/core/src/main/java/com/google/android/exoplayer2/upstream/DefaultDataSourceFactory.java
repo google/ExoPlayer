@@ -26,7 +26,7 @@ import com.google.android.exoplayer2.upstream.DataSource.Factory;
 public final class DefaultDataSourceFactory implements Factory {
 
   private final Context context;
-  private final @Nullable TransferListener listener;
+  @Nullable private final TransferListener listener;
   private final DataSource.Factory baseDataSourceFactory;
 
   /**

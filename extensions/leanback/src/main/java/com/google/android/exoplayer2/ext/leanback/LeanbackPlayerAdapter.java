@@ -51,10 +51,10 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
   private final ComponentListener componentListener;
   private final int updatePeriodMs;
 
-  private @Nullable PlaybackPreparer playbackPreparer;
+  @Nullable private PlaybackPreparer playbackPreparer;
   private ControlDispatcher controlDispatcher;
-  private @Nullable ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider;
-  private @Nullable SurfaceHolderGlueHost surfaceHolderGlueHost;
+  @Nullable private ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider;
+  @Nullable private SurfaceHolderGlueHost surfaceHolderGlueHost;
   private boolean hasSurface;
   private boolean lastNotifiedPreparedState;
 

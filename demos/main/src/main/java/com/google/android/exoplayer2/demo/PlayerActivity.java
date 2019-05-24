@@ -555,7 +555,8 @@ public class PlayerActivity extends AppCompatActivity
   }
 
   /** Returns an ads media source, reusing the ads loader if one exists. */
-  private @Nullable MediaSource createAdsMediaSource(MediaSource mediaSource, Uri adTagUri) {
+  @Nullable
+  private MediaSource createAdsMediaSource(MediaSource mediaSource, Uri adTagUri) {
     // Load the extension source using reflection so the demo app doesn't have to depend on it.
     // The ads loader is reused for multiple playbacks, so that ad playback can resume.
     try {

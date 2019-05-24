@@ -312,7 +312,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
 
   }
 
-  private @Nullable MappedTrackInfo currentMappedTrackInfo;
+  @Nullable private MappedTrackInfo currentMappedTrackInfo;
 
   /**
    * Returns the mapping information for the currently active track selection, or null if no

@@ -39,7 +39,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
   /** Factory for {@link AdaptiveTrackSelection} instances. */
   public static class Factory implements TrackSelection.Factory {
 
-    private final @Nullable BandwidthMeter bandwidthMeter;
+    @Nullable private final BandwidthMeter bandwidthMeter;
     private final int minDurationForQualityIncreaseMs;
     private final int maxDurationForQualityDecreaseMs;
     private final int minDurationToRetainAfterDiscardMs;
@@ -537,7 +537,8 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
   }
 
   @Override
-  public @Nullable Object getSelectionData() {
+  @Nullable
+  public Object getSelectionData() {
     return null;
   }
 

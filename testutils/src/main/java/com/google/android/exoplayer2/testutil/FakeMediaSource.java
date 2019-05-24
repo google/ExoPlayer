@@ -60,7 +60,7 @@ public class FakeMediaSource extends BaseMediaSource {
   private boolean preparedSource;
   private boolean releasedSource;
   private Handler sourceInfoRefreshHandler;
-  private @Nullable TransferListener transferListener;
+  @Nullable private TransferListener transferListener;
 
   /**
    * Creates a {@link FakeMediaSource}. This media source creates {@link FakeMediaPeriod}s with a

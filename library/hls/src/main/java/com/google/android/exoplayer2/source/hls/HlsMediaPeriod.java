@@ -62,7 +62,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   private final HlsExtractorFactory extractorFactory;
   private final HlsPlaylistTracker playlistTracker;
   private final HlsDataSourceFactory dataSourceFactory;
-  private final @Nullable TransferListener mediaTransferListener;
+  @Nullable private final TransferListener mediaTransferListener;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final EventDispatcher eventDispatcher;
   private final Allocator allocator;
@@ -72,7 +72,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   private final boolean allowChunklessPreparation;
   private final boolean useSessionKeys;
 
-  private @Nullable Callback callback;
+  @Nullable private Callback callback;
   private int pendingPrepareCount;
   private TrackGroupArray trackGroups;
   private HlsSampleStreamWrapper[] sampleStreamWrappers;

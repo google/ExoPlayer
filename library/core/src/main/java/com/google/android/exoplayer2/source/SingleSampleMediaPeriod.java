@@ -53,7 +53,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private final DataSpec dataSpec;
   private final DataSource.Factory dataSourceFactory;
-  private final @Nullable TransferListener transferListener;
+  @Nullable private final TransferListener transferListener;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final EventDispatcher eventDispatcher;
   private final TrackGroupArray tracks;

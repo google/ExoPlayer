@@ -122,11 +122,11 @@ public class FragmentedMp4Extractor implements Extractor {
 
   // Workarounds.
   @Flags private final int flags;
-  private final @Nullable Track sideloadedTrack;
+  @Nullable private final Track sideloadedTrack;
 
   // Sideloaded data.
   private final List<Format> closedCaptionFormats;
-  private final @Nullable DrmInitData sideloadedDrmInitData;
+  @Nullable private final DrmInitData sideloadedDrmInitData;
 
   // Track-linked data bundle, accessible as a whole through trackID.
   private final SparseArray<TrackBundle> trackBundles;
@@ -139,13 +139,13 @@ public class FragmentedMp4Extractor implements Extractor {
   private final ParsableByteArray scratch;
 
   // Adjusts sample timestamps.
-  private final @Nullable TimestampAdjuster timestampAdjuster;
+  @Nullable private final TimestampAdjuster timestampAdjuster;
 
   // Parser state.
   private final ParsableByteArray atomHeader;
   private final ArrayDeque<ContainerAtom> containerAtoms;
   private final ArrayDeque<MetadataSampleInfo> pendingMetadataSampleInfos;
-  private final @Nullable TrackOutput additionalEmsgTrackOutput;
+  @Nullable private final TrackOutput additionalEmsgTrackOutput;
 
   private int parserState;
   private int atomType;

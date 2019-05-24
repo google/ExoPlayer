@@ -88,7 +88,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
   private final UUID uuid;
   private final ExoMediaDrm<T> mediaDrm;
   private final MediaDrmCallback callback;
-  private final @Nullable HashMap<String, String> optionalKeyRequestParameters;
+  @Nullable private final HashMap<String, String> optionalKeyRequestParameters;
   private final EventDispatcher<DefaultDrmSessionEventListener> eventDispatcher;
   private final boolean multiSession;
   private final int initialDrmRequestRetryCount;
@@ -96,9 +96,9 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
   private final List<DefaultDrmSession<T>> sessions;
   private final List<DefaultDrmSession<T>> provisioningSessions;
 
-  private @Nullable Looper playbackLooper;
+  @Nullable private Looper playbackLooper;
   private int mode;
-  private @Nullable byte[] offlineLicenseKeySetId;
+  @Nullable private byte[] offlineLicenseKeySetId;
 
   /* package */ volatile @Nullable MediaDrmHandler mediaDrmHandler;
 

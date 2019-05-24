@@ -1013,7 +1013,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     private final Extractor[] extractors;
 
-    private @Nullable Extractor extractor;
+    @Nullable private Extractor extractor;
 
     /**
      * Creates a holder that will select an extractor and initialize it using the specified output.

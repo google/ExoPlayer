@@ -87,7 +87,7 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
   private int hashCode;
 
   /** The protection scheme type, or null if not applicable or unknown. */
-  public final @Nullable String schemeType;
+  @Nullable public final String schemeType;
 
   /**
    * Number of {@link SchemeData}s.
@@ -152,7 +152,8 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
    * @return The initialization data for the scheme, or null if the scheme is not supported.
    */
   @Deprecated
-  public @Nullable SchemeData get(UUID uuid) {
+  @Nullable
+  public SchemeData get(UUID uuid) {
     for (SchemeData schemeData : schemeDatas) {
       if (schemeData.matches(uuid)) {
         return schemeData;
@@ -286,11 +287,11 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
      */
     private final UUID uuid;
     /** The URL of the server to which license requests should be made. May be null if unknown. */
-    public final @Nullable String licenseServerUrl;
+    @Nullable public final String licenseServerUrl;
     /** The mimeType of {@link #data}. */
     public final String mimeType;
     /** The initialization data. May be null for scheme support checks only. */
-    public final @Nullable byte[] data;
+    @Nullable public final byte[] data;
 
     /**
      * @param uuid The {@link UUID} of the DRM scheme, or {@link C#UUID_NIL} if the data is

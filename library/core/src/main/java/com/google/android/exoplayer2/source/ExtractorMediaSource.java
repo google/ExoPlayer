@@ -64,9 +64,9 @@ public final class ExtractorMediaSource extends BaseMediaSource
 
     private final DataSource.Factory dataSourceFactory;
 
-    private @Nullable ExtractorsFactory extractorsFactory;
-    private @Nullable String customCacheKey;
-    private @Nullable Object tag;
+    @Nullable private ExtractorsFactory extractorsFactory;
+    @Nullable private String customCacheKey;
+    @Nullable private Object tag;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
     private int continueLoadingCheckIntervalBytes;
     private boolean isCreateCalled;

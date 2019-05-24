@@ -60,7 +60,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
     private boolean treatLoadErrorsAsEndOfStream;
     private boolean isCreateCalled;
-    private @Nullable Object tag;
+    @Nullable private Object tag;
 
     /**
      * Creates a factory for {@link SingleSampleMediaSource}s.
@@ -186,7 +186,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
   private final Timeline timeline;
   @Nullable private final Object tag;
 
-  private @Nullable TransferListener transferListener;
+  @Nullable private TransferListener transferListener;
 
   /**
    * @param uri The {@link Uri} of the media stream.

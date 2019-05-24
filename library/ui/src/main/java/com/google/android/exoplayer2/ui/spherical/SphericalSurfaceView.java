@@ -64,14 +64,14 @@ public final class SphericalSurfaceView extends GLSurfaceView {
   /* package */ static final float UPRIGHT_ROLL = (float) Math.PI;
 
   private final SensorManager sensorManager;
-  private final @Nullable Sensor orientationSensor;
+  @Nullable private final Sensor orientationSensor;
   private final OrientationListener orientationListener;
   private final Handler mainHandler;
   private final TouchTracker touchTracker;
   private final SceneRenderer scene;
-  private @Nullable SurfaceTexture surfaceTexture;
-  private @Nullable Surface surface;
-  private @Nullable Player.VideoComponent videoComponent;
+  @Nullable private SurfaceTexture surfaceTexture;
+  @Nullable private Surface surface;
+  @Nullable private Player.VideoComponent videoComponent;
 
   public SphericalSurfaceView(Context context) {
     this(context, null);

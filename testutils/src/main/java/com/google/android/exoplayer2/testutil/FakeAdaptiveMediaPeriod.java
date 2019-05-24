@@ -40,7 +40,7 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
 
   private final Allocator allocator;
   private final FakeChunkSource.Factory chunkSourceFactory;
-  private final @Nullable TransferListener transferListener;
+  @Nullable private final TransferListener transferListener;
   private final long durationUs;
 
   private Callback callback;

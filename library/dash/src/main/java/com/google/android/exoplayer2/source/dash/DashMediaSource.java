@@ -373,11 +373,11 @@ public final class DashMediaSource extends BaseMediaSource {
   private final Runnable simulateManifestRefreshRunnable;
   private final PlayerEmsgCallback playerEmsgCallback;
   private final LoaderErrorThrower manifestLoadErrorThrower;
-  private final @Nullable Object tag;
+  @Nullable private final Object tag;
 
   private DataSource dataSource;
   private Loader loader;
-  private @Nullable TransferListener mediaTransferListener;
+  @Nullable private TransferListener mediaTransferListener;
 
   private IOException manifestFatalError;
   private Handler handler;
@@ -1139,7 +1139,7 @@ public final class DashMediaSource extends BaseMediaSource {
     private final long windowDurationUs;
     private final long windowDefaultStartPositionUs;
     private final DashManifest manifest;
-    private final @Nullable Object windowTag;
+    @Nullable private final Object windowTag;
 
     public DashTimeline(
         long presentationStartTimeMs,

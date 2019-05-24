@@ -158,9 +158,9 @@ public final class DummySurface extends Surface {
 
     private @MonotonicNonNull EGLSurfaceTexture eglSurfaceTexture;
     private @MonotonicNonNull Handler handler;
-    private @Nullable Error initError;
-    private @Nullable RuntimeException initException;
-    private @Nullable DummySurface surface;
+    @Nullable private Error initError;
+    @Nullable private RuntimeException initException;
+    @Nullable private DummySurface surface;
 
     public DummySurfaceThread() {
       super("dummySurface");

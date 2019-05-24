@@ -138,7 +138,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private long lastInputTimeUs;
   private long outputStreamOffsetUs;
   private int pendingOutputStreamOffsetCount;
-  private @Nullable VideoFrameMetadataListener frameMetadataListener;
+  @Nullable private VideoFrameMetadataListener frameMetadataListener;
 
   /**
    * @param context A context.

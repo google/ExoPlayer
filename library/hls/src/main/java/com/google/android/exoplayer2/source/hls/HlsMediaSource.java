@@ -301,9 +301,9 @@ public final class HlsMediaSource extends BaseMediaSource
   private final boolean allowChunklessPreparation;
   private final boolean useSessionKeys;
   private final HlsPlaylistTracker playlistTracker;
-  private final @Nullable Object tag;
+  @Nullable private final Object tag;
 
-  private @Nullable TransferListener mediaTransferListener;
+  @Nullable private TransferListener mediaTransferListener;
 
   private HlsMediaSource(
       Uri manifestUri,

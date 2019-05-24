@@ -338,9 +338,9 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
   private final DefaultTrackSelector trackSelector;
   private final LoadControl loadControl;
   private final BandwidthMeter bandwidthMeter;
-  private final @Nullable ActionSchedule actionSchedule;
-  private final @Nullable Player.EventListener eventListener;
-  private final @Nullable AnalyticsListener analyticsListener;
+  @Nullable private final ActionSchedule actionSchedule;
+  @Nullable private final Player.EventListener eventListener;
+  @Nullable private final AnalyticsListener analyticsListener;
 
   private final HandlerThread playerThread;
   private final HandlerWrapper handler;

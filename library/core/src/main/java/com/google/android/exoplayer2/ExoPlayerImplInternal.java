@@ -1836,7 +1836,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
     public int resolvedPeriodIndex;
     public long resolvedPeriodTimeUs;
-    public @Nullable Object resolvedPeriodUid;
+    @Nullable public Object resolvedPeriodUid;
 
     public PendingMessageInfo(PlayerMessage message) {
       this.message = message;

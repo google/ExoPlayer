@@ -88,7 +88,7 @@ public final class FlacExtractor implements Extractor {
   private FlacStreamInfo streamInfo;
 
   private Metadata id3Metadata;
-  private @Nullable FlacBinarySearchSeeker flacBinarySearchSeeker;
+  @Nullable private FlacBinarySearchSeeker flacBinarySearchSeeker;
 
   private boolean readPastStreamInfo;
 

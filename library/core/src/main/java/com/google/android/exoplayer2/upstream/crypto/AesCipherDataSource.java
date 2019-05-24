@@ -71,7 +71,8 @@ public final class AesCipherDataSource implements DataSource {
   }
 
   @Override
-  public @Nullable Uri getUri() {
+  @Nullable
+  public Uri getUri() {
     return upstream.getUri();
   }
 
