@@ -458,7 +458,8 @@ import java.util.List;
      * @param type The leaf type.
      * @return The child leaf of the given type, or null if no such child exists.
      */
-    public @Nullable LeafAtom getLeafAtomOfType(int type) {
+    @Nullable
+    public LeafAtom getLeafAtomOfType(int type) {
       int childrenSize = leafChildren.size();
       for (int i = 0; i < childrenSize; i++) {
         LeafAtom atom = leafChildren.get(i);
@@ -478,7 +479,8 @@ import java.util.List;
      * @param type The container type.
      * @return The child container of the given type, or null if no such child exists.
      */
-    public @Nullable ContainerAtom getContainerAtomOfType(int type) {
+    @Nullable
+    public ContainerAtom getContainerAtomOfType(int type) {
       int childrenSize = containerChildren.size();
       for (int i = 0; i < childrenSize; i++) {
         ContainerAtom atom = containerChildren.get(i);

@@ -103,7 +103,7 @@ public final class AudioFocusManager {
   private final AudioManager audioManager;
   private final AudioFocusListener focusListener;
   private final PlayerControl playerControl;
-  private @Nullable AudioAttributes audioAttributes;
+  @Nullable private AudioAttributes audioAttributes;
 
   private @AudioFocusState int audioFocusState;
   private int focusGain;

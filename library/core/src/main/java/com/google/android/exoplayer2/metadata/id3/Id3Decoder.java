@@ -82,7 +82,7 @@ public final class Id3Decoder implements MetadataDecoder {
   private static final int ID3_TEXT_ENCODING_UTF_16BE = 2;
   private static final int ID3_TEXT_ENCODING_UTF_8 = 3;
 
-  private final @Nullable FramePredicate framePredicate;
+  @Nullable private final FramePredicate framePredicate;
 
   public Id3Decoder() {
     this(null);
@@ -97,7 +97,8 @@ public final class Id3Decoder implements MetadataDecoder {
 
   @SuppressWarnings("ByteBufferBackingArray")
   @Override
-  public @Nullable Metadata decode(MetadataInputBuffer inputBuffer) {
+  @Nullable
+  public Metadata decode(MetadataInputBuffer inputBuffer) {
     ByteBuffer buffer = inputBuffer.data;
     return decode(buffer.array(), buffer.limit());
   }
@@ -110,7 +111,8 @@ public final class Id3Decoder implements MetadataDecoder {
    * @return A {@link Metadata} object containing the decoded ID3 tags, or null if the data could
    *     not be decoded.
    */
-  public @Nullable Metadata decode(byte[] data, int size) {
+  @Nullable
+  public Metadata decode(byte[] data, int size) {
     List<Id3Frame> id3Frames = new ArrayList<>();
     ParsableByteArray id3Data = new ParsableByteArray(data, size);
 

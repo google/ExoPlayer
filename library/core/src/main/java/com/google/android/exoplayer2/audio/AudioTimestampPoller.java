@@ -82,7 +82,7 @@ import java.lang.annotation.RetentionPolicy;
    */
   private static final int INITIALIZING_DURATION_US = 500_000;
 
-  private final @Nullable AudioTimestampV19 audioTimestamp;
+  @Nullable private final AudioTimestampV19 audioTimestamp;
 
   private @State int state;
   private long initializeSystemTimeUs;

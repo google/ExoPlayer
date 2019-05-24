@@ -228,7 +228,8 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   }
 
   @Override
-  public @Nullable Uri getUri() {
+  @Nullable
+  public Uri getUri() {
     return connection == null ? null : Uri.parse(connection.getURL().toString());
   }
 

@@ -35,7 +35,7 @@ public final class SinglePeriodTimeline extends Timeline {
   private final long windowDefaultStartPositionUs;
   private final boolean isSeekable;
   private final boolean isDynamic;
-  private final @Nullable Object tag;
+  @Nullable private final Object tag;
 
   /**
    * Creates a timeline containing a single period and a window that spans it.

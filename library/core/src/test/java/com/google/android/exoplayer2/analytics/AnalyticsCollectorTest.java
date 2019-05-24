@@ -847,7 +847,7 @@ public final class AnalyticsCollectorTest {
   private static final class EventWindowAndPeriodId {
 
     private final int windowIndex;
-    private final @Nullable MediaPeriodId mediaPeriodId;
+    @Nullable private final MediaPeriodId mediaPeriodId;
 
     public EventWindowAndPeriodId(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
       this.windowIndex = windowIndex;

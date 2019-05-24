@@ -45,9 +45,9 @@ public final class Format implements Parcelable {
   public static final long OFFSET_SAMPLE_RELATIVE = Long.MAX_VALUE;
 
   /** An identifier for the format, or null if unknown or not applicable. */
-  public final @Nullable String id;
+  @Nullable public final String id;
   /** The human readable label, or null if unknown or not applicable. */
-  public final @Nullable String label;
+  @Nullable public final String label;
   /** Track selection flags. */
   @C.SelectionFlags public final int selectionFlags;
   /** Track role flags. */
@@ -57,14 +57,14 @@ public final class Format implements Parcelable {
    */
   public final int bitrate;
   /** Codecs of the format as described in RFC 6381, or null if unknown or not applicable. */
-  public final @Nullable String codecs;
+  @Nullable public final String codecs;
   /** Metadata, or null if unknown or not applicable. */
-  public final @Nullable Metadata metadata;
+  @Nullable public final Metadata metadata;
 
   // Container specific.
 
   /** The mime type of the container, or null if unknown or not applicable. */
-  public final @Nullable String containerMimeType;
+  @Nullable public final String containerMimeType;
 
   // Elementary stream specific.
 
@@ -72,7 +72,7 @@ public final class Format implements Parcelable {
    * The mime type of the elementary stream (i.e. the individual samples), or null if unknown or not
    * applicable.
    */
-  public final @Nullable String sampleMimeType;
+  @Nullable public final String sampleMimeType;
   /**
    * The maximum size of a buffer of data (typically one sample), or {@link #NO_VALUE} if unknown or
    * not applicable.
@@ -84,7 +84,7 @@ public final class Format implements Parcelable {
    */
   public final List<byte[]> initializationData;
   /** DRM initialization data if the stream is protected, or null otherwise. */
-  public final @Nullable DrmInitData drmInitData;
+  @Nullable public final DrmInitData drmInitData;
 
   /**
    * For samples that contain subsamples, this is an offset that should be added to subsample
@@ -122,9 +122,9 @@ public final class Format implements Parcelable {
   @C.StereoMode
   public final int stereoMode;
   /** The projection data for 360/VR video, or null if not applicable. */
-  public final @Nullable byte[] projectionData;
+  @Nullable public final byte[] projectionData;
   /** The color metadata associated with the video, helps with accurate color reproduction. */
-  public final @Nullable ColorInfo colorInfo;
+  @Nullable public final ColorInfo colorInfo;
 
   // Audio specific.
 
@@ -157,7 +157,7 @@ public final class Format implements Parcelable {
   // Audio and text specific.
 
   /** The language as an IETF BCP 47 conformant tag, or null if unknown or not applicable. */
-  public final @Nullable String language;
+  @Nullable public final String language;
   /**
    * The Accessibility channel, or {@link #NO_VALUE} if not known or applicable.
    */

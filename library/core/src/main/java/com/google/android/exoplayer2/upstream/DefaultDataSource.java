@@ -62,14 +62,14 @@ public final class DefaultDataSource implements DataSource {
   private final DataSource baseDataSource;
 
   // Lazily initialized.
-  private @Nullable DataSource fileDataSource;
-  private @Nullable DataSource assetDataSource;
-  private @Nullable DataSource contentDataSource;
-  private @Nullable DataSource rtmpDataSource;
-  private @Nullable DataSource dataSchemeDataSource;
-  private @Nullable DataSource rawResourceDataSource;
+  @Nullable private DataSource fileDataSource;
+  @Nullable private DataSource assetDataSource;
+  @Nullable private DataSource contentDataSource;
+  @Nullable private DataSource rtmpDataSource;
+  @Nullable private DataSource dataSchemeDataSource;
+  @Nullable private DataSource rawResourceDataSource;
 
-  private @Nullable DataSource dataSource;
+  @Nullable private DataSource dataSource;
 
   /**
    * Constructs a new instance, optionally configured to follow cross-protocol redirects.
@@ -178,7 +178,8 @@ public final class DefaultDataSource implements DataSource {
   }
 
   @Override
-  public @Nullable Uri getUri() {
+  @Nullable
+  public Uri getUri() {
     return dataSource == null ? null : dataSource.getUri();
   }
 

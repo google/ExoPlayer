@@ -54,7 +54,7 @@ public class EventLogger implements AnalyticsListener {
     TIME_FORMAT.setGroupingUsed(false);
   }
 
-  private final @Nullable MappingTrackSelector trackSelector;
+  @Nullable private final MappingTrackSelector trackSelector;
   private final String tag;
   private final Timeline.Window window;
   private final Timeline.Period period;

@@ -617,7 +617,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     /* package */ final @Nullable ChunkExtractorWrapper extractorWrapper;
 
     public final Representation representation;
-    public final @Nullable DashSegmentIndex segmentIndex;
+    @Nullable public final DashSegmentIndex segmentIndex;
 
     private final long periodDurationUs;
     private final long segmentNumShift;

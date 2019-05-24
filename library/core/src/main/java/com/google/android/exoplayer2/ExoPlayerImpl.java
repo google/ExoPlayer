@@ -73,7 +73,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
   private boolean foregroundMode;
   private PlaybackParameters playbackParameters;
   private SeekParameters seekParameters;
-  private @Nullable ExoPlaybackException playbackError;
+  @Nullable private ExoPlaybackException playbackError;
 
   // Playback information when there is no pending seek/set source operation.
   private PlaybackInfo playbackInfo;
@@ -199,7 +199,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
   }
 
   @Override
-  public @Nullable ExoPlaybackException getPlaybackError() {
+  @Nullable
+  public ExoPlaybackException getPlaybackError() {
     return playbackError;
   }
 

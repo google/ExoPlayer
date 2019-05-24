@@ -91,8 +91,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
   };
 
   private int stereoMode;
-  private @Nullable MeshData leftMeshData;
-  private @Nullable MeshData rightMeshData;
+  @Nullable private MeshData leftMeshData;
+  @Nullable private MeshData rightMeshData;
 
   // Program related GL items. These are only valid if program != 0.
   private int program;

@@ -88,13 +88,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private static final int MAX_LICENSE_DURATION_TO_RENEW_SECONDS = 60;
 
   /** The DRM scheme datas, or null if this session uses offline keys. */
-  public final @Nullable List<SchemeData> schemeDatas;
+  @Nullable public final List<SchemeData> schemeDatas;
 
   private final ExoMediaDrm<T> mediaDrm;
   private final ProvisioningManager<T> provisioningManager;
   private final ReleaseCallback<T> releaseCallback;
   private final @DefaultDrmSessionManager.Mode int mode;
-  private final @Nullable HashMap<String, String> optionalKeyRequestParameters;
+  @Nullable private final HashMap<String, String> optionalKeyRequestParameters;
   private final EventDispatcher<DefaultDrmSessionEventListener> eventDispatcher;
   private final int initialDrmRequestRetryCount;
 
@@ -111,8 +111,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private byte @MonotonicNonNull [] sessionId;
   private byte @MonotonicNonNull [] offlineLicenseKeySetId;
 
-  private @Nullable KeyRequest currentKeyRequest;
-  private @Nullable ProvisionRequest currentProvisionRequest;
+  @Nullable private KeyRequest currentKeyRequest;
+  @Nullable private ProvisionRequest currentProvisionRequest;
 
   /**
    * Instantiates a new DRM session.
@@ -259,12 +259,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   @Override
-  public @Nullable Map<String, String> queryKeyStatus() {
+  @Nullable
+  public Map<String, String> queryKeyStatus() {
     return sessionId == null ? null : mediaDrm.queryKeyStatus(sessionId);
   }
 
   @Override
-  public @Nullable byte[] getOfflineLicenseKeySetId() {
+  @Nullable
+  public byte[] getOfflineLicenseKeySetId() {
     return offlineLicenseKeySetId;
   }
 

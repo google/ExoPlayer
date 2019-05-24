@@ -42,7 +42,7 @@ import java.util.List;
   private static final int DECODER_ERROR_OTHER = -2;
 
   private final String codecName;
-  private final @Nullable byte[] extraData;
+  @Nullable private final byte[] extraData;
   private final @C.Encoding int encoding;
   private final int outputBufferSize;
 

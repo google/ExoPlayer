@@ -42,7 +42,7 @@ import java.util.List;
     implements MediaPeriod, SequenceableLoader.Callback<ChunkSampleStream<SsChunkSource>> {
 
   private final SsChunkSource.Factory chunkSourceFactory;
-  private final @Nullable TransferListener transferListener;
+  @Nullable private final TransferListener transferListener;
   private final LoaderErrorThrower manifestLoaderErrorThrower;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final EventDispatcher eventDispatcher;
@@ -50,7 +50,7 @@ import java.util.List;
   private final TrackGroupArray trackGroups;
   private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
 
-  private @Nullable Callback callback;
+  @Nullable private Callback callback;
   private SsManifest manifest;
   private ChunkSampleStream<SsChunkSource>[] sampleStreams;
   private SequenceableLoader compositeSequenceableLoader;

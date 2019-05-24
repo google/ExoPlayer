@@ -36,7 +36,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
   /** The current {@link Timeline}. */
   public final Timeline timeline;
   /** The current manifest. */
-  public final @Nullable Object manifest;
+  @Nullable public final Object manifest;
   /** The {@link MediaPeriodId} of the currently playing media period in the {@link #timeline}. */
   public final MediaPeriodId periodId;
   /**

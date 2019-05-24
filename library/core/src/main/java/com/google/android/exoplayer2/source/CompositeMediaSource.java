@@ -34,8 +34,8 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
 
   private final HashMap<T, MediaSourceAndListener> childSources;
 
-  private @Nullable Handler eventHandler;
-  private @Nullable TransferListener mediaTransferListener;
+  @Nullable private Handler eventHandler;
+  @Nullable private TransferListener mediaTransferListener;
 
   /** Create composite media source without child sources. */
   protected CompositeMediaSource() {

@@ -43,7 +43,7 @@ import com.google.android.exoplayer2.util.Log;
 public abstract class Action {
 
   private final String tag;
-  private final @Nullable String description;
+  @Nullable private final String description;
 
   /**
    * @param tag A tag to use for logging.
@@ -547,7 +547,7 @@ public abstract class Action {
    */
   public static final class WaitForTimelineChanged extends Action {
 
-    private final @Nullable Timeline expectedTimeline;
+    @Nullable private final Timeline expectedTimeline;
 
     /**
      * Creates action waiting for a timeline change.

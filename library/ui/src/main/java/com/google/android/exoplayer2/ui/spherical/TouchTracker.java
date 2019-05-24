@@ -65,7 +65,7 @@ import android.view.View;
   // The conversion from touch to yaw & pitch requires compensating for device roll. This is set
   // on the sensor thread and read on the UI thread.
   private volatile float roll;
-  private @Nullable SingleTapListener singleTapListener;
+  @Nullable private SingleTapListener singleTapListener;
 
   @SuppressWarnings({
     "nullness:assignment.type.incompatible",

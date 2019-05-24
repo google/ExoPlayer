@@ -880,7 +880,8 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public @Nullable ExoPlaybackException getPlaybackError() {
+  @Nullable
+  public ExoPlaybackException getPlaybackError() {
     verifyApplicationThread();
     return player.getPlaybackError();
   }

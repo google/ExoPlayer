@@ -621,7 +621,8 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
   }
 
   /** Returns the default artwork to display. */
-  public @Nullable Drawable getDefaultArtwork() {
+  @Nullable
+  public Drawable getDefaultArtwork() {
     return defaultArtwork;
   }
 

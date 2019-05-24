@@ -76,7 +76,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   private final BaseMediaChunkOutput mediaChunkOutput;
 
   private Format primaryDownstreamTrackFormat;
-  private @Nullable ReleaseCallback<T> releaseCallback;
+  @Nullable private ReleaseCallback<T> releaseCallback;
   private long pendingResetPositionUs;
   private long lastSeekPositionUs;
   private int nextNotifyPrimaryFormatMediaChunkIndex;
