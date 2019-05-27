@@ -662,11 +662,12 @@ public final class MediaSessionConnector {
    * {@link MediaMetadataProvider#getMetadata(Player)}.
    */
   public final void invalidateMediaSessionMetadata() {
-    MediaMetadataCompat metadata =
-        mediaMetadataProvider != null && player != null
-            ? mediaMetadataProvider.getMetadata(player)
-            : METADATA_EMPTY;
-    mediaSession.setMetadata(metadata != null ? metadata : METADATA_EMPTY);
+    if (mediaMetadataProvider != null) {
+      MediaMetadataCompat metadata = player != null
+          ? mediaMetadataProvider.getMetadata(player)
+          : METADATA_EMPTY;
+      mediaSession.setMetadata(metadata != null ? metadata : METADATA_EMPTY);
+    }
   }
 
   /**
