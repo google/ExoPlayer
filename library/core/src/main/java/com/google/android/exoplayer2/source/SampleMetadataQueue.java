@@ -230,6 +230,8 @@ import com.google.android.exoplayer2.util.Util;
    * @param formatRequired Whether the caller requires that the format of the stream be read even if
    *     it's not changing. A sample will never be read if set to true, however it is still possible
    *     for the end of stream or nothing to be read.
+   * @param allowOnlyClearBuffers If set to true, this method will not return encrypted buffers,
+   *     returning {@link C#RESULT_NOTHING_READ} (without advancing the read position) instead.
    * @param loadingFinished True if an empty queue should be considered the end of the stream.
    * @param downstreamFormat The current downstream {@link Format}. If the format of the next sample
    *     is different to the current downstream format then a format will be read.
@@ -242,6 +244,7 @@ import com.google.android.exoplayer2.util.Util;
       FormatHolder formatHolder,
       DecoderInputBuffer buffer,
       boolean formatRequired,
+      boolean allowOnlyClearBuffers,
       boolean loadingFinished,
       Format downstreamFormat,
       SampleExtrasHolder extrasHolder) {
@@ -262,6 +265,10 @@ import com.google.android.exoplayer2.util.Util;
     if (formatRequired || formats[relativeReadIndex] != downstreamFormat) {
       formatHolder.format = formats[relativeReadIndex];
       return C.RESULT_FORMAT_READ;
+    }
+
+    if (allowOnlyClearBuffers && (flags[relativeReadIndex] & C.BUFFER_FLAG_ENCRYPTED) != 0) {
+      return C.RESULT_NOTHING_READ;
     }
 
     buffer.setFlags(flags[relativeReadIndex]);

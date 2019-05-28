@@ -491,7 +491,12 @@ import java.util.Map;
 
     int result =
         sampleQueues[sampleQueueIndex].read(
-            formatHolder, buffer, requireFormat, loadingFinished, lastSeekPositionUs);
+            formatHolder,
+            buffer,
+            requireFormat,
+            /* allowOnlyClearBuffers= */ false,
+            loadingFinished,
+            lastSeekPositionUs);
     if (result == C.RESULT_FORMAT_READ) {
       Format format = formatHolder.format;
       if (sampleQueueIndex == primarySampleQueueIndex) {

@@ -409,7 +409,12 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     }
     maybeNotifyPrimaryTrackFormatChanged();
     return primarySampleQueue.read(
-        formatHolder, buffer, formatRequired, loadingFinished, decodeOnlyUntilPositionUs);
+        formatHolder,
+        buffer,
+        formatRequired,
+        /* allowOnlyClearBuffers= */ false,
+        loadingFinished,
+        decodeOnlyUntilPositionUs);
   }
 
   @Override
@@ -801,7 +806,12 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       }
       maybeNotifyDownstreamFormat();
       return sampleQueue.read(
-          formatHolder, buffer, formatRequired, loadingFinished, decodeOnlyUntilPositionUs);
+          formatHolder,
+          buffer,
+          formatRequired,
+          /* allowOnlyClearBuffers= */ false,
+          loadingFinished,
+          decodeOnlyUntilPositionUs);
     }
 
     public void release() {
