@@ -33,6 +33,8 @@
 * Prevent unexpected `DownloadHelper.Callback.onPrepared` callbacks after the
   preparation of the `DownloadHelper` failed
   ([#5915](https://github.com/google/ExoPlayer/issues/5915)).
+* Allow enabling decoder fallback with `DefaultRenderersFactory`
+  ([#5942](https://github.com/google/ExoPlayer/issues/5942)).
 
 ### 2.10.1 ###
 
