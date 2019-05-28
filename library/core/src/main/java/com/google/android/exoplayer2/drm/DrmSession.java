@@ -29,6 +29,20 @@ import java.util.Map;
 public interface DrmSession<T extends ExoMediaCrypto> {
 
   /**
+   * Invokes {@code newSession's} {@link #acquireReference()} and {@code previousSession's} {@link
+   * #releaseReference()} in that order. Does nothing for passed null values.
+   */
+  static <T extends ExoMediaCrypto> void replaceSessionReferences(
+      @Nullable DrmSession<T> previousSession, @Nullable DrmSession<T> newSession) {
+    if (newSession != null) {
+      newSession.acquireReference();
+    }
+    if (previousSession != null) {
+      previousSession.releaseReference();
+    }
+  }
+
+  /**
    * Wraps the throwable which is the cause of the error state.
    */
   class DrmSessionException extends Exception {
@@ -110,4 +124,18 @@ public interface DrmSession<T extends ExoMediaCrypto> {
    */
   @Nullable
   byte[] getOfflineLicenseKeySetId();
+
+  /**
+   * Increments the reference count for this session. A non-zero reference count session will keep
+   * any acquired resources.
+   */
+  void acquireReference();
+
+  /**
+   * Decreases by one the reference count for this session. A session that reaches a zero reference
+   * count will release any resources it holds.
+   *
+   * <p>The session must not be used after its reference count has been reduced to 0.
+   */
+  void releaseReference();
 }

@@ -432,17 +432,8 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
               initialDrmRequestRetryCount);
       sessions.add(session);
     }
-    session.acquire();
+    session.acquireReference();
     return session;
-  }
-
-  @Override
-  public void releaseSession(DrmSession<T> session) {
-    if (session instanceof ErrorStateDrmSession) {
-      // Do nothing.
-      return;
-    }
-    ((DefaultDrmSession<T>) session).release();
   }
 
   // ProvisioningManager implementation.

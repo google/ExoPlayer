@@ -57,4 +57,13 @@ public final class ErrorStateDrmSession<T extends ExoMediaCrypto> implements Drm
     return null;
   }
 
+  @Override
+  public void acquireReference() {
+    // Do nothing.
+  }
+
+  @Override
+  public void releaseReference() {
+    // Do nothing.
+  }
 }
