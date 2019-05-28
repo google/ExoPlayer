@@ -151,7 +151,8 @@ public class PlayerActivity extends AppCompatActivity
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
-    String sphericalStereoMode = getIntent().getStringExtra(SPHERICAL_STEREO_MODE_EXTRA);
+    Intent intent = getIntent();
+    String sphericalStereoMode = intent.getStringExtra(SPHERICAL_STEREO_MODE_EXTRA);
     if (sphericalStereoMode != null) {
       setTheme(R.style.PlayerTheme_Spherical);
     }
