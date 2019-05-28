@@ -473,21 +473,13 @@ public class LibvpxVideoRenderer extends BaseRenderer {
   }
 
   private void setSourceDrmSession(@Nullable DrmSession<ExoMediaCrypto> session) {
-    DrmSession<ExoMediaCrypto> previous = sourceDrmSession;
+    DrmSession.replaceSessionReferences(sourceDrmSession, session);
     sourceDrmSession = session;
-    releaseDrmSessionIfUnused(previous);
   }
 
   private void setDecoderDrmSession(@Nullable DrmSession<ExoMediaCrypto> session) {
-    DrmSession<ExoMediaCrypto> previous = decoderDrmSession;
+    DrmSession.replaceSessionReferences(decoderDrmSession, session);
     decoderDrmSession = session;
-    releaseDrmSessionIfUnused(previous);
-  }
-
-  private void releaseDrmSessionIfUnused(@Nullable DrmSession<ExoMediaCrypto> session) {
-    if (session != null && session != decoderDrmSession && session != sourceDrmSession) {
-      drmSessionManager.releaseSession(session);
-    }
   }
 
   /**
@@ -512,12 +504,10 @@ public class LibvpxVideoRenderer extends BaseRenderer {
         }
         DrmSession<ExoMediaCrypto> session =
             drmSessionManager.acquireSession(Looper.myLooper(), newFormat.drmInitData);
-        if (session == decoderDrmSession || session == sourceDrmSession) {
-          // We already had this session. The manager must be reference counting, so release it once
-          // to get the count attributed to this renderer back down to 1.
-          drmSessionManager.releaseSession(session);
+        if (sourceDrmSession != null) {
+          sourceDrmSession.releaseReference();
         }
-        setSourceDrmSession(session);
+        sourceDrmSession = session;
       } else {
         setSourceDrmSession(null);
       }

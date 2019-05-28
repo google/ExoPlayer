@@ -34,8 +34,10 @@ public interface DrmSessionManager<T extends ExoMediaCrypto> {
   boolean canAcquireSession(DrmInitData drmInitData);
 
   /**
-   * Acquires a {@link DrmSession} for the specified {@link DrmInitData}. The {@link DrmSession}
-   * must be returned to {@link #releaseSession(DrmSession)} when it is no longer required.
+   * Returns a {@link DrmSession} with an acquired reference for the specified {@link DrmInitData}.
+   *
+   * <p>The caller must call {@link DrmSession#releaseReference} to decrement the session's
+   * reference count when the session is no longer required.
    *
    * @param playbackLooper The looper associated with the media playback thread.
    * @param drmInitData DRM initialization data. All contained {@link SchemeData}s must contain
@@ -43,10 +45,4 @@ public interface DrmSessionManager<T extends ExoMediaCrypto> {
    * @return The DRM session.
    */
   DrmSession<T> acquireSession(Looper playbackLooper, DrmInitData drmInitData);
-
-  /**
-   * Releases a {@link DrmSession}.
-   */
-  void releaseSession(DrmSession<T> drmSession);
-
 }
