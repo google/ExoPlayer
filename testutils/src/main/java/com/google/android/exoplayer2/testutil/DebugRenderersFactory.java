@@ -55,6 +55,7 @@ public class DebugRenderersFactory extends DefaultRenderersFactory {
       MediaCodecSelector mediaCodecSelector,
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       boolean playClearSamplesWithoutKeys,
+      boolean enableDecoderFallback,
       Handler eventHandler,
       VideoRendererEventListener eventListener,
       long allowedVideoJoiningTimeMs,
