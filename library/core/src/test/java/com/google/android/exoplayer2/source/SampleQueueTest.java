@@ -29,10 +29,12 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import java.util.Arrays;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -89,6 +91,8 @@ public final class SampleQueueTest {
   private static final Format[] SAMPLE_FORMATS =
       new Format[] {FORMAT_1, FORMAT_1, FORMAT_1, FORMAT_1, FORMAT_2, FORMAT_2, FORMAT_2, FORMAT_2};
   private static final int DATA_SECOND_KEYFRAME_INDEX = 4;
+  private static final TrackOutput.CryptoData DUMMY_CRYPTO_DATA =
+      new TrackOutput.CryptoData(C.CRYPTO_MODE_AES_CTR, new byte[16], 0, 0);
 
   private Allocator allocator;
   private SampleQueue sampleQueue;
@@ -512,6 +516,49 @@ public final class SampleQueueTest {
   }
 
   @Test
+  public void testAllowOnlyClearBuffers() {
+    int[] flags =
+        new int[] {
+          C.BUFFER_FLAG_KEY_FRAME,
+          C.BUFFER_FLAG_ENCRYPTED,
+          0,
+          0,
+          0,
+          C.BUFFER_FLAG_KEY_FRAME | C.BUFFER_FLAG_ENCRYPTED,
+          0,
+          0
+        };
+    int[] sampleSizes = new int[flags.length];
+    Arrays.fill(sampleSizes, /* val= */ 1);
+
+    // Two encryption preamble bytes per encrypted sample in the sample queue.
+    byte[] sampleData = new byte[flags.length + 2 + 2];
+    Arrays.fill(sampleData, /* val= */ (byte) 1);
+
+    writeTestData(
+        sampleData, sampleSizes, new int[flags.length], SAMPLE_TIMESTAMPS, SAMPLE_FORMATS, flags);
+    assertReadFormat(/* formatRequired= */ false, FORMAT_1);
+    assertResult(RESULT_BUFFER_READ, /* allowOnlyClearBuffers= */ true);
+    assertResult(RESULT_NOTHING_READ, /* allowOnlyClearBuffers= */ true);
+
+    assertResult(RESULT_BUFFER_READ, /* allowOnlyClearBuffers= */ false);
+
+    assertResult(RESULT_BUFFER_READ, /* allowOnlyClearBuffers= */ true);
+    assertResult(RESULT_BUFFER_READ, /* allowOnlyClearBuffers= */ true);
+    assertResult(RESULT_FORMAT_READ, /* allowOnlyClearBuffers= */ true);
+    assertResult(RESULT_BUFFER_READ, /* allowOnlyClearBuffers= */ true);
+    assertResult(RESULT_NOTHING_READ, /* allowOnlyClearBuffers= */ true);
+
+    assertResult(RESULT_BUFFER_READ, /* allowOnlyClearBuffers= */ false);
+
+    assertResult(RESULT_BUFFER_READ, /* allowOnlyClearBuffers= */ true);
+    assertResult(RESULT_BUFFER_READ, /* allowOnlyClearBuffers= */ true);
+    assertResult(RESULT_NOTHING_READ, /* allowOnlyClearBuffers= */ true);
+
+    assertResult(RESULT_NOTHING_READ, /* allowOnlyClearBuffers= */ false);
+  }
+
+  @Test
   public void testLargestQueuedTimestampWithRead() {
     writeTestData();
     assertThat(sampleQueue.getLargestQueuedTimestampUs()).isEqualTo(LAST_SAMPLE_TIMESTAMP);
@@ -602,8 +649,12 @@ public final class SampleQueueTest {
         sampleQueue.format(sampleFormats[i]);
         format = sampleFormats[i];
       }
-      sampleQueue.sampleMetadata(sampleTimestamps[i], sampleFlags[i], sampleSizes[i],
-          sampleOffsets[i], null);
+      sampleQueue.sampleMetadata(
+          sampleTimestamps[i],
+          sampleFlags[i],
+          sampleSizes[i],
+          sampleOffsets[i],
+          (sampleFlags[i] & C.BUFFER_FLAG_ENCRYPTED) != 0 ? DUMMY_CRYPTO_DATA : null);
     }
   }
 
@@ -714,11 +765,18 @@ public final class SampleQueueTest {
   /**
    * Asserts {@link SampleQueue#read} returns {@link C#RESULT_NOTHING_READ}.
    *
-   * @param formatRequired The value of {@code formatRequired} passed to readData.
+   * @param formatRequired The value of {@code formatRequired} passed to {@link SampleQueue#read}.
    */
   private void assertReadNothing(boolean formatRequired) {
     clearFormatHolderAndInputBuffer();
-    int result = sampleQueue.read(formatHolder, inputBuffer, formatRequired, false, 0);
+    int result =
+        sampleQueue.read(
+            formatHolder,
+            inputBuffer,
+            formatRequired,
+            /* allowOnlyClearBuffers= */ false,
+            /* loadingFinished= */ false,
+            /* decodeOnlyUntilUs= */ 0);
     assertThat(result).isEqualTo(RESULT_NOTHING_READ);
     // formatHolder should not be populated.
     assertThat(formatHolder.format).isNull();
@@ -728,14 +786,21 @@ public final class SampleQueueTest {
   }
 
   /**
-   * Asserts {@link SampleQueue#read} returns {@link C#RESULT_BUFFER_READ} and that the
-   * {@link DecoderInputBuffer#isEndOfStream()} is set.
+   * Asserts {@link SampleQueue#read} returns {@link C#RESULT_BUFFER_READ} and that the {@link
+   * DecoderInputBuffer#isEndOfStream()} is set.
    *
-   * @param formatRequired The value of {@code formatRequired} passed to readData.
+   * @param formatRequired The value of {@code formatRequired} passed to {@link SampleQueue#read}.
    */
   private void assertReadEndOfStream(boolean formatRequired) {
     clearFormatHolderAndInputBuffer();
-    int result = sampleQueue.read(formatHolder, inputBuffer, formatRequired, true, 0);
+    int result =
+        sampleQueue.read(
+            formatHolder,
+            inputBuffer,
+            formatRequired,
+            /* allowOnlyClearBuffers= */ false,
+            /* loadingFinished= */ true,
+            /* decodeOnlyUntilUs= */ 0);
     assertThat(result).isEqualTo(RESULT_BUFFER_READ);
     // formatHolder should not be populated.
     assertThat(formatHolder.format).isNull();
@@ -750,12 +815,19 @@ public final class SampleQueueTest {
    * Asserts {@link SampleQueue#read} returns {@link C#RESULT_FORMAT_READ} and that the format
    * holder is filled with a {@link Format} that equals {@code format}.
    *
-   * @param formatRequired The value of {@code formatRequired} passed to readData.
+   * @param formatRequired The value of {@code formatRequired} passed to {@link SampleQueue#read}.
    * @param format The expected format.
    */
   private void assertReadFormat(boolean formatRequired, Format format) {
     clearFormatHolderAndInputBuffer();
-    int result = sampleQueue.read(formatHolder, inputBuffer, formatRequired, false, 0);
+    int result =
+        sampleQueue.read(
+            formatHolder,
+            inputBuffer,
+            formatRequired,
+            /* allowOnlyClearBuffers= */ false,
+            /* loadingFinished= */ false,
+            /* decodeOnlyUntilUs= */ 0);
     assertThat(result).isEqualTo(RESULT_FORMAT_READ);
     // formatHolder should be populated.
     assertThat(formatHolder.format).isEqualTo(format);
@@ -777,7 +849,14 @@ public final class SampleQueueTest {
   private void assertReadSample(
       long timeUs, boolean isKeyframe, byte[] sampleData, int offset, int length) {
     clearFormatHolderAndInputBuffer();
-    int result = sampleQueue.read(formatHolder, inputBuffer, false, false, 0);
+    int result =
+        sampleQueue.read(
+            formatHolder,
+            inputBuffer,
+            /* formatRequired= */ false,
+            /* allowOnlyClearBuffers= */ false,
+            /* loadingFinished= */ false,
+            /* decodeOnlyUntilUs= */ 0);
     assertThat(result).isEqualTo(RESULT_BUFFER_READ);
     // formatHolder should not be populated.
     assertThat(formatHolder.format).isNull();
@@ -791,6 +870,19 @@ public final class SampleQueueTest {
     byte[] readData = new byte[length];
     inputBuffer.data.get(readData);
     assertThat(readData).isEqualTo(copyOfRange(sampleData, offset, offset + length));
+  }
+
+  /** Asserts {@link SampleQueue#read} returns the given result. */
+  private void assertResult(int expectedResult, boolean allowOnlyClearBuffers) {
+    int obtainedResult =
+        sampleQueue.read(
+            formatHolder,
+            inputBuffer,
+            /* formatRequired= */ false,
+            allowOnlyClearBuffers,
+            /* loadingFinished= */ false,
+            /* decodeOnlyUntilUs= */ 0);
+    assertThat(obtainedResult).isEqualTo(expectedResult);
   }
 
   /**

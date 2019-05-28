@@ -324,6 +324,8 @@ public class SampleQueue implements TrackOutput {
    * @param formatRequired Whether the caller requires that the format of the stream be read even if
    *     it's not changing. A sample will never be read if set to true, however it is still possible
    *     for the end of stream or nothing to be read.
+   * @param allowOnlyClearBuffers If set to true, this method will not return encrypted buffers,
+   *     returning {@link C#RESULT_NOTHING_READ} (without advancing the read position) instead.
    * @param loadingFinished True if an empty queue should be considered the end of the stream.
    * @param decodeOnlyUntilUs If a buffer is read, the {@link C#BUFFER_FLAG_DECODE_ONLY} flag will
    *     be set if the buffer's timestamp is less than this value.
@@ -334,10 +336,18 @@ public class SampleQueue implements TrackOutput {
       FormatHolder formatHolder,
       DecoderInputBuffer buffer,
       boolean formatRequired,
+      boolean allowOnlyClearBuffers,
       boolean loadingFinished,
       long decodeOnlyUntilUs) {
-    int result = metadataQueue.read(formatHolder, buffer, formatRequired, loadingFinished,
-        downstreamFormat, extrasHolder);
+    int result =
+        metadataQueue.read(
+            formatHolder,
+            buffer,
+            formatRequired,
+            allowOnlyClearBuffers,
+            loadingFinished,
+            downstreamFormat,
+            extrasHolder);
     switch (result) {
       case C.RESULT_FORMAT_READ:
         downstreamFormat = formatHolder.format;
