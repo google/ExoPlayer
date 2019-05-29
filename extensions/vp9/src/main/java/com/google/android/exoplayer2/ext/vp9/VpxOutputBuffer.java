@@ -60,8 +60,8 @@ public final class VpxOutputBuffer extends OutputBuffer {
    * Initializes the buffer.
    *
    * @param timeUs The presentation timestamp for the buffer, in microseconds.
-   * @param mode The output mode. One of {@link VpxDecoder#OUTPUT_MODE_NONE} and {@link
-   *     VpxDecoder#OUTPUT_MODE_YUV}.
+   * @param mode The output mode. One of {@link VpxDecoder#OUTPUT_MODE_NONE}, {@link
+   *     VpxDecoder#OUTPUT_MODE_YUV} and {@link VpxDecoder#OUTPUT_MODE_SURFACE_YUV}.
    */
   public void init(long timeUs, int mode) {
     this.timeUs = timeUs;
@@ -108,6 +108,15 @@ public final class VpxOutputBuffer extends OutputBuffer {
     yuvStrides[1] = uvStride;
     yuvStrides[2] = uvStride;
     return true;
+  }
+
+  /**
+   * Configures the buffer for the given frame dimensions when passing actual frame data via {@link
+   * #decoderPrivate}. Called via JNI after decoding completes.
+   */
+  public void initForPrivateFrame(int width, int height) {
+    this.width = width;
+    this.height = height;
   }
 
   private void initData(int size) {
