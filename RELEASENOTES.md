@@ -2,6 +2,9 @@
 
 ### 2.10.2 ###
 
+* Subtitles:
+  * TTML: Fix bitmap rendering
+    ([#5633](https://github.com/google/ExoPlayer/pull/5633)).
 * UI:
   * Allow setting `DefaultTimeBar` attributes on `PlayerView` and
     `PlayerControlView`.
