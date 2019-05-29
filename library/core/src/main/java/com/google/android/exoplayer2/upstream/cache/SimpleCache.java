@@ -390,10 +390,11 @@ public final class SimpleCache implements Cache {
       if (span != null) {
         return span;
       } else {
-        // Write case, lock not available. We'll be woken up when a locked span is released (if the
-        // released lock is for the requested key then we'll be able to make progress) or when a
-        // span is added to the cache (if the span is for the requested key and covers the requested
-        // position, then we'll become a read and be able to make progress).
+        // Lock not available. We'll be woken up when a span is added, or when a locked span is
+        // released. We'll be able to make progress when either:
+        // 1. A span is added for the requested key that covers the requested position, in which
+        //    case a read can be started.
+        // 2. The lock for the requested key is released, in which case a write can be started.
         wait();
       }
     }
@@ -415,12 +416,12 @@ public final class SimpleCache implements Cache {
 
     CachedContent cachedContent = contentIndex.getOrAdd(key);
     if (!cachedContent.isLocked()) {
-      // Write case, lock available.
+      // Write case.
       cachedContent.setLocked(true);
       return span;
     }
 
-    // Write case, lock not available.
+    // Lock not available.
     return null;
   }
 
