@@ -10,17 +10,26 @@
     `PlayerControlView`.
   * Change playback controls toggle from touch down to touch up events
     ([#5784](https://github.com/google/ExoPlayer/issues/5784)).
+<<<<<<< HEAD
   * Fix issue where playback controls were not kept visible on key presses
     ([#5963](https://github.com/google/ExoPlayer/issues/5963)).
+=======
+* Add a workaround for broken raw audio decoding on Oppo R9
+  ([#5782](https://github.com/google/ExoPlayer/issues/5782)).
+* Offline:
+  * Add Scheduler implementation which uses WorkManager.
+  * Prevent unexpected `DownloadHelper.Callback.onPrepared` callbacks after the
+    preparation of the `DownloadHelper` failed
+    ([#5915](https://github.com/google/ExoPlayer/issues/5915)).
+  * Fix CacheUtil.cache() use too much data
+    ([#5927](https://github.com/google/ExoPlayer/issues/5927)).
+>>>>>>> 42ba6abf5... Fix CacheUtil.cache() use too much data
 * Add a playWhenReady flag to MediaSessionConnector.PlaybackPreparer methods
   to indicate whether a controller sent a play or only a prepare command. This
   allows to take advantage of decoder reuse with the MediaSessionConnector
   ([#5891](https://github.com/google/ExoPlayer/issues/5891)).
 * Add ProgressUpdateListener to PlayerControlView
   ([#5834](https://github.com/google/ExoPlayer/issues/5834)).
-* Prevent unexpected `DownloadHelper.Callback.onPrepared` callbacks after the
-  preparation of the `DownloadHelper` failed
-  ([#5915](https://github.com/google/ExoPlayer/issues/5915)).
 * Allow enabling decoder fallback with `DefaultRenderersFactory`
   ([#5942](https://github.com/google/ExoPlayer/issues/5942)).
 * Fix bug caused by parallel adaptive track selection using `Format`s without
