@@ -9,8 +9,11 @@
   checks ([#5568](https://github.com/google/ExoPlayer/issues/5568)).
 * Decoders: Prefer decoders that advertise format support over ones that do not,
   even if they are listed lower in the `MediaCodecList`.
-* CEA-608: Handle XDS and TEXT modes
-  ([5807](https://github.com/google/ExoPlayer/pull/5807)).
+* Subtitles:
+  * CEA-608: Handle XDS and TEXT modes
+  ([#5807](https://github.com/google/ExoPlayer/pull/5807)).
+  * TTML: Fix bitmap rendering
+  ([#5633](https://github.com/google/ExoPlayer/pull/5633)).
 * Audio:
  * Fix an issue where not all audio was played out when the configuration
    for the underlying track was changing (e.g., at some period transitions).
