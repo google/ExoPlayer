@@ -374,7 +374,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    * @return Whether passthrough playback is supported.
    */
   protected boolean allowPassthrough(int channelCount, String mimeType) {
-    return audioSink.supportsOutput(channelCount, MimeTypes.getEncoding(mimeType));
+    return getPassthroughEncoding(channelCount, mimeType) != C.ENCODING_INVALID;
   }
 
   @Override
@@ -471,11 +471,14 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     @C.Encoding int encoding;
     MediaFormat format;
     if (passthroughMediaFormat != null) {
-      encoding = MimeTypes.getEncoding(passthroughMediaFormat.getString(MediaFormat.KEY_MIME));
       format = passthroughMediaFormat;
+      encoding =
+          getPassthroughEncoding(
+              format.getInteger(MediaFormat.KEY_CHANNEL_COUNT),
+              format.getString(MediaFormat.KEY_MIME));
     } else {
-      encoding = pcmEncoding;
       format = outputFormat;
+      encoding = pcmEncoding;
     }
     int channelCount = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
     int sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
@@ -494,6 +497,28 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
           encoderPadding);
     } catch (AudioSink.ConfigurationException e) {
       throw ExoPlaybackException.createForRenderer(e, getIndex());
+    }
+  }
+
+  /**
+   * Returns the {@link C.Encoding} constant to use for passthrough of the given format, or {@link
+   * C#ENCODING_INVALID} if passthrough is not possible.
+   */
+  @C.Encoding
+  protected int getPassthroughEncoding(int channelCount, String mimeType) {
+    if (MimeTypes.AUDIO_E_AC3_JOC.equals(mimeType)) {
+      if (audioSink.supportsOutput(channelCount, C.ENCODING_E_AC3_JOC)) {
+        return MimeTypes.getEncoding(MimeTypes.AUDIO_E_AC3_JOC);
+      }
+      // E-AC3 receivers can decode JOC streams, but in 2-D rather than 3-D, so try to fall back.
+      mimeType = MimeTypes.AUDIO_E_AC3;
+    }
+
+    @C.Encoding int encoding = MimeTypes.getEncoding(mimeType);
+    if (audioSink.supportsOutput(channelCount, encoding)) {
+      return encoding;
+    } else {
+      return C.ENCODING_INVALID;
     }
   }
 
