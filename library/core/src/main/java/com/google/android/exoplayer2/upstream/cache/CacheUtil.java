@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
@@ -195,37 +196,42 @@ public final class CacheUtil {
       long contentLength = ContentMetadata.getContentLength(cache.getContentMetadata(key));
       bytesLeft = contentLength == C.LENGTH_UNSET ? C.LENGTH_UNSET : contentLength - position;
     }
+    boolean lengthUnset = bytesLeft == C.LENGTH_UNSET;
     while (bytesLeft != 0) {
       throwExceptionIfInterruptedOrCancelled(isCanceled);
       long blockLength =
-          cache.getCachedLength(
-              key, position, bytesLeft != C.LENGTH_UNSET ? bytesLeft : Long.MAX_VALUE);
+          cache.getCachedLength(key, position, lengthUnset ? Long.MAX_VALUE : bytesLeft);
       if (blockLength > 0) {
         // Skip already cached data.
       } else {
         // There is a hole in the cache which is at least "-blockLength" long.
         blockLength = -blockLength;
+        long length = blockLength == Long.MAX_VALUE ? C.LENGTH_UNSET : blockLength;
+        boolean isLastBlock = length == bytesLeft;
         long read =
             readAndDiscard(
                 dataSpec,
                 position,
-                blockLength,
+                length,
                 dataSource,
                 buffer,
                 priorityTaskManager,
                 priority,
                 progressNotifier,
+                isLastBlock,
                 isCanceled);
         if (read < blockLength) {
           // Reached to the end of the data.
-          if (enableEOFException && bytesLeft != C.LENGTH_UNSET) {
+          if (enableEOFException && !lengthUnset) {
             throw new EOFException();
           }
           break;
         }
       }
       position += blockLength;
-      bytesLeft -= bytesLeft == C.LENGTH_UNSET ? 0 : blockLength;
+      if (!lengthUnset) {
+        bytesLeft -= blockLength;
+      }
     }
   }
 
@@ -242,6 +248,7 @@ public final class CacheUtil {
    *     caching.
    * @param priority The priority of this task.
    * @param progressNotifier A notifier through which to report progress updates, or {@code null}.
+   * @param isLastBlock Whether this read block is the last block of the content.
    * @param isCanceled An optional flag that will interrupt caching if set to true.
    * @return Number of read bytes, or 0 if no data is available because the end of the opened range
    *     has been reached.
@@ -255,6 +262,7 @@ public final class CacheUtil {
       PriorityTaskManager priorityTaskManager,
       int priority,
       @Nullable ProgressNotifier progressNotifier,
+      boolean isLastBlock,
       AtomicBoolean isCanceled)
       throws IOException, InterruptedException {
     long positionOffset = absoluteStreamPosition - dataSpec.absoluteStreamPosition;
@@ -263,22 +271,23 @@ public final class CacheUtil {
         // Wait for any other thread with higher priority to finish its job.
         priorityTaskManager.proceed(priority);
       }
+      throwExceptionIfInterruptedOrCancelled(isCanceled);
       try {
-        throwExceptionIfInterruptedOrCancelled(isCanceled);
-        // Create a new dataSpec setting length to C.LENGTH_UNSET to prevent getting an error in
-        // case the given length exceeds the end of input.
-        dataSpec =
-            new DataSpec(
-                dataSpec.uri,
-                dataSpec.httpMethod,
-                dataSpec.httpBody,
-                absoluteStreamPosition,
-                /* position= */ dataSpec.position + positionOffset,
-                C.LENGTH_UNSET,
-                dataSpec.key,
-                dataSpec.flags);
-        long resolvedLength = dataSource.open(dataSpec);
-        if (progressNotifier != null && resolvedLength != C.LENGTH_UNSET) {
+        long resolvedLength;
+        try {
+          resolvedLength = dataSource.open(dataSpec.subrange(positionOffset, length));
+        } catch (IOException exception) {
+          if (length == C.LENGTH_UNSET
+              || !isLastBlock
+              || !isCausedByPositionOutOfRange(exception)) {
+            throw exception;
+          }
+          Util.closeQuietly(dataSource);
+          // Retry to open the data source again, setting length to C.LENGTH_UNSET to prevent
+          // getting an error in case the given length exceeds the end of input.
+          resolvedLength = dataSource.open(dataSpec.subrange(positionOffset, C.LENGTH_UNSET));
+        }
+        if (isLastBlock && progressNotifier != null && resolvedLength != C.LENGTH_UNSET) {
           progressNotifier.onRequestLengthResolved(positionOffset + resolvedLength);
         }
         long totalBytesRead = 0;
@@ -338,6 +347,20 @@ public final class CacheUtil {
         // Do nothing.
       }
     }
+  }
+
+  /*package*/ static boolean isCausedByPositionOutOfRange(IOException e) {
+    Throwable cause = e;
+    while (cause != null) {
+      if (cause instanceof DataSourceException) {
+        int reason = ((DataSourceException) cause).reason;
+        if (reason == DataSourceException.POSITION_OUT_OF_RANGE) {
+          return true;
+        }
+      }
+      cause = cause.getCause();
+    }
+    return false;
   }
 
   private static String buildCacheKey(

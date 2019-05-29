@@ -26,16 +26,19 @@
     ([#5784](https://github.com/google/ExoPlayer/issues/5784)).
 * Add a workaround for broken raw audio decoding on Oppo R9
   ([#5782](https://github.com/google/ExoPlayer/issues/5782)).
-* Offline: Add Scheduler implementation which uses WorkManager.
+* Offline:
+  * Add Scheduler implementation which uses WorkManager.
+  * Prevent unexpected `DownloadHelper.Callback.onPrepared` callbacks after the
+    preparation of the `DownloadHelper` failed
+    ([#5915](https://github.com/google/ExoPlayer/issues/5915)).
+  * Fix CacheUtil.cache() use too much data
+    ([#5927](https://github.com/google/ExoPlayer/issues/5927)).
 * Add a playWhenReady flag to MediaSessionConnector.PlaybackPreparer methods
   to indicate whether a controller sent a play or only a prepare command. This
   allows to take advantage of decoder reuse with the MediaSessionConnector
   ([#5891](https://github.com/google/ExoPlayer/issues/5891)).
 * Add ProgressUpdateListener to PlayerControlView
   ([#5834](https://github.com/google/ExoPlayer/issues/5834)).
-* Prevent unexpected `DownloadHelper.Callback.onPrepared` callbacks after the
-  preparation of the `DownloadHelper` failed
-  ([#5915](https://github.com/google/ExoPlayer/issues/5915)).
 * Allow enabling decoder fallback with `DefaultRenderersFactory`
   ([#5942](https://github.com/google/ExoPlayer/issues/5942)).
 
