@@ -83,7 +83,8 @@ public final class CacheAsserts {
    * @throws IOException If an error occurred reading from the Cache.
    */
   public static void assertDataCached(Cache cache, Uri uri, byte[] expected) throws IOException {
-    DataSpec dataSpec = new DataSpec(uri);
+    // TODO Make tests specify if the content length is stored in cache metadata.
+    DataSpec dataSpec = new DataSpec(uri, 0, expected.length, null, 0);
     assertDataCached(cache, dataSpec, expected);
   }
 
@@ -95,15 +96,18 @@ public final class CacheAsserts {
   public static void assertDataCached(Cache cache, DataSpec dataSpec, byte[] expected)
       throws IOException {
     DataSource dataSource = new CacheDataSource(cache, DummyDataSource.INSTANCE, 0);
-    dataSource.open(dataSpec);
+    byte[] bytes;
     try {
-      byte[] bytes = TestUtil.readToEnd(dataSource);
-      assertWithMessage("Cached data doesn't match expected for '" + dataSpec.uri + "',")
-          .that(bytes)
-          .isEqualTo(expected);
+      dataSource.open(dataSpec);
+      bytes = TestUtil.readToEnd(dataSource);
+    } catch (IOException e) {
+      throw new IOException("Opening/reading cache failed: " + dataSpec, e);
     } finally {
       dataSource.close();
     }
+    assertWithMessage("Cached data doesn't match expected for '" + dataSpec.uri + "',")
+        .that(bytes)
+        .isEqualTo(expected);
   }
 
   /**

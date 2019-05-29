@@ -136,7 +136,7 @@ public final class CacheDataSource implements DataSource {
   private boolean currentDataSpecLengthUnset;
   @Nullable private Uri uri;
   @Nullable private Uri actualUri;
-  private @HttpMethod int httpMethod;
+  @HttpMethod private int httpMethod;
   private int flags;
   @Nullable private String key;
   private long readPosition;
@@ -319,7 +319,7 @@ public final class CacheDataSource implements DataSource {
       }
       return bytesRead;
     } catch (IOException e) {
-      if (currentDataSpecLengthUnset && isCausedByPositionOutOfRange(e)) {
+      if (currentDataSpecLengthUnset && CacheUtil.isCausedByPositionOutOfRange(e)) {
         setNoBytesRemainingAndMaybeStoreLength();
         return C.RESULT_END_OF_INPUT;
       }
@@ -483,20 +483,6 @@ public final class CacheDataSource implements DataSource {
   private static Uri getRedirectedUriOrDefault(Cache cache, String key, Uri defaultUri) {
     Uri redirectedUri = ContentMetadata.getRedirectedUri(cache.getContentMetadata(key));
     return redirectedUri != null ? redirectedUri : defaultUri;
-  }
-
-  private static boolean isCausedByPositionOutOfRange(IOException e) {
-    Throwable cause = e;
-    while (cause != null) {
-      if (cause instanceof DataSourceException) {
-        int reason = ((DataSourceException) cause).reason;
-        if (reason == DataSourceException.POSITION_OUT_OF_RANGE) {
-          return true;
-        }
-      }
-      cause = cause.getCause();
-    }
-    return false;
   }
 
   private boolean isReadingFromUpstream() {
