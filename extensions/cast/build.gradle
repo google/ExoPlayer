@@ -31,7 +31,7 @@ android {
 }
 
 dependencies {
-    api 'com.google.android.gms:play-services-cast-framework:16.1.2'
+    api 'com.google.android.gms:play-services-cast-framework:16.2.0'
     implementation 'androidx.annotation:annotation:1.0.2'
     implementation project(modulePrefix + 'library-core')
     implementation project(modulePrefix + 'library-ui')
