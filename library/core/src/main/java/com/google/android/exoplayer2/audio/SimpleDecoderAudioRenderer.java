@@ -655,6 +655,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
     decoderDrmSession = session;
   }
 
+  @SuppressWarnings("unchecked")
   private void onInputFormatChanged(Format newFormat) throws ExoPlaybackException {
     Format oldFormat = inputFormat;
     inputFormat = newFormat;
@@ -667,12 +668,16 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
           throw ExoPlaybackException.createForRenderer(
               new IllegalStateException("Media requires a DrmSessionManager"), getIndex());
         }
-        DrmSession<ExoMediaCrypto> session =
-            drmSessionManager.acquireSession(Looper.myLooper(), newFormat.drmInitData);
-        if (sourceDrmSession != null) {
-          sourceDrmSession.releaseReference();
+        if (formatHolder.decryptionResourceIsProvided) {
+          setSourceDrmSession((DrmSession<ExoMediaCrypto>) formatHolder.drmSession);
+        } else {
+          DrmSession<ExoMediaCrypto> session =
+              drmSessionManager.acquireSession(Looper.myLooper(), newFormat.drmInitData);
+          if (sourceDrmSession != null) {
+            sourceDrmSession.releaseReference();
+          }
+          sourceDrmSession = session;
         }
-        sourceDrmSession = session;
       } else {
         setSourceDrmSession(null);
       }

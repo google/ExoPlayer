@@ -1135,6 +1135,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @param formatHolder A {@link FormatHolder} that holds the new {@link Format}.
    * @throws ExoPlaybackException If an error occurs re-initializing the {@link MediaCodec}.
    */
+  @SuppressWarnings("unchecked")
   protected void onInputFormatChanged(FormatHolder formatHolder) throws ExoPlaybackException {
     Format oldFormat = inputFormat;
     Format newFormat = formatHolder.format;
@@ -1149,12 +1150,16 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           throw ExoPlaybackException.createForRenderer(
               new IllegalStateException("Media requires a DrmSessionManager"), getIndex());
         }
-        DrmSession<FrameworkMediaCrypto> session =
-            drmSessionManager.acquireSession(Looper.myLooper(), newFormat.drmInitData);
-        if (sourceDrmSession != null) {
-          sourceDrmSession.releaseReference();
+        if (formatHolder.decryptionResourceIsProvided) {
+          setSourceDrmSession((DrmSession<FrameworkMediaCrypto>) formatHolder.drmSession);
+        } else {
+          DrmSession<FrameworkMediaCrypto> session =
+              drmSessionManager.acquireSession(Looper.myLooper(), newFormat.drmInitData);
+          if (sourceDrmSession != null) {
+            sourceDrmSession.releaseReference();
+          }
+          sourceDrmSession = session;
         }
-        sourceDrmSession = session;
       } else {
         setSourceDrmSession(null);
       }
