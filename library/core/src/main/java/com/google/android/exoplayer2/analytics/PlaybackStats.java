@@ -19,6 +19,7 @@ import android.os.SystemClock;
 import androidx.annotation.IntDef;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -27,6 +28,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Collections;
 import java.util.List;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /** Statistics about playbacks. */
 public final class PlaybackStats {
@@ -109,12 +111,31 @@ public final class PlaybackStats {
     int backgroundJoiningCount = 0;
     long totalValidJoinTimeMs = C.TIME_UNSET;
     int validJoinTimeCount = 0;
-    int pauseCount = 0;
-    int pauseBufferCount = 0;
-    int seekCount = 0;
-    int rebufferCount = 0;
+    int totalPauseCount = 0;
+    int totalPauseBufferCount = 0;
+    int totalSeekCount = 0;
+    int totalRebufferCount = 0;
     long maxRebufferTimeMs = C.TIME_UNSET;
-    int adCount = 0;
+    int adPlaybackCount = 0;
+    long totalVideoFormatHeightTimeMs = 0;
+    long totalVideoFormatHeightTimeProduct = 0;
+    long totalVideoFormatBitrateTimeMs = 0;
+    long totalVideoFormatBitrateTimeProduct = 0;
+    long totalAudioFormatTimeMs = 0;
+    long totalAudioFormatBitrateTimeProduct = 0;
+    int initialVideoFormatHeightCount = 0;
+    int initialVideoFormatBitrateCount = 0;
+    int totalInitialVideoFormatHeight = C.LENGTH_UNSET;
+    long totalInitialVideoFormatBitrate = C.LENGTH_UNSET;
+    int initialAudioFormatBitrateCount = 0;
+    long totalInitialAudioFormatBitrate = C.LENGTH_UNSET;
+    long totalBandwidthTimeMs = 0;
+    long totalBandwidthBytes = 0;
+    long totalDroppedFrames = 0;
+    long totalAudioUnderruns = 0;
+    int fatalErrorPlaybackCount = 0;
+    int fatalErrorCount = 0;
+    int nonFatalErrorCount = 0;
     for (PlaybackStats stats : playbackStats) {
       playbackCount += stats.playbackCount;
       for (int i = 0; i < PLAYBACK_STATE_COUNT; i++) {
@@ -135,21 +156,53 @@ public final class PlaybackStats {
         totalValidJoinTimeMs += stats.totalValidJoinTimeMs;
       }
       validJoinTimeCount += stats.validJoinTimeCount;
-      pauseCount += stats.totalPauseCount;
-      pauseBufferCount += stats.totalPauseBufferCount;
-      seekCount += stats.totalSeekCount;
-      rebufferCount += stats.totalRebufferCount;
+      totalPauseCount += stats.totalPauseCount;
+      totalPauseBufferCount += stats.totalPauseBufferCount;
+      totalSeekCount += stats.totalSeekCount;
+      totalRebufferCount += stats.totalRebufferCount;
       if (maxRebufferTimeMs == C.TIME_UNSET) {
         maxRebufferTimeMs = stats.maxRebufferTimeMs;
       } else if (stats.maxRebufferTimeMs != C.TIME_UNSET) {
         maxRebufferTimeMs = Math.max(maxRebufferTimeMs, stats.maxRebufferTimeMs);
       }
-      adCount += stats.adPlaybackCount;
+      adPlaybackCount += stats.adPlaybackCount;
+      totalVideoFormatHeightTimeMs += stats.totalVideoFormatHeightTimeMs;
+      totalVideoFormatHeightTimeProduct += stats.totalVideoFormatHeightTimeProduct;
+      totalVideoFormatBitrateTimeMs += stats.totalVideoFormatBitrateTimeMs;
+      totalVideoFormatBitrateTimeProduct += stats.totalVideoFormatBitrateTimeProduct;
+      totalAudioFormatTimeMs += stats.totalAudioFormatTimeMs;
+      totalAudioFormatBitrateTimeProduct += stats.totalAudioFormatBitrateTimeProduct;
+      initialVideoFormatHeightCount += stats.initialVideoFormatHeightCount;
+      initialVideoFormatBitrateCount += stats.initialVideoFormatBitrateCount;
+      if (totalInitialVideoFormatHeight == C.LENGTH_UNSET) {
+        totalInitialVideoFormatHeight = stats.totalInitialVideoFormatHeight;
+      } else if (stats.totalInitialVideoFormatHeight != C.LENGTH_UNSET) {
+        totalInitialVideoFormatHeight += stats.totalInitialVideoFormatHeight;
+      }
+      if (totalInitialVideoFormatBitrate == C.LENGTH_UNSET) {
+        totalInitialVideoFormatBitrate = stats.totalInitialVideoFormatBitrate;
+      } else if (stats.totalInitialVideoFormatBitrate != C.LENGTH_UNSET) {
+        totalInitialVideoFormatBitrate += stats.totalInitialVideoFormatBitrate;
+      }
+      initialAudioFormatBitrateCount += stats.initialAudioFormatBitrateCount;
+      if (totalInitialAudioFormatBitrate == C.LENGTH_UNSET) {
+        totalInitialAudioFormatBitrate = stats.totalInitialAudioFormatBitrate;
+      } else if (stats.totalInitialAudioFormatBitrate != C.LENGTH_UNSET) {
+        totalInitialAudioFormatBitrate += stats.totalInitialAudioFormatBitrate;
+      }
+      totalBandwidthTimeMs += stats.totalBandwidthTimeMs;
+      totalBandwidthBytes += stats.totalBandwidthBytes;
+      totalDroppedFrames += stats.totalDroppedFrames;
+      totalAudioUnderruns += stats.totalAudioUnderruns;
+      fatalErrorPlaybackCount += stats.fatalErrorPlaybackCount;
+      fatalErrorCount += stats.fatalErrorCount;
+      nonFatalErrorCount += stats.nonFatalErrorCount;
     }
     return new PlaybackStats(
         playbackCount,
         playbackStateDurationsMs,
         /* playbackStateHistory */ Collections.emptyList(),
+        /* mediaTimeHistory= */ Collections.emptyList(),
         firstReportedTimeMs,
         foregroundPlaybackCount,
         abandonedBeforeReadyCount,
@@ -157,12 +210,35 @@ public final class PlaybackStats {
         backgroundJoiningCount,
         totalValidJoinTimeMs,
         validJoinTimeCount,
-        pauseCount,
-        pauseBufferCount,
-        seekCount,
-        rebufferCount,
+        totalPauseCount,
+        totalPauseBufferCount,
+        totalSeekCount,
+        totalRebufferCount,
         maxRebufferTimeMs,
-        adCount);
+        adPlaybackCount,
+        /* videoFormatHistory= */ Collections.emptyList(),
+        /* audioFormatHistory= */ Collections.emptyList(),
+        totalVideoFormatHeightTimeMs,
+        totalVideoFormatHeightTimeProduct,
+        totalVideoFormatBitrateTimeMs,
+        totalVideoFormatBitrateTimeProduct,
+        totalAudioFormatTimeMs,
+        totalAudioFormatBitrateTimeProduct,
+        initialVideoFormatHeightCount,
+        initialVideoFormatBitrateCount,
+        totalInitialVideoFormatHeight,
+        totalInitialVideoFormatBitrate,
+        initialAudioFormatBitrateCount,
+        totalInitialAudioFormatBitrate,
+        totalBandwidthTimeMs,
+        totalBandwidthBytes,
+        totalDroppedFrames,
+        totalAudioUnderruns,
+        fatalErrorPlaybackCount,
+        fatalErrorCount,
+        nonFatalErrorCount,
+        /* fatalErrorHistory= */ Collections.emptyList(),
+        /* nonFatalErrorHistory= */ Collections.emptyList());
   }
 
   /** The number of individual playbacks for which these stats were collected. */
@@ -175,6 +251,12 @@ public final class PlaybackStats {
    * active and the {@link PlaybackState}.
    */
   public final List<Pair<EventTime, @PlaybackState Integer>> playbackStateHistory;
+  /**
+   * The media time history as an ordered list of long[2] arrays with [0] being the realtime as
+   * returned by {@code SystemClock.elapsedRealtime()} and [1] being the media time at this
+   * realtime, in milliseconds.
+   */
+  public final List<long[]> mediaTimeHistory;
   /**
    * The elapsed real-time as returned by {@code SystemClock.elapsedRealtime()} of the first
    * reported playback event, or {@link C#TIME_UNSET} if no event has been reported.
@@ -223,12 +305,108 @@ public final class PlaybackStats {
   /** The number of ad playbacks. */
   public final int adPlaybackCount;
 
+  // Format stats.
+
+  /**
+   * The video format history as ordered pairs of the {@link EventTime} at which a format started
+   * being used and the {@link Format}. The {@link Format} may be null if no video format was used.
+   */
+  public final List<Pair<EventTime, @NullableType Format>> videoFormatHistory;
+  /**
+   * The audio format history as ordered pairs of the {@link EventTime} at which a format started
+   * being used and the {@link Format}. The {@link Format} may be null if no audio format was used.
+   */
+  public final List<Pair<EventTime, @NullableType Format>> audioFormatHistory;
+  /** The total media time for which video format height data is available, in milliseconds. */
+  public final long totalVideoFormatHeightTimeMs;
+  /**
+   * The accumulated sum of all video format heights, in pixels, times the time the format was used
+   * for playback, in milliseconds.
+   */
+  public final long totalVideoFormatHeightTimeProduct;
+  /** The total media time for which video format bitrate data is available, in milliseconds. */
+  public final long totalVideoFormatBitrateTimeMs;
+  /**
+   * The accumulated sum of all video format bitrates, in bits per second, times the time the format
+   * was used for playback, in milliseconds.
+   */
+  public final long totalVideoFormatBitrateTimeProduct;
+  /** The total media time for which audio format data is available, in milliseconds. */
+  public final long totalAudioFormatTimeMs;
+  /**
+   * The accumulated sum of all audio format bitrates, in bits per second, times the time the format
+   * was used for playback, in milliseconds.
+   */
+  public final long totalAudioFormatBitrateTimeProduct;
+  /** The number of playbacks with initial video format height data. */
+  public final int initialVideoFormatHeightCount;
+  /** The number of playbacks with initial video format bitrate data. */
+  public final int initialVideoFormatBitrateCount;
+  /**
+   * The total initial video format height for all playbacks, in pixels, or {@link C#LENGTH_UNSET}
+   * if no initial video format data is available.
+   */
+  public final int totalInitialVideoFormatHeight;
+  /**
+   * The total initial video format bitrate for all playbacks, in bits per second, or {@link
+   * C#LENGTH_UNSET} if no initial video format data is available.
+   */
+  public final long totalInitialVideoFormatBitrate;
+  /** The number of playbacks with initial audio format bitrate data. */
+  public final int initialAudioFormatBitrateCount;
+  /**
+   * The total initial audio format bitrate for all playbacks, in bits per second, or {@link
+   * C#LENGTH_UNSET} if no initial audio format data is available.
+   */
+  public final long totalInitialAudioFormatBitrate;
+
+  // Bandwidth stats.
+
+  /** The total time for which bandwidth measurement data is available, in milliseconds. */
+  public final long totalBandwidthTimeMs;
+  /** The total bytes transferred during {@link #totalBandwidthTimeMs}. */
+  public final long totalBandwidthBytes;
+
+  // Renderer quality stats.
+
+  /** The total number of dropped video frames. */
+  public final long totalDroppedFrames;
+  /** The total number of audio underruns. */
+  public final long totalAudioUnderruns;
+
+  // Error stats.
+
+  /**
+   * The total number of playback with at least one fatal error. Errors are fatal if playback
+   * stopped due to this error.
+   */
+  public final int fatalErrorPlaybackCount;
+  /** The total number of fatal errors. Errors are fatal if playback stopped due to this error. */
+  public final int fatalErrorCount;
+  /**
+   * The total number of non-fatal errors. Error are non-fatal if playback can recover from the
+   * error without stopping.
+   */
+  public final int nonFatalErrorCount;
+  /**
+   * The history of fatal errors as ordered pairs of the {@link EventTime} at which an error
+   * occurred and the error. Errors are fatal if playback stopped due to this error.
+   */
+  public final List<Pair<EventTime, Exception>> fatalErrorHistory;
+  /**
+   * The history of non-fatal errors as ordered pairs of the {@link EventTime} at which an error
+   * occurred and the error. Error are non-fatal if playback can recover from the error without
+   * stopping.
+   */
+  public final List<Pair<EventTime, Exception>> nonFatalErrorHistory;
+
   private final long[] playbackStateDurationsMs;
 
   /* package */ PlaybackStats(
       int playbackCount,
       long[] playbackStateDurationsMs,
       List<Pair<EventTime, @PlaybackState Integer>> playbackStateHistory,
+      List<long[]> mediaTimeHistory,
       long firstReportedTimeMs,
       int foregroundPlaybackCount,
       int abandonedBeforeReadyCount,
@@ -241,10 +419,34 @@ public final class PlaybackStats {
       int totalSeekCount,
       int totalRebufferCount,
       long maxRebufferTimeMs,
-      int adPlaybackCount) {
+      int adPlaybackCount,
+      List<Pair<EventTime, @NullableType Format>> videoFormatHistory,
+      List<Pair<EventTime, @NullableType Format>> audioFormatHistory,
+      long totalVideoFormatHeightTimeMs,
+      long totalVideoFormatHeightTimeProduct,
+      long totalVideoFormatBitrateTimeMs,
+      long totalVideoFormatBitrateTimeProduct,
+      long totalAudioFormatTimeMs,
+      long totalAudioFormatBitrateTimeProduct,
+      int initialVideoFormatHeightCount,
+      int initialVideoFormatBitrateCount,
+      int totalInitialVideoFormatHeight,
+      long totalInitialVideoFormatBitrate,
+      int initialAudioFormatBitrateCount,
+      long totalInitialAudioFormatBitrate,
+      long totalBandwidthTimeMs,
+      long totalBandwidthBytes,
+      long totalDroppedFrames,
+      long totalAudioUnderruns,
+      int fatalErrorPlaybackCount,
+      int fatalErrorCount,
+      int nonFatalErrorCount,
+      List<Pair<EventTime, Exception>> fatalErrorHistory,
+      List<Pair<EventTime, Exception>> nonFatalErrorHistory) {
     this.playbackCount = playbackCount;
     this.playbackStateDurationsMs = playbackStateDurationsMs;
     this.playbackStateHistory = Collections.unmodifiableList(playbackStateHistory);
+    this.mediaTimeHistory = Collections.unmodifiableList(mediaTimeHistory);
     this.firstReportedTimeMs = firstReportedTimeMs;
     this.foregroundPlaybackCount = foregroundPlaybackCount;
     this.abandonedBeforeReadyCount = abandonedBeforeReadyCount;
@@ -258,6 +460,29 @@ public final class PlaybackStats {
     this.totalRebufferCount = totalRebufferCount;
     this.maxRebufferTimeMs = maxRebufferTimeMs;
     this.adPlaybackCount = adPlaybackCount;
+    this.videoFormatHistory = Collections.unmodifiableList(videoFormatHistory);
+    this.audioFormatHistory = Collections.unmodifiableList(audioFormatHistory);
+    this.totalVideoFormatHeightTimeMs = totalVideoFormatHeightTimeMs;
+    this.totalVideoFormatHeightTimeProduct = totalVideoFormatHeightTimeProduct;
+    this.totalVideoFormatBitrateTimeMs = totalVideoFormatBitrateTimeMs;
+    this.totalVideoFormatBitrateTimeProduct = totalVideoFormatBitrateTimeProduct;
+    this.totalAudioFormatTimeMs = totalAudioFormatTimeMs;
+    this.totalAudioFormatBitrateTimeProduct = totalAudioFormatBitrateTimeProduct;
+    this.initialVideoFormatHeightCount = initialVideoFormatHeightCount;
+    this.initialVideoFormatBitrateCount = initialVideoFormatBitrateCount;
+    this.totalInitialVideoFormatHeight = totalInitialVideoFormatHeight;
+    this.totalInitialVideoFormatBitrate = totalInitialVideoFormatBitrate;
+    this.initialAudioFormatBitrateCount = initialAudioFormatBitrateCount;
+    this.totalInitialAudioFormatBitrate = totalInitialAudioFormatBitrate;
+    this.totalBandwidthTimeMs = totalBandwidthTimeMs;
+    this.totalBandwidthBytes = totalBandwidthBytes;
+    this.totalDroppedFrames = totalDroppedFrames;
+    this.totalAudioUnderruns = totalAudioUnderruns;
+    this.fatalErrorPlaybackCount = fatalErrorPlaybackCount;
+    this.fatalErrorCount = fatalErrorCount;
+    this.nonFatalErrorCount = nonFatalErrorCount;
+    this.fatalErrorHistory = Collections.unmodifiableList(fatalErrorHistory);
+    this.nonFatalErrorHistory = Collections.unmodifiableList(nonFatalErrorHistory);
   }
 
   /**
@@ -287,6 +512,41 @@ public final class PlaybackStats {
       state = timeAndState.second;
     }
     return state;
+  }
+
+  /**
+   * Returns the estimated media time at the given realtime, in milliseconds, or {@link
+   * C#TIME_UNSET} if the media time history is unknown.
+   *
+   * @param realtimeMs The realtime as returned by {@link SystemClock#elapsedRealtime()}.
+   * @return The estimated media time in milliseconds at this realtime, {@link C#TIME_UNSET} if no
+   *     estimate can be given.
+   */
+  public long getMediaTimeMsAtRealtimeMs(long realtimeMs) {
+    if (mediaTimeHistory.isEmpty()) {
+      return C.TIME_UNSET;
+    }
+    int nextIndex = 0;
+    while (nextIndex < mediaTimeHistory.size()
+        && mediaTimeHistory.get(nextIndex)[0] <= realtimeMs) {
+      nextIndex++;
+    }
+    if (nextIndex == 0) {
+      return mediaTimeHistory.get(0)[1];
+    }
+    if (nextIndex == mediaTimeHistory.size()) {
+      return mediaTimeHistory.get(mediaTimeHistory.size() - 1)[1];
+    }
+    long prevRealtimeMs = mediaTimeHistory.get(nextIndex - 1)[0];
+    long prevMediaTimeMs = mediaTimeHistory.get(nextIndex - 1)[1];
+    long nextRealtimeMs = mediaTimeHistory.get(nextIndex)[0];
+    long nextMediaTimeMs = mediaTimeHistory.get(nextIndex)[1];
+    long realtimeDurationMs = nextRealtimeMs - prevRealtimeMs;
+    if (realtimeDurationMs == 0) {
+      return prevMediaTimeMs;
+    }
+    float fraction = (float) (realtimeMs - prevRealtimeMs) / realtimeDurationMs;
+    return prevMediaTimeMs + (long) ((nextMediaTimeMs - prevMediaTimeMs) * fraction);
   }
 
   /**
@@ -563,5 +823,148 @@ public final class PlaybackStats {
    */
   public float getMeanTimeBetweenRebuffers() {
     return 1f / getRebufferRate();
+  }
+
+  /**
+   * Returns the mean initial video format height, in pixels, or {@link C#LENGTH_UNSET} if no video
+   * format data is available.
+   */
+  public int getMeanInitialVideoFormatHeight() {
+    return initialVideoFormatHeightCount == 0
+        ? C.LENGTH_UNSET
+        : totalInitialVideoFormatHeight / initialVideoFormatHeightCount;
+  }
+
+  /**
+   * Returns the mean initial video format bitrate, in bits per second, or {@link C#LENGTH_UNSET} if
+   * no video format data is available.
+   */
+  public int getMeanInitialVideoFormatBitrate() {
+    return initialVideoFormatBitrateCount == 0
+        ? C.LENGTH_UNSET
+        : (int) (totalInitialVideoFormatBitrate / initialVideoFormatBitrateCount);
+  }
+
+  /**
+   * Returns the mean initial audio format bitrate, in bits per second, or {@link C#LENGTH_UNSET} if
+   * no audio format data is available.
+   */
+  public int getMeanInitialAudioFormatBitrate() {
+    return initialAudioFormatBitrateCount == 0
+        ? C.LENGTH_UNSET
+        : (int) (totalInitialAudioFormatBitrate / initialAudioFormatBitrateCount);
+  }
+
+  /**
+   * Returns the mean video format height, in pixels, or {@link C#LENGTH_UNSET} if no video format
+   * data is available. This is a weighted average taking the time the format was used for playback
+   * into account.
+   */
+  public int getMeanVideoFormatHeight() {
+    return totalVideoFormatHeightTimeMs == 0
+        ? C.LENGTH_UNSET
+        : (int) (totalVideoFormatHeightTimeProduct / totalVideoFormatHeightTimeMs);
+  }
+
+  /**
+   * Returns the mean video format bitrate, in bits per second, or {@link C#LENGTH_UNSET} if no
+   * video format data is available. This is a weighted average taking the time the format was used
+   * for playback into account.
+   */
+  public int getMeanVideoFormatBitrate() {
+    return totalVideoFormatBitrateTimeMs == 0
+        ? C.LENGTH_UNSET
+        : (int) (totalVideoFormatBitrateTimeProduct / totalVideoFormatBitrateTimeMs);
+  }
+
+  /**
+   * Returns the mean audio format bitrate, in bits per second, or {@link C#LENGTH_UNSET} if no
+   * audio format data is available. This is a weighted average taking the time the format was used
+   * for playback into account.
+   */
+  public int getMeanAudioFormatBitrate() {
+    return totalAudioFormatTimeMs == 0
+        ? C.LENGTH_UNSET
+        : (int) (totalAudioFormatBitrateTimeProduct / totalAudioFormatTimeMs);
+  }
+
+  /**
+   * Returns the mean network bandwidth based on transfer measurements, in bits per second, or
+   * {@link C#LENGTH_UNSET} if no transfer data is available.
+   */
+  public int getMeanBandwidth() {
+    return totalBandwidthTimeMs == 0
+        ? C.LENGTH_UNSET
+        : (int) (totalBandwidthBytes * 8000 / totalBandwidthTimeMs);
+  }
+
+  /**
+   * Returns the mean rate at which video frames are dropped, in dropped frames per play time
+   * second, or {@code 0.0} if no time was spent playing.
+   */
+  public float getDroppedFramesRate() {
+    long playTimeMs = getTotalPlayTimeMs();
+    return playTimeMs == 0 ? 0f : 1000f * totalDroppedFrames / playTimeMs;
+  }
+
+  /**
+   * Returns the mean rate at which audio underruns occurred, in underruns per play time second, or
+   * {@code 0.0} if no time was spent playing.
+   */
+  public float getAudioUnderrunRate() {
+    long playTimeMs = getTotalPlayTimeMs();
+    return playTimeMs == 0 ? 0f : 1000f * totalAudioUnderruns / playTimeMs;
+  }
+
+  /**
+   * Returns the ratio of foreground playbacks which experienced fatal errors, or {@code 0.0} if no
+   * playback has been in foreground.
+   */
+  public float getFatalErrorRatio() {
+    return foregroundPlaybackCount == 0
+        ? 0f
+        : (float) fatalErrorPlaybackCount / foregroundPlaybackCount;
+  }
+
+  /**
+   * Returns the rate of fatal errors, in errors per play time second, or {@code 0.0} if no time was
+   * spend playing. This is equivalent to 1.0 / {@link #getMeanTimeBetweenFatalErrors()}.
+   */
+  public float getFatalErrorRate() {
+    long playTimeMs = getTotalPlayTimeMs();
+    return playTimeMs == 0 ? 0f : 1000f * fatalErrorCount / playTimeMs;
+  }
+
+  /**
+   * Returns the mean play time between fatal errors, in seconds. This is equivalent to 1.0 / {@link
+   * #getFatalErrorRate()}. Note that this may return {@link Float#POSITIVE_INFINITY}.
+   */
+  public float getMeanTimeBetweenFatalErrors() {
+    return 1f / getFatalErrorRate();
+  }
+
+  /**
+   * Returns the mean number of non-fatal errors per foreground playback, or {@code 0.0} if no
+   * playback has been in foreground.
+   */
+  public float getMeanNonFatalErrorCount() {
+    return foregroundPlaybackCount == 0 ? 0f : (float) nonFatalErrorCount / foregroundPlaybackCount;
+  }
+
+  /**
+   * Returns the rate of non-fatal errors, in errors per play time second, or {@code 0.0} if no time
+   * was spend playing. This is equivalent to 1.0 / {@link #getMeanTimeBetweenNonFatalErrors()}.
+   */
+  public float getNonFatalErrorRate() {
+    long playTimeMs = getTotalPlayTimeMs();
+    return playTimeMs == 0 ? 0f : 1000f * nonFatalErrorCount / playTimeMs;
+  }
+
+  /**
+   * Returns the mean play time between non-fatal errors, in seconds. This is equivalent to 1.0 /
+   * {@link #getNonFatalErrorRate()}. Note that this may return {@link Float#POSITIVE_INFINITY}.
+   */
+  public float getMeanTimeBetweenNonFatalErrors() {
+    return 1f / getNonFatalErrorRate();
   }
 }
