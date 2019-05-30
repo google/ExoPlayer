@@ -41,6 +41,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
 
 /**
  * An {@link HttpDataSource} that uses Android's {@link HttpURLConnection}.
@@ -305,7 +306,8 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     bytesToSkip = responseCode == 200 && dataSpec.position != 0 ? dataSpec.position : 0;
 
     // Determine the length of the data to be read, after skipping.
-    if (!dataSpec.isFlagSet(DataSpec.FLAG_ALLOW_GZIP)) {
+    boolean isCompressed = isCompressed(connection);
+    if (!isCompressed) {
       if (dataSpec.length != C.LENGTH_UNSET) {
         bytesToRead = dataSpec.length;
       } else {
@@ -315,14 +317,16 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       }
     } else {
       // Gzip is enabled. If the server opts to use gzip then the content length in the response
-      // will be that of the compressed data, which isn't what we want. Furthermore, there isn't a
-      // reliable way to determine whether the gzip was used or not. Always use the dataSpec length
-      // in this case.
+      // will be that of the compressed data, which isn't what we want. Always use the dataSpec
+      // length in this case.
       bytesToRead = dataSpec.length;
     }
 
     try {
       inputStream = connection.getInputStream();
+      if (isCompressed) {
+        inputStream = new GZIPInputStream(inputStream);
+      }
     } catch (IOException e) {
       closeConnectionQuietly();
       throw new HttpDataSourceException(e, dataSpec, HttpDataSourceException.TYPE_OPEN);
@@ -516,9 +520,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       connection.setRequestProperty("Range", rangeRequest);
     }
     connection.setRequestProperty("User-Agent", userAgent);
-    if (!allowGzip) {
-      connection.setRequestProperty("Accept-Encoding", "identity");
-    }
+    connection.setRequestProperty("Accept-Encoding", allowGzip ? "gzip" : "identity");
     if (allowIcyMetadata) {
       connection.setRequestProperty(
           IcyHeaders.REQUEST_HEADER_ENABLE_METADATA_NAME,
@@ -747,4 +749,8 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     }
   }
 
+  private static boolean isCompressed(HttpURLConnection connection) {
+    String contentEncoding = connection.getHeaderField("Content-Encoding");
+    return "gzip".equalsIgnoreCase(contentEncoding);
+  }
 }

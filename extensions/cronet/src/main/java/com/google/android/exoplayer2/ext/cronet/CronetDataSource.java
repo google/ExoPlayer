@@ -466,7 +466,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     bytesToSkip = responseCode == 200 && dataSpec.position != 0 ? dataSpec.position : 0;
 
     // Calculate the content length.
-    if (!getIsCompressed(responseInfo)) {
+    if (!isCompressed(responseInfo)) {
       if (dataSpec.length != C.LENGTH_UNSET) {
         bytesRemaining = dataSpec.length;
       } else {
@@ -626,7 +626,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       }
       requestBuilder.addHeader("Range", rangeValue.toString());
     }
-    // TODO: Uncomment when https://bugs.chromium.org/p/chromium/issues/detail?id=767025 is fixed
+    // TODO: Uncomment when https://bugs.chromium.org/p/chromium/issues/detail?id=711810 is fixed
     // (adjusting the code as necessary).
     // Force identity encoding unless gzip is allowed.
     // if (!dataSpec.isFlagSet(DataSpec.FLAG_ALLOW_GZIP)) {
@@ -655,7 +655,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     currentConnectTimeoutMs = clock.elapsedRealtime() + connectTimeoutMs;
   }
 
-  private static boolean getIsCompressed(UrlResponseInfo info) {
+  private static boolean isCompressed(UrlResponseInfo info) {
     for (Map.Entry<String, String> entry : info.getAllHeadersAsList()) {
       if (entry.getKey().equalsIgnoreCase("Content-Encoding")) {
         return !entry.getValue().equalsIgnoreCase("identity");
