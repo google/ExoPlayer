@@ -489,6 +489,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
    * @throws ExoPlaybackException If an error occurs (re-)initializing the decoder.
    */
   @CallSuper
+  @SuppressWarnings("unchecked")
   protected void onInputFormatChanged(Format newFormat) throws ExoPlaybackException {
     Format oldFormat = format;
     format = newFormat;
@@ -502,12 +503,16 @@ public class LibvpxVideoRenderer extends BaseRenderer {
           throw ExoPlaybackException.createForRenderer(
               new IllegalStateException("Media requires a DrmSessionManager"), getIndex());
         }
-        DrmSession<ExoMediaCrypto> session =
-            drmSessionManager.acquireSession(Looper.myLooper(), newFormat.drmInitData);
-        if (sourceDrmSession != null) {
-          sourceDrmSession.releaseReference();
+        if (formatHolder.decryptionResourceIsProvided) {
+          setSourceDrmSession((DrmSession<ExoMediaCrypto>) formatHolder.drmSession);
+        } else {
+          DrmSession<ExoMediaCrypto> session =
+              drmSessionManager.acquireSession(Looper.myLooper(), newFormat.drmInitData);
+          if (sourceDrmSession != null) {
+            sourceDrmSession.releaseReference();
+          }
+          sourceDrmSession = session;
         }
-        sourceDrmSession = session;
       } else {
         setSourceDrmSession(null);
       }
