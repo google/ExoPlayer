@@ -79,13 +79,7 @@ public final class CacheUtil {
       DataSpec dataSpec, Cache cache, @Nullable CacheKeyFactory cacheKeyFactory) {
     String key = buildCacheKey(dataSpec, cacheKeyFactory);
     long position = dataSpec.absoluteStreamPosition;
-    long requestLength;
-    if (dataSpec.length != C.LENGTH_UNSET) {
-      requestLength = dataSpec.length;
-    } else {
-      long contentLength = ContentMetadata.getContentLength(cache.getContentMetadata(key));
-      requestLength = contentLength == C.LENGTH_UNSET ? C.LENGTH_UNSET : contentLength - position;
-    }
+    long requestLength = getRequestLength(dataSpec, cache, key);
     long bytesAlreadyCached = 0;
     long bytesLeft = requestLength;
     while (bytesLeft != 0) {
@@ -180,22 +174,19 @@ public final class CacheUtil {
     Assertions.checkNotNull(dataSource);
     Assertions.checkNotNull(buffer);
 
+    String key = buildCacheKey(dataSpec, cacheKeyFactory);
+    long bytesLeft;
     ProgressNotifier progressNotifier = null;
     if (progressListener != null) {
       progressNotifier = new ProgressNotifier(progressListener);
       Pair<Long, Long> lengthAndBytesAlreadyCached = getCached(dataSpec, cache, cacheKeyFactory);
       progressNotifier.init(lengthAndBytesAlreadyCached.first, lengthAndBytesAlreadyCached.second);
+      bytesLeft = lengthAndBytesAlreadyCached.first;
+    } else {
+      bytesLeft = getRequestLength(dataSpec, cache, key);
     }
 
-    String key = buildCacheKey(dataSpec, cacheKeyFactory);
     long position = dataSpec.absoluteStreamPosition;
-    long bytesLeft;
-    if (dataSpec.length != C.LENGTH_UNSET) {
-      bytesLeft = dataSpec.length;
-    } else {
-      long contentLength = ContentMetadata.getContentLength(cache.getContentMetadata(key));
-      bytesLeft = contentLength == C.LENGTH_UNSET ? C.LENGTH_UNSET : contentLength - position;
-    }
     boolean lengthUnset = bytesLeft == C.LENGTH_UNSET;
     while (bytesLeft != 0) {
       throwExceptionIfInterruptedOrCancelled(isCanceled);
@@ -232,6 +223,17 @@ public final class CacheUtil {
       if (!lengthUnset) {
         bytesLeft -= blockLength;
       }
+    }
+  }
+
+  private static long getRequestLength(DataSpec dataSpec, Cache cache, String key) {
+    if (dataSpec.length != C.LENGTH_UNSET) {
+      return dataSpec.length;
+    } else {
+      long contentLength = ContentMetadata.getContentLength(cache.getContentMetadata(key));
+      return contentLength == C.LENGTH_UNSET
+          ? C.LENGTH_UNSET
+          : contentLength - dataSpec.absoluteStreamPosition;
     }
   }
 
