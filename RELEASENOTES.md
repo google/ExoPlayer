@@ -24,6 +24,8 @@
     `PlayerControlView`.
   * Change playback controls toggle from touch down to touch up events
     ([#5784](https://github.com/google/ExoPlayer/issues/5784)).
+  * Fix issue where playback controls were not kept visible on key presses
+    ([#5963](https://github.com/google/ExoPlayer/issues/5963)).
 * Add a workaround for broken raw audio decoding on Oppo R9
   ([#5782](https://github.com/google/ExoPlayer/issues/5782)).
 * Offline:
