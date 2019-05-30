@@ -2,6 +2,8 @@
 
 ### dev-v2 (not yet released) ###
 
+* Add `PlaybackStatsListener` to collect `PlaybackStats` for playbacks analysis
+  and analytics reporting (TODO: link to developer guide page/blog post).
 * Add basic DRM support to the Cast demo app.
 * Add `ResolvingDataSource` for just-in-time resolution of `DataSpec`s
   ([#5779](https://github.com/google/ExoPlayer/issues/5779)).

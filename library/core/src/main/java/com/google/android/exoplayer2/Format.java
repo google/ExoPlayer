@@ -1373,6 +1373,38 @@ public final class Format implements Parcelable {
         accessibilityChannel);
   }
 
+  public Format copyWithVideoSize(int width, int height) {
+    return new Format(
+        id,
+        label,
+        selectionFlags,
+        roleFlags,
+        bitrate,
+        codecs,
+        metadata,
+        containerMimeType,
+        sampleMimeType,
+        maxInputSize,
+        initializationData,
+        drmInitData,
+        subsampleOffsetUs,
+        width,
+        height,
+        frameRate,
+        rotationDegrees,
+        pixelWidthHeightRatio,
+        projectionData,
+        stereoMode,
+        colorInfo,
+        channelCount,
+        sampleRate,
+        pcmEncoding,
+        encoderDelay,
+        encoderPadding,
+        language,
+        accessibilityChannel);
+  }
+
   /**
    * Returns the number of pixels if this is a video format whose {@link #width} and {@link #height}
    * are known, or {@link #NO_VALUE} otherwise
