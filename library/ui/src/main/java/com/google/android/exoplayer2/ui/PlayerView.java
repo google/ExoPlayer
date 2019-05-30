@@ -771,11 +771,20 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
     if (player != null && player.isPlayingAd()) {
       return super.dispatchKeyEvent(event);
     }
-    boolean isDpadWhenControlHidden =
-        isDpadKey(event.getKeyCode()) && useController && !controller.isVisible();
-    boolean handled =
-        isDpadWhenControlHidden || dispatchMediaKeyEvent(event) || super.dispatchKeyEvent(event);
-    if (handled) {
+
+    boolean isDpadAndUseController = isDpadKey(event.getKeyCode()) && useController;
+    boolean handled = false;
+    if (isDpadAndUseController && !controller.isVisible()) {
+      // Handle the key event by showing the controller.
+      maybeShowController(true);
+      handled = true;
+    } else if (dispatchMediaKeyEvent(event) || super.dispatchKeyEvent(event)) {
+      // The key event was handled as a media key or by the super class. We should also show the
+      // controller, or extend its show timeout if already visible.
+      maybeShowController(true);
+      handled = true;
+    } else if (isDpadAndUseController) {
+      // The key event wasn't handled, but we should extend the controller's show timeout.
       maybeShowController(true);
     }
     return handled;
