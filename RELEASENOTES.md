@@ -21,6 +21,9 @@
   ([#5915](https://github.com/google/ExoPlayer/issues/5915)).
 * Allow enabling decoder fallback with `DefaultRenderersFactory`
   ([#5942](https://github.com/google/ExoPlayer/issues/5942)).
+* Fix bug caused by parallel adaptive track selection using `Format`s without
+  bitrate information
+  ([#5971](https://github.com/google/ExoPlayer/issues/5971)).
 
 ### 2.10.1 ###
 
