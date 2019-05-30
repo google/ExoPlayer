@@ -185,6 +185,11 @@ public final class HlsTrackMetadataEntry implements Metadata.Entry {
   }
 
   @Override
+  public String toString() {
+    return "HlsTrackMetadataEntry" + (groupId != null ? (" [" + groupId + ", " + name + "]") : "");
+  }
+
+  @Override
   public boolean equals(@Nullable Object other) {
     if (this == other) {
       return true;
