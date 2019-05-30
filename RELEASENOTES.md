@@ -37,6 +37,8 @@
     ([#5915](https://github.com/google/ExoPlayer/issues/5915)).
   * Fix CacheUtil.cache() use too much data
     ([#5927](https://github.com/google/ExoPlayer/issues/5927)).
+  * Fix misreporting cached bytes when caching is paused
+    ([#5573](https://github.com/google/ExoPlayer/issues/5573)).
 * Add a playWhenReady flag to MediaSessionConnector.PlaybackPreparer methods
   to indicate whether a controller sent a play or only a prepare command. This
   allows to take advantage of decoder reuse with the MediaSessionConnector

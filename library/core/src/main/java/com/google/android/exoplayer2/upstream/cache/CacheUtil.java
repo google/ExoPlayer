@@ -268,6 +268,8 @@ public final class CacheUtil {
       AtomicBoolean isCanceled)
       throws IOException, InterruptedException {
     long positionOffset = absoluteStreamPosition - dataSpec.absoluteStreamPosition;
+    long initialPositionOffset = positionOffset;
+    long endOffset = length != C.LENGTH_UNSET ? positionOffset + length : C.POSITION_UNSET;
     while (true) {
       if (priorityTaskManager != null) {
         // Wait for any other thread with higher priority to finish its job.
@@ -275,45 +277,51 @@ public final class CacheUtil {
       }
       throwExceptionIfInterruptedOrCancelled(isCanceled);
       try {
-        long resolvedLength;
-        try {
-          resolvedLength = dataSource.open(dataSpec.subrange(positionOffset, length));
-        } catch (IOException exception) {
-          if (length == C.LENGTH_UNSET
-              || !isLastBlock
-              || !isCausedByPositionOutOfRange(exception)) {
-            throw exception;
+        long resolvedLength = C.LENGTH_UNSET;
+        boolean isDataSourceOpen = false;
+        if (endOffset != C.POSITION_UNSET) {
+          // If a specific length is given, first try to open the data source for that length to
+          // avoid more data then required to be requested. If the given length exceeds the end of
+          // input we will get a "position out of range" error. In that case try to open the source
+          // again with unset length.
+          try {
+            resolvedLength =
+                dataSource.open(dataSpec.subrange(positionOffset, endOffset - positionOffset));
+            isDataSourceOpen = true;
+          } catch (IOException exception) {
+            if (!isLastBlock || !isCausedByPositionOutOfRange(exception)) {
+              throw exception;
+            }
+            Util.closeQuietly(dataSource);
           }
-          Util.closeQuietly(dataSource);
-          // Retry to open the data source again, setting length to C.LENGTH_UNSET to prevent
-          // getting an error in case the given length exceeds the end of input.
+        }
+        if (!isDataSourceOpen) {
           resolvedLength = dataSource.open(dataSpec.subrange(positionOffset, C.LENGTH_UNSET));
         }
         if (isLastBlock && progressNotifier != null && resolvedLength != C.LENGTH_UNSET) {
           progressNotifier.onRequestLengthResolved(positionOffset + resolvedLength);
         }
-        long totalBytesRead = 0;
-        while (totalBytesRead != length) {
+        while (positionOffset != endOffset) {
           throwExceptionIfInterruptedOrCancelled(isCanceled);
           int bytesRead =
               dataSource.read(
                   buffer,
                   0,
-                  length != C.LENGTH_UNSET
-                      ? (int) Math.min(buffer.length, length - totalBytesRead)
+                  endOffset != C.POSITION_UNSET
+                      ? (int) Math.min(buffer.length, endOffset - positionOffset)
                       : buffer.length);
           if (bytesRead == C.RESULT_END_OF_INPUT) {
             if (progressNotifier != null) {
-              progressNotifier.onRequestLengthResolved(positionOffset + totalBytesRead);
+              progressNotifier.onRequestLengthResolved(positionOffset);
             }
             break;
           }
-          totalBytesRead += bytesRead;
+          positionOffset += bytesRead;
           if (progressNotifier != null) {
             progressNotifier.onBytesCached(bytesRead);
           }
         }
-        return totalBytesRead;
+        return positionOffset - initialPositionOffset;
       } catch (PriorityTaskManager.PriorityTooLowException exception) {
         // catch and try again
       } finally {
