@@ -3,6 +3,8 @@
 ### 2.10.2 ###
 
 * Subtitles:
+  * CEA-608: Handle XDS and TEXT modes
+    ([#5807](https://github.com/google/ExoPlayer/pull/5807)).
   * TTML: Fix bitmap rendering
     ([#5633](https://github.com/google/ExoPlayer/pull/5633)).
 * UI:

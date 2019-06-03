@@ -80,6 +80,11 @@ public final class Cea608Decoder extends CeaDecoder {
    * at which point the non-displayed memory becomes the displayed memory (and vice versa).
    */
   private static final byte CTRL_RESUME_CAPTION_LOADING = 0x20;
+
+  private static final byte CTRL_BACKSPACE = 0x21;
+
+  private static final byte CTRL_DELETE_TO_END_OF_ROW = 0x24;
+
   /**
    * Command initiating roll-up style captioning, with the maximum of 2 rows displayed
    * simultaneously.
@@ -95,25 +100,31 @@ public final class Cea608Decoder extends CeaDecoder {
    * simultaneously.
    */
   private static final byte CTRL_ROLL_UP_CAPTIONS_4_ROWS = 0x27;
+
   /**
    * Command initiating paint-on style captioning. Subsequent data should be addressed immediately
    * to displayed memory without need for the {@link #CTRL_RESUME_CAPTION_LOADING} command.
    */
   private static final byte CTRL_RESUME_DIRECT_CAPTIONING = 0x29;
   /**
-   * Command indicating the end of a pop-on style caption. At this point the caption loaded in
-   * non-displayed memory should be swapped with the one in displayed memory. If no
-   * {@link #CTRL_RESUME_CAPTION_LOADING} command has been received, this command forces the
-   * receiver into pop-on style.
+   * TEXT commands are switching to TEXT service. All consecutive incoming data must be filtered out
+   * until a command is received that switches back to the CAPTION service.
    */
-  private static final byte CTRL_END_OF_CAPTION = 0x2F;
+  private static final byte CTRL_TEXT_RESTART = 0x2A;
+
+  private static final byte CTRL_RESUME_TEXT_DISPLAY = 0x2B;
 
   private static final byte CTRL_ERASE_DISPLAYED_MEMORY = 0x2C;
   private static final byte CTRL_CARRIAGE_RETURN = 0x2D;
   private static final byte CTRL_ERASE_NON_DISPLAYED_MEMORY = 0x2E;
-  private static final byte CTRL_DELETE_TO_END_OF_ROW = 0x24;
 
-  private static final byte CTRL_BACKSPACE = 0x21;
+  /**
+   * Command indicating the end of a pop-on style caption. At this point the caption loaded in
+   * non-displayed memory should be swapped with the one in displayed memory. If no {@link
+   * #CTRL_RESUME_CAPTION_LOADING} command has been received, this command forces the receiver into
+   * pop-on style.
+   */
+  private static final byte CTRL_END_OF_CAPTION = 0x2F;
 
   // Basic North American 608 CC char set, mostly ASCII. Indexed by (char-0x20).
   private static final int[] BASIC_CHARACTER_SET = new int[] {
@@ -237,6 +248,11 @@ public final class Cea608Decoder extends CeaDecoder {
   private byte repeatableControlCc2;
   private int currentChannel;
 
+  // The incoming characters may belong to 3 different services based on the last received control
+  // codes. The 3 services are Captioning, Text and XDS. The decoder only processes Captioning
+  // service bytes and drops the rest.
+  private boolean isInCaptionService;
+
   public Cea608Decoder(String mimeType, int accessibilityChannel) {
     ccData = new ParsableByteArray();
     cueBuilders = new ArrayList<>();
@@ -268,6 +284,7 @@ public final class Cea608Decoder extends CeaDecoder {
 
     setCaptionMode(CC_MODE_UNKNOWN);
     resetCueBuilders();
+    isInCaptionService = true;
   }
 
   @Override
@@ -288,6 +305,7 @@ public final class Cea608Decoder extends CeaDecoder {
     repeatableControlCc1 = 0;
     repeatableControlCc2 = 0;
     currentChannel = NTSC_CC_CHANNEL_1;
+    isInCaptionService = true;
   }
 
   @Override
@@ -360,6 +378,12 @@ public final class Cea608Decoder extends CeaDecoder {
       if (!ODD_PARITY_BYTE_TABLE[ccByte1] || !ODD_PARITY_BYTE_TABLE[ccByte2]) {
         // The data is invalid.
         resetCueBuilders();
+        continue;
+      }
+
+      maybeUpdateIsInCaptionService(ccData1, ccData2);
+      if (!isInCaptionService) {
+        // Only the Captioning service is supported. Drop all other bytes.
         continue;
       }
 
@@ -629,6 +653,29 @@ public final class Cea608Decoder extends CeaDecoder {
     cueBuilders.add(currentCueBuilder);
   }
 
+  private void maybeUpdateIsInCaptionService(byte cc1, byte cc2) {
+    if (isXdsControlCode(cc1)) {
+      isInCaptionService = false;
+    } else if (isServiceSwitchCommand(cc1)) {
+      switch (cc2) {
+        case CTRL_TEXT_RESTART:
+        case CTRL_RESUME_TEXT_DISPLAY:
+          isInCaptionService = false;
+          break;
+        case CTRL_END_OF_CAPTION:
+        case CTRL_RESUME_CAPTION_LOADING:
+        case CTRL_RESUME_DIRECT_CAPTIONING:
+        case CTRL_ROLL_UP_CAPTIONS_2_ROWS:
+        case CTRL_ROLL_UP_CAPTIONS_3_ROWS:
+        case CTRL_ROLL_UP_CAPTIONS_4_ROWS:
+          isInCaptionService = true;
+          break;
+        default:
+          // No update.
+      }
+    }
+  }
+
   private static char getChar(byte ccData) {
     int index = (ccData & 0x7F) - 0x20;
     return (char) BASIC_CHARACTER_SET[index];
@@ -681,6 +728,15 @@ public final class Cea608Decoder extends CeaDecoder {
   private static boolean isRepeatable(byte cc1) {
     // cc1 - 0|0|0|1|X|X|X|X
     return (cc1 & 0xF0) == 0x10;
+  }
+
+  private static boolean isXdsControlCode(byte cc1) {
+    return 0x01 <= cc1 && cc1 <= 0x0F;
+  }
+
+  private static boolean isServiceSwitchCommand(byte cc1) {
+    // cc1 - 0|0|0|1|C|1|0|0
+    return (cc1 & 0xF7) == 0x14;
   }
 
   private static class CueBuilder {
