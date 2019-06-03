@@ -5,26 +5,22 @@
 * Add `PlaybackStatsListener` to collect `PlaybackStats` for playbacks analysis
   and analytics reporting (TODO: link to developer guide page/blog post).
 * Add basic DRM support to the Cast demo app.
-* Add `ResolvingDataSource` for just-in-time resolution of `DataSpec`s
-  ([#5779](https://github.com/google/ExoPlayer/issues/5779)).
+* Offline: Add `Scheduler` implementation that uses `WorkManager`.
 * Assume that encrypted content requires secure decoders in renderer support
   checks ([#5568](https://github.com/google/ExoPlayer/issues/5568)).
 * Decoders: Prefer decoders that advertise format support over ones that do not,
   even if they are listed lower in the `MediaCodecList`.
-* CEA-608: Handle XDS and TEXT modes
-  ([#5807](https://github.com/google/ExoPlayer/pull/5807)).
-* Audio:
- * Fix an issue where not all audio was played out when the configuration
-   for the underlying track was changing (e.g., at some period transitions).
- * Add `SilenceMediaSource` that can be used to play silence of a given
-   duration ([#5735](https://github.com/google/ExoPlayer/issues/5735)).
+* Audio: Fix an issue where not all audio was played out when the configuration
+  for the underlying track was changing (e.g., at some period transitions).
 * Add a workaround for broken raw audio decoding on Oppo R9
   ([#5782](https://github.com/google/ExoPlayer/issues/5782)).
-* Offline:
-  * Add Scheduler implementation which uses WorkManager.
 
 ### 2.10.2 ###
 
+* Add `ResolvingDataSource` for just-in-time resolution of `DataSpec`s
+  ([#5779](https://github.com/google/ExoPlayer/issues/5779)).
+* Add `SilenceMediaSource` that can be used to play silence of a given
+  duration ([#5735](https://github.com/google/ExoPlayer/issues/5735)).
 * Offline:
   * Prevent unexpected `DownloadHelper.Callback.onPrepared` callbacks after the
     preparation of the `DownloadHelper` failed
@@ -40,8 +36,11 @@
     ([#5784](https://github.com/google/ExoPlayer/issues/5784)).
   * Fix issue where playback controls were not kept visible on key presses
     ([#5963](https://github.com/google/ExoPlayer/issues/5963)).
-* TTML: Fix bitmap rendering
-  ([#5633](https://github.com/google/ExoPlayer/pull/5633)).
+* Subtitles:
+  * CEA-608: Handle XDS and TEXT modes
+    ([#5807](https://github.com/google/ExoPlayer/pull/5807)).
+  * TTML: Fix bitmap rendering
+    ([#5633](https://github.com/google/ExoPlayer/pull/5633)).
 * Add a `playWhenReady` flag to MediaSessionConnector.PlaybackPreparer methods
   to indicate whether a controller sent a play or only a prepare command. This
   allows to take advantage of decoder reuse with the MediaSessionConnector
