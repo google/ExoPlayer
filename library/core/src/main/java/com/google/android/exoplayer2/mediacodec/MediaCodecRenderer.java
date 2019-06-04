@@ -328,14 +328,16 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private int inputIndex;
   private int outputIndex;
   private ByteBuffer outputBuffer;
-  private boolean shouldSkipOutputBuffer;
+  private boolean isDecodeOnlyOutputBuffer;
+  private boolean isLastOutputBuffer;
   private boolean codecReconfigured;
   @ReconfigurationState private int codecReconfigurationState;
   @DrainState private int codecDrainState;
   @DrainAction private int codecDrainAction;
   private boolean codecReceivedBuffers;
   private boolean codecReceivedEos;
-
+  private long lastBufferInStreamPresentationTimeUs;
+  private long largestQueuedPresentationTimeUs;
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
   private boolean waitingForKeys;
@@ -598,6 +600,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     waitingForKeys = false;
     codecHotswapDeadlineMs = C.TIME_UNSET;
     decodeOnlyPresentationTimestamps.clear();
+    largestQueuedPresentationTimeUs = C.TIME_UNSET;
+    lastBufferInStreamPresentationTimeUs = C.TIME_UNSET;
     try {
       if (codec != null) {
         decoderCounters.decoderReleaseCount++;
@@ -704,10 +708,13 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     waitingForFirstSyncSample = true;
     codecNeedsAdaptationWorkaroundBuffer = false;
     shouldSkipAdaptationWorkaroundOutputBuffer = false;
-    shouldSkipOutputBuffer = false;
+    isDecodeOnlyOutputBuffer = false;
+    isLastOutputBuffer = false;
 
     waitingForKeys = false;
     decodeOnlyPresentationTimestamps.clear();
+    largestQueuedPresentationTimeUs = C.TIME_UNSET;
+    lastBufferInStreamPresentationTimeUs = C.TIME_UNSET;
     codecDrainState = DRAIN_STATE_NONE;
     codecDrainAction = DRAIN_ACTION_NONE;
     // Reconfiguration data sent shortly before the flush may not have been processed by the
@@ -881,7 +888,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     codecDrainAction = DRAIN_ACTION_NONE;
     codecNeedsAdaptationWorkaroundBuffer = false;
     shouldSkipAdaptationWorkaroundOutputBuffer = false;
-    shouldSkipOutputBuffer = false;
+    isDecodeOnlyOutputBuffer = false;
+    isLastOutputBuffer = false;
     waitingForFirstSyncSample = true;
 
     decoderCounters.decoderInitCount++;
@@ -1016,6 +1024,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       result = readSource(formatHolder, buffer, false);
     }
 
+    if (hasReadStreamToEnd()) {
+      // Notify output queue of the last buffer's timestamp.
+      lastBufferInStreamPresentationTimeUs = largestQueuedPresentationTimeUs;
+    }
+
     if (result == C.RESULT_NOTHING_READ) {
       return false;
     }
@@ -1088,6 +1101,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         formatQueue.add(presentationTimeUs, inputFormat);
         waitingForFirstSampleInFormat = false;
       }
+      largestQueuedPresentationTimeUs =
+          Math.max(largestQueuedPresentationTimeUs, presentationTimeUs);
 
       buffer.flip();
       onQueueInputBuffer(buffer);
@@ -1458,7 +1473,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         outputBuffer.position(outputBufferInfo.offset);
         outputBuffer.limit(outputBufferInfo.offset + outputBufferInfo.size);
       }
-      shouldSkipOutputBuffer = shouldSkipOutputBuffer(outputBufferInfo.presentationTimeUs);
+      isDecodeOnlyOutputBuffer = isDecodeOnlyBuffer(outputBufferInfo.presentationTimeUs);
+      isLastOutputBuffer =
+          lastBufferInStreamPresentationTimeUs == outputBufferInfo.presentationTimeUs;
       updateOutputFormatForTime(outputBufferInfo.presentationTimeUs);
     }
 
@@ -1474,7 +1491,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
                 outputIndex,
                 outputBufferInfo.flags,
                 outputBufferInfo.presentationTimeUs,
-                shouldSkipOutputBuffer,
+                isDecodeOnlyOutputBuffer,
+                isLastOutputBuffer,
                 outputFormat);
       } catch (IllegalStateException e) {
         processEndOfStream();
@@ -1494,7 +1512,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
               outputIndex,
               outputBufferInfo.flags,
               outputBufferInfo.presentationTimeUs,
-              shouldSkipOutputBuffer,
+              isDecodeOnlyOutputBuffer,
+              isLastOutputBuffer,
               outputFormat);
     }
 
@@ -1561,7 +1580,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @param bufferIndex The index of the output buffer.
    * @param bufferFlags The flags attached to the output buffer.
    * @param bufferPresentationTimeUs The presentation time of the output buffer in microseconds.
-   * @param shouldSkip Whether the buffer should be skipped (i.e. not rendered).
+   * @param isDecodeOnlyBuffer Whether the buffer was marked with {@link C#BUFFER_FLAG_DECODE_ONLY}
+   *     by the source.
+   * @param isLastBuffer Whether the buffer is the last sample of the current stream.
    * @param format The format associated with the buffer.
    * @return Whether the output buffer was fully processed (e.g. rendered or skipped).
    * @throws ExoPlaybackException If an error occurs processing the output buffer.
@@ -1574,7 +1595,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       int bufferIndex,
       int bufferFlags,
       long bufferPresentationTimeUs,
-      boolean shouldSkip,
+      boolean isDecodeOnlyBuffer,
+      boolean isLastBuffer,
       Format format)
       throws ExoPlaybackException;
 
@@ -1654,7 +1676,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     codecDrainAction = DRAIN_ACTION_NONE;
   }
 
-  private boolean shouldSkipOutputBuffer(long presentationTimeUs) {
+  private boolean isDecodeOnlyBuffer(long presentationTimeUs) {
     // We avoid using decodeOnlyPresentationTimestamps.remove(presentationTimeUs) because it would
     // box presentationTimeUs, creating a Long object that would need to be garbage collected.
     int size = decodeOnlyPresentationTimestamps.size();

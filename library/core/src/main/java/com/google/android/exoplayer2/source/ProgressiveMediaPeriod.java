@@ -733,7 +733,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     if (prepared) {
       SeekMap seekMap = getPreparedState().seekMap;
       Assertions.checkState(isPendingReset());
-      if (durationUs != C.TIME_UNSET && pendingResetPositionUs >= durationUs) {
+      if (durationUs != C.TIME_UNSET && pendingResetPositionUs > durationUs) {
         loadingFinished = true;
         pendingResetPositionUs = C.TIME_UNSET;
         return;

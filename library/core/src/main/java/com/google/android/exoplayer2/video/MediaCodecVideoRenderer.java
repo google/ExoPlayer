@@ -679,7 +679,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       int bufferIndex,
       int bufferFlags,
       long bufferPresentationTimeUs,
-      boolean shouldSkip,
+      boolean isDecodeOnlyBuffer,
+      boolean isLastBuffer,
       Format format)
       throws ExoPlaybackException {
     if (initialPositionUs == C.TIME_UNSET) {
@@ -688,7 +689,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
     long presentationTimeUs = bufferPresentationTimeUs - outputStreamOffsetUs;
 
-    if (shouldSkip) {
+    if (isDecodeOnlyBuffer && !isLastBuffer) {
       skipOutputBuffer(codec, bufferIndex, presentationTimeUs);
       return true;
     }
@@ -736,10 +737,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         bufferPresentationTimeUs, unadjustedFrameReleaseTimeNs);
     earlyUs = (adjustedReleaseTimeNs - systemTimeNs) / 1000;
 
-    if (shouldDropBuffersToKeyframe(earlyUs, elapsedRealtimeUs)
+    if (shouldDropBuffersToKeyframe(earlyUs, elapsedRealtimeUs, isLastBuffer)
         && maybeDropBuffersToKeyframe(codec, bufferIndex, presentationTimeUs, positionUs)) {
       return false;
-    } else if (shouldDropOutputBuffer(earlyUs, elapsedRealtimeUs)) {
+    } else if (shouldDropOutputBuffer(earlyUs, elapsedRealtimeUs, isLastBuffer)) {
       dropOutputBuffer(codec, bufferIndex, presentationTimeUs);
       return true;
     }
@@ -807,8 +808,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   /**
    * Returns the offset that should be subtracted from {@code bufferPresentationTimeUs} in {@link
-   * #processOutputBuffer(long, long, MediaCodec, ByteBuffer, int, int, long, boolean, Format)} to
-   * get the playback position with respect to the media.
+   * #processOutputBuffer(long, long, MediaCodec, ByteBuffer, int, int, long, boolean, boolean,
+   * Format)} to get the playback position with respect to the media.
    */
   protected long getOutputStreamOffsetUs() {
     return outputStreamOffsetUs;
@@ -860,9 +861,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    *     indicates that the buffer is late.
    * @param elapsedRealtimeUs {@link android.os.SystemClock#elapsedRealtime()} in microseconds,
    *     measured at the start of the current iteration of the rendering loop.
+   * @param isLastBuffer Whether the buffer is the last buffer in the current stream.
    */
-  protected boolean shouldDropOutputBuffer(long earlyUs, long elapsedRealtimeUs) {
-    return isBufferLate(earlyUs);
+  protected boolean shouldDropOutputBuffer(
+      long earlyUs, long elapsedRealtimeUs, boolean isLastBuffer) {
+    return isBufferLate(earlyUs) && !isLastBuffer;
   }
 
   /**
@@ -873,9 +876,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    *     negative value indicates that the buffer is late.
    * @param elapsedRealtimeUs {@link android.os.SystemClock#elapsedRealtime()} in microseconds,
    *     measured at the start of the current iteration of the rendering loop.
+   * @param isLastBuffer Whether the buffer is the last buffer in the current stream.
    */
-  protected boolean shouldDropBuffersToKeyframe(long earlyUs, long elapsedRealtimeUs) {
-    return isBufferVeryLate(earlyUs);
+  protected boolean shouldDropBuffersToKeyframe(
+      long earlyUs, long elapsedRealtimeUs, boolean isLastBuffer) {
+    return isBufferVeryLate(earlyUs) && !isLastBuffer;
   }
 
   /**
