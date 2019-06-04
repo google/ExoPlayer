@@ -6,6 +6,8 @@
   and analytics reporting (TODO: link to developer guide page/blog post).
 * Add basic DRM support to the Cast demo app.
 * Offline: Add `Scheduler` implementation that uses `WorkManager`.
+* Display last frame when seeking to end of stream
+  ([#2568](https://github.com/google/ExoPlayer/issues/2568)).
 * Assume that encrypted content requires secure decoders in renderer support
   checks ([#5568](https://github.com/google/ExoPlayer/issues/5568)).
 * Decoders: Prefer decoders that advertise format support over ones that do not,
