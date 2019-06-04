@@ -695,7 +695,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       int bufferIndex,
       int bufferFlags,
       long bufferPresentationTimeUs,
-      boolean shouldSkip,
+      boolean isDecodeOnlyBuffer,
+      boolean isLastBuffer,
       Format format)
       throws ExoPlaybackException {
     if (codecNeedsEosBufferTimestampWorkaround
@@ -711,7 +712,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       return true;
     }
 
-    if (shouldSkip) {
+    if (isDecodeOnlyBuffer) {
       codec.releaseOutputBuffer(bufferIndex, false);
       decoderCounters.skippedOutputBufferCount++;
       audioSink.handleDiscontinuity();

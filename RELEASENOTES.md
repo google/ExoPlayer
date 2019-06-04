@@ -1,5 +1,10 @@
 # Release notes #
 
+### 2.10.3 ###
+
+* Display last frame when seeking to end of stream
+  ([#2568](https://github.com/google/ExoPlayer/issues/2568)).
+
 ### 2.10.2 ###
 
 * Add `ResolvingDataSource` for just-in-time resolution of `DataSpec`s
