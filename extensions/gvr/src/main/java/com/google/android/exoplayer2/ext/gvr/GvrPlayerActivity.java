@@ -50,7 +50,10 @@ import com.google.vr.sdk.controller.ControllerManager;
 import javax.microedition.khronos.egl.EGLConfig;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/** Base activity for VR 360 video playback. */
+/**
+ * Base activity for VR 360 video playback. Before starting the video playback a player needs to be
+ * set using {@link #setPlayer(Player)}.
+ */
 public abstract class GvrPlayerActivity extends GvrActivity {
 
   private static final int EXIT_FROM_VR_REQUEST_CODE = 42;
