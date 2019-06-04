@@ -16,6 +16,7 @@
   for the underlying track was changing (e.g., at some period transitions).
 * Add a workaround for broken raw audio decoding on Oppo R9
   ([#5782](https://github.com/google/ExoPlayer/issues/5782)).
+* Add VR player demo.
 
 ### 2.10.2 ###
 
