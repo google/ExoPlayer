@@ -31,7 +31,6 @@ import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
-import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.nio.ByteBuffer;
@@ -115,8 +114,7 @@ public class DebugRenderersFactory extends DefaultRenderersFactory {
         MediaCodec codec,
         Format format,
         MediaCrypto crypto,
-        float operatingRate)
-        throws DecoderQueryException {
+        float operatingRate) {
       // If the codec is being initialized whilst the renderer is started, default behavior is to
       // render the first frame (i.e. the keyframe before the current position), then drop frames up
       // to the current playback position. For test runs that place a maximum limit on the number of
