@@ -552,7 +552,17 @@ public final class CastPlayer extends BasePlayer {
       notificationsBatch.add(
           new ListenerNotificationTask(listener -> listener.onRepeatModeChanged(this.repeatMode)));
     }
-    int currentWindowIndex = fetchCurrentWindowIndex(getMediaStatus());
+    maybeUpdateTimelineAndNotify();
+
+    int currentWindowIndex = C.INDEX_UNSET;
+    MediaQueueItem currentItem = remoteMediaClient.getCurrentItem();
+    if (currentItem != null) {
+      currentWindowIndex = currentTimeline.getIndexOfPeriod(currentItem.getItemId());
+    }
+    if (currentWindowIndex == C.INDEX_UNSET) {
+      // The timeline is empty. Fall back to index 0, which is what ExoPlayer would do.
+      currentWindowIndex = 0;
+    }
     if (this.currentWindowIndex != currentWindowIndex && pendingSeekCount == 0) {
       this.currentWindowIndex = currentWindowIndex;
       notificationsBatch.add(
@@ -565,7 +575,6 @@ public final class CastPlayer extends BasePlayer {
           new ListenerNotificationTask(
               listener -> listener.onTracksChanged(currentTrackGroups, currentTrackSelection)));
     }
-    maybeUpdateTimelineAndNotify();
     flushNotifications();
   }
 
@@ -713,16 +722,6 @@ public final class CastPlayer extends BasePlayer {
       default:
         throw new IllegalStateException();
     }
-  }
-
-  /**
-   * Retrieves the current item index from {@code mediaStatus} and maps it into a window index. If
-   * there is no media session, returns 0.
-   */
-  private static int fetchCurrentWindowIndex(@Nullable MediaStatus mediaStatus) {
-    Integer currentItemId = mediaStatus != null
-        ? mediaStatus.getIndexById(mediaStatus.getCurrentItemId()) : null;
-    return currentItemId != null ? currentItemId : 0;
   }
 
   private static boolean isTrackActive(long id, long[] activeTrackIds) {
