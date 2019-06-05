@@ -55,6 +55,8 @@
 * Fix bug caused by parallel adaptive track selection using `Format`s without
   bitrate information
   ([#5971](https://github.com/google/ExoPlayer/issues/5971)).
+* Fix bug in `CastPlayer.getCurrentWindowIndex()`
+  ([#5955](https://github.com/google/ExoPlayer/issues/5955)).
 
 ### 2.10.1 ###
 
