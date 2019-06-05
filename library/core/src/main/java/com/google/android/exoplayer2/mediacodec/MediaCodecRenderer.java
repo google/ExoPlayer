@@ -453,15 +453,13 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @param crypto For drm protected playbacks, a {@link MediaCrypto} to use for decryption.
    * @param codecOperatingRate The codec operating rate, or {@link #CODEC_OPERATING_RATE_UNSET} if
    *     no codec operating rate should be set.
-   * @throws DecoderQueryException If an error occurs querying {@code codecInfo}.
    */
   protected abstract void configureCodec(
       MediaCodecInfo codecInfo,
       MediaCodec codec,
       Format format,
       MediaCrypto crypto,
-      float codecOperatingRate)
-      throws DecoderQueryException;
+      float codecOperatingRate);
 
   protected final void maybeInitCodec() throws ExoPlaybackException {
     if (codec != null || inputFormat == null) {
