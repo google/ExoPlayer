@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2;
 
+import android.os.SystemClock;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -72,6 +73,9 @@ public final class ExoPlaybackException extends Exception {
    * If {@link #type} is {@link #TYPE_RENDERER}, this is the index of the renderer.
    */
   public final int rendererIndex;
+
+  /** The value of {@link SystemClock#elapsedRealtime()} when this exception was created. */
+  public final long timestampMs;
 
   @Nullable private final Throwable cause;
 
@@ -131,6 +135,7 @@ public final class ExoPlaybackException extends Exception {
     this.type = type;
     this.cause = cause;
     this.rendererIndex = rendererIndex;
+    timestampMs = SystemClock.elapsedRealtime();
   }
 
   private ExoPlaybackException(@Type int type, String message) {
@@ -138,6 +143,7 @@ public final class ExoPlaybackException extends Exception {
     this.type = type;
     rendererIndex = C.INDEX_UNSET;
     cause = null;
+    timestampMs = SystemClock.elapsedRealtime();
   }
 
   /**
