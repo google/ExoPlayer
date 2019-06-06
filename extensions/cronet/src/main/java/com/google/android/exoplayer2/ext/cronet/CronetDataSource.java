@@ -40,6 +40,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -504,32 +505,9 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       // Fill readBuffer with more data from Cronet.
       operation.close();
       readBuffer.clear();
-      castNonNull(currentUrlRequest).read(readBuffer);
-      try {
-        if (!operation.block(readTimeoutMs)) {
-          throw new SocketTimeoutException();
-        }
-      } catch (InterruptedException e) {
-        // The operation is ongoing so replace readBuffer to avoid it being written to by this
-        // operation during a subsequent request.
-        this.readBuffer = null;
-        Thread.currentThread().interrupt();
-        throw new HttpDataSourceException(
-            new InterruptedIOException(e),
-            castNonNull(currentDataSpec),
-            HttpDataSourceException.TYPE_READ);
-      } catch (SocketTimeoutException e) {
-        // The operation is ongoing so replace readBuffer to avoid it being written to by this
-        // operation during a subsequent request.
-        this.readBuffer = null;
-        throw new HttpDataSourceException(
-            e, castNonNull(currentDataSpec), HttpDataSourceException.TYPE_READ);
-      }
+      readInternal(castNonNull(readBuffer));
 
-      if (exception != null) {
-        throw new HttpDataSourceException(
-            exception, castNonNull(currentDataSpec), HttpDataSourceException.TYPE_READ);
-      } else if (finished) {
+      if (finished) {
         bytesRemaining = 0;
         return C.RESULT_END_OF_INPUT;
       } else {
@@ -547,6 +525,115 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     int bytesRead = Math.min(readBuffer.remaining(), readLength);
     readBuffer.get(buffer, offset, bytesRead);
 
+    if (bytesRemaining != C.LENGTH_UNSET) {
+      bytesRemaining -= bytesRead;
+    }
+    bytesTransferred(bytesRead);
+    return bytesRead;
+  }
+
+  /**
+   * Reads up to {@code buffer.remaining()} bytes of data and stores them into {@code buffer},
+   * starting at {@code buffer.position()}. Advances the position of the buffer by the number of
+   * bytes read and returns this length.
+   *
+   * <p>If there is an error, a {@link HttpDataSourceException} is thrown and the contents of {@code
+   * buffer} should be ignored. If the exception has error code {@code
+   * HttpDataSourceException.TYPE_READ}, note that Cronet may continue writing into {@code buffer}
+   * after the method has returned. Thus the caller should not attempt to reuse the buffer.
+   *
+   * <p>If {@code buffer.remaining()} is zero then 0 is returned. Otherwise, if no data is available
+   * because the end of the opened range has been reached, then {@link C#RESULT_END_OF_INPUT} is
+   * returned. Otherwise, the call will block until at least one byte of data has been read and the
+   * number of bytes read is returned.
+   *
+   * <p>Passed buffer must be direct ByteBuffer. If you have a non-direct ByteBuffer, consider the
+   * alternative read method with its backed array.
+   *
+   * @param buffer The ByteBuffer into which the read data should be stored. Must be a direct
+   *     ByteBuffer.
+   * @return The number of bytes read, or {@link C#RESULT_END_OF_INPUT} if no data is available
+   *     because the end of the opened range has been reached.
+   * @throws HttpDataSourceException If an error occurs reading from the source.
+   * @throws IllegalArgumentException If {@codes buffer} is not a direct ByteBuffer.
+   */
+  public int read(ByteBuffer buffer) throws HttpDataSourceException {
+    Assertions.checkState(opened);
+
+    if (!buffer.isDirect()) {
+      throw new IllegalArgumentException("Passed buffer is not a direct ByteBuffer");
+    }
+    if (!buffer.hasRemaining()) {
+      return 0;
+    } else if (bytesRemaining == 0) {
+      return C.RESULT_END_OF_INPUT;
+    }
+    int readLength = buffer.remaining();
+
+    if (readBuffer != null) {
+      // Skip all the bytes we can from readBuffer if there are still bytes to skip.
+      if (bytesToSkip != 0) {
+        if (bytesToSkip >= readBuffer.remaining()) {
+          bytesToSkip -= readBuffer.remaining();
+          readBuffer.position(readBuffer.limit());
+        } else {
+          readBuffer.position(readBuffer.position() + (int) bytesToSkip);
+          bytesToSkip = 0;
+        }
+      }
+
+      // If there is existing data in the readBuffer, read as much as possible. Return if any read.
+      int copyBytes = copyByteBuffer(/* src= */ readBuffer, /* dst= */ buffer);
+      if (copyBytes != 0) {
+        if (bytesRemaining != C.LENGTH_UNSET) {
+          bytesRemaining -= copyBytes;
+        }
+        bytesTransferred(copyBytes);
+        return copyBytes;
+      }
+    }
+
+    boolean readMore = true;
+    while (readMore) {
+      // If bytesToSkip > 0, read into intermediate buffer that we can discard instead of caller's
+      // buffer. If we do not need to skip bytes, we may write to buffer directly.
+      final boolean useCallerBuffer = bytesToSkip == 0;
+
+      operation.close();
+
+      if (!useCallerBuffer) {
+        if (readBuffer == null) {
+          readBuffer = ByteBuffer.allocateDirect(READ_BUFFER_SIZE_BYTES);
+        } else {
+          readBuffer.clear();
+        }
+        if (bytesToSkip < READ_BUFFER_SIZE_BYTES) {
+          readBuffer.limit((int) bytesToSkip);
+        }
+      }
+
+      // Fill buffer with more data from Cronet.
+      readInternal(useCallerBuffer ? buffer : castNonNull(readBuffer));
+
+      if (finished) {
+        bytesRemaining = 0;
+        return C.RESULT_END_OF_INPUT;
+      } else {
+        // The operation didn't time out, fail or finish, and therefore data must have been read.
+        Assertions.checkState(
+            useCallerBuffer
+                ? readLength > buffer.remaining()
+                : castNonNull(readBuffer).position() > 0);
+        // If we meant to skip bytes, subtract what was left and repeat, otherwise, continue.
+        if (useCallerBuffer) {
+          readMore = false;
+        } else {
+          bytesToSkip -= castNonNull(readBuffer).position();
+        }
+      }
+    }
+
+    final int bytesRead = readLength - buffer.remaining();
     if (bytesRemaining != C.LENGTH_UNSET) {
       bytesRemaining -= bytesRead;
     }
@@ -655,6 +742,47 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     currentConnectTimeoutMs = clock.elapsedRealtime() + connectTimeoutMs;
   }
 
+  /**
+   * Reads up to {@code buffer.remaining()} bytes of data from {@code currentUrlRequest} and stores
+   * them into {@code buffer}. If there is an error and {@code buffer == readBuffer}, then it resets
+   * the current {@code readBuffer} object so that it is not reused in the future.
+   *
+   * @param buffer The ByteBuffer into which the read data is stored. Must be a direct ByteBuffer.
+   * @throws HttpDataSourceException If an error occurs reading from the source.
+   */
+  private void readInternal(ByteBuffer buffer) throws HttpDataSourceException {
+    castNonNull(currentUrlRequest).read(buffer);
+    try {
+      if (!operation.block(readTimeoutMs)) {
+        throw new SocketTimeoutException();
+      }
+    } catch (InterruptedException e) {
+      // The operation is ongoing so replace buffer to avoid it being written to by this
+      // operation during a subsequent request.
+      if (Objects.equals(buffer, readBuffer)) {
+        readBuffer = null;
+      }
+      Thread.currentThread().interrupt();
+      throw new HttpDataSourceException(
+          new InterruptedIOException(e),
+          castNonNull(currentDataSpec),
+          HttpDataSourceException.TYPE_READ);
+    } catch (SocketTimeoutException e) {
+      // The operation is ongoing so replace buffer to avoid it being written to by this
+      // operation during a subsequent request.
+      if (Objects.equals(buffer, readBuffer)) {
+        readBuffer = null;
+      }
+      throw new HttpDataSourceException(
+          e, castNonNull(currentDataSpec), HttpDataSourceException.TYPE_READ);
+    }
+
+    if (exception != null) {
+      throw new HttpDataSourceException(
+          exception, castNonNull(currentDataSpec), HttpDataSourceException.TYPE_READ);
+    }
+  }
+
   private static boolean isCompressed(UrlResponseInfo info) {
     for (Map.Entry<String, String> entry : info.getAllHeadersAsList()) {
       if (entry.getKey().equalsIgnoreCase("Content-Encoding")) {
@@ -736,6 +864,17 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   @EnsuresNonNullIf(result = false, expression = "#1")
   private static boolean isEmpty(@Nullable List<?> list) {
     return list == null || list.isEmpty();
+  }
+
+  // Copy as much as possible from the src buffer into dst buffer.
+  // Returns the number of bytes copied.
+  private static int copyByteBuffer(ByteBuffer src, ByteBuffer dst) {
+    int remaining = Math.min(src.remaining(), dst.remaining());
+    int limit = src.limit();
+    src.limit(src.position() + remaining);
+    dst.put(src);
+    src.limit(limit);
+    return remaining;
   }
 
   private final class UrlRequestCallback extends UrlRequest.Callback {
