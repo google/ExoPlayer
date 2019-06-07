@@ -17,6 +17,8 @@
 * Add a workaround for broken raw audio decoding on Oppo R9
   ([#5782](https://github.com/google/ExoPlayer/issues/5782)).
 * Add VR player demo.
+* Wrap decoder exceptions in a new `DecoderException` class and report as
+  renderer error.
 
 ### 2.10.2 ###
 
