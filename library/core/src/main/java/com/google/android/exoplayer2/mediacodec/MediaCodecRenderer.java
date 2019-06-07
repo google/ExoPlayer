@@ -80,14 +80,13 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     public final boolean secureDecoderRequired;
 
     /**
-     * The name of the decoder that failed to initialize. Null if no suitable decoder was found.
+     * The {@link MediaCodecInfo} of the decoder that failed to initialize. Null if no suitable
+     * decoder was found.
      */
-    public final String decoderName;
+    @Nullable public final MediaCodecInfo codecInfo;
 
-    /**
-     * An optional developer-readable diagnostic information string. May be null.
-     */
-    public final String diagnosticInfo;
+    /** An optional developer-readable diagnostic information string. May be null. */
+    @Nullable public final String diagnosticInfo;
 
     /**
      * If the decoder failed to initialize and another decoder being used as a fallback also failed
@@ -103,19 +102,22 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           cause,
           format.sampleMimeType,
           secureDecoderRequired,
-          /* decoderName= */ null,
+          /* mediaCodecInfo= */ null,
           buildCustomDiagnosticInfo(errorCode),
           /* fallbackDecoderInitializationException= */ null);
     }
 
-    public DecoderInitializationException(Format format, Throwable cause,
-        boolean secureDecoderRequired, String decoderName) {
+    public DecoderInitializationException(
+        Format format,
+        Throwable cause,
+        boolean secureDecoderRequired,
+        MediaCodecInfo mediaCodecInfo) {
       this(
-          "Decoder init failed: " + decoderName + ", " + format,
+          "Decoder init failed: " + mediaCodecInfo.name + ", " + format,
           cause,
           format.sampleMimeType,
           secureDecoderRequired,
-          decoderName,
+          mediaCodecInfo,
           Util.SDK_INT >= 21 ? getDiagnosticInfoV21(cause) : null,
           /* fallbackDecoderInitializationException= */ null);
     }
@@ -125,13 +127,13 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         Throwable cause,
         String mimeType,
         boolean secureDecoderRequired,
-        @Nullable String decoderName,
+        @Nullable MediaCodecInfo mediaCodecInfo,
         @Nullable String diagnosticInfo,
         @Nullable DecoderInitializationException fallbackDecoderInitializationException) {
       super(message, cause);
       this.mimeType = mimeType;
       this.secureDecoderRequired = secureDecoderRequired;
-      this.decoderName = decoderName;
+      this.codecInfo = mediaCodecInfo;
       this.diagnosticInfo = diagnosticInfo;
       this.fallbackDecoderInitializationException = fallbackDecoderInitializationException;
     }
@@ -144,7 +146,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           getCause(),
           mimeType,
           secureDecoderRequired,
-          decoderName,
+          codecInfo,
           diagnosticInfo,
           fallbackException);
     }
@@ -159,9 +161,34 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
     private static String buildCustomDiagnosticInfo(int errorCode) {
       String sign = errorCode < 0 ? "neg_" : "";
-      return "com.google.android.exoplayer.MediaCodecTrackRenderer_" + sign + Math.abs(errorCode);
+      return "com.google.android.exoplayer2.mediacodec.MediaCodecRenderer_"
+          + sign
+          + Math.abs(errorCode);
+    }
+  }
+
+  /** Thrown when a failure occurs in the decoder. */
+  public static class DecoderException extends Exception {
+
+    /** The {@link MediaCodecInfo} of the decoder that failed. Null if unknown. */
+    @Nullable public final MediaCodecInfo codecInfo;
+
+    /** An optional developer-readable diagnostic information string. May be null. */
+    @Nullable public final String diagnosticInfo;
+
+    public DecoderException(Throwable cause, @Nullable MediaCodecInfo codecInfo) {
+      super("Decoder failed: " + (codecInfo == null ? null : codecInfo.name), cause);
+      this.codecInfo = codecInfo;
+      diagnosticInfo = Util.SDK_INT >= 21 ? getDiagnosticInfoV21(cause) : null;
     }
 
+    @TargetApi(21)
+    private static String getDiagnosticInfoV21(Throwable cause) {
+      if (cause instanceof CodecException) {
+        return ((CodecException) cause).getDiagnosticInfo();
+      }
+      return null;
+    }
   }
 
   /** Indicates no codec operating rate should be set. */
@@ -637,31 +664,40 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   @Override
   public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
-    if (outputStreamEnded) {
-      renderToEndOfStream();
-      return;
-    }
-    if (inputFormat == null && !readToFlagsOnlyBuffer(/* requireFormat= */ true)) {
+    try {
+      if (outputStreamEnded) {
+        renderToEndOfStream();
+        return;
+      }
+      if (inputFormat == null && !readToFlagsOnlyBuffer(/* requireFormat= */ true)) {
         // We still don't have a format and can't make progress without one.
         return;
+      }
+      // We have a format.
+      maybeInitCodec();
+      if (codec != null) {
+        long drainStartTimeMs = SystemClock.elapsedRealtime();
+        TraceUtil.beginSection("drainAndFeed");
+        while (drainOutputBuffer(positionUs, elapsedRealtimeUs)) {}
+        while (feedInputBuffer() && shouldContinueFeeding(drainStartTimeMs)) {}
+        TraceUtil.endSection();
+      } else {
+        decoderCounters.skippedInputBufferCount += skipSource(positionUs);
+        // We need to read any format changes despite not having a codec so that drmSession can be
+        // updated, and so that we have the most recent format should the codec be initialized. We
+        // may
+        // also reach the end of the stream. Note that readSource will not read a sample into a
+        // flags-only buffer.
+        readToFlagsOnlyBuffer(/* requireFormat= */ false);
+      }
+      decoderCounters.ensureUpdated();
+    } catch (IllegalStateException e) {
+      if (isMediaCodecException(e)) {
+        throw ExoPlaybackException.createForRenderer(
+            createDecoderException(e, getCodecInfo()), getIndex());
+      }
+      throw e;
     }
-    // We have a format.
-    maybeInitCodec();
-    if (codec != null) {
-      long drainStartTimeMs = SystemClock.elapsedRealtime();
-      TraceUtil.beginSection("drainAndFeed");
-      while (drainOutputBuffer(positionUs, elapsedRealtimeUs)) {}
-      while (feedInputBuffer() && shouldContinueFeeding(drainStartTimeMs)) {}
-      TraceUtil.endSection();
-    } else {
-      decoderCounters.skippedInputBufferCount += skipSource(positionUs);
-      // We need to read any format changes despite not having a codec so that drmSession can be
-      // updated, and so that we have the most recent format should the codec be initialized. We may
-      // also reach the end of the stream. Note that readSource will not read a sample into a
-      // flags-only buffer.
-      readToFlagsOnlyBuffer(/* requireFormat= */ false);
-    }
-    decoderCounters.ensureUpdated();
   }
 
   /**
@@ -725,6 +761,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     return false;
   }
 
+  protected DecoderException createDecoderException(
+      Throwable cause, @Nullable MediaCodecInfo codecInfo) {
+    return new DecoderException(cause, codecInfo);
+  }
+
   /** Reads into {@link #flagsOnlyBuffer} and returns whether a format was read. */
   private boolean readToFlagsOnlyBuffer(boolean requireFormat) throws ExoPlaybackException {
     flagsOnlyBuffer.clear();
@@ -785,7 +826,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         availableCodecInfos.removeFirst();
         DecoderInitializationException exception =
             new DecoderInitializationException(
-                inputFormat, e, mediaCryptoRequiresSecureDecoder, codecInfo.name);
+                inputFormat, e, mediaCryptoRequiresSecureDecoder, codecInfo);
         if (preferredDecoderInitializationException == null) {
           preferredDecoderInitializationException = exception;
         } else {
@@ -1699,6 +1740,19 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
     cryptoInfo.numBytesOfClearData[0] += adaptiveReconfigurationBytes;
     return cryptoInfo;
+  }
+
+  private static boolean isMediaCodecException(IllegalStateException error) {
+    if (Util.SDK_INT >= 21) {
+      return isMediaCodecExceptionV21(error);
+    }
+    StackTraceElement[] stackTrace = error.getStackTrace();
+    return stackTrace.length > 0 && stackTrace[0].getClassName().equals("android.media.MediaCodec");
+  }
+
+  @TargetApi(21)
+  private static boolean isMediaCodecExceptionV21(IllegalStateException error) {
+    return error instanceof MediaCodec.CodecException;
   }
 
   /**

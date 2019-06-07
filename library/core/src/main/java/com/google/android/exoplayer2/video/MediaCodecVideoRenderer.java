@@ -92,6 +92,23 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    */
   private static final float INITIAL_FORMAT_MAX_INPUT_SIZE_SCALE_FACTOR = 1.5f;
 
+  /** A {@link DecoderException} with additional surface information. */
+  public static final class VideoDecoderException extends DecoderException {
+
+    /** The {@link System#identityHashCode(Object)} of the surface when the exception occurred. */
+    public final int surfaceIdentityHashCode;
+
+    /** Whether the surface was valid when the exception occurred. */
+    public final boolean isSurfaceValid;
+
+    public VideoDecoderException(
+        Throwable cause, @Nullable MediaCodecInfo codecInfo, @Nullable Surface surface) {
+      super(cause, codecInfo);
+      surfaceIdentityHashCode = System.identityHashCode(surface);
+      isSurfaceValid = surface == null || surface.isValid();
+    }
+  }
+
   private static boolean evaluatedDeviceNeedsSetOutputSurfaceWorkaround;
   private static boolean deviceNeedsSetOutputSurfaceWorkaround;
 
@@ -1258,6 +1275,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       }
     }
     return new CodecMaxValues(maxWidth, maxHeight, maxInputSize);
+  }
+
+  @Override
+  protected DecoderException createDecoderException(
+      Throwable cause, @Nullable MediaCodecInfo codecInfo) {
+    return new VideoDecoderException(cause, codecInfo, surface);
   }
 
   /**
