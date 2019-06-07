@@ -60,8 +60,8 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
 
   public final int primaryTrackType;
 
-  private final int[] embeddedTrackTypes;
-  private final Format[] embeddedTrackFormats;
+  @Nullable private final int[] embeddedTrackTypes;
+  @Nullable private final Format[] embeddedTrackFormats;
   private final boolean[] embeddedTracksSelected;
   private final T chunkSource;
   private final SequenceableLoader.Callback<ChunkSampleStream<T>> callback;
@@ -104,8 +104,8 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   @Deprecated
   public ChunkSampleStream(
       int primaryTrackType,
-      int[] embeddedTrackTypes,
-      Format[] embeddedTrackFormats,
+      @Nullable int[] embeddedTrackTypes,
+      @Nullable Format[] embeddedTrackFormats,
       T chunkSource,
       Callback<ChunkSampleStream<T>> callback,
       Allocator allocator,
@@ -140,8 +140,8 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
    */
   public ChunkSampleStream(
       int primaryTrackType,
-      int[] embeddedTrackTypes,
-      Format[] embeddedTrackFormats,
+      @Nullable int[] embeddedTrackTypes,
+      @Nullable Format[] embeddedTrackFormats,
       T chunkSource,
       Callback<ChunkSampleStream<T>> callback,
       Allocator allocator,
