@@ -1603,6 +1603,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     return deviceNeedsSetOutputSurfaceWorkaround;
   }
 
+  protected Surface getSurface() {
+    return surface;
+  }
+
   protected static final class CodecMaxValues {
 
     public final int width;
