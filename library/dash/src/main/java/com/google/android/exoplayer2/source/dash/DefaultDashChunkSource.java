@@ -42,7 +42,6 @@ import com.google.android.exoplayer2.source.chunk.SingleSampleMediaChunk;
 import com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler;
 import com.google.android.exoplayer2.source.dash.manifest.AdaptationSet;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
-import com.google.android.exoplayer2.source.dash.manifest.Descriptor;
 import com.google.android.exoplayer2.source.dash.manifest.RangedUri;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
@@ -326,35 +325,10 @@ public class DefaultDashChunkSource implements DashChunkSource {
       return;
     }
 
-    List<Descriptor> listDescriptors;
-    Integer lastSegmentNumberSchemeIdUri = Integer.MAX_VALUE;
-    String sampleMimeType = trackSelection.getFormat(periodIndex).sampleMimeType;
-
-    if (sampleMimeType.contains("video") || sampleMimeType.contains("audio")) {
-
-      int track_type = sampleMimeType.contains("video")? C.TRACK_TYPE_VIDEO : C.TRACK_TYPE_AUDIO;
-
-      if (!manifest.getPeriod(periodIndex).adaptationSets.get(manifest.getPeriod(periodIndex)
-          .getAdaptationSetIndex(track_type)).supplementalProperties.isEmpty()) {
-        listDescriptors = manifest.getPeriod(periodIndex).adaptationSets
-            .get(manifest.getPeriod(periodIndex).getAdaptationSetIndex(track_type))
-            .supplementalProperties;
-        for ( Descriptor descriptor: listDescriptors ) {
-          if (descriptor.schemeIdUri.equalsIgnoreCase
-              ("http://dashif.org/guidelines/last-segment-number")) {
-            lastSegmentNumberSchemeIdUri = Integer.valueOf(descriptor.value);
-          }
-        }
-      }
-    }
-
     long firstAvailableSegmentNum =
         representationHolder.getFirstAvailableSegmentNum(manifest, periodIndex, nowUnixTimeUs);
     long lastAvailableSegmentNum =
-        Math.min(representationHolder.
-                getLastAvailableSegmentNum(manifest, periodIndex, nowUnixTimeUs),
-                lastSegmentNumberSchemeIdUri);
-
+        representationHolder.getLastAvailableSegmentNum(manifest, periodIndex, nowUnixTimeUs);
     updateLiveEdgeTimeUs(representationHolder, lastAvailableSegmentNum);
 
     long segmentNum =
