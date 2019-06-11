@@ -102,6 +102,7 @@ public abstract class SegmentBase {
     /* package */ final long startNumber;
     /* package */ final long duration;
     /* package */ final List<SegmentTimelineElement> segmentTimeline;
+    /* package */ final int endNumber;
 
     /**
      * @param initialization A {@link RangedUri} corresponding to initialization data, if such data
@@ -128,6 +129,38 @@ public abstract class SegmentBase {
       this.startNumber = startNumber;
       this.duration = duration;
       this.segmentTimeline = segmentTimeline;
+      this.endNumber = C.INDEX_UNSET;
+    }
+
+    /**
+     * @param initialization A {@link RangedUri} corresponding to initialization data, if such data
+     *     exists.
+     * @param timescale The timescale in units per second.
+     * @param presentationTimeOffset The presentation time offset. The value in seconds is the
+     *     division of this value and {@code timescale}.
+     * @param startNumber The sequence number of the first segment.
+     * @param endNumber The sequence number of the last segment specified by SupplementalProperty
+     *           schemeIdUri="http://dashif.org/guidelines/last-segment-number"
+     * @param duration The duration of each segment in the case of fixed duration segments. The
+     *     value in seconds is the division of this value and {@code timescale}. If {@code
+     *     segmentTimeline} is non-null then this parameter is ignored.
+     * @param segmentTimeline A segment timeline corresponding to the segments. If null, then
+     *     segments are assumed to be of fixed duration as specified by the {@code duration}
+     *     parameter.
+     */
+    public MultiSegmentBase(
+        RangedUri initialization,
+        long timescale,
+        long presentationTimeOffset,
+        long startNumber,
+        int endNumber,
+        long duration,
+        List<SegmentTimelineElement> segmentTimeline) {
+      super(initialization, timescale, presentationTimeOffset);
+      this.startNumber = startNumber;
+      this.duration = duration;
+      this.segmentTimeline = segmentTimeline;
+      this.endNumber = endNumber;
     }
 
     /** @see DashSegmentIndex#getSegmentNum(long, long) */
@@ -312,6 +345,43 @@ public abstract class SegmentBase {
       this.mediaTemplate = mediaTemplate;
     }
 
+    /**
+     * @param initialization A {@link RangedUri} corresponding to initialization data, if such data
+     *     exists. The value of this parameter is ignored if {@code initializationTemplate} is
+     *     non-null.
+     * @param timescale The timescale in units per second.
+     * @param presentationTimeOffset The presentation time offset. The value in seconds is the
+     *     division of this value and {@code timescale}.
+     * @param startNumber The sequence number of the first segment.
+     * @param endNumber The sequence number of the last segment specified by SupplementalProperty
+     *     schemeIdUri="http://dashif.org/guidelines/last-segment-number"
+     * @param duration The duration of each segment in the case of fixed duration segments. The
+     *     value in seconds is the division of this value and {@code timescale}. If {@code
+     *     segmentTimeline} is non-null then this parameter is ignored.
+     * @param segmentTimeline A segment timeline corresponding to the segments. If null, then
+     *     segments are assumed to be of fixed duration as specified by the {@code duration}
+     *     parameter.
+     * @param initializationTemplate A template defining the location of initialization data, if
+     *     such data exists. If non-null then the {@code initialization} parameter is ignored. If
+     *     null then {@code initialization} will be used.
+     * @param mediaTemplate A template defining the location of each media segment.
+     */
+    public SegmentTemplate(
+        RangedUri initialization,
+        long timescale,
+        long presentationTimeOffset,
+        long startNumber,
+        int endNumber,
+        long duration,
+        List<SegmentTimelineElement> segmentTimeline,
+        UrlTemplate initializationTemplate,
+        UrlTemplate mediaTemplate) {
+      super(initialization, timescale, presentationTimeOffset, startNumber,endNumber,
+          duration, segmentTimeline);
+      this.initializationTemplate = initializationTemplate;
+      this.mediaTemplate = mediaTemplate;
+    }
+
     @Override
     public RangedUri getInitialization(Representation representation) {
       if (initializationTemplate != null) {
@@ -338,7 +408,9 @@ public abstract class SegmentBase {
 
     @Override
     public int getSegmentCount(long periodDurationUs) {
-      if (segmentTimeline != null) {
+      if( endNumber != C.INDEX_UNSET) {
+        return endNumber;
+      } else if (segmentTimeline != null) {
         return segmentTimeline.size();
       } else if (periodDurationUs != C.TIME_UNSET) {
         long durationUs = (duration * C.MICROS_PER_SECOND) / timescale;
