@@ -42,6 +42,7 @@ import java.util.Map;
  *   <li>rtmp: For fetching data over RTMP. Only supported if the project using ExoPlayer has an
  *       explicit dependency on ExoPlayer's RTMP extension.
  *   <li>data: For parsing data inlined in the URI as defined in RFC 2397.
+ *   <li>udp: For fetching data over UDP (e.g. udp://something.com/media).
  *   <li>http(s): For fetching data over HTTP and HTTPS (e.g. https://www.something.com/media.mp4),
  *       if constructed using {@link #DefaultDataSource(Context, TransferListener, String,
  *       boolean)}, or any other schemes supported by a base data source if constructed using {@link
@@ -243,7 +244,7 @@ public final class DefaultDataSource implements DataSource {
       dataSource = getContentDataSource();
     } else if (SCHEME_RTMP.equals(scheme)) {
       dataSource = getRtmpDataSource();
-    } else if(SCHEME_UDP.equals(scheme)){
+    } else if (SCHEME_UDP.equals(scheme)) {
       dataSource = getUdpDataSource();
     } else if (DataSchemeDataSource.SCHEME_DATA.equals(scheme)) {
       dataSource = getDataSchemeDataSource();
@@ -282,7 +283,7 @@ public final class DefaultDataSource implements DataSource {
     }
   }
 
-  private DataSource getUdpDataSource(){
+  private DataSource getUdpDataSource() {
     if (udpDataSource == null) {
       udpDataSource = new UdpDataSource();
       addListenersToDataSource(udpDataSource);
