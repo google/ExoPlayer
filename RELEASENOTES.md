@@ -19,6 +19,8 @@
 * Add VR player demo.
 * Wrap decoder exceptions in a new `DecoderException` class and report as
   renderer error.
+* Add support for auto-detecting UDP streams in `DefaultDataSource`
+  ([#6036](https://github.com/google/ExoPlayer/pull/6036)).
 
 ### 2.10.2 ###
 
