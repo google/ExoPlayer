@@ -416,6 +416,38 @@ public class PlayerNotificationManager {
 
   /**
    * Creates a notification manager and a low-priority notification channel with the specified
+   * {@code channelId} and {@code channelName}.
+   *
+   * <p>If the player notification manager is intended to be used within a foreground service,
+   * {@link #createWithNotificationChannel(Context, String, int, int, MediaDescriptionAdapter,
+   * NotificationListener)} should be used to which a {@link NotificationListener} can be passed.
+   * This way you'll receive the notification to put the service into the foreground by calling
+   * {@link android.app.Service#startForeground(int, Notification)}.
+   *
+   * @param context The {@link Context}.
+   * @param channelId The id of the notification channel.
+   * @param channelName A string resource identifier for the user visible name of the channel. The
+   *     recommended maximum length is 40 characters; the value may be truncated if it is too long.
+   * @param channelDescription A String resource identifier for the user visible description of the
+   *     channel.
+   * @param notificationId The id of the notification.
+   * @param mediaDescriptionAdapter The {@link MediaDescriptionAdapter}.
+   */
+  public static PlayerNotificationManager createWithNotificationChannel(
+      Context context,
+      String channelId,
+      @StringRes int channelName,
+      @StringRes int channelDescription,
+      int notificationId,
+      MediaDescriptionAdapter mediaDescriptionAdapter) {
+    NotificationUtil.createNotificationChannel(
+        context, channelId, channelName, channelDescription, NotificationUtil.IMPORTANCE_LOW);
+    return new PlayerNotificationManager(
+        context, channelId, notificationId, mediaDescriptionAdapter);
+  }
+
+  /**
+   * Creates a notification manager and a low-priority notification channel with the specified
    * {@code channelId} and {@code channelName}. The {@link NotificationListener} passed as the last
    * parameter will be notified when the notification is created and cancelled.
    *
@@ -436,6 +468,35 @@ public class PlayerNotificationManager {
       @Nullable NotificationListener notificationListener) {
     NotificationUtil.createNotificationChannel(
         context, channelId, channelName, NotificationUtil.IMPORTANCE_LOW);
+    return new PlayerNotificationManager(
+        context, channelId, notificationId, mediaDescriptionAdapter, notificationListener);
+  }
+
+  /**
+   * Creates a notification manager and a low-priority notification channel with the specified
+   * {@code channelId} and {@code channelName}. The {@link NotificationListener} passed as the last
+   * parameter will be notified when the notification is created and cancelled.
+   *
+   * @param context The {@link Context}.
+   * @param channelId The id of the notification channel.
+   * @param channelName A string resource identifier for the user visible name of the channel. The
+   *     recommended maximum length is 40 characters; the value may be truncated if it is too long.
+   * @param channelDescription A String resource identifier for the user visible description of the
+   *     channel.
+   * @param notificationId The id of the notification.
+   * @param mediaDescriptionAdapter The {@link MediaDescriptionAdapter}.
+   * @param notificationListener The {@link NotificationListener}.
+   */
+  public static PlayerNotificationManager createWithNotificationChannel(
+      Context context,
+      String channelId,
+      @StringRes int channelName,
+      @StringRes int channelDescription,
+      int notificationId,
+      MediaDescriptionAdapter mediaDescriptionAdapter,
+      @Nullable NotificationListener notificationListener) {
+    NotificationUtil.createNotificationChannel(
+        context, channelId, channelName, channelDescription, NotificationUtil.IMPORTANCE_LOW);
     return new PlayerNotificationManager(
         context, channelId, notificationId, mediaDescriptionAdapter, notificationListener);
   }

@@ -80,11 +80,48 @@ public final class NotificationUtil {
    */
   public static void createNotificationChannel(
       Context context, String id, @StringRes int nameResourceId, @Importance int importance) {
+    createNotificationChannel(
+        context,
+        id,
+        nameResourceId,
+        importance,
+        /* descriptionResourceId= */ 0);
+  }
+
+  /**
+   * Creates a notification channel that notifications can be posted to. See {@link
+   * NotificationChannel} and {@link
+   * NotificationManager#createNotificationChannel(NotificationChannel)} for details.
+   *
+   * @param context A {@link Context}.
+   * @param id The id of the channel. Must be unique per package. The value may be truncated if it's
+   *     too long.
+   * @param nameResourceId A string resource identifier for the user visible name of the channel.
+   *     You can rename this channel when the system locale changes by listening for the {@link
+   *     Intent#ACTION_LOCALE_CHANGED} broadcast. The recommended maximum length is 40 characters.
+   *     The value may be truncated if it is too long.
+   * @param importance The importance of the channel. This controls how interruptive notifications
+   *     posted to this channel are. One of {@link #IMPORTANCE_UNSPECIFIED}, {@link
+   *     #IMPORTANCE_NONE}, {@link #IMPORTANCE_MIN}, {@link #IMPORTANCE_LOW}, {@link
+   *     #IMPORTANCE_DEFAULT} and {@link #IMPORTANCE_HIGH}.
+   * @param descriptionResourceId A String resource identifier for the user visible description of
+   *     the channel. You can change the description of this channel when the system locale changes
+   *     by listening for the {@link Intent#ACTION_LOCALE_CHANGED} broadcast. Ignored if set to 0.
+   */
+  public static void createNotificationChannel(
+      Context context,
+      String id,
+      @StringRes int nameResourceId,
+      @Importance int importance,
+      @StringRes int descriptionResourceId) {
     if (Util.SDK_INT >= 26) {
       NotificationManager notificationManager =
           (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
       NotificationChannel channel =
           new NotificationChannel(id, context.getString(nameResourceId), importance);
+      if(descriptionResourceId != 0) {
+        channel.setDescription(context.getString(descriptionResourceId));
+      }
       notificationManager.createNotificationChannel(channel);
     }
   }

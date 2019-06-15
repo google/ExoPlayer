@@ -174,6 +174,7 @@ public abstract class DownloadService extends Service {
   @Nullable private final ForegroundNotificationUpdater foregroundNotificationUpdater;
   @Nullable private final String channelId;
   @StringRes private final int channelNameResourceId;
+  @StringRes private final int channelDescriptionResourceId;
 
   private DownloadManager downloadManager;
   private int lastStartId;
@@ -239,16 +240,53 @@ public abstract class DownloadService extends Service {
       long foregroundNotificationUpdateInterval,
       @Nullable String channelId,
       @StringRes int channelNameResourceId) {
+    this(
+        foregroundNotificationId,
+        foregroundNotificationUpdateInterval,
+        channelId,
+        channelNameResourceId,
+        /* channelDescriptionResourceId= */ 0
+    );
+  }
+
+  /**
+   * Creates a DownloadService.
+   *
+   * @param foregroundNotificationId The notification id for the foreground notification, or {@link
+   *     #FOREGROUND_NOTIFICATION_ID_NONE} if the service should only ever run in the background.
+   * @param foregroundNotificationUpdateInterval The maximum interval between updates to the
+   *     foreground notification, in milliseconds. Ignored if {@code foregroundNotificationId} is
+   *     {@link #FOREGROUND_NOTIFICATION_ID_NONE}.
+   * @param channelId An id for a low priority notification channel to create, or {@code null} if
+   *     the app will take care of creating a notification channel if needed. If specified, must be
+   *     unique per package. The value may be truncated if it's too long. Ignored if {@code
+   *     foregroundNotificationId} is {@link #FOREGROUND_NOTIFICATION_ID_NONE}.
+   * @param channelNameResourceId A string resource identifier for the user visible name of the
+   *     channel, if {@code channelId} is specified. The recommended maximum length is 40
+   *     characters. The value may be truncated if it is too long. Ignored if {@code
+   *     foregroundNotificationId} is {@link #FOREGROUND_NOTIFICATION_ID_NONE}.
+   * @param channelDescriptionResourceId A string resource identifier for the user visible
+   *     description. Ignored if {@code foregroundNotificationId} is
+   *     {@link #FOREGROUND_NOTIFICATION_ID_NONE}.
+   */
+  protected DownloadService(
+      int foregroundNotificationId,
+      long foregroundNotificationUpdateInterval,
+      @Nullable String channelId,
+      @StringRes int channelNameResourceId,
+      @StringRes int channelDescriptionResourceId) {
     if (foregroundNotificationId == FOREGROUND_NOTIFICATION_ID_NONE) {
       this.foregroundNotificationUpdater = null;
       this.channelId = null;
       this.channelNameResourceId = 0;
+      this.channelDescriptionResourceId = 0;
     } else {
       this.foregroundNotificationUpdater =
           new ForegroundNotificationUpdater(
               foregroundNotificationId, foregroundNotificationUpdateInterval);
       this.channelId = channelId;
       this.channelNameResourceId = channelNameResourceId;
+      this.channelDescriptionResourceId = channelDescriptionResourceId;
     }
   }
 
@@ -543,7 +581,11 @@ public abstract class DownloadService extends Service {
   public void onCreate() {
     if (channelId != null) {
       NotificationUtil.createNotificationChannel(
-          this, channelId, channelNameResourceId, NotificationUtil.IMPORTANCE_LOW);
+          this,
+          channelId,
+          channelNameResourceId,
+          channelDescriptionResourceId,
+          NotificationUtil.IMPORTANCE_LOW);
     }
     Class<? extends DownloadService> clazz = getClass();
     DownloadManagerHelper downloadManagerHelper = downloadManagerListeners.get(clazz);
