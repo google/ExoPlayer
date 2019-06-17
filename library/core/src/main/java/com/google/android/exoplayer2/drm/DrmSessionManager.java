@@ -27,6 +27,24 @@ import java.lang.annotation.RetentionPolicy;
  */
 public interface DrmSessionManager<T extends ExoMediaCrypto> {
 
+  /** {@link DrmSessionManager} that supports no DRM schemes. */
+  DrmSessionManager<ExoMediaCrypto> DUMMY =
+      new DrmSessionManager<ExoMediaCrypto>() {
+
+        @Override
+        public boolean canAcquireSession(DrmInitData drmInitData) {
+          return false;
+        }
+
+        @Override
+        public DrmSession<ExoMediaCrypto> acquireSession(
+            Looper playbackLooper, DrmInitData drmInitData) {
+          return new ErrorStateDrmSession<>(
+              new DrmSession.DrmSessionException(
+                  new UnsupportedDrmException(UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME)));
+        }
+      };
+
   /** Flags that control the handling of DRM protected content. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
