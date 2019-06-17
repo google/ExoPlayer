@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.drm;
 import android.media.MediaDrm;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -42,10 +43,8 @@ public interface DrmSession<T extends ExoMediaCrypto> {
     }
   }
 
-  /**
-   * Wraps the throwable which is the cause of the error state.
-   */
-  class DrmSessionException extends Exception {
+  /** Wraps the throwable which is the cause of the error state. */
+  class DrmSessionException extends IOException {
 
     public DrmSessionException(Throwable cause) {
       super(cause);
