@@ -106,6 +106,11 @@ public final class FakeAdsRequest implements AdsRequest {
   }
 
   @Override
+  public void setContinuousPlayback(boolean b) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void setContentDuration(float v) {
     throw new UnsupportedOperationException();
   }
