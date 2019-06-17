@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Predicate;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -40,7 +41,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -759,7 +759,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     } catch (InterruptedException e) {
       // The operation is ongoing so replace buffer to avoid it being written to by this
       // operation during a subsequent request.
-      if (Objects.equals(buffer, readBuffer)) {
+      if (Util.areEqual(buffer, readBuffer)) {
         readBuffer = null;
       }
       Thread.currentThread().interrupt();
@@ -770,7 +770,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     } catch (SocketTimeoutException e) {
       // The operation is ongoing so replace buffer to avoid it being written to by this
       // operation during a subsequent request.
-      if (Objects.equals(buffer, readBuffer)) {
+      if (Util.areEqual(buffer, readBuffer)) {
         readBuffer = null;
       }
       throw new HttpDataSourceException(
