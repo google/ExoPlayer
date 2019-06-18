@@ -23,6 +23,8 @@
   ([#6036](https://github.com/google/ExoPlayer/pull/6036)).
 * Gracefully handle revoked `ACCESS_NETWORK_STATE` permission
   ([#6019](https://github.com/google/ExoPlayer/issues/6019)).
+* Fix application of `maxAudioBitrate` for adaptive audio track groups
+  ([#6006](https://github.com/google/ExoPlayer/issues/6006)).
 
 ### 2.10.2 ###
 
