@@ -713,6 +713,8 @@ public final class PlaybackStatsListener
      *
      * @param isFinal Whether this is the final build and no further events are expected.
      */
+    // TODO(b/133387873): incompatible types in conditional expression.
+    @SuppressWarnings("nullness:conditional.type.incompatible")
     public PlaybackStats build(boolean isFinal) {
       long[] playbackStateDurationsMs = this.playbackStateDurationsMs;
       List<long[]> mediaTimeHistory = this.mediaTimeHistory;
