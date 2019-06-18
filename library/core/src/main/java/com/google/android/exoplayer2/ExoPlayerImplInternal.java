@@ -1797,9 +1797,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   private long getTotalBufferedDurationUs(long bufferedPositionInLoadingPeriodUs) {
     MediaPeriodHolder loadingPeriodHolder = queue.getLoadingPeriod();
-    return loadingPeriodHolder == null
-        ? 0
-        : bufferedPositionInLoadingPeriodUs - loadingPeriodHolder.toPeriodTime(rendererPositionUs);
+    if (loadingPeriodHolder == null) {
+      return 0;
+    }
+    long totalBufferedDurationUs =
+        bufferedPositionInLoadingPeriodUs - loadingPeriodHolder.toPeriodTime(rendererPositionUs);
+    return Math.max(0, totalBufferedDurationUs);
   }
 
   private void updateLoadControlTrackSelection(

@@ -512,7 +512,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
   @Override
   public long getTotalBufferedDuration() {
-    return Math.max(0, C.usToMs(playbackInfo.totalBufferedDurationUs));
+    return C.usToMs(playbackInfo.totalBufferedDurationUs);
   }
 
   @Override
