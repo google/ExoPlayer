@@ -41,6 +41,8 @@
   ([#5955](https://github.com/google/ExoPlayer/issues/5955)).
 * Add support for auto-detecting UDP streams in `DefaultDataSource`
   ([#6036](https://github.com/google/ExoPlayer/pull/6036)).
+* Gracefully handle revoked `ACCESS_NETWORK_STATE` permission
+  ([#6019](https://github.com/google/ExoPlayer/issues/6019)).
 
 ### 2.10.1 ###
 
