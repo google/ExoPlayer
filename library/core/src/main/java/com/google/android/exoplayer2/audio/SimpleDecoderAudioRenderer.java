@@ -434,6 +434,12 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
       result = readSource(formatHolder, inputBuffer, false);
     }
 
+    if (inputBuffer.isEndOfStream()) {
+      inputStreamEnded = true;
+      decoder.queueInputBuffer(inputBuffer);
+      inputBuffer = null;
+      return false;
+    }
     if (result == C.RESULT_NOTHING_READ) {
       return false;
     }
@@ -441,12 +447,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
       onInputFormatChanged(formatHolder.format);
       return true;
     }
-    if (inputBuffer.isEndOfStream()) {
-      inputStreamEnded = true;
-      decoder.queueInputBuffer(inputBuffer);
-      inputBuffer = null;
-      return false;
-    }
+
     boolean bufferEncrypted = inputBuffer.isEncrypted();
     waitingForKeys = shouldWaitForKeys(bufferEncrypted);
     if (waitingForKeys) {
