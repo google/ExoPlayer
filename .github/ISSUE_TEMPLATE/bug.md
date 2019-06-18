@@ -36,16 +36,17 @@ or a small sample app that you’re able to share as source code on GitHub.
 Provide a JSON snippet for the demo app’s media.exolist.json file, or a link to
 media that reproduces the issue. If you don't wish to post it publicly, please
 submit the issue, then email the link to dev.exoplayer@gmail.com using a subject
-in the format "Issue #1234". Provide all the metadata we'd need to play the
-content like drm license urls or similar. If the content is accessible only in
-certain countries or regions, please say so.
+in the format "Issue #1234", where "#1234" should be replaced with your issue
+number. Provide all the metadata we'd need to play the content like drm license
+urls or similar. If the content is accessible only in certain countries or
+regions, please say so.
 
 ### [REQUIRED] A full bug report captured from the device
 Capture a full bug report using "adb bugreport". Output from "adb logcat" or a
 log snippet is NOT sufficient. Please attach the captured bug report as a file.
 If you don't wish to post it publicly, please submit the issue, then email the
 bug report to dev.exoplayer@gmail.com using a subject in the format
-"Issue #1234".
+"Issue #1234", where "#1234" should be replaced with your issue number.
 
 ### [REQUIRED] Version of ExoPlayer being used
 Specify the absolute version number. Avoid using terms such as "latest".
