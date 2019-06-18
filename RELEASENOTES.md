@@ -5,6 +5,8 @@
 * Display last frame when seeking to end of stream
   ([#2568](https://github.com/google/ExoPlayer/issues/2568)).
 * SmoothStreaming: Parse text stream `Subtype` into `Format.roleFlags`.
+* Gracefully handle revoked `ACCESS_NETWORK_STATE` permission
+  ([#6019](https://github.com/google/ExoPlayer/issues/6019)).
 
 ### 2.10.2 ###
 
