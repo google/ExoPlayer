@@ -19,14 +19,6 @@
 * Add VR player demo.
 * Wrap decoder exceptions in a new `DecoderException` class and report as
   renderer error.
-* Add support for auto-detecting UDP streams in `DefaultDataSource`
-  ([#6036](https://github.com/google/ExoPlayer/pull/6036)).
-* Gracefully handle revoked `ACCESS_NETWORK_STATE` permission
-  ([#6019](https://github.com/google/ExoPlayer/issues/6019)).
-* Fix application of `maxAudioBitrate` for adaptive audio track groups
-  ([#6006](https://github.com/google/ExoPlayer/issues/6006)).
-* Fix decoding problems when seeking back after seeking beyond a mid-roll ad
-  ([#6009](https://github.com/google/ExoPlayer/issues/6009)).
 
 ### 2.10.2 ###
 
@@ -60,8 +52,16 @@
   ([#5891](https://github.com/google/ExoPlayer/issues/5891)).
 * Add `ProgressUpdateListener` to `PlayerControlView`
   ([#5834](https://github.com/google/ExoPlayer/issues/5834)).
+* Add support for auto-detecting UDP streams in `DefaultDataSource`
+  ([#6036](https://github.com/google/ExoPlayer/pull/6036)).
 * Allow enabling decoder fallback with `DefaultRenderersFactory`
   ([#5942](https://github.com/google/ExoPlayer/issues/5942)).
+* Gracefully handle revoked `ACCESS_NETWORK_STATE` permission
+  ([#6019](https://github.com/google/ExoPlayer/issues/6019)).
+* Fix decoding problems when seeking back after seeking beyond a mid-roll ad
+  ([#6009](https://github.com/google/ExoPlayer/issues/6009)).
+* Fix application of `maxAudioBitrate` for adaptive audio track groups
+  ([#6006](https://github.com/google/ExoPlayer/issues/6006)).
 * Fix bug caused by parallel adaptive track selection using `Format`s without
   bitrate information
   ([#5971](https://github.com/google/ExoPlayer/issues/5971)).
