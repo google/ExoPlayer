@@ -25,6 +25,8 @@
   ([#6019](https://github.com/google/ExoPlayer/issues/6019)).
 * Fix application of `maxAudioBitrate` for adaptive audio track groups
   ([#6006](https://github.com/google/ExoPlayer/issues/6006)).
+* Fix decoding problems when seeking back after seeking beyond a mid-roll ad
+  ([#6009](https://github.com/google/ExoPlayer/issues/6009)).
 
 ### 2.10.2 ###
 
