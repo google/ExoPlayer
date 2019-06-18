@@ -67,8 +67,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    * Creates a new holder with information required to play it as part of a timeline.
    *
    * @param rendererCapabilities The renderer capabilities.
-   * @param rendererPositionOffsetUs The time offset of the start of the media period to provide to
-   *     renderers.
+   * @param rendererPositionOffsetUs The renderer time of the start of the period, in microseconds.
    * @param trackSelector The track selector.
    * @param allocator The allocator.
    * @param mediaSource The media source that produced the media period.
@@ -82,7 +81,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       MediaSource mediaSource,
       MediaPeriodInfo info) {
     this.rendererCapabilities = rendererCapabilities;
-    this.rendererPositionOffsetUs = rendererPositionOffsetUs - info.startPositionUs;
+    this.rendererPositionOffsetUs = rendererPositionOffsetUs;
     this.trackSelector = trackSelector;
     this.mediaSource = mediaSource;
     this.uid = info.id.periodUid;
@@ -113,6 +112,15 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   /** Returns the renderer time of the start of the period, in microseconds. */
   public long getRendererOffset() {
     return rendererPositionOffsetUs;
+  }
+
+  /**
+   * Sets the renderer time of the start of the period, in microseconds.
+   *
+   * @param rendererPositionOffsetUs The new renderer position offset, in microseconds.
+   */
+  public void setRendererOffset(long rendererPositionOffsetUs) {
+    this.rendererPositionOffsetUs = rendererPositionOffsetUs;
   }
 
   /** Returns start position of period in renderer time. */
