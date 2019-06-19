@@ -28,6 +28,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
 import androidx.annotation.RequiresApi;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 
 /**
