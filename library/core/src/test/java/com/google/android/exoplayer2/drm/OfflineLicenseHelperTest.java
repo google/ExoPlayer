@@ -19,7 +19,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.when;
 
 import android.util.Pair;
@@ -27,7 +26,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import java.util.HashMap;
-import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,8 +47,7 @@ public class OfflineLicenseHelperTest {
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
     when(mediaDrm.openSession()).thenReturn(new byte[] {1, 2, 3});
-    when(mediaDrm.getKeyRequest(
-            nullable(byte[].class), nullable(List.class), anyInt(), nullable(HashMap.class)))
+    when(mediaDrm.getKeyRequest(any(), any(), anyInt(), any()))
         .thenReturn(
             new ExoMediaDrm.KeyRequest(/* data= */ new byte[0], /* licenseServerUrl= */ ""));
     offlineLicenseHelper =
