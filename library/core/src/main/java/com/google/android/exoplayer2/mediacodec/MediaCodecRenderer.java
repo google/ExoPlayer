@@ -1200,13 +1200,13 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         !Util.areEqual(newFormat.drmInitData, oldFormat == null ? null : oldFormat.drmInitData);
     if (drmInitDataChanged) {
       if (newFormat.drmInitData != null) {
-        if (drmSessionManager == null) {
-          throw ExoPlaybackException.createForRenderer(
-              new IllegalStateException("Media requires a DrmSessionManager"), getIndex());
-        }
         if (formatHolder.decryptionResourceIsProvided) {
           setSourceDrmSession((DrmSession<FrameworkMediaCrypto>) formatHolder.drmSession);
         } else {
+          if (drmSessionManager == null) {
+            throw ExoPlaybackException.createForRenderer(
+                new IllegalStateException("Media requires a DrmSessionManager"), getIndex());
+          }
           DrmSession<FrameworkMediaCrypto> session =
               drmSessionManager.acquireSession(Looper.myLooper(), newFormat.drmInitData);
           if (sourceDrmSession != null) {
