@@ -32,7 +32,6 @@ import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Predicate;
-import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -750,6 +749,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
    * @param buffer The ByteBuffer into which the read data is stored. Must be a direct ByteBuffer.
    * @throws HttpDataSourceException If an error occurs reading from the source.
    */
+  @SuppressWarnings("ReferenceEquality")
   private void readInternal(ByteBuffer buffer) throws HttpDataSourceException {
     castNonNull(currentUrlRequest).read(buffer);
     try {
@@ -759,7 +759,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     } catch (InterruptedException e) {
       // The operation is ongoing so replace buffer to avoid it being written to by this
       // operation during a subsequent request.
-      if (Util.areEqual(buffer, readBuffer)) {
+      if (buffer == readBuffer) {
         readBuffer = null;
       }
       Thread.currentThread().interrupt();
@@ -770,7 +770,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     } catch (SocketTimeoutException e) {
       // The operation is ongoing so replace buffer to avoid it being written to by this
       // operation during a subsequent request.
-      if (Util.areEqual(buffer, readBuffer)) {
+      if (buffer == readBuffer) {
         readBuffer = null;
       }
       throw new HttpDataSourceException(
