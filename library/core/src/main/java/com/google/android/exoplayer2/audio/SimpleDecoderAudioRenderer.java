@@ -664,13 +664,14 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
         : oldFormat.drmInitData);
     if (drmInitDataChanged) {
       if (inputFormat.drmInitData != null) {
-        if (drmSessionManager == null) {
-          throw ExoPlaybackException.createForRenderer(
-              new IllegalStateException("Media requires a DrmSessionManager"), getIndex());
-        }
+
         if (formatHolder.decryptionResourceIsProvided) {
           setSourceDrmSession((DrmSession<ExoMediaCrypto>) formatHolder.drmSession);
         } else {
+          if (drmSessionManager == null) {
+            throw ExoPlaybackException.createForRenderer(
+                new IllegalStateException("Media requires a DrmSessionManager"), getIndex());
+          }
           DrmSession<ExoMediaCrypto> session =
               drmSessionManager.acquireSession(Looper.myLooper(), newFormat.drmInitData);
           if (sourceDrmSession != null) {
