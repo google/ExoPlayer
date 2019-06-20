@@ -7,10 +7,10 @@
 * Add `SilenceMediaSource` that can be used to play silence of a given
   duration ([#5735](https://github.com/google/ExoPlayer/issues/5735)).
 * Offline:
-  * Prevent unexpected `DownloadHelper.Callback.onPrepared` callbacks after the
-    preparation of the `DownloadHelper` failed
+  * Prevent unexpected `DownloadHelper.Callback.onPrepared` callbacks after
+    preparation of a `DownloadHelper` fails
     ([#5915](https://github.com/google/ExoPlayer/issues/5915)).
-  * Fix CacheUtil.cache() use too much data
+  * Fix `CacheUtil.cache()` downloading too much data
     ([#5927](https://github.com/google/ExoPlayer/issues/5927)).
   * Fix misreporting cached bytes when caching is paused
     ([#5573](https://github.com/google/ExoPlayer/issues/5573)).
