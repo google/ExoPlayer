@@ -665,7 +665,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
     if (drmInitDataChanged) {
       if (inputFormat.drmInitData != null) {
 
-        if (formatHolder.decryptionResourceIsProvided) {
+        if (formatHolder.includesDrmSession) {
           setSourceDrmSession((DrmSession<ExoMediaCrypto>) formatHolder.drmSession);
         } else {
           if (drmSessionManager == null) {

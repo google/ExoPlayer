@@ -1200,7 +1200,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         !Util.areEqual(newFormat.drmInitData, oldFormat == null ? null : oldFormat.drmInitData);
     if (drmInitDataChanged) {
       if (newFormat.drmInitData != null) {
-        if (formatHolder.decryptionResourceIsProvided) {
+        if (formatHolder.includesDrmSession) {
           setSourceDrmSession((DrmSession<FrameworkMediaCrypto>) formatHolder.drmSession);
         } else {
           if (drmSessionManager == null) {

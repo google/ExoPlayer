@@ -23,13 +23,10 @@ import com.google.android.exoplayer2.drm.DrmSession;
  */
 public final class FormatHolder {
 
-  /**
-   * Whether the object expected to populate {@link #format} is also expected to populate {@link
-   * #drmSession}.
-   */
+  /** Whether the {@link #format} setter also sets the {@link #drmSession} field. */
   // TODO: Remove once all Renderers and MediaSources have migrated to the new DRM model [Internal
   // ref: b/129764794].
-  public boolean decryptionResourceIsProvided;
+  public boolean includesDrmSession;
 
   /** An accompanying context for decrypting samples in the format. */
   @Nullable public DrmSession<?> drmSession;
