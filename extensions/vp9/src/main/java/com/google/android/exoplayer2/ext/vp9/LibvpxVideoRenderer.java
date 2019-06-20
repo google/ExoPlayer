@@ -499,7 +499,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
         : oldFormat.drmInitData);
     if (drmInitDataChanged) {
       if (format.drmInitData != null) {
-        if (formatHolder.decryptionResourceIsProvided) {
+        if (formatHolder.includesDrmSession) {
           setSourceDrmSession((DrmSession<ExoMediaCrypto>) formatHolder.drmSession);
         } else {
           if (drmSessionManager == null) {
