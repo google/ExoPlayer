@@ -4,6 +4,7 @@
 
 * Display last frame when seeking to end of stream
   ([#2568](https://github.com/google/ExoPlayer/issues/2568)).
+* SmoothStreaming: Parse text stream `Subtype` into `Format.roleFlags`.
 
 ### 2.10.2 ###
 
