@@ -176,7 +176,7 @@ public final class MediaCodecUtil {
       // E-AC3 decoders can decode JOC streams, but in 2-D rather than 3-D.
       CodecKey eac3Key = new CodecKey(MimeTypes.AUDIO_E_AC3, key.secure, key.tunneling);
       ArrayList<MediaCodecInfo> eac3DecoderInfos =
-          getDecoderInfosInternal(eac3Key, mediaCodecList, mimeType);
+          getDecoderInfosInternal(eac3Key, mediaCodecList, MimeTypes.AUDIO_E_AC3);
       decoderInfos.addAll(eac3DecoderInfos);
     }
     applyWorkarounds(mimeType, decoderInfos);
