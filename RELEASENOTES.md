@@ -26,6 +26,8 @@
     ([#5807](https://github.com/google/ExoPlayer/pull/5807)).
   * TTML: Fix bitmap rendering
     ([#5633](https://github.com/google/ExoPlayer/pull/5633)).
+* IMA: Fix ad pod index offset calculation without preroll
+  ([#5928](https://github.com/google/ExoPlayer/issues/5928)).
 * Add a `playWhenReady` flag to MediaSessionConnector.PlaybackPreparer methods
   to indicate whether a controller sent a play or only a prepare command. This
   allows to take advantage of decoder reuse with the MediaSessionConnector

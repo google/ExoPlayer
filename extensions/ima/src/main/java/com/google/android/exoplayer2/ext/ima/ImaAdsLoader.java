@@ -1054,13 +1054,8 @@ public final class ImaAdsLoader
     long contentPositionMs = player.getCurrentPosition();
     int adGroupIndexForPosition =
         adPlaybackState.getAdGroupIndexForPositionUs(C.msToUs(contentPositionMs));
-    if (adGroupIndexForPosition == 0) {
-      podIndexOffset = 0;
-    } else if (adGroupIndexForPosition == C.INDEX_UNSET) {
-      // There is no preroll and midroll pod indices start at 1.
-      podIndexOffset = -1;
-    } else /* adGroupIndexForPosition > 0 */ {
-      // Skip ad groups before the one at or immediately before the playback position.
+    if (adGroupIndexForPosition > 0 && adGroupIndexForPosition != C.INDEX_UNSET) {
+      // Skip any ad groups before the one at or immediately before the playback position.
       for (int i = 0; i < adGroupIndexForPosition; i++) {
         adPlaybackState = adPlaybackState.withSkippedAdGroup(i);
       }
@@ -1070,9 +1065,18 @@ public final class ImaAdsLoader
       long adGroupBeforeTimeUs = adGroupTimesUs[adGroupIndexForPosition - 1];
       double midpointTimeUs = (adGroupForPositionTimeUs + adGroupBeforeTimeUs) / 2d;
       adsRenderingSettings.setPlayAdsAfterTime(midpointTimeUs / C.MICROS_PER_SECOND);
+    }
 
-      // We're removing one or more ads, which means that the earliest ad (if any) will be a
-      // midroll/postroll. Midroll pod indices start at 1.
+    // IMA indexes any remaining midroll ad pods from 1. A preroll (if present) has index 0.
+    // Store an index offset as we want to index all ads (including skipped ones) from 0.
+    if (adGroupIndexForPosition == 0 && adGroupTimesUs[0] == 0) {
+      // We are playing a preroll.
+      podIndexOffset = 0;
+    } else if (adGroupIndexForPosition == C.INDEX_UNSET) {
+      // There's no ad to play which means there's no preroll.
+      podIndexOffset = -1;
+    } else {
+      // We are playing a midroll and any ads before it were skipped.
       podIndexOffset = adGroupIndexForPosition - 1;
     }
 
