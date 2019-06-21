@@ -19,6 +19,7 @@
 * Add VR player demo.
 * Wrap decoder exceptions in a new `DecoderException` class and report as
   renderer error.
+* SmoothStreaming: Parse text stream `Subtype` into `Format.roleFlags`.
 
 ### 2.10.2 ###
 
