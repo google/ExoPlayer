@@ -108,7 +108,7 @@ var activeTableTab = "activeTableTab";
 <br>
 <pre>public static interface <span class="typeNameLabel">MediaSessionConnector.PlaybackPreparer</span>
 extends <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CommandReceiver.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CommandReceiver</a></pre>
-<div class="block">Interface to which playback preparation actions are delegated.</div>
+<div class="block">Interface to which playback preparation and play actions are delegated.</div>
 </li>
 </ul>
 </div>
@@ -154,27 +154,30 @@ extends <a href="../../../../../../com/google/android/exoplayer2/ext/mediasessio
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.PlaybackPreparer.html#onPrepare--">onPrepare</a></span>()</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.PlaybackPreparer.html#onPrepare-boolean-">onPrepare</a></span>(boolean&nbsp;playWhenReady)</code>
 <div class="block">See <code>MediaSessionCompat.Callback#onPrepare()</code>.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.PlaybackPreparer.html#onPrepareFromMediaId-java.lang.String-android.os.Bundle-">onPrepareFromMediaId</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mediaId,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.PlaybackPreparer.html#onPrepareFromMediaId-java.lang.String-boolean-android.os.Bundle-">onPrepareFromMediaId</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mediaId,
+                    boolean&nbsp;playWhenReady,
                     <a href="https://developer.android.com/reference/android/os/Bundle.html" target="_top" title="class or interface in android.os">Bundle</a>&nbsp;extras)</code>
 <div class="block">See <code>MediaSessionCompat.Callback#onPrepareFromMediaId(String, Bundle)</code>.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.PlaybackPreparer.html#onPrepareFromSearch-java.lang.String-android.os.Bundle-">onPrepareFromSearch</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;query,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.PlaybackPreparer.html#onPrepareFromSearch-java.lang.String-boolean-android.os.Bundle-">onPrepareFromSearch</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;query,
+                   boolean&nbsp;playWhenReady,
                    <a href="https://developer.android.com/reference/android/os/Bundle.html" target="_top" title="class or interface in android.os">Bundle</a>&nbsp;extras)</code>
 <div class="block">See <code>MediaSessionCompat.Callback#onPrepareFromSearch(String, Bundle)</code>.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.PlaybackPreparer.html#onPrepareFromUri-android.net.Uri-android.os.Bundle-">onPrepareFromUri</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.PlaybackPreparer.html#onPrepareFromUri-android.net.Uri-boolean-android.os.Bundle-">onPrepareFromUri</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri,
+                boolean&nbsp;playWhenReady,
                 <a href="https://developer.android.com/reference/android/os/Bundle.html" target="_top" title="class or interface in android.os">Bundle</a>&nbsp;extras)</code>
 <div class="block">See <code>MediaSessionCompat.Callback#onPrepareFromUri(Uri, Bundle)</code>.</div>
 </td>
@@ -237,47 +240,72 @@ extends <a href="../../../../../../com/google/android/exoplayer2/ext/mediasessio
 </dl>
 </li>
 </ul>
-<a name="onPrepare--">
+<a name="onPrepare-boolean-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onPrepare</h4>
-<pre>void&nbsp;onPrepare()</pre>
+<pre>void&nbsp;onPrepare(boolean&nbsp;playWhenReady)</pre>
 <div class="block">See <code>MediaSessionCompat.Callback#onPrepare()</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>playWhenReady</code> - Whether playback should be started after preparation.</dd>
+</dl>
 </li>
 </ul>
-<a name="onPrepareFromMediaId-java.lang.String-android.os.Bundle-">
+<a name="onPrepareFromMediaId-java.lang.String-boolean-android.os.Bundle-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onPrepareFromMediaId</h4>
 <pre>void&nbsp;onPrepareFromMediaId(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mediaId,
+                          boolean&nbsp;playWhenReady,
                           <a href="https://developer.android.com/reference/android/os/Bundle.html" target="_top" title="class or interface in android.os">Bundle</a>&nbsp;extras)</pre>
 <div class="block">See <code>MediaSessionCompat.Callback#onPrepareFromMediaId(String, Bundle)</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>mediaId</code> - The media id of the media item to be prepared.</dd>
+<dd><code>playWhenReady</code> - Whether playback should be started after preparation.</dd>
+<dd><code>extras</code> - A <a href="https://developer.android.com/reference/android/os/Bundle.html" target="_top" title="class or interface in android.os"><code>Bundle</code></a> of extras passed by the media controller.</dd>
+</dl>
 </li>
 </ul>
-<a name="onPrepareFromSearch-java.lang.String-android.os.Bundle-">
+<a name="onPrepareFromSearch-java.lang.String-boolean-android.os.Bundle-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onPrepareFromSearch</h4>
 <pre>void&nbsp;onPrepareFromSearch(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;query,
+                         boolean&nbsp;playWhenReady,
                          <a href="https://developer.android.com/reference/android/os/Bundle.html" target="_top" title="class or interface in android.os">Bundle</a>&nbsp;extras)</pre>
 <div class="block">See <code>MediaSessionCompat.Callback#onPrepareFromSearch(String, Bundle)</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>query</code> - The search query.</dd>
+<dd><code>playWhenReady</code> - Whether playback should be started after preparation.</dd>
+<dd><code>extras</code> - A <a href="https://developer.android.com/reference/android/os/Bundle.html" target="_top" title="class or interface in android.os"><code>Bundle</code></a> of extras passed by the media controller.</dd>
+</dl>
 </li>
 </ul>
-<a name="onPrepareFromUri-android.net.Uri-android.os.Bundle-">
+<a name="onPrepareFromUri-android.net.Uri-boolean-android.os.Bundle-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>onPrepareFromUri</h4>
 <pre>void&nbsp;onPrepareFromUri(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri,
+                      boolean&nbsp;playWhenReady,
                       <a href="https://developer.android.com/reference/android/os/Bundle.html" target="_top" title="class or interface in android.os">Bundle</a>&nbsp;extras)</pre>
 <div class="block">See <code>MediaSessionCompat.Callback#onPrepareFromUri(Uri, Bundle)</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>uri</code> - The <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a> of the media item to be prepared.</dd>
+<dd><code>playWhenReady</code> - Whether playback should be started after preparation.</dd>
+<dd><code>extras</code> - A <a href="https://developer.android.com/reference/android/os/Bundle.html" target="_top" title="class or interface in android.os"><code>Bundle</code></a> of extras passed by the media controller.</dd>
+</dl>
 </li>
 </ul>
 </li>

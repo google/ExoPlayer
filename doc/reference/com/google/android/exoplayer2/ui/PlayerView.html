@@ -222,9 +222,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/ads/AdsL
          <li>Corresponding method: None
          <li>Default: <code>R.layout.exo_player_control_view</code>
        </ul>
-   <li>All attributes that can be set on a <a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerControlView</code></a> can also be set on a
-       PlayerView, and will be propagated to the inflated <a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerControlView</code></a> unless the
-       layout is overridden to specify a custom <code>exo_controller</code> (see below).
+   <li>All attributes that can be set on <a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerControlView</code></a> and <a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html" title="class in com.google.android.exoplayer2.ui"><code>DefaultTimeBar</code></a> can
+       also be set on a PlayerView, and will be propagated to the inflated <a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerControlView</code></a> unless the layout is overridden to specify a custom <code>exo_controller</code> (see below).
  </ul>
 
  <h3>Overriding the layout file</h3>
@@ -274,8 +273,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/ads/AdsL
          <li>Type: <a href="https://developer.android.com/reference/android/view/View.html" target="_top" title="class or interface in android.view"><code>View</code></a>
        </ul>
    <li><b><code>exo_controller</code></b> - An already inflated <a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerControlView</code></a>. Allows use
-       of a custom extension of <a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerControlView</code></a>. Note that attributes such as <code>rewind_increment</code> will not be automatically propagated through to this instance. If a view
-       exists with this id, any <code>exo_controller_placeholder</code> view will be ignored.
+       of a custom extension of <a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerControlView</code></a>. <a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerControlView</code></a> and <a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html" title="class in com.google.android.exoplayer2.ui"><code>DefaultTimeBar</code></a> attributes set on the PlayerView will not be automatically propagated
+       through to this instance. If a view exists with this id, any <code>exo_controller_placeholder</code> view will be ignored.
        <ul>
          <li>Type: <a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerControlView</code></a>
        </ul>
@@ -561,7 +560,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/ads/AdsL
 </tr>
 <tr id="i20" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#onTouchEvent-android.view.MotionEvent-">onTouchEvent</a></span>(<a href="https://developer.android.com/reference/android/view/MotionEvent.html" target="_top" title="class or interface in android.view">MotionEvent</a>&nbsp;ev)</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#onTouchEvent-android.view.MotionEvent-">onTouchEvent</a></span>(<a href="https://developer.android.com/reference/android/view/MotionEvent.html" target="_top" title="class or interface in android.view">MotionEvent</a>&nbsp;event)</code>&nbsp;</td>
 </tr>
 <tr id="i21" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
@@ -1560,7 +1559,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/widget/Fram
 <ul class="blockList">
 <li class="blockList">
 <h4>onTouchEvent</h4>
-<pre>public&nbsp;boolean&nbsp;onTouchEvent(<a href="https://developer.android.com/reference/android/view/MotionEvent.html" target="_top" title="class or interface in android.view">MotionEvent</a>&nbsp;ev)</pre>
+<pre>public&nbsp;boolean&nbsp;onTouchEvent(<a href="https://developer.android.com/reference/android/view/MotionEvent.html" target="_top" title="class or interface in android.view">MotionEvent</a>&nbsp;event)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/view/View.html?is-external=true#onTouchEvent-android.view.MotionEvent-" title="class or interface in android.view">onTouchEvent</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/view/View.html" target="_top" title="class or interface in android.view">View</a></code></dd>

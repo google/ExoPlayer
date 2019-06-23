@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -242,6 +242,13 @@ extends <a href="../../../../../../com/google/android/exoplayer2/decoder/OutputB
 </td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/vp9/VpxOutputBuffer.html#initForPrivateFrame-int-int-">initForPrivateFrame</a></span>(int&nbsp;width,
+                   int&nbsp;height)</code>
+<div class="block">Configures the buffer for the given frame dimensions when passing actual frame data via <a href="../../../../../../com/google/android/exoplayer2/ext/vp9/VpxOutputBuffer.html#decoderPrivate"><code>decoderPrivate</code></a>.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/vp9/VpxOutputBuffer.html#initForYuvFrame-int-int-int-int-int-">initForYuvFrame</a></span>(int&nbsp;width,
                int&nbsp;height,
@@ -251,7 +258,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/decoder/OutputB
 <div class="block">Resizes the buffer based on the given stride.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/vp9/VpxOutputBuffer.html#release--">release</a></span>()</code>
 <div class="block">Releases the output buffer for reuse.</div>
@@ -474,14 +481,14 @@ extends <a href="../../../../../../com/google/android/exoplayer2/decoder/OutputB
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>timeUs</code> - The presentation timestamp for the buffer, in microseconds.</dd>
-<dd><code>mode</code> - The output mode. One of <code>VpxDecoder.OUTPUT_MODE_NONE</code> and <code>VpxDecoder.OUTPUT_MODE_YUV</code>.</dd>
+<dd><code>mode</code> - The output mode. One of <code>VpxDecoder.OUTPUT_MODE_NONE</code>, <code>VpxDecoder.OUTPUT_MODE_YUV</code> and <code>VpxDecoder.OUTPUT_MODE_SURFACE_YUV</code>.</dd>
 </dl>
 </li>
 </ul>
 <a name="initForYuvFrame-int-int-int-int-int-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>initForYuvFrame</h4>
 <pre>public&nbsp;boolean&nbsp;initForYuvFrame(int&nbsp;width,
@@ -494,6 +501,17 @@ extends <a href="../../../../../../com/google/android/exoplayer2/decoder/OutputB
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Whether the buffer was resized successfully.</dd>
 </dl>
+</li>
+</ul>
+<a name="initForPrivateFrame-int-int-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>initForPrivateFrame</h4>
+<pre>public&nbsp;void&nbsp;initForPrivateFrame(int&nbsp;width,
+                                int&nbsp;height)</pre>
+<div class="block">Configures the buffer for the given frame dimensions when passing actual frame data via <a href="../../../../../../com/google/android/exoplayer2/ext/vp9/VpxOutputBuffer.html#decoderPrivate"><code>decoderPrivate</code></a>. Called via JNI after decoding completes.</div>
 </li>
 </ul>
 </li>

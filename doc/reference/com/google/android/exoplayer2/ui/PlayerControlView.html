@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/ui/PlaybackControlView.ControlDispatcher.html" title="interface in com.google.android.exoplayer2.ui"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.VisibilityListener.html" title="interface in com.google.android.exoplayer2.ui"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.ProgressUpdateListener.html" title="interface in com.google.android.exoplayer2.ui"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/ui/PlayerControlView.html" target="_top">Frames</a></li>
@@ -184,6 +184,9 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
          <li>Corresponding method: None
          <li>Default: <code>R.layout.exo_player_control_view</code>
        </ul>
+   <li>All attributes that can be set on <a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html" title="class in com.google.android.exoplayer2.ui"><code>DefaultTimeBar</code></a> can also be set on a
+       PlayerControlView, and will be propagated to the inflated <a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html" title="class in com.google.android.exoplayer2.ui"><code>DefaultTimeBar</code></a> unless the
+       layout is overridden to specify a custom <code>exo_progress</code> (see below).
  </ul>
 
  <h3>Overriding the layout file</h3>
@@ -241,7 +244,14 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
        <ul>
          <li>Type: <a href="https://developer.android.com/reference/android/widget/TextView.html" target="_top" title="class or interface in android.widget"><code>TextView</code></a>
        </ul>
+   <li><b><code>exo_progress_placeholder</code></b> - A placeholder that's replaced with the inflated
+       <a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html" title="class in com.google.android.exoplayer2.ui"><code>DefaultTimeBar</code></a>. Ignored if an <code>exo_progress</code> view exists.
+       <ul>
+         <li>Type: <a href="https://developer.android.com/reference/android/view/View.html" target="_top" title="class or interface in android.view"><code>View</code></a>
+       </ul>
    <li><b><code>exo_progress</code></b> - Time bar that's updated during playback and allows seeking.
+       <a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html" title="class in com.google.android.exoplayer2.ui"><code>DefaultTimeBar</code></a> attributes set on the PlayerControlView will not be automatically
+       propagated through to this instance. If a view exists with this id, any <code>exo_progress_placeholder</code> view will be ignored.
        <ul>
          <li>Type: <a href="../../../../../com/google/android/exoplayer2/ui/TimeBar.html" title="interface in com.google.android.exoplayer2.ui"><code>TimeBar</code></a>
        </ul>
@@ -276,6 +286,12 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <th class="colLast" scope="col">Class and Description</th>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.ProgressUpdateListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerControlView.ProgressUpdateListener</a></span></code>
+<div class="block">Listener to be notified when progress has been updated.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.VisibilityListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerControlView.VisibilityListener</a></span></code>
 <div class="block">Listener to be notified about changes of the visibility of the UI control.</div>
@@ -513,59 +529,65 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 </tr>
 <tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#setProgressUpdateListener-com.google.android.exoplayer2.ui.PlayerControlView.ProgressUpdateListener-">setProgressUpdateListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.ProgressUpdateListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerControlView.ProgressUpdateListener</a>&nbsp;listener)</code>
+<div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.ProgressUpdateListener.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerControlView.ProgressUpdateListener</code></a>.</div>
+</td>
+</tr>
+<tr id="i18" class="altColor">
+<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#setRepeatToggleModes-int-">setRepeatToggleModes</a></span>(int&nbsp;repeatToggleModes)</code>
 <div class="block">Sets which repeat toggle modes are enabled.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#setRewindIncrementMs-int-">setRewindIncrementMs</a></span>(int&nbsp;rewindMs)</code>
 <div class="block">Sets the rewind increment in milliseconds.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#setShowMultiWindowTimeBar-boolean-">setShowMultiWindowTimeBar</a></span>(boolean&nbsp;showMultiWindowTimeBar)</code>
 <div class="block">Sets whether the time bar should show all windows, as opposed to just the current one.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#setShowShuffleButton-boolean-">setShowShuffleButton</a></span>(boolean&nbsp;showShuffleButton)</code>
 <div class="block">Sets whether the shuffle button is shown.</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#setShowTimeoutMs-int-">setShowTimeoutMs</a></span>(int&nbsp;showTimeoutMs)</code>
 <div class="block">Sets the playback controls timeout.</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#setShowVrButton-boolean-">setShowVrButton</a></span>(boolean&nbsp;showVrButton)</code>
 <div class="block">Sets whether the VR button is shown.</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#setTimeBarMinUpdateInterval-int-">setTimeBarMinUpdateInterval</a></span>(int&nbsp;minUpdateIntervalMs)</code>
 <div class="block">Sets the minimum interval between time bar position updates.</div>
 </td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#setVisibilityListener-com.google.android.exoplayer2.ui.PlayerControlView.VisibilityListener-">setVisibilityListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.VisibilityListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerControlView.VisibilityListener</a>&nbsp;listener)</code>
 <div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.VisibilityListener.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerControlView.VisibilityListener</code></a>.</div>
 </td>
 </tr>
-<tr id="i25" class="rowColor">
+<tr id="i26" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#setVrButtonListener-android.view.View.OnClickListener-">setVrButtonListener</a></span>(<a href="https://developer.android.com/reference/android/view/View.OnClickListener.html" target="_top" title="class or interface in android.view">View.OnClickListener</a>&nbsp;onClickListener)</code>
 <div class="block">Sets listener for the VR button.</div>
 </td>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i27" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html#show--">show</a></span>()</code>
 <div class="block">Shows the playback controls.</div>
@@ -840,6 +862,21 @@ public&nbsp;<a href="../../../../../com/google/android/exoplayer2/Player.html" t
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>listener</code> - The listener to be notified about visibility changes.</dd>
+</dl>
+</li>
+</ul>
+<a name="setProgressUpdateListener-com.google.android.exoplayer2.ui.PlayerControlView.ProgressUpdateListener-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setProgressUpdateListener</h4>
+<pre>public&nbsp;void&nbsp;setProgressUpdateListener(@Nullable
+                                      <a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.ProgressUpdateListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerControlView.ProgressUpdateListener</a>&nbsp;listener)</pre>
+<div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.ProgressUpdateListener.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerControlView.ProgressUpdateListener</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>listener</code> - The listener to be notified about when progress is updated.</dd>
 </dl>
 </li>
 </ul>
@@ -1176,7 +1213,7 @@ public&nbsp;int&nbsp;getRepeatToggleModes()</pre>
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/ui/PlaybackControlView.ControlDispatcher.html" title="interface in com.google.android.exoplayer2.ui"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.VisibilityListener.html" title="interface in com.google.android.exoplayer2.ui"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.ProgressUpdateListener.html" title="interface in com.google.android.exoplayer2.ui"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/ui/PlayerControlView.html" target="_top">Frames</a></li>

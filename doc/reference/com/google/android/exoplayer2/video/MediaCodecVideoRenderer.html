@@ -1027,8 +1027,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCo
                               <a href="https://developer.android.com/reference/android/media/MediaCodec.html" target="_top" title="class or interface in android.media">MediaCodec</a>&nbsp;codec,
                               <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                               <a href="https://developer.android.com/reference/android/media/MediaCrypto.html" target="_top" title="class or interface in android.media">MediaCrypto</a>&nbsp;crypto,
-                              float&nbsp;codecOperatingRate)
-                       throws <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecUtil.DecoderQueryException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecUtil.DecoderQueryException</a></pre>
+                              float&nbsp;codecOperatingRate)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.html#configureCodec-com.google.android.exoplayer2.mediacodec.MediaCodecInfo-android.media.MediaCodec-com.google.android.exoplayer2.Format-android.media.MediaCrypto-float-">MediaCodecRenderer</a></code></span></div>
 <div class="block">Configures a newly created <a href="https://developer.android.com/reference/android/media/MediaCodec.html" target="_top" title="class or interface in android.media"><code>MediaCodec</code></a>.</div>
 <dl>
@@ -1041,8 +1040,6 @@ extends <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCo
 <dd><code>crypto</code> - For drm protected playbacks, a <a href="https://developer.android.com/reference/android/media/MediaCrypto.html" target="_top" title="class or interface in android.media"><code>MediaCrypto</code></a> to use for decryption.</dd>
 <dd><code>codecOperatingRate</code> - The codec operating rate, or <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.html#CODEC_OPERATING_RATE_UNSET"><code>MediaCodecRenderer.CODEC_OPERATING_RATE_UNSET</code></a> if
      no codec operating rate should be set.</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecUtil.DecoderQueryException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecUtil.DecoderQueryException</a></code> - If an error occurs querying <code>codecInfo</code>.</dd>
 </dl>
 </li>
 </ul>
@@ -1515,8 +1512,7 @@ protected&nbsp;void&nbsp;onProcessedOutputBuffer(long&nbsp;presentationTimeUs)</
 <h4>getCodecMaxValues</h4>
 <pre>protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.CodecMaxValues.html" title="class in com.google.android.exoplayer2.video">MediaCodecVideoRenderer.CodecMaxValues</a>&nbsp;getCodecMaxValues(<a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&nbsp;codecInfo,
                                                                    <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
-                                                                   <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>[]&nbsp;streamFormats)
-                                                            throws <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecUtil.DecoderQueryException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecUtil.DecoderQueryException</a></pre>
+                                                                   <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>[]&nbsp;streamFormats)</pre>
 <div class="block">Returns <a href="../../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.CodecMaxValues.html" title="class in com.google.android.exoplayer2.video"><code>MediaCodecVideoRenderer.CodecMaxValues</code></a> suitable for configuring a codec for <code>format</code> in a way
  that will allow possible adaptation to other compatible formats in <code>streamFormats</code>.</div>
 <dl>
@@ -1526,8 +1522,6 @@ protected&nbsp;void&nbsp;onProcessedOutputBuffer(long&nbsp;presentationTimeUs)</
 <dd><code>streamFormats</code> - The possible stream formats.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Suitable <a href="../../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.CodecMaxValues.html" title="class in com.google.android.exoplayer2.video"><code>MediaCodecVideoRenderer.CodecMaxValues</code></a>.</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecUtil.DecoderQueryException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecUtil.DecoderQueryException</a></code> - If an error occurs querying <code>codecInfo</code>.</dd>
 </dl>
 </li>
 </ul>

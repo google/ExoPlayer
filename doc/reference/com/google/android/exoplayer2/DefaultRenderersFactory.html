@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -268,11 +268,12 @@ implements <a href="../../../../com/google/android/exoplayer2/RenderersFactory.h
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#buildAudioRenderers-android.content.Context-int-com.google.android.exoplayer2.mediacodec.MediaCodecSelector-com.google.android.exoplayer2.drm.DrmSessionManager-boolean-com.google.android.exoplayer2.audio.AudioProcessor:A-android.os.Handler-com.google.android.exoplayer2.audio.AudioRendererEventListener-java.util.ArrayList-">buildAudioRenderers</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#buildAudioRenderers-android.content.Context-int-com.google.android.exoplayer2.mediacodec.MediaCodecSelector-com.google.android.exoplayer2.drm.DrmSessionManager-boolean-boolean-com.google.android.exoplayer2.audio.AudioProcessor:A-android.os.Handler-com.google.android.exoplayer2.audio.AudioRendererEventListener-java.util.ArrayList-">buildAudioRenderers</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
                    int&nbsp;extensionRendererMode,
                    <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector,
                    <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager,
                    boolean&nbsp;playClearSamplesWithoutKeys,
+                   boolean&nbsp;enableDecoderFallback,
                    <a href="../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>[]&nbsp;audioProcessors,
                    <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
                    <a href="../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;eventListener,
@@ -319,11 +320,12 @@ implements <a href="../../../../com/google/android/exoplayer2/RenderersFactory.h
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#buildVideoRenderers-android.content.Context-int-com.google.android.exoplayer2.mediacodec.MediaCodecSelector-com.google.android.exoplayer2.drm.DrmSessionManager-boolean-android.os.Handler-com.google.android.exoplayer2.video.VideoRendererEventListener-long-java.util.ArrayList-">buildVideoRenderers</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#buildVideoRenderers-android.content.Context-int-com.google.android.exoplayer2.mediacodec.MediaCodecSelector-com.google.android.exoplayer2.drm.DrmSessionManager-boolean-boolean-android.os.Handler-com.google.android.exoplayer2.video.VideoRendererEventListener-long-java.util.ArrayList-">buildVideoRenderers</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
                    int&nbsp;extensionRendererMode,
                    <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector,
                    <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager,
                    boolean&nbsp;playClearSamplesWithoutKeys,
+                   boolean&nbsp;enableDecoderFallback,
                    <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
                    <a href="../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;eventListener,
                    long&nbsp;allowedVideoJoiningTimeMs,
@@ -351,18 +353,24 @@ implements <a href="../../../../com/google/android/exoplayer2/RenderersFactory.h
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setEnableDecoderFallback-boolean-">setEnableDecoderFallback</a></span>(boolean&nbsp;enableDecoderFallback)</code>
+<div class="block">Sets whether to enable fallback to lower-priority decoders if decoder initialization fails.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setExtensionRendererMode-int-">setExtensionRendererMode</a></span>(int&nbsp;extensionRendererMode)</code>
 <div class="block">Sets the extension renderer mode, which determines if and how available extension renderers are
  used.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setMediaCodecSelector-com.google.android.exoplayer2.mediacodec.MediaCodecSelector-">setMediaCodecSelector</a></span>(<a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector)</code>
 <div class="block">Sets a <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec"><code>MediaCodecSelector</code></a> for use by <a href="https://developer.android.com/reference/android/media/MediaCodec.html" target="_top" title="class or interface in android.media"><code>MediaCodec</code></a> based renderers.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setPlayClearSamplesWithoutKeys-boolean-">setPlayClearSamplesWithoutKeys</a></span>(boolean&nbsp;playClearSamplesWithoutKeys)</code>
 <div class="block">Sets whether renderers are permitted to play clear regions of encrypted media prior to having
@@ -613,6 +621,24 @@ public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/refer
 </dl>
 </li>
 </ul>
+<a name="setEnableDecoderFallback-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setEnableDecoderFallback</h4>
+<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setEnableDecoderFallback(boolean&nbsp;enableDecoderFallback)</pre>
+<div class="block">Sets whether to enable fallback to lower-priority decoders if decoder initialization fails.
+ This may result in using a decoder that is less efficient or slower than the primary decoder.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>enableDecoderFallback</code> - Whether to enable fallback to lower-priority decoders if decoder
+     initialization fails.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This factory, for convenience.</dd>
+</dl>
+</li>
+</ul>
 <a name="setMediaCodecSelector-com.google.android.exoplayer2.mediacodec.MediaCodecSelector-">
 <!--   -->
 </a>
@@ -681,7 +707,7 @@ public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/refer
 </dl>
 </li>
 </ul>
-<a name="buildVideoRenderers-android.content.Context-int-com.google.android.exoplayer2.mediacodec.MediaCodecSelector-com.google.android.exoplayer2.drm.DrmSessionManager-boolean-android.os.Handler-com.google.android.exoplayer2.video.VideoRendererEventListener-long-java.util.ArrayList-">
+<a name="buildVideoRenderers-android.content.Context-int-com.google.android.exoplayer2.mediacodec.MediaCodecSelector-com.google.android.exoplayer2.drm.DrmSessionManager-boolean-boolean-android.os.Handler-com.google.android.exoplayer2.video.VideoRendererEventListener-long-java.util.ArrayList-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -694,6 +720,7 @@ public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/refer
                                    @Nullable
                                    <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager,
                                    boolean&nbsp;playClearSamplesWithoutKeys,
+                                   boolean&nbsp;enableDecoderFallback,
                                    <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
                                    <a href="../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;eventListener,
                                    long&nbsp;allowedVideoJoiningTimeMs,
@@ -709,6 +736,9 @@ public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/refer
 <dd><code>playClearSamplesWithoutKeys</code> - Whether renderers are permitted to play clear regions of
      encrypted media prior to having obtained the keys necessary to decrypt encrypted regions of
      the media.</dd>
+<dd><code>enableDecoderFallback</code> - Whether to enable fallback to lower-priority decoders if decoder
+     initialization fails. This may result in using a decoder that is slower/less efficient than
+     the primary decoder.</dd>
 <dd><code>eventHandler</code> - A handler associated with the main thread's looper.</dd>
 <dd><code>eventListener</code> - An event listener.</dd>
 <dd><code>allowedVideoJoiningTimeMs</code> - The maximum duration for which video renderers can attempt to
@@ -717,7 +747,7 @@ public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/refer
 </dl>
 </li>
 </ul>
-<a name="buildAudioRenderers-android.content.Context-int-com.google.android.exoplayer2.mediacodec.MediaCodecSelector-com.google.android.exoplayer2.drm.DrmSessionManager-boolean-com.google.android.exoplayer2.audio.AudioProcessor:A-android.os.Handler-com.google.android.exoplayer2.audio.AudioRendererEventListener-java.util.ArrayList-">
+<a name="buildAudioRenderers-android.content.Context-int-com.google.android.exoplayer2.mediacodec.MediaCodecSelector-com.google.android.exoplayer2.drm.DrmSessionManager-boolean-boolean-com.google.android.exoplayer2.audio.AudioProcessor:A-android.os.Handler-com.google.android.exoplayer2.audio.AudioRendererEventListener-java.util.ArrayList-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -730,6 +760,7 @@ public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/refer
                                    @Nullable
                                    <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager,
                                    boolean&nbsp;playClearSamplesWithoutKeys,
+                                   boolean&nbsp;enableDecoderFallback,
                                    <a href="../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>[]&nbsp;audioProcessors,
                                    <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
                                    <a href="../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;eventListener,
@@ -745,6 +776,9 @@ public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/refer
 <dd><code>playClearSamplesWithoutKeys</code> - Whether renderers are permitted to play clear regions of
      encrypted media prior to having obtained the keys necessary to decrypt encrypted regions of
      the media.</dd>
+<dd><code>enableDecoderFallback</code> - Whether to enable fallback to lower-priority decoders if decoder
+     initialization fails. This may result in using a decoder that is slower/less efficient than
+     the primary decoder.</dd>
 <dd><code>audioProcessors</code> - An array of <a href="../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioProcessor</code></a>s that will process PCM audio buffers
      before output. May be empty.</dd>
 <dd><code>eventHandler</code> - A handler to use when invoking event listeners and outputs.</dd>
