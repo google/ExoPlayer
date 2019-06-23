@@ -966,7 +966,8 @@ public class PlayerNotificationManager {
       @Nullable NotificationCompat.Builder builder,
       boolean ongoing,
       @Nullable Bitmap largeIcon) {
-    if (player.getPlaybackState() == Player.STATE_IDLE) {
+    if (player.getPlaybackState() == Player.STATE_IDLE
+        && (player.getCurrentTimeline().isEmpty() || playbackPreparer == null)) {
       builderActions = null;
       return null;
     }

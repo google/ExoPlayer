@@ -550,8 +550,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       MediaCodec codec,
       Format format,
       MediaCrypto crypto,
-      float codecOperatingRate)
-      throws DecoderQueryException {
+      float codecOperatingRate) {
     codecMaxValues = getCodecMaxValues(codecInfo, format, getStreamFormats());
     MediaFormat mediaFormat =
         getMediaFormat(
@@ -1173,11 +1172,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * @param format The format for which the codec is being configured.
    * @param streamFormats The possible stream formats.
    * @return Suitable {@link CodecMaxValues}.
-   * @throws DecoderQueryException If an error occurs querying {@code codecInfo}.
    */
   protected CodecMaxValues getCodecMaxValues(
-      MediaCodecInfo codecInfo, Format format, Format[] streamFormats)
-      throws DecoderQueryException {
+      MediaCodecInfo codecInfo, Format format, Format[] streamFormats) {
     int maxWidth = format.width;
     int maxHeight = format.height;
     int maxInputSize = getMaxInputSize(codecInfo, format);
@@ -1227,17 +1224,15 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   /**
-   * Returns a maximum video size to use when configuring a codec for {@code format} in a way
-   * that will allow possible adaptation to other compatible formats that are expected to have the
-   * same aspect ratio, but whose sizes are unknown.
+   * Returns a maximum video size to use when configuring a codec for {@code format} in a way that
+   * will allow possible adaptation to other compatible formats that are expected to have the same
+   * aspect ratio, but whose sizes are unknown.
    *
    * @param codecInfo Information about the {@link MediaCodec} being configured.
    * @param format The format for which the codec is being configured.
    * @return The maximum video size to use, or null if the size of {@code format} should be used.
-   * @throws DecoderQueryException If an error occurs querying {@code codecInfo}.
    */
-  private static Point getCodecMaxSize(MediaCodecInfo codecInfo, Format format)
-      throws DecoderQueryException {
+  private static Point getCodecMaxSize(MediaCodecInfo codecInfo, Format format) {
     boolean isVerticalVideo = format.height > format.width;
     int formatLongEdgePx = isVerticalVideo ? format.height : format.width;
     int formatShortEdgePx = isVerticalVideo ? format.width : format.height;
@@ -1255,12 +1250,18 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           return alignedSize;
         }
       } else {
-        // Conservatively assume the codec requires 16px width and height alignment.
-        longEdgePx = Util.ceilDivide(longEdgePx, 16) * 16;
-        shortEdgePx = Util.ceilDivide(shortEdgePx, 16) * 16;
-        if (longEdgePx * shortEdgePx <= MediaCodecUtil.maxH264DecodableFrameSize()) {
-          return new Point(isVerticalVideo ? shortEdgePx : longEdgePx,
-              isVerticalVideo ? longEdgePx : shortEdgePx);
+        try {
+          // Conservatively assume the codec requires 16px width and height alignment.
+          longEdgePx = Util.ceilDivide(longEdgePx, 16) * 16;
+          shortEdgePx = Util.ceilDivide(shortEdgePx, 16) * 16;
+          if (longEdgePx * shortEdgePx <= MediaCodecUtil.maxH264DecodableFrameSize()) {
+            return new Point(
+                isVerticalVideo ? shortEdgePx : longEdgePx,
+                isVerticalVideo ? longEdgePx : shortEdgePx);
+          }
+        } catch (DecoderQueryException e) {
+          // We tried our best. Give up!
+          return null;
         }
       }
     }

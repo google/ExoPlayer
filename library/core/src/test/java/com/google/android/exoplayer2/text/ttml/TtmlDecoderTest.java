@@ -514,7 +514,7 @@ public final class TtmlDecoderTest {
     assertThat(cue.position).isEqualTo(24f / 100f);
     assertThat(cue.line).isEqualTo(28f / 100f);
     assertThat(cue.size).isEqualTo(51f / 100f);
-    assertThat(cue.bitmapHeight).isEqualTo(Cue.DIMEN_UNSET);
+    assertThat(cue.bitmapHeight).isEqualTo(12f / 100f);
 
     cues = subtitle.getCues(4000000);
     assertThat(cues).hasSize(1);
@@ -524,7 +524,7 @@ public final class TtmlDecoderTest {
     assertThat(cue.position).isEqualTo(21f / 100f);
     assertThat(cue.line).isEqualTo(35f / 100f);
     assertThat(cue.size).isEqualTo(57f / 100f);
-    assertThat(cue.bitmapHeight).isEqualTo(Cue.DIMEN_UNSET);
+    assertThat(cue.bitmapHeight).isEqualTo(6f / 100f);
 
     cues = subtitle.getCues(7500000);
     assertThat(cues).hasSize(1);
@@ -534,7 +534,7 @@ public final class TtmlDecoderTest {
     assertThat(cue.position).isEqualTo(24f / 100f);
     assertThat(cue.line).isEqualTo(28f / 100f);
     assertThat(cue.size).isEqualTo(51f / 100f);
-    assertThat(cue.bitmapHeight).isEqualTo(Cue.DIMEN_UNSET);
+    assertThat(cue.bitmapHeight).isEqualTo(12f / 100f);
   }
 
   @Test
@@ -549,7 +549,7 @@ public final class TtmlDecoderTest {
     assertThat(cue.position).isEqualTo(307f / 1280f);
     assertThat(cue.line).isEqualTo(562f / 720f);
     assertThat(cue.size).isEqualTo(653f / 1280f);
-    assertThat(cue.bitmapHeight).isEqualTo(Cue.DIMEN_UNSET);
+    assertThat(cue.bitmapHeight).isEqualTo(86f / 720f);
 
     cues = subtitle.getCues(4000000);
     assertThat(cues).hasSize(1);
@@ -559,7 +559,7 @@ public final class TtmlDecoderTest {
     assertThat(cue.position).isEqualTo(269f / 1280f);
     assertThat(cue.line).isEqualTo(612f / 720f);
     assertThat(cue.size).isEqualTo(730f / 1280f);
-    assertThat(cue.bitmapHeight).isEqualTo(Cue.DIMEN_UNSET);
+    assertThat(cue.bitmapHeight).isEqualTo(43f / 720f);
   }
 
   @Test

@@ -35,7 +35,6 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
-import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
@@ -50,7 +49,6 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
-import com.google.android.exoplayer2.Player.VideoComponent;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.ApicFrame;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -165,9 +163,10 @@ import java.util.List;
  *         <li>Corresponding method: None
  *         <li>Default: {@code R.layout.exo_player_control_view}
  *       </ul>
- *   <li>All attributes that can be set on a {@link PlayerControlView} can also be set on a
- *       PlayerView, and will be propagated to the inflated {@link PlayerControlView} unless the
- *       layout is overridden to specify a custom {@code exo_controller} (see below).
+ *   <li>All attributes that can be set on {@link PlayerControlView} and {@link DefaultTimeBar} can
+ *       also be set on a PlayerView, and will be propagated to the inflated {@link
+ *       PlayerControlView} unless the layout is overridden to specify a custom {@code
+ *       exo_controller} (see below).
  * </ul>
  *
  * <h3>Overriding the layout file</h3>
@@ -217,9 +216,10 @@ import java.util.List;
  *         <li>Type: {@link View}
  *       </ul>
  *   <li><b>{@code exo_controller}</b> - An already inflated {@link PlayerControlView}. Allows use
- *       of a custom extension of {@link PlayerControlView}. Note that attributes such as {@code
- *       rewind_increment} will not be automatically propagated through to this instance. If a view
- *       exists with this id, any {@code exo_controller_placeholder} view will be ignored.
+ *       of a custom extension of {@link PlayerControlView}. {@link PlayerControlView} and {@link
+ *       DefaultTimeBar} attributes set on the PlayerView will not be automatically propagated
+ *       through to this instance. If a view exists with this id, any {@code
+ *       exo_controller_placeholder} view will be ignored.
  *       <ul>
  *         <li>Type: {@link PlayerControlView}
  *       </ul>
@@ -303,6 +303,7 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
   private boolean controllerHideDuringAds;
   private boolean controllerHideOnTouch;
   private int textureViewRotation;
+  private boolean isTouching;
 
   public PlayerView(Context context) {
     this(context, null);
@@ -405,7 +406,6 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
           break;
         case SURFACE_TYPE_MONO360_VIEW:
           SphericalSurfaceView sphericalSurfaceView = new SphericalSurfaceView(context);
-          sphericalSurfaceView.setSurfaceListener(componentListener);
           sphericalSurfaceView.setSingleTapListener(componentListener);
           surfaceView = sphericalSurfaceView;
           break;
@@ -459,8 +459,9 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
       this.controller = customController;
     } else if (controllerPlaceholder != null) {
       // Propagate attrs as playbackAttrs so that PlayerControlView's custom attributes are
-      // transferred, but standard FrameLayout attributes (e.g. background) are not.
+      // transferred, but standard attributes (e.g. background) are not.
       this.controller = new PlayerControlView(context, null, 0, attrs);
+      controller.setId(R.id.exo_controller);
       controller.setLayoutParams(controllerPlaceholder.getLayoutParams());
       ViewGroup parent = ((ViewGroup) controllerPlaceholder.getParent());
       int controllerIndex = parent.indexOfChild(controllerPlaceholder);
@@ -771,11 +772,20 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
     if (player != null && player.isPlayingAd()) {
       return super.dispatchKeyEvent(event);
     }
-    boolean isDpadWhenControlHidden =
-        isDpadKey(event.getKeyCode()) && useController && !controller.isVisible();
-    boolean handled =
-        isDpadWhenControlHidden || dispatchMediaKeyEvent(event) || super.dispatchKeyEvent(event);
-    if (handled) {
+
+    boolean isDpadAndUseController = isDpadKey(event.getKeyCode()) && useController;
+    boolean handled = false;
+    if (isDpadAndUseController && !controller.isVisible()) {
+      // Handle the key event by showing the controller.
+      maybeShowController(true);
+      handled = true;
+    } else if (dispatchMediaKeyEvent(event) || super.dispatchKeyEvent(event)) {
+      // The key event was handled as a media key or by the super class. We should also show the
+      // controller, or extend its show timeout if already visible.
+      maybeShowController(true);
+      handled = true;
+    } else if (isDpadAndUseController) {
+      // The key event wasn't handled, but we should extend the controller's show timeout.
       maybeShowController(true);
     }
     return handled;
@@ -1039,11 +1049,21 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
   }
 
   @Override
-  public boolean onTouchEvent(MotionEvent ev) {
-    if (ev.getActionMasked() != MotionEvent.ACTION_DOWN) {
-      return false;
+  public boolean onTouchEvent(MotionEvent event) {
+    switch (event.getAction()) {
+      case MotionEvent.ACTION_DOWN:
+        isTouching = true;
+        return true;
+      case MotionEvent.ACTION_UP:
+        if (isTouching) {
+          isTouching = false;
+          performClick();
+          return true;
+        }
+        return false;
+      default:
+        return false;
     }
-    return performClick();
   }
 
   @Override
@@ -1359,7 +1379,6 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
           TextOutput,
           VideoListener,
           OnLayoutChangeListener,
-          SphericalSurfaceView.SurfaceListener,
           SingleTapListener {
 
     // TextOutput implementation
@@ -1447,18 +1466,6 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
         int oldRight,
         int oldBottom) {
       applyTextureViewRotation((TextureView) view, textureViewRotation);
-    }
-
-    // SphericalSurfaceView.SurfaceTextureListener implementation
-
-    @Override
-    public void surfaceChanged(@Nullable Surface surface) {
-      if (player != null) {
-        VideoComponent videoComponent = player.getVideoComponent();
-        if (videoComponent != null) {
-          videoComponent.setVideoSurface(surface);
-        }
-      }
     }
 
     // SingleTapListener implementation

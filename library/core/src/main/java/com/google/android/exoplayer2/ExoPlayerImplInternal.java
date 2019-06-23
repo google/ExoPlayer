@@ -729,13 +729,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
       newPlayingPeriodHolder = queue.advancePlayingPeriod();
     }
 
-    // Disable all the renderers if the period being played is changing, or if forced.
-    if (oldPlayingPeriodHolder != newPlayingPeriodHolder || forceDisableRenderers) {
+    // Disable all renderers if the period being played is changing, if the seek results in negative
+    // renderer timestamps, or if forced.
+    if (forceDisableRenderers
+        || oldPlayingPeriodHolder != newPlayingPeriodHolder
+        || (newPlayingPeriodHolder != null
+            && newPlayingPeriodHolder.toRendererTime(periodPositionUs) < 0)) {
       for (Renderer renderer : enabledRenderers) {
         disableRenderer(renderer);
       }
       enabledRenderers = new Renderer[0];
       oldPlayingPeriodHolder = null;
+      if (newPlayingPeriodHolder != null) {
+        newPlayingPeriodHolder.setRendererOffset(/* rendererPositionOffsetUs= */ 0);
+      }
     }
 
     // Update the holders.
@@ -1798,9 +1805,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   private long getTotalBufferedDurationUs(long bufferedPositionInLoadingPeriodUs) {
     MediaPeriodHolder loadingPeriodHolder = queue.getLoadingPeriod();
-    return loadingPeriodHolder == null
-        ? 0
-        : bufferedPositionInLoadingPeriodUs - loadingPeriodHolder.toPeriodTime(rendererPositionUs);
+    if (loadingPeriodHolder == null) {
+      return 0;
+    }
+    long totalBufferedDurationUs =
+        bufferedPositionInLoadingPeriodUs - loadingPeriodHolder.toPeriodTime(rendererPositionUs);
+    return Math.max(0, totalBufferedDurationUs);
   }
 
   private void updateLoadControlTrackSelection(

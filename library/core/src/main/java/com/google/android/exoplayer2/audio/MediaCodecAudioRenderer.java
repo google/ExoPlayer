@@ -245,12 +245,50 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       @Nullable Handler eventHandler,
       @Nullable AudioRendererEventListener eventListener,
       AudioSink audioSink) {
+    this(
+        context,
+        mediaCodecSelector,
+        drmSessionManager,
+        playClearSamplesWithoutKeys,
+        /* enableDecoderFallback= */ false,
+        eventHandler,
+        eventListener,
+        audioSink);
+  }
+
+  /**
+   * @param context A context.
+   * @param mediaCodecSelector A decoder selector.
+   * @param drmSessionManager For use with encrypted content. May be null if support for encrypted
+   *     content is not required.
+   * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
+   *     For example a media file may start with a short clear region so as to allow playback to
+   *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
+   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
+   *     has obtained the keys necessary to decrypt encrypted regions of the media.
+   * @param enableDecoderFallback Whether to enable fallback to lower-priority decoders if decoder
+   *     initialization fails. This may result in using a decoder that is slower/less efficient than
+   *     the primary decoder.
+   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
+   *     null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @param audioSink The sink to which audio will be output.
+   */
+  public MediaCodecAudioRenderer(
+      Context context,
+      MediaCodecSelector mediaCodecSelector,
+      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      boolean playClearSamplesWithoutKeys,
+      boolean enableDecoderFallback,
+      @Nullable Handler eventHandler,
+      @Nullable AudioRendererEventListener eventListener,
+      AudioSink audioSink) {
     super(
         C.TRACK_TYPE_AUDIO,
         mediaCodecSelector,
         drmSessionManager,
         playClearSamplesWithoutKeys,
-        /* enableDecoderFallback= */ false,
+        enableDecoderFallback,
         /* assumedMinimumCodecOperatingRate= */ 44100);
     this.context = context.getApplicationContext();
     this.audioSink = audioSink;
@@ -341,7 +379,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    * @return Whether passthrough playback is supported.
    */
   protected boolean allowPassthrough(int channelCount, String mimeType) {
-    return audioSink.supportsOutput(channelCount, MimeTypes.getEncoding(mimeType));
+    return getPassthroughEncoding(channelCount, mimeType) != C.ENCODING_INVALID;
   }
 
   @Override
@@ -437,11 +475,14 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     @C.Encoding int encoding;
     MediaFormat format;
     if (passthroughMediaFormat != null) {
-      encoding = MimeTypes.getEncoding(passthroughMediaFormat.getString(MediaFormat.KEY_MIME));
       format = passthroughMediaFormat;
+      encoding =
+          getPassthroughEncoding(
+              format.getInteger(MediaFormat.KEY_CHANNEL_COUNT),
+              format.getString(MediaFormat.KEY_MIME));
     } else {
-      encoding = pcmEncoding;
       format = outputFormat;
+      encoding = pcmEncoding;
     }
     int channelCount = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
     int sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
@@ -460,6 +501,28 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
           encoderPadding);
     } catch (AudioSink.ConfigurationException e) {
       throw ExoPlaybackException.createForRenderer(e, getIndex());
+    }
+  }
+
+  /**
+   * Returns the {@link C.Encoding} constant to use for passthrough of the given format, or {@link
+   * C#ENCODING_INVALID} if passthrough is not possible.
+   */
+  @C.Encoding
+  protected int getPassthroughEncoding(int channelCount, String mimeType) {
+    if (MimeTypes.AUDIO_E_AC3_JOC.equals(mimeType)) {
+      if (audioSink.supportsOutput(channelCount, C.ENCODING_E_AC3_JOC)) {
+        return MimeTypes.getEncoding(MimeTypes.AUDIO_E_AC3_JOC);
+      }
+      // E-AC3 receivers can decode JOC streams, but in 2-D rather than 3-D, so try to fall back.
+      mimeType = MimeTypes.AUDIO_E_AC3;
+    }
+
+    @C.Encoding int encoding = MimeTypes.getEncoding(mimeType);
+    if (audioSink.supportsOutput(channelCount, encoding)) {
+      return encoding;
+    } else {
+      return C.ENCODING_INVALID;
     }
   }
 
