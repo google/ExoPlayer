@@ -140,7 +140,7 @@ public abstract class SegmentBase {
      *     division of this value and {@code timescale}.
      * @param startNumber The sequence number of the first segment.
      * @param endNumber The sequence number of the last segment specified by SupplementalProperty
-     *           schemeIdUri="http://dashif.org/guidelines/last-segment-number"
+     *     schemeIdUri="http://dashif.org/guidelines/last-segment-number"
      * @param duration The duration of each segment in the case of fixed duration segments. The
      *     value in seconds is the division of this value and {@code timescale}. If {@code
      *     segmentTimeline} is non-null then this parameter is ignored.
@@ -408,10 +408,10 @@ public abstract class SegmentBase {
 
     @Override
     public int getSegmentCount(long periodDurationUs) {
-      if( endNumber != C.INDEX_UNSET) {
-        return endNumber;
-      } else if (segmentTimeline != null) {
+      if (segmentTimeline != null) {
         return segmentTimeline.size();
+      } else if (endNumber != C.INDEX_UNSET) {
+        return endNumber - (int) startNumber + 1;
       } else if (periodDurationUs != C.TIME_UNSET) {
         long durationUs = (duration * C.MICROS_PER_SECOND) / timescale;
         return (int) Util.ceilDivide(periodDurationUs, durationUs);
@@ -419,7 +419,6 @@ public abstract class SegmentBase {
         return DashSegmentIndex.INDEX_UNBOUNDED;
       }
     }
-
   }
 
   /**
