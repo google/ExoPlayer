@@ -66,7 +66,6 @@ import java.util.ArrayList;
   private final Listener listener;
   private final ConcatenatingMediaSource concatenatingMediaSource;
 
-  private boolean castMediaQueueCreationPending;
   private int currentItemIndex;
   private Player currentPlayer;
 
@@ -268,9 +267,6 @@ import java.util.ArrayList;
   public void onTimelineChanged(
       Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason) {
     updateCurrentItemIndex();
-    if (currentPlayer == castPlayer && timeline.isEmpty()) {
-      castMediaQueueCreationPending = true;
-    }
   }
 
   // CastPlayer.SessionAvailabilityListener implementation.
@@ -332,7 +328,6 @@ import java.util.ArrayList;
     this.currentPlayer = currentPlayer;
 
     // Media queue management.
-    castMediaQueueCreationPending = currentPlayer == castPlayer;
     if (currentPlayer == exoPlayer) {
       exoPlayer.prepare(concatenatingMediaSource);
     }
@@ -352,12 +347,11 @@ import java.util.ArrayList;
    */
   private void setCurrentItem(int itemIndex, long positionMs, boolean playWhenReady) {
     maybeSetCurrentItemAndNotify(itemIndex);
-    if (castMediaQueueCreationPending) {
+    if (currentPlayer == castPlayer && castPlayer.getCurrentTimeline().isEmpty()) {
       MediaQueueItem[] items = new MediaQueueItem[mediaQueue.size()];
       for (int i = 0; i < items.length; i++) {
         items[i] = buildMediaQueueItem(mediaQueue.get(i));
       }
-      castMediaQueueCreationPending = false;
       castPlayer.loadItems(items, itemIndex, positionMs, Player.REPEAT_MODE_OFF);
     } else {
       currentPlayer.seekTo(itemIndex, positionMs);

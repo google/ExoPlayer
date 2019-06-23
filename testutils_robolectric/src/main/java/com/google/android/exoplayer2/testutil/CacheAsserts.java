@@ -33,58 +33,89 @@ import java.util.ArrayList;
 /** Assertion methods for {@link Cache}. */
 public final class CacheAsserts {
 
-  /**
-   * Asserts that the cache content is equal to the data in the {@code fakeDataSet}.
-   *
-   * @throws IOException If an error occurred reading from the Cache.
-   */
-  public static void assertCachedData(Cache cache, FakeDataSet fakeDataSet) throws IOException {
-    ArrayList<FakeData> allData = fakeDataSet.getAllData();
-    Uri[] uris = new Uri[allData.size()];
-    for (int i = 0; i < allData.size(); i++) {
-      uris[i] = allData.get(i).uri;
+  /** Defines a set of data requests. */
+  public static final class RequestSet {
+
+    private final FakeDataSet fakeDataSet;
+    private DataSpec[] dataSpecs;
+
+    public RequestSet(FakeDataSet fakeDataSet) {
+      this.fakeDataSet = fakeDataSet;
+      ArrayList<FakeData> allData = fakeDataSet.getAllData();
+      dataSpecs = new DataSpec[allData.size()];
+      for (int i = 0; i < dataSpecs.length; i++) {
+        dataSpecs[i] = new DataSpec(allData.get(i).uri);
+      }
     }
-    assertCachedData(cache, fakeDataSet, uris);
+
+    public RequestSet subset(String... uriStrings) {
+      dataSpecs = new DataSpec[uriStrings.length];
+      for (int i = 0; i < dataSpecs.length; i++) {
+        dataSpecs[i] = new DataSpec(Uri.parse(uriStrings[i]));
+      }
+      return this;
+    }
+
+    public RequestSet subset(Uri... uris) {
+      dataSpecs = new DataSpec[uris.length];
+      for (int i = 0; i < dataSpecs.length; i++) {
+        dataSpecs[i] = new DataSpec(uris[i]);
+      }
+      return this;
+    }
+
+    public RequestSet subset(DataSpec... dataSpecs) {
+      this.dataSpecs = dataSpecs;
+      return this;
+    }
+
+    public int getCount() {
+      return dataSpecs.length;
+    }
+
+    public byte[] getData(int i) {
+      return fakeDataSet.getData(dataSpecs[i].uri).getData();
+    }
+
+    public DataSpec getDataSpec(int i) {
+      return dataSpecs[i];
+    }
+
+    public RequestSet useBoundedDataSpecFor(String uriString) {
+      FakeData data = fakeDataSet.getData(uriString);
+      for (int i = 0; i < dataSpecs.length; i++) {
+        DataSpec spec = dataSpecs[i];
+        if (spec.uri.getPath().equals(uriString)) {
+          dataSpecs[i] = spec.subrange(0, data.getData().length);
+          return this;
+        }
+      }
+      throw new IllegalStateException();
+    }
   }
 
   /**
-   * Asserts that the cache content is equal to the given subset of data in the {@code fakeDataSet}.
+   * Asserts that the cache contains necessary data for the {@code requestSet}.
    *
    * @throws IOException If an error occurred reading from the Cache.
    */
-  public static void assertCachedData(Cache cache, FakeDataSet fakeDataSet, String... uriStrings)
-      throws IOException {
-    Uri[] uris = new Uri[uriStrings.length];
-    for (int i = 0; i < uriStrings.length; i++) {
-      uris[i] = Uri.parse(uriStrings[i]);
-    }
-    assertCachedData(cache, fakeDataSet, uris);
-  }
-
-  /**
-   * Asserts that the cache content is equal to the given subset of data in the {@code fakeDataSet}.
-   *
-   * @throws IOException If an error occurred reading from the Cache.
-   */
-  public static void assertCachedData(Cache cache, FakeDataSet fakeDataSet, Uri... uris)
-      throws IOException {
+  public static void assertCachedData(Cache cache, RequestSet requestSet) throws IOException {
     int totalLength = 0;
-    for (Uri uri : uris) {
-      byte[] data = fakeDataSet.getData(uri).getData();
-      assertDataCached(cache, uri, data);
+    for (int i = 0; i < requestSet.getCount(); i++) {
+      byte[] data = requestSet.getData(i);
+      assertDataCached(cache, requestSet.getDataSpec(i), data);
       totalLength += data.length;
     }
     assertThat(cache.getCacheSpace()).isEqualTo(totalLength);
   }
 
   /**
-   * Asserts that the cache contains the given data for {@code uriString}.
+   * Asserts that the cache content is equal to the data in the {@code fakeDataSet}.
    *
    * @throws IOException If an error occurred reading from the Cache.
    */
-  public static void assertDataCached(Cache cache, Uri uri, byte[] expected) throws IOException {
-    DataSpec dataSpec = new DataSpec(uri);
-    assertDataCached(cache, dataSpec, expected);
+  public static void assertCachedData(Cache cache, FakeDataSet fakeDataSet) throws IOException {
+    assertCachedData(cache, new RequestSet(fakeDataSet));
   }
 
   /**
@@ -95,15 +126,18 @@ public final class CacheAsserts {
   public static void assertDataCached(Cache cache, DataSpec dataSpec, byte[] expected)
       throws IOException {
     DataSource dataSource = new CacheDataSource(cache, DummyDataSource.INSTANCE, 0);
-    dataSource.open(dataSpec);
+    byte[] bytes;
     try {
-      byte[] bytes = TestUtil.readToEnd(dataSource);
-      assertWithMessage("Cached data doesn't match expected for '" + dataSpec.uri + "',")
-          .that(bytes)
-          .isEqualTo(expected);
+      dataSource.open(dataSpec);
+      bytes = TestUtil.readToEnd(dataSource);
+    } catch (IOException e) {
+      throw new IOException("Opening/reading cache failed: " + dataSpec, e);
     } finally {
       dataSource.close();
     }
+    assertWithMessage("Cached data doesn't match expected for '" + dataSpec.uri + "',")
+        .that(bytes)
+        .isEqualTo(expected);
   }
 
   /**

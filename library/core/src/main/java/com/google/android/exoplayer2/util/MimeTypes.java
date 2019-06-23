@@ -348,8 +348,9 @@ public final class MimeTypes {
       case MimeTypes.AUDIO_AC3:
         return C.ENCODING_AC3;
       case MimeTypes.AUDIO_E_AC3:
-      case MimeTypes.AUDIO_E_AC3_JOC:
         return C.ENCODING_E_AC3;
+      case MimeTypes.AUDIO_E_AC3_JOC:
+        return C.ENCODING_E_AC3_JOC;
       case MimeTypes.AUDIO_AC4:
         return C.ENCODING_AC4;
       case MimeTypes.AUDIO_DTS:

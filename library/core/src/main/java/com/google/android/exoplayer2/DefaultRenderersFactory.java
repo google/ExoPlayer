@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.audio.AudioCapabilities;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
+import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
@@ -90,6 +91,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
   @ExtensionRendererMode private int extensionRendererMode;
   private long allowedVideoJoiningTimeMs;
   private boolean playClearSamplesWithoutKeys;
+  private boolean enableDecoderFallback;
   private MediaCodecSelector mediaCodecSelector;
 
   /** @param context A {@link Context}. */
@@ -203,6 +205,19 @@ public class DefaultRenderersFactory implements RenderersFactory {
   }
 
   /**
+   * Sets whether to enable fallback to lower-priority decoders if decoder initialization fails.
+   * This may result in using a decoder that is less efficient or slower than the primary decoder.
+   *
+   * @param enableDecoderFallback Whether to enable fallback to lower-priority decoders if decoder
+   *     initialization fails.
+   * @return This factory, for convenience.
+   */
+  public DefaultRenderersFactory setEnableDecoderFallback(boolean enableDecoderFallback) {
+    this.enableDecoderFallback = enableDecoderFallback;
+    return this;
+  }
+
+  /**
    * Sets a {@link MediaCodecSelector} for use by {@link MediaCodec} based renderers.
    *
    * <p>The default value is {@link MediaCodecSelector#DEFAULT}.
@@ -248,6 +263,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
         mediaCodecSelector,
         drmSessionManager,
         playClearSamplesWithoutKeys,
+        enableDecoderFallback,
         eventHandler,
         videoRendererEventListener,
         allowedVideoJoiningTimeMs,
@@ -258,6 +274,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
         mediaCodecSelector,
         drmSessionManager,
         playClearSamplesWithoutKeys,
+        enableDecoderFallback,
         buildAudioProcessors(),
         eventHandler,
         audioRendererEventListener,
@@ -282,6 +299,9 @@ public class DefaultRenderersFactory implements RenderersFactory {
    * @param playClearSamplesWithoutKeys Whether renderers are permitted to play clear regions of
    *     encrypted media prior to having obtained the keys necessary to decrypt encrypted regions of
    *     the media.
+   * @param enableDecoderFallback Whether to enable fallback to lower-priority decoders if decoder
+   *     initialization fails. This may result in using a decoder that is slower/less efficient than
+   *     the primary decoder.
    * @param eventHandler A handler associated with the main thread's looper.
    * @param eventListener An event listener.
    * @param allowedVideoJoiningTimeMs The maximum duration for which video renderers can attempt to
@@ -294,6 +314,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
       MediaCodecSelector mediaCodecSelector,
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       boolean playClearSamplesWithoutKeys,
+      boolean enableDecoderFallback,
       Handler eventHandler,
       VideoRendererEventListener eventListener,
       long allowedVideoJoiningTimeMs,
@@ -305,6 +326,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
             allowedVideoJoiningTimeMs,
             drmSessionManager,
             playClearSamplesWithoutKeys,
+            enableDecoderFallback,
             eventHandler,
             eventListener,
             MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY));
@@ -356,6 +378,9 @@ public class DefaultRenderersFactory implements RenderersFactory {
    * @param playClearSamplesWithoutKeys Whether renderers are permitted to play clear regions of
    *     encrypted media prior to having obtained the keys necessary to decrypt encrypted regions of
    *     the media.
+   * @param enableDecoderFallback Whether to enable fallback to lower-priority decoders if decoder
+   *     initialization fails. This may result in using a decoder that is slower/less efficient than
+   *     the primary decoder.
    * @param audioProcessors An array of {@link AudioProcessor}s that will process PCM audio buffers
    *     before output. May be empty.
    * @param eventHandler A handler to use when invoking event listeners and outputs.
@@ -368,6 +393,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
       MediaCodecSelector mediaCodecSelector,
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       boolean playClearSamplesWithoutKeys,
+      boolean enableDecoderFallback,
       AudioProcessor[] audioProcessors,
       Handler eventHandler,
       AudioRendererEventListener eventListener,
@@ -378,10 +404,10 @@ public class DefaultRenderersFactory implements RenderersFactory {
             mediaCodecSelector,
             drmSessionManager,
             playClearSamplesWithoutKeys,
+            enableDecoderFallback,
             eventHandler,
             eventListener,
-            AudioCapabilities.getCapabilities(context),
-            audioProcessors));
+            new DefaultAudioSink(AudioCapabilities.getCapabilities(context), audioProcessors)));
 
     if (extensionRendererMode == EXTENSION_RENDERER_MODE_OFF) {
       return;

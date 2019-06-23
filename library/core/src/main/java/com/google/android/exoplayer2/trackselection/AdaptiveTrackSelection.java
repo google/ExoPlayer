@@ -757,7 +757,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     for (int i = 0; i < values.length; i++) {
       logValues[i] = new double[values[i].length];
       for (int j = 0; j < values[i].length; j++) {
-        logValues[i][j] = Math.log(values[i][j]);
+        logValues[i][j] = values[i][j] == Format.NO_VALUE ? 0 : Math.log(values[i][j]);
       }
     }
     return logValues;
@@ -779,7 +779,8 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
       double totalBitrateDiff = logBitrates[i][logBitrates[i].length - 1] - logBitrates[i][0];
       for (int j = 0; j < logBitrates[i].length - 1; j++) {
         double switchBitrate = 0.5 * (logBitrates[i][j] + logBitrates[i][j + 1]);
-        switchPoints[i][j] = (switchBitrate - logBitrates[i][0]) / totalBitrateDiff;
+        switchPoints[i][j] =
+            totalBitrateDiff == 0.0 ? 1.0 : (switchBitrate - logBitrates[i][0]) / totalBitrateDiff;
       }
     }
     return switchPoints;

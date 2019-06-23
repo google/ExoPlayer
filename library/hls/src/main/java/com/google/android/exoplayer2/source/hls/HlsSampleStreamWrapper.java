@@ -322,6 +322,7 @@ import java.util.Map;
     if (enabledTrackGroupCount == 0) {
       chunkSource.reset();
       downstreamTrackFormat = null;
+      pendingResetUpstreamFormats = true;
       mediaChunks.clear();
       if (loader.isLoading()) {
         if (sampleQueuesBuilt) {

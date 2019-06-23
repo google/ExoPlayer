@@ -341,6 +341,76 @@ public final class DefaultTrackSelectorTest {
     assertFixedSelection(result.selections.get(0), trackGroups, formatWithSelectionFlag);
   }
 
+  /** Tests that adaptive audio track selections respect the maximum audio bitrate. */
+  public void testSelectAdaptiveAudioTrackGroupWithMaxBitrate() throws ExoPlaybackException {
+    Format format128k =
+        Format.createAudioSampleFormat(
+            /* id= */ "128",
+            /* sampleMimeType= */ MimeTypes.AUDIO_AAC,
+            /* codecs= */ "mp4a.40.2",
+            /* bitrate= */ 128 * 1024,
+            /* maxInputSize= */ Format.NO_VALUE,
+            /* channelCount= */ 2,
+            /* sampleRate= */ 44100,
+            /* initializationData= */ null,
+            /* drmInitData= */ null,
+            /* selectionFlags= */ 0,
+            /* language= */ null);
+    Format format192k =
+        Format.createAudioSampleFormat(
+            /* id= */ "192",
+            /* sampleMimeType= */ MimeTypes.AUDIO_AAC,
+            /* codecs= */ "mp4a.40.2",
+            /* bitrate= */ 192 * 1024,
+            /* maxInputSize= */ Format.NO_VALUE,
+            /* channelCount= */ 2,
+            /* sampleRate= */ 44100,
+            /* initializationData= */ null,
+            /* drmInitData= */ null,
+            /* selectionFlags= */ 0,
+            /* language= */ null);
+    Format format256k =
+        Format.createAudioSampleFormat(
+            /* id= */ "256",
+            /* sampleMimeType= */ MimeTypes.AUDIO_AAC,
+            /* codecs= */ "mp4a.40.2",
+            /* bitrate= */ 256 * 1024,
+            /* maxInputSize= */ Format.NO_VALUE,
+            /* channelCount= */ 2,
+            /* sampleRate= */ 44100,
+            /* initializationData= */ null,
+            /* drmInitData= */ null,
+            /* selectionFlags= */ 0,
+            /* language= */ null);
+    RendererCapabilities[] rendererCapabilities = {
+      ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES
+    };
+    TrackGroupArray trackGroups =
+        new TrackGroupArray(new TrackGroup(format192k, format128k, format256k));
+
+    TrackSelectorResult result =
+        trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
+    assertAdaptiveSelection(result.selections.get(0), trackGroups.get(0), 0, 1, 2);
+
+    trackSelector.setParameters(
+        trackSelector.buildUponParameters().setMaxAudioBitrate(256 * 1024 - 1));
+    result = trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
+    assertAdaptiveSelection(result.selections.get(0), trackGroups.get(0), 0, 1);
+
+    trackSelector.setParameters(trackSelector.buildUponParameters().setMaxAudioBitrate(192 * 1024));
+    result = trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
+    assertAdaptiveSelection(result.selections.get(0), trackGroups.get(0), 0, 1);
+
+    trackSelector.setParameters(
+        trackSelector.buildUponParameters().setMaxAudioBitrate(192 * 1024 - 1));
+    result = trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
+    assertAdaptiveSelection(result.selections.get(0), trackGroups.get(0), 1);
+
+    trackSelector.setParameters(trackSelector.buildUponParameters().setMaxAudioBitrate(10));
+    result = trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
+    assertAdaptiveSelection(result.selections.get(0), trackGroups.get(0), 1);
+  }
+
   /**
    * Tests that track selector will select audio track with language that match preferred language
    * given by {@link Parameters}.
@@ -893,7 +963,6 @@ public final class DefaultTrackSelectorTest {
     Format forcedDefault =
         buildTextFormat("forcedDefault", "eng", C.SELECTION_FLAG_FORCED | C.SELECTION_FLAG_DEFAULT);
     Format defaultOnly = buildTextFormat("defaultOnly", "eng", C.SELECTION_FLAG_DEFAULT);
-    Format forcedOnlySpanish = buildTextFormat("forcedOnlySpanish", "spa", C.SELECTION_FLAG_FORCED);
     Format noFlag = buildTextFormat("noFlag", "eng");
 
     RendererCapabilities[] textRendererCapabilities =

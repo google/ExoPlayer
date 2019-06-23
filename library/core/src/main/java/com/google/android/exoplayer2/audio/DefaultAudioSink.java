@@ -1125,6 +1125,7 @@ public final class DefaultAudioSink implements AudioSink {
       case C.ENCODING_AC3:
         return 640 * 1000 / 8;
       case C.ENCODING_E_AC3:
+      case C.ENCODING_E_AC3_JOC:
         return 6144 * 1000 / 8;
       case C.ENCODING_AC4:
         return 2688 * 1000 / 8;
@@ -1154,7 +1155,7 @@ public final class DefaultAudioSink implements AudioSink {
       return DtsUtil.parseDtsAudioSampleCount(buffer);
     } else if (encoding == C.ENCODING_AC3) {
       return Ac3Util.getAc3SyncframeAudioSampleCount();
-    } else if (encoding == C.ENCODING_E_AC3) {
+    } else if (encoding == C.ENCODING_E_AC3 || encoding == C.ENCODING_E_AC3_JOC) {
       return Ac3Util.parseEAc3SyncframeAudioSampleCount(buffer);
     } else if (encoding == C.ENCODING_AC4) {
       return Ac4Util.parseAc4SyncframeAudioSampleCount(buffer);
@@ -1177,11 +1178,10 @@ public final class DefaultAudioSink implements AudioSink {
   @TargetApi(21)
   private int writeNonBlockingWithAvSyncV21(AudioTrack audioTrack, ByteBuffer buffer, int size,
       long presentationTimeUs) {
-    // TODO: Uncomment this when [Internal ref: b/33627517] is clarified or fixed.
-    // if (Util.SDK_INT >= 23) {
-    //   // The underlying platform AudioTrack writes AV sync headers directly.
-    //   return audioTrack.write(buffer, size, WRITE_NON_BLOCKING, presentationTimeUs * 1000);
-    // }
+    if (Util.SDK_INT >= 26) {
+      // The underlying platform AudioTrack writes AV sync headers directly.
+      return audioTrack.write(buffer, size, WRITE_NON_BLOCKING, presentationTimeUs * 1000);
+    }
     if (avSyncHeader == null) {
       avSyncHeader = ByteBuffer.allocate(16);
       avSyncHeader.order(ByteOrder.BIG_ENDIAN);
