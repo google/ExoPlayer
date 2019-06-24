@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<!--
+ * Copyright (C) 2018 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+-->
+<html>
+  <head>
+    <link rel="stylesheet" href="app_desktop_styles.css"/>
+  </head>
+  <body>
+    <ul id="log"></ul>
+    <section id="exo_demo_view">
+      <video id="video"></video>
+      <div id="exo_playback_info">
+        <div id="exo_time_bar">
+          <div id="exo_duration">
+            <div id="exo_elapsed_time"></div>
+          </div>
+          <span id="exo_elapsed_time_label" class="exo_text_label"></span>
+          <span id="exo_duration_label" class="exo_text_label"></span>
+        </div>
+      </div>
+      <div class="ribbon">
+        for debugging<br/>purpose only
+      </div>
+    </section>
+    <section id="exo_controls">
+      <ul class="exo_controls">
+        <li id="button_prepare" data-method="prepare" class="button">prepare</li>
+        <li id="button_previous" class="button" data-method="previous">prev</li>
+        <li data-method="rewind" class="button">rewind</li>
+        <li id="button_play" class="large button"
+            data-method="pwr_1">play</li>
+        <li id="button_pause" class="large button" data-method="pwr_0">pause</li>
+        <li data-method="fastforward" class="button">ffwd</li>
+        <li id="button_next" data-method="next" class="button">next</li>
+        <li id="button_stop" data-method="stop" class="button">stop</li>
+      </ul>
+    </section>
+    <section id="media-actions">
+    </section>
+    <script src="app_desktop.js"></script>
+  </body>
+</html>

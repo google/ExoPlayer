@@ -20,6 +20,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.extractor.TrackOutput.CryptoData;
+import com.google.android.exoplayer2.source.SampleQueue.PeekResult;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 
@@ -212,6 +213,27 @@ import com.google.android.exoplayer2.util.Util;
    */
   public synchronized void rewind() {
     readPosition = 0;
+  }
+
+  /**
+   * Returns a {@link PeekResult} depending on what a following call to {@link #read
+   * read(formatHolder, decoderInputBuffer, formatRequired= false, allowOnlyClearBuffers= false,
+   * loadingFinished= false, decodeOnlyUntilUs= 0)} would result in.
+   */
+  @SuppressWarnings("ReferenceEquality")
+  @PeekResult
+  public synchronized int peekNext(Format downstreamFormat) {
+    if (readPosition == length) {
+      return SampleQueue.PEEK_RESULT_NOTHING;
+    }
+    int relativeReadIndex = getRelativeIndex(readPosition);
+    if (formats[relativeReadIndex] != downstreamFormat) {
+      return SampleQueue.PEEK_RESULT_FORMAT;
+    } else {
+      return (flags[relativeReadIndex] & C.BUFFER_FLAG_ENCRYPTED) != 0
+          ? SampleQueue.PEEK_RESULT_BUFFER_ENCRYPTED
+          : SampleQueue.PEEK_RESULT_BUFFER_CLEAR;
+    }
   }
 
   /**

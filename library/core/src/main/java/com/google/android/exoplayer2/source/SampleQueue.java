@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -28,6 +29,9 @@ import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.EOFException;
 import java.io.IOException;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 
 /** A queue of media samples. */
@@ -46,6 +50,27 @@ public class SampleQueue implements TrackOutput {
     void onUpstreamFormatChanged(Format format);
 
   }
+
+  /** Values returned by {@link #peekNext()}. */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef(
+      value = {
+        PEEK_RESULT_NOTHING,
+        PEEK_RESULT_FORMAT,
+        PEEK_RESULT_BUFFER_CLEAR,
+        PEEK_RESULT_BUFFER_ENCRYPTED
+      })
+  @interface PeekResult {}
+
+  /** Nothing is available for reading. */
+  public static final int PEEK_RESULT_NOTHING = 0;
+  /** A format change is available for reading */
+  public static final int PEEK_RESULT_FORMAT = 1;
+  /** A clear buffer is available for reading. */
+  public static final int PEEK_RESULT_BUFFER_CLEAR = 2;
+  /** An encrypted buffer is available for reading. */
+  public static final int PEEK_RESULT_BUFFER_ENCRYPTED = 3;
 
   public static final int ADVANCE_FAILED = -1;
 
@@ -310,6 +335,16 @@ public class SampleQueue implements TrackOutput {
    */
   public boolean setReadPosition(int sampleIndex) {
     return metadataQueue.setReadPosition(sampleIndex);
+  }
+
+  /**
+   * Returns a {@link PeekResult} depending on what a following call to {@link #read
+   * read(formatHolder, decoderInputBuffer, formatRequired= false, allowOnlyClearBuffers= false,
+   * loadingFinished= false, decodeOnlyUntilUs= 0)} would result in.
+   */
+  @PeekResult
+  public int peekNext() {
+    return metadataQueue.peekNext(downstreamFormat);
   }
 
   /**
