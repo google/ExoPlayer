@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<!--
+ * Copyright (C) 2018 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+-->
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="app_styles.css"/>
+    <script type="text/javascript"
+      src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js">
+    </script>
+  </head>
+  <body>
+    <section id="exo_player_view">
+      <video id="exo_video"></video>
+      <div id="exo_playback_info">
+        <div id="exo_time_bar">
+          <div id="exo_duration">
+            <div id="exo_elapsed_time"></div>
+          </div>
+          <span id="exo_elapsed_time_label" class="exo_text_label"></span>
+          <span id="exo_duration_label" class="exo_text_label"></span>
+        </div>
+      </div>
+    </section>
+    <script src="app.js"></script>
+  </body>
+</html>

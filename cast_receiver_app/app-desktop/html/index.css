@@ -1,0 +1,156 @@
+/*
+ * Copyright (C) 2018 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+html, body, section, video, div, span, ul, li {
+  border: 0;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body, html {
+  height: 100%;
+  overflow: auto;
+  background-color: #333;
+  color: #eeeeee;
+  font-family: Roboto, Arial, sans-serif;
+}
+body {
+  padding-top: 24px;
+}
+.exo_controls {
+  list-style: none;
+  padding: 0;
+  white-space: nowrap;
+  margin-top: 12px;
+}
+.exo_controls > li {
+  display: inline-block;
+  width: 72px;
+}
+.exo_controls > .large {
+  width: 140px;
+}
+/* an action element to add or remove a media item */
+.action {
+  margin: 4px auto;
+  max-width: 640px;
+}
+.action.prepared {
+  background-color: #AA0000;
+}
+/** marks whether a given media item is in the queue */
+.queue-marker {
+  background-color: #AA0000;
+  border-radius: 50%;
+  border: 1px solid #ffc0c0;
+  display: none;
+  float: right;
+  height: 1em;
+  margin-top: 1px;
+  width: 1em;
+}
+.action[data-uuid] .queue-marker {
+  display: inline-block;
+}
+.action.prepared .queue-marker {
+  background-color: #fff900;
+}
+.playing .action.prepared .queue-marker {
+  animation-name: spin;
+  animation-iteration-count: infinite;
+  animation-duration: 1.6s;
+}
+/* A simple button. */
+.button {
+  background-color: #45484d;
+  border: 1px solid #495267;
+  border-radius: 3px;
+  color: #FFFFFF;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 10px 10px 10px 10px;
+  text-decoration: none;
+  text-shadow: -1px -1px 0 rgba(0,0,0,0.3);
+  -webkit-user-select: none;
+}
+.button:hover {
+ border: 1px solid #363d4c;
+ background-color: #2d2f32;
+ background-image: linear-gradient(to bottom, #2d2f32, #1a1a1a);
+}
+.ribbon {
+  background-color: #003a5dc2;
+  box-shadow: 2px 2px 4px #000;
+  left: -60px;
+  height: 3.3em;
+  padding-top: 7px;
+  position: absolute;
+  text-align: center;
+  top: 27px;
+  transform: rotateZ(-45deg);
+  width: 220px;
+  border: 1px dashed #cacaca;
+  outline-color: #003a5dc2;
+  outline-width: 2px;
+  outline-style: solid;
+}
+.ribbon a {
+  color: white;
+  text-decoration: none;
+  -webkit-user-select: none;
+}
+#button_prepare {
+  left: 0;
+  position: absolute;
+}
+#button_stop {
+  position: absolute;
+  right: 0;
+}
+#exo_demo_view {
+  height: 360px;
+  margin: auto;
+  overflow: hidden;
+  position: relative;
+  width: 640px;
+}
+#video {
+  background-color: #000;
+  border-radius: 8px;
+  height: 100%;
+  margin-bottom: auto;
+  margin-top: auto;
+  width: 100%;
+}
+#exo_controls {
+  display: none;
+  margin: auto;
+  position: relative;
+  text-align: center;
+  width: 640px;
+}
+#media-actions {
+  margin-top: 12px;
+}
+
+@keyframes spin {
+  from {
+    transform: rotateX(0deg);
+  }
+  to {
+    transform: rotateX(180deg);
+  }
+}

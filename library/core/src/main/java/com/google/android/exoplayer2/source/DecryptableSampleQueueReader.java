@@ -71,6 +71,7 @@ public final class DecryptableSampleQueueReader {
    * @throws IOException The underlying error.
    */
   public void maybeThrowError() throws IOException {
+    // TODO: Avoid throwing if the DRM error is not preventing a read operation.
     if (currentSession != null && currentSession.getState() == DrmSession.STATE_ERROR) {
       throw Assertions.checkNotNull(currentSession.getError());
     }
@@ -177,6 +178,23 @@ public final class DecryptableSampleQueueReader {
 
     if (previousSession != null) {
       previousSession.releaseReference();
+    }
+  }
+
+  /** Returns whether there is data available for reading. */
+  public boolean isReady(boolean loadingFinished) {
+    @SampleQueue.PeekResult int nextInQueue = upstream.peekNext();
+    if (nextInQueue == SampleQueue.PEEK_RESULT_NOTHING) {
+      return loadingFinished;
+    } else if (nextInQueue == SampleQueue.PEEK_RESULT_FORMAT) {
+      return true;
+    } else if (nextInQueue == SampleQueue.PEEK_RESULT_BUFFER_CLEAR) {
+      return currentSession == null || playClearSamplesWithoutKeys;
+    } else if (nextInQueue == SampleQueue.PEEK_RESULT_BUFFER_ENCRYPTED) {
+      return Assertions.checkNotNull(currentSession).getState()
+          == DrmSession.STATE_OPENED_WITH_KEYS;
+    } else {
+      throw new IllegalStateException();
     }
   }
 }
