@@ -1743,8 +1743,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   private static boolean isMediaCodecException(IllegalStateException error) {
-    if (Util.SDK_INT >= 21) {
-      return isMediaCodecExceptionV21(error);
+    if (Util.SDK_INT >= 21 && isMediaCodecExceptionV21(error)) {
+      return true;
     }
     StackTraceElement[] stackTrace = error.getStackTrace();
     return stackTrace.length > 0 && stackTrace[0].getClassName().equals("android.media.MediaCodec");
