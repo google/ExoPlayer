@@ -456,8 +456,8 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
       holder = new MediaSourceHolder(new DummyMediaSource());
       holder.hasStartedPreparing = true;
     }
-    DeferredMediaPeriod mediaPeriod =
-        new DeferredMediaPeriod(holder.mediaSource, id, allocator, startPositionUs);
+    MaskingMediaPeriod mediaPeriod =
+        new MaskingMediaPeriod(holder.mediaSource, id, allocator, startPositionUs);
     mediaSourceByMediaPeriod.put(mediaPeriod, holder);
     holder.activeMediaPeriods.add(mediaPeriod);
     if (!holder.hasStartedPreparing) {
@@ -474,7 +474,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   public final void releasePeriod(MediaPeriod mediaPeriod) {
     MediaSourceHolder holder =
         Assertions.checkNotNull(mediaSourceByMediaPeriod.remove(mediaPeriod));
-    ((DeferredMediaPeriod) mediaPeriod).releasePeriod();
+    ((MaskingMediaPeriod) mediaPeriod).releasePeriod();
     holder.activeMediaPeriods.remove(mediaPeriod);
     maybeReleaseChildSource(holder);
   }
@@ -784,7 +784,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
       // is unset and we don't load beyond periods with unset duration. We need to figure out how to
       // handle the prepare positions of multiple deferred media periods, should that ever change.
       Assertions.checkState(mediaSourceHolder.activeMediaPeriods.size() <= 1);
-      DeferredMediaPeriod deferredMediaPeriod =
+      MaskingMediaPeriod deferredMediaPeriod =
           mediaSourceHolder.activeMediaPeriods.isEmpty()
               ? null
               : mediaSourceHolder.activeMediaPeriods.get(0);
@@ -897,7 +897,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
 
     public final MediaSource mediaSource;
     public final Object uid;
-    public final List<DeferredMediaPeriod> activeMediaPeriods;
+    public final List<MaskingMediaPeriod> activeMediaPeriods;
 
     public DeferredTimeline timeline;
     public int childIndex;
