@@ -1231,8 +1231,7 @@ public class SimpleExoPlayer extends BasePlayer
       Log.w(
           TAG,
           "Player is accessed on the wrong thread. See "
-              + "https://exoplayer.dev/troubleshooting.html#"
-              + "what-do-player-is-accessed-on-the-wrong-thread-warnings-mean",
+              + "https://exoplayer.dev/issues/player-accessed-on-wrong-thread",
           hasNotifiedFullWrongThreadWarning ? null : new IllegalStateException());
       hasNotifiedFullWrongThreadWarning = true;
     }
