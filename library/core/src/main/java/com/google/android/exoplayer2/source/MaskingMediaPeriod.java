@@ -32,7 +32,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
  * #createPeriod(MediaPeriodId)} has been called. This is useful if you need to return a media
  * period immediately but the media source that should create it is not yet prepared.
  */
-public final class DeferredMediaPeriod implements MediaPeriod, MediaPeriod.Callback {
+public final class MaskingMediaPeriod implements MediaPeriod, MediaPeriod.Callback {
 
   /** Listener for preparation errors. */
   public interface PrepareErrorListener {
@@ -45,7 +45,7 @@ public final class DeferredMediaPeriod implements MediaPeriod, MediaPeriod.Callb
 
   /** The {@link MediaSource} which will create the actual media period. */
   public final MediaSource mediaSource;
-  /** The {@link MediaPeriodId} used to create the deferred media period. */
+  /** The {@link MediaPeriodId} used to create the masking media period. */
   public final MediaPeriodId id;
 
   private final Allocator allocator;
@@ -58,14 +58,14 @@ public final class DeferredMediaPeriod implements MediaPeriod, MediaPeriod.Callb
   private long preparePositionOverrideUs;
 
   /**
-   * Creates a new deferred media period.
+   * Creates a new masking media period.
    *
    * @param mediaSource The media source to wrap.
-   * @param id The identifier used to create the deferred media period.
+   * @param id The identifier used to create the masking media period.
    * @param allocator The allocator used to create the media period.
    * @param preparePositionUs The expected start position, in microseconds.
    */
-  public DeferredMediaPeriod(
+  public MaskingMediaPeriod(
       MediaSource mediaSource, MediaPeriodId id, Allocator allocator, long preparePositionUs) {
     this.id = id;
     this.allocator = allocator;
@@ -85,7 +85,7 @@ public final class DeferredMediaPeriod implements MediaPeriod, MediaPeriod.Callb
     this.listener = listener;
   }
 
-  /** Returns the position at which the deferred media period was prepared, in microseconds. */
+  /** Returns the position at which the masking media period was prepared, in microseconds. */
   public long getPreparePositionUs() {
     return preparePositionUs;
   }

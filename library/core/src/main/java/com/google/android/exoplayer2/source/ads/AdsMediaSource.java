@@ -23,7 +23,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.CompositeMediaSource;
-import com.google.android.exoplayer2.source.DeferredMediaPeriod;
+import com.google.android.exoplayer2.source.MaskingMediaPeriod;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
@@ -128,7 +128,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
   private final AdsLoader adsLoader;
   private final AdsLoader.AdViewProvider adViewProvider;
   private final Handler mainHandler;
-  private final Map<MediaSource, List<DeferredMediaPeriod>> deferredMediaPeriodByAdMediaSource;
+  private final Map<MediaSource, List<MaskingMediaPeriod>> maskingMediaPeriodByAdMediaSource;
   private final Timeline.Period period;
 
   // Accessed on the player thread.
@@ -179,7 +179,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
     this.adsLoader = adsLoader;
     this.adViewProvider = adViewProvider;
     mainHandler = new Handler(Looper.getMainLooper());
-    deferredMediaPeriodByAdMediaSource = new HashMap<>();
+    maskingMediaPeriodByAdMediaSource = new HashMap<>();
     period = new Timeline.Period();
     adGroupMediaSources = new MediaSource[0][];
     adGroupTimelines = new Timeline[0][];
@@ -219,29 +219,29 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
       if (mediaSource == null) {
         mediaSource = adMediaSourceFactory.createMediaSource(adUri);
         adGroupMediaSources[adGroupIndex][adIndexInAdGroup] = mediaSource;
-        deferredMediaPeriodByAdMediaSource.put(mediaSource, new ArrayList<>());
+        maskingMediaPeriodByAdMediaSource.put(mediaSource, new ArrayList<>());
         prepareChildSource(id, mediaSource);
       }
-      DeferredMediaPeriod deferredMediaPeriod =
-          new DeferredMediaPeriod(mediaSource, id, allocator, startPositionUs);
-      deferredMediaPeriod.setPrepareErrorListener(
+      MaskingMediaPeriod maskingMediaPeriod =
+          new MaskingMediaPeriod(mediaSource, id, allocator, startPositionUs);
+      maskingMediaPeriod.setPrepareErrorListener(
           new AdPrepareErrorListener(adUri, adGroupIndex, adIndexInAdGroup));
-      List<DeferredMediaPeriod> mediaPeriods = deferredMediaPeriodByAdMediaSource.get(mediaSource);
+      List<MaskingMediaPeriod> mediaPeriods = maskingMediaPeriodByAdMediaSource.get(mediaSource);
       if (mediaPeriods == null) {
         Object periodUid =
             Assertions.checkNotNull(adGroupTimelines[adGroupIndex][adIndexInAdGroup])
                 .getUidOfPeriod(/* periodIndex= */ 0);
         MediaPeriodId adSourceMediaPeriodId = new MediaPeriodId(periodUid, id.windowSequenceNumber);
-        deferredMediaPeriod.createPeriod(adSourceMediaPeriodId);
+        maskingMediaPeriod.createPeriod(adSourceMediaPeriodId);
       } else {
-        // Keep track of the deferred media period so it can be populated with the real media period
+        // Keep track of the masking media period so it can be populated with the real media period
         // when the source's info becomes available.
-        mediaPeriods.add(deferredMediaPeriod);
+        mediaPeriods.add(maskingMediaPeriod);
       }
-      return deferredMediaPeriod;
+      return maskingMediaPeriod;
     } else {
-      DeferredMediaPeriod mediaPeriod =
-          new DeferredMediaPeriod(contentMediaSource, id, allocator, startPositionUs);
+      MaskingMediaPeriod mediaPeriod =
+          new MaskingMediaPeriod(contentMediaSource, id, allocator, startPositionUs);
       mediaPeriod.createPeriod(id);
       return mediaPeriod;
     }
@@ -249,13 +249,13 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
 
   @Override
   public void releasePeriod(MediaPeriod mediaPeriod) {
-    DeferredMediaPeriod deferredMediaPeriod = (DeferredMediaPeriod) mediaPeriod;
-    List<DeferredMediaPeriod> mediaPeriods =
-        deferredMediaPeriodByAdMediaSource.get(deferredMediaPeriod.mediaSource);
+    MaskingMediaPeriod maskingMediaPeriod = (MaskingMediaPeriod) mediaPeriod;
+    List<MaskingMediaPeriod> mediaPeriods =
+        maskingMediaPeriodByAdMediaSource.get(maskingMediaPeriod.mediaSource);
     if (mediaPeriods != null) {
-      mediaPeriods.remove(deferredMediaPeriod);
+      mediaPeriods.remove(maskingMediaPeriod);
     }
-    deferredMediaPeriod.releasePeriod();
+    maskingMediaPeriod.releasePeriod();
   }
 
   @Override
@@ -263,7 +263,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
     super.releaseSourceInternal();
     Assertions.checkNotNull(componentListener).release();
     componentListener = null;
-    deferredMediaPeriodByAdMediaSource.clear();
+    maskingMediaPeriodByAdMediaSource.clear();
     contentTimeline = null;
     contentManifest = null;
     adPlaybackState = null;
@@ -319,11 +319,11 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
       int adIndexInAdGroup, Timeline timeline) {
     Assertions.checkArgument(timeline.getPeriodCount() == 1);
     adGroupTimelines[adGroupIndex][adIndexInAdGroup] = timeline;
-    List<DeferredMediaPeriod> mediaPeriods = deferredMediaPeriodByAdMediaSource.remove(mediaSource);
+    List<MaskingMediaPeriod> mediaPeriods = maskingMediaPeriodByAdMediaSource.remove(mediaSource);
     if (mediaPeriods != null) {
       Object periodUid = timeline.getUidOfPeriod(/* periodIndex= */ 0);
       for (int i = 0; i < mediaPeriods.size(); i++) {
-        DeferredMediaPeriod mediaPeriod = mediaPeriods.get(i);
+        MaskingMediaPeriod mediaPeriod = mediaPeriods.get(i);
         MediaPeriodId adSourceMediaPeriodId =
             new MediaPeriodId(periodUid, mediaPeriod.id.windowSequenceNumber);
         mediaPeriod.createPeriod(adSourceMediaPeriodId);
@@ -413,7 +413,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
     }
   }
 
-  private final class AdPrepareErrorListener implements DeferredMediaPeriod.PrepareErrorListener {
+  private final class AdPrepareErrorListener implements MaskingMediaPeriod.PrepareErrorListener {
 
     private final Uri adUri;
     private final int adGroupIndex;
