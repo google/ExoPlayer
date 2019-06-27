@@ -44,12 +44,6 @@ import java.util.List;
  */
 public final class TextRenderer extends BaseRenderer implements Callback {
 
-  /**
-   * @deprecated Use {@link TextOutput}.
-   */
-  @Deprecated
-  public interface Output extends TextOutput {}
-
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({

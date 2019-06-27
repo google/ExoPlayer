@@ -34,12 +34,6 @@ import java.util.Arrays;
  */
 public final class MetadataRenderer extends BaseRenderer implements Callback {
 
-  /**
-   * @deprecated Use {@link MetadataOutput}.
-   */
-  @Deprecated
-  public interface Output extends MetadataOutput {}
-
   private static final int MSG_INVOKE_RENDERER = 0;
   // TODO: Holding multiple pending metadata objects is temporary mitigation against
   // https://github.com/google/ExoPlayer/issues/1874. It should be removed once this issue has been
