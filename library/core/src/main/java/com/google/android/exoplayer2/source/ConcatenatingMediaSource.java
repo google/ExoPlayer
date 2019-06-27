@@ -46,7 +46,7 @@ import java.util.Set;
  * during playback. It is valid for the same {@link MediaSource} instance to be present more than
  * once in the concatenation. Access to this class is thread-safe.
  */
-public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHolder> {
+public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHolder> {
 
   private static final int MSG_ADD = 0;
   private static final int MSG_REMOVE = 1;
@@ -149,7 +149,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    *
    * @param mediaSource The {@link MediaSource} to be added to the list.
    */
-  public final synchronized void addMediaSource(MediaSource mediaSource) {
+  public synchronized void addMediaSource(MediaSource mediaSource) {
     addMediaSource(mediaSourcesPublic.size(), mediaSource);
   }
 
@@ -161,7 +161,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    * @param onCompletionAction A {@link Runnable} which is executed immediately after the media
    *     source has been added to the playlist.
    */
-  public final synchronized void addMediaSource(
+  public synchronized void addMediaSource(
       MediaSource mediaSource, Handler handler, Runnable onCompletionAction) {
     addMediaSource(mediaSourcesPublic.size(), mediaSource, handler, onCompletionAction);
   }
@@ -173,7 +173,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    *     be in the range of 0 &lt;= index &lt;= {@link #getSize()}.
    * @param mediaSource The {@link MediaSource} to be added to the list.
    */
-  public final synchronized void addMediaSource(int index, MediaSource mediaSource) {
+  public synchronized void addMediaSource(int index, MediaSource mediaSource) {
     addPublicMediaSources(
         index,
         Collections.singletonList(mediaSource),
@@ -191,7 +191,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    * @param onCompletionAction A {@link Runnable} which is executed immediately after the media
    *     source has been added to the playlist.
    */
-  public final synchronized void addMediaSource(
+  public synchronized void addMediaSource(
       int index, MediaSource mediaSource, Handler handler, Runnable onCompletionAction) {
     addPublicMediaSources(
         index, Collections.singletonList(mediaSource), handler, onCompletionAction);
@@ -203,7 +203,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    * @param mediaSources A collection of {@link MediaSource}s to be added to the list. The media
    *     sources are added in the order in which they appear in this collection.
    */
-  public final synchronized void addMediaSources(Collection<MediaSource> mediaSources) {
+  public synchronized void addMediaSources(Collection<MediaSource> mediaSources) {
     addPublicMediaSources(
         mediaSourcesPublic.size(),
         mediaSources,
@@ -221,7 +221,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    * @param onCompletionAction A {@link Runnable} which is executed immediately after the media
    *     sources have been added to the playlist.
    */
-  public final synchronized void addMediaSources(
+  public synchronized void addMediaSources(
       Collection<MediaSource> mediaSources, Handler handler, Runnable onCompletionAction) {
     addPublicMediaSources(mediaSourcesPublic.size(), mediaSources, handler, onCompletionAction);
   }
@@ -234,7 +234,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    * @param mediaSources A collection of {@link MediaSource}s to be added to the list. The media
    *     sources are added in the order in which they appear in this collection.
    */
-  public final synchronized void addMediaSources(int index, Collection<MediaSource> mediaSources) {
+  public synchronized void addMediaSources(int index, Collection<MediaSource> mediaSources) {
     addPublicMediaSources(index, mediaSources, /* handler= */ null, /* onCompletionAction= */ null);
   }
 
@@ -249,7 +249,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    * @param onCompletionAction A {@link Runnable} which is executed immediately after the media
    *     sources have been added to the playlist.
    */
-  public final synchronized void addMediaSources(
+  public synchronized void addMediaSources(
       int index,
       Collection<MediaSource> mediaSources,
       Handler handler,
@@ -269,7 +269,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    * @param index The index at which the media source will be removed. This index must be in the
    *     range of 0 &lt;= index &lt; {@link #getSize()}.
    */
-  public final synchronized void removeMediaSource(int index) {
+  public synchronized void removeMediaSource(int index) {
     removePublicMediaSources(index, index + 1, /* handler= */ null, /* onCompletionAction= */ null);
   }
 
@@ -288,7 +288,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    * @param onCompletionAction A {@link Runnable} which is executed immediately after the media
    *     source has been removed from the playlist.
    */
-  public final synchronized void removeMediaSource(
+  public synchronized void removeMediaSource(
       int index, Handler handler, Runnable onCompletionAction) {
     removePublicMediaSources(index, index + 1, handler, onCompletionAction);
   }
@@ -307,7 +307,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    * @throws IndexOutOfBoundsException When the range is malformed, i.e. {@code fromIndex} &lt; 0,
    *     {@code toIndex} &gt; {@link #getSize()}, {@code fromIndex} &gt; {@code toIndex}
    */
-  public final synchronized void removeMediaSourceRange(int fromIndex, int toIndex) {
+  public synchronized void removeMediaSourceRange(int fromIndex, int toIndex) {
     removePublicMediaSources(
         fromIndex, toIndex, /* handler= */ null, /* onCompletionAction= */ null);
   }
@@ -329,7 +329,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    * @throws IllegalArgumentException When the range is malformed, i.e. {@code fromIndex} &lt; 0,
    *     {@code toIndex} &gt; {@link #getSize()}, {@code fromIndex} &gt; {@code toIndex}
    */
-  public final synchronized void removeMediaSourceRange(
+  public synchronized void removeMediaSourceRange(
       int fromIndex, int toIndex, Handler handler, Runnable onCompletionAction) {
     removePublicMediaSources(fromIndex, toIndex, handler, onCompletionAction);
   }
@@ -342,7 +342,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    * @param newIndex The target index of the media source in the playlist. This index must be in the
    *     range of 0 &lt;= index &lt; {@link #getSize()}.
    */
-  public final synchronized void moveMediaSource(int currentIndex, int newIndex) {
+  public synchronized void moveMediaSource(int currentIndex, int newIndex) {
     movePublicMediaSource(
         currentIndex, newIndex, /* handler= */ null, /* onCompletionAction= */ null);
   }
@@ -359,13 +359,13 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    * @param onCompletionAction A {@link Runnable} which is executed immediately after the media
    *     source has been moved.
    */
-  public final synchronized void moveMediaSource(
+  public synchronized void moveMediaSource(
       int currentIndex, int newIndex, Handler handler, Runnable onCompletionAction) {
     movePublicMediaSource(currentIndex, newIndex, handler, onCompletionAction);
   }
 
   /** Clears the playlist. */
-  public final synchronized void clear() {
+  public synchronized void clear() {
     removeMediaSourceRange(0, getSize());
   }
 
@@ -376,12 +376,12 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    * @param onCompletionAction A {@link Runnable} which is executed immediately after the playlist
    *     has been cleared.
    */
-  public final synchronized void clear(Handler handler, Runnable onCompletionAction) {
+  public synchronized void clear(Handler handler, Runnable onCompletionAction) {
     removeMediaSourceRange(0, getSize(), handler, onCompletionAction);
   }
 
   /** Returns the number of media sources in the playlist. */
-  public final synchronized int getSize() {
+  public synchronized int getSize() {
     return mediaSourcesPublic.size();
   }
 
@@ -391,7 +391,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    * @param index An index in the range of 0 &lt;= index &lt;= {@link #getSize()}.
    * @return The {@link MediaSource} at this index.
    */
-  public final synchronized MediaSource getMediaSource(int index) {
+  public synchronized MediaSource getMediaSource(int index) {
     return mediaSourcesPublic.get(index).mediaSource;
   }
 
@@ -400,7 +400,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    *
    * @param shuffleOrder A {@link ShuffleOrder}.
    */
-  public final synchronized void setShuffleOrder(ShuffleOrder shuffleOrder) {
+  public synchronized void setShuffleOrder(ShuffleOrder shuffleOrder) {
     setPublicShuffleOrder(shuffleOrder, /* handler= */ null, /* onCompletionAction= */ null);
   }
 
@@ -412,7 +412,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    * @param onCompletionAction A {@link Runnable} which is executed immediately after the shuffle
    *     order has been changed.
    */
-  public final synchronized void setShuffleOrder(
+  public synchronized void setShuffleOrder(
       ShuffleOrder shuffleOrder, Handler handler, Runnable onCompletionAction) {
     setPublicShuffleOrder(shuffleOrder, handler, onCompletionAction);
   }
@@ -426,8 +426,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   }
 
   @Override
-  public final synchronized void prepareSourceInternal(
-      @Nullable TransferListener mediaTransferListener) {
+  public synchronized void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
     super.prepareSourceInternal(mediaTransferListener);
     playbackThreadHandler = new Handler(/* callback= */ this::handleMessage);
     if (mediaSourcesPublic.isEmpty()) {
@@ -447,8 +446,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   }
 
   @Override
-  public final MediaPeriod createPeriod(
-      MediaPeriodId id, Allocator allocator, long startPositionUs) {
+  public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs) {
     Object mediaSourceHolderUid = getMediaSourceHolderUid(id.periodUid);
     MediaSourceHolder holder = mediaSourceByUid.get(mediaSourceHolderUid);
     if (holder == null) {
@@ -471,7 +469,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   }
 
   @Override
-  public final void releasePeriod(MediaPeriod mediaPeriod) {
+  public void releasePeriod(MediaPeriod mediaPeriod) {
     MediaSourceHolder holder =
         Assertions.checkNotNull(mediaSourceByMediaPeriod.remove(mediaPeriod));
     ((MaskingMediaPeriod) mediaPeriod).releasePeriod();
@@ -480,7 +478,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   }
 
   @Override
-  public final synchronized void releaseSourceInternal() {
+  public synchronized void releaseSourceInternal() {
     super.releaseSourceInternal();
     mediaSourceHolders.clear();
     mediaSourceByUid.clear();
@@ -497,7 +495,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   }
 
   @Override
-  protected final void onChildSourceInfoRefreshed(
+  protected void onChildSourceInfoRefreshed(
       MediaSourceHolder mediaSourceHolder,
       MediaSource mediaSource,
       Timeline timeline,
@@ -506,7 +504,8 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   }
 
   @Override
-  protected @Nullable MediaPeriodId getMediaPeriodIdForChildMediaPeriodId(
+  @Nullable
+  protected MediaPeriodId getMediaPeriodIdForChildMediaPeriodId(
       MediaSourceHolder mediaSourceHolder, MediaPeriodId mediaPeriodId) {
     for (int i = 0; i < mediaSourceHolder.activeMediaPeriods.size(); i++) {
       // Ensure the reported media period id has the same window sequence number as the one created
