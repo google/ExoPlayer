@@ -1035,23 +1035,9 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public void sendMessages(ExoPlayerMessage... messages) {
-    player.sendMessages(messages);
-  }
-
-  @Override
   public PlayerMessage createMessage(PlayerMessage.Target target) {
     verifyApplicationThread();
     return player.createMessage(target);
-  }
-
-  @Override
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public void blockingSendMessages(ExoPlayerMessage... messages) {
-    player.blockingSendMessages(messages);
   }
 
   @Override

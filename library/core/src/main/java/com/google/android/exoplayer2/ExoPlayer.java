@@ -117,30 +117,6 @@ import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
  */
 public interface ExoPlayer extends Player {
 
-  /** @deprecated Use {@link PlayerMessage.Target} instead. */
-  @Deprecated
-  interface ExoPlayerComponent extends PlayerMessage.Target {}
-
-  /** @deprecated Use {@link PlayerMessage} instead. */
-  @Deprecated
-  final class ExoPlayerMessage {
-
-    /** The target to receive the message. */
-    public final PlayerMessage.Target target;
-    /** The type of the message. */
-    public final int messageType;
-    /** The message. */
-    public final Object message;
-
-    /** @deprecated Use {@link ExoPlayer#createMessage(PlayerMessage.Target)} instead. */
-    @Deprecated
-    public ExoPlayerMessage(PlayerMessage.Target target, int messageType, Object message) {
-      this.target = target;
-      this.messageType = messageType;
-      this.message = message;
-    }
-  }
-
   /** Returns the {@link Looper} associated with the playback thread. */
   Looper getPlaybackLooper();
 
@@ -180,19 +156,6 @@ public interface ExoPlayer extends Player {
    * PlayerMessage#setPosition(int, long)}.
    */
   PlayerMessage createMessage(PlayerMessage.Target target);
-
-  /** @deprecated Use {@link #createMessage(PlayerMessage.Target)} instead. */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  void sendMessages(ExoPlayerMessage... messages);
-
-  /**
-   * @deprecated Use {@link #createMessage(PlayerMessage.Target)} with {@link
-   *     PlayerMessage#blockUntilDelivered()}.
-   */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  void blockingSendMessages(ExoPlayerMessage... messages);
 
   /**
    * Sets the parameters that control how seek operations are performed.

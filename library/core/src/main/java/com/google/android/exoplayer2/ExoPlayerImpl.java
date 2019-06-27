@@ -35,8 +35,6 @@ import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /** An {@link ExoPlayer} implementation. Instances can be obtained from {@link ExoPlayerFactory}. */
@@ -411,15 +409,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
   }
 
   @Override
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public void sendMessages(ExoPlayerMessage... messages) {
-    for (ExoPlayerMessage message : messages) {
-      createMessage(message.target).setType(message.messageType).setPayload(message.message).send();
-    }
-  }
-
-  @Override
   public PlayerMessage createMessage(Target target) {
     return new PlayerMessage(
         internalPlayer,
@@ -427,36 +416,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
         playbackInfo.timeline,
         getCurrentWindowIndex(),
         internalPlayerHandler);
-  }
-
-  @Override
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public void blockingSendMessages(ExoPlayerMessage... messages) {
-    List<PlayerMessage> playerMessages = new ArrayList<>();
-    for (ExoPlayerMessage message : messages) {
-      playerMessages.add(
-          createMessage(message.target)
-              .setType(message.messageType)
-              .setPayload(message.message)
-              .send());
-    }
-    boolean wasInterrupted = false;
-    for (PlayerMessage message : playerMessages) {
-      boolean blockMessage = true;
-      while (blockMessage) {
-        try {
-          message.blockUntilDelivered();
-          blockMessage = false;
-        } catch (InterruptedException e) {
-          wasInterrupted = true;
-        }
-      }
-    }
-    if (wasInterrupted) {
-      // Restore the interrupted status.
-      Thread.currentThread().interrupt();
-    }
   }
 
   @Override
