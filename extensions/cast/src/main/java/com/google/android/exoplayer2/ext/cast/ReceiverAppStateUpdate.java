@@ -110,20 +110,20 @@ public final class ReceiverAppStateUpdate {
   public static final class Builder {
 
     private final long sequenceNumber;
-    @MonotonicNonNull private Boolean playWhenReady;
-    @MonotonicNonNull private Integer playbackState;
-    @MonotonicNonNull private List<MediaItem> items;
-    @MonotonicNonNull private Integer repeatMode;
-    @MonotonicNonNull private Boolean shuffleModeEnabled;
-    @MonotonicNonNull private Boolean isLoading;
-    @MonotonicNonNull private PlaybackParameters playbackParameters;
-    @MonotonicNonNull private TrackSelectionParameters trackSelectionParameters;
-    @MonotonicNonNull private String errorMessage;
-    @MonotonicNonNull private Integer discontinuityReason;
-    @MonotonicNonNull private UUID currentPlayingItemUuid;
-    @MonotonicNonNull private String currentPlayingPeriodId;
-    @MonotonicNonNull private Long currentPlaybackPositionMs;
-    @MonotonicNonNull private List<Integer> shuffleOrder;
+    private @MonotonicNonNull Boolean playWhenReady;
+    private @MonotonicNonNull Integer playbackState;
+    private @MonotonicNonNull List<MediaItem> items;
+    private @MonotonicNonNull Integer repeatMode;
+    private @MonotonicNonNull Boolean shuffleModeEnabled;
+    private @MonotonicNonNull Boolean isLoading;
+    private @MonotonicNonNull PlaybackParameters playbackParameters;
+    private @MonotonicNonNull TrackSelectionParameters trackSelectionParameters;
+    private @MonotonicNonNull String errorMessage;
+    private @MonotonicNonNull Integer discontinuityReason;
+    private @MonotonicNonNull UUID currentPlayingItemUuid;
+    private @MonotonicNonNull String currentPlayingPeriodId;
+    private @MonotonicNonNull Long currentPlaybackPositionMs;
+    private @MonotonicNonNull List<Integer> shuffleOrder;
     private Map<UUID, MediaItemInfo> mediaItemsInformation;
 
     private Builder(long sequenceNumber) {

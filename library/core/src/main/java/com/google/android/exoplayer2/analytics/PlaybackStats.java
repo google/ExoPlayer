@@ -502,8 +502,7 @@ public final class PlaybackStats {
    * @return The {@link PlaybackState} at that time, or {@link #PLAYBACK_STATE_NOT_STARTED} if the
    *     given time is before the first known playback state in the history.
    */
-  @PlaybackState
-  public int getPlaybackStateAtTime(long realtimeMs) {
+  public @PlaybackState int getPlaybackStateAtTime(long realtimeMs) {
     @PlaybackState int state = PLAYBACK_STATE_NOT_STARTED;
     for (Pair<EventTime, @PlaybackState Integer> timeAndState : playbackStateHistory) {
       if (timeAndState.first.realtimeMs > realtimeMs) {

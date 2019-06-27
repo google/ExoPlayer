@@ -101,8 +101,8 @@ public final class CanvasRenderer {
   // GL initialization. The client of this class acquires a Canvas from the Surface, writes to it
   // and posts it. This marks the Surface as dirty. The GL code then updates the SurfaceTexture
   // when rendering only if it is dirty.
-  @MonotonicNonNull private SurfaceTexture displaySurfaceTexture;
-  @MonotonicNonNull private Surface displaySurface;
+  private @MonotonicNonNull SurfaceTexture displaySurfaceTexture;
+  private @MonotonicNonNull Surface displaySurface;
 
   public CanvasRenderer() {
     vertexBuffer = GlUtil.createBuffer(COORDS_PER_VERTEX * VERTEX_COUNT);

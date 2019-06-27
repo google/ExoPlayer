@@ -46,7 +46,7 @@ public final class DefaultPlaybackSessionManager implements PlaybackSessionManag
   private final Timeline.Period period;
   private final HashMap<String, SessionDescriptor> sessions;
 
-  @MonotonicNonNull private Listener listener;
+  private @MonotonicNonNull Listener listener;
   private Timeline currentTimeline;
   @Nullable private MediaPeriodId currentMediaPeriodId;
   @Nullable private String activeSessionId;

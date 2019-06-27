@@ -29,7 +29,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  */
 public final class ByteArrayDataSink implements DataSink {
 
-  @MonotonicNonNull private ByteArrayOutputStream stream;
+  private @MonotonicNonNull ByteArrayOutputStream stream;
 
   @Override
   public void open(DataSpec dataSpec) {
