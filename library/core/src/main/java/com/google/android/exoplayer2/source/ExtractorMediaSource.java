@@ -339,7 +339,7 @@ public final class ExtractorMediaSource extends BaseMediaSource
   }
 
   @Override
-  public void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
+  protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
     progressiveMediaSource.prepareSource(/* listener= */ this, mediaTransferListener);
   }
 
@@ -359,7 +359,7 @@ public final class ExtractorMediaSource extends BaseMediaSource
   }
 
   @Override
-  public void releaseSourceInternal() {
+  protected void releaseSourceInternal() {
     progressiveMediaSource.releaseSource(/* listener= */ this);
   }
 

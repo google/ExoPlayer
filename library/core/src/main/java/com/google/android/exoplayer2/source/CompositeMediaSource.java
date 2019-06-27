@@ -44,7 +44,7 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
 
   @Override
   @CallSuper
-  public void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
+  protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
     this.mediaTransferListener = mediaTransferListener;
     eventHandler = new Handler();
   }
@@ -59,7 +59,7 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
 
   @Override
   @CallSuper
-  public void releaseSourceInternal() {
+  protected void releaseSourceInternal() {
     for (MediaSourceAndListener childSource : childSources.values()) {
       childSource.mediaSource.releaseSource(childSource.listener);
       childSource.mediaSource.removeEventListener(childSource.eventListener);

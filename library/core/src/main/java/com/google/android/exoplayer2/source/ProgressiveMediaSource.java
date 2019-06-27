@@ -228,7 +228,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
   }
 
   @Override
-  public void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
+  protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
     transferListener = mediaTransferListener;
     notifySourceInfoRefreshed(timelineDurationUs, timelineIsSeekable);
   }
@@ -262,7 +262,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
   }
 
   @Override
-  public void releaseSourceInternal() {
+  protected void releaseSourceInternal() {
     // Do nothing.
   }
 

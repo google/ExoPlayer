@@ -137,7 +137,7 @@ public class FakeMediaSource extends BaseMediaSource {
   }
 
   @Override
-  public void releaseSourceInternal() {
+  protected void releaseSourceInternal() {
     assertThat(preparedSource).isTrue();
     assertThat(releasedSource).isFalse();
     assertThat(activeMediaPeriods.isEmpty()).isTrue();
