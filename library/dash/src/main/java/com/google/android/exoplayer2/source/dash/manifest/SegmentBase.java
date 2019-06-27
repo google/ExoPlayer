@@ -102,7 +102,6 @@ public abstract class SegmentBase {
     /* package */ final long startNumber;
     /* package */ final long duration;
     /* package */ final List<SegmentTimelineElement> segmentTimeline;
-    /* package */ final int endNumber;
 
     /**
      * @param initialization A {@link RangedUri} corresponding to initialization data, if such data
@@ -129,38 +128,6 @@ public abstract class SegmentBase {
       this.startNumber = startNumber;
       this.duration = duration;
       this.segmentTimeline = segmentTimeline;
-      this.endNumber = C.INDEX_UNSET;
-    }
-
-    /**
-     * @param initialization A {@link RangedUri} corresponding to initialization data, if such data
-     *     exists.
-     * @param timescale The timescale in units per second.
-     * @param presentationTimeOffset The presentation time offset. The value in seconds is the
-     *     division of this value and {@code timescale}.
-     * @param startNumber The sequence number of the first segment.
-     * @param endNumber The sequence number of the last segment specified by SupplementalProperty
-     *     schemeIdUri="http://dashif.org/guidelines/last-segment-number"
-     * @param duration The duration of each segment in the case of fixed duration segments. The
-     *     value in seconds is the division of this value and {@code timescale}. If {@code
-     *     segmentTimeline} is non-null then this parameter is ignored.
-     * @param segmentTimeline A segment timeline corresponding to the segments. If null, then
-     *     segments are assumed to be of fixed duration as specified by the {@code duration}
-     *     parameter.
-     */
-    public MultiSegmentBase(
-        RangedUri initialization,
-        long timescale,
-        long presentationTimeOffset,
-        long startNumber,
-        int endNumber,
-        long duration,
-        List<SegmentTimelineElement> segmentTimeline) {
-      super(initialization, timescale, presentationTimeOffset);
-      this.startNumber = startNumber;
-      this.duration = duration;
-      this.segmentTimeline = segmentTimeline;
-      this.endNumber = endNumber;
     }
 
     /** @see DashSegmentIndex#getSegmentNum(long, long) */
@@ -310,6 +277,7 @@ public abstract class SegmentBase {
 
     /* package */ final UrlTemplate initializationTemplate;
     /* package */ final UrlTemplate mediaTemplate;
+    /* package */ final long endNumber;
 
     /**
      * @param initialization A {@link RangedUri} corresponding to initialization data, if such data
@@ -343,6 +311,7 @@ public abstract class SegmentBase {
           duration, segmentTimeline);
       this.initializationTemplate = initializationTemplate;
       this.mediaTemplate = mediaTemplate;
+      this.endNumber = C.INDEX_UNSET;
     }
 
     /**
@@ -371,15 +340,16 @@ public abstract class SegmentBase {
         long timescale,
         long presentationTimeOffset,
         long startNumber,
-        int endNumber,
+        long endNumber,
         long duration,
         List<SegmentTimelineElement> segmentTimeline,
         UrlTemplate initializationTemplate,
         UrlTemplate mediaTemplate) {
-      super(initialization, timescale, presentationTimeOffset, startNumber,endNumber,
-          duration, segmentTimeline);
+      super(initialization, timescale, presentationTimeOffset, startNumber, duration,
+          segmentTimeline);
       this.initializationTemplate = initializationTemplate;
       this.mediaTemplate = mediaTemplate;
+      this.endNumber = endNumber;
     }
 
     @Override
@@ -411,7 +381,7 @@ public abstract class SegmentBase {
       if (segmentTimeline != null) {
         return segmentTimeline.size();
       } else if (endNumber != C.INDEX_UNSET) {
-        return endNumber - (int) startNumber + 1;
+        return (int) (endNumber - startNumber + 1);
       } else if (periodDurationUs != C.TIME_UNSET) {
         long durationUs = (duration * C.MICROS_PER_SECOND) / timescale;
         return (int) Util.ceilDivide(periodDurationUs, durationUs);

@@ -242,7 +242,7 @@ public class DashManifestParser extends DefaultHandler
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentList")) {
         segmentBase = parseSegmentList(xpp, null);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentTemplate")) {
-        segmentBase = parseSegmentTemplate(xpp, null,null,null);
+        segmentBase = parseSegmentTemplate(xpp, null,null);
       } else {
         maybeSkipTag(xpp);
       }
@@ -323,8 +323,8 @@ public class DashManifestParser extends DefaultHandler
                 language,
                 roleDescriptors,
                 accessibilityDescriptors,
-                segmentBase,
-                supplementalProperties);
+                supplementalProperties,
+                segmentBase);
         contentType = checkContentTypeConsistency(contentType,
             getContentType(representationInfo.format));
         representationInfos.add(representationInfo);
@@ -334,7 +334,7 @@ public class DashManifestParser extends DefaultHandler
         segmentBase = parseSegmentList(xpp, (SegmentList) segmentBase);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentTemplate")) {
         segmentBase = parseSegmentTemplate(xpp, (SegmentTemplate) segmentBase,
-            supplementalProperties,null);
+            supplementalProperties);
       } else if (XmlPullParserUtil.isStartTag(xpp, "InbandEventStream")) {
         inbandEventStreams.add(parseDescriptor(xpp, "InbandEventStream"));
       } else if (XmlPullParserUtil.isStartTag(xpp)) {
@@ -487,8 +487,8 @@ public class DashManifestParser extends DefaultHandler
       String adaptationSetLanguage,
       List<Descriptor> adaptationSetRoleDescriptors,
       List<Descriptor> adaptationSetAccessibilityDescriptors,
-      SegmentBase segmentBase,
-      ArrayList<Descriptor> adaptationSetSupplementalProperties)
+      List<Descriptor> adaptationSetSupplementalProperties,
+      SegmentBase segmentBase)
       throws XmlPullParserException, IOException {
     String id = xpp.getAttributeValue(null, "id");
     int bandwidth = parseInt(xpp, "bandwidth", Format.NO_VALUE);
@@ -521,7 +521,7 @@ public class DashManifestParser extends DefaultHandler
         segmentBase = parseSegmentList(xpp, (SegmentList) segmentBase);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentTemplate")) {
         segmentBase = parseSegmentTemplate(xpp, (SegmentTemplate) segmentBase,
-            adaptationSetSupplementalProperties,supplementalProperties);
+            adaptationSetSupplementalProperties);
       } else if (XmlPullParserUtil.isStartTag(xpp, "ContentProtection")) {
         Pair<String, SchemeData> contentProtection = parseContentProtection(xpp);
         if (contentProtection.first != null) {
@@ -761,8 +761,7 @@ public class DashManifestParser extends DefaultHandler
   }
 
   protected SegmentTemplate parseSegmentTemplate(XmlPullParser xpp, SegmentTemplate parent,
-      ArrayList<Descriptor> adaptationSetSupplementalProperties,
-      ArrayList<Descriptor> representationSupplementalProperties)
+      List<Descriptor> adaptationSetSupplementalProperties)
       throws XmlPullParserException, IOException {
     long timescale = parseLong(xpp, "timescale", parent != null ? parent.timescale : 1);
     long presentationTimeOffset = parseLong(xpp, "presentationTimeOffset",
@@ -793,20 +792,27 @@ public class DashManifestParser extends DefaultHandler
       timeline = timeline != null ? timeline : parent.segmentTimeline;
     }
 
+    long endNumber = C.INDEX_UNSET;
+
+    if (adaptationSetSupplementalProperties != null) {
+        endNumber = parseLastSegmentNumberSupplementalProperty
+            (adaptationSetSupplementalProperties);
+    }
+
     return buildSegmentTemplate(initialization, timescale, presentationTimeOffset,
         startNumber, duration, timeline, initializationTemplate, mediaTemplate,
-        adaptationSetSupplementalProperties,representationSupplementalProperties);
+        endNumber);
   }
 
-  protected String parseLastSegmentNumberSupplementalProperty
+  protected long parseLastSegmentNumberSupplementalProperty
       (List<Descriptor> supplementalProperties){
     for (Descriptor descriptor : supplementalProperties) {
-      if (descriptor.schemeIdUri.equalsIgnoreCase
-          ("http://dashif.org/guidelines/last-segment-number")) {
-        return descriptor.value;
+      if ("http://dashif.org/guidelines/last-segment-number"
+          .equalsIgnoreCase(descriptor.schemeIdUri)) {
+        return Long.parseLong(descriptor.value);
       }
     }
-    return null;
+    return C.INDEX_UNSET;
   }
 
   protected SegmentTemplate buildSegmentTemplate(
@@ -817,29 +823,11 @@ public class DashManifestParser extends DefaultHandler
       long duration,
       List<SegmentTimelineElement> timeline,
       UrlTemplate initializationTemplate,
-      UrlTemplate mediaTemplate,ArrayList<Descriptor> adaptationSetSupplementalProperties,
-      ArrayList<Descriptor> representationSupplementalProperties ) {
+      UrlTemplate mediaTemplate,long endNumber ) {
 
-    if (representationSupplementalProperties != null) {
-      if (parseLastSegmentNumberSupplementalProperty
-          (representationSupplementalProperties) != null) {
-        String lastSegment = parseLastSegmentNumberSupplementalProperty
-            (representationSupplementalProperties);
-        return new SegmentTemplate(initialization, timescale, presentationTimeOffset,
-            startNumber, Integer.valueOf(lastSegment),duration, timeline,
-            initializationTemplate, mediaTemplate);
-      }
-    }
-
-    if (adaptationSetSupplementalProperties != null) {
-      if (parseLastSegmentNumberSupplementalProperty(adaptationSetSupplementalProperties) != null)
-      {
-        String lastSegment = parseLastSegmentNumberSupplementalProperty
-            (adaptationSetSupplementalProperties);
-        return new SegmentTemplate(initialization, timescale, presentationTimeOffset,
-            startNumber, Integer.valueOf(lastSegment),duration, timeline,
-            initializationTemplate, mediaTemplate);
-      }
+    if (endNumber!=C.INDEX_UNSET) {
+      return new SegmentTemplate(initialization, timescale, presentationTimeOffset,
+          startNumber, endNumber,duration, timeline, initializationTemplate, mediaTemplate);
     }
 
     return new SegmentTemplate(initialization, timescale, presentationTimeOffset,
