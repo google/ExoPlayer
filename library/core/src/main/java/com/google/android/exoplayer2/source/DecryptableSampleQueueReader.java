@@ -39,7 +39,7 @@ public final class DecryptableSampleQueueReader {
   private final DrmSessionManager<?> sessionManager;
   private final FormatHolder formatHolder;
   private final boolean playClearSamplesWithoutKeys;
-  @MonotonicNonNull private Format currentFormat;
+  private @MonotonicNonNull Format currentFormat;
   @Nullable private DrmSession<?> currentSession;
 
   /**

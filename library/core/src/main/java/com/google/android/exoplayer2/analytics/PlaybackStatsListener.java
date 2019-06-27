@@ -452,7 +452,7 @@ public final class PlaybackStatsListener
     private int nonFatalErrorCount;
 
     // Current player state tracking.
-    @PlaybackState private int currentPlaybackState;
+    private @PlaybackState int currentPlaybackState;
     private long currentPlaybackStateStartTimeMs;
     private boolean isSeeking;
     private boolean isForeground;
@@ -713,8 +713,6 @@ public final class PlaybackStatsListener
      *
      * @param isFinal Whether this is the final build and no further events are expected.
      */
-    // TODO(b/133387873): incompatible types in conditional expression.
-    @SuppressWarnings("nullness:conditional.type.incompatible")
     public PlaybackStats build(boolean isFinal) {
       long[] playbackStateDurationsMs = this.playbackStateDurationsMs;
       List<long[]> mediaTimeHistory = this.mediaTimeHistory;
@@ -739,6 +737,10 @@ public final class PlaybackStatsListener
               : playbackStateDurationsMs[PlaybackStats.PLAYBACK_STATE_JOINING_FOREGROUND];
       boolean hasBackgroundJoin =
           playbackStateDurationsMs[PlaybackStats.PLAYBACK_STATE_JOINING_BACKGROUND] > 0;
+      List<Pair<EventTime, @NullableType Format>> videoHistory =
+          isFinal ? videoFormatHistory : new ArrayList<>(videoFormatHistory);
+      List<Pair<EventTime, @NullableType Format>> audioHistory =
+          isFinal ? audioFormatHistory : new ArrayList<>(audioFormatHistory);
       return new PlaybackStats(
           /* playbackCount= */ 1,
           playbackStateDurationsMs,
@@ -757,8 +759,8 @@ public final class PlaybackStatsListener
           rebufferCount,
           maxRebufferTimeMs,
           /* adPlaybackCount= */ isAd ? 1 : 0,
-          isFinal ? videoFormatHistory : new ArrayList<>(videoFormatHistory),
-          isFinal ? audioFormatHistory : new ArrayList<>(audioFormatHistory),
+          videoHistory,
+          audioHistory,
           videoFormatHeightTimeMs,
           videoFormatHeightTimeProduct,
           videoFormatBitrateTimeMs,
@@ -826,8 +828,7 @@ public final class PlaybackStatsListener
       }
     }
 
-    @PlaybackState
-    private int resolveNewPlaybackState() {
+    private @PlaybackState int resolveNewPlaybackState() {
       if (isSuspended) {
         // Keep VIDEO_STATE_ENDED if playback naturally ended (or progressed to next item).
         return currentPlaybackState == PlaybackStats.PLAYBACK_STATE_ENDED

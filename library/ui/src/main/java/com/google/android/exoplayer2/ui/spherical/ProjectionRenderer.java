@@ -19,11 +19,11 @@ import static com.google.android.exoplayer2.util.GlUtil.checkGlError;
 
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.video.spherical.Projection;
 import java.nio.FloatBuffer;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Utility class to render spherical meshes for video or images. Call {@link #init()} on the GL

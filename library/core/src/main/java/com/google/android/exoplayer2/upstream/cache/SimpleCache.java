@@ -75,7 +75,7 @@ public final class SimpleCache implements Cache {
   private long uid;
   private long totalSpace;
   private boolean released;
-  @MonotonicNonNull private CacheException initializationException;
+  private @MonotonicNonNull CacheException initializationException;
 
   /**
    * Returns whether {@code cacheFolder} is locked by a {@link SimpleCache} instance. To unlock the
