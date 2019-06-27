@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.text.webvtt;
 
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.SimpleSubtitleDecoder;
+import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.text.SubtitleDecoderException;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
@@ -49,7 +50,7 @@ public final class Mp4WebvttDecoder extends SimpleSubtitleDecoder {
   }
 
   @Override
-  protected Mp4WebvttSubtitle decode(byte[] bytes, int length, boolean reset)
+  protected Subtitle decode(byte[] bytes, int length, boolean reset)
       throws SubtitleDecoderException {
     // Webvtt in Mp4 samples have boxes inside of them, so we have to do a traditional box parsing:
     // first 4 bytes size and then 4 bytes type.

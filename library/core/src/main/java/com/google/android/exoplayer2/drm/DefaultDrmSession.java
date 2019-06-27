@@ -45,7 +45,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /** A {@link DrmSession} that supports playbacks using {@link ExoMediaDrm}. */
 @TargetApi(18)
-/* package */ class DefaultDrmSession<T extends ExoMediaCrypto> implements DrmSession<T> {
+public class DefaultDrmSession<T extends ExoMediaCrypto> implements DrmSession<T> {
 
   /** Manages provisioning requests. */
   public interface ProvisioningManager<T extends ExoMediaCrypto> {

@@ -19,6 +19,7 @@ import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.SimpleSubtitleDecoder;
+import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.LongArray;
@@ -72,7 +73,7 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
   }
 
   @Override
-  protected SsaSubtitle decode(byte[] bytes, int length, boolean reset) {
+  protected Subtitle decode(byte[] bytes, int length, boolean reset) {
     ArrayList<Cue> cues = new ArrayList<>();
     LongArray cueTimesUs = new LongArray();
 
