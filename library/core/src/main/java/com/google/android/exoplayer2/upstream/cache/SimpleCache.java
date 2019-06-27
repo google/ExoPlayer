@@ -380,13 +380,13 @@ public final class SimpleCache implements Cache {
   }
 
   @Override
-  public synchronized SimpleCacheSpan startReadWrite(String key, long position)
+  public synchronized CacheSpan startReadWrite(String key, long position)
       throws InterruptedException, CacheException {
     Assertions.checkState(!released);
     checkInitialization();
 
     while (true) {
-      SimpleCacheSpan span = startReadWriteNonBlocking(key, position);
+      CacheSpan span = startReadWriteNonBlocking(key, position);
       if (span != null) {
         return span;
       } else {
@@ -402,7 +402,7 @@ public final class SimpleCache implements Cache {
 
   @Override
   @Nullable
-  public synchronized SimpleCacheSpan startReadWriteNonBlocking(String key, long position)
+  public synchronized CacheSpan startReadWriteNonBlocking(String key, long position)
       throws CacheException {
     Assertions.checkState(!released);
     checkInitialization();
