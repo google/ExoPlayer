@@ -26,7 +26,6 @@ import com.google.android.exoplayer2.source.SampleQueue;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.SequenceableLoader;
 import com.google.android.exoplayer2.upstream.Allocator;
-import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.Loader.LoadErrorAction;
@@ -83,46 +82,6 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
 
   /* package */ long decodeOnlyUntilPositionUs;
   /* package */ boolean loadingFinished;
-
-  /**
-   * Constructs an instance.
-   *
-   * @param primaryTrackType The type of the primary track. One of the {@link C} {@code
-   *     TRACK_TYPE_*} constants.
-   * @param embeddedTrackTypes The types of any embedded tracks, or null.
-   * @param embeddedTrackFormats The formats of the embedded tracks, or null.
-   * @param chunkSource A {@link ChunkSource} from which chunks to load are obtained.
-   * @param callback An {@link Callback} for the stream.
-   * @param allocator An {@link Allocator} from which allocations can be obtained.
-   * @param positionUs The position from which to start loading media.
-   * @param minLoadableRetryCount The minimum number of times that the source should retry a load
-   *     before propagating an error.
-   * @param eventDispatcher A dispatcher to notify of events.
-   * @deprecated Use {@link #ChunkSampleStream(int, int[], Format[], ChunkSource, Callback,
-   *     Allocator, long, LoadErrorHandlingPolicy, EventDispatcher)} instead.
-   */
-  @Deprecated
-  public ChunkSampleStream(
-      int primaryTrackType,
-      @Nullable int[] embeddedTrackTypes,
-      @Nullable Format[] embeddedTrackFormats,
-      T chunkSource,
-      Callback<ChunkSampleStream<T>> callback,
-      Allocator allocator,
-      long positionUs,
-      int minLoadableRetryCount,
-      EventDispatcher eventDispatcher) {
-    this(
-        primaryTrackType,
-        embeddedTrackTypes,
-        embeddedTrackFormats,
-        chunkSource,
-        callback,
-        allocator,
-        positionUs,
-        new DefaultLoadErrorHandlingPolicy(minLoadableRetryCount),
-        eventDispatcher);
-  }
 
   /**
    * Constructs an instance.
