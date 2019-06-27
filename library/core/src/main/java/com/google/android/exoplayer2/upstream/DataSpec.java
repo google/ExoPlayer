@@ -95,12 +95,10 @@ public final class DataSpec {
   public final @HttpMethod int httpMethod;
 
   /**
-   * The HTTP body, null otherwise. If the body is non-null, then httpBody.length will be non-zero.
+   * The HTTP request body, null otherwise. If the body is non-null, then httpBody.length will be
+   * non-zero.
    */
   @Nullable public final byte[] httpBody;
-
-  /** @deprecated Use {@link #httpBody} instead. */
-  @Deprecated @Nullable public final byte[] postBody;
 
   /**
    * The absolute position of the data in the full stream.
@@ -251,7 +249,6 @@ public final class DataSpec {
     this.uri = uri;
     this.httpMethod = httpMethod;
     this.httpBody = (httpBody != null && httpBody.length != 0) ? httpBody : null;
-    this.postBody = this.httpBody;
     this.absoluteStreamPosition = absoluteStreamPosition;
     this.position = position;
     this.length = length;
