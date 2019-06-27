@@ -1066,8 +1066,9 @@ public final class MediaSessionConnector {
           }
         } else if (player.getPlaybackState() == Player.STATE_ENDED) {
           controlDispatcher.dispatchSeekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
-          controlDispatcher.dispatchSetPlayWhenReady(player, /* playWhenReady= */ true);
         }
+        controlDispatcher.dispatchSetPlayWhenReady(
+            Assertions.checkNotNull(player), /* playWhenReady= */ true);
       }
     }
 
