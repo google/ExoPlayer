@@ -378,6 +378,13 @@ public final class MediaSessionConnector {
     /**
      * Gets the {@link MediaMetadataCompat} to be published to the session.
      *
+     * <p>An app may need to load metadata resources like artwork bitmaps asynchronously. In such a
+     * case the app should return a {@link MediaMetadataCompat} object that does not contain these
+     * resources as a placeholder. The app should start an asynchronous operation to download the
+     * bitmap and put it into a cache. Finally, the app should call {@link
+     * #invalidateMediaSessionMetadata()}. This causes this callback to be called again and the app
+     * can now return a {@link MediaMetadataCompat} object with all the resources included.
+     *
      * @param player The player connected to the media session.
      * @return The {@link MediaMetadataCompat} to be published to the session.
      */
