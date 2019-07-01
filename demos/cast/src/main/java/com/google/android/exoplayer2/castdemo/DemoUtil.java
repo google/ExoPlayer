@@ -100,6 +100,11 @@ import java.util.UUID;
             MIME_TYPE_DASH));
     samples.add(
         new Sample(
+            "https://storage.googleapis.com/shaka-demo-assets/angel-one-hls/hls.m3u8",
+            "Clear HLS: Angel one",
+            MIME_TYPE_HLS));
+    samples.add(
+        new Sample(
             "https://html5demos.com/assets/dizzy.mp4", "Clear MP4: Dizzy", MIME_TYPE_VIDEO_MP4));
 
     SAMPLES = Collections.unmodifiableList(samples);

@@ -34,14 +34,11 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.ext.cast.DefaultCastOptionsProvider;
 import com.google.android.exoplayer2.ext.cast.MediaItem;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.gms.cast.CastMediaControlIntent;
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.dynamite.DynamiteModule;
@@ -120,21 +117,13 @@ public class MainActivity extends AppCompatActivity
       // There is no Cast context to work with. Do nothing.
       return;
     }
-    String applicationId = castContext.getCastOptions().getReceiverApplicationId();
-    switch (applicationId) {
-      case CastMediaControlIntent.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID:
-      case DefaultCastOptionsProvider.APP_ID_DEFAULT_RECEIVER_WITH_DRM:
-        playerManager =
-            new DefaultReceiverPlayerManager(
-                /* listener= */ this,
-                localPlayerView,
-                castControlView,
-                /* context= */ this,
-                castContext);
-        break;
-      default:
-        throw new IllegalStateException("Illegal receiver app id: " + applicationId);
-    }
+    playerManager =
+        new PlayerManager(
+            /* listener= */ this,
+            localPlayerView,
+            castControlView,
+            /* context= */ this,
+            castContext);
     mediaQueueList.setAdapter(mediaQueueListAdapter);
   }
 
@@ -179,16 +168,6 @@ public class MainActivity extends AppCompatActivity
     if (newIndex != C.INDEX_UNSET) {
       mediaQueueListAdapter.notifyItemChanged(newIndex);
     }
-  }
-
-  @Override
-  public void onQueueContentsExternallyChanged() {
-    mediaQueueListAdapter.notifyDataSetChanged();
-  }
-
-  @Override
-  public void onPlayerError() {
-    Toast.makeText(getApplicationContext(), R.string.player_error_msg, Toast.LENGTH_LONG).show();
   }
 
   // Internal methods.
