@@ -44,7 +44,7 @@ public final class DefaultCastOptionsProvider implements OptionsProvider {
    * do not require DRM, the default receiver app should be used (see {@link
    * #APP_ID_DEFAULT_RECEIVER}).
    */
-  //  TODO: Add a documentation resource link for DRM support in the receiver app [Internal ref:
+  // TODO: Add a documentation resource link for DRM support in the receiver app [Internal ref:
   // b/128603245].
   public static final String APP_ID_DEFAULT_RECEIVER_WITH_DRM = "A12D4273";
 
