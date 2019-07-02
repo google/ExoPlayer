@@ -63,7 +63,7 @@ import java.util.Map;
   }
 
   @Override
-  protected void parsePayload(ParsableByteArray data, long timeUs) throws ParserException {
+  protected boolean parsePayload(ParsableByteArray data, long timeUs) throws ParserException {
     int nameType = readAmfType(data);
     if (nameType != AMF_TYPE_STRING) {
       // Should never happen.
@@ -72,12 +72,12 @@ import java.util.Map;
     String name = readAmfString(data);
     if (!NAME_METADATA.equals(name)) {
       // We're only interested in metadata.
-      return;
+      return false;
     }
     int type = readAmfType(data);
     if (type != AMF_TYPE_ECMA_ARRAY) {
       // We're not interested in this metadata.
-      return;
+      return false;
     }
     // Set the duration to the value contained in the metadata, if present.
     Map<String, Object> metadata = readAmfEcmaArray(data);
@@ -87,6 +87,7 @@ import java.util.Map;
         durationUs = (long) (durationSeconds * C.MICROS_PER_SECOND);
       }
     }
+    return false;
   }
 
   private static int readAmfType(ParsableByteArray data) {
