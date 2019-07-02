@@ -271,4 +271,7 @@ public interface ExoMediaDrm<T extends ExoMediaCrypto> {
    * @throws MediaCryptoException If the instance can't be created.
    */
   T createMediaCrypto(byte[] sessionId) throws MediaCryptoException;
+
+  /** Returns the {@link ExoMediaCrypto} type created by {@link #createMediaCrypto(byte[])}. */
+  Class<T> getExoMediaCryptoType();
 }

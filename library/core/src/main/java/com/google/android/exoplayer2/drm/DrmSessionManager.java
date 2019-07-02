@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.drm;
 
 import android.os.Looper;
 import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -48,6 +49,12 @@ public interface DrmSessionManager<T extends ExoMediaCrypto> {
           return new ErrorStateDrmSession<>(
               new DrmSession.DrmSessionException(
                   new UnsupportedDrmException(UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME)));
+        }
+
+        @Override
+        @Nullable
+        public Class<ExoMediaCrypto> getExoMediaCryptoType(DrmInitData drmInitData) {
+          return null;
         }
       };
 
@@ -99,4 +106,11 @@ public interface DrmSessionManager<T extends ExoMediaCrypto> {
   default int getFlags() {
     return 0;
   }
+
+  /**
+   * Returns the {@link ExoMediaCrypto} type returned by sessions acquired using the given {@link
+   * DrmInitData}, or null if a session cannot be acquired with the given {@link DrmInitData}.
+   */
+  @Nullable
+  Class<? extends ExoMediaCrypto> getExoMediaCryptoType(DrmInitData drmInitData);
 }

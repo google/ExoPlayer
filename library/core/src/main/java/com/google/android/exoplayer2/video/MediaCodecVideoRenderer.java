@@ -336,7 +336,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (decoderInfos.isEmpty()) {
       return FORMAT_UNSUPPORTED_SUBTYPE;
     }
-    if (!supportsFormatDrm(drmSessionManager, drmInitData)) {
+    boolean supportsFormatDrm =
+        format.drmInitData == null
+            || FrameworkMediaCrypto.class.equals(format.exoMediaCryptoType)
+            || (format.exoMediaCryptoType == null
+                && supportsFormatDrm(drmSessionManager, format.drmInitData));
+    if (!supportsFormatDrm) {
       return FORMAT_UNSUPPORTED_DRM;
     }
     // Check capabilities for the first decoder in the list, which takes priority.
