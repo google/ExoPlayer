@@ -20,6 +20,8 @@
 * Wrap decoder exceptions in a new `DecoderException` class and report as
   renderer error.
 * SmoothStreaming: Parse text stream `Subtype` into `Format.roleFlags`.
+* FLV: Fix bug that caused playback of some live streams to not start
+  ([#6111](https://github.com/google/ExoPlayer/issues/6111)).
 
 ### 2.10.2 ###
 
