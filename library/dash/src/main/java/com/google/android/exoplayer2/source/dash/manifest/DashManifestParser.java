@@ -42,6 +42,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -242,7 +243,7 @@ public class DashManifestParser extends DefaultHandler
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentList")) {
         segmentBase = parseSegmentList(xpp, null);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentTemplate")) {
-        segmentBase = parseSegmentTemplate(xpp, null);
+        segmentBase = parseSegmentTemplate(xpp, null, Collections.emptyList());
       } else {
         maybeSkipTag(xpp);
       }
@@ -323,6 +324,7 @@ public class DashManifestParser extends DefaultHandler
                 language,
                 roleDescriptors,
                 accessibilityDescriptors,
+                supplementalProperties,
                 segmentBase);
         contentType = checkContentTypeConsistency(contentType,
             getContentType(representationInfo.format));
@@ -332,7 +334,8 @@ public class DashManifestParser extends DefaultHandler
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentList")) {
         segmentBase = parseSegmentList(xpp, (SegmentList) segmentBase);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentTemplate")) {
-        segmentBase = parseSegmentTemplate(xpp, (SegmentTemplate) segmentBase);
+        segmentBase =
+            parseSegmentTemplate(xpp, (SegmentTemplate) segmentBase, supplementalProperties);
       } else if (XmlPullParserUtil.isStartTag(xpp, "InbandEventStream")) {
         inbandEventStreams.add(parseDescriptor(xpp, "InbandEventStream"));
       } else if (XmlPullParserUtil.isStartTag(xpp)) {
@@ -492,6 +495,7 @@ public class DashManifestParser extends DefaultHandler
       String adaptationSetLanguage,
       List<Descriptor> adaptationSetRoleDescriptors,
       List<Descriptor> adaptationSetAccessibilityDescriptors,
+      List<Descriptor> adaptationSetSupplementalProperties,
       SegmentBase segmentBase)
       throws XmlPullParserException, IOException {
     String id = xpp.getAttributeValue(null, "id");
@@ -524,7 +528,9 @@ public class DashManifestParser extends DefaultHandler
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentList")) {
         segmentBase = parseSegmentList(xpp, (SegmentList) segmentBase);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentTemplate")) {
-        segmentBase = parseSegmentTemplate(xpp, (SegmentTemplate) segmentBase);
+        segmentBase =
+            parseSegmentTemplate(
+                xpp, (SegmentTemplate) segmentBase, adaptationSetSupplementalProperties);
       } else if (XmlPullParserUtil.isStartTag(xpp, "ContentProtection")) {
         Pair<String, SchemeData> contentProtection = parseContentProtection(xpp);
         if (contentProtection.first != null) {
@@ -763,13 +769,19 @@ public class DashManifestParser extends DefaultHandler
         startNumber, duration, timeline, segments);
   }
 
-  protected SegmentTemplate parseSegmentTemplate(XmlPullParser xpp, SegmentTemplate parent)
+  protected SegmentTemplate parseSegmentTemplate(
+      XmlPullParser xpp,
+      SegmentTemplate parent,
+      List<Descriptor> adaptationSetSupplementalProperties)
       throws XmlPullParserException, IOException {
     long timescale = parseLong(xpp, "timescale", parent != null ? parent.timescale : 1);
     long presentationTimeOffset = parseLong(xpp, "presentationTimeOffset",
         parent != null ? parent.presentationTimeOffset : 0);
     long duration = parseLong(xpp, "duration", parent != null ? parent.duration : C.TIME_UNSET);
     long startNumber = parseLong(xpp, "startNumber", parent != null ? parent.startNumber : 1);
+    long endNumber =
+        parseLastSegmentNumberSupplementalProperty(adaptationSetSupplementalProperties);
+
     UrlTemplate mediaTemplate = parseUrlTemplate(xpp, "media",
         parent != null ? parent.mediaTemplate : null);
     UrlTemplate initializationTemplate = parseUrlTemplate(xpp, "initialization",
@@ -794,8 +806,16 @@ public class DashManifestParser extends DefaultHandler
       timeline = timeline != null ? timeline : parent.segmentTimeline;
     }
 
-    return buildSegmentTemplate(initialization, timescale, presentationTimeOffset,
-        startNumber, duration, timeline, initializationTemplate, mediaTemplate);
+    return buildSegmentTemplate(
+        initialization,
+        timescale,
+        presentationTimeOffset,
+        startNumber,
+        endNumber,
+        duration,
+        timeline,
+        initializationTemplate,
+        mediaTemplate);
   }
 
   protected SegmentTemplate buildSegmentTemplate(
@@ -803,12 +823,21 @@ public class DashManifestParser extends DefaultHandler
       long timescale,
       long presentationTimeOffset,
       long startNumber,
+      long endNumber,
       long duration,
       List<SegmentTimelineElement> timeline,
       UrlTemplate initializationTemplate,
       UrlTemplate mediaTemplate) {
-    return new SegmentTemplate(initialization, timescale, presentationTimeOffset,
-        startNumber, duration, timeline, initializationTemplate, mediaTemplate);
+    return new SegmentTemplate(
+        initialization,
+        timescale,
+        presentationTimeOffset,
+        startNumber,
+        endNumber,
+        duration,
+        timeline,
+        initializationTemplate,
+        mediaTemplate);
   }
 
   /**
@@ -1443,6 +1472,18 @@ public class DashManifestParser extends DefaultHandler
       default:
         return Format.NO_VALUE;
     }
+  }
+
+  protected static long parseLastSegmentNumberSupplementalProperty(
+      List<Descriptor> supplementalProperties) {
+    for (int i = 0; i < supplementalProperties.size(); i++) {
+      Descriptor descriptor = supplementalProperties.get(i);
+      if ("http://dashif.org/guidelines/last-segment-number"
+          .equalsIgnoreCase(descriptor.schemeIdUri)) {
+        return Long.parseLong(descriptor.value);
+      }
+    }
+    return C.INDEX_UNSET;
   }
 
   /** A parsed Representation element. */
