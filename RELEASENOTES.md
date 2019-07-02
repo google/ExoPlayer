@@ -7,6 +7,8 @@
 * SmoothStreaming: Parse text stream `Subtype` into `Format.roleFlags`.
 * Gracefully handle revoked `ACCESS_NETWORK_STATE` permission
   ([#6019](https://github.com/google/ExoPlayer/issues/6019)).
+* FLV: Fix bug that caused playback of some live streams to not start
+  ([#6111](https://github.com/google/ExoPlayer/issues/6111)).
 
 ### 2.10.2 ###
 
