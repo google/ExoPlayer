@@ -15,9 +15,11 @@
  */
 package com.google.android.exoplayer2.ext.flac;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.util.FlacStreamInfo;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -37,15 +39,16 @@ import java.nio.ByteBuffer;
     }
   }
 
-  private static final int TEMP_BUFFER_SIZE = 8192; // The same buffer size which libflac has
+  private static final int TEMP_BUFFER_SIZE = 8192; // The same buffer size as libflac.
 
   private final long nativeDecoderContext;
 
-  private ByteBuffer byteBufferData;
-  private ExtractorInput extractorInput;
+  @Nullable private ByteBuffer byteBufferData;
+  @Nullable private ExtractorInput extractorInput;
+  @Nullable private byte[] tempBuffer;
   private boolean endOfExtractorInput;
-  private byte[] tempBuffer;
 
+  @SuppressWarnings("nullness:method.invocation.invalid")
   public FlacDecoderJni() throws FlacDecoderException {
     if (!FlacLibrary.isAvailable()) {
       throw new FlacDecoderException("Failed to load decoder native libraries.");
@@ -58,7 +61,8 @@ import java.nio.ByteBuffer;
 
   /**
    * Sets data to be parsed by libflac.
-   * @param byteBufferData Source {@link ByteBuffer}
+   *
+   * @param byteBufferData Source {@link ByteBuffer}.
    */
   public void setData(ByteBuffer byteBufferData) {
     this.byteBufferData = byteBufferData;
@@ -68,7 +72,8 @@ import java.nio.ByteBuffer;
 
   /**
    * Sets data to be parsed by libflac.
-   * @param extractorInput Source {@link ExtractorInput}
+   *
+   * @param extractorInput Source {@link ExtractorInput}.
    */
   public void setData(ExtractorInput extractorInput) {
     this.byteBufferData = null;
@@ -90,15 +95,15 @@ import java.nio.ByteBuffer;
 
   /**
    * Reads up to {@code length} bytes from the data source.
-   * <p>
-   * This method blocks until at least one byte of data can be read, the end of the input is
+   *
+   * <p>This method blocks until at least one byte of data can be read, the end of the input is
    * detected or an exception is thrown.
-   * <p>
-   * This method is called from the native code.
+   *
+   * <p>This method is called from the native code.
    *
    * @param target A target {@link ByteBuffer} into which data should be written.
-   * @return Returns the number of bytes read, or -1 on failure. It's not an error if this returns
-   * zero; it just means all the data read from the source.
+   * @return Returns the number of bytes read, or -1 on failure. If all of the data has already been
+   *     read from the source, then 0 is returned.
    */
   public int read(ByteBuffer target) throws IOException, InterruptedException {
     int byteCount = target.remaining();
@@ -106,18 +111,20 @@ import java.nio.ByteBuffer;
       byteCount = Math.min(byteCount, byteBufferData.remaining());
       int originalLimit = byteBufferData.limit();
       byteBufferData.limit(byteBufferData.position() + byteCount);
-
       target.put(byteBufferData);
-
       byteBufferData.limit(originalLimit);
     } else if (extractorInput != null) {
+      ExtractorInput extractorInput = this.extractorInput;
+      byte[] tempBuffer = Util.castNonNull(this.tempBuffer);
       byteCount = Math.min(byteCount, TEMP_BUFFER_SIZE);
-      int read = readFromExtractorInput(0, byteCount);
+      int read = readFromExtractorInput(extractorInput, tempBuffer, /* offset= */ 0, byteCount);
       if (read < 4) {
         // Reading less than 4 bytes, most of the time, happens because of getting the bytes left in
         // the buffer of the input. Do another read to reduce the number of calls to this method
         // from the native code.
-        read += readFromExtractorInput(read, byteCount - read);
+        read +=
+            readFromExtractorInput(
+                extractorInput, tempBuffer, read, /* length= */ byteCount - read);
       }
       byteCount = read;
       target.put(tempBuffer, 0, byteCount);
@@ -234,7 +241,8 @@ import java.nio.ByteBuffer;
     flacRelease(nativeDecoderContext);
   }
 
-  private int readFromExtractorInput(int offset, int length)
+  private int readFromExtractorInput(
+      ExtractorInput extractorInput, byte[] tempBuffer, int offset, int length)
       throws IOException, InterruptedException {
     int read = extractorInput.read(tempBuffer, offset, length);
     if (read == C.RESULT_END_OF_INPUT) {

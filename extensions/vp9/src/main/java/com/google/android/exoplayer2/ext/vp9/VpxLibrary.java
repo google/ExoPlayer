@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.vp9;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.LibraryLoader;
@@ -30,7 +31,7 @@ public final class VpxLibrary {
   }
 
   private static final LibraryLoader LOADER = new LibraryLoader("vpx", "vpxV2JNI");
-  private static Class<? extends ExoMediaCrypto> exoMediaCryptoType;
+  @Nullable private static Class<? extends ExoMediaCrypto> exoMediaCryptoType;
 
   private VpxLibrary() {}
 
@@ -56,9 +57,8 @@ public final class VpxLibrary {
     return LOADER.isAvailable();
   }
 
-  /**
-   * Returns the version of the underlying library if available, or null otherwise.
-   */
+  /** Returns the version of the underlying library if available, or null otherwise. */
+  @Nullable
   public static String getVersion() {
     return isAvailable() ? vpxGetVersion() : null;
   }
@@ -67,6 +67,7 @@ public final class VpxLibrary {
    * Returns the configuration string with which the underlying library was built if available, or
    * null otherwise.
    */
+  @Nullable
   public static String getBuildConfig() {
     return isAvailable() ? vpxGetBuildConfig() : null;
   }
