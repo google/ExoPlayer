@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.ext.opus;
 
 import android.os.Handler;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.AudioProcessor;
@@ -35,10 +36,12 @@ public final class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
   /** The default input buffer size. */
   private static final int DEFAULT_INPUT_BUFFER_SIZE = 960 * 6;
 
-  private OpusDecoder decoder;
+  @Nullable private OpusDecoder decoder;
+  private int channelCount;
+  private int sampleRate;
 
   public LibopusAudioRenderer() {
-    this(null, null);
+    this(/* eventHandler= */ null, /* eventListener= */ null);
   }
 
   /**
@@ -48,8 +51,8 @@ public final class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
    * @param audioProcessors Optional {@link AudioProcessor}s that will process audio before output.
    */
   public LibopusAudioRenderer(
-      Handler eventHandler,
-      AudioRendererEventListener eventListener,
+      @Nullable Handler eventHandler,
+      @Nullable AudioRendererEventListener eventListener,
       AudioProcessor... audioProcessors) {
     super(eventHandler, eventListener, audioProcessors);
   }
@@ -67,8 +70,11 @@ public final class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
    *     has obtained the keys necessary to decrypt encrypted regions of the media.
    * @param audioProcessors Optional {@link AudioProcessor}s that will process audio before output.
    */
-  public LibopusAudioRenderer(Handler eventHandler, AudioRendererEventListener eventListener,
-      DrmSessionManager<ExoMediaCrypto> drmSessionManager, boolean playClearSamplesWithoutKeys,
+  public LibopusAudioRenderer(
+      @Nullable Handler eventHandler,
+      @Nullable AudioRendererEventListener eventListener,
+      @Nullable DrmSessionManager<ExoMediaCrypto> drmSessionManager,
+      boolean playClearSamplesWithoutKeys,
       AudioProcessor... audioProcessors) {
     super(eventHandler, eventListener, null, drmSessionManager, playClearSamplesWithoutKeys,
         audioProcessors);
@@ -106,13 +112,25 @@ public final class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
             initialInputBufferSize,
             format.initializationData,
             mediaCrypto);
+    channelCount = decoder.getChannelCount();
+    sampleRate = decoder.getSampleRate();
     return decoder;
   }
 
   @Override
   protected Format getOutputFormat() {
-    return Format.createAudioSampleFormat(null, MimeTypes.AUDIO_RAW, null, Format.NO_VALUE,
-        Format.NO_VALUE, decoder.getChannelCount(), decoder.getSampleRate(), C.ENCODING_PCM_16BIT,
-        null, null, 0, null);
+    return Format.createAudioSampleFormat(
+        /* id= */ null,
+        MimeTypes.AUDIO_RAW,
+        /* codecs= */ null,
+        Format.NO_VALUE,
+        Format.NO_VALUE,
+        channelCount,
+        sampleRate,
+        C.ENCODING_PCM_16BIT,
+        /* initializationData= */ null,
+        /* drmInitData= */ null,
+        /* selectionFlags= */ 0,
+        /* language= */ null);
   }
 }
