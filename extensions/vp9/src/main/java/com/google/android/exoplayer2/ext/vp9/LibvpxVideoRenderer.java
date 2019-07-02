@@ -284,7 +284,13 @@ public class LibvpxVideoRenderer extends BaseRenderer {
   public int supportsFormat(Format format) {
     if (!VpxLibrary.isAvailable() || !MimeTypes.VIDEO_VP9.equalsIgnoreCase(format.sampleMimeType)) {
       return FORMAT_UNSUPPORTED_TYPE;
-    } else if (!supportsFormatDrm(drmSessionManager, format.drmInitData)) {
+    }
+    boolean drmIsSupported =
+        format.drmInitData == null
+            || VpxLibrary.matchesExpectedExoMediaCryptoType(format.exoMediaCryptoType)
+            || (format.exoMediaCryptoType == null
+                && supportsFormatDrm(drmSessionManager, format.drmInitData));
+    if (!drmIsSupported) {
       return FORMAT_UNSUPPORTED_DRM;
     }
     return FORMAT_HANDLED | ADAPTIVE_SEAMLESS;

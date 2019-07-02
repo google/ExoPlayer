@@ -436,6 +436,12 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
     return session;
   }
 
+  @Override
+  @Nullable
+  public Class<T> getExoMediaCryptoType(DrmInitData drmInitData) {
+    return canAcquireSession(drmInitData) ? mediaDrm.getExoMediaCryptoType() : null;
+  }
+
   // ProvisioningManager implementation.
 
   @Override

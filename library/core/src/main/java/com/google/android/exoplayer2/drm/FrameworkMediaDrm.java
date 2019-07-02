@@ -225,6 +225,11 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
         adjustUuid(uuid), initData, forceAllowInsecureDecoderComponents);
   }
 
+  @Override
+  public Class<FrameworkMediaCrypto> getExoMediaCryptoType() {
+    return FrameworkMediaCrypto.class;
+  }
+
   private static SchemeData getSchemeData(UUID uuid, List<SchemeData> schemeDatas) {
     if (!C.WIDEVINE_UUID.equals(uuid)) {
       // For non-Widevine CDMs always use the first scheme data.

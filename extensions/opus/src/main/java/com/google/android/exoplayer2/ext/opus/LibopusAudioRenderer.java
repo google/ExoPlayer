@@ -77,12 +77,17 @@ public final class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
   @Override
   protected int supportsFormatInternal(DrmSessionManager<ExoMediaCrypto> drmSessionManager,
       Format format) {
+    boolean drmIsSupported =
+        format.drmInitData == null
+            || OpusLibrary.matchesExpectedExoMediaCryptoType(format.exoMediaCryptoType)
+            || (format.exoMediaCryptoType == null
+                && supportsFormatDrm(drmSessionManager, format.drmInitData));
     if (!OpusLibrary.isAvailable()
         || !MimeTypes.AUDIO_OPUS.equalsIgnoreCase(format.sampleMimeType)) {
       return FORMAT_UNSUPPORTED_TYPE;
     } else if (!supportsOutput(format.channelCount, C.ENCODING_PCM_16BIT)) {
       return FORMAT_UNSUPPORTED_SUBTYPE;
-    } else if (!supportsFormatDrm(drmSessionManager, format.drmInitData)) {
+    } else if (!drmIsSupported) {
       return FORMAT_UNSUPPORTED_DRM;
     } else {
       return FORMAT_HANDLED;
@@ -110,5 +115,4 @@ public final class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
         Format.NO_VALUE, decoder.getChannelCount(), decoder.getSampleRate(), C.ENCODING_PCM_16BIT,
         null, null, 0, null);
   }
-
 }

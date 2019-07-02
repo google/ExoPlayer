@@ -308,7 +308,11 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       return FORMAT_UNSUPPORTED_TYPE;
     }
     int tunnelingSupport = Util.SDK_INT >= 21 ? TUNNELING_SUPPORTED : TUNNELING_NOT_SUPPORTED;
-    boolean supportsFormatDrm = supportsFormatDrm(drmSessionManager, format.drmInitData);
+    boolean supportsFormatDrm =
+        format.drmInitData == null
+            || FrameworkMediaCrypto.class.equals(format.exoMediaCryptoType)
+            || (format.exoMediaCryptoType == null
+                && supportsFormatDrm(drmSessionManager, format.drmInitData));
     if (supportsFormatDrm
         && allowPassthrough(format.channelCount, mimeType)
         && mediaCodecSelector.getPassthroughDecoderInfo() != null) {
