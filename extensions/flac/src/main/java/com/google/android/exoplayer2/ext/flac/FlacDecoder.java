@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.flac;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
@@ -94,6 +95,7 @@ import java.util.List;
   }
 
   @Override
+  @Nullable
   protected FlacDecoderException decode(
       DecoderInputBuffer inputBuffer, SimpleOutputBuffer outputBuffer, boolean reset) {
     if (reset) {
