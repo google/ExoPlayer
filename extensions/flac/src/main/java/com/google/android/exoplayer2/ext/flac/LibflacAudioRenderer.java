@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.ext.flac;
 
 import android.os.Handler;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.AudioProcessor;
@@ -33,7 +34,7 @@ public class LibflacAudioRenderer extends SimpleDecoderAudioRenderer {
   private static final int NUM_BUFFERS = 16;
 
   public LibflacAudioRenderer() {
-    this(null, null);
+    this(/* eventHandler= */ null, /* eventListener= */ null);
   }
 
   /**
@@ -43,8 +44,8 @@ public class LibflacAudioRenderer extends SimpleDecoderAudioRenderer {
    * @param audioProcessors Optional {@link AudioProcessor}s that will process audio before output.
    */
   public LibflacAudioRenderer(
-      Handler eventHandler,
-      AudioRendererEventListener eventListener,
+      @Nullable Handler eventHandler,
+      @Nullable AudioRendererEventListener eventListener,
       AudioProcessor... audioProcessors) {
     super(eventHandler, eventListener, audioProcessors);
   }
