@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.opus;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.util.LibraryLoader;
 
@@ -49,9 +50,8 @@ public final class OpusLibrary {
     return LOADER.isAvailable();
   }
 
-  /**
-   * Returns the version of the underlying library if available, or null otherwise.
-   */
+  /** Returns the version of the underlying library if available, or null otherwise. */
+  @Nullable
   public static String getVersion() {
     return isAvailable() ? opusGetVersion() : null;
   }
