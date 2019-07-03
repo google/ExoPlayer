@@ -47,8 +47,7 @@ import java.nio.ByteBuffer;
   @Nullable private ExtractorInput extractorInput;
   @Nullable private byte[] tempBuffer;
   private boolean endOfExtractorInput;
-
-  @SuppressWarnings("nullness:method.invocation.invalid")
+  
   public FlacDecoderJni() throws FlacDecoderException {
     if (!FlacLibrary.isAvailable()) {
       throw new FlacDecoderException("Failed to load decoder native libraries.");
