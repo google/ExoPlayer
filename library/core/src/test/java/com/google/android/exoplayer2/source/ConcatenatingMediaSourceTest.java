@@ -279,13 +279,6 @@ public final class ConcatenatingMediaSourceTest {
     CountDownLatch preparedCondition = testRunner.preparePeriod(lazyPeriod, 0);
     assertThat(preparedCondition.getCount()).isEqualTo(1);
 
-    // Assert that a second period can also be created and released without problems.
-    MediaPeriod secondLazyPeriod =
-        testRunner.createPeriod(
-            new MediaPeriodId(
-                timeline.getUidOfPeriod(/* periodIndex= */ 0), /* windowSequenceNumber= */ 0));
-    testRunner.releasePeriod(secondLazyPeriod);
-
     // Trigger source info refresh for lazy media source. Assert that now all information is
     // available again and the previously created period now also finished preparing.
     testRunner.runOnPlaybackThread(
