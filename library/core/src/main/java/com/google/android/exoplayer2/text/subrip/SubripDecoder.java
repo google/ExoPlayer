@@ -112,11 +112,13 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
       // Read and parse the text and tags.
       textBuilder.setLength(0);
       tags.clear();
-      while (!TextUtils.isEmpty(currentLine = subripData.readLine())) {
+      currentLine = subripData.readLine();
+      while (!TextUtils.isEmpty(currentLine)) {
         if (textBuilder.length() > 0) {
           textBuilder.append("<br>");
         }
         textBuilder.append(processLine(currentLine, tags));
+        currentLine = subripData.readLine();
       }
 
       Spanned text = Html.fromHtml(textBuilder.toString());
@@ -133,7 +135,7 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
       cues.add(buildCue(text, alignmentTag));
 
       if (haveEndTimecode) {
-        cues.add(null);
+        cues.add(Cue.EMPTY);
       }
     }
 
