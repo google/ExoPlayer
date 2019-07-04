@@ -12,8 +12,11 @@
   checks ([#5568](https://github.com/google/ExoPlayer/issues/5568)).
 * Decoders: Prefer decoders that advertise format support over ones that do not,
   even if they are listed lower in the `MediaCodecList`.
-* Audio: Fix an issue where not all audio was played out when the configuration
-  for the underlying track was changing (e.g., at some period transitions).
+* Audio:
+  * Fix an issue where not all audio was played out when the configuration
+    for the underlying track was changing (e.g., at some period transitions).
+  * Fix an issue where playback speed was applied inaccurately in playlists
+    ([#6117](https://github.com/google/ExoPlayer/issues/6117)).
 * Add a workaround for broken raw audio decoding on Oppo R9
   ([#5782](https://github.com/google/ExoPlayer/issues/5782)).
 * Add VR player demo.
