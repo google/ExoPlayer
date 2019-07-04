@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.ext.flac;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.decoder.SimpleOutputBuffer;
@@ -59,13 +60,12 @@ import java.util.List;
     decoderJni.setData(ByteBuffer.wrap(initializationData.get(0)));
     FlacStreamInfo streamInfo;
     try {
-      streamInfo = decoderJni.decodeMetadata();
+      streamInfo = decoderJni.decodeStreamInfo();
+    } catch (ParserException e) {
+      throw new FlacDecoderException("Failed to decode StreamInfo", e);
     } catch (IOException | InterruptedException e) {
       // Never happens.
       throw new IllegalStateException(e);
-    }
-    if (streamInfo == null) {
-      throw new FlacDecoderException("Metadata decoding failed");
     }
 
     int initialInputBufferSize =
