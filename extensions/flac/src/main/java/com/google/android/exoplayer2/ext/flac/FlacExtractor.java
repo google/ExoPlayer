@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.extractor.SeekPoint;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.FlacStreamInfo;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -151,7 +152,7 @@ public final class FlacExtractor implements Extractor {
         return RESULT_END_OF_INPUT;
       }
 
-      outputSample(outputBuffer, outputSize, decoderJni.getLastFrameTimestamp());
+      outputSample(outputBuffer, outputSize, decoderJni.getLastFrameTimestamp(), trackOutput);
       return decoderJni.isEndOfData() ? RESULT_END_OF_INPUT : RESULT_CONTINUE;
     } finally {
       decoderJni.clearData();
@@ -193,17 +194,6 @@ public final class FlacExtractor implements Extractor {
     return id3Peeker.peekId3Data(input, id3FramePredicate);
   }
 
-  /**
-   * Peeks from the beginning of the input to see if {@link #FLAC_SIGNATURE} is present.
-   *
-   * @return Whether the input begins with {@link #FLAC_SIGNATURE}.
-   */
-  private boolean peekFlacSignature(ExtractorInput input) throws IOException, InterruptedException {
-    byte[] header = new byte[FLAC_SIGNATURE.length];
-    input.peekFully(header, /* offset= */ 0, FLAC_SIGNATURE.length);
-    return Arrays.equals(header, FLAC_SIGNATURE);
-  }
-
   private void decodeStreamInfo(ExtractorInput input) throws InterruptedException, IOException {
     if (streamInfoDecoded) {
       return;
@@ -221,8 +211,9 @@ public final class FlacExtractor implements Extractor {
     streamInfoDecoded = true;
     if (this.streamInfo == null) {
       this.streamInfo = streamInfo;
-      outputSeekMap(streamInfo, input.getLength());
-      outputFormat(streamInfo, id3MetadataDisabled ? null : id3Metadata);
+      binarySearchSeeker =
+          outputSeekMap(decoderJni, streamInfo, input.getLength(), extractorOutput);
+      outputFormat(streamInfo, id3MetadataDisabled ? null : id3Metadata, trackOutput);
       outputBuffer = new ParsableByteArray(streamInfo.maxDecodedFrameSize());
       outputFrameHolder = new OutputFrameHolder(ByteBuffer.wrap(outputBuffer.data));
     }
@@ -230,31 +221,56 @@ public final class FlacExtractor implements Extractor {
 
   private int handlePendingSeek(ExtractorInput input, PositionHolder seekPosition)
       throws InterruptedException, IOException {
+    Assertions.checkNotNull(binarySearchSeeker);
     int seekResult = binarySearchSeeker.handlePendingSeek(input, seekPosition, outputFrameHolder);
     ByteBuffer outputByteBuffer = outputFrameHolder.byteBuffer;
     if (seekResult == RESULT_CONTINUE && outputByteBuffer.limit() > 0) {
-      outputSample(outputBuffer, outputByteBuffer.limit(), outputFrameHolder.timeUs);
+      outputSample(outputBuffer, outputByteBuffer.limit(), outputFrameHolder.timeUs, trackOutput);
     }
     return seekResult;
   }
 
-  private void outputSeekMap(FlacStreamInfo streamInfo, long inputLength) {
+  /**
+   * Peeks from the beginning of the input to see if {@link #FLAC_SIGNATURE} is present.
+   *
+   * @return Whether the input begins with {@link #FLAC_SIGNATURE}.
+   */
+  private static boolean peekFlacSignature(ExtractorInput input)
+      throws IOException, InterruptedException {
+    byte[] header = new byte[FLAC_SIGNATURE.length];
+    input.peekFully(header, /* offset= */ 0, FLAC_SIGNATURE.length);
+    return Arrays.equals(header, FLAC_SIGNATURE);
+  }
+
+  /**
+   * Outputs a {@link SeekMap} and returns a {@link FlacBinarySearchSeeker} if one is required to
+   * handle seeks.
+   */
+  @Nullable
+  private static FlacBinarySearchSeeker outputSeekMap(
+      FlacDecoderJni decoderJni,
+      FlacStreamInfo streamInfo,
+      long streamLength,
+      ExtractorOutput output) {
     boolean hasSeekTable = decoderJni.getSeekPosition(/* timeUs= */ 0) != -1;
+    FlacBinarySearchSeeker binarySearchSeeker = null;
     SeekMap seekMap;
     if (hasSeekTable) {
       seekMap = new FlacSeekMap(streamInfo.durationUs(), decoderJni);
-    } else if (inputLength != C.LENGTH_UNSET) {
+    } else if (streamLength != C.LENGTH_UNSET) {
       long firstFramePosition = decoderJni.getDecodePosition();
       binarySearchSeeker =
-          new FlacBinarySearchSeeker(streamInfo, firstFramePosition, inputLength, decoderJni);
+          new FlacBinarySearchSeeker(streamInfo, firstFramePosition, streamLength, decoderJni);
       seekMap = binarySearchSeeker.getSeekMap();
     } else {
       seekMap = new SeekMap.Unseekable(streamInfo.durationUs());
     }
-    extractorOutput.seekMap(seekMap);
+    output.seekMap(seekMap);
+    return binarySearchSeeker;
   }
 
-  private void outputFormat(FlacStreamInfo streamInfo, Metadata metadata) {
+  private static void outputFormat(
+      FlacStreamInfo streamInfo, Metadata metadata, TrackOutput output) {
     Format mediaFormat =
         Format.createAudioSampleFormat(
             /* id= */ null,
@@ -272,13 +288,14 @@ public final class FlacExtractor implements Extractor {
             /* selectionFlags= */ 0,
             /* language= */ null,
             metadata);
-    trackOutput.format(mediaFormat);
+    output.format(mediaFormat);
   }
 
-  private void outputSample(ParsableByteArray sampleData, int size, long timeUs) {
+  private static void outputSample(
+      ParsableByteArray sampleData, int size, long timeUs, TrackOutput output) {
     sampleData.setPosition(0);
-    trackOutput.sampleData(sampleData, size);
-    trackOutput.sampleMetadata(
+    output.sampleData(sampleData, size);
+    output.sampleMetadata(
         timeUs, C.BUFFER_FLAG_KEY_FRAME, size, /* offset= */ 0, /* encryptionData= */ null);
   }
 
