@@ -501,7 +501,7 @@ public final class DefaultAudioSink implements AudioSink {
     }
   }
 
-  private void initialize() throws InitializationException {
+  private void initialize(long presentationTimeUs) throws InitializationException {
     // If we're asynchronously releasing a previous audio track then we block until it has been
     // released. This guarantees that we cannot end up in a state where we have multiple audio
     // track instances. Without this guarantee it would be possible, in extreme cases, to exhaust
@@ -533,11 +533,7 @@ public final class DefaultAudioSink implements AudioSink {
       }
     }
 
-    playbackParameters =
-        configuration.canApplyPlaybackParameters
-            ? audioProcessorChain.applyPlaybackParameters(playbackParameters)
-            : PlaybackParameters.DEFAULT;
-    setupAudioProcessors();
+    applyPlaybackParameters(playbackParameters, presentationTimeUs);
 
     audioTrackPositionTracker.setAudioTrack(
         audioTrack,
@@ -591,15 +587,12 @@ public final class DefaultAudioSink implements AudioSink {
         configuration = pendingConfiguration;
         pendingConfiguration = null;
       }
-      playbackParameters =
-          configuration.canApplyPlaybackParameters
-              ? audioProcessorChain.applyPlaybackParameters(playbackParameters)
-              : PlaybackParameters.DEFAULT;
-      setupAudioProcessors();
+      // Re-apply playback parameters.
+      applyPlaybackParameters(playbackParameters, presentationTimeUs);
     }
 
     if (!isInitialized()) {
-      initialize();
+      initialize(presentationTimeUs);
       if (playing) {
         play();
       }
@@ -635,15 +628,7 @@ public final class DefaultAudioSink implements AudioSink {
         }
         PlaybackParameters newPlaybackParameters = afterDrainPlaybackParameters;
         afterDrainPlaybackParameters = null;
-        newPlaybackParameters = audioProcessorChain.applyPlaybackParameters(newPlaybackParameters);
-        // Store the position and corresponding media time from which the parameters will apply.
-        playbackParametersCheckpoints.add(
-            new PlaybackParametersCheckpoint(
-                newPlaybackParameters,
-                Math.max(0, presentationTimeUs),
-                configuration.framesToDurationUs(getWrittenFrames())));
-        // Update the set of active audio processors to take into account the new parameters.
-        setupAudioProcessors();
+        applyPlaybackParameters(newPlaybackParameters, presentationTimeUs);
       }
 
       if (startMediaTimeState == START_NOT_SET) {
@@ -857,8 +842,9 @@ public final class DefaultAudioSink implements AudioSink {
         // parameters apply.
         afterDrainPlaybackParameters = playbackParameters;
       } else {
-        // Update the playback parameters now.
-        this.playbackParameters = audioProcessorChain.applyPlaybackParameters(playbackParameters);
+        // Update the playback parameters now. They will be applied to the audio processors during
+        // initialization.
+        this.playbackParameters = playbackParameters;
       }
     }
     return this.playbackParameters;
@@ -1038,6 +1024,21 @@ public final class DefaultAudioSink implements AudioSink {
         toRelease.release();
       }
     }.start();
+  }
+
+  private void applyPlaybackParameters(
+      PlaybackParameters playbackParameters, long presentationTimeUs) {
+    PlaybackParameters newPlaybackParameters =
+        configuration.canApplyPlaybackParameters
+            ? audioProcessorChain.applyPlaybackParameters(playbackParameters)
+            : PlaybackParameters.DEFAULT;
+    // Store the position and corresponding media time from which the parameters will apply.
+    playbackParametersCheckpoints.add(
+        new PlaybackParametersCheckpoint(
+            newPlaybackParameters,
+            /* mediaTimeUs= */ Math.max(0, presentationTimeUs),
+            /* positionUs= */ configuration.framesToDurationUs(getWrittenFrames())));
+    setupAudioProcessors();
   }
 
   private long applySpeedup(long positionUs) {
