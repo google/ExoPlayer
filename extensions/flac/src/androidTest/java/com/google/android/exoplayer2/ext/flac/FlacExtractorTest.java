@@ -28,7 +28,7 @@ import org.junit.runner.RunWith;
 public class FlacExtractorTest {
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     if (!FlacLibrary.isAvailable()) {
       fail("Flac library not available.");
     }
