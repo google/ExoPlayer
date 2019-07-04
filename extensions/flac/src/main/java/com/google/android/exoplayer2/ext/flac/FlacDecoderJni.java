@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.ext.flac;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.util.FlacStreamInfo;
 import com.google.android.exoplayer2.util.Util;
@@ -48,7 +49,6 @@ import java.nio.ByteBuffer;
   @Nullable private byte[] tempBuffer;
   private boolean endOfExtractorInput;
 
-  @SuppressWarnings("nullness:method.invocation.invalid")
   public FlacDecoderJni() throws FlacDecoderException {
     if (!FlacLibrary.isAvailable()) {
       throw new FlacDecoderException("Failed to load decoder native libraries.");
@@ -60,37 +60,46 @@ import java.nio.ByteBuffer;
   }
 
   /**
-   * Sets data to be parsed by libflac.
+   * Sets the data to be parsed.
    *
    * @param byteBufferData Source {@link ByteBuffer}.
    */
   public void setData(ByteBuffer byteBufferData) {
     this.byteBufferData = byteBufferData;
     this.extractorInput = null;
-    this.tempBuffer = null;
   }
 
   /**
-   * Sets data to be parsed by libflac.
+   * Sets the data to be parsed.
    *
    * @param extractorInput Source {@link ExtractorInput}.
    */
   public void setData(ExtractorInput extractorInput) {
     this.byteBufferData = null;
     this.extractorInput = extractorInput;
-    if (tempBuffer == null) {
-      this.tempBuffer = new byte[TEMP_BUFFER_SIZE];
-    }
     endOfExtractorInput = false;
+    if (tempBuffer == null) {
+      tempBuffer = new byte[TEMP_BUFFER_SIZE];
+    }
   }
 
+  /**
+   * Returns whether the end of the data to be parsed has been reached, or true if no data was set.
+   */
   public boolean isEndOfData() {
     if (byteBufferData != null) {
       return byteBufferData.remaining() == 0;
     } else if (extractorInput != null) {
       return endOfExtractorInput;
+    } else {
+      return true;
     }
-    return true;
+  }
+
+  /** Clears the data to be parsed. */
+  public void clearData() {
+    byteBufferData = null;
+    extractorInput = null;
   }
 
   /**
@@ -99,12 +108,11 @@ import java.nio.ByteBuffer;
    * <p>This method blocks until at least one byte of data can be read, the end of the input is
    * detected or an exception is thrown.
    *
-   * <p>This method is called from the native code.
-   *
    * @param target A target {@link ByteBuffer} into which data should be written.
    * @return Returns the number of bytes read, or -1 on failure. If all of the data has already been
    *     read from the source, then 0 is returned.
    */
+  @SuppressWarnings("unused") // Called from native code.
   public int read(ByteBuffer target) throws IOException, InterruptedException {
     int byteCount = target.remaining();
     if (byteBufferData != null) {
@@ -135,8 +143,12 @@ import java.nio.ByteBuffer;
   }
 
   /** Decodes and consumes the StreamInfo section from the FLAC stream. */
-  public FlacStreamInfo decodeMetadata() throws IOException, InterruptedException {
-    return flacDecodeMetadata(nativeDecoderContext);
+  public FlacStreamInfo decodeStreamInfo() throws IOException, InterruptedException {
+    FlacStreamInfo streamInfo = flacDecodeMetadata(nativeDecoderContext);
+    if (streamInfo == null) {
+      throw new ParserException("Failed to decode StreamInfo");
+    }
+    return streamInfo;
   }
 
   /**
