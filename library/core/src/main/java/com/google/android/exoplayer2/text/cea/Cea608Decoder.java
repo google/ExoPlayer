@@ -387,42 +387,24 @@ public final class Cea608Decoder extends CeaDecoder {
         continue;
       }
 
-      // Special North American character set.
-      // ccData1 - 0|0|0|1|C|0|0|1
-      // ccData2 - 0|0|1|1|X|X|X|X
-      if (((ccData1 & 0xF7) == 0x11) && ((ccData2 & 0xF0) == 0x30)) {
-        if (getChannel(ccData1) == selectedChannel) {
+      if (!updateAndVerifyCurrentChannel(ccData1)) {
+        // Wrong channel.
+        continue;
+      }
+
+      if (isCtrlCode(ccData1)) {
+        if (isSpecialChar(ccData1, ccData2)) {
+          // Special North American character.
           currentCueBuilder.append(getSpecialChar(ccData2));
-        }
-        continue;
-      }
-
-      // Extended Western European character set.
-      // ccData1 - 0|0|0|1|C|0|1|S
-      // ccData2 - 0|0|1|X|X|X|X|X
-      if (((ccData1 & 0xF6) == 0x12) && (ccData2 & 0xE0) == 0x20) {
-        if (getChannel(ccData1) == selectedChannel) {
-          // Remove standard equivalent of the special extended char before appending new one
+        } else if (isExtendedWestEuropeanChar(ccData1, ccData2)) {
+          // Extended West European character.
+          // Remove standard equivalent of the special extended char before appending new one.
           currentCueBuilder.backspace();
-          if ((ccData1 & 0x01) == 0x00) {
-            // Extended Spanish/Miscellaneous and French character set (S = 0).
-            currentCueBuilder.append(getExtendedEsFrChar(ccData2));
-          } else {
-            // Extended Portuguese and German/Danish character set (S = 1).
-            currentCueBuilder.append(getExtendedPtDeChar(ccData2));
-          }
+          currentCueBuilder.append(getExtendedWestEuropeanChar(ccData1, ccData2));
+        } else {
+          // Non-character control code.
+          handleCtrl(ccData1, ccData2, repeatedControlPossible);
         }
-        continue;
-      }
-
-      // Control character.
-      // ccData1 - 0|0|0|X|X|X|X|X
-      if ((ccData1 & 0xE0) == 0x00) {
-        handleCtrl(ccData1, ccData2, repeatedControlPossible);
-        continue;
-      }
-
-      if (currentChannel != selectedChannel) {
         continue;
       }
 
@@ -440,8 +422,14 @@ public final class Cea608Decoder extends CeaDecoder {
     }
   }
 
+  private boolean updateAndVerifyCurrentChannel(byte cc1) {
+    if (isCtrlCode(cc1)) {
+      currentChannel = getChannel(cc1);
+    }
+    return currentChannel == selectedChannel;
+  }
+
   private void handleCtrl(byte cc1, byte cc2, boolean repeatedControlPossible) {
-    currentChannel = getChannel(cc1);
     // Most control commands are sent twice in succession to ensure they are received properly. We
     // don't want to process duplicate commands, so if we see the same repeatable command twice in a
     // row then we ignore the second one.
@@ -457,10 +445,6 @@ public final class Cea608Decoder extends CeaDecoder {
         repeatableControlCc1 = cc1;
         repeatableControlCc2 = cc2;
       }
-    }
-
-    if (currentChannel != selectedChannel) {
-      return;
     }
 
     if (isMidrowCtrlCode(cc1, cc2)) {
@@ -681,9 +665,31 @@ public final class Cea608Decoder extends CeaDecoder {
     return (char) BASIC_CHARACTER_SET[index];
   }
 
+  private static boolean isSpecialChar(byte cc1, byte cc2) {
+    // cc1 - 0|0|0|1|C|0|0|1
+    // cc2 - 0|0|1|1|X|X|X|X
+    return ((cc1 & 0xF7) == 0x11) && ((cc2 & 0xF0) == 0x30);
+  }
+
   private static char getSpecialChar(byte ccData) {
     int index = ccData & 0x0F;
     return (char) SPECIAL_CHARACTER_SET[index];
+  }
+
+  private static boolean isExtendedWestEuropeanChar(byte cc1, byte cc2) {
+    // cc1 - 0|0|0|1|C|0|1|S
+    // cc2 - 0|0|1|X|X|X|X|X
+    return ((cc1 & 0xF6) == 0x12) && ((cc2 & 0xE0) == 0x20);
+  }
+
+  private static char getExtendedWestEuropeanChar(byte cc1, byte cc2) {
+    if ((cc1 & 0x01) == 0x00) {
+      // Extended Spanish/Miscellaneous and French character set (S = 0).
+      return getExtendedEsFrChar(cc2);
+    } else {
+      // Extended Portuguese and German/Danish character set (S = 1).
+      return getExtendedPtDeChar(cc2);
+    }
   }
 
   private static char getExtendedEsFrChar(byte ccData) {
@@ -694,6 +700,11 @@ public final class Cea608Decoder extends CeaDecoder {
   private static char getExtendedPtDeChar(byte ccData) {
     int index = ccData & 0x1F;
     return (char) SPECIAL_PT_DE_CHARACTER_SET[index];
+  }
+
+  private static boolean isCtrlCode(byte cc1) {
+    // cc1 - 0|0|0|X|X|X|X|X
+    return (cc1 & 0xE0) == 0x00;
   }
 
   private static int getChannel(byte cc1) {
