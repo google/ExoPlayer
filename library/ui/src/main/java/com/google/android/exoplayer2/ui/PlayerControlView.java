@@ -281,19 +281,22 @@ public class PlayerControlView extends FrameLayout {
   private long currentWindowOffset;
 
   public PlayerControlView(Context context) {
-    this(context, null);
+    this(context, /* attrs= */ null);
   }
 
-  public PlayerControlView(Context context, AttributeSet attrs) {
+  public PlayerControlView(Context context, @Nullable AttributeSet attrs) {
     this(context, attrs, 0);
   }
 
-  public PlayerControlView(Context context, AttributeSet attrs, int defStyleAttr) {
+  public PlayerControlView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
     this(context, attrs, defStyleAttr, attrs);
   }
 
   public PlayerControlView(
-      Context context, AttributeSet attrs, int defStyleAttr, AttributeSet playbackAttrs) {
+      Context context,
+      @Nullable AttributeSet attrs,
+      int defStyleAttr,
+      @Nullable AttributeSet playbackAttrs) {
     super(context, attrs, defStyleAttr);
     int controllerLayoutId = R.layout.exo_player_control_view;
     rewindMs = DEFAULT_REWIND_MS;
