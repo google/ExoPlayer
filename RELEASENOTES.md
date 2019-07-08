@@ -25,6 +25,8 @@
 * SmoothStreaming: Parse text stream `Subtype` into `Format.roleFlags`.
 * FLV: Fix bug that caused playback of some live streams to not start
   ([#6111](https://github.com/google/ExoPlayer/issues/6111)).
+* CEA608: Fix repetition of special North American characters
+  ([#6133](https://github.com/google/ExoPlayer/issues/6133)).
 
 ### 2.10.2 ###
 
