@@ -6,27 +6,34 @@
   and analytics reporting (TODO: link to developer guide page/blog post).
 * Add basic DRM support to the Cast demo app.
 * Offline: Add `Scheduler` implementation that uses `WorkManager`.
-* Display last frame when seeking to end of stream
-  ([#2568](https://github.com/google/ExoPlayer/issues/2568)).
 * Assume that encrypted content requires secure decoders in renderer support
   checks ([#5568](https://github.com/google/ExoPlayer/issues/5568)).
 * Decoders: Prefer decoders that advertise format support over ones that do not,
   even if they are listed lower in the `MediaCodecList`.
-* Audio:
-  * Fix an issue where not all audio was played out when the configuration
-    for the underlying track was changing (e.g., at some period transitions).
-  * Fix an issue where playback speed was applied inaccurately in playlists
-    ([#6117](https://github.com/google/ExoPlayer/issues/6117)).
 * Add a workaround for broken raw audio decoding on Oppo R9
   ([#5782](https://github.com/google/ExoPlayer/issues/5782)).
 * Add VR player demo.
 * Wrap decoder exceptions in a new `DecoderException` class and report as
   renderer error.
-* SmoothStreaming: Parse text stream `Subtype` into `Format.roleFlags`.
-* FLV: Fix bug that caused playback of some live streams to not start
-  ([#6111](https://github.com/google/ExoPlayer/issues/6111)).
+
+### 2.10.3 ###
+
+* Display last frame when seeking to end of stream
+  ([#2568](https://github.com/google/ExoPlayer/issues/2568)).
+* Audio:
+  * Fix an issue where not all audio was played out when the configuration
+    for the underlying track was changing (e.g., at some period transitions).
+  * Fix an issue where playback speed was applied inaccurately in playlists
+    ([#6117](https://github.com/google/ExoPlayer/issues/6117)).
+* UI: Fix `PlayerView` incorrectly consuming touch events if no controller is
+  attached ([#6109](https://github.com/google/ExoPlayer/issues/6133)).
 * CEA608: Fix repetition of special North American characters
   ([#6133](https://github.com/google/ExoPlayer/issues/6133)).
+* FLV: Fix bug that caused playback of some live streams to not start
+  ([#6111](https://github.com/google/ExoPlayer/issues/6111)).
+* SmoothStreaming: Parse text stream `Subtype` into `Format.roleFlags`.
+* MediaSession extension: Fix `MediaSessionConnector.play()` not resuming
+  playback ([#6093](https://github.com/google/ExoPlayer/issues/6093)).
 
 ### 2.10.2 ###
 
