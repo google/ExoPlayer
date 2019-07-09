@@ -10,7 +10,7 @@
   * Fix an issue where playback speed was applied inaccurately in playlists
     ([#6117](https://github.com/google/ExoPlayer/issues/6117)).
 * UI: Fix `PlayerView` incorrectly consuming touch events if no controller is
-  attached ([#6109](https://github.com/google/ExoPlayer/issues/6133)).
+  attached ([#6109](https://github.com/google/ExoPlayer/issues/6109)).
 * CEA608: Fix repetition of special North American characters
   ([#6133](https://github.com/google/ExoPlayer/issues/6133)).
 * FLV: Fix bug that caused playback of some live streams to not start
