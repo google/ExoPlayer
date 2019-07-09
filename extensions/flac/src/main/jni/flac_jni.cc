@@ -110,6 +110,32 @@ DECODER_FUNC(jobject, flacDecodeMetadata, jlong jContext) {
                         streamInfo.total_samples);
 }
 
+DECODER_FUNC(jobject, flacDecodeVorbisComment, jlong jContext) {
+  Context *context = reinterpret_cast<Context *>(jContext);
+  context->source->setFlacDecoderJni(env, thiz);
+
+  VorbisComment vorbisComment = context->parser->getVorbisComment();
+
+  if (vorbisComment.numComments == 0) {
+    return NULL;
+  } else {
+    jclass java_util_ArrayList = env->FindClass("java/util/ArrayList");
+
+    jmethodID java_util_ArrayList_     = env->GetMethodID(java_util_ArrayList, "<init>", "(I)V");
+    jmethodID java_util_ArrayList_add  = env->GetMethodID(java_util_ArrayList, "add",
+                                                          "(Ljava/lang/Object;)Z");
+
+    jobject result = env->NewObject(java_util_ArrayList, java_util_ArrayList_,
+                                    vorbisComment.numComments);
+    for (FLAC__uint32 i = 0; i < vorbisComment.numComments; ++i) {
+      jstring element = env->NewStringUTF(vorbisComment.metadataArray[i]);
+      env->CallBooleanMethod(result, java_util_ArrayList_add, element);
+      env->DeleteLocalRef(element);
+    }
+    return result;
+  }
+}
+
 DECODER_FUNC(jint, flacDecodeToBuffer, jlong jContext, jobject jOutputBuffer) {
   Context *context = reinterpret_cast<Context *>(jContext);
   context->source->setFlacDecoderJni(env, thiz);

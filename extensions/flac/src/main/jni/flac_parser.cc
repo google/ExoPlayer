@@ -172,6 +172,30 @@ void FLACParser::metadataCallback(const FLAC__StreamMetadata *metadata) {
     case FLAC__METADATA_TYPE_SEEKTABLE:
       mSeekTable = &metadata->data.seek_table;
       break;
+    case FLAC__METADATA_TYPE_VORBIS_COMMENT:
+      if (!mVorbisCommentValid) {
+        FLAC__uint32 count = 0;
+        const FLAC__StreamMetadata_VorbisComment *vc =
+            &metadata->data.vorbis_comment;
+        mVorbisCommentValid = true;
+        mVorbisComment.metadataArray =
+            (char **) malloc(vc->num_comments * sizeof(char *));
+        for (FLAC__uint32 i = 0; i < vc->num_comments; ++i) {
+          FLAC__StreamMetadata_VorbisComment_Entry *vce = &vc->comments[i];
+          if (vce->entry != NULL) {
+            mVorbisComment.metadataArray[count] =
+                (char *) malloc((vce->length + 1) * sizeof(char));
+            memcpy(mVorbisComment.metadataArray[count], vce->entry,
+                vce->length);
+            mVorbisComment.metadataArray[count][vce->length] = '\0';
+            count++;
+          }
+        }
+        mVorbisComment.numComments = count;
+      } else {
+        ALOGE("FLACParser::metadataCallback unexpected VORBISCOMMENT");
+      }
+      break;
     default:
       ALOGE("FLACParser::metadataCallback unexpected type %u", metadata->type);
       break;
@@ -233,6 +257,7 @@ FLACParser::FLACParser(DataSource *source)
       mCurrentPos(0LL),
       mEOF(false),
       mStreamInfoValid(false),
+      mVorbisCommentValid(false),
       mWriteRequested(false),
       mWriteCompleted(false),
       mWriteBuffer(NULL),
@@ -240,6 +265,7 @@ FLACParser::FLACParser(DataSource *source)
   ALOGV("FLACParser::FLACParser");
   memset(&mStreamInfo, 0, sizeof(mStreamInfo));
   memset(&mWriteHeader, 0, sizeof(mWriteHeader));
+  memset(&mVorbisComment, 0, sizeof(mVorbisComment));
 }
 
 FLACParser::~FLACParser() {
@@ -266,6 +292,8 @@ bool FLACParser::init() {
                                             FLAC__METADATA_TYPE_STREAMINFO);
   FLAC__stream_decoder_set_metadata_respond(mDecoder,
                                             FLAC__METADATA_TYPE_SEEKTABLE);
+  FLAC__stream_decoder_set_metadata_respond(mDecoder,
+                                            FLAC__METADATA_TYPE_VORBIS_COMMENT);
   FLAC__StreamDecoderInitStatus initStatus;
   initStatus = FLAC__stream_decoder_init_stream(
       mDecoder, read_callback, seek_callback, tell_callback, length_callback,

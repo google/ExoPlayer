@@ -26,6 +26,11 @@
 
 typedef int status_t;
 
+typedef struct VorbisComment_ {
+  int numComments;
+  char **metadataArray;
+} VorbisComment;
+
 class FLACParser {
  public:
   FLACParser(DataSource *source);
@@ -71,6 +76,7 @@ class FLACParser {
       mEOF = false;
       if (newPosition == 0) {
         mStreamInfoValid = false;
+        mVorbisCommentValid = false;
         FLAC__stream_decoder_reset(mDecoder);
       } else {
         FLAC__stream_decoder_flush(mDecoder);
@@ -96,6 +102,10 @@ class FLACParser {
            FLAC__STREAM_DECODER_END_OF_STREAM;
   }
 
+  VorbisComment getVorbisComment() {
+    return mVorbisComment;
+  }
+
  private:
   DataSource *mDataSource;
 
@@ -116,6 +126,8 @@ class FLACParser {
   const FLAC__StreamMetadata_SeekTable *mSeekTable;
   uint64_t firstFrameOffset;
 
+  bool mVorbisCommentValid;
+
   // cached when a decoded PCM block is "written" by libFLAC parser
   bool mWriteRequested;
   bool mWriteCompleted;
@@ -128,6 +140,8 @@ class FLACParser {
   // no copy constructor or assignment
   FLACParser(const FLACParser &);
   FLACParser &operator=(const FLACParser &);
+
+  VorbisComment mVorbisComment;
 
   // FLAC parser callbacks as C++ instance methods
   FLAC__StreamDecoderReadStatus readCallback(FLAC__byte buffer[],
