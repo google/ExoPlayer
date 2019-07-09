@@ -4,13 +4,15 @@
 
 * Display last frame when seeking to end of stream
   ([#2568](https://github.com/google/ExoPlayer/issues/2568)).
-* SmoothStreaming: Parse text stream `Subtype` into `Format.roleFlags`.
-* Gracefully handle revoked `ACCESS_NETWORK_STATE` permission
-  ([#6019](https://github.com/google/ExoPlayer/issues/6019)).
-* FLV: Fix bug that caused playback of some live streams to not start
-  ([#6111](https://github.com/google/ExoPlayer/issues/6111)).
+* UI: Fix `PlayerView` incorrectly consuming touch events if no controller is
+  attached ([#6109](https://github.com/google/ExoPlayer/issues/6133)).
 * CEA608: Fix repetition of special North American characters
   ([#6133](https://github.com/google/ExoPlayer/issues/6133)).
+* FLV: Fix bug that caused playback of some live streams to not start
+  ([#6111](https://github.com/google/ExoPlayer/issues/6111)).
+* SmoothStreaming: Parse text stream `Subtype` into `Format.roleFlags`.
+* MediaSession extension: Fix `MediaSessionConnector.play()` not resuming
+  playback ([#6093](https://github.com/google/ExoPlayer/issues/6093)).
 
 ### 2.10.2 ###
 
