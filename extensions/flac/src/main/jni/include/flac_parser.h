@@ -18,6 +18,9 @@
 #define FLAC_PARSER_H_
 
 #include <stdint.h>
+#include <cstdlib>
+#include <string>
+#include <vector>
 
 // libFLAC parser
 #include "FLAC/stream_decoder.h"
@@ -25,11 +28,6 @@
 #include "include/data_source.h"
 
 typedef int status_t;
-
-typedef struct VorbisComment_ {
-  int numComments;
-  char **metadataArray;
-} VorbisComment;
 
 class FLACParser {
  public:
@@ -47,6 +45,14 @@ class FLACParser {
 
   const FLAC__StreamMetadata_StreamInfo& getStreamInfo() const {
     return mStreamInfo;
+  }
+
+  bool isVorbisCommentValid() {
+    return mVorbisCommentValid;
+  }
+
+  std::vector<std::string> getVorbisComments() {
+    return mVorbisComments;
   }
 
   int64_t getLastFrameTimestamp() const {
@@ -77,6 +83,7 @@ class FLACParser {
       if (newPosition == 0) {
         mStreamInfoValid = false;
         mVorbisCommentValid = false;
+        mVorbisComments.clear();
         FLAC__stream_decoder_reset(mDecoder);
       } else {
         FLAC__stream_decoder_flush(mDecoder);
@@ -102,10 +109,6 @@ class FLACParser {
            FLAC__STREAM_DECODER_END_OF_STREAM;
   }
 
-  VorbisComment getVorbisComment() {
-    return mVorbisComment;
-  }
-
  private:
   DataSource *mDataSource;
 
@@ -126,6 +129,8 @@ class FLACParser {
   const FLAC__StreamMetadata_SeekTable *mSeekTable;
   uint64_t firstFrameOffset;
 
+  // cached when the VORBIS_COMMENT metadata is parsed by libFLAC
+  std::vector<std::string> mVorbisComments;
   bool mVorbisCommentValid;
 
   // cached when a decoded PCM block is "written" by libFLAC parser
@@ -140,8 +145,6 @@ class FLACParser {
   // no copy constructor or assignment
   FLACParser(const FLACParser &);
   FLACParser &operator=(const FLACParser &);
-
-  VorbisComment mVorbisComment;
 
   // FLAC parser callbacks as C++ instance methods
   FLAC__StreamDecoderReadStatus readCallback(FLAC__byte buffer[],
