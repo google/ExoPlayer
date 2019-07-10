@@ -274,7 +274,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
       flagsOnlyBuffer.clear();
       int result = readSource(formatHolder, flagsOnlyBuffer, true);
       if (result == C.RESULT_FORMAT_READ) {
-        onInputFormatChanged(formatHolder.format);
+        onInputFormatChanged(formatHolder);
       } else if (result == C.RESULT_BUFFER_READ) {
         // End of stream read having not read a format.
         Assertions.checkState(flagsOnlyBuffer.isEndOfStream());
@@ -438,7 +438,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
       return false;
     }
     if (result == C.RESULT_FORMAT_READ) {
-      onInputFormatChanged(formatHolder.format);
+      onInputFormatChanged(formatHolder);
       return true;
     }
     if (inputBuffer.isEndOfStream()) {
@@ -656,9 +656,9 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   }
 
   @SuppressWarnings("unchecked")
-  private void onInputFormatChanged(Format newFormat) throws ExoPlaybackException {
+  private void onInputFormatChanged(FormatHolder formatHolder) throws ExoPlaybackException {
     Format oldFormat = inputFormat;
-    inputFormat = newFormat;
+    inputFormat = formatHolder.format;
 
     boolean drmInitDataChanged = !Util.areEqual(inputFormat.drmInitData, oldFormat == null ? null
         : oldFormat.drmInitData);
@@ -673,7 +673,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
                 new IllegalStateException("Media requires a DrmSessionManager"), getIndex());
           }
           DrmSession<ExoMediaCrypto> session =
-              drmSessionManager.acquireSession(Looper.myLooper(), newFormat.drmInitData);
+              drmSessionManager.acquireSession(Looper.myLooper(), inputFormat.drmInitData);
           if (sourceDrmSession != null) {
             sourceDrmSession.releaseReference();
           }
@@ -694,10 +694,10 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
       audioTrackNeedsConfigure = true;
     }
 
-    encoderDelay = newFormat.encoderDelay;
-    encoderPadding = newFormat.encoderPadding;
+    encoderDelay = inputFormat.encoderDelay;
+    encoderPadding = inputFormat.encoderPadding;
 
-    eventDispatcher.inputFormatChanged(newFormat);
+    eventDispatcher.inputFormatChanged(inputFormat);
   }
 
   private void onQueueInputBuffer(DecoderInputBuffer buffer) {
