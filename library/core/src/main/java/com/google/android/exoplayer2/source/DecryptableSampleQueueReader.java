@@ -131,7 +131,8 @@ public final class DecryptableSampleQueueReader {
 
     if (currentFormat == null || formatRequired) {
       readFlagFormatRequired = true;
-    } else if (currentFormat.drmInitData != null
+    } else if (sessionManager != DrmSessionManager.DUMMY
+        && currentFormat.drmInitData != null
         && Assertions.checkNotNull(currentSession).getState()
             != DrmSession.STATE_OPENED_WITH_KEYS) {
       if (playClearSamplesWithoutKeys) {
@@ -158,12 +159,7 @@ public final class DecryptableSampleQueueReader {
       if (onlyPropagateFormatChanges && currentFormat == formatHolder.format) {
         return C.RESULT_NOTHING_READ;
       }
-      onFormat(Assertions.checkNotNull(formatHolder.format));
-      // TODO: Remove once all Renderers and MediaSources have migrated to the new DRM model
-      // [Internal ref: b/129764794].
-      outputFormatHolder.includesDrmSession = true;
-      outputFormatHolder.format = formatHolder.format;
-      outputFormatHolder.drmSession = currentSession;
+      onFormat(Assertions.checkNotNull(formatHolder.format), outputFormatHolder);
     }
     return result;
   }
@@ -172,10 +168,21 @@ public final class DecryptableSampleQueueReader {
    * Updates the current format and manages any necessary DRM resources.
    *
    * @param format The format read from upstream.
+   * @param outputFormatHolder The output {@link FormatHolder}.
    */
-  private void onFormat(Format format) {
-    DrmInitData oldDrmInitData = currentFormat != null ? currentFormat.drmInitData : null;
+  private void onFormat(Format format, FormatHolder outputFormatHolder) {
+    outputFormatHolder.format = format;
     currentFormat = format;
+    if (sessionManager == DrmSessionManager.DUMMY) {
+      // Avoid attempting to acquire a session using the dummy DRM session manager. It's likely that
+      // the media source creation has not yet been migrated and the renderer can acquire the
+      // session for the read DRM init data.
+      // TODO: Remove once renderers are migrated [Internal ref: b/122519809].
+      return;
+    }
+    outputFormatHolder.includesDrmSession = true;
+    outputFormatHolder.drmSession = currentSession;
+    DrmInitData oldDrmInitData = currentFormat != null ? currentFormat.drmInitData : null;
     if (Util.areEqual(oldDrmInitData, format.drmInitData)) {
       // Nothing to do.
       return;
@@ -195,6 +202,7 @@ public final class DecryptableSampleQueueReader {
     } else {
       currentSession = null;
     }
+    outputFormatHolder.drmSession = currentSession;
 
     if (previousSession != null) {
       previousSession.releaseReference();
@@ -211,8 +219,9 @@ public final class DecryptableSampleQueueReader {
     } else if (nextInQueue == SampleQueue.PEEK_RESULT_BUFFER_CLEAR) {
       return currentSession == null || playClearSamplesWithoutKeys;
     } else if (nextInQueue == SampleQueue.PEEK_RESULT_BUFFER_ENCRYPTED) {
-      return Assertions.checkNotNull(currentSession).getState()
-          == DrmSession.STATE_OPENED_WITH_KEYS;
+      return sessionManager == DrmSessionManager.DUMMY
+          || Assertions.checkNotNull(currentSession).getState()
+              == DrmSession.STATE_OPENED_WITH_KEYS;
     } else {
       throw new IllegalStateException();
     }
