@@ -994,7 +994,7 @@ public final class DashMediaSource extends BaseMediaSource {
             windowDefaultStartPositionUs,
             manifest,
             tag);
-    refreshSourceInfo(timeline, manifest);
+    refreshSourceInfo(timeline);
 
     if (!sideloadedManifest) {
       // Remove any pending simulated refresh.
@@ -1193,6 +1193,7 @@ public final class DashMediaSource extends BaseMediaSource {
               && manifest.durationMs == C.TIME_UNSET;
       return window.set(
           tag,
+          manifest,
           presentationStartTimeMs,
           windowStartTimeMs,
           /* isSeekable= */ true,

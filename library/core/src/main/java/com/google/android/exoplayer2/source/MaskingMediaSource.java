@@ -119,7 +119,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
 
   @Override
   protected void onChildSourceInfoRefreshed(
-      Void id, MediaSource mediaSource, Timeline newTimeline, @Nullable Object manifest) {
+      Void id, MediaSource mediaSource, Timeline newTimeline) {
     if (isPrepared) {
       timeline = timeline.cloneWithUpdatedTimeline(newTimeline);
     } else if (newTimeline.isEmpty()) {
@@ -162,7 +162,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
       }
     }
     isPrepared = true;
-    refreshSourceInfo(this.timeline, manifest);
+    refreshSourceInfo(this.timeline);
   }
 
   @Nullable
@@ -274,6 +274,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
         int windowIndex, Window window, boolean setTag, long defaultPositionProjectionUs) {
       return window.set(
           tag,
+          /* manifest= */ null,
           /* presentationStartTimeMs= */ C.TIME_UNSET,
           /* windowStartTimeMs= */ C.TIME_UNSET,
           /* isSeekable= */ false,

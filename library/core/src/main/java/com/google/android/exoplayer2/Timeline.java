@@ -122,6 +122,9 @@ public abstract class Timeline {
     /** A tag for the window. Not necessarily unique. */
     @Nullable public Object tag;
 
+    /** The manifest of the window. May be {@code null}. */
+    @Nullable public Object manifest;
+
     /**
      * The start time of the presentation to which this window belongs in milliseconds since the
      * epoch, or {@link C#TIME_UNSET} if unknown or not applicable. For informational purposes only.
@@ -179,6 +182,7 @@ public abstract class Timeline {
     /** Sets the data held by this window. */
     public Window set(
         @Nullable Object tag,
+        @Nullable Object manifest,
         long presentationStartTimeMs,
         long windowStartTimeMs,
         boolean isSeekable,
@@ -189,6 +193,7 @@ public abstract class Timeline {
         int lastPeriodIndex,
         long positionInFirstPeriodUs) {
       this.tag = tag;
+      this.manifest = manifest;
       this.presentationStartTimeMs = presentationStartTimeMs;
       this.windowStartTimeMs = windowStartTimeMs;
       this.isSeekable = isSeekable;

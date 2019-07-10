@@ -287,7 +287,10 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     // TODO: Make timeline dynamic until its duration is known. This is non-trivial. See b/69703223.
     refreshSourceInfo(
         new SinglePeriodTimeline(
-            timelineDurationUs, timelineIsSeekable, /* isDynamic= */ false, tag),
-        /* manifest= */ null);
+            timelineDurationUs,
+            timelineIsSeekable,
+            /* isDynamic= */ false,
+            /* manifest= */ null,
+            tag));
   }
 }

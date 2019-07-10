@@ -60,9 +60,11 @@ public class DownloadHelperTest {
 
   private static final String TEST_DOWNLOAD_TYPE = "downloadType";
   private static final String TEST_CACHE_KEY = "cacheKey";
-  private static final Timeline TEST_TIMELINE =
-      new FakeTimeline(new TimelineWindowDefinition(/* periodCount= */ 2, /* id= */ new Object()));
   private static final Object TEST_MANIFEST = new Object();
+  private static final Timeline TEST_TIMELINE =
+      new FakeTimeline(
+          new Object[] {TEST_MANIFEST},
+          new TimelineWindowDefinition(/* periodCount= */ 2, /* id= */ new Object()));
 
   private static final Format VIDEO_FORMAT_LOW = createVideoFormat(/* bitrate= */ 200_000);
   private static final Format VIDEO_FORMAT_HIGH = createVideoFormat(/* bitrate= */ 800_000);
@@ -491,7 +493,7 @@ public class DownloadHelperTest {
   private static final class TestMediaSource extends FakeMediaSource {
 
     public TestMediaSource() {
-      super(TEST_TIMELINE, TEST_MANIFEST);
+      super(TEST_TIMELINE);
     }
 
     @Override

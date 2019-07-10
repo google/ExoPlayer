@@ -345,7 +345,7 @@ public class MediaSourceTestRunner {
     // SourceInfoRefreshListener methods.
 
     @Override
-    public void onSourceInfoRefreshed(MediaSource source, Timeline timeline, Object manifest) {
+    public void onSourceInfoRefreshed(MediaSource source, Timeline timeline) {
       Assertions.checkState(Looper.myLooper() == playbackThread.getLooper());
       timelines.addLast(timeline);
     }

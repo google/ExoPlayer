@@ -542,9 +542,7 @@ public abstract class Action {
     }
   }
 
-  /**
-   * Waits for {@link Player.EventListener#onTimelineChanged(Timeline, Object, int)}.
-   */
+  /** Waits for {@link Player.EventListener#onTimelineChanged(Timeline, int)}. */
   public static final class WaitForTimelineChanged extends Action {
 
     @Nullable private final Timeline expectedTimeline;
@@ -575,9 +573,7 @@ public abstract class Action {
           new Player.EventListener() {
             @Override
             public void onTimelineChanged(
-                Timeline timeline,
-                @Nullable Object manifest,
-                @Player.TimelineChangeReason int reason) {
+                Timeline timeline, @Player.TimelineChangeReason int reason) {
               if (expectedTimeline == null || timeline.equals(expectedTimeline)) {
                 player.removeListener(this);
                 nextAction.schedule(player, trackSelector, surface, handler);

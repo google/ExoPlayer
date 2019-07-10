@@ -196,11 +196,6 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
-  public Object getCurrentManifest() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public Timeline getCurrentTimeline() {
     throw new UnsupportedOperationException();
   }

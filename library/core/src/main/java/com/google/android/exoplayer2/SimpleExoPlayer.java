@@ -1071,13 +1071,6 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  @Nullable
-  public Object getCurrentManifest() {
-    verifyApplicationThread();
-    return player.getCurrentManifest();
-  }
-
-  @Override
   public int getCurrentPeriodIndex() {
     verifyApplicationThread();
     return player.getCurrentPeriodIndex();

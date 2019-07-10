@@ -87,7 +87,6 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
   private final ArrayList<ClippingMediaPeriod> mediaPeriods;
   private final Timeline.Window window;
 
-  @Nullable private Object manifest;
   @Nullable private ClippingTimeline clippingTimeline;
   @Nullable private IllegalClippingException clippingError;
   private long periodStartUs;
@@ -235,12 +234,10 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
   }
 
   @Override
-  protected void onChildSourceInfoRefreshed(
-      Void id, MediaSource mediaSource, Timeline timeline, @Nullable Object manifest) {
+  protected void onChildSourceInfoRefreshed(Void id, MediaSource mediaSource, Timeline timeline) {
     if (clippingError != null) {
       return;
     }
-    this.manifest = manifest;
     refreshClippedTimeline(timeline);
   }
 
@@ -280,7 +277,7 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
       clippingError = e;
       return;
     }
-    refreshSourceInfo(clippingTimeline, manifest);
+    refreshSourceInfo(clippingTimeline);
   }
 
   @Override

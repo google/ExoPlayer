@@ -288,8 +288,7 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
     }
 
     @Override
-    public void onTimelineChanged(
-        Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason) {
+    public void onTimelineChanged(Timeline timeline, @TimelineChangeReason int reason) {
       Callback callback = getCallback();
       callback.onDurationChanged(LeanbackPlayerAdapter.this);
       callback.onCurrentPositionChanged(LeanbackPlayerAdapter.this);

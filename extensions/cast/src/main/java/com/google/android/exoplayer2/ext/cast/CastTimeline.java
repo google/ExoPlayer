@@ -117,6 +117,7 @@ import java.util.Arrays;
     Object tag = setTag ? ids[windowIndex] : null;
     return window.set(
         tag,
+        /* manifest= */ null,
         /* presentationStartTimeMs= */ C.TIME_UNSET,
         /* windowStartTimeMs= */ C.TIME_UNSET,
         /* isSeekable= */ !isDynamic,

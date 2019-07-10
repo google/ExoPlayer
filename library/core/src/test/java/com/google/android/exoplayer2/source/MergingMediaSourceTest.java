@@ -68,8 +68,7 @@ public class MergingMediaSourceTest {
   public void testMergingMediaSourcePeriodCreation() throws Exception {
     FakeMediaSource[] mediaSources = new FakeMediaSource[2];
     for (int i = 0; i < mediaSources.length; i++) {
-      mediaSources[i] =
-          new FakeMediaSource(new FakeTimeline(/* windowCount= */ 2), /* manifest= */ null);
+      mediaSources[i] = new FakeMediaSource(new FakeTimeline(/* windowCount= */ 2));
     }
     MergingMediaSource mediaSource = new MergingMediaSource(mediaSources);
     MediaSourceTestRunner testRunner = new MediaSourceTestRunner(mediaSource, null);
@@ -92,7 +91,7 @@ public class MergingMediaSourceTest {
   private static void testMergingMediaSourcePrepare(Timeline... timelines) throws IOException {
     FakeMediaSource[] mediaSources = new FakeMediaSource[timelines.length];
     for (int i = 0; i < timelines.length; i++) {
-      mediaSources[i] = new FakeMediaSource(timelines[i], null);
+      mediaSources[i] = new FakeMediaSource(timelines[i]);
     }
     MergingMediaSource mergingMediaSource = new MergingMediaSource(mediaSources);
     MediaSourceTestRunner testRunner = new MediaSourceTestRunner(mergingMediaSource, null);

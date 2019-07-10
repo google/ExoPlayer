@@ -325,6 +325,29 @@ public interface Player {
   interface EventListener {
 
     /**
+     * Called when the timeline has been refreshed.
+     *
+     * <p>Note that if the timeline has changed then a position discontinuity may also have
+     * occurred. For example, the current period index may have changed as a result of periods being
+     * added or removed from the timeline. This will <em>not</em> be reported via a separate call to
+     * {@link #onPositionDiscontinuity(int)}.
+     *
+     * @param timeline The latest timeline. Never null, but may be empty.
+     * @param reason The {@link TimelineChangeReason} responsible for this timeline change.
+     */
+    @SuppressWarnings("deprecation")
+    default void onTimelineChanged(Timeline timeline, @TimelineChangeReason int reason) {
+      Object manifest = null;
+      if (timeline.getWindowCount() == 1) {
+        // Legacy behavior was to report the manifest for single window timelines only.
+        Timeline.Window window = new Timeline.Window();
+        manifest = timeline.getWindow(0, window).manifest;
+      }
+      // Call deprecated version.
+      onTimelineChanged(timeline, manifest, reason);
+    }
+
+    /**
      * Called when the timeline and/or manifest has been refreshed.
      *
      * <p>Note that if the timeline has changed then a position discontinuity may also have
@@ -335,7 +358,11 @@ public interface Player {
      * @param timeline The latest timeline. Never null, but may be empty.
      * @param manifest The latest manifest. May be null.
      * @param reason The {@link TimelineChangeReason} responsible for this timeline change.
+     * @deprecated Use {@link #onTimelineChanged(Timeline, int)} instead. The manifest can be
+     *     accessed by using {@link #getCurrentManifest()} or {@code timeline.getWindow(windowIndex,
+     *     window).manifest} for a given window index.
      */
+    @Deprecated
     default void onTimelineChanged(
         Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason) {}
 
@@ -396,8 +423,7 @@ public interface Player {
      * when the source introduces a discontinuity internally).
      *
      * <p>When a position discontinuity occurs as a result of a change to the timeline this method
-     * is <em>not</em> called. {@link #onTimelineChanged(Timeline, Object, int)} is called in this
-     * case.
+     * is <em>not</em> called. {@link #onTimelineChanged(Timeline, int)} is called in this case.
      *
      * @param reason The {@link DiscontinuityReason} responsible for the discontinuity.
      */
@@ -430,13 +456,26 @@ public interface Player {
 
     @Override
     @SuppressWarnings("deprecation")
+    public void onTimelineChanged(Timeline timeline, @TimelineChangeReason int reason) {
+      Object manifest = null;
+      if (timeline.getWindowCount() == 1) {
+        // Legacy behavior was to report the manifest for single window timelines only.
+        Timeline.Window window = new Timeline.Window();
+        manifest = timeline.getWindow(0, window).manifest;
+      }
+      // Call deprecated version.
+      onTimelineChanged(timeline, manifest, reason);
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
     public void onTimelineChanged(
         Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason) {
       // Call deprecated version. Otherwise, do nothing.
       onTimelineChanged(timeline, manifest);
     }
 
-    /** @deprecated Use {@link EventListener#onTimelineChanged(Timeline, Object, int)} instead. */
+    /** @deprecated Use {@link EventListener#onTimelineChanged(Timeline, int)} instead. */
     @Deprecated
     public void onTimelineChanged(Timeline timeline, @Nullable Object manifest) {
       // Do nothing.

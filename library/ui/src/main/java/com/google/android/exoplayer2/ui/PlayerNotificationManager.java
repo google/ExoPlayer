@@ -1286,7 +1286,7 @@ public class PlayerNotificationManager {
     }
 
     @Override
-    public void onTimelineChanged(Timeline timeline, @Nullable Object manifest, int reason) {
+    public void onTimelineChanged(Timeline timeline, int reason) {
       startOrUpdateNotification();
     }
 
