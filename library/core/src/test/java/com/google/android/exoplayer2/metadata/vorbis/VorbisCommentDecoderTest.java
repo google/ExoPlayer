@@ -19,12 +19,12 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.util.FlacStreamInfo;
+import com.google.android.exoplayer2.util.FlacStreamMetadata;
 import java.util.ArrayList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Test for {@link FlacStreamInfo}'s conversion of {@link ArrayList} to {@link Metadata}. */
+/** Test for {@link FlacStreamMetadata}'s conversion of {@link ArrayList} to {@link Metadata}. */
 @RunWith(AndroidJUnit4.class)
 public final class VorbisCommentDecoderTest {
 
@@ -35,7 +35,7 @@ public final class VorbisCommentDecoderTest {
     commentsList.add("Title=Song");
     commentsList.add("Artist=Singer");
 
-    Metadata metadata = new FlacStreamInfo(0, 0, 0, 0, 0, 0, 0, 0, commentsList).vorbisComments;
+    Metadata metadata = new FlacStreamMetadata(0, 0, 0, 0, 0, 0, 0, 0, commentsList).vorbisComments;
 
     assertThat(metadata.length()).isEqualTo(2);
     VorbisCommentFrame commentFrame = (VorbisCommentFrame) metadata.get(0);
@@ -50,7 +50,7 @@ public final class VorbisCommentDecoderTest {
   public void decodeEmptyList() {
     ArrayList<String> commentsList = new ArrayList<>();
 
-    Metadata metadata = new FlacStreamInfo(0, 0, 0, 0, 0, 0, 0, 0, commentsList).vorbisComments;
+    Metadata metadata = new FlacStreamMetadata(0, 0, 0, 0, 0, 0, 0, 0, commentsList).vorbisComments;
 
     assertThat(metadata).isNull();
   }
@@ -62,7 +62,7 @@ public final class VorbisCommentDecoderTest {
     commentsList.add("Title=Song");
     commentsList.add("Artist=Sing=er");
 
-    Metadata metadata = new FlacStreamInfo(0, 0, 0, 0, 0, 0, 0, 0, commentsList).vorbisComments;
+    Metadata metadata = new FlacStreamMetadata(0, 0, 0, 0, 0, 0, 0, 0, commentsList).vorbisComments;
 
     assertThat(metadata.length()).isEqualTo(2);
     VorbisCommentFrame commentFrame = (VorbisCommentFrame) metadata.get(0);
@@ -80,7 +80,7 @@ public final class VorbisCommentDecoderTest {
     commentsList.add("TitleSong");
     commentsList.add("Artist=Singer");
 
-    Metadata metadata = new FlacStreamInfo(0, 0, 0, 0, 0, 0, 0, 0, commentsList).vorbisComments;
+    Metadata metadata = new FlacStreamMetadata(0, 0, 0, 0, 0, 0, 0, 0, commentsList).vorbisComments;
 
     assertThat(metadata.length()).isEqualTo(1);
     VorbisCommentFrame commentFrame = (VorbisCommentFrame) metadata.get(0);
