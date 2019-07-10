@@ -34,7 +34,7 @@ import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.FlacStreamInfo;
+import com.google.android.exoplayer2.util.FlacStreamMetadata;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
@@ -87,7 +87,7 @@ public final class FlacExtractor implements Extractor {
   private @MonotonicNonNull TrackOutput trackOutput;
 
   private boolean streamInfoDecoded;
-  private @MonotonicNonNull FlacStreamInfo streamInfo;
+  private @MonotonicNonNull FlacStreamMetadata streamMetadata;
   private @MonotonicNonNull OutputFrameHolder outputFrameHolder;
 
   @Nullable private Metadata id3Metadata;
@@ -207,16 +207,16 @@ public final class FlacExtractor implements Extractor {
   }
 
   @RequiresNonNull({"decoderJni", "extractorOutput", "trackOutput"}) // Requires initialized.
-  @EnsuresNonNull({"streamInfo", "outputFrameHolder"}) // Ensures StreamInfo decoded.
+  @EnsuresNonNull({"streamMetadata", "outputFrameHolder"}) // Ensures StreamInfo decoded.
   @SuppressWarnings({"contracts.postcondition.not.satisfied"})
   private void decodeStreamInfo(ExtractorInput input) throws InterruptedException, IOException {
     if (streamInfoDecoded) {
       return;
     }
 
-    FlacStreamInfo streamInfo;
+    FlacStreamMetadata streamMetadata;
     try {
-      streamInfo = decoderJni.decodeStreamInfo();
+      streamMetadata = decoderJni.decodeStreamMetadata();
     } catch (IOException e) {
       decoderJni.reset(/* newPosition= */ 0);
       input.setRetryPosition(/* position= */ 0, e);
@@ -224,16 +224,16 @@ public final class FlacExtractor implements Extractor {
     }
 
     streamInfoDecoded = true;
-    if (this.streamInfo == null) {
-      this.streamInfo = streamInfo;
+    if (this.streamMetadata == null) {
+      this.streamMetadata = streamMetadata;
       binarySearchSeeker =
-          outputSeekMap(decoderJni, streamInfo, input.getLength(), extractorOutput);
+          outputSeekMap(decoderJni, streamMetadata, input.getLength(), extractorOutput);
       Metadata metadata = id3MetadataDisabled ? null : id3Metadata;
-      if (streamInfo.vorbisComments != null) {
-          metadata = streamInfo.vorbisComments.copyWithAppendedEntriesFrom(metadata);
+      if (streamMetadata.vorbisComments != null) {
+          metadata = streamMetadata.vorbisComments.copyWithAppendedEntriesFrom(metadata);
       }
-      outputFormat(streamInfo, metadata, trackOutput);
-      outputBuffer.reset(streamInfo.maxDecodedFrameSize());
+      outputFormat(streamMetadata, metadata, trackOutput);
+      outputBuffer.reset(streamMetadata.maxDecodedFrameSize());
       outputFrameHolder = new OutputFrameHolder(ByteBuffer.wrap(outputBuffer.data));
     }
   }
@@ -273,38 +273,38 @@ public final class FlacExtractor implements Extractor {
   @Nullable
   private static FlacBinarySearchSeeker outputSeekMap(
       FlacDecoderJni decoderJni,
-      FlacStreamInfo streamInfo,
+      FlacStreamMetadata streamMetadata,
       long streamLength,
       ExtractorOutput output) {
     boolean hasSeekTable = decoderJni.getSeekPosition(/* timeUs= */ 0) != -1;
     FlacBinarySearchSeeker binarySearchSeeker = null;
     SeekMap seekMap;
     if (hasSeekTable) {
-      seekMap = new FlacSeekMap(streamInfo.durationUs(), decoderJni);
+      seekMap = new FlacSeekMap(streamMetadata.durationUs(), decoderJni);
     } else if (streamLength != C.LENGTH_UNSET) {
       long firstFramePosition = decoderJni.getDecodePosition();
       binarySearchSeeker =
-          new FlacBinarySearchSeeker(streamInfo, firstFramePosition, streamLength, decoderJni);
+          new FlacBinarySearchSeeker(streamMetadata, firstFramePosition, streamLength, decoderJni);
       seekMap = binarySearchSeeker.getSeekMap();
     } else {
-      seekMap = new SeekMap.Unseekable(streamInfo.durationUs());
+      seekMap = new SeekMap.Unseekable(streamMetadata.durationUs());
     }
     output.seekMap(seekMap);
     return binarySearchSeeker;
   }
 
   private static void outputFormat(
-      FlacStreamInfo streamInfo, @Nullable Metadata metadata, TrackOutput output) {
+      FlacStreamMetadata streamMetadata, @Nullable Metadata metadata, TrackOutput output) {
     Format mediaFormat =
         Format.createAudioSampleFormat(
             /* id= */ null,
             MimeTypes.AUDIO_RAW,
             /* codecs= */ null,
-            streamInfo.bitRate(),
-            streamInfo.maxDecodedFrameSize(),
-            streamInfo.channels,
-            streamInfo.sampleRate,
-            getPcmEncoding(streamInfo.bitsPerSample),
+            streamMetadata.bitRate(),
+            streamMetadata.maxDecodedFrameSize(),
+            streamMetadata.channels,
+            streamMetadata.sampleRate,
+            getPcmEncoding(streamMetadata.bitsPerSample),
             /* encoderDelay= */ 0,
             /* encoderPadding= */ 0,
             /* initializationData= */ null,

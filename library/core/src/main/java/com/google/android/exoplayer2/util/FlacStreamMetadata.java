@@ -24,7 +24,7 @@ import java.util.ArrayList;
 /**
  * Holder for FLAC stream info.
  */
-public final class FlacStreamInfo {
+public final class FlacStreamMetadata {
 
   public final int minBlockSize;
   public final int maxBlockSize;
@@ -40,14 +40,14 @@ public final class FlacStreamInfo {
   private static final String SEPARATOR="=";
 
   /**
-   * Constructs a FlacStreamInfo parsing the given binary FLAC stream info metadata structure.
+   * Constructs a FlacStreamMetadata parsing the given binary FLAC stream info metadata structure.
    *
    * @param data An array holding FLAC stream info metadata structure
    * @param offset Offset of the structure in the array
    * @see <a href="https://xiph.org/flac/format.html#metadata_block_streaminfo">FLAC format
    *     METADATA_BLOCK_STREAMINFO</a>
    */
-  public FlacStreamInfo(byte[] data, int offset) {
+  public FlacStreamMetadata(byte[] data, int offset) {
     ParsableBitArray scratch = new ParsableBitArray(data);
     scratch.setPosition(offset * 8);
     this.minBlockSize = scratch.readBits(16);
@@ -64,7 +64,7 @@ public final class FlacStreamInfo {
   }
 
   /**
-   * Constructs a FlacStreamInfo given the parameters.
+   * Constructs a FlacStreamMetadata given the parameters.
    *
    * @param minBlockSize Minimum block size of the FLAC stream.
    * @param maxBlockSize Maximum block size of the FLAC stream.
@@ -77,7 +77,7 @@ public final class FlacStreamInfo {
    * @see <a href="https://xiph.org/flac/format.html#metadata_block_streaminfo">FLAC format
    *     METADATA_BLOCK_STREAMINFO</a>
    */
-  public FlacStreamInfo(
+  public FlacStreamMetadata(
       int minBlockSize,
       int maxBlockSize,
       int minFrameSize,
@@ -98,7 +98,7 @@ public final class FlacStreamInfo {
   }
 
   /**
-   * Constructs a FlacStreamInfo given the parameters.
+   * Constructs a FlacStreamMetadata given the parameters.
    *
    * @param minBlockSize Minimum block size of the FLAC stream.
    * @param maxBlockSize Maximum block size of the FLAC stream.
@@ -109,11 +109,11 @@ public final class FlacStreamInfo {
    * @param bitsPerSample Number of bits per sample of the FLAC stream.
    * @param totalSamples Total samples of the FLAC stream.
    * @param vorbisCommentList An {@link ArrayList<String>} that contains vorbis comments, which will
-   *     be converted and stored as metadata in {@link FlacStreamInfo#vorbisComments}
+   *     be converted and stored as metadata in {@link FlacStreamMetadata#vorbisComments}
    * @see <a href="https://xiph.org/flac/format.html#metadata_block_streaminfo">FLAC format
    *     METADATA_BLOCK_STREAMINFO</a>
    */
-  public FlacStreamInfo(
+  public FlacStreamMetadata(
       int minBlockSize,
       int maxBlockSize,
       int minFrameSize,

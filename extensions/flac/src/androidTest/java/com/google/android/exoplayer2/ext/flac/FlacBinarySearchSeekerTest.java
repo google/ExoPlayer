@@ -52,7 +52,7 @@ public final class FlacBinarySearchSeekerTest {
 
     FlacBinarySearchSeeker seeker =
         new FlacBinarySearchSeeker(
-            decoderJni.decodeStreamInfo(), /* firstFramePosition= */ 0, data.length, decoderJni);
+            decoderJni.decodeStreamMetadata(), /* firstFramePosition= */ 0, data.length, decoderJni);
 
     SeekMap seekMap = seeker.getSeekMap();
     assertThat(seekMap).isNotNull();
@@ -70,7 +70,7 @@ public final class FlacBinarySearchSeekerTest {
     decoderJni.setData(input);
     FlacBinarySearchSeeker seeker =
         new FlacBinarySearchSeeker(
-            decoderJni.decodeStreamInfo(), /* firstFramePosition= */ 0, data.length, decoderJni);
+            decoderJni.decodeStreamMetadata(), /* firstFramePosition= */ 0, data.length, decoderJni);
 
     seeker.setSeekTargetUs(/* timeUs= */ 1000);
     assertThat(seeker.isSeeking()).isTrue();
