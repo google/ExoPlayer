@@ -554,7 +554,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
    * @return The number of bytes read, or {@link C#RESULT_END_OF_INPUT} if no data is available
    *     because the end of the opened range has been reached.
    * @throws HttpDataSourceException If an error occurs reading from the source.
-   * @throws IllegalArgumentException If {@codes buffer} is not a direct ByteBuffer.
+   * @throws IllegalArgumentException If {@code buffer} is not a direct ByteBuffer.
    */
   public int read(ByteBuffer buffer) throws HttpDataSourceException {
     Assertions.checkState(opened);
