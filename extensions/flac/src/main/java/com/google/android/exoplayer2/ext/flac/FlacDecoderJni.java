@@ -23,7 +23,6 @@ import com.google.android.exoplayer2.util.FlacStreamInfo;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 
 /**
  * JNI wrapper for the libflac Flac decoder.
@@ -152,12 +151,6 @@ import java.util.ArrayList;
     return streamInfo;
   }
 
-  /** Decodes and consumes the Vorbis Comment section from the FLAC stream. */
-  @Nullable
-  public ArrayList<String> decodeVorbisComment() throws IOException, InterruptedException {
-    return flacDecodeVorbisComment(nativeDecoderContext);
-  }
-
   /**
    * Decodes and consumes the next frame from the FLAC stream into the given byte buffer. If any IO
    * error occurs, resets the stream and input to the given {@code retryPosition}.
@@ -274,9 +267,6 @@ import java.util.ArrayList;
   private native long flacInit();
 
   private native FlacStreamInfo flacDecodeMetadata(long context)
-      throws IOException, InterruptedException;
-
-  private native ArrayList<String> flacDecodeVorbisComment(long context)
       throws IOException, InterruptedException;
 
   private native int flacDecodeToBuffer(long context, ByteBuffer outputBuffer)

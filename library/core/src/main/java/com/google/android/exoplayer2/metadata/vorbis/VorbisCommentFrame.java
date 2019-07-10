@@ -23,11 +23,12 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.metadata.Metadata;
 
 /** Base class for Vorbis Comment Frames. */
-public class VorbisCommentFrame implements Metadata.Entry {
+public final class VorbisCommentFrame implements Metadata.Entry {
 
-  /** The frame key and value */
+  /** The key for this vorbis comment */
   public final String key;
 
+  /** The value corresponding to this vorbis comment's key */
   public final String value;
 
   /**

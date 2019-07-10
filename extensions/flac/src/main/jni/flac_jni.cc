@@ -17,6 +17,7 @@
 #include <jni.h>
 #include <android/log.h>
 #include <cstdlib>
+#include <cstring>
 #include "include/flac_parser.h"
 
 #define LOG_TAG "flac_jni"
@@ -90,50 +91,48 @@ DECODER_FUNC(jlong, flacInit) {
 
 DECODER_FUNC(jobject, flacDecodeMetadata, jlong jContext) {
   Context *context = reinterpret_cast<Context *>(jContext);
+  jobject commentArrayList = NULL;
   context->source->setFlacDecoderJni(env, thiz);
   if (!context->parser->decodeMetadata()) {
     return NULL;
   }
 
+  bool vorbisCommentValid = context->parser->isVorbisCommentValid();
+
+  if (vorbisCommentValid) {
+    std::vector<std::string> vorbisComments =
+                                context->parser->getVorbisComments();
+
+    jclass java_util_ArrayList = env->FindClass("java/util/ArrayList");
+    jmethodID java_util_ArrayList_ =
+        env->GetMethodID(java_util_ArrayList, "<init>", "(I)V");
+    jmethodID java_util_ArrayList_add =
+        env->GetMethodID(java_util_ArrayList, "add", "(Ljava/lang/Object;)Z");
+    commentArrayList = env->NewObject(java_util_ArrayList, java_util_ArrayList_,
+                                      vorbisComments.size());
+
+    for (std::vector<std::string>::const_iterator comment = vorbisComments.begin();
+         comment != vorbisComments.end(); ++comment) {
+      jstring element = env->NewStringUTF((*comment).c_str());
+      env->CallBooleanMethod(commentArrayList, java_util_ArrayList_add,
+                             element);
+      env->DeleteLocalRef(element);
+    }
+  }
+
   const FLAC__StreamMetadata_StreamInfo &streamInfo =
       context->parser->getStreamInfo();
 
-  jclass cls = env->FindClass(
-      "com/google/android/exoplayer2/util/"
-      "FlacStreamInfo");
-  jmethodID constructor = env->GetMethodID(cls, "<init>", "(IIIIIIIJ)V");
+  jclass cls = env->FindClass("com/google/android/exoplayer2/util/"
+                              "FlacStreamInfo");
+  jmethodID constructor = env->GetMethodID(cls, "<init>",
+                                           "(IIIIIIIJLjava/util/ArrayList;)V");
 
   return env->NewObject(cls, constructor, streamInfo.min_blocksize,
                         streamInfo.max_blocksize, streamInfo.min_framesize,
                         streamInfo.max_framesize, streamInfo.sample_rate,
                         streamInfo.channels, streamInfo.bits_per_sample,
-                        streamInfo.total_samples);
-}
-
-DECODER_FUNC(jobject, flacDecodeVorbisComment, jlong jContext) {
-  Context *context = reinterpret_cast<Context *>(jContext);
-  context->source->setFlacDecoderJni(env, thiz);
-
-  VorbisComment vorbisComment = context->parser->getVorbisComment();
-
-  if (vorbisComment.numComments == 0) {
-    return NULL;
-  } else {
-    jclass java_util_ArrayList = env->FindClass("java/util/ArrayList");
-
-    jmethodID java_util_ArrayList_     = env->GetMethodID(java_util_ArrayList, "<init>", "(I)V");
-    jmethodID java_util_ArrayList_add  = env->GetMethodID(java_util_ArrayList, "add",
-                                                          "(Ljava/lang/Object;)Z");
-
-    jobject result = env->NewObject(java_util_ArrayList, java_util_ArrayList_,
-                                    vorbisComment.numComments);
-    for (FLAC__uint32 i = 0; i < vorbisComment.numComments; ++i) {
-      jstring element = env->NewStringUTF(vorbisComment.metadataArray[i]);
-      env->CallBooleanMethod(result, java_util_ArrayList_add, element);
-      env->DeleteLocalRef(element);
-    }
-    return result;
-  }
+                        streamInfo.total_samples, commentArrayList);
 }
 
 DECODER_FUNC(jint, flacDecodeToBuffer, jlong jContext, jobject jOutputBuffer) {

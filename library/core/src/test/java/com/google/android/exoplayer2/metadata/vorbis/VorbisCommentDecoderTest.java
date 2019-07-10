@@ -19,72 +19,72 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.util.FlacStreamInfo;
 import java.util.ArrayList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Test for {@link VorbisCommentDecoder}. */
+/** Test for {@link FlacStreamInfo}'s conversion of {@link ArrayList} to {@link Metadata}. */
 @RunWith(AndroidJUnit4.class)
 public final class VorbisCommentDecoderTest {
 
   @Test
   public void decode() {
-    VorbisCommentDecoder decoder = new VorbisCommentDecoder();
     ArrayList<String> commentsList = new ArrayList<>();
 
-    commentsList.add("Title=Test");
-    commentsList.add("Artist=Test2");
+    commentsList.add("Title=Song");
+    commentsList.add("Artist=Singer");
 
-    Metadata metadata = decoder.decodeVorbisComments(commentsList);
+    Metadata metadata = new FlacStreamInfo(0, 0, 0, 0, 0, 0, 0, 0, commentsList).vorbisComments;
 
     assertThat(metadata.length()).isEqualTo(2);
     VorbisCommentFrame commentFrame = (VorbisCommentFrame) metadata.get(0);
     assertThat(commentFrame.key).isEqualTo("Title");
-    assertThat(commentFrame.value).isEqualTo("Test");
+    assertThat(commentFrame.value).isEqualTo("Song");
     commentFrame = (VorbisCommentFrame) metadata.get(1);
     assertThat(commentFrame.key).isEqualTo("Artist");
-    assertThat(commentFrame.value).isEqualTo("Test2");
+    assertThat(commentFrame.value).isEqualTo("Singer");
   }
 
   @Test
   public void decodeEmptyList() {
-    VorbisCommentDecoder decoder = new VorbisCommentDecoder();
     ArrayList<String> commentsList = new ArrayList<>();
 
-    Metadata metadata = decoder.decodeVorbisComments(commentsList);
+    Metadata metadata = new FlacStreamInfo(0, 0, 0, 0, 0, 0, 0, 0, commentsList).vorbisComments;
 
     assertThat(metadata).isNull();
   }
 
   @Test
   public void decodeTwoSeparators() {
-    VorbisCommentDecoder decoder = new VorbisCommentDecoder();
     ArrayList<String> commentsList = new ArrayList<>();
 
-    commentsList.add("Title=Test");
-    commentsList.add("Artist=Test=2");
+    commentsList.add("Title=Song");
+    commentsList.add("Artist=Sing=er");
 
-    Metadata metadata = decoder.decodeVorbisComments(commentsList);
+    Metadata metadata = new FlacStreamInfo(0, 0, 0, 0, 0, 0, 0, 0, commentsList).vorbisComments;
 
-    assertThat(metadata.length()).isEqualTo(1);
+    assertThat(metadata.length()).isEqualTo(2);
     VorbisCommentFrame commentFrame = (VorbisCommentFrame) metadata.get(0);
     assertThat(commentFrame.key).isEqualTo("Title");
-    assertThat(commentFrame.value).isEqualTo("Test");
+    assertThat(commentFrame.value).isEqualTo("Song");
+    commentFrame = (VorbisCommentFrame) metadata.get(1);
+    assertThat(commentFrame.key).isEqualTo("Artist");
+    assertThat(commentFrame.value).isEqualTo("Sing=er");
   }
 
   @Test
   public void decodeNoSeparators() {
-    VorbisCommentDecoder decoder = new VorbisCommentDecoder();
     ArrayList<String> commentsList = new ArrayList<>();
 
-    commentsList.add("TitleTest");
-    commentsList.add("Artist=Test2");
+    commentsList.add("TitleSong");
+    commentsList.add("Artist=Singer");
 
-    Metadata metadata = decoder.decodeVorbisComments(commentsList);
+    Metadata metadata = new FlacStreamInfo(0, 0, 0, 0, 0, 0, 0, 0, commentsList).vorbisComments;
 
     assertThat(metadata.length()).isEqualTo(1);
     VorbisCommentFrame commentFrame = (VorbisCommentFrame) metadata.get(0);
     assertThat(commentFrame.key).isEqualTo("Artist");
-    assertThat(commentFrame.value).isEqualTo("Test2");
+    assertThat(commentFrame.value).isEqualTo("Singer");
   }
 }

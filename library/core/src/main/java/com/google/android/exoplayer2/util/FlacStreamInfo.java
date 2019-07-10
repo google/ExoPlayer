@@ -15,7 +15,11 @@
  */
 package com.google.android.exoplayer2.util;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.metadata.vorbis.VorbisCommentFrame;
+import java.util.ArrayList;
 
 /**
  * Holder for FLAC stream info.
@@ -30,6 +34,10 @@ public final class FlacStreamInfo {
   public final int channels;
   public final int bitsPerSample;
   public final long totalSamples;
+  @Nullable
+  public final Metadata vorbisComments;
+
+  private static final String SEPARATOR="=";
 
   /**
    * Constructs a FlacStreamInfo parsing the given binary FLAC stream info metadata structure.
@@ -52,6 +60,7 @@ public final class FlacStreamInfo {
     this.totalSamples = ((scratch.readBits(4) & 0xFL) << 32)
         | (scratch.readBits(32) & 0xFFFFFFFFL);
     // Remaining 16 bytes is md5 value
+    this.vorbisComments = null;
   }
 
   /**
@@ -85,6 +94,78 @@ public final class FlacStreamInfo {
     this.channels = channels;
     this.bitsPerSample = bitsPerSample;
     this.totalSamples = totalSamples;
+    this.vorbisComments = null;
+  }
+
+  /**
+   * Constructs a FlacStreamInfo given the parameters.
+   *
+   * @param minBlockSize Minimum block size of the FLAC stream.
+   * @param maxBlockSize Maximum block size of the FLAC stream.
+   * @param minFrameSize Minimum frame size of the FLAC stream.
+   * @param maxFrameSize Maximum frame size of the FLAC stream.
+   * @param sampleRate Sample rate of the FLAC stream.
+   * @param channels Number of channels of the FLAC stream.
+   * @param bitsPerSample Number of bits per sample of the FLAC stream.
+   * @param totalSamples Total samples of the FLAC stream.
+   * @param vorbisCommentList An {@link ArrayList<String>} that contains vorbis comments, which will
+   *     be converted and stored as metadata in {@link FlacStreamInfo#vorbisComments}
+   * @see <a href="https://xiph.org/flac/format.html#metadata_block_streaminfo">FLAC format
+   *     METADATA_BLOCK_STREAMINFO</a>
+   */
+  public FlacStreamInfo(
+      int minBlockSize,
+      int maxBlockSize,
+      int minFrameSize,
+      int maxFrameSize,
+      int sampleRate,
+      int channels,
+      int bitsPerSample,
+      long totalSamples,
+      ArrayList<String> vorbisCommentList) {
+    this.minBlockSize = minBlockSize;
+    this.maxBlockSize = maxBlockSize;
+    this.minFrameSize = minFrameSize;
+    this.maxFrameSize = maxFrameSize;
+    this.sampleRate = sampleRate;
+    this.channels = channels;
+    this.bitsPerSample = bitsPerSample;
+    this.totalSamples = totalSamples;
+    this.vorbisComments = decodeVorbisComments(vorbisCommentList);
+  }
+
+  /**
+   * Decodes an {@link ArrayList} of vorbis comments.
+   *
+   * @param metadataStringList An {@link ArrayList} containing vorbis comments as {@link String}
+   * @return A {@link Metadata} structure with the vorbis comments as its entries.
+   */
+  @Nullable
+  private static Metadata decodeVorbisComments(@Nullable ArrayList<String> metadataStringList) {
+    if (metadataStringList == null || metadataStringList.isEmpty()) {
+      return null;
+    }
+
+    ArrayList<VorbisCommentFrame> vorbisCommentFrames = new ArrayList<>();
+    VorbisCommentFrame vorbisCommentFrame;
+
+    for (String commentEntry : metadataStringList) {
+      String[] keyValue;
+
+      keyValue = commentEntry.split(SEPARATOR, 2);
+      if (keyValue.length != 2) {
+        /* Could not parse this comment, no key value pair found */
+        continue;
+      }
+      vorbisCommentFrame = new VorbisCommentFrame(keyValue[0], keyValue[1]);
+      vorbisCommentFrames.add(vorbisCommentFrame);
+    }
+
+    if (vorbisCommentFrames.isEmpty()) {
+      return null;
+    } else {
+      return new Metadata(vorbisCommentFrames);
+    }
   }
 
   /** Returns the maximum size for a decoded frame from the FLAC stream. */

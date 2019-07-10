@@ -33,7 +33,6 @@ import com.google.android.exoplayer2.extractor.SeekPoint;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
-import com.google.android.exoplayer2.metadata.vorbis.VorbisCommentDecoder;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.FlacStreamInfo;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -43,7 +42,6 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Arrays;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -93,7 +91,6 @@ public final class FlacExtractor implements Extractor {
   private @MonotonicNonNull OutputFrameHolder outputFrameHolder;
 
   @Nullable private Metadata id3Metadata;
-  @Nullable private Metadata vorbisMetadata;
   @Nullable private FlacBinarySearchSeeker binarySearchSeeker;
 
   /** Constructs an instance with flags = 0. */
@@ -227,14 +224,13 @@ public final class FlacExtractor implements Extractor {
     }
 
     streamInfoDecoded = true;
-    vorbisMetadata = decodeVorbisComment(input);
     if (this.streamInfo == null) {
       this.streamInfo = streamInfo;
       binarySearchSeeker =
           outputSeekMap(decoderJni, streamInfo, input.getLength(), extractorOutput);
       Metadata metadata = id3MetadataDisabled ? null : id3Metadata;
-      if (vorbisMetadata != null) {
-          metadata = vorbisMetadata.copyWithAppendedEntriesFrom(metadata);
+      if (streamInfo.vorbisComments != null) {
+          metadata = streamInfo.vorbisComments.copyWithAppendedEntriesFrom(metadata);
       }
       outputFormat(streamInfo, metadata, trackOutput);
       outputBuffer.reset(streamInfo.maxDecodedFrameSize());
@@ -268,19 +264,6 @@ public final class FlacExtractor implements Extractor {
     byte[] header = new byte[FLAC_SIGNATURE.length];
     input.peekFully(header, /* offset= */ 0, FLAC_SIGNATURE.length);
     return Arrays.equals(header, FLAC_SIGNATURE);
-  }
-
-  @Nullable
-  private Metadata decodeVorbisComment(ExtractorInput input)
-      throws InterruptedException, IOException {
-    try {
-      ArrayList<String> vorbisCommentList = decoderJni.decodeVorbisComment();
-      return new VorbisCommentDecoder().decodeVorbisComments(vorbisCommentList);
-    } catch (IOException e) {
-      decoderJni.reset(0);
-      input.setRetryPosition(0, e);
-      throw e;
-    }
   }
 
   /**

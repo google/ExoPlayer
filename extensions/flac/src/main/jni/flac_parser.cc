@@ -174,24 +174,16 @@ void FLACParser::metadataCallback(const FLAC__StreamMetadata *metadata) {
       break;
     case FLAC__METADATA_TYPE_VORBIS_COMMENT:
       if (!mVorbisCommentValid) {
-        FLAC__uint32 count = 0;
-        const FLAC__StreamMetadata_VorbisComment *vc =
-            &metadata->data.vorbis_comment;
-        mVorbisCommentValid = true;
-        mVorbisComment.metadataArray =
-            (char **) malloc(vc->num_comments * sizeof(char *));
-        for (FLAC__uint32 i = 0; i < vc->num_comments; ++i) {
-          FLAC__StreamMetadata_VorbisComment_Entry *vce = &vc->comments[i];
-          if (vce->entry != NULL) {
-            mVorbisComment.metadataArray[count] =
-                (char *) malloc((vce->length + 1) * sizeof(char));
-            memcpy(mVorbisComment.metadataArray[count], vce->entry,
-                vce->length);
-            mVorbisComment.metadataArray[count][vce->length] = '\0';
-            count++;
+        FLAC__StreamMetadata_VorbisComment vc = metadata->data.vorbis_comment;
+        for (FLAC__uint32 i = 0; i < vc.num_comments; ++i) {
+          FLAC__StreamMetadata_VorbisComment_Entry vce = vc.comments[i];
+          if (vce.entry != NULL) {
+            std::string comment(reinterpret_cast<char *>(vce.entry),
+                                vce.length);
+            mVorbisComments.push_back(comment);
           }
         }
-        mVorbisComment.numComments = count;
+        mVorbisCommentValid = true;
       } else {
         ALOGE("FLACParser::metadataCallback unexpected VORBISCOMMENT");
       }
@@ -265,7 +257,6 @@ FLACParser::FLACParser(DataSource *source)
   ALOGV("FLACParser::FLACParser");
   memset(&mStreamInfo, 0, sizeof(mStreamInfo));
   memset(&mWriteHeader, 0, sizeof(mWriteHeader));
-  memset(&mVorbisComment, 0, sizeof(mVorbisComment));
 }
 
 FLACParser::~FLACParser() {
