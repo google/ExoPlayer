@@ -27,6 +27,8 @@ import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
@@ -39,6 +41,7 @@ public final class DecryptableSampleQueueReader {
   private final DrmSessionManager<?> sessionManager;
   private final FormatHolder formatHolder;
   private final boolean playClearSamplesWithoutKeys;
+  private final HashMap<String, DrmInitData> overridingDrmInitDatas;
   private @MonotonicNonNull Format currentFormat;
   @Nullable private DrmSession<?> currentSession;
 
@@ -55,6 +58,19 @@ public final class DecryptableSampleQueueReader {
     formatHolder = new FormatHolder();
     playClearSamplesWithoutKeys =
         (sessionManager.getFlags() & DrmSessionManager.FLAG_PLAY_CLEAR_SAMPLES_WITHOUT_KEYS) != 0;
+    overridingDrmInitDatas = new HashMap<>();
+  }
+
+  /**
+   * Given a mapping from {@link DrmInitData#schemeType} to {@link DrmInitData}, overrides any
+   * {@link DrmInitData} read from the upstream {@link SampleQueue} whose {@link
+   * DrmInitData#schemeType} is a key in the mapping to use the corresponding {@link DrmInitData}
+   * value. If {@code overridingDrmInitDatas} does not contain a mapping for the upstream {@link
+   * DrmInitData#schemeType}, the upstream {@link DrmInitData} is used.
+   */
+  public void setOverridingDrmInitDatas(Map<String, DrmInitData> overridingDrmInitDatas) {
+    this.overridingDrmInitDatas.clear();
+    this.overridingDrmInitDatas.putAll(overridingDrmInitDatas);
   }
 
   /** Releases any resources acquired by this reader. */
@@ -170,6 +186,10 @@ public final class DecryptableSampleQueueReader {
     DrmSession<?> previousSession = currentSession;
     DrmInitData drmInitData = currentFormat.drmInitData;
     if (drmInitData != null) {
+      DrmInitData overridingDrmInitData = overridingDrmInitDatas.get(drmInitData.schemeType);
+      if (overridingDrmInitData != null) {
+        drmInitData = overridingDrmInitData;
+      }
       currentSession =
           sessionManager.acquireSession(Assertions.checkNotNull(Looper.myLooper()), drmInitData);
     } else {
