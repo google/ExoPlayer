@@ -669,6 +669,7 @@ public final class SsMediaSource extends BaseMediaSource
               /* windowDefaultStartPositionUs= */ 0,
               /* isSeekable= */ true,
               manifest.isLive,
+              manifest,
               tag);
     } else if (manifest.isLive) {
       if (manifest.dvrWindowLengthUs != C.TIME_UNSET && manifest.dvrWindowLengthUs > 0) {
@@ -690,6 +691,7 @@ public final class SsMediaSource extends BaseMediaSource
               defaultStartPositionUs,
               /* isSeekable= */ true,
               /* isDynamic= */ true,
+              manifest,
               tag);
     } else {
       long durationUs = manifest.durationUs != C.TIME_UNSET ? manifest.durationUs
@@ -702,9 +704,10 @@ public final class SsMediaSource extends BaseMediaSource
               /* windowDefaultStartPositionUs= */ 0,
               /* isSeekable= */ true,
               /* isDynamic= */ false,
+              manifest,
               tag);
     }
-    refreshSourceInfo(timeline, manifest);
+    refreshSourceInfo(timeline);
   }
 
   private void scheduleManifestRefresh() {

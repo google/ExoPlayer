@@ -134,7 +134,6 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
   // Accessed on the player thread.
   @Nullable private ComponentListener componentListener;
   @Nullable private Timeline contentTimeline;
-  @Nullable private Object contentManifest;
   @Nullable private AdPlaybackState adPlaybackState;
   private @NullableType MediaSource[][] adGroupMediaSources;
   private @NullableType Timeline[][] adGroupTimelines;
@@ -265,7 +264,6 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
     componentListener = null;
     maskingMediaPeriodByAdMediaSource.clear();
     contentTimeline = null;
-    contentManifest = null;
     adPlaybackState = null;
     adGroupMediaSources = new MediaSource[0][];
     adGroupTimelines = new Timeline[0][];
@@ -274,16 +272,13 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
 
   @Override
   protected void onChildSourceInfoRefreshed(
-      MediaPeriodId mediaPeriodId,
-      MediaSource mediaSource,
-      Timeline timeline,
-      @Nullable Object manifest) {
+      MediaPeriodId mediaPeriodId, MediaSource mediaSource, Timeline timeline) {
     if (mediaPeriodId.isAd()) {
       int adGroupIndex = mediaPeriodId.adGroupIndex;
       int adIndexInAdGroup = mediaPeriodId.adIndexInAdGroup;
       onAdSourceInfoRefreshed(mediaSource, adGroupIndex, adIndexInAdGroup, timeline);
     } else {
-      onContentSourceInfoRefreshed(timeline, manifest);
+      onContentSourceInfoRefreshed(timeline);
     }
   }
 
@@ -308,10 +303,9 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
     maybeUpdateSourceInfo();
   }
 
-  private void onContentSourceInfoRefreshed(Timeline timeline, @Nullable Object manifest) {
+  private void onContentSourceInfoRefreshed(Timeline timeline) {
     Assertions.checkArgument(timeline.getPeriodCount() == 1);
     contentTimeline = timeline;
-    contentManifest = manifest;
     maybeUpdateSourceInfo();
   }
 
@@ -340,7 +334,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
           adPlaybackState.adGroupCount == 0
               ? contentTimeline
               : new SinglePeriodAdTimeline(contentTimeline, adPlaybackState);
-      refreshSourceInfo(timeline, contentManifest);
+      refreshSourceInfo(timeline);
     }
   }
 

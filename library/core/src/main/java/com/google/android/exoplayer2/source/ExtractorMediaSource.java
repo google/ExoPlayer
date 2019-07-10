@@ -364,9 +364,8 @@ public final class ExtractorMediaSource extends BaseMediaSource
   }
 
   @Override
-  public void onSourceInfoRefreshed(
-      MediaSource source, Timeline timeline, @Nullable Object manifest) {
-    refreshSourceInfo(timeline, manifest);
+  public void onSourceInfoRefreshed(MediaSource source, Timeline timeline) {
+    refreshSourceInfo(timeline);
   }
 
   @Deprecated

@@ -264,8 +264,7 @@ import org.json.JSONObject;
   }
 
   @Override
-  public void onTimelineChanged(
-      Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason) {
+  public void onTimelineChanged(Timeline timeline, @TimelineChangeReason int reason) {
     updateCurrentItemIndex();
   }
 

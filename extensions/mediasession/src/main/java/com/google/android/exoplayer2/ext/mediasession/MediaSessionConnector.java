@@ -1020,8 +1020,7 @@ public final class MediaSessionConnector {
     // Player.EventListener implementation.
 
     @Override
-    public void onTimelineChanged(
-        Timeline timeline, @Nullable Object manifest, @Player.TimelineChangeReason int reason) {
+    public void onTimelineChanged(Timeline timeline, @Player.TimelineChangeReason int reason) {
       Player player = Assertions.checkNotNull(MediaSessionConnector.this.player);
       int windowCount = player.getCurrentTimeline().getWindowCount();
       int windowIndex = player.getCurrentWindowIndex();

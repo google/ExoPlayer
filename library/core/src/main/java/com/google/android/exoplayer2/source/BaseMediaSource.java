@@ -27,8 +27,8 @@ import java.util.ArrayList;
  * Base {@link MediaSource} implementation to handle parallel reuse and to keep a list of {@link
  * MediaSourceEventListener}s.
  *
- * <p>Whenever an implementing subclass needs to provide a new timeline and/or manifest, it must
- * call {@link #refreshSourceInfo(Timeline, Object)} to notify all listeners.
+ * <p>Whenever an implementing subclass needs to provide a new timeline, it must call {@link
+ * #refreshSourceInfo(Timeline)} to notify all listeners.
  */
 public abstract class BaseMediaSource implements MediaSource {
 
@@ -37,7 +37,6 @@ public abstract class BaseMediaSource implements MediaSource {
 
   @Nullable private Looper looper;
   @Nullable private Timeline timeline;
-  @Nullable private Object manifest;
 
   public BaseMediaSource() {
     sourceInfoListeners = new ArrayList<>(/* initialCapacity= */ 1);
@@ -65,13 +64,11 @@ public abstract class BaseMediaSource implements MediaSource {
    * Updates timeline and manifest and notifies all listeners of the update.
    *
    * @param timeline The new {@link Timeline}.
-   * @param manifest The new manifest. May be null.
    */
-  protected final void refreshSourceInfo(Timeline timeline, @Nullable Object manifest) {
+  protected final void refreshSourceInfo(Timeline timeline) {
     this.timeline = timeline;
-    this.manifest = manifest;
     for (SourceInfoRefreshListener listener : sourceInfoListeners) {
-      listener.onSourceInfoRefreshed(/* source= */ this, timeline, manifest);
+      listener.onSourceInfoRefreshed(/* source= */ this, timeline);
     }
   }
 
@@ -139,7 +136,7 @@ public abstract class BaseMediaSource implements MediaSource {
       this.looper = looper;
       prepareSourceInternal(mediaTransferListener);
     } else if (timeline != null) {
-      listener.onSourceInfoRefreshed(/* source= */ this, timeline, manifest);
+      listener.onSourceInfoRefreshed(/* source= */ this, timeline);
     }
   }
 
@@ -149,7 +146,6 @@ public abstract class BaseMediaSource implements MediaSource {
     if (sourceInfoListeners.isEmpty()) {
       looper = null;
       timeline = null;
-      manifest = null;
       releaseSourceInternal();
     }
   }

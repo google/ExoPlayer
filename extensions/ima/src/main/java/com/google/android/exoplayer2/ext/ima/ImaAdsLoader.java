@@ -946,8 +946,7 @@ public final class ImaAdsLoader
   // Player.EventListener implementation.
 
   @Override
-  public void onTimelineChanged(
-      Timeline timeline, @Nullable Object manifest, @Player.TimelineChangeReason int reason) {
+  public void onTimelineChanged(Timeline timeline, @Player.TimelineChangeReason int reason) {
     if (timeline.isEmpty()) {
       // The player is being reset or contains no media.
       return;

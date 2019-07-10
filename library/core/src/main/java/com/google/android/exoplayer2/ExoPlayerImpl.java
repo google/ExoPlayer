@@ -547,11 +547,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
     return playbackInfo.timeline;
   }
 
-  @Override
-  public Object getCurrentManifest() {
-    return playbackInfo.manifest;
-  }
-
   // Not private so it can be called from an inner class without going through a thunk method.
   /* package */ void handleEvent(Message msg) {
     switch (msg.what) {
@@ -639,7 +634,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
     long contentPositionUs = resetPosition ? C.TIME_UNSET : playbackInfo.contentPositionUs;
     return new PlaybackInfo(
         resetState ? Timeline.EMPTY : playbackInfo.timeline,
-        resetState ? null : playbackInfo.manifest,
         mediaPeriodId,
         startPositionUs,
         contentPositionUs,
@@ -713,7 +707,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
     private final @Player.TimelineChangeReason int timelineChangeReason;
     private final boolean seekProcessed;
     private final boolean playbackStateChanged;
-    private final boolean timelineOrManifestChanged;
+    private final boolean timelineChanged;
     private final boolean isLoadingChanged;
     private final boolean trackSelectorResultChanged;
     private final boolean playWhenReady;
@@ -737,9 +731,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
       this.seekProcessed = seekProcessed;
       this.playWhenReady = playWhenReady;
       playbackStateChanged = previousPlaybackInfo.playbackState != playbackInfo.playbackState;
-      timelineOrManifestChanged =
-          previousPlaybackInfo.timeline != playbackInfo.timeline
-              || previousPlaybackInfo.manifest != playbackInfo.manifest;
+      timelineChanged = previousPlaybackInfo.timeline != playbackInfo.timeline;
       isLoadingChanged = previousPlaybackInfo.isLoading != playbackInfo.isLoading;
       trackSelectorResultChanged =
           previousPlaybackInfo.trackSelectorResult != playbackInfo.trackSelectorResult;
@@ -747,12 +739,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
     @Override
     public void run() {
-      if (timelineOrManifestChanged || timelineChangeReason == TIMELINE_CHANGE_REASON_PREPARED) {
+      if (timelineChanged || timelineChangeReason == TIMELINE_CHANGE_REASON_PREPARED) {
         invokeAll(
             listenerSnapshot,
-            listener ->
-                listener.onTimelineChanged(
-                    playbackInfo.timeline, playbackInfo.manifest, timelineChangeReason));
+            listener -> listener.onTimelineChanged(playbackInfo.timeline, timelineChangeReason));
       }
       if (positionDiscontinuity) {
         invokeAll(

@@ -335,6 +335,7 @@ public final class DownloadHelper {
   private final RendererCapabilities[] rendererCapabilities;
   private final SparseIntArray scratchSet;
   private final Handler callbackHandler;
+  private final Timeline.Window window;
 
   private boolean isPreparedWithMedia;
   private @MonotonicNonNull Callback callback;
@@ -374,6 +375,7 @@ public final class DownloadHelper {
     trackSelector.setParameters(trackSelectorParameters);
     trackSelector.init(/* listener= */ () -> {}, new DummyBandwidthMeter());
     callbackHandler = new Handler(Util.getLooper());
+    window = new Timeline.Window();
   }
 
   /**
@@ -409,7 +411,9 @@ public final class DownloadHelper {
       return null;
     }
     assertPreparedWithMedia();
-    return mediaPreparer.manifest;
+    return mediaPreparer.timeline.getWindowCount() > 0
+        ? mediaPreparer.timeline.getWindow(/* windowIndex= */ 0, window).manifest
+        : null;
   }
 
   /**
@@ -814,7 +818,6 @@ public final class DownloadHelper {
     private final HandlerThread mediaSourceThread;
     private final Handler mediaSourceHandler;
 
-    @Nullable public Object manifest;
     public @MonotonicNonNull Timeline timeline;
     public MediaPeriod @MonotonicNonNull [] mediaPeriods;
 
@@ -892,14 +895,12 @@ public final class DownloadHelper {
     // MediaSource.SourceInfoRefreshListener implementation.
 
     @Override
-    public void onSourceInfoRefreshed(
-        MediaSource source, Timeline timeline, @Nullable Object manifest) {
+    public void onSourceInfoRefreshed(MediaSource source, Timeline timeline) {
       if (this.timeline != null) {
         // Ignore dynamic updates.
         return;
       }
       this.timeline = timeline;
-      this.manifest = manifest;
       mediaPeriods = new MediaPeriod[timeline.getPeriodCount()];
       for (int i = 0; i < mediaPeriods.length; i++) {
         MediaPeriod mediaPeriod =

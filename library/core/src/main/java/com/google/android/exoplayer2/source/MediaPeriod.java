@@ -58,8 +58,8 @@ public interface MediaPeriod extends SequenceableLoader {
    *
    * <p>If preparation succeeds and results in a source timeline change (e.g. the period duration
    * becoming known), {@link
-   * MediaSource.SourceInfoRefreshListener#onSourceInfoRefreshed(MediaSource, Timeline, Object)}
-   * will be called before {@code callback.onPrepared}.
+   * MediaSource.SourceInfoRefreshListener#onSourceInfoRefreshed(MediaSource, Timeline)} will be
+   * called before {@code callback.onPrepared}.
    *
    * @param callback Callback to receive updates from this period, including being notified when
    *     preparation completes.

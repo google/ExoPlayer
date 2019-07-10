@@ -267,9 +267,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
   // MediaSource.SourceInfoRefreshListener implementation.
 
   @Override
-  public void onSourceInfoRefreshed(MediaSource source, Timeline timeline, Object manifest) {
-    handler.obtainMessage(MSG_REFRESH_SOURCE_INFO,
-        new MediaSourceRefreshInfo(source, timeline, manifest)).sendToTarget();
+  public void onSourceInfoRefreshed(MediaSource source, Timeline timeline) {
+    handler
+        .obtainMessage(MSG_REFRESH_SOURCE_INFO, new MediaSourceRefreshInfo(source, timeline))
+        .sendToTarget();
   }
 
   // MediaPeriod.Callback implementation.
@@ -899,7 +900,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
     playbackInfo =
         new PlaybackInfo(
             resetState ? Timeline.EMPTY : playbackInfo.timeline,
-            resetState ? null : playbackInfo.manifest,
             mediaPeriodId,
             startPositionUs,
             contentPositionUs,
@@ -1276,9 +1276,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
     Timeline oldTimeline = playbackInfo.timeline;
     Timeline timeline = sourceRefreshInfo.timeline;
-    Object manifest = sourceRefreshInfo.manifest;
     queue.setTimeline(timeline);
-    playbackInfo = playbackInfo.copyWithTimeline(timeline, manifest);
+    playbackInfo = playbackInfo.copyWithTimeline(timeline);
     resolvePendingMessagePositions();
 
     MediaPeriodId newPeriodId = playbackInfo.periodId;
@@ -1881,12 +1880,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
     public final MediaSource source;
     public final Timeline timeline;
-    public final Object manifest;
 
-    public MediaSourceRefreshInfo(MediaSource source, Timeline timeline, Object manifest) {
+    public MediaSourceRefreshInfo(MediaSource source, Timeline timeline) {
       this.source = source;
       this.timeline = timeline;
-      this.manifest = manifest;
     }
   }
 

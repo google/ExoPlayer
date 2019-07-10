@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2;
 
 import androidx.annotation.CheckResult;
-import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
@@ -35,8 +34,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 
   /** The current {@link Timeline}. */
   public final Timeline timeline;
-  /** The current manifest. */
-  @Nullable public final Object manifest;
   /** The {@link MediaPeriodId} of the currently playing media period in the {@link #timeline}. */
   public final MediaPeriodId periodId;
   /**
@@ -91,7 +88,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
       long startPositionUs, TrackSelectorResult emptyTrackSelectorResult) {
     return new PlaybackInfo(
         Timeline.EMPTY,
-        /* manifest= */ null,
         DUMMY_MEDIA_PERIOD_ID,
         startPositionUs,
         /* contentPositionUs= */ C.TIME_UNSET,
@@ -109,7 +105,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
    * Create playback info.
    *
    * @param timeline See {@link #timeline}.
-   * @param manifest See {@link #manifest}.
    * @param periodId See {@link #periodId}.
    * @param startPositionUs See {@link #startPositionUs}.
    * @param contentPositionUs See {@link #contentPositionUs}.
@@ -124,7 +119,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
    */
   public PlaybackInfo(
       Timeline timeline,
-      @Nullable Object manifest,
       MediaPeriodId periodId,
       long startPositionUs,
       long contentPositionUs,
@@ -137,7 +131,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
       long totalBufferedDurationUs,
       long positionUs) {
     this.timeline = timeline;
-    this.manifest = manifest;
     this.periodId = periodId;
     this.startPositionUs = startPositionUs;
     this.contentPositionUs = contentPositionUs;
@@ -187,7 +180,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
       long totalBufferedDurationUs) {
     return new PlaybackInfo(
         timeline,
-        manifest,
         periodId,
         positionUs,
         periodId.isAd() ? contentPositionUs : C.TIME_UNSET,
@@ -202,17 +194,15 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
   }
 
   /**
-   * Copies playback info with new timeline and manifest.
+   * Copies playback info with the new timeline.
    *
    * @param timeline New timeline. See {@link #timeline}.
-   * @param manifest New manifest. See {@link #manifest}.
-   * @return Copied playback info with new timeline and manifest.
+   * @return Copied playback info with the new timeline.
    */
   @CheckResult
-  public PlaybackInfo copyWithTimeline(Timeline timeline, Object manifest) {
+  public PlaybackInfo copyWithTimeline(Timeline timeline) {
     return new PlaybackInfo(
         timeline,
-        manifest,
         periodId,
         startPositionUs,
         contentPositionUs,
@@ -236,7 +226,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
   public PlaybackInfo copyWithPlaybackState(int playbackState) {
     return new PlaybackInfo(
         timeline,
-        manifest,
         periodId,
         startPositionUs,
         contentPositionUs,
@@ -260,7 +249,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
   public PlaybackInfo copyWithIsLoading(boolean isLoading) {
     return new PlaybackInfo(
         timeline,
-        manifest,
         periodId,
         startPositionUs,
         contentPositionUs,
@@ -286,7 +274,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
       TrackGroupArray trackGroups, TrackSelectorResult trackSelectorResult) {
     return new PlaybackInfo(
         timeline,
-        manifest,
         periodId,
         startPositionUs,
         contentPositionUs,
@@ -310,7 +297,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
   public PlaybackInfo copyWithLoadingMediaPeriodId(MediaPeriodId loadingMediaPeriodId) {
     return new PlaybackInfo(
         timeline,
-        manifest,
         periodId,
         startPositionUs,
         contentPositionUs,

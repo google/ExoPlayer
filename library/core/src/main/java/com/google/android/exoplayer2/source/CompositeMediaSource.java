@@ -73,17 +73,15 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
    * @param id The unique id used to prepare the child source.
    * @param mediaSource The child source whose source info has been refreshed.
    * @param timeline The timeline of the child source.
-   * @param manifest The manifest of the child source.
    */
   protected abstract void onChildSourceInfoRefreshed(
-      T id, MediaSource mediaSource, Timeline timeline, @Nullable Object manifest);
+      T id, MediaSource mediaSource, Timeline timeline);
 
   /**
    * Prepares a child source.
    *
-   * <p>{@link #onChildSourceInfoRefreshed(Object, MediaSource, Timeline, Object)} will be called
-   * when the child source updates its timeline and/or manifest with the same {@code id} passed to
-   * this method.
+   * <p>{@link #onChildSourceInfoRefreshed(Object, MediaSource, Timeline)} will be called when the
+   * child source updates its timeline with the same {@code id} passed to this method.
    *
    * <p>Any child sources that aren't explicitly released with {@link #releaseChildSource(Object)}
    * will be released in {@link #releaseSourceInternal()}.
@@ -94,7 +92,12 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
   protected final void prepareChildSource(final T id, MediaSource mediaSource) {
     Assertions.checkArgument(!childSources.containsKey(id));
     SourceInfoRefreshListener sourceListener =
-        (source, timeline, manifest) -> onChildSourceInfoRefreshed(id, source, timeline, manifest);
+        new SourceInfoRefreshListener() {
+          @Override
+          public void onSourceInfoRefreshed(MediaSource source, Timeline timeline) {
+            onChildSourceInfoRefreshed(id, source, timeline);
+          }
+        };
     MediaSourceEventListener eventListener = new ForwardingEventListener(id);
     childSources.put(id, new MediaSourceAndListener(mediaSource, sourceListener, eventListener));
     mediaSource.addEventListener(Assertions.checkNotNull(eventHandler), eventListener);

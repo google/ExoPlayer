@@ -71,7 +71,6 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
   private final ArrayList<MediaSource> pendingTimelineSources;
   private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
 
-  @Nullable private Object primaryManifest;
   private int periodCount;
   @Nullable private IllegalMergeException mergeError;
 
@@ -143,7 +142,6 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
   protected void releaseSourceInternal() {
     super.releaseSourceInternal();
     Arrays.fill(timelines, null);
-    primaryManifest = null;
     periodCount = PERIOD_COUNT_UNSET;
     mergeError = null;
     pendingTimelineSources.clear();
@@ -152,7 +150,7 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
 
   @Override
   protected void onChildSourceInfoRefreshed(
-      Integer id, MediaSource mediaSource, Timeline timeline, @Nullable Object manifest) {
+      Integer id, MediaSource mediaSource, Timeline timeline) {
     if (mergeError == null) {
       mergeError = checkTimelineMerges(timeline);
     }
@@ -161,11 +159,8 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
     }
     pendingTimelineSources.remove(mediaSource);
     timelines[id] = timeline;
-    if (mediaSource == mediaSources[0]) {
-      primaryManifest = manifest;
-    }
     if (pendingTimelineSources.isEmpty()) {
-      refreshSourceInfo(timelines[0], primaryManifest);
+      refreshSourceInfo(timelines[0]);
     }
   }
 

@@ -461,11 +461,6 @@ public final class CastPlayer extends BasePlayer {
   }
 
   @Override
-  @Nullable public Object getCurrentManifest() {
-    return null;
-  }
-
-  @Override
   public int getCurrentPeriodIndex() {
     return getCurrentWindowIndex();
   }
@@ -592,8 +587,7 @@ public final class CastPlayer extends BasePlayer {
       waitingForInitialTimeline = false;
       notificationsBatch.add(
           new ListenerNotificationTask(
-              listener ->
-                  listener.onTimelineChanged(currentTimeline, /* manifest= */ null, reason)));
+              listener -> listener.onTimelineChanged(currentTimeline, reason)));
     }
   }
 
