@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.smoothstreaming;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.offline.StreamKey;
@@ -45,6 +46,7 @@ import java.util.List;
   private final SsChunkSource.Factory chunkSourceFactory;
   @Nullable private final TransferListener transferListener;
   private final LoaderErrorThrower manifestLoaderErrorThrower;
+  private final DrmSessionManager<?> drmSessionManager;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final EventDispatcher eventDispatcher;
   private final Allocator allocator;
@@ -62,6 +64,7 @@ import java.util.List;
       SsChunkSource.Factory chunkSourceFactory,
       @Nullable TransferListener transferListener,
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
+      DrmSessionManager<?> drmSessionManager,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       EventDispatcher eventDispatcher,
       LoaderErrorThrower manifestLoaderErrorThrower,
@@ -70,11 +73,12 @@ import java.util.List;
     this.chunkSourceFactory = chunkSourceFactory;
     this.transferListener = transferListener;
     this.manifestLoaderErrorThrower = manifestLoaderErrorThrower;
+    this.drmSessionManager = drmSessionManager;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     this.eventDispatcher = eventDispatcher;
     this.allocator = allocator;
     this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
-    trackGroups = buildTrackGroups(manifest);
+    trackGroups = buildTrackGroups(manifest, drmSessionManager);
     sampleStreams = newSampleStreamArray(0);
     compositeSequenceableLoader =
         compositeSequenceableLoaderFactory.createCompositeSequenceableLoader(sampleStreams);
@@ -238,15 +242,26 @@ import java.util.List;
         this,
         allocator,
         positionUs,
-        DrmSessionManager.getDummyDrmSessionManager(),
+        drmSessionManager,
         loadErrorHandlingPolicy,
         eventDispatcher);
   }
 
-  private static TrackGroupArray buildTrackGroups(SsManifest manifest) {
+  private static TrackGroupArray buildTrackGroups(
+      SsManifest manifest, DrmSessionManager<?> drmSessionManager) {
     TrackGroup[] trackGroups = new TrackGroup[manifest.streamElements.length];
     for (int i = 0; i < manifest.streamElements.length; i++) {
-      trackGroups[i] = new TrackGroup(manifest.streamElements[i].formats);
+      Format[] manifestFormats = manifest.streamElements[i].formats;
+      Format[] exposedFormats = new Format[manifestFormats.length];
+      for (int j = 0; j < manifestFormats.length; j++) {
+        Format manifestFormat = manifestFormats[j];
+        exposedFormats[j] =
+            manifestFormat.drmInitData != null
+                ? manifestFormat.copyWithExoMediaCryptoType(
+                    drmSessionManager.getExoMediaCryptoType(manifestFormat.drmInitData))
+                : manifestFormat;
+      }
+      trackGroups[i] = new TrackGroup(exposedFormats);
     }
     return new TrackGroupArray(trackGroups);
   }
