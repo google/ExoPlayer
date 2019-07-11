@@ -487,7 +487,8 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
       manifestUrlIndicesPerWrapper.add(new int[] {i});
       sampleStreamWrappers.add(sampleStreamWrapper);
       sampleStreamWrapper.prepareWithMasterPlaylistInfo(
-          new TrackGroupArray(new TrackGroup(subtitleRendition.format)), 0, TrackGroupArray.EMPTY);
+          new TrackGroup[] {new TrackGroup(subtitleRendition.format)},
+          /* primaryTrackGroupIndex= */ 0);
     }
 
     this.sampleStreamWrappers = sampleStreamWrappers.toArray(new HlsSampleStreamWrapper[0]);
@@ -645,9 +646,9 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
       muxedTrackGroups.add(id3TrackGroup);
 
       sampleStreamWrapper.prepareWithMasterPlaylistInfo(
-          new TrackGroupArray(muxedTrackGroups.toArray(new TrackGroup[0])),
-          0,
-          new TrackGroupArray(id3TrackGroup));
+          muxedTrackGroups.toArray(new TrackGroup[0]),
+          /* primaryTrackGroupIndex= */ 0,
+          /* optionalTrackGroupsIndices= */ muxedTrackGroups.indexOf(id3TrackGroup));
     }
   }
 
@@ -703,7 +704,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
       if (allowChunklessPreparation && renditionsHaveCodecs) {
         Format[] renditionFormats = scratchPlaylistFormats.toArray(new Format[0]);
         sampleStreamWrapper.prepareWithMasterPlaylistInfo(
-            new TrackGroupArray(new TrackGroup(renditionFormats)), 0, TrackGroupArray.EMPTY);
+            new TrackGroup[] {new TrackGroup(renditionFormats)}, /* primaryTrackGroupIndex= */ 0);
       }
     }
   }

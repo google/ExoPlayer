@@ -51,8 +51,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Loads {@link HlsMediaChunk}s obtained from a {@link HlsChunkSource}, and provides
@@ -122,7 +124,7 @@ import java.util.Map;
   // Tracks are complicated in HLS. See documentation of buildTracks for details.
   // Indexed by track (as exposed by this source).
   private TrackGroupArray trackGroups;
-  private TrackGroupArray optionalTrackGroups;
+  private Set<TrackGroup> optionalTrackGroups;
   // Indexed by track group.
   private int[] trackGroupToSampleQueueIndex;
   private int primaryTrackGroupIndex;
@@ -200,18 +202,20 @@ import java.util.Map;
   /**
    * Prepares the sample stream wrapper with master playlist information.
    *
-   * @param trackGroups The {@link TrackGroupArray} to expose.
+   * @param trackGroups The {@link TrackGroup TrackGroups} to expose through {@link
+   *     #getTrackGroups()}.
    * @param primaryTrackGroupIndex The index of the adaptive track group.
-   * @param optionalTrackGroups A subset of {@code trackGroups} that should not trigger a failure if
-   *     not found in the media playlist's segments.
+   * @param optionalTrackGroupsIndices The indices of any {@code trackGroups} that should not
+   *     trigger a failure if not found in the media playlist's segments.
    */
   public void prepareWithMasterPlaylistInfo(
-      TrackGroupArray trackGroups,
-      int primaryTrackGroupIndex,
-      TrackGroupArray optionalTrackGroups) {
+      TrackGroup[] trackGroups, int primaryTrackGroupIndex, int... optionalTrackGroupsIndices) {
     prepared = true;
-    this.trackGroups = trackGroups;
-    this.optionalTrackGroups = optionalTrackGroups;
+    this.trackGroups = new TrackGroupArray(trackGroups);
+    optionalTrackGroups = new HashSet<>();
+    for (int optionalTrackGroupIndex : optionalTrackGroupsIndices) {
+      optionalTrackGroups.add(this.trackGroups.get(optionalTrackGroupIndex));
+    }
     this.primaryTrackGroupIndex = primaryTrackGroupIndex;
     handler.post(callback::onPrepared);
   }
@@ -231,9 +235,9 @@ import java.util.Map;
   public int bindSampleQueueToSampleStream(int trackGroupIndex) {
     int sampleQueueIndex = trackGroupToSampleQueueIndex[trackGroupIndex];
     if (sampleQueueIndex == C.INDEX_UNSET) {
-      return optionalTrackGroups.indexOf(trackGroups.get(trackGroupIndex)) == C.INDEX_UNSET
-          ? SAMPLE_QUEUE_INDEX_NO_MAPPING_FATAL
-          : SAMPLE_QUEUE_INDEX_NO_MAPPING_NON_FATAL;
+      return optionalTrackGroups.contains(trackGroups.get(trackGroupIndex))
+          ? SAMPLE_QUEUE_INDEX_NO_MAPPING_NON_FATAL
+          : SAMPLE_QUEUE_INDEX_NO_MAPPING_FATAL;
     }
     if (sampleQueuesEnabledStates[sampleQueueIndex]) {
       // This sample queue is already bound to a different sample stream.
@@ -1046,7 +1050,7 @@ import java.util.Map;
     }
     this.trackGroups = new TrackGroupArray(trackGroups);
     Assertions.checkState(optionalTrackGroups == null);
-    optionalTrackGroups = TrackGroupArray.EMPTY;
+    optionalTrackGroups = Collections.emptySet();
   }
 
   private HlsMediaChunk getLastMediaChunk() {
