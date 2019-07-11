@@ -31,10 +31,15 @@ public interface DrmSession<T extends ExoMediaCrypto> {
 
   /**
    * Invokes {@code newSession's} {@link #acquireReference()} and {@code previousSession's} {@link
-   * #releaseReference()} in that order. Does nothing for passed null values.
+   * #releaseReference()} in that order. Null arguments are ignored. Does nothing if {@code
+   * previousSession} and {@code newSession} are the same session.
    */
   static <T extends ExoMediaCrypto> void replaceSessionReferences(
       @Nullable DrmSession<T> previousSession, @Nullable DrmSession<T> newSession) {
+    if (previousSession == newSession) {
+      // Do nothing.
+      return;
+    }
     if (newSession != null) {
       newSession.acquireReference();
     }
