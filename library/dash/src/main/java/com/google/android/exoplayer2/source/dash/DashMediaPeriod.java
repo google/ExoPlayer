@@ -22,6 +22,8 @@ import android.util.SparseIntArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.SeekParameters;
+import com.google.android.exoplayer2.drm.DrmInitData;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
 import com.google.android.exoplayer2.source.EmptySampleStream;
@@ -70,6 +72,7 @@ import java.util.regex.Pattern;
   /* package */ final int id;
   private final DashChunkSource.Factory chunkSourceFactory;
   @Nullable private final TransferListener transferListener;
+  private final DrmSessionManager<?> drmSessionManager;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final long elapsedRealtimeOffsetMs;
   private final LoaderErrorThrower manifestLoaderErrorThrower;
@@ -97,6 +100,7 @@ import java.util.regex.Pattern;
       int periodIndex,
       DashChunkSource.Factory chunkSourceFactory,
       @Nullable TransferListener transferListener,
+      DrmSessionManager<?> drmSessionManager,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       EventDispatcher eventDispatcher,
       long elapsedRealtimeOffsetMs,
@@ -109,6 +113,7 @@ import java.util.regex.Pattern;
     this.periodIndex = periodIndex;
     this.chunkSourceFactory = chunkSourceFactory;
     this.transferListener = transferListener;
+    this.drmSessionManager = drmSessionManager;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     this.eventDispatcher = eventDispatcher;
     this.elapsedRealtimeOffsetMs = elapsedRealtimeOffsetMs;
@@ -123,8 +128,8 @@ import java.util.regex.Pattern;
         compositeSequenceableLoaderFactory.createCompositeSequenceableLoader(sampleStreams);
     Period period = manifest.getPeriod(periodIndex);
     eventStreams = period.eventStreams;
-    Pair<TrackGroupArray, TrackGroupInfo[]> result = buildTrackGroups(period.adaptationSets,
-        eventStreams);
+    Pair<TrackGroupArray, TrackGroupInfo[]> result =
+        buildTrackGroups(drmSessionManager, period.adaptationSets, eventStreams);
     trackGroups = result.first;
     trackGroupInfos = result.second;
     eventDispatcher.mediaPeriodCreated();
@@ -455,7 +460,9 @@ import java.util.regex.Pattern;
   }
 
   private static Pair<TrackGroupArray, TrackGroupInfo[]> buildTrackGroups(
-      List<AdaptationSet> adaptationSets, List<EventStream> eventStreams) {
+      DrmSessionManager<?> drmSessionManager,
+      List<AdaptationSet> adaptationSets,
+      List<EventStream> eventStreams) {
     int[][] groupedAdaptationSetIndices = getGroupedAdaptationSetIndices(adaptationSets);
 
     int primaryGroupCount = groupedAdaptationSetIndices.length;
@@ -475,6 +482,7 @@ import java.util.regex.Pattern;
 
     int trackGroupCount =
         buildPrimaryAndEmbeddedTrackGroupInfos(
+            drmSessionManager,
             adaptationSets,
             groupedAdaptationSetIndices,
             primaryGroupCount,
@@ -569,6 +577,7 @@ import java.util.regex.Pattern;
   }
 
   private static int buildPrimaryAndEmbeddedTrackGroupInfos(
+      DrmSessionManager<?> drmSessionManager,
       List<AdaptationSet> adaptationSets,
       int[][] groupedAdaptationSetIndices,
       int primaryGroupCount,
@@ -585,7 +594,14 @@ import java.util.regex.Pattern;
       }
       Format[] formats = new Format[representations.size()];
       for (int j = 0; j < formats.length; j++) {
-        formats[j] = representations.get(j).format;
+        Format format = representations.get(j).format;
+        DrmInitData drmInitData = format.drmInitData;
+        if (drmInitData != null) {
+          format =
+              format.copyWithExoMediaCryptoType(
+                  drmSessionManager.getExoMediaCryptoType(drmInitData));
+        }
+        formats[j] = format;
       }
 
       AdaptationSet firstAdaptationSet = adaptationSets.get(adaptationSetIndices[0]);
@@ -692,6 +708,7 @@ import java.util.regex.Pattern;
             this,
             allocator,
             positionUs,
+            drmSessionManager,
             loadErrorHandlingPolicy,
             eventDispatcher);
     synchronized (this) {
