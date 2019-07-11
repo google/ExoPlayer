@@ -172,6 +172,7 @@ public final class DecryptableSampleQueueReader {
    */
   private void onFormat(Format format, FormatHolder outputFormatHolder) {
     outputFormatHolder.format = format;
+    DrmInitData oldDrmInitData = currentFormat != null ? currentFormat.drmInitData : null;
     currentFormat = format;
     if (sessionManager == DrmSessionManager.DUMMY) {
       // Avoid attempting to acquire a session using the dummy DRM session manager. It's likely that
@@ -182,12 +183,10 @@ public final class DecryptableSampleQueueReader {
     }
     outputFormatHolder.includesDrmSession = true;
     outputFormatHolder.drmSession = currentSession;
-    DrmInitData oldDrmInitData = currentFormat != null ? currentFormat.drmInitData : null;
     if (Util.areEqual(oldDrmInitData, format.drmInitData)) {
       // Nothing to do.
       return;
     }
-
     // Ensure we acquire the new session before releasing the previous one in case the same session
     // can be used for both DrmInitData.
     DrmSession<?> previousSession = currentSession;

@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.testutil;
 
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.source.CompositeSequenceableLoader;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
@@ -149,6 +150,7 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
         /* callback= */ this,
         allocator,
         /* positionUs= */ 0,
+        /* drmSessionManager= */ DrmSessionManager.getDummyDrmSessionManager(),
         new DefaultLoadErrorHandlingPolicy(/* minimumLoadableRetryCount= */ 3),
         eventDispatcher);
   }

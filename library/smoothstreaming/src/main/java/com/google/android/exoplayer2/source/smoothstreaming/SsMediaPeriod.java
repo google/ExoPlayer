@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source.smoothstreaming;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.SeekParameters;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
 import com.google.android.exoplayer2.source.MediaPeriod;
@@ -237,6 +238,7 @@ import java.util.List;
         this,
         allocator,
         positionUs,
+        DrmSessionManager.getDummyDrmSessionManager(),
         loadErrorHandlingPolicy,
         eventDispatcher);
   }

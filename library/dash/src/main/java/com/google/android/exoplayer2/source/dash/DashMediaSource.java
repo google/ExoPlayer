@@ -25,6 +25,8 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.drm.DrmSession;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.offline.FilteringManifestParser;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.BaseMediaSource;
@@ -79,6 +81,7 @@ public final class DashMediaSource extends BaseMediaSource {
     private final DashChunkSource.Factory chunkSourceFactory;
     @Nullable private final DataSource.Factory manifestDataSourceFactory;
 
+    private DrmSessionManager<?> drmSessionManager;
     @Nullable private ParsingLoadable.Parser<? extends DashManifest> manifestParser;
     @Nullable private List<StreamKey> streamKeys;
     private CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
@@ -112,6 +115,7 @@ public final class DashMediaSource extends BaseMediaSource {
         @Nullable DataSource.Factory manifestDataSourceFactory) {
       this.chunkSourceFactory = Assertions.checkNotNull(chunkSourceFactory);
       this.manifestDataSourceFactory = manifestDataSourceFactory;
+      drmSessionManager = DrmSessionManager.getDummyDrmSessionManager();
       loadErrorHandlingPolicy = new DefaultLoadErrorHandlingPolicy();
       livePresentationDelayMs = DEFAULT_LIVE_PRESENTATION_DELAY_MS;
       compositeSequenceableLoaderFactory = new DefaultCompositeSequenceableLoaderFactory();
@@ -129,6 +133,20 @@ public final class DashMediaSource extends BaseMediaSource {
     public Factory setTag(Object tag) {
       Assertions.checkState(!isCreateCalled);
       this.tag = tag;
+      return this;
+    }
+
+    /**
+     * Sets the {@link DrmSessionManager} to use for acquiring {@link DrmSession DrmSessions}. The
+     * default value is {@link DrmSessionManager#DUMMY}.
+     *
+     * @param drmSessionManager The {@link DrmSessionManager}.
+     * @return This factory, for convenience.
+     * @throws IllegalStateException If one of the {@code create} methods has already been called.
+     */
+    public Factory setDrmSessionManager(DrmSessionManager<?> drmSessionManager) {
+      Assertions.checkState(!isCreateCalled);
+      this.drmSessionManager = drmSessionManager;
       return this;
     }
 
@@ -253,6 +271,7 @@ public final class DashMediaSource extends BaseMediaSource {
           /* manifestParser= */ null,
           chunkSourceFactory,
           compositeSequenceableLoaderFactory,
+          drmSessionManager,
           loadErrorHandlingPolicy,
           livePresentationDelayMs,
           livePresentationDelayOverridesManifest,
@@ -313,6 +332,7 @@ public final class DashMediaSource extends BaseMediaSource {
           manifestParser,
           chunkSourceFactory,
           compositeSequenceableLoaderFactory,
+          drmSessionManager,
           loadErrorHandlingPolicy,
           livePresentationDelayMs,
           livePresentationDelayOverridesManifest,
@@ -361,6 +381,7 @@ public final class DashMediaSource extends BaseMediaSource {
   private final DataSource.Factory manifestDataSourceFactory;
   private final DashChunkSource.Factory chunkSourceFactory;
   private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
+  private final DrmSessionManager<?> drmSessionManager;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final long livePresentationDelayMs;
   private final boolean livePresentationDelayOverridesManifest;
@@ -443,6 +464,7 @@ public final class DashMediaSource extends BaseMediaSource {
         /* manifestParser= */ null,
         chunkSourceFactory,
         new DefaultCompositeSequenceableLoaderFactory(),
+        DrmSessionManager.getDummyDrmSessionManager(),
         new DefaultLoadErrorHandlingPolicy(minLoadableRetryCount),
         DEFAULT_LIVE_PRESENTATION_DELAY_MS,
         /* livePresentationDelayOverridesManifest= */ false,
@@ -556,6 +578,7 @@ public final class DashMediaSource extends BaseMediaSource {
         manifestParser,
         chunkSourceFactory,
         new DefaultCompositeSequenceableLoaderFactory(),
+        DrmSessionManager.getDummyDrmSessionManager(),
         new DefaultLoadErrorHandlingPolicy(minLoadableRetryCount),
         livePresentationDelayMs == DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS
             ? DEFAULT_LIVE_PRESENTATION_DELAY_MS
@@ -574,6 +597,7 @@ public final class DashMediaSource extends BaseMediaSource {
       ParsingLoadable.Parser<? extends DashManifest> manifestParser,
       DashChunkSource.Factory chunkSourceFactory,
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
+      DrmSessionManager<?> drmSessionManager,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       long livePresentationDelayMs,
       boolean livePresentationDelayOverridesManifest,
@@ -584,6 +608,7 @@ public final class DashMediaSource extends BaseMediaSource {
     this.manifestDataSourceFactory = manifestDataSourceFactory;
     this.manifestParser = manifestParser;
     this.chunkSourceFactory = chunkSourceFactory;
+    this.drmSessionManager = drmSessionManager;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     this.livePresentationDelayMs = livePresentationDelayMs;
     this.livePresentationDelayOverridesManifest = livePresentationDelayOverridesManifest;
@@ -660,6 +685,7 @@ public final class DashMediaSource extends BaseMediaSource {
             periodIndex,
             chunkSourceFactory,
             mediaTransferListener,
+            drmSessionManager,
             loadErrorHandlingPolicy,
             periodEventDispatcher,
             elapsedRealtimeOffsetMs,

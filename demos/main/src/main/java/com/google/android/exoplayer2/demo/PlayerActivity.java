@@ -39,6 +39,7 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
@@ -358,7 +359,7 @@ public class PlayerActivity extends AppCompatActivity
         return;
       }
 
-      DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager = null;
+      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager = null;
       if (intent.hasExtra(DRM_SCHEME_EXTRA) || intent.hasExtra(DRM_SCHEME_UUID_EXTRA)) {
         String drmLicenseUrl = intent.getStringExtra(DRM_LICENSE_URL_EXTRA);
         String[] keyRequestPropertiesArray =
@@ -389,6 +390,8 @@ public class PlayerActivity extends AppCompatActivity
           finish();
           return;
         }
+      } else {
+        drmSessionManager = DrmSessionManager.getDummyDrmSessionManager();
       }
 
       TrackSelection.Factory trackSelectionFactory;
@@ -425,7 +428,7 @@ public class PlayerActivity extends AppCompatActivity
 
       MediaSource[] mediaSources = new MediaSource[uris.length];
       for (int i = 0; i < uris.length; i++) {
-        mediaSources[i] = buildMediaSource(uris[i], extensions[i]);
+        mediaSources[i] = buildMediaSource(uris[i], extensions[i], drmSessionManager);
       }
       mediaSource =
           mediaSources.length == 1 ? mediaSources[0] : new ConcatenatingMediaSource(mediaSources);
@@ -455,10 +458,16 @@ public class PlayerActivity extends AppCompatActivity
   }
 
   private MediaSource buildMediaSource(Uri uri) {
-    return buildMediaSource(uri, null);
+    return buildMediaSource(
+        uri,
+        /* overrideExtension= */ null,
+        /* drmSessionManager= */ DrmSessionManager.getDummyDrmSessionManager());
   }
 
-  private MediaSource buildMediaSource(Uri uri, @Nullable String overrideExtension) {
+  private MediaSource buildMediaSource(
+      Uri uri,
+      @Nullable String overrideExtension,
+      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
     DownloadRequest downloadRequest =
         ((DemoApplication) getApplication()).getDownloadTracker().getDownloadRequest(uri);
     if (downloadRequest != null) {
@@ -467,7 +476,9 @@ public class PlayerActivity extends AppCompatActivity
     @ContentType int type = Util.inferContentType(uri, overrideExtension);
     switch (type) {
       case C.TYPE_DASH:
-        return new DashMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
+        return new DashMediaSource.Factory(dataSourceFactory)
+            .setDrmSessionManager(drmSessionManager)
+            .createMediaSource(uri);
       case C.TYPE_SS:
         return new SsMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
       case C.TYPE_HLS:
