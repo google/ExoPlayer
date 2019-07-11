@@ -480,7 +480,9 @@ public class PlayerActivity extends AppCompatActivity
             .setDrmSessionManager(drmSessionManager)
             .createMediaSource(uri);
       case C.TYPE_SS:
-        return new SsMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
+        return new SsMediaSource.Factory(dataSourceFactory)
+            .setDrmSessionManager(drmSessionManager)
+            .createMediaSource(uri);
       case C.TYPE_HLS:
         return new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
       case C.TYPE_OTHER:

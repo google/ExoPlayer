@@ -22,6 +22,7 @@ import static org.mockito.Mockito.mock;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
@@ -66,6 +67,7 @@ public class SsMediaPeriodTest {
                 mock(SsChunkSource.Factory.class),
                 mock(TransferListener.class),
                 mock(CompositeSequenceableLoaderFactory.class),
+                mock(DrmSessionManager.class),
                 mock(LoadErrorHandlingPolicy.class),
                 new EventDispatcher()
                     .withParameters(
