@@ -1552,38 +1552,30 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       }
     }
 
-    int selectedTextTrackScore = Integer.MIN_VALUE;
+    TextTrackScore selectedTextTrackScore = null;
     int selectedTextRendererIndex = C.INDEX_UNSET;
     for (int i = 0; i < rendererCount; i++) {
-      int trackType = mappedTrackInfo.getRendererType(i);
-      switch (trackType) {
-        case C.TRACK_TYPE_VIDEO:
-        case C.TRACK_TYPE_AUDIO:
-          // Already done. Do nothing.
-          break;
-        case C.TRACK_TYPE_TEXT:
-          Pair<TrackSelection.Definition, Integer> textSelection =
-              selectTextTrack(
-                  mappedTrackInfo.getTrackGroups(i),
-                  rendererFormatSupports[i],
-                  params,
-                  selectedAudioLanguage);
-          if (textSelection != null && textSelection.second > selectedTextTrackScore) {
-            if (selectedTextRendererIndex != C.INDEX_UNSET) {
-              // We've already made a selection for another text renderer, but it had a lower score.
-              // Clear the selection for that renderer.
-              definitions[selectedTextRendererIndex] = null;
-            }
-            definitions[i] = textSelection.first;
-            selectedTextTrackScore = textSelection.second;
-            selectedTextRendererIndex = i;
+      // The below behaviour is different from video and audio track selection
+      // i.e. do not perform a text track pre selection if there are no preferredTextLanguage requested.
+      if (C.TRACK_TYPE_TEXT == mappedTrackInfo.getRendererType(i) && params.preferredTextLanguage != null) {
+        Pair<TrackSelection.Definition, TextTrackScore> textSelection =
+            selectTextTrack(
+                mappedTrackInfo.getTrackGroups(i),
+                rendererFormatSupports[i],
+                params);
+        if (textSelection != null
+            && (selectedTextTrackScore == null
+            || textSelection.second.compareTo(selectedTextTrackScore) > 0)) {
+          if (selectedTextRendererIndex != C.INDEX_UNSET) {
+            // We've already made a selection for another text renderer, but it had a lower
+            // score. Clear the selection for that renderer.
+            definitions[selectedTextRendererIndex] = null;
           }
-          break;
-        default:
-          definitions[i] =
-              selectOtherTrack(
-                  trackType, mappedTrackInfo.getTrackGroups(i), rendererFormatSupports[i], params);
-          break;
+          TrackSelection.Definition definition = textSelection.first;
+          definitions[i] = definition;
+          selectedTextTrackScore = textSelection.second;
+          selectedTextRendererIndex = i;
+        }
       }
     }
 
@@ -2051,22 +2043,20 @@ public class DefaultTrackSelector extends MappingTrackSelector {
    * @param formatSupport The result of {@link RendererCapabilities#supportsFormat} for each mapped
    *     track, indexed by track group index and track index (in that order).
    * @param params The selector's current constraint parameters.
-   * @param selectedAudioLanguage The language of the selected audio track. May be null if the
-   *     selected audio track declares no language or no audio track was selected.
-   * @return The {@link TrackSelection.Definition} and corresponding track score, or null if no
+   *     selected text track declares no language or no text track was selected.
+   * @return The {@link TrackSelection.Definition} and corresponding {@link TextTrackScore}, or null if no
    *     selection was made.
    * @throws ExoPlaybackException If an error occurs while selecting the tracks.
    */
   @Nullable
-  protected Pair<TrackSelection.Definition, Integer> selectTextTrack(
+  protected Pair<TrackSelection.Definition, TextTrackScore> selectTextTrack(
       TrackGroupArray groups,
       int[][] formatSupport,
-      Parameters params,
-      @Nullable String selectedAudioLanguage)
+      Parameters params)
       throws ExoPlaybackException {
     TrackGroup selectedGroup = null;
-    int selectedTrackIndex = 0;
-    int selectedTrackScore = 0;
+    int selectedTrackIndex = C.INDEX_UNSET;
+    TextTrackScore selectedTrackScore = null;
     for (int groupIndex = 0; groupIndex < groups.length; groupIndex++) {
       TrackGroup trackGroup = groups.get(groupIndex);
       int[] trackFormatSupport = formatSupport[groupIndex];
@@ -2074,39 +2064,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         if (isSupported(trackFormatSupport[trackIndex],
             params.exceedRendererCapabilitiesIfNecessary)) {
           Format format = trackGroup.getFormat(trackIndex);
-          int maskedSelectionFlags =
-              format.selectionFlags & ~params.disabledTextTrackSelectionFlags;
-          boolean isDefault = (maskedSelectionFlags & C.SELECTION_FLAG_DEFAULT) != 0;
-          boolean isForced = (maskedSelectionFlags & C.SELECTION_FLAG_FORCED) != 0;
-          int trackScore;
-          int languageScore = getFormatLanguageScore(format, params.preferredTextLanguage);
-          boolean trackHasNoLanguage = formatHasNoLanguage(format);
-          if (languageScore > 0 || (params.selectUndeterminedTextLanguage && trackHasNoLanguage)) {
-            if (isDefault) {
-              trackScore = 11;
-            } else if (!isForced) {
-              // Prefer non-forced to forced if a preferred text language has been specified. Where
-              // both are provided the non-forced track will usually contain the forced subtitles as
-              // a subset.
-              trackScore = 7;
-            } else {
-              trackScore = 3;
-            }
-            trackScore += languageScore;
-          } else if (isDefault) {
-            trackScore = 2;
-          } else if (isForced
-              && (getFormatLanguageScore(format, selectedAudioLanguage) > 0
-                  || (trackHasNoLanguage && stringDefinesNoLanguage(selectedAudioLanguage)))) {
-            trackScore = 1;
-          } else {
-            // Track should not be selected.
-            continue;
-          }
-          if (isSupported(trackFormatSupport[trackIndex], false)) {
-            trackScore += WITHIN_RENDERER_CAPABILITIES_BONUS;
-          }
-          if (trackScore > selectedTrackScore) {
+          TextTrackScore trackScore = new TextTrackScore(format, params, trackFormatSupport[trackIndex]);
+          if ((selectedTrackScore == null) || trackScore.compareTo(selectedTrackScore) > 0) {
             selectedGroup = trackGroup;
             selectedTrackIndex = trackIndex;
             selectedTrackScore = trackScore;
@@ -2535,4 +2494,59 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
   }
 
+  /** Represents how well an text track matches the selection {@link Parameters}. */
+  protected static final class TextTrackScore implements Comparable<TextTrackScore> {
+
+    private final boolean isWithinRendererCapabilities;
+    private final int preferredLanguageScore;
+    private final int localeLanguageMatchIndex;
+    private final int localeLanguageScore;
+    private final boolean isDefaultSelectionFlag;
+
+    public TextTrackScore(Format format, Parameters parameters, int formatSupport) {
+      isWithinRendererCapabilities = isSupported(formatSupport, false);
+      preferredLanguageScore = getFormatLanguageScore(format, parameters.preferredTextLanguage);
+      isDefaultSelectionFlag = (format.selectionFlags & C.SELECTION_FLAG_DEFAULT) != 0;
+      String[] localeLanguages = Util.getSystemLanguageCodes();
+      int bestMatchIndex = Integer.MAX_VALUE;
+      int bestMatchScore = 0;
+      for (int i = 0; i < localeLanguages.length; i++) {
+        int score = getFormatLanguageScore(format, localeLanguages[i]);
+        if (score > 0) {
+          bestMatchIndex = i;
+          bestMatchScore = score;
+          break;
+        }
+      }
+      localeLanguageMatchIndex = bestMatchIndex;
+      localeLanguageScore = bestMatchScore;
+    }
+
+    /**
+     * Compares this score with another.
+     *
+     * @param other The other score to compare to.
+     * @return A positive integer if this score is better than the other. Zero if they are equal. A
+     *     negative integer if this score is worse than the other.
+     */
+    @Override
+    public int compareTo(@NonNull TextTrackScore other) {
+      if (this.isWithinRendererCapabilities != other.isWithinRendererCapabilities) {
+        return this.isWithinRendererCapabilities ? 1 : -1;
+      }
+      if (this.preferredLanguageScore != other.preferredLanguageScore) {
+        return compareInts(this.preferredLanguageScore, other.preferredLanguageScore);
+      }
+      if (this.isDefaultSelectionFlag != other.isDefaultSelectionFlag) {
+        return this.isDefaultSelectionFlag ? 1 : -1;
+      }
+      if (this.localeLanguageMatchIndex != other.localeLanguageMatchIndex) {
+        return -compareInts(this.localeLanguageMatchIndex, other.localeLanguageMatchIndex);
+      }
+      if (this.localeLanguageScore != other.localeLanguageScore) {
+        return compareInts(this.localeLanguageScore, other.localeLanguageScore);
+      }
+      return 0;
+    }
+  }
 }
