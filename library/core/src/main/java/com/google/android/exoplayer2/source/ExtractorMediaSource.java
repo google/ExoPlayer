@@ -35,8 +35,7 @@ import java.io.IOException;
 /** @deprecated Use {@link ProgressiveMediaSource} instead. */
 @Deprecated
 @SuppressWarnings("deprecation")
-public final class ExtractorMediaSource extends BaseMediaSource
-    implements MediaSource.SourceInfoRefreshListener {
+public final class ExtractorMediaSource extends CompositeMediaSource<Void> {
 
   /** @deprecated Use {@link MediaSourceEventListener} instead. */
   @Deprecated
@@ -340,12 +339,14 @@ public final class ExtractorMediaSource extends BaseMediaSource
 
   @Override
   protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
-    progressiveMediaSource.prepareSource(/* listener= */ this, mediaTransferListener);
+    super.prepareSourceInternal(mediaTransferListener);
+    prepareChildSource(/* id= */ null, progressiveMediaSource);
   }
 
   @Override
-  public void maybeThrowSourceInfoRefreshError() throws IOException {
-    progressiveMediaSource.maybeThrowSourceInfoRefreshError();
+  protected void onChildSourceInfoRefreshed(
+      @Nullable Void id, MediaSource mediaSource, Timeline timeline) {
+    refreshSourceInfo(timeline);
   }
 
   @Override
@@ -356,16 +357,6 @@ public final class ExtractorMediaSource extends BaseMediaSource
   @Override
   public void releasePeriod(MediaPeriod mediaPeriod) {
     progressiveMediaSource.releasePeriod(mediaPeriod);
-  }
-
-  @Override
-  protected void releaseSourceInternal() {
-    progressiveMediaSource.releaseSource(/* listener= */ this);
-  }
-
-  @Override
-  public void onSourceInfoRefreshed(MediaSource source, Timeline timeline) {
-    refreshSourceInfo(timeline);
   }
 
   @Deprecated
