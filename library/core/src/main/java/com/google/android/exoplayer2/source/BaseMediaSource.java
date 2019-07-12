@@ -32,14 +32,14 @@ import java.util.ArrayList;
  */
 public abstract class BaseMediaSource implements MediaSource {
 
-  private final ArrayList<SourceInfoRefreshListener> sourceInfoListeners;
+  private final ArrayList<MediaSourceCaller> mediaSourceCallers;
   private final MediaSourceEventListener.EventDispatcher eventDispatcher;
 
   @Nullable private Looper looper;
   @Nullable private Timeline timeline;
 
   public BaseMediaSource() {
-    sourceInfoListeners = new ArrayList<>(/* initialCapacity= */ 1);
+    mediaSourceCallers = new ArrayList<>(/* initialCapacity= */ 1);
     eventDispatcher = new MediaSourceEventListener.EventDispatcher();
   }
 
@@ -67,8 +67,8 @@ public abstract class BaseMediaSource implements MediaSource {
    */
   protected final void refreshSourceInfo(Timeline timeline) {
     this.timeline = timeline;
-    for (SourceInfoRefreshListener listener : sourceInfoListeners) {
-      listener.onSourceInfoRefreshed(/* source= */ this, timeline);
+    for (MediaSourceCaller caller : mediaSourceCallers) {
+      caller.onSourceInfoRefreshed(/* source= */ this, timeline);
     }
   }
 
@@ -127,23 +127,22 @@ public abstract class BaseMediaSource implements MediaSource {
 
   @Override
   public final void prepareSource(
-      SourceInfoRefreshListener listener,
-      @Nullable TransferListener mediaTransferListener) {
+      MediaSourceCaller caller, @Nullable TransferListener mediaTransferListener) {
     Looper looper = Looper.myLooper();
     Assertions.checkArgument(this.looper == null || this.looper == looper);
-    sourceInfoListeners.add(listener);
+    mediaSourceCallers.add(caller);
     if (this.looper == null) {
       this.looper = looper;
       prepareSourceInternal(mediaTransferListener);
     } else if (timeline != null) {
-      listener.onSourceInfoRefreshed(/* source= */ this, timeline);
+      caller.onSourceInfoRefreshed(/* source= */ this, timeline);
     }
   }
 
   @Override
-  public final void releaseSource(SourceInfoRefreshListener listener) {
-    sourceInfoListeners.remove(listener);
-    if (sourceInfoListeners.isEmpty()) {
+  public final void releaseSource(MediaSourceCaller caller) {
+    mediaSourceCallers.remove(caller);
+    if (mediaSourceCallers.isEmpty()) {
       looper = null;
       timeline = null;
       releaseSourceInternal();

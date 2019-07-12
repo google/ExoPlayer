@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
+import com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.TrackGroup;
@@ -800,7 +801,7 @@ public final class DownloadHelper {
   }
 
   private static final class MediaPreparer
-      implements MediaSource.SourceInfoRefreshListener, MediaPeriod.Callback, Handler.Callback {
+      implements MediaSourceCaller, MediaPeriod.Callback, Handler.Callback {
 
     private static final int MESSAGE_PREPARE_SOURCE = 0;
     private static final int MESSAGE_CHECK_FOR_FAILURE = 1;
@@ -892,7 +893,7 @@ public final class DownloadHelper {
       }
     }
 
-    // MediaSource.SourceInfoRefreshListener implementation.
+    // MediaSource.MediaSourceCaller implementation.
 
     @Override
     public void onSourceInfoRefreshed(MediaSource source, Timeline timeline) {

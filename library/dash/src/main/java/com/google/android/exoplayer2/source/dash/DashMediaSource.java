@@ -366,8 +366,8 @@ public final class DashMediaSource extends BaseMediaSource {
 
   /**
    * The interval in milliseconds between invocations of {@link
-   * SourceInfoRefreshListener#onSourceInfoRefreshed(MediaSource, Timeline)} when the source's
-   * {@link Timeline} is changing dynamically (for example, for incomplete live streams).
+   * MediaSourceCaller#onSourceInfoRefreshed(MediaSource, Timeline)} when the source's {@link
+   * Timeline} is changing dynamically (for example, for incomplete live streams).
    */
   private static final int NOTIFY_MANIFEST_INTERVAL_MS = 5000;
   /**

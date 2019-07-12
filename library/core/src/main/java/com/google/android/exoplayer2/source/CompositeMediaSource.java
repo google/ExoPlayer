@@ -61,7 +61,7 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
   @CallSuper
   protected void releaseSourceInternal() {
     for (MediaSourceAndListener childSource : childSources.values()) {
-      childSource.mediaSource.releaseSource(childSource.listener);
+      childSource.mediaSource.releaseSource(childSource.caller);
       childSource.mediaSource.removeEventListener(childSource.eventListener);
     }
     childSources.clear();
@@ -91,17 +91,12 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
    */
   protected final void prepareChildSource(final T id, MediaSource mediaSource) {
     Assertions.checkArgument(!childSources.containsKey(id));
-    SourceInfoRefreshListener sourceListener =
-        new SourceInfoRefreshListener() {
-          @Override
-          public void onSourceInfoRefreshed(MediaSource source, Timeline timeline) {
-            onChildSourceInfoRefreshed(id, source, timeline);
-          }
-        };
+    MediaSourceCaller caller =
+        (source, timeline) -> onChildSourceInfoRefreshed(id, source, timeline);
     MediaSourceEventListener eventListener = new ForwardingEventListener(id);
-    childSources.put(id, new MediaSourceAndListener(mediaSource, sourceListener, eventListener));
+    childSources.put(id, new MediaSourceAndListener(mediaSource, caller, eventListener));
     mediaSource.addEventListener(Assertions.checkNotNull(eventHandler), eventListener);
-    mediaSource.prepareSource(sourceListener, mediaTransferListener);
+    mediaSource.prepareSource(caller, mediaTransferListener);
   }
 
   /**
@@ -111,7 +106,7 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
    */
   protected final void releaseChildSource(T id) {
     MediaSourceAndListener removedChild = Assertions.checkNotNull(childSources.remove(id));
-    removedChild.mediaSource.releaseSource(removedChild.listener);
+    removedChild.mediaSource.releaseSource(removedChild.caller);
     removedChild.mediaSource.removeEventListener(removedChild.eventListener);
   }
 
@@ -157,15 +152,13 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
   private static final class MediaSourceAndListener {
 
     public final MediaSource mediaSource;
-    public final SourceInfoRefreshListener listener;
+    public final MediaSourceCaller caller;
     public final MediaSourceEventListener eventListener;
 
     public MediaSourceAndListener(
-        MediaSource mediaSource,
-        SourceInfoRefreshListener listener,
-        MediaSourceEventListener eventListener) {
+        MediaSource mediaSource, MediaSourceCaller caller, MediaSourceEventListener eventListener) {
       this.mediaSource = mediaSource;
-      this.listener = listener;
+      this.caller = caller;
       this.eventListener = eventListener;
     }
   }
