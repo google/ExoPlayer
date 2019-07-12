@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
@@ -325,6 +326,7 @@ public final class ExtractorMediaSource extends CompositeMediaSource<Void> {
             uri,
             dataSourceFactory,
             extractorsFactory,
+            DrmSessionManager.getDummyDrmSessionManager(),
             loadableLoadErrorHandlingPolicy,
             customCacheKey,
             continueLoadingCheckIntervalBytes,
