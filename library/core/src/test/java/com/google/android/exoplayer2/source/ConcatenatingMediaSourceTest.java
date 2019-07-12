@@ -26,7 +26,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
-import com.google.android.exoplayer2.source.MediaSource.SourceInfoRefreshListener;
+import com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller;
 import com.google.android.exoplayer2.source.ShuffleOrder.DefaultShuffleOrder;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
@@ -628,15 +628,15 @@ public final class ConcatenatingMediaSourceTest {
     try {
       dummyMainThread.runOnMainThread(
           () -> {
-            SourceInfoRefreshListener listener = mock(SourceInfoRefreshListener.class);
+            MediaSourceCaller caller = mock(MediaSourceCaller.class);
             mediaSource.addMediaSources(Arrays.asList(createMediaSources(2)));
-            mediaSource.prepareSource(listener, /* mediaTransferListener= */ null);
+            mediaSource.prepareSource(caller, /* mediaTransferListener= */ null);
             mediaSource.moveMediaSource(
                 /* currentIndex= */ 0,
                 /* newIndex= */ 1,
                 new Handler(),
                 callbackCalledCondition::open);
-            mediaSource.releaseSource(listener);
+            mediaSource.releaseSource(caller);
           });
       assertThat(callbackCalledCondition.block(MediaSourceTestRunner.TIMEOUT_MS)).isTrue();
     } finally {

@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
+import com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData;
@@ -199,10 +200,7 @@ public class MediaSourceTestRunner {
     runOnPlaybackThread(() -> mediaSource.releasePeriod(mediaPeriod));
   }
 
-  /**
-   * Calls {@link MediaSource#releaseSource(MediaSource.SourceInfoRefreshListener)} on the playback
-   * thread.
-   */
+  /** Calls {@link MediaSource#releaseSource(MediaSourceCaller)} on the playback thread. */
   public void releaseSource() {
     runOnPlaybackThread(() -> mediaSource.releaseSource(mediaSourceListener));
   }
@@ -339,10 +337,9 @@ public class MediaSourceTestRunner {
     playbackThread.quit();
   }
 
-  private class MediaSourceListener
-      implements MediaSource.SourceInfoRefreshListener, MediaSourceEventListener {
+  private class MediaSourceListener implements MediaSourceCaller, MediaSourceEventListener {
 
-    // SourceInfoRefreshListener methods.
+    // MediaSourceCaller methods.
 
     @Override
     public void onSourceInfoRefreshed(MediaSource source, Timeline timeline) {

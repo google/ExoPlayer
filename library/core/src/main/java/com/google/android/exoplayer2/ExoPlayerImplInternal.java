@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
+import com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
@@ -51,7 +52,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     implements Handler.Callback,
         MediaPeriod.Callback,
         TrackSelector.InvalidationListener,
-        MediaSource.SourceInfoRefreshListener,
+        MediaSourceCaller,
         PlaybackParameterListener,
         PlayerMessage.Sender {
 
@@ -264,7 +265,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     return internalPlaybackThread.getLooper();
   }
 
-  // MediaSource.SourceInfoRefreshListener implementation.
+  // MediaSource.MediaSourceCaller implementation.
 
   @Override
   public void onSourceInfoRefreshed(MediaSource source, Timeline timeline) {

@@ -30,9 +30,9 @@ import java.io.IOException;
  * <ul>
  *   <li>To provide the player with a {@link Timeline} defining the structure of its media, and to
  *       provide a new timeline whenever the structure of the media changes. The MediaSource
- *       provides these timelines by calling {@link SourceInfoRefreshListener#onSourceInfoRefreshed}
- *       on the {@link SourceInfoRefreshListener}s passed to {@link
- *       #prepareSource(SourceInfoRefreshListener, TransferListener)}.
+ *       provides these timelines by calling {@link MediaSourceCaller#onSourceInfoRefreshed} on the
+ *       {@link MediaSourceCaller}s passed to {@link #prepareSource(MediaSourceCaller,
+ *       TransferListener)}.
  *   <li>To provide {@link MediaPeriod} instances for the periods in its timeline. MediaPeriods are
  *       obtained by calling {@link #createPeriod(MediaPeriodId, Allocator, long)}, and provide a
  *       way for the player to load and read the media.
@@ -45,25 +45,21 @@ import java.io.IOException;
  */
 public interface MediaSource {
 
-  /** Listener for source events. */
-  interface SourceInfoRefreshListener {
+  /** A caller of media sources, which will be notified of source events. */
+  interface MediaSourceCaller {
 
     /**
-     * Called when the timeline has been refreshed.
+     * Called when the {@link Timeline} has been refreshed.
      *
      * <p>Called on the playback thread.
      *
      * @param source The {@link MediaSource} whose info has been refreshed.
      * @param timeline The source's timeline.
      */
-    default void onSourceInfoRefreshed(MediaSource source, Timeline timeline) {
-      // Do nothing.
-    }
+    void onSourceInfoRefreshed(MediaSource source, Timeline timeline);
   }
 
-  /**
-   * Identifier for a {@link MediaPeriod}.
-   */
+  /** Identifier for a {@link MediaPeriod}. */
   final class MediaPeriodId {
 
     /** The unique id of the timeline period. */
@@ -239,24 +235,23 @@ public interface MediaSource {
   }
 
   /**
-   * Starts source preparation.
+   * Registers a {@link MediaSourceCaller} and starts source preparation if needed.
    *
    * <p>Should not be called directly from application code.
    *
-   * <p>{@link SourceInfoRefreshListener#onSourceInfoRefreshed(MediaSource, Timeline)} will be
-   * called once the source has a {@link Timeline}.
+   * <p>{@link MediaSourceCaller#onSourceInfoRefreshed(MediaSource, Timeline)} will be called once
+   * the source has a {@link Timeline}.
    *
-   * <p>For each call to this method, a call to {@link #releaseSource(SourceInfoRefreshListener)} is
-   * needed to remove the listener and to release the source if no longer required.
+   * <p>For each call to this method, a call to {@link #releaseSource(MediaSourceCaller)} is needed
+   * to remove the caller and to release the source if no longer required.
    *
-   * @param listener The listener to be added.
+   * @param caller The {@link MediaSourceCaller} to be registered.
    * @param mediaTransferListener The transfer listener which should be informed of any media data
    *     transfers. May be null if no listener is available. Note that this listener should be only
    *     informed of transfers related to the media loads and not of auxiliary loads for manifests
    *     and other data.
    */
-  void prepareSource(
-      SourceInfoRefreshListener listener, @Nullable TransferListener mediaTransferListener);
+  void prepareSource(MediaSourceCaller caller, @Nullable TransferListener mediaTransferListener);
 
   /**
    * Throws any pending error encountered while loading or refreshing source information.
@@ -288,12 +283,11 @@ public interface MediaSource {
   void releasePeriod(MediaPeriod mediaPeriod);
 
   /**
-   * Removes a listener for timeline and/or manifest updates and releases the source if no longer
-   * required.
+   * Unregisters a caller and releases the source if no longer required.
    *
    * <p>Should not be called directly from application code.
    *
-   * @param listener The listener to be removed.
+   * @param caller The {@link MediaSourceCaller} to be unregistered.
    */
-  void releaseSource(SourceInfoRefreshListener listener);
+  void releaseSource(MediaSourceCaller caller);
 }

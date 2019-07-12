@@ -20,6 +20,7 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.offline.StreamKey;
+import com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import java.io.IOException;
 import java.util.Collections;
@@ -57,8 +58,7 @@ public interface MediaPeriod extends SequenceableLoader {
    * {@link #maybeThrowPrepareError()} will throw an {@link IOException}.
    *
    * <p>If preparation succeeds and results in a source timeline change (e.g. the period duration
-   * becoming known), {@link
-   * MediaSource.SourceInfoRefreshListener#onSourceInfoRefreshed(MediaSource, Timeline)} will be
+   * becoming known), {@link MediaSourceCaller#onSourceInfoRefreshed(MediaSource, Timeline)} will be
    * called before {@code callback.onPrepared}.
    *
    * @param callback Callback to receive updates from this period, including being notified when

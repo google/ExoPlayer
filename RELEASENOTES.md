@@ -15,9 +15,10 @@
 * Add VR player demo.
 * Wrap decoder exceptions in a new `DecoderException` class and report as
   renderer error.
-* Do not pass the manifest to callbacks of Player.EventListener and
-  SourceInfoRefreshListener anymore. Instead make it accessible through
-  Player.getCurrentManifest() and Timeline.Window.manifest.
+* Do not pass the manifest to callbacks of `Player.EventListener` and
+  `SourceInfoRefreshListener` anymore. Instead make it accessible through
+  `Player.getCurrentManifest()` and `Timeline.Window.manifest`. Also rename
+  `SourceInfoRefreshListener` to `MediaSourceCaller`.
 * Flac extension: Parse `VORBIS_COMMENT` metadata
   ([#5527](https://github.com/google/ExoPlayer/issues/5527)).
 
