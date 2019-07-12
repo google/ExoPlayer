@@ -563,8 +563,8 @@ public interface Player {
   int DISCONTINUITY_REASON_INTERNAL = 4;
 
   /**
-   * Reasons for timeline and/or manifest changes. One of {@link #TIMELINE_CHANGE_REASON_PREPARED},
-   * {@link #TIMELINE_CHANGE_REASON_RESET} or {@link #TIMELINE_CHANGE_REASON_DYNAMIC}.
+   * Reasons for timeline changes. One of {@link #TIMELINE_CHANGE_REASON_PREPARED}, {@link
+   * #TIMELINE_CHANGE_REASON_RESET} or {@link #TIMELINE_CHANGE_REASON_DYNAMIC}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)

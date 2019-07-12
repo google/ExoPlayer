@@ -239,12 +239,12 @@ public interface MediaSource {
   }
 
   /**
-   * Starts source preparation if not yet started, and adds a listener for timeline and/or manifest
-   * updates.
+   * Starts source preparation.
    *
    * <p>Should not be called directly from application code.
    *
-   * <p>The listener will be also be notified if the source already has a timeline and/or manifest.
+   * <p>{@link SourceInfoRefreshListener#onSourceInfoRefreshed(MediaSource, Timeline)} will be
+   * called once the source has a {@link Timeline}.
    *
    * <p>For each call to this method, a call to {@link #releaseSource(SourceInfoRefreshListener)} is
    * needed to remove the listener and to release the source if no longer required.
