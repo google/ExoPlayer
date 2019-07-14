@@ -3,6 +3,8 @@
 ### 2.10.4 ###
 
 * Offline: Add Scheduler implementation which uses WorkManager.
+* Flac extension: Parse `VORBIS_COMMENT` metadata
+  ([#5527](https://github.com/google/ExoPlayer/issues/5527)).
 
 ### 2.10.3 ###
 

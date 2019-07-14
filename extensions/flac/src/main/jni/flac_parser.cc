@@ -172,6 +172,25 @@ void FLACParser::metadataCallback(const FLAC__StreamMetadata *metadata) {
     case FLAC__METADATA_TYPE_SEEKTABLE:
       mSeekTable = &metadata->data.seek_table;
       break;
+    case FLAC__METADATA_TYPE_VORBIS_COMMENT:
+      if (!mVorbisCommentsValid) {
+        FLAC__StreamMetadata_VorbisComment vorbisComment =
+            metadata->data.vorbis_comment;
+        for (FLAC__uint32 i = 0; i < vorbisComment.num_comments; ++i) {
+          FLAC__StreamMetadata_VorbisComment_Entry vorbisCommentEntry =
+              vorbisComment.comments[i];
+          if (vorbisCommentEntry.entry != NULL) {
+            std::string comment(
+                reinterpret_cast<char *>(vorbisCommentEntry.entry),
+                vorbisCommentEntry.length);
+            mVorbisComments.push_back(comment);
+          }
+        }
+        mVorbisCommentsValid = true;
+      } else {
+        ALOGE("FLACParser::metadataCallback unexpected VORBISCOMMENT");
+      }
+      break;
     default:
       ALOGE("FLACParser::metadataCallback unexpected type %u", metadata->type);
       break;
@@ -233,6 +252,7 @@ FLACParser::FLACParser(DataSource *source)
       mCurrentPos(0LL),
       mEOF(false),
       mStreamInfoValid(false),
+      mVorbisCommentsValid(false),
       mWriteRequested(false),
       mWriteCompleted(false),
       mWriteBuffer(NULL),
@@ -266,6 +286,8 @@ bool FLACParser::init() {
                                             FLAC__METADATA_TYPE_STREAMINFO);
   FLAC__stream_decoder_set_metadata_respond(mDecoder,
                                             FLAC__METADATA_TYPE_SEEKTABLE);
+  FLAC__stream_decoder_set_metadata_respond(mDecoder,
+                                            FLAC__METADATA_TYPE_VORBIS_COMMENT);
   FLAC__StreamDecoderInitStatus initStatus;
   initStatus = FLAC__stream_decoder_init_stream(
       mDecoder, read_callback, seek_callback, tell_callback, length_callback,
