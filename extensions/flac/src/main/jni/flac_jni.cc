@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-#include <jni.h>
 #include <android/log.h>
+#include <jni.h>
+
 #include <cstdlib>
+#include <cstring>
+
 #include "include/flac_parser.h"
 
 #define LOG_TAG "flac_jni"
@@ -95,19 +98,40 @@ DECODER_FUNC(jobject, flacDecodeMetadata, jlong jContext) {
     return NULL;
   }
 
+  jclass arrayListClass = env->FindClass("java/util/ArrayList");
+  jmethodID arrayListConstructor =
+      env->GetMethodID(arrayListClass, "<init>", "()V");
+  jobject commentList = env->NewObject(arrayListClass, arrayListConstructor);
+
+  if (context->parser->isVorbisCommentsValid()) {
+    jmethodID arrayListAddMethod =
+        env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
+    std::vector<std::string> vorbisComments =
+        context->parser->getVorbisComments();
+    for (std::vector<std::string>::const_iterator vorbisComment =
+             vorbisComments.begin();
+         vorbisComment != vorbisComments.end(); ++vorbisComment) {
+      jstring commentString = env->NewStringUTF((*vorbisComment).c_str());
+      env->CallBooleanMethod(commentList, arrayListAddMethod, commentString);
+      env->DeleteLocalRef(commentString);
+    }
+  }
+
   const FLAC__StreamMetadata_StreamInfo &streamInfo =
       context->parser->getStreamInfo();
 
-  jclass cls = env->FindClass(
+  jclass flacStreamMetadataClass = env->FindClass(
       "com/google/android/exoplayer2/util/"
-      "FlacStreamInfo");
-  jmethodID constructor = env->GetMethodID(cls, "<init>", "(IIIIIIIJ)V");
+      "FlacStreamMetadata");
+  jmethodID flacStreamMetadataConstructor = env->GetMethodID(
+      flacStreamMetadataClass, "<init>", "(IIIIIIIJLjava/util/List;)V");
 
-  return env->NewObject(cls, constructor, streamInfo.min_blocksize,
-                        streamInfo.max_blocksize, streamInfo.min_framesize,
-                        streamInfo.max_framesize, streamInfo.sample_rate,
-                        streamInfo.channels, streamInfo.bits_per_sample,
-                        streamInfo.total_samples);
+  return env->NewObject(flacStreamMetadataClass, flacStreamMetadataConstructor,
+                        streamInfo.min_blocksize, streamInfo.max_blocksize,
+                        streamInfo.min_framesize, streamInfo.max_framesize,
+                        streamInfo.sample_rate, streamInfo.channels,
+                        streamInfo.bits_per_sample, streamInfo.total_samples,
+                        commentList);
 }
 
 DECODER_FUNC(jint, flacDecodeToBuffer, jlong jContext, jobject jOutputBuffer) {

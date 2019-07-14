@@ -19,6 +19,10 @@
 
 #include <stdint.h>
 
+#include <cstdlib>
+#include <string>
+#include <vector>
+
 // libFLAC parser
 #include "FLAC/stream_decoder.h"
 
@@ -43,6 +47,10 @@ class FLACParser {
   const FLAC__StreamMetadata_StreamInfo& getStreamInfo() const {
     return mStreamInfo;
   }
+
+  bool isVorbisCommentsValid() { return mVorbisCommentsValid; }
+
+  std::vector<std::string> getVorbisComments() { return mVorbisComments; }
 
   int64_t getLastFrameTimestamp() const {
     return (1000000LL * mWriteHeader.number.sample_number) / getSampleRate();
@@ -71,6 +79,8 @@ class FLACParser {
       mEOF = false;
       if (newPosition == 0) {
         mStreamInfoValid = false;
+        mVorbisCommentsValid = false;
+        mVorbisComments.clear();
         FLAC__stream_decoder_reset(mDecoder);
       } else {
         FLAC__stream_decoder_flush(mDecoder);
@@ -115,6 +125,10 @@ class FLACParser {
 
   const FLAC__StreamMetadata_SeekTable *mSeekTable;
   uint64_t firstFrameOffset;
+
+  // cached when the VORBIS_COMMENT metadata is parsed by libFLAC
+  std::vector<std::string> mVorbisComments;
+  bool mVorbisCommentsValid;
 
   // cached when a decoded PCM block is "written" by libFLAC parser
   bool mWriteRequested;

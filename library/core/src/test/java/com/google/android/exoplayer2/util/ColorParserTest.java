@@ -28,7 +28,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Unit test for <code>ColorParser</code>. */
+/** Unit test for {@link ColorParser}. */
 @RunWith(AndroidJUnit4.class)
 public final class ColorParserTest {
 
