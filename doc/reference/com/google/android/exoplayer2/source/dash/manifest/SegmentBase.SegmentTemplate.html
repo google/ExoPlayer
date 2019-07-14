@@ -156,10 +156,11 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/dash/
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.SegmentTemplate.html#SegmentTemplate-com.google.android.exoplayer2.source.dash.manifest.RangedUri-long-long-long-long-java.util.List-com.google.android.exoplayer2.source.dash.manifest.UrlTemplate-com.google.android.exoplayer2.source.dash.manifest.UrlTemplate-">SegmentTemplate</a></span>(<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;initialization,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.SegmentTemplate.html#SegmentTemplate-com.google.android.exoplayer2.source.dash.manifest.RangedUri-long-long-long-long-long-java.util.List-com.google.android.exoplayer2.source.dash.manifest.UrlTemplate-com.google.android.exoplayer2.source.dash.manifest.UrlTemplate-">SegmentTemplate</a></span>(<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;initialization,
                long&nbsp;timescale,
                long&nbsp;presentationTimeOffset,
                long&nbsp;startNumber,
+               long&nbsp;endNumber,
                long&nbsp;duration,
                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.SegmentTimelineElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentTimelineElement</a>&gt;&nbsp;segmentTimeline,
                <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/UrlTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UrlTemplate</a>&nbsp;initializationTemplate,
@@ -235,7 +236,7 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/dash/
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="SegmentTemplate-com.google.android.exoplayer2.source.dash.manifest.RangedUri-long-long-long-long-java.util.List-com.google.android.exoplayer2.source.dash.manifest.UrlTemplate-com.google.android.exoplayer2.source.dash.manifest.UrlTemplate-">
+<a name="SegmentTemplate-com.google.android.exoplayer2.source.dash.manifest.RangedUri-long-long-long-long-long-java.util.List-com.google.android.exoplayer2.source.dash.manifest.UrlTemplate-com.google.android.exoplayer2.source.dash.manifest.UrlTemplate-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -245,6 +246,7 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/dash/
                        long&nbsp;timescale,
                        long&nbsp;presentationTimeOffset,
                        long&nbsp;startNumber,
+                       long&nbsp;endNumber,
                        long&nbsp;duration,
                        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.SegmentTimelineElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentTimelineElement</a>&gt;&nbsp;segmentTimeline,
                        <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/UrlTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UrlTemplate</a>&nbsp;initializationTemplate,
@@ -258,6 +260,9 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/dash/
 <dd><code>presentationTimeOffset</code> - The presentation time offset. The value in seconds is the
      division of this value and <code>timescale</code>.</dd>
 <dd><code>startNumber</code> - The sequence number of the first segment.</dd>
+<dd><code>endNumber</code> - The sequence number of the last segment as specified by the
+     SupplementalProperty with schemeIdUri="http://dashif.org/guidelines/last-segment-number",
+     or <a href="../../../../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a>.</dd>
 <dd><code>duration</code> - The duration of each segment in the case of fixed duration segments. The
      value in seconds is the division of this value and <code>timescale</code>. If <code>segmentTimeline</code> is non-null then this parameter is ignored.</dd>
 <dd><code>segmentTimeline</code> - A segment timeline corresponding to the segments. If null, then

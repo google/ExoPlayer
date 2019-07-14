@@ -218,7 +218,13 @@ implements <a href="../../../../../../com/google/android/exoplayer2/ext/mediases
 <h4>getMetadata</h4>
 <pre>public&nbsp;<a href="https://developer.android.com/reference/android/support.v4.media.MediaMetadataCompat.html" target="_top" title="class or interface in android">android.support.v4.media.MediaMetadataCompat</a>&nbsp;getMetadata(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.MediaMetadataProvider.html#getMetadata-com.google.android.exoplayer2.Player-">MediaSessionConnector.MediaMetadataProvider</a></code></span></div>
-<div class="block">Gets the <a href="https://developer.android.com/reference/android/support.v4.media.MediaMetadataCompat.html" target="_top" title="class or interface in android"><code>MediaMetadataCompat</code></a> to be published to the session.</div>
+<div class="block">Gets the <a href="https://developer.android.com/reference/android/support.v4.media.MediaMetadataCompat.html" target="_top" title="class or interface in android"><code>MediaMetadataCompat</code></a> to be published to the session.
+
+ <p>An app may need to load metadata resources like artwork bitmaps asynchronously. In such a
+ case the app should return a <a href="https://developer.android.com/reference/android/support.v4.media.MediaMetadataCompat.html" target="_top" title="class or interface in android"><code>MediaMetadataCompat</code></a> object that does not contain these
+ resources as a placeholder. The app should start an asynchronous operation to download the
+ bitmap and put it into a cache. Finally, the app should call <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.html#invalidateMediaSessionMetadata--"><code>MediaSessionConnector.invalidateMediaSessionMetadata()</code></a>. This causes this callback to be called again and the app
+ can now return a <a href="https://developer.android.com/reference/android/support.v4.media.MediaMetadataCompat.html" target="_top" title="class or interface in android"><code>MediaMetadataCompat</code></a> object with all the resources included.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.MediaMetadataProvider.html#getMetadata-com.google.android.exoplayer2.Player-">getMetadata</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.MediaMetadataProvider.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.MediaMetadataProvider</a></code></dd>

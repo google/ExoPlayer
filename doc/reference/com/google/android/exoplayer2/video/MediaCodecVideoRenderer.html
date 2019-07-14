@@ -354,8 +354,8 @@ extends <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCo
 <tr id="i10" class="altColor">
 <td class="colFirst"><code>protected long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html#getOutputStreamOffsetUs--">getOutputStreamOffsetUs</a></span>()</code>
-<div class="block">Returns the offset that should be subtracted from <code>bufferPresentationTimeUs</code> in <a href="../../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html#processOutputBuffer-long-long-android.media.MediaCodec-java.nio.ByteBuffer-int-int-long-boolean-com.google.android.exoplayer2.Format-"><code>processOutputBuffer(long, long, MediaCodec, ByteBuffer, int, int, long, boolean, Format)</code></a> to
- get the playback position with respect to the media.</div>
+<div class="block">Returns the offset that should be subtracted from <code>bufferPresentationTimeUs</code> in <a href="../../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html#processOutputBuffer-long-long-android.media.MediaCodec-java.nio.ByteBuffer-int-int-long-boolean-boolean-com.google.android.exoplayer2.Format-"><code>processOutputBuffer(long, long, MediaCodec, ByteBuffer, int, int, long, boolean, boolean,
+ Format)</code></a> to get the playback position with respect to the media.</div>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
@@ -466,14 +466,15 @@ extends <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCo
 </tr>
 <tr id="i27" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html#processOutputBuffer-long-long-android.media.MediaCodec-java.nio.ByteBuffer-int-int-long-boolean-com.google.android.exoplayer2.Format-">processOutputBuffer</a></span>(long&nbsp;positionUs,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html#processOutputBuffer-long-long-android.media.MediaCodec-java.nio.ByteBuffer-int-int-long-boolean-boolean-com.google.android.exoplayer2.Format-">processOutputBuffer</a></span>(long&nbsp;positionUs,
                    long&nbsp;elapsedRealtimeUs,
                    <a href="https://developer.android.com/reference/android/media/MediaCodec.html" target="_top" title="class or interface in android.media">MediaCodec</a>&nbsp;codec,
                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio">ByteBuffer</a>&nbsp;buffer,
                    int&nbsp;bufferIndex,
                    int&nbsp;bufferFlags,
                    long&nbsp;bufferPresentationTimeUs,
-                   boolean&nbsp;shouldSkip,
+                   boolean&nbsp;isDecodeOnlyBuffer,
+                   boolean&nbsp;isLastBuffer,
                    <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code>
 <div class="block">Processes an output media buffer.</div>
 </td>
@@ -501,16 +502,18 @@ extends <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCo
 </tr>
 <tr id="i31" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html#shouldDropBuffersToKeyframe-long-long-">shouldDropBuffersToKeyframe</a></span>(long&nbsp;earlyUs,
-                           long&nbsp;elapsedRealtimeUs)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html#shouldDropBuffersToKeyframe-long-long-boolean-">shouldDropBuffersToKeyframe</a></span>(long&nbsp;earlyUs,
+                           long&nbsp;elapsedRealtimeUs,
+                           boolean&nbsp;isLastBuffer)</code>
 <div class="block">Returns whether to drop all buffers from the buffer being processed to the keyframe at or after
  the current playback position, if possible.</div>
 </td>
 </tr>
 <tr id="i32" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html#shouldDropOutputBuffer-long-long-">shouldDropOutputBuffer</a></span>(long&nbsp;earlyUs,
-                      long&nbsp;elapsedRealtimeUs)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html#shouldDropOutputBuffer-long-long-boolean-">shouldDropOutputBuffer</a></span>(long&nbsp;earlyUs,
+                      long&nbsp;elapsedRealtimeUs,
+                      boolean&nbsp;isLastBuffer)</code>
 <div class="block">Returns whether the buffer being processed should be dropped.</div>
 </td>
 </tr>
@@ -1214,7 +1217,7 @@ protected&nbsp;void&nbsp;onQueueInputBuffer(<a href="../../../../../com/google/a
 </dl>
 </li>
 </ul>
-<a name="processOutputBuffer-long-long-android.media.MediaCodec-java.nio.ByteBuffer-int-int-long-boolean-com.google.android.exoplayer2.Format-">
+<a name="processOutputBuffer-long-long-android.media.MediaCodec-java.nio.ByteBuffer-int-int-long-boolean-boolean-com.google.android.exoplayer2.Format-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1227,10 +1230,11 @@ protected&nbsp;void&nbsp;onQueueInputBuffer(<a href="../../../../../com/google/a
                                       int&nbsp;bufferIndex,
                                       int&nbsp;bufferFlags,
                                       long&nbsp;bufferPresentationTimeUs,
-                                      boolean&nbsp;shouldSkip,
+                                      boolean&nbsp;isDecodeOnlyBuffer,
+                                      boolean&nbsp;isLastBuffer,
                                       <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)
                                throws <a href="../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.html#processOutputBuffer-long-long-android.media.MediaCodec-java.nio.ByteBuffer-int-int-long-boolean-com.google.android.exoplayer2.Format-">MediaCodecRenderer</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.html#processOutputBuffer-long-long-android.media.MediaCodec-java.nio.ByteBuffer-int-int-long-boolean-boolean-com.google.android.exoplayer2.Format-">MediaCodecRenderer</a></code></span></div>
 <div class="block">Processes an output media buffer.
 
  <p>When a new <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio"><code>ByteBuffer</code></a> is passed to this method its position and limit delineate the
@@ -1245,7 +1249,7 @@ protected&nbsp;void&nbsp;onQueueInputBuffer(<a href="../../../../../com/google/a
  boolean)</code></a> will always receive a new <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio"><code>ByteBuffer</code></a> to be processed.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.html#processOutputBuffer-long-long-android.media.MediaCodec-java.nio.ByteBuffer-int-int-long-boolean-com.google.android.exoplayer2.Format-">processOutputBuffer</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecRenderer</a></code></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.html#processOutputBuffer-long-long-android.media.MediaCodec-java.nio.ByteBuffer-int-int-long-boolean-boolean-com.google.android.exoplayer2.Format-">processOutputBuffer</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecRenderer</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>positionUs</code> - The current media time in microseconds, measured at the start of the current
      iteration of the rendering loop.</dd>
@@ -1256,7 +1260,9 @@ protected&nbsp;void&nbsp;onQueueInputBuffer(<a href="../../../../../com/google/a
 <dd><code>bufferIndex</code> - The index of the output buffer.</dd>
 <dd><code>bufferFlags</code> - The flags attached to the output buffer.</dd>
 <dd><code>bufferPresentationTimeUs</code> - The presentation time of the output buffer in microseconds.</dd>
-<dd><code>shouldSkip</code> - Whether the buffer should be skipped (i.e. not rendered).</dd>
+<dd><code>isDecodeOnlyBuffer</code> - Whether the buffer was marked with <a href="../../../../../com/google/android/exoplayer2/C.html#BUFFER_FLAG_DECODE_ONLY"><code>C.BUFFER_FLAG_DECODE_ONLY</code></a>
+     by the source.</dd>
+<dd><code>isLastBuffer</code> - Whether the buffer is the last sample of the current stream.</dd>
 <dd><code>format</code> - The format associated with the buffer.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Whether the output buffer was fully processed (e.g. rendered or skipped).</dd>
@@ -1272,8 +1278,8 @@ protected&nbsp;void&nbsp;onQueueInputBuffer(<a href="../../../../../com/google/a
 <li class="blockList">
 <h4>getOutputStreamOffsetUs</h4>
 <pre>protected&nbsp;long&nbsp;getOutputStreamOffsetUs()</pre>
-<div class="block">Returns the offset that should be subtracted from <code>bufferPresentationTimeUs</code> in <a href="../../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html#processOutputBuffer-long-long-android.media.MediaCodec-java.nio.ByteBuffer-int-int-long-boolean-com.google.android.exoplayer2.Format-"><code>processOutputBuffer(long, long, MediaCodec, ByteBuffer, int, int, long, boolean, Format)</code></a> to
- get the playback position with respect to the media.</div>
+<div class="block">Returns the offset that should be subtracted from <code>bufferPresentationTimeUs</code> in <a href="../../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html#processOutputBuffer-long-long-android.media.MediaCodec-java.nio.ByteBuffer-int-int-long-boolean-boolean-com.google.android.exoplayer2.Format-"><code>processOutputBuffer(long, long, MediaCodec, ByteBuffer, int, int, long, boolean, boolean,
+ Format)</code></a> to get the playback position with respect to the media.</div>
 </li>
 </ul>
 <a name="onProcessedTunneledBuffer-long-">
@@ -1303,14 +1309,15 @@ protected&nbsp;void&nbsp;onProcessedOutputBuffer(long&nbsp;presentationTimeUs)</
 </dl>
 </li>
 </ul>
-<a name="shouldDropOutputBuffer-long-long-">
+<a name="shouldDropOutputBuffer-long-long-boolean-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>shouldDropOutputBuffer</h4>
 <pre>protected&nbsp;boolean&nbsp;shouldDropOutputBuffer(long&nbsp;earlyUs,
-                                         long&nbsp;elapsedRealtimeUs)</pre>
+                                         long&nbsp;elapsedRealtimeUs,
+                                         boolean&nbsp;isLastBuffer)</pre>
 <div class="block">Returns whether the buffer being processed should be dropped.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1318,17 +1325,19 @@ protected&nbsp;void&nbsp;onProcessedOutputBuffer(long&nbsp;presentationTimeUs)</
      indicates that the buffer is late.</dd>
 <dd><code>elapsedRealtimeUs</code> - <a href="https://developer.android.com/reference/android/os/SystemClock.html?is-external=true#elapsedRealtime--" title="class or interface in android.os"><code>SystemClock.elapsedRealtime()</code></a> in microseconds,
      measured at the start of the current iteration of the rendering loop.</dd>
+<dd><code>isLastBuffer</code> - Whether the buffer is the last buffer in the current stream.</dd>
 </dl>
 </li>
 </ul>
-<a name="shouldDropBuffersToKeyframe-long-long-">
+<a name="shouldDropBuffersToKeyframe-long-long-boolean-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>shouldDropBuffersToKeyframe</h4>
 <pre>protected&nbsp;boolean&nbsp;shouldDropBuffersToKeyframe(long&nbsp;earlyUs,
-                                              long&nbsp;elapsedRealtimeUs)</pre>
+                                              long&nbsp;elapsedRealtimeUs,
+                                              boolean&nbsp;isLastBuffer)</pre>
 <div class="block">Returns whether to drop all buffers from the buffer being processed to the keyframe at or after
  the current playback position, if possible.</div>
 <dl>
@@ -1337,6 +1346,7 @@ protected&nbsp;void&nbsp;onProcessedOutputBuffer(long&nbsp;presentationTimeUs)</
      negative value indicates that the buffer is late.</dd>
 <dd><code>elapsedRealtimeUs</code> - <a href="https://developer.android.com/reference/android/os/SystemClock.html?is-external=true#elapsedRealtime--" title="class or interface in android.os"><code>SystemClock.elapsedRealtime()</code></a> in microseconds,
      measured at the start of the current iteration of the rendering loop.</dd>
+<dd><code>isLastBuffer</code> - Whether the buffer is the last buffer in the current stream.</dd>
 </dl>
 </li>
 </ul>

@@ -389,10 +389,11 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm
 <ul class="blockList">
 <li class="blockList">
 <h4>provideKeyResponse</h4>
-<pre>public&nbsp;byte[]&nbsp;provideKeyResponse(byte[]&nbsp;scope,
-                                 byte[]&nbsp;response)
-                          throws <a href="https://developer.android.com/reference/android/media/NotProvisionedException.html" target="_top" title="class or interface in android.media">NotProvisionedException</a>,
-                                 <a href="https://developer.android.com/reference/android/media/DeniedByServerException.html" target="_top" title="class or interface in android.media">DeniedByServerException</a></pre>
+<pre>@Nullable
+public&nbsp;byte[]&nbsp;provideKeyResponse(byte[]&nbsp;scope,
+                                           byte[]&nbsp;response)
+                                    throws <a href="https://developer.android.com/reference/android/media/NotProvisionedException.html" target="_top" title="class or interface in android.media">NotProvisionedException</a>,
+                                           <a href="https://developer.android.com/reference/android/media/DeniedByServerException.html" target="_top" title="class or interface in android.media">DeniedByServerException</a></pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#provideKeyResponse-byte:A-byte:A-">provideKeyResponse</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;</code></dd>
