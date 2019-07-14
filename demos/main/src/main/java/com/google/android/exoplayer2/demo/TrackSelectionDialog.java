@@ -306,7 +306,7 @@ public final class TrackSelectionDialog extends DialogFragment {
     }
   }
 
-  /** Fragment to show a track seleciton in tab of the track selection dialog. */
+  /** Fragment to show a track selection in tab of the track selection dialog. */
   public static final class TrackSelectionViewFragment extends Fragment
       implements TrackSelectionView.TrackSelectionListener {
 

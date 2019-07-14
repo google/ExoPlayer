@@ -518,9 +518,15 @@ public final class MediaCodecInfo {
   @TargetApi(21)
   private static boolean areSizeAndRateSupportedV21(VideoCapabilities capabilities, int width,
       int height, double frameRate) {
-    return frameRate == Format.NO_VALUE || frameRate <= 0
-        ? capabilities.isSizeSupported(width, height)
-        : capabilities.areSizeAndRateSupported(width, height, frameRate);
+    if (frameRate == Format.NO_VALUE || frameRate <= 0) {
+      return capabilities.isSizeSupported(width, height);
+    } else {
+      // The signaled frame rate may be slightly higher than the actual frame rate, so we take the
+      // floor to avoid situations where a range check in areSizeAndRateSupported fails due to
+      // slightly exceeding the limits for a standard format (e.g., 1080p at 30 fps).
+      double floorFrameRate = Math.floor(frameRate);
+      return capabilities.areSizeAndRateSupported(width, height, floorFrameRate);
+    }
   }
 
   @TargetApi(23)

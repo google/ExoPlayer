@@ -817,10 +817,10 @@ public final class DownloadHelper {
     private final MediaSource mediaSource;
     private final DownloadHelper downloadHelper;
     private final Allocator allocator;
+    private final ArrayList<MediaPeriod> pendingMediaPeriods;
+    private final Handler downloadHelperHandler;
     private final HandlerThread mediaSourceThread;
     private final Handler mediaSourceHandler;
-    private final Handler downloadHelperHandler;
-    private final ArrayList<MediaPeriod> pendingMediaPeriods;
 
     @Nullable public Object manifest;
     public @MonotonicNonNull Timeline timeline;
@@ -832,6 +832,7 @@ public final class DownloadHelper {
       this.mediaSource = mediaSource;
       this.downloadHelper = downloadHelper;
       allocator = new DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE);
+      pendingMediaPeriods = new ArrayList<>();
       @SuppressWarnings("methodref.receiver.bound.invalid")
       Handler downloadThreadHandler = Util.createHandler(this::handleDownloadHelperCallbackMessage);
       this.downloadHelperHandler = downloadThreadHandler;
@@ -839,7 +840,6 @@ public final class DownloadHelper {
       mediaSourceThread.start();
       mediaSourceHandler = Util.createHandler(mediaSourceThread.getLooper(), /* callback= */ this);
       mediaSourceHandler.sendEmptyMessage(MESSAGE_PREPARE_SOURCE);
-      pendingMediaPeriods = new ArrayList<>();
     }
 
     public void release() {

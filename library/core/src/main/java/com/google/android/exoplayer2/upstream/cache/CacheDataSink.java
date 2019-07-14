@@ -49,7 +49,6 @@ public final class CacheDataSink implements DataSink {
   private final long fragmentSize;
   private final int bufferSize;
 
-  private boolean syncFileDescriptor;
   private DataSpec dataSpec;
   private long dataSpecFragmentSize;
   private File file;
@@ -108,18 +107,6 @@ public final class CacheDataSink implements DataSink {
     this.cache = Assertions.checkNotNull(cache);
     this.fragmentSize = fragmentSize == C.LENGTH_UNSET ? Long.MAX_VALUE : fragmentSize;
     this.bufferSize = bufferSize;
-    syncFileDescriptor = true;
-  }
-
-  /**
-   * Sets whether file descriptors are synced when closing output streams.
-   *
-   * <p>This method is experimental, and will be renamed or removed in a future release.
-   *
-   * @param syncFileDescriptor Whether file descriptors are synced when closing output streams.
-   */
-  public void experimental_setSyncFileDescriptor(boolean syncFileDescriptor) {
-    this.syncFileDescriptor = syncFileDescriptor;
   }
 
   @Override
@@ -208,9 +195,6 @@ public final class CacheDataSink implements DataSink {
     boolean success = false;
     try {
       outputStream.flush();
-      if (syncFileDescriptor) {
-        underlyingFileOutputStream.getFD().sync();
-      }
       success = true;
     } finally {
       Util.closeQuietly(outputStream);

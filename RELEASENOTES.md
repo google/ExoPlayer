@@ -1,5 +1,24 @@
 # Release notes #
 
+### 2.10.3 ###
+
+* Display last frame when seeking to end of stream
+  ([#2568](https://github.com/google/ExoPlayer/issues/2568)).
+* Audio:
+  * Fix an issue where not all audio was played out when the configuration
+    for the underlying track was changing (e.g., at some period transitions).
+  * Fix an issue where playback speed was applied inaccurately in playlists
+    ([#6117](https://github.com/google/ExoPlayer/issues/6117)).
+* UI: Fix `PlayerView` incorrectly consuming touch events if no controller is
+  attached ([#6109](https://github.com/google/ExoPlayer/issues/6109)).
+* CEA608: Fix repetition of special North American characters
+  ([#6133](https://github.com/google/ExoPlayer/issues/6133)).
+* FLV: Fix bug that caused playback of some live streams to not start
+  ([#6111](https://github.com/google/ExoPlayer/issues/6111)).
+* SmoothStreaming: Parse text stream `Subtype` into `Format.roleFlags`.
+* MediaSession extension: Fix `MediaSessionConnector.play()` not resuming
+  playback ([#6093](https://github.com/google/ExoPlayer/issues/6093)).
+
 ### 2.10.2 ###
 
 * Add `ResolvingDataSource` for just-in-time resolution of `DataSpec`s
