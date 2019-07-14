@@ -19,7 +19,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
-import com.google.android.exoplayer2.util.FlacStreamInfo;
+import com.google.android.exoplayer2.util.FlacStreamMetadata;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -142,13 +142,13 @@ import java.nio.ByteBuffer;
     return byteCount;
   }
 
-  /** Decodes and consumes the StreamInfo section from the FLAC stream. */
-  public FlacStreamInfo decodeStreamInfo() throws IOException, InterruptedException {
-    FlacStreamInfo streamInfo = flacDecodeMetadata(nativeDecoderContext);
-    if (streamInfo == null) {
-      throw new ParserException("Failed to decode StreamInfo");
+  /** Decodes and consumes the metadata from the FLAC stream. */
+  public FlacStreamMetadata decodeStreamMetadata() throws IOException, InterruptedException {
+    FlacStreamMetadata streamMetadata = flacDecodeMetadata(nativeDecoderContext);
+    if (streamMetadata == null) {
+      throw new ParserException("Failed to decode stream metadata");
     }
-    return streamInfo;
+    return streamMetadata;
   }
 
   /**
@@ -266,7 +266,7 @@ import java.nio.ByteBuffer;
 
   private native long flacInit();
 
-  private native FlacStreamInfo flacDecodeMetadata(long context)
+  private native FlacStreamMetadata flacDecodeMetadata(long context)
       throws IOException, InterruptedException;
 
   private native int flacDecodeToBuffer(long context, ByteBuffer outputBuffer)
