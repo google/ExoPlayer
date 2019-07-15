@@ -852,7 +852,7 @@ public final class DownloadHelper {
     public boolean handleMessage(Message msg) {
       switch (msg.what) {
         case MESSAGE_PREPARE_SOURCE:
-          mediaSource.prepareSource(/* listener= */ this, /* mediaTransferListener= */ null);
+          mediaSource.prepareSource(/* caller= */ this, /* mediaTransferListener= */ null);
           mediaSourceHandler.sendEmptyMessage(MESSAGE_CHECK_FOR_FAILURE);
           return true;
         case MESSAGE_CHECK_FOR_FAILURE:

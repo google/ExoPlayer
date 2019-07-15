@@ -442,7 +442,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     loadControl.onPrepared();
     this.mediaSource = mediaSource;
     setState(Player.STATE_BUFFERING);
-    mediaSource.prepareSource(/* listener= */ this, bandwidthMeter.getTransferListener());
+    mediaSource.prepareSource(/* caller= */ this, bandwidthMeter.getTransferListener());
     handler.sendEmptyMessage(MSG_DO_SOME_WORK);
   }
 
@@ -914,7 +914,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
             startPositionUs);
     if (releaseMediaSource) {
       if (mediaSource != null) {
-        mediaSource.releaseSource(/* listener= */ this);
+        mediaSource.releaseSource(/* caller= */ this);
         mediaSource = null;
       }
     }
