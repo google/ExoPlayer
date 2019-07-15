@@ -2508,49 +2508,30 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   /** Represents how well an text track matches the selection {@link Parameters}. */
   protected static final class TextTrackScore implements Comparable<TextTrackScore> {
 
+    private final boolean isWithinRendererCapabilities;
     private final boolean isDefault;
     private final boolean isForced;
-    private final int languageScore;
+    private final int preferredLanguageScore;
+    private final int selectedAudioLanguageScore;
     private final boolean trackHasNoLanguage;
-    private int bestMatchScore = 0;
+    private final boolean selectUndeterminedTextLanguage;
+    private final boolean stringDefinesNoLang;
 
     public TextTrackScore(
         Format format,
         Parameters parameters,
         int trackFormatSupport,
         @Nullable String selectedAudioLanguage) {
-      languageScore = getFormatLanguageScore(format, parameters.preferredTextLanguage);
+      isWithinRendererCapabilities = isSupported(trackFormatSupport, false);
       int maskedSelectionFlags =
           format.selectionFlags & ~parameters.disabledTextTrackSelectionFlags;
       isDefault = (format.selectionFlags & C.SELECTION_FLAG_DEFAULT) != 0;
       isForced = (maskedSelectionFlags & C.SELECTION_FLAG_FORCED) != 0;
+      preferredLanguageScore = getFormatLanguageScore(format, parameters.preferredTextLanguage);
+      selectedAudioLanguageScore = getFormatLanguageScore(format, selectedAudioLanguage);
       trackHasNoLanguage = formatHasNoLanguage(format);
-
-      if (languageScore > 0 || (parameters.selectUndeterminedTextLanguage && trackHasNoLanguage)) {
-        if (isDefault) {
-          bestMatchScore = 11;
-        } else if (!isForced) {
-          // Prefer non-forced to forced if a preferred text language has been specified. Where
-          // both are provided the non-forced track will usually contain the forced subtitles as
-          // a subset.
-          bestMatchScore = 7;
-        } else {
-          bestMatchScore = 3;
-        }
-        bestMatchScore += languageScore;
-      } else if (isDefault) {
-        bestMatchScore = 2;
-      } else if (isForced
-          && (languageScore > 0
-          || (trackHasNoLanguage && stringDefinesNoLanguage(selectedAudioLanguage)))) {
-        bestMatchScore = 1;
-      } else {
-        // Track should not be selected.
-        bestMatchScore = -1;
-      }
-      if (isSupported(trackFormatSupport, false)) {
-        bestMatchScore += WITHIN_RENDERER_CAPABILITIES_BONUS;
-      }
+      selectUndeterminedTextLanguage = parameters.selectUndeterminedTextLanguage;
+      stringDefinesNoLang = stringDefinesNoLanguage(selectedAudioLanguage);
     }
 
     /**
@@ -2562,10 +2543,38 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      */
     @Override
     public int compareTo(@NonNull TextTrackScore other) {
-      if (this.bestMatchScore != other.bestMatchScore) {
-        return compareInts(this.bestMatchScore, other.bestMatchScore);
+      if (this.isWithinRendererCapabilities != other.isWithinRendererCapabilities) {
+        return this.isWithinRendererCapabilities ? 1 : -1;
       }
-      return 0;
+      if ((this.preferredLanguageScore > 0 || (this.selectUndeterminedTextLanguage && this.trackHasNoLanguage)) ==
+          (other.preferredLanguageScore > 0 || (other.selectUndeterminedTextLanguage && other.trackHasNoLanguage))) {
+        if (this.preferredLanguageScore > 0 || (this.selectUndeterminedTextLanguage
+            && this.trackHasNoLanguage)) {
+          if (this.isDefault != other.isDefault) {
+            return this.isDefault ? 1 : -1;
+          }
+          if (this.isForced != other.isForced) {
+            // Prefer non-forced to forced if a preferred text language has been specified. Where
+            // both are provided the non-forced track will usually contain the forced subtitles as
+            // a subset.
+            return !this.isForced ? 1 : -1;
+          }
+          return (this.preferredLanguageScore > other.preferredLanguageScore) ? 1 : -1;
+        } else {
+          if (this.isDefault != other.isDefault) {
+            return this.isDefault ? 1 : -1;
+          }
+          if ((this.isForced && (this.selectedAudioLanguageScore > 0 || (this.trackHasNoLanguage && this.stringDefinesNoLang))) !=
+              (other.isForced && (other.selectedAudioLanguageScore > 0 || (other.trackHasNoLanguage && other.stringDefinesNoLang)))) {
+            return (this.isForced && (this.selectedAudioLanguageScore > 0
+                || (this.trackHasNoLanguage && this.stringDefinesNoLang))) ? 1 : -1;
+          }
+          // Track should not be selected.
+          return -1;
+        }
+      } else {
+        return (this.preferredLanguageScore > 0 || (this.selectUndeterminedTextLanguage && this.trackHasNoLanguage)) ? 1 : -1;
+      }
     }
   }
 }
