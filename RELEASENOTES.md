@@ -21,6 +21,7 @@
   `SourceInfoRefreshListener` to `MediaSourceCaller`.
 * Flac extension: Parse `VORBIS_COMMENT` metadata
   ([#5527](https://github.com/google/ExoPlayer/issues/5527)).
+* Set `compileSdkVersion` to 29 to use Android Q APIs.
 
 ### 2.10.3 ###
 
