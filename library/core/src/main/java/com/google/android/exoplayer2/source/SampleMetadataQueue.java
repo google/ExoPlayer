@@ -227,7 +227,7 @@ import com.google.android.exoplayer2.util.Util;
       return SampleQueue.PEEK_RESULT_NOTHING;
     }
     int relativeReadIndex = getRelativeIndex(readPosition);
-    if (formats[relativeReadIndex] != downstreamFormat) {
+    if (formats[relativeReadIndex].equals(downstreamFormat)) {
       return SampleQueue.PEEK_RESULT_FORMAT;
     } else {
       return (flags[relativeReadIndex] & C.BUFFER_FLAG_ENCRYPTED) != 0
@@ -275,7 +275,7 @@ import com.google.android.exoplayer2.util.Util;
         buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
         return C.RESULT_BUFFER_READ;
       } else if (upstreamFormat != null
-          && (formatRequired || upstreamFormat != downstreamFormat)) {
+          && (formatRequired || !upstreamFormat.equals(downstreamFormat))) {
         formatHolder.format = upstreamFormat;
         return C.RESULT_FORMAT_READ;
       } else {
@@ -284,7 +284,7 @@ import com.google.android.exoplayer2.util.Util;
     }
 
     int relativeReadIndex = getRelativeIndex(readPosition);
-    if (formatRequired || formats[relativeReadIndex] != downstreamFormat) {
+    if (formatRequired || !formats[relativeReadIndex].equals(downstreamFormat)) {
       formatHolder.format = formats[relativeReadIndex];
       return C.RESULT_FORMAT_READ;
     }
@@ -422,7 +422,6 @@ import com.google.android.exoplayer2.util.Util;
     }
     upstreamFormatRequired = false;
     if (Util.areEqual(format, upstreamFormat)) {
-      // Suppress changes between equal formats so we can use referential equality in readData.
       return false;
     } else {
       upstreamFormat = format;
