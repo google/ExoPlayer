@@ -37,7 +37,7 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
   @Nullable private Handler eventHandler;
   @Nullable private TransferListener mediaTransferListener;
 
-  /** Create composite media source without child sources. */
+  /** Creates composite media source without child sources. */
   protected CompositeMediaSource() {
     childSources = new HashMap<>();
   }
@@ -54,6 +54,22 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
   public void maybeThrowSourceInfoRefreshError() throws IOException {
     for (MediaSourceAndListener childSource : childSources.values()) {
       childSource.mediaSource.maybeThrowSourceInfoRefreshError();
+    }
+  }
+
+  @Override
+  @CallSuper
+  protected void enableInternal() {
+    for (MediaSourceAndListener childSource : childSources.values()) {
+      childSource.mediaSource.enable(childSource.caller);
+    }
+  }
+
+  @Override
+  @CallSuper
+  protected void disableInternal() {
+    for (MediaSourceAndListener childSource : childSources.values()) {
+      childSource.mediaSource.disable(childSource.caller);
     }
   }
 
@@ -97,6 +113,29 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
     childSources.put(id, new MediaSourceAndListener(mediaSource, caller, eventListener));
     mediaSource.addEventListener(Assertions.checkNotNull(eventHandler), eventListener);
     mediaSource.prepareSource(caller, mediaTransferListener);
+    if (!isEnabled()) {
+      mediaSource.disable(caller);
+    }
+  }
+
+  /**
+   * Enables a child source.
+   *
+   * @param id The unique id used to prepare the child source.
+   */
+  protected final void enableChildSource(final T id) {
+    MediaSourceAndListener enabledChild = Assertions.checkNotNull(childSources.get(id));
+    enabledChild.mediaSource.enable(enabledChild.caller);
+  }
+
+  /**
+   * Disables a child source.
+   *
+   * @param id The unique id used to prepare the child source.
+   */
+  protected final void disableChildSource(final T id) {
+    MediaSourceAndListener disabledChild = Assertions.checkNotNull(childSources.get(id));
+    disabledChild.mediaSource.disable(disabledChild.caller);
   }
 
   /**

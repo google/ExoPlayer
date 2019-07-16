@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * Base {@link MediaSource} implementation to handle parallel reuse and to keep a list of {@link
@@ -33,6 +34,7 @@ import java.util.ArrayList;
 public abstract class BaseMediaSource implements MediaSource {
 
   private final ArrayList<MediaSourceCaller> mediaSourceCallers;
+  private final HashSet<MediaSourceCaller> enabledMediaSourceCallers;
   private final MediaSourceEventListener.EventDispatcher eventDispatcher;
 
   @Nullable private Looper looper;
@@ -40,11 +42,13 @@ public abstract class BaseMediaSource implements MediaSource {
 
   public BaseMediaSource() {
     mediaSourceCallers = new ArrayList<>(/* initialCapacity= */ 1);
+    enabledMediaSourceCallers = new HashSet<>(/* initialCapacity= */ 1);
     eventDispatcher = new MediaSourceEventListener.EventDispatcher();
   }
 
   /**
-   * Starts source preparation. This method is called at most once until the next call to {@link
+   * Starts source preparation and enables the source, see {@link #prepareSource(MediaSourceCaller,
+   * TransferListener)}. This method is called at most once until the next call to {@link
    * #releaseSourceInternal()}.
    *
    * @param mediaTransferListener The transfer listener which should be informed of any media data
@@ -54,9 +58,15 @@ public abstract class BaseMediaSource implements MediaSource {
    */
   protected abstract void prepareSourceInternal(@Nullable TransferListener mediaTransferListener);
 
+  /** Enables the source, see {@link #enable(MediaSourceCaller)}. */
+  protected void enableInternal() {}
+
+  /** Disables the source, see {@link #disable(MediaSourceCaller)}. */
+  protected void disableInternal() {}
+
   /**
-   * Releases the source. This method is called exactly once after each call to {@link
-   * #prepareSourceInternal(TransferListener)}.
+   * Releases the source, see {@link #releaseSource(MediaSourceCaller)}. This method is called
+   * exactly once after each call to {@link #prepareSourceInternal(TransferListener)}.
    */
   protected abstract void releaseSourceInternal();
 
@@ -115,6 +125,11 @@ public abstract class BaseMediaSource implements MediaSource {
     return eventDispatcher.withParameters(windowIndex, mediaPeriodId, mediaTimeOffsetMs);
   }
 
+  /** Returns whether the source is enabled. */
+  protected final boolean isEnabled() {
+    return !enabledMediaSourceCallers.isEmpty();
+  }
+
   @Override
   public final void addEventListener(Handler handler, MediaSourceEventListener eventListener) {
     eventDispatcher.addEventListener(handler, eventListener);
@@ -130,12 +145,34 @@ public abstract class BaseMediaSource implements MediaSource {
       MediaSourceCaller caller, @Nullable TransferListener mediaTransferListener) {
     Looper looper = Looper.myLooper();
     Assertions.checkArgument(this.looper == null || this.looper == looper);
+    Timeline timeline = this.timeline;
     mediaSourceCallers.add(caller);
     if (this.looper == null) {
       this.looper = looper;
+      enabledMediaSourceCallers.add(caller);
       prepareSourceInternal(mediaTransferListener);
     } else if (timeline != null) {
+      enable(caller);
       caller.onSourceInfoRefreshed(/* source= */ this, timeline);
+    }
+  }
+
+  @Override
+  public final void enable(MediaSourceCaller caller) {
+    Assertions.checkNotNull(looper);
+    boolean wasDisabled = enabledMediaSourceCallers.isEmpty();
+    enabledMediaSourceCallers.add(caller);
+    if (wasDisabled) {
+      enableInternal();
+    }
+  }
+
+  @Override
+  public final void disable(MediaSourceCaller caller) {
+    boolean wasEnabled = !enabledMediaSourceCallers.isEmpty();
+    enabledMediaSourceCallers.remove(caller);
+    if (wasEnabled && enabledMediaSourceCallers.isEmpty()) {
+      disableInternal();
     }
   }
 
@@ -145,7 +182,10 @@ public abstract class BaseMediaSource implements MediaSource {
     if (mediaSourceCallers.isEmpty()) {
       looper = null;
       timeline = null;
+      enabledMediaSourceCallers.clear();
       releaseSourceInternal();
+    } else {
+      disable(caller);
     }
   }
 }

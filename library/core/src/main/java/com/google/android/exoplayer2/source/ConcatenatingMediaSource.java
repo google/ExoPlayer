@@ -35,6 +35,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -68,6 +69,7 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSo
   private final List<MediaSourceHolder> mediaSourceHolders;
   private final Map<MediaPeriod, MediaSourceHolder> mediaSourceByMediaPeriod;
   private final Map<Object, MediaSourceHolder> mediaSourceByUid;
+  private final Set<MediaSourceHolder> enabledMediaSourceHolders;
   private final boolean isAtomic;
   private final boolean useLazyPreparation;
 
@@ -131,6 +133,7 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSo
     this.mediaSourceHolders = new ArrayList<>();
     this.nextTimelineUpdateOnCompletionActions = new HashSet<>();
     this.pendingOnCompletionActions = new HashSet<>();
+    this.enabledMediaSourceHolders = new HashSet<>();
     this.isAtomic = isAtomic;
     this.useLazyPreparation = useLazyPreparation;
     addMediaSources(Arrays.asList(mediaSources));
@@ -418,7 +421,8 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSo
   }
 
   @Override
-  public synchronized void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
+  protected synchronized void prepareSourceInternal(
+      @Nullable TransferListener mediaTransferListener) {
     super.prepareSourceInternal(mediaTransferListener);
     playbackThreadHandler = new Handler(/* callback= */ this::handleMessage);
     if (mediaSourcesPublic.isEmpty()) {
@@ -428,6 +432,12 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSo
       addMediaSourcesInternal(0, mediaSourcesPublic);
       scheduleTimelineUpdate();
     }
+  }
+
+  @SuppressWarnings("MissingSuperCall")
+  @Override
+  protected void enableInternal() {
+    // Suppress enabling all child sources here as they can be lazily enabled when creating periods.
   }
 
   @Override
@@ -441,10 +451,12 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSo
       holder.isRemoved = true;
       prepareChildSource(holder, holder.mediaSource);
     }
+    enableMediaSource(holder);
     holder.activeMediaPeriodIds.add(childMediaPeriodId);
     MediaPeriod mediaPeriod =
         holder.mediaSource.createPeriod(childMediaPeriodId, allocator, startPositionUs);
     mediaSourceByMediaPeriod.put(mediaPeriod, holder);
+    disableUnusedMediaSources();
     return mediaPeriod;
   }
 
@@ -454,13 +466,23 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSo
         Assertions.checkNotNull(mediaSourceByMediaPeriod.remove(mediaPeriod));
     holder.mediaSource.releasePeriod(mediaPeriod);
     holder.activeMediaPeriodIds.remove(((MaskingMediaPeriod) mediaPeriod).id);
+    if (!mediaSourceByMediaPeriod.isEmpty()) {
+      disableUnusedMediaSources();
+    }
     maybeReleaseChildSource(holder);
   }
 
   @Override
-  public synchronized void releaseSourceInternal() {
+  protected void disableInternal() {
+    super.disableInternal();
+    enabledMediaSourceHolders.clear();
+  }
+
+  @Override
+  protected synchronized void releaseSourceInternal() {
     super.releaseSourceInternal();
     mediaSourceHolders.clear();
+    enabledMediaSourceHolders.clear();
     mediaSourceByUid.clear();
     shuffleOrder = shuffleOrder.cloneAndClear();
     if (playbackThreadHandler != null) {
@@ -718,6 +740,11 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSo
     mediaSourceHolders.add(newIndex, newMediaSourceHolder);
     mediaSourceByUid.put(newMediaSourceHolder.uid, newMediaSourceHolder);
     prepareChildSource(newMediaSourceHolder, newMediaSourceHolder.mediaSource);
+    if (isEnabled() && mediaSourceByMediaPeriod.isEmpty()) {
+      enabledMediaSourceHolders.add(newMediaSourceHolder);
+    } else {
+      disableChildSource(newMediaSourceHolder);
+    }
   }
 
   private void updateMediaSourceInternal(MediaSourceHolder mediaSourceHolder, Timeline timeline) {
@@ -772,7 +799,24 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSo
   private void maybeReleaseChildSource(MediaSourceHolder mediaSourceHolder) {
     // Release if the source has been removed from the playlist and no periods are still active.
     if (mediaSourceHolder.isRemoved && mediaSourceHolder.activeMediaPeriodIds.isEmpty()) {
+      enabledMediaSourceHolders.remove(mediaSourceHolder);
       releaseChildSource(mediaSourceHolder);
+    }
+  }
+
+  private void enableMediaSource(MediaSourceHolder mediaSourceHolder) {
+    enabledMediaSourceHolders.add(mediaSourceHolder);
+    enableChildSource(mediaSourceHolder);
+  }
+
+  private void disableUnusedMediaSources() {
+    Iterator<MediaSourceHolder> iterator = enabledMediaSourceHolders.iterator();
+    while (iterator.hasNext()) {
+      MediaSourceHolder holder = iterator.next();
+      if (holder.activeMediaPeriodIds.isEmpty()) {
+        disableChildSource(holder);
+        iterator.remove();
+      }
     }
   }
 
