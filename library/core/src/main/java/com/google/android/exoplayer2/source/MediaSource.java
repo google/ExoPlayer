@@ -235,7 +235,8 @@ public interface MediaSource {
   }
 
   /**
-   * Registers a {@link MediaSourceCaller} and starts source preparation if needed.
+   * Registers a {@link MediaSourceCaller}. Starts source preparation if needed and enables the
+   * source for the creation of {@link MediaPeriod MediaPerods}.
    *
    * <p>Should not be called directly from application code.
    *
@@ -255,16 +256,30 @@ public interface MediaSource {
 
   /**
    * Throws any pending error encountered while loading or refreshing source information.
-   * <p>
-   * Should not be called directly from application code.
+   *
+   * <p>Should not be called directly from application code.
+   *
+   * <p>Must only be called after {@link #prepareSource(MediaSourceCaller, TransferListener)}.
    */
   void maybeThrowSourceInfoRefreshError() throws IOException;
 
   /**
-   * Returns a new {@link MediaPeriod} identified by {@code periodId}. This method may be called
-   * multiple times without an intervening call to {@link #releasePeriod(MediaPeriod)}.
+   * Enables the source for the creation of {@link MediaPeriod MediaPeriods}.
    *
    * <p>Should not be called directly from application code.
+   *
+   * <p>Must only be called after {@link #prepareSource(MediaSourceCaller, TransferListener)}.
+   *
+   * @param caller The {@link MediaSourceCaller} enabling the source.
+   */
+  void enable(MediaSourceCaller caller);
+
+  /**
+   * Returns a new {@link MediaPeriod} identified by {@code periodId}.
+   *
+   * <p>Should not be called directly from application code.
+   *
+   * <p>Must only be called if the source is enabled.
    *
    * @param id The identifier of the period.
    * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
@@ -275,17 +290,34 @@ public interface MediaSource {
 
   /**
    * Releases the period.
-   * <p>
-   * Should not be called directly from application code.
+   *
+   * <p>Should not be called directly from application code.
    *
    * @param mediaPeriod The period to release.
    */
   void releasePeriod(MediaPeriod mediaPeriod);
 
   /**
-   * Unregisters a caller and releases the source if no longer required.
+   * Disables the source for the creation of {@link MediaPeriod MediaPeriods}. The implementation
+   * should not hold onto limited resources used for the creation of media periods.
    *
    * <p>Should not be called directly from application code.
+   *
+   * <p>Must only be called after all {@link MediaPeriod MediaPeriods} previously created by {@link
+   * #createPeriod(MediaPeriodId, Allocator, long)} have been released by {@link
+   * #releasePeriod(MediaPeriod)}.
+   *
+   * @param caller The {@link MediaSourceCaller} disabling the source.
+   */
+  void disable(MediaSourceCaller caller);
+
+  /**
+   * Unregisters a caller, and disables and releases the source if no longer required.
+   *
+   * <p>Should not be called directly from application code.
+   *
+   * <p>Must only be called if all created {@link MediaPeriod MediaPeriods} have been released by
+   * {@link #releasePeriod(MediaPeriod)}.
    *
    * @param caller The {@link MediaSourceCaller} to be unregistered.
    */
