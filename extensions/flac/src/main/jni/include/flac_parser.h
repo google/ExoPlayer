@@ -48,9 +48,11 @@ class FLACParser {
     return mStreamInfo;
   }
 
-  bool isVorbisCommentsValid() { return mVorbisCommentsValid; }
+  bool isVorbisCommentsValid() const { return mVorbisCommentsValid; }
 
-  std::vector<std::string> getVorbisComments() { return mVorbisComments; }
+  const std::vector<std::string>& getVorbisComments() const {
+    return mVorbisComments;
+  }
 
   int64_t getLastFrameTimestamp() const {
     return (1000000LL * mWriteHeader.number.sample_number) / getSampleRate();
