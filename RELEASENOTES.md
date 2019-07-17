@@ -6,6 +6,8 @@
 * Flac extension: Parse `VORBIS_COMMENT` metadata
   ([#5527](https://github.com/google/ExoPlayer/issues/5527)).
 * Fix issue where initial seek positions get ignored when playing a preroll ad.
+* Fix `DataSchemeDataSource` re-opening and range requests
+  ([#6192](https://github.com/google/ExoPlayer/issues/6192)).
 
 ### 2.10.3 ###
 
