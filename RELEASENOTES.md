@@ -24,6 +24,7 @@
 * Set `compileSdkVersion` to 29 to use Android Q APIs.
 * Add `enable` and `disable` methods to `MediaSource` to improve resource
   management in playlists.
+* Fix issue where initial seek positions get ignored when playing a preroll ad.
 
 ### 2.10.3 ###
 
