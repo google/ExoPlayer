@@ -227,7 +227,7 @@ import com.google.android.exoplayer2.util.Util;
       return SampleQueue.PEEK_RESULT_NOTHING;
     }
     int relativeReadIndex = getRelativeIndex(readPosition);
-    if (formats[relativeReadIndex].equals(downstreamFormat)) {
+    if (!formats[relativeReadIndex].equals(downstreamFormat)) {
       return SampleQueue.PEEK_RESULT_FORMAT;
     } else {
       return (flags[relativeReadIndex] & C.BUFFER_FLAG_ENCRYPTED) != 0
