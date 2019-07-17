@@ -58,7 +58,7 @@ public final class ExtractorMediaSource extends CompositeMediaSource<Void> {
 
   }
 
-  /** Use {@link ProgressiveMediaSource.Factory} instead. */
+  /** @deprecated Use {@link ProgressiveMediaSource.Factory} instead. */
   @Deprecated
   public static final class Factory implements MediaSourceFactory {
 
@@ -221,6 +221,9 @@ public final class ExtractorMediaSource extends CompositeMediaSource<Void> {
     }
   }
 
+  /**
+   * @deprecated Use {@link ProgressiveMediaSource#DEFAULT_LOADING_CHECK_INTERVAL_BYTES} instead.
+   */
   @Deprecated
   public static final int DEFAULT_LOADING_CHECK_INTERVAL_BYTES =
       ProgressiveMediaSource.DEFAULT_LOADING_CHECK_INTERVAL_BYTES;
