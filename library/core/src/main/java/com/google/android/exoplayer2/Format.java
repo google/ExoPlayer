@@ -179,6 +179,10 @@ public final class Format implements Parcelable {
 
   // Video.
 
+  /**
+   * @deprecated Use {@link #createVideoContainerFormat(String, String, String, String, String, int,
+   *     int, int, float, List, int, int)} instead.
+   */
   @Deprecated
   public static Format createVideoContainerFormat(
       @Nullable String id,
@@ -358,6 +362,10 @@ public final class Format implements Parcelable {
 
   // Audio.
 
+  /**
+   * @deprecated Use {@link #createAudioContainerFormat(String, String, String, String, String, int,
+   *     int, int, List, int, int, String)} instead.
+   */
   @Deprecated
   public static Format createAudioContainerFormat(
       @Nullable String id,
@@ -763,6 +771,10 @@ public final class Format implements Parcelable {
 
   // Generic.
 
+  /**
+   * @deprecated Use {@link #createContainerFormat(String, String, String, String, String, int, int,
+   *     int, String)} instead.
+   */
   @Deprecated
   public static Format createContainerFormat(
       @Nullable String id,
