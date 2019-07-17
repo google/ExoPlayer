@@ -207,7 +207,7 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
     super(baseUri, tags, hasIndependentSegments);
     this.mediaPlaylistUrls =
         Collections.unmodifiableList(
-            getMediaPlaylistUrls(variants, videos, audios, subtitles, closedCaptions));
+            getMediaPlaylistUrls(variants, iFrameVariants, videos, audios, subtitles, closedCaptions));
     this.variants = Collections.unmodifiableList(variants);
     this.videos = Collections.unmodifiableList(videos);
     this.audios = Collections.unmodifiableList(audios);
@@ -265,6 +265,7 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
 
   private static List<Uri> getMediaPlaylistUrls(
       List<Variant> variants,
+      List<IFrameVariant> iFrameVariants,
       List<Rendition> videos,
       List<Rendition> audios,
       List<Rendition> subtitles,
@@ -275,6 +276,9 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
       if (!mediaPlaylistUrls.contains(uri)) {
         mediaPlaylistUrls.add(uri);
       }
+    }
+    for (IFrameVariant iFrameVariant : iFrameVariants) {
+      mediaPlaylistUrls.add(iFrameVariant.url);
     }
     addMediaPlaylistUrls(videos, mediaPlaylistUrls);
     addMediaPlaylistUrls(audios, mediaPlaylistUrls);
