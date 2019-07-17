@@ -144,7 +144,9 @@ import com.google.android.exoplayer2.util.Assertions;
       MediaPeriodInfo info) {
     long rendererPositionOffsetUs =
         loading == null
-            ? (info.id.isAd() ? info.contentPositionUs : 0)
+            ? (info.id.isAd() && info.contentPositionUs != C.TIME_UNSET
+                ? info.contentPositionUs
+                : 0)
             : (loading.getRendererOffset() + loading.info.durationUs - info.startPositionUs);
     MediaPeriodHolder newPeriodHolder =
         new MediaPeriodHolder(
@@ -560,6 +562,7 @@ import com.google.android.exoplayer2.util.Assertions;
       }
 
       long startPositionUs;
+      long contentPositionUs;
       int nextWindowIndex =
           timeline.getPeriod(nextPeriodIndex, period, /* setIds= */ true).windowIndex;
       Object nextPeriodUid = period.uid;
@@ -568,6 +571,7 @@ import com.google.android.exoplayer2.util.Assertions;
         // We're starting to buffer a new window. When playback transitions to this window we'll
         // want it to be from its default start position, so project the default start position
         // forward by the duration of the buffer, and start buffering from this point.
+        contentPositionUs = C.TIME_UNSET;
         Pair<Object, Long> defaultPosition =
             timeline.getPeriodPosition(
                 window,
@@ -587,12 +591,13 @@ import com.google.android.exoplayer2.util.Assertions;
           windowSequenceNumber = nextWindowSequenceNumber++;
         }
       } else {
+        // We're starting to buffer a new period within the same window.
         startPositionUs = 0;
+        contentPositionUs = 0;
       }
       MediaPeriodId periodId =
           resolveMediaPeriodIdForAds(nextPeriodUid, startPositionUs, windowSequenceNumber);
-      return getMediaPeriodInfo(
-          periodId, /* contentPositionUs= */ startPositionUs, startPositionUs);
+      return getMediaPeriodInfo(periodId, contentPositionUs, startPositionUs);
     }
 
     MediaPeriodId currentPeriodId = mediaPeriodInfo.id;
@@ -616,13 +621,11 @@ import com.google.android.exoplayer2.util.Assertions;
                 mediaPeriodInfo.contentPositionUs,
                 currentPeriodId.windowSequenceNumber);
       } else {
-        // Play content from the ad group position. As a special case, if we're transitioning from a
-        // preroll ad group to content and there are no other ad groups, project the start position
-        // forward as if this were a transition to a new window. No attempt is made to handle
-        // midrolls in live streams, as it's unclear what content position should play after an ad
-        // (server-side dynamic ad insertion is more appropriate for this use case).
+        // Play content from the ad group position.
         long startPositionUs = mediaPeriodInfo.contentPositionUs;
-        if (period.getAdGroupCount() == 1 && period.getAdGroupTimeUs(0) == 0) {
+        if (startPositionUs == C.TIME_UNSET) {
+          // If we're transitioning from an ad group to content starting from its default position,
+          // project the start position forward as if this were a transition to a new window.
           Pair<Object, Long> defaultPosition =
               timeline.getPeriodPosition(
                   window,
