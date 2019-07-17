@@ -61,6 +61,31 @@ public final class MediaCodecUtilTest {
   }
 
   @Test
+  public void getCodecProfileAndLevel_handlesAv1ProfileMain8CodecString() {
+    assertCodecProfileAndLevelForCodecsString(
+        "av01.0.10M.08",
+        MediaCodecInfo.CodecProfileLevel.AV1ProfileMain8,
+        MediaCodecInfo.CodecProfileLevel.AV1Level42);
+  }
+
+  @Test
+  public void getCodecProfileAndLevel_handlesAv1ProfileMain10CodecString() {
+    assertCodecProfileAndLevelForCodecsString(
+        "av01.0.20M.10",
+        MediaCodecInfo.CodecProfileLevel.AV1ProfileMain10,
+        MediaCodecInfo.CodecProfileLevel.AV1Level7);
+  }
+
+  @Test
+  public void getCodecProfileAndLevel_handlesFullAv1CodecString() {
+    // Example from https://aomediacodec.github.io/av1-isobmff/#codecsparam.
+    assertCodecProfileAndLevelForCodecsString(
+        "av01.0.04M.10.0.112.09.16.09.0",
+        MediaCodecInfo.CodecProfileLevel.AV1ProfileMain10,
+        MediaCodecInfo.CodecProfileLevel.AV1Level3);
+  }
+
+  @Test
   public void getCodecProfileAndLevel_rejectsNullCodecString() {
     assertThat(MediaCodecUtil.getCodecProfileAndLevel(/* codec= */ null)).isNull();
   }
