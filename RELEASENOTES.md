@@ -5,6 +5,7 @@
 * Offline: Add Scheduler implementation which uses WorkManager.
 * Flac extension: Parse `VORBIS_COMMENT` metadata
   ([#5527](https://github.com/google/ExoPlayer/issues/5527)).
+* Fix issue where initial seek positions get ignored when playing a preroll ad.
 
 ### 2.10.3 ###
 

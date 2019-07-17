@@ -1304,8 +1304,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
       Pair<Object, Long> defaultPosition =
           getPeriodPosition(
               timeline, timeline.getFirstWindowIndex(shuffleModeEnabled), C.TIME_UNSET);
-      newContentPositionUs = defaultPosition.second;
-      newPeriodId = queue.resolveMediaPeriodIdForAds(defaultPosition.first, newContentPositionUs);
+      newPeriodId = queue.resolveMediaPeriodIdForAds(defaultPosition.first, defaultPosition.second);
+      if (!newPeriodId.isAd()) {
+        // Keep unset start position if we need to play an ad first.
+        newContentPositionUs = defaultPosition.second;
+      }
     } else if (timeline.getIndexOfPeriod(newPeriodId.periodUid) == C.INDEX_UNSET) {
       // The current period isn't in the new timeline. Attempt to resolve a subsequent period whose
       // window we can restart from.
