@@ -25,6 +25,8 @@
 * Add `enable` and `disable` methods to `MediaSource` to improve resource
   management in playlists.
 * Fix issue where initial seek positions get ignored when playing a preroll ad.
+* Fix `DataSchemeDataSource` re-opening and range requests
+  ([#6192](https://github.com/google/ExoPlayer/issues/6192)).
 
 ### 2.10.3 ###
 

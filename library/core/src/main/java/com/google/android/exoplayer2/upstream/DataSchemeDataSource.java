@@ -33,8 +33,8 @@ public final class DataSchemeDataSource extends BaseDataSource {
 
   @Nullable private DataSpec dataSpec;
   @Nullable private byte[] data;
-  private int dataLength;
-  private int bytesRead;
+  private int endPosition;
+  private int readPosition;
 
   public DataSchemeDataSource() {
     super(/* isNetwork= */ false);
@@ -44,6 +44,7 @@ public final class DataSchemeDataSource extends BaseDataSource {
   public long open(DataSpec dataSpec) throws IOException {
     transferInitializing(dataSpec);
     this.dataSpec = dataSpec;
+    readPosition = (int) dataSpec.position;
     Uri uri = dataSpec.uri;
     String scheme = uri.getScheme();
     if (!SCHEME_DATA.equals(scheme)) {
@@ -57,17 +58,21 @@ public final class DataSchemeDataSource extends BaseDataSource {
     if (uriParts[0].contains(";base64")) {
       try {
         data = Base64.decode(dataString, 0);
-        dataLength = data.length;
       } catch (IllegalArgumentException e) {
         throw new ParserException("Error while parsing Base64 encoded string: " + dataString, e);
       }
     } else {
       // TODO: Add support for other charsets.
       data = Util.getUtf8Bytes(URLDecoder.decode(dataString, C.ASCII_NAME));
-      dataLength = data.length;
+    }
+    endPosition =
+        dataSpec.length != C.LENGTH_UNSET ? (int) dataSpec.length + readPosition : data.length;
+    if (endPosition > data.length || readPosition > endPosition) {
+      data = null;
+      throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
     }
     transferStarted(dataSpec);
-    return dataLength;
+    return (long) endPosition - readPosition;
   }
 
   @Override
@@ -75,13 +80,13 @@ public final class DataSchemeDataSource extends BaseDataSource {
     if (readLength == 0) {
       return 0;
     }
-    int remainingBytes = dataLength - bytesRead;
+    int remainingBytes = endPosition - readPosition;
     if (remainingBytes == 0) {
       return C.RESULT_END_OF_INPUT;
     }
     readLength = Math.min(readLength, remainingBytes);
-    System.arraycopy(castNonNull(data), bytesRead, buffer, offset, readLength);
-    bytesRead += readLength;
+    System.arraycopy(castNonNull(data), readPosition, buffer, offset, readLength);
+    readPosition += readLength;
     bytesTransferred(readLength);
     return readLength;
   }
@@ -93,12 +98,11 @@ public final class DataSchemeDataSource extends BaseDataSource {
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
     if (data != null) {
       data = null;
       transferEnded();
     }
     dataSpec = null;
   }
-
 }
