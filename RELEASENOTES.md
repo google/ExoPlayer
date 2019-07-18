@@ -8,6 +8,8 @@
 * Fix issue where initial seek positions get ignored when playing a preroll ad.
 * Fix `DataSchemeDataSource` re-opening and range requests
   ([#6192](https://github.com/google/ExoPlayer/issues/6192)).
+* Switch normalized BCP-47 language codes to use 2-letter ISO 639-1 language
+  tags instead of 3-letter ISO 639-2 language tags.
 
 ### 2.10.3 ###
 
