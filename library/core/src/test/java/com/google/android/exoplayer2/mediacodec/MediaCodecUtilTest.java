@@ -20,6 +20,8 @@ import static com.google.common.truth.Truth.assertThat;
 import android.media.MediaCodecInfo;
 import android.util.Pair;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.util.MimeTypes;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -87,17 +89,53 @@ public final class MediaCodecUtilTest {
 
   @Test
   public void getCodecProfileAndLevel_rejectsNullCodecString() {
-    assertThat(MediaCodecUtil.getCodecProfileAndLevel(/* codec= */ null)).isNull();
+    Format format =
+        Format.createVideoSampleFormat(
+            /* id= */ null,
+            /* sampleMimeType= */ MimeTypes.VIDEO_UNKNOWN,
+            /* codecs= */ null,
+            /* bitrate= */ Format.NO_VALUE,
+            /* maxInputSize= */ Format.NO_VALUE,
+            /* width= */ 1024,
+            /* height= */ 768,
+            /* frameRate= */ Format.NO_VALUE,
+            /* initializationData= */ null,
+            /* drmInitData= */ null);
+    assertThat(MediaCodecUtil.getCodecProfileAndLevel(format)).isNull();
   }
 
   @Test
   public void getCodecProfileAndLevel_rejectsEmptyCodecString() {
-    assertThat(MediaCodecUtil.getCodecProfileAndLevel("")).isNull();
+    Format format =
+        Format.createVideoSampleFormat(
+            /* id= */ null,
+            /* sampleMimeType= */ MimeTypes.VIDEO_UNKNOWN,
+            /* codecs= */ "",
+            /* bitrate= */ Format.NO_VALUE,
+            /* maxInputSize= */ Format.NO_VALUE,
+            /* width= */ 1024,
+            /* height= */ 768,
+            /* frameRate= */ Format.NO_VALUE,
+            /* initializationData= */ null,
+            /* drmInitData= */ null);
+    assertThat(MediaCodecUtil.getCodecProfileAndLevel(format)).isNull();
   }
 
   private static void assertCodecProfileAndLevelForCodecsString(
       String codecs, int profile, int level) {
-    Pair<Integer, Integer> codecProfileAndLevel = MediaCodecUtil.getCodecProfileAndLevel(codecs);
+    Format format =
+        Format.createVideoSampleFormat(
+            /* id= */ null,
+            /* sampleMimeType= */ MimeTypes.VIDEO_UNKNOWN,
+            /* codecs= */ codecs,
+            /* bitrate= */ Format.NO_VALUE,
+            /* maxInputSize= */ Format.NO_VALUE,
+            /* width= */ 1024,
+            /* height= */ 768,
+            /* frameRate= */ Format.NO_VALUE,
+            /* initializationData= */ null,
+            /* drmInitData= */ null);
+    Pair<Integer, Integer> codecProfileAndLevel = MediaCodecUtil.getCodecProfileAndLevel(format);
     assertThat(codecProfileAndLevel).isNotNull();
     assertThat(codecProfileAndLevel.first).isEqualTo(profile);
     assertThat(codecProfileAndLevel.second).isEqualTo(level);

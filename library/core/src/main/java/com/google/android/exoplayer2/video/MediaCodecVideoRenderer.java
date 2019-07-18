@@ -390,8 +390,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     decoderInfos = MediaCodecUtil.getDecoderInfosSortedByFormatSupport(decoderInfos, format);
     if (MimeTypes.VIDEO_DOLBY_VISION.equals(format.sampleMimeType)) {
       // Fallback to primary decoders for H.265/HEVC or H.264/AVC for the relevant DV profiles.
-      Pair<Integer, Integer> codecProfileAndLevel =
-          MediaCodecUtil.getCodecProfileAndLevel(format.codecs);
+      Pair<Integer, Integer> codecProfileAndLevel = MediaCodecUtil.getCodecProfileAndLevel(format);
       if (codecProfileAndLevel != null) {
         int profile = codecProfileAndLevel.first;
         if (profile == 4 || profile == 8) {
@@ -1194,8 +1193,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (MimeTypes.VIDEO_DOLBY_VISION.equals(format.sampleMimeType)) {
       // Some phones require the profile to be set on the codec.
       // See https://github.com/google/ExoPlayer/pull/5438.
-      Pair<Integer, Integer> codecProfileAndLevel =
-          MediaCodecUtil.getCodecProfileAndLevel(format.codecs);
+      Pair<Integer, Integer> codecProfileAndLevel = MediaCodecUtil.getCodecProfileAndLevel(format);
       if (codecProfileAndLevel != null) {
         MediaFormatUtil.maybeSetInteger(
             mediaFormat, MediaFormat.KEY_PROFILE, codecProfileAndLevel.first);

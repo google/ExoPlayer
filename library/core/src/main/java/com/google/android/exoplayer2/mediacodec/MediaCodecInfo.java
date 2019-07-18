@@ -198,7 +198,7 @@ public final class MediaCodecInfo {
    * @throws MediaCodecUtil.DecoderQueryException Thrown if an error occurs while querying decoders.
    */
   public boolean isFormatSupported(Format format) throws MediaCodecUtil.DecoderQueryException {
-    if (!isCodecSupported(format.codecs)) {
+    if (!isCodecSupported(format)) {
       return false;
     }
 
@@ -226,25 +226,25 @@ public final class MediaCodecInfo {
   }
 
   /**
-   * Whether the decoder supports the given {@code codec}. If there is insufficient information to
-   * decide, returns true.
+   * Whether the decoder supports the codec of the given {@code format}. If there is insufficient
+   * information to decide, returns true.
    *
-   * @param codec Codec string as defined in RFC 6381.
-   * @return True if the given codec is supported by the decoder.
+   * @param format The input media format.
+   * @return True if the codec of the given {@code format} is supported by the decoder.
    */
-  public boolean isCodecSupported(String codec) {
-    if (codec == null || mimeType == null) {
+  public boolean isCodecSupported(Format format) {
+    if (format.codecs == null || mimeType == null) {
       return true;
     }
-    String codecMimeType = MimeTypes.getMediaMimeType(codec);
+    String codecMimeType = MimeTypes.getMediaMimeType(format.codecs);
     if (codecMimeType == null) {
       return true;
     }
     if (!mimeType.equals(codecMimeType)) {
-      logNoSupport("codec.mime " + codec + ", " + codecMimeType);
+      logNoSupport("codec.mime " + format.codecs + ", " + codecMimeType);
       return false;
     }
-    Pair<Integer, Integer> codecProfileAndLevel = MediaCodecUtil.getCodecProfileAndLevel(codec);
+    Pair<Integer, Integer> codecProfileAndLevel = MediaCodecUtil.getCodecProfileAndLevel(format);
     if (codecProfileAndLevel == null) {
       // If we don't know any better, we assume that the profile and level are supported.
       return true;
@@ -261,7 +261,7 @@ public final class MediaCodecInfo {
         return true;
       }
     }
-    logNoSupport("codec.profileLevel, " + codec + ", " + codecMimeType);
+    logNoSupport("codec.profileLevel, " + format.codecs + ", " + codecMimeType);
     return false;
   }
 
@@ -279,8 +279,7 @@ public final class MediaCodecInfo {
     if (isVideo) {
       return adaptive;
     } else {
-      Pair<Integer, Integer> codecProfileLevel =
-          MediaCodecUtil.getCodecProfileAndLevel(format.codecs);
+      Pair<Integer, Integer> codecProfileLevel = MediaCodecUtil.getCodecProfileAndLevel(format);
       return codecProfileLevel != null && codecProfileLevel.first == CodecProfileLevel.AACObjectXHE;
     }
   }
@@ -314,9 +313,9 @@ public final class MediaCodecInfo {
       }
       // Check the codec profile levels support adaptation.
       Pair<Integer, Integer> oldCodecProfileLevel =
-          MediaCodecUtil.getCodecProfileAndLevel(oldFormat.codecs);
+          MediaCodecUtil.getCodecProfileAndLevel(oldFormat);
       Pair<Integer, Integer> newCodecProfileLevel =
-          MediaCodecUtil.getCodecProfileAndLevel(newFormat.codecs);
+          MediaCodecUtil.getCodecProfileAndLevel(newFormat);
       if (oldCodecProfileLevel == null || newCodecProfileLevel == null) {
         return false;
       }
