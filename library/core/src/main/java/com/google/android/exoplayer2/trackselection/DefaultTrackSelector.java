@@ -2318,14 +2318,14 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     if (TextUtils.equals(format.language, language)) {
       return 3;
     }
-    // Partial match where one language is a subset of the other (e.g. "zho-hans" and "zho-hans-hk")
+    // Partial match where one language is a subset of the other (e.g. "zh-hans" and "zh-hans-hk")
     if (format.language.startsWith(language) || language.startsWith(format.language)) {
       return 2;
     }
-    // Partial match where only the main language tag is the same (e.g. "fra-fr" and "fra-ca")
-    if (format.language.length() >= 3
-        && language.length() >= 3
-        && format.language.substring(0, 3).equals(language.substring(0, 3))) {
+    // Partial match where only the main language tag is the same (e.g. "fr-fr" and "fr-ca")
+    String formatMainLanguage = Util.splitAtFirst(format.language, "-")[0];
+    String queryMainLanguage = Util.splitAtFirst(language, "-")[0];
+    if (formatMainLanguage.equals(queryMainLanguage)) {
       return 1;
     }
     return 0;
