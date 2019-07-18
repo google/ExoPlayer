@@ -108,7 +108,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
   /**
    * Sets flags for {@link AdtsExtractor} instances created by the factory.
    *
-   * @see AdtsExtractor#AdtsExtractor(long, int)
+   * @see AdtsExtractor#AdtsExtractor(int)
    * @param flags The flags to use.
    * @return The factory, for convenience.
    */
@@ -220,7 +220,6 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
                     : 0));
     extractors[4] =
         new AdtsExtractor(
-            /* firstStreamSampleTimestampUs= */ 0,
             adtsFlags
                 | (constantBitrateSeekingEnabled
                     ? AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING

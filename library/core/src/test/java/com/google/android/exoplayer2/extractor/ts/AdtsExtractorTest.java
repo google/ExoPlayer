@@ -32,10 +32,7 @@ public final class AdtsExtractorTest {
   @Test
   public void testSample_withSeeking() throws Exception {
     ExtractorAsserts.assertBehavior(
-        () ->
-            new AdtsExtractor(
-                /* firstStreamSampleTimestampUs= */ 0,
-                /* flags= */ AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING),
+        () -> new AdtsExtractor(/* flags= */ AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING),
         "ts/sample_cbs.adts");
   }
 }

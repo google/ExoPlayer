@@ -83,7 +83,6 @@ public final class AdtsExtractor implements Extractor {
   private final ParsableByteArray packetBuffer;
   private final ParsableByteArray scratch;
   private final ParsableBitArray scratchBits;
-  private final long firstStreamSampleTimestampUs;
 
   @Nullable private ExtractorOutput extractorOutput;
 
@@ -94,22 +93,17 @@ public final class AdtsExtractor implements Extractor {
   private boolean startedPacket;
   private boolean hasOutputSeekMap;
 
+  /** Creates a new extractor for ADTS bitstreams. */
   public AdtsExtractor() {
-    this(0);
-  }
-
-  public AdtsExtractor(long firstStreamSampleTimestampUs) {
-    this(/* firstStreamSampleTimestampUs= */ firstStreamSampleTimestampUs, /* flags= */ 0);
+    this(/* flags= */ 0);
   }
 
   /**
-   * @param firstStreamSampleTimestampUs The timestamp to be used for the first sample of the stream
-   *     output from this extractor.
+   * Creates a new extractor for ADTS bitstreams.
+   *
    * @param flags Flags that control the extractor's behavior.
    */
-  public AdtsExtractor(long firstStreamSampleTimestampUs, @Flags int flags) {
-    this.firstStreamSampleTimestampUs = firstStreamSampleTimestampUs;
-    this.firstSampleTimestampUs = firstStreamSampleTimestampUs;
+  public AdtsExtractor(@Flags int flags) {
     this.flags = flags;
     reader = new AdtsReader(true);
     packetBuffer = new ParsableByteArray(MAX_PACKET_SIZE);
@@ -172,7 +166,7 @@ public final class AdtsExtractor implements Extractor {
   public void seek(long position, long timeUs) {
     startedPacket = false;
     reader.seek();
-    firstSampleTimestampUs = firstStreamSampleTimestampUs + timeUs;
+    firstSampleTimestampUs = timeUs;
   }
 
   @Override
