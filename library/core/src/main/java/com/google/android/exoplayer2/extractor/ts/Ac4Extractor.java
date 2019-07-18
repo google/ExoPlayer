@@ -54,7 +54,6 @@ public final class Ac4Extractor implements Extractor {
 
   private static final int ID3_TAG = 0x00494433;
 
-  private final long firstSampleTimestampUs;
   private final Ac4Reader reader;
   private final ParsableByteArray sampleData;
 
@@ -62,12 +61,6 @@ public final class Ac4Extractor implements Extractor {
 
   /** Creates a new extractor for AC-4 bitstreams. */
   public Ac4Extractor() {
-    this(/* firstSampleTimestampUs= */ 0);
-  }
-
-  /** Creates a new extractor for AC-4 bitstreams, using the specified first sample timestamp. */
-  public Ac4Extractor(long firstSampleTimestampUs) {
-    this.firstSampleTimestampUs = firstSampleTimestampUs;
     reader = new Ac4Reader();
     sampleData = new ParsableByteArray(READ_BUFFER_SIZE);
   }
@@ -152,7 +145,7 @@ public final class Ac4Extractor implements Extractor {
 
     if (!startedPacket) {
       // Pass data to the reader as though it's contained within a single infinitely long packet.
-      reader.packetStarted(firstSampleTimestampUs, FLAG_DATA_ALIGNMENT_INDICATOR);
+      reader.packetStarted(/* pesTimeUs= */ 0, FLAG_DATA_ALIGNMENT_INDICATOR);
       startedPacket = true;
     }
     // TODO: Make it possible for the reader to consume the dataSource directly, so that it becomes

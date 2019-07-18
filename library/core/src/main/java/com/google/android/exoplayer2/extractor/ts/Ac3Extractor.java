@@ -46,18 +46,13 @@ public final class Ac3Extractor implements Extractor {
   private static final int MAX_SYNC_FRAME_SIZE = 2786;
   private static final int ID3_TAG = 0x00494433;
 
-  private final long firstSampleTimestampUs;
   private final Ac3Reader reader;
   private final ParsableByteArray sampleData;
 
   private boolean startedPacket;
 
+  /** Creates a new extractor for AC-3 bitstreams. */
   public Ac3Extractor() {
-    this(0);
-  }
-
-  public Ac3Extractor(long firstSampleTimestampUs) {
-    this.firstSampleTimestampUs = firstSampleTimestampUs;
     reader = new Ac3Reader();
     sampleData = new ParsableByteArray(MAX_SYNC_FRAME_SIZE);
   }
@@ -141,7 +136,7 @@ public final class Ac3Extractor implements Extractor {
 
     if (!startedPacket) {
       // Pass data to the reader as though it's contained within a single infinitely long packet.
-      reader.packetStarted(firstSampleTimestampUs, FLAG_DATA_ALIGNMENT_INDICATOR);
+      reader.packetStarted(/* pesTimeUs= */ 0, FLAG_DATA_ALIGNMENT_INDICATOR);
       startedPacket = true;
     }
     // TODO: Make it possible for the reader to consume the dataSource directly, so that it becomes
