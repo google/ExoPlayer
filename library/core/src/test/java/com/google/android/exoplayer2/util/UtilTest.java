@@ -268,10 +268,14 @@ public class UtilTest {
   @Test
   @Config(sdk = 21)
   public void testNormalizeLanguageCodeV21() {
+    assertThat(Util.normalizeLanguageCode(null)).isNull();
+    assertThat(Util.normalizeLanguageCode("")).isEmpty();
     assertThat(Util.normalizeLanguageCode("es")).isEqualTo("es");
     assertThat(Util.normalizeLanguageCode("spa")).isEqualTo("es");
     assertThat(Util.normalizeLanguageCode("es-AR")).isEqualTo("es-ar");
     assertThat(Util.normalizeLanguageCode("SpA-ar")).isEqualTo("es-ar");
+    assertThat(Util.normalizeLanguageCode("es_AR")).isEqualTo("es-ar");
+    assertThat(Util.normalizeLanguageCode("spa_ar")).isEqualTo("es-ar");
     assertThat(Util.normalizeLanguageCode("es-AR-dialect")).isEqualTo("es-ar-dialect");
     assertThat(Util.normalizeLanguageCode("ES-419")).isEqualTo("es-419");
     assertThat(Util.normalizeLanguageCode("zh-hans-tw")).isEqualTo("zh-hans-tw");
@@ -284,9 +288,20 @@ public class UtilTest {
   @Test
   @Config(sdk = 16)
   public void testNormalizeLanguageCode() {
+    assertThat(Util.normalizeLanguageCode(null)).isNull();
+    assertThat(Util.normalizeLanguageCode("")).isEmpty();
     assertThat(Util.normalizeLanguageCode("es")).isEqualTo("es");
     assertThat(Util.normalizeLanguageCode("spa")).isEqualTo("es");
     assertThat(Util.normalizeLanguageCode("es-AR")).isEqualTo("es-ar");
+    assertThat(Util.normalizeLanguageCode("SpA-ar")).isEqualTo("es-ar");
+    assertThat(Util.normalizeLanguageCode("es_AR")).isEqualTo("es-ar");
+    assertThat(Util.normalizeLanguageCode("spa_ar")).isEqualTo("es-ar");
+    assertThat(Util.normalizeLanguageCode("es-AR-dialect")).isEqualTo("es-ar-dialect");
+    assertThat(Util.normalizeLanguageCode("ES-419")).isEqualTo("es-419");
+    assertThat(Util.normalizeLanguageCode("zh-hans-tw")).isEqualTo("zh-hans-tw");
+    // Doesn't work on API < 21 because we can't use Locale syntax verification.
+    // assertThat(Util.normalizeLanguageCode("zh-tw-hans")).isEqualTo("zh-tw");
+    assertThat(Util.normalizeLanguageCode("zho-hans-tw")).isEqualTo("zh-hans-tw");
     assertThat(Util.normalizeLanguageCode("und")).isEqualTo("und");
     assertThat(Util.normalizeLanguageCode("DoesNotExist")).isEqualTo("doesnotexist");
   }
