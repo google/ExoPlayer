@@ -174,6 +174,7 @@ public abstract class DownloadService extends Service {
   @Nullable private final ForegroundNotificationUpdater foregroundNotificationUpdater;
   @Nullable private final String channelId;
   @StringRes private final int channelNameResourceId;
+  @StringRes private final int channelDescriptionResourceId;
 
   @Nullable private DownloadManager downloadManager;
   private int lastStartId;
@@ -214,7 +215,23 @@ public abstract class DownloadService extends Service {
         foregroundNotificationId,
         foregroundNotificationUpdateInterval,
         /* channelId= */ null,
-        /* channelNameResourceId= */ 0);
+        /* channelNameResourceId= */ 0,
+        /* channelDescriptionResourceId= */ 0);
+  }
+
+  /** @deprecated Use {@link #DownloadService(int, long, String, int, int)}. */
+  @Deprecated
+  protected DownloadService(
+      int foregroundNotificationId,
+      long foregroundNotificationUpdateInterval,
+      @Nullable String channelId,
+      @StringRes int channelNameResourceId) {
+    this(
+        foregroundNotificationId,
+        foregroundNotificationUpdateInterval,
+        channelId,
+        channelNameResourceId,
+        /* channelDescriptionResourceId= */ 0);
   }
 
   /**
@@ -230,25 +247,33 @@ public abstract class DownloadService extends Service {
    *     unique per package. The value may be truncated if it's too long. Ignored if {@code
    *     foregroundNotificationId} is {@link #FOREGROUND_NOTIFICATION_ID_NONE}.
    * @param channelNameResourceId A string resource identifier for the user visible name of the
-   *     channel, if {@code channelId} is specified. The recommended maximum length is 40
-   *     characters. The value may be truncated if it is too long. Ignored if {@code
+   *     notification channel. The recommended maximum length is 40 characters. The value may be
+   *     truncated if it's too long. Ignored if {@code channelId} is null or if {@code
    *     foregroundNotificationId} is {@link #FOREGROUND_NOTIFICATION_ID_NONE}.
+   * @param channelDescriptionResourceId A string resource identifier for the user visible
+   *     description of the notification channel, or 0 if no description is provided. The
+   *     recommended maximum length is 300 characters. The value may be truncated if it is too long.
+   *     Ignored if {@code channelId} is null or if {@code foregroundNotificationId} is {@link
+   *     #FOREGROUND_NOTIFICATION_ID_NONE}.
    */
   protected DownloadService(
       int foregroundNotificationId,
       long foregroundNotificationUpdateInterval,
       @Nullable String channelId,
-      @StringRes int channelNameResourceId) {
+      @StringRes int channelNameResourceId,
+      @StringRes int channelDescriptionResourceId) {
     if (foregroundNotificationId == FOREGROUND_NOTIFICATION_ID_NONE) {
       this.foregroundNotificationUpdater = null;
       this.channelId = null;
       this.channelNameResourceId = 0;
+      this.channelDescriptionResourceId = 0;
     } else {
       this.foregroundNotificationUpdater =
           new ForegroundNotificationUpdater(
               foregroundNotificationId, foregroundNotificationUpdateInterval);
       this.channelId = channelId;
       this.channelNameResourceId = channelNameResourceId;
+      this.channelDescriptionResourceId = channelDescriptionResourceId;
     }
   }
 
@@ -543,7 +568,11 @@ public abstract class DownloadService extends Service {
   public void onCreate() {
     if (channelId != null) {
       NotificationUtil.createNotificationChannel(
-          this, channelId, channelNameResourceId, NotificationUtil.IMPORTANCE_LOW);
+          this,
+          channelId,
+          channelNameResourceId,
+          channelDescriptionResourceId,
+          NotificationUtil.IMPORTANCE_LOW);
     }
     Class<? extends DownloadService> clazz = getClass();
     DownloadManagerHelper downloadManagerHelper = downloadManagerListeners.get(clazz);
