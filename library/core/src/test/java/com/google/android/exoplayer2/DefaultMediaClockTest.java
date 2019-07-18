@@ -17,7 +17,6 @@ package com.google.android.exoplayer2;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -116,15 +115,14 @@ public class DefaultMediaClockTest {
 
   @Test
   public void standaloneSetPlaybackParameters_getPlaybackParametersShouldReturnSameValue() {
-    PlaybackParameters parameters = mediaClock.setPlaybackParameters(TEST_PLAYBACK_PARAMETERS);
-    assertThat(parameters).isEqualTo(TEST_PLAYBACK_PARAMETERS);
+    mediaClock.setPlaybackParameters(TEST_PLAYBACK_PARAMETERS);
     assertThat(mediaClock.getPlaybackParameters()).isEqualTo(TEST_PLAYBACK_PARAMETERS);
   }
 
   @Test
-  public void standaloneSetPlaybackParameters_shouldTriggerCallback() {
+  public void standaloneSetPlaybackParameters_shouldNotTriggerCallback() {
     mediaClock.setPlaybackParameters(TEST_PLAYBACK_PARAMETERS);
-    verify(listener).onPlaybackParametersChanged(TEST_PLAYBACK_PARAMETERS);
+    verifyNoMoreInteractions(listener);
   }
 
   @Test
@@ -138,23 +136,8 @@ public class DefaultMediaClockTest {
   @Test
   public void standaloneSetOtherPlaybackParameters_getPlaybackParametersShouldReturnSameValue() {
     mediaClock.setPlaybackParameters(TEST_PLAYBACK_PARAMETERS);
-    PlaybackParameters parameters = mediaClock.setPlaybackParameters(PlaybackParameters.DEFAULT);
-    assertThat(parameters).isEqualTo(PlaybackParameters.DEFAULT);
-    assertThat(mediaClock.getPlaybackParameters()).isEqualTo(PlaybackParameters.DEFAULT);
-  }
-
-  @Test
-  public void standaloneSetOtherPlaybackParameters_shouldTriggerCallbackAgain() {
-    mediaClock.setPlaybackParameters(TEST_PLAYBACK_PARAMETERS);
     mediaClock.setPlaybackParameters(PlaybackParameters.DEFAULT);
-    verify(listener).onPlaybackParametersChanged(PlaybackParameters.DEFAULT);
-  }
-
-  @Test
-  public void standaloneSetSamePlaybackParametersAgain_shouldTriggerCallbackAgain() {
-    mediaClock.setPlaybackParameters(TEST_PLAYBACK_PARAMETERS);
-    mediaClock.setPlaybackParameters(TEST_PLAYBACK_PARAMETERS);
-    verify(listener, times(2)).onPlaybackParametersChanged(TEST_PLAYBACK_PARAMETERS);
+    assertThat(mediaClock.getPlaybackParameters()).isEqualTo(PlaybackParameters.DEFAULT);
   }
 
   @Test
@@ -210,19 +193,18 @@ public class DefaultMediaClockTest {
     FakeMediaClockRenderer mediaClockRenderer = new MediaClockRenderer(PlaybackParameters.DEFAULT,
         /* playbackParametersAreMutable= */ true);
     mediaClock.onRendererEnabled(mediaClockRenderer);
-    PlaybackParameters parameters = mediaClock.setPlaybackParameters(TEST_PLAYBACK_PARAMETERS);
-    assertThat(parameters).isEqualTo(TEST_PLAYBACK_PARAMETERS);
+    mediaClock.setPlaybackParameters(TEST_PLAYBACK_PARAMETERS);
     assertThat(mediaClock.getPlaybackParameters()).isEqualTo(TEST_PLAYBACK_PARAMETERS);
   }
 
   @Test
-  public void rendererClockSetPlaybackParameters_shouldTriggerCallback()
+  public void rendererClockSetPlaybackParameters_shouldNotTriggerCallback()
       throws ExoPlaybackException {
     FakeMediaClockRenderer mediaClockRenderer = new MediaClockRenderer(PlaybackParameters.DEFAULT,
         /* playbackParametersAreMutable= */ true);
     mediaClock.onRendererEnabled(mediaClockRenderer);
     mediaClock.setPlaybackParameters(TEST_PLAYBACK_PARAMETERS);
-    verify(listener).onPlaybackParametersChanged(TEST_PLAYBACK_PARAMETERS);
+    verifyNoMoreInteractions(listener);
   }
 
   @Test
@@ -231,19 +213,8 @@ public class DefaultMediaClockTest {
     FakeMediaClockRenderer mediaClockRenderer = new MediaClockRenderer(PlaybackParameters.DEFAULT,
         /* playbackParametersAreMutable= */ false);
     mediaClock.onRendererEnabled(mediaClockRenderer);
-    PlaybackParameters parameters = mediaClock.setPlaybackParameters(TEST_PLAYBACK_PARAMETERS);
-    assertThat(parameters).isEqualTo(PlaybackParameters.DEFAULT);
-    assertThat(mediaClock.getPlaybackParameters()).isEqualTo(PlaybackParameters.DEFAULT);
-  }
-
-  @Test
-  public void rendererClockSetPlaybackParametersOverwrite_shouldTriggerCallback()
-      throws ExoPlaybackException {
-    FakeMediaClockRenderer mediaClockRenderer = new MediaClockRenderer(PlaybackParameters.DEFAULT,
-        /* playbackParametersAreMutable= */ false);
-    mediaClock.onRendererEnabled(mediaClockRenderer);
     mediaClock.setPlaybackParameters(TEST_PLAYBACK_PARAMETERS);
-    verify(listener).onPlaybackParametersChanged(PlaybackParameters.DEFAULT);
+    assertThat(mediaClock.getPlaybackParameters()).isEqualTo(PlaybackParameters.DEFAULT);
   }
 
   @Test
@@ -418,11 +389,10 @@ public class DefaultMediaClockTest {
     }
 
     @Override
-    public PlaybackParameters setPlaybackParameters(PlaybackParameters playbackParameters) {
+    public void setPlaybackParameters(PlaybackParameters playbackParameters) {
       if (playbackParametersAreMutable) {
         this.playbackParameters = playbackParameters;
       }
-      return this.playbackParameters;
     }
 
     @Override

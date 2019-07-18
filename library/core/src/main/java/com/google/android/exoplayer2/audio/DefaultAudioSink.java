@@ -825,17 +825,12 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   @Override
-  public PlaybackParameters setPlaybackParameters(PlaybackParameters playbackParameters) {
+  public void setPlaybackParameters(PlaybackParameters playbackParameters) {
     if (configuration != null && !configuration.canApplyPlaybackParameters) {
       this.playbackParameters = PlaybackParameters.DEFAULT;
-      return this.playbackParameters;
+      return;
     }
-    PlaybackParameters lastSetPlaybackParameters =
-        afterDrainPlaybackParameters != null
-            ? afterDrainPlaybackParameters
-            : !playbackParametersCheckpoints.isEmpty()
-                ? playbackParametersCheckpoints.getLast().playbackParameters
-                : this.playbackParameters;
+    PlaybackParameters lastSetPlaybackParameters = getPlaybackParameters();
     if (!playbackParameters.equals(lastSetPlaybackParameters)) {
       if (isInitialized()) {
         // Drain the audio processors so we can determine the frame position at which the new
@@ -847,12 +842,16 @@ public final class DefaultAudioSink implements AudioSink {
         this.playbackParameters = playbackParameters;
       }
     }
-    return this.playbackParameters;
   }
 
   @Override
   public PlaybackParameters getPlaybackParameters() {
-    return playbackParameters;
+    // Mask the already set parameters.
+    return afterDrainPlaybackParameters != null
+        ? afterDrainPlaybackParameters
+        : !playbackParametersCheckpoints.isEmpty()
+            ? playbackParametersCheckpoints.getLast().playbackParameters
+            : playbackParameters;
   }
 
   @Override

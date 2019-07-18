@@ -223,9 +223,7 @@ public final class ExoPlayerTest {
           }
 
           @Override
-          public PlaybackParameters setPlaybackParameters(PlaybackParameters playbackParameters) {
-            return PlaybackParameters.DEFAULT;
-          }
+          public void setPlaybackParameters(PlaybackParameters playbackParameters) {}
 
           @Override
           public PlaybackParameters getPlaybackParameters() {
@@ -2639,6 +2637,95 @@ public final class ExoPlayerTest {
         .blockUntilEnded(TIMEOUT_MS);
 
     assertThat(contentStartPositionMs.get()).isAtLeast(5_000L);
+  }
+
+  @Test
+  public void setPlaybackParametersConsecutivelyNotifiesListenerForEveryChangeOnce()
+      throws Exception {
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("setPlaybackParametersNotifiesListenerForEveryChangeOnce")
+            .pause()
+            .waitForPlaybackState(Player.STATE_READY)
+            .setPlaybackParameters(new PlaybackParameters(1.1f))
+            .setPlaybackParameters(new PlaybackParameters(1.2f))
+            .setPlaybackParameters(new PlaybackParameters(1.3f))
+            .play()
+            .build();
+    List<PlaybackParameters> reportedPlaybackParameters = new ArrayList<>();
+    EventListener listener =
+        new EventListener() {
+          @Override
+          public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+            reportedPlaybackParameters.add(playbackParameters);
+          }
+        };
+    new ExoPlayerTestRunner.Builder()
+        .setActionSchedule(actionSchedule)
+        .setEventListener(listener)
+        .build(context)
+        .start()
+        .blockUntilEnded(TIMEOUT_MS);
+
+    assertThat(reportedPlaybackParameters)
+        .containsExactly(
+            new PlaybackParameters(1.1f),
+            new PlaybackParameters(1.2f),
+            new PlaybackParameters(1.3f))
+        .inOrder();
+  }
+
+  @Test
+  public void
+      setUnsupportedPlaybackParametersConsecutivelyNotifiesListenerForEveryChangeOnceAndResetsOnceHandled()
+          throws Exception {
+    Renderer renderer =
+        new FakeMediaClockRenderer(Builder.AUDIO_FORMAT) {
+          @Override
+          public long getPositionUs() {
+            return 0;
+          }
+
+          @Override
+          public void setPlaybackParameters(PlaybackParameters playbackParameters) {}
+
+          @Override
+          public PlaybackParameters getPlaybackParameters() {
+            return PlaybackParameters.DEFAULT;
+          }
+        };
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("setUnsupportedPlaybackParametersNotifiesListenersCorrectly")
+            .pause()
+            .waitForPlaybackState(Player.STATE_READY)
+            .setPlaybackParameters(new PlaybackParameters(1.1f))
+            .setPlaybackParameters(new PlaybackParameters(1.2f))
+            .setPlaybackParameters(new PlaybackParameters(1.3f))
+            .play()
+            .build();
+    List<PlaybackParameters> reportedPlaybackParameters = new ArrayList<>();
+    EventListener listener =
+        new EventListener() {
+          @Override
+          public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+            reportedPlaybackParameters.add(playbackParameters);
+          }
+        };
+    new ExoPlayerTestRunner.Builder()
+        .setSupportedFormats(Builder.AUDIO_FORMAT)
+        .setRenderers(renderer)
+        .setActionSchedule(actionSchedule)
+        .setEventListener(listener)
+        .build(context)
+        .start()
+        .blockUntilEnded(TIMEOUT_MS);
+
+    assertThat(reportedPlaybackParameters)
+        .containsExactly(
+            new PlaybackParameters(1.1f),
+            new PlaybackParameters(1.2f),
+            new PlaybackParameters(1.3f),
+            PlaybackParameters.DEFAULT)
+        .inOrder();
   }
 
   // Internal methods.

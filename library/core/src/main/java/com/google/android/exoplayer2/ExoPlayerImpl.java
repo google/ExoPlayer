@@ -69,6 +69,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
   private boolean hasPendingPrepare;
   private boolean hasPendingSeek;
   private boolean foregroundMode;
+  private int pendingSetPlaybackParametersAcks;
   private PlaybackParameters playbackParameters;
   private SeekParameters seekParameters;
   @Nullable private ExoPlaybackException playbackError;
@@ -336,7 +337,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
     if (playbackParameters == null) {
       playbackParameters = PlaybackParameters.DEFAULT;
     }
+    if (this.playbackParameters.equals(playbackParameters)) {
+      return;
+    }
+    pendingSetPlaybackParametersAcks++;
+    this.playbackParameters = playbackParameters;
     internalPlayer.setPlaybackParameters(playbackParameters);
+    PlaybackParameters playbackParametersToNotify = playbackParameters;
+    notifyListeners(listener -> listener.onPlaybackParametersChanged(playbackParametersToNotify));
   }
 
   @Override
@@ -560,11 +568,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
             /* positionDiscontinuityReason= */ msg.arg2);
         break;
       case ExoPlayerImplInternal.MSG_PLAYBACK_PARAMETERS_CHANGED:
-        PlaybackParameters playbackParameters = (PlaybackParameters) msg.obj;
-        if (!this.playbackParameters.equals(playbackParameters)) {
-          this.playbackParameters = playbackParameters;
-          notifyListeners(listener -> listener.onPlaybackParametersChanged(playbackParameters));
-        }
+        handlePlaybackParameters((PlaybackParameters) msg.obj, /* operationAck= */ msg.arg1 != 0);
         break;
       case ExoPlayerImplInternal.MSG_ERROR:
         ExoPlaybackException playbackError = (ExoPlaybackException) msg.obj;
@@ -573,6 +577,19 @@ import java.util.concurrent.CopyOnWriteArrayList;
         break;
       default:
         throw new IllegalStateException();
+    }
+  }
+
+  private void handlePlaybackParameters(
+      PlaybackParameters playbackParameters, boolean operationAck) {
+    if (operationAck) {
+      pendingSetPlaybackParametersAcks--;
+    }
+    if (pendingSetPlaybackParametersAcks == 0) {
+      if (!this.playbackParameters.equals(playbackParameters)) {
+        this.playbackParameters = playbackParameters;
+        notifyListeners(listener -> listener.onPlaybackParametersChanged(playbackParameters));
+      }
     }
   }
 

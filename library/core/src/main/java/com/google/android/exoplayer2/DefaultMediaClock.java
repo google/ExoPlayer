@@ -32,12 +32,12 @@ import com.google.android.exoplayer2.util.StandaloneMediaClock;
   public interface PlaybackParameterListener {
 
     /**
-     * Called when the active playback parameters changed.
+     * Called when the active playback parameters changed. Will not be called for {@link
+     * #setPlaybackParameters(PlaybackParameters)}.
      *
      * @param newPlaybackParameters The newly active {@link PlaybackParameters}.
      */
     void onPlaybackParametersChanged(PlaybackParameters newPlaybackParameters);
-
   }
 
   private final StandaloneMediaClock standaloneMediaClock;
@@ -141,13 +141,12 @@ import com.google.android.exoplayer2.util.StandaloneMediaClock;
   }
 
   @Override
-  public PlaybackParameters setPlaybackParameters(PlaybackParameters playbackParameters) {
+  public void setPlaybackParameters(PlaybackParameters playbackParameters) {
     if (rendererClock != null) {
-      playbackParameters = rendererClock.setPlaybackParameters(playbackParameters);
+      rendererClock.setPlaybackParameters(playbackParameters);
+      playbackParameters = rendererClock.getPlaybackParameters();
     }
     standaloneMediaClock.setPlaybackParameters(playbackParameters);
-    listener.onPlaybackParametersChanged(playbackParameters);
-    return playbackParameters;
   }
 
   @Override
