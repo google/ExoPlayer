@@ -25,10 +25,12 @@ import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.util.SparseIntArray;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.ColorInfo;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -255,7 +257,7 @@ public final class MediaCodecUtil {
       case CODEC_ID_DVH1:
         return getDolbyVisionProfileAndLevel(format.codecs, parts);
       case CODEC_ID_AV01:
-        return getAv1ProfileAndLevel(format.codecs, parts);
+        return getAv1ProfileAndLevel(format.codecs, parts, format.colorInfo);
       case CODEC_ID_MP4A:
         return getAacCodecProfileAndLevel(format.codecs, parts);
       default:
@@ -686,7 +688,8 @@ public final class MediaCodecUtil {
     return new Pair<>(profile, level);
   }
 
-  private static Pair<Integer, Integer> getAv1ProfileAndLevel(String codec, String[] parts) {
+  private static Pair<Integer, Integer> getAv1ProfileAndLevel(
+      String codec, String[] parts, @Nullable ColorInfo colorInfo) {
     if (parts.length < 4) {
       Log.w(TAG, "Ignoring malformed AV1 codec string: " + codec);
       return null;
@@ -703,8 +706,6 @@ public final class MediaCodecUtil {
       return null;
     }
 
-    // TODO: Recognize HDR profiles. Currently, the profile is assumed to be either Main8 or Main10.
-    // See [Internal: b/124435216].
     if (profileInteger != 0) {
       Log.w(TAG, "Unknown AV1 profile: " + profileInteger);
       return null;
@@ -716,6 +717,11 @@ public final class MediaCodecUtil {
     int profile;
     if (bitDepthInteger == 8) {
       profile = CodecProfileLevel.AV1ProfileMain8;
+    } else if (colorInfo != null
+        && (colorInfo.hdrStaticInfo != null
+            || colorInfo.colorTransfer == C.COLOR_TRANSFER_HLG
+            || colorInfo.colorTransfer == C.COLOR_TRANSFER_ST2084)) {
+      profile = CodecProfileLevel.AV1ProfileMain10HDR10;
     } else {
       profile = CodecProfileLevel.AV1ProfileMain10;
     }
