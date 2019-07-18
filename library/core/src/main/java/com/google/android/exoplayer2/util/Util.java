@@ -71,6 +71,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Formatter;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
@@ -134,6 +135,10 @@ public final class Util {
       Pattern.compile("^(-)?P(([0-9]*)Y)?(([0-9]*)M)?(([0-9]*)D)?"
           + "(T(([0-9]*)H)?(([0-9]*)M)?(([0-9.]*)S)?)?$");
   private static final Pattern ESCAPED_CHARACTER_PATTERN = Pattern.compile("%([A-Fa-f0-9]{2})");
+
+  // Android standardizes to ISO 639-1 2-letter codes and provides no way to map a 3-letter
+  // ISO 639-2 code back to the corresponding 2-letter code.
+  @Nullable private static HashMap<String, String> languageTagIso3ToIso2;
 
   private Util() {}
 
@@ -465,18 +470,25 @@ public final class Util {
     if (language == null) {
       return null;
     }
-    try {
-      Locale locale = getLocaleForLanguageTag(language);
-      int localeLanguageLength = locale.getLanguage().length();
-      String normLanguage = locale.getISO3Language();
-      if (normLanguage.isEmpty()) {
-        return toLowerInvariant(language);
-      }
-      String normTag = getLocaleLanguageTag(locale);
-      return toLowerInvariant(normLanguage + normTag.substring(localeLanguageLength));
-    } catch (MissingResourceException e) {
+    Locale locale = getLocaleForLanguageTag(language);
+    String localeLanguage = locale.getLanguage();
+    int localeLanguageLength = localeLanguage.length();
+    if (localeLanguageLength == 0) {
+      // Return original language for invalid language tags.
       return toLowerInvariant(language);
+    } else if (localeLanguageLength == 3) {
+      // Locale.toLanguageTag will ensure a normalized well-formed output. However, 3-letter
+      // ISO 639-2 language codes will not be converted to 2-letter ISO 639-1 codes automatically.
+      if (languageTagIso3ToIso2 == null) {
+        languageTagIso3ToIso2 = createIso3ToIso2Map();
+      }
+      String iso2Language = languageTagIso3ToIso2.get(localeLanguage);
+      if (iso2Language != null) {
+        localeLanguage = iso2Language;
+      }
     }
+    String normTag = getLocaleLanguageTag(locale);
+    return toLowerInvariant(localeLanguage + normTag.substring(localeLanguageLength));
   }
 
   /**
@@ -2027,6 +2039,54 @@ public final class Util {
         return C.NETWORK_TYPE_CELLULAR_UNKNOWN;
     }
   }
+
+  private static HashMap<String, String> createIso3ToIso2Map() {
+    String[] iso2Languages = Locale.getISOLanguages();
+    HashMap<String, String> iso3ToIso2 =
+        new HashMap<>(
+            /* initialCapacity= */ iso2Languages.length + iso3BibliographicalToIso2.length);
+    for (String iso2 : iso2Languages) {
+      try {
+        // This returns the ISO 639-2/T code for the language.
+        String iso3 = new Locale(iso2).getISO3Language();
+        if (!TextUtils.isEmpty(iso3)) {
+          iso3ToIso2.put(iso3, iso2);
+        }
+      } catch (MissingResourceException e) {
+        // Shouldn't happen for list of known languages, but we don't want to throw either.
+      }
+    }
+    // Add additional ISO 639-2/B codes to mapping.
+    for (int i = 0; i < iso3BibliographicalToIso2.length; i += 2) {
+      iso3ToIso2.put(iso3BibliographicalToIso2[i], iso3BibliographicalToIso2[i + 1]);
+    }
+    return iso3ToIso2;
+  }
+
+  // See https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes.
+  private static final String[] iso3BibliographicalToIso2 =
+      new String[] {
+        "alb", "sq",
+        "arm", "hy",
+        "baq", "eu",
+        "bur", "my",
+        "tib", "bo",
+        "chi", "zh",
+        "cze", "cs",
+        "dut", "nl",
+        "ger", "de",
+        "gre", "el",
+        "fre", "fr",
+        "geo", "ka",
+        "ice", "is",
+        "mac", "mk",
+        "mao", "mi",
+        "may", "ms",
+        "per", "fa",
+        "rum", "ro",
+        "slo", "sk",
+        "wel", "cy"
+      };
 
   /**
    * Allows the CRC calculation to be done byte by byte instead of bit per bit being the order
