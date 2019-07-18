@@ -386,6 +386,26 @@ public class PlayerNotificationManager {
   private int lastPlaybackState;
 
   /**
+   * @deprecated Use {@link #createWithNotificationChannel(Context, String, int, int, int,
+   *     MediaDescriptionAdapter)}.
+   */
+  @Deprecated
+  public static PlayerNotificationManager createWithNotificationChannel(
+      Context context,
+      String channelId,
+      @StringRes int channelName,
+      int notificationId,
+      MediaDescriptionAdapter mediaDescriptionAdapter) {
+    return createWithNotificationChannel(
+        context,
+        channelId,
+        channelName,
+        /* channelDescription= */ 0,
+        notificationId,
+        mediaDescriptionAdapter);
+  }
+
+  /**
    * Creates a notification manager and a low-priority notification channel with the specified
    * {@code channelId} and {@code channelName}.
    *
@@ -397,8 +417,12 @@ public class PlayerNotificationManager {
    *
    * @param context The {@link Context}.
    * @param channelId The id of the notification channel.
-   * @param channelName A string resource identifier for the user visible name of the channel. The
-   *     recommended maximum length is 40 characters; the value may be truncated if it is too long.
+   * @param channelName A string resource identifier for the user visible name of the notification
+   *     channel. The recommended maximum length is 40 characters. The string may be truncated if
+   *     it's too long.
+   * @param channelDescription A string resource identifier for the user visible description of the
+   *     notification channel, or 0 if no description is provided. The recommended maximum length is
+   *     300 characters. The value may be truncated if it is too long.
    * @param notificationId The id of the notification.
    * @param mediaDescriptionAdapter The {@link MediaDescriptionAdapter}.
    */
@@ -406,12 +430,35 @@ public class PlayerNotificationManager {
       Context context,
       String channelId,
       @StringRes int channelName,
+      @StringRes int channelDescription,
       int notificationId,
       MediaDescriptionAdapter mediaDescriptionAdapter) {
     NotificationUtil.createNotificationChannel(
-        context, channelId, channelName, NotificationUtil.IMPORTANCE_LOW);
+        context, channelId, channelName, channelDescription, NotificationUtil.IMPORTANCE_LOW);
     return new PlayerNotificationManager(
         context, channelId, notificationId, mediaDescriptionAdapter);
+  }
+
+  /**
+   * @deprecated Use {@link #createWithNotificationChannel(Context, String, int, int, int,
+   *     MediaDescriptionAdapter, NotificationListener)}.
+   */
+  @Deprecated
+  public static PlayerNotificationManager createWithNotificationChannel(
+      Context context,
+      String channelId,
+      @StringRes int channelName,
+      int notificationId,
+      MediaDescriptionAdapter mediaDescriptionAdapter,
+      @Nullable NotificationListener notificationListener) {
+    return createWithNotificationChannel(
+        context,
+        channelId,
+        channelName,
+        /* channelDescription= */ 0,
+        notificationId,
+        mediaDescriptionAdapter,
+        notificationListener);
   }
 
   /**
@@ -422,7 +469,9 @@ public class PlayerNotificationManager {
    * @param context The {@link Context}.
    * @param channelId The id of the notification channel.
    * @param channelName A string resource identifier for the user visible name of the channel. The
-   *     recommended maximum length is 40 characters; the value may be truncated if it is too long.
+   *     recommended maximum length is 40 characters. The string may be truncated if it's too long.
+   * @param channelDescription A string resource identifier for the user visible description of the
+   *     channel, or 0 if no description is provided.
    * @param notificationId The id of the notification.
    * @param mediaDescriptionAdapter The {@link MediaDescriptionAdapter}.
    * @param notificationListener The {@link NotificationListener}.
@@ -431,11 +480,12 @@ public class PlayerNotificationManager {
       Context context,
       String channelId,
       @StringRes int channelName,
+      @StringRes int channelDescription,
       int notificationId,
       MediaDescriptionAdapter mediaDescriptionAdapter,
       @Nullable NotificationListener notificationListener) {
     NotificationUtil.createNotificationChannel(
-        context, channelId, channelName, NotificationUtil.IMPORTANCE_LOW);
+        context, channelId, channelName, channelDescription, NotificationUtil.IMPORTANCE_LOW);
     return new PlayerNotificationManager(
         context, channelId, notificationId, mediaDescriptionAdapter, notificationListener);
   }

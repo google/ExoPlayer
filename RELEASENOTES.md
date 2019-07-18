@@ -13,6 +13,8 @@
 * Fix issue where invalid language tags were normalized to "und" instead of
   keeping the original
   ([#6153](https://github.com/google/ExoPlayer/issues/6153)).
+* Add ability to specify a description when creating notification channels via
+  ExoPlayer library classes.
 
 ### 2.10.3 ###
 
