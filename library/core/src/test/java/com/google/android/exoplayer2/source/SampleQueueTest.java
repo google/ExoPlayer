@@ -129,15 +129,42 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testReadFormatDeduplicated() {
+  public void testEqualFormatsDeduplicated() {
     sampleQueue.format(FORMAT_1);
     assertReadFormat(false, FORMAT_1);
-    // If the same format is input then it should be de-duplicated (i.e. not output again).
+    // If the same format is written then it should not cause a format change on the read side.
     sampleQueue.format(FORMAT_1);
     assertNoSamplesToRead(FORMAT_1);
     // The same applies for a format that's equal (but a different object).
     sampleQueue.format(FORMAT_1_COPY);
     assertNoSamplesToRead(FORMAT_1);
+  }
+
+  @Test
+  public void testMultipleFormatsDeduplicated() {
+    sampleQueue.format(FORMAT_1);
+    sampleQueue.sampleData(new ParsableByteArray(DATA), ALLOCATION_SIZE);
+    sampleQueue.sampleMetadata(0, C.BUFFER_FLAG_KEY_FRAME, ALLOCATION_SIZE, 0, null);
+    // Writing multiple formats should not cause a format change on the read side, provided the last
+    // format to be written is equal to the format of the previous sample.
+    sampleQueue.format(FORMAT_2);
+    sampleQueue.format(FORMAT_1_COPY);
+    sampleQueue.sampleData(new ParsableByteArray(DATA), ALLOCATION_SIZE);
+    sampleQueue.sampleMetadata(1000, C.BUFFER_FLAG_KEY_FRAME, ALLOCATION_SIZE, 0, null);
+
+    assertReadFormat(false, FORMAT_1);
+    assertReadSample(0, true, DATA, 0, ALLOCATION_SIZE);
+    // Assert the second sample is read without a format change.
+    assertReadSample(1000, true, DATA, 0, ALLOCATION_SIZE);
+
+    // The same applies if the queue is empty when the formats are written.
+    sampleQueue.format(FORMAT_2);
+    sampleQueue.format(FORMAT_1);
+    sampleQueue.sampleData(new ParsableByteArray(DATA), ALLOCATION_SIZE);
+    sampleQueue.sampleMetadata(2000, C.BUFFER_FLAG_KEY_FRAME, ALLOCATION_SIZE, 0, null);
+
+    // Assert the third sample is read without a format change.
+    assertReadSample(2000, true, DATA, 0, ALLOCATION_SIZE);
   }
 
   @Test
