@@ -455,25 +455,31 @@ public final class Util {
     if (language == null) {
       return null;
     }
-    Locale locale = getLocaleForLanguageTag(language);
-    String localeLanguage = locale.getLanguage();
-    int localeLanguageLength = localeLanguage.length();
-    if (localeLanguageLength == 0) {
-      // Return original language for invalid language tags.
-      return toLowerInvariant(language);
-    } else if (localeLanguageLength == 3) {
-      // Locale.toLanguageTag will ensure a normalized well-formed output. However, 3-letter
-      // ISO 639-2 language codes will not be converted to 2-letter ISO 639-1 codes automatically.
+    // Locale data (especially for API < 21) may produce tags with '_' instead of the
+    // standard-conformant '-'.
+    String normalizedTag = language.replace('_', '-');
+    if (Util.SDK_INT >= 21) {
+      // Filters out ill-formed sub-tags, replaces deprecated tags and normalizes all valid tags.
+      normalizedTag = normalizeLanguageCodeSyntaxV21(normalizedTag);
+    }
+    if (normalizedTag.isEmpty() || "und".equals(normalizedTag)) {
+      // Tag isn't valid, keep using the original.
+      normalizedTag = language;
+    }
+    normalizedTag = Util.toLowerInvariant(normalizedTag);
+    String mainLanguage = Util.splitAtFirst(normalizedTag, "-")[0];
+    if (mainLanguage.length() == 3) {
+      // 3-letter ISO 639-2/B or ISO 639-2/T language codes will not be converted to 2-letter ISO
+      // 639-1 codes automatically.
       if (languageTagIso3ToIso2 == null) {
         languageTagIso3ToIso2 = createIso3ToIso2Map();
       }
-      String iso2Language = languageTagIso3ToIso2.get(localeLanguage);
+      String iso2Language = languageTagIso3ToIso2.get(mainLanguage);
       if (iso2Language != null) {
-        localeLanguage = iso2Language;
+        normalizedTag = iso2Language + normalizedTag.substring(/* beginIndex= */ 3);
       }
     }
-    String normTag = getLocaleLanguageTag(locale);
-    return toLowerInvariant(localeLanguage + normTag.substring(localeLanguageLength));
+    return normalizedTag;
   }
 
   /**
@@ -1967,32 +1973,25 @@ public final class Util {
   }
 
   private static String[] getSystemLocales() {
+    Configuration config = Resources.getSystem().getConfiguration();
     return SDK_INT >= 24
-        ? getSystemLocalesV24()
-        : new String[] {getLocaleLanguageTag(Resources.getSystem().getConfiguration().locale)};
+        ? getSystemLocalesV24(config)
+        : SDK_INT >= 21 ? getSystemLocaleV21(config) : new String[] {config.locale.toString()};
   }
 
   @TargetApi(24)
-  private static String[] getSystemLocalesV24() {
-    return Util.split(Resources.getSystem().getConfiguration().getLocales().toLanguageTags(), ",");
-  }
-
-  private static Locale getLocaleForLanguageTag(String languageTag) {
-    return Util.SDK_INT >= 21 ? getLocaleForLanguageTagV21(languageTag) : new Locale(languageTag);
+  private static String[] getSystemLocalesV24(Configuration config) {
+    return Util.split(config.getLocales().toLanguageTags(), ",");
   }
 
   @TargetApi(21)
-  private static Locale getLocaleForLanguageTagV21(String languageTag) {
-    return Locale.forLanguageTag(languageTag);
-  }
-
-  private static String getLocaleLanguageTag(Locale locale) {
-    return SDK_INT >= 21 ? getLocaleLanguageTagV21(locale) : locale.toString();
+  private static String[] getSystemLocaleV21(Configuration config) {
+    return new String[] {config.locale.toLanguageTag()};
   }
 
   @TargetApi(21)
-  private static String getLocaleLanguageTagV21(Locale locale) {
-    return locale.toLanguageTag();
+  private static String normalizeLanguageCodeSyntaxV21(String languageTag) {
+    return Locale.forLanguageTag(languageTag).toLanguageTag();
   }
 
   private static @C.NetworkType int getMobileNetworkType(NetworkInfo networkInfo) {
