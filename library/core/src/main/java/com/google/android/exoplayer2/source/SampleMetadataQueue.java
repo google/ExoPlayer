@@ -62,6 +62,7 @@ import com.google.android.exoplayer2.util.Util;
   private boolean upstreamKeyframeRequired;
   private boolean upstreamFormatRequired;
   private Format upstreamFormat;
+  private Format upstreamCommittedFormat;
   private int upstreamSourceId;
 
   public SampleMetadataQueue() {
@@ -96,6 +97,7 @@ import com.google.android.exoplayer2.util.Util;
     largestDiscardedTimestampUs = Long.MIN_VALUE;
     largestQueuedTimestampUs = Long.MIN_VALUE;
     isLastSampleQueued = false;
+    upstreamCommittedFormat = null;
     if (resetUpstreamFormat) {
       upstreamFormat = null;
       upstreamFormatRequired = true;
@@ -227,7 +229,7 @@ import com.google.android.exoplayer2.util.Util;
       return SampleQueue.PEEK_RESULT_NOTHING;
     }
     int relativeReadIndex = getRelativeIndex(readPosition);
-    if (!formats[relativeReadIndex].equals(downstreamFormat)) {
+    if (formats[relativeReadIndex] != downstreamFormat) {
       return SampleQueue.PEEK_RESULT_FORMAT;
     } else {
       return (flags[relativeReadIndex] & C.BUFFER_FLAG_ENCRYPTED) != 0
@@ -274,8 +276,7 @@ import com.google.android.exoplayer2.util.Util;
       if (loadingFinished || isLastSampleQueued) {
         buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
         return C.RESULT_BUFFER_READ;
-      } else if (upstreamFormat != null
-          && (formatRequired || !upstreamFormat.equals(downstreamFormat))) {
+      } else if (upstreamFormat != null && (formatRequired || upstreamFormat != downstreamFormat)) {
         formatHolder.format = upstreamFormat;
         return C.RESULT_FORMAT_READ;
       } else {
@@ -284,7 +285,7 @@ import com.google.android.exoplayer2.util.Util;
     }
 
     int relativeReadIndex = getRelativeIndex(readPosition);
-    if (formatRequired || !formats[relativeReadIndex].equals(downstreamFormat)) {
+    if (formatRequired || formats[relativeReadIndex] != downstreamFormat) {
       formatHolder.format = formats[relativeReadIndex];
       return C.RESULT_FORMAT_READ;
     }
@@ -422,7 +423,16 @@ import com.google.android.exoplayer2.util.Util;
     }
     upstreamFormatRequired = false;
     if (Util.areEqual(format, upstreamFormat)) {
+      // The format is unchanged. If format and upstreamFormat are different objects, we keep the
+      // current upstreamFormat so we can detect format changes in read() using cheap referential
+      // equality.
       return false;
+    } else if (Util.areEqual(format, upstreamCommittedFormat)) {
+      // The format has changed back to the format of the last committed sample. If they are
+      // different objects, we revert back to using upstreamCommittedFormat as the upstreamFormat so
+      // we can detect format changes in read() using cheap referential equality.
+      upstreamFormat = upstreamCommittedFormat;
+      return true;
     } else {
       upstreamFormat = format;
       return true;
@@ -450,6 +460,7 @@ import com.google.android.exoplayer2.util.Util;
     cryptoDatas[relativeEndIndex] = cryptoData;
     formats[relativeEndIndex] = upstreamFormat;
     sourceIds[relativeEndIndex] = upstreamSourceId;
+    upstreamCommittedFormat = upstreamFormat;
 
     length++;
     if (length == capacity) {
