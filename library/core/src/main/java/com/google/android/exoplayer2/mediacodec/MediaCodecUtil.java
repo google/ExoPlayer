@@ -230,35 +230,34 @@ public final class MediaCodecUtil {
   }
 
   /**
-   * Returns profile and level (as defined by {@link CodecProfileLevel}) corresponding to the given
-   * codec description string (as defined by RFC 6381).
+   * Returns profile and level (as defined by {@link CodecProfileLevel}) corresponding to the codec
+   * description string (as defined by RFC 6381) of the given format.
    *
-   * @param codec A codec description string, as defined by RFC 6381, or {@code null} if not known.
-   * @return A pair (profile constant, level constant) if {@code codec} is well-formed and
-   *     recognized, or null otherwise
+   * @param format Media format with a codec description string, as defined by RFC 6381.
+   * @return A pair (profile constant, level constant) if the codec of the {@code format} is
+   *     well-formed and recognized, or null otherwise.
    */
-  @Nullable
-  public static Pair<Integer, Integer> getCodecProfileAndLevel(@Nullable String codec) {
-    if (codec == null) {
+  public static Pair<Integer, Integer> getCodecProfileAndLevel(Format format) {
+    if (format.codecs == null) {
       return null;
     }
-    String[] parts = codec.split("\\.");
+    String[] parts = format.codecs.split("\\.");
     switch (parts[0]) {
       case CODEC_ID_AVC1:
       case CODEC_ID_AVC2:
-        return getAvcProfileAndLevel(codec, parts);
+        return getAvcProfileAndLevel(format.codecs, parts);
       case CODEC_ID_VP09:
-        return getVp9ProfileAndLevel(codec, parts);
+        return getVp9ProfileAndLevel(format.codecs, parts);
       case CODEC_ID_HEV1:
       case CODEC_ID_HVC1:
-        return getHevcProfileAndLevel(codec, parts);
+        return getHevcProfileAndLevel(format.codecs, parts);
       case CODEC_ID_DVHE:
       case CODEC_ID_DVH1:
-        return getDolbyVisionProfileAndLevel(codec, parts);
+        return getDolbyVisionProfileAndLevel(format.codecs, parts);
       case CODEC_ID_AV01:
-        return getAv1ProfileAndLevel(codec, parts);
+        return getAv1ProfileAndLevel(format.codecs, parts);
       case CODEC_ID_MP4A:
-        return getAacCodecProfileAndLevel(codec, parts);
+        return getAacCodecProfileAndLevel(format.codecs, parts);
       default:
         return null;
     }
