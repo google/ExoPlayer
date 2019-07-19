@@ -2076,7 +2076,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
             params.exceedRendererCapabilitiesIfNecessary)) {
           Format format = trackGroup.getFormat(trackIndex);
           TextTrackScore trackScore = new TextTrackScore(format, params, trackFormatSupport[trackIndex], selectedAudioLanguage);
-          if ((selectedTrackScore == null) || trackScore.compareTo(selectedTrackScore) > 0) {
+          if (trackScore.isWithinConstraints
+              && ((selectedTrackScore == null) || trackScore.compareTo(selectedTrackScore) > 0)) {
             selectedGroup = trackGroup;
             selectedTrackIndex = trackIndex;
             selectedTrackScore = trackScore;
@@ -2514,8 +2515,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private final int preferredLanguageScore;
     private final int selectedAudioLanguageScore;
     private final boolean trackHasNoLanguage;
-    private final boolean selectUndeterminedTextLanguage;
-    private final boolean stringDefinesNoLang;
+    private final boolean hasLanguageMatch;
+    private final boolean hasSelectedAudioLanguageMatch;
+    private final boolean isWithinConstraints;
 
     public TextTrackScore(
         Format format,
@@ -2525,13 +2527,17 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       isWithinRendererCapabilities = isSupported(trackFormatSupport, false);
       int maskedSelectionFlags =
           format.selectionFlags & ~parameters.disabledTextTrackSelectionFlags;
-      isDefault = (format.selectionFlags & C.SELECTION_FLAG_DEFAULT) != 0;
+      isDefault = (maskedSelectionFlags & C.SELECTION_FLAG_DEFAULT) != 0;
       isForced = (maskedSelectionFlags & C.SELECTION_FLAG_FORCED) != 0;
       preferredLanguageScore = getFormatLanguageScore(format, parameters.preferredTextLanguage);
       selectedAudioLanguageScore = getFormatLanguageScore(format, selectedAudioLanguage);
       trackHasNoLanguage = formatHasNoLanguage(format);
-      selectUndeterminedTextLanguage = parameters.selectUndeterminedTextLanguage;
-      stringDefinesNoLang = stringDefinesNoLanguage(selectedAudioLanguage);
+      hasLanguageMatch = preferredLanguageScore > 0
+          || (parameters.selectUndeterminedTextLanguage && trackHasNoLanguage);
+      hasSelectedAudioLanguageMatch = (selectedAudioLanguageScore > 0)
+          || (trackHasNoLanguage && stringDefinesNoLanguage(selectedAudioLanguage));
+      isWithinConstraints =
+          (hasLanguageMatch || isDefault || (isForced && hasSelectedAudioLanguageMatch));
     }
 
     /**
@@ -2546,34 +2552,26 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       if (this.isWithinRendererCapabilities != other.isWithinRendererCapabilities) {
         return this.isWithinRendererCapabilities ? 1 : -1;
       }
-      if ((this.preferredLanguageScore > 0 || (this.selectUndeterminedTextLanguage && this.trackHasNoLanguage)) ==
-          (other.preferredLanguageScore > 0 || (other.selectUndeterminedTextLanguage && other.trackHasNoLanguage))) {
-        if (this.preferredLanguageScore > 0 || (this.selectUndeterminedTextLanguage
-            && this.trackHasNoLanguage)) {
-          if (this.isDefault != other.isDefault) {
-            return this.isDefault ? 1 : -1;
-          }
-          if (this.isForced != other.isForced) {
-            // Prefer non-forced to forced if a preferred text language has been specified. Where
-            // both are provided the non-forced track will usually contain the forced subtitles as
-            // a subset.
-            return !this.isForced ? 1 : -1;
-          }
-          return (this.preferredLanguageScore > other.preferredLanguageScore) ? 1 : -1;
-        } else {
-          if (this.isDefault != other.isDefault) {
-            return this.isDefault ? 1 : -1;
-          }
-          if ((this.isForced && (this.selectedAudioLanguageScore > 0 || (this.trackHasNoLanguage && this.stringDefinesNoLang))) !=
-              (other.isForced && (other.selectedAudioLanguageScore > 0 || (other.trackHasNoLanguage && other.stringDefinesNoLang)))) {
-            return (this.isForced && (this.selectedAudioLanguageScore > 0
-                || (this.trackHasNoLanguage && this.stringDefinesNoLang))) ? 1 : -1;
-          }
-          // Track should not be selected.
-          return -1;
+      if (this.hasLanguageMatch != other.hasLanguageMatch) {
+        return this.hasLanguageMatch ? 1 : -1;
+      }
+      if (this.isDefault != other.isDefault) {
+        return this.isDefault ? 1 : -1;
+      }
+      if (this.hasLanguageMatch) {
+        if (this.isForced != other.isForced) {
+          // Prefer non-forced to forced if a preferred text language has been specified. Where
+          // both are provided the non-forced track will usually contain the forced subtitles as
+          // a subset.
+          return !this.isForced ? 1 : -1;
         }
+        return this.preferredLanguageScore - other.preferredLanguageScore;
       } else {
-        return (this.preferredLanguageScore > 0 || (this.selectUndeterminedTextLanguage && this.trackHasNoLanguage)) ? 1 : -1;
+        if ((this.isForced && this.hasSelectedAudioLanguageMatch) !=
+            (other.isForced && other.hasSelectedAudioLanguageMatch)) {
+          return (this.isForced && this.hasSelectedAudioLanguageMatch) ? 1 : -1;
+        }
+        return 0;
       }
     }
   }
