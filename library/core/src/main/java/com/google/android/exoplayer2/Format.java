@@ -1291,39 +1291,19 @@ public final class Format implements Parcelable {
   }
 
   public Format copyWithDrmInitData(@Nullable DrmInitData drmInitData) {
-    return new Format(
-        id,
-        label,
-        selectionFlags,
-        roleFlags,
-        bitrate,
-        codecs,
-        metadata,
-        containerMimeType,
-        sampleMimeType,
-        maxInputSize,
-        initializationData,
-        drmInitData,
-        subsampleOffsetUs,
-        width,
-        height,
-        frameRate,
-        rotationDegrees,
-        pixelWidthHeightRatio,
-        projectionData,
-        stereoMode,
-        colorInfo,
-        channelCount,
-        sampleRate,
-        pcmEncoding,
-        encoderDelay,
-        encoderPadding,
-        language,
-        accessibilityChannel,
-        exoMediaCryptoType);
+    return copyWithAdjustments(drmInitData, metadata);
   }
 
   public Format copyWithMetadata(@Nullable Metadata metadata) {
+    return copyWithAdjustments(drmInitData, metadata);
+  }
+
+  @SuppressWarnings("ReferenceEquality")
+  public Format copyWithAdjustments(
+      @Nullable DrmInitData drmInitData, @Nullable Metadata metadata) {
+    if (drmInitData == this.drmInitData && metadata == this.metadata) {
+      return this;
+    }
     return new Format(
         id,
         label,
