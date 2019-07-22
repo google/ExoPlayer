@@ -828,7 +828,7 @@ import java.util.Set;
         return createDummyTrackOutput(id, type);
       }
     }
-    SampleQueue trackOutput = new PrivTimestampStrippingSampleQueue(allocator);
+    SampleQueue trackOutput = new FormatAdjustingSampleQueue(allocator, overridingDrmInitData);
     trackOutput.setSampleOffsetUs(sampleOffsetUs);
     trackOutput.sourceId(chunkUid);
     trackOutput.setUpstreamFormatChangeListener(this);
@@ -1170,15 +1170,26 @@ import java.util.Set;
     return new DummyTrackOutput();
   }
 
-  private static final class PrivTimestampStrippingSampleQueue extends SampleQueue {
+  private static final class FormatAdjustingSampleQueue extends SampleQueue {
 
-    public PrivTimestampStrippingSampleQueue(Allocator allocator) {
+    private final Map<String, DrmInitData> overridingDrmInitData;
+
+    public FormatAdjustingSampleQueue(
+        Allocator allocator, Map<String, DrmInitData> overridingDrmInitData) {
       super(allocator);
+      this.overridingDrmInitData = overridingDrmInitData;
     }
 
     @Override
     public void format(Format format) {
-      super.format(format.copyWithMetadata(getAdjustedMetadata(format.metadata)));
+      DrmInitData drmInitData = format.drmInitData;
+      if (drmInitData != null) {
+        DrmInitData overridingDrmInitData = this.overridingDrmInitData.get(drmInitData.schemeType);
+        if (overridingDrmInitData != null) {
+          drmInitData = overridingDrmInitData;
+        }
+      }
+      super.format(format.copyWithAdjustments(drmInitData, getAdjustedMetadata(format.metadata)));
     }
 
     /**
