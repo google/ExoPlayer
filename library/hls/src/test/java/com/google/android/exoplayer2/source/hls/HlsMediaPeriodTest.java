@@ -22,6 +22,7 @@ import static org.mockito.Mockito.when;
 import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
@@ -81,6 +82,7 @@ public final class HlsMediaPeriodTest {
               mockPlaylistTracker,
               mockDataSourceFactory,
               mock(TransferListener.class),
+              mock(DrmSessionManager.class),
               mock(LoadErrorHandlingPolicy.class),
               new EventDispatcher()
                   .withParameters(

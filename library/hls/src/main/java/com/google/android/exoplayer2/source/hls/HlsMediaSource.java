@@ -20,6 +20,8 @@ import android.os.Handler;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
+import com.google.android.exoplayer2.drm.DrmSession;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.BaseMediaSource;
@@ -65,6 +67,7 @@ public final class HlsMediaSource extends BaseMediaSource
     @Nullable private List<StreamKey> streamKeys;
     private HlsPlaylistTracker.Factory playlistTrackerFactory;
     private CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
+    private DrmSessionManager<?> drmSessionManager;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
     private boolean allowChunklessPreparation;
     private boolean useSessionKeys;
@@ -93,6 +96,7 @@ public final class HlsMediaSource extends BaseMediaSource
       playlistParserFactory = new DefaultHlsPlaylistParserFactory();
       playlistTrackerFactory = DefaultHlsPlaylistTracker.FACTORY;
       extractorFactory = HlsExtractorFactory.DEFAULT;
+      drmSessionManager = DrmSessionManager.getDummyDrmSessionManager();
       loadErrorHandlingPolicy = new DefaultLoadErrorHandlingPolicy();
       compositeSequenceableLoaderFactory = new DefaultCompositeSequenceableLoaderFactory();
     }
@@ -124,6 +128,20 @@ public final class HlsMediaSource extends BaseMediaSource
     public Factory setExtractorFactory(HlsExtractorFactory extractorFactory) {
       Assertions.checkState(!isCreateCalled);
       this.extractorFactory = Assertions.checkNotNull(extractorFactory);
+      return this;
+    }
+
+    /**
+     * Sets the {@link DrmSessionManager} to use for acquiring {@link DrmSession DrmSessions}. The
+     * default value is {@link DrmSessionManager#DUMMY}.
+     *
+     * @param drmSessionManager The {@link DrmSessionManager}.
+     * @return This factory, for convenience.
+     * @throws IllegalStateException If one of the {@code create} methods has already been called.
+     */
+    public Factory setDrmSessionManager(DrmSessionManager<?> drmSessionManager) {
+      Assertions.checkState(!isCreateCalled);
+      this.drmSessionManager = drmSessionManager;
       return this;
     }
 
@@ -271,6 +289,7 @@ public final class HlsMediaSource extends BaseMediaSource
           hlsDataSourceFactory,
           extractorFactory,
           compositeSequenceableLoaderFactory,
+          drmSessionManager,
           loadErrorHandlingPolicy,
           playlistTrackerFactory.createTracker(
               hlsDataSourceFactory, loadErrorHandlingPolicy, playlistParserFactory),
@@ -297,6 +316,7 @@ public final class HlsMediaSource extends BaseMediaSource
   private final Uri manifestUri;
   private final HlsDataSourceFactory dataSourceFactory;
   private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
+  private final DrmSessionManager<?> drmSessionManager;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final boolean allowChunklessPreparation;
   private final boolean useSessionKeys;
@@ -310,6 +330,7 @@ public final class HlsMediaSource extends BaseMediaSource
       HlsDataSourceFactory dataSourceFactory,
       HlsExtractorFactory extractorFactory,
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
+      DrmSessionManager<?> drmSessionManager,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       HlsPlaylistTracker playlistTracker,
       boolean allowChunklessPreparation,
@@ -319,6 +340,7 @@ public final class HlsMediaSource extends BaseMediaSource
     this.dataSourceFactory = dataSourceFactory;
     this.extractorFactory = extractorFactory;
     this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
+    this.drmSessionManager = drmSessionManager;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     this.playlistTracker = playlistTracker;
     this.allowChunklessPreparation = allowChunklessPreparation;
@@ -352,6 +374,7 @@ public final class HlsMediaSource extends BaseMediaSource
         playlistTracker,
         dataSourceFactory,
         mediaTransferListener,
+        drmSessionManager,
         loadErrorHandlingPolicy,
         eventDispatcher,
         allocator,
