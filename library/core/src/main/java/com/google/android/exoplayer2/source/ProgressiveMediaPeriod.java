@@ -200,9 +200,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       for (SampleQueue sampleQueue : sampleQueues) {
         sampleQueue.discardToEnd();
       }
-    }
-    for (DecryptableSampleQueueReader reader : sampleQueueReaders) {
-      reader.release();
+      for (DecryptableSampleQueueReader reader : sampleQueueReaders) {
+        reader.release();
+      }
     }
     loader.release(/* callback= */ this);
     handler.removeCallbacksAndMessages(null);
@@ -215,6 +215,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   public void onLoaderReleased() {
     for (SampleQueue sampleQueue : sampleQueues) {
       sampleQueue.reset();
+    }
+    for (DecryptableSampleQueueReader reader : sampleQueueReaders) {
+      reader.release();
     }
     extractorHolder.release();
   }
