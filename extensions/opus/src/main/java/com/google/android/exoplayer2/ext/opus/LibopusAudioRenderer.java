@@ -26,10 +26,8 @@ import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.MimeTypes;
 
-/**
- * Decodes and renders audio using the native Opus decoder.
- */
-public final class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
+/** Decodes and renders audio using the native Opus decoder. */
+public class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
 
   /** The number of input and output buffers. */
   private static final int NUM_BUFFERS = 16;
