@@ -51,7 +51,6 @@ import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.testutil.FakeTrackSelection;
 import com.google.android.exoplayer2.testutil.FakeTrackSelector;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.TransferListener;
@@ -2253,17 +2252,15 @@ public final class ExoPlayerTest {
   public void testUpdateTrackSelectorThenSeekToUnpreparedPeriod_returnsEmptyTrackGroups()
       throws Exception {
     // Use unset duration to prevent pre-loading of the second window.
-    Timeline fakeTimeline =
+    Timeline timelineUnsetDuration =
         new FakeTimeline(
             new TimelineWindowDefinition(
                 /* isSeekable= */ true, /* isDynamic= */ false, /* durationUs= */ C.TIME_UNSET));
-    MediaSource[] fakeMediaSources = {
-      new FakeMediaSource(fakeTimeline, Builder.VIDEO_FORMAT),
-      new FakeMediaSource(fakeTimeline, Builder.AUDIO_FORMAT)
-    };
-    MediaSource mediaSource = new ConcatenatingMediaSource(fakeMediaSources);
-    FakeRenderer renderer = new FakeRenderer(Builder.VIDEO_FORMAT);
-    DefaultTrackSelector trackSelector = new DefaultTrackSelector();
+    Timeline timelineSetDuration = new FakeTimeline(/* windowCount= */ 1);
+    MediaSource mediaSource =
+        new ConcatenatingMediaSource(
+            new FakeMediaSource(timelineUnsetDuration, Builder.VIDEO_FORMAT),
+            new FakeMediaSource(timelineSetDuration, Builder.AUDIO_FORMAT));
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder("testUpdateTrackSelectorThenSeekToUnpreparedPeriod")
             .pause()
@@ -2275,8 +2272,7 @@ public final class ExoPlayerTest {
     List<TrackSelectionArray> trackSelectionsList = new ArrayList<>();
     new Builder()
         .setMediaSource(mediaSource)
-        .setTrackSelector(trackSelector)
-        .setRenderers(renderer)
+        .setSupportedFormats(Builder.VIDEO_FORMAT, Builder.AUDIO_FORMAT)
         .setActionSchedule(actionSchedule)
         .setEventListener(
             new EventListener() {
