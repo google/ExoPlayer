@@ -51,18 +51,12 @@ import java.util.Collections;
 public class MainActivity extends AppCompatActivity
     implements OnClickListener, PlayerManager.Listener {
 
-  private final MediaItem.Builder mediaItemBuilder;
-
   private PlayerView localPlayerView;
   private PlayerControlView castControlView;
   private PlayerManager playerManager;
   private RecyclerView mediaQueueList;
   private MediaQueueListAdapter mediaQueueListAdapter;
   private CastContext castContext;
-
-  public MainActivity() {
-    mediaItemBuilder = new MediaItem.Builder();
-  }
 
   // Activity lifecycle methods.
 
@@ -179,11 +173,11 @@ public class MainActivity extends AppCompatActivity
     sampleList.setOnItemClickListener(
         (parent, view, position, id) -> {
           DemoUtil.Sample sample = DemoUtil.SAMPLES.get(position);
-          mediaItemBuilder
-              .clear()
-              .setMedia(sample.uri)
-              .setTitle(sample.name)
-              .setMimeType(sample.mimeType);
+          MediaItem.Builder mediaItemBuilder =
+              new MediaItem.Builder()
+                  .setMedia(sample.uri)
+                  .setTitle(sample.name)
+                  .setMimeType(sample.mimeType);
           DemoUtil.DrmConfiguration drmConfiguration = sample.drmConfiguration;
           if (drmConfiguration != null) {
             mediaItemBuilder.setDrmSchemes(

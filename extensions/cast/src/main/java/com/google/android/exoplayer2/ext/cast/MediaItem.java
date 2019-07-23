@@ -17,8 +17,6 @@ package com.google.android.exoplayer2.ext.cast;
 
 import android.net.Uri;
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,8 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import org.checkerframework.checker.initialization.qual.UnknownInitialization;
-import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 
 /** Representation of an item that can be played by a media player. */
 public final class MediaItem {
@@ -35,36 +31,21 @@ public final class MediaItem {
   /** A builder for {@link MediaItem} instances. */
   public static final class Builder {
 
-    @Nullable private UUID uuid;
     private String title;
-    private String description;
     private MediaItem.UriBundle media;
-    @Nullable private Object attachment;
     private List<MediaItem.DrmScheme> drmSchemes;
-    private long startPositionUs;
-    private long endPositionUs;
     private String mimeType;
 
-    /** Creates an builder with default field values. */
     public Builder() {
-      clearInternal();
-    }
-
-    /** See {@link MediaItem#uuid}. */
-    public Builder setUuid(UUID uuid) {
-      this.uuid = uuid;
-      return this;
+      title = "";
+      media = UriBundle.EMPTY;
+      drmSchemes = Collections.emptyList();
+      mimeType = "";
     }
 
     /** See {@link MediaItem#title}. */
     public Builder setTitle(String title) {
       this.title = title;
-      return this;
-    }
-
-    /** See {@link MediaItem#description}. */
-    public Builder setDescription(String description) {
-      this.description = description;
       return this;
     }
 
@@ -79,28 +60,9 @@ public final class MediaItem {
       return this;
     }
 
-    /** See {@link MediaItem#attachment}. */
-    public Builder setAttachment(Object attachment) {
-      this.attachment = attachment;
-      return this;
-    }
-
     /** See {@link MediaItem#drmSchemes}. */
     public Builder setDrmSchemes(List<MediaItem.DrmScheme> drmSchemes) {
       this.drmSchemes = Collections.unmodifiableList(new ArrayList<>(drmSchemes));
-      return this;
-    }
-
-    /** See {@link MediaItem#startPositionUs}. */
-    public Builder setStartPositionUs(long startPositionUs) {
-      this.startPositionUs = startPositionUs;
-      return this;
-    }
-
-    /** See {@link MediaItem#endPositionUs}. */
-    public Builder setEndPositionUs(long endPositionUs) {
-      Assertions.checkArgument(endPositionUs != C.TIME_END_OF_SOURCE);
-      this.endPositionUs = endPositionUs;
       return this;
     }
 
@@ -110,52 +72,13 @@ public final class MediaItem {
       return this;
     }
 
-    /**
-     * Equivalent to {@link #build()}, except it also calls {@link #clear()} after creating the
-     * {@link MediaItem}.
-     */
-    public MediaItem buildAndClear() {
-      MediaItem item = build();
-      clearInternal();
-      return item;
-    }
-
-    /** Returns the builder to default values. */
-    public Builder clear() {
-      clearInternal();
-      return this;
-    }
-
-    /**
-     * Returns a new {@link MediaItem} instance with the current builder values. This method also
-     * clears any values passed to {@link #setUuid(UUID)}.
-     */
+    /** Returns a new {@link MediaItem} instance with the current builder values. */
     public MediaItem build() {
-      UUID uuid = this.uuid;
-      this.uuid = null;
       return new MediaItem(
-          uuid != null ? uuid : UUID.randomUUID(),
           title,
-          description,
           media,
-          attachment,
           drmSchemes,
-          startPositionUs,
-          endPositionUs,
           mimeType);
-    }
-
-    @EnsuresNonNull({"title", "description", "media", "drmSchemes", "mimeType"})
-    private void clearInternal(@UnknownInitialization Builder this) {
-      uuid = null;
-      title = "";
-      description = "";
-      media = UriBundle.EMPTY;
-      attachment = null;
-      drmSchemes = Collections.emptyList();
-      startPositionUs = C.TIME_UNSET;
-      endPositionUs = C.TIME_UNSET;
-      mimeType = "";
     }
   }
 
@@ -259,17 +182,8 @@ public final class MediaItem {
     }
   }
 
-  /**
-   * A UUID that identifies this item, potentially across different devices. The default value is
-   * obtained by calling {@link UUID#randomUUID()}.
-   */
-  public final UUID uuid;
-
   /** The title of the item. The default value is an empty string. */
   public final String title;
-
-  /** A description for the item. The default value is an empty string. */
-  public final String description;
 
   /**
    * A {@link UriBundle} to fetch the media content. The default value is {@link UriBundle#EMPTY}.
@@ -277,30 +191,10 @@ public final class MediaItem {
   public final UriBundle media;
 
   /**
-   * An optional opaque object to attach to the media item. Handling of this attachment is
-   * implementation specific. The default value is null.
-   */
-  @Nullable public final Object attachment;
-
-  /**
    * Immutable list of {@link DrmScheme} instances sorted in decreasing order of preference. The
    * default value is an empty list.
    */
   public final List<DrmScheme> drmSchemes;
-
-  /**
-   * The position in microseconds at which playback of this media item should start. {@link
-   * C#TIME_UNSET} if playback should start at the default position. The default value is {@link
-   * C#TIME_UNSET}.
-   */
-  public final long startPositionUs;
-
-  /**
-   * The position in microseconds at which playback of this media item should end. {@link
-   * C#TIME_UNSET} if playback should end at the end of the media. The default value is {@link
-   * C#TIME_UNSET}.
-   */
-  public final long endPositionUs;
 
   /**
    * The mime type of this media item. The default value is an empty string.
@@ -320,49 +214,29 @@ public final class MediaItem {
       return false;
     }
     MediaItem mediaItem = (MediaItem) other;
-    return startPositionUs == mediaItem.startPositionUs
-        && endPositionUs == mediaItem.endPositionUs
-        && uuid.equals(mediaItem.uuid)
-        && title.equals(mediaItem.title)
-        && description.equals(mediaItem.description)
+    return title.equals(mediaItem.title)
         && media.equals(mediaItem.media)
-        && Util.areEqual(attachment, mediaItem.attachment)
         && drmSchemes.equals(mediaItem.drmSchemes)
         && mimeType.equals(mediaItem.mimeType);
   }
 
   @Override
   public int hashCode() {
-    int result = uuid.hashCode();
-    result = 31 * result + title.hashCode();
-    result = 31 * result + description.hashCode();
+    int result = title.hashCode();
     result = 31 * result + media.hashCode();
-    result = 31 * result + (attachment != null ? attachment.hashCode() : 0);
     result = 31 * result + drmSchemes.hashCode();
-    result = 31 * result + (int) (startPositionUs ^ (startPositionUs >>> 32));
-    result = 31 * result + (int) (endPositionUs ^ (endPositionUs >>> 32));
     result = 31 * result + mimeType.hashCode();
     return result;
   }
 
   private MediaItem(
-      UUID uuid,
       String title,
-      String description,
       UriBundle media,
-      @Nullable Object attachment,
       List<DrmScheme> drmSchemes,
-      long startPositionUs,
-      long endPositionUs,
       String mimeType) {
-    this.uuid = uuid;
     this.title = title;
-    this.description = description;
     this.media = media;
-    this.attachment = attachment;
     this.drmSchemes = drmSchemes;
-    this.startPositionUs = startPositionUs;
-    this.endPositionUs = endPositionUs;
     this.mimeType = mimeType;
   }
 }
