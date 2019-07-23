@@ -16,6 +16,8 @@
 package com.google.android.exoplayer2.extractor.ts;
 
 import static com.google.android.exoplayer2.extractor.ts.TsPayloadReader.FLAG_DATA_ALIGNMENT_INDICATOR;
+import static com.google.android.exoplayer2.metadata.id3.Id3Decoder.ID3_HEADER_LENGTH;
+import static com.google.android.exoplayer2.metadata.id3.Id3Decoder.ID3_TAG;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.audio.Ac3Util;
@@ -44,7 +46,6 @@ public final class Ac3Extractor implements Extractor {
   private static final int MAX_SNIFF_BYTES = 8 * 1024;
   private static final int AC3_SYNC_WORD = 0x0B77;
   private static final int MAX_SYNC_FRAME_SIZE = 2786;
-  private static final int ID3_TAG = 0x00494433;
 
   private final Ac3Reader reader;
   private final ParsableByteArray sampleData;
@@ -62,10 +63,10 @@ public final class Ac3Extractor implements Extractor {
   @Override
   public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
     // Skip any ID3 headers.
-    ParsableByteArray scratch = new ParsableByteArray(10);
+    ParsableByteArray scratch = new ParsableByteArray(ID3_HEADER_LENGTH);
     int startPosition = 0;
     while (true) {
-      input.peekFully(scratch.data, 0, 10);
+      input.peekFully(scratch.data, /* offset= */ 0, ID3_HEADER_LENGTH);
       scratch.setPosition(0);
       if (scratch.readUnsignedInt24() != ID3_TAG) {
         break;
