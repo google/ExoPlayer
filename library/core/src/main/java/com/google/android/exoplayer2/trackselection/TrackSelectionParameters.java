@@ -31,9 +31,7 @@ public class TrackSelectionParameters implements Parcelable {
    */
   public static class Builder {
 
-    // Audio
     @Nullable /* package */ String preferredAudioLanguage;
-    // Text
     @Nullable /* package */ String preferredTextLanguage;
     /* package */ boolean selectUndeterminedTextLanguage;
     @C.SelectionFlags /* package */ int disabledTextTrackSelectionFlags;
@@ -48,9 +46,7 @@ public class TrackSelectionParameters implements Parcelable {
      *     the builder are obtained.
      */
     /* package */ Builder(TrackSelectionParameters initialValues) {
-      // Audio
       preferredAudioLanguage = initialValues.preferredAudioLanguage;
-      // Text
       preferredTextLanguage = initialValues.preferredTextLanguage;
       selectUndeterminedTextLanguage = initialValues.selectUndeterminedTextLanguage;
       disabledTextTrackSelectionFlags = initialValues.disabledTextTrackSelectionFlags;
@@ -66,8 +62,6 @@ public class TrackSelectionParameters implements Parcelable {
       this.preferredAudioLanguage = preferredAudioLanguage;
       return this;
     }
-
-    // Text
 
     /**
      * See {@link TrackSelectionParameters#preferredTextLanguage}.
@@ -117,15 +111,14 @@ public class TrackSelectionParameters implements Parcelable {
   public static final TrackSelectionParameters DEFAULT = new TrackSelectionParameters();
 
   /**
-   * The preferred language for audio and forced text tracks, as an ISO 639-2/T tag. {@code null}
-   * selects the default track, or the first track if there's no default. The default value is
-   * {@code null}.
+   * The preferred language for audio and forced text tracks as an IETF BCP 47 conformant tag.
+   * {@code null} selects the default track, or the first track if there's no default. The default
+   * value is {@code null}.
    */
   @Nullable public final String preferredAudioLanguage;
-  // Text
   /**
-   * The preferred language for text tracks as an ISO 639-2/T tag. {@code null} selects the default
-   * track if there is one, or no track otherwise. The default value is {@code null}.
+   * The preferred language for text tracks as an IETF BCP 47 conformant tag. {@code null} selects
+   * the default track if there is one, or no track otherwise. The default value is {@code null}.
    */
   @Nullable public final String preferredTextLanguage;
   /**
@@ -163,9 +156,7 @@ public class TrackSelectionParameters implements Parcelable {
   }
 
   /* package */ TrackSelectionParameters(Parcel in) {
-    // Audio
     this.preferredAudioLanguage = in.readString();
-    // Text
     this.preferredTextLanguage = in.readString();
     this.selectUndeterminedTextLanguage = Util.readBoolean(in);
     this.disabledTextTrackSelectionFlags = in.readInt();
@@ -187,7 +178,6 @@ public class TrackSelectionParameters implements Parcelable {
     }
     TrackSelectionParameters other = (TrackSelectionParameters) obj;
     return TextUtils.equals(preferredAudioLanguage, other.preferredAudioLanguage)
-        // Text
         && TextUtils.equals(preferredTextLanguage, other.preferredTextLanguage)
         && selectUndeterminedTextLanguage == other.selectUndeterminedTextLanguage
         && disabledTextTrackSelectionFlags == other.disabledTextTrackSelectionFlags;
@@ -196,9 +186,7 @@ public class TrackSelectionParameters implements Parcelable {
   @Override
   public int hashCode() {
     int result = 1;
-    // Audio
     result = 31 * result + (preferredAudioLanguage == null ? 0 : preferredAudioLanguage.hashCode());
-    // Text
     result = 31 * result + (preferredTextLanguage == null ? 0 : preferredTextLanguage.hashCode());
     result = 31 * result + (selectUndeterminedTextLanguage ? 1 : 0);
     result = 31 * result + disabledTextTrackSelectionFlags;
@@ -214,9 +202,7 @@ public class TrackSelectionParameters implements Parcelable {
 
   @Override
   public void writeToParcel(Parcel dest, int flags) {
-    // Audio
     dest.writeString(preferredAudioLanguage);
-    // Text
     dest.writeString(preferredTextLanguage);
     Util.writeBoolean(dest, selectUndeterminedTextLanguage);
     dest.writeInt(disabledTextTrackSelectionFlags);
