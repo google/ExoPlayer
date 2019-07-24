@@ -16,6 +16,8 @@
     provided ([#6325](https://github.com/google/ExoPlayer/issues/6325)).
 * Add `HttpDataSource.getResponseCode` to provide the status code associated
   with the most recent HTTP response.
+* Improve text selection logic to always prefer the better language matches
+  over other selection parameters.
 * OkHttp extension: Upgrade OkHttp to fix HTTP2 socket timeout issue
   ([#4078](https://github.com/google/ExoPlayer/issues/4078)).
 * RTMP extension: Upgrade LibRtmp-Client-for-Android to fix RTMP playback issues
