@@ -105,9 +105,9 @@ public final class AudioFocusManager {
   private final PlayerControl playerControl;
   @Nullable private AudioAttributes audioAttributes;
 
-  private @AudioFocusState int audioFocusState;
-  private int focusGain;
-  private float volumeMultiplier = 1.0f;
+  @AudioFocusState private int audioFocusState;
+  @C.AudioFocusGain private int focusGain;
+  private float volumeMultiplier = VOLUME_MULTIPLIER_DEFAULT;
 
   private @MonotonicNonNull AudioFocusRequest audioFocusRequest;
   private boolean rebuildAudioFocusRequest;
@@ -310,6 +310,7 @@ public final class AudioFocusManager {
    * @param audioAttributes The audio attributes associated with this focus request.
    * @return The type of audio focus gain that should be requested.
    */
+  @C.AudioFocusGain
   private static int convertAudioAttributesToFocusGain(@Nullable AudioAttributes audioAttributes) {
 
     if (audioAttributes == null) {
