@@ -686,6 +686,7 @@ public class AnalyticsCollector
     private final HashMap<MediaPeriodId, MediaPeriodInfo> mediaPeriodIdToInfo;
     private final Period period;
 
+    @Nullable private MediaPeriodInfo lastPlayingMediaPeriod;
     @Nullable private MediaPeriodInfo lastReportedPlayingMediaPeriod;
     @Nullable private MediaPeriodInfo readingMediaPeriod;
     private Timeline timeline;
@@ -780,7 +781,7 @@ public class AnalyticsCollector
 
     /** Updates the queue with a reported position discontinuity . */
     public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
-      updateLastReportedPlayingMediaPeriod();
+      lastReportedPlayingMediaPeriod = lastPlayingMediaPeriod;
     }
 
     /** Updates the queue with a reported timeline change. */
@@ -795,7 +796,7 @@ public class AnalyticsCollector
         readingMediaPeriod = updateMediaPeriodInfoToNewTimeline(readingMediaPeriod, timeline);
       }
       this.timeline = timeline;
-      updateLastReportedPlayingMediaPeriod();
+      lastReportedPlayingMediaPeriod = lastPlayingMediaPeriod;
     }
 
     /** Updates the queue with a reported start of seek. */
@@ -806,7 +807,7 @@ public class AnalyticsCollector
     /** Updates the queue with a reported processed seek. */
     public void onSeekProcessed() {
       isSeeking = false;
-      updateLastReportedPlayingMediaPeriod();
+      lastReportedPlayingMediaPeriod = lastPlayingMediaPeriod;
     }
 
     /** Updates the queue with a newly created media period. */
@@ -816,8 +817,9 @@ public class AnalyticsCollector
           new MediaPeriodInfo(mediaPeriodId, isInTimeline ? timeline : Timeline.EMPTY, windowIndex);
       mediaPeriodInfoQueue.add(mediaPeriodInfo);
       mediaPeriodIdToInfo.put(mediaPeriodId, mediaPeriodInfo);
+      lastPlayingMediaPeriod = mediaPeriodInfoQueue.get(0);
       if (mediaPeriodInfoQueue.size() == 1 && !timeline.isEmpty()) {
-        updateLastReportedPlayingMediaPeriod();
+        lastReportedPlayingMediaPeriod = lastPlayingMediaPeriod;
       }
     }
 
@@ -835,18 +837,15 @@ public class AnalyticsCollector
       if (readingMediaPeriod != null && mediaPeriodId.equals(readingMediaPeriod.mediaPeriodId)) {
         readingMediaPeriod = mediaPeriodInfoQueue.isEmpty() ? null : mediaPeriodInfoQueue.get(0);
       }
+      if (!mediaPeriodInfoQueue.isEmpty()) {
+        lastPlayingMediaPeriod = mediaPeriodInfoQueue.get(0);
+      }
       return true;
     }
 
     /** Update the queue with a change in the reading media period. */
     public void onReadingStarted(MediaPeriodId mediaPeriodId) {
       readingMediaPeriod = mediaPeriodIdToInfo.get(mediaPeriodId);
-    }
-
-    private void updateLastReportedPlayingMediaPeriod() {
-      if (!mediaPeriodInfoQueue.isEmpty()) {
-        lastReportedPlayingMediaPeriod = mediaPeriodInfoQueue.get(0);
-      }
     }
 
     private MediaPeriodInfo updateMediaPeriodInfoToNewTimeline(
