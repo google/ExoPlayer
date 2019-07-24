@@ -34,6 +34,8 @@
   ([#6153](https://github.com/google/ExoPlayer/issues/6153)).
 * Add ability to specify a description when creating notification channels via
   ExoPlayer library classes.
+* Improve text selection logic to always prefer the better language matches
+  over other selection parameters.
 
 ### 2.10.3 ###
 
