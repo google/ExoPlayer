@@ -19,8 +19,10 @@ import androidx.annotation.Nullable;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.TransferListener;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
@@ -37,6 +39,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
 
   private MaskingTimeline timeline;
   @Nullable private MaskingMediaPeriod unpreparedMaskingMediaPeriod;
+  @Nullable private EventDispatcher unpreparedMaskingMediaPeriodEventDispatcher;
   private boolean hasStartedPreparing;
   private boolean isPrepared;
 
@@ -96,6 +99,9 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
       // unset and we don't load beyond periods with unset duration. We need to figure out how to
       // handle the prepare positions of multiple deferred media periods, should that ever change.
       unpreparedMaskingMediaPeriod = mediaPeriod;
+      unpreparedMaskingMediaPeriodEventDispatcher =
+          createEventDispatcher(/* windowIndex= */ 0, id, /* mediaTimeOffsetMs= */ 0);
+      unpreparedMaskingMediaPeriodEventDispatcher.mediaPeriodCreated();
       if (!hasStartedPreparing) {
         hasStartedPreparing = true;
         prepareChildSource(/* id= */ null, mediaSource);
@@ -107,7 +113,11 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
   @Override
   public void releasePeriod(MediaPeriod mediaPeriod) {
     ((MaskingMediaPeriod) mediaPeriod).releasePeriod();
-    unpreparedMaskingMediaPeriod = null;
+    if (mediaPeriod == unpreparedMaskingMediaPeriod) {
+      Assertions.checkNotNull(unpreparedMaskingMediaPeriodEventDispatcher).mediaPeriodReleased();
+      unpreparedMaskingMediaPeriodEventDispatcher = null;
+      unpreparedMaskingMediaPeriod = null;
+    }
   }
 
   @Override
@@ -154,7 +164,6 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
       timeline = MaskingTimeline.createWithRealTimeline(newTimeline, periodUid);
       if (unpreparedMaskingMediaPeriod != null) {
         MaskingMediaPeriod maskingPeriod = unpreparedMaskingMediaPeriod;
-        unpreparedMaskingMediaPeriod = null;
         maskingPeriod.overridePreparePositionUs(periodPositionUs);
         MediaPeriodId idInSource =
             maskingPeriod.id.copyWithPeriodUid(getInternalPeriodUid(maskingPeriod.id.periodUid));
@@ -170,6 +179,14 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
   protected MediaPeriodId getMediaPeriodIdForChildMediaPeriodId(
       Void id, MediaPeriodId mediaPeriodId) {
     return mediaPeriodId.copyWithPeriodUid(getExternalPeriodUid(mediaPeriodId.periodUid));
+  }
+
+  @Override
+  protected boolean shouldDispatchCreateOrReleaseEvent(MediaPeriodId mediaPeriodId) {
+    // Suppress create and release events for the period created while the source was still
+    // unprepared, as we send these events from this class.
+    return unpreparedMaskingMediaPeriod == null
+        || !mediaPeriodId.equals(unpreparedMaskingMediaPeriod.id);
   }
 
   private Object getInternalPeriodUid(Object externalPeriodUid) {

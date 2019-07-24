@@ -96,11 +96,11 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
   /**
    * Prepares a child source.
    *
-   * <p>{@link #onChildSourceInfoRefreshed(Object, MediaSource, Timeline)} will be called when the
-   * child source updates its timeline with the same {@code id} passed to this method.
+   * <p>{@link #onChildSourceInfoRefreshed(T, MediaSource, Timeline)} will be called when the child
+   * source updates its timeline with the same {@code id} passed to this method.
    *
-   * <p>Any child sources that aren't explicitly released with {@link #releaseChildSource(Object)}
-   * will be released in {@link #releaseSourceInternal()}.
+   * <p>Any child sources that aren't explicitly released with {@link #releaseChildSource(T)} will
+   * be released in {@link #releaseSourceInternal()}.
    *
    * @param id A unique id to identify the child source preparation. Null is allowed as an id.
    * @param mediaSource The child {@link MediaSource}.
@@ -188,6 +188,18 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
     return mediaTimeMs;
   }
 
+  /**
+   * Returns whether {@link MediaSourceEventListener#onMediaPeriodCreated(int, MediaPeriodId)} and
+   * {@link MediaSourceEventListener#onMediaPeriodReleased(int, MediaPeriodId)} events of the given
+   * media period should be reported. The default implementation is to always report these events.
+   *
+   * @param mediaPeriodId A {@link MediaPeriodId} in the composite media source.
+   * @return Whether create and release events for this media period should be reported.
+   */
+  protected boolean shouldDispatchCreateOrReleaseEvent(MediaPeriodId mediaPeriodId) {
+    return true;
+  }
+
   private static final class MediaSourceAndListener {
 
     public final MediaSource mediaSource;
@@ -215,14 +227,20 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
     @Override
     public void onMediaPeriodCreated(int windowIndex, MediaPeriodId mediaPeriodId) {
       if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        eventDispatcher.mediaPeriodCreated();
+        if (shouldDispatchCreateOrReleaseEvent(
+            Assertions.checkNotNull(eventDispatcher.mediaPeriodId))) {
+          eventDispatcher.mediaPeriodCreated();
+        }
       }
     }
 
     @Override
     public void onMediaPeriodReleased(int windowIndex, MediaPeriodId mediaPeriodId) {
       if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        eventDispatcher.mediaPeriodReleased();
+        if (shouldDispatchCreateOrReleaseEvent(
+            Assertions.checkNotNull(eventDispatcher.mediaPeriodId))) {
+          eventDispatcher.mediaPeriodReleased();
+        }
       }
     }
 
