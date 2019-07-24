@@ -1002,12 +1002,12 @@ public final class DefaultTrackSelectorTest {
     result = trackSelector.selectTracks(textRendererCapabilities, trackGroups, periodId, TIMELINE);
     assertNoSelection(result.selections.get(0));
 
-    // There is a preferred language, so the first language-matching track flagged as default should
-    // be selected.
+    // There is a preferred language, so a language-matching track flagged as default should
+    // be selected, and the one without forced flag should be preferred.
     trackSelector.setParameters(
         Parameters.DEFAULT.buildUpon().setPreferredTextLanguage("eng").build());
     result = trackSelector.selectTracks(textRendererCapabilities, trackGroups, periodId, TIMELINE);
-    assertFixedSelection(result.selections.get(0), trackGroups, forcedDefault);
+    assertFixedSelection(result.selections.get(0), trackGroups, defaultOnly);
 
     // Same as above, but the default flag is disabled. If multiple tracks match the preferred
     // language, those not flagged as forced are preferred, as they likely include the contents of
