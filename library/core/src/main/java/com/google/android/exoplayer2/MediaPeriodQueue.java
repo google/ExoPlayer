@@ -277,8 +277,8 @@ import com.google.android.exoplayer2.util.Assertions;
     if (front != null) {
       oldFrontPeriodUid = keepFrontPeriodUid ? front.uid : null;
       oldFrontPeriodWindowSequenceNumber = front.info.id.windowSequenceNumber;
-      front.release();
       removeAfter(front);
+      front.release();
     } else if (!keepFrontPeriodUid) {
       oldFrontPeriodUid = null;
     }
