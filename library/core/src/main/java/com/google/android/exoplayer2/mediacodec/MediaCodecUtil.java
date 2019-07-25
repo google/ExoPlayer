@@ -1060,6 +1060,8 @@ public final class MediaCodecUtil {
     DOLBY_VISION_STRING_TO_LEVEL.put("08", CodecProfileLevel.DolbyVisionLevelUhd48);
     DOLBY_VISION_STRING_TO_LEVEL.put("09", CodecProfileLevel.DolbyVisionLevelUhd60);
 
+    // See https://aomediacodec.github.io/av1-spec/av1-spec.pdf Annex A: Profiles and levels for
+    // more information on mapping AV1 codec strings to levels.
     AV1_LEVEL_NUMBER_TO_CONST = new SparseIntArray();
     AV1_LEVEL_NUMBER_TO_CONST.put(0, CodecProfileLevel.AV1Level2);
     AV1_LEVEL_NUMBER_TO_CONST.put(1, CodecProfileLevel.AV1Level21);
