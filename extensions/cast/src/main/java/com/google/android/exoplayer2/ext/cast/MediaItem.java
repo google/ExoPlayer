@@ -17,52 +17,37 @@ package com.google.android.exoplayer2.ext.cast;
 
 import android.net.Uri;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/** Representation of an item that can be played by a media player. */
+/** Representation of a media item. */
 public final class MediaItem {
 
   /** A builder for {@link MediaItem} instances. */
   public static final class Builder {
 
-    private String title;
-    private MediaItem.UriBundle media;
-    private List<MediaItem.DrmScheme> drmSchemes;
-    private String mimeType;
+    @Nullable private Uri uri;
+    @Nullable private String title;
+    @Nullable private String mimeType;
+    @Nullable private DrmConfiguration drmConfiguration;
 
-    public Builder() {
-      title = "";
-      media = UriBundle.EMPTY;
-      drmSchemes = Collections.emptyList();
-      mimeType = "";
+    /** See {@link MediaItem#uri}. */
+    public Builder setUri(String uri) {
+      return setUri(Uri.parse(uri));
+    }
+
+    /** See {@link MediaItem#uri}. */
+    public Builder setUri(Uri uri) {
+      this.uri = uri;
+      return this;
     }
 
     /** See {@link MediaItem#title}. */
     public Builder setTitle(String title) {
       this.title = title;
-      return this;
-    }
-
-    /** Equivalent to {@link #setMedia(UriBundle) setMedia(new UriBundle(Uri.parse(uri)))}. */
-    public Builder setMedia(String uri) {
-      return setMedia(new UriBundle(Uri.parse(uri)));
-    }
-
-    /** See {@link MediaItem#media}. */
-    public Builder setMedia(UriBundle media) {
-      this.media = media;
-      return this;
-    }
-
-    /** See {@link MediaItem#drmSchemes}. */
-    public Builder setDrmSchemes(List<MediaItem.DrmScheme> drmSchemes) {
-      this.drmSchemes = Collections.unmodifiableList(new ArrayList<>(drmSchemes));
       return this;
     }
 
@@ -72,171 +57,119 @@ public final class MediaItem {
       return this;
     }
 
+    /** See {@link MediaItem#drmConfiguration}. */
+    public Builder setDrmConfiguration(DrmConfiguration drmConfiguration) {
+      this.drmConfiguration = drmConfiguration;
+      return this;
+    }
+
     /** Returns a new {@link MediaItem} instance with the current builder values. */
     public MediaItem build() {
-      return new MediaItem(
-          title,
-          media,
-          drmSchemes,
-          mimeType);
+      Assertions.checkNotNull(uri);
+      return new MediaItem(uri, title, mimeType, drmConfiguration);
     }
   }
 
-  /** Bundles a resource's URI with headers to attach to any request to that URI. */
-  public static final class UriBundle {
-
-    /** An empty {@link UriBundle}. */
-    public static final UriBundle EMPTY = new UriBundle(Uri.EMPTY);
-
-    /** A URI. */
-    public final Uri uri;
-
-    /** The headers to attach to any request for the given URI. */
-    public final Map<String, String> requestHeaders;
-
-    /**
-     * Creates an instance with no request headers.
-     *
-     * @param uri See {@link #uri}.
-     */
-    public UriBundle(Uri uri) {
-      this(uri, Collections.emptyMap());
-    }
-
-    /**
-     * Creates an instance with the given URI and request headers.
-     *
-     * @param uri See {@link #uri}.
-     * @param requestHeaders See {@link #requestHeaders}.
-     */
-    public UriBundle(Uri uri, Map<String, String> requestHeaders) {
-      this.uri = uri;
-      this.requestHeaders = Collections.unmodifiableMap(new HashMap<>(requestHeaders));
-    }
-
-    @Override
-    public boolean equals(@Nullable Object other) {
-      if (this == other) {
-        return true;
-      }
-      if (other == null || getClass() != other.getClass()) {
-        return false;
-      }
-
-      UriBundle uriBundle = (UriBundle) other;
-      return uri.equals(uriBundle.uri) && requestHeaders.equals(uriBundle.requestHeaders);
-    }
-
-    @Override
-    public int hashCode() {
-      int result = uri.hashCode();
-      result = 31 * result + requestHeaders.hashCode();
-      return result;
-    }
-  }
-
-  /**
-   * Represents a DRM protection scheme, and optionally provides information about how to acquire
-   * the license for the media.
-   */
-  public static final class DrmScheme {
+  /** DRM configuration for a media item. */
+  public static final class DrmConfiguration {
 
     /** The UUID of the protection scheme. */
     public final UUID uuid;
 
     /**
-     * Optional {@link UriBundle} for the license server. If no license server is provided, the
-     * server must be provided by the media.
+     * Optional license server {@link Uri}. If {@code null} then the license server must be
+     * specified by the media.
      */
-    @Nullable public final UriBundle licenseServer;
+    @Nullable public final Uri licenseUri;
+
+    /** Headers that should be attached to any license requests. */
+    public final Map<String, String> requestHeaders;
 
     /**
      * Creates an instance.
      *
      * @param uuid See {@link #uuid}.
-     * @param licenseServer See {@link #licenseServer}.
+     * @param licenseUri See {@link #licenseUri}.
+     * @param requestHeaders See {@link #requestHeaders}.
      */
-    public DrmScheme(UUID uuid, @Nullable UriBundle licenseServer) {
+    public DrmConfiguration(
+        UUID uuid, @Nullable Uri licenseUri, @Nullable Map<String, String> requestHeaders) {
       this.uuid = uuid;
-      this.licenseServer = licenseServer;
+      this.licenseUri = licenseUri;
+      this.requestHeaders =
+          requestHeaders == null
+              ? Collections.emptyMap()
+              : Collections.unmodifiableMap(requestHeaders);
     }
 
     @Override
-    public boolean equals(@Nullable Object other) {
-      if (this == other) {
+    public boolean equals(@Nullable Object obj) {
+      if (this == obj) {
         return true;
       }
-      if (other == null || getClass() != other.getClass()) {
+      if (obj == null || getClass() != obj.getClass()) {
         return false;
       }
 
-      DrmScheme drmScheme = (DrmScheme) other;
-      return uuid.equals(drmScheme.uuid) && Util.areEqual(licenseServer, drmScheme.licenseServer);
+      DrmConfiguration other = (DrmConfiguration) obj;
+      return uuid.equals(other.uuid)
+          && Util.areEqual(licenseUri, other.licenseUri)
+          && requestHeaders.equals(other.requestHeaders);
     }
 
     @Override
     public int hashCode() {
       int result = uuid.hashCode();
-      result = 31 * result + (licenseServer != null ? licenseServer.hashCode() : 0);
+      result = 31 * result + (licenseUri != null ? licenseUri.hashCode() : 0);
+      result = 31 * result + requestHeaders.hashCode();
       return result;
     }
   }
 
-  /** The title of the item. The default value is an empty string. */
-  public final String title;
+  /** The media {@link Uri}. */
+  public final Uri uri;
 
-  /**
-   * A {@link UriBundle} to fetch the media content. The default value is {@link UriBundle#EMPTY}.
-   */
-  public final UriBundle media;
+  /** The title of the item, or {@code null} if unspecified. */
+  @Nullable public final String title;
 
-  /**
-   * Immutable list of {@link DrmScheme} instances sorted in decreasing order of preference. The
-   * default value is an empty list.
-   */
-  public final List<DrmScheme> drmSchemes;
+  /** The mime type for the media, or {@code null} if unspecified. */
+  @Nullable public final String mimeType;
 
-  /**
-   * The mime type of this media item. The default value is an empty string.
-   *
-   * <p>The usage of this mime type is optional and player implementation specific.
-   */
-  public final String mimeType;
+  /** Optional {@link DrmConfiguration} for the media. */
+  @Nullable public final DrmConfiguration drmConfiguration;
 
-  // TODO: Add support for sideloaded tracks, artwork, icon, and subtitle.
+  private MediaItem(
+      Uri uri,
+      @Nullable String title,
+      @Nullable String mimeType,
+      @Nullable DrmConfiguration drmConfiguration) {
+    this.uri = uri;
+    this.title = title;
+    this.mimeType = mimeType;
+    this.drmConfiguration = drmConfiguration;
+  }
 
   @Override
-  public boolean equals(@Nullable Object other) {
-    if (this == other) {
+  public boolean equals(@Nullable Object obj) {
+    if (this == obj) {
       return true;
     }
-    if (other == null || getClass() != other.getClass()) {
+    if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    MediaItem mediaItem = (MediaItem) other;
-    return title.equals(mediaItem.title)
-        && media.equals(mediaItem.media)
-        && drmSchemes.equals(mediaItem.drmSchemes)
-        && mimeType.equals(mediaItem.mimeType);
+    MediaItem other = (MediaItem) obj;
+    return uri.equals(other.uri)
+        && Util.areEqual(title, other.title)
+        && Util.areEqual(mimeType, other.mimeType)
+        && Util.areEqual(drmConfiguration, other.drmConfiguration);
   }
 
   @Override
   public int hashCode() {
-    int result = title.hashCode();
-    result = 31 * result + media.hashCode();
-    result = 31 * result + drmSchemes.hashCode();
-    result = 31 * result + mimeType.hashCode();
+    int result = uri.hashCode();
+    result = 31 * result + (title == null ? 0 : title.hashCode());
+    result = 31 * result + (drmConfiguration == null ? 0 : drmConfiguration.hashCode());
+    result = 31 * result + (mimeType == null ? 0 : mimeType.hashCode());
     return result;
-  }
-
-  private MediaItem(
-      String title,
-      UriBundle media,
-      List<DrmScheme> drmSchemes,
-      String mimeType) {
-    this.title = title;
-    this.media = media;
-    this.drmSchemes = drmSchemes;
-    this.mimeType = mimeType;
   }
 }

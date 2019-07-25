@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.castdemo;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import androidx.core.graphics.ColorUtils;
 import androidx.appcompat.app.AlertDialog;
@@ -42,7 +41,6 @@ import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.dynamite.DynamiteModule;
-import java.util.Collections;
 
 /**
  * An activity that plays video using {@link SimpleExoPlayer} and supports casting using ExoPlayer's
@@ -172,25 +170,7 @@ public class MainActivity extends AppCompatActivity
     sampleList.setAdapter(new SampleListAdapter(this));
     sampleList.setOnItemClickListener(
         (parent, view, position, id) -> {
-          DemoUtil.Sample sample = DemoUtil.SAMPLES.get(position);
-          MediaItem.Builder mediaItemBuilder =
-              new MediaItem.Builder()
-                  .setMedia(sample.uri)
-                  .setTitle(sample.name)
-                  .setMimeType(sample.mimeType);
-          DemoUtil.DrmConfiguration drmConfiguration = sample.drmConfiguration;
-          if (drmConfiguration != null) {
-            mediaItemBuilder.setDrmSchemes(
-                Collections.singletonList(
-                    new MediaItem.DrmScheme(
-                        drmConfiguration.drmSchemeUuid,
-                        new MediaItem.UriBundle(
-                            drmConfiguration.licenseServerUri != null
-                                ? Uri.parse(drmConfiguration.licenseServerUri)
-                                : Uri.EMPTY,
-                            drmConfiguration.httpRequestHeaders))));
-          }
-          playerManager.addItem(mediaItemBuilder.build());
+          playerManager.addItem(DemoUtil.SAMPLES.get(position));
           mediaQueueListAdapter.notifyItemInserted(playerManager.getMediaQueueSize() - 1);
         });
     return dialogList;
@@ -213,8 +193,10 @@ public class MainActivity extends AppCompatActivity
       TextView view = holder.textView;
       view.setText(holder.item.title);
       // TODO: Solve coloring using the theme's ColorStateList.
-      view.setTextColor(ColorUtils.setAlphaComponent(view.getCurrentTextColor(),
-           position == playerManager.getCurrentItemIndex() ? 255 : 100));
+      view.setTextColor(
+          ColorUtils.setAlphaComponent(
+              view.getCurrentTextColor(),
+              position == playerManager.getCurrentItemIndex() ? 255 : 100));
     }
 
     @Override
@@ -294,11 +276,10 @@ public class MainActivity extends AppCompatActivity
     }
   }
 
-  private static final class SampleListAdapter extends ArrayAdapter<DemoUtil.Sample> {
+  private static final class SampleListAdapter extends ArrayAdapter<MediaItem> {
 
     public SampleListAdapter(Context context) {
       super(context, android.R.layout.simple_list_item_1, DemoUtil.SAMPLES);
     }
   }
-
 }

@@ -44,7 +44,6 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.cast.MediaQueueItem;
@@ -368,8 +367,12 @@ import org.json.JSONObject;
   }
 
   private static MediaSource buildMediaSource(MediaItem item) {
-    Uri uri = item.media.uri;
-    switch (item.mimeType) {
+    Uri uri = item.uri;
+    String mimeType = item.mimeType;
+    if (mimeType == null) {
+      throw new IllegalArgumentException("mimeType is required");
+    }
+    switch (mimeType) {
       case DemoUtil.MIME_TYPE_SS:
         return new SsMediaSource.Factory(DATA_SOURCE_FACTORY).createMediaSource(uri);
       case DemoUtil.MIME_TYPE_DASH:
@@ -379,7 +382,7 @@ import org.json.JSONObject;
       case DemoUtil.MIME_TYPE_VIDEO_MP4:
         return new ProgressiveMediaSource.Factory(DATA_SOURCE_FACTORY).createMediaSource(uri);
       default:
-        throw new IllegalStateException("Unsupported type: " + item.mimeType);
+        throw new IllegalArgumentException("mimeType is unsupported: " + mimeType);
     }
   }
 
@@ -387,18 +390,18 @@ import org.json.JSONObject;
     MediaMetadata movieMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE);
     movieMetadata.putString(MediaMetadata.KEY_TITLE, item.title);
     MediaInfo.Builder mediaInfoBuilder =
-        new MediaInfo.Builder(item.media.uri.toString())
+        new MediaInfo.Builder(item.uri.toString())
             .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
             .setContentType(item.mimeType)
             .setMetadata(movieMetadata);
-    if (!item.drmSchemes.isEmpty()) {
-      MediaItem.DrmScheme scheme = item.drmSchemes.get(0);
+    MediaItem.DrmConfiguration drmConfiguration = item.drmConfiguration;
+    if (drmConfiguration != null) {
       try {
         // This configuration is only intended for testing and should *not* be used in production
         // environments. See comment in the Cast Demo app's options provider.
-        JSONObject drmConfiguration = getDrmConfigurationJson(scheme);
-        if (drmConfiguration != null) {
-          mediaInfoBuilder.setCustomData(drmConfiguration);
+        JSONObject drmConfigurationJson = getDrmConfigurationJson(drmConfiguration);
+        if (drmConfigurationJson != null) {
+          mediaInfoBuilder.setCustomData(drmConfigurationJson);
         }
       } catch (JSONException e) {
         throw new RuntimeException(e);
@@ -408,24 +411,23 @@ import org.json.JSONObject;
   }
 
   @Nullable
-  private static JSONObject getDrmConfigurationJson(MediaItem.DrmScheme scheme)
+  private static JSONObject getDrmConfigurationJson(MediaItem.DrmConfiguration drmConfiguration)
       throws JSONException {
     String drmScheme;
-    if (C.WIDEVINE_UUID.equals(scheme.uuid)) {
+    if (C.WIDEVINE_UUID.equals(drmConfiguration.uuid)) {
       drmScheme = "widevine";
-    } else if (C.PLAYREADY_UUID.equals(scheme.uuid)) {
+    } else if (C.PLAYREADY_UUID.equals(drmConfiguration.uuid)) {
       drmScheme = "playready";
     } else {
       return null;
     }
-    MediaItem.UriBundle licenseServer = Assertions.checkNotNull(scheme.licenseServer);
     JSONObject exoplayerConfig =
         new JSONObject().put("withCredentials", false).put("protectionSystem", drmScheme);
-    if (!licenseServer.uri.equals(Uri.EMPTY)) {
-      exoplayerConfig.put("licenseUrl", licenseServer.uri.toString());
+    if (drmConfiguration.licenseUri != null) {
+      exoplayerConfig.put("licenseUrl", drmConfiguration.licenseUri);
     }
-    if (!licenseServer.requestHeaders.isEmpty()) {
-      exoplayerConfig.put("headers", new JSONObject(licenseServer.requestHeaders));
+    if (!drmConfiguration.requestHeaders.isEmpty()) {
+      exoplayerConfig.put("headers", new JSONObject(drmConfiguration.requestHeaders));
     }
     return new JSONObject().put("exoPlayerConfig", exoplayerConfig);
   }
