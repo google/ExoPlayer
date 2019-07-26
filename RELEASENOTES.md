@@ -2,19 +2,20 @@
 
 ### 2.10.4 ###
 
-* Offline: Add Scheduler implementation which uses WorkManager.
-* Flac extension: Parse `VORBIS_COMMENT` metadata
-  ([#5527](https://github.com/google/ExoPlayer/issues/5527)).
-* Fix issue where initial seek positions get ignored when playing a preroll ad.
-* Fix `DataSchemeDataSource` re-opening and range requests
-  ([#6192](https://github.com/google/ExoPlayer/issues/6192)).
+* Offline: Add `Scheduler` implementation that uses `WorkManager`.
+* Add ability to specify a description when creating notification channels via
+  ExoPlayer library classes.
 * Switch normalized BCP-47 language codes to use 2-letter ISO 639-1 language
   tags instead of 3-letter ISO 639-2 language tags.
+* Fix issue where initial seek positions get ignored when playing a preroll ad
+  ([#6201](https://github.com/google/ExoPlayer/issues/6201)).
 * Fix issue where invalid language tags were normalized to "und" instead of
   keeping the original
   ([#6153](https://github.com/google/ExoPlayer/issues/6153)).
-* Add ability to specify a description when creating notification channels via
-  ExoPlayer library classes.
+* Fix `DataSchemeDataSource` re-opening and range requests
+  ([#6192](https://github.com/google/ExoPlayer/issues/6192)).
+* Flac extension: Parse `VORBIS_COMMENT` metadata
+  ([#5527](https://github.com/google/ExoPlayer/issues/5527)).
 
 ### 2.10.3 ###
 
