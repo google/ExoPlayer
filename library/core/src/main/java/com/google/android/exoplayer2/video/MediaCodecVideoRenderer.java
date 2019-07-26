@@ -1487,6 +1487,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
             case "1713":
             case "1714":
             case "A10-70F":
+            case "A10-70L":
             case "A1601":
             case "A2016a40":
             case "A7000-a":
