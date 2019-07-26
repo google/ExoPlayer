@@ -5,7 +5,6 @@
 * Add `PlaybackStatsListener` to collect `PlaybackStats` for playbacks analysis
   and analytics reporting (TODO: link to developer guide page/blog post).
 * Add basic DRM support to the Cast demo app.
-* Offline: Add `Scheduler` implementation that uses `WorkManager`.
 * Assume that encrypted content requires secure decoders in renderer support
   checks ([#5568](https://github.com/google/ExoPlayer/issues/5568)).
 * Decoders: Prefer decoders that advertise format support over ones that do not,
@@ -19,23 +18,28 @@
   `SourceInfoRefreshListener` anymore. Instead make it accessible through
   `Player.getCurrentManifest()` and `Timeline.Window.manifest`. Also rename
   `SourceInfoRefreshListener` to `MediaSourceCaller`.
-* Flac extension: Parse `VORBIS_COMMENT` metadata
-  ([#5527](https://github.com/google/ExoPlayer/issues/5527)).
 * Set `compileSdkVersion` to 29 to use Android Q APIs.
 * Add `enable` and `disable` methods to `MediaSource` to improve resource
   management in playlists.
-* Fix issue where initial seek positions get ignored when playing a preroll ad.
-* Fix `DataSchemeDataSource` re-opening and range requests
-  ([#6192](https://github.com/google/ExoPlayer/issues/6192)).
+* Improve text selection logic to always prefer the better language matches
+  over other selection parameters.
+
+### 2.10.4 ###
+
+* Offline: Add `Scheduler` implementation that uses `WorkManager`.
+* Add ability to specify a description when creating notification channels via
+  ExoPlayer library classes.
 * Switch normalized BCP-47 language codes to use 2-letter ISO 639-1 language
   tags instead of 3-letter ISO 639-2 language tags.
+* Fix issue where initial seek positions get ignored when playing a preroll ad
+  ([#6201](https://github.com/google/ExoPlayer/issues/6201)).
 * Fix issue where invalid language tags were normalized to "und" instead of
   keeping the original
   ([#6153](https://github.com/google/ExoPlayer/issues/6153)).
-* Add ability to specify a description when creating notification channels via
-  ExoPlayer library classes.
-* Improve text selection logic to always prefer the better language matches
-  over other selection parameters.
+* Fix `DataSchemeDataSource` re-opening and range requests
+  ([#6192](https://github.com/google/ExoPlayer/issues/6192)).
+* Flac extension: Parse `VORBIS_COMMENT` metadata
+  ([#5527](https://github.com/google/ExoPlayer/issues/5527)).
 
 ### 2.10.3 ###
 
