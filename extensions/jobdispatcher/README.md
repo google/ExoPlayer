@@ -1,5 +1,7 @@
 # ExoPlayer Firebase JobDispatcher extension #
 
+---
+
 **This extension is deprecated. Please use [WorkManager extension][] or [PlatformScheduler][].**
 
 ---
