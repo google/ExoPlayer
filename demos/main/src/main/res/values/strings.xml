@@ -53,6 +53,8 @@
 
   <string name="ima_not_loaded">Playing sample without ads, as the IMA extension was not loaded</string>
 
+  <string name="unsupported_ads_in_concatenation">Playing sample without ads, as ads are not supported in concatenations</string>
+
   <string name="download_start_error">Failed to start download</string>
 
   <string name="download_playlist_unsupported">This demo app does not support downloading playlists</string>
