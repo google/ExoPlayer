@@ -102,7 +102,7 @@ public final class ExoPlayerFactory {
    * @param context A {@link Context}.
    */
   public static SimpleExoPlayer newSimpleInstance(Context context) {
-    return newSimpleInstance(context, new DefaultTrackSelector());
+    return newSimpleInstance(context, new DefaultTrackSelector(context));
   }
 
   /**

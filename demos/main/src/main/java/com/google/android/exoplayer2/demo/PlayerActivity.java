@@ -195,7 +195,7 @@ public class PlayerActivity extends AppCompatActivity
       startWindow = savedInstanceState.getInt(KEY_WINDOW);
       startPosition = savedInstanceState.getLong(KEY_POSITION);
     } else {
-      trackSelectorParameters = new DefaultTrackSelector.ParametersBuilder().build();
+      trackSelectorParameters = DefaultTrackSelector.Parameters.getDefaults(/* context= */ this);
       clearStartPosition();
     }
   }
@@ -411,7 +411,7 @@ public class PlayerActivity extends AppCompatActivity
       RenderersFactory renderersFactory =
           ((DemoApplication) getApplication()).buildRenderersFactory(preferExtensionDecoders);
 
-      trackSelector = new DefaultTrackSelector(trackSelectionFactory);
+      trackSelector = new DefaultTrackSelector(/* context= */ this, trackSelectionFactory);
       trackSelector.setParameters(trackSelectorParameters);
       lastSeenTrackGroupArray = null;
 

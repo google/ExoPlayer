@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.dash.offline;
 
 import android.net.Uri;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
@@ -31,6 +32,7 @@ public final class DownloadHelperTest {
   @Test
   public void staticDownloadHelperForDash_doesNotThrow() {
     DownloadHelper.forDash(
+        ApplicationProvider.getApplicationContext(),
         Uri.parse("http://uri"),
         new FakeDataSource.Factory(),
         (handler, videoListener, audioListener, text, metadata, drm) -> new Renderer[0]);
@@ -39,6 +41,6 @@ public final class DownloadHelperTest {
         new FakeDataSource.Factory(),
         (handler, videoListener, audioListener, text, metadata, drm) -> new Renderer[0],
         /* drmSessionManager= */ DrmSessionManager.getDummyDrmSessionManager(),
-        DownloadHelper.DEFAULT_TRACK_SELECTOR_PARAMETERS);
+        DownloadHelper.DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_VIEWPORT);
   }
 }
