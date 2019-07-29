@@ -170,6 +170,7 @@ import com.google.android.exoplayer2.util.Assertions;
    * Returns the loading period holder which is at the end of the queue, or null if the queue is
    * empty.
    */
+  @Nullable
   public MediaPeriodHolder getLoadingPeriod() {
     return loading;
   }
@@ -178,6 +179,7 @@ import com.google.android.exoplayer2.util.Assertions;
    * Returns the playing period holder which is at the front of the queue, or null if the queue is
    * empty or hasn't started playing.
    */
+  @Nullable
   public MediaPeriodHolder getPlayingPeriod() {
     return playing;
   }
@@ -186,6 +188,7 @@ import com.google.android.exoplayer2.util.Assertions;
    * Returns the reading period holder, or null if the queue is empty or the player hasn't started
    * reading.
    */
+  @Nullable
   public MediaPeriodHolder getReadingPeriod() {
     return reading;
   }
@@ -194,6 +197,7 @@ import com.google.android.exoplayer2.util.Assertions;
    * Returns the period holder in the front of the queue which is the playing period holder when
    * playing, or null if the queue is empty.
    */
+  @Nullable
   public MediaPeriodHolder getFrontPeriod() {
     return hasPlayingPeriod() ? playing : loading;
   }
@@ -221,6 +225,7 @@ import com.google.android.exoplayer2.util.Assertions;
    *
    * @return The updated playing period holder, or null if the queue is or becomes empty.
    */
+  @Nullable
   public MediaPeriodHolder advancePlayingPeriod() {
     if (playing != null) {
       if (playing == reading) {
