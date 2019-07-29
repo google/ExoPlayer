@@ -28,5 +28,11 @@ public interface MediaItemConverter {
    */
   MediaQueueItem toMediaQueueItem(MediaItem mediaItem);
 
-  // TODO: Add toMediaItem to convert in the opposite direction.
+  /**
+   * Converts a {@link MediaQueueItem} to a {@link MediaItem}.
+   *
+   * @param mediaQueueItem The {@link MediaQueueItem}.
+   * @return The equivalent {@link MediaItem}.
+   */
+  MediaItem toMediaItem(MediaQueueItem mediaQueueItem);
 }
