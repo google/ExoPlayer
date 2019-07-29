@@ -37,7 +37,6 @@ import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.testutil.HostActivity.HostedTest;
-import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.util.Clock;
@@ -238,7 +237,7 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
   }
 
   protected DefaultTrackSelector buildTrackSelector(HostActivity host) {
-    return new DefaultTrackSelector(new AdaptiveTrackSelection.Factory());
+    return new DefaultTrackSelector(host);
   }
 
   protected SimpleExoPlayer buildExoPlayer(

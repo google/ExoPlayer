@@ -186,9 +186,22 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private final SparseArray<Map<TrackGroupArray, SelectionOverride>> selectionOverrides;
     private final SparseBooleanArray rendererDisabledFlags;
 
-    /** Creates a builder with default initial values. */
+    /**
+     * @deprecated Initial viewport constraints will not be set based on the primary display when
+     *     using this constructor. Use {@link #ParametersBuilder(Context)} instead.
+     */
+    @Deprecated
     public ParametersBuilder() {
-      this(Parameters.DEFAULT);
+      this(Parameters.DEFAULT_WITHOUT_VIEWPORT);
+    }
+
+    /**
+     * Creates a builder with default initial values.
+     *
+     * @param context Any context.
+     */
+    public ParametersBuilder(Context context) {
+      this(Parameters.getDefaults(context));
     }
 
     /**
@@ -656,8 +669,22 @@ public class DefaultTrackSelector extends MappingTrackSelector {
    */
   public static final class Parameters extends TrackSelectionParameters {
 
-    /** An instance with default values. */
-    public static final Parameters DEFAULT = new Parameters();
+    /** An instance with default values, except without any viewport constraints. */
+    public static final Parameters DEFAULT_WITHOUT_VIEWPORT = new Parameters();
+
+    /**
+     * @deprecated This instance does not have viewport constraints configured for the primary
+     *     display. Use {@link #getDefaults(Context)} instead.
+     */
+    @Deprecated public static final Parameters DEFAULT = DEFAULT_WITHOUT_VIEWPORT;
+
+    /** Returns an instance configured with default values. */
+    public static Parameters getDefaults(Context context) {
+      return DEFAULT_WITHOUT_VIEWPORT
+          .buildUpon()
+          .setViewportSizeToPhysicalDisplaySize(context, /* viewportOrientationMayChange= */ true)
+          .build();
+    }
 
     // Video
     /**
@@ -707,14 +734,14 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     public final boolean allowVideoNonSeamlessAdaptiveness;
     /**
      * Viewport width in pixels. Constrains video track selections for adaptive content so that only
-     * tracks suitable for the viewport are selected. The default value is {@link Integer#MAX_VALUE}
-     * (i.e. no constraint).
+     * tracks suitable for the viewport are selected. The default value is the physical width of the
+     * primary display, in pixels.
      */
     public final int viewportWidth;
     /**
      * Viewport height in pixels. Constrains video track selections for adaptive content so that
-     * only tracks suitable for the viewport are selected. The default value is {@link
-     * Integer#MAX_VALUE} (i.e. no constraint).
+     * only tracks suitable for the viewport are selected. The default value is the physical height
+     * of the primary display, in pixels.
      */
     public final int viewportHeight;
     /**
@@ -1284,13 +1311,16 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
   private boolean allowMultipleAdaptiveSelections;
 
+  /** @deprecated Use {@link #DefaultTrackSelector(Context)} instead. */
+  @Deprecated
+  @SuppressWarnings("deprecation")
   public DefaultTrackSelector() {
     this(new AdaptiveTrackSelection.Factory());
   }
 
   /**
-   * @deprecated Use {@link #DefaultTrackSelector()} instead. Custom bandwidth meter should be
-   *     directly passed to the player in {@link ExoPlayerFactory}.
+   * @deprecated Use {@link #DefaultTrackSelector(Context)} instead. The bandwidth meter should be
+   *     passed directly to the player in {@link ExoPlayerFactory}.
    */
   @Deprecated
   @SuppressWarnings("deprecation")
@@ -1298,10 +1328,32 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     this(new AdaptiveTrackSelection.Factory(bandwidthMeter));
   }
 
-  /** @param trackSelectionFactory A factory for {@link TrackSelection}s. */
+  /** @deprecated Use {@link #DefaultTrackSelector(Context, TrackSelection.Factory)}. */
+  @Deprecated
   public DefaultTrackSelector(TrackSelection.Factory trackSelectionFactory) {
+    this(Parameters.DEFAULT_WITHOUT_VIEWPORT, trackSelectionFactory);
+  }
+
+  /** @param context Any {@link Context}. */
+  public DefaultTrackSelector(Context context) {
+    this(context, new AdaptiveTrackSelection.Factory());
+  }
+
+  /**
+   * @param context Any {@link Context}.
+   * @param trackSelectionFactory A factory for {@link TrackSelection}s.
+   */
+  public DefaultTrackSelector(Context context, TrackSelection.Factory trackSelectionFactory) {
+    this(Parameters.getDefaults(context), trackSelectionFactory);
+  }
+
+  /**
+   * @param parameters Initial {@link Parameters}.
+   * @param trackSelectionFactory A factory for {@link TrackSelection}s.
+   */
+  public DefaultTrackSelector(Parameters parameters, TrackSelection.Factory trackSelectionFactory) {
     this.trackSelectionFactory = trackSelectionFactory;
-    parametersReference = new AtomicReference<>(Parameters.DEFAULT);
+    parametersReference = new AtomicReference<>(parameters);
   }
 
   /**

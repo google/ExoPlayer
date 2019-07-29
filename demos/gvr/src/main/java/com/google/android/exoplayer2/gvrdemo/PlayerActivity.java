@@ -35,7 +35,6 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
-import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
@@ -135,7 +134,7 @@ public class PlayerActivity extends GvrPlayerActivity implements PlaybackPrepare
 
       DefaultRenderersFactory renderersFactory = new DefaultRenderersFactory(this);
 
-      trackSelector = new DefaultTrackSelector(new AdaptiveTrackSelection.Factory());
+      trackSelector = new DefaultTrackSelector(/* context= */ this);
       lastSeenTrackGroupArray = null;
 
       player =

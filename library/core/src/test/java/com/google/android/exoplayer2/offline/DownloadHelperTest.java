@@ -19,6 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.robolectric.shadows.ShadowBaseLooper.shadowMainLooper;
 
 import android.net.Uri;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -36,7 +37,6 @@ import com.google.android.exoplayer2.testutil.FakeRenderer;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.ParametersBuilder;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
@@ -113,7 +113,7 @@ public class DownloadHelperTest {
             testUri,
             TEST_CACHE_KEY,
             new TestMediaSource(),
-            DownloadHelper.DEFAULT_TRACK_SELECTOR_PARAMETERS,
+            DownloadHelper.DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_VIEWPORT,
             Util.getRendererCapabilities(renderersFactory, /* drmSessionManager= */ null));
   }
 
@@ -244,7 +244,7 @@ public class DownloadHelperTest {
       throws Exception {
     prepareDownloadHelper(downloadHelper);
     DefaultTrackSelector.Parameters parameters =
-        new ParametersBuilder()
+        new DefaultTrackSelector.ParametersBuilder(ApplicationProvider.getApplicationContext())
             .setPreferredAudioLanguage("ZH")
             .setPreferredTextLanguage("ZH")
             .setRendererDisabled(/* rendererIndex= */ 2, true)
@@ -281,7 +281,7 @@ public class DownloadHelperTest {
     // Select parameters to require some merging of track groups because the new parameters add
     // all video tracks to initial video single track selection.
     DefaultTrackSelector.Parameters parameters =
-        new ParametersBuilder()
+        new DefaultTrackSelector.ParametersBuilder(ApplicationProvider.getApplicationContext())
             .setPreferredAudioLanguage("ZH")
             .setPreferredTextLanguage("US")
             .build();
@@ -385,7 +385,7 @@ public class DownloadHelperTest {
     // Ensure we have track groups with multiple indices, renderers with multiple track groups and
     // also renderers without any track groups.
     DefaultTrackSelector.Parameters parameters =
-        new ParametersBuilder()
+        new DefaultTrackSelector.ParametersBuilder(ApplicationProvider.getApplicationContext())
             .setPreferredAudioLanguage("ZH")
             .setPreferredTextLanguage("US")
             .build();

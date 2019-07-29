@@ -2,6 +2,8 @@
 
 ### dev-v2 (not yet released) ###
 
+* Update `DefaultTrackSelector` to apply a viewport constraint for the default
+  display by default.
 * Add `PlaybackStatsListener` to collect `PlaybackStats` for playbacks analysis
   and analytics reporting (TODO: link to developer guide page/blog post).
 * Add basic DRM support to the Cast demo app.

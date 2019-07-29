@@ -284,7 +284,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
         supportedFormats = new Format[] {VIDEO_FORMAT};
       }
       if (trackSelector == null) {
-        trackSelector = new DefaultTrackSelector();
+        trackSelector = new DefaultTrackSelector(context);
       }
       if (bandwidthMeter == null) {
         bandwidthMeter = new DefaultBandwidthMeter.Builder(context).build();
