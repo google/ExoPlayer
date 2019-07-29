@@ -1491,8 +1491,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
       return;
     }
     maybeUpdateLoadingPeriod();
-    maybeUpdatePlayingPeriod();
     maybeUpdateReadingPeriod();
+    maybeUpdatePlayingPeriod();
   }
 
   private void maybeUpdateLoadingPeriod() throws IOException {
@@ -1515,32 +1515,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
       setIsLoading(false);
     } else if (!playbackInfo.isLoading) {
       maybeContinueLoading();
-    }
-  }
-
-  private void maybeUpdatePlayingPeriod() throws ExoPlaybackException {
-    boolean advancedPlayingPeriod = false;
-    while (shouldAdvancePlayingPeriod()) {
-      if (advancedPlayingPeriod) {
-        // If we advance more than one period at a time, notify listeners after each update.
-        maybeNotifyPlaybackInfoChanged();
-      }
-      MediaPeriodHolder oldPlayingPeriodHolder = queue.getPlayingPeriod();
-      MediaPeriodHolder newPlayingPeriodHolder = queue.advancePlayingPeriod();
-      updatePlayingPeriodRenderers(oldPlayingPeriodHolder);
-      playbackInfo =
-          playbackInfo.copyWithNewPosition(
-              newPlayingPeriodHolder.info.id,
-              newPlayingPeriodHolder.info.startPositionUs,
-              newPlayingPeriodHolder.info.contentPositionUs,
-              getTotalBufferedDurationUs());
-      int discontinuityReason =
-          oldPlayingPeriodHolder.info.isLastInTimelinePeriod
-              ? Player.DISCONTINUITY_REASON_PERIOD_TRANSITION
-              : Player.DISCONTINUITY_REASON_AD_INSERTION;
-      playbackInfoUpdate.setPositionDiscontinuity(discontinuityReason);
-      updatePlaybackPositions();
-      advancedPlayingPeriod = true;
     }
   }
 
@@ -1618,6 +1592,32 @@ import java.util.concurrent.atomic.AtomicBoolean;
           renderer.setCurrentStreamFinal();
         }
       }
+    }
+  }
+
+  private void maybeUpdatePlayingPeriod() throws ExoPlaybackException {
+    boolean advancedPlayingPeriod = false;
+    while (shouldAdvancePlayingPeriod()) {
+      if (advancedPlayingPeriod) {
+        // If we advance more than one period at a time, notify listeners after each update.
+        maybeNotifyPlaybackInfoChanged();
+      }
+      MediaPeriodHolder oldPlayingPeriodHolder = queue.getPlayingPeriod();
+      MediaPeriodHolder newPlayingPeriodHolder = queue.advancePlayingPeriod();
+      updatePlayingPeriodRenderers(oldPlayingPeriodHolder);
+      playbackInfo =
+          playbackInfo.copyWithNewPosition(
+              newPlayingPeriodHolder.info.id,
+              newPlayingPeriodHolder.info.startPositionUs,
+              newPlayingPeriodHolder.info.contentPositionUs,
+              getTotalBufferedDurationUs());
+      int discontinuityReason =
+          oldPlayingPeriodHolder.info.isLastInTimelinePeriod
+              ? Player.DISCONTINUITY_REASON_PERIOD_TRANSITION
+              : Player.DISCONTINUITY_REASON_AD_INSERTION;
+      playbackInfoUpdate.setPositionDiscontinuity(discontinuityReason);
+      updatePlaybackPositions();
+      advancedPlayingPeriod = true;
     }
   }
 
