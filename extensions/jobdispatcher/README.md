@@ -24,4 +24,3 @@ locally. Instructions for doing this can be found in ExoPlayer's
 [top level README][].
 
 [top level README]: https://github.com/google/ExoPlayer/blob/release-v2/README.md
-
