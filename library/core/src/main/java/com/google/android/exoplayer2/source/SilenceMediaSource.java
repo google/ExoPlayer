@@ -117,6 +117,7 @@ public final class SilenceMediaSource extends BaseMediaSource {
         @NullableType SampleStream[] streams,
         boolean[] streamResetFlags,
         long positionUs) {
+      positionUs = constrainSeekPosition(positionUs);
       for (int i = 0; i < selections.length; i++) {
         if (streams[i] != null && (selections[i] == null || !mayRetainStreamFlags[i])) {
           sampleStreams.remove(streams[i]);
@@ -143,6 +144,7 @@ public final class SilenceMediaSource extends BaseMediaSource {
 
     @Override
     public long seekToUs(long positionUs) {
+      positionUs = constrainSeekPosition(positionUs);
       for (int i = 0; i < sampleStreams.size(); i++) {
         ((SilenceSampleStream) sampleStreams.get(i)).seekTo(positionUs);
       }
@@ -151,7 +153,7 @@ public final class SilenceMediaSource extends BaseMediaSource {
 
     @Override
     public long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters) {
-      return positionUs;
+      return constrainSeekPosition(positionUs);
     }
 
     @Override
@@ -171,6 +173,10 @@ public final class SilenceMediaSource extends BaseMediaSource {
 
     @Override
     public void reevaluateBuffer(long positionUs) {}
+
+    private long constrainSeekPosition(long positionUs) {
+      return Util.constrainValue(positionUs, 0, durationUs);
+    }
   }
 
   private static final class SilenceSampleStream implements SampleStream {
@@ -186,7 +192,7 @@ public final class SilenceMediaSource extends BaseMediaSource {
     }
 
     public void seekTo(long positionUs) {
-      positionBytes = getAudioByteCount(positionUs);
+      positionBytes = Util.constrainValue(getAudioByteCount(positionUs), 0, durationBytes);
     }
 
     @Override
