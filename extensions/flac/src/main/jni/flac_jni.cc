@@ -102,10 +102,10 @@ DECODER_FUNC(jobject, flacDecodeMetadata, jlong jContext) {
   jmethodID arrayListConstructor =
       env->GetMethodID(arrayListClass, "<init>", "()V");
   jobject commentList = env->NewObject(arrayListClass, arrayListConstructor);
+  jmethodID arrayListAddMethod =
+      env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
 
   if (context->parser->isVorbisCommentsValid()) {
-    jmethodID arrayListAddMethod =
-        env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
     std::vector<std::string> vorbisComments =
         context->parser->getVorbisComments();
     for (std::vector<std::string>::const_iterator vorbisComment =
@@ -117,6 +117,39 @@ DECODER_FUNC(jobject, flacDecodeMetadata, jlong jContext) {
     }
   }
 
+  jobject pictureList = env->NewObject(arrayListClass, arrayListConstructor);
+  bool picValid = context->parser->isPicValid();
+  if (picValid) {
+    std::vector<flacPicture> pictures = context->parser->getPictures();
+    jclass flacPictureFrameClass = env->FindClass(
+        "com/google/android/exoplayer2/metadata/flac/PictureFrame");
+    jmethodID flacPictureFrameConstructor = env->GetMethodID(
+        flacPictureFrameClass, "<init>",
+        "(ILjava/lang/String;Ljava/lang/String;IIII[B)V");
+    for (std::vector<flacPicture>::const_iterator picture = pictures.begin();
+                  picture != pictures.end(); ++picture) {
+      jstring mimeType = env->NewStringUTF(picture->mimeType.c_str());
+      jstring description = env->NewStringUTF(picture->description.c_str());
+      jbyteArray picArr = env->NewByteArray(picture->data.size());
+      env->SetByteArrayRegion(picArr, 0, picture->data.size(),
+                              (signed char *)&picture->data[0]);
+      jobject flacPictureFrame = env->NewObject(flacPictureFrameClass,
+                                                flacPictureFrameConstructor,
+                                                picture->type,
+                                                mimeType,
+                                                description,
+                                                picture->width,
+                                                picture->height,
+                                                picture->depth,
+                                                picture->colors,
+                                                picArr);
+      env->CallBooleanMethod(pictureList, arrayListAddMethod, flacPictureFrame);
+      env->DeleteLocalRef(mimeType);
+      env->DeleteLocalRef(description);
+      env->DeleteLocalRef(picArr);
+    }
+  }
+
   const FLAC__StreamMetadata_StreamInfo &streamInfo =
       context->parser->getStreamInfo();
 
@@ -124,14 +157,21 @@ DECODER_FUNC(jobject, flacDecodeMetadata, jlong jContext) {
       "com/google/android/exoplayer2/util/"
       "FlacStreamMetadata");
   jmethodID flacStreamMetadataConstructor = env->GetMethodID(
-      flacStreamMetadataClass, "<init>", "(IIIIIIIJLjava/util/List;)V");
+      flacStreamMetadataClass, "<init>",
+      "(IIIIIIIJLjava/util/List;Ljava/util/List;)V");
 
-  return env->NewObject(flacStreamMetadataClass, flacStreamMetadataConstructor,
-                        streamInfo.min_blocksize, streamInfo.max_blocksize,
-                        streamInfo.min_framesize, streamInfo.max_framesize,
-                        streamInfo.sample_rate, streamInfo.channels,
-                        streamInfo.bits_per_sample, streamInfo.total_samples,
-                        commentList);
+  jobject streamMetaData = env->NewObject(flacStreamMetadataClass,
+                                          flacStreamMetadataConstructor,
+                                          streamInfo.min_blocksize,
+                                          streamInfo.max_blocksize,
+                                          streamInfo.min_framesize,
+                                          streamInfo.max_framesize,
+                                          streamInfo.sample_rate,
+                                          streamInfo.channels,
+                                          streamInfo.bits_per_sample,
+                                          streamInfo.total_samples,
+                                          commentList, pictureList);
+  return streamMetaData;
 }
 
 DECODER_FUNC(jint, flacDecodeToBuffer, jlong jContext, jobject jOutputBuffer) {
