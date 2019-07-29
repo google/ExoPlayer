@@ -191,6 +191,22 @@ void FLACParser::metadataCallback(const FLAC__StreamMetadata *metadata) {
         ALOGE("FLACParser::metadataCallback unexpected VORBISCOMMENT");
       }
       break;
+    case FLAC__METADATA_TYPE_PICTURE:
+      {
+        const FLAC__StreamMetadata_Picture *pic = &metadata->data.picture;
+        flacPicture picture;
+        picture.mimeType.assign(std::string(pic->mime_type));
+        picture.description.assign(std::string((char *)pic->description));
+        picture.data.assign(pic->data, pic->data + pic->data_length);
+        picture.width = pic->width;
+        picture.height = pic->height;
+        picture.depth = pic->depth;
+        picture.colors = pic->colors;
+        picture.type = pic->type;
+        mPictures.push_back(picture);
+        mPicValid = true;
+        break;
+      }
     default:
       ALOGE("FLACParser::metadataCallback unexpected type %u", metadata->type);
       break;
@@ -253,6 +269,7 @@ FLACParser::FLACParser(DataSource *source)
       mEOF(false),
       mStreamInfoValid(false),
       mVorbisCommentsValid(false),
+      mPicValid(false),
       mWriteRequested(false),
       mWriteCompleted(false),
       mWriteBuffer(NULL),
@@ -288,6 +305,8 @@ bool FLACParser::init() {
                                             FLAC__METADATA_TYPE_SEEKTABLE);
   FLAC__stream_decoder_set_metadata_respond(mDecoder,
                                             FLAC__METADATA_TYPE_VORBIS_COMMENT);
+  FLAC__stream_decoder_set_metadata_respond(mDecoder,
+                                            FLAC__METADATA_TYPE_PICTURE);
   FLAC__StreamDecoderInitStatus initStatus;
   initStatus = FLAC__stream_decoder_init_stream(
       mDecoder, read_callback, seek_callback, tell_callback, length_callback,

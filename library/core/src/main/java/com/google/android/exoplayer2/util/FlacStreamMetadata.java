@@ -18,7 +18,8 @@ package com.google.android.exoplayer2.util;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.vorbis.VorbisComment;
+import com.google.android.exoplayer2.metadata.flac.PictureFrame;
+import com.google.android.exoplayer2.metadata.flac.VorbisComment;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +36,7 @@ public final class FlacStreamMetadata {
   public final int channels;
   public final int bitsPerSample;
   public final long totalSamples;
-  @Nullable public final Metadata vorbisComments;
+  @Nullable public final Metadata flacMetadata;
 
   private static final String SEPARATOR = "=";
 
@@ -58,7 +59,7 @@ public final class FlacStreamMetadata {
     this.channels = scratch.readBits(3) + 1;
     this.bitsPerSample = scratch.readBits(5) + 1;
     this.totalSamples = ((scratch.readBits(4) & 0xFL) << 32) | (scratch.readBits(32) & 0xFFFFFFFFL);
-    this.vorbisComments = null;
+    this.flacMetadata = null;
   }
 
   /**
@@ -71,10 +72,13 @@ public final class FlacStreamMetadata {
    * @param bitsPerSample Number of bits per sample of the FLAC stream.
    * @param totalSamples Total samples of the FLAC stream.
    * @param vorbisComments Vorbis comments. Each entry must be in key=value form.
+   * @param pictureList A list of pictures in the stream.
    * @see <a href="https://xiph.org/flac/format.html#metadata_block_streaminfo">FLAC format
    *     METADATA_BLOCK_STREAMINFO</a>
    * @see <a href="https://xiph.org/flac/format.html#metadata_block_vorbis_comment">FLAC format
    *     METADATA_BLOCK_VORBIS_COMMENT</a>
+   * @see <a href="https://xiph.org/flac/format.html#metadata_block_picture">FLAC format
+   *     METADATA_BLOCK_PICTURE</a>
    */
   public FlacStreamMetadata(
       int minBlockSize,
@@ -85,7 +89,8 @@ public final class FlacStreamMetadata {
       int channels,
       int bitsPerSample,
       long totalSamples,
-      List<String> vorbisComments) {
+      List<String> vorbisComments,
+      List<PictureFrame> pictureList) {
     this.minBlockSize = minBlockSize;
     this.maxBlockSize = maxBlockSize;
     this.minFrameSize = minFrameSize;
@@ -94,7 +99,8 @@ public final class FlacStreamMetadata {
     this.channels = channels;
     this.bitsPerSample = bitsPerSample;
     this.totalSamples = totalSamples;
-    this.vorbisComments = parseVorbisComments(vorbisComments);
+    Metadata metadata = new Metadata(pictureList);
+    this.flacMetadata = metadata.copyWithAppendedEntriesFrom(parseVorbisComments(vorbisComments));
   }
 
   /** Returns the maximum size for a decoded frame from the FLAC stream. */
