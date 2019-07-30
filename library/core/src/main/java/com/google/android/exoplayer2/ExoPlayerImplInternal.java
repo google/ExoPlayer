@@ -535,7 +535,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
         playbackInfoUpdate.setPositionDiscontinuity(Player.DISCONTINUITY_REASON_INTERNAL);
       }
     } else {
-      rendererPositionUs = mediaClock.syncAndGetPositionUs();
+      rendererPositionUs =
+          mediaClock.syncAndGetPositionUs(
+              /* isReadingAhead= */ playingPeriodHolder != queue.getReadingPeriod());
       periodPositionUs = playingPeriodHolder.toPeriodTime(rendererPositionUs);
       maybeTriggerPendingMessages(playbackInfo.positionUs, periodPositionUs);
       playbackInfo.positionUs = periodPositionUs;
