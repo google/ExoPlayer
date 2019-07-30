@@ -31,7 +31,7 @@ public final class PictureFrame implements Metadata.Entry {
   /** The mime type of the picture. */
   public final String mimeType;
   /** A description of the picture. */
-  @Nullable public final String description;
+  public final String description;
   /** The pixel width of the picture. */
   public final int width;
   /** The pixel height of the picture. */
@@ -49,7 +49,7 @@ public final class PictureFrame implements Metadata.Entry {
   public PictureFrame(
       int pictureType,
       String mimeType,
-      @Nullable String description,
+      String description,
       int width,
       int height,
       int depth,
@@ -111,8 +111,8 @@ public final class PictureFrame implements Metadata.Entry {
   public int hashCode() {
     int result = 17;
     result = 31 * result + pictureType;
-    result = 31 * result + (mimeType != null ? mimeType.hashCode() : 0);
-    result = 31 * result + (description != null ? description.hashCode() : 0);
+    result = 31 * result + mimeType.hashCode();
+    result = 31 * result + description.hashCode();
     result = 31 * result + width;
     result = 31 * result + height;
     result = 31 * result + depth;

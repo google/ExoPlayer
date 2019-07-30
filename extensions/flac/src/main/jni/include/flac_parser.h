@@ -30,7 +30,7 @@
 
 typedef int status_t;
 
-typedef struct {
+struct FlacPicture {
   int type;
   std::string mimeType;
   std::string description;
@@ -39,7 +39,7 @@ typedef struct {
   FLAC__uint32 depth;
   FLAC__uint32 colors;
   std::vector<char> data;
-} flacPicture;
+};
 
 class FLACParser {
  public:
@@ -65,9 +65,9 @@ class FLACParser {
     return mVorbisComments;
   }
 
-  bool isPicValid() const { return mPicValid; }
+  bool arePicturesValid() const { return mPicturesValid; }
 
-  const std::vector<flacPicture>& getPictures() const { return mPictures; }
+  const std::vector<FlacPicture>& getPictures() const { return mPictures; }
 
   int64_t getLastFrameTimestamp() const {
     return (1000000LL * mWriteHeader.number.sample_number) / getSampleRate();
@@ -97,7 +97,7 @@ class FLACParser {
       if (newPosition == 0) {
         mStreamInfoValid = false;
         mVorbisCommentsValid = false;
-        mPicValid = false;
+        mPicturesValid = false;
         mVorbisComments.clear();
         mPictures.clear();
         FLAC__stream_decoder_reset(mDecoder);
@@ -150,8 +150,8 @@ class FLACParser {
   bool mVorbisCommentsValid;
 
   // cached when the PICTURE metadata is parsed by libFLAC
-  std::vector<flacPicture> mPictures;
-  bool mPicValid;
+  std::vector<FlacPicture> mPictures;
+  bool mPicturesValid;
 
   // cached when a decoded PCM block is "written" by libFLAC parser
   bool mWriteRequested;

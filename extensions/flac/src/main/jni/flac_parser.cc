@@ -193,18 +193,22 @@ void FLACParser::metadataCallback(const FLAC__StreamMetadata *metadata) {
       break;
     case FLAC__METADATA_TYPE_PICTURE:
       {
-        const FLAC__StreamMetadata_Picture *pic = &metadata->data.picture;
-        flacPicture picture;
-        picture.mimeType.assign(std::string(pic->mime_type));
-        picture.description.assign(std::string((char *)pic->description));
-        picture.data.assign(pic->data, pic->data + pic->data_length);
-        picture.width = pic->width;
-        picture.height = pic->height;
-        picture.depth = pic->depth;
-        picture.colors = pic->colors;
-        picture.type = pic->type;
-        mPictures.push_back(picture);
-        mPicValid = true;
+        const FLAC__StreamMetadata_Picture *parsedPicture =
+                  &metadata->data.picture;
+        FlacPicture flacPicture;
+        flacPicture.mimeType.assign(std::string(parsedPicture->mime_type));
+        flacPicture.description.assign(
+            std::string((char *)parsedPicture->description));
+        flacPicture.data.assign(
+            parsedPicture->data,
+            parsedPicture->data + parsedPicture->data_length);
+        flacPicture.width = parsedPicture->width;
+        flacPicture.height = parsedPicture->height;
+        flacPicture.depth = parsedPicture->depth;
+        flacPicture.colors = parsedPicture->colors;
+        flacPicture.type = parsedPicture->type;
+        mPictures.push_back(flacPicture);
+        mPicturesValid = true;
         break;
       }
     default:
@@ -269,7 +273,7 @@ FLACParser::FLACParser(DataSource *source)
       mEOF(false),
       mStreamInfoValid(false),
       mVorbisCommentsValid(false),
-      mPicValid(false),
+      mPicturesValid(false),
       mWriteRequested(false),
       mWriteCompleted(false),
       mWriteBuffer(NULL),
