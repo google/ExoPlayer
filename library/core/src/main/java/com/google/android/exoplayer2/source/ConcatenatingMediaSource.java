@@ -263,9 +263,12 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSo
    *
    * @param index The index at which the media source will be removed. This index must be in the
    *     range of 0 &lt;= index &lt; {@link #getSize()}.
+   * @return The removed {@link MediaSource}.
    */
-  public synchronized void removeMediaSource(int index) {
+  public synchronized MediaSource removeMediaSource(int index) {
+    MediaSource removedMediaSource = getMediaSource(index);
     removePublicMediaSources(index, index + 1, /* handler= */ null, /* onCompletionAction= */ null);
+    return removedMediaSource;
   }
 
   /**
@@ -282,10 +285,13 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSo
    * @param handler The {@link Handler} to run {@code onCompletionAction}.
    * @param onCompletionAction A {@link Runnable} which is executed immediately after the media
    *     source has been removed from the playlist.
+   * @return The removed {@link MediaSource}.
    */
-  public synchronized void removeMediaSource(
+  public synchronized MediaSource removeMediaSource(
       int index, Handler handler, Runnable onCompletionAction) {
+    MediaSource removedMediaSource = getMediaSource(index);
     removePublicMediaSources(index, index + 1, handler, onCompletionAction);
+    return removedMediaSource;
   }
 
   /**
