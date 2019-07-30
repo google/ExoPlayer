@@ -53,13 +53,14 @@ public class DefaultMediaClockTest {
   @Test
   public void standaloneResetPosition_getPositionShouldReturnSameValue() throws Exception {
     mediaClock.resetPosition(TEST_POSITION_US);
-    assertThat(mediaClock.syncAndGetPositionUs()).isEqualTo(TEST_POSITION_US);
+    assertThat(mediaClock.syncAndGetPositionUs(/* isReadingAhead= */ false))
+        .isEqualTo(TEST_POSITION_US);
   }
 
   @Test
   public void standaloneGetAndResetPosition_shouldNotTriggerCallback() throws Exception {
     mediaClock.resetPosition(TEST_POSITION_US);
-    mediaClock.syncAndGetPositionUs();
+    mediaClock.syncAndGetPositionUs(/* isReadingAhead= */ false);
     verifyNoMoreInteractions(listener);
   }
 
@@ -77,7 +78,7 @@ public class DefaultMediaClockTest {
   @Test
   public void standaloneStart_shouldStartClock() throws Exception {
     mediaClock.start();
-    assertClockIsRunning();
+    assertClockIsRunning(/* isReadingAhead= */ false);
   }
 
   @Test
@@ -98,7 +99,7 @@ public class DefaultMediaClockTest {
     mediaClock.start();
     mediaClock.stop();
     mediaClock.start();
-    assertClockIsRunning();
+    assertClockIsRunning(/* isReadingAhead= */ false);
   }
 
   @Test
@@ -130,7 +131,7 @@ public class DefaultMediaClockTest {
     mediaClock.setPlaybackParameters(TEST_PLAYBACK_PARAMETERS);
     mediaClock.start();
     // Asserts that clock is running with speed declared in getPlaybackParameters().
-    assertClockIsRunning();
+    assertClockIsRunning(/* isReadingAhead= */ false);
   }
 
   @Test
@@ -165,6 +166,7 @@ public class DefaultMediaClockTest {
     FakeMediaClockRenderer mediaClockRenderer =
         new MediaClockRenderer(TEST_PLAYBACK_PARAMETERS, /* playbackParametersAreMutable= */ false);
     mediaClock.onRendererEnabled(mediaClockRenderer);
+    mediaClock.syncAndGetPositionUs(/* isReadingAhead= */ false);
     verify(listener).onPlaybackParametersChanged(TEST_PLAYBACK_PARAMETERS);
   }
 
@@ -174,6 +176,7 @@ public class DefaultMediaClockTest {
     FakeMediaClockRenderer mediaClockRenderer = new MediaClockRenderer(PlaybackParameters.DEFAULT,
         /* playbackParametersAreMutable= */ false);
     mediaClock.onRendererEnabled(mediaClockRenderer);
+    mediaClock.syncAndGetPositionUs(/* isReadingAhead= */ false);
     verifyNoMoreInteractions(listener);
   }
 
@@ -183,7 +186,9 @@ public class DefaultMediaClockTest {
     FakeMediaClockRenderer mediaClockRenderer =
         new MediaClockRenderer(TEST_PLAYBACK_PARAMETERS, /* playbackParametersAreMutable= */ false);
     mediaClock.onRendererEnabled(mediaClockRenderer);
+    mediaClock.syncAndGetPositionUs(/* isReadingAhead= */ false);
     mediaClock.onRendererDisabled(mediaClockRenderer);
+    mediaClock.syncAndGetPositionUs(/* isReadingAhead= */ false);
     assertThat(mediaClock.getPlaybackParameters()).isEqualTo(TEST_PLAYBACK_PARAMETERS);
   }
 
@@ -193,6 +198,7 @@ public class DefaultMediaClockTest {
     FakeMediaClockRenderer mediaClockRenderer = new MediaClockRenderer(PlaybackParameters.DEFAULT,
         /* playbackParametersAreMutable= */ true);
     mediaClock.onRendererEnabled(mediaClockRenderer);
+    mediaClock.syncAndGetPositionUs(/* isReadingAhead= */ false);
     mediaClock.setPlaybackParameters(TEST_PLAYBACK_PARAMETERS);
     assertThat(mediaClock.getPlaybackParameters()).isEqualTo(TEST_PLAYBACK_PARAMETERS);
   }
@@ -203,6 +209,7 @@ public class DefaultMediaClockTest {
     FakeMediaClockRenderer mediaClockRenderer = new MediaClockRenderer(PlaybackParameters.DEFAULT,
         /* playbackParametersAreMutable= */ true);
     mediaClock.onRendererEnabled(mediaClockRenderer);
+    mediaClock.syncAndGetPositionUs(/* isReadingAhead= */ false);
     mediaClock.setPlaybackParameters(TEST_PLAYBACK_PARAMETERS);
     verifyNoMoreInteractions(listener);
   }
@@ -213,6 +220,7 @@ public class DefaultMediaClockTest {
     FakeMediaClockRenderer mediaClockRenderer = new MediaClockRenderer(PlaybackParameters.DEFAULT,
         /* playbackParametersAreMutable= */ false);
     mediaClock.onRendererEnabled(mediaClockRenderer);
+    mediaClock.syncAndGetPositionUs(/* isReadingAhead= */ false);
     mediaClock.setPlaybackParameters(TEST_PLAYBACK_PARAMETERS);
     assertThat(mediaClock.getPlaybackParameters()).isEqualTo(PlaybackParameters.DEFAULT);
   }
@@ -223,7 +231,8 @@ public class DefaultMediaClockTest {
     mediaClock.start();
     mediaClock.onRendererEnabled(mediaClockRenderer);
     mediaClockRenderer.positionUs = TEST_POSITION_US;
-    assertThat(mediaClock.syncAndGetPositionUs()).isEqualTo(TEST_POSITION_US);
+    assertThat(mediaClock.syncAndGetPositionUs(/* isReadingAhead= */ false))
+        .isEqualTo(TEST_POSITION_US);
     // We're not advancing the renderer media clock. Thus, the clock should appear to be stopped.
     assertClockIsStopped();
   }
@@ -235,9 +244,11 @@ public class DefaultMediaClockTest {
     mediaClock.start();
     mediaClock.onRendererEnabled(mediaClockRenderer);
     mediaClockRenderer.positionUs = TEST_POSITION_US;
-    assertThat(mediaClock.syncAndGetPositionUs()).isEqualTo(TEST_POSITION_US);
+    assertThat(mediaClock.syncAndGetPositionUs(/* isReadingAhead= */ false))
+        .isEqualTo(TEST_POSITION_US);
     mediaClock.resetPosition(0);
-    assertThat(mediaClock.syncAndGetPositionUs()).isEqualTo(TEST_POSITION_US);
+    assertThat(mediaClock.syncAndGetPositionUs(/* isReadingAhead= */ false))
+        .isEqualTo(TEST_POSITION_US);
   }
 
   @Test
@@ -246,23 +257,24 @@ public class DefaultMediaClockTest {
     mediaClock.start();
     mediaClock.onRendererEnabled(mediaClockRenderer);
     mediaClockRenderer.positionUs = TEST_POSITION_US;
-    mediaClock.syncAndGetPositionUs();
+    mediaClock.syncAndGetPositionUs(/* isReadingAhead= */ false);
     mediaClock.onRendererDisabled(mediaClockRenderer);
     fakeClock.advanceTime(SLEEP_TIME_MS);
-    assertThat(mediaClock.syncAndGetPositionUs())
+    assertThat(mediaClock.syncAndGetPositionUs(/* isReadingAhead= */ false))
         .isEqualTo(TEST_POSITION_US + C.msToUs(SLEEP_TIME_MS));
-    assertClockIsRunning();
+    assertClockIsRunning(/* isReadingAhead= */ false);
   }
 
   @Test
   public void getPositionWithPlaybackParameterChange_shouldTriggerCallback()
       throws ExoPlaybackException {
-    MediaClockRenderer mediaClockRenderer = new MediaClockRenderer(PlaybackParameters.DEFAULT,
-            /* playbackParametersAreMutable= */ true);
+    MediaClockRenderer mediaClockRenderer =
+        new MediaClockRenderer(
+            PlaybackParameters.DEFAULT, /* playbackParametersAreMutable= */ true);
     mediaClock.onRendererEnabled(mediaClockRenderer);
     // Silently change playback parameters of renderer clock.
     mediaClockRenderer.playbackParameters = TEST_PLAYBACK_PARAMETERS;
-    mediaClock.syncAndGetPositionUs();
+    mediaClock.syncAndGetPositionUs(/* isReadingAhead= */ false);
     verify(listener).onPlaybackParametersChanged(TEST_PLAYBACK_PARAMETERS);
   }
 
@@ -283,7 +295,18 @@ public class DefaultMediaClockTest {
         /* isEnded= */ false, /* hasReadStreamToEnd= */ true);
     mediaClock.start();
     mediaClock.onRendererEnabled(mediaClockRenderer);
-    assertClockIsRunning();
+    assertClockIsRunning(/* isReadingAhead= */ false);
+  }
+
+  @Test
+  public void rendererNotReadyAndReadingAhead_shouldFallbackToStandaloneClock()
+      throws ExoPlaybackException {
+    MediaClockRenderer mediaClockRenderer =
+        new MediaClockRenderer(
+            /* isReady= */ false, /* isEnded= */ false, /* hasReadStreamToEnd= */ false);
+    mediaClock.start();
+    mediaClock.onRendererEnabled(mediaClockRenderer);
+    assertClockIsRunning(/* isReadingAhead= */ true);
   }
 
   @Test
@@ -293,7 +316,7 @@ public class DefaultMediaClockTest {
         /* isEnded= */ true, /* hasReadStreamToEnd= */ true);
     mediaClock.start();
     mediaClock.onRendererEnabled(mediaClockRenderer);
-    assertClockIsRunning();
+    assertClockIsRunning(/* isReadingAhead= */ false);
   }
 
   @Test
@@ -302,7 +325,8 @@ public class DefaultMediaClockTest {
     MediaClockRenderer mediaClockRenderer = new MediaClockRenderer();
     mediaClockRenderer.positionUs = TEST_POSITION_US;
     mediaClock.onRendererDisabled(mediaClockRenderer);
-    assertThat(mediaClock.syncAndGetPositionUs()).isEqualTo(C.msToUs(fakeClock.elapsedRealtime()));
+    assertThat(mediaClock.syncAndGetPositionUs(/* isReadingAhead= */ false))
+        .isEqualTo(C.msToUs(fakeClock.elapsedRealtime()));
   }
 
   @Test
@@ -312,7 +336,8 @@ public class DefaultMediaClockTest {
     mediaClock.onRendererEnabled(mediaClockRenderer);
     mediaClock.onRendererEnabled(mediaClockRenderer);
     mediaClockRenderer.positionUs = TEST_POSITION_US;
-    assertThat(mediaClock.syncAndGetPositionUs()).isEqualTo(TEST_POSITION_US);
+    assertThat(mediaClock.syncAndGetPositionUs(/* isReadingAhead= */ false))
+        .isEqualTo(TEST_POSITION_US);
   }
 
   @Test
@@ -328,20 +353,24 @@ public class DefaultMediaClockTest {
     } catch (ExoPlaybackException e) {
       // Expected.
     }
-    assertThat(mediaClock.syncAndGetPositionUs()).isEqualTo(TEST_POSITION_US);
+    assertThat(mediaClock.syncAndGetPositionUs(/* isReadingAhead= */ false))
+        .isEqualTo(TEST_POSITION_US);
   }
 
-  private void assertClockIsRunning() {
-    long clockStartUs = mediaClock.syncAndGetPositionUs();
+  private void assertClockIsRunning(boolean isReadingAhead) {
+    long clockStartUs = mediaClock.syncAndGetPositionUs(isReadingAhead);
     fakeClock.advanceTime(SLEEP_TIME_MS);
-    assertThat(mediaClock.syncAndGetPositionUs()).isEqualTo(clockStartUs
-        + mediaClock.getPlaybackParameters().getMediaTimeUsForPlayoutTimeMs(SLEEP_TIME_MS));
+    assertThat(mediaClock.syncAndGetPositionUs(isReadingAhead))
+        .isEqualTo(
+            clockStartUs
+                + mediaClock.getPlaybackParameters().getMediaTimeUsForPlayoutTimeMs(SLEEP_TIME_MS));
   }
 
   private void assertClockIsStopped() {
-    long positionAtStartUs = mediaClock.syncAndGetPositionUs();
+    long positionAtStartUs = mediaClock.syncAndGetPositionUs(/* isReadingAhead= */ false);
     fakeClock.advanceTime(SLEEP_TIME_MS);
-    assertThat(mediaClock.syncAndGetPositionUs()).isEqualTo(positionAtStartUs);
+    assertThat(mediaClock.syncAndGetPositionUs(/* isReadingAhead= */ false))
+        .isEqualTo(positionAtStartUs);
   }
 
   @SuppressWarnings("HidingField")
