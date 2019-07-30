@@ -36,7 +36,7 @@ public final class FlacStreamMetadataTest {
 
     Metadata metadata =
         new FlacStreamMetadata(0, 0, 0, 0, 0, 0, 0, 0, commentsList, new ArrayList<>())
-            .flacMetadata;
+            .metadata;
 
     assertThat(metadata.length()).isEqualTo(2);
     VorbisComment commentFrame = (VorbisComment) metadata.get(0);
@@ -53,7 +53,7 @@ public final class FlacStreamMetadataTest {
 
     Metadata metadata =
         new FlacStreamMetadata(0, 0, 0, 0, 0, 0, 0, 0, commentsList, new ArrayList<>())
-            .flacMetadata;
+            .metadata;
 
     assertThat(metadata).isNull();
   }
@@ -65,7 +65,7 @@ public final class FlacStreamMetadataTest {
 
     Metadata metadata =
         new FlacStreamMetadata(0, 0, 0, 0, 0, 0, 0, 0, commentsList, new ArrayList<>())
-            .flacMetadata;
+            .metadata;
 
     assertThat(metadata.length()).isEqualTo(1);
     VorbisComment commentFrame = (VorbisComment) metadata.get(0);
@@ -81,7 +81,7 @@ public final class FlacStreamMetadataTest {
 
     Metadata metadata =
         new FlacStreamMetadata(0, 0, 0, 0, 0, 0, 0, 0, commentsList, new ArrayList<>())
-            .flacMetadata;
+            .metadata;
 
     assertThat(metadata.length()).isEqualTo(1);
     VorbisComment commentFrame = (VorbisComment) metadata.get(0);

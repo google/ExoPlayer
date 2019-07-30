@@ -305,6 +305,7 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
   private int textureViewRotation;
   private boolean isTouching;
   private static final int PICTURE_TYPE_FRONT_COVER = 3;
+  private static final int PICTURE_TYPE_NOT_SET = -1;
 
   public PlayerView(Context context) {
     this(context, null);
@@ -1249,25 +1250,31 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
 
   private boolean setArtworkFromMetadata(Metadata metadata) {
     boolean isArtworkSet = false;
-    int currentPicType = -1;
+    int currentPictureType = PICTURE_TYPE_NOT_SET;
     for (int i = 0; i < metadata.length(); i++) {
       Metadata.Entry metadataEntry = metadata.get(i);
-      int picType;
+      int pictureType;
       byte[] bitmapData;
       if (metadataEntry instanceof ApicFrame) {
         bitmapData = ((ApicFrame) metadataEntry).pictureData;
-        picType = ((ApicFrame) metadataEntry).pictureType;
+        pictureType = ((ApicFrame) metadataEntry).pictureType;
       } else if (metadataEntry instanceof PictureFrame) {
         bitmapData = ((PictureFrame) metadataEntry).pictureData;
-        picType = ((PictureFrame) metadataEntry).pictureType;
+        pictureType = ((PictureFrame) metadataEntry).pictureType;
       } else {
         continue;
       }
-      /* Prefers the first front cover picture in the picture list */
-      if (currentPicType != PICTURE_TYPE_FRONT_COVER) {
+      /* Prefers the first front cover picture.
+       * If there are no front cover pictures, prefer the first picture in the list
+       * */
+      if (currentPictureType == PICTURE_TYPE_NOT_SET || pictureType == PICTURE_TYPE_FRONT_COVER) {
         Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapData, 0, bitmapData.length);
         isArtworkSet = setDrawableArtwork(new BitmapDrawable(getResources(), bitmap));
-        currentPicType = picType;
+        currentPictureType = pictureType;
+        if (currentPictureType == PICTURE_TYPE_FRONT_COVER) {
+          /* Found a front cover, stop looking for more pictures. */
+          break;
+        }
       }
     }
     return isArtworkSet;

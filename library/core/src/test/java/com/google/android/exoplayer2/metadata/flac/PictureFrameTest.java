@@ -24,7 +24,7 @@ import org.junit.runner.RunWith;
 
 /** Test for {@link PictureFrame}. */
 @RunWith(AndroidJUnit4.class)
-public class PictureTest {
+public final class PictureFrameTest {
 
   @Test
   public void testParcelable() {
