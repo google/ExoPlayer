@@ -139,7 +139,7 @@ import java.io.IOException;
     // Skip past the "data" header.
     input.skipFully(ChunkHeader.SIZE_IN_BYTES);
 
-    wavHeader.setDataBounds(input.getPosition(), chunkHeader.size);
+    wavHeader.setDataBounds((int) input.getPosition(), chunkHeader.size);
   }
 
   private WavHeaderReader() {
