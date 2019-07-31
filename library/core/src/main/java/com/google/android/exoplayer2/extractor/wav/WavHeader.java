@@ -37,9 +37,9 @@ import com.google.android.exoplayer2.util.Util;
   @C.PcmEncoding
   private final int encoding;
 
-  /** Offset to the start of sample data. */
-  private long dataStartPosition;
-  /** Total size in bytes of the sample data. */
+  /** Position of the start of the sample data, in bytes. */
+  private int dataStartPosition;
+  /** Total size of the sample data, in bytes. */
   private long dataSize;
 
   public WavHeader(int numChannels, int sampleRateHz, int averageBytesPerSecond, int blockAlignment,
@@ -50,6 +50,7 @@ import com.google.android.exoplayer2.util.Util;
     this.blockAlignment = blockAlignment;
     this.bitsPerSample = bitsPerSample;
     this.encoding = encoding;
+    dataStartPosition = C.POSITION_UNSET;
   }
 
   // Data bounds.
@@ -57,22 +58,33 @@ import com.google.android.exoplayer2.util.Util;
   /**
    * Sets the data start position and size in bytes of sample data in this WAV.
    *
-   * @param dataStartPosition The data start position in bytes.
-   * @param dataSize The data size in bytes.
+   * @param dataStartPosition The position of the start of the sample data, in bytes.
+   * @param dataSize The total size of the sample data, in bytes.
    */
-  public void setDataBounds(long dataStartPosition, long dataSize) {
+  public void setDataBounds(int dataStartPosition, long dataSize) {
     this.dataStartPosition = dataStartPosition;
     this.dataSize = dataSize;
   }
 
-  /** Returns the data limit, or {@link C#POSITION_UNSET} if the data bounds have not been set. */
+  /**
+   * Returns the position of the start of the sample data, in bytes, or {@link C#POSITION_UNSET} if
+   * the data bounds have not been set.
+   */
+  public int getDataStartPosition() {
+    return dataStartPosition;
+  }
+
+  /**
+   * Returns the limit of the sample data, in bytes, or {@link C#POSITION_UNSET} if the data bounds
+   * have not been set.
+   */
   public long getDataLimit() {
     return hasDataBounds() ? (dataStartPosition + dataSize) : C.POSITION_UNSET;
   }
 
   /** Returns whether the data start position and size have been set. */
   public boolean hasDataBounds() {
-    return dataStartPosition != 0 && dataSize != 0;
+    return dataStartPosition != C.POSITION_UNSET;
   }
 
   // SeekMap implementation.
