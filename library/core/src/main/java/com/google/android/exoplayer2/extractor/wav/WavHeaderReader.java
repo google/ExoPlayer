@@ -121,13 +121,13 @@ import java.io.IOException;
     ParsableByteArray scratch = new ParsableByteArray(ChunkHeader.SIZE_IN_BYTES);
     // Skip all chunks until we hit the data header.
     ChunkHeader chunkHeader = ChunkHeader.peek(input, scratch);
-    final int data = 0x64617461;
-    while (chunkHeader.id != data) {
-      Log.w(TAG, "Ignoring unknown WAV chunk: " + chunkHeader.id);
+    while (chunkHeader.id != WavUtil.DATA_FOURCC) {
+      if (chunkHeader.id != WavUtil.RIFF_FOURCC && chunkHeader.id != WavUtil.FMT_FOURCC) {
+        Log.w(TAG, "Ignoring unknown WAV chunk: " + chunkHeader.id);
+      }
       long bytesToSkip = ChunkHeader.SIZE_IN_BYTES + chunkHeader.size;
       // Override size of RIFF chunk, since it describes its size as the entire file.
-      final int riff = 0x52494646;
-      if (chunkHeader.id == riff) {
+      if (chunkHeader.id == WavUtil.RIFF_FOURCC) {
         bytesToSkip = ChunkHeader.SIZE_IN_BYTES + 4;
       }
       if (bytesToSkip > Integer.MAX_VALUE) {
