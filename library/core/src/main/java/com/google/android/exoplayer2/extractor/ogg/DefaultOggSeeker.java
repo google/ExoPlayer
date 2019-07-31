@@ -147,12 +147,12 @@ import java.io.IOException;
    * which it is sensible to just skip pages to the target granule and pre-roll instead of doing
    * another seek request.
    *
-   * @param targetGranule the target granule position to seek to.
-   * @param input the {@link ExtractorInput} to read from.
-   * @return the position to seek the {@link ExtractorInput} to for a next call or -(currentGranule
+   * @param targetGranule The target granule position to seek to.
+   * @param input The {@link ExtractorInput} to read from.
+   * @return The position to seek the {@link ExtractorInput} to for a next call or -(currentGranule
    *     + 2) if it's close enough to skip to the target page.
-   * @throws IOException thrown if reading from the input fails.
-   * @throws InterruptedException thrown if interrupted while reading from the input.
+   * @throws IOException If reading from the input fails.
+   * @throws InterruptedException If interrupted while reading from the input.
    */
   @VisibleForTesting
   public long getNextSeekPosition(long targetGranule, ExtractorInput input)
@@ -263,8 +263,8 @@ import java.io.IOException;
    * @param input The {@code ExtractorInput} to skip to the next page.
    * @param limit The limit up to which the search should take place.
    * @return Whether the next page was found.
-   * @throws IOException thrown if peeking/reading from the input fails.
-   * @throws InterruptedException thrown if interrupted while peeking/reading from the input.
+   * @throws IOException If peeking/reading from the input fails.
+   * @throws InterruptedException If interrupted while peeking/reading from the input.
    */
   @VisibleForTesting
   boolean skipToNextPage(ExtractorInput input, long limit)
@@ -321,14 +321,14 @@ import java.io.IOException;
    * Skips to the position of the start of the page containing the {@code targetGranule} and returns
    * the granule of the page previous to the target page.
    *
-   * @param input the {@link ExtractorInput} to read from.
-   * @param targetGranule the target granule.
-   * @param currentGranule the current granule or -1 if it's unknown.
-   * @return the granule of the prior page or the {@code currentGranule} if there isn't a prior
+   * @param input The {@link ExtractorInput} to read from.
+   * @param targetGranule The target granule.
+   * @param currentGranule The current granule or -1 if it's unknown.
+   * @return The granule of the prior page or the {@code currentGranule} if there isn't a prior
    *     page.
-   * @throws ParserException thrown if populating the page header fails.
-   * @throws IOException thrown if reading from the input fails.
-   * @throws InterruptedException thrown if interrupted while reading from the input.
+   * @throws ParserException If populating the page header fails.
+   * @throws IOException If reading from the input fails.
+   * @throws InterruptedException If interrupted while reading from the input.
    */
   @VisibleForTesting
   long skipToPageOfGranule(ExtractorInput input, long targetGranule, long currentGranule)
