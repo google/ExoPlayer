@@ -229,8 +229,8 @@ public final class FlacExtractor implements Extractor {
       binarySearchSeeker =
           outputSeekMap(decoderJni, streamMetadata, input.getLength(), extractorOutput);
       Metadata metadata = id3MetadataDisabled ? null : id3Metadata;
-      if (streamMetadata.vorbisComments != null) {
-        metadata = streamMetadata.vorbisComments.copyWithAppendedEntriesFrom(metadata);
+      if (streamMetadata.metadata != null) {
+        metadata = streamMetadata.metadata.copyWithAppendedEntriesFrom(metadata);
       }
       outputFormat(streamMetadata, metadata, trackOutput);
       outputBuffer.reset(streamMetadata.maxDecodedFrameSize());

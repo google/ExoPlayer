@@ -19,7 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.vorbis.VorbisComment;
+import com.google.android.exoplayer2.metadata.flac.VorbisComment;
 import java.util.ArrayList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,7 +34,8 @@ public final class FlacStreamMetadataTest {
     commentsList.add("Title=Song");
     commentsList.add("Artist=Singer");
 
-    Metadata metadata = new FlacStreamMetadata(0, 0, 0, 0, 0, 0, 0, 0, commentsList).vorbisComments;
+    Metadata metadata =
+        new FlacStreamMetadata(0, 0, 0, 0, 0, 0, 0, 0, commentsList, new ArrayList<>()).metadata;
 
     assertThat(metadata.length()).isEqualTo(2);
     VorbisComment commentFrame = (VorbisComment) metadata.get(0);
@@ -49,7 +50,8 @@ public final class FlacStreamMetadataTest {
   public void parseEmptyVorbisComments() {
     ArrayList<String> commentsList = new ArrayList<>();
 
-    Metadata metadata = new FlacStreamMetadata(0, 0, 0, 0, 0, 0, 0, 0, commentsList).vorbisComments;
+    Metadata metadata =
+        new FlacStreamMetadata(0, 0, 0, 0, 0, 0, 0, 0, commentsList, new ArrayList<>()).metadata;
 
     assertThat(metadata).isNull();
   }
@@ -59,7 +61,8 @@ public final class FlacStreamMetadataTest {
     ArrayList<String> commentsList = new ArrayList<>();
     commentsList.add("Title=So=ng");
 
-    Metadata metadata = new FlacStreamMetadata(0, 0, 0, 0, 0, 0, 0, 0, commentsList).vorbisComments;
+    Metadata metadata =
+        new FlacStreamMetadata(0, 0, 0, 0, 0, 0, 0, 0, commentsList, new ArrayList<>()).metadata;
 
     assertThat(metadata.length()).isEqualTo(1);
     VorbisComment commentFrame = (VorbisComment) metadata.get(0);
@@ -73,7 +76,8 @@ public final class FlacStreamMetadataTest {
     commentsList.add("TitleSong");
     commentsList.add("Artist=Singer");
 
-    Metadata metadata = new FlacStreamMetadata(0, 0, 0, 0, 0, 0, 0, 0, commentsList).vorbisComments;
+    Metadata metadata =
+        new FlacStreamMetadata(0, 0, 0, 0, 0, 0, 0, 0, commentsList, new ArrayList<>()).metadata;
 
     assertThat(metadata.length()).isEqualTo(1);
     VorbisComment commentFrame = (VorbisComment) metadata.get(0);

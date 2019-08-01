@@ -30,6 +30,17 @@
 
 typedef int status_t;
 
+struct FlacPicture {
+  int type;
+  std::string mimeType;
+  std::string description;
+  FLAC__uint32 width;
+  FLAC__uint32 height;
+  FLAC__uint32 depth;
+  FLAC__uint32 colors;
+  std::vector<char> data;
+};
+
 class FLACParser {
  public:
   FLACParser(DataSource *source);
@@ -48,11 +59,15 @@ class FLACParser {
     return mStreamInfo;
   }
 
-  bool isVorbisCommentsValid() const { return mVorbisCommentsValid; }
+  bool areVorbisCommentsValid() const { return mVorbisCommentsValid; }
 
   const std::vector<std::string>& getVorbisComments() const {
     return mVorbisComments;
   }
+
+  bool arePicturesValid() const { return mPicturesValid; }
+
+  const std::vector<FlacPicture> &getPictures() const { return mPictures; }
 
   int64_t getLastFrameTimestamp() const {
     return (1000000LL * mWriteHeader.number.sample_number) / getSampleRate();
@@ -82,7 +97,9 @@ class FLACParser {
       if (newPosition == 0) {
         mStreamInfoValid = false;
         mVorbisCommentsValid = false;
+        mPicturesValid = false;
         mVorbisComments.clear();
+        mPictures.clear();
         FLAC__stream_decoder_reset(mDecoder);
       } else {
         FLAC__stream_decoder_flush(mDecoder);
@@ -131,6 +148,10 @@ class FLACParser {
   // cached when the VORBIS_COMMENT metadata is parsed by libFLAC
   std::vector<std::string> mVorbisComments;
   bool mVorbisCommentsValid;
+
+  // cached when the PICTURE metadata is parsed by libFLAC
+  std::vector<FlacPicture> mPictures;
+  bool mPicturesValid;
 
   // cached when a decoded PCM block is "written" by libFLAC parser
   bool mWriteRequested;
