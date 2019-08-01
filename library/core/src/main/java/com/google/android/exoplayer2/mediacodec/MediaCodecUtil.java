@@ -171,12 +171,12 @@ public final class MediaCodecUtil {
         Util.SDK_INT >= 21
             ? new MediaCodecListCompatV21(secure, tunneling)
             : new MediaCodecListCompatV16();
-    ArrayList<MediaCodecInfo> decoderInfos = getDecoderInfosInternal(key, mediaCodecList, mimeType);
+    ArrayList<MediaCodecInfo> decoderInfos = getDecoderInfosInternal(key, mediaCodecList);
     if (secure && decoderInfos.isEmpty() && 21 <= Util.SDK_INT && Util.SDK_INT <= 23) {
       // Some devices don't list secure decoders on API level 21 [Internal: b/18678462]. Try the
       // legacy path. We also try this path on API levels 22 and 23 as a defensive measure.
       mediaCodecList = new MediaCodecListCompatV16();
-      decoderInfos = getDecoderInfosInternal(key, mediaCodecList, mimeType);
+      decoderInfos = getDecoderInfosInternal(key, mediaCodecList);
       if (!decoderInfos.isEmpty()) {
         Log.w(TAG, "MediaCodecList API didn't list secure decoder for: " + mimeType
             + ". Assuming: " + decoderInfos.get(0).name);
@@ -268,18 +268,16 @@ public final class MediaCodecUtil {
   // Internal methods.
 
   /**
-   * Returns {@link MediaCodecInfo}s for the given codec {@code key} in the order given by
+   * Returns {@link MediaCodecInfo}s for the given codec {@link CodecKey} in the order given by
    * {@code mediaCodecList}.
    *
    * @param key The codec key.
    * @param mediaCodecList The codec list.
-   * @param requestedMimeType The originally requested MIME type, which may differ from the codec
-   *     key MIME type if the codec key is being considered as a fallback.
    * @return The codec information for usable codecs matching the specified key.
    * @throws DecoderQueryException If there was an error querying the available decoders.
    */
-  private static ArrayList<MediaCodecInfo> getDecoderInfosInternal(CodecKey key,
-      MediaCodecListCompat mediaCodecList, String requestedMimeType) throws DecoderQueryException {
+  private static ArrayList<MediaCodecInfo> getDecoderInfosInternal(
+      CodecKey key, MediaCodecListCompat mediaCodecList) throws DecoderQueryException {
     try {
       ArrayList<MediaCodecInfo> decoderInfos = new ArrayList<>();
       String mimeType = key.mimeType;
@@ -289,28 +287,27 @@ public final class MediaCodecUtil {
       for (int i = 0; i < numberOfCodecs; i++) {
         android.media.MediaCodecInfo codecInfo = mediaCodecList.getCodecInfoAt(i);
         String name = codecInfo.getName();
-        String supportedType =
-            getCodecSupportedType(codecInfo, name, secureDecodersExplicit, requestedMimeType);
-        if (supportedType == null) {
+        String codecMimeType = getCodecMimeType(codecInfo, name, secureDecodersExplicit, mimeType);
+        if (codecMimeType == null) {
           continue;
         }
         try {
-          CodecCapabilities capabilities = codecInfo.getCapabilitiesForType(supportedType);
+          CodecCapabilities capabilities = codecInfo.getCapabilitiesForType(codecMimeType);
           boolean tunnelingSupported =
               mediaCodecList.isFeatureSupported(
-                  CodecCapabilities.FEATURE_TunneledPlayback, supportedType, capabilities);
+                  CodecCapabilities.FEATURE_TunneledPlayback, codecMimeType, capabilities);
           boolean tunnelingRequired =
               mediaCodecList.isFeatureRequired(
-                  CodecCapabilities.FEATURE_TunneledPlayback, supportedType, capabilities);
+                  CodecCapabilities.FEATURE_TunneledPlayback, codecMimeType, capabilities);
           if ((!key.tunneling && tunnelingRequired) || (key.tunneling && !tunnelingSupported)) {
             continue;
           }
           boolean secureSupported =
               mediaCodecList.isFeatureSupported(
-                  CodecCapabilities.FEATURE_SecurePlayback, supportedType, capabilities);
+                  CodecCapabilities.FEATURE_SecurePlayback, codecMimeType, capabilities);
           boolean secureRequired =
               mediaCodecList.isFeatureRequired(
-                  CodecCapabilities.FEATURE_SecurePlayback, supportedType, capabilities);
+                  CodecCapabilities.FEATURE_SecurePlayback, codecMimeType, capabilities);
           if ((!key.secure && secureRequired) || (key.secure && !secureSupported)) {
             continue;
           }
@@ -319,12 +316,18 @@ public final class MediaCodecUtil {
               || (!secureDecodersExplicit && !key.secure)) {
             decoderInfos.add(
                 MediaCodecInfo.newInstance(
-                    name, mimeType, capabilities, forceDisableAdaptive, /* forceSecure= */ false));
+                    name,
+                    mimeType,
+                    codecMimeType,
+                    capabilities,
+                    forceDisableAdaptive,
+                    /* forceSecure= */ false));
           } else if (!secureDecodersExplicit && secureSupported) {
             decoderInfos.add(
                 MediaCodecInfo.newInstance(
                     name + ".secure",
                     mimeType,
+                    codecMimeType,
                     capabilities,
                     forceDisableAdaptive,
                     /* forceSecure= */ true));
@@ -338,7 +341,7 @@ public final class MediaCodecUtil {
           } else {
             // Rethrow error querying primary codec capabilities, or secondary codec
             // capabilities if API level is greater than 23.
-            Log.e(TAG, "Failed to query codec " + name + " (" + supportedType + ")");
+            Log.e(TAG, "Failed to query codec " + name + " (" + codecMimeType + ")");
             throw e;
           }
         }
@@ -352,48 +355,49 @@ public final class MediaCodecUtil {
   }
 
   /**
-   * Returns the codec's supported type for decoding {@code requestedMimeType} on the current
-   * device, or {@code null} if the codec can't be used.
+   * Returns the codec's supported MIME type for media of type {@code mimeType}, or {@code null} if
+   * the codec can't be used.
    *
    * @param info The codec information.
    * @param name The name of the codec
    * @param secureDecodersExplicit Whether secure decoders were explicitly listed, if present.
-   * @param requestedMimeType The originally requested MIME type, which may differ from the codec
-   *     key MIME type if the codec key is being considered as a fallback.
-   * @return The codec's supported type for decoding {@code requestedMimeType}, or {@code null} if
-   *     the codec can't be used.
+   * @param mimeType The MIME type.
+   * @return The codec's supported MIME type for media of type {@code mimeType}, or {@code null} if
+   *     the codec can't be used. If non-null, the returned type will be equal to {@code mimeType}
+   *     except in cases where the codec is known to use a non-standard MIME type alias.
    */
   @Nullable
-  private static String getCodecSupportedType(
+  private static String getCodecMimeType(
       android.media.MediaCodecInfo info,
       String name,
       boolean secureDecodersExplicit,
-      String requestedMimeType) {
-    if (isCodecUsableDecoder(info, name, secureDecodersExplicit, requestedMimeType)) {
-      String[] supportedTypes = info.getSupportedTypes();
-      for (String supportedType : supportedTypes) {
-        if (supportedType.equalsIgnoreCase(requestedMimeType)) {
-          return supportedType;
-        }
-      }
+      String mimeType) {
+    if (!isCodecUsableDecoder(info, name, secureDecodersExplicit, mimeType)) {
+      return null;
+    }
 
-      if (requestedMimeType.equals(MimeTypes.VIDEO_DOLBY_VISION)) {
-        // Handle decoders that declare support for DV via MIME types that aren't
-        // video/dolby-vision.
-        if ("OMX.MS.HEVCDV.Decoder".equals(name)) {
-          return "video/hevcdv";
-        } else if ("OMX.RTK.video.decoder".equals(name)
-            || "OMX.realtek.video.decoder.tunneled".equals(name)) {
-          return "video/dv_hevc";
-        }
-      } else if (requestedMimeType.equals(MimeTypes.AUDIO_ALAC)
-          && "OMX.lge.alac.decoder".equals(name)) {
-        return "audio/x-lg-alac";
-      } else if (requestedMimeType.equals(MimeTypes.AUDIO_FLAC)
-          && "OMX.lge.flac.decoder".equals(name)) {
-        return "audio/x-lg-flac";
+    String[] supportedTypes = info.getSupportedTypes();
+    for (String supportedType : supportedTypes) {
+      if (supportedType.equalsIgnoreCase(mimeType)) {
+        return supportedType;
       }
     }
+
+    if (mimeType.equals(MimeTypes.VIDEO_DOLBY_VISION)) {
+      // Handle decoders that declare support for DV via MIME types that aren't
+      // video/dolby-vision.
+      if ("OMX.MS.HEVCDV.Decoder".equals(name)) {
+        return "video/hevcdv";
+      } else if ("OMX.RTK.video.decoder".equals(name)
+          || "OMX.realtek.video.decoder.tunneled".equals(name)) {
+        return "video/dv_hevc";
+      }
+    } else if (mimeType.equals(MimeTypes.AUDIO_ALAC) && "OMX.lge.alac.decoder".equals(name)) {
+      return "audio/x-lg-alac";
+    } else if (mimeType.equals(MimeTypes.AUDIO_FLAC) && "OMX.lge.flac.decoder".equals(name)) {
+      return "audio/x-lg-flac";
+    }
+
     return null;
   }
 
@@ -403,12 +407,14 @@ public final class MediaCodecUtil {
    * @param info The codec information.
    * @param name The name of the codec
    * @param secureDecodersExplicit Whether secure decoders were explicitly listed, if present.
-   * @param requestedMimeType The originally requested MIME type, which may differ from the codec
-   *     key MIME type if the codec key is being considered as a fallback.
+   * @param mimeType The MIME type.
    * @return Whether the specified codec is usable for decoding on the current device.
    */
-  private static boolean isCodecUsableDecoder(android.media.MediaCodecInfo info, String name,
-      boolean secureDecodersExplicit, String requestedMimeType) {
+  private static boolean isCodecUsableDecoder(
+      android.media.MediaCodecInfo info,
+      String name,
+      boolean secureDecodersExplicit,
+      String mimeType) {
     if (info.isEncoder() || (!secureDecodersExplicit && name.endsWith(".secure"))) {
       return false;
     }
@@ -497,8 +503,7 @@ public final class MediaCodecUtil {
     }
 
     // MTK E-AC3 decoder doesn't support decoding JOC streams in 2-D. See [Internal: b/69400041].
-    if (MimeTypes.AUDIO_E_AC3_JOC.equals(requestedMimeType)
-        && "OMX.MTK.AUDIO.DECODER.DSPAC3".equals(name)) {
+    if (MimeTypes.AUDIO_E_AC3_JOC.equals(mimeType) && "OMX.MTK.AUDIO.DECODER.DSPAC3".equals(name)) {
       return false;
     }
 
@@ -522,7 +527,12 @@ public final class MediaCodecUtil {
         // name. See <a href="https://github.com/google/ExoPlayer/issues/5782">Issue #5782</a>.
         decoderInfos.add(
             MediaCodecInfo.newInstance(
-                "OMX.google.raw.decoder", MimeTypes.AUDIO_RAW, /* capabilities= */ null));
+                /* name= */ "OMX.google.raw.decoder",
+                /* mimeType= */ MimeTypes.AUDIO_RAW,
+                /* codecMimeType= */ MimeTypes.AUDIO_RAW,
+                /* capabilities= */ null,
+                /* forceDisableAdaptive= */ false,
+                /* forceSecure= */ false));
       }
       // Work around inconsistent raw audio decoding behavior across different devices.
       sortByScore(
