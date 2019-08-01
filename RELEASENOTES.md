@@ -9,6 +9,8 @@
   tags instead of 3-letter ISO 639-2 language tags.
 * Ensure the `SilenceMediaSource` position is in range
   ([#6229](https://github.com/google/ExoPlayer/issues/6229)).
+* Calculate correct duration for clipped WAV streams
+  ([#6241](https://github.com/google/ExoPlayer/issues/6241)).
 * Fix issue where initial seek positions get ignored when playing a preroll ad
   ([#6201](https://github.com/google/ExoPlayer/issues/6201)).
 * Fix issue where invalid language tags were normalized to "und" instead of
