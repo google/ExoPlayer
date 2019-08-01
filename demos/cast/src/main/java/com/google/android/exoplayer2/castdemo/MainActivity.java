@@ -35,6 +35,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.ext.cast.MediaItem;
@@ -164,7 +165,22 @@ public class MainActivity extends AppCompatActivity
     }
   }
 
+  @Override
+  public void onUnsupportedTrack(int trackType) {
+    if (trackType == C.TRACK_TYPE_AUDIO) {
+      showToast(R.string.error_unsupported_audio);
+    } else if (trackType == C.TRACK_TYPE_VIDEO) {
+      showToast(R.string.error_unsupported_video);
+    } else {
+      // Do nothing.
+    }
+  }
+
   // Internal methods.
+
+  private void showToast(int messageId) {
+    Toast.makeText(getApplicationContext(), messageId, Toast.LENGTH_LONG).show();
+  }
 
   private View buildSampleListView() {
     View dialogList = getLayoutInflater().inflate(R.layout.sample_list, null);
