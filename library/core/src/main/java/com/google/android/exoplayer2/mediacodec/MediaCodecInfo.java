@@ -54,6 +54,13 @@ public final class MediaCodecInfo {
   @Nullable public final String mimeType;
 
   /**
+   * The MIME type that the codec uses for media of type {@link #mimeType}, or {@code null} if this
+   * is a passthrough codec. Equal to {@link #mimeType} unless the codec is known to use a
+   * non-standard MIME type alias.
+   */
+  @Nullable public final String codecMimeType;
+
+  /**
    * The capabilities of the decoder, like the profiles/levels it supports, or {@code null} if not
    * known.
    */
@@ -98,6 +105,7 @@ public final class MediaCodecInfo {
     return new MediaCodecInfo(
         name,
         /* mimeType= */ null,
+        /* codecMimeType= */ null,
         /* capabilities= */ null,
         /* passthrough= */ true,
         /* forceDisableAdaptive= */ false,
@@ -109,26 +117,8 @@ public final class MediaCodecInfo {
    *
    * @param name The name of the {@link MediaCodec}.
    * @param mimeType A mime type supported by the {@link MediaCodec}.
-   * @param capabilities The capabilities of the {@link MediaCodec} for the specified mime type, or
-   *     {@code null} if not known.
-   * @return The created instance.
-   */
-  public static MediaCodecInfo newInstance(
-      String name, String mimeType, @Nullable CodecCapabilities capabilities) {
-    return new MediaCodecInfo(
-        name,
-        mimeType,
-        capabilities,
-        /* passthrough= */ false,
-        /* forceDisableAdaptive= */ false,
-        /* forceSecure= */ false);
-  }
-
-  /**
-   * Creates an instance.
-   *
-   * @param name The name of the {@link MediaCodec}.
-   * @param mimeType A mime type supported by the {@link MediaCodec}.
+   * @param codecMimeType The MIME type that the codec uses for media of type {@code #mimeType}.
+   *     Equal to {@code mimeType} unless the codec is known to use a non-standard MIME type alias.
    * @param capabilities The capabilities of the {@link MediaCodec} for the specified mime type, or
    *     {@code null} if not known.
    * @param forceDisableAdaptive Whether {@link #adaptive} should be forced to {@code false}.
@@ -138,22 +128,31 @@ public final class MediaCodecInfo {
   public static MediaCodecInfo newInstance(
       String name,
       String mimeType,
+      String codecMimeType,
       @Nullable CodecCapabilities capabilities,
       boolean forceDisableAdaptive,
       boolean forceSecure) {
     return new MediaCodecInfo(
-        name, mimeType, capabilities, /* passthrough= */ false, forceDisableAdaptive, forceSecure);
+        name,
+        mimeType,
+        codecMimeType,
+        capabilities,
+        /* passthrough= */ false,
+        forceDisableAdaptive,
+        forceSecure);
   }
 
   private MediaCodecInfo(
       String name,
       @Nullable String mimeType,
+      @Nullable String codecMimeType,
       @Nullable CodecCapabilities capabilities,
       boolean passthrough,
       boolean forceDisableAdaptive,
       boolean forceSecure) {
     this.name = Assertions.checkNotNull(name);
     this.mimeType = mimeType;
+    this.codecMimeType = codecMimeType;
     this.capabilities = capabilities;
     this.passthrough = passthrough;
     adaptive = !forceDisableAdaptive && capabilities != null && isAdaptive(capabilities);

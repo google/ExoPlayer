@@ -29,6 +29,8 @@
   the `Player` set later using `AnalyticsCollector.setPlayer`.
 * Calculate correct duration for clipped WAV streams
   ([#6241](https://github.com/google/ExoPlayer/issues/6241)).
+* Fix Flac and ALAC playback on some LG devices
+  ([#5938](https://github.com/google/ExoPlayer/issues/5938)).
 
 ### 2.10.4 ###
 
