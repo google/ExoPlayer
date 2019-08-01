@@ -25,6 +25,8 @@
   management in playlists.
 * Improve text selection logic to always prefer the better language matches
   over other selection parameters.
+* Remove `AnalyticsCollector.Factory`. Instances can be created directly and
+  the `Player` set later using `AnalyticsCollector.setPlayer`.
 
 ### 2.10.4 ###
 
