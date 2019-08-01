@@ -91,8 +91,8 @@ import java.io.IOException;
     // If present, skip extensionSize, validBitsPerSample, channelMask, subFormatGuid, ...
     input.advancePeekPosition((int) chunkHeader.size - 16);
 
-    return new WavHeader(numChannels, sampleRateHz, averageBytesPerSecond, blockAlignment,
-        bitsPerSample, encoding);
+    return new WavHeader(
+        numChannels, sampleRateHz, averageBytesPerSecond, blockAlignment, bitsPerSample, encoding);
   }
 
   /**
@@ -139,7 +139,14 @@ import java.io.IOException;
     // Skip past the "data" header.
     input.skipFully(ChunkHeader.SIZE_IN_BYTES);
 
-    wavHeader.setDataBounds((int) input.getPosition(), chunkHeader.size);
+    int dataStartPosition = (int) input.getPosition();
+    long dataEndPosition = dataStartPosition + chunkHeader.size;
+    long inputLength = input.getLength();
+    if (inputLength != C.LENGTH_UNSET && dataEndPosition > inputLength) {
+      Log.w(TAG, "Data exceeds input length: " + dataEndPosition + ", " + inputLength);
+      dataEndPosition = inputLength;
+    }
+    wavHeader.setDataBounds(dataStartPosition, dataEndPosition);
   }
 
   private WavHeaderReader() {
