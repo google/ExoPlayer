@@ -144,7 +144,7 @@ public class SimpleExoPlayer extends BasePlayer
         loadControl,
         drmSessionManager,
         bandwidthMeter,
-        new AnalyticsCollector.Factory(),
+        new AnalyticsCollector(Clock.DEFAULT),
         looper);
   }
 
@@ -156,8 +156,8 @@ public class SimpleExoPlayer extends BasePlayer
    * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if the instance
    *     will not be used for DRM protected playbacks.
    * @param bandwidthMeter The {@link BandwidthMeter} that will be used by the instance.
-   * @param analyticsCollectorFactory A factory for creating the {@link AnalyticsCollector} that
-   *     will collect and forward all player events.
+   * @param analyticsCollector The {@link AnalyticsCollector} that will collect and forward all
+   *     player events.
    * @param looper The {@link Looper} which must be used for all calls to the player and which is
    *     used to call listeners on.
    */
@@ -168,7 +168,7 @@ public class SimpleExoPlayer extends BasePlayer
       LoadControl loadControl,
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       BandwidthMeter bandwidthMeter,
-      AnalyticsCollector.Factory analyticsCollectorFactory,
+      AnalyticsCollector analyticsCollector,
       Looper looper) {
     this(
         context,
@@ -177,7 +177,7 @@ public class SimpleExoPlayer extends BasePlayer
         loadControl,
         drmSessionManager,
         bandwidthMeter,
-        analyticsCollectorFactory,
+        analyticsCollector,
         Clock.DEFAULT,
         looper);
   }
@@ -190,8 +190,8 @@ public class SimpleExoPlayer extends BasePlayer
    * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if the instance
    *     will not be used for DRM protected playbacks.
    * @param bandwidthMeter The {@link BandwidthMeter} that will be used by the instance.
-   * @param analyticsCollectorFactory A factory for creating the {@link AnalyticsCollector} that
-   *     will collect and forward all player events.
+   * @param analyticsCollector The {@link AnalyticsCollector} that will collect and forward all
+   *     player events.
    * @param clock The {@link Clock} that will be used by the instance. Should always be {@link
    *     Clock#DEFAULT}, unless the player is being used from a test.
    * @param looper The {@link Looper} which must be used for all calls to the player and which is
@@ -204,10 +204,11 @@ public class SimpleExoPlayer extends BasePlayer
       LoadControl loadControl,
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       BandwidthMeter bandwidthMeter,
-      AnalyticsCollector.Factory analyticsCollectorFactory,
+      AnalyticsCollector analyticsCollector,
       Clock clock,
       Looper looper) {
     this.bandwidthMeter = bandwidthMeter;
+    this.analyticsCollector = analyticsCollector;
     componentListener = new ComponentListener();
     videoListeners = new CopyOnWriteArraySet<>();
     audioListeners = new CopyOnWriteArraySet<>();
@@ -235,7 +236,7 @@ public class SimpleExoPlayer extends BasePlayer
     // Build the player and associated objects.
     player =
         new ExoPlayerImpl(renderers, trackSelector, loadControl, bandwidthMeter, clock, looper);
-    analyticsCollector = analyticsCollectorFactory.createAnalyticsCollector(player, clock);
+    analyticsCollector.setPlayer(player);
     addListener(analyticsCollector);
     addListener(componentListener);
     videoDebugListeners.add(analyticsCollector);

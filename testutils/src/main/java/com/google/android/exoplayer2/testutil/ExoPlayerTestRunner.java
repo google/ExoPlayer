@@ -622,7 +622,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
           loadControl,
           /* drmSessionManager= */ null,
           bandwidthMeter,
-          new AnalyticsCollector.Factory(),
+          new AnalyticsCollector(clock),
           clock,
           Looper.myLooper());
     }
