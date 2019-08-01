@@ -27,6 +27,8 @@
   over other selection parameters.
 * Remove `AnalyticsCollector.Factory`. Instances can be created directly and
   the `Player` set later using `AnalyticsCollector.setPlayer`.
+* Calculate correct duration for clipped WAV streams
+  ([#6241](https://github.com/google/ExoPlayer/issues/6241)).
 
 ### 2.10.4 ###
 
