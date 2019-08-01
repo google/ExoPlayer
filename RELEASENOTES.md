@@ -7,6 +7,8 @@
   ExoPlayer library classes.
 * Switch normalized BCP-47 language codes to use 2-letter ISO 639-1 language
   tags instead of 3-letter ISO 639-2 language tags.
+* Ensure the `SilenceMediaSource` position is in range
+  ([#6229](https://github.com/google/ExoPlayer/issues/6229)).
 * Fix issue where initial seek positions get ignored when playing a preroll ad
   ([#6201](https://github.com/google/ExoPlayer/issues/6201)).
 * Fix issue where invalid language tags were normalized to "und" instead of
@@ -14,8 +16,8 @@
   ([#6153](https://github.com/google/ExoPlayer/issues/6153)).
 * Fix `DataSchemeDataSource` re-opening and range requests
   ([#6192](https://github.com/google/ExoPlayer/issues/6192)).
-* Ensure the `SilenceMediaSource` position is in range
-  ([#6229](https://github.com/google/ExoPlayer/issues/6229)).
+* Fix Flac and ALAC playback on some LG devices
+  ([#5938](https://github.com/google/ExoPlayer/issues/5938)).
 * Flac extension: Parse `VORBIS_COMMENT` and `PICTURE` metadata
   ([#5527](https://github.com/google/ExoPlayer/issues/5527)).
 
