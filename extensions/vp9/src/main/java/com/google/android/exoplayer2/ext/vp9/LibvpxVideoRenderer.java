@@ -42,6 +42,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TimedValueQueue;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.VideoDecoderInputBuffer;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import com.google.android.exoplayer2.video.VideoRendererEventListener.EventDispatcher;
@@ -123,7 +124,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
   private Format pendingFormat;
   private Format outputFormat;
   private VpxDecoder decoder;
-  private VpxInputBuffer inputBuffer;
+  private VideoDecoderInputBuffer inputBuffer;
   private VpxOutputBuffer outputBuffer;
   @Nullable private DrmSession<ExoMediaCrypto> decoderDrmSession;
   @Nullable private DrmSession<ExoMediaCrypto> sourceDrmSession;
@@ -545,7 +546,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
    *
    * @param buffer The buffer that will be queued.
    */
-  protected void onQueueInputBuffer(VpxInputBuffer buffer) {
+  protected void onQueueInputBuffer(VideoDecoderInputBuffer buffer) {
     // Do nothing.
   }
 
