@@ -31,6 +31,8 @@
   ([#6241](https://github.com/google/ExoPlayer/issues/6241)).
 * Fix Flac and ALAC playback on some LG devices
   ([#5938](https://github.com/google/ExoPlayer/issues/5938)).
+* MP3: use CBR header bitrate, not calculated bitrate. This reverts a change
+  from 2.9.3 ([#6238](https://github.com/google/ExoPlayer/issues/6238)).
 
 ### 2.10.4 ###
 
