@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.SeekPoint;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
 import java.io.IOException;
 
@@ -206,39 +207,32 @@ import java.io.IOException;
     return -(pageHeader.granulePosition + 2);
   }
 
-  private long getEstimatedPosition(long position, long granuleDistance, long offset) {
-    position += (granuleDistance * (endPosition - startPosition) / totalGranules) - offset;
-    if (position < startPosition) {
-      position = startPosition;
+  /**
+   * Skips to the position of the start of the page containing the {@code targetGranule} and returns
+   * the granule of the page previous to the target page.
+   *
+   * @param input The {@link ExtractorInput} to read from.
+   * @param targetGranule The target granule.
+   * @param currentGranule The current granule or -1 if it's unknown.
+   * @return The granule of the prior page or the {@code currentGranule} if there isn't a prior
+   *     page.
+   * @throws ParserException If populating the page header fails.
+   * @throws IOException If reading from the input fails.
+   * @throws InterruptedException If interrupted while reading from the input.
+   */
+  @VisibleForTesting
+  long skipToPageOfGranule(ExtractorInput input, long targetGranule, long currentGranule)
+      throws IOException, InterruptedException {
+    pageHeader.populate(input, false);
+    while (pageHeader.granulePosition < targetGranule) {
+      input.skipFully(pageHeader.headerSize + pageHeader.bodySize);
+      // Store in a member field to be able to resume after IOExceptions.
+      currentGranule = pageHeader.granulePosition;
+      // Peek next header.
+      pageHeader.populate(input, false);
     }
-    if (position >= endPosition) {
-      position = endPosition - 1;
-    }
-    return position;
-  }
-
-  private class OggSeekMap implements SeekMap {
-
-    @Override
-    public boolean isSeekable() {
-      return true;
-    }
-
-    @Override
-    public SeekPoints getSeekPoints(long timeUs) {
-      if (timeUs == 0) {
-        return new SeekPoints(new SeekPoint(0, startPosition));
-      }
-      long granule = streamReader.convertTimeToGranule(timeUs);
-      long estimatedPosition = getEstimatedPosition(startPosition, granule, DEFAULT_OFFSET);
-      return new SeekPoints(new SeekPoint(timeUs, estimatedPosition));
-    }
-
-    @Override
-    public long getDurationUs() {
-      return streamReader.convertGranuleToTime(totalGranules);
-    }
-
+    input.resetPeekPosition();
+    return currentGranule;
   }
 
   /**
@@ -266,8 +260,7 @@ import java.io.IOException;
    * @throws IOException If peeking/reading from the input fails.
    * @throws InterruptedException If interrupted while peeking/reading from the input.
    */
-  @VisibleForTesting
-  boolean skipToNextPage(ExtractorInput input, long limit)
+  private boolean skipToNextPage(ExtractorInput input, long limit)
       throws IOException, InterruptedException {
     limit = Math.min(limit + 3, endPosition);
     byte[] buffer = new byte[2048];
@@ -317,32 +310,27 @@ import java.io.IOException;
     return pageHeader.granulePosition;
   }
 
-  /**
-   * Skips to the position of the start of the page containing the {@code targetGranule} and returns
-   * the granule of the page previous to the target page.
-   *
-   * @param input The {@link ExtractorInput} to read from.
-   * @param targetGranule The target granule.
-   * @param currentGranule The current granule or -1 if it's unknown.
-   * @return The granule of the prior page or the {@code currentGranule} if there isn't a prior
-   *     page.
-   * @throws ParserException If populating the page header fails.
-   * @throws IOException If reading from the input fails.
-   * @throws InterruptedException If interrupted while reading from the input.
-   */
-  @VisibleForTesting
-  long skipToPageOfGranule(ExtractorInput input, long targetGranule, long currentGranule)
-      throws IOException, InterruptedException {
-    pageHeader.populate(input, false);
-    while (pageHeader.granulePosition < targetGranule) {
-      input.skipFully(pageHeader.headerSize + pageHeader.bodySize);
-      // Store in a member field to be able to resume after IOExceptions.
-      currentGranule = pageHeader.granulePosition;
-      // Peek next header.
-      pageHeader.populate(input, false);
-    }
-    input.resetPeekPosition();
-    return currentGranule;
-  }
+  private final class OggSeekMap implements SeekMap {
 
+    @Override
+    public boolean isSeekable() {
+      return true;
+    }
+
+    @Override
+    public SeekPoints getSeekPoints(long timeUs) {
+      long targetGranule = streamReader.convertTimeToGranule(timeUs);
+      long estimatedPosition =
+          startPosition
+              + (targetGranule * (endPosition - startPosition) / totalGranules)
+              - DEFAULT_OFFSET;
+      estimatedPosition = Util.constrainValue(estimatedPosition, startPosition, endPosition - 1);
+      return new SeekPoints(new SeekPoint(timeUs, estimatedPosition));
+    }
+
+    @Override
+    public long getDurationUs() {
+      return streamReader.convertGranuleToTime(totalGranules);
+    }
+  }
 }
