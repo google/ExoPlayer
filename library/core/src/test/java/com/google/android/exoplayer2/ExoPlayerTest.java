@@ -2625,7 +2625,7 @@ public final class ExoPlayerTest {
                 /* isDynamic= */ false,
                 /* durationUs= */ 10_000_000,
                 adPlaybackState));
-    final FakeMediaSource fakeMediaSource = new FakeMediaSource(fakeTimeline);
+    final FakeMediaSource fakeMediaSource = new FakeMediaSource(fakeTimeline, null);
     AtomicReference<Player> playerReference = new AtomicReference<>();
     AtomicLong contentStartPositionMs = new AtomicLong(C.TIME_UNSET);
     EventListener eventListener =
