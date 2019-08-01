@@ -44,7 +44,7 @@
   ([#6192](https://github.com/google/ExoPlayer/issues/6192)).
 * Ensure the `SilenceMediaSource` position is in range
   ([#6229](https://github.com/google/ExoPlayer/issues/6229)).
-* Flac extension: Parse `VORBIS_COMMENT` metadata
+* Flac extension: Parse `VORBIS_COMMENT` and `PICTURE` metadata
   ([#5527](https://github.com/google/ExoPlayer/issues/5527)).
 
 ### 2.10.3 ###
