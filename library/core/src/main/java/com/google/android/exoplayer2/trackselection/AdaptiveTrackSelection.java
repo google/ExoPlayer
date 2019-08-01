@@ -540,7 +540,17 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
   @SuppressWarnings("unused")
   protected boolean canSelectFormat(
       Format format, int trackBitrate, float playbackSpeed, long effectiveBitrate) {
-    return Math.round(trackBitrate * playbackSpeed) <= effectiveBitrate;
+
+    boolean isIframeOnly = (format.roleFlags & C.ROLE_FLAG_TRICK_PLAY) != 0;
+    boolean canSelect = Math.round(trackBitrate * playbackSpeed) <= effectiveBitrate;
+
+    if (Math.abs(playbackSpeed) > 6.0f) {
+      canSelect = isIframeOnly;   // TODO factor in playback speed...
+    } else {
+      canSelect = ! isIframeOnly && canSelect;
+    }
+    return canSelect;
+
   }
 
   /**
