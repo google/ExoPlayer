@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.metadata.vorbis;
+package com.google.android.exoplayer2.metadata.flac;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -22,20 +22,20 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Test for {@link VorbisComment}. */
+/** Test for {@link PictureFrame}. */
 @RunWith(AndroidJUnit4.class)
-public final class VorbisCommentTest {
+public final class PictureFrameTest {
 
   @Test
   public void testParcelable() {
-    VorbisComment vorbisCommentFrameToParcel = new VorbisComment("key", "value");
+    PictureFrame pictureFrameToParcel = new PictureFrame(0, "", "", 0, 0, 0, 0, new byte[0]);
 
     Parcel parcel = Parcel.obtain();
-    vorbisCommentFrameToParcel.writeToParcel(parcel, 0);
+    pictureFrameToParcel.writeToParcel(parcel, 0);
     parcel.setDataPosition(0);
 
-    VorbisComment vorbisCommentFrameFromParcel = VorbisComment.CREATOR.createFromParcel(parcel);
-    assertThat(vorbisCommentFrameFromParcel).isEqualTo(vorbisCommentFrameToParcel);
+    PictureFrame pictureFrameFromParcel = PictureFrame.CREATOR.createFromParcel(parcel);
+    assertThat(pictureFrameFromParcel).isEqualTo(pictureFrameToParcel);
 
     parcel.recycle();
   }
