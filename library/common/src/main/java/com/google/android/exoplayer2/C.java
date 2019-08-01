@@ -1065,6 +1065,10 @@ public final class C {
   /** Indicates the track contains a text that has been edited for ease of reading. */
   public static final int ROLE_FLAG_EASY_TO_READ = 1 << 13;
 
+  // TODO - not a 'role' in the sense it is parsed from the CHARACTERISTICS attribute... forced if iFrame only
+  /** Indicates the track is an IDR (IFrame) only track for trick play */
+  public static final int ROLE_FLAG_TRICK_PLAY = 1 << 14;
+
   /**
    * Converts a time in microseconds to the corresponding time in milliseconds, preserving
    * {@link #TIME_UNSET} and {@link #TIME_END_OF_SOURCE} values.
