@@ -120,12 +120,11 @@ import java.io.IOException;
   }
 
   @Override
-  public long startSeek(long timeUs) {
+  public void startSeek(long targetGranule) {
     Assertions.checkArgument(state == STATE_IDLE || state == STATE_SEEK);
-    targetGranule = timeUs == 0 ? 0 : streamReader.convertTimeToGranule(timeUs);
+    this.targetGranule = targetGranule;
     state = STATE_SEEK;
     resetSeeking();
-    return targetGranule;
   }
 
   @Override

@@ -185,11 +185,9 @@ import java.util.List;
     }
 
     @Override
-    public long startSeek(long timeUs) {
-      long granule = convertTimeToGranule(timeUs);
-      int index = Util.binarySearchFloor(seekPointGranules, granule, true, true);
+    public void startSeek(long targetGranule) {
+      int index = Util.binarySearchFloor(seekPointGranules, targetGranule, true, true);
       pendingSeekGranule = seekPointGranules[index];
-      return granule;
     }
 
     @Override
