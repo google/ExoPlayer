@@ -370,6 +370,13 @@ public final class MediaCodecUtil {
       boolean secureDecodersExplicit,
       String requestedMimeType) {
     if (isCodecUsableDecoder(info, name, secureDecodersExplicit, requestedMimeType)) {
+      String[] supportedTypes = info.getSupportedTypes();
+      for (String supportedType : supportedTypes) {
+        if (supportedType.equalsIgnoreCase(requestedMimeType)) {
+          return supportedType;
+        }
+      }
+
       if (requestedMimeType.equals(MimeTypes.VIDEO_DOLBY_VISION)) {
         // Handle decoders that declare support for DV via MIME types that aren't
         // video/dolby-vision.
@@ -379,13 +386,12 @@ public final class MediaCodecUtil {
             || "OMX.realtek.video.decoder.tunneled".equals(name)) {
           return "video/dv_hevc";
         }
-      }
-
-      String[] supportedTypes = info.getSupportedTypes();
-      for (String supportedType : supportedTypes) {
-        if (supportedType.equalsIgnoreCase(requestedMimeType)) {
-          return supportedType;
-        }
+      } else if (requestedMimeType.equals(MimeTypes.AUDIO_ALAC)
+          && "OMX.lge.alac.decoder".equals(name)) {
+        return "audio/x-lg-alac";
+      } else if (requestedMimeType.equals(MimeTypes.AUDIO_FLAC)
+          && "OMX.lge.flac.decoder".equals(name)) {
+        return "audio/x-lg-flac";
       }
     }
     return null;
