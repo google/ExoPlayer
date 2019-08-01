@@ -9,8 +9,12 @@
   tags instead of 3-letter ISO 639-2 language tags.
 * Ensure the `SilenceMediaSource` position is in range
   ([#6229](https://github.com/google/ExoPlayer/issues/6229)).
-* Calculate correct duration for clipped WAV streams
+* WAV: Calculate correct duration for clipped streams
   ([#6241](https://github.com/google/ExoPlayer/issues/6241)).
+* MP3: Use CBR header bitrate, not calculated bitrate. This reverts a change
+  from 2.9.3 ([#6238](https://github.com/google/ExoPlayer/issues/6238)).
+* Flac extension: Parse `VORBIS_COMMENT` and `PICTURE` metadata
+  ([#5527](https://github.com/google/ExoPlayer/issues/5527)).
 * Fix issue where initial seek positions get ignored when playing a preroll ad
   ([#6201](https://github.com/google/ExoPlayer/issues/6201)).
 * Fix issue where invalid language tags were normalized to "und" instead of
@@ -20,8 +24,6 @@
   ([#6192](https://github.com/google/ExoPlayer/issues/6192)).
 * Fix Flac and ALAC playback on some LG devices
   ([#5938](https://github.com/google/ExoPlayer/issues/5938)).
-* Flac extension: Parse `VORBIS_COMMENT` and `PICTURE` metadata
-  ([#5527](https://github.com/google/ExoPlayer/issues/5527)).
 
 ### 2.10.3 ###
 
