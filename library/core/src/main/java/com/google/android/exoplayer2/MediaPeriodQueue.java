@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
 
@@ -135,13 +136,16 @@ import com.google.android.exoplayer2.util.Assertions;
    * @param allocator The allocator.
    * @param mediaSource The media source that produced the media period.
    * @param info Information used to identify this media period in its timeline period.
+   * @param emptyTrackSelectorResult A {@link TrackSelectorResult} with empty selections for each
+   *     renderer.
    */
   public MediaPeriod enqueueNextMediaPeriod(
       RendererCapabilities[] rendererCapabilities,
       TrackSelector trackSelector,
       Allocator allocator,
       MediaSource mediaSource,
-      MediaPeriodInfo info) {
+      MediaPeriodInfo info,
+      TrackSelectorResult emptyTrackSelectorResult) {
     long rendererPositionOffsetUs =
         loading == null
             ? (info.id.isAd() && info.contentPositionUs != C.TIME_UNSET
@@ -155,7 +159,8 @@ import com.google.android.exoplayer2.util.Assertions;
             trackSelector,
             allocator,
             mediaSource,
-            info);
+            info,
+            emptyTrackSelectorResult);
     if (loading != null) {
       Assertions.checkState(hasPlayingPeriod());
       loading.setNext(newPeriodHolder);

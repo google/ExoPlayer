@@ -1108,7 +1108,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         return;
       }
       newTrackSelectorResult = periodHolder.selectTracks(playbackSpeed, playbackInfo.timeline);
-      if (newTrackSelectorResult != null) {
+      if (!newTrackSelectorResult.isEquivalent(periodHolder.getTrackSelectorResult())) {
         // Selected tracks have changed for this period.
         break;
       }
@@ -1197,13 +1197,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private void notifyTrackSelectionDiscontinuity() {
     MediaPeriodHolder periodHolder = queue.getFrontPeriod();
     while (periodHolder != null) {
-      TrackSelectorResult trackSelectorResult = periodHolder.getTrackSelectorResult();
-      if (trackSelectorResult != null) {
-        TrackSelection[] trackSelections = trackSelectorResult.selections.getAll();
-        for (TrackSelection trackSelection : trackSelections) {
-          if (trackSelection != null) {
-            trackSelection.onDiscontinuity();
-          }
+      TrackSelection[] trackSelections = periodHolder.getTrackSelectorResult().selections.getAll();
+      for (TrackSelection trackSelection : trackSelections) {
+        if (trackSelection != null) {
+          trackSelection.onDiscontinuity();
         }
       }
       periodHolder = periodHolder.getNext();
@@ -1506,7 +1503,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
       } else {
         MediaPeriod mediaPeriod =
             queue.enqueueNextMediaPeriod(
-                rendererCapabilities, trackSelector, loadControl.getAllocator(), mediaSource, info);
+                rendererCapabilities,
+                trackSelector,
+                loadControl.getAllocator(),
+                mediaSource,
+                info,
+                emptyTrackSelectorResult);
         mediaPeriod.prepare(this, info.startPositionUs);
         setIsLoading(true);
         handleLoadingMediaPeriodChanged(/* loadingTrackSelectionChanged= */ false);

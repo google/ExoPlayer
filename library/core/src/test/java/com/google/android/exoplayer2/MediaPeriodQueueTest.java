@@ -26,7 +26,9 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.SinglePeriodTimeline;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.source.ads.SinglePeriodAdTimeline;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.Allocator;
 import org.junit.Before;
 import org.junit.Test;
@@ -381,7 +383,13 @@ public final class MediaPeriodQueueTest {
 
   private void enqueueNext() {
     mediaPeriodQueue.enqueueNextMediaPeriod(
-        rendererCapabilities, trackSelector, allocator, mediaSource, getNextMediaPeriodInfo());
+        rendererCapabilities,
+        trackSelector,
+        allocator,
+        mediaSource,
+        getNextMediaPeriodInfo(),
+        new TrackSelectorResult(
+            new RendererConfiguration[0], new TrackSelection[0], /* info= */ null));
   }
 
   private MediaPeriodInfo getNextMediaPeriodInfo() {
