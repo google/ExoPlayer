@@ -368,8 +368,7 @@ public final class AnalyticsCollectorTest {
             .pause()
             .waitForPlaybackState(Player.STATE_READY)
             .playUntilPosition(/* windowIndex= */ 0, periodDurationMs)
-            .seek(/* positionMs= */ 0)
-            .waitForPlaybackState(Player.STATE_READY)
+            .seekAndWait(/* positionMs= */ 0)
             .play()
             .build();
     TestAnalyticsListener listener = runAnalyticsTest(mediaSource, actionSchedule);
@@ -378,8 +377,8 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_PLAYER_STATE_CHANGED))
         .containsExactly(
             WINDOW_0 /* setPlayWhenReady=true */,
-            WINDOW_0 /* BUFFERING */,
             WINDOW_0 /* setPlayWhenReady=false */,
+            WINDOW_0 /* BUFFERING */,
             period0 /* READY */,
             period0 /* setPlayWhenReady=true */,
             period0 /* setPlayWhenReady=false */,
@@ -505,6 +504,7 @@ public final class AnalyticsCollectorTest {
             .waitForPlaybackState(Player.STATE_READY)
             .throwPlaybackException(ExoPlaybackException.createForSource(new IOException()))
             .waitForPlaybackState(Player.STATE_IDLE)
+            .seek(/* positionMs= */ 0)
             .prepareSource(mediaSource, /* resetPosition= */ false, /* resetState= */ false)
             .waitForPlaybackState(Player.STATE_ENDED)
             .build();
@@ -522,6 +522,9 @@ public final class AnalyticsCollectorTest {
             period0Seq0 /* ENDED */);
     assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED))
         .containsExactly(WINDOW_0 /* prepared */, WINDOW_0 /* prepared */);
+    assertThat(listener.getEvents(EVENT_POSITION_DISCONTINUITY)).containsExactly(WINDOW_0);
+    assertThat(listener.getEvents(EVENT_SEEK_STARTED)).containsExactly(WINDOW_0);
+    assertThat(listener.getEvents(EVENT_SEEK_PROCESSED)).containsExactly(WINDOW_0);
     assertThat(listener.getEvents(EVENT_LOADING_CHANGED))
         .containsExactly(period0Seq0, period0Seq0, period0Seq0, period0Seq0);
     assertThat(listener.getEvents(EVENT_PLAYER_ERROR)).containsExactly(period0Seq0);
@@ -585,8 +588,8 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_PLAYER_STATE_CHANGED))
         .containsExactly(
             WINDOW_0 /* setPlayWhenReady=true */,
-            WINDOW_0 /* BUFFERING */,
             WINDOW_0 /* setPlayWhenReady=false */,
+            WINDOW_0 /* BUFFERING */,
             window0Period1Seq0 /* READY */,
             window0Period1Seq0 /* setPlayWhenReady=true */,
             window0Period1Seq0 /* setPlayWhenReady=false */,
