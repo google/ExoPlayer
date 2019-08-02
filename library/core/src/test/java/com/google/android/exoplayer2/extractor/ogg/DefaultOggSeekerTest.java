@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.extractor.ogg;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.fail;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -36,9 +35,9 @@ public final class DefaultOggSeekerTest {
   public void testSetupWithUnsetEndPositionFails() {
     try {
       new DefaultOggSeeker(
-          /* startPosition= */ 0,
-          /* endPosition= */ C.LENGTH_UNSET,
           /* streamReader= */ new TestStreamReader(),
+          /* payloadStartPosition= */ 0,
+          /* payloadEndPosition= */ C.LENGTH_UNSET,
           /* firstPayloadPageSize= */ 1,
           /* firstPayloadPageGranulePosition= */ 1,
           /* firstPayloadPageIsLastPage= */ false);
@@ -62,9 +61,9 @@ public final class DefaultOggSeekerTest {
     TestStreamReader streamReader = new TestStreamReader();
     DefaultOggSeeker oggSeeker =
         new DefaultOggSeeker(
-            /* startPosition= */ 0,
-            /* endPosition= */ testFile.data.length,
             /* streamReader= */ streamReader,
+            /* payloadStartPosition= */ 0,
+            /* payloadEndPosition= */ testFile.data.length,
             /* firstPayloadPageSize= */ testFile.firstPayloadPageSize,
             /* firstPayloadPageGranulePosition= */ testFile.firstPayloadPageGranulePosition,
             /* firstPayloadPageIsLastPage= */ false);
@@ -78,70 +77,56 @@ public final class DefaultOggSeekerTest {
       input.setPosition((int) nextSeekPosition);
     }
 
-    // Test granule 0 from file start
-    assertThat(seekTo(input, oggSeeker, 0, 0)).isEqualTo(0);
+    // Test granule 0 from file start.
+    long granule = seekTo(input, oggSeeker, 0, 0);
+    assertThat(granule).isEqualTo(0);
     assertThat(input.getPosition()).isEqualTo(0);
 
-    // Test granule 0 from file end
-    assertThat(seekTo(input, oggSeeker, 0, testFile.data.length - 1)).isEqualTo(0);
+    // Test granule 0 from file end.
+    granule = seekTo(input, oggSeeker, 0, testFile.data.length - 1);
+    assertThat(granule).isEqualTo(0);
     assertThat(input.getPosition()).isEqualTo(0);
 
-    { // Test last granule
-      long currentGranule = seekTo(input, oggSeeker, testFile.lastGranule, 0);
-      long position = testFile.data.length;
-      assertThat(
-              (testFile.lastGranule > currentGranule && position > input.getPosition())
-                  || (testFile.lastGranule == currentGranule && position == input.getPosition()))
-          .isTrue();
-    }
+    // Test last granule.
+    granule = seekTo(input, oggSeeker, testFile.lastGranule, 0);
+    long position = testFile.data.length;
+    // TODO: Simplify this.
+    assertThat(
+            (testFile.lastGranule > granule && position > input.getPosition())
+                || (testFile.lastGranule == granule && position == input.getPosition()))
+        .isTrue();
 
-    { // Test exact granule
-      input.setPosition(testFile.data.length / 2);
-      oggSeeker.skipToNextPage(input);
-      assertThat(pageHeader.populate(input, true)).isTrue();
-      long position = input.getPosition() + pageHeader.headerSize + pageHeader.bodySize;
-      long currentGranule = seekTo(input, oggSeeker, pageHeader.granulePosition, 0);
-      assertThat(
-              (pageHeader.granulePosition > currentGranule && position > input.getPosition())
-                  || (pageHeader.granulePosition == currentGranule
-                      && position == input.getPosition()))
-          .isTrue();
-    }
+    // Test exact granule.
+    input.setPosition(testFile.data.length / 2);
+    oggSeeker.skipToNextPage(input);
+    assertThat(pageHeader.populate(input, true)).isTrue();
+    position = input.getPosition() + pageHeader.headerSize + pageHeader.bodySize;
+    granule = seekTo(input, oggSeeker, pageHeader.granulePosition, 0);
+    // TODO: Simplify this.
+    assertThat(
+            (pageHeader.granulePosition > granule && position > input.getPosition())
+                || (pageHeader.granulePosition == granule && position == input.getPosition()))
+        .isTrue();
 
     for (int i = 0; i < 100; i += 1) {
       long targetGranule = (long) (random.nextDouble() * testFile.lastGranule);
       int initialPosition = random.nextInt(testFile.data.length);
-
-      long currentGranule = seekTo(input, oggSeeker, targetGranule, initialPosition);
+      granule = seekTo(input, oggSeeker, targetGranule, initialPosition);
       long currentPosition = input.getPosition();
-
-      assertWithMessage("getNextSeekPosition() didn't leave input on a page start.")
-          .that(pageHeader.populate(input, true))
-          .isTrue();
-
-      if (currentGranule == 0) {
+      if (granule == 0) {
         assertThat(currentPosition).isEqualTo(0);
       } else {
         int previousPageStart = testFile.findPreviousPageStart(currentPosition);
         input.setPosition(previousPageStart);
-        assertThat(pageHeader.populate(input, true)).isTrue();
-        assertThat(currentGranule).isEqualTo(pageHeader.granulePosition);
+        pageHeader.populate(input, false);
+        assertThat(granule).isEqualTo(pageHeader.granulePosition);
       }
 
       input.setPosition((int) currentPosition);
-      oggSeeker.skipToPageOfGranule(input, targetGranule, -1);
-      long positionDiff = Math.abs(input.getPosition() - currentPosition);
-
-      long granuleDiff = currentGranule - targetGranule;
-      if ((granuleDiff > DefaultOggSeeker.MATCH_RANGE || granuleDiff < 0)
-          && positionDiff > DefaultOggSeeker.MATCH_BYTE_RANGE) {
-        fail(
-            "granuleDiff ("
-                + granuleDiff
-                + ") or positionDiff ("
-                + positionDiff
-                + ") is more than allowed.");
-      }
+      pageHeader.populate(input, false);
+      // The target granule should be within the current page.
+      assertThat(granule).isAtMost(targetGranule);
+      assertThat(targetGranule).isLessThan(pageHeader.granulePosition);
     }
   }
 
@@ -149,18 +134,15 @@ public final class DefaultOggSeekerTest {
       FakeExtractorInput input, DefaultOggSeeker oggSeeker, long targetGranule, int initialPosition)
       throws IOException, InterruptedException {
     long nextSeekPosition = initialPosition;
+    oggSeeker.startSeek(targetGranule);
     int count = 0;
-    oggSeeker.resetSeeking();
-
-    do {
-      input.setPosition((int) nextSeekPosition);
-      nextSeekPosition = oggSeeker.getNextSeekPosition(targetGranule, input);
-
+    while (nextSeekPosition >= 0) {
       if (count++ > 100) {
-        fail("infinite loop?");
+        fail("Seek failed to converge in 100 iterations");
       }
-    } while (nextSeekPosition >= 0);
-
+      input.setPosition((int) nextSeekPosition);
+      nextSeekPosition = oggSeeker.read(input);
+    }
     return -(nextSeekPosition + 2);
   }
 
@@ -171,8 +153,7 @@ public final class DefaultOggSeekerTest {
     }
 
     @Override
-    protected boolean readHeaders(ParsableByteArray packet, long position, SetupData setupData)
-        throws IOException, InterruptedException {
+    protected boolean readHeaders(ParsableByteArray packet, long position, SetupData setupData) {
       return false;
     }
   }

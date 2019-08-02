@@ -85,9 +85,9 @@ public final class DefaultOggSeekerUtilMethodsTest {
       throws IOException, InterruptedException {
     DefaultOggSeeker oggSeeker =
         new DefaultOggSeeker(
-            /* startPosition= */ 0,
-            /* endPosition= */ extractorInput.getLength(),
             /* streamReader= */ new FlacReader(),
+            /* payloadStartPosition= */ 0,
+            /* payloadEndPosition= */ extractorInput.getLength(),
             /* firstPayloadPageSize= */ 1,
             /* firstPayloadPageGranulePosition= */ 2,
             /* firstPayloadPageIsLastPage= */ false);
@@ -96,87 +96,6 @@ public final class DefaultOggSeekerUtilMethodsTest {
         oggSeeker.skipToNextPage(extractorInput);
         break;
       } catch (FakeExtractorInput.SimulatedIOException e) { /* ignored */ }
-    }
-  }
-
-  @Test
-  public void testSkipToPageOfGranule() throws IOException, InterruptedException {
-    byte[] packet = TestUtil.buildTestData(3 * 254, random);
-    byte[] data = TestUtil.joinByteArrays(
-        OggTestData.buildOggHeader(0x01, 20000, 1000, 0x03),
-        TestUtil.createByteArray(254, 254, 254), // Laces.
-        packet,
-        OggTestData.buildOggHeader(0x04, 40000, 1001, 0x03),
-        TestUtil.createByteArray(254, 254, 254), // Laces.
-        packet,
-        OggTestData.buildOggHeader(0x04, 60000, 1002, 0x03),
-        TestUtil.createByteArray(254, 254, 254), // Laces.
-        packet);
-    FakeExtractorInput input = new FakeExtractorInput.Builder().setData(data).build();
-
-    // expect to be granule of the previous page returned as elapsedSamples
-    skipToPageOfGranule(input, 54000, 40000);
-    // expect to be at the start of the third page
-    assertThat(input.getPosition()).isEqualTo(2 * (30 + (3 * 254)));
-  }
-
-  @Test
-  public void testSkipToPageOfGranulePreciseMatch() throws IOException, InterruptedException {
-    byte[] packet = TestUtil.buildTestData(3 * 254, random);
-    byte[] data = TestUtil.joinByteArrays(
-        OggTestData.buildOggHeader(0x01, 20000, 1000, 0x03),
-        TestUtil.createByteArray(254, 254, 254), // Laces.
-        packet,
-        OggTestData.buildOggHeader(0x04, 40000, 1001, 0x03),
-        TestUtil.createByteArray(254, 254, 254), // Laces.
-        packet,
-        OggTestData.buildOggHeader(0x04, 60000, 1002, 0x03),
-        TestUtil.createByteArray(254, 254, 254), // Laces.
-        packet);
-    FakeExtractorInput input = new FakeExtractorInput.Builder().setData(data).build();
-
-    skipToPageOfGranule(input, 40000, 20000);
-    // expect to be at the start of the second page
-    assertThat(input.getPosition()).isEqualTo(30 + (3 * 254));
-  }
-
-  @Test
-  public void testSkipToPageOfGranuleAfterTargetPage() throws IOException, InterruptedException {
-    byte[] packet = TestUtil.buildTestData(3 * 254, random);
-    byte[] data = TestUtil.joinByteArrays(
-        OggTestData.buildOggHeader(0x01, 20000, 1000, 0x03),
-        TestUtil.createByteArray(254, 254, 254), // Laces.
-        packet,
-        OggTestData.buildOggHeader(0x04, 40000, 1001, 0x03),
-        TestUtil.createByteArray(254, 254, 254), // Laces.
-        packet,
-        OggTestData.buildOggHeader(0x04, 60000, 1002, 0x03),
-        TestUtil.createByteArray(254, 254, 254), // Laces.
-        packet);
-    FakeExtractorInput input = new FakeExtractorInput.Builder().setData(data).build();
-
-    skipToPageOfGranule(input, 10000, -1);
-    assertThat(input.getPosition()).isEqualTo(0);
-  }
-
-  private void skipToPageOfGranule(ExtractorInput input, long granule,
-      long elapsedSamplesExpected) throws IOException, InterruptedException {
-    DefaultOggSeeker oggSeeker =
-        new DefaultOggSeeker(
-            /* startPosition= */ 0,
-            /* endPosition= */ input.getLength(),
-            /* streamReader= */ new FlacReader(),
-            /* firstPayloadPageSize= */ 1,
-            /* firstPayloadPageGranulePosition= */ 2,
-            /* firstPayloadPageIsLastPage= */ false);
-    while (true) {
-      try {
-        assertThat(oggSeeker.skipToPageOfGranule(input, granule, -1))
-            .isEqualTo(elapsedSamplesExpected);
-        return;
-      } catch (FakeExtractorInput.SimulatedIOException e) {
-        input.resetPeekPosition();
-      }
     }
   }
 
@@ -204,7 +123,7 @@ public final class DefaultOggSeekerUtilMethodsTest {
       assertReadGranuleOfLastPage(input, 60000);
       fail();
     } catch (EOFException e) {
-      // ignored
+      // Ignored.
     }
   }
 
@@ -216,7 +135,7 @@ public final class DefaultOggSeekerUtilMethodsTest {
       assertReadGranuleOfLastPage(input, 60000);
       fail();
     } catch (IllegalArgumentException e) {
-      // ignored
+      // Ignored.
     }
   }
 
@@ -224,9 +143,9 @@ public final class DefaultOggSeekerUtilMethodsTest {
       throws IOException, InterruptedException {
     DefaultOggSeeker oggSeeker =
         new DefaultOggSeeker(
-            /* startPosition= */ 0,
-            /* endPosition= */ input.getLength(),
             /* streamReader= */ new FlacReader(),
+            /* payloadStartPosition= */ 0,
+            /* payloadEndPosition= */ input.getLength(),
             /* firstPayloadPageSize= */ 1,
             /* firstPayloadPageGranulePosition= */ 2,
             /* firstPayloadPageIsLastPage= */ false);
@@ -235,7 +154,7 @@ public final class DefaultOggSeekerUtilMethodsTest {
         assertThat(oggSeeker.readGranuleOfLastPage(input)).isEqualTo(expected);
         break;
       } catch (FakeExtractorInput.SimulatedIOException e) {
-        // ignored
+        // Ignored.
       }
     }
   }

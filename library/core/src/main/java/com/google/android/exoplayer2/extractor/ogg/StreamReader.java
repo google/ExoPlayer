@@ -148,9 +148,9 @@ import java.io.IOException;
       boolean isLastPage = (firstPayloadPageHeader.type & 0x04) != 0; // Type 4 is end of stream.
       oggSeeker =
           new DefaultOggSeeker(
+              this,
               payloadStartPosition,
               input.getLength(),
-              this,
               firstPayloadPageHeader.headerSize + firstPayloadPageHeader.bodySize,
               firstPayloadPageHeader.granulePosition,
               isLastPage);
