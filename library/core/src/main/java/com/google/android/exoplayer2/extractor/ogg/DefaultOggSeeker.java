@@ -29,8 +29,8 @@ import java.io.IOException;
 /** Seeks in an Ogg stream. */
 /* package */ final class DefaultOggSeeker implements OggSeeker {
 
-  @VisibleForTesting public static final int MATCH_RANGE = 72000;
-  @VisibleForTesting public static final int MATCH_BYTE_RANGE = 100000;
+  private static final int MATCH_RANGE = 72000;
+  private static final int MATCH_BYTE_RANGE = 100000;
   private static final int DEFAULT_OFFSET = 30000;
 
   private static final int STATE_SEEK_TO_END = 0;
@@ -127,7 +127,7 @@ import java.io.IOException;
 
   @Override
   public void startSeek(long targetGranule) {
-    this.targetGranule = targetGranule;
+    this.targetGranule = Util.constrainValue(targetGranule, 0, totalGranules - 1);
     state = STATE_SEEK;
     start = payloadStartPosition;
     end = payloadEndPosition;
@@ -201,7 +201,7 @@ import java.io.IOException;
   private void skipToPageOfTargetGranule(ExtractorInput input)
       throws IOException, InterruptedException {
     pageHeader.populate(input, /* quiet= */ false);
-    while (pageHeader.granulePosition < targetGranule) {
+    while (pageHeader.granulePosition <= targetGranule) {
       input.skipFully(pageHeader.headerSize + pageHeader.bodySize);
       start = input.getPosition();
       startGranule = pageHeader.granulePosition;
