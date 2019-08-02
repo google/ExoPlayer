@@ -70,6 +70,12 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
     this.seekMap = seekMap;
   }
 
+  public void clearTrackOutputs() {
+    for (int i = 0; i < numberOfTracks; i++) {
+      trackOutputs.valueAt(i).clear();
+    }
+  }
+
   public void assertEquals(FakeExtractorOutput expected) {
     assertThat(numberOfTracks).isEqualTo(expected.numberOfTracks);
     assertThat(tracksEnded).isEqualTo(expected.tracksEnded);

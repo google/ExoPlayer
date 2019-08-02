@@ -175,17 +175,26 @@ public final class ExtractorAsserts {
       extractorOutput.assertOutput(context, file + ".0" + DUMP_EXTENSION);
     }
 
+    // Seeking to (timeUs=0, position=0) should always work, and cause the same data to be output.
+    extractorOutput.clearTrackOutputs();
+    input.reset();
+    consumeTestData(extractor, input, /* timeUs= */ 0, extractorOutput, false);
+    if (simulateUnknownLength && assetExists(context, file + UNKNOWN_LENGTH_EXTENSION)) {
+      extractorOutput.assertOutput(context, file + UNKNOWN_LENGTH_EXTENSION);
+    } else {
+      extractorOutput.assertOutput(context, file + ".0" + DUMP_EXTENSION);
+    }
+
+    // If the SeekMap is seekable, test seeking to 4 positions in the stream.
     SeekMap seekMap = extractorOutput.seekMap;
     if (seekMap.isSeekable()) {
       long durationUs = seekMap.getDurationUs();
       for (int j = 0; j < 4; j++) {
+        extractorOutput.clearTrackOutputs();
         long timeUs = (durationUs * j) / 3;
         long position = seekMap.getSeekPoints(timeUs).first.position;
+        input.reset();
         input.setPosition((int) position);
-        for (int i = 0; i < extractorOutput.numberOfTracks; i++) {
-          extractorOutput.trackOutputs.valueAt(i).clear();
-        }
-
         consumeTestData(extractor, input, timeUs, extractorOutput, false);
         extractorOutput.assertOutput(context, file + '.' + j + DUMP_EXTENSION);
       }
