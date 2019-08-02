@@ -36,7 +36,6 @@ import java.util.List;
   public static final List<MediaItem> SAMPLES;
 
   static {
-    // App samples.
     ArrayList<MediaItem> samples = new ArrayList<>();
 
     // Clear content.
@@ -57,6 +56,45 @@ import java.util.List;
             .setUri("https://html5demos.com/assets/dizzy.mp4")
             .setTitle("Clear MP4: Dizzy")
             .setMimeType(MIME_TYPE_VIDEO_MP4)
+            .build());
+
+    // DRM content.
+    samples.add(
+        new MediaItem.Builder()
+            .setUri(Uri.parse("https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd"))
+            .setTitle("Widevine DASH cenc: Tears")
+            .setMimeType(MIME_TYPE_DASH)
+            .setDrmConfiguration(
+                new DrmConfiguration(
+                    C.WIDEVINE_UUID,
+                    Uri.parse("https://proxy.uat.widevine.com/proxy?provider=widevine_test"),
+                    Collections.emptyMap()))
+            .build());
+    samples.add(
+        new MediaItem.Builder()
+            .setUri(
+                Uri.parse(
+                    "https://storage.googleapis.com/wvmedia/cbc1/h264/tears/tears_aes_cbc1.mpd"))
+            .setTitle("Widevine DASH cbc1: Tears")
+            .setMimeType(MIME_TYPE_DASH)
+            .setDrmConfiguration(
+                new DrmConfiguration(
+                    C.WIDEVINE_UUID,
+                    Uri.parse("https://proxy.uat.widevine.com/proxy?provider=widevine_test"),
+                    Collections.emptyMap()))
+            .build());
+    samples.add(
+        new MediaItem.Builder()
+            .setUri(
+                Uri.parse(
+                    "https://storage.googleapis.com/wvmedia/cbcs/h264/tears/tears_aes_cbcs.mpd"))
+            .setTitle("Widevine DASH cbcs: Tears")
+            .setMimeType(MIME_TYPE_DASH)
+            .setDrmConfiguration(
+                new DrmConfiguration(
+                    C.WIDEVINE_UUID,
+                    Uri.parse("https://proxy.uat.widevine.com/proxy?provider=widevine_test"),
+                    Collections.emptyMap()))
             .build());
 
     SAMPLES = Collections.unmodifiableList(samples);
