@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.vp9;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.decoder.OutputBuffer;
 import com.google.android.exoplayer2.video.ColorInfo;
 import java.nio.ByteBuffer;
@@ -31,7 +32,8 @@ public final class VpxOutputBuffer extends OutputBuffer {
   /** Decoder private data. */
   public int decoderPrivate;
 
-  public int mode;
+  /** Output mode. */
+  @C.VideoOutputMode public int mode;
   /**
    * RGB buffer for RGB mode.
    */
@@ -60,10 +62,10 @@ public final class VpxOutputBuffer extends OutputBuffer {
    * Initializes the buffer.
    *
    * @param timeUs The presentation timestamp for the buffer, in microseconds.
-   * @param mode The output mode. One of {@link VpxDecoder#OUTPUT_MODE_NONE}, {@link
-   *     VpxDecoder#OUTPUT_MODE_YUV} and {@link VpxDecoder#OUTPUT_MODE_SURFACE_YUV}.
+   * @param mode The output mode. One of {@link C#VIDEO_OUTPUT_MODE_NONE}, {@link
+   *     C#VIDEO_OUTPUT_MODE_YUV} and {@link C#VIDEO_OUTPUT_MODE_SURFACE_YUV}.
    */
-  public void init(long timeUs, int mode) {
+  public void init(long timeUs, @C.VideoOutputMode int mode) {
     this.timeUs = timeUs;
     this.mode = mode;
   }

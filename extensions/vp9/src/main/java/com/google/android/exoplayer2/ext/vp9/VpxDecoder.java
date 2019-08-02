@@ -29,10 +29,6 @@ import java.nio.ByteBuffer;
 /* package */ final class VpxDecoder
     extends SimpleDecoder<VideoDecoderInputBuffer, VpxOutputBuffer, VpxDecoderException> {
 
-  public static final int OUTPUT_MODE_NONE = -1;
-  public static final int OUTPUT_MODE_YUV = 0;
-  public static final int OUTPUT_MODE_SURFACE_YUV = 1;
-
   private static final int NO_ERROR = 0;
   private static final int DECODE_ERROR = 1;
   private static final int DRM_ERROR = 2;
@@ -40,7 +36,7 @@ import java.nio.ByteBuffer;
   private final ExoMediaCrypto exoMediaCrypto;
   private final long vpxDecContext;
 
-  private volatile int outputMode;
+  @C.VideoOutputMode private volatile int outputMode;
 
   /**
    * Creates a VP9 decoder.
@@ -87,10 +83,9 @@ import java.nio.ByteBuffer;
   /**
    * Sets the output mode for frames rendered by the decoder.
    *
-   * @param outputMode The output mode. One of {@link #OUTPUT_MODE_NONE} and {@link
-   *     #OUTPUT_MODE_YUV}.
+   * @param outputMode The output mode.
    */
-  public void setOutputMode(int outputMode) {
+  public void setOutputMode(@C.VideoOutputMode int outputMode) {
     this.outputMode = outputMode;
   }
 
@@ -108,7 +103,7 @@ import java.nio.ByteBuffer;
   protected void releaseOutputBuffer(VpxOutputBuffer buffer) {
     // Decode only frames do not acquire a reference on the internal decoder buffer and thus do not
     // require a call to vpxReleaseFrame.
-    if (outputMode == OUTPUT_MODE_SURFACE_YUV && !buffer.isDecodeOnly()) {
+    if (outputMode == C.VIDEO_OUTPUT_MODE_SURFACE_YUV && !buffer.isDecodeOnly()) {
       vpxReleaseFrame(vpxDecContext, buffer);
     }
     super.releaseOutputBuffer(buffer);

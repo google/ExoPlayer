@@ -137,7 +137,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
   private long joiningDeadlineMs;
   private Surface surface;
   private VpxOutputBufferRenderer outputBufferRenderer;
-  private int outputMode;
+  @C.VideoOutputMode private int outputMode;
   private boolean waitingForKeys;
 
   private boolean inputStreamEnded;
@@ -275,7 +275,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
     formatQueue = new TimedValueQueue<>();
     flagsOnlyBuffer = DecoderInputBuffer.newFlagsOnlyInstance();
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
-    outputMode = VpxDecoder.OUTPUT_MODE_NONE;
+    outputMode = C.VIDEO_OUTPUT_MODE_NONE;
     decoderReinitializationState = REINITIALIZATION_STATE_NONE;
   }
 
@@ -349,8 +349,9 @@ public class LibvpxVideoRenderer extends BaseRenderer {
     if (waitingForKeys) {
       return false;
     }
-    if (format != null && (isSourceReady() || outputBuffer != null)
-        && (renderedFirstFrame || outputMode == VpxDecoder.OUTPUT_MODE_NONE)) {
+    if (format != null
+        && (isSourceReady() || outputBuffer != null)
+        && (renderedFirstFrame || outputMode == C.VIDEO_OUTPUT_MODE_NONE)) {
       // Ready. If we were joining then we've now joined, so clear the joining deadline.
       joiningDeadlineMs = C.TIME_UNSET;
       return true;
@@ -628,8 +629,8 @@ public class LibvpxVideoRenderer extends BaseRenderer {
    */
   protected void renderOutputBuffer(VpxOutputBuffer outputBuffer) throws VpxDecoderException {
     int bufferMode = outputBuffer.mode;
-    boolean renderSurface = bufferMode == VpxDecoder.OUTPUT_MODE_SURFACE_YUV && surface != null;
-    boolean renderYuv = bufferMode == VpxDecoder.OUTPUT_MODE_YUV && outputBufferRenderer != null;
+    boolean renderSurface = bufferMode == C.VIDEO_OUTPUT_MODE_SURFACE_YUV && surface != null;
+    boolean renderYuv = bufferMode == C.VIDEO_OUTPUT_MODE_YUV && outputBufferRenderer != null;
     lastRenderTimeUs = SystemClock.elapsedRealtime() * 1000;
     if (!renderYuv && !renderSurface) {
       dropOutputBuffer(outputBuffer);
@@ -713,12 +714,12 @@ public class LibvpxVideoRenderer extends BaseRenderer {
       this.surface = surface;
       this.outputBufferRenderer = outputBufferRenderer;
       if (surface != null) {
-        outputMode = VpxDecoder.OUTPUT_MODE_SURFACE_YUV;
+        outputMode = C.VIDEO_OUTPUT_MODE_SURFACE_YUV;
       } else {
         outputMode =
-            outputBufferRenderer != null ? VpxDecoder.OUTPUT_MODE_YUV : VpxDecoder.OUTPUT_MODE_NONE;
+            outputBufferRenderer != null ? C.VIDEO_OUTPUT_MODE_YUV : C.VIDEO_OUTPUT_MODE_NONE;
       }
-      if (outputMode != VpxDecoder.OUTPUT_MODE_NONE) {
+      if (outputMode != C.VIDEO_OUTPUT_MODE_NONE) {
         if (decoder != null) {
           decoder.setOutputMode(outputMode);
         }
@@ -735,7 +736,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
         clearReportedVideoSize();
         clearRenderedFirstFrame();
       }
-    } else if (outputMode != VpxDecoder.OUTPUT_MODE_NONE) {
+    } else if (outputMode != C.VIDEO_OUTPUT_MODE_NONE) {
       // The output is unchanged and non-null. If we know the video size and/or have already
       // rendered to the output, report these again immediately.
       maybeRenotifyVideoSizeChanged();
@@ -915,7 +916,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
     }
 
     long earlyUs = outputBuffer.timeUs - positionUs;
-    if (outputMode == VpxDecoder.OUTPUT_MODE_NONE) {
+    if (outputMode == C.VIDEO_OUTPUT_MODE_NONE) {
       // Skip frames in sync with playback, so we'll be at the right frame if the mode changes.
       if (isBufferLate(earlyUs)) {
         skipOutputBuffer(outputBuffer);
