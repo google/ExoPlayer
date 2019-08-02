@@ -160,7 +160,7 @@ public final class DefaultOggSeekerTest {
             /* payloadStartPosition= */ 0,
             /* payloadEndPosition= */ testFile.data.length,
             /* firstPayloadPageSize= */ testFile.firstPayloadPageSize,
-            /* firstPayloadPageGranulePosition= */ testFile.firstPayloadPageGranulePosition,
+            /* firstPayloadPageGranulePosition= */ testFile.firstPayloadPageGranuleCount,
             /* firstPayloadPageIsLastPage= */ false);
     OggPageHeader pageHeader = new OggPageHeader();
 
@@ -183,28 +183,12 @@ public final class DefaultOggSeekerTest {
     assertThat(input.getPosition()).isEqualTo(0);
 
     // Test last granule.
-    granule = seekTo(input, oggSeeker, testFile.lastGranule, 0);
-    long position = testFile.data.length;
-    // TODO: Simplify this.
-    assertThat(
-            (testFile.lastGranule > granule && position > input.getPosition())
-                || (testFile.lastGranule == granule && position == input.getPosition()))
-        .isTrue();
-
-    // Test exact granule.
-    input.setPosition(testFile.data.length / 2);
-    oggSeeker.skipToNextPage(input);
-    assertThat(pageHeader.populate(input, true)).isTrue();
-    position = input.getPosition() + pageHeader.headerSize + pageHeader.bodySize;
-    granule = seekTo(input, oggSeeker, pageHeader.granulePosition, 0);
-    // TODO: Simplify this.
-    assertThat(
-            (pageHeader.granulePosition > granule && position > input.getPosition())
-                || (pageHeader.granulePosition == granule && position == input.getPosition()))
-        .isTrue();
+    granule = seekTo(input, oggSeeker, testFile.granuleCount - 1, 0);
+    assertThat(granule).isEqualTo(testFile.granuleCount - testFile.lastPayloadPageGranuleCount);
+    assertThat(input.getPosition()).isEqualTo(testFile.data.length - testFile.lastPayloadPageSize);
 
     for (int i = 0; i < 100; i += 1) {
-      long targetGranule = (long) (random.nextDouble() * testFile.lastGranule);
+      long targetGranule = random.nextInt(testFile.granuleCount);
       int initialPosition = random.nextInt(testFile.data.length);
       granule = seekTo(input, oggSeeker, targetGranule, initialPosition);
       long currentPosition = input.getPosition();
