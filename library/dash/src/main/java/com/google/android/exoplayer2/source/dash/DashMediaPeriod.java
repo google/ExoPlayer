@@ -406,17 +406,27 @@ import java.util.regex.Pattern;
       int[] streamIndexToTrackGroupIndex) {
     // Create newly selected primary and event streams.
     for (int i = 0; i < selections.length; i++) {
-      if (streams[i] == null && selections[i] != null) {
+      TrackSelection selection = selections[i];
+      if (selection == null) {
+        continue;
+      }
+      if (streams[i] == null) {
+        // Create new stream for selection.
         streamResetFlags[i] = true;
         int trackGroupIndex = streamIndexToTrackGroupIndex[i];
         TrackGroupInfo trackGroupInfo = trackGroupInfos[trackGroupIndex];
         if (trackGroupInfo.trackGroupCategory == TrackGroupInfo.CATEGORY_PRIMARY) {
-          streams[i] = buildSampleStream(trackGroupInfo, selections[i], positionUs);
+          streams[i] = buildSampleStream(trackGroupInfo, selection, positionUs);
         } else if (trackGroupInfo.trackGroupCategory == TrackGroupInfo.CATEGORY_MANIFEST_EVENTS) {
           EventStream eventStream = eventStreams.get(trackGroupInfo.eventStreamGroupIndex);
-          Format format = selections[i].getTrackGroup().getFormat(0);
+          Format format = selection.getTrackGroup().getFormat(0);
           streams[i] = new EventSampleStream(eventStream, format, manifest.dynamic);
         }
+      } else if (streams[i] instanceof ChunkSampleStream) {
+        // Update selection in existing stream.
+        @SuppressWarnings("unchecked")
+        ChunkSampleStream<DashChunkSource> stream = (ChunkSampleStream<DashChunkSource>) streams[i];
+        stream.getChunkSource().updateTrackSelection(selection);
       }
     }
     // Create newly selected embedded streams from the corresponding primary stream. Note that this
