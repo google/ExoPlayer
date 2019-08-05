@@ -27,6 +27,9 @@
   over other selection parameters.
 * Remove `AnalyticsCollector.Factory`. Instances can be created directly and
   the `Player` set later using `AnalyticsCollector.setPlayer`.
+* Fix issue when calling `performClick` on `PlayerView` without
+  `PlayerControlView`
+  ([#6260](https://github.com/google/ExoPlayer/issues/6260)).
 
 ### 2.10.4 ###
 
