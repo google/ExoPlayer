@@ -24,6 +24,9 @@
   ([#6192](https://github.com/google/ExoPlayer/issues/6192)).
 * Fix Flac and ALAC playback on some LG devices
   ([#5938](https://github.com/google/ExoPlayer/issues/5938)).
+* Fix issue when calling `performClick` on `PlayerView` without
+  `PlayerControlView`
+  ([#6260](https://github.com/google/ExoPlayer/issues/6260)).
 
 ### 2.10.3 ###
 
