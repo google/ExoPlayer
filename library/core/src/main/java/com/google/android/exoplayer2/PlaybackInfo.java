@@ -150,17 +150,26 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
    *
    * @param shuffleModeEnabled Whether shuffle mode is enabled.
    * @param window A writable {@link Timeline.Window}.
+   * @param period A writable {@link Timeline.Period}.
    * @return A dummy media period id for the first-to-be-played period of the current timeline.
    */
   public MediaPeriodId getDummyFirstMediaPeriodId(
-      boolean shuffleModeEnabled, Timeline.Window window) {
+      boolean shuffleModeEnabled, Timeline.Window window, Timeline.Period period) {
     if (timeline.isEmpty()) {
       return DUMMY_MEDIA_PERIOD_ID;
     }
-    int firstPeriodIndex =
-        timeline.getWindow(timeline.getFirstWindowIndex(shuffleModeEnabled), window)
-            .firstPeriodIndex;
-    return new MediaPeriodId(timeline.getUidOfPeriod(firstPeriodIndex));
+    int firstWindowIndex = timeline.getFirstWindowIndex(shuffleModeEnabled);
+    int firstPeriodIndex = timeline.getWindow(firstWindowIndex, window).firstPeriodIndex;
+    int currentPeriodIndex = timeline.getIndexOfPeriod(periodId.periodUid);
+    long windowSequenceNumber = C.INDEX_UNSET;
+    if (currentPeriodIndex != C.INDEX_UNSET) {
+      int currentWindowIndex = timeline.getPeriod(currentPeriodIndex, period).windowIndex;
+      if (firstWindowIndex == currentWindowIndex) {
+        // Keep window sequence number if the new position is still in the same window.
+        windowSequenceNumber = periodId.windowSequenceNumber;
+      }
+    }
+    return new MediaPeriodId(timeline.getUidOfPeriod(firstPeriodIndex), windowSequenceNumber);
   }
 
   /**
