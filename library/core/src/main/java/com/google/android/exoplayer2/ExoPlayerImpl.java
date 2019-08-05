@@ -647,7 +647,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
     resetPosition = resetPosition || resetState;
     MediaPeriodId mediaPeriodId =
         resetPosition
-            ? playbackInfo.getDummyFirstMediaPeriodId(shuffleModeEnabled, window)
+            ? playbackInfo.getDummyFirstMediaPeriodId(shuffleModeEnabled, window, period)
             : playbackInfo.periodId;
     long startPositionUs = resetPosition ? 0 : playbackInfo.positionUs;
     long contentPositionUs = resetPosition ? C.TIME_UNSET : playbackInfo.contentPositionUs;
