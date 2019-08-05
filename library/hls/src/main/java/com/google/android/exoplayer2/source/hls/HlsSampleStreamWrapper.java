@@ -292,14 +292,17 @@ import java.util.Map;
     TrackSelection primaryTrackSelection = oldPrimaryTrackSelection;
     // Select new tracks.
     for (int i = 0; i < selections.length; i++) {
-      if (streams[i] == null && selections[i] != null) {
+      TrackSelection selection = selections[i];
+      if (selection == null) {
+        continue;
+      }
+      int trackGroupIndex = trackGroups.indexOf(selection.getTrackGroup());
+      if (trackGroupIndex == primaryTrackGroupIndex) {
+        primaryTrackSelection = selection;
+        chunkSource.setTrackSelection(selection);
+      }
+      if (streams[i] == null) {
         enabledTrackGroupCount++;
-        TrackSelection selection = selections[i];
-        int trackGroupIndex = trackGroups.indexOf(selection.getTrackGroup());
-        if (trackGroupIndex == primaryTrackGroupIndex) {
-          primaryTrackSelection = selection;
-          chunkSource.selectTracks(selection);
-        }
         streams[i] = new HlsSampleStream(this, trackGroupIndex);
         streamResetFlags[i] = true;
         if (trackGroupToSampleQueueIndex != null) {
