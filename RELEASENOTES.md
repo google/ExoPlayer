@@ -27,9 +27,6 @@
   over other selection parameters.
 * Remove `AnalyticsCollector.Factory`. Instances can be created directly and
   the `Player` set later using `AnalyticsCollector.setPlayer`.
-* Fix issue when calling `performClick` on `PlayerView` without
-  `PlayerControlView`
-  ([#6260](https://github.com/google/ExoPlayer/issues/6260)).
 
 ### 2.10.4 ###
 
@@ -55,6 +52,9 @@
   ([#6192](https://github.com/google/ExoPlayer/issues/6192)).
 * Fix Flac and ALAC playback on some LG devices
   ([#5938](https://github.com/google/ExoPlayer/issues/5938)).
+* Fix issue when calling `performClick` on `PlayerView` without
+  `PlayerControlView`
+  ([#6260](https://github.com/google/ExoPlayer/issues/6260)).
 
 ### 2.10.3 ###
 
