@@ -426,7 +426,7 @@ public final class ImaAdsLoader
    * @deprecated Use {@link ImaAdsLoader.Builder}.
    */
   @Deprecated
-  public ImaAdsLoader(Context context, Uri adTagUri, ImaSdkSettings imaSdkSettings) {
+  public ImaAdsLoader(Context context, Uri adTagUri, @Nullable ImaSdkSettings imaSdkSettings) {
     this(
         context,
         adTagUri,
