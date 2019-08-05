@@ -126,6 +126,7 @@ import java.util.List;
           stream.release();
           streams[i] = null;
         } else {
+          stream.getChunkSource().updateTrackSelection(selections[i]);
           sampleStreamsList.add(stream);
         }
       }
