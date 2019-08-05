@@ -111,7 +111,6 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
   private final LoaderErrorThrower manifestLoaderErrorThrower;
   private final int[] adaptationSetIndices;
-  private final TrackSelection trackSelection;
   private final int trackType;
   private final DataSource dataSource;
   private final long elapsedRealtimeOffsetMs;
@@ -120,6 +119,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
   protected final RepresentationHolder[] representationHolders;
 
+  private TrackSelection trackSelection;
   private DashManifest manifest;
   private int periodIndex;
   private IOException fatalError;
@@ -220,6 +220,11 @@ public class DefaultDashChunkSource implements DashChunkSource {
     } catch (BehindLiveWindowException e) {
       fatalError = e;
     }
+  }
+
+  @Override
+  public void updateTrackSelection(TrackSelection trackSelection) {
+    this.trackSelection = trackSelection;
   }
 
   @Override

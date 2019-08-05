@@ -55,6 +55,9 @@
 * Fix issue when calling `performClick` on `PlayerView` without
   `PlayerControlView`
   ([#6260](https://github.com/google/ExoPlayer/issues/6260)).
+* Fix issue where playback speeds are not used in adaptive track selections
+  after manual selection changes for other renderers
+  ([#6256](https://github.com/google/ExoPlayer/issues/6256)).
 
 ### 2.10.3 ###
 

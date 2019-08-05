@@ -183,17 +183,15 @@ import java.util.Map;
   }
 
   /**
-   * Selects tracks for use.
+   * Sets the current track selection.
    *
-   * @param trackSelection The track selection.
+   * @param trackSelection The {@link TrackSelection}.
    */
-  public void selectTracks(TrackSelection trackSelection) {
+  public void setTrackSelection(TrackSelection trackSelection) {
     this.trackSelection = trackSelection;
   }
 
-  /**
-   * Returns the current track selection.
-   */
+  /** Returns the current {@link TrackSelection}. */
   public TrackSelection getTrackSelection() {
     return trackSelection;
   }
