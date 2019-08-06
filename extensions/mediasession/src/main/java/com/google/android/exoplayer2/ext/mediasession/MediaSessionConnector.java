@@ -558,7 +558,7 @@ public final class MediaSessionConnector {
    *
    * @param queueNavigator The queue navigator.
    */
-  public void setQueueNavigator(QueueNavigator queueNavigator) {
+  public void setQueueNavigator(@Nullable QueueNavigator queueNavigator) {
     if (this.queueNavigator != queueNavigator) {
       unregisterCommandReceiver(this.queueNavigator);
       this.queueNavigator = queueNavigator;
@@ -571,7 +571,7 @@ public final class MediaSessionConnector {
    *
    * @param queueEditor The queue editor.
    */
-  public void setQueueEditor(QueueEditor queueEditor) {
+  public void setQueueEditor(@Nullable QueueEditor queueEditor) {
     if (this.queueEditor != queueEditor) {
       unregisterCommandReceiver(this.queueEditor);
       this.queueEditor = queueEditor;
@@ -673,7 +673,7 @@ public final class MediaSessionConnector {
         mediaMetadataProvider != null && player != null
             ? mediaMetadataProvider.getMetadata(player)
             : METADATA_EMPTY;
-    mediaSession.setMetadata(metadata != null ? metadata : METADATA_EMPTY);
+    mediaSession.setMetadata(metadata);
   }
 
   /**
@@ -684,7 +684,7 @@ public final class MediaSessionConnector {
    */
   public final void invalidateMediaSessionPlaybackState() {
     PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder();
-    Player player = this.player;
+    @Nullable Player player = this.player;
     if (player == null) {
       builder.setActions(buildPrepareActions()).setState(PlaybackStateCompat.STATE_NONE, 0, 0, 0);
       mediaSession.setPlaybackState(builder.build());
@@ -693,6 +693,7 @@ public final class MediaSessionConnector {
 
     Map<String, CustomActionProvider> currentActions = new HashMap<>();
     for (CustomActionProvider customActionProvider : customActionProviders) {
+      @Nullable
       PlaybackStateCompat.CustomAction customAction = customActionProvider.getCustomAction(player);
       if (customAction != null) {
         currentActions.put(customAction.getAction(), customActionProvider);
@@ -703,6 +704,7 @@ public final class MediaSessionConnector {
 
     int playbackState = player.getPlaybackState();
     Bundle extras = new Bundle();
+    @Nullable
     ExoPlaybackException playbackError =
         playbackState == Player.STATE_IDLE ? player.getPlaybackError() : null;
     boolean reportError = playbackError != null || customError != null;
@@ -949,10 +951,10 @@ public final class MediaSessionConnector {
           MediaSessionCompat.QueueItem queueItem = queue.get(i);
           if (queueItem.getQueueId() == activeQueueItemId) {
             MediaDescriptionCompat description = queueItem.getDescription();
-            Bundle extras = description.getExtras();
+            @Nullable Bundle extras = description.getExtras();
             if (extras != null) {
               for (String key : extras.keySet()) {
-                Object value = extras.get(key);
+                @Nullable Object value = extras.get(key);
                 if (value instanceof String) {
                   builder.putString(metadataExtrasPrefix + key, (String) value);
                 } else if (value instanceof CharSequence) {
@@ -968,37 +970,37 @@ public final class MediaSessionConnector {
                 }
               }
             }
-            CharSequence title = description.getTitle();
+            @Nullable CharSequence title = description.getTitle();
             if (title != null) {
               String titleString = String.valueOf(title);
               builder.putString(MediaMetadataCompat.METADATA_KEY_TITLE, titleString);
               builder.putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, titleString);
             }
-            CharSequence subtitle = description.getSubtitle();
+            @Nullable CharSequence subtitle = description.getSubtitle();
             if (subtitle != null) {
               builder.putString(
                   MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, String.valueOf(subtitle));
             }
-            CharSequence displayDescription = description.getDescription();
+            @Nullable CharSequence displayDescription = description.getDescription();
             if (displayDescription != null) {
               builder.putString(
                   MediaMetadataCompat.METADATA_KEY_DISPLAY_DESCRIPTION,
                   String.valueOf(displayDescription));
             }
-            Bitmap iconBitmap = description.getIconBitmap();
+            @Nullable Bitmap iconBitmap = description.getIconBitmap();
             if (iconBitmap != null) {
               builder.putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, iconBitmap);
             }
-            Uri iconUri = description.getIconUri();
+            @Nullable Uri iconUri = description.getIconUri();
             if (iconUri != null) {
               builder.putString(
                   MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI, String.valueOf(iconUri));
             }
-            String mediaId = description.getMediaId();
+            @Nullable String mediaId = description.getMediaId();
             if (mediaId != null) {
               builder.putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, mediaId);
             }
-            Uri mediaUri = description.getMediaUri();
+            @Nullable Uri mediaUri = description.getMediaUri();
             if (mediaUri != null) {
               builder.putString(
                   MediaMetadataCompat.METADATA_KEY_MEDIA_URI, String.valueOf(mediaUri));

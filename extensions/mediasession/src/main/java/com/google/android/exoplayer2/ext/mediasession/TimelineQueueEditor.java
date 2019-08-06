@@ -166,7 +166,7 @@ public final class TimelineQueueEditor
 
   @Override
   public void onAddQueueItem(Player player, MediaDescriptionCompat description, int index) {
-    MediaSource mediaSource = sourceFactory.createMediaSource(description);
+    @Nullable MediaSource mediaSource = sourceFactory.createMediaSource(description);
     if (mediaSource != null) {
       queueDataAdapter.add(index, description);
       queueMediaSource.addMediaSource(index, mediaSource);
