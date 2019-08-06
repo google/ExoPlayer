@@ -308,14 +308,14 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
   private static final int PICTURE_TYPE_NOT_SET = -1;
 
   public PlayerView(Context context) {
-    this(context, null);
+    this(context, /* attrs= */ null);
   }
 
-  public PlayerView(Context context, AttributeSet attrs) {
-    this(context, attrs, 0);
+  public PlayerView(Context context, @Nullable AttributeSet attrs) {
+    this(context, attrs, /* defStyleAttr= */ 0);
   }
 
-  public PlayerView(Context context, AttributeSet attrs, int defStyleAttr) {
+  public PlayerView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
     super(context, attrs, defStyleAttr);
 
     if (isInEditMode()) {
@@ -505,6 +505,7 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
   }
 
   /** Returns the player currently set on this view, or null if no player is set. */
+  @Nullable
   public Player getPlayer() {
     return player;
   }
@@ -904,9 +905,11 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
   /**
    * Set the {@link PlayerControlView.VisibilityListener}.
    *
-   * @param listener The listener to be notified about visibility changes.
+   * @param listener The listener to be notified about visibility changes, or null to remove the
+   *     current listener.
    */
-  public void setControllerVisibilityListener(PlayerControlView.VisibilityListener listener) {
+  public void setControllerVisibilityListener(
+      @Nullable PlayerControlView.VisibilityListener listener) {
     Assertions.checkState(controller != null);
     controller.setVisibilityListener(listener);
   }
@@ -914,7 +917,8 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
   /**
    * Sets the {@link PlaybackPreparer}.
    *
-   * @param playbackPreparer The {@link PlaybackPreparer}.
+   * @param playbackPreparer The {@link PlaybackPreparer}, or null to remove the current playback
+   *     preparer.
    */
   public void setPlaybackPreparer(@Nullable PlaybackPreparer playbackPreparer) {
     Assertions.checkState(controller != null);
@@ -1006,7 +1010,8 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
    * @param listener The listener to be notified about aspect ratios changes of the video content or
    *     the content frame.
    */
-  public void setAspectRatioListener(AspectRatioFrameLayout.AspectRatioListener listener) {
+  public void setAspectRatioListener(
+      @Nullable AspectRatioFrameLayout.AspectRatioListener listener) {
     Assertions.checkState(contentFrame != null);
     contentFrame.setAspectRatioListener(listener);
   }
@@ -1025,6 +1030,7 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
    * @return The {@link SurfaceView}, {@link TextureView}, {@link SphericalSurfaceView} or {@code
    *     null}.
    */
+  @Nullable
   public View getVideoSurfaceView() {
     return surfaceView;
   }
@@ -1047,6 +1053,7 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
    * @return The {@link SubtitleView}, or {@code null} if the layout has been customized and the
    *     subtitle view is not present.
    */
+  @Nullable
   public SubtitleView getSubtitleView() {
     return subtitleView;
   }
