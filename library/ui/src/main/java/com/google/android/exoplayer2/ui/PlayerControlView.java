@@ -285,7 +285,7 @@ public class PlayerControlView extends FrameLayout {
   }
 
   public PlayerControlView(Context context, @Nullable AttributeSet attrs) {
-    this(context, attrs, 0);
+    this(context, attrs, /* defStyleAttr= */ 0);
   }
 
   public PlayerControlView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
@@ -494,9 +494,10 @@ public class PlayerControlView extends FrameLayout {
   /**
    * Sets the {@link VisibilityListener}.
    *
-   * @param listener The listener to be notified about visibility changes.
+   * @param listener The listener to be notified about visibility changes, or null to remove the
+   *     current listener.
    */
-  public void setVisibilityListener(VisibilityListener listener) {
+  public void setVisibilityListener(@Nullable VisibilityListener listener) {
     this.visibilityListener = listener;
   }
 
@@ -512,7 +513,8 @@ public class PlayerControlView extends FrameLayout {
   /**
    * Sets the {@link PlaybackPreparer}.
    *
-   * @param playbackPreparer The {@link PlaybackPreparer}.
+   * @param playbackPreparer The {@link PlaybackPreparer}, or null to remove the current playback
+   *     preparer.
    */
   public void setPlaybackPreparer(@Nullable PlaybackPreparer playbackPreparer) {
     this.playbackPreparer = playbackPreparer;
