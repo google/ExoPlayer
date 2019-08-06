@@ -1,5 +1,12 @@
 # Release notes #
 
+### 2.10.5 ###
+
+* Add `allowAudioMixedChannelCountAdaptiveness` parameter to
+  `DefaultTrackSelector` to allow adaptive selections of audio tracks with
+  different channel counts
+  ([#6257](https://github.com/google/ExoPlayer/issues/6257)).
+
 ### 2.10.4 ###
 
 * Offline: Add `Scheduler` implementation that uses `WorkManager`.
