@@ -51,8 +51,8 @@ public class LibflacAudioRenderer extends SimpleDecoderAudioRenderer {
   }
 
   @Override
-  protected int supportsFormatInternal(DrmSessionManager<ExoMediaCrypto> drmSessionManager,
-      Format format) {
+  protected int supportsFormatInternal(
+      @Nullable DrmSessionManager<ExoMediaCrypto> drmSessionManager, Format format) {
     if (!FlacLibrary.isAvailable()
         || !MimeTypes.AUDIO_FLAC.equalsIgnoreCase(format.sampleMimeType)) {
       return FORMAT_UNSUPPORTED_TYPE;
@@ -66,7 +66,7 @@ public class LibflacAudioRenderer extends SimpleDecoderAudioRenderer {
   }
 
   @Override
-  protected FlacDecoder createDecoder(Format format, ExoMediaCrypto mediaCrypto)
+  protected FlacDecoder createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
       throws FlacDecoderException {
     return new FlacDecoder(
         NUM_BUFFERS, NUM_BUFFERS, format.maxInputSize, format.initializationData);

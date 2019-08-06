@@ -79,8 +79,8 @@ public class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
   }
 
   @Override
-  protected int supportsFormatInternal(DrmSessionManager<ExoMediaCrypto> drmSessionManager,
-      Format format) {
+  protected int supportsFormatInternal(
+      @Nullable DrmSessionManager<ExoMediaCrypto> drmSessionManager, Format format) {
     boolean drmIsSupported =
         format.drmInitData == null
             || OpusLibrary.matchesExpectedExoMediaCryptoType(format.exoMediaCryptoType)
@@ -99,7 +99,7 @@ public class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
   }
 
   @Override
-  protected OpusDecoder createDecoder(Format format, ExoMediaCrypto mediaCrypto)
+  protected OpusDecoder createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
       throws OpusDecoderException {
     int initialInputBufferSize =
         format.maxInputSize != Format.NO_VALUE ? format.maxInputSize : DEFAULT_INPUT_BUFFER_SIZE;

@@ -246,7 +246,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
    * @return The extent to which the renderer supports the format itself.
    */
   protected abstract int supportsFormatInternal(
-      DrmSessionManager<ExoMediaCrypto> drmSessionManager, Format format);
+      @Nullable DrmSessionManager<ExoMediaCrypto> drmSessionManager, Format format);
 
   /**
    * Returns whether the sink supports the audio format.
@@ -341,9 +341,10 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
    * @return The decoder.
    * @throws AudioDecoderException If an error occurred creating a suitable decoder.
    */
-  protected abstract SimpleDecoder<DecoderInputBuffer, ? extends SimpleOutputBuffer,
-      ? extends AudioDecoderException> createDecoder(Format format, ExoMediaCrypto mediaCrypto)
-      throws AudioDecoderException;
+  protected abstract SimpleDecoder<
+          DecoderInputBuffer, ? extends SimpleOutputBuffer, ? extends AudioDecoderException>
+      createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
+          throws AudioDecoderException;
 
   /**
    * Returns the format of audio buffers output by the decoder. Will not be called until the first
