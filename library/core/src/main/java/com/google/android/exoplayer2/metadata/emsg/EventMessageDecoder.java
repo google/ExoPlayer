@@ -25,13 +25,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-/**
- * Decodes Event Message (emsg) atoms, as defined in ISO/IEC 23009-1:2014, Section 5.10.3.3.
- *
- * <p>Atom data should be provided to the decoder without the full atom header (i.e. starting from
- * the first byte of the scheme_id_uri field). It is expected that the presentation_time_delta field
- * should be 0, having already been accounted for by adjusting the sample timestamp.
- */
+/** Decodes data encoded by {@link EventMessageEncoder}. */
 public final class EventMessageDecoder implements MetadataDecoder {
 
   private static final String TAG = "EventMessageDecoder";
