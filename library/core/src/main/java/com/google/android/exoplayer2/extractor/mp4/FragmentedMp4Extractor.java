@@ -964,7 +964,9 @@ public class FragmentedMp4Extractor implements Extractor {
     // duration == 0). Other uses of edit lists are uncommon and unsupported.
     if (track.editListDurations != null && track.editListDurations.length == 1
         && track.editListDurations[0] == 0) {
-      edtsOffset = Util.scaleLargeTimestamp(track.editListMediaTimes[0], 1000, track.timescale);
+      edtsOffset =
+          Util.scaleLargeTimestamp(
+              track.editListMediaTimes[0], C.MILLIS_PER_SECOND, track.timescale);
     }
 
     int[] sampleSizeTable = fragment.sampleSizeTable;
@@ -992,12 +994,13 @@ public class FragmentedMp4Extractor implements Extractor {
         // here, because unsigned integers will still be parsed correctly (unless their top bit is
         // set, which is never true in practice because sample offsets are always small).
         int sampleOffset = trun.readInt();
-        sampleCompositionTimeOffsetTable[i] = (int) ((sampleOffset * 1000L) / timescale);
+        sampleCompositionTimeOffsetTable[i] =
+            (int) ((sampleOffset * C.MILLIS_PER_SECOND) / timescale);
       } else {
         sampleCompositionTimeOffsetTable[i] = 0;
       }
       sampleDecodingTimeTable[i] =
-          Util.scaleLargeTimestamp(cumulativeTime, 1000, timescale) - edtsOffset;
+          Util.scaleLargeTimestamp(cumulativeTime, C.MILLIS_PER_SECOND, timescale) - edtsOffset;
       sampleSizeTable[i] = sampleSize;
       sampleIsSyncFrameTable[i] = ((sampleFlags >> 16) & 0x1) == 0
           && (!workaroundEveryVideoFrameIsSyncFrame || i == 0);
