@@ -390,7 +390,7 @@ public final class DownloadHelper {
    */
   public static MediaSource createMediaSource(
       DownloadRequest downloadRequest, DataSource.Factory dataSourceFactory) {
-    Constructor<? extends MediaSourceFactory> constructor;
+    @Nullable Constructor<? extends MediaSourceFactory> constructor;
     switch (downloadRequest.type) {
       case DownloadRequest.TYPE_DASH:
         constructor = DASH_FACTORY_CONSTRUCTOR;
@@ -808,7 +808,7 @@ public final class DownloadHelper {
               new MediaPeriodId(mediaPreparer.timeline.getUidOfPeriod(periodIndex)),
               mediaPreparer.timeline);
       for (int i = 0; i < trackSelectorResult.length; i++) {
-        TrackSelection newSelection = trackSelectorResult.selections.get(i);
+        @Nullable TrackSelection newSelection = trackSelectorResult.selections.get(i);
         if (newSelection == null) {
           continue;
         }

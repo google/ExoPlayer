@@ -138,7 +138,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
       Collections.sort(segments);
 
       // Download the segments.
-      ProgressNotifier progressNotifier = null;
+      @Nullable ProgressNotifier progressNotifier = null;
       if (progressListener != null) {
         progressNotifier =
             new ProgressNotifier(

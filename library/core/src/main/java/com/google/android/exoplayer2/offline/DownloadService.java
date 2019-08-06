@@ -592,8 +592,8 @@ public abstract class DownloadService extends Service {
   public int onStartCommand(Intent intent, int flags, int startId) {
     lastStartId = startId;
     taskRemoved = false;
-    String intentAction = null;
-    String contentId = null;
+    @Nullable String intentAction = null;
+    @Nullable String contentId = null;
     if (intent != null) {
       intentAction = intent.getAction();
       startedInForeground |=
@@ -611,7 +611,7 @@ public abstract class DownloadService extends Service {
         // Do nothing.
         break;
       case ACTION_ADD_DOWNLOAD:
-        DownloadRequest downloadRequest = intent.getParcelableExtra(KEY_DOWNLOAD_REQUEST);
+        @Nullable DownloadRequest downloadRequest = intent.getParcelableExtra(KEY_DOWNLOAD_REQUEST);
         if (downloadRequest == null) {
           Log.e(TAG, "Ignored ADD_DOWNLOAD: Missing " + KEY_DOWNLOAD_REQUEST + " extra");
         } else {
@@ -644,7 +644,7 @@ public abstract class DownloadService extends Service {
         }
         break;
       case ACTION_SET_REQUIREMENTS:
-        Requirements requirements = intent.getParcelableExtra(KEY_REQUIREMENTS);
+        @Nullable Requirements requirements = intent.getParcelableExtra(KEY_REQUIREMENTS);
         if (requirements == null) {
           Log.e(TAG, "Ignored SET_REQUIREMENTS: Missing " + KEY_REQUIREMENTS + " extra");
         } else {
