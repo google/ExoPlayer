@@ -177,6 +177,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private boolean exceedAudioConstraintsIfNecessary;
     private boolean allowAudioMixedMimeTypeAdaptiveness;
     private boolean allowAudioMixedSampleRateAdaptiveness;
+    private boolean allowAudioMixedChannelCountAdaptiveness;
     // General
     private boolean forceLowestBitrate;
     private boolean forceHighestSupportedBitrate;
@@ -227,6 +228,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       exceedAudioConstraintsIfNecessary = initialValues.exceedAudioConstraintsIfNecessary;
       allowAudioMixedMimeTypeAdaptiveness = initialValues.allowAudioMixedMimeTypeAdaptiveness;
       allowAudioMixedSampleRateAdaptiveness = initialValues.allowAudioMixedSampleRateAdaptiveness;
+      allowAudioMixedChannelCountAdaptiveness =
+          initialValues.allowAudioMixedChannelCountAdaptiveness;
       // General
       forceLowestBitrate = initialValues.forceLowestBitrate;
       forceHighestSupportedBitrate = initialValues.forceHighestSupportedBitrate;
@@ -421,6 +424,17 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     public ParametersBuilder setAllowAudioMixedSampleRateAdaptiveness(
         boolean allowAudioMixedSampleRateAdaptiveness) {
       this.allowAudioMixedSampleRateAdaptiveness = allowAudioMixedSampleRateAdaptiveness;
+      return this;
+    }
+
+    /**
+     * See {@link Parameters#allowAudioMixedChannelCountAdaptiveness}.
+     *
+     * @return This builder.
+     */
+    public ParametersBuilder setAllowAudioMixedChannelCountAdaptiveness(
+        boolean allowAudioMixedChannelCountAdaptiveness) {
+      this.allowAudioMixedChannelCountAdaptiveness = allowAudioMixedChannelCountAdaptiveness;
       return this;
     }
 
@@ -640,6 +654,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           exceedAudioConstraintsIfNecessary,
           allowAudioMixedMimeTypeAdaptiveness,
           allowAudioMixedSampleRateAdaptiveness,
+          allowAudioMixedChannelCountAdaptiveness,
           // Text
           preferredTextLanguage,
           selectUndeterminedTextLanguage,
@@ -775,6 +790,12 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * different sample rates may not be completely seamless. The default value is {@code false}.
      */
     public final boolean allowAudioMixedSampleRateAdaptiveness;
+    /**
+     * Whether to allow adaptive audio selections containing mixed channel counts. Adaptations
+     * between different channel counts may not be completely seamless. The default value is {@code
+     * false}.
+     */
+    public final boolean allowAudioMixedChannelCountAdaptiveness;
 
     // General
     /**
@@ -835,6 +856,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           /* exceedAudioConstraintsIfNecessary= */ true,
           /* allowAudioMixedMimeTypeAdaptiveness= */ false,
           /* allowAudioMixedSampleRateAdaptiveness= */ false,
+          /* allowAudioMixedChannelCountAdaptiveness= */ false,
           // Text
           TrackSelectionParameters.DEFAULT.preferredTextLanguage,
           TrackSelectionParameters.DEFAULT.selectUndeterminedTextLanguage,
@@ -867,6 +889,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         boolean exceedAudioConstraintsIfNecessary,
         boolean allowAudioMixedMimeTypeAdaptiveness,
         boolean allowAudioMixedSampleRateAdaptiveness,
+        boolean allowAudioMixedChannelCountAdaptiveness,
         // Text
         @Nullable String preferredTextLanguage,
         boolean selectUndeterminedTextLanguage,
@@ -901,6 +924,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       this.exceedAudioConstraintsIfNecessary = exceedAudioConstraintsIfNecessary;
       this.allowAudioMixedMimeTypeAdaptiveness = allowAudioMixedMimeTypeAdaptiveness;
       this.allowAudioMixedSampleRateAdaptiveness = allowAudioMixedSampleRateAdaptiveness;
+      this.allowAudioMixedChannelCountAdaptiveness = allowAudioMixedChannelCountAdaptiveness;
       // General
       this.forceLowestBitrate = forceLowestBitrate;
       this.forceHighestSupportedBitrate = forceHighestSupportedBitrate;
@@ -934,6 +958,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       this.exceedAudioConstraintsIfNecessary = Util.readBoolean(in);
       this.allowAudioMixedMimeTypeAdaptiveness = Util.readBoolean(in);
       this.allowAudioMixedSampleRateAdaptiveness = Util.readBoolean(in);
+      this.allowAudioMixedChannelCountAdaptiveness = Util.readBoolean(in);
       // General
       this.forceLowestBitrate = Util.readBoolean(in);
       this.forceHighestSupportedBitrate = Util.readBoolean(in);
@@ -1015,6 +1040,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           && exceedAudioConstraintsIfNecessary == other.exceedAudioConstraintsIfNecessary
           && allowAudioMixedMimeTypeAdaptiveness == other.allowAudioMixedMimeTypeAdaptiveness
           && allowAudioMixedSampleRateAdaptiveness == other.allowAudioMixedSampleRateAdaptiveness
+          && allowAudioMixedChannelCountAdaptiveness
+              == other.allowAudioMixedChannelCountAdaptiveness
           // General
           && forceLowestBitrate == other.forceLowestBitrate
           && forceHighestSupportedBitrate == other.forceHighestSupportedBitrate
@@ -1045,6 +1072,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       result = 31 * result + (exceedAudioConstraintsIfNecessary ? 1 : 0);
       result = 31 * result + (allowAudioMixedMimeTypeAdaptiveness ? 1 : 0);
       result = 31 * result + (allowAudioMixedSampleRateAdaptiveness ? 1 : 0);
+      result = 31 * result + (allowAudioMixedChannelCountAdaptiveness ? 1 : 0);
       // General
       result = 31 * result + (forceLowestBitrate ? 1 : 0);
       result = 31 * result + (forceHighestSupportedBitrate ? 1 : 0);
@@ -1081,6 +1109,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       Util.writeBoolean(dest, exceedAudioConstraintsIfNecessary);
       Util.writeBoolean(dest, allowAudioMixedMimeTypeAdaptiveness);
       Util.writeBoolean(dest, allowAudioMixedSampleRateAdaptiveness);
+      Util.writeBoolean(dest, allowAudioMixedChannelCountAdaptiveness);
       // General
       Util.writeBoolean(dest, forceLowestBitrate);
       Util.writeBoolean(dest, forceHighestSupportedBitrate);
@@ -1989,7 +2018,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
               formatSupports[selectedGroupIndex],
               params.maxAudioBitrate,
               params.allowAudioMixedMimeTypeAdaptiveness,
-              params.allowAudioMixedSampleRateAdaptiveness);
+              params.allowAudioMixedSampleRateAdaptiveness,
+              params.allowAudioMixedChannelCountAdaptiveness);
       if (adaptiveTracks.length > 0) {
         definition = new TrackSelection.Definition(selectedGroup, adaptiveTracks);
       }
@@ -2007,7 +2037,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       int[] formatSupport,
       int maxAudioBitrate,
       boolean allowMixedMimeTypeAdaptiveness,
-      boolean allowMixedSampleRateAdaptiveness) {
+      boolean allowMixedSampleRateAdaptiveness,
+      boolean allowAudioMixedChannelCountAdaptiveness) {
     int selectedConfigurationTrackCount = 0;
     AudioConfigurationTuple selectedConfiguration = null;
     HashSet<AudioConfigurationTuple> seenConfigurationTuples = new HashSet<>();
@@ -2024,7 +2055,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
                 configuration,
                 maxAudioBitrate,
                 allowMixedMimeTypeAdaptiveness,
-                allowMixedSampleRateAdaptiveness);
+                allowMixedSampleRateAdaptiveness,
+                allowAudioMixedChannelCountAdaptiveness);
         if (configurationCount > selectedConfigurationTrackCount) {
           selectedConfiguration = configuration;
           selectedConfigurationTrackCount = configurationCount;
@@ -2044,7 +2076,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
             selectedConfiguration,
             maxAudioBitrate,
             allowMixedMimeTypeAdaptiveness,
-            allowMixedSampleRateAdaptiveness)) {
+            allowMixedSampleRateAdaptiveness,
+            allowAudioMixedChannelCountAdaptiveness)) {
           adaptiveIndices[index++] = i;
         }
       }
@@ -2059,7 +2092,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       AudioConfigurationTuple configuration,
       int maxAudioBitrate,
       boolean allowMixedMimeTypeAdaptiveness,
-      boolean allowMixedSampleRateAdaptiveness) {
+      boolean allowMixedSampleRateAdaptiveness,
+      boolean allowAudioMixedChannelCountAdaptiveness) {
     int count = 0;
     for (int i = 0; i < group.length; i++) {
       if (isSupportedAdaptiveAudioTrack(
@@ -2068,7 +2102,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           configuration,
           maxAudioBitrate,
           allowMixedMimeTypeAdaptiveness,
-          allowMixedSampleRateAdaptiveness)) {
+          allowMixedSampleRateAdaptiveness,
+          allowAudioMixedChannelCountAdaptiveness)) {
         count++;
       }
     }
@@ -2081,11 +2116,13 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       AudioConfigurationTuple configuration,
       int maxAudioBitrate,
       boolean allowMixedMimeTypeAdaptiveness,
-      boolean allowMixedSampleRateAdaptiveness) {
+      boolean allowMixedSampleRateAdaptiveness,
+      boolean allowAudioMixedChannelCountAdaptiveness) {
     return isSupported(formatSupport, false)
         && (format.bitrate == Format.NO_VALUE || format.bitrate <= maxAudioBitrate)
-        && (format.channelCount != Format.NO_VALUE
-            && format.channelCount == configuration.channelCount)
+        && (allowAudioMixedChannelCountAdaptiveness
+            || (format.channelCount != Format.NO_VALUE
+                && format.channelCount == configuration.channelCount))
         && (allowMixedMimeTypeAdaptiveness
             || (format.sampleMimeType != null
                 && TextUtils.equals(format.sampleMimeType, configuration.mimeType)))
