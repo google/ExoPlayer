@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.metadata.emsg;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataDecoder;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
@@ -46,7 +47,8 @@ public final class EventMessageDecoder implements MetadataDecoder {
       // timestamp and zeroing the field in the sample data. Log a warning if the field is non-zero.
       Log.w(TAG, "Ignoring non-zero presentation_time_delta: " + presentationTimeDelta);
     }
-    long durationMs = Util.scaleLargeTimestamp(emsgData.readUnsignedInt(), 1000, timescale);
+    long durationMs =
+        Util.scaleLargeTimestamp(emsgData.readUnsignedInt(), C.MILLIS_PER_SECOND, timescale);
     long id = emsgData.readUnsignedInt();
     byte[] messageData = Arrays.copyOfRange(data, emsgData.getPosition(), size);
     return new Metadata(new EventMessage(schemeIdUri, value, durationMs, id, messageData));
