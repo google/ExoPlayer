@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.dash.manifest;
 
 import android.net.Uri;
+import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Pair;
@@ -47,6 +48,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -189,9 +191,9 @@ public class DashManifestParser extends DefaultHandler
       long timeShiftBufferDepthMs,
       long suggestedPresentationDelayMs,
       long publishTimeMs,
-      ProgramInformation programInformation,
-      UtcTimingElement utcTiming,
-      Uri location,
+      @Nullable ProgramInformation programInformation,
+      @Nullable UtcTimingElement utcTiming,
+      @Nullable Uri location,
       List<Period> periods) {
     return new DashManifest(
         availabilityStartTime,
@@ -259,8 +261,9 @@ public class DashManifestParser extends DefaultHandler
 
   // AdaptationSet parsing.
 
-  protected AdaptationSet parseAdaptationSet(XmlPullParser xpp, String baseUrl,
-      SegmentBase segmentBase) throws XmlPullParserException, IOException {
+  protected AdaptationSet parseAdaptationSet(
+      XmlPullParser xpp, String baseUrl, @Nullable SegmentBase segmentBase)
+      throws XmlPullParserException, IOException {
     int id = parseInt(xpp, "id", AdaptationSet.ID_UNSET);
     int contentType = parseContentType(xpp);
 
@@ -394,8 +397,8 @@ public class DashManifestParser extends DefaultHandler
    * @return The scheme type and/or {@link SchemeData} parsed from the ContentProtection element.
    *     Either or both may be null, depending on the ContentProtection element being parsed.
    */
-  protected Pair<String, SchemeData> parseContentProtection(XmlPullParser xpp)
-      throws XmlPullParserException, IOException {
+  protected Pair<@NullableType String, @NullableType SchemeData> parseContentProtection(
+      XmlPullParser xpp) throws XmlPullParserException, IOException {
     String schemeType = null;
     String licenseServerUrl = null;
     byte[] data = null;
@@ -477,19 +480,19 @@ public class DashManifestParser extends DefaultHandler
   protected RepresentationInfo parseRepresentation(
       XmlPullParser xpp,
       String baseUrl,
-      String label,
-      String adaptationSetMimeType,
-      String adaptationSetCodecs,
+      @Nullable String label,
+      @Nullable String adaptationSetMimeType,
+      @Nullable String adaptationSetCodecs,
       int adaptationSetWidth,
       int adaptationSetHeight,
       float adaptationSetFrameRate,
       int adaptationSetAudioChannels,
       int adaptationSetAudioSamplingRate,
-      String adaptationSetLanguage,
+      @Nullable String adaptationSetLanguage,
       List<Descriptor> adaptationSetRoleDescriptors,
       List<Descriptor> adaptationSetAccessibilityDescriptors,
       List<Descriptor> adaptationSetSupplementalProperties,
-      SegmentBase segmentBase)
+      @Nullable SegmentBase segmentBase)
       throws XmlPullParserException, IOException {
     String id = xpp.getAttributeValue(null, "id");
     int bandwidth = parseInt(xpp, "bandwidth", Format.NO_VALUE);
@@ -564,19 +567,19 @@ public class DashManifestParser extends DefaultHandler
   }
 
   protected Format buildFormat(
-      String id,
-      String label,
-      String containerMimeType,
+      @Nullable String id,
+      @Nullable String label,
+      @Nullable String containerMimeType,
       int width,
       int height,
       float frameRate,
       int audioChannels,
       int audioSamplingRate,
       int bitrate,
-      String language,
+      @Nullable String language,
       List<Descriptor> roleDescriptors,
       List<Descriptor> accessibilityDescriptors,
-      String codecs,
+      @Nullable String codecs,
       List<Descriptor> supplementalProperties) {
     String sampleMimeType = getSampleMimeType(containerMimeType, codecs);
     @C.SelectionFlags int selectionFlags = parseSelectionFlagsFromRoleDescriptors(roleDescriptors);
@@ -650,7 +653,7 @@ public class DashManifestParser extends DefaultHandler
 
   protected Representation buildRepresentation(
       RepresentationInfo representationInfo,
-      String extraDrmSchemeType,
+      @Nullable String extraDrmSchemeType,
       ArrayList<SchemeData> extraDrmSchemeDatas,
       ArrayList<Descriptor> extraInbandEventStreams) {
     Format format = representationInfo.format;
@@ -675,7 +678,8 @@ public class DashManifestParser extends DefaultHandler
 
   // SegmentBase, SegmentList and SegmentTemplate parsing.
 
-  protected SingleSegmentBase parseSegmentBase(XmlPullParser xpp, SingleSegmentBase parent)
+  protected SingleSegmentBase parseSegmentBase(
+      XmlPullParser xpp, @Nullable SingleSegmentBase parent)
       throws XmlPullParserException, IOException {
 
     long timescale = parseLong(xpp, "timescale", parent != null ? parent.timescale : 1);
@@ -711,7 +715,7 @@ public class DashManifestParser extends DefaultHandler
         indexLength);
   }
 
-  protected SegmentList parseSegmentList(XmlPullParser xpp, SegmentList parent)
+  protected SegmentList parseSegmentList(XmlPullParser xpp, @Nullable SegmentList parent)
       throws XmlPullParserException, IOException {
 
     long timescale = parseLong(xpp, "timescale", parent != null ? parent.timescale : 1);
@@ -756,15 +760,15 @@ public class DashManifestParser extends DefaultHandler
       long presentationTimeOffset,
       long startNumber,
       long duration,
-      List<SegmentTimelineElement> timeline,
-      List<RangedUri> segments) {
+      @Nullable List<SegmentTimelineElement> timeline,
+      @Nullable List<RangedUri> segments) {
     return new SegmentList(initialization, timescale, presentationTimeOffset,
         startNumber, duration, timeline, segments);
   }
 
   protected SegmentTemplate parseSegmentTemplate(
       XmlPullParser xpp,
-      SegmentTemplate parent,
+      @Nullable SegmentTemplate parent,
       List<Descriptor> adaptationSetSupplementalProperties)
       throws XmlPullParserException, IOException {
     long timescale = parseLong(xpp, "timescale", parent != null ? parent.timescale : 1);
@@ -819,8 +823,8 @@ public class DashManifestParser extends DefaultHandler
       long endNumber,
       long duration,
       List<SegmentTimelineElement> timeline,
-      UrlTemplate initializationTemplate,
-      UrlTemplate mediaTemplate) {
+      @Nullable UrlTemplate initializationTemplate,
+      @Nullable UrlTemplate mediaTemplate) {
     return new SegmentTemplate(
         initialization,
         timescale,
@@ -1008,8 +1012,9 @@ public class DashManifestParser extends DefaultHandler
     return new SegmentTimelineElement(elapsedTime, duration);
   }
 
-  protected UrlTemplate parseUrlTemplate(XmlPullParser xpp, String name,
-      UrlTemplate defaultValue) {
+  @Nullable
+  protected UrlTemplate parseUrlTemplate(
+      XmlPullParser xpp, String name, @Nullable UrlTemplate defaultValue) {
     String valueString = xpp.getAttributeValue(null, name);
     if (valueString != null) {
       return UrlTemplate.compile(valueString);
@@ -1126,7 +1131,7 @@ public class DashManifestParser extends DefaultHandler
   }
 
   @C.RoleFlags
-  protected int parseDashRoleSchemeValue(String value) {
+  protected int parseDashRoleSchemeValue(@Nullable String value) {
     if (value == null) {
       return 0;
     }
@@ -1159,7 +1164,7 @@ public class DashManifestParser extends DefaultHandler
   }
 
   @C.RoleFlags
-  protected int parseTvaAudioPurposeCsValue(String value) {
+  protected int parseTvaAudioPurposeCsValue(@Nullable String value) {
     if (value == null) {
       return 0;
     }
@@ -1230,7 +1235,9 @@ public class DashManifestParser extends DefaultHandler
    * @param codecs The codecs attribute.
    * @return The derived sample mimeType, or null if it could not be derived.
    */
-  private static String getSampleMimeType(String containerMimeType, String codecs) {
+  @Nullable
+  private static String getSampleMimeType(
+      @Nullable String containerMimeType, @Nullable String codecs) {
     if (MimeTypes.isAudio(containerMimeType)) {
       return MimeTypes.getAudioMediaMimeType(codecs);
     } else if (MimeTypes.isVideo(containerMimeType)) {
@@ -1264,7 +1271,7 @@ public class DashManifestParser extends DefaultHandler
    * @param mimeType The mimeType.
    * @return Whether the mimeType is a text sample mimeType.
    */
-  private static boolean mimeTypeIsRawText(String mimeType) {
+  private static boolean mimeTypeIsRawText(@Nullable String mimeType) {
     return MimeTypes.isText(mimeType)
         || MimeTypes.APPLICATION_TTML.equals(mimeType)
         || MimeTypes.APPLICATION_MP4VTT.equals(mimeType)
@@ -1273,16 +1280,18 @@ public class DashManifestParser extends DefaultHandler
   }
 
   /**
-   * Checks two languages for consistency, returning the consistent language, or throwing an
-   * {@link IllegalStateException} if the languages are inconsistent.
-   * <p>
-   * Two languages are consistent if they are equal, or if one is null.
+   * Checks two languages for consistency, returning the consistent language, or throwing an {@link
+   * IllegalStateException} if the languages are inconsistent.
+   *
+   * <p>Two languages are consistent if they are equal, or if one is null.
    *
    * @param firstLanguage The first language.
    * @param secondLanguage The second language.
    * @return The consistent language.
    */
-  private static String checkLanguageConsistency(String firstLanguage, String secondLanguage) {
+  @Nullable
+  private static String checkLanguageConsistency(
+      @Nullable String firstLanguage, @Nullable String secondLanguage) {
     if (firstLanguage == null) {
       return secondLanguage;
     } else if (secondLanguage == null) {
@@ -1485,14 +1494,19 @@ public class DashManifestParser extends DefaultHandler
     public final Format format;
     public final String baseUrl;
     public final SegmentBase segmentBase;
-    public final String drmSchemeType;
+    @Nullable public final String drmSchemeType;
     public final ArrayList<SchemeData> drmSchemeDatas;
     public final ArrayList<Descriptor> inbandEventStreams;
     public final long revisionId;
 
-    public RepresentationInfo(Format format, String baseUrl, SegmentBase segmentBase,
-        String drmSchemeType, ArrayList<SchemeData> drmSchemeDatas,
-        ArrayList<Descriptor> inbandEventStreams, long revisionId) {
+    public RepresentationInfo(
+        Format format,
+        String baseUrl,
+        SegmentBase segmentBase,
+        @Nullable String drmSchemeType,
+        ArrayList<SchemeData> drmSchemeDatas,
+        ArrayList<Descriptor> inbandEventStreams,
+        long revisionId) {
       this.format = format;
       this.baseUrl = baseUrl;
       this.segmentBase = segmentBase;

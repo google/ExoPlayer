@@ -83,7 +83,7 @@ public final class RangedUri {
    * <p>If {@code other} is null then the merge is considered unsuccessful, and null is returned.
    *
    * @param other The {@link RangedUri} to merge.
-   * @param baseUri The optional base Uri.
+   * @param baseUri The base Uri.
    * @return The merged {@link RangedUri} if the merge was successful. Null otherwise.
    */
   @Nullable
