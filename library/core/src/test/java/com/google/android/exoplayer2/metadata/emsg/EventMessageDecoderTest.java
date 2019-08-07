@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.metadata.emsg;
 
+import static com.google.android.exoplayer2.testutil.TestUtil.createByteArray;
+import static com.google.android.exoplayer2.testutil.TestUtil.joinByteArrays;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -30,18 +32,19 @@ public final class EventMessageDecoderTest {
 
   @Test
   public void testDecodeEventMessage() {
-    byte[] rawEmsgBody = new byte[] {
-        117, 114, 110, 58, 116, 101, 115, 116, 0, // scheme_id_uri = "urn:test"
-        49, 50, 51, 0, // value = "123"
-        0, 0, -69, -128, // timescale = 48000
-        0, 0, -69, -128, // presentation_time_delta = 48000
-        0, 2, 50, -128, // event_duration = 144000
-        0, 15, 67, -45, // id = 1000403
-        0, 1, 2, 3, 4}; // message_data = {0, 1, 2, 3, 4}
+    byte[] rawEmsgBody =
+        joinByteArrays(
+            createByteArray(117, 114, 110, 58, 116, 101, 115, 116, 0), // scheme_id_uri = "urn:test"
+            createByteArray(49, 50, 51, 0), // value = "123"
+            createByteArray(0, 0, 11, 184), // event_duration_ms = 3000
+            createByteArray(0, 15, 67, 211), // id = 1000403
+            createByteArray(0, 1, 2, 3, 4)); // message_data = {0, 1, 2, 3, 4}
     EventMessageDecoder decoder = new EventMessageDecoder();
     MetadataInputBuffer buffer = new MetadataInputBuffer();
     buffer.data = ByteBuffer.allocate(rawEmsgBody.length).put(rawEmsgBody);
+
     Metadata metadata = decoder.decode(buffer);
+
     assertThat(metadata.length()).isEqualTo(1);
     EventMessage eventMessage = (EventMessage) metadata.get(0);
     assertThat(eventMessage.schemeIdUri).isEqualTo("urn:test");
