@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.metadata.emsg;
 
-import androidx.annotation.Nullable;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -40,15 +39,12 @@ public final class EventMessageEncoder {
    * @param eventMessage The event message to be encoded.
    * @return The serialized byte array.
    */
-  @Nullable
   public byte[] encode(EventMessage eventMessage) {
     byteArrayOutputStream.reset();
     try {
       writeNullTerminatedString(dataOutputStream, eventMessage.schemeIdUri);
       String nonNullValue = eventMessage.value != null ? eventMessage.value : "";
       writeNullTerminatedString(dataOutputStream, nonNullValue);
-      writeUnsignedInt(dataOutputStream, 1000); // timescale
-      writeUnsignedInt(dataOutputStream, 0); // presentation_time_delta
       writeUnsignedInt(dataOutputStream, eventMessage.durationMs);
       writeUnsignedInt(dataOutputStream, eventMessage.id);
       dataOutputStream.write(eventMessage.messageData);
