@@ -37,7 +37,10 @@ public final class EventMessageDecoder implements MetadataDecoder {
     ByteBuffer buffer = inputBuffer.data;
     byte[] data = buffer.array();
     int size = buffer.limit();
-    ParsableByteArray emsgData = new ParsableByteArray(data, size);
+    return new Metadata(decode(new ParsableByteArray(data, size)));
+  }
+
+  public EventMessage decode(ParsableByteArray emsgData) {
     String schemeIdUri = Assertions.checkNotNull(emsgData.readNullTerminatedString());
     String value = Assertions.checkNotNull(emsgData.readNullTerminatedString());
     long timescale = emsgData.readUnsignedInt();
@@ -50,8 +53,9 @@ public final class EventMessageDecoder implements MetadataDecoder {
     long durationMs =
         Util.scaleLargeTimestamp(emsgData.readUnsignedInt(), C.MILLIS_PER_SECOND, timescale);
     long id = emsgData.readUnsignedInt();
-    byte[] messageData = Arrays.copyOfRange(data, emsgData.getPosition(), size);
-    return new Metadata(new EventMessage(schemeIdUri, value, durationMs, id, messageData));
+    byte[] messageData =
+        Arrays.copyOfRange(emsgData.data, emsgData.getPosition(), emsgData.limit());
+    return new EventMessage(schemeIdUri, value, durationMs, id, messageData);
   }
 
 }
