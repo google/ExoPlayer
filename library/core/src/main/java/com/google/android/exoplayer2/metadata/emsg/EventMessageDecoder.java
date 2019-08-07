@@ -15,21 +15,16 @@
  */
 package com.google.android.exoplayer2.metadata.emsg;
 
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataDecoder;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
-import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 /** Decodes data encoded by {@link EventMessageEncoder}. */
 public final class EventMessageDecoder implements MetadataDecoder {
-
-  private static final String TAG = "EventMessageDecoder";
 
   @SuppressWarnings("ByteBufferBackingArray")
   @Override
@@ -43,15 +38,7 @@ public final class EventMessageDecoder implements MetadataDecoder {
   public EventMessage decode(ParsableByteArray emsgData) {
     String schemeIdUri = Assertions.checkNotNull(emsgData.readNullTerminatedString());
     String value = Assertions.checkNotNull(emsgData.readNullTerminatedString());
-    long timescale = emsgData.readUnsignedInt();
-    long presentationTimeDelta = emsgData.readUnsignedInt();
-    if (presentationTimeDelta != 0) {
-      // We expect the source to have accounted for presentation_time_delta by adjusting the sample
-      // timestamp and zeroing the field in the sample data. Log a warning if the field is non-zero.
-      Log.w(TAG, "Ignoring non-zero presentation_time_delta: " + presentationTimeDelta);
-    }
-    long durationMs =
-        Util.scaleLargeTimestamp(emsgData.readUnsignedInt(), C.MILLIS_PER_SECOND, timescale);
+    long durationMs = emsgData.readUnsignedInt();
     long id = emsgData.readUnsignedInt();
     byte[] messageData =
         Arrays.copyOfRange(emsgData.data, emsgData.getPosition(), emsgData.limit());
