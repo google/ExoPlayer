@@ -105,7 +105,8 @@ import javax.crypto.spec.SecretKeySpec;
   }
 
   @Override
-  public final @Nullable Uri getUri() {
+  @Nullable
+  public final Uri getUri() {
     return upstream.getUri();
   }
 

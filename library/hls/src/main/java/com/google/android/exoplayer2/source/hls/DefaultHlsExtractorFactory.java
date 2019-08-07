@@ -84,11 +84,11 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
 
   @Override
   public Result createExtractor(
-      Extractor previousExtractor,
+      @Nullable Extractor previousExtractor,
       Uri uri,
       Format format,
-      List<Format> muxedCaptionFormats,
-      DrmInitData drmInitData,
+      @Nullable List<Format> muxedCaptionFormats,
+      @Nullable DrmInitData drmInitData,
       TimestampAdjuster timestampAdjuster,
       Map<String, List<String>> responseHeaders,
       ExtractorInput extractorInput)
