@@ -62,7 +62,8 @@ dependencies {
     compileOnly 'com.google.code.findbugs:jsr305:' + jsr305Version
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkVersion
-    compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
+    // Uncomment to enable Kotlin non-null strict mode. See [internal: b/138703808].
+    // compileOnly "org.jetbrains.kotlin:kotlin-annotations-jvm:1.1.60"
     androidTestImplementation 'androidx.test:runner:' + androidXTestVersion
     androidTestImplementation 'androidx.test.ext:junit:' + androidXTestVersion
     androidTestImplementation 'com.google.truth:truth:' + truthVersion

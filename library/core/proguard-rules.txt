@@ -58,6 +58,5 @@
   <init>(com.google.android.exoplayer2.upstream.DataSource$Factory);
 }
 
-# Don't warn about checkerframework and Kotlin annotations
+# Don't warn about checkerframework
 -dontwarn org.checkerframework.**
--dontwarn kotlin.annotations.jvm.**
