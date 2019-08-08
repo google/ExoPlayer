@@ -39,11 +39,13 @@ android {
 
 dependencies {
     api 'org.mockito:mockito-core:' + mockitoVersion
+    api 'androidx.test:core:' + androidXTestVersion
     api 'androidx.test.ext:junit:' + androidXTestVersion
     api 'com.google.truth:truth:' + truthVersion
     implementation 'androidx.annotation:annotation:1.1.0'
     implementation project(modulePrefix + 'library-core')
     implementation 'com.google.auto.value:auto-value-annotations:' + autoValueVersion
     annotationProcessor 'com.google.auto.value:auto-value:' + autoValueVersion
-    testImplementation project(modulePrefix + 'testutils-robolectric')
+    testImplementation project(modulePrefix + 'testutils')
+    testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }

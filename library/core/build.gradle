@@ -42,7 +42,6 @@ android {
         }
         test {
             java.srcDirs += '../../testutils/src/main/java/'
-            java.srcDirs += '../../testutils_robolectric/src/main/java/'
         }
     }
 
