@@ -52,6 +52,7 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
   private int pendingMetadataCount;
   private MetadataDecoder decoder;
   private boolean inputStreamEnded;
+  private long subsampleOffsetUs;
 
   /**
    * @param output The output.
@@ -120,7 +121,7 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
           // If we ever need to support a metadata format where this is not the case, we'll need to
           // pass the buffer to the decoder and discard the output.
         } else {
-          buffer.subsampleOffsetUs = formatHolder.format.subsampleOffsetUs;
+          buffer.subsampleOffsetUs = subsampleOffsetUs;
           buffer.flip();
           int index = (pendingMetadataIndex + pendingMetadataCount) % MAX_PENDING_METADATA_COUNT;
           Metadata metadata = decoder.decode(buffer);
@@ -130,6 +131,8 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
             pendingMetadataCount++;
           }
         }
+      } else if (result == C.RESULT_FORMAT_READ) {
+        subsampleOffsetUs = formatHolder.format.subsampleOffsetUs;
       }
     }
 
