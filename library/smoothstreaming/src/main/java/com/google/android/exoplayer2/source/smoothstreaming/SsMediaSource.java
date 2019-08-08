@@ -115,7 +115,7 @@ public final class SsMediaSource extends BaseMediaSource
      * @return This factory, for convenience.
      * @throws IllegalStateException If one of the {@code create} methods has already been called.
      */
-    public Factory setTag(Object tag) {
+    public Factory setTag(@Nullable Object tag) {
       Assertions.checkState(!isCreateCalled);
       this.tag = tag;
       return this;
@@ -370,8 +370,8 @@ public final class SsMediaSource extends BaseMediaSource
   public SsMediaSource(
       SsManifest manifest,
       SsChunkSource.Factory chunkSourceFactory,
-      Handler eventHandler,
-      MediaSourceEventListener eventListener) {
+      @Nullable Handler eventHandler,
+      @Nullable MediaSourceEventListener eventListener) {
     this(
         manifest,
         chunkSourceFactory,
@@ -395,8 +395,8 @@ public final class SsMediaSource extends BaseMediaSource
       SsManifest manifest,
       SsChunkSource.Factory chunkSourceFactory,
       int minLoadableRetryCount,
-      Handler eventHandler,
-      MediaSourceEventListener eventListener) {
+      @Nullable Handler eventHandler,
+      @Nullable MediaSourceEventListener eventListener) {
     this(
         manifest,
         /* manifestUri= */ null,
@@ -431,8 +431,8 @@ public final class SsMediaSource extends BaseMediaSource
       Uri manifestUri,
       DataSource.Factory manifestDataSourceFactory,
       SsChunkSource.Factory chunkSourceFactory,
-      Handler eventHandler,
-      MediaSourceEventListener eventListener) {
+      @Nullable Handler eventHandler,
+      @Nullable MediaSourceEventListener eventListener) {
     this(
         manifestUri,
         manifestDataSourceFactory,
@@ -466,8 +466,8 @@ public final class SsMediaSource extends BaseMediaSource
       SsChunkSource.Factory chunkSourceFactory,
       int minLoadableRetryCount,
       long livePresentationDelayMs,
-      Handler eventHandler,
-      MediaSourceEventListener eventListener) {
+      @Nullable Handler eventHandler,
+      @Nullable MediaSourceEventListener eventListener) {
     this(manifestUri, manifestDataSourceFactory, new SsManifestParser(), chunkSourceFactory,
         minLoadableRetryCount, livePresentationDelayMs, eventHandler, eventListener);
   }
@@ -496,8 +496,8 @@ public final class SsMediaSource extends BaseMediaSource
       SsChunkSource.Factory chunkSourceFactory,
       int minLoadableRetryCount,
       long livePresentationDelayMs,
-      Handler eventHandler,
-      MediaSourceEventListener eventListener) {
+      @Nullable Handler eventHandler,
+      @Nullable MediaSourceEventListener eventListener) {
     this(
         /* manifest= */ null,
         manifestUri,
@@ -515,10 +515,10 @@ public final class SsMediaSource extends BaseMediaSource
   }
 
   private SsMediaSource(
-      SsManifest manifest,
-      Uri manifestUri,
-      DataSource.Factory manifestDataSourceFactory,
-      ParsingLoadable.Parser<? extends SsManifest> manifestParser,
+      @Nullable SsManifest manifest,
+      @Nullable Uri manifestUri,
+      @Nullable DataSource.Factory manifestDataSourceFactory,
+      @Nullable ParsingLoadable.Parser<? extends SsManifest> manifestParser,
       SsChunkSource.Factory chunkSourceFactory,
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
       DrmSessionManager<?> drmSessionManager,
