@@ -37,7 +37,8 @@ dependencies {
     implementation project(modulePrefix + 'library-ui')
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkVersion
-    testImplementation project(modulePrefix + 'testutils-robolectric')
+    testImplementation project(modulePrefix + 'testutils')
+    testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
 
 ext {
