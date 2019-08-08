@@ -433,6 +433,12 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     @Override
+    public ParametersBuilder setPreferredRoleFlags(int preferredRoleFlags) {
+      super.setPreferredRoleFlags(preferredRoleFlags);
+      return this;
+    }
+
+    @Override
     public ParametersBuilder setSelectUndeterminedTextLanguage(
         boolean selectUndeterminedTextLanguage) {
       super.setSelectUndeterminedTextLanguage(selectUndeterminedTextLanguage);
@@ -642,6 +648,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           allowAudioMixedSampleRateAdaptiveness,
           // Text
           preferredTextLanguage,
+          preferredRoleFlags,
           selectUndeterminedTextLanguage,
           disabledTextTrackSelectionFlags,
           // General
@@ -837,6 +844,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           /* allowAudioMixedSampleRateAdaptiveness= */ false,
           // Text
           TrackSelectionParameters.DEFAULT.preferredTextLanguage,
+          TrackSelectionParameters.DEFAULT.preferredRoleFlags,
           TrackSelectionParameters.DEFAULT.selectUndeterminedTextLanguage,
           TrackSelectionParameters.DEFAULT.disabledTextTrackSelectionFlags,
           // General
@@ -869,6 +877,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         boolean allowAudioMixedSampleRateAdaptiveness,
         // Text
         @Nullable String preferredTextLanguage,
+        int preferredRoleFlags,
         boolean selectUndeterminedTextLanguage,
         @C.SelectionFlags int disabledTextTrackSelectionFlags,
         // General
@@ -882,6 +891,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       super(
           preferredAudioLanguage,
           preferredTextLanguage,
+          preferredRoleFlags,
           selectUndeterminedTextLanguage,
           disabledTextTrackSelectionFlags);
       // Video
@@ -2590,6 +2600,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private final boolean isDefault;
     private final boolean hasPreferredIsForcedFlag;
     private final int preferredLanguageScore;
+    private final int preferredRoleFlagsScore;
     private final int selectedAudioLanguageScore;
 
     public TextTrackScore(
@@ -2606,6 +2617,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       preferredLanguageScore =
           getFormatLanguageScore(
               format, parameters.preferredTextLanguage, parameters.selectUndeterminedTextLanguage);
+      preferredRoleFlagsScore = format.roleFlags & parameters.preferredRoleFlags;
       // Prefer non-forced to forced if a preferred text language has been matched. Where both are
       // provided the non-forced track will usually contain the forced subtitles as a subset.
       // Otherwise, prefer a forced track.
@@ -2616,7 +2628,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       selectedAudioLanguageScore =
           getFormatLanguageScore(format, selectedAudioLanguage, selectedAudioLanguageUndetermined);
       isWithinConstraints =
-          preferredLanguageScore > 0 || isDefault || (isForced && selectedAudioLanguageScore > 0);
+          (preferredLanguageScore > 0 || (parameters.preferredTextLanguage == null && selectedAudioLanguageScore > 0 && preferredRoleFlagsScore > 0)) || isDefault || (isForced && selectedAudioLanguageScore > 0);
     }
 
     /**
@@ -2633,6 +2645,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       }
       if (this.preferredLanguageScore != other.preferredLanguageScore) {
         return compareInts(this.preferredLanguageScore, other.preferredLanguageScore);
+      }
+      if (this.preferredRoleFlagsScore != other.preferredRoleFlagsScore) {
+        return compareInts(this.preferredRoleFlagsScore, other.preferredRoleFlagsScore);
       }
       if (this.isDefault != other.isDefault) {
         return this.isDefault ? 1 : -1;
