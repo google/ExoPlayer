@@ -54,7 +54,10 @@ import com.google.android.exoplayer2.util.Util;
  *
  * @see <a
  *     href="https://developers.google.com/android/reference/com/google/android/gms/common/GoogleApiAvailability#isGooglePlayServicesAvailable(android.content.Context)">GoogleApiAvailability</a>
+ * @deprecated Use com.google.android.exoplayer2.ext.workmanager.WorkManagerScheduler or {@link
+ *     com.google.android.exoplayer2.scheduler.PlatformScheduler}.
  */
+@Deprecated
 public final class JobDispatcherScheduler implements Scheduler {
 
   private static final boolean DEBUG = false;

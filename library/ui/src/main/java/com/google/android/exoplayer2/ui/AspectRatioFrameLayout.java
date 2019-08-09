@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.ui;
 import android.content.Context;
 import android.content.res.TypedArray;
 import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
 import java.lang.annotation.Documented;
@@ -97,16 +98,16 @@ public final class AspectRatioFrameLayout extends FrameLayout {
 
   private final AspectRatioUpdateDispatcher aspectRatioUpdateDispatcher;
 
-  private AspectRatioListener aspectRatioListener;
+  @Nullable private AspectRatioListener aspectRatioListener;
 
   private float videoAspectRatio;
-  private @ResizeMode int resizeMode;
+  @ResizeMode private int resizeMode;
 
   public AspectRatioFrameLayout(Context context) {
-    this(context, null);
+    this(context, /* attrs= */ null);
   }
 
-  public AspectRatioFrameLayout(Context context, AttributeSet attrs) {
+  public AspectRatioFrameLayout(Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
     resizeMode = RESIZE_MODE_FIT;
     if (attrs != null) {
@@ -136,9 +137,10 @@ public final class AspectRatioFrameLayout extends FrameLayout {
   /**
    * Sets the {@link AspectRatioListener}.
    *
-   * @param listener The listener to be notified about aspect ratios changes.
+   * @param listener The listener to be notified about aspect ratios changes, or null to clear a
+   *     listener that was previously set.
    */
-  public void setAspectRatioListener(AspectRatioListener listener) {
+  public void setAspectRatioListener(@Nullable AspectRatioListener listener) {
     this.aspectRatioListener = listener;
   }
 

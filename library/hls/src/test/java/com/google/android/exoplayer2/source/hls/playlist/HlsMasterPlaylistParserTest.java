@@ -263,7 +263,7 @@ public class HlsMasterPlaylistParserTest {
     Format closedCaptionFormat = playlist.muxedCaptionFormats.get(0);
     assertThat(closedCaptionFormat.sampleMimeType).isEqualTo(MimeTypes.APPLICATION_CEA708);
     assertThat(closedCaptionFormat.accessibilityChannel).isEqualTo(4);
-    assertThat(closedCaptionFormat.language).isEqualTo("spa");
+    assertThat(closedCaptionFormat.language).isEqualTo("es");
   }
 
   @Test

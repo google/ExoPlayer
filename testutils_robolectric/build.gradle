@@ -41,5 +41,5 @@ dependencies {
     api 'org.robolectric:robolectric:' + robolectricVersion
     api project(modulePrefix + 'testutils')
     implementation project(modulePrefix + 'library-core')
-    implementation 'androidx.annotation:annotation:1.0.2'
+    implementation 'androidx.annotation:annotation:1.1.0'
 }

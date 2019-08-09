@@ -364,8 +364,17 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         return Collections.singletonList(passthroughDecoderInfo);
       }
     }
-    return mediaCodecSelector.getDecoderInfos(
-        format.sampleMimeType, requiresSecureDecoder, /* requiresTunnelingDecoder= */ false);
+    List<MediaCodecInfo> decoderInfos =
+        mediaCodecSelector.getDecoderInfos(
+            format.sampleMimeType, requiresSecureDecoder, /* requiresTunnelingDecoder= */ false);
+    if (MimeTypes.AUDIO_E_AC3_JOC.equals(format.sampleMimeType)) {
+      // E-AC3 decoders can decode JOC streams, but in 2-D rather than 3-D.
+      List<MediaCodecInfo> eac3DecoderInfos =
+          mediaCodecSelector.getDecoderInfos(
+              MimeTypes.AUDIO_E_AC3, requiresSecureDecoder, /* requiresTunnelingDecoder= */ false);
+      decoderInfos.addAll(eac3DecoderInfos);
+    }
+    return Collections.unmodifiableList(decoderInfos);
   }
 
   /**
@@ -393,7 +402,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     codecNeedsDiscardChannelsWorkaround = codecNeedsDiscardChannelsWorkaround(codecInfo.name);
     codecNeedsEosBufferTimestampWorkaround = codecNeedsEosBufferTimestampWorkaround(codecInfo.name);
     passthroughEnabled = codecInfo.passthrough;
-    String codecMimeType = passthroughEnabled ? MimeTypes.AUDIO_RAW : codecInfo.mimeType;
+    String codecMimeType = passthroughEnabled ? MimeTypes.AUDIO_RAW : codecInfo.codecMimeType;
     MediaFormat mediaFormat =
         getMediaFormat(format, codecMimeType, codecMaxInputSize, codecOperatingRate);
     codec.configure(mediaFormat, /* surface= */ null, crypto, /* flags= */ 0);

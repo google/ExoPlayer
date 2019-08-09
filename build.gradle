@@ -21,14 +21,6 @@ buildscript {
         classpath 'com.novoda:bintray-release:0.9'
         classpath 'com.google.android.gms:strict-version-matcher-plugin:1.1.0'
     }
-    // Workaround for the following test coverage issue. Remove when fixed:
-    // https://code.google.com/p/android/issues/detail?id=226070
-    configurations.all {
-        resolutionStrategy {
-            force 'org.jacoco:org.jacoco.report:0.7.4.201502262128'
-            force 'org.jacoco:org.jacoco.core:0.7.4.201502262128'
-        }
-    }
 }
 allprojects {
     repositories {

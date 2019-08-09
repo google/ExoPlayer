@@ -20,6 +20,7 @@ import com.google.android.gms.cast.CastMediaControlIntent;
 import com.google.android.gms.cast.framework.CastOptions;
 import com.google.android.gms.cast.framework.OptionsProvider;
 import com.google.android.gms.cast.framework.SessionProvider;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -36,7 +37,7 @@ public final class DefaultCastOptionsProvider implements OptionsProvider {
 
   @Override
   public List<SessionProvider> getAdditionalSessionProviders(Context context) {
-    return null;
+    return Collections.emptyList();
   }
 
 }

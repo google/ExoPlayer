@@ -117,6 +117,7 @@ public final class Mp3Extractor implements Extractor {
   private Seeker seeker;
   private long basisTimeUs;
   private long samplesRead;
+  private long firstSamplePosition;
   private int sampleBytesRemaining;
 
   public Mp3Extractor() {
@@ -214,6 +215,13 @@ public final class Mp3Extractor implements Extractor {
               /* selectionFlags= */ 0,
               /* language= */ null,
               (flags & FLAG_DISABLE_ID3_METADATA) != 0 ? null : metadata));
+      firstSamplePosition = input.getPosition();
+    } else if (firstSamplePosition != 0) {
+      long inputPosition = input.getPosition();
+      if (inputPosition < firstSamplePosition) {
+        // Skip past the seek frame.
+        input.skipFully((int) (firstSamplePosition - inputPosition));
+      }
     }
     return readSample(input);
   }

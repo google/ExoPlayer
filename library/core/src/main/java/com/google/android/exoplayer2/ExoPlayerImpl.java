@@ -532,7 +532,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
   public long getContentPosition() {
     if (isPlayingAd()) {
       playbackInfo.timeline.getPeriodByUid(playbackInfo.periodId.periodUid, period);
-      return period.getPositionInWindowMs() + C.usToMs(playbackInfo.contentPositionUs);
+      return playbackInfo.contentPositionUs == C.TIME_UNSET
+          ? playbackInfo.timeline.getWindow(getCurrentWindowIndex(), window).getDefaultPositionMs()
+          : period.getPositionInWindowMs() + C.usToMs(playbackInfo.contentPositionUs);
     } else {
       return getCurrentPosition();
     }
