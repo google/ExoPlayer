@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.vp9;
 
+import androidx.annotation.Nullable;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.decoder.CryptoInfo;
@@ -120,8 +121,9 @@ import java.nio.ByteBuffer;
   }
 
   @Override
-  protected VpxDecoderException decode(VpxInputBuffer inputBuffer, VpxOutputBuffer outputBuffer,
-      boolean reset) {
+  @Nullable
+  protected VpxDecoderException decode(
+      VpxInputBuffer inputBuffer, VpxOutputBuffer outputBuffer, boolean reset) {
     ByteBuffer inputData = inputBuffer.data;
     int inputSize = inputData.limit();
     CryptoInfo cryptoInfo = inputBuffer.cryptoInfo;

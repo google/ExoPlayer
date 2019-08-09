@@ -1,5 +1,36 @@
 # Release notes #
 
+### 2.10.4 ###
+
+* Offline: Add `Scheduler` implementation that uses `WorkManager`.
+* Add ability to specify a description when creating notification channels via
+  ExoPlayer library classes.
+* Switch normalized BCP-47 language codes to use 2-letter ISO 639-1 language
+  tags instead of 3-letter ISO 639-2 language tags.
+* Ensure the `SilenceMediaSource` position is in range
+  ([#6229](https://github.com/google/ExoPlayer/issues/6229)).
+* WAV: Calculate correct duration for clipped streams
+  ([#6241](https://github.com/google/ExoPlayer/issues/6241)).
+* MP3: Use CBR header bitrate, not calculated bitrate. This reverts a change
+  from 2.9.3 ([#6238](https://github.com/google/ExoPlayer/issues/6238)).
+* Flac extension: Parse `VORBIS_COMMENT` and `PICTURE` metadata
+  ([#5527](https://github.com/google/ExoPlayer/issues/5527)).
+* Fix issue where initial seek positions get ignored when playing a preroll ad
+  ([#6201](https://github.com/google/ExoPlayer/issues/6201)).
+* Fix issue where invalid language tags were normalized to "und" instead of
+  keeping the original
+  ([#6153](https://github.com/google/ExoPlayer/issues/6153)).
+* Fix `DataSchemeDataSource` re-opening and range requests
+  ([#6192](https://github.com/google/ExoPlayer/issues/6192)).
+* Fix Flac and ALAC playback on some LG devices
+  ([#5938](https://github.com/google/ExoPlayer/issues/5938)).
+* Fix issue when calling `performClick` on `PlayerView` without
+  `PlayerControlView`
+  ([#6260](https://github.com/google/ExoPlayer/issues/6260)).
+* Fix issue where playback speeds are not used in adaptive track selections
+  after manual selection changes for other renderers
+  ([#6256](https://github.com/google/ExoPlayer/issues/6256)).
+
 ### 2.10.3 ###
 
 * Display last frame when seeking to end of stream

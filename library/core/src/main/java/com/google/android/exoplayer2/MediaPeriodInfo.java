@@ -29,7 +29,8 @@ import com.google.android.exoplayer2.util.Util;
   public final long startPositionUs;
   /**
    * If this is an ad, the position to play in the next content media period. {@link C#TIME_UNSET}
-   * otherwise.
+   * if this is not an ad or the next content media period should be played from its default
+   * position.
    */
   public final long contentPositionUs;
   /**

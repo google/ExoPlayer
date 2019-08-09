@@ -50,6 +50,7 @@ import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.metadata.flac.PictureFrame;
 import com.google.android.exoplayer2.metadata.id3.ApicFrame;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
@@ -304,6 +305,8 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
   private boolean controllerHideOnTouch;
   private int textureViewRotation;
   private boolean isTouching;
+  private static final int PICTURE_TYPE_FRONT_COVER = 3;
+  private static final int PICTURE_TYPE_NOT_SET = -1;
 
   public PlayerView(Context context) {
     this(context, null);
@@ -1153,6 +1156,9 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
   // Internal methods.
 
   private boolean toggleControllerVisibility() {
+    if (!useController || player == null) {
+      return false;
+    }
     if (!controller.isVisible()) {
       maybeShowController(true);
     } else if (controllerHideOnTouch) {
@@ -1246,15 +1252,32 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
   }
 
   private boolean setArtworkFromMetadata(Metadata metadata) {
+    boolean isArtworkSet = false;
+    int currentPictureType = PICTURE_TYPE_NOT_SET;
     for (int i = 0; i < metadata.length(); i++) {
       Metadata.Entry metadataEntry = metadata.get(i);
+      int pictureType;
+      byte[] bitmapData;
       if (metadataEntry instanceof ApicFrame) {
-        byte[] bitmapData = ((ApicFrame) metadataEntry).pictureData;
+        bitmapData = ((ApicFrame) metadataEntry).pictureData;
+        pictureType = ((ApicFrame) metadataEntry).pictureType;
+      } else if (metadataEntry instanceof PictureFrame) {
+        bitmapData = ((PictureFrame) metadataEntry).pictureData;
+        pictureType = ((PictureFrame) metadataEntry).pictureType;
+      } else {
+        continue;
+      }
+      // Prefer the first front cover picture. If there aren't any, prefer the first picture.
+      if (currentPictureType == PICTURE_TYPE_NOT_SET || pictureType == PICTURE_TYPE_FRONT_COVER) {
         Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapData, 0, bitmapData.length);
-        return setDrawableArtwork(new BitmapDrawable(getResources(), bitmap));
+        isArtworkSet = setDrawableArtwork(new BitmapDrawable(getResources(), bitmap));
+        currentPictureType = pictureType;
+        if (currentPictureType == PICTURE_TYPE_FRONT_COVER) {
+          break;
+        }
       }
     }
-    return false;
+    return isArtworkSet;
   }
 
   private boolean setDrawableArtwork(@Nullable Drawable drawable) {
@@ -1472,9 +1495,6 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
 
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
-      if (!useController || player == null) {
-        return false;
-      }
       return toggleControllerVisibility();
     }
   }

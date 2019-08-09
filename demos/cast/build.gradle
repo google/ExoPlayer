@@ -47,17 +47,6 @@ android {
         // The demo app isn't indexed and doesn't have translations.
         disable 'GoogleAppIndexingWarning','MissingTranslation'
     }
-
-    flavorDimensions "receiver"
-
-    productFlavors {
-        defaultCast {
-            dimension "receiver"
-            manifestPlaceholders =
-                    [castOptionsProvider: "com.google.android.exoplayer2.ext.cast.DefaultCastOptionsProvider"]
-        }
-    }
-
 }
 
 dependencies {

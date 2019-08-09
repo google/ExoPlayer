@@ -31,9 +31,9 @@ android {
 }
 
 dependencies {
-    api 'org.chromium.net:cronet-embedded:73.3683.76'
+    api 'org.chromium.net:cronet-embedded:75.3770.101'
     implementation project(modulePrefix + 'library-core')
-    implementation 'androidx.annotation:annotation:1.0.2'
+    implementation 'androidx.annotation:annotation:1.1.0'
     testImplementation project(modulePrefix + 'library')
     testImplementation project(modulePrefix + 'testutils-robolectric')
 }
