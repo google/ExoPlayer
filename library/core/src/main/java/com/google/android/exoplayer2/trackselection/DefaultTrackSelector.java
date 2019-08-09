@@ -877,7 +877,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         boolean allowAudioMixedSampleRateAdaptiveness,
         // Text
         @Nullable String preferredTextLanguage,
-        int preferredRoleFlags,
+        @C.RoleFlags int preferredRoleFlags,
         boolean selectUndeterminedTextLanguage,
         @C.SelectionFlags int disabledTextTrackSelectionFlags,
         // General
