@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -286,6 +286,12 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 <div class="block">Updates the manifest.</div>
 </td>
 </tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.html#updateTrackSelection-com.google.android.exoplayer2.trackselection.TrackSelection-">updateTrackSelection</a></span>(<a href="../../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a>&nbsp;trackSelection)</code>
+<div class="block">Updates the track selection.</div>
+</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -411,6 +417,23 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashChunkSource.html#updateManifest-com.google.android.exoplayer2.source.dash.manifest.DashManifest-int-">updateManifest</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashChunkSource.html" title="interface in com.google.android.exoplayer2.source.dash">DashChunkSource</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>newManifest</code> - The new manifest.</dd>
+</dl>
+</li>
+</ul>
+<a name="updateTrackSelection-com.google.android.exoplayer2.trackselection.TrackSelection-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>updateTrackSelection</h4>
+<pre>public&nbsp;void&nbsp;updateTrackSelection(<a href="../../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a>&nbsp;trackSelection)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashChunkSource.html#updateTrackSelection-com.google.android.exoplayer2.trackselection.TrackSelection-">DashChunkSource</a></code></span></div>
+<div class="block">Updates the track selection.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashChunkSource.html#updateTrackSelection-com.google.android.exoplayer2.trackselection.TrackSelection-">updateTrackSelection</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashChunkSource.html" title="interface in com.google.android.exoplayer2.source.dash">DashChunkSource</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>trackSelection</code> - The new track selection instance. Must be equivalent to the previous one.</dd>
 </dl>
 </li>
 </ul>

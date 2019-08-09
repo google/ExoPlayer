@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":9,"i2":9,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":42,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10};
+var methods = {"i0":10,"i1":9,"i2":9,"i3":41,"i4":41,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":42,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -361,9 +361,10 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#createWithNotificationChannel-android.content.Context-java.lang.String-int-int-com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter-">createWithNotificationChannel</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#createWithNotificationChannel-android.content.Context-java.lang.String-int-int-int-com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter-">createWithNotificationChannel</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;channelId,
                              int&nbsp;channelName,
+                             int&nbsp;channelDescription,
                              int&nbsp;notificationId,
                              <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter)</code>
 <div class="block">Creates a notification manager and a low-priority notification channel with the specified
@@ -372,9 +373,10 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#createWithNotificationChannel-android.content.Context-java.lang.String-int-int-com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter-com.google.android.exoplayer2.ui.PlayerNotificationManager.NotificationListener-">createWithNotificationChannel</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#createWithNotificationChannel-android.content.Context-java.lang.String-int-int-int-com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter-com.google.android.exoplayer2.ui.PlayerNotificationManager.NotificationListener-">createWithNotificationChannel</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;channelId,
                              int&nbsp;channelName,
+                             int&nbsp;channelDescription,
                              int&nbsp;notificationId,
                              <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter,
                              <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.NotificationListener</a>&nbsp;notificationListener)</code>
@@ -383,74 +385,101 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </td>
 </tr>
 <tr id="i3" class="rowColor">
+<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#createWithNotificationChannel-android.content.Context-java.lang.String-int-int-com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter-">createWithNotificationChannel</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;channelId,
+                             int&nbsp;channelName,
+                             int&nbsp;notificationId,
+                             <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#createWithNotificationChannel-android.content.Context-java.lang.String-int-int-int-com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter-"><code>createWithNotificationChannel(Context, String, int, int, int,
+     MediaDescriptionAdapter)</code></a>.</span></div>
+</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#createWithNotificationChannel-android.content.Context-java.lang.String-int-int-com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter-com.google.android.exoplayer2.ui.PlayerNotificationManager.NotificationListener-">createWithNotificationChannel</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;channelId,
+                             int&nbsp;channelName,
+                             int&nbsp;notificationId,
+                             <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter,
+                             <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.NotificationListener</a>&nbsp;notificationListener)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#createWithNotificationChannel-android.content.Context-java.lang.String-int-int-int-com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter-com.google.android.exoplayer2.ui.PlayerNotificationManager.NotificationListener-"><code>createWithNotificationChannel(Context, String, int, int, int,
+     MediaDescriptionAdapter, NotificationListener)</code></a>.</span></div>
+</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>protected int[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#getActionIndicesForCompactView-java.util.List-com.google.android.exoplayer2.Player-">getActionIndicesForCompactView</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;actionNames,
                               <a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code>
 <div class="block">Gets an array with the indices of the buttons to be shown in compact mode.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>protected <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#getActions-com.google.android.exoplayer2.Player-">getActions</a></span>(<a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code>
 <div class="block">Gets the names and order of the actions to be included in the notification at the current
  player state.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#getOngoing-com.google.android.exoplayer2.Player-">getOngoing</a></span>(<a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code>
 <div class="block">Returns whether the generated notification should be ongoing.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#invalidate--">invalidate</a></span>()</code>
 <div class="block">Forces an update of the notification if already started.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setBadgeIconType-int-">setBadgeIconType</a></span>(int&nbsp;badgeIconType)</code>
 <div class="block">Sets the badge icon type of the notification.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setColor-int-">setColor</a></span>(int&nbsp;color)</code>
 <div class="block">Sets the accent color of the notification.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setColorized-boolean-">setColorized</a></span>(boolean&nbsp;colorized)</code>
 <div class="block">Sets whether the notification should be colorized.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setControlDispatcher-com.google.android.exoplayer2.ControlDispatcher-">setControlDispatcher</a></span>(<a href="../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher)</code>
 <div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a>.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setDefaults-int-">setDefaults</a></span>(int&nbsp;defaults)</code>
 <div class="block">Sets the defaults.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setFastForwardIncrementMs-long-">setFastForwardIncrementMs</a></span>(long&nbsp;fastForwardMs)</code>
 <div class="block">Sets the fast forward increment in milliseconds.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setMediaSessionToken-android.support.v4.media.session.MediaSessionCompat.Token-">setMediaSessionToken</a></span>(<a href="https://developer.android.com/reference/android/support.v4.media.session.MediaSessionCompat.Token.html" target="_top" title="class or interface in android">android.support.v4.media.session.MediaSessionCompat.Token</a>&nbsp;token)</code>
 <div class="block">Sets the <code>MediaSessionCompat.Token</code>.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setNotificationListener-com.google.android.exoplayer2.ui.PlayerNotificationManager.NotificationListener-">setNotificationListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.NotificationListener</a>&nbsp;notificationListener)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
@@ -458,67 +487,67 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setPlaybackPreparer-com.google.android.exoplayer2.PlaybackPreparer-">setPlaybackPreparer</a></span>(<a href="../../../../../com/google/android/exoplayer2/PlaybackPreparer.html" title="interface in com.google.android.exoplayer2">PlaybackPreparer</a>&nbsp;playbackPreparer)</code>
 <div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/PlaybackPreparer.html" title="interface in com.google.android.exoplayer2"><code>PlaybackPreparer</code></a>.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setPlayer-com.google.android.exoplayer2.Player-">setPlayer</a></span>(<a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code>
 <div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a>.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setPriority-int-">setPriority</a></span>(int&nbsp;priority)</code>
 <div class="block">Sets the priority of the notification required for API 25 and lower.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setRewindIncrementMs-long-">setRewindIncrementMs</a></span>(long&nbsp;rewindMs)</code>
 <div class="block">Sets the rewind increment in milliseconds.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setSmallIcon-int-">setSmallIcon</a></span>(int&nbsp;smallIconResourceId)</code>
 <div class="block">Sets the small icon of the notification which is also shown in the system status bar.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseChronometer-boolean-">setUseChronometer</a></span>(boolean&nbsp;useChronometer)</code>
 <div class="block">Sets whether the elapsed time of the media playback should be displayed</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseNavigationActions-boolean-">setUseNavigationActions</a></span>(boolean&nbsp;useNavigationActions)</code>
 <div class="block">Sets whether the navigation actions should be used.</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseNavigationActionsInCompactView-boolean-">setUseNavigationActionsInCompactView</a></span>(boolean&nbsp;useNavigationActionsInCompactView)</code>
 <div class="block">Sets whether navigation actions should be displayed in compact view.</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUsePlayPauseActions-boolean-">setUsePlayPauseActions</a></span>(boolean&nbsp;usePlayPauseActions)</code>
 <div class="block">Sets whether the play and pause actions should be used.</div>
 </td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i26" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseStopAction-boolean-">setUseStopAction</a></span>(boolean&nbsp;useStopAction)</code>
 <div class="block">Sets whether the stop action should be used.</div>
 </td>
 </tr>
-<tr id="i25" class="rowColor">
+<tr id="i27" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setVisibility-int-">setVisibility</a></span>(int&nbsp;visibility)</code>
 <div class="block">Sets the visibility of the notification which determines whether and how the notification is
@@ -810,10 +839,29 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>createWithNotificationChannel</h4>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager</a>&nbsp;createWithNotificationChannel(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+                                                                                  <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;channelId,
+                                                                                  @StringRes
+                                                                                  int&nbsp;channelName,
+                                                                                  int&nbsp;notificationId,
+                                                                                  <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#createWithNotificationChannel-android.content.Context-java.lang.String-int-int-int-com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter-"><code>createWithNotificationChannel(Context, String, int, int, int,
+     MediaDescriptionAdapter)</code></a>.</span></div>
+</li>
+</ul>
+<a name="createWithNotificationChannel-android.content.Context-java.lang.String-int-int-int-com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createWithNotificationChannel</h4>
 <pre>public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager</a>&nbsp;createWithNotificationChannel(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
                                                                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;channelId,
                                                                       @StringRes
                                                                       int&nbsp;channelName,
+                                                                      @StringRes
+                                                                      int&nbsp;channelDescription,
                                                                       int&nbsp;notificationId,
                                                                       <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter)</pre>
 <div class="block">Creates a notification manager and a low-priority notification channel with the specified
@@ -828,8 +876,12 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>context</code> - The <a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content"><code>Context</code></a>.</dd>
 <dd><code>channelId</code> - The id of the notification channel.</dd>
-<dd><code>channelName</code> - A string resource identifier for the user visible name of the channel. The
-     recommended maximum length is 40 characters; the value may be truncated if it is too long.</dd>
+<dd><code>channelName</code> - A string resource identifier for the user visible name of the notification
+     channel. The recommended maximum length is 40 characters. The string may be truncated if
+     it's too long.</dd>
+<dd><code>channelDescription</code> - A string resource identifier for the user visible description of the
+     notification channel, or 0 if no description is provided. The recommended maximum length is
+     300 characters. The value may be truncated if it is too long.</dd>
 <dd><code>notificationId</code> - The id of the notification.</dd>
 <dd><code>mediaDescriptionAdapter</code> - The <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.MediaDescriptionAdapter</code></a>.</dd>
 </dl>
@@ -841,10 +893,31 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>createWithNotificationChannel</h4>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager</a>&nbsp;createWithNotificationChannel(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+                                                                                  <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;channelId,
+                                                                                  @StringRes
+                                                                                  int&nbsp;channelName,
+                                                                                  int&nbsp;notificationId,
+                                                                                  <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter,
+                                                                                  @Nullable
+                                                                                  <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.NotificationListener</a>&nbsp;notificationListener)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#createWithNotificationChannel-android.content.Context-java.lang.String-int-int-int-com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter-com.google.android.exoplayer2.ui.PlayerNotificationManager.NotificationListener-"><code>createWithNotificationChannel(Context, String, int, int, int,
+     MediaDescriptionAdapter, NotificationListener)</code></a>.</span></div>
+</li>
+</ul>
+<a name="createWithNotificationChannel-android.content.Context-java.lang.String-int-int-int-com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter-com.google.android.exoplayer2.ui.PlayerNotificationManager.NotificationListener-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createWithNotificationChannel</h4>
 <pre>public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager</a>&nbsp;createWithNotificationChannel(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
                                                                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;channelId,
                                                                       @StringRes
                                                                       int&nbsp;channelName,
+                                                                      @StringRes
+                                                                      int&nbsp;channelDescription,
                                                                       int&nbsp;notificationId,
                                                                       <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter,
                                                                       @Nullable
@@ -857,7 +930,9 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <dd><code>context</code> - The <a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content"><code>Context</code></a>.</dd>
 <dd><code>channelId</code> - The id of the notification channel.</dd>
 <dd><code>channelName</code> - A string resource identifier for the user visible name of the channel. The
-     recommended maximum length is 40 characters; the value may be truncated if it is too long.</dd>
+     recommended maximum length is 40 characters. The string may be truncated if it's too long.</dd>
+<dd><code>channelDescription</code> - A string resource identifier for the user visible description of the
+     channel, or 0 if no description is provided.</dd>
 <dd><code>notificationId</code> - The id of the notification.</dd>
 <dd><code>mediaDescriptionAdapter</code> - The <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.MediaDescriptionAdapter</code></a>.</dd>
 <dd><code>notificationListener</code> - The <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.NotificationListener</code></a>.</dd>

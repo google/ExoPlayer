@@ -1407,7 +1407,7 @@
 <dd>
 <div class="block">The bitrate as declared by the EXT-X-STREAM-INF tag.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamInfo.html#bitRate--">bitRate()</a></span> - Method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamInfo.html" title="class in com.google.android.exoplayer2.util">FlacStreamInfo</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamMetadata.html#bitRate--">bitRate()</a></span> - Method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamMetadata.html" title="class in com.google.android.exoplayer2.util">FlacStreamMetadata</a></dt>
 <dd>
 <div class="block">Returns the bit-rate of the FLAC stream.</div>
 </dd>
@@ -1419,7 +1419,7 @@
 <dd>
 <div class="block">Returns the number of bits yet to be read.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamInfo.html#bitsPerSample">bitsPerSample</a></span> - Variable in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamInfo.html" title="class in com.google.android.exoplayer2.util">FlacStreamInfo</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamMetadata.html#bitsPerSample">bitsPerSample</a></span> - Variable in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamMetadata.html" title="class in com.google.android.exoplayer2.util">FlacStreamMetadata</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/audio/Ac4Util.SyncFrameInfo.html#bitstreamVersion">bitstreamVersion</a></span> - Variable in class com.google.android.exoplayer2.audio.<a href="com/google/android/exoplayer2/audio/Ac4Util.SyncFrameInfo.html" title="class in com.google.android.exoplayer2.audio">Ac4Util.SyncFrameInfo</a></dt>
 <dd>
@@ -2107,6 +2107,10 @@
  <a href="com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm"><code>DrmInitData</code></a>.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ext/jobdispatcher/JobDispatcherScheduler.html#cancel--">cancel()</a></span> - Method in class com.google.android.exoplayer2.ext.jobdispatcher.<a href="com/google/android/exoplayer2/ext/jobdispatcher/JobDispatcherScheduler.html" title="class in com.google.android.exoplayer2.ext.jobdispatcher">JobDispatcherScheduler</a></dt>
+<dd>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ext/workmanager/WorkManagerScheduler.html#cancel--">cancel()</a></span> - Method in class com.google.android.exoplayer2.ext.workmanager.<a href="com/google/android/exoplayer2/ext/workmanager/WorkManagerScheduler.html" title="class in com.google.android.exoplayer2.ext.workmanager">WorkManagerScheduler</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/offline/Downloader.html#cancel--">cancel()</a></span> - Method in interface com.google.android.exoplayer2.offline.<a href="com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline">Downloader</a></dt>
 <dd>
@@ -2178,8 +2182,8 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#capabilities">capabilities</a></span> - Variable in class com.google.android.exoplayer2.mediacodec.<a href="com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a></dt>
 <dd>
-<div class="block">The capabilities of the decoder, like the profiles/levels it supports, or <code>null</code> if this
- is a passthrough codec.</div>
+<div class="block">The capabilities of the decoder, like the profiles/levels it supports, or <code>null</code> if not
+ known.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/ParsableByteArray.html#capacity--">capacity()</a></span> - Method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a></dt>
 <dd>
@@ -2284,7 +2288,7 @@
 <dd>
 <div class="block">Number of audio channels in the frame.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamInfo.html#channels">channels</a></span> - Variable in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamInfo.html" title="class in com.google.android.exoplayer2.util">FlacStreamInfo</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamMetadata.html#channels">channels</a></span> - Variable in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamMetadata.html" title="class in com.google.android.exoplayer2.util">FlacStreamMetadata</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/google/android/exoplayer2/metadata/id3/ChapterFrame.html" title="class in com.google.android.exoplayer2.metadata.id3"><span class="typeNameLink">ChapterFrame</span></a> - Class in <a href="com/google/android/exoplayer2/metadata/id3/package-summary.html">com.google.android.exoplayer2.metadata.id3</a></dt>
 <dd>
@@ -2819,6 +2823,11 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/video/MediaCodecVideoRenderer.CodecMaxValues.html#CodecMaxValues-int-int-int-">CodecMaxValues(int, int, int)</a></span> - Constructor for class com.google.android.exoplayer2.video.<a href="com/google/android/exoplayer2/video/MediaCodecVideoRenderer.CodecMaxValues.html" title="class in com.google.android.exoplayer2.video">MediaCodecVideoRenderer.CodecMaxValues</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#codecMimeType">codecMimeType</a></span> - Variable in class com.google.android.exoplayer2.mediacodec.<a href="com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a></dt>
+<dd>
+<div class="block">The MIME type that the codec uses for media of type <a href="com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#mimeType"><code>MediaCodecInfo.mimeType</code></a>, or <code>null</code> if this
+ is a passthrough codec.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html#codecNeedsSetOutputSurfaceWorkaround-java.lang.String-">codecNeedsSetOutputSurfaceWorkaround(String)</a></span> - Method in class com.google.android.exoplayer2.video.<a href="com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html" title="class in com.google.android.exoplayer2.video">MediaCodecVideoRenderer</a></dt>
 <dd>
 <div class="block">Returns whether the codec is known to implement <a href="https://developer.android.com/reference/android/media/MediaCodec.html?is-external=true#setOutputSurface-android.view.Surface-" title="class or interface in android.media"><code>MediaCodec.setOutputSurface(Surface)</code></a>
@@ -2873,6 +2882,10 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/video/ColorInfo.html#colorRange">colorRange</a></span> - Variable in class com.google.android.exoplayer2.video.<a href="com/google/android/exoplayer2/video/ColorInfo.html" title="class in com.google.android.exoplayer2.video">ColorInfo</a></dt>
 <dd>
 <div class="block">The color range of the video.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/flac/PictureFrame.html#colors">colors</a></span> - Variable in class com.google.android.exoplayer2.metadata.flac.<a href="com/google/android/exoplayer2/metadata/flac/PictureFrame.html" title="class in com.google.android.exoplayer2.metadata.flac">PictureFrame</a></dt>
+<dd>
+<div class="block">For indexed-color pictures (e.g.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ext/vp9/VpxOutputBuffer.html#colorspace">colorspace</a></span> - Variable in class com.google.android.exoplayer2.ext.vp9.<a href="com/google/android/exoplayer2/ext/vp9/VpxOutputBuffer.html" title="class in com.google.android.exoplayer2.ext.vp9">VpxOutputBuffer</a></dt>
 <dd>&nbsp;</dd>
@@ -2930,6 +2943,8 @@
 <dd>&nbsp;</dd>
 <dt><a href="com/google/android/exoplayer2/ext/vp9/package-summary.html">com.google.android.exoplayer2.ext.vp9</a> - package com.google.android.exoplayer2.ext.vp9</dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/google/android/exoplayer2/ext/workmanager/package-summary.html">com.google.android.exoplayer2.ext.workmanager</a> - package com.google.android.exoplayer2.ext.workmanager</dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/google/android/exoplayer2/extractor/package-summary.html">com.google.android.exoplayer2.extractor</a> - package com.google.android.exoplayer2.extractor</dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/google/android/exoplayer2/extractor/amr/package-summary.html">com.google.android.exoplayer2.extractor.amr</a> - package com.google.android.exoplayer2.extractor.amr</dt>
@@ -2955,6 +2970,8 @@
 <dt><a href="com/google/android/exoplayer2/metadata/package-summary.html">com.google.android.exoplayer2.metadata</a> - package com.google.android.exoplayer2.metadata</dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/google/android/exoplayer2/metadata/emsg/package-summary.html">com.google.android.exoplayer2.metadata.emsg</a> - package com.google.android.exoplayer2.metadata.emsg</dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/google/android/exoplayer2/metadata/flac/package-summary.html">com.google.android.exoplayer2.metadata.flac</a> - package com.google.android.exoplayer2.metadata.flac</dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/google/android/exoplayer2/metadata/icy/package-summary.html">com.google.android.exoplayer2.metadata.icy</a> - package com.google.android.exoplayer2.metadata.icy</dt>
 <dd>&nbsp;</dd>
@@ -3809,6 +3826,12 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/NotificationUtil.html#createNotificationChannel-android.content.Context-java.lang.String-int-int-">createNotificationChannel(Context, String, int, int)</a></span> - Static method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/NotificationUtil.html" title="class in com.google.android.exoplayer2.util">NotificationUtil</a></dt>
 <dd>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/util/NotificationUtil.html#createNotificationChannel-android.content.Context-java.lang.String-int-int-int-"><code>NotificationUtil.createNotificationChannel(Context, String, int, int, int)</code></a>.</span></div>
+</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/NotificationUtil.html#createNotificationChannel-android.content.Context-java.lang.String-int-int-int-">createNotificationChannel(Context, String, int, int, int)</a></span> - Static method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/NotificationUtil.html" title="class in com.google.android.exoplayer2.util">NotificationUtil</a></dt>
+<dd>
 <div class="block">Creates a notification channel that notifications can be posted to.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html#createOfflineCacheDataSource--">createOfflineCacheDataSource()</a></span> - Method in class com.google.android.exoplayer2.offline.<a href="com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline">DownloaderConstructorHelper</a></dt>
@@ -4005,10 +4028,24 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/PlayerNotificationManager.html#createWithNotificationChannel-android.content.Context-java.lang.String-int-int-com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter-">createWithNotificationChannel(Context, String, int, int, PlayerNotificationManager.MediaDescriptionAdapter)</a></span> - Static method in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/PlayerNotificationManager.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager</a></dt>
 <dd>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/ui/PlayerNotificationManager.html#createWithNotificationChannel-android.content.Context-java.lang.String-int-int-int-com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter-"><code>PlayerNotificationManager.createWithNotificationChannel(Context, String, int, int, int,
+     MediaDescriptionAdapter)</code></a>.</span></div>
+</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/PlayerNotificationManager.html#createWithNotificationChannel-android.content.Context-java.lang.String-int-int-int-com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter-">createWithNotificationChannel(Context, String, int, int, int, PlayerNotificationManager.MediaDescriptionAdapter)</a></span> - Static method in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/PlayerNotificationManager.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager</a></dt>
+<dd>
 <div class="block">Creates a notification manager and a low-priority notification channel with the specified
  <code>channelId</code> and <code>channelName</code>.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/PlayerNotificationManager.html#createWithNotificationChannel-android.content.Context-java.lang.String-int-int-com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter-com.google.android.exoplayer2.ui.PlayerNotificationManager.NotificationListener-">createWithNotificationChannel(Context, String, int, int, PlayerNotificationManager.MediaDescriptionAdapter, PlayerNotificationManager.NotificationListener)</a></span> - Static method in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/PlayerNotificationManager.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager</a></dt>
+<dd>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/ui/PlayerNotificationManager.html#createWithNotificationChannel-android.content.Context-java.lang.String-int-int-int-com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter-com.google.android.exoplayer2.ui.PlayerNotificationManager.NotificationListener-"><code>PlayerNotificationManager.createWithNotificationChannel(Context, String, int, int, int,
+     MediaDescriptionAdapter, NotificationListener)</code></a>.</span></div>
+</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/PlayerNotificationManager.html#createWithNotificationChannel-android.content.Context-java.lang.String-int-int-int-com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter-com.google.android.exoplayer2.ui.PlayerNotificationManager.NotificationListener-">createWithNotificationChannel(Context, String, int, int, int, PlayerNotificationManager.MediaDescriptionAdapter, PlayerNotificationManager.NotificationListener)</a></span> - Static method in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/PlayerNotificationManager.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager</a></dt>
 <dd>
 <div class="block">Creates a notification manager and a low-priority notification channel with the specified
  <code>channelId</code> and <code>channelName</code>.</div>
@@ -4022,6 +4059,10 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/Format.html#CREATOR">CREATOR</a></span> - Static variable in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/emsg/EventMessage.html#CREATOR">CREATOR</a></span> - Static variable in class com.google.android.exoplayer2.metadata.emsg.<a href="com/google/android/exoplayer2/metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg">EventMessage</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/flac/PictureFrame.html#CREATOR">CREATOR</a></span> - Static variable in class com.google.android.exoplayer2.metadata.flac.<a href="com/google/android/exoplayer2/metadata/flac/PictureFrame.html" title="class in com.google.android.exoplayer2.metadata.flac">PictureFrame</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/flac/VorbisComment.html#CREATOR">CREATOR</a></span> - Static variable in class com.google.android.exoplayer2.metadata.flac.<a href="com/google/android/exoplayer2/metadata/flac/VorbisComment.html" title="class in com.google.android.exoplayer2.metadata.flac">VorbisComment</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/icy/IcyHeaders.html#CREATOR">CREATOR</a></span> - Static variable in class com.google.android.exoplayer2.metadata.icy.<a href="com/google/android/exoplayer2/metadata/icy/IcyHeaders.html" title="class in com.google.android.exoplayer2.metadata.icy">IcyHeaders</a></dt>
 <dd>&nbsp;</dd>
@@ -5639,6 +5680,10 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/NalUnitUtil.SpsData.html#deltaPicOrderAlwaysZeroFlag">deltaPicOrderAlwaysZeroFlag</a></span> - Variable in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/NalUnitUtil.SpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.SpsData</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/flac/PictureFrame.html#depth">depth</a></span> - Variable in class com.google.android.exoplayer2.metadata.flac.<a href="com/google/android/exoplayer2/metadata/flac/PictureFrame.html" title="class in com.google.android.exoplayer2.metadata.flac">PictureFrame</a></dt>
+<dd>
+<div class="block">The color depth of the picture in bits-per-pixel.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/decoder/Decoder.html#dequeueInputBuffer--">dequeueInputBuffer()</a></span> - Method in interface com.google.android.exoplayer2.decoder.<a href="com/google/android/exoplayer2/decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a></dt>
 <dd>
 <div class="block">Dequeues the next input buffer to be filled and queued to the decoder.</div>
@@ -5660,6 +5705,10 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/Format.html#describeContents--">describeContents()</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/emsg/EventMessage.html#describeContents--">describeContents()</a></span> - Method in class com.google.android.exoplayer2.metadata.emsg.<a href="com/google/android/exoplayer2/metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg">EventMessage</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/flac/PictureFrame.html#describeContents--">describeContents()</a></span> - Method in class com.google.android.exoplayer2.metadata.flac.<a href="com/google/android/exoplayer2/metadata/flac/PictureFrame.html" title="class in com.google.android.exoplayer2.metadata.flac">PictureFrame</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/flac/VorbisComment.html#describeContents--">describeContents()</a></span> - Method in class com.google.android.exoplayer2.metadata.flac.<a href="com/google/android/exoplayer2/metadata/flac/VorbisComment.html" title="class in com.google.android.exoplayer2.metadata.flac">VorbisComment</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/icy/IcyHeaders.html#describeContents--">describeContents()</a></span> - Method in class com.google.android.exoplayer2.metadata.icy.<a href="com/google/android/exoplayer2/metadata/icy/IcyHeaders.html" title="class in com.google.android.exoplayer2.metadata.icy">IcyHeaders</a></dt>
 <dd>&nbsp;</dd>
@@ -5700,6 +5749,10 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ext/cast/MediaItem.html#description">description</a></span> - Variable in class com.google.android.exoplayer2.ext.cast.<a href="com/google/android/exoplayer2/ext/cast/MediaItem.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem</a></dt>
 <dd>
 <div class="block">A description for the item.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/flac/PictureFrame.html#description">description</a></span> - Variable in class com.google.android.exoplayer2.metadata.flac.<a href="com/google/android/exoplayer2/metadata/flac/PictureFrame.html" title="class in com.google.android.exoplayer2.metadata.flac">PictureFrame</a></dt>
+<dd>
+<div class="block">A description of the picture.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/id3/ApicFrame.html#description">description</a></span> - Variable in class com.google.android.exoplayer2.metadata.id3.<a href="com/google/android/exoplayer2/metadata/id3/ApicFrame.html" title="class in com.google.android.exoplayer2.metadata.id3">ApicFrame</a></dt>
 <dd>&nbsp;</dd>
@@ -6070,6 +6123,12 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/offline/DownloadService.html#DownloadService-int-long-java.lang.String-int-">DownloadService(int, long, String, int)</a></span> - Constructor for class com.google.android.exoplayer2.offline.<a href="com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline">DownloadService</a></dt>
 <dd>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/offline/DownloadService.html#DownloadService-int-long-java.lang.String-int-int-"><code>DownloadService.DownloadService(int, long, String, int, int)</code></a>.</span></div>
+</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/offline/DownloadService.html#DownloadService-int-long-java.lang.String-int-int-">DownloadService(int, long, String, int, int)</a></span> - Constructor for class com.google.android.exoplayer2.offline.<a href="com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline">DownloadService</a></dt>
+<dd>
 <div class="block">Creates a DownloadService.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html#downstreamFormatChanged-int-com.google.android.exoplayer2.Format-int-java.lang.Object-long-">downstreamFormatChanged(int, Format, int, Object, long)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a></dt>
@@ -6080,6 +6139,8 @@
 <dd>
 <div class="block">Dispatches <code>#onDownstreamFormatChanged(int, MediaPeriodId, MediaLoadData)</code>.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ext/workmanager/WorkManagerScheduler.SchedulerWorker.html#doWork--">doWork()</a></span> - Method in class com.google.android.exoplayer2.ext.workmanager.<a href="com/google/android/exoplayer2/ext/workmanager/WorkManagerScheduler.SchedulerWorker.html" title="class in com.google.android.exoplayer2.ext.workmanager">WorkManagerScheduler.SchedulerWorker</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/spherical/CanvasRenderer.html#draw-float:A-">draw(float[])</a></span> - Method in class com.google.android.exoplayer2.ui.spherical.<a href="com/google/android/exoplayer2/ui/spherical/CanvasRenderer.html" title="class in com.google.android.exoplayer2.ui.spherical">CanvasRenderer</a></dt>
 <dd>
 <div class="block">Renders the quad.</div>
@@ -6256,7 +6317,7 @@
 <dd>
 <div class="block">The duration of this window in microseconds, or <a href="com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if unknown.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamInfo.html#durationUs--">durationUs()</a></span> - Method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamInfo.html" title="class in com.google.android.exoplayer2.util">FlacStreamInfo</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamMetadata.html#durationUs--">durationUs()</a></span> - Method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamMetadata.html" title="class in com.google.android.exoplayer2.util">FlacStreamMetadata</a></dt>
 <dd>
 <div class="block">Returns the duration of the FLAC stream in microseconds.</div>
 </dd>
@@ -6445,6 +6506,10 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/TrackGroupArray.html#EMPTY">EMPTY</a></span> - Static variable in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a></dt>
 <dd>
 <div class="block">The empty array.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/text/Cue.html#EMPTY">EMPTY</a></span> - Static variable in class com.google.android.exoplayer2.text.<a href="com/google/android/exoplayer2/text/Cue.html" title="class in com.google.android.exoplayer2.text">Cue</a></dt>
+<dd>
+<div class="block">The empty cue.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/Timeline.html#EMPTY">EMPTY</a></span> - Static variable in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></dt>
 <dd>
@@ -6681,6 +6746,10 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/Format.html#equals-java.lang.Object-">equals(Object)</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/emsg/EventMessage.html#equals-java.lang.Object-">equals(Object)</a></span> - Method in class com.google.android.exoplayer2.metadata.emsg.<a href="com/google/android/exoplayer2/metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg">EventMessage</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/flac/PictureFrame.html#equals-java.lang.Object-">equals(Object)</a></span> - Method in class com.google.android.exoplayer2.metadata.flac.<a href="com/google/android/exoplayer2/metadata/flac/PictureFrame.html" title="class in com.google.android.exoplayer2.metadata.flac">PictureFrame</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/flac/VorbisComment.html#equals-java.lang.Object-">equals(Object)</a></span> - Method in class com.google.android.exoplayer2.metadata.flac.<a href="com/google/android/exoplayer2/metadata/flac/VorbisComment.html" title="class in com.google.android.exoplayer2.metadata.flac">VorbisComment</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/icy/IcyHeaders.html#equals-java.lang.Object-">equals(Object)</a></span> - Method in class com.google.android.exoplayer2.metadata.icy.<a href="com/google/android/exoplayer2/metadata/icy/IcyHeaders.html" title="class in com.google.android.exoplayer2.metadata.icy">IcyHeaders</a></dt>
 <dd>&nbsp;</dd>
@@ -7446,18 +7515,16 @@
 <dd>
 <div class="block">Configures and queries the underlying native library.</div>
 </dd>
-<dt><a href="com/google/android/exoplayer2/util/FlacStreamInfo.html" title="class in com.google.android.exoplayer2.util"><span class="typeNameLink">FlacStreamInfo</span></a> - Class in <a href="com/google/android/exoplayer2/util/package-summary.html">com.google.android.exoplayer2.util</a></dt>
+<dt><a href="com/google/android/exoplayer2/util/FlacStreamMetadata.html" title="class in com.google.android.exoplayer2.util"><span class="typeNameLink">FlacStreamMetadata</span></a> - Class in <a href="com/google/android/exoplayer2/util/package-summary.html">com.google.android.exoplayer2.util</a></dt>
 <dd>
-<div class="block">Holder for FLAC stream info.</div>
+<div class="block">Holder for FLAC metadata.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamInfo.html#FlacStreamInfo-byte:A-int-">FlacStreamInfo(byte[], int)</a></span> - Constructor for class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamInfo.html" title="class in com.google.android.exoplayer2.util">FlacStreamInfo</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamMetadata.html#FlacStreamMetadata-byte:A-int-">FlacStreamMetadata(byte[], int)</a></span> - Constructor for class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamMetadata.html" title="class in com.google.android.exoplayer2.util">FlacStreamMetadata</a></dt>
 <dd>
-<div class="block">Constructs a FlacStreamInfo parsing the given binary FLAC stream info metadata structure.</div>
+<div class="block">Parses binary FLAC stream info metadata.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamInfo.html#FlacStreamInfo-int-int-int-int-int-int-int-long-">FlacStreamInfo(int, int, int, int, int, int, int, long)</a></span> - Constructor for class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamInfo.html" title="class in com.google.android.exoplayer2.util">FlacStreamInfo</a></dt>
-<dd>
-<div class="block">Constructs a FlacStreamInfo given the parameters.</div>
-</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamMetadata.html#FlacStreamMetadata-int-int-int-int-int-int-int-long-java.util.List-java.util.List-">FlacStreamMetadata(int, int, int, int, int, int, int, long, List&lt;String&gt;, List&lt;PictureFrame&gt;)</a></span> - Constructor for class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamMetadata.html" title="class in com.google.android.exoplayer2.util">FlacStreamMetadata</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/upstream/DataSpec.html#FLAG_ALLOW_CACHE_FRAGMENTATION">FLAG_ALLOW_CACHE_FRAGMENTATION</a></span> - Static variable in class com.google.android.exoplayer2.upstream.<a href="com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a></dt>
 <dd>
 <div class="block">Allows fragmentation of this request into multiple cache files, meaning a cache eviction policy
@@ -8130,7 +8197,7 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/SimpleExoPlayer.html#getApplicationLooper--">getApplicationLooper()</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamInfo.html#getApproxBytesPerFrame--">getApproxBytesPerFrame()</a></span> - Method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamInfo.html" title="class in com.google.android.exoplayer2.util">FlacStreamInfo</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamMetadata.html#getApproxBytesPerFrame--">getApproxBytesPerFrame()</a></span> - Method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamMetadata.html" title="class in com.google.android.exoplayer2.util">FlacStreamMetadata</a></dt>
 <dd>
 <div class="block">Returns the approximate number of bytes per frame for the current FLAC stream.</div>
 </dd>
@@ -9266,7 +9333,7 @@
 <div class="block">Returns the framework <a href="https://developer.android.com/reference/android/media/MediaFormat.html" target="_top" title="class or interface in android.media"><code>MediaFormat</code></a> that can be used to configure a <a href="https://developer.android.com/reference/android/media/MediaCodec.html" target="_top" title="class or interface in android.media"><code>MediaCodec</code></a>
  for decoding the given <a href="com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> for playback.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html#getMediaFormat-com.google.android.exoplayer2.Format-com.google.android.exoplayer2.video.MediaCodecVideoRenderer.CodecMaxValues-float-boolean-int-">getMediaFormat(Format, MediaCodecVideoRenderer.CodecMaxValues, float, boolean, int)</a></span> - Method in class com.google.android.exoplayer2.video.<a href="com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html" title="class in com.google.android.exoplayer2.video">MediaCodecVideoRenderer</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html#getMediaFormat-com.google.android.exoplayer2.Format-java.lang.String-com.google.android.exoplayer2.video.MediaCodecVideoRenderer.CodecMaxValues-float-boolean-int-">getMediaFormat(Format, String, MediaCodecVideoRenderer.CodecMaxValues, float, boolean, int)</a></span> - Method in class com.google.android.exoplayer2.video.<a href="com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html" title="class in com.google.android.exoplayer2.video">MediaCodecVideoRenderer</a></dt>
 <dd>
 <div class="block">Returns the framework <a href="https://developer.android.com/reference/android/media/MediaFormat.html" target="_top" title="class or interface in android.media"><code>MediaFormat</code></a> that should be used to configure the decoder.</div>
 </dd>
@@ -10013,7 +10080,7 @@
 <dd>
 <div class="block">Returns the sample <a href="com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>s most recently output by the extractor, or null.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamInfo.html#getSampleIndex-long-">getSampleIndex(long)</a></span> - Method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamInfo.html" title="class in com.google.android.exoplayer2.util">FlacStreamInfo</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamMetadata.html#getSampleIndex-long-">getSampleIndex(long)</a></span> - Method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamMetadata.html" title="class in com.google.android.exoplayer2.util">FlacStreamMetadata</a></dt>
 <dd>
 <div class="block">Returns the sample index for the sample at given position.</div>
 </dd>
@@ -10937,6 +11004,10 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/emsg/EventMessage.html#hashCode--">hashCode()</a></span> - Method in class com.google.android.exoplayer2.metadata.emsg.<a href="com/google/android/exoplayer2/metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg">EventMessage</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/flac/PictureFrame.html#hashCode--">hashCode()</a></span> - Method in class com.google.android.exoplayer2.metadata.flac.<a href="com/google/android/exoplayer2/metadata/flac/PictureFrame.html" title="class in com.google.android.exoplayer2.metadata.flac">PictureFrame</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/flac/VorbisComment.html#hashCode--">hashCode()</a></span> - Method in class com.google.android.exoplayer2.metadata.flac.<a href="com/google/android/exoplayer2/metadata/flac/VorbisComment.html" title="class in com.google.android.exoplayer2.metadata.flac">VorbisComment</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/icy/IcyHeaders.html#hashCode--">hashCode()</a></span> - Method in class com.google.android.exoplayer2.metadata.icy.<a href="com/google/android/exoplayer2/metadata/icy/IcyHeaders.html" title="class in com.google.android.exoplayer2.metadata.icy">IcyHeaders</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/icy/IcyInfo.html#hashCode--">hashCode()</a></span> - Method in class com.google.android.exoplayer2.metadata.icy.<a href="com/google/android/exoplayer2/metadata/icy/IcyInfo.html" title="class in com.google.android.exoplayer2.metadata.icy">IcyInfo</a></dt>
@@ -11091,6 +11162,10 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/Format.html#height">height</a></span> - Variable in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></dt>
 <dd>
 <div class="block">The height of the video in pixels, or <a href="com/google/android/exoplayer2/Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if unknown or not applicable.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/flac/PictureFrame.html#height">height</a></span> - Variable in class com.google.android.exoplayer2.metadata.flac.<a href="com/google/android/exoplayer2/metadata/flac/PictureFrame.html" title="class in com.google.android.exoplayer2.metadata.flac">PictureFrame</a></dt>
+<dd>
+<div class="block">The height of the picture in pixels.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/NalUnitUtil.SpsData.html#height">height</a></span> - Variable in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/NalUnitUtil.SpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.SpsData</a></dt>
 <dd>&nbsp;</dd>
@@ -12317,16 +12392,23 @@
 <dl>
 <dt><a href="com/google/android/exoplayer2/ext/jobdispatcher/JobDispatcherScheduler.html" title="class in com.google.android.exoplayer2.ext.jobdispatcher"><span class="typeNameLink">JobDispatcherScheduler</span></a> - Class in <a href="com/google/android/exoplayer2/ext/jobdispatcher/package-summary.html">com.google.android.exoplayer2.ext.jobdispatcher</a></dt>
 <dd>
-<div class="block">A <a href="com/google/android/exoplayer2/scheduler/Scheduler.html" title="interface in com.google.android.exoplayer2.scheduler"><code>Scheduler</code></a> that uses <code>FirebaseJobDispatcher</code>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="block"><span class="deprecationComment">Use com.google.android.exoplayer2.ext.workmanager.WorkManagerScheduler or <a href="com/google/android/exoplayer2/scheduler/PlatformScheduler.html" title="class in com.google.android.exoplayer2.scheduler"><code>PlatformScheduler</code></a>.</span></div>
+</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ext/jobdispatcher/JobDispatcherScheduler.html#JobDispatcherScheduler-android.content.Context-java.lang.String-">JobDispatcherScheduler(Context, String)</a></span> - Constructor for class com.google.android.exoplayer2.ext.jobdispatcher.<a href="com/google/android/exoplayer2/ext/jobdispatcher/JobDispatcherScheduler.html" title="class in com.google.android.exoplayer2.ext.jobdispatcher">JobDispatcherScheduler</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</dd>
 <dt><a href="com/google/android/exoplayer2/ext/jobdispatcher/JobDispatcherScheduler.JobDispatcherSchedulerService.html" title="class in com.google.android.exoplayer2.ext.jobdispatcher"><span class="typeNameLink">JobDispatcherScheduler.JobDispatcherSchedulerService</span></a> - Class in <a href="com/google/android/exoplayer2/ext/jobdispatcher/package-summary.html">com.google.android.exoplayer2.ext.jobdispatcher</a></dt>
 <dd>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A <code>JobService</code> that starts the target service if the requirements are met.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ext/jobdispatcher/JobDispatcherScheduler.JobDispatcherSchedulerService.html#JobDispatcherSchedulerService--">JobDispatcherSchedulerService()</a></span> - Constructor for class com.google.android.exoplayer2.ext.jobdispatcher.<a href="com/google/android/exoplayer2/ext/jobdispatcher/JobDispatcherScheduler.JobDispatcherSchedulerService.html" title="class in com.google.android.exoplayer2.ext.jobdispatcher">JobDispatcherScheduler.JobDispatcherSchedulerService</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html#jumpDrawablesToCurrentState--">jumpDrawablesToCurrentState()</a></span> - Method in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html" title="class in com.google.android.exoplayer2.ui">DefaultTimeBar</a></dt>
 <dd>&nbsp;</dd>
 </dl>
@@ -12356,6 +12438,10 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/mp4/MdtaMetadataEntry.html#key">key</a></span> - Variable in class com.google.android.exoplayer2.extractor.mp4.<a href="com/google/android/exoplayer2/extractor/mp4/MdtaMetadataEntry.html" title="class in com.google.android.exoplayer2.extractor.mp4">MdtaMetadataEntry</a></dt>
 <dd>
 <div class="block">The metadata key name.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/flac/VorbisComment.html#key">key</a></span> - Variable in class com.google.android.exoplayer2.metadata.flac.<a href="com/google/android/exoplayer2/metadata/flac/VorbisComment.html" title="class in com.google.android.exoplayer2.metadata.flac">VorbisComment</a></dt>
+<dd>
+<div class="block">The key.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/upstream/cache/CacheSpan.html#key">key</a></span> - Variable in class com.google.android.exoplayer2.upstream.cache.<a href="com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a></dt>
 <dd>
@@ -12924,17 +13010,17 @@
 <dd>
 <div class="block">Maximum allowed audio channel count.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamInfo.html#maxBlockSize">maxBlockSize</a></span> - Variable in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamInfo.html" title="class in com.google.android.exoplayer2.util">FlacStreamInfo</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamMetadata.html#maxBlockSize">maxBlockSize</a></span> - Variable in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamMetadata.html" title="class in com.google.android.exoplayer2.util">FlacStreamMetadata</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/decoder/DecoderCounters.html#maxConsecutiveDroppedBufferCount">maxConsecutiveDroppedBufferCount</a></span> - Variable in class com.google.android.exoplayer2.decoder.<a href="com/google/android/exoplayer2/decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a></dt>
 <dd>
 <div class="block">The maximum number of dropped buffers without an interleaving rendered output buffer.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamInfo.html#maxDecodedFrameSize--">maxDecodedFrameSize()</a></span> - Method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamInfo.html" title="class in com.google.android.exoplayer2.util">FlacStreamInfo</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamMetadata.html#maxDecodedFrameSize--">maxDecodedFrameSize()</a></span> - Method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamMetadata.html" title="class in com.google.android.exoplayer2.util">FlacStreamMetadata</a></dt>
 <dd>
 <div class="block">Returns the maximum size for a decoded frame from the FLAC stream.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamInfo.html#maxFrameSize">maxFrameSize</a></span> - Variable in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamInfo.html" title="class in com.google.android.exoplayer2.util">FlacStreamInfo</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamMetadata.html#maxFrameSize">maxFrameSize</a></span> - Variable in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamMetadata.html" title="class in com.google.android.exoplayer2.util">FlacStreamMetadata</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/mediacodec/MediaCodecUtil.html#maxH264DecodableFrameSize--">maxH264DecodableFrameSize()</a></span> - Static method in class com.google.android.exoplayer2.mediacodec.<a href="com/google/android/exoplayer2/mediacodec/MediaCodecUtil.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecUtil</a></dt>
 <dd>
@@ -13460,6 +13546,8 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/Metadata.html#Metadata-java.util.List-">Metadata(List&lt;? extends Metadata.Entry&gt;)</a></span> - Constructor for class com.google.android.exoplayer2.metadata.<a href="com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamMetadata.html#metadata">metadata</a></span> - Variable in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamMetadata.html" title="class in com.google.android.exoplayer2.util">FlacStreamMetadata</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/google/android/exoplayer2/metadata/Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata"><span class="typeNameLink">Metadata.Entry</span></a> - Interface in <a href="com/google/android/exoplayer2/metadata/package-summary.html">com.google.android.exoplayer2.metadata</a></dt>
 <dd>
 <div class="block">A metadata entry.</div>
@@ -13533,6 +13621,10 @@
 <dd>
 <div class="block">The mime type for which a decoder was being initialized.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/flac/PictureFrame.html#mimeType">mimeType</a></span> - Variable in class com.google.android.exoplayer2.metadata.flac.<a href="com/google/android/exoplayer2/metadata/flac/PictureFrame.html" title="class in com.google.android.exoplayer2.metadata.flac">PictureFrame</a></dt>
+<dd>
+<div class="block">The mime type of the picture.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/id3/ApicFrame.html#mimeType">mimeType</a></span> - Variable in class com.google.android.exoplayer2.metadata.id3.<a href="com/google/android/exoplayer2/metadata/id3/ApicFrame.html" title="class in com.google.android.exoplayer2.metadata.id3">ApicFrame</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/id3/GeobFrame.html#mimeType">mimeType</a></span> - Variable in class com.google.android.exoplayer2.metadata.id3.<a href="com/google/android/exoplayer2/metadata/id3/GeobFrame.html" title="class in com.google.android.exoplayer2.metadata.id3">GeobFrame</a></dt>
@@ -13541,13 +13633,13 @@
 <dd>
 <div class="block">Defines common MIME types and helper methods.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamInfo.html#minBlockSize">minBlockSize</a></span> - Variable in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamInfo.html" title="class in com.google.android.exoplayer2.util">FlacStreamInfo</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamMetadata.html#minBlockSize">minBlockSize</a></span> - Variable in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamMetadata.html" title="class in com.google.android.exoplayer2.util">FlacStreamMetadata</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/manifest/DashManifest.html#minBufferTimeMs">minBufferTimeMs</a></span> - Variable in class com.google.android.exoplayer2.source.dash.manifest.<a href="com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a></dt>
 <dd>
 <div class="block">The <code>minBufferTime</code> value in milliseconds, or <a href="com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not present.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamInfo.html#minFrameSize">minFrameSize</a></span> - Variable in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamInfo.html" title="class in com.google.android.exoplayer2.util">FlacStreamInfo</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamMetadata.html#minFrameSize">minFrameSize</a></span> - Variable in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamMetadata.html" title="class in com.google.android.exoplayer2.util">FlacStreamMetadata</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/audio/SonicAudioProcessor.html#MINIMUM_PITCH">MINIMUM_PITCH</a></span> - Static variable in class com.google.android.exoplayer2.audio.<a href="com/google/android/exoplayer2/audio/SonicAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">SonicAudioProcessor</a></dt>
 <dd>
@@ -13907,11 +13999,7 @@
 <dd>
 <div class="block">Creates an <a href="com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer</code></a> instance.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#newInstance-java.lang.String-java.lang.String-android.media.MediaCodecInfo.CodecCapabilities-">newInstance(String, String, MediaCodecInfo.CodecCapabilities)</a></span> - Static method in class com.google.android.exoplayer2.mediacodec.<a href="com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a></dt>
-<dd>
-<div class="block">Creates an instance.</div>
-</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#newInstance-java.lang.String-java.lang.String-android.media.MediaCodecInfo.CodecCapabilities-boolean-boolean-">newInstance(String, String, MediaCodecInfo.CodecCapabilities, boolean, boolean)</a></span> - Static method in class com.google.android.exoplayer2.mediacodec.<a href="com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#newInstance-java.lang.String-java.lang.String-java.lang.String-android.media.MediaCodecInfo.CodecCapabilities-boolean-boolean-">newInstance(String, String, String, MediaCodecInfo.CodecCapabilities, boolean, boolean)</a></span> - Static method in class com.google.android.exoplayer2.mediacodec.<a href="com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a></dt>
 <dd>
 <div class="block">Creates an instance.</div>
 </dd>
@@ -15411,11 +15499,15 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/upstream/cache/NoOpCacheEvictor.html#onStartFile-com.google.android.exoplayer2.upstream.cache.Cache-java.lang.String-long-long-">onStartFile(Cache, String, long, long)</a></span> - Method in class com.google.android.exoplayer2.upstream.cache.<a href="com/google/android/exoplayer2/upstream/cache/NoOpCacheEvictor.html" title="class in com.google.android.exoplayer2.upstream.cache">NoOpCacheEvictor</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ext/jobdispatcher/JobDispatcherScheduler.JobDispatcherSchedulerService.html#onStartJob-com.firebase.jobdispatcher.JobParameters-">onStartJob(JobParameters)</a></span> - Method in class com.google.android.exoplayer2.ext.jobdispatcher.<a href="com/google/android/exoplayer2/ext/jobdispatcher/JobDispatcherScheduler.JobDispatcherSchedulerService.html" title="class in com.google.android.exoplayer2.ext.jobdispatcher">JobDispatcherScheduler.JobDispatcherSchedulerService</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/scheduler/PlatformScheduler.PlatformSchedulerService.html#onStartJob-android.app.job.JobParameters-">onStartJob(JobParameters)</a></span> - Method in class com.google.android.exoplayer2.scheduler.<a href="com/google/android/exoplayer2/scheduler/PlatformScheduler.PlatformSchedulerService.html" title="class in com.google.android.exoplayer2.scheduler">PlatformScheduler.PlatformSchedulerService</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ext/jobdispatcher/JobDispatcherScheduler.JobDispatcherSchedulerService.html#onStopJob-com.firebase.jobdispatcher.JobParameters-">onStopJob(JobParameters)</a></span> - Method in class com.google.android.exoplayer2.ext.jobdispatcher.<a href="com/google/android/exoplayer2/ext/jobdispatcher/JobDispatcherScheduler.JobDispatcherSchedulerService.html" title="class in com.google.android.exoplayer2.ext.jobdispatcher">JobDispatcherScheduler.JobDispatcherSchedulerService</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/scheduler/PlatformScheduler.PlatformSchedulerService.html#onStopJob-android.app.job.JobParameters-">onStopJob(JobParameters)</a></span> - Method in class com.google.android.exoplayer2.scheduler.<a href="com/google/android/exoplayer2/scheduler/PlatformScheduler.PlatformSchedulerService.html" title="class in com.google.android.exoplayer2.scheduler">PlatformScheduler.PlatformSchedulerService</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/audio/MediaCodecAudioRenderer.html#onStopped--">onStopped()</a></span> - Method in class com.google.android.exoplayer2.audio.<a href="com/google/android/exoplayer2/audio/MediaCodecAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">MediaCodecAudioRenderer</a></dt>
@@ -16246,8 +16338,22 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/NalUnitUtil.PpsData.html#picParameterSetId">picParameterSetId</a></span> - Variable in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/NalUnitUtil.PpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.PpsData</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/flac/PictureFrame.html#pictureData">pictureData</a></span> - Variable in class com.google.android.exoplayer2.metadata.flac.<a href="com/google/android/exoplayer2/metadata/flac/PictureFrame.html" title="class in com.google.android.exoplayer2.metadata.flac">PictureFrame</a></dt>
+<dd>
+<div class="block">The encoded picture data.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/id3/ApicFrame.html#pictureData">pictureData</a></span> - Variable in class com.google.android.exoplayer2.metadata.id3.<a href="com/google/android/exoplayer2/metadata/id3/ApicFrame.html" title="class in com.google.android.exoplayer2.metadata.id3">ApicFrame</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/google/android/exoplayer2/metadata/flac/PictureFrame.html" title="class in com.google.android.exoplayer2.metadata.flac"><span class="typeNameLink">PictureFrame</span></a> - Class in <a href="com/google/android/exoplayer2/metadata/flac/package-summary.html">com.google.android.exoplayer2.metadata.flac</a></dt>
+<dd>
+<div class="block">A picture parsed from a FLAC file.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/flac/PictureFrame.html#PictureFrame-int-java.lang.String-java.lang.String-int-int-int-int-byte:A-">PictureFrame(int, String, String, int, int, int, int, byte[])</a></span> - Constructor for class com.google.android.exoplayer2.metadata.flac.<a href="com/google/android/exoplayer2/metadata/flac/PictureFrame.html" title="class in com.google.android.exoplayer2.metadata.flac">PictureFrame</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/flac/PictureFrame.html#pictureType">pictureType</a></span> - Variable in class com.google.android.exoplayer2.metadata.flac.<a href="com/google/android/exoplayer2/metadata/flac/PictureFrame.html" title="class in com.google.android.exoplayer2.metadata.flac">PictureFrame</a></dt>
+<dd>
+<div class="block">The type of the picture.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/id3/ApicFrame.html#pictureType">pictureType</a></span> - Variable in class com.google.android.exoplayer2.metadata.id3.<a href="com/google/android/exoplayer2/metadata/id3/ApicFrame.html" title="class in com.google.android.exoplayer2.metadata.id3">ApicFrame</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/PlaybackParameters.html#pitch">pitch</a></span> - Variable in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a></dt>
@@ -18659,7 +18765,7 @@
 <dd>
 <div class="block">The audio sampling rate in Hz, or <a href="com/google/android/exoplayer2/Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if unknown or not applicable.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamInfo.html#sampleRate">sampleRate</a></span> - Variable in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamInfo.html" title="class in com.google.android.exoplayer2.util">FlacStreamInfo</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamMetadata.html#sampleRate">sampleRate</a></span> - Variable in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamMetadata.html" title="class in com.google.android.exoplayer2.util">FlacStreamMetadata</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/audio/BaseAudioProcessor.html#sampleRateHz">sampleRateHz</a></span> - Variable in class com.google.android.exoplayer2.audio.<a href="com/google/android/exoplayer2/audio/BaseAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">BaseAudioProcessor</a></dt>
 <dd>
@@ -18705,6 +18811,10 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/spherical/SceneRenderer.html#SceneRenderer--">SceneRenderer()</a></span> - Constructor for class com.google.android.exoplayer2.ui.spherical.<a href="com/google/android/exoplayer2/ui/spherical/SceneRenderer.html" title="class in com.google.android.exoplayer2.ui.spherical">SceneRenderer</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ext/jobdispatcher/JobDispatcherScheduler.html#schedule-com.google.android.exoplayer2.scheduler.Requirements-java.lang.String-java.lang.String-">schedule(Requirements, String, String)</a></span> - Method in class com.google.android.exoplayer2.ext.jobdispatcher.<a href="com/google/android/exoplayer2/ext/jobdispatcher/JobDispatcherScheduler.html" title="class in com.google.android.exoplayer2.ext.jobdispatcher">JobDispatcherScheduler</a></dt>
+<dd>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ext/workmanager/WorkManagerScheduler.html#schedule-com.google.android.exoplayer2.scheduler.Requirements-java.lang.String-java.lang.String-">schedule(Requirements, String, String)</a></span> - Method in class com.google.android.exoplayer2.ext.workmanager.<a href="com/google/android/exoplayer2/ext/workmanager/WorkManagerScheduler.html" title="class in com.google.android.exoplayer2.ext.workmanager">WorkManagerScheduler</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/scheduler/PlatformScheduler.html#schedule-com.google.android.exoplayer2.scheduler.Requirements-java.lang.String-java.lang.String-">schedule(Requirements, String, String)</a></span> - Method in class com.google.android.exoplayer2.scheduler.<a href="com/google/android/exoplayer2/scheduler/PlatformScheduler.html" title="class in com.google.android.exoplayer2.scheduler">PlatformScheduler</a></dt>
 <dd>&nbsp;</dd>
@@ -18716,6 +18826,8 @@
 <dd>
 <div class="block">Schedules a service to be started in the foreground when some <a href="com/google/android/exoplayer2/scheduler/Requirements.html" title="class in com.google.android.exoplayer2.scheduler"><code>Requirements</code></a> are met.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ext/workmanager/WorkManagerScheduler.SchedulerWorker.html#SchedulerWorker-android.content.Context-androidx.work.WorkerParameters-">SchedulerWorker(Context, WorkerParameters)</a></span> - Constructor for class com.google.android.exoplayer2.ext.workmanager.<a href="com/google/android/exoplayer2/ext/workmanager/WorkManagerScheduler.SchedulerWorker.html" title="class in com.google.android.exoplayer2.ext.workmanager">WorkManagerScheduler.SchedulerWorker</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/upstream/DataSchemeDataSource.html#SCHEME_DATA">SCHEME_DATA</a></span> - Static variable in class com.google.android.exoplayer2.upstream.<a href="com/google/android/exoplayer2/upstream/DataSchemeDataSource.html" title="class in com.google.android.exoplayer2.upstream">DataSchemeDataSource</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html#SchemeData-java.util.UUID-java.lang.String-byte:A-">SchemeData(UUID, String, byte[])</a></span> - Constructor for class com.google.android.exoplayer2.drm.<a href="com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData.SchemeData</a></dt>
@@ -22532,6 +22644,10 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/emsg/EventMessage.html#toString--">toString()</a></span> - Method in class com.google.android.exoplayer2.metadata.emsg.<a href="com/google/android/exoplayer2/metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg">EventMessage</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/flac/PictureFrame.html#toString--">toString()</a></span> - Method in class com.google.android.exoplayer2.metadata.flac.<a href="com/google/android/exoplayer2/metadata/flac/PictureFrame.html" title="class in com.google.android.exoplayer2.metadata.flac">PictureFrame</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/flac/VorbisComment.html#toString--">toString()</a></span> - Method in class com.google.android.exoplayer2.metadata.flac.<a href="com/google/android/exoplayer2/metadata/flac/VorbisComment.html" title="class in com.google.android.exoplayer2.metadata.flac">VorbisComment</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/icy/IcyHeaders.html#toString--">toString()</a></span> - Method in class com.google.android.exoplayer2.metadata.icy.<a href="com/google/android/exoplayer2/metadata/icy/IcyHeaders.html" title="class in com.google.android.exoplayer2.metadata.icy">IcyHeaders</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/icy/IcyInfo.html#toString--">toString()</a></span> - Method in class com.google.android.exoplayer2.metadata.icy.<a href="com/google/android/exoplayer2/metadata/icy/IcyInfo.html" title="class in com.google.android.exoplayer2.metadata.icy">IcyInfo</a></dt>
@@ -22571,7 +22687,7 @@
 <div class="block">Total buffered duration from <a href="com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html#currentPlaybackPositionMs"><code>AnalyticsListener.EventTime.currentPlaybackPositionMs</code></a> at the time of the event, in
  milliseconds.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamInfo.html#totalSamples">totalSamples</a></span> - Variable in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamInfo.html" title="class in com.google.android.exoplayer2.util">FlacStreamInfo</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamMetadata.html#totalSamples">totalSamples</a></span> - Variable in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamMetadata.html" title="class in com.google.android.exoplayer2.util">FlacStreamMetadata</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/Util.html#toUpperInvariant-java.lang.String-">toUpperInvariant(String)</a></span> - Static method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/Util.html" title="class in com.google.android.exoplayer2.util">Util</a></dt>
 <dd>
@@ -23263,8 +23379,6 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/upstream/crypto/AesFlushingCipher.html#updateInPlace-byte:A-int-int-">updateInPlace(byte[], int, int)</a></span> - Method in class com.google.android.exoplayer2.upstream.crypto.<a href="com/google/android/exoplayer2/upstream/crypto/AesFlushingCipher.html" title="class in com.google.android.exoplayer2.upstream.crypto">AesFlushingCipher</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ext/cast/CastPlayer.html#updateInternalState--">updateInternalState()</a></span> - Method in class com.google.android.exoplayer2.ext.cast.<a href="com/google/android/exoplayer2/ext/cast/CastPlayer.html" title="class in com.google.android.exoplayer2.ext.cast">CastPlayer</a></dt>
-<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/DashChunkSource.html#updateManifest-com.google.android.exoplayer2.source.dash.manifest.DashManifest-int-">updateManifest(DashManifest, int)</a></span> - Method in interface com.google.android.exoplayer2.source.dash.<a href="com/google/android/exoplayer2/source/dash/DashChunkSource.html" title="interface in com.google.android.exoplayer2.source.dash">DashChunkSource</a></dt>
 <dd>
 <div class="block">Updates the manifest.</div>
@@ -23313,6 +23427,18 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/offline/Download.html#updateTimeMs">updateTimeMs</a></span> - Variable in class com.google.android.exoplayer2.offline.<a href="com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a></dt>
 <dd>
 <div class="block">The last update time.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/DashChunkSource.html#updateTrackSelection-com.google.android.exoplayer2.trackselection.TrackSelection-">updateTrackSelection(TrackSelection)</a></span> - Method in interface com.google.android.exoplayer2.source.dash.<a href="com/google/android/exoplayer2/source/dash/DashChunkSource.html" title="interface in com.google.android.exoplayer2.source.dash">DashChunkSource</a></dt>
+<dd>
+<div class="block">Updates the track selection.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.html#updateTrackSelection-com.google.android.exoplayer2.trackselection.TrackSelection-">updateTrackSelection(TrackSelection)</a></span> - Method in class com.google.android.exoplayer2.source.dash.<a href="com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/smoothstreaming/DefaultSsChunkSource.html#updateTrackSelection-com.google.android.exoplayer2.trackselection.TrackSelection-">updateTrackSelection(TrackSelection)</a></span> - Method in class com.google.android.exoplayer2.source.smoothstreaming.<a href="com/google/android/exoplayer2/source/smoothstreaming/DefaultSsChunkSource.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">DefaultSsChunkSource</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/smoothstreaming/SsChunkSource.html#updateTrackSelection-com.google.android.exoplayer2.trackselection.TrackSelection-">updateTrackSelection(TrackSelection)</a></span> - Method in interface com.google.android.exoplayer2.source.smoothstreaming.<a href="com/google/android/exoplayer2/source/smoothstreaming/SsChunkSource.html" title="interface in com.google.android.exoplayer2.source.smoothstreaming">SsChunkSource</a></dt>
+<dd>
+<div class="block">Updates the track selection.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/offline/ActionFileUpgradeUtil.html#upgradeAndDelete-java.io.File-com.google.android.exoplayer2.offline.ActionFileUpgradeUtil.DownloadIdProvider-com.google.android.exoplayer2.offline.DefaultDownloadIndex-boolean-boolean-">upgradeAndDelete(File, ActionFileUpgradeUtil.DownloadIdProvider, DefaultDownloadIndex, boolean, boolean)</a></span> - Static method in class com.google.android.exoplayer2.offline.<a href="com/google/android/exoplayer2/offline/ActionFileUpgradeUtil.html" title="class in com.google.android.exoplayer2.offline">ActionFileUpgradeUtil</a></dt>
 <dd>
@@ -23529,6 +23655,10 @@
 <dd>
 <div class="block">The value for the event.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/flac/VorbisComment.html#value">value</a></span> - Variable in class com.google.android.exoplayer2.metadata.flac.<a href="com/google/android/exoplayer2/metadata/flac/VorbisComment.html" title="class in com.google.android.exoplayer2.metadata.flac">VorbisComment</a></dt>
+<dd>
+<div class="block">The value.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/id3/TextInformationFrame.html#value">value</a></span> - Variable in class com.google.android.exoplayer2.metadata.id3.<a href="com/google/android/exoplayer2/metadata/id3/TextInformationFrame.html" title="class in com.google.android.exoplayer2.metadata.id3">TextInformationFrame</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/manifest/Descriptor.html#value">value</a></span> - Variable in class com.google.android.exoplayer2.source.dash.manifest.<a href="com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Descriptor</a></dt>
@@ -23696,6 +23826,12 @@
 <dd>
 <div class="block">Viewport width in pixels.</div>
 </dd>
+<dt><a href="com/google/android/exoplayer2/metadata/flac/VorbisComment.html" title="class in com.google.android.exoplayer2.metadata.flac"><span class="typeNameLink">VorbisComment</span></a> - Class in <a href="com/google/android/exoplayer2/metadata/flac/package-summary.html">com.google.android.exoplayer2.metadata.flac</a></dt>
+<dd>
+<div class="block">A vorbis comment.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/flac/VorbisComment.html#VorbisComment-java.lang.String-java.lang.String-">VorbisComment(String, String)</a></span> - Constructor for class com.google.android.exoplayer2.metadata.flac.<a href="com/google/android/exoplayer2/metadata/flac/VorbisComment.html" title="class in com.google.android.exoplayer2.metadata.flac">VorbisComment</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/google/android/exoplayer2/ext/vp9/VpxDecoderException.html" title="class in com.google.android.exoplayer2.ext.vp9"><span class="typeNameLink">VpxDecoderException</span></a> - Exception in <a href="com/google/android/exoplayer2/ext/vp9/package-summary.html">com.google.android.exoplayer2.ext.vp9</a></dt>
 <dd>
 <div class="block">Thrown when a libvpx decoder error occurs.</div>
@@ -23828,6 +23964,10 @@
 <dd>
 <div class="block">The width of the video in pixels, or <a href="com/google/android/exoplayer2/Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if unknown or not applicable.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/flac/PictureFrame.html#width">width</a></span> - Variable in class com.google.android.exoplayer2.metadata.flac.<a href="com/google/android/exoplayer2/metadata/flac/PictureFrame.html" title="class in com.google.android.exoplayer2.metadata.flac">PictureFrame</a></dt>
+<dd>
+<div class="block">The width of the picture in pixels.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/NalUnitUtil.SpsData.html#width">width</a></span> - Variable in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/NalUnitUtil.SpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.SpsData</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/video/AvcConfig.html#width">width</a></span> - Variable in class com.google.android.exoplayer2.video.<a href="com/google/android/exoplayer2/video/AvcConfig.html" title="class in com.google.android.exoplayer2.video">AvcConfig</a></dt>
@@ -23950,6 +24090,16 @@
 <dd>
 <div class="block">Returns a copy of this data spec with the specified Uri.</div>
 </dd>
+<dt><a href="com/google/android/exoplayer2/ext/workmanager/WorkManagerScheduler.html" title="class in com.google.android.exoplayer2.ext.workmanager"><span class="typeNameLink">WorkManagerScheduler</span></a> - Class in <a href="com/google/android/exoplayer2/ext/workmanager/package-summary.html">com.google.android.exoplayer2.ext.workmanager</a></dt>
+<dd>
+<div class="block">A <a href="com/google/android/exoplayer2/scheduler/Scheduler.html" title="interface in com.google.android.exoplayer2.scheduler"><code>Scheduler</code></a> that uses <code>WorkManager</code>.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ext/workmanager/WorkManagerScheduler.html#WorkManagerScheduler-java.lang.String-">WorkManagerScheduler(String)</a></span> - Constructor for class com.google.android.exoplayer2.ext.workmanager.<a href="com/google/android/exoplayer2/ext/workmanager/WorkManagerScheduler.html" title="class in com.google.android.exoplayer2.ext.workmanager">WorkManagerScheduler</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/google/android/exoplayer2/ext/workmanager/WorkManagerScheduler.SchedulerWorker.html" title="class in com.google.android.exoplayer2.ext.workmanager"><span class="typeNameLink">WorkManagerScheduler.SchedulerWorker</span></a> - Class in <a href="com/google/android/exoplayer2/ext/workmanager/package-summary.html">com.google.android.exoplayer2.ext.workmanager</a></dt>
+<dd>
+<div class="block">A <code>Worker</code> that starts the target service if the requirements are met.</div>
+</dd>
 <dt><a href="com/google/android/exoplayer2/offline/WritableDownloadIndex.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">WritableDownloadIndex</span></a> - Interface in <a href="com/google/android/exoplayer2/offline/package-summary.html">com.google.android.exoplayer2.offline</a></dt>
 <dd>
 <div class="block">A writable index of <a href="com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline"><code>Downloads</code></a>.</div>
@@ -23979,6 +24129,10 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/Format.html#writeToParcel-android.os.Parcel-int-">writeToParcel(Parcel, int)</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/emsg/EventMessage.html#writeToParcel-android.os.Parcel-int-">writeToParcel(Parcel, int)</a></span> - Method in class com.google.android.exoplayer2.metadata.emsg.<a href="com/google/android/exoplayer2/metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg">EventMessage</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/flac/PictureFrame.html#writeToParcel-android.os.Parcel-int-">writeToParcel(Parcel, int)</a></span> - Method in class com.google.android.exoplayer2.metadata.flac.<a href="com/google/android/exoplayer2/metadata/flac/PictureFrame.html" title="class in com.google.android.exoplayer2.metadata.flac">PictureFrame</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/flac/VorbisComment.html#writeToParcel-android.os.Parcel-int-">writeToParcel(Parcel, int)</a></span> - Method in class com.google.android.exoplayer2.metadata.flac.<a href="com/google/android/exoplayer2/metadata/flac/VorbisComment.html" title="class in com.google.android.exoplayer2.metadata.flac">VorbisComment</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/icy/IcyHeaders.html#writeToParcel-android.os.Parcel-int-">writeToParcel(Parcel, int)</a></span> - Method in class com.google.android.exoplayer2.metadata.icy.<a href="com/google/android/exoplayer2/metadata/icy/IcyHeaders.html" title="class in com.google.android.exoplayer2.metadata.icy">IcyHeaders</a></dt>
 <dd>&nbsp;</dd>

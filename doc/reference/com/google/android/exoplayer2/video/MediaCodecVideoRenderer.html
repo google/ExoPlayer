@@ -343,7 +343,8 @@ extends <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCo
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>protected <a href="https://developer.android.com/reference/android/media/MediaFormat.html" target="_top" title="class or interface in android.media">MediaFormat</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html#getMediaFormat-com.google.android.exoplayer2.Format-com.google.android.exoplayer2.video.MediaCodecVideoRenderer.CodecMaxValues-float-boolean-int-">getMediaFormat</a></span>(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html#getMediaFormat-com.google.android.exoplayer2.Format-java.lang.String-com.google.android.exoplayer2.video.MediaCodecVideoRenderer.CodecMaxValues-float-boolean-int-">getMediaFormat</a></span>(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;codecMimeType,
               <a href="../../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.CodecMaxValues.html" title="class in com.google.android.exoplayer2.video">MediaCodecVideoRenderer.CodecMaxValues</a>&nbsp;codecMaxValues,
               float&nbsp;codecOperatingRate,
               boolean&nbsp;deviceNeedsNoPostProcessWorkaround,
@@ -1488,13 +1489,14 @@ protected&nbsp;void&nbsp;onProcessedOutputBuffer(long&nbsp;presentationTimeUs)</
 </dl>
 </li>
 </ul>
-<a name="getMediaFormat-com.google.android.exoplayer2.Format-com.google.android.exoplayer2.video.MediaCodecVideoRenderer.CodecMaxValues-float-boolean-int-">
+<a name="getMediaFormat-com.google.android.exoplayer2.Format-java.lang.String-com.google.android.exoplayer2.video.MediaCodecVideoRenderer.CodecMaxValues-float-boolean-int-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getMediaFormat</h4>
 <pre>protected&nbsp;<a href="https://developer.android.com/reference/android/media/MediaFormat.html" target="_top" title="class or interface in android.media">MediaFormat</a>&nbsp;getMediaFormat(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+                                     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;codecMimeType,
                                      <a href="../../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.CodecMaxValues.html" title="class in com.google.android.exoplayer2.video">MediaCodecVideoRenderer.CodecMaxValues</a>&nbsp;codecMaxValues,
                                      float&nbsp;codecOperatingRate,
                                      boolean&nbsp;deviceNeedsNoPostProcessWorkaround,
@@ -1503,6 +1505,7 @@ protected&nbsp;void&nbsp;onProcessedOutputBuffer(long&nbsp;presentationTimeUs)</
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>format</code> - The format of media.</dd>
+<dd><code>codecMimeType</code> - The MIME type handled by the codec.</dd>
 <dd><code>codecMaxValues</code> - Codec max values that should be used when configuring the decoder.</dd>
 <dd><code>codecOperatingRate</code> - The codec operating rate, or <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.html#CODEC_OPERATING_RATE_UNSET"><code>MediaCodecRenderer.CODEC_OPERATING_RATE_UNSET</code></a> if
      no codec operating rate should be set.</dd>

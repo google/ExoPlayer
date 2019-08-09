@@ -447,6 +447,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <li class="blockList">
 <h4>AspectRatioFrameLayout</h4>
 <pre>public&nbsp;AspectRatioFrameLayout(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+                              @Nullable
                               <a href="https://developer.android.com/reference/android/util/AttributeSet.html" target="_top" title="class or interface in android.util">AttributeSet</a>&nbsp;attrs)</pre>
 </li>
 </ul>
@@ -478,11 +479,13 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <ul class="blockList">
 <li class="blockList">
 <h4>setAspectRatioListener</h4>
-<pre>public&nbsp;void&nbsp;setAspectRatioListener(<a href="../../../../../com/google/android/exoplayer2/ui/AspectRatioFrameLayout.AspectRatioListener.html" title="interface in com.google.android.exoplayer2.ui">AspectRatioFrameLayout.AspectRatioListener</a>&nbsp;listener)</pre>
+<pre>public&nbsp;void&nbsp;setAspectRatioListener(@Nullable
+                                   <a href="../../../../../com/google/android/exoplayer2/ui/AspectRatioFrameLayout.AspectRatioListener.html" title="interface in com.google.android.exoplayer2.ui">AspectRatioFrameLayout.AspectRatioListener</a>&nbsp;listener)</pre>
 <div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/ui/AspectRatioFrameLayout.AspectRatioListener.html" title="interface in com.google.android.exoplayer2.ui"><code>AspectRatioFrameLayout.AspectRatioListener</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>listener</code> - The listener to be notified about aspect ratios changes.</dd>
+<dd><code>listener</code> - The listener to be notified about aspect ratios changes, or null to clear a
+     listener that was previously set.</dd>
 </dl>
 </li>
 </ul>

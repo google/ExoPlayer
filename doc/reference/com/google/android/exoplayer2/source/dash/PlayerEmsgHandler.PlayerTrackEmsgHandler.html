@@ -291,7 +291,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/Tr
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-">sampleData</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>data</code> - A <a href="../../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util"><code>ParsableByteArray</code></a> from which to read the sample data.</dd>
-<dd><code>length</code> - The number of bytes to read.</dd>
+<dd><code>length</code> - The number of bytes to read, starting from <code>data.getPosition()</code>.</dd>
 </dl>
 </li>
 </ul>

@@ -292,6 +292,18 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
                long&nbsp;foregroundNotificationUpdateInterval,
                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;channelId,
                int&nbsp;channelNameResourceId)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#DownloadService-int-long-java.lang.String-int-int-"><code>DownloadService(int, long, String, int, int)</code></a>.</span></div>
+</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected </code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#DownloadService-int-long-java.lang.String-int-int-">DownloadService</a></span>(int&nbsp;foregroundNotificationId,
+               long&nbsp;foregroundNotificationUpdateInterval,
+               <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;channelId,
+               int&nbsp;channelNameResourceId,
+               int&nbsp;channelDescriptionResourceId)</code>
 <div class="block">Creates a DownloadService.</div>
 </td>
 </tr>
@@ -875,6 +887,22 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <a name="DownloadService-int-long-java.lang.String-int-">
 <!--   -->
 </a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DownloadService</h4>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+protected&nbsp;DownloadService(int&nbsp;foregroundNotificationId,
+                                      long&nbsp;foregroundNotificationUpdateInterval,
+                                      @Nullable
+                                      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;channelId,
+                                      @StringRes
+                                      int&nbsp;channelNameResourceId)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#DownloadService-int-long-java.lang.String-int-int-"><code>DownloadService(int, long, String, int, int)</code></a>.</span></div>
+</li>
+</ul>
+<a name="DownloadService-int-long-java.lang.String-int-int-">
+<!--   -->
+</a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>DownloadService</h4>
@@ -883,7 +911,9 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
                           @Nullable
                           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;channelId,
                           @StringRes
-                          int&nbsp;channelNameResourceId)</pre>
+                          int&nbsp;channelNameResourceId,
+                          @StringRes
+                          int&nbsp;channelDescriptionResourceId)</pre>
 <div class="block">Creates a DownloadService.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -895,8 +925,12 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
      the app will take care of creating a notification channel if needed. If specified, must be
      unique per package. The value may be truncated if it's too long. Ignored if <code>foregroundNotificationId</code> is <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#FOREGROUND_NOTIFICATION_ID_NONE"><code>FOREGROUND_NOTIFICATION_ID_NONE</code></a>.</dd>
 <dd><code>channelNameResourceId</code> - A string resource identifier for the user visible name of the
-     channel, if <code>channelId</code> is specified. The recommended maximum length is 40
-     characters. The value may be truncated if it is too long. Ignored if <code>foregroundNotificationId</code> is <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#FOREGROUND_NOTIFICATION_ID_NONE"><code>FOREGROUND_NOTIFICATION_ID_NONE</code></a>.</dd>
+     notification channel. The recommended maximum length is 40 characters. The value may be
+     truncated if it's too long. Ignored if <code>channelId</code> is null or if <code>foregroundNotificationId</code> is <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#FOREGROUND_NOTIFICATION_ID_NONE"><code>FOREGROUND_NOTIFICATION_ID_NONE</code></a>.</dd>
+<dd><code>channelDescriptionResourceId</code> - A string resource identifier for the user visible
+     description of the notification channel, or 0 if no description is provided. The
+     recommended maximum length is 300 characters. The value may be truncated if it is too long.
+     Ignored if <code>channelId</code> is null or if <code>foregroundNotificationId</code> is <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#FOREGROUND_NOTIFICATION_ID_NONE"><code>FOREGROUND_NOTIFICATION_ID_NONE</code></a>.</dd>
 </dl>
 </li>
 </ul>

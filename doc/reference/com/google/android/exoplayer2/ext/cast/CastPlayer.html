@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10,"i44":10,"i45":10,"i46":10,"i47":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10,"i44":10,"i45":10,"i46":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -502,10 +502,6 @@ extends <a href="../../../../../../com/google/android/exoplayer2/BasePlayer.html
 <div class="block">Stops playback and optionally resets the player.</div>
 </td>
 </tr>
-<tr id="i47" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cast/CastPlayer.html#updateInternalState--">updateInternalState</a></span>()</code>&nbsp;</td>
-</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.BasePlayer">
@@ -562,8 +558,9 @@ extends <a href="../../../../../../com/google/android/exoplayer2/BasePlayer.html
 <ul class="blockList">
 <li class="blockList">
 <h4>loadItem</h4>
-<pre>public&nbsp;com.google.android.gms.common.api.PendingResult&lt;com.google.android.gms.cast.framework.media.RemoteMediaClient.MediaChannelResult&gt;&nbsp;loadItem(com.google.android.gms.cast.MediaQueueItem&nbsp;item,
-                                                                                                                                                  long&nbsp;positionMs)</pre>
+<pre>@Nullable
+public&nbsp;com.google.android.gms.common.api.PendingResult&lt;com.google.android.gms.cast.framework.media.RemoteMediaClient.MediaChannelResult&gt;&nbsp;loadItem(com.google.android.gms.cast.MediaQueueItem&nbsp;item,
+                                                                                                                                                            long&nbsp;positionMs)</pre>
 <div class="block">Loads a single item media queue. If no session is available, does nothing.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -582,11 +579,12 @@ extends <a href="../../../../../../com/google/android/exoplayer2/BasePlayer.html
 <ul class="blockList">
 <li class="blockList">
 <h4>loadItems</h4>
-<pre>public&nbsp;com.google.android.gms.common.api.PendingResult&lt;com.google.android.gms.cast.framework.media.RemoteMediaClient.MediaChannelResult&gt;&nbsp;loadItems(com.google.android.gms.cast.MediaQueueItem[]&nbsp;items,
-                                                                                                                                                   int&nbsp;startIndex,
-                                                                                                                                                   long&nbsp;positionMs,
-                                                                                                                                                   <a href="../../../../../../com/google/android/exoplayer2/Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">@Player.RepeatMode</a>
-                                                                                                                                                   int&nbsp;repeatMode)</pre>
+<pre>@Nullable
+public&nbsp;com.google.android.gms.common.api.PendingResult&lt;com.google.android.gms.cast.framework.media.RemoteMediaClient.MediaChannelResult&gt;&nbsp;loadItems(com.google.android.gms.cast.MediaQueueItem[]&nbsp;items,
+                                                                                                                                                             int&nbsp;startIndex,
+                                                                                                                                                             long&nbsp;positionMs,
+                                                                                                                                                             <a href="../../../../../../com/google/android/exoplayer2/Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">@Player.RepeatMode</a>
+                                                                                                                                                             int&nbsp;repeatMode)</pre>
 <div class="block">Loads a media queue. If no session is available, does nothing.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -607,7 +605,8 @@ extends <a href="../../../../../../com/google/android/exoplayer2/BasePlayer.html
 <ul class="blockList">
 <li class="blockList">
 <h4>addItems</h4>
-<pre>public&nbsp;com.google.android.gms.common.api.PendingResult&lt;com.google.android.gms.cast.framework.media.RemoteMediaClient.MediaChannelResult&gt;&nbsp;addItems(com.google.android.gms.cast.MediaQueueItem...&nbsp;items)</pre>
+<pre>@Nullable
+public&nbsp;com.google.android.gms.common.api.PendingResult&lt;com.google.android.gms.cast.framework.media.RemoteMediaClient.MediaChannelResult&gt;&nbsp;addItems(com.google.android.gms.cast.MediaQueueItem...&nbsp;items)</pre>
 <div class="block">Appends a sequence of items to the media queue. If no media queue exists, does nothing.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -623,8 +622,9 @@ extends <a href="../../../../../../com/google/android/exoplayer2/BasePlayer.html
 <ul class="blockList">
 <li class="blockList">
 <h4>addItems</h4>
-<pre>public&nbsp;com.google.android.gms.common.api.PendingResult&lt;com.google.android.gms.cast.framework.media.RemoteMediaClient.MediaChannelResult&gt;&nbsp;addItems(int&nbsp;periodId,
-                                                                                                                                                  com.google.android.gms.cast.MediaQueueItem...&nbsp;items)</pre>
+<pre>@Nullable
+public&nbsp;com.google.android.gms.common.api.PendingResult&lt;com.google.android.gms.cast.framework.media.RemoteMediaClient.MediaChannelResult&gt;&nbsp;addItems(int&nbsp;periodId,
+                                                                                                                                                            com.google.android.gms.cast.MediaQueueItem...&nbsp;items)</pre>
 <div class="block">Inserts a sequence of items into the media queue. If no media queue or period with id <code>periodId</code> exist, does nothing.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -642,7 +642,8 @@ extends <a href="../../../../../../com/google/android/exoplayer2/BasePlayer.html
 <ul class="blockList">
 <li class="blockList">
 <h4>removeItem</h4>
-<pre>public&nbsp;com.google.android.gms.common.api.PendingResult&lt;com.google.android.gms.cast.framework.media.RemoteMediaClient.MediaChannelResult&gt;&nbsp;removeItem(int&nbsp;periodId)</pre>
+<pre>@Nullable
+public&nbsp;com.google.android.gms.common.api.PendingResult&lt;com.google.android.gms.cast.framework.media.RemoteMediaClient.MediaChannelResult&gt;&nbsp;removeItem(int&nbsp;periodId)</pre>
 <div class="block">Removes an item from the media queue. If no media queue or period with id <code>periodId</code>
  exist, does nothing.</div>
 <dl>
@@ -660,8 +661,9 @@ extends <a href="../../../../../../com/google/android/exoplayer2/BasePlayer.html
 <ul class="blockList">
 <li class="blockList">
 <h4>moveItem</h4>
-<pre>public&nbsp;com.google.android.gms.common.api.PendingResult&lt;com.google.android.gms.cast.framework.media.RemoteMediaClient.MediaChannelResult&gt;&nbsp;moveItem(int&nbsp;periodId,
-                                                                                                                                                  int&nbsp;newIndex)</pre>
+<pre>@Nullable
+public&nbsp;com.google.android.gms.common.api.PendingResult&lt;com.google.android.gms.cast.framework.media.RemoteMediaClient.MediaChannelResult&gt;&nbsp;moveItem(int&nbsp;periodId,
+                                                                                                                                                            int&nbsp;newIndex)</pre>
 <div class="block">Moves an existing item within the media queue. If no media queue or period with id <code>periodId</code> exist, does nothing.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -680,7 +682,8 @@ extends <a href="../../../../../../com/google/android/exoplayer2/BasePlayer.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getItem</h4>
-<pre>public&nbsp;com.google.android.gms.cast.MediaQueueItem&nbsp;getItem(int&nbsp;periodId)</pre>
+<pre>@Nullable
+public&nbsp;com.google.android.gms.cast.MediaQueueItem&nbsp;getItem(int&nbsp;periodId)</pre>
 <div class="block">Returns the item that corresponds to the period with the given id, or null if no media queue or
  period with id <code>periodId</code> exist.</div>
 <dl>
@@ -709,11 +712,12 @@ extends <a href="../../../../../../com/google/android/exoplayer2/BasePlayer.html
 <ul class="blockList">
 <li class="blockList">
 <h4>setSessionAvailabilityListener</h4>
-<pre>public&nbsp;void&nbsp;setSessionAvailabilityListener(<a href="../../../../../../com/google/android/exoplayer2/ext/cast/SessionAvailabilityListener.html" title="interface in com.google.android.exoplayer2.ext.cast">SessionAvailabilityListener</a>&nbsp;listener)</pre>
+<pre>public&nbsp;void&nbsp;setSessionAvailabilityListener(@Nullable
+                                           <a href="../../../../../../com/google/android/exoplayer2/ext/cast/SessionAvailabilityListener.html" title="interface in com.google.android.exoplayer2.ext.cast">SessionAvailabilityListener</a>&nbsp;listener)</pre>
 <div class="block">Sets a listener for updates on the cast session availability.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>listener</code> - The <a href="../../../../../../com/google/android/exoplayer2/ext/cast/SessionAvailabilityListener.html" title="interface in com.google.android.exoplayer2.ext.cast"><code>SessionAvailabilityListener</code></a>.</dd>
+<dd><code>listener</code> - The <a href="../../../../../../com/google/android/exoplayer2/ext/cast/SessionAvailabilityListener.html" title="interface in com.google.android.exoplayer2.ext.cast"><code>SessionAvailabilityListener</code></a>, or null to clear the listener.</dd>
 </dl>
 </li>
 </ul>
@@ -830,7 +834,8 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/Player.Meta
 <ul class="blockList">
 <li class="blockList">
 <h4>getPlaybackError</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;getPlaybackError()</pre>
+<pre>@Nullable
+public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;getPlaybackError()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/Player.html#getPlaybackError--">Player</a></code></span></div>
 <div class="block">Returns the error that caused playback to fail. This is the same error that will have been
  reported via <a href="../../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlayerError-com.google.android.exoplayer2.ExoPlaybackException-"><code>Player.EventListener.onPlayerError(ExoPlaybackException)</code></a> at the time of
@@ -1231,7 +1236,7 @@ public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/l
 <a name="getContentBufferedPosition--">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>getContentBufferedPosition</h4>
 <pre>public&nbsp;long&nbsp;getContentBufferedPosition()</pre>
@@ -1239,15 +1244,6 @@ public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/l
 <div class="block">If <a href="../../../../../../com/google/android/exoplayer2/Player.html#isPlayingAd--"><code>Player.isPlayingAd()</code></a> returns <code>true</code>, returns an estimate of the content position in
  the current content window up to which data is buffered, in milliseconds. If there is no ad
  playing, the returned position is the same as that returned by <a href="../../../../../../com/google/android/exoplayer2/Player.html#getBufferedPosition--"><code>Player.getBufferedPosition()</code></a>.</div>
-</li>
-</ul>
-<a name="updateInternalState--">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>updateInternalState</h4>
-<pre>public&nbsp;void&nbsp;updateInternalState()</pre>
 </li>
 </ul>
 </li>
