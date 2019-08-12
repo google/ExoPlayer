@@ -31,6 +31,7 @@
   `DefaultTrackSelector` to allow adaptive selections of audio tracks with
   different channel counts
   ([#6257](https://github.com/google/ExoPlayer/issues/6257)).
+* Reset `DefaultBandwidthMeter` to initial values on network change.
 
 ### 2.10.4 ###
 
