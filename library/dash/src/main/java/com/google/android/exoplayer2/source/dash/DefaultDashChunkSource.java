@@ -67,7 +67,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     private final int maxSegmentsPerLoad;
 
     public Factory(DataSource.Factory dataSourceFactory) {
-      this(dataSourceFactory, 1);
+      this(dataSourceFactory, /* maxSegmentsPerLoad= */ 1);
     }
 
     public Factory(DataSource.Factory dataSourceFactory, int maxSegmentsPerLoad) {
@@ -633,7 +633,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
         Representation representation,
         boolean enableEventMessageTrack,
         List<Format> closedCaptionFormats,
-        TrackOutput playerEmsgTrackOutput) {
+        @Nullable TrackOutput playerEmsgTrackOutput) {
       this(
           periodDurationUs,
           representation,
@@ -787,7 +787,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
         Representation representation,
         boolean enableEventMessageTrack,
         List<Format> closedCaptionFormats,
-        TrackOutput playerEmsgTrackOutput) {
+        @Nullable TrackOutput playerEmsgTrackOutput) {
       String containerMimeType = representation.format.containerMimeType;
       if (mimeTypeIsRawText(containerMimeType)) {
         return null;

@@ -55,9 +55,10 @@ public class TrackSelectionParameters implements Parcelable {
     }
 
     /**
-     * See {@link TrackSelectionParameters#preferredAudioLanguage}.
+     * Sets the preferred language for audio and forced text tracks.
      *
-     * @param preferredAudioLanguage Preferred audio language as an IETF BCP 47 conformant tag.
+     * @param preferredAudioLanguage Preferred audio language as an IETF BCP 47 conformant tag, or
+     *     {@code null} to select the default track, or the first track if there's no default.
      * @return This builder.
      */
     public Builder setPreferredAudioLanguage(@Nullable String preferredAudioLanguage) {
@@ -66,9 +67,10 @@ public class TrackSelectionParameters implements Parcelable {
     }
 
     /**
-     * See {@link TrackSelectionParameters#preferredTextLanguage}.
+     * Sets the preferred language for text tracks.
      *
-     * @param preferredTextLanguage Preferred text language as an IETF BCP 47 conformant tag.
+     * @param preferredTextLanguage Preferred text language as an IETF BCP 47 conformant tag, or
+     *     {@code null} to select the default track if there is one, or no track otherwise.
      * @return This builder.
      */
     public Builder setPreferredTextLanguage(@Nullable String preferredTextLanguage) {
@@ -88,8 +90,12 @@ public class TrackSelectionParameters implements Parcelable {
     }
 
     /**
-     * See {@link TrackSelectionParameters#selectUndeterminedTextLanguage}.
+     * Sets whether a text track with undetermined language should be selected if no track with
+     * {@link #setPreferredTextLanguage(String)} is available, or if the preferred language is
+     * unset.
      *
+     * @param selectUndeterminedTextLanguage Whether a text track with undetermined language should
+     *     be selected if no preferred language track is available.
      * @return This builder.
      */
     public Builder setSelectUndeterminedTextLanguage(boolean selectUndeterminedTextLanguage) {
@@ -98,8 +104,10 @@ public class TrackSelectionParameters implements Parcelable {
     }
 
     /**
-     * See {@link TrackSelectionParameters#disabledTextTrackSelectionFlags}.
+     * Sets a bitmask of selection flags that are disabled for text track selections.
      *
+     * @param disabledTextTrackSelectionFlags A bitmask of {@link C.SelectionFlags} that are
+     *     disabled for text track selections.
      * @return This builder.
      */
     public Builder setDisabledTextTrackSelectionFlags(

@@ -174,8 +174,8 @@ public class LibvpxVideoRenderer extends BaseRenderer {
    */
   public LibvpxVideoRenderer(
       long allowedJoiningTimeMs,
-      Handler eventHandler,
-      VideoRendererEventListener eventListener,
+      @Nullable Handler eventHandler,
+      @Nullable VideoRendererEventListener eventListener,
       int maxDroppedFramesToNotify) {
     this(
         allowedJoiningTimeMs,
@@ -206,10 +206,10 @@ public class LibvpxVideoRenderer extends BaseRenderer {
    */
   public LibvpxVideoRenderer(
       long allowedJoiningTimeMs,
-      Handler eventHandler,
-      VideoRendererEventListener eventListener,
+      @Nullable Handler eventHandler,
+      @Nullable VideoRendererEventListener eventListener,
       int maxDroppedFramesToNotify,
-      DrmSessionManager<ExoMediaCrypto> drmSessionManager,
+      @Nullable DrmSessionManager<ExoMediaCrypto> drmSessionManager,
       boolean playClearSamplesWithoutKeys,
       boolean disableLoopFilter) {
     this(
@@ -249,10 +249,10 @@ public class LibvpxVideoRenderer extends BaseRenderer {
    */
   public LibvpxVideoRenderer(
       long allowedJoiningTimeMs,
-      Handler eventHandler,
-      VideoRendererEventListener eventListener,
+      @Nullable Handler eventHandler,
+      @Nullable VideoRendererEventListener eventListener,
       int maxDroppedFramesToNotify,
-      DrmSessionManager<ExoMediaCrypto> drmSessionManager,
+      @Nullable DrmSessionManager<ExoMediaCrypto> drmSessionManager,
       boolean playClearSamplesWithoutKeys,
       boolean disableLoopFilter,
       boolean enableRowMultiThreadMode,
@@ -847,7 +847,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
       pendingFormat = null;
     }
     inputBuffer.flip();
-    inputBuffer.colorInfo = formatHolder.format.colorInfo;
+    inputBuffer.colorInfo = format.colorInfo;
     onQueueInputBuffer(inputBuffer);
     decoder.queueInputBuffer(inputBuffer);
     buffersInCodecCount++;

@@ -59,10 +59,8 @@ import java.util.Map;
       clear();
     }
 
-    /**
-     * The chunk to be loaded next.
-     */
-    public Chunk chunk;
+    /** The chunk to be loaded next. */
+    @Nullable public Chunk chunk;
 
     /**
      * Indicates that the end of the stream has been reached.
@@ -70,7 +68,7 @@ import java.util.Map;
     public boolean endOfStream;
 
     /** Indicates that the chunk source is waiting for the referred playlist to be refreshed. */
-    public Uri playlistUrl;
+    @Nullable public Uri playlistUrl;
 
     /**
      * Clears the holder.
@@ -138,7 +136,7 @@ import java.util.Map;
       HlsDataSourceFactory dataSourceFactory,
       @Nullable TransferListener mediaTransferListener,
       TimestampAdjusterProvider timestampAdjusterProvider,
-      List<Format> muxedCaptionFormats) {
+      @Nullable List<Format> muxedCaptionFormats) {
     this.extractorFactory = extractorFactory;
     this.playlistTracker = playlistTracker;
     this.playlistUrls = playlistUrls;
