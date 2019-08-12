@@ -40,7 +40,8 @@ public final class DataSourceInputStreamTest {
     // Read bytes.
     for (int i = 0; i < TEST_DATA.length; i++) {
       int readByte = inputStream.read();
-      assertThat(0 <= readByte && readByte < 256).isTrue();
+      assertThat(0 <= readByte).isTrue();
+      assertThat(readByte < 256).isTrue();
       assertThat(readByte).isEqualTo(TEST_DATA[i] & 0xFF);
       assertThat(inputStream.bytesRead()).isEqualTo(i + 1);
     }

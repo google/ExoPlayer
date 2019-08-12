@@ -19,6 +19,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.drm.DrmInitData;
+import com.google.android.exoplayer2.drm.DrmSession;
+import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -45,9 +47,9 @@ public final class Format implements Parcelable {
   public static final long OFFSET_SAMPLE_RELATIVE = Long.MAX_VALUE;
 
   /** An identifier for the format, or null if unknown or not applicable. */
-  public final @Nullable String id;
+  @Nullable public final String id;
   /** The human readable label, or null if unknown or not applicable. */
-  public final @Nullable String label;
+  @Nullable public final String label;
   /** Track selection flags. */
   @C.SelectionFlags public final int selectionFlags;
   /** Track role flags. */
@@ -57,14 +59,14 @@ public final class Format implements Parcelable {
    */
   public final int bitrate;
   /** Codecs of the format as described in RFC 6381, or null if unknown or not applicable. */
-  public final @Nullable String codecs;
+  @Nullable public final String codecs;
   /** Metadata, or null if unknown or not applicable. */
-  public final @Nullable Metadata metadata;
+  @Nullable public final Metadata metadata;
 
   // Container specific.
 
   /** The mime type of the container, or null if unknown or not applicable. */
-  public final @Nullable String containerMimeType;
+  @Nullable public final String containerMimeType;
 
   // Elementary stream specific.
 
@@ -72,7 +74,7 @@ public final class Format implements Parcelable {
    * The mime type of the elementary stream (i.e. the individual samples), or null if unknown or not
    * applicable.
    */
-  public final @Nullable String sampleMimeType;
+  @Nullable public final String sampleMimeType;
   /**
    * The maximum size of a buffer of data (typically one sample), or {@link #NO_VALUE} if unknown or
    * not applicable.
@@ -84,7 +86,7 @@ public final class Format implements Parcelable {
    */
   public final List<byte[]> initializationData;
   /** DRM initialization data if the stream is protected, or null otherwise. */
-  public final @Nullable DrmInitData drmInitData;
+  @Nullable public final DrmInitData drmInitData;
 
   /**
    * For samples that contain subsamples, this is an offset that should be added to subsample
@@ -122,9 +124,9 @@ public final class Format implements Parcelable {
   @C.StereoMode
   public final int stereoMode;
   /** The projection data for 360/VR video, or null if not applicable. */
-  public final @Nullable byte[] projectionData;
+  @Nullable public final byte[] projectionData;
   /** The color metadata associated with the video, helps with accurate color reproduction. */
-  public final @Nullable ColorInfo colorInfo;
+  @Nullable public final ColorInfo colorInfo;
 
   // Audio specific.
 
@@ -157,17 +159,30 @@ public final class Format implements Parcelable {
   // Audio and text specific.
 
   /** The language as an IETF BCP 47 conformant tag, or null if unknown or not applicable. */
-  public final @Nullable String language;
+  @Nullable public final String language;
   /**
    * The Accessibility channel, or {@link #NO_VALUE} if not known or applicable.
    */
   public final int accessibilityChannel;
+
+  // Provided by source.
+
+  /**
+   * The type of the {@link ExoMediaCrypto} provided by the media source, if the media source can
+   * acquire a {@link DrmSession} for {@link #drmInitData}. Null if the media source cannot acquire
+   * a session for {@link #drmInitData}, or if not applicable.
+   */
+  @Nullable public final Class<? extends ExoMediaCrypto> exoMediaCryptoType;
 
   // Lazily initialized hashcode.
   private int hashCode;
 
   // Video.
 
+  /**
+   * @deprecated Use {@link #createVideoContainerFormat(String, String, String, String, String, int,
+   *     int, int, float, List, int, int)} instead.
+   */
   @Deprecated
   public static Format createVideoContainerFormat(
       @Nullable String id,
@@ -236,7 +251,8 @@ public final class Format implements Parcelable {
         /* encoderDelay= */ NO_VALUE,
         /* encoderPadding= */ NO_VALUE,
         /* language= */ null,
-        /* accessibilityChannel= */ NO_VALUE);
+        /* accessibilityChannel= */ NO_VALUE,
+        /* exoMediaCryptoType= */ null);
   }
 
   public static Format createVideoSampleFormat(
@@ -340,11 +356,16 @@ public final class Format implements Parcelable {
         /* encoderDelay= */ NO_VALUE,
         /* encoderPadding= */ NO_VALUE,
         /* language= */ null,
-        /* accessibilityChannel= */ NO_VALUE);
+        /* accessibilityChannel= */ NO_VALUE,
+        /* exoMediaCryptoType= */ null);
   }
 
   // Audio.
 
+  /**
+   * @deprecated Use {@link #createAudioContainerFormat(String, String, String, String, String, int,
+   *     int, int, List, int, int, String)} instead.
+   */
   @Deprecated
   public static Format createAudioContainerFormat(
       @Nullable String id,
@@ -413,7 +434,8 @@ public final class Format implements Parcelable {
         /* encoderDelay= */ NO_VALUE,
         /* encoderPadding= */ NO_VALUE,
         language,
-        /* accessibilityChannel= */ NO_VALUE);
+        /* accessibilityChannel= */ NO_VALUE,
+        /* exoMediaCryptoType= */ null);
   }
 
   public static Format createAudioSampleFormat(
@@ -518,7 +540,8 @@ public final class Format implements Parcelable {
         encoderDelay,
         encoderPadding,
         language,
-        /* accessibilityChannel= */ NO_VALUE);
+        /* accessibilityChannel= */ NO_VALUE,
+        /* exoMediaCryptoType= */ null);
   }
 
   // Text.
@@ -585,7 +608,8 @@ public final class Format implements Parcelable {
         /* encoderDelay= */ NO_VALUE,
         /* encoderPadding= */ NO_VALUE,
         language,
-        accessibilityChannel);
+        accessibilityChannel,
+        /* exoMediaCryptoType= */ null);
   }
 
   public static Format createTextSampleFormat(
@@ -698,7 +722,8 @@ public final class Format implements Parcelable {
         /* encoderDelay= */ NO_VALUE,
         /* encoderPadding= */ NO_VALUE,
         language,
-        accessibilityChannel);
+        accessibilityChannel,
+        /* exoMediaCryptoType= */ null);
   }
 
   // Image.
@@ -740,11 +765,16 @@ public final class Format implements Parcelable {
         /* encoderDelay= */ NO_VALUE,
         /* encoderPadding= */ NO_VALUE,
         language,
-        /* accessibilityChannel= */ NO_VALUE);
+        /* accessibilityChannel= */ NO_VALUE,
+        /* exoMediaCryptoType= */ null);
   }
 
   // Generic.
 
+  /**
+   * @deprecated Use {@link #createContainerFormat(String, String, String, String, String, int, int,
+   *     int, String)} instead.
+   */
   @Deprecated
   public static Format createContainerFormat(
       @Nullable String id,
@@ -804,7 +834,8 @@ public final class Format implements Parcelable {
         /* encoderDelay= */ NO_VALUE,
         /* encoderPadding= */ NO_VALUE,
         language,
-        /* accessibilityChannel= */ NO_VALUE);
+        /* accessibilityChannel= */ NO_VALUE,
+        /* exoMediaCryptoType= */ null);
   }
 
   public static Format createSampleFormat(
@@ -837,7 +868,8 @@ public final class Format implements Parcelable {
         /* encoderDelay= */ NO_VALUE,
         /* encoderPadding= */ NO_VALUE,
         /* language= */ null,
-        /* accessibilityChannel= */ NO_VALUE);
+        /* accessibilityChannel= */ NO_VALUE,
+        /* exoMediaCryptoType= */ null);
   }
 
   public static Format createSampleFormat(
@@ -874,7 +906,8 @@ public final class Format implements Parcelable {
         /* encoderDelay= */ NO_VALUE,
         /* encoderPadding= */ NO_VALUE,
         /* language= */ null,
-        /* accessibilityChannel= */ NO_VALUE);
+        /* accessibilityChannel= */ NO_VALUE,
+        /* exoMediaCryptoType= */ null);
   }
 
   /* package */ Format(
@@ -910,7 +943,9 @@ public final class Format implements Parcelable {
       int encoderPadding,
       // Audio and text specific.
       @Nullable String language,
-      int accessibilityChannel) {
+      int accessibilityChannel,
+      // Provided by source.
+      @Nullable Class<? extends ExoMediaCrypto> exoMediaCryptoType) {
     this.id = id;
     this.label = label;
     this.selectionFlags = selectionFlags;
@@ -946,6 +981,8 @@ public final class Format implements Parcelable {
     // Audio and text specific.
     this.language = Util.normalizeLanguageCode(language);
     this.accessibilityChannel = accessibilityChannel;
+    // Provided by source.
+    this.exoMediaCryptoType = exoMediaCryptoType;
   }
 
   @SuppressWarnings("ResourceType")
@@ -988,6 +1025,8 @@ public final class Format implements Parcelable {
     // Audio and text specific.
     language = in.readString();
     accessibilityChannel = in.readInt();
+    // Provided by source.
+    exoMediaCryptoType = null;
   }
 
   public Format copyWithMaxInputSize(int maxInputSize) {
@@ -1019,7 +1058,8 @@ public final class Format implements Parcelable {
         encoderDelay,
         encoderPadding,
         language,
-        accessibilityChannel);
+        accessibilityChannel,
+        exoMediaCryptoType);
   }
 
   public Format copyWithSubsampleOffsetUs(long subsampleOffsetUs) {
@@ -1051,7 +1091,8 @@ public final class Format implements Parcelable {
         encoderDelay,
         encoderPadding,
         language,
-        accessibilityChannel);
+        accessibilityChannel,
+        exoMediaCryptoType);
   }
 
   public Format copyWithContainerInfo(
@@ -1099,7 +1140,8 @@ public final class Format implements Parcelable {
         encoderDelay,
         encoderPadding,
         language,
-        accessibilityChannel);
+        accessibilityChannel,
+        exoMediaCryptoType);
   }
 
   @SuppressWarnings("ReferenceEquality")
@@ -1178,7 +1220,8 @@ public final class Format implements Parcelable {
         encoderDelay,
         encoderPadding,
         language,
-        accessibilityChannel);
+        accessibilityChannel,
+        exoMediaCryptoType);
   }
 
   public Format copyWithGaplessInfo(int encoderDelay, int encoderPadding) {
@@ -1210,7 +1253,8 @@ public final class Format implements Parcelable {
         encoderDelay,
         encoderPadding,
         language,
-        accessibilityChannel);
+        accessibilityChannel,
+        exoMediaCryptoType);
   }
 
   public Format copyWithFrameRate(float frameRate) {
@@ -1242,42 +1286,24 @@ public final class Format implements Parcelable {
         encoderDelay,
         encoderPadding,
         language,
-        accessibilityChannel);
+        accessibilityChannel,
+        exoMediaCryptoType);
   }
 
   public Format copyWithDrmInitData(@Nullable DrmInitData drmInitData) {
-    return new Format(
-        id,
-        label,
-        selectionFlags,
-        roleFlags,
-        bitrate,
-        codecs,
-        metadata,
-        containerMimeType,
-        sampleMimeType,
-        maxInputSize,
-        initializationData,
-        drmInitData,
-        subsampleOffsetUs,
-        width,
-        height,
-        frameRate,
-        rotationDegrees,
-        pixelWidthHeightRatio,
-        projectionData,
-        stereoMode,
-        colorInfo,
-        channelCount,
-        sampleRate,
-        pcmEncoding,
-        encoderDelay,
-        encoderPadding,
-        language,
-        accessibilityChannel);
+    return copyWithAdjustments(drmInitData, metadata);
   }
 
   public Format copyWithMetadata(@Nullable Metadata metadata) {
+    return copyWithAdjustments(drmInitData, metadata);
+  }
+
+  @SuppressWarnings("ReferenceEquality")
+  public Format copyWithAdjustments(
+      @Nullable DrmInitData drmInitData, @Nullable Metadata metadata) {
+    if (drmInitData == this.drmInitData && metadata == this.metadata) {
+      return this;
+    }
     return new Format(
         id,
         label,
@@ -1306,7 +1332,8 @@ public final class Format implements Parcelable {
         encoderDelay,
         encoderPadding,
         language,
-        accessibilityChannel);
+        accessibilityChannel,
+        exoMediaCryptoType);
   }
 
   public Format copyWithRotationDegrees(int rotationDegrees) {
@@ -1338,7 +1365,8 @@ public final class Format implements Parcelable {
         encoderDelay,
         encoderPadding,
         language,
-        accessibilityChannel);
+        accessibilityChannel,
+        exoMediaCryptoType);
   }
 
   public Format copyWithBitrate(int bitrate) {
@@ -1370,7 +1398,74 @@ public final class Format implements Parcelable {
         encoderDelay,
         encoderPadding,
         language,
-        accessibilityChannel);
+        accessibilityChannel,
+        exoMediaCryptoType);
+  }
+
+  public Format copyWithVideoSize(int width, int height) {
+    return new Format(
+        id,
+        label,
+        selectionFlags,
+        roleFlags,
+        bitrate,
+        codecs,
+        metadata,
+        containerMimeType,
+        sampleMimeType,
+        maxInputSize,
+        initializationData,
+        drmInitData,
+        subsampleOffsetUs,
+        width,
+        height,
+        frameRate,
+        rotationDegrees,
+        pixelWidthHeightRatio,
+        projectionData,
+        stereoMode,
+        colorInfo,
+        channelCount,
+        sampleRate,
+        pcmEncoding,
+        encoderDelay,
+        encoderPadding,
+        language,
+        accessibilityChannel,
+        exoMediaCryptoType);
+  }
+
+  public Format copyWithExoMediaCryptoType(Class<? extends ExoMediaCrypto> exoMediaCryptoType) {
+    return new Format(
+        id,
+        label,
+        selectionFlags,
+        roleFlags,
+        bitrate,
+        codecs,
+        metadata,
+        containerMimeType,
+        sampleMimeType,
+        maxInputSize,
+        initializationData,
+        drmInitData,
+        subsampleOffsetUs,
+        width,
+        height,
+        frameRate,
+        rotationDegrees,
+        pixelWidthHeightRatio,
+        projectionData,
+        stereoMode,
+        colorInfo,
+        channelCount,
+        sampleRate,
+        pcmEncoding,
+        encoderDelay,
+        encoderPadding,
+        language,
+        accessibilityChannel,
+        exoMediaCryptoType);
   }
 
   /**
@@ -1449,6 +1544,8 @@ public final class Format implements Parcelable {
       // Audio and text specific.
       result = 31 * result + (language == null ? 0 : language.hashCode());
       result = 31 * result + accessibilityChannel;
+      // Provided by source.
+      result = 31 * result + (exoMediaCryptoType == null ? 0 : exoMediaCryptoType.hashCode());
       hashCode = result;
     }
     return hashCode;
@@ -1484,6 +1581,7 @@ public final class Format implements Parcelable {
         && accessibilityChannel == other.accessibilityChannel
         && Float.compare(frameRate, other.frameRate) == 0
         && Float.compare(pixelWidthHeightRatio, other.pixelWidthHeightRatio) == 0
+        && Util.areEqual(exoMediaCryptoType, other.exoMediaCryptoType)
         && Util.areEqual(id, other.id)
         && Util.areEqual(label, other.label)
         && Util.areEqual(codecs, other.codecs)

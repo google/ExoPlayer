@@ -17,42 +17,31 @@ package com.google.android.exoplayer2.ext.cast;
 
 import android.net.Uri;
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import org.checkerframework.checker.initialization.qual.UnknownInitialization;
-import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 
-/** Representation of an item that can be played by a media player. */
+/** Representation of a media item. */
 public final class MediaItem {
 
   /** A builder for {@link MediaItem} instances. */
   public static final class Builder {
 
-    @Nullable private UUID uuid;
-    private String title;
-    private String description;
-    private MediaItem.UriBundle media;
-    @Nullable private Object attachment;
-    private List<MediaItem.DrmScheme> drmSchemes;
-    private long startPositionUs;
-    private long endPositionUs;
-    private String mimeType;
+    @Nullable private Uri uri;
+    @Nullable private String title;
+    @Nullable private String mimeType;
+    @Nullable private DrmConfiguration drmConfiguration;
 
-    /** Creates an builder with default field values. */
-    public Builder() {
-      clearInternal();
+    /** See {@link MediaItem#uri}. */
+    public Builder setUri(String uri) {
+      return setUri(Uri.parse(uri));
     }
 
-    /** See {@link MediaItem#uuid}. */
-    public Builder setUuid(UUID uuid) {
-      this.uuid = uuid;
+    /** See {@link MediaItem#uri}. */
+    public Builder setUri(Uri uri) {
+      this.uri = uri;
       return this;
     }
 
@@ -62,307 +51,125 @@ public final class MediaItem {
       return this;
     }
 
-    /** See {@link MediaItem#description}. */
-    public Builder setDescription(String description) {
-      this.description = description;
-      return this;
-    }
-
-    /** Equivalent to {@link #setMedia(UriBundle) setMedia(new UriBundle(Uri.parse(uri)))}. */
-    public Builder setMedia(String uri) {
-      return setMedia(new UriBundle(Uri.parse(uri)));
-    }
-
-    /** See {@link MediaItem#media}. */
-    public Builder setMedia(UriBundle media) {
-      this.media = media;
-      return this;
-    }
-
-    /** See {@link MediaItem#attachment}. */
-    public Builder setAttachment(Object attachment) {
-      this.attachment = attachment;
-      return this;
-    }
-
-    /** See {@link MediaItem#drmSchemes}. */
-    public Builder setDrmSchemes(List<MediaItem.DrmScheme> drmSchemes) {
-      this.drmSchemes = Collections.unmodifiableList(new ArrayList<>(drmSchemes));
-      return this;
-    }
-
-    /** See {@link MediaItem#startPositionUs}. */
-    public Builder setStartPositionUs(long startPositionUs) {
-      this.startPositionUs = startPositionUs;
-      return this;
-    }
-
-    /** See {@link MediaItem#endPositionUs}. */
-    public Builder setEndPositionUs(long endPositionUs) {
-      Assertions.checkArgument(endPositionUs != C.TIME_END_OF_SOURCE);
-      this.endPositionUs = endPositionUs;
-      return this;
-    }
-
     /** See {@link MediaItem#mimeType}. */
     public Builder setMimeType(String mimeType) {
       this.mimeType = mimeType;
       return this;
     }
 
-    /**
-     * Equivalent to {@link #build()}, except it also calls {@link #clear()} after creating the
-     * {@link MediaItem}.
-     */
-    public MediaItem buildAndClear() {
-      MediaItem item = build();
-      clearInternal();
-      return item;
-    }
-
-    /** Returns the builder to default values. */
-    public Builder clear() {
-      clearInternal();
+    /** See {@link MediaItem#drmConfiguration}. */
+    public Builder setDrmConfiguration(DrmConfiguration drmConfiguration) {
+      this.drmConfiguration = drmConfiguration;
       return this;
     }
 
-    /**
-     * Returns a new {@link MediaItem} instance with the current builder values. This method also
-     * clears any values passed to {@link #setUuid(UUID)}.
-     */
+    /** Returns a new {@link MediaItem} instance with the current builder values. */
     public MediaItem build() {
-      UUID uuid = this.uuid;
-      this.uuid = null;
-      return new MediaItem(
-          uuid != null ? uuid : UUID.randomUUID(),
-          title,
-          description,
-          media,
-          attachment,
-          drmSchemes,
-          startPositionUs,
-          endPositionUs,
-          mimeType);
-    }
-
-    @EnsuresNonNull({"title", "description", "media", "drmSchemes", "mimeType"})
-    private void clearInternal(@UnknownInitialization Builder this) {
-      uuid = null;
-      title = "";
-      description = "";
-      media = UriBundle.EMPTY;
-      attachment = null;
-      drmSchemes = Collections.emptyList();
-      startPositionUs = C.TIME_UNSET;
-      endPositionUs = C.TIME_UNSET;
-      mimeType = "";
+      Assertions.checkNotNull(uri);
+      return new MediaItem(uri, title, mimeType, drmConfiguration);
     }
   }
 
-  /** Bundles a resource's URI with headers to attach to any request to that URI. */
-  public static final class UriBundle {
-
-    /** An empty {@link UriBundle}. */
-    public static final UriBundle EMPTY = new UriBundle(Uri.EMPTY);
-
-    /** A URI. */
-    public final Uri uri;
-
-    /** The headers to attach to any request for the given URI. */
-    public final Map<String, String> requestHeaders;
-
-    /**
-     * Creates an instance with no request headers.
-     *
-     * @param uri See {@link #uri}.
-     */
-    public UriBundle(Uri uri) {
-      this(uri, Collections.emptyMap());
-    }
-
-    /**
-     * Creates an instance with the given URI and request headers.
-     *
-     * @param uri See {@link #uri}.
-     * @param requestHeaders See {@link #requestHeaders}.
-     */
-    public UriBundle(Uri uri, Map<String, String> requestHeaders) {
-      this.uri = uri;
-      this.requestHeaders = Collections.unmodifiableMap(new HashMap<>(requestHeaders));
-    }
-
-    @Override
-    public boolean equals(@Nullable Object other) {
-      if (this == other) {
-        return true;
-      }
-      if (other == null || getClass() != other.getClass()) {
-        return false;
-      }
-
-      UriBundle uriBundle = (UriBundle) other;
-      return uri.equals(uriBundle.uri) && requestHeaders.equals(uriBundle.requestHeaders);
-    }
-
-    @Override
-    public int hashCode() {
-      int result = uri.hashCode();
-      result = 31 * result + requestHeaders.hashCode();
-      return result;
-    }
-  }
-
-  /**
-   * Represents a DRM protection scheme, and optionally provides information about how to acquire
-   * the license for the media.
-   */
-  public static final class DrmScheme {
+  /** DRM configuration for a media item. */
+  public static final class DrmConfiguration {
 
     /** The UUID of the protection scheme. */
     public final UUID uuid;
 
     /**
-     * Optional {@link UriBundle} for the license server. If no license server is provided, the
-     * server must be provided by the media.
+     * Optional license server {@link Uri}. If {@code null} then the license server must be
+     * specified by the media.
      */
-    @Nullable public final UriBundle licenseServer;
+    @Nullable public final Uri licenseUri;
+
+    /** Headers that should be attached to any license requests. */
+    public final Map<String, String> requestHeaders;
 
     /**
      * Creates an instance.
      *
      * @param uuid See {@link #uuid}.
-     * @param licenseServer See {@link #licenseServer}.
+     * @param licenseUri See {@link #licenseUri}.
+     * @param requestHeaders See {@link #requestHeaders}.
      */
-    public DrmScheme(UUID uuid, @Nullable UriBundle licenseServer) {
+    public DrmConfiguration(
+        UUID uuid, @Nullable Uri licenseUri, @Nullable Map<String, String> requestHeaders) {
       this.uuid = uuid;
-      this.licenseServer = licenseServer;
+      this.licenseUri = licenseUri;
+      this.requestHeaders =
+          requestHeaders == null
+              ? Collections.emptyMap()
+              : Collections.unmodifiableMap(requestHeaders);
     }
 
     @Override
-    public boolean equals(@Nullable Object other) {
-      if (this == other) {
+    public boolean equals(@Nullable Object obj) {
+      if (this == obj) {
         return true;
       }
-      if (other == null || getClass() != other.getClass()) {
+      if (obj == null || getClass() != obj.getClass()) {
         return false;
       }
 
-      DrmScheme drmScheme = (DrmScheme) other;
-      return uuid.equals(drmScheme.uuid) && Util.areEqual(licenseServer, drmScheme.licenseServer);
+      DrmConfiguration other = (DrmConfiguration) obj;
+      return uuid.equals(other.uuid)
+          && Util.areEqual(licenseUri, other.licenseUri)
+          && requestHeaders.equals(other.requestHeaders);
     }
 
     @Override
     public int hashCode() {
       int result = uuid.hashCode();
-      result = 31 * result + (licenseServer != null ? licenseServer.hashCode() : 0);
+      result = 31 * result + (licenseUri != null ? licenseUri.hashCode() : 0);
+      result = 31 * result + requestHeaders.hashCode();
       return result;
     }
   }
 
-  /**
-   * A UUID that identifies this item, potentially across different devices. The default value is
-   * obtained by calling {@link UUID#randomUUID()}.
-   */
-  public final UUID uuid;
+  /** The media {@link Uri}. */
+  public final Uri uri;
 
-  /** The title of the item. The default value is an empty string. */
-  public final String title;
+  /** The title of the item, or {@code null} if unspecified. */
+  @Nullable public final String title;
 
-  /** A description for the item. The default value is an empty string. */
-  public final String description;
+  /** The mime type for the media, or {@code null} if unspecified. */
+  @Nullable public final String mimeType;
 
-  /**
-   * A {@link UriBundle} to fetch the media content. The default value is {@link UriBundle#EMPTY}.
-   */
-  public final UriBundle media;
+  /** Optional {@link DrmConfiguration} for the media. */
+  @Nullable public final DrmConfiguration drmConfiguration;
 
-  /**
-   * An optional opaque object to attach to the media item. Handling of this attachment is
-   * implementation specific. The default value is null.
-   */
-  @Nullable public final Object attachment;
-
-  /**
-   * Immutable list of {@link DrmScheme} instances sorted in decreasing order of preference. The
-   * default value is an empty list.
-   */
-  public final List<DrmScheme> drmSchemes;
-
-  /**
-   * The position in microseconds at which playback of this media item should start. {@link
-   * C#TIME_UNSET} if playback should start at the default position. The default value is {@link
-   * C#TIME_UNSET}.
-   */
-  public final long startPositionUs;
-
-  /**
-   * The position in microseconds at which playback of this media item should end. {@link
-   * C#TIME_UNSET} if playback should end at the end of the media. The default value is {@link
-   * C#TIME_UNSET}.
-   */
-  public final long endPositionUs;
-
-  /**
-   * The mime type of this media item. The default value is an empty string.
-   *
-   * <p>The usage of this mime type is optional and player implementation specific.
-   */
-  public final String mimeType;
-
-  // TODO: Add support for sideloaded tracks, artwork, icon, and subtitle.
+  private MediaItem(
+      Uri uri,
+      @Nullable String title,
+      @Nullable String mimeType,
+      @Nullable DrmConfiguration drmConfiguration) {
+    this.uri = uri;
+    this.title = title;
+    this.mimeType = mimeType;
+    this.drmConfiguration = drmConfiguration;
+  }
 
   @Override
-  public boolean equals(@Nullable Object other) {
-    if (this == other) {
+  public boolean equals(@Nullable Object obj) {
+    if (this == obj) {
       return true;
     }
-    if (other == null || getClass() != other.getClass()) {
+    if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    MediaItem mediaItem = (MediaItem) other;
-    return startPositionUs == mediaItem.startPositionUs
-        && endPositionUs == mediaItem.endPositionUs
-        && uuid.equals(mediaItem.uuid)
-        && title.equals(mediaItem.title)
-        && description.equals(mediaItem.description)
-        && media.equals(mediaItem.media)
-        && Util.areEqual(attachment, mediaItem.attachment)
-        && drmSchemes.equals(mediaItem.drmSchemes)
-        && mimeType.equals(mediaItem.mimeType);
+    MediaItem other = (MediaItem) obj;
+    return uri.equals(other.uri)
+        && Util.areEqual(title, other.title)
+        && Util.areEqual(mimeType, other.mimeType)
+        && Util.areEqual(drmConfiguration, other.drmConfiguration);
   }
 
   @Override
   public int hashCode() {
-    int result = uuid.hashCode();
-    result = 31 * result + title.hashCode();
-    result = 31 * result + description.hashCode();
-    result = 31 * result + media.hashCode();
-    result = 31 * result + (attachment != null ? attachment.hashCode() : 0);
-    result = 31 * result + drmSchemes.hashCode();
-    result = 31 * result + (int) (startPositionUs ^ (startPositionUs >>> 32));
-    result = 31 * result + (int) (endPositionUs ^ (endPositionUs >>> 32));
-    result = 31 * result + mimeType.hashCode();
+    int result = uri.hashCode();
+    result = 31 * result + (title == null ? 0 : title.hashCode());
+    result = 31 * result + (drmConfiguration == null ? 0 : drmConfiguration.hashCode());
+    result = 31 * result + (mimeType == null ? 0 : mimeType.hashCode());
     return result;
-  }
-
-  private MediaItem(
-      UUID uuid,
-      String title,
-      String description,
-      UriBundle media,
-      @Nullable Object attachment,
-      List<DrmScheme> drmSchemes,
-      long startPositionUs,
-      long endPositionUs,
-      String mimeType) {
-    this.uuid = uuid;
-    this.title = title;
-    this.description = description;
-    this.media = media;
-    this.attachment = attachment;
-    this.drmSchemes = drmSchemes;
-    this.startPositionUs = startPositionUs;
-    this.endPositionUs = endPositionUs;
-    this.mimeType = mimeType;
   }
 }

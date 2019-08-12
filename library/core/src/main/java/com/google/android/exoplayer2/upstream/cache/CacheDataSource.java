@@ -123,7 +123,7 @@ public final class CacheDataSource implements DataSource {
 
   private final Cache cache;
   private final DataSource cacheReadDataSource;
-  private final @Nullable DataSource cacheWriteDataSource;
+  @Nullable private final DataSource cacheWriteDataSource;
   private final DataSource upstreamDataSource;
   private final CacheKeyFactory cacheKeyFactory;
   @Nullable private final EventListener eventListener;
@@ -132,16 +132,17 @@ public final class CacheDataSource implements DataSource {
   private final boolean ignoreCacheOnError;
   private final boolean ignoreCacheForUnsetLengthRequests;
 
-  private @Nullable DataSource currentDataSource;
+  @Nullable private DataSource currentDataSource;
   private boolean currentDataSpecLengthUnset;
-  private @Nullable Uri uri;
-  private @Nullable Uri actualUri;
-  private @HttpMethod int httpMethod;
+  @Nullable private Uri uri;
+  @Nullable private Uri actualUri;
+  @HttpMethod private int httpMethod;
+  @Nullable private byte[] httpBody;
   private int flags;
-  private @Nullable String key;
+  @Nullable private String key;
   private long readPosition;
   private long bytesRemaining;
-  private @Nullable CacheSpan currentHoleSpan;
+  @Nullable private CacheSpan currentHoleSpan;
   private boolean seenCacheError;
   private boolean currentRequestIgnoresCache;
   private long totalCachedBytesRead;
@@ -261,6 +262,7 @@ public final class CacheDataSource implements DataSource {
       uri = dataSpec.uri;
       actualUri = getRedirectedUriOrDefault(cache, key, /* defaultUri= */ uri);
       httpMethod = dataSpec.httpMethod;
+      httpBody = dataSpec.httpBody;
       flags = dataSpec.flags;
       readPosition = dataSpec.position;
 
@@ -319,7 +321,7 @@ public final class CacheDataSource implements DataSource {
       }
       return bytesRead;
     } catch (IOException e) {
-      if (currentDataSpecLengthUnset && isCausedByPositionOutOfRange(e)) {
+      if (currentDataSpecLengthUnset && CacheUtil.isCausedByPositionOutOfRange(e)) {
         setNoBytesRemainingAndMaybeStoreLength();
         return C.RESULT_END_OF_INPUT;
       }
@@ -329,7 +331,8 @@ public final class CacheDataSource implements DataSource {
   }
 
   @Override
-  public @Nullable Uri getUri() {
+  @Nullable
+  public Uri getUri() {
     return actualUri;
   }
 
@@ -346,6 +349,7 @@ public final class CacheDataSource implements DataSource {
     uri = null;
     actualUri = null;
     httpMethod = DataSpec.HTTP_METHOD_GET;
+    httpBody = null;
     notifyBytesRead();
     try {
       closeCurrentSource();
@@ -392,7 +396,7 @@ public final class CacheDataSource implements DataSource {
       nextDataSource = upstreamDataSource;
       nextDataSpec =
           new DataSpec(
-              uri, httpMethod, null, readPosition, readPosition, bytesRemaining, key, flags);
+              uri, httpMethod, httpBody, readPosition, readPosition, bytesRemaining, key, flags);
     } else if (nextSpan.isCached) {
       // Data is cached, read from cache.
       Uri fileUri = Uri.fromFile(nextSpan.file);
@@ -415,7 +419,7 @@ public final class CacheDataSource implements DataSource {
         }
       }
       nextDataSpec =
-          new DataSpec(uri, httpMethod, null, readPosition, readPosition, length, key, flags);
+          new DataSpec(uri, httpMethod, httpBody, readPosition, readPosition, length, key, flags);
       if (cacheWriteDataSource != null) {
         nextDataSource = cacheWriteDataSource;
       } else {
@@ -482,20 +486,6 @@ public final class CacheDataSource implements DataSource {
   private static Uri getRedirectedUriOrDefault(Cache cache, String key, Uri defaultUri) {
     Uri redirectedUri = ContentMetadata.getRedirectedUri(cache.getContentMetadata(key));
     return redirectedUri != null ? redirectedUri : defaultUri;
-  }
-
-  private static boolean isCausedByPositionOutOfRange(IOException e) {
-    Throwable cause = e;
-    while (cause != null) {
-      if (cause instanceof DataSourceException) {
-        int reason = ((DataSourceException) cause).reason;
-        if (reason == DataSourceException.POSITION_OUT_OF_RANGE) {
-          return true;
-        }
-      }
-      cause = cause.getCause();
-    }
-    return false;
   }
 
   private boolean isReadingFromUpstream() {

@@ -91,7 +91,8 @@ public final class FormatTest {
             /* encoderDelay= */ 1001,
             /* encoderPadding= */ 1002,
             "language",
-            /* accessibilityChannel= */ Format.NO_VALUE);
+            /* accessibilityChannel= */ Format.NO_VALUE,
+            /* exoMediaCryptoType= */ null);
 
     Parcel parcel = Parcel.obtain();
     formatToParcel.writeToParcel(parcel, 0);

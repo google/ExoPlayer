@@ -54,7 +54,7 @@ public final class SceneRenderer implements VideoFrameMetadataListener, CameraMo
   // Used by other threads only
   private volatile @C.StreamType int defaultStereoMode;
   private @C.StreamType int lastStereoMode;
-  private @Nullable byte[] lastProjectionData;
+  @Nullable private byte[] lastProjectionData;
 
   // Methods called on any thread.
 

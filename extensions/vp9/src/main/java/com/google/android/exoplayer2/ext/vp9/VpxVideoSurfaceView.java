@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.ext.vp9;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
+import androidx.annotation.Nullable;
 import android.util.AttributeSet;
 
 /**
@@ -27,10 +28,10 @@ public class VpxVideoSurfaceView extends GLSurfaceView implements VpxOutputBuffe
   private final VpxRenderer renderer;
 
   public VpxVideoSurfaceView(Context context) {
-    this(context, null);
+    this(context, /* attrs= */ null);
   }
 
-  public VpxVideoSurfaceView(Context context, AttributeSet attrs) {
+  public VpxVideoSurfaceView(Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
     renderer = new VpxRenderer();
     setPreserveEGLContextOnPause(true);

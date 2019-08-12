@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2019 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.google.android.exoplayer2.gvrdemo">
+
+  <uses-permission android:name="android.permission.INTERNET"/>
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
+  <uses-sdk/>
+
+  <application
+      android:allowBackup="false"
+      android:icon="@mipmap/ic_launcher"
+      android:label="@string/application_name"
+      android:largeHeap="true">
+
+    <activity
+        android:name="com.google.android.exoplayer2.gvrdemo.SampleChooserActivity"
+        android:configChanges="keyboardHidden"
+        android:exported="true"
+        android:label="@string/application_name">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW"/>
+
+        <category android:name="android.intent.category.DEFAULT"/>
+        <category android:name="android.intent.category.BROWSABLE"/>
+
+        <data android:scheme="http"/>
+        <data android:scheme="https"/>
+        <data android:scheme="content"/>
+        <data android:scheme="asset"/>
+        <data android:scheme="file"/>
+        <data android:host="*"/>
+        <data android:pathPattern=".*\\.exolist\\.json"/>
+      </intent-filter>
+    </activity>
+
+    <activity
+        android:name="com.google.android.exoplayer2.gvrdemo.PlayerActivity"
+        android:configChanges="density|keyboardHidden|navigation|orientation|screenSize|uiMode"
+        android:enableVrMode="@string/gvr_vr_mode_component"
+        android:exported="false"
+        android:label="@string/application_name"
+        android:launchMode="singleTask"
+        android:resizeableActivity="false"
+        android:screenOrientation="landscape"
+        android:theme="@style/VrActivityTheme">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="com.google.intent.category.CARDBOARD"/> <!-- copybara:strip(development-only) -->
+        <category android:name="com.google.intent.category.DAYDREAM"/>
+      </intent-filter>
+    </activity>
+
+  </application>
+
+</manifest>

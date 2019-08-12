@@ -2,18 +2,135 @@
 
 ### dev-v2 (not yet released) ###
 
+* Update `DefaultTrackSelector` to apply a viewport constraint for the default
+  display by default.
+* Add `PlaybackStatsListener` to collect `PlaybackStats` for playbacks analysis
+  and analytics reporting (TODO: link to developer guide page/blog post).
+* Add basic DRM support to the Cast demo app.
 * Assume that encrypted content requires secure decoders in renderer support
   checks ([#5568](https://github.com/google/ExoPlayer/issues/5568)).
 * Decoders: Prefer decoders that advertise format support over ones that do not,
   even if they are listed lower in the `MediaCodecList`.
-* CEA-608: Handle XDS and TEXT modes
-  ([5807](https://github.com/google/ExoPlayer/pull/5807)).
-* Audio: fix an issue where not all audio was played out when the configuration
-  for the underlying track was changing (e.g., at some period transitions).
-* UI: Change playback controls toggle from touch down to touch up events
-  ([#5784](https://github.com/google/ExoPlayer/issues/5784)).
 * Add a workaround for broken raw audio decoding on Oppo R9
   ([#5782](https://github.com/google/ExoPlayer/issues/5782)).
+* Add VR player demo.
+* Wrap decoder exceptions in a new `DecoderException` class and report as
+  renderer error.
+* Do not pass the manifest to callbacks of `Player.EventListener` and
+  `SourceInfoRefreshListener` anymore. Instead make it accessible through
+  `Player.getCurrentManifest()` and `Timeline.Window.manifest`. Also rename
+  `SourceInfoRefreshListener` to `MediaSourceCaller`.
+* Set `compileSdkVersion` to 29 to use Android Q APIs.
+* Add `enable` and `disable` methods to `MediaSource` to improve resource
+  management in playlists.
+* Improve text selection logic to always prefer the better language matches
+  over other selection parameters.
+* Remove `AnalyticsCollector.Factory`. Instances can be created directly and
+  the `Player` set later using `AnalyticsCollector.setPlayer`.
+* Add `allowAudioMixedChannelCountAdaptiveness` parameter to
+  `DefaultTrackSelector` to allow adaptive selections of audio tracks with
+  different channel counts
+  ([#6257](https://github.com/google/ExoPlayer/issues/6257)).
+
+### 2.10.4 ###
+
+* Offline: Add `Scheduler` implementation that uses `WorkManager`.
+* Add ability to specify a description when creating notification channels via
+  ExoPlayer library classes.
+* Switch normalized BCP-47 language codes to use 2-letter ISO 639-1 language
+  tags instead of 3-letter ISO 639-2 language tags.
+* Ensure the `SilenceMediaSource` position is in range
+  ([#6229](https://github.com/google/ExoPlayer/issues/6229)).
+* WAV: Calculate correct duration for clipped streams
+  ([#6241](https://github.com/google/ExoPlayer/issues/6241)).
+* MP3: Use CBR header bitrate, not calculated bitrate. This reverts a change
+  from 2.9.3 ([#6238](https://github.com/google/ExoPlayer/issues/6238)).
+* Flac extension: Parse `VORBIS_COMMENT` and `PICTURE` metadata
+  ([#5527](https://github.com/google/ExoPlayer/issues/5527)).
+* Fix issue where initial seek positions get ignored when playing a preroll ad
+  ([#6201](https://github.com/google/ExoPlayer/issues/6201)).
+* Fix issue where invalid language tags were normalized to "und" instead of
+  keeping the original
+  ([#6153](https://github.com/google/ExoPlayer/issues/6153)).
+* Fix `DataSchemeDataSource` re-opening and range requests
+  ([#6192](https://github.com/google/ExoPlayer/issues/6192)).
+* Fix Flac and ALAC playback on some LG devices
+  ([#5938](https://github.com/google/ExoPlayer/issues/5938)).
+* Fix issue when calling `performClick` on `PlayerView` without
+  `PlayerControlView`
+  ([#6260](https://github.com/google/ExoPlayer/issues/6260)).
+* Fix issue where playback speeds are not used in adaptive track selections
+  after manual selection changes for other renderers
+  ([#6256](https://github.com/google/ExoPlayer/issues/6256)).
+
+### 2.10.3 ###
+
+* Display last frame when seeking to end of stream
+  ([#2568](https://github.com/google/ExoPlayer/issues/2568)).
+* Audio:
+  * Fix an issue where not all audio was played out when the configuration
+    for the underlying track was changing (e.g., at some period transitions).
+  * Fix an issue where playback speed was applied inaccurately in playlists
+    ([#6117](https://github.com/google/ExoPlayer/issues/6117)).
+* UI: Fix `PlayerView` incorrectly consuming touch events if no controller is
+  attached ([#6109](https://github.com/google/ExoPlayer/issues/6109)).
+* CEA608: Fix repetition of special North American characters
+  ([#6133](https://github.com/google/ExoPlayer/issues/6133)).
+* FLV: Fix bug that caused playback of some live streams to not start
+  ([#6111](https://github.com/google/ExoPlayer/issues/6111)).
+* SmoothStreaming: Parse text stream `Subtype` into `Format.roleFlags`.
+* MediaSession extension: Fix `MediaSessionConnector.play()` not resuming
+  playback ([#6093](https://github.com/google/ExoPlayer/issues/6093)).
+
+### 2.10.2 ###
+
+* Add `ResolvingDataSource` for just-in-time resolution of `DataSpec`s
+  ([#5779](https://github.com/google/ExoPlayer/issues/5779)).
+* Add `SilenceMediaSource` that can be used to play silence of a given
+  duration ([#5735](https://github.com/google/ExoPlayer/issues/5735)).
+* Offline:
+  * Prevent unexpected `DownloadHelper.Callback.onPrepared` callbacks after
+    preparation of a `DownloadHelper` fails
+    ([#5915](https://github.com/google/ExoPlayer/issues/5915)).
+  * Fix `CacheUtil.cache()` downloading too much data
+    ([#5927](https://github.com/google/ExoPlayer/issues/5927)).
+  * Fix misreporting cached bytes when caching is paused
+    ([#5573](https://github.com/google/ExoPlayer/issues/5573)).
+* UI:
+  * Allow setting `DefaultTimeBar` attributes on `PlayerView` and
+    `PlayerControlView`.
+  * Change playback controls toggle from touch down to touch up events
+    ([#5784](https://github.com/google/ExoPlayer/issues/5784)).
+  * Fix issue where playback controls were not kept visible on key presses
+    ([#5963](https://github.com/google/ExoPlayer/issues/5963)).
+* Subtitles:
+  * CEA-608: Handle XDS and TEXT modes
+    ([#5807](https://github.com/google/ExoPlayer/pull/5807)).
+  * TTML: Fix bitmap rendering
+    ([#5633](https://github.com/google/ExoPlayer/pull/5633)).
+* IMA: Fix ad pod index offset calculation without preroll
+  ([#5928](https://github.com/google/ExoPlayer/issues/5928)).
+* Add a `playWhenReady` flag to MediaSessionConnector.PlaybackPreparer methods
+  to indicate whether a controller sent a play or only a prepare command. This
+  allows to take advantage of decoder reuse with the MediaSessionConnector
+  ([#5891](https://github.com/google/ExoPlayer/issues/5891)).
+* Add `ProgressUpdateListener` to `PlayerControlView`
+  ([#5834](https://github.com/google/ExoPlayer/issues/5834)).
+* Add support for auto-detecting UDP streams in `DefaultDataSource`
+  ([#6036](https://github.com/google/ExoPlayer/pull/6036)).
+* Allow enabling decoder fallback with `DefaultRenderersFactory`
+  ([#5942](https://github.com/google/ExoPlayer/issues/5942)).
+* Gracefully handle revoked `ACCESS_NETWORK_STATE` permission
+  ([#6019](https://github.com/google/ExoPlayer/issues/6019)).
+* Fix decoding problems when seeking back after seeking beyond a mid-roll ad
+  ([#6009](https://github.com/google/ExoPlayer/issues/6009)).
+* Fix application of `maxAudioBitrate` for adaptive audio track groups
+  ([#6006](https://github.com/google/ExoPlayer/issues/6006)).
+* Fix bug caused by parallel adaptive track selection using `Format`s without
+  bitrate information
+  ([#5971](https://github.com/google/ExoPlayer/issues/5971)).
+* Fix bug in `CastPlayer.getCurrentWindowIndex()`
+  ([#5955](https://github.com/google/ExoPlayer/issues/5955)).
 
 ### 2.10.1 ###
 

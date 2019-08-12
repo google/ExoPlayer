@@ -174,7 +174,7 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
    * The format of the audio muxed in the variants. May be null if the playlist does not declare any
    * muxed audio.
    */
-  public final Format muxedAudioFormat;
+  @Nullable public final Format muxedAudioFormat;
   /**
    * The format of the closed captions declared by the playlist. May be empty if the playlist
    * explicitly declares no captions are available, or null if the playlist does not declare any
@@ -208,7 +208,7 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
       List<Rendition> audios,
       List<Rendition> subtitles,
       List<Rendition> closedCaptions,
-      Format muxedAudioFormat,
+      @Nullable Format muxedAudioFormat,
       List<Format> muxedCaptionFormats,
       boolean hasIndependentSegments,
       Map<String, String> variableDefinitions,

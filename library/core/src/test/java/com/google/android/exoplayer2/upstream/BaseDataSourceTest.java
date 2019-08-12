@@ -107,7 +107,8 @@ public class BaseDataSourceTest {
     }
 
     @Override
-    public @Nullable Uri getUri() {
+    @Nullable
+    public Uri getUri() {
       throw new UnsupportedOperationException();
     }
 

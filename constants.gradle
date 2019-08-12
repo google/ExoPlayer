@@ -13,17 +13,18 @@
 // limitations under the License.
 project.ext {
     // ExoPlayer version and version code.
-    releaseVersion = '2.10.1'
-    releaseVersionCode = 2010001
+    releaseVersion = '2.10.4'
+    releaseVersionCode = 2010004
     minSdkVersion = 16
     targetSdkVersion = 28
-    compileSdkVersion = 28
+    compileSdkVersion = 29
     dexmakerVersion = '2.21.0'
     mockitoVersion = '2.25.0'
-    robolectricVersion = '4.3-alpha-2'
+    robolectricVersion = '4.3'
     autoValueVersion = '1.6'
     autoServiceVersion = '1.0-rc4'
     checkerframeworkVersion = '2.5.0'
+    jsr305Version = '3.0.2'
     androidXTestVersion = '1.1.0'
     truthVersion = '0.44'
     modulePrefix = ':'

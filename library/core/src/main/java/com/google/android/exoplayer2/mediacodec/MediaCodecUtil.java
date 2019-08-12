@@ -25,10 +25,12 @@ import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.util.SparseIntArray;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.ColorInfo;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -81,10 +83,13 @@ public final class MediaCodecUtil {
   private static final Map<String, Integer> DOLBY_VISION_STRING_TO_LEVEL;
   private static final String CODEC_ID_DVHE = "dvhe";
   private static final String CODEC_ID_DVH1 = "dvh1";
+  // AV1.
+  private static final SparseIntArray AV1_LEVEL_NUMBER_TO_CONST;
+  private static final String CODEC_ID_AV01 = "av01";
   // MP4A AAC.
   private static final SparseIntArray MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE;
   private static final String CODEC_ID_MP4A = "mp4a";
-  
+
   // Lazily initialized.
   private static int maxH264DecodableFrameSize = -1;
 
@@ -166,12 +171,12 @@ public final class MediaCodecUtil {
         Util.SDK_INT >= 21
             ? new MediaCodecListCompatV21(secure, tunneling)
             : new MediaCodecListCompatV16();
-    ArrayList<MediaCodecInfo> decoderInfos = getDecoderInfosInternal(key, mediaCodecList, mimeType);
+    ArrayList<MediaCodecInfo> decoderInfos = getDecoderInfosInternal(key, mediaCodecList);
     if (secure && decoderInfos.isEmpty() && 21 <= Util.SDK_INT && Util.SDK_INT <= 23) {
       // Some devices don't list secure decoders on API level 21 [Internal: b/18678462]. Try the
       // legacy path. We also try this path on API levels 22 and 23 as a defensive measure.
       mediaCodecList = new MediaCodecListCompatV16();
-      decoderInfos = getDecoderInfosInternal(key, mediaCodecList, mimeType);
+      decoderInfos = getDecoderInfosInternal(key, mediaCodecList);
       if (!decoderInfos.isEmpty()) {
         Log.w(TAG, "MediaCodecList API didn't list secure decoder for: " + mimeType
             + ". Assuming: " + decoderInfos.get(0).name);
@@ -227,35 +232,34 @@ public final class MediaCodecUtil {
   }
 
   /**
-   * Returns profile and level (as defined by {@link CodecProfileLevel}) corresponding to the given
-   * codec description string (as defined by RFC 6381).
+   * Returns profile and level (as defined by {@link CodecProfileLevel}) corresponding to the codec
+   * description string (as defined by RFC 6381) of the given format.
    *
-   * @param codec A codec description string, as defined by RFC 6381, or {@code null} if not known.
-   * @return A pair (profile constant, level constant) if {@code codec} is well-formed and
-   *     recognized, or null otherwise
+   * @param format Media format with a codec description string, as defined by RFC 6381.
+   * @return A pair (profile constant, level constant) if the codec of the {@code format} is
+   *     well-formed and recognized, or null otherwise.
    */
-  @Nullable
-  public static Pair<Integer, Integer> getCodecProfileAndLevel(@Nullable String codec) {
-    if (codec == null) {
+  public static Pair<Integer, Integer> getCodecProfileAndLevel(Format format) {
+    if (format.codecs == null) {
       return null;
     }
-    // TODO: Check codec profile/level for AV1 once targeting Android Q and [Internal: b/128552878]
-    // has been fixed.
-    String[] parts = codec.split("\\.");
+    String[] parts = format.codecs.split("\\.");
     switch (parts[0]) {
       case CODEC_ID_AVC1:
       case CODEC_ID_AVC2:
-        return getAvcProfileAndLevel(codec, parts);
+        return getAvcProfileAndLevel(format.codecs, parts);
       case CODEC_ID_VP09:
-        return getVp9ProfileAndLevel(codec, parts);
+        return getVp9ProfileAndLevel(format.codecs, parts);
       case CODEC_ID_HEV1:
       case CODEC_ID_HVC1:
-        return getHevcProfileAndLevel(codec, parts);
+        return getHevcProfileAndLevel(format.codecs, parts);
       case CODEC_ID_DVHE:
       case CODEC_ID_DVH1:
-        return getDolbyVisionProfileAndLevel(codec, parts);
+        return getDolbyVisionProfileAndLevel(format.codecs, parts);
+      case CODEC_ID_AV01:
+        return getAv1ProfileAndLevel(format.codecs, parts, format.colorInfo);
       case CODEC_ID_MP4A:
-        return getAacCodecProfileAndLevel(codec, parts);
+        return getAacCodecProfileAndLevel(format.codecs, parts);
       default:
         return null;
     }
@@ -264,18 +268,16 @@ public final class MediaCodecUtil {
   // Internal methods.
 
   /**
-   * Returns {@link MediaCodecInfo}s for the given codec {@code key} in the order given by
+   * Returns {@link MediaCodecInfo}s for the given codec {@link CodecKey} in the order given by
    * {@code mediaCodecList}.
    *
    * @param key The codec key.
    * @param mediaCodecList The codec list.
-   * @param requestedMimeType The originally requested MIME type, which may differ from the codec
-   *     key MIME type if the codec key is being considered as a fallback.
    * @return The codec information for usable codecs matching the specified key.
    * @throws DecoderQueryException If there was an error querying the available decoders.
    */
-  private static ArrayList<MediaCodecInfo> getDecoderInfosInternal(CodecKey key,
-      MediaCodecListCompat mediaCodecList, String requestedMimeType) throws DecoderQueryException {
+  private static ArrayList<MediaCodecInfo> getDecoderInfosInternal(
+      CodecKey key, MediaCodecListCompat mediaCodecList) throws DecoderQueryException {
     try {
       ArrayList<MediaCodecInfo> decoderInfos = new ArrayList<>();
       String mimeType = key.mimeType;
@@ -285,28 +287,27 @@ public final class MediaCodecUtil {
       for (int i = 0; i < numberOfCodecs; i++) {
         android.media.MediaCodecInfo codecInfo = mediaCodecList.getCodecInfoAt(i);
         String name = codecInfo.getName();
-        String supportedType =
-            getCodecSupportedType(codecInfo, name, secureDecodersExplicit, requestedMimeType);
-        if (supportedType == null) {
+        String codecMimeType = getCodecMimeType(codecInfo, name, secureDecodersExplicit, mimeType);
+        if (codecMimeType == null) {
           continue;
         }
         try {
-          CodecCapabilities capabilities = codecInfo.getCapabilitiesForType(supportedType);
+          CodecCapabilities capabilities = codecInfo.getCapabilitiesForType(codecMimeType);
           boolean tunnelingSupported =
               mediaCodecList.isFeatureSupported(
-                  CodecCapabilities.FEATURE_TunneledPlayback, supportedType, capabilities);
+                  CodecCapabilities.FEATURE_TunneledPlayback, codecMimeType, capabilities);
           boolean tunnelingRequired =
               mediaCodecList.isFeatureRequired(
-                  CodecCapabilities.FEATURE_TunneledPlayback, supportedType, capabilities);
+                  CodecCapabilities.FEATURE_TunneledPlayback, codecMimeType, capabilities);
           if ((!key.tunneling && tunnelingRequired) || (key.tunneling && !tunnelingSupported)) {
             continue;
           }
           boolean secureSupported =
               mediaCodecList.isFeatureSupported(
-                  CodecCapabilities.FEATURE_SecurePlayback, supportedType, capabilities);
+                  CodecCapabilities.FEATURE_SecurePlayback, codecMimeType, capabilities);
           boolean secureRequired =
               mediaCodecList.isFeatureRequired(
-                  CodecCapabilities.FEATURE_SecurePlayback, supportedType, capabilities);
+                  CodecCapabilities.FEATURE_SecurePlayback, codecMimeType, capabilities);
           if ((!key.secure && secureRequired) || (key.secure && !secureSupported)) {
             continue;
           }
@@ -315,12 +316,18 @@ public final class MediaCodecUtil {
               || (!secureDecodersExplicit && !key.secure)) {
             decoderInfos.add(
                 MediaCodecInfo.newInstance(
-                    name, mimeType, capabilities, forceDisableAdaptive, /* forceSecure= */ false));
+                    name,
+                    mimeType,
+                    codecMimeType,
+                    capabilities,
+                    forceDisableAdaptive,
+                    /* forceSecure= */ false));
           } else if (!secureDecodersExplicit && secureSupported) {
             decoderInfos.add(
                 MediaCodecInfo.newInstance(
                     name + ".secure",
                     mimeType,
+                    codecMimeType,
                     capabilities,
                     forceDisableAdaptive,
                     /* forceSecure= */ true));
@@ -334,7 +341,7 @@ public final class MediaCodecUtil {
           } else {
             // Rethrow error querying primary codec capabilities, or secondary codec
             // capabilities if API level is greater than 23.
-            Log.e(TAG, "Failed to query codec " + name + " (" + supportedType + ")");
+            Log.e(TAG, "Failed to query codec " + name + " (" + codecMimeType + ")");
             throw e;
           }
         }
@@ -348,42 +355,49 @@ public final class MediaCodecUtil {
   }
 
   /**
-   * Returns the codec's supported type for decoding {@code requestedMimeType} on the current
-   * device, or {@code null} if the codec can't be used.
+   * Returns the codec's supported MIME type for media of type {@code mimeType}, or {@code null} if
+   * the codec can't be used.
    *
    * @param info The codec information.
    * @param name The name of the codec
    * @param secureDecodersExplicit Whether secure decoders were explicitly listed, if present.
-   * @param requestedMimeType The originally requested MIME type, which may differ from the codec
-   *     key MIME type if the codec key is being considered as a fallback.
-   * @return The codec's supported type for decoding {@code requestedMimeType}, or {@code null} if
-   *     the codec can't be used.
+   * @param mimeType The MIME type.
+   * @return The codec's supported MIME type for media of type {@code mimeType}, or {@code null} if
+   *     the codec can't be used. If non-null, the returned type will be equal to {@code mimeType}
+   *     except in cases where the codec is known to use a non-standard MIME type alias.
    */
   @Nullable
-  private static String getCodecSupportedType(
+  private static String getCodecMimeType(
       android.media.MediaCodecInfo info,
       String name,
       boolean secureDecodersExplicit,
-      String requestedMimeType) {
-    if (isCodecUsableDecoder(info, name, secureDecodersExplicit, requestedMimeType)) {
-      if (requestedMimeType.equals(MimeTypes.VIDEO_DOLBY_VISION)) {
-        // Handle decoders that declare support for DV via MIME types that aren't
-        // video/dolby-vision.
-        if ("OMX.MS.HEVCDV.Decoder".equals(name)) {
-          return "video/hevcdv";
-        } else if ("OMX.RTK.video.decoder".equals(name)
-            || "OMX.realtek.video.decoder.tunneled".equals(name)) {
-          return "video/dv_hevc";
-        }
-      }
+      String mimeType) {
+    if (!isCodecUsableDecoder(info, name, secureDecodersExplicit, mimeType)) {
+      return null;
+    }
 
-      String[] supportedTypes = info.getSupportedTypes();
-      for (String supportedType : supportedTypes) {
-        if (supportedType.equalsIgnoreCase(requestedMimeType)) {
-          return supportedType;
-        }
+    String[] supportedTypes = info.getSupportedTypes();
+    for (String supportedType : supportedTypes) {
+      if (supportedType.equalsIgnoreCase(mimeType)) {
+        return supportedType;
       }
     }
+
+    if (mimeType.equals(MimeTypes.VIDEO_DOLBY_VISION)) {
+      // Handle decoders that declare support for DV via MIME types that aren't
+      // video/dolby-vision.
+      if ("OMX.MS.HEVCDV.Decoder".equals(name)) {
+        return "video/hevcdv";
+      } else if ("OMX.RTK.video.decoder".equals(name)
+          || "OMX.realtek.video.decoder.tunneled".equals(name)) {
+        return "video/dv_hevc";
+      }
+    } else if (mimeType.equals(MimeTypes.AUDIO_ALAC) && "OMX.lge.alac.decoder".equals(name)) {
+      return "audio/x-lg-alac";
+    } else if (mimeType.equals(MimeTypes.AUDIO_FLAC) && "OMX.lge.flac.decoder".equals(name)) {
+      return "audio/x-lg-flac";
+    }
+
     return null;
   }
 
@@ -393,12 +407,14 @@ public final class MediaCodecUtil {
    * @param info The codec information.
    * @param name The name of the codec
    * @param secureDecodersExplicit Whether secure decoders were explicitly listed, if present.
-   * @param requestedMimeType The originally requested MIME type, which may differ from the codec
-   *     key MIME type if the codec key is being considered as a fallback.
+   * @param mimeType The MIME type.
    * @return Whether the specified codec is usable for decoding on the current device.
    */
-  private static boolean isCodecUsableDecoder(android.media.MediaCodecInfo info, String name,
-      boolean secureDecodersExplicit, String requestedMimeType) {
+  private static boolean isCodecUsableDecoder(
+      android.media.MediaCodecInfo info,
+      String name,
+      boolean secureDecodersExplicit,
+      String mimeType) {
     if (info.isEncoder() || (!secureDecodersExplicit && name.endsWith(".secure"))) {
       return false;
     }
@@ -487,8 +503,7 @@ public final class MediaCodecUtil {
     }
 
     // MTK E-AC3 decoder doesn't support decoding JOC streams in 2-D. See [Internal: b/69400041].
-    if (MimeTypes.AUDIO_E_AC3_JOC.equals(requestedMimeType)
-        && "OMX.MTK.AUDIO.DECODER.DSPAC3".equals(name)) {
+    if (MimeTypes.AUDIO_E_AC3_JOC.equals(mimeType) && "OMX.MTK.AUDIO.DECODER.DSPAC3".equals(name)) {
       return false;
     }
 
@@ -512,7 +527,12 @@ public final class MediaCodecUtil {
         // name. See <a href="https://github.com/google/ExoPlayer/issues/5782">Issue #5782</a>.
         decoderInfos.add(
             MediaCodecInfo.newInstance(
-                "OMX.google.raw.decoder", MimeTypes.AUDIO_RAW, /* capabilities= */ null));
+                /* name= */ "OMX.google.raw.decoder",
+                /* mimeType= */ MimeTypes.AUDIO_RAW,
+                /* codecMimeType= */ MimeTypes.AUDIO_RAW,
+                /* capabilities= */ null,
+                /* forceDisableAdaptive= */ false,
+                /* forceSecure= */ false));
       }
       // Work around inconsistent raw audio decoding behavior across different devices.
       sortByScore(
@@ -679,6 +699,52 @@ public final class MediaCodecUtil {
     int level = VP9_LEVEL_NUMBER_TO_CONST.get(levelInteger, -1);
     if (level == -1) {
       Log.w(TAG, "Unknown VP9 level: " + levelInteger);
+      return null;
+    }
+    return new Pair<>(profile, level);
+  }
+
+  private static Pair<Integer, Integer> getAv1ProfileAndLevel(
+      String codec, String[] parts, @Nullable ColorInfo colorInfo) {
+    if (parts.length < 4) {
+      Log.w(TAG, "Ignoring malformed AV1 codec string: " + codec);
+      return null;
+    }
+    int profileInteger;
+    int levelInteger;
+    int bitDepthInteger;
+    try {
+      profileInteger = Integer.parseInt(parts[1]);
+      levelInteger = Integer.parseInt(parts[2].substring(0, 2));
+      bitDepthInteger = Integer.parseInt(parts[3]);
+    } catch (NumberFormatException e) {
+      Log.w(TAG, "Ignoring malformed AV1 codec string: " + codec);
+      return null;
+    }
+
+    if (profileInteger != 0) {
+      Log.w(TAG, "Unknown AV1 profile: " + profileInteger);
+      return null;
+    }
+    if (bitDepthInteger != 8 && bitDepthInteger != 10) {
+      Log.w(TAG, "Unknown AV1 bit depth: " + bitDepthInteger);
+      return null;
+    }
+    int profile;
+    if (bitDepthInteger == 8) {
+      profile = CodecProfileLevel.AV1ProfileMain8;
+    } else if (colorInfo != null
+        && (colorInfo.hdrStaticInfo != null
+            || colorInfo.colorTransfer == C.COLOR_TRANSFER_HLG
+            || colorInfo.colorTransfer == C.COLOR_TRANSFER_ST2084)) {
+      profile = CodecProfileLevel.AV1ProfileMain10HDR10;
+    } else {
+      profile = CodecProfileLevel.AV1ProfileMain10;
+    }
+
+    int level = AV1_LEVEL_NUMBER_TO_CONST.get(levelInteger, -1);
+    if (level == -1) {
+      Log.w(TAG, "Unknown AV1 level: " + levelInteger);
       return null;
     }
     return new Pair<>(profile, level);
@@ -1009,6 +1075,34 @@ public final class MediaCodecUtil {
     DOLBY_VISION_STRING_TO_LEVEL.put("07", CodecProfileLevel.DolbyVisionLevelUhd30);
     DOLBY_VISION_STRING_TO_LEVEL.put("08", CodecProfileLevel.DolbyVisionLevelUhd48);
     DOLBY_VISION_STRING_TO_LEVEL.put("09", CodecProfileLevel.DolbyVisionLevelUhd60);
+
+    // See https://aomediacodec.github.io/av1-spec/av1-spec.pdf Annex A: Profiles and levels for
+    // more information on mapping AV1 codec strings to levels.
+    AV1_LEVEL_NUMBER_TO_CONST = new SparseIntArray();
+    AV1_LEVEL_NUMBER_TO_CONST.put(0, CodecProfileLevel.AV1Level2);
+    AV1_LEVEL_NUMBER_TO_CONST.put(1, CodecProfileLevel.AV1Level21);
+    AV1_LEVEL_NUMBER_TO_CONST.put(2, CodecProfileLevel.AV1Level22);
+    AV1_LEVEL_NUMBER_TO_CONST.put(3, CodecProfileLevel.AV1Level23);
+    AV1_LEVEL_NUMBER_TO_CONST.put(4, CodecProfileLevel.AV1Level3);
+    AV1_LEVEL_NUMBER_TO_CONST.put(5, CodecProfileLevel.AV1Level31);
+    AV1_LEVEL_NUMBER_TO_CONST.put(6, CodecProfileLevel.AV1Level32);
+    AV1_LEVEL_NUMBER_TO_CONST.put(7, CodecProfileLevel.AV1Level33);
+    AV1_LEVEL_NUMBER_TO_CONST.put(8, CodecProfileLevel.AV1Level4);
+    AV1_LEVEL_NUMBER_TO_CONST.put(9, CodecProfileLevel.AV1Level41);
+    AV1_LEVEL_NUMBER_TO_CONST.put(10, CodecProfileLevel.AV1Level42);
+    AV1_LEVEL_NUMBER_TO_CONST.put(11, CodecProfileLevel.AV1Level43);
+    AV1_LEVEL_NUMBER_TO_CONST.put(12, CodecProfileLevel.AV1Level5);
+    AV1_LEVEL_NUMBER_TO_CONST.put(13, CodecProfileLevel.AV1Level51);
+    AV1_LEVEL_NUMBER_TO_CONST.put(14, CodecProfileLevel.AV1Level52);
+    AV1_LEVEL_NUMBER_TO_CONST.put(15, CodecProfileLevel.AV1Level53);
+    AV1_LEVEL_NUMBER_TO_CONST.put(16, CodecProfileLevel.AV1Level6);
+    AV1_LEVEL_NUMBER_TO_CONST.put(17, CodecProfileLevel.AV1Level61);
+    AV1_LEVEL_NUMBER_TO_CONST.put(18, CodecProfileLevel.AV1Level62);
+    AV1_LEVEL_NUMBER_TO_CONST.put(19, CodecProfileLevel.AV1Level63);
+    AV1_LEVEL_NUMBER_TO_CONST.put(20, CodecProfileLevel.AV1Level7);
+    AV1_LEVEL_NUMBER_TO_CONST.put(21, CodecProfileLevel.AV1Level71);
+    AV1_LEVEL_NUMBER_TO_CONST.put(22, CodecProfileLevel.AV1Level72);
+    AV1_LEVEL_NUMBER_TO_CONST.put(23, CodecProfileLevel.AV1Level73);
 
     MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE = new SparseIntArray();
     MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE.put(1, CodecProfileLevel.AACObjectMain);

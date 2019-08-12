@@ -43,7 +43,7 @@ import com.google.android.exoplayer2.util.Log;
 public abstract class Action {
 
   private final String tag;
-  private final @Nullable String description;
+  @Nullable private final String description;
 
   /**
    * @param tag A tag to use for logging.
@@ -542,12 +542,10 @@ public abstract class Action {
     }
   }
 
-  /**
-   * Waits for {@link Player.EventListener#onTimelineChanged(Timeline, Object, int)}.
-   */
+  /** Waits for {@link Player.EventListener#onTimelineChanged(Timeline, int)}. */
   public static final class WaitForTimelineChanged extends Action {
 
-    private final @Nullable Timeline expectedTimeline;
+    @Nullable private final Timeline expectedTimeline;
 
     /**
      * Creates action waiting for a timeline change.
@@ -575,9 +573,7 @@ public abstract class Action {
           new Player.EventListener() {
             @Override
             public void onTimelineChanged(
-                Timeline timeline,
-                @Nullable Object manifest,
-                @Player.TimelineChangeReason int reason) {
+                Timeline timeline, @Player.TimelineChangeReason int reason) {
               if (expectedTimeline == null || timeline.equals(expectedTimeline)) {
                 player.removeListener(this);
                 nextAction.schedule(player, trackSelector, surface, handler);

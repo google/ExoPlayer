@@ -268,14 +268,19 @@ public class UtilTest {
   @Test
   @Config(sdk = 21)
   public void testNormalizeLanguageCodeV21() {
-    assertThat(Util.normalizeLanguageCode("es")).isEqualTo("spa");
-    assertThat(Util.normalizeLanguageCode("spa")).isEqualTo("spa");
-    assertThat(Util.normalizeLanguageCode("es-AR")).isEqualTo("spa-ar");
-    assertThat(Util.normalizeLanguageCode("SpA-ar")).isEqualTo("spa-ar");
-    assertThat(Util.normalizeLanguageCode("es-AR-dialect")).isEqualTo("spa-ar-dialect");
-    assertThat(Util.normalizeLanguageCode("es-419")).isEqualTo("spa-419");
-    assertThat(Util.normalizeLanguageCode("zh-hans-tw")).isEqualTo("zho-hans-tw");
-    assertThat(Util.normalizeLanguageCode("zh-tw-hans")).isEqualTo("zho-tw");
+    assertThat(Util.normalizeLanguageCode(null)).isNull();
+    assertThat(Util.normalizeLanguageCode("")).isEmpty();
+    assertThat(Util.normalizeLanguageCode("es")).isEqualTo("es");
+    assertThat(Util.normalizeLanguageCode("spa")).isEqualTo("es");
+    assertThat(Util.normalizeLanguageCode("es-AR")).isEqualTo("es-ar");
+    assertThat(Util.normalizeLanguageCode("SpA-ar")).isEqualTo("es-ar");
+    assertThat(Util.normalizeLanguageCode("es_AR")).isEqualTo("es-ar");
+    assertThat(Util.normalizeLanguageCode("spa_ar")).isEqualTo("es-ar");
+    assertThat(Util.normalizeLanguageCode("es-AR-dialect")).isEqualTo("es-ar-dialect");
+    assertThat(Util.normalizeLanguageCode("ES-419")).isEqualTo("es-419");
+    assertThat(Util.normalizeLanguageCode("zh-hans-tw")).isEqualTo("zh-hans-tw");
+    assertThat(Util.normalizeLanguageCode("zh-tw-hans")).isEqualTo("zh-tw");
+    assertThat(Util.normalizeLanguageCode("zho-hans-tw")).isEqualTo("zh-hans-tw");
     assertThat(Util.normalizeLanguageCode("und")).isEqualTo("und");
     assertThat(Util.normalizeLanguageCode("DoesNotExist")).isEqualTo("doesnotexist");
   }
@@ -283,11 +288,47 @@ public class UtilTest {
   @Test
   @Config(sdk = 16)
   public void testNormalizeLanguageCode() {
-    assertThat(Util.normalizeLanguageCode("es")).isEqualTo("spa");
-    assertThat(Util.normalizeLanguageCode("spa")).isEqualTo("spa");
+    assertThat(Util.normalizeLanguageCode(null)).isNull();
+    assertThat(Util.normalizeLanguageCode("")).isEmpty();
+    assertThat(Util.normalizeLanguageCode("es")).isEqualTo("es");
+    assertThat(Util.normalizeLanguageCode("spa")).isEqualTo("es");
     assertThat(Util.normalizeLanguageCode("es-AR")).isEqualTo("es-ar");
+    assertThat(Util.normalizeLanguageCode("SpA-ar")).isEqualTo("es-ar");
+    assertThat(Util.normalizeLanguageCode("es_AR")).isEqualTo("es-ar");
+    assertThat(Util.normalizeLanguageCode("spa_ar")).isEqualTo("es-ar");
+    assertThat(Util.normalizeLanguageCode("es-AR-dialect")).isEqualTo("es-ar-dialect");
+    assertThat(Util.normalizeLanguageCode("ES-419")).isEqualTo("es-419");
+    assertThat(Util.normalizeLanguageCode("zh-hans-tw")).isEqualTo("zh-hans-tw");
+    // Doesn't work on API < 21 because we can't use Locale syntax verification.
+    // assertThat(Util.normalizeLanguageCode("zh-tw-hans")).isEqualTo("zh-tw");
+    assertThat(Util.normalizeLanguageCode("zho-hans-tw")).isEqualTo("zh-hans-tw");
     assertThat(Util.normalizeLanguageCode("und")).isEqualTo("und");
     assertThat(Util.normalizeLanguageCode("DoesNotExist")).isEqualTo("doesnotexist");
+  }
+
+  @Test
+  public void testNormalizeIso6392BibliographicalAndTextualCodes() {
+    // See https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes.
+    assertThat(Util.normalizeLanguageCode("alb")).isEqualTo(Util.normalizeLanguageCode("sqi"));
+    assertThat(Util.normalizeLanguageCode("arm")).isEqualTo(Util.normalizeLanguageCode("hye"));
+    assertThat(Util.normalizeLanguageCode("baq")).isEqualTo(Util.normalizeLanguageCode("eus"));
+    assertThat(Util.normalizeLanguageCode("bur")).isEqualTo(Util.normalizeLanguageCode("mya"));
+    assertThat(Util.normalizeLanguageCode("chi")).isEqualTo(Util.normalizeLanguageCode("zho"));
+    assertThat(Util.normalizeLanguageCode("cze")).isEqualTo(Util.normalizeLanguageCode("ces"));
+    assertThat(Util.normalizeLanguageCode("dut")).isEqualTo(Util.normalizeLanguageCode("nld"));
+    assertThat(Util.normalizeLanguageCode("fre")).isEqualTo(Util.normalizeLanguageCode("fra"));
+    assertThat(Util.normalizeLanguageCode("geo")).isEqualTo(Util.normalizeLanguageCode("kat"));
+    assertThat(Util.normalizeLanguageCode("ger")).isEqualTo(Util.normalizeLanguageCode("deu"));
+    assertThat(Util.normalizeLanguageCode("gre")).isEqualTo(Util.normalizeLanguageCode("ell"));
+    assertThat(Util.normalizeLanguageCode("ice")).isEqualTo(Util.normalizeLanguageCode("isl"));
+    assertThat(Util.normalizeLanguageCode("mac")).isEqualTo(Util.normalizeLanguageCode("mkd"));
+    assertThat(Util.normalizeLanguageCode("mao")).isEqualTo(Util.normalizeLanguageCode("mri"));
+    assertThat(Util.normalizeLanguageCode("may")).isEqualTo(Util.normalizeLanguageCode("msa"));
+    assertThat(Util.normalizeLanguageCode("per")).isEqualTo(Util.normalizeLanguageCode("fas"));
+    assertThat(Util.normalizeLanguageCode("rum")).isEqualTo(Util.normalizeLanguageCode("ron"));
+    assertThat(Util.normalizeLanguageCode("slo")).isEqualTo(Util.normalizeLanguageCode("slk"));
+    assertThat(Util.normalizeLanguageCode("tib")).isEqualTo(Util.normalizeLanguageCode("bod"));
+    assertThat(Util.normalizeLanguageCode("wel")).isEqualTo(Util.normalizeLanguageCode("cym"));
   }
 
   private static void assertEscapeUnescapeFileName(String fileName, String escapedFileName) {

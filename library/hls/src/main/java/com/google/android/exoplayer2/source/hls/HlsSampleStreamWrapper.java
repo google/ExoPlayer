@@ -23,12 +23,15 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmInitData;
+import com.google.android.exoplayer2.drm.DrmSession;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.DummyTrackOutput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.PrivFrame;
+import com.google.android.exoplayer2.source.DecryptableSampleQueueReader;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.SampleQueue;
 import com.google.android.exoplayer2.source.SampleQueue.UpstreamFormatChangedListener;
@@ -51,8 +54,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Loads {@link HlsMediaChunk}s obtained from a {@link HlsChunkSource}, and provides
@@ -92,6 +97,7 @@ import java.util.Map;
   private final HlsChunkSource chunkSource;
   private final Allocator allocator;
   private final Format muxedAudioFormat;
+  private final DrmSessionManager<?> drmSessionManager;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final Loader loader;
   private final EventDispatcher eventDispatcher;
@@ -105,6 +111,7 @@ import java.util.Map;
   private final Map<String, DrmInitData> overridingDrmInitData;
 
   private SampleQueue[] sampleQueues;
+  private DecryptableSampleQueueReader[] sampleQueueReaders;
   private int[] sampleQueueTrackIds;
   private boolean audioSampleQueueMappingDone;
   private int audioSampleQueueIndex;
@@ -122,7 +129,7 @@ import java.util.Map;
   // Tracks are complicated in HLS. See documentation of buildTracks for details.
   // Indexed by track (as exposed by this source).
   private TrackGroupArray trackGroups;
-  private TrackGroupArray optionalTrackGroups;
+  private Set<TrackGroup> optionalTrackGroups;
   // Indexed by track group.
   private int[] trackGroupToSampleQueueIndex;
   private int primaryTrackGroupIndex;
@@ -152,6 +159,8 @@ import java.util.Map;
    * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
    * @param positionUs The position from which to start loading media.
    * @param muxedAudioFormat Optional muxed audio {@link Format} as defined by the master playlist.
+   * @param drmSessionManager The {@link DrmSessionManager} to acquire {@link DrmSession
+   *     DrmSessions} with.
    * @param loadErrorHandlingPolicy A {@link LoadErrorHandlingPolicy}.
    * @param eventDispatcher A dispatcher to notify of events.
    */
@@ -163,6 +172,7 @@ import java.util.Map;
       Allocator allocator,
       long positionUs,
       Format muxedAudioFormat,
+      DrmSessionManager<?> drmSessionManager,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       EventDispatcher eventDispatcher) {
     this.trackType = trackType;
@@ -171,6 +181,7 @@ import java.util.Map;
     this.overridingDrmInitData = overridingDrmInitData;
     this.allocator = allocator;
     this.muxedAudioFormat = muxedAudioFormat;
+    this.drmSessionManager = drmSessionManager;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     this.eventDispatcher = eventDispatcher;
     loader = new Loader("Loader:HlsSampleStreamWrapper");
@@ -179,6 +190,7 @@ import java.util.Map;
     audioSampleQueueIndex = C.INDEX_UNSET;
     videoSampleQueueIndex = C.INDEX_UNSET;
     sampleQueues = new SampleQueue[0];
+    sampleQueueReaders = new DecryptableSampleQueueReader[0];
     sampleQueueIsAudioVideoFlags = new boolean[0];
     sampleQueuesEnabledStates = new boolean[0];
     mediaChunks = new ArrayList<>();
@@ -200,18 +212,20 @@ import java.util.Map;
   /**
    * Prepares the sample stream wrapper with master playlist information.
    *
-   * @param trackGroups The {@link TrackGroupArray} to expose.
+   * @param trackGroups The {@link TrackGroup TrackGroups} to expose through {@link
+   *     #getTrackGroups()}.
    * @param primaryTrackGroupIndex The index of the adaptive track group.
-   * @param optionalTrackGroups A subset of {@code trackGroups} that should not trigger a failure if
-   *     not found in the media playlist's segments.
+   * @param optionalTrackGroupsIndices The indices of any {@code trackGroups} that should not
+   *     trigger a failure if not found in the media playlist's segments.
    */
   public void prepareWithMasterPlaylistInfo(
-      TrackGroupArray trackGroups,
-      int primaryTrackGroupIndex,
-      TrackGroupArray optionalTrackGroups) {
+      TrackGroup[] trackGroups, int primaryTrackGroupIndex, int... optionalTrackGroupsIndices) {
     prepared = true;
-    this.trackGroups = trackGroups;
-    this.optionalTrackGroups = optionalTrackGroups;
+    this.trackGroups = createTrackGroupArrayWithDrmInfo(trackGroups);
+    optionalTrackGroups = new HashSet<>();
+    for (int optionalTrackGroupIndex : optionalTrackGroupsIndices) {
+      optionalTrackGroups.add(this.trackGroups.get(optionalTrackGroupIndex));
+    }
     this.primaryTrackGroupIndex = primaryTrackGroupIndex;
     handler.post(callback::onPrepared);
   }
@@ -231,9 +245,9 @@ import java.util.Map;
   public int bindSampleQueueToSampleStream(int trackGroupIndex) {
     int sampleQueueIndex = trackGroupToSampleQueueIndex[trackGroupIndex];
     if (sampleQueueIndex == C.INDEX_UNSET) {
-      return optionalTrackGroups.indexOf(trackGroups.get(trackGroupIndex)) == C.INDEX_UNSET
-          ? SAMPLE_QUEUE_INDEX_NO_MAPPING_FATAL
-          : SAMPLE_QUEUE_INDEX_NO_MAPPING_NON_FATAL;
+      return optionalTrackGroups.contains(trackGroups.get(trackGroupIndex))
+          ? SAMPLE_QUEUE_INDEX_NO_MAPPING_NON_FATAL
+          : SAMPLE_QUEUE_INDEX_NO_MAPPING_FATAL;
     }
     if (sampleQueuesEnabledStates[sampleQueueIndex]) {
       // This sample queue is already bound to a different sample stream.
@@ -292,14 +306,17 @@ import java.util.Map;
     TrackSelection primaryTrackSelection = oldPrimaryTrackSelection;
     // Select new tracks.
     for (int i = 0; i < selections.length; i++) {
-      if (streams[i] == null && selections[i] != null) {
+      TrackSelection selection = selections[i];
+      if (selection == null) {
+        continue;
+      }
+      int trackGroupIndex = trackGroups.indexOf(selection.getTrackGroup());
+      if (trackGroupIndex == primaryTrackGroupIndex) {
+        primaryTrackSelection = selection;
+        chunkSource.setTrackSelection(selection);
+      }
+      if (streams[i] == null) {
         enabledTrackGroupCount++;
-        TrackSelection selection = selections[i];
-        int trackGroupIndex = trackGroups.indexOf(selection.getTrackGroup());
-        if (trackGroupIndex == primaryTrackGroupIndex) {
-          primaryTrackSelection = selection;
-          chunkSource.selectTracks(selection);
-        }
         streams[i] = new HlsSampleStream(this, trackGroupIndex);
         streamResetFlags[i] = true;
         if (trackGroupToSampleQueueIndex != null) {
@@ -322,6 +339,7 @@ import java.util.Map;
     if (enabledTrackGroupCount == 0) {
       chunkSource.reset();
       downstreamTrackFormat = null;
+      pendingResetUpstreamFormats = true;
       mediaChunks.clear();
       if (loader.isLoading()) {
         if (sampleQueuesBuilt) {
@@ -433,6 +451,9 @@ import java.util.Map;
       for (SampleQueue sampleQueue : sampleQueues) {
         sampleQueue.discardToEnd();
       }
+      for (DecryptableSampleQueueReader reader : sampleQueueReaders) {
+        reader.release();
+      }
     }
     loader.release(this);
     handler.removeCallbacksAndMessages(null);
@@ -443,6 +464,9 @@ import java.util.Map;
   @Override
   public void onLoaderReleased() {
     resetSampleQueues();
+    for (DecryptableSampleQueueReader reader : sampleQueueReaders) {
+      reader.release();
+    }
   }
 
   public void setIsTimestampMaster(boolean isTimestampMaster) {
@@ -456,7 +480,12 @@ import java.util.Map;
   // SampleStream implementation.
 
   public boolean isReady(int sampleQueueIndex) {
-    return loadingFinished || (!isPendingReset() && sampleQueues[sampleQueueIndex].hasNextSample());
+    return !isPendingReset() && sampleQueueReaders[sampleQueueIndex].isReady(loadingFinished);
+  }
+
+  public void maybeThrowError(int sampleQueueIndex) throws IOException {
+    maybeThrowError();
+    sampleQueueReaders[sampleQueueIndex].maybeThrowError();
   }
 
   public void maybeThrowError() throws IOException {
@@ -489,7 +518,7 @@ import java.util.Map;
     }
 
     int result =
-        sampleQueues[sampleQueueIndex].read(
+        sampleQueueReaders[sampleQueueIndex].read(
             formatHolder, buffer, requireFormat, loadingFinished, lastSeekPositionUs);
     if (result == C.RESULT_FORMAT_READ) {
       Format format = formatHolder.format;
@@ -505,12 +534,6 @@ import java.util.Map;
                 ? mediaChunks.get(chunkIndex).trackFormat
                 : upstreamTrackFormat;
         format = format.copyWithManifestFormatInfo(trackFormat);
-      }
-      if (format.drmInitData != null) {
-        DrmInitData drmInitData = overridingDrmInitData.get(format.drmInitData.schemeType);
-        if (drmInitData != null) {
-          format = format.copyWithDrmInitData(drmInitData);
-        }
       }
       formatHolder.format = format;
     }
@@ -818,7 +841,7 @@ import java.util.Map;
         return createDummyTrackOutput(id, type);
       }
     }
-    SampleQueue trackOutput = new PrivTimestampStrippingSampleQueue(allocator);
+    SampleQueue trackOutput = new FormatAdjustingSampleQueue(allocator, overridingDrmInitData);
     trackOutput.setSampleOffsetUs(sampleOffsetUs);
     trackOutput.sourceId(chunkUid);
     trackOutput.setUpstreamFormatChangeListener(this);
@@ -826,6 +849,9 @@ import java.util.Map;
     sampleQueueTrackIds[trackCount] = id;
     sampleQueues = Arrays.copyOf(sampleQueues, trackCount + 1);
     sampleQueues[trackCount] = trackOutput;
+    sampleQueueReaders = Arrays.copyOf(sampleQueueReaders, trackCount + 1);
+    sampleQueueReaders[trackCount] =
+        new DecryptableSampleQueueReader(sampleQueues[trackCount], drmSessionManager);
     sampleQueueIsAudioVideoFlags = Arrays.copyOf(sampleQueueIsAudioVideoFlags, trackCount + 1);
     sampleQueueIsAudioVideoFlags[trackCount] = type == C.TRACK_TYPE_AUDIO
         || type == C.TRACK_TYPE_VIDEO;
@@ -1038,9 +1064,27 @@ import java.util.Map;
         trackGroups[i] = new TrackGroup(deriveFormat(trackFormat, sampleFormat, false));
       }
     }
-    this.trackGroups = new TrackGroupArray(trackGroups);
+    this.trackGroups = createTrackGroupArrayWithDrmInfo(trackGroups);
     Assertions.checkState(optionalTrackGroups == null);
-    optionalTrackGroups = TrackGroupArray.EMPTY;
+    optionalTrackGroups = Collections.emptySet();
+  }
+
+  private TrackGroupArray createTrackGroupArrayWithDrmInfo(TrackGroup[] trackGroups) {
+    for (int i = 0; i < trackGroups.length; i++) {
+      TrackGroup trackGroup = trackGroups[i];
+      Format[] exposedFormats = new Format[trackGroup.length];
+      for (int j = 0; j < trackGroup.length; j++) {
+        Format format = trackGroup.getFormat(j);
+        if (format.drmInitData != null) {
+          format =
+              format.copyWithExoMediaCryptoType(
+                  drmSessionManager.getExoMediaCryptoType(format.drmInitData));
+        }
+        exposedFormats[j] = format;
+      }
+      trackGroups[i] = new TrackGroup(exposedFormats);
+    }
+    return new TrackGroupArray(trackGroups);
   }
 
   private HlsMediaChunk getLastMediaChunk() {
@@ -1160,15 +1204,26 @@ import java.util.Map;
     return new DummyTrackOutput();
   }
 
-  private static final class PrivTimestampStrippingSampleQueue extends SampleQueue {
+  private static final class FormatAdjustingSampleQueue extends SampleQueue {
 
-    public PrivTimestampStrippingSampleQueue(Allocator allocator) {
+    private final Map<String, DrmInitData> overridingDrmInitData;
+
+    public FormatAdjustingSampleQueue(
+        Allocator allocator, Map<String, DrmInitData> overridingDrmInitData) {
       super(allocator);
+      this.overridingDrmInitData = overridingDrmInitData;
     }
 
     @Override
     public void format(Format format) {
-      super.format(format.copyWithMetadata(getAdjustedMetadata(format.metadata)));
+      DrmInitData drmInitData = format.drmInitData;
+      if (drmInitData != null) {
+        DrmInitData overridingDrmInitData = this.overridingDrmInitData.get(drmInitData.schemeType);
+        if (overridingDrmInitData != null) {
+          drmInitData = overridingDrmInitData;
+        }
+      }
+      super.format(format.copyWithAdjustments(drmInitData, getAdjustedMetadata(format.metadata)));
     }
 
     /**

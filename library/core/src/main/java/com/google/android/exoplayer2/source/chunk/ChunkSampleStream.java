@@ -21,12 +21,14 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.drm.DrmSession;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.source.DecryptableSampleQueueReader;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.SampleQueue;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.SequenceableLoader;
 import com.google.android.exoplayer2.upstream.Allocator;
-import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.Loader.LoadErrorAction;
@@ -60,8 +62,8 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
 
   public final int primaryTrackType;
 
-  private final int[] embeddedTrackTypes;
-  private final Format[] embeddedTrackFormats;
+  @Nullable private final int[] embeddedTrackTypes;
+  @Nullable private final Format[] embeddedTrackFormats;
   private final boolean[] embeddedTracksSelected;
   private final T chunkSource;
   private final SequenceableLoader.Callback<ChunkSampleStream<T>> callback;
@@ -72,11 +74,12 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   private final ArrayList<BaseMediaChunk> mediaChunks;
   private final List<BaseMediaChunk> readOnlyMediaChunks;
   private final SampleQueue primarySampleQueue;
+  private final DecryptableSampleQueueReader primarySampleQueueReader;
   private final SampleQueue[] embeddedSampleQueues;
   private final BaseMediaChunkOutput mediaChunkOutput;
 
   private Format primaryDownstreamTrackFormat;
-  private @Nullable ReleaseCallback<T> releaseCallback;
+  @Nullable private ReleaseCallback<T> releaseCallback;
   private long pendingResetPositionUs;
   private long lastSeekPositionUs;
   private int nextNotifyPrimaryFormatMediaChunkIndex;
@@ -95,57 +98,20 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
    * @param callback An {@link Callback} for the stream.
    * @param allocator An {@link Allocator} from which allocations can be obtained.
    * @param positionUs The position from which to start loading media.
-   * @param minLoadableRetryCount The minimum number of times that the source should retry a load
-   *     before propagating an error.
-   * @param eventDispatcher A dispatcher to notify of events.
-   * @deprecated Use {@link #ChunkSampleStream(int, int[], Format[], ChunkSource, Callback,
-   *     Allocator, long, LoadErrorHandlingPolicy, EventDispatcher)} instead.
-   */
-  @Deprecated
-  public ChunkSampleStream(
-      int primaryTrackType,
-      int[] embeddedTrackTypes,
-      Format[] embeddedTrackFormats,
-      T chunkSource,
-      Callback<ChunkSampleStream<T>> callback,
-      Allocator allocator,
-      long positionUs,
-      int minLoadableRetryCount,
-      EventDispatcher eventDispatcher) {
-    this(
-        primaryTrackType,
-        embeddedTrackTypes,
-        embeddedTrackFormats,
-        chunkSource,
-        callback,
-        allocator,
-        positionUs,
-        new DefaultLoadErrorHandlingPolicy(minLoadableRetryCount),
-        eventDispatcher);
-  }
-
-  /**
-   * Constructs an instance.
-   *
-   * @param primaryTrackType The type of the primary track. One of the {@link C} {@code
-   *     TRACK_TYPE_*} constants.
-   * @param embeddedTrackTypes The types of any embedded tracks, or null.
-   * @param embeddedTrackFormats The formats of the embedded tracks, or null.
-   * @param chunkSource A {@link ChunkSource} from which chunks to load are obtained.
-   * @param callback An {@link Callback} for the stream.
-   * @param allocator An {@link Allocator} from which allocations can be obtained.
-   * @param positionUs The position from which to start loading media.
+   * @param drmSessionManager The {@link DrmSessionManager} to obtain {@link DrmSession DrmSessions}
+   *     from.
    * @param loadErrorHandlingPolicy The {@link LoadErrorHandlingPolicy}.
    * @param eventDispatcher A dispatcher to notify of events.
    */
   public ChunkSampleStream(
       int primaryTrackType,
-      int[] embeddedTrackTypes,
-      Format[] embeddedTrackFormats,
+      @Nullable int[] embeddedTrackTypes,
+      @Nullable Format[] embeddedTrackFormats,
       T chunkSource,
       Callback<ChunkSampleStream<T>> callback,
       Allocator allocator,
       long positionUs,
+      DrmSessionManager<?> drmSessionManager,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       EventDispatcher eventDispatcher) {
     this.primaryTrackType = primaryTrackType;
@@ -167,6 +133,8 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     SampleQueue[] sampleQueues = new SampleQueue[1 + embeddedTrackCount];
 
     primarySampleQueue = new SampleQueue(allocator);
+    primarySampleQueueReader =
+        new DecryptableSampleQueueReader(primarySampleQueue, drmSessionManager);
     trackTypes[0] = primaryTrackType;
     sampleQueues[0] = primarySampleQueue;
 
@@ -369,6 +337,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     this.releaseCallback = callback;
     // Discard as much as we can synchronously.
     primarySampleQueue.discardToEnd();
+    primarySampleQueueReader.release();
     for (SampleQueue embeddedSampleQueue : embeddedSampleQueues) {
       embeddedSampleQueue.discardToEnd();
     }
@@ -390,12 +359,13 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
 
   @Override
   public boolean isReady() {
-    return loadingFinished || (!isPendingReset() && primarySampleQueue.hasNextSample());
+    return !isPendingReset() && primarySampleQueueReader.isReady(loadingFinished);
   }
 
   @Override
   public void maybeThrowError() throws IOException {
     loader.maybeThrowError();
+    primarySampleQueueReader.maybeThrowError();
     if (!loader.isLoading()) {
       chunkSource.maybeThrowError();
     }
@@ -408,7 +378,8 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       return C.RESULT_NOTHING_READ;
     }
     maybeNotifyPrimaryTrackFormatChanged();
-    return primarySampleQueue.read(
+
+    return primarySampleQueueReader.read(
         formatHolder, buffer, formatRequired, loadingFinished, decodeOnlyUntilPositionUs);
   }
 
@@ -801,7 +772,12 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       }
       maybeNotifyDownstreamFormat();
       return sampleQueue.read(
-          formatHolder, buffer, formatRequired, loadingFinished, decodeOnlyUntilPositionUs);
+          formatHolder,
+          buffer,
+          formatRequired,
+          /* allowOnlyClearBuffers= */ false,
+          loadingFinished,
+          decodeOnlyUntilPositionUs);
     }
 
     public void release() {

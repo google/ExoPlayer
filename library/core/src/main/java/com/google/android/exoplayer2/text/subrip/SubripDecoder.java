@@ -21,6 +21,7 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.SimpleSubtitleDecoder;
+import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.LongArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -34,9 +35,9 @@ import java.util.regex.Pattern;
 public final class SubripDecoder extends SimpleSubtitleDecoder {
 
   // Fractional positions for use when alignment tags are present.
-  /* package */ static final float START_FRACTION = 0.08f;
-  /* package */ static final float END_FRACTION = 1 - START_FRACTION;
-  /* package */ static final float MID_FRACTION = 0.5f;
+  private static final float START_FRACTION = 0.08f;
+  private static final float END_FRACTION = 1 - START_FRACTION;
+  private static final float MID_FRACTION = 0.5f;
 
   private static final String TAG = "SubripDecoder";
 
@@ -68,7 +69,7 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
   }
 
   @Override
-  protected SubripSubtitle decode(byte[] bytes, int length, boolean reset) {
+  protected Subtitle decode(byte[] bytes, int length, boolean reset) {
     ArrayList<Cue> cues = new ArrayList<>();
     LongArray cueTimesUs = new LongArray();
     ParsableByteArray subripData = new ParsableByteArray(bytes, length);
@@ -111,11 +112,13 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
       // Read and parse the text and tags.
       textBuilder.setLength(0);
       tags.clear();
-      while (!TextUtils.isEmpty(currentLine = subripData.readLine())) {
+      currentLine = subripData.readLine();
+      while (!TextUtils.isEmpty(currentLine)) {
         if (textBuilder.length() > 0) {
           textBuilder.append("<br>");
         }
         textBuilder.append(processLine(currentLine, tags));
+        currentLine = subripData.readLine();
       }
 
       Spanned text = Html.fromHtml(textBuilder.toString());
@@ -132,7 +135,7 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
       cues.add(buildCue(text, alignmentTag));
 
       if (haveEndTimecode) {
-        cues.add(null);
+        cues.add(Cue.EMPTY);
       }
     }
 

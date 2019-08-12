@@ -84,8 +84,6 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
     }
   }
 
-  // FIXME: incompatible types in argument.
-  @SuppressWarnings("nullness:argument.type.incompatible")
   @Override
   public void setOnEventListener(
       final ExoMediaDrm.OnEventListener<? super FrameworkMediaCrypto> listener) {
@@ -160,8 +158,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
     return new KeyRequest(requestData, licenseServerUrl);
   }
 
-  // FIXME: incompatible types in return.
-  @SuppressWarnings("nullness:return.type.incompatible")
+  @Nullable
   @Override
   public byte[] provideKeyResponse(byte[] scope, byte[] response)
       throws NotProvisionedException, DeniedByServerException {
@@ -226,6 +223,11 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
         && C.WIDEVINE_UUID.equals(uuid) && "L3".equals(getPropertyString("securityLevel"));
     return new FrameworkMediaCrypto(
         adjustUuid(uuid), initData, forceAllowInsecureDecoderComponents);
+  }
+
+  @Override
+  public Class<FrameworkMediaCrypto> getExoMediaCryptoType() {
+    return FrameworkMediaCrypto.class;
   }
 
   private static SchemeData getSchemeData(UUID uuid, List<SchemeData> schemeDatas) {

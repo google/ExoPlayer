@@ -13,8 +13,6 @@ STYLE
 ::cue(#id2) {
   color: peachpuff;
 }
-
-STYLE
 ::cue(v[voice="LaGord"]) { background-color: lime }
 
 STYLE

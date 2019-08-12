@@ -112,6 +112,7 @@ public final class FakeTimeline extends Timeline {
   private static final long AD_DURATION_US = 10 * C.MICROS_PER_SECOND;
 
   private final TimelineWindowDefinition[] windowDefinitions;
+  private final Object[] manifests;
   private final int[] periodOffsets;
 
   /**
@@ -140,9 +141,10 @@ public final class FakeTimeline extends Timeline {
    * with a duration of {@link TimelineWindowDefinition#DEFAULT_WINDOW_DURATION_US} each.
    *
    * @param windowCount The number of windows.
+   * @param manifests The manifests of the windows.
    */
-  public FakeTimeline(int windowCount) {
-    this(createDefaultWindowDefinitions(windowCount));
+  public FakeTimeline(int windowCount, Object... manifests) {
+    this(manifests, createDefaultWindowDefinitions(windowCount));
   }
 
   /**
@@ -151,6 +153,18 @@ public final class FakeTimeline extends Timeline {
    * @param windowDefinitions A list of {@link TimelineWindowDefinition}s.
    */
   public FakeTimeline(TimelineWindowDefinition... windowDefinitions) {
+    this(new Object[0], windowDefinitions);
+  }
+
+  /**
+   * Creates a fake timeline with the given window definitions.
+   *
+   * @param windowDefinitions A list of {@link TimelineWindowDefinition}s.
+   */
+  public FakeTimeline(Object[] manifests, TimelineWindowDefinition... windowDefinitions) {
+    this.manifests = new Object[windowDefinitions.length];
+    System.arraycopy(
+        manifests, 0, this.manifests, 0, Math.min(this.manifests.length, manifests.length));
     this.windowDefinitions = windowDefinitions;
     periodOffsets = new int[windowDefinitions.length + 1];
     periodOffsets[0] = 0;
@@ -171,6 +185,7 @@ public final class FakeTimeline extends Timeline {
     Object tag = setTag ? windowDefinition.id : null;
     return window.set(
         tag,
+        manifests[windowIndex],
         /* presentationStartTimeMs= */ C.TIME_UNSET,
         /* windowStartTimeMs= */ C.TIME_UNSET,
         windowDefinition.isSeekable,

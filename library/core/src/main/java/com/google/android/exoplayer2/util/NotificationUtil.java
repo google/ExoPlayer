@@ -61,6 +61,14 @@ public final class NotificationUtil {
   /** @see NotificationManager#IMPORTANCE_HIGH */
   public static final int IMPORTANCE_HIGH = NotificationManager.IMPORTANCE_HIGH;
 
+  /** @deprecated Use {@link #createNotificationChannel(Context, String, int, int, int)}. */
+  @Deprecated
+  public static void createNotificationChannel(
+      Context context, String id, @StringRes int nameResourceId, @Importance int importance) {
+    createNotificationChannel(
+        context, id, nameResourceId, /* descriptionResourceId= */ 0, importance);
+  }
+
   /**
    * Creates a notification channel that notifications can be posted to. See {@link
    * NotificationChannel} and {@link
@@ -70,21 +78,33 @@ public final class NotificationUtil {
    * @param id The id of the channel. Must be unique per package. The value may be truncated if it's
    *     too long.
    * @param nameResourceId A string resource identifier for the user visible name of the channel.
-   *     You can rename this channel when the system locale changes by listening for the {@link
-   *     Intent#ACTION_LOCALE_CHANGED} broadcast. The recommended maximum length is 40 characters.
-   *     The value may be truncated if it is too long.
+   *     The recommended maximum length is 40 characters. The string may be truncated if it's too
+   *     long. You can rename the channel when the system locale changes by listening for the {@link
+   *     Intent#ACTION_LOCALE_CHANGED} broadcast.
+   * @param descriptionResourceId A string resource identifier for the user visible description of
+   *     the channel, or 0 if no description is provided. The recommended maximum length is 300
+   *     characters. The value may be truncated if it is too long. You can change the description of
+   *     the channel when the system locale changes by listening for the {@link
+   *     Intent#ACTION_LOCALE_CHANGED} broadcast.
    * @param importance The importance of the channel. This controls how interruptive notifications
    *     posted to this channel are. One of {@link #IMPORTANCE_UNSPECIFIED}, {@link
    *     #IMPORTANCE_NONE}, {@link #IMPORTANCE_MIN}, {@link #IMPORTANCE_LOW}, {@link
    *     #IMPORTANCE_DEFAULT} and {@link #IMPORTANCE_HIGH}.
    */
   public static void createNotificationChannel(
-      Context context, String id, @StringRes int nameResourceId, @Importance int importance) {
+      Context context,
+      String id,
+      @StringRes int nameResourceId,
+      @StringRes int descriptionResourceId,
+      @Importance int importance) {
     if (Util.SDK_INT >= 26) {
       NotificationManager notificationManager =
           (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
       NotificationChannel channel =
           new NotificationChannel(id, context.getString(nameResourceId), importance);
+      if (descriptionResourceId != 0) {
+        channel.setDescription(context.getString(descriptionResourceId));
+      }
       notificationManager.createNotificationChannel(channel);
     }
   }

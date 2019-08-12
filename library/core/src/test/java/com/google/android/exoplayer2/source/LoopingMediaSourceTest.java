@@ -135,7 +135,7 @@ public class LoopingMediaSourceTest {
    * Wraps the specified timeline in a {@link LoopingMediaSource} and returns the looping timeline.
    */
   private static Timeline getLoopingTimeline(Timeline timeline, int loopCount) throws IOException {
-    FakeMediaSource fakeMediaSource = new FakeMediaSource(timeline, null);
+    FakeMediaSource fakeMediaSource = new FakeMediaSource(timeline);
     LoopingMediaSource mediaSource = new LoopingMediaSource(fakeMediaSource, loopCount);
     MediaSourceTestRunner testRunner = new MediaSourceTestRunner(mediaSource, null);
     try {
@@ -153,7 +153,7 @@ public class LoopingMediaSourceTest {
    * the looping timeline can be created and prepared.
    */
   private static void testMediaPeriodCreation(Timeline timeline, int loopCount) throws Exception {
-    FakeMediaSource fakeMediaSource = new FakeMediaSource(timeline, null);
+    FakeMediaSource fakeMediaSource = new FakeMediaSource(timeline);
     LoopingMediaSource mediaSource = new LoopingMediaSource(fakeMediaSource, loopCount);
     MediaSourceTestRunner testRunner = new MediaSourceTestRunner(mediaSource, null);
     try {

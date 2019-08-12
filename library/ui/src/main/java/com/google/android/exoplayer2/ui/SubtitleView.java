@@ -53,8 +53,8 @@ public final class SubtitleView extends View implements TextOutput {
 
   private final List<SubtitlePainter> painters;
 
-  private List<Cue> cues;
-  private @Cue.TextSizeType int textSizeType;
+  @Nullable private List<Cue> cues;
+  @Cue.TextSizeType private int textSizeType;
   private float textSize;
   private boolean applyEmbeddedStyles;
   private boolean applyEmbeddedFontSizes;
@@ -62,10 +62,10 @@ public final class SubtitleView extends View implements TextOutput {
   private float bottomPaddingFraction;
 
   public SubtitleView(Context context) {
-    this(context, null);
+    this(context, /* attrs= */ null);
   }
 
-  public SubtitleView(Context context, AttributeSet attrs) {
+  public SubtitleView(Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
     painters = new ArrayList<>();
     textSizeType = Cue.TEXT_SIZE_TYPE_FRACTIONAL;
@@ -246,7 +246,11 @@ public final class SubtitleView extends View implements TextOutput {
 
   @Override
   public void dispatchDraw(Canvas canvas) {
-    int cueCount = (cues == null) ? 0 : cues.size();
+    List<Cue> cues = this.cues;
+    if (cues == null || cues.isEmpty()) {
+      return;
+    }
+
     int rawViewHeight = getHeight();
 
     // Calculate the cue box bounds relative to the canvas after padding is taken into account.
@@ -267,6 +271,7 @@ public final class SubtitleView extends View implements TextOutput {
       return;
     }
 
+    int cueCount = cues.size();
     for (int i = 0; i < cueCount; i++) {
       Cue cue = cues.get(i);
       float cueTextSizePx = resolveCueTextSize(cue, rawViewHeight, viewHeightMinusPadding);

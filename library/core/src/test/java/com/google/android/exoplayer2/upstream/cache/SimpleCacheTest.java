@@ -164,7 +164,7 @@ public class SimpleCacheTest {
         .isEqualTo(150);
 
     // Removing the last span shouldn't cause the length be change next time cache loaded
-    SimpleCacheSpan lastSpan = simpleCache2.startReadWrite(KEY_1, 145);
+    CacheSpan lastSpan = simpleCache2.startReadWrite(KEY_1, 145);
     simpleCache2.removeSpan(lastSpan);
     simpleCache2.release();
     simpleCache2 = getSimpleCache();

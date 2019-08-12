@@ -22,6 +22,8 @@ import android.util.SparseIntArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.SeekParameters;
+import com.google.android.exoplayer2.drm.DrmInitData;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
 import com.google.android.exoplayer2.source.EmptySampleStream;
@@ -58,6 +60,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /** A DASH {@link MediaPeriod}. */
 /* package */ final class DashMediaPeriod
@@ -69,7 +72,8 @@ import java.util.regex.Pattern;
 
   /* package */ final int id;
   private final DashChunkSource.Factory chunkSourceFactory;
-  private final @Nullable TransferListener transferListener;
+  @Nullable private final TransferListener transferListener;
+  private final DrmSessionManager<?> drmSessionManager;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final long elapsedRealtimeOffsetMs;
   private final LoaderErrorThrower manifestLoaderErrorThrower;
@@ -82,7 +86,7 @@ import java.util.regex.Pattern;
       trackEmsgHandlerBySampleStream;
   private final EventDispatcher eventDispatcher;
 
-  private @Nullable Callback callback;
+  @Nullable private Callback callback;
   private ChunkSampleStream<DashChunkSource>[] sampleStreams;
   private EventSampleStream[] eventSampleStreams;
   private SequenceableLoader compositeSequenceableLoader;
@@ -97,6 +101,7 @@ import java.util.regex.Pattern;
       int periodIndex,
       DashChunkSource.Factory chunkSourceFactory,
       @Nullable TransferListener transferListener,
+      DrmSessionManager<?> drmSessionManager,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       EventDispatcher eventDispatcher,
       long elapsedRealtimeOffsetMs,
@@ -109,6 +114,7 @@ import java.util.regex.Pattern;
     this.periodIndex = periodIndex;
     this.chunkSourceFactory = chunkSourceFactory;
     this.transferListener = transferListener;
+    this.drmSessionManager = drmSessionManager;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     this.eventDispatcher = eventDispatcher;
     this.elapsedRealtimeOffsetMs = elapsedRealtimeOffsetMs;
@@ -123,8 +129,8 @@ import java.util.regex.Pattern;
         compositeSequenceableLoaderFactory.createCompositeSequenceableLoader(sampleStreams);
     Period period = manifest.getPeriod(periodIndex);
     eventStreams = period.eventStreams;
-    Pair<TrackGroupArray, TrackGroupInfo[]> result = buildTrackGroups(period.adaptationSets,
-        eventStreams);
+    Pair<TrackGroupArray, TrackGroupInfo[]> result =
+        buildTrackGroups(drmSessionManager, period.adaptationSets, eventStreams);
     trackGroups = result.first;
     trackGroupInfos = result.second;
     eventDispatcher.mediaPeriodCreated();
@@ -240,8 +246,12 @@ import java.util.regex.Pattern;
   }
 
   @Override
-  public long selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
-      SampleStream[] streams, boolean[] streamResetFlags, long positionUs) {
+  public long selectTracks(
+      @NullableType TrackSelection[] selections,
+      boolean[] mayRetainStreamFlags,
+      @NullableType SampleStream[] streams,
+      boolean[] streamResetFlags,
+      long positionUs) {
     int[] streamIndexToTrackGroupIndex = getStreamIndexToTrackGroupIndex(selections);
     releaseDisabledStreams(selections, mayRetainStreamFlags, streams);
     releaseOrphanEmbeddedStreams(selections, streams, streamIndexToTrackGroupIndex);
@@ -401,17 +411,27 @@ import java.util.regex.Pattern;
       int[] streamIndexToTrackGroupIndex) {
     // Create newly selected primary and event streams.
     for (int i = 0; i < selections.length; i++) {
-      if (streams[i] == null && selections[i] != null) {
+      TrackSelection selection = selections[i];
+      if (selection == null) {
+        continue;
+      }
+      if (streams[i] == null) {
+        // Create new stream for selection.
         streamResetFlags[i] = true;
         int trackGroupIndex = streamIndexToTrackGroupIndex[i];
         TrackGroupInfo trackGroupInfo = trackGroupInfos[trackGroupIndex];
         if (trackGroupInfo.trackGroupCategory == TrackGroupInfo.CATEGORY_PRIMARY) {
-          streams[i] = buildSampleStream(trackGroupInfo, selections[i], positionUs);
+          streams[i] = buildSampleStream(trackGroupInfo, selection, positionUs);
         } else if (trackGroupInfo.trackGroupCategory == TrackGroupInfo.CATEGORY_MANIFEST_EVENTS) {
           EventStream eventStream = eventStreams.get(trackGroupInfo.eventStreamGroupIndex);
-          Format format = selections[i].getTrackGroup().getFormat(0);
+          Format format = selection.getTrackGroup().getFormat(0);
           streams[i] = new EventSampleStream(eventStream, format, manifest.dynamic);
         }
+      } else if (streams[i] instanceof ChunkSampleStream) {
+        // Update selection in existing stream.
+        @SuppressWarnings("unchecked")
+        ChunkSampleStream<DashChunkSource> stream = (ChunkSampleStream<DashChunkSource>) streams[i];
+        stream.getChunkSource().updateTrackSelection(selection);
       }
     }
     // Create newly selected embedded streams from the corresponding primary stream. Note that this
@@ -455,7 +475,9 @@ import java.util.regex.Pattern;
   }
 
   private static Pair<TrackGroupArray, TrackGroupInfo[]> buildTrackGroups(
-      List<AdaptationSet> adaptationSets, List<EventStream> eventStreams) {
+      DrmSessionManager<?> drmSessionManager,
+      List<AdaptationSet> adaptationSets,
+      List<EventStream> eventStreams) {
     int[][] groupedAdaptationSetIndices = getGroupedAdaptationSetIndices(adaptationSets);
 
     int primaryGroupCount = groupedAdaptationSetIndices.length;
@@ -475,6 +497,7 @@ import java.util.regex.Pattern;
 
     int trackGroupCount =
         buildPrimaryAndEmbeddedTrackGroupInfos(
+            drmSessionManager,
             adaptationSets,
             groupedAdaptationSetIndices,
             primaryGroupCount,
@@ -569,6 +592,7 @@ import java.util.regex.Pattern;
   }
 
   private static int buildPrimaryAndEmbeddedTrackGroupInfos(
+      DrmSessionManager<?> drmSessionManager,
       List<AdaptationSet> adaptationSets,
       int[][] groupedAdaptationSetIndices,
       int primaryGroupCount,
@@ -585,7 +609,14 @@ import java.util.regex.Pattern;
       }
       Format[] formats = new Format[representations.size()];
       for (int j = 0; j < formats.length; j++) {
-        formats[j] = representations.get(j).format;
+        Format format = representations.get(j).format;
+        DrmInitData drmInitData = format.drmInitData;
+        if (drmInitData != null) {
+          format =
+              format.copyWithExoMediaCryptoType(
+                  drmSessionManager.getExoMediaCryptoType(drmInitData));
+        }
+        formats[j] = format;
       }
 
       AdaptationSet firstAdaptationSet = adaptationSets.get(adaptationSetIndices[0]);
@@ -692,6 +723,7 @@ import java.util.regex.Pattern;
             this,
             allocator,
             positionUs,
+            drmSessionManager,
             loadErrorHandlingPolicy,
             eventDispatcher);
     synchronized (this) {
