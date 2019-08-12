@@ -190,7 +190,7 @@ public class DefaultTimeBar extends View implements TimeBar {
   private final Paint adMarkerPaint;
   private final Paint playedAdMarkerPaint;
   private final Paint scrubberPaint;
-  private final @Nullable Drawable scrubberDrawable;
+  @Nullable private final Drawable scrubberDrawable;
   private final int barHeight;
   private final int touchTargetHeight;
   private final int adMarkerWidth;
@@ -217,14 +217,29 @@ public class DefaultTimeBar extends View implements TimeBar {
   private long position;
   private long bufferedPosition;
   private int adGroupCount;
-  private @Nullable long[] adGroupTimesMs;
-  private @Nullable boolean[] playedAdGroups;
+  @Nullable private long[] adGroupTimesMs;
+  @Nullable private boolean[] playedAdGroups;
 
-  /** Creates a new time bar. */
+  public DefaultTimeBar(Context context) {
+    this(context, null);
+  }
+
+  public DefaultTimeBar(Context context, @Nullable AttributeSet attrs) {
+    this(context, attrs, 0);
+  }
+
+  public DefaultTimeBar(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    this(context, attrs, defStyleAttr, attrs);
+  }
+
   // Suppress warnings due to usage of View methods in the constructor.
   @SuppressWarnings("nullness:method.invocation.invalid")
-  public DefaultTimeBar(Context context, AttributeSet attrs) {
-    super(context, attrs);
+  public DefaultTimeBar(
+      Context context,
+      @Nullable AttributeSet attrs,
+      int defStyleAttr,
+      @Nullable AttributeSet timebarAttrs) {
+    super(context, attrs, defStyleAttr);
     seekBounds = new Rect();
     progressBar = new Rect();
     bufferedBar = new Rect();
@@ -251,9 +266,9 @@ public class DefaultTimeBar extends View implements TimeBar {
     int defaultScrubberEnabledSize = dpToPx(density, DEFAULT_SCRUBBER_ENABLED_SIZE_DP);
     int defaultScrubberDisabledSize = dpToPx(density, DEFAULT_SCRUBBER_DISABLED_SIZE_DP);
     int defaultScrubberDraggedSize = dpToPx(density, DEFAULT_SCRUBBER_DRAGGED_SIZE_DP);
-    if (attrs != null) {
-      TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.DefaultTimeBar, 0,
-          0);
+    if (timebarAttrs != null) {
+      TypedArray a =
+          context.getTheme().obtainStyledAttributes(timebarAttrs, R.styleable.DefaultTimeBar, 0, 0);
       try {
         scrubberDrawable = a.getDrawable(R.styleable.DefaultTimeBar_scrubber_drawable);
         if (scrubberDrawable != null) {

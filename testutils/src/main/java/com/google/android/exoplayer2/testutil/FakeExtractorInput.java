@@ -80,13 +80,23 @@ public final class FakeExtractorInput implements ExtractorInput {
     failedPeekPositions = new SparseBooleanArray();
   }
 
+  /** Resets the input to its initial state. */
+  public void reset() {
+    readPosition = 0;
+    peekPosition = 0;
+    partiallySatisfiedTargetPositions.clear();
+    failedReadPositions.clear();
+    failedPeekPositions.clear();
+  }
+
   /**
    * Sets the read and peek positions.
    *
    * @param position The position to set.
    */
   public void setPosition(int position) {
-    assertThat(0 <= position && position <= data.length).isTrue();
+    assertThat(0 <= position).isTrue();
+    assertThat(position <= data.length).isTrue();
     readPosition = position;
     peekPosition = position;
   }

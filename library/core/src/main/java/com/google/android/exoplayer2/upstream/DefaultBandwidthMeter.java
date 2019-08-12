@@ -413,7 +413,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
    */
   private static class ConnectivityActionReceiver extends BroadcastReceiver {
 
-    @MonotonicNonNull private static ConnectivityActionReceiver staticInstance;
+    private static @MonotonicNonNull ConnectivityActionReceiver staticInstance;
 
     private final Handler mainHandler;
     private final ArrayList<WeakReference<DefaultBandwidthMeter>> bandwidthMeters;

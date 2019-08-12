@@ -174,8 +174,9 @@ public abstract class DownloadService extends Service {
   @Nullable private final ForegroundNotificationUpdater foregroundNotificationUpdater;
   @Nullable private final String channelId;
   @StringRes private final int channelNameResourceId;
+  @StringRes private final int channelDescriptionResourceId;
 
-  private DownloadManager downloadManager;
+  @Nullable private DownloadManager downloadManager;
   private int lastStartId;
   private boolean startedInForeground;
   private boolean taskRemoved;
@@ -214,7 +215,23 @@ public abstract class DownloadService extends Service {
         foregroundNotificationId,
         foregroundNotificationUpdateInterval,
         /* channelId= */ null,
-        /* channelNameResourceId= */ 0);
+        /* channelNameResourceId= */ 0,
+        /* channelDescriptionResourceId= */ 0);
+  }
+
+  /** @deprecated Use {@link #DownloadService(int, long, String, int, int)}. */
+  @Deprecated
+  protected DownloadService(
+      int foregroundNotificationId,
+      long foregroundNotificationUpdateInterval,
+      @Nullable String channelId,
+      @StringRes int channelNameResourceId) {
+    this(
+        foregroundNotificationId,
+        foregroundNotificationUpdateInterval,
+        channelId,
+        channelNameResourceId,
+        /* channelDescriptionResourceId= */ 0);
   }
 
   /**
@@ -230,25 +247,33 @@ public abstract class DownloadService extends Service {
    *     unique per package. The value may be truncated if it's too long. Ignored if {@code
    *     foregroundNotificationId} is {@link #FOREGROUND_NOTIFICATION_ID_NONE}.
    * @param channelNameResourceId A string resource identifier for the user visible name of the
-   *     channel, if {@code channelId} is specified. The recommended maximum length is 40
-   *     characters. The value may be truncated if it is too long. Ignored if {@code
+   *     notification channel. The recommended maximum length is 40 characters. The value may be
+   *     truncated if it's too long. Ignored if {@code channelId} is null or if {@code
    *     foregroundNotificationId} is {@link #FOREGROUND_NOTIFICATION_ID_NONE}.
+   * @param channelDescriptionResourceId A string resource identifier for the user visible
+   *     description of the notification channel, or 0 if no description is provided. The
+   *     recommended maximum length is 300 characters. The value may be truncated if it is too long.
+   *     Ignored if {@code channelId} is null or if {@code foregroundNotificationId} is {@link
+   *     #FOREGROUND_NOTIFICATION_ID_NONE}.
    */
   protected DownloadService(
       int foregroundNotificationId,
       long foregroundNotificationUpdateInterval,
       @Nullable String channelId,
-      @StringRes int channelNameResourceId) {
+      @StringRes int channelNameResourceId,
+      @StringRes int channelDescriptionResourceId) {
     if (foregroundNotificationId == FOREGROUND_NOTIFICATION_ID_NONE) {
       this.foregroundNotificationUpdater = null;
       this.channelId = null;
       this.channelNameResourceId = 0;
+      this.channelDescriptionResourceId = 0;
     } else {
       this.foregroundNotificationUpdater =
           new ForegroundNotificationUpdater(
               foregroundNotificationId, foregroundNotificationUpdateInterval);
       this.channelId = channelId;
       this.channelNameResourceId = channelNameResourceId;
+      this.channelDescriptionResourceId = channelDescriptionResourceId;
     }
   }
 
@@ -543,7 +568,11 @@ public abstract class DownloadService extends Service {
   public void onCreate() {
     if (channelId != null) {
       NotificationUtil.createNotificationChannel(
-          this, channelId, channelNameResourceId, NotificationUtil.IMPORTANCE_LOW);
+          this,
+          channelId,
+          channelNameResourceId,
+          channelDescriptionResourceId,
+          NotificationUtil.IMPORTANCE_LOW);
     }
     Class<? extends DownloadService> clazz = getClass();
     DownloadManagerHelper downloadManagerHelper = downloadManagerListeners.get(clazz);
@@ -563,8 +592,8 @@ public abstract class DownloadService extends Service {
   public int onStartCommand(Intent intent, int flags, int startId) {
     lastStartId = startId;
     taskRemoved = false;
-    String intentAction = null;
-    String contentId = null;
+    @Nullable String intentAction = null;
+    @Nullable String contentId = null;
     if (intent != null) {
       intentAction = intent.getAction();
       startedInForeground |=
@@ -575,13 +604,14 @@ public abstract class DownloadService extends Service {
     if (intentAction == null) {
       intentAction = ACTION_INIT;
     }
+    DownloadManager downloadManager = Assertions.checkNotNull(this.downloadManager);
     switch (intentAction) {
       case ACTION_INIT:
       case ACTION_RESTART:
         // Do nothing.
         break;
       case ACTION_ADD_DOWNLOAD:
-        DownloadRequest downloadRequest = intent.getParcelableExtra(KEY_DOWNLOAD_REQUEST);
+        @Nullable DownloadRequest downloadRequest = intent.getParcelableExtra(KEY_DOWNLOAD_REQUEST);
         if (downloadRequest == null) {
           Log.e(TAG, "Ignored ADD_DOWNLOAD: Missing " + KEY_DOWNLOAD_REQUEST + " extra");
         } else {
@@ -614,7 +644,7 @@ public abstract class DownloadService extends Service {
         }
         break;
       case ACTION_SET_REQUIREMENTS:
-        Requirements requirements = intent.getParcelableExtra(KEY_REQUIREMENTS);
+        @Nullable Requirements requirements = intent.getParcelableExtra(KEY_REQUIREMENTS);
         if (requirements == null) {
           Log.e(TAG, "Ignored SET_REQUIREMENTS: Missing " + KEY_REQUIREMENTS + " extra");
         } else {
@@ -640,8 +670,9 @@ public abstract class DownloadService extends Service {
   @Override
   public void onDestroy() {
     isDestroyed = true;
-    DownloadManagerHelper downloadManagerHelper = downloadManagerListeners.get(getClass());
-    boolean unschedule = !downloadManager.isWaitingForRequirements();
+    DownloadManagerHelper downloadManagerHelper =
+        Assertions.checkNotNull(downloadManagerListeners.get(getClass()));
+    boolean unschedule = !downloadManagerHelper.downloadManager.isWaitingForRequirements();
     downloadManagerHelper.detachService(this, unschedule);
     if (foregroundNotificationUpdater != null) {
       foregroundNotificationUpdater.stopPeriodicUpdates();
@@ -775,7 +806,6 @@ public abstract class DownloadService extends Service {
     private final int notificationId;
     private final long updateInterval;
     private final Handler handler;
-    private final Runnable updateRunnable;
 
     private boolean periodicUpdatesStarted;
     private boolean notificationDisplayed;
@@ -784,7 +814,6 @@ public abstract class DownloadService extends Service {
       this.notificationId = notificationId;
       this.updateInterval = updateInterval;
       this.handler = new Handler(Looper.getMainLooper());
-      this.updateRunnable = this::update;
     }
 
     public void startPeriodicUpdates() {
@@ -794,7 +823,7 @@ public abstract class DownloadService extends Service {
 
     public void stopPeriodicUpdates() {
       periodicUpdatesStarted = false;
-      handler.removeCallbacks(updateRunnable);
+      handler.removeCallbacksAndMessages(null);
     }
 
     public void showNotificationIfNotAlready() {
@@ -810,12 +839,12 @@ public abstract class DownloadService extends Service {
     }
 
     private void update() {
-      List<Download> downloads = downloadManager.getCurrentDownloads();
+      List<Download> downloads = Assertions.checkNotNull(downloadManager).getCurrentDownloads();
       startForeground(notificationId, getForegroundNotification(downloads));
       notificationDisplayed = true;
       if (periodicUpdatesStarted) {
-        handler.removeCallbacks(updateRunnable);
-        handler.postDelayed(updateRunnable, updateInterval);
+        handler.removeCallbacksAndMessages(null);
+        handler.postDelayed(this::update, updateInterval);
       }
     }
   }
@@ -840,7 +869,8 @@ public abstract class DownloadService extends Service {
       downloadManager.addListener(this);
       if (scheduler != null) {
         Requirements requirements = downloadManager.getRequirements();
-        setSchedulerEnabled(/* enabled= */ !requirements.checkRequirements(context), requirements);
+        setSchedulerEnabled(
+            scheduler, /* enabled= */ !requirements.checkRequirements(context), requirements);
       }
     }
 
@@ -894,11 +924,12 @@ public abstract class DownloadService extends Service {
         }
       }
       if (scheduler != null) {
-        setSchedulerEnabled(/* enabled= */ !requirementsMet, requirements);
+        setSchedulerEnabled(scheduler, /* enabled= */ !requirementsMet, requirements);
       }
     }
 
-    private void setSchedulerEnabled(boolean enabled, Requirements requirements) {
+    private void setSchedulerEnabled(
+        Scheduler scheduler, boolean enabled, Requirements requirements) {
       if (!enabled) {
         scheduler.cancel();
       } else {

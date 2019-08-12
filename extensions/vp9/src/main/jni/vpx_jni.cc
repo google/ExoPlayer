@@ -60,6 +60,7 @@
 
 // JNI references for VpxOutputBuffer class.
 static jmethodID initForYuvFrame;
+static jmethodID initForPrivateFrame;
 static jfieldID dataField;
 static jfieldID outputModeField;
 static jfieldID decoderPrivateField;
@@ -481,6 +482,8 @@ DECODER_FUNC(jlong, vpxInit, jboolean disableLoopFilter,
       "com/google/android/exoplayer2/ext/vp9/VpxOutputBuffer");
   initForYuvFrame = env->GetMethodID(outputBufferClass, "initForYuvFrame",
                                      "(IIIII)Z");
+  initForPrivateFrame =
+      env->GetMethodID(outputBufferClass, "initForPrivateFrame", "(II)V");
   dataField = env->GetFieldID(outputBufferClass, "data",
                               "Ljava/nio/ByteBuffer;");
   outputModeField = env->GetFieldID(outputBufferClass, "mode", "I");
@@ -602,6 +605,10 @@ DECODER_FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer) {
     }
     jfb->d_w = img->d_w;
     jfb->d_h = img->d_h;
+    env->CallVoidMethod(jOutputBuffer, initForPrivateFrame, img->d_w, img->d_h);
+    if (env->ExceptionCheck()) {
+      return -1;
+    }
     env->SetIntField(jOutputBuffer, decoderPrivateField,
                      id + kDecoderPrivateBase);
   }

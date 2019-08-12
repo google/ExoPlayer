@@ -284,7 +284,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
         supportedFormats = new Format[] {VIDEO_FORMAT};
       }
       if (trackSelector == null) {
-        trackSelector = new DefaultTrackSelector();
+        trackSelector = new DefaultTrackSelector(context);
       }
       if (bandwidthMeter == null) {
         bandwidthMeter = new DefaultBandwidthMeter.Builder(context).build();
@@ -309,9 +309,9 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
       }
       if (mediaSource == null) {
         if (timeline == null) {
-          timeline = new FakeTimeline(1);
+          timeline = new FakeTimeline(/* windowCount= */ 1, manifest);
         }
-        mediaSource = new FakeMediaSource(timeline, manifest, supportedFormats);
+        mediaSource = new FakeMediaSource(timeline, supportedFormats);
       }
       if (expectedPlayerEndedCount == null) {
         expectedPlayerEndedCount = 1;
@@ -338,16 +338,15 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
   private final DefaultTrackSelector trackSelector;
   private final LoadControl loadControl;
   private final BandwidthMeter bandwidthMeter;
-  private final @Nullable ActionSchedule actionSchedule;
-  private final @Nullable Player.EventListener eventListener;
-  private final @Nullable AnalyticsListener analyticsListener;
+  @Nullable private final ActionSchedule actionSchedule;
+  @Nullable private final Player.EventListener eventListener;
+  @Nullable private final AnalyticsListener analyticsListener;
 
   private final HandlerThread playerThread;
   private final HandlerWrapper handler;
   private final CountDownLatch endedCountDownLatch;
   private final CountDownLatch actionScheduleFinishedCountDownLatch;
   private final ArrayList<Timeline> timelines;
-  private final ArrayList<Object> manifests;
   private final ArrayList<Integer> timelineChangeReasons;
   private final ArrayList<Integer> periodIndices;
   private final ArrayList<Integer> discontinuityReasons;
@@ -380,7 +379,6 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
     this.eventListener = eventListener;
     this.analyticsListener = analyticsListener;
     this.timelines = new ArrayList<>();
-    this.manifests = new ArrayList<>();
     this.timelineChangeReasons = new ArrayList<>();
     this.periodIndices = new ArrayList<>();
     this.discontinuityReasons = new ArrayList<>();
@@ -418,7 +416,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
             if (actionSchedule != null) {
               actionSchedule.start(player, trackSelector, null, handler, ExoPlayerTestRunner.this);
             }
-            player.prepare(mediaSource);
+            player.prepare(mediaSource, /* resetPosition= */ false, /* resetState= */ false);
           } catch (Exception e) {
             handleException(e);
           }
@@ -469,9 +467,8 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
   // Assertions called on the test thread after test finished.
 
   /**
-   * Asserts that the timelines reported by
-   * {@link Player.EventListener#onTimelineChanged(Timeline, Object, int)} are equal to the provided
-   * timelines.
+   * Asserts that the timelines reported by {@link Player.EventListener#onTimelineChanged(Timeline,
+   * int)} are equal to the provided timelines.
    *
    * @param timelines A list of expected {@link Timeline}s.
    */
@@ -480,20 +477,9 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
   }
 
   /**
-   * Asserts that the manifests reported by
-   * {@link Player.EventListener#onTimelineChanged(Timeline, Object, int)} are equal to the provided
-   * manifest.
-   *
-   * @param manifests A list of expected manifests.
-   */
-  public void assertManifestsEqual(Object... manifests) {
-    assertThat(this.manifests).containsExactlyElementsIn(Arrays.asList(manifests)).inOrder();
-  }
-
-  /**
    * Asserts that the timeline change reasons reported by {@link
-   * Player.EventListener#onTimelineChanged(Timeline, Object, int)} are equal to the provided
-   * timeline change reasons.
+   * Player.EventListener#onTimelineChanged(Timeline, int)} are equal to the provided timeline
+   * change reasons.
    */
   public void assertTimelineChangeReasonsEqual(Integer... reasons) {
     assertThat(timelineChangeReasons).containsExactlyElementsIn(Arrays.asList(reasons)).inOrder();
@@ -573,10 +559,8 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
   // Player.EventListener
 
   @Override
-  public void onTimelineChanged(
-      Timeline timeline, @Nullable Object manifest, @Player.TimelineChangeReason int reason) {
+  public void onTimelineChanged(Timeline timeline, @Player.TimelineChangeReason int reason) {
     timelines.add(timeline);
-    manifests.add(manifest);
     timelineChangeReasons.add(reason);
     if (reason == Player.TIMELINE_CHANGE_REASON_PREPARED) {
       periodIndices.add(player.getCurrentPeriodIndex());
@@ -638,7 +622,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
           loadControl,
           /* drmSessionManager= */ null,
           bandwidthMeter,
-          new AnalyticsCollector.Factory(),
+          new AnalyticsCollector(clock),
           clock,
           Looper.myLooper());
     }

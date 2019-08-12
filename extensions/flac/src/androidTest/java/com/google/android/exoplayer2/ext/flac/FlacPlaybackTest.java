@@ -82,7 +82,7 @@ public class FlacPlaybackTest {
     public void run() {
       Looper.prepare();
       LibflacAudioRenderer audioRenderer = new LibflacAudioRenderer();
-      DefaultTrackSelector trackSelector = new DefaultTrackSelector();
+      DefaultTrackSelector trackSelector = new DefaultTrackSelector(context);
       player = ExoPlayerFactory.newInstance(context, new Renderer[] {audioRenderer}, trackSelector);
       player.addListener(this);
       MediaSource mediaSource =

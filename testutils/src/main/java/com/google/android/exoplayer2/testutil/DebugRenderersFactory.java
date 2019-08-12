@@ -31,7 +31,6 @@ import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
-import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.nio.ByteBuffer;
@@ -56,6 +55,7 @@ public class DebugRenderersFactory extends DefaultRenderersFactory {
       MediaCodecSelector mediaCodecSelector,
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       boolean playClearSamplesWithoutKeys,
+      boolean enableDecoderFallback,
       Handler eventHandler,
       VideoRendererEventListener eventListener,
       long allowedVideoJoiningTimeMs,
@@ -114,8 +114,7 @@ public class DebugRenderersFactory extends DefaultRenderersFactory {
         MediaCodec codec,
         Format format,
         MediaCrypto crypto,
-        float operatingRate)
-        throws DecoderQueryException {
+        float operatingRate) {
       // If the codec is being initialized whilst the renderer is started, default behavior is to
       // render the first frame (i.e. the keyframe before the current position), then drop frames up
       // to the current playback position. For test runs that place a maximum limit on the number of
@@ -165,14 +164,15 @@ public class DebugRenderersFactory extends DefaultRenderersFactory {
         int bufferIndex,
         int bufferFlags,
         long bufferPresentationTimeUs,
-        boolean shouldSkip,
+        boolean isDecodeOnlyBuffer,
+        boolean isLastBuffer,
         Format format)
         throws ExoPlaybackException {
       if (skipToPositionBeforeRenderingFirstFrame && bufferPresentationTimeUs < positionUs) {
         // After the codec has been initialized, don't render the first frame until we've caught up
         // to the playback position. Else test runs on devices that do not support dummy surface
         // will drop frames between rendering the first one and catching up [Internal: b/66494991].
-        shouldSkip = true;
+        isDecodeOnlyBuffer = true;
       }
       return super.processOutputBuffer(
           positionUs,
@@ -182,7 +182,8 @@ public class DebugRenderersFactory extends DefaultRenderersFactory {
           bufferIndex,
           bufferFlags,
           bufferPresentationTimeUs,
-          shouldSkip,
+          isDecodeOnlyBuffer,
+          isLastBuffer,
           format);
     }
 

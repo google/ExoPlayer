@@ -67,7 +67,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     private final int maxSegmentsPerLoad;
 
     public Factory(DataSource.Factory dataSourceFactory) {
-      this(dataSourceFactory, 1);
+      this(dataSourceFactory, /* maxSegmentsPerLoad= */ 1);
     }
 
     public Factory(DataSource.Factory dataSourceFactory, int maxSegmentsPerLoad) {
@@ -111,7 +111,6 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
   private final LoaderErrorThrower manifestLoaderErrorThrower;
   private final int[] adaptationSetIndices;
-  private final TrackSelection trackSelection;
   private final int trackType;
   private final DataSource dataSource;
   private final long elapsedRealtimeOffsetMs;
@@ -120,6 +119,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
   protected final RepresentationHolder[] representationHolders;
 
+  private TrackSelection trackSelection;
   private DashManifest manifest;
   private int periodIndex;
   private IOException fatalError;
@@ -220,6 +220,11 @@ public class DefaultDashChunkSource implements DashChunkSource {
     } catch (BehindLiveWindowException e) {
       fatalError = e;
     }
+  }
+
+  @Override
+  public void updateTrackSelection(TrackSelection trackSelection) {
+    this.trackSelection = trackSelection;
   }
 
   @Override
@@ -329,6 +334,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
         representationHolder.getFirstAvailableSegmentNum(manifest, periodIndex, nowUnixTimeUs);
     long lastAvailableSegmentNum =
         representationHolder.getLastAvailableSegmentNum(manifest, periodIndex, nowUnixTimeUs);
+
     updateLiveEdgeTimeUs(representationHolder, lastAvailableSegmentNum);
 
     long segmentNum =
@@ -616,7 +622,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     /* package */ final @Nullable ChunkExtractorWrapper extractorWrapper;
 
     public final Representation representation;
-    public final @Nullable DashSegmentIndex segmentIndex;
+    @Nullable public final DashSegmentIndex segmentIndex;
 
     private final long periodDurationUs;
     private final long segmentNumShift;
@@ -627,7 +633,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
         Representation representation,
         boolean enableEventMessageTrack,
         List<Format> closedCaptionFormats,
-        TrackOutput playerEmsgTrackOutput) {
+        @Nullable TrackOutput playerEmsgTrackOutput) {
       this(
           periodDurationUs,
           representation,
@@ -781,7 +787,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
         Representation representation,
         boolean enableEventMessageTrack,
         List<Format> closedCaptionFormats,
-        TrackOutput playerEmsgTrackOutput) {
+        @Nullable TrackOutput playerEmsgTrackOutput) {
       String containerMimeType = representation.format.containerMimeType;
       if (mimeTypeIsRawText(containerMimeType)) {
         return null;

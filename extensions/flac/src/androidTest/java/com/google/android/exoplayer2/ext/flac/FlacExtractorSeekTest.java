@@ -228,7 +228,8 @@ public final class FlacExtractorSeekTest {
     }
   }
 
-  private @Nullable SeekMap extractSeekMap(FlacExtractor extractor, FakeExtractorOutput output)
+  @Nullable
+  private SeekMap extractSeekMap(FlacExtractor extractor, FakeExtractorOutput output)
       throws IOException, InterruptedException {
     try {
       ExtractorInput input = getExtractorInputFromPosition(0);

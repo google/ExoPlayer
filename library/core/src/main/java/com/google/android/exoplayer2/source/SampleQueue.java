@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -28,6 +29,9 @@ import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.EOFException;
 import java.io.IOException;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 
 /** A queue of media samples. */
@@ -46,6 +50,27 @@ public class SampleQueue implements TrackOutput {
     void onUpstreamFormatChanged(Format format);
 
   }
+
+  /** Values returned by {@link #peekNext()}. */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef(
+      value = {
+        PEEK_RESULT_NOTHING,
+        PEEK_RESULT_FORMAT,
+        PEEK_RESULT_BUFFER_CLEAR,
+        PEEK_RESULT_BUFFER_ENCRYPTED
+      })
+  @interface PeekResult {}
+
+  /** Nothing is available for reading. */
+  public static final int PEEK_RESULT_NOTHING = 0;
+  /** A format change is available for reading */
+  public static final int PEEK_RESULT_FORMAT = 1;
+  /** A clear buffer is available for reading. */
+  public static final int PEEK_RESULT_BUFFER_CLEAR = 2;
+  /** An encrypted buffer is available for reading. */
+  public static final int PEEK_RESULT_BUFFER_ENCRYPTED = 3;
 
   public static final int ADVANCE_FAILED = -1;
 
@@ -313,6 +338,16 @@ public class SampleQueue implements TrackOutput {
   }
 
   /**
+   * Returns a {@link PeekResult} depending on what a following call to {@link #read
+   * read(formatHolder, decoderInputBuffer, formatRequired= false, allowOnlyClearBuffers= false,
+   * loadingFinished= false, decodeOnlyUntilUs= 0)} would result in.
+   */
+  @PeekResult
+  public int peekNext() {
+    return metadataQueue.peekNext(downstreamFormat);
+  }
+
+  /**
    * Attempts to read from the queue.
    *
    * @param formatHolder A {@link FormatHolder} to populate in the case of reading a format.
@@ -324,6 +359,8 @@ public class SampleQueue implements TrackOutput {
    * @param formatRequired Whether the caller requires that the format of the stream be read even if
    *     it's not changing. A sample will never be read if set to true, however it is still possible
    *     for the end of stream or nothing to be read.
+   * @param allowOnlyClearBuffers If set to true, this method will not return encrypted buffers,
+   *     returning {@link C#RESULT_NOTHING_READ} (without advancing the read position) instead.
    * @param loadingFinished True if an empty queue should be considered the end of the stream.
    * @param decodeOnlyUntilUs If a buffer is read, the {@link C#BUFFER_FLAG_DECODE_ONLY} flag will
    *     be set if the buffer's timestamp is less than this value.
@@ -334,10 +371,18 @@ public class SampleQueue implements TrackOutput {
       FormatHolder formatHolder,
       DecoderInputBuffer buffer,
       boolean formatRequired,
+      boolean allowOnlyClearBuffers,
       boolean loadingFinished,
       long decodeOnlyUntilUs) {
-    int result = metadataQueue.read(formatHolder, buffer, formatRequired, loadingFinished,
-        downstreamFormat, extrasHolder);
+    int result =
+        metadataQueue.read(
+            formatHolder,
+            buffer,
+            formatRequired,
+            allowOnlyClearBuffers,
+            loadingFinished,
+            downstreamFormat,
+            extrasHolder);
     switch (result) {
       case C.RESULT_FORMAT_READ:
         downstreamFormat = formatHolder.format;

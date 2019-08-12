@@ -68,7 +68,7 @@ public interface AnalyticsListener {
      * Media period identifier for the media period this event belongs to, or {@code null} if the
      * event is not associated with a specific media period.
      */
-    public final @Nullable MediaPeriodId mediaPeriodId;
+    @Nullable public final MediaPeriodId mediaPeriodId;
 
     /**
      * Position in the window or ad this event belongs to at the time of the event, in milliseconds.

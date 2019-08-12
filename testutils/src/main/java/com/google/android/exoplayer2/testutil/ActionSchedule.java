@@ -613,7 +613,7 @@ public final class ActionSchedule {
    */
   private static final class CallbackAction extends Action {
 
-    private @Nullable Callback callback;
+    @Nullable private Callback callback;
 
     public CallbackAction(String tag) {
       super(tag, "FinishedCallback");

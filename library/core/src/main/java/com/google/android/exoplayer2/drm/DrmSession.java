@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.drm;
 import android.media.MediaDrm;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -29,9 +30,26 @@ import java.util.Map;
 public interface DrmSession<T extends ExoMediaCrypto> {
 
   /**
-   * Wraps the throwable which is the cause of the error state.
+   * Invokes {@code newSession's} {@link #acquireReference()} and {@code previousSession's} {@link
+   * #releaseReference()} in that order. Null arguments are ignored. Does nothing if {@code
+   * previousSession} and {@code newSession} are the same session.
    */
-  class DrmSessionException extends Exception {
+  static <T extends ExoMediaCrypto> void replaceSessionReferences(
+      @Nullable DrmSession<T> previousSession, @Nullable DrmSession<T> newSession) {
+    if (previousSession == newSession) {
+      // Do nothing.
+      return;
+    }
+    if (newSession != null) {
+      newSession.acquireReference();
+    }
+    if (previousSession != null) {
+      previousSession.releaseReference();
+    }
+  }
+
+  /** Wraps the throwable which is the cause of the error state. */
+  class DrmSessionException extends IOException {
 
     public DrmSessionException(Throwable cause) {
       super(cause);
@@ -110,4 +128,18 @@ public interface DrmSession<T extends ExoMediaCrypto> {
    */
   @Nullable
   byte[] getOfflineLicenseKeySetId();
+
+  /**
+   * Increments the reference count for this session. A non-zero reference count session will keep
+   * any acquired resources.
+   */
+  void acquireReference();
+
+  /**
+   * Decreases by one the reference count for this session. A session that reaches a zero reference
+   * count will release any resources it holds.
+   *
+   * <p>The session must not be used after its reference count has been reduced to 0.
+   */
+  void releaseReference();
 }

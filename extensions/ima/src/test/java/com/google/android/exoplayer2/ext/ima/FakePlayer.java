@@ -51,9 +51,7 @@ import java.util.ArrayList;
   public void updateTimeline(Timeline timeline) {
     for (Player.EventListener listener : listeners) {
       listener.onTimelineChanged(
-          timeline,
-          null,
-          prepared ? TIMELINE_CHANGE_REASON_DYNAMIC : TIMELINE_CHANGE_REASON_PREPARED);
+          timeline, prepared ? TIMELINE_CHANGE_REASON_DYNAMIC : TIMELINE_CHANGE_REASON_PREPARED);
     }
     prepared = true;
   }

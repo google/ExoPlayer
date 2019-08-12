@@ -16,8 +16,8 @@
 package com.google.android.exoplayer2.upstream.cache;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import androidx.test.core.app.ApplicationProvider;

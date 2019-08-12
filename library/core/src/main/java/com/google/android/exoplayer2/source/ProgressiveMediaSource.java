@@ -18,6 +18,8 @@ package com.google.android.exoplayer2.source;
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.drm.DrmSession;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
@@ -51,6 +53,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     private ExtractorsFactory extractorsFactory;
     @Nullable private String customCacheKey;
     @Nullable private Object tag;
+    private DrmSessionManager<?> drmSessionManager;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
     private int continueLoadingCheckIntervalBytes;
     private boolean isCreateCalled;
@@ -74,6 +77,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     public Factory(DataSource.Factory dataSourceFactory, ExtractorsFactory extractorsFactory) {
       this.dataSourceFactory = dataSourceFactory;
       this.extractorsFactory = extractorsFactory;
+      drmSessionManager = DrmSessionManager.getDummyDrmSessionManager();
       loadErrorHandlingPolicy = new DefaultLoadErrorHandlingPolicy();
       continueLoadingCheckIntervalBytes = DEFAULT_LOADING_CHECK_INTERVAL_BYTES;
     }
@@ -129,6 +133,20 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     }
 
     /**
+     * Sets the {@link DrmSessionManager} to use for acquiring {@link DrmSession DrmSessions}. The
+     * default value is {@link DrmSessionManager#DUMMY}.
+     *
+     * @param drmSessionManager The {@link DrmSessionManager}.
+     * @return This factory, for convenience.
+     * @throws IllegalStateException If one of the {@code create} methods has already been called.
+     */
+    public Factory setDrmSessionManager(DrmSessionManager<?> drmSessionManager) {
+      Assertions.checkState(!isCreateCalled);
+      this.drmSessionManager = drmSessionManager;
+      return this;
+    }
+
+    /**
      * Sets the {@link LoadErrorHandlingPolicy}. The default value is created by calling {@link
      * DefaultLoadErrorHandlingPolicy#DefaultLoadErrorHandlingPolicy()}.
      *
@@ -172,6 +190,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
           uri,
           dataSourceFactory,
           extractorsFactory,
+          drmSessionManager,
           loadErrorHandlingPolicy,
           customCacheKey,
           continueLoadingCheckIntervalBytes,
@@ -193,6 +212,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
   private final Uri uri;
   private final DataSource.Factory dataSourceFactory;
   private final ExtractorsFactory extractorsFactory;
+  private final DrmSessionManager<?> drmSessionManager;
   private final LoadErrorHandlingPolicy loadableLoadErrorHandlingPolicy;
   @Nullable private final String customCacheKey;
   private final int continueLoadingCheckIntervalBytes;
@@ -207,6 +227,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
       Uri uri,
       DataSource.Factory dataSourceFactory,
       ExtractorsFactory extractorsFactory,
+      DrmSessionManager<?> drmSessionManager,
       LoadErrorHandlingPolicy loadableLoadErrorHandlingPolicy,
       @Nullable String customCacheKey,
       int continueLoadingCheckIntervalBytes,
@@ -214,6 +235,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     this.uri = uri;
     this.dataSourceFactory = dataSourceFactory;
     this.extractorsFactory = extractorsFactory;
+    this.drmSessionManager = drmSessionManager;
     this.loadableLoadErrorHandlingPolicy = loadableLoadErrorHandlingPolicy;
     this.customCacheKey = customCacheKey;
     this.continueLoadingCheckIntervalBytes = continueLoadingCheckIntervalBytes;
@@ -228,7 +250,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
   }
 
   @Override
-  public void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
+  protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
     transferListener = mediaTransferListener;
     notifySourceInfoRefreshed(timelineDurationUs, timelineIsSeekable);
   }
@@ -248,6 +270,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
         uri,
         dataSource,
         extractorsFactory.createExtractors(),
+        drmSessionManager,
         loadableLoadErrorHandlingPolicy,
         createEventDispatcher(id),
         this,
@@ -262,7 +285,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
   }
 
   @Override
-  public void releaseSourceInternal() {
+  protected void releaseSourceInternal() {
     // Do nothing.
   }
 
@@ -287,7 +310,10 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     // TODO: Make timeline dynamic until its duration is known. This is non-trivial. See b/69703223.
     refreshSourceInfo(
         new SinglePeriodTimeline(
-            timelineDurationUs, timelineIsSeekable, /* isDynamic= */ false, tag),
-        /* manifest= */ null);
+            timelineDurationUs,
+            timelineIsSeekable,
+            /* isDynamic= */ false,
+            /* manifest= */ null,
+            tag));
   }
 }

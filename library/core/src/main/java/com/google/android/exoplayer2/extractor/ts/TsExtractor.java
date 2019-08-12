@@ -101,10 +101,10 @@ public final class TsExtractor implements Extractor {
   private static final int TS_PAT_PID = 0;
   private static final int MAX_PID_PLUS_ONE = 0x2000;
 
-  private static final long AC3_FORMAT_IDENTIFIER = Util.getIntegerCodeForString("AC-3");
-  private static final long E_AC3_FORMAT_IDENTIFIER = Util.getIntegerCodeForString("EAC3");
-  private static final long AC4_FORMAT_IDENTIFIER = Util.getIntegerCodeForString("AC-4");
-  private static final long HEVC_FORMAT_IDENTIFIER = Util.getIntegerCodeForString("HEVC");
+  private static final long AC3_FORMAT_IDENTIFIER = 0x41432d33;
+  private static final long E_AC3_FORMAT_IDENTIFIER = 0x45414333;
+  private static final long AC4_FORMAT_IDENTIFIER = 0x41432d34;
+  private static final long HEVC_FORMAT_IDENTIFIER = 0x48455643;
 
   private static final int BUFFER_SIZE = TS_PACKET_SIZE * 50;
   private static final int SNIFF_TS_PACKET_COUNT = 5;

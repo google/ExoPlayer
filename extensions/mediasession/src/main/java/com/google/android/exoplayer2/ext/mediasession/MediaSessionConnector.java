@@ -52,6 +52,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 
 /**
  * Connects a {@link MediaSessionCompat} to a {@link Player}.
@@ -172,7 +173,7 @@ public final class MediaSessionConnector {
         ResultReceiver cb);
   }
 
-  /** Interface to which playback preparation actions are delegated. */
+  /** Interface to which playback preparation and play actions are delegated. */
   public interface PlaybackPreparer extends CommandReceiver {
 
     long ACTIONS =
@@ -197,14 +198,36 @@ public final class MediaSessionConnector {
      * @return The bitmask of the supported media actions.
      */
     long getSupportedPrepareActions();
-    /** See {@link MediaSessionCompat.Callback#onPrepare()}. */
-    void onPrepare();
-    /** See {@link MediaSessionCompat.Callback#onPrepareFromMediaId(String, Bundle)}. */
-    void onPrepareFromMediaId(String mediaId, Bundle extras);
-    /** See {@link MediaSessionCompat.Callback#onPrepareFromSearch(String, Bundle)}. */
-    void onPrepareFromSearch(String query, Bundle extras);
-    /** See {@link MediaSessionCompat.Callback#onPrepareFromUri(Uri, Bundle)}. */
-    void onPrepareFromUri(Uri uri, Bundle extras);
+    /**
+     * See {@link MediaSessionCompat.Callback#onPrepare()}.
+     *
+     * @param playWhenReady Whether playback should be started after preparation.
+     */
+    void onPrepare(boolean playWhenReady);
+    /**
+     * See {@link MediaSessionCompat.Callback#onPrepareFromMediaId(String, Bundle)}.
+     *
+     * @param mediaId The media id of the media item to be prepared.
+     * @param playWhenReady Whether playback should be started after preparation.
+     * @param extras A {@link Bundle} of extras passed by the media controller.
+     */
+    void onPrepareFromMediaId(String mediaId, boolean playWhenReady, Bundle extras);
+    /**
+     * See {@link MediaSessionCompat.Callback#onPrepareFromSearch(String, Bundle)}.
+     *
+     * @param query The search query.
+     * @param playWhenReady Whether playback should be started after preparation.
+     * @param extras A {@link Bundle} of extras passed by the media controller.
+     */
+    void onPrepareFromSearch(String query, boolean playWhenReady, Bundle extras);
+    /**
+     * See {@link MediaSessionCompat.Callback#onPrepareFromUri(Uri, Bundle)}.
+     *
+     * @param uri The {@link Uri} of the media item to be prepared.
+     * @param playWhenReady Whether playback should be started after preparation.
+     * @param extras A {@link Bundle} of extras passed by the media controller.
+     */
+    void onPrepareFromUri(Uri uri, boolean playWhenReady, Bundle extras);
   }
 
   /**
@@ -337,7 +360,7 @@ public final class MediaSessionConnector {
      * @param extras Optional extras sent by a media controller.
      */
     void onCustomAction(
-        Player player, ControlDispatcher controlDispatcher, String action, Bundle extras);
+        Player player, ControlDispatcher controlDispatcher, String action, @Nullable Bundle extras);
 
     /**
      * Returns a {@link PlaybackStateCompat.CustomAction} which will be published to the media
@@ -354,6 +377,13 @@ public final class MediaSessionConnector {
   public interface MediaMetadataProvider {
     /**
      * Gets the {@link MediaMetadataCompat} to be published to the session.
+     *
+     * <p>An app may need to load metadata resources like artwork bitmaps asynchronously. In such a
+     * case the app should return a {@link MediaMetadataCompat} object that does not contain these
+     * resources as a placeholder. The app should start an asynchronous operation to download the
+     * bitmap and put it into a cache. Finally, the app should call {@link
+     * #invalidateMediaSessionMetadata()}. This causes this callback to be called again and the app
+     * can now return a {@link MediaMetadataCompat} object with all the resources included.
      *
      * @param player The player connected to the media session.
      * @return The {@link MediaMetadataCompat} to be published to the session.
@@ -528,7 +558,7 @@ public final class MediaSessionConnector {
    *
    * @param queueNavigator The queue navigator.
    */
-  public void setQueueNavigator(QueueNavigator queueNavigator) {
+  public void setQueueNavigator(@Nullable QueueNavigator queueNavigator) {
     if (this.queueNavigator != queueNavigator) {
       unregisterCommandReceiver(this.queueNavigator);
       this.queueNavigator = queueNavigator;
@@ -541,7 +571,7 @@ public final class MediaSessionConnector {
    *
    * @param queueEditor The queue editor.
    */
-  public void setQueueEditor(QueueEditor queueEditor) {
+  public void setQueueEditor(@Nullable QueueEditor queueEditor) {
     if (this.queueEditor != queueEditor) {
       unregisterCommandReceiver(this.queueEditor);
       this.queueEditor = queueEditor;
@@ -643,7 +673,7 @@ public final class MediaSessionConnector {
         mediaMetadataProvider != null && player != null
             ? mediaMetadataProvider.getMetadata(player)
             : METADATA_EMPTY;
-    mediaSession.setMetadata(metadata != null ? metadata : METADATA_EMPTY);
+    mediaSession.setMetadata(metadata);
   }
 
   /**
@@ -654,6 +684,7 @@ public final class MediaSessionConnector {
    */
   public final void invalidateMediaSessionPlaybackState() {
     PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder();
+    @Nullable Player player = this.player;
     if (player == null) {
       builder.setActions(buildPrepareActions()).setState(PlaybackStateCompat.STATE_NONE, 0, 0, 0);
       mediaSession.setPlaybackState(builder.build());
@@ -662,6 +693,7 @@ public final class MediaSessionConnector {
 
     Map<String, CustomActionProvider> currentActions = new HashMap<>();
     for (CustomActionProvider customActionProvider : customActionProviders) {
+      @Nullable
       PlaybackStateCompat.CustomAction customAction = customActionProvider.getCustomAction(player);
       if (customAction != null) {
         currentActions.put(customAction.getAction(), customActionProvider);
@@ -672,6 +704,7 @@ public final class MediaSessionConnector {
 
     int playbackState = player.getPlaybackState();
     Bundle extras = new Bundle();
+    @Nullable
     ExoPlaybackException playbackError =
         playbackState == Player.STATE_IDLE ? player.getPlaybackError() : null;
     boolean reportError = playbackError != null || customError != null;
@@ -727,8 +760,8 @@ public final class MediaSessionConnector {
    *
    * @param commandReceiver The command receiver to register.
    */
-  public void registerCustomCommandReceiver(CommandReceiver commandReceiver) {
-    if (!customCommandReceivers.contains(commandReceiver)) {
+  public void registerCustomCommandReceiver(@Nullable CommandReceiver commandReceiver) {
+    if (commandReceiver != null && !customCommandReceivers.contains(commandReceiver)) {
       customCommandReceivers.add(commandReceiver);
     }
   }
@@ -738,18 +771,22 @@ public final class MediaSessionConnector {
    *
    * @param commandReceiver The command receiver to unregister.
    */
-  public void unregisterCustomCommandReceiver(CommandReceiver commandReceiver) {
-    customCommandReceivers.remove(commandReceiver);
+  public void unregisterCustomCommandReceiver(@Nullable CommandReceiver commandReceiver) {
+    if (commandReceiver != null) {
+      customCommandReceivers.remove(commandReceiver);
+    }
   }
 
-  private void registerCommandReceiver(CommandReceiver commandReceiver) {
-    if (!commandReceivers.contains(commandReceiver)) {
+  private void registerCommandReceiver(@Nullable CommandReceiver commandReceiver) {
+    if (commandReceiver != null && !commandReceivers.contains(commandReceiver)) {
       commandReceivers.add(commandReceiver);
     }
   }
 
-  private void unregisterCommandReceiver(CommandReceiver commandReceiver) {
-    commandReceivers.remove(commandReceiver);
+  private void unregisterCommandReceiver(@Nullable CommandReceiver commandReceiver) {
+    if (commandReceiver != null) {
+      commandReceivers.remove(commandReceiver);
+    }
   }
 
   private long buildPrepareActions() {
@@ -807,37 +844,45 @@ public final class MediaSessionConnector {
     }
   }
 
+  @EnsuresNonNullIf(result = true, expression = "player")
   private boolean canDispatchPlaybackAction(long action) {
     return player != null && (enabledPlaybackActions & action) != 0;
   }
 
+  @EnsuresNonNullIf(result = true, expression = "playbackPreparer")
   private boolean canDispatchToPlaybackPreparer(long action) {
     return playbackPreparer != null
         && (playbackPreparer.getSupportedPrepareActions() & action) != 0;
   }
 
+  @EnsuresNonNullIf(
+      result = true,
+      expression = {"player", "queueNavigator"})
   private boolean canDispatchToQueueNavigator(long action) {
     return player != null
         && queueNavigator != null
         && (queueNavigator.getSupportedQueueNavigatorActions(player) & action) != 0;
   }
 
+  @EnsuresNonNullIf(
+      result = true,
+      expression = {"player", "ratingCallback"})
   private boolean canDispatchSetRating() {
     return player != null && ratingCallback != null;
   }
 
+  @EnsuresNonNullIf(
+      result = true,
+      expression = {"player", "queueEditor"})
   private boolean canDispatchQueueEdit() {
     return player != null && queueEditor != null;
   }
 
+  @EnsuresNonNullIf(
+      result = true,
+      expression = {"player", "mediaButtonEventHandler"})
   private boolean canDispatchMediaButtonEvent() {
     return player != null && mediaButtonEventHandler != null;
-  }
-
-  private void setPlayWhenReady(boolean playWhenReady) {
-    if (player != null) {
-      controlDispatcher.dispatchSetPlayWhenReady(player, playWhenReady);
-    }
   }
 
   private void rewind(Player player) {
@@ -906,10 +951,10 @@ public final class MediaSessionConnector {
           MediaSessionCompat.QueueItem queueItem = queue.get(i);
           if (queueItem.getQueueId() == activeQueueItemId) {
             MediaDescriptionCompat description = queueItem.getDescription();
-            Bundle extras = description.getExtras();
+            @Nullable Bundle extras = description.getExtras();
             if (extras != null) {
               for (String key : extras.keySet()) {
-                Object value = extras.get(key);
+                @Nullable Object value = extras.get(key);
                 if (value instanceof String) {
                   builder.putString(metadataExtrasPrefix + key, (String) value);
                 } else if (value instanceof CharSequence) {
@@ -925,38 +970,40 @@ public final class MediaSessionConnector {
                 }
               }
             }
-            if (description.getTitle() != null) {
-              String title = String.valueOf(description.getTitle());
-              builder.putString(MediaMetadataCompat.METADATA_KEY_TITLE, title);
-              builder.putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, title);
+            @Nullable CharSequence title = description.getTitle();
+            if (title != null) {
+              String titleString = String.valueOf(title);
+              builder.putString(MediaMetadataCompat.METADATA_KEY_TITLE, titleString);
+              builder.putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, titleString);
             }
-            if (description.getSubtitle() != null) {
+            @Nullable CharSequence subtitle = description.getSubtitle();
+            if (subtitle != null) {
               builder.putString(
-                  MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE,
-                  String.valueOf(description.getSubtitle()));
+                  MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, String.valueOf(subtitle));
             }
-            if (description.getDescription() != null) {
+            @Nullable CharSequence displayDescription = description.getDescription();
+            if (displayDescription != null) {
               builder.putString(
                   MediaMetadataCompat.METADATA_KEY_DISPLAY_DESCRIPTION,
-                  String.valueOf(description.getDescription()));
+                  String.valueOf(displayDescription));
             }
-            if (description.getIconBitmap() != null) {
-              builder.putBitmap(
-                  MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, description.getIconBitmap());
+            @Nullable Bitmap iconBitmap = description.getIconBitmap();
+            if (iconBitmap != null) {
+              builder.putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, iconBitmap);
             }
-            if (description.getIconUri() != null) {
+            @Nullable Uri iconUri = description.getIconUri();
+            if (iconUri != null) {
               builder.putString(
-                  MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI,
-                  String.valueOf(description.getIconUri()));
+                  MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI, String.valueOf(iconUri));
             }
-            if (description.getMediaId() != null) {
-              builder.putString(
-                  MediaMetadataCompat.METADATA_KEY_MEDIA_ID, description.getMediaId());
+            @Nullable String mediaId = description.getMediaId();
+            if (mediaId != null) {
+              builder.putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, mediaId);
             }
-            if (description.getMediaUri() != null) {
+            @Nullable Uri mediaUri = description.getMediaUri();
+            if (mediaUri != null) {
               builder.putString(
-                  MediaMetadataCompat.METADATA_KEY_MEDIA_URI,
-                  String.valueOf(description.getMediaUri()));
+                  MediaMetadataCompat.METADATA_KEY_MEDIA_URI, String.valueOf(mediaUri));
             }
             break;
           }
@@ -975,8 +1022,8 @@ public final class MediaSessionConnector {
     // Player.EventListener implementation.
 
     @Override
-    public void onTimelineChanged(
-        Timeline timeline, @Nullable Object manifest, @Player.TimelineChangeReason int reason) {
+    public void onTimelineChanged(Timeline timeline, @Player.TimelineChangeReason int reason) {
+      Player player = Assertions.checkNotNull(MediaSessionConnector.this.player);
       int windowCount = player.getCurrentTimeline().getWindowCount();
       int windowIndex = player.getCurrentWindowIndex();
       if (queueNavigator != null) {
@@ -1019,6 +1066,7 @@ public final class MediaSessionConnector {
 
     @Override
     public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
+      Player player = Assertions.checkNotNull(MediaSessionConnector.this.player);
       if (currentWindowIndex != player.getCurrentWindowIndex()) {
         if (queueNavigator != null) {
           queueNavigator.onCurrentWindowIndexChanged(player);
@@ -1045,19 +1093,20 @@ public final class MediaSessionConnector {
       if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_PLAY)) {
         if (player.getPlaybackState() == Player.STATE_IDLE) {
           if (playbackPreparer != null) {
-            playbackPreparer.onPrepare();
+            playbackPreparer.onPrepare(/* playWhenReady= */ true);
           }
         } else if (player.getPlaybackState() == Player.STATE_ENDED) {
           controlDispatcher.dispatchSeekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
         }
-        setPlayWhenReady(/* playWhenReady= */ true);
+        controlDispatcher.dispatchSetPlayWhenReady(
+            Assertions.checkNotNull(player), /* playWhenReady= */ true);
       }
     }
 
     @Override
     public void onPause() {
       if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_PAUSE)) {
-        setPlayWhenReady(/* playWhenReady= */ false);
+        controlDispatcher.dispatchSetPlayWhenReady(player, /* playWhenReady= */ false);
       }
     }
 
@@ -1180,56 +1229,49 @@ public final class MediaSessionConnector {
     @Override
     public void onPrepare() {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PREPARE)) {
-        setPlayWhenReady(/* playWhenReady= */ false);
-        playbackPreparer.onPrepare();
+        playbackPreparer.onPrepare(/* playWhenReady= */ false);
       }
     }
 
     @Override
     public void onPrepareFromMediaId(String mediaId, Bundle extras) {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID)) {
-        setPlayWhenReady(/* playWhenReady= */ false);
-        playbackPreparer.onPrepareFromMediaId(mediaId, extras);
+        playbackPreparer.onPrepareFromMediaId(mediaId, /* playWhenReady= */ false, extras);
       }
     }
 
     @Override
     public void onPrepareFromSearch(String query, Bundle extras) {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PREPARE_FROM_SEARCH)) {
-        setPlayWhenReady(/* playWhenReady= */ false);
-        playbackPreparer.onPrepareFromSearch(query, extras);
+        playbackPreparer.onPrepareFromSearch(query, /* playWhenReady= */ false, extras);
       }
     }
 
     @Override
     public void onPrepareFromUri(Uri uri, Bundle extras) {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PREPARE_FROM_URI)) {
-        setPlayWhenReady(/* playWhenReady= */ false);
-        playbackPreparer.onPrepareFromUri(uri, extras);
+        playbackPreparer.onPrepareFromUri(uri, /* playWhenReady= */ false, extras);
       }
     }
 
     @Override
     public void onPlayFromMediaId(String mediaId, Bundle extras) {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID)) {
-        setPlayWhenReady(/* playWhenReady= */ true);
-        playbackPreparer.onPrepareFromMediaId(mediaId, extras);
+        playbackPreparer.onPrepareFromMediaId(mediaId, /* playWhenReady= */ true, extras);
       }
     }
 
     @Override
     public void onPlayFromSearch(String query, Bundle extras) {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH)) {
-        setPlayWhenReady(/* playWhenReady= */ true);
-        playbackPreparer.onPrepareFromSearch(query, extras);
+        playbackPreparer.onPrepareFromSearch(query, /* playWhenReady= */ true, extras);
       }
     }
 
     @Override
     public void onPlayFromUri(Uri uri, Bundle extras) {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PLAY_FROM_URI)) {
-        setPlayWhenReady(/* playWhenReady= */ true);
-        playbackPreparer.onPrepareFromUri(uri, extras);
+        playbackPreparer.onPrepareFromUri(uri, /* playWhenReady= */ true, extras);
       }
     }
 

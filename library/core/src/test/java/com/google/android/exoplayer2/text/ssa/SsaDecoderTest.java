@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.android.exoplayer2.text.Subtitle;
 import java.io.IOException;
 import java.util.ArrayList;
 import org.junit.Test;
@@ -41,7 +42,7 @@ public final class SsaDecoderTest {
   public void testDecodeEmpty() throws IOException {
     SsaDecoder decoder = new SsaDecoder();
     byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), EMPTY);
-    SsaSubtitle subtitle = decoder.decode(bytes, bytes.length, false);
+    Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(0);
     assertThat(subtitle.getCues(0).isEmpty()).isTrue();
@@ -51,7 +52,7 @@ public final class SsaDecoderTest {
   public void testDecodeTypical() throws IOException {
     SsaDecoder decoder = new SsaDecoder();
     byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TYPICAL);
-    SsaSubtitle subtitle = decoder.decode(bytes, bytes.length, false);
+    Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(6);
     assertTypicalCue1(subtitle, 0);
@@ -71,7 +72,7 @@ public final class SsaDecoderTest {
     SsaDecoder decoder = new SsaDecoder(initializationData);
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TYPICAL_DIALOGUE_ONLY);
-    SsaSubtitle subtitle = decoder.decode(bytes, bytes.length, false);
+    Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(6);
     assertTypicalCue1(subtitle, 0);
@@ -85,7 +86,7 @@ public final class SsaDecoderTest {
     SsaDecoder decoder = new SsaDecoder();
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), INVALID_TIMECODES);
-    SsaSubtitle subtitle = decoder.decode(bytes, bytes.length, false);
+    Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(2);
     assertTypicalCue3(subtitle, 0);
@@ -96,7 +97,7 @@ public final class SsaDecoderTest {
     SsaDecoder decoder = new SsaDecoder();
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), NO_END_TIMECODES);
-    SsaSubtitle subtitle = decoder.decode(bytes, bytes.length, false);
+    Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(3);
 
@@ -113,21 +114,21 @@ public final class SsaDecoderTest {
         .isEqualTo("This is the third subtitle, with a comma.");
   }
 
-  private static void assertTypicalCue1(SsaSubtitle subtitle, int eventIndex) {
+  private static void assertTypicalCue1(Subtitle subtitle, int eventIndex) {
     assertThat(subtitle.getEventTime(eventIndex)).isEqualTo(0);
     assertThat(subtitle.getCues(subtitle.getEventTime(eventIndex)).get(0).text.toString())
         .isEqualTo("This is the first subtitle.");
     assertThat(subtitle.getEventTime(eventIndex + 1)).isEqualTo(1230000);
   }
 
-  private static void assertTypicalCue2(SsaSubtitle subtitle, int eventIndex) {
+  private static void assertTypicalCue2(Subtitle subtitle, int eventIndex) {
     assertThat(subtitle.getEventTime(eventIndex)).isEqualTo(2340000);
     assertThat(subtitle.getCues(subtitle.getEventTime(eventIndex)).get(0).text.toString())
         .isEqualTo("This is the second subtitle \nwith a newline \nand another.");
     assertThat(subtitle.getEventTime(eventIndex + 1)).isEqualTo(3450000);
   }
 
-  private static void assertTypicalCue3(SsaSubtitle subtitle, int eventIndex) {
+  private static void assertTypicalCue3(Subtitle subtitle, int eventIndex) {
     assertThat(subtitle.getEventTime(eventIndex)).isEqualTo(4560000);
     assertThat(subtitle.getCues(subtitle.getEventTime(eventIndex)).get(0).text.toString())
         .isEqualTo("This is the third subtitle, with a comma.");

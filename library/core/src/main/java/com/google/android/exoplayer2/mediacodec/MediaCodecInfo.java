@@ -54,6 +54,13 @@ public final class MediaCodecInfo {
   @Nullable public final String mimeType;
 
   /**
+   * The MIME type that the codec uses for media of type {@link #mimeType}, or {@code null} if this
+   * is a passthrough codec. Equal to {@link #mimeType} unless the codec is known to use a
+   * non-standard MIME type alias.
+   */
+  @Nullable public final String codecMimeType;
+
+  /**
    * The capabilities of the decoder, like the profiles/levels it supports, or {@code null} if not
    * known.
    */
@@ -98,6 +105,7 @@ public final class MediaCodecInfo {
     return new MediaCodecInfo(
         name,
         /* mimeType= */ null,
+        /* codecMimeType= */ null,
         /* capabilities= */ null,
         /* passthrough= */ true,
         /* forceDisableAdaptive= */ false,
@@ -109,26 +117,8 @@ public final class MediaCodecInfo {
    *
    * @param name The name of the {@link MediaCodec}.
    * @param mimeType A mime type supported by the {@link MediaCodec}.
-   * @param capabilities The capabilities of the {@link MediaCodec} for the specified mime type, or
-   *     {@code null} if not known.
-   * @return The created instance.
-   */
-  public static MediaCodecInfo newInstance(
-      String name, String mimeType, @Nullable CodecCapabilities capabilities) {
-    return new MediaCodecInfo(
-        name,
-        mimeType,
-        capabilities,
-        /* passthrough= */ false,
-        /* forceDisableAdaptive= */ false,
-        /* forceSecure= */ false);
-  }
-
-  /**
-   * Creates an instance.
-   *
-   * @param name The name of the {@link MediaCodec}.
-   * @param mimeType A mime type supported by the {@link MediaCodec}.
+   * @param codecMimeType The MIME type that the codec uses for media of type {@code #mimeType}.
+   *     Equal to {@code mimeType} unless the codec is known to use a non-standard MIME type alias.
    * @param capabilities The capabilities of the {@link MediaCodec} for the specified mime type, or
    *     {@code null} if not known.
    * @param forceDisableAdaptive Whether {@link #adaptive} should be forced to {@code false}.
@@ -138,22 +128,31 @@ public final class MediaCodecInfo {
   public static MediaCodecInfo newInstance(
       String name,
       String mimeType,
+      String codecMimeType,
       @Nullable CodecCapabilities capabilities,
       boolean forceDisableAdaptive,
       boolean forceSecure) {
     return new MediaCodecInfo(
-        name, mimeType, capabilities, /* passthrough= */ false, forceDisableAdaptive, forceSecure);
+        name,
+        mimeType,
+        codecMimeType,
+        capabilities,
+        /* passthrough= */ false,
+        forceDisableAdaptive,
+        forceSecure);
   }
 
   private MediaCodecInfo(
       String name,
       @Nullable String mimeType,
+      @Nullable String codecMimeType,
       @Nullable CodecCapabilities capabilities,
       boolean passthrough,
       boolean forceDisableAdaptive,
       boolean forceSecure) {
     this.name = Assertions.checkNotNull(name);
     this.mimeType = mimeType;
+    this.codecMimeType = codecMimeType;
     this.capabilities = capabilities;
     this.passthrough = passthrough;
     adaptive = !forceDisableAdaptive && capabilities != null && isAdaptive(capabilities);
@@ -198,7 +197,7 @@ public final class MediaCodecInfo {
    * @throws MediaCodecUtil.DecoderQueryException Thrown if an error occurs while querying decoders.
    */
   public boolean isFormatSupported(Format format) throws MediaCodecUtil.DecoderQueryException {
-    if (!isCodecSupported(format.codecs)) {
+    if (!isCodecSupported(format)) {
       return false;
     }
 
@@ -226,25 +225,25 @@ public final class MediaCodecInfo {
   }
 
   /**
-   * Whether the decoder supports the given {@code codec}. If there is insufficient information to
-   * decide, returns true.
+   * Whether the decoder supports the codec of the given {@code format}. If there is insufficient
+   * information to decide, returns true.
    *
-   * @param codec Codec string as defined in RFC 6381.
-   * @return True if the given codec is supported by the decoder.
+   * @param format The input media format.
+   * @return True if the codec of the given {@code format} is supported by the decoder.
    */
-  public boolean isCodecSupported(String codec) {
-    if (codec == null || mimeType == null) {
+  public boolean isCodecSupported(Format format) {
+    if (format.codecs == null || mimeType == null) {
       return true;
     }
-    String codecMimeType = MimeTypes.getMediaMimeType(codec);
+    String codecMimeType = MimeTypes.getMediaMimeType(format.codecs);
     if (codecMimeType == null) {
       return true;
     }
     if (!mimeType.equals(codecMimeType)) {
-      logNoSupport("codec.mime " + codec + ", " + codecMimeType);
+      logNoSupport("codec.mime " + format.codecs + ", " + codecMimeType);
       return false;
     }
-    Pair<Integer, Integer> codecProfileAndLevel = MediaCodecUtil.getCodecProfileAndLevel(codec);
+    Pair<Integer, Integer> codecProfileAndLevel = MediaCodecUtil.getCodecProfileAndLevel(format);
     if (codecProfileAndLevel == null) {
       // If we don't know any better, we assume that the profile and level are supported.
       return true;
@@ -261,7 +260,7 @@ public final class MediaCodecInfo {
         return true;
       }
     }
-    logNoSupport("codec.profileLevel, " + codec + ", " + codecMimeType);
+    logNoSupport("codec.profileLevel, " + format.codecs + ", " + codecMimeType);
     return false;
   }
 
@@ -279,8 +278,7 @@ public final class MediaCodecInfo {
     if (isVideo) {
       return adaptive;
     } else {
-      Pair<Integer, Integer> codecProfileLevel =
-          MediaCodecUtil.getCodecProfileAndLevel(format.codecs);
+      Pair<Integer, Integer> codecProfileLevel = MediaCodecUtil.getCodecProfileAndLevel(format);
       return codecProfileLevel != null && codecProfileLevel.first == CodecProfileLevel.AACObjectXHE;
     }
   }
@@ -314,9 +312,9 @@ public final class MediaCodecInfo {
       }
       // Check the codec profile levels support adaptation.
       Pair<Integer, Integer> oldCodecProfileLevel =
-          MediaCodecUtil.getCodecProfileAndLevel(oldFormat.codecs);
+          MediaCodecUtil.getCodecProfileAndLevel(oldFormat);
       Pair<Integer, Integer> newCodecProfileLevel =
-          MediaCodecUtil.getCodecProfileAndLevel(newFormat.codecs);
+          MediaCodecUtil.getCodecProfileAndLevel(newFormat);
       if (oldCodecProfileLevel == null || newCodecProfileLevel == null) {
         return false;
       }
@@ -520,9 +518,15 @@ public final class MediaCodecInfo {
   @TargetApi(21)
   private static boolean areSizeAndRateSupportedV21(VideoCapabilities capabilities, int width,
       int height, double frameRate) {
-    return frameRate == Format.NO_VALUE || frameRate <= 0
-        ? capabilities.isSizeSupported(width, height)
-        : capabilities.areSizeAndRateSupported(width, height, frameRate);
+    if (frameRate == Format.NO_VALUE || frameRate <= 0) {
+      return capabilities.isSizeSupported(width, height);
+    } else {
+      // The signaled frame rate may be slightly higher than the actual frame rate, so we take the
+      // floor to avoid situations where a range check in areSizeAndRateSupported fails due to
+      // slightly exceeding the limits for a standard format (e.g., 1080p at 30 fps).
+      double floorFrameRate = Math.floor(frameRate);
+      return capabilities.areSizeAndRateSupported(width, height, floorFrameRate);
+    }
   }
 
   @TargetApi(23)

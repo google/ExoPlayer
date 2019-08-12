@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
@@ -90,6 +91,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   private final Uri uri;
   private final DataSource dataSource;
+  private final DrmSessionManager<?> drmSessionManager;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final EventDispatcher eventDispatcher;
   private final Listener listener;
@@ -107,6 +109,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   @Nullable private SeekMap seekMap;
   @Nullable private IcyHeaders icyHeaders;
   private SampleQueue[] sampleQueues;
+  private DecryptableSampleQueueReader[] sampleQueueReaders;
   private TrackId[] sampleQueueTrackIds;
   private boolean sampleQueuesBuilt;
   private boolean prepared;
@@ -152,6 +155,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       Uri uri,
       DataSource dataSource,
       Extractor[] extractors,
+      DrmSessionManager<?> drmSessionManager,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       EventDispatcher eventDispatcher,
       Listener listener,
@@ -160,6 +164,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       int continueLoadingCheckIntervalBytes) {
     this.uri = uri;
     this.dataSource = dataSource;
+    this.drmSessionManager = drmSessionManager;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     this.eventDispatcher = eventDispatcher;
     this.listener = listener;
@@ -180,6 +185,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     handler = new Handler();
     sampleQueueTrackIds = new TrackId[0];
     sampleQueues = new SampleQueue[0];
+    sampleQueueReaders = new DecryptableSampleQueueReader[0];
     pendingResetPositionUs = C.TIME_UNSET;
     length = C.LENGTH_UNSET;
     durationUs = C.TIME_UNSET;
@@ -194,6 +200,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       for (SampleQueue sampleQueue : sampleQueues) {
         sampleQueue.discardToEnd();
       }
+      for (DecryptableSampleQueueReader reader : sampleQueueReaders) {
+        reader.release();
+      }
     }
     loader.release(/* callback= */ this);
     handler.removeCallbacksAndMessages(null);
@@ -206,6 +215,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   public void onLoaderReleased() {
     for (SampleQueue sampleQueue : sampleQueues) {
       sampleQueue.reset();
+    }
+    for (DecryptableSampleQueueReader reader : sampleQueueReaders) {
+      reader.release();
     }
     extractorHolder.release();
   }
@@ -432,24 +444,32 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   // SampleStream methods.
 
   /* package */ boolean isReady(int track) {
-    return !suppressRead() && (loadingFinished || sampleQueues[track].hasNextSample());
+    return !suppressRead() && sampleQueueReaders[track].isReady(loadingFinished);
+  }
+
+  /* package */ void maybeThrowError(int sampleQueueIndex) throws IOException {
+    sampleQueueReaders[sampleQueueIndex].maybeThrowError();
+    maybeThrowError();
   }
 
   /* package */ void maybeThrowError() throws IOException {
     loader.maybeThrowError(loadErrorHandlingPolicy.getMinimumLoadableRetryCount(dataType));
   }
 
-  /* package */ int readData(int track, FormatHolder formatHolder, DecoderInputBuffer buffer,
+  /* package */ int readData(
+      int sampleQueueIndex,
+      FormatHolder formatHolder,
+      DecoderInputBuffer buffer,
       boolean formatRequired) {
     if (suppressRead()) {
       return C.RESULT_NOTHING_READ;
     }
-    maybeNotifyDownstreamFormat(track);
+    maybeNotifyDownstreamFormat(sampleQueueIndex);
     int result =
-        sampleQueues[track].read(
+        sampleQueueReaders[sampleQueueIndex].read(
             formatHolder, buffer, formatRequired, loadingFinished, lastSeekPositionUs);
     if (result == C.RESULT_NOTHING_READ) {
-      maybeStartDeferredRetry(track);
+      maybeStartDeferredRetry(sampleQueueIndex);
     }
     return result;
   }
@@ -662,6 +682,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     @NullableType SampleQueue[] sampleQueues = Arrays.copyOf(this.sampleQueues, trackCount + 1);
     sampleQueues[trackCount] = trackOutput;
     this.sampleQueues = Util.castNonNullTypeArray(sampleQueues);
+    @NullableType
+    DecryptableSampleQueueReader[] sampleQueueReaders =
+        Arrays.copyOf(this.sampleQueueReaders, trackCount + 1);
+    sampleQueueReaders[trackCount] =
+        new DecryptableSampleQueueReader(this.sampleQueues[trackCount], drmSessionManager);
+    this.sampleQueueReaders = Util.castNonNullTypeArray(sampleQueueReaders);
     return trackOutput;
   }
 
@@ -733,7 +759,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     if (prepared) {
       SeekMap seekMap = getPreparedState().seekMap;
       Assertions.checkState(isPendingReset());
-      if (durationUs != C.TIME_UNSET && pendingResetPositionUs >= durationUs) {
+      if (durationUs != C.TIME_UNSET && pendingResetPositionUs > durationUs) {
         loadingFinished = true;
         pendingResetPositionUs = C.TIME_UNSET;
         return;
@@ -863,7 +889,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     @Override
     public void maybeThrowError() throws IOException {
-      ProgressiveMediaPeriod.this.maybeThrowError();
+      ProgressiveMediaPeriod.this.maybeThrowError(track);
     }
 
     @Override
@@ -1013,7 +1039,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     private final Extractor[] extractors;
 
-    private @Nullable Extractor extractor;
+    @Nullable private Extractor extractor;
 
     /**
      * Creates a holder that will select an extractor and initialize it using the specified output.

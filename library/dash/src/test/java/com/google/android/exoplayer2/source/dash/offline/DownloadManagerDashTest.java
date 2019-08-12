@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.scheduler.Requirements;
+import com.google.android.exoplayer2.testutil.CacheAsserts.RequestSet;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
 import com.google.android.exoplayer2.testutil.DummyMainThread.TestRunnable;
 import com.google.android.exoplayer2.testutil.FakeDataSet;
@@ -153,7 +154,7 @@ public class DownloadManagerDashTest {
   public void testHandleDownloadRequest() throws Throwable {
     handleDownloadRequest(fakeStreamKey1, fakeStreamKey2);
     blockUntilTasksCompleteAndThrowAnyDownloadError();
-    assertCachedData(cache, fakeDataSet);
+    assertCachedData(cache, new RequestSet(fakeDataSet).useBoundedDataSpecFor("audio_init_data"));
   }
 
   @Test
@@ -161,7 +162,7 @@ public class DownloadManagerDashTest {
     handleDownloadRequest(fakeStreamKey1);
     handleDownloadRequest(fakeStreamKey2);
     blockUntilTasksCompleteAndThrowAnyDownloadError();
-    assertCachedData(cache, fakeDataSet);
+    assertCachedData(cache, new RequestSet(fakeDataSet).useBoundedDataSpecFor("audio_init_data"));
   }
 
   @Test
@@ -175,7 +176,7 @@ public class DownloadManagerDashTest {
     handleDownloadRequest(fakeStreamKey1);
 
     blockUntilTasksCompleteAndThrowAnyDownloadError();
-    assertCachedData(cache, fakeDataSet);
+    assertCachedData(cache, new RequestSet(fakeDataSet).useBoundedDataSpecFor("audio_init_data"));
   }
 
   @Test
