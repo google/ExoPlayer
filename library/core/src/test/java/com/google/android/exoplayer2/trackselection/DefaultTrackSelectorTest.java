@@ -148,6 +148,7 @@ public final class DefaultTrackSelectorTest {
             /* exceedAudioConstraintsIfNecessary= */ false,
             /* allowAudioMixedMimeTypeAdaptiveness= */ true,
             /* allowAudioMixedSampleRateAdaptiveness= */ false,
+            /* allowAudioMixedChannelCountAdaptiveness= */ true,
             // Text
             /* preferredTextLanguage= */ "de",
             /* selectUndeterminedTextLanguage= */ true,

@@ -27,6 +27,10 @@
   over other selection parameters.
 * Remove `AnalyticsCollector.Factory`. Instances can be created directly and
   the `Player` set later using `AnalyticsCollector.setPlayer`.
+* Add `allowAudioMixedChannelCountAdaptiveness` parameter to
+  `DefaultTrackSelector` to allow adaptive selections of audio tracks with
+  different channel counts
+  ([#6257](https://github.com/google/ExoPlayer/issues/6257)).
 
 ### 2.10.4 ###
 

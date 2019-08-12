@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.hls;
 
+import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -49,7 +50,7 @@ public final class WebvttExtractor implements Extractor {
   private static final int HEADER_MIN_LENGTH = 6 /* "WEBVTT" */;
   private static final int HEADER_MAX_LENGTH = 3 /* optional Byte Order Mark */ + HEADER_MIN_LENGTH;
 
-  private final String language;
+  @Nullable private final String language;
   private final TimestampAdjuster timestampAdjuster;
   private final ParsableByteArray sampleDataWrapper;
 
@@ -58,7 +59,7 @@ public final class WebvttExtractor implements Extractor {
   private byte[] sampleData;
   private int sampleSize;
 
-  public WebvttExtractor(String language, TimestampAdjuster timestampAdjuster) {
+  public WebvttExtractor(@Nullable String language, TimestampAdjuster timestampAdjuster) {
     this.language = language;
     this.timestampAdjuster = timestampAdjuster;
     this.sampleDataWrapper = new ParsableByteArray();

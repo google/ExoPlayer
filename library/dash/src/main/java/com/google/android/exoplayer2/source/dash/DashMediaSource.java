@@ -130,7 +130,7 @@ public final class DashMediaSource extends BaseMediaSource {
      * @return This factory, for convenience.
      * @throws IllegalStateException If one of the {@code create} methods has already been called.
      */
-    public Factory setTag(Object tag) {
+    public Factory setTag(@Nullable Object tag) {
       Assertions.checkState(!isCreateCalled);
       this.tag = tag;
       return this;
@@ -430,8 +430,8 @@ public final class DashMediaSource extends BaseMediaSource {
   public DashMediaSource(
       DashManifest manifest,
       DashChunkSource.Factory chunkSourceFactory,
-      Handler eventHandler,
-      MediaSourceEventListener eventListener) {
+      @Nullable Handler eventHandler,
+      @Nullable MediaSourceEventListener eventListener) {
     this(
         manifest,
         chunkSourceFactory,
@@ -455,8 +455,8 @@ public final class DashMediaSource extends BaseMediaSource {
       DashManifest manifest,
       DashChunkSource.Factory chunkSourceFactory,
       int minLoadableRetryCount,
-      Handler eventHandler,
-      MediaSourceEventListener eventListener) {
+      @Nullable Handler eventHandler,
+      @Nullable MediaSourceEventListener eventListener) {
     this(
         manifest,
         /* manifestUri= */ null,
@@ -492,8 +492,8 @@ public final class DashMediaSource extends BaseMediaSource {
       Uri manifestUri,
       DataSource.Factory manifestDataSourceFactory,
       DashChunkSource.Factory chunkSourceFactory,
-      Handler eventHandler,
-      MediaSourceEventListener eventListener) {
+      @Nullable Handler eventHandler,
+      @Nullable MediaSourceEventListener eventListener) {
     this(
         manifestUri,
         manifestDataSourceFactory,
@@ -529,8 +529,8 @@ public final class DashMediaSource extends BaseMediaSource {
       DashChunkSource.Factory chunkSourceFactory,
       int minLoadableRetryCount,
       long livePresentationDelayMs,
-      Handler eventHandler,
-      MediaSourceEventListener eventListener) {
+      @Nullable Handler eventHandler,
+      @Nullable MediaSourceEventListener eventListener) {
     this(
         manifestUri,
         manifestDataSourceFactory,
@@ -569,8 +569,8 @@ public final class DashMediaSource extends BaseMediaSource {
       DashChunkSource.Factory chunkSourceFactory,
       int minLoadableRetryCount,
       long livePresentationDelayMs,
-      Handler eventHandler,
-      MediaSourceEventListener eventListener) {
+      @Nullable Handler eventHandler,
+      @Nullable MediaSourceEventListener eventListener) {
     this(
         /* manifest= */ null,
         manifestUri,
@@ -591,10 +591,10 @@ public final class DashMediaSource extends BaseMediaSource {
   }
 
   private DashMediaSource(
-      DashManifest manifest,
-      Uri manifestUri,
-      DataSource.Factory manifestDataSourceFactory,
-      ParsingLoadable.Parser<? extends DashManifest> manifestParser,
+      @Nullable DashManifest manifest,
+      @Nullable Uri manifestUri,
+      @Nullable DataSource.Factory manifestDataSourceFactory,
+      @Nullable ParsingLoadable.Parser<? extends DashManifest> manifestParser,
       DashChunkSource.Factory chunkSourceFactory,
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
       DrmSessionManager<?> drmSessionManager,
