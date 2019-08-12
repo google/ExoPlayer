@@ -100,6 +100,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
       initialBitrateEstimates = getInitialBitrateEstimatesForCountry(Util.getCountryCode(context));
       slidingWindowMaxWeight = DEFAULT_SLIDING_WINDOW_MAX_WEIGHT;
       clock = Clock.DEFAULT;
+      resetOnNetworkTypeChange = true;
     }
 
     /**
@@ -168,14 +169,12 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
     }
 
     /**
-     * Sets whether to reset if the network type changes.
-     *
-     * <p>This method is experimental, and will be renamed or removed in a future release.
+     * Sets whether to reset if the network type changes. The default value is {@code true}.
      *
      * @param resetOnNetworkTypeChange Whether to reset if the network type changes.
      * @return This builder.
      */
-    public Builder experimental_resetOnNetworkTypeChange(boolean resetOnNetworkTypeChange) {
+    public Builder setResetOnNetworkTypeChange(boolean resetOnNetworkTypeChange) {
       this.resetOnNetworkTypeChange = resetOnNetworkTypeChange;
       return this;
     }
