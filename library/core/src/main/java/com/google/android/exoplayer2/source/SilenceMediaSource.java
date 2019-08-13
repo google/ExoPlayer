@@ -220,9 +220,9 @@ public final class SilenceMediaSource extends BaseMediaSource {
 
       int bytesToWrite = (int) Math.min(SILENCE_SAMPLE.length, bytesRemaining);
       buffer.ensureSpaceForWrite(bytesToWrite);
-      buffer.addFlag(C.BUFFER_FLAG_KEY_FRAME);
       buffer.data.put(SILENCE_SAMPLE, /* offset= */ 0, bytesToWrite);
       buffer.timeUs = getAudioPositionUs(positionBytes);
+      buffer.addFlag(C.BUFFER_FLAG_KEY_FRAME);
       positionBytes += bytesToWrite;
       return C.RESULT_BUFFER_READ;
     }

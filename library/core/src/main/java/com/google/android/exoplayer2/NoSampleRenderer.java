@@ -49,6 +49,7 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
   }
 
   @Override
+  @Nullable
   public MediaClock getMediaClock() {
     return null;
   }
@@ -113,6 +114,7 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
   }
 
   @Override
+  @Nullable
   public final SampleStream getStream() {
     return stream;
   }

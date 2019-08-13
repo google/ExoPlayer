@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.decoder.SimpleOutputBuffer;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 import java.util.List;
 
@@ -106,7 +107,7 @@ import java.util.List;
         return new FfmpegDecoderException("Error resetting (see logcat).");
       }
     }
-    ByteBuffer inputData = inputBuffer.data;
+    ByteBuffer inputData = Util.castNonNull(inputBuffer.data);
     int inputSize = inputData.limit();
     ByteBuffer outputData = outputBuffer.init(inputBuffer.timeUs, outputBufferSize);
     int result = ffmpegDecode(nativeContext, inputData, inputSize, outputData, outputBufferSize);
@@ -132,8 +133,8 @@ import java.util.List;
       }
       hasOutputFormat = true;
     }
-    outputBuffer.data.position(0);
-    outputBuffer.data.limit(result);
+    outputData.position(0);
+    outputData.limit(result);
     return null;
   }
 

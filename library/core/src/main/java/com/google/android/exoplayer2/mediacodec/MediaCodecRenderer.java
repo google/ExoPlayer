@@ -452,12 +452,14 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @param mediaCodecSelector The decoder selector.
    * @param drmSessionManager The renderer's {@link DrmSessionManager}.
    * @param format The format.
-   * @return The extent to which the renderer is capable of supporting the given format. See
-   *     {@link #supportsFormat(Format)} for more detail.
+   * @return The extent to which the renderer is capable of supporting the given format. See {@link
+   *     #supportsFormat(Format)} for more detail.
    * @throws DecoderQueryException If there was an error querying decoders.
    */
-  protected abstract int supportsFormat(MediaCodecSelector mediaCodecSelector,
-      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager, Format format)
+  protected abstract int supportsFormat(
+      MediaCodecSelector mediaCodecSelector,
+      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      Format format)
       throws DecoderQueryException;
 
   /**
@@ -487,7 +489,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       MediaCodecInfo codecInfo,
       MediaCodec codec,
       Format format,
-      MediaCrypto crypto,
+      @Nullable MediaCrypto crypto,
       float codecOperatingRate);
 
   protected final void maybeInitCodec() throws ExoPlaybackException {

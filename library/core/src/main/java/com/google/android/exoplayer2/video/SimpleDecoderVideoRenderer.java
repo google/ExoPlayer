@@ -544,9 +544,10 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
   /**
    * Dequeues output buffer.
    *
-   * @return Dequeued video decoder output buffer.
+   * @return Dequeued video decoder output buffer, or null if an output buffer isn't available.
    * @throws VideoDecoderException If an error occurs while dequeuing the output buffer.
    */
+  @Nullable
   protected abstract VideoDecoderOutputBuffer dequeueOutputBuffer() throws VideoDecoderException;
 
   /** Clears output buffer. */

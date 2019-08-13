@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.decoder.SimpleOutputBuffer;
 import com.google.android.exoplayer2.drm.DecryptionException;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
+import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
@@ -165,7 +166,7 @@ import java.util.List;
       // any other time, skip number of samples as specified by seek preroll.
       skipSamples = (inputBuffer.timeUs == 0) ? headerSkipSamples : headerSeekPreRollSamples;
     }
-    ByteBuffer inputData = inputBuffer.data;
+    ByteBuffer inputData = Util.castNonNull(inputBuffer.data);
     CryptoInfo cryptoInfo = inputBuffer.cryptoInfo;
     int result = inputBuffer.isEncrypted()
         ? opusSecureDecode(nativeDecoderContext, inputBuffer.timeUs, inputData, inputData.limit(),
@@ -185,7 +186,7 @@ import java.util.List;
       }
     }
 
-    ByteBuffer outputData = outputBuffer.data;
+    ByteBuffer outputData = Util.castNonNull(outputBuffer.data);
     outputData.position(0);
     outputData.limit(result);
     if (skipSamples > 0) {

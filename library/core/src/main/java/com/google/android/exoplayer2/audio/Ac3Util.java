@@ -156,7 +156,7 @@ public final class Ac3Util {
    * @return The AC-3 format parsed from data in the header.
    */
   public static Format parseAc3AnnexFFormat(
-      ParsableByteArray data, String trackId, String language, DrmInitData drmInitData) {
+      ParsableByteArray data, String trackId, String language, @Nullable DrmInitData drmInitData) {
     int fscod = (data.readUnsignedByte() & 0xC0) >> 6;
     int sampleRate = SAMPLE_RATE_BY_FSCOD[fscod];
     int nextByte = data.readUnsignedByte();
@@ -189,7 +189,7 @@ public final class Ac3Util {
    * @return The E-AC-3 format parsed from data in the header.
    */
   public static Format parseEAc3AnnexFFormat(
-      ParsableByteArray data, String trackId, String language, DrmInitData drmInitData) {
+      ParsableByteArray data, String trackId, String language, @Nullable DrmInitData drmInitData) {
     data.skipBytes(2); // data_rate, num_ind_sub
 
     // Read the first independent substream.

@@ -239,6 +239,7 @@ public final class MediaCodecUtil {
    * @return A pair (profile constant, level constant) if the codec of the {@code format} is
    *     well-formed and recognized, or null otherwise.
    */
+  @Nullable
   public static Pair<Integer, Integer> getCodecProfileAndLevel(Format format) {
     if (format.codecs == null) {
       return null;

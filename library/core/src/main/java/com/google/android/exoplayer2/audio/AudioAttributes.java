@@ -92,7 +92,7 @@ public final class AudioAttributes {
   public final @C.AudioFlags int flags;
   public final @C.AudioUsage int usage;
 
-  private @Nullable android.media.AudioAttributes audioAttributesV21;
+  @Nullable private android.media.AudioAttributes audioAttributesV21;
 
   private AudioAttributes(@C.AudioContentType int contentType, @C.AudioFlags int flags,
       @C.AudioUsage int usage) {
