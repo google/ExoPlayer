@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.decoder.CryptoInfo;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.drm.DecryptionException;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoDecoderInputBuffer;
 import java.nio.ByteBuffer;
 
@@ -118,7 +119,7 @@ import java.nio.ByteBuffer;
   @Nullable
   protected VpxDecoderException decode(
       VideoDecoderInputBuffer inputBuffer, VpxOutputBuffer outputBuffer, boolean reset) {
-    ByteBuffer inputData = inputBuffer.data;
+    ByteBuffer inputData = Util.castNonNull(inputBuffer.data);
     int inputSize = inputData.limit();
     CryptoInfo cryptoInfo = inputBuffer.cryptoInfo;
     final long result = inputBuffer.isEncrypted()

@@ -86,6 +86,7 @@ public abstract class SimpleDecoder<
   }
 
   @Override
+  @Nullable
   public final I dequeueInputBuffer() throws E {
     synchronized (lock) {
       maybeThrowException();
@@ -108,6 +109,7 @@ public abstract class SimpleDecoder<
   }
 
   @Override
+  @Nullable
   public final O dequeueOutputBuffer() throws E {
     synchronized (lock) {
       maybeThrowException();

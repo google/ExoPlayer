@@ -29,7 +29,7 @@ public final class EventMessageDecoder implements MetadataDecoder {
   @SuppressWarnings("ByteBufferBackingArray")
   @Override
   public Metadata decode(MetadataInputBuffer inputBuffer) {
-    ByteBuffer buffer = inputBuffer.data;
+    ByteBuffer buffer = Assertions.checkNotNull(inputBuffer.data);
     byte[] data = buffer.array();
     int size = buffer.limit();
     return new Metadata(decode(new ParsableByteArray(data, size)));

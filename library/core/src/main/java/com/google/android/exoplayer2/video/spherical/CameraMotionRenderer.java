@@ -93,7 +93,7 @@ public class CameraMotionRenderer extends BaseRenderer {
       buffer.flip();
       lastTimestampUs = buffer.timeUs;
       if (listener != null) {
-        float[] rotation = parseMetadata(buffer.data);
+        float[] rotation = parseMetadata(Util.castNonNull(buffer.data));
         if (rotation != null) {
           Util.castNonNull(listener).onCameraMotion(lastTimestampUs - offsetUs, rotation);
         }
