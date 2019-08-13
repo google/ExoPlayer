@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.video;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.decoder.OutputBuffer;
 import java.nio.ByteBuffer;
@@ -33,16 +34,16 @@ public abstract class VideoDecoderOutputBuffer extends OutputBuffer {
   /** Output mode. */
   @C.VideoOutputMode public int mode;
   /** RGB buffer for RGB mode. */
-  public ByteBuffer data;
+  @Nullable public ByteBuffer data;
 
   public int width;
   public int height;
-  public ColorInfo colorInfo;
+  @Nullable public ColorInfo colorInfo;
 
   /** YUV planes for YUV mode. */
-  public ByteBuffer[] yuvPlanes;
+  @Nullable public ByteBuffer[] yuvPlanes;
 
-  public int[] yuvStrides;
+  @Nullable public int[] yuvStrides;
   public int colorspace;
 
   /**
@@ -88,6 +89,10 @@ public abstract class VideoDecoderOutputBuffer extends OutputBuffer {
     if (yuvPlanes == null) {
       yuvPlanes = new ByteBuffer[3];
     }
+
+    ByteBuffer data = this.data;
+    ByteBuffer[] yuvPlanes = this.yuvPlanes;
+
     // Rewrapping has to be done on every frame since the stride might have changed.
     yuvPlanes[0] = data.slice();
     yuvPlanes[0].limit(yLength);
