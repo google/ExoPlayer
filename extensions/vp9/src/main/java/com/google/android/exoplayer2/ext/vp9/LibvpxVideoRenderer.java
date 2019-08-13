@@ -239,6 +239,7 @@ public class LibvpxVideoRenderer extends SimpleDecoderVideoRenderer {
   }
 
   @Override
+  @Nullable
   protected VideoDecoderOutputBuffer dequeueOutputBuffer() throws VpxDecoderException {
     outputBuffer = decoder.dequeueOutputBuffer();
     return outputBuffer;
