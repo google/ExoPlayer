@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.source.rtsp.auth;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import java.io.IOException;
 

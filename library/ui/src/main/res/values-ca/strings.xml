@@ -12,6 +12,7 @@
   <string name="exo_controls_repeat_all_description">Repeteix tot</string>
   <string name="exo_controls_shuffle_description">Reprodueix aleatòriament</string>
   <string name="exo_controls_fullscreen_description">Mode de pantalla completa</string>
+  <string name="exo_controls_vr_description">Mode RV</string>
   <string name="exo_download_description">Baixa</string>
   <string name="exo_download_notification_channel_name">Baixades</string>
   <string name="exo_download_downloading">S\'està baixant</string>
@@ -30,6 +31,10 @@
   <string name="exo_track_surround">So envoltant</string>
   <string name="exo_track_surround_5_point_1">So envoltant 5.1</string>
   <string name="exo_track_surround_7_point_1">So envoltant 7.1</string>
+  <string name="exo_track_role_alternate">Alternativa</string>
+  <string name="exo_track_role_supplementary">Complementària</string>
+  <string name="exo_track_role_commentary">Comentaris</string>
+  <string name="exo_track_role_closed_captions">Subtítols</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>

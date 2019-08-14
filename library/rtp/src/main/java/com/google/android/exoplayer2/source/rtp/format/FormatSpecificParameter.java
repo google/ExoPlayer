@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.source.rtp.format;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

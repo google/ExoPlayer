@@ -24,8 +24,8 @@ import android.opengl.EGLDisplay;
 import android.opengl.EGLSurface;
 import android.opengl.GLES20;
 import android.os.Handler;
-import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -83,12 +83,12 @@ public final class EGLSurfaceTexture implements SurfaceTexture.OnFrameAvailableL
 
   private final Handler handler;
   private final int[] textureIdHolder;
-  private final @Nullable TextureImageListener callback;
+  @Nullable private final TextureImageListener callback;
 
-  private @Nullable EGLDisplay display;
-  private @Nullable EGLContext context;
-  private @Nullable EGLSurface surface;
-  private @Nullable SurfaceTexture texture;
+  @Nullable private EGLDisplay display;
+  @Nullable private EGLContext context;
+  @Nullable private EGLSurface surface;
+  @Nullable private SurfaceTexture texture;
 
   /**
    * @param handler The {@link Handler} that will be used to call {@link

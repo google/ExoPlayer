@@ -20,6 +20,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.extractor.TrackOutput.CryptoData;
+import com.google.android.exoplayer2.source.SampleQueue.PeekResult;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 
@@ -57,9 +58,11 @@ import com.google.android.exoplayer2.util.Util;
 
   private long largestDiscardedTimestampUs;
   private long largestQueuedTimestampUs;
+  private boolean isLastSampleQueued;
   private boolean upstreamKeyframeRequired;
   private boolean upstreamFormatRequired;
   private Format upstreamFormat;
+  private Format upstreamCommittedFormat;
   private int upstreamSourceId;
 
   public SampleMetadataQueue() {
@@ -93,6 +96,8 @@ import com.google.android.exoplayer2.util.Util;
     upstreamKeyframeRequired = true;
     largestDiscardedTimestampUs = Long.MIN_VALUE;
     largestQueuedTimestampUs = Long.MIN_VALUE;
+    isLastSampleQueued = false;
+    upstreamCommittedFormat = null;
     if (resetUpstreamFormat) {
       upstreamFormat = null;
       upstreamFormatRequired = true;
@@ -118,6 +123,7 @@ import com.google.android.exoplayer2.util.Util;
     Assertions.checkArgument(0 <= discardCount && discardCount <= (length - readPosition));
     length -= discardCount;
     largestQueuedTimestampUs = Math.max(largestDiscardedTimestampUs, getLargestTimestamp(length));
+    isLastSampleQueued = discardCount == 0 && isLastSampleQueued;
     if (length == 0) {
       return 0;
     } else {
@@ -186,6 +192,19 @@ import com.google.android.exoplayer2.util.Util;
     return largestQueuedTimestampUs;
   }
 
+  /**
+   * Returns whether the last sample of the stream has knowingly been queued. A return value of
+   * {@code false} means that the last sample had not been queued or that it's unknown whether the
+   * last sample has been queued.
+   *
+   * <p>Samples that were discarded by calling {@link #discardUpstreamSamples(int)} are not
+   * considered as having been queued. Samples that were dequeued from the front of the queue are
+   * considered as having been queued.
+   */
+  public synchronized boolean isLastSampleQueued() {
+    return isLastSampleQueued;
+  }
+
   /** Returns the timestamp of the first sample, or {@link Long#MIN_VALUE} if the queue is empty. */
   public synchronized long getFirstTimestampUs() {
     return length == 0 ? Long.MIN_VALUE : timesUs[relativeFirstIndex];
@@ -199,36 +218,65 @@ import com.google.android.exoplayer2.util.Util;
   }
 
   /**
+   * Returns a {@link PeekResult} depending on what a following call to {@link #read
+   * read(formatHolder, decoderInputBuffer, formatRequired= false, allowOnlyClearBuffers= false,
+   * loadingFinished= false, decodeOnlyUntilUs= 0)} would result in.
+   */
+  @SuppressWarnings("ReferenceEquality")
+  @PeekResult
+  public synchronized int peekNext(Format downstreamFormat) {
+    if (readPosition == length) {
+      return SampleQueue.PEEK_RESULT_NOTHING;
+    }
+    int relativeReadIndex = getRelativeIndex(readPosition);
+    if (formats[relativeReadIndex] != downstreamFormat) {
+      return SampleQueue.PEEK_RESULT_FORMAT;
+    } else {
+      return (flags[relativeReadIndex] & C.BUFFER_FLAG_ENCRYPTED) != 0
+          ? SampleQueue.PEEK_RESULT_BUFFER_ENCRYPTED
+          : SampleQueue.PEEK_RESULT_BUFFER_CLEAR;
+    }
+  }
+
+  /**
    * Attempts to read from the queue.
    *
    * @param formatHolder A {@link FormatHolder} to populate in the case of reading a format.
    * @param buffer A {@link DecoderInputBuffer} to populate in the case of reading a sample or the
-   *     end of the stream. If a sample is read then the buffer is populated with information
-   *     about the sample, but not its data. The size and absolute position of the data in the
-   *     rolling buffer is stored in {@code extrasHolder}, along with an encryption id if present
-   *     and the absolute position of the first byte that may still be required after the current
-   *     sample has been read. May be null if the caller requires that the format of the stream be
-   *     read even if it's not changing.
-   * @param formatRequired Whether the caller requires that the format of the stream be read even
-   *     if it's not changing. A sample will never be read if set to true, however it is still
-   *     possible for the end of stream or nothing to be read.
+   *     end of the stream. If a sample is read then the buffer is populated with information about
+   *     the sample, but not its data. The size and absolute position of the data in the rolling
+   *     buffer is stored in {@code extrasHolder}, along with an encryption id if present and the
+   *     absolute position of the first byte that may still be required after the current sample has
+   *     been read. If a {@link DecoderInputBuffer#isFlagsOnly() flags-only} buffer is passed, only
+   *     the buffer flags may be populated by this method and the read position of the queue will
+   *     not change. May be null if the caller requires that the format of the stream be read even
+   *     if it's not changing.
+   * @param formatRequired Whether the caller requires that the format of the stream be read even if
+   *     it's not changing. A sample will never be read if set to true, however it is still possible
+   *     for the end of stream or nothing to be read.
+   * @param allowOnlyClearBuffers If set to true, this method will not return encrypted buffers,
+   *     returning {@link C#RESULT_NOTHING_READ} (without advancing the read position) instead.
    * @param loadingFinished True if an empty queue should be considered the end of the stream.
-   * @param downstreamFormat The current downstream {@link Format}. If the format of the next
-   *     sample is different to the current downstream format then a format will be read.
+   * @param downstreamFormat The current downstream {@link Format}. If the format of the next sample
+   *     is different to the current downstream format then a format will be read.
    * @param extrasHolder The holder into which extra sample information should be written.
-   * @return The result, which can be {@link C#RESULT_NOTHING_READ}, {@link C#RESULT_FORMAT_READ}
-   *     or {@link C#RESULT_BUFFER_READ}.
+   * @return The result, which can be {@link C#RESULT_NOTHING_READ}, {@link C#RESULT_FORMAT_READ} or
+   *     {@link C#RESULT_BUFFER_READ}.
    */
   @SuppressWarnings("ReferenceEquality")
-  public synchronized int read(FormatHolder formatHolder, DecoderInputBuffer buffer,
-      boolean formatRequired, boolean loadingFinished, Format downstreamFormat,
+  public synchronized int read(
+      FormatHolder formatHolder,
+      DecoderInputBuffer buffer,
+      boolean formatRequired,
+      boolean allowOnlyClearBuffers,
+      boolean loadingFinished,
+      Format downstreamFormat,
       SampleExtrasHolder extrasHolder) {
     if (!hasNextSample()) {
-      if (loadingFinished) {
+      if (loadingFinished || isLastSampleQueued) {
         buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
         return C.RESULT_BUFFER_READ;
-      } else if (upstreamFormat != null
-          && (formatRequired || upstreamFormat != downstreamFormat)) {
+      } else if (upstreamFormat != null && (formatRequired || upstreamFormat != downstreamFormat)) {
         formatHolder.format = upstreamFormat;
         return C.RESULT_FORMAT_READ;
       } else {
@@ -242,12 +290,16 @@ import com.google.android.exoplayer2.util.Util;
       return C.RESULT_FORMAT_READ;
     }
 
-    if (buffer.isFlagsOnly()) {
+    if (allowOnlyClearBuffers && (flags[relativeReadIndex] & C.BUFFER_FLAG_ENCRYPTED) != 0) {
       return C.RESULT_NOTHING_READ;
     }
 
-    buffer.timeUs = timesUs[relativeReadIndex];
     buffer.setFlags(flags[relativeReadIndex]);
+    buffer.timeUs = timesUs[relativeReadIndex];
+    if (buffer.isFlagsOnly()) {
+      return C.RESULT_BUFFER_READ;
+    }
+
     extrasHolder.size = sizes[relativeReadIndex];
     extrasHolder.offset = offsets[relativeReadIndex];
     extrasHolder.cryptoData = cryptoDatas[relativeReadIndex];
@@ -371,8 +423,16 @@ import com.google.android.exoplayer2.util.Util;
     }
     upstreamFormatRequired = false;
     if (Util.areEqual(format, upstreamFormat)) {
-      // Suppress changes between equal formats so we can use referential equality in readData.
+      // The format is unchanged. If format and upstreamFormat are different objects, we keep the
+      // current upstreamFormat so we can detect format changes in read() using cheap referential
+      // equality.
       return false;
+    } else if (Util.areEqual(format, upstreamCommittedFormat)) {
+      // The format has changed back to the format of the last committed sample. If they are
+      // different objects, we revert back to using upstreamCommittedFormat as the upstreamFormat so
+      // we can detect format changes in read() using cheap referential equality.
+      upstreamFormat = upstreamCommittedFormat;
+      return true;
     } else {
       upstreamFormat = format;
       return true;
@@ -388,7 +448,9 @@ import com.google.android.exoplayer2.util.Util;
       upstreamKeyframeRequired = false;
     }
     Assertions.checkState(!upstreamFormatRequired);
-    commitSampleTimestamp(timeUs);
+
+    isLastSampleQueued = (sampleFlags & C.BUFFER_FLAG_LAST_SAMPLE) != 0;
+    largestQueuedTimestampUs = Math.max(largestQueuedTimestampUs, timeUs);
 
     int relativeEndIndex = getRelativeIndex(length);
     timesUs[relativeEndIndex] = timeUs;
@@ -398,6 +460,7 @@ import com.google.android.exoplayer2.util.Util;
     cryptoDatas[relativeEndIndex] = cryptoData;
     formats[relativeEndIndex] = upstreamFormat;
     sourceIds[relativeEndIndex] = upstreamSourceId;
+    upstreamCommittedFormat = upstreamFormat;
 
     length++;
     if (length == capacity) {
@@ -437,10 +500,6 @@ import com.google.android.exoplayer2.util.Util;
       length = capacity;
       capacity = newCapacity;
     }
-  }
-
-  public synchronized void commitSampleTimestamp(long timeUs) {
-    largestQueuedTimestampUs = Math.max(largestQueuedTimestampUs, timeUs);
   }
 
   /**

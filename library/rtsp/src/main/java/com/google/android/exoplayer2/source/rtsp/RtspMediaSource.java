@@ -17,13 +17,17 @@ package com.google.android.exoplayer2.source.rtsp;
 
 import android.net.Uri;
 import android.os.Handler;
-import android.support.annotation.Nullable;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
+import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.source.BaseMediaSource;
 import com.google.android.exoplayer2.source.MediaPeriod;
+import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.SinglePeriodTimeline;
@@ -35,6 +39,7 @@ import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import static com.google.android.exoplayer2.C.TCP;
 import static com.google.android.exoplayer2.source.rtsp.core.Client.RTSP_AUTO_DETECT;
@@ -139,7 +144,7 @@ public final class RtspMediaSource extends BaseMediaSource implements Client.Eve
     }
 
     @Override
-    public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
+    public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs) {
         eventDispatcher = createEventDispatcher(id);
         return new RtspMediaPeriod(this,
                 client,
@@ -154,23 +159,20 @@ public final class RtspMediaSource extends BaseMediaSource implements Client.Eve
     }
 
     @Override
-    protected void prepareSourceInternal(ExoPlayer player, boolean isTopLevelSource,
-                                         @Nullable TransferListener transferListener) {
+    protected void prepareSourceInternal(@Nullable TransferListener transferListener) {
         this.transferListener = transferListener;
 
         client = new Client.Builder(factory)
                 .setUri(uri)
                 .setMode((prepareCount++ > 0) ? RTSP_INTERLEAVED : RTSP_AUTO_DETECT)
                 .setListener(this)
-                .setPlayer(player)
+                .setPlayer(getPlayer())
                 .build();
 
         eventDispatcher = createEventDispatcher(null);
 
         try {
-
             client.open();
-
         } catch (IOException e) {
             eventDispatcher.loadError(
                 new DataSpec(uri), uri, null, C.DATA_TYPE_MEDIA_INITIALIZATION,
@@ -192,7 +194,7 @@ public final class RtspMediaSource extends BaseMediaSource implements Client.Eve
     @Override
     public void onMediaDescriptionInfoRefreshed(long durationUs) {
         refreshSourceInfo(new SinglePeriodTimeline(durationUs,
-                (durationUs != C.TIME_UNSET) ? true : false, false), null);
+                durationUs != C.TIME_UNSET, false));
     }
 
     @Override

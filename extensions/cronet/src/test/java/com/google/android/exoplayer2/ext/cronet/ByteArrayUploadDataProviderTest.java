@@ -19,6 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -28,10 +29,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricTestRunner;
 
 /** Tests for {@link ByteArrayUploadDataProvider}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class ByteArrayUploadDataProviderTest {
 
   private static final byte[] TEST_DATA = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};

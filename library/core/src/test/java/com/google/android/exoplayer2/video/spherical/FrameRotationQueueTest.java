@@ -18,13 +18,13 @@ package com.google.android.exoplayer2.video.spherical;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.opengl.Matrix;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
 /** Tests {@link FrameRotationQueue}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class FrameRotationQueueTest {
 
   private FrameRotationQueue frameRotationQueue;

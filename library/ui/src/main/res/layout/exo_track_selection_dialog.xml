@@ -18,7 +18,6 @@
     android:layout_height="match_parent">
 
   <com.google.android.exoplayer2.ui.TrackSelectionView android:id="@+id/exo_track_selection_view"
-      android:orientation="vertical"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"/>
 

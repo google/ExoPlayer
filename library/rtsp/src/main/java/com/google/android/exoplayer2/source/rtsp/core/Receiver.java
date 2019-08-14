@@ -18,7 +18,7 @@ package com.google.android.exoplayer2.source.rtsp.core;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 import android.util.Log;
 
 import com.google.android.exoplayer2.source.rtsp.message.InterleavedFrame;

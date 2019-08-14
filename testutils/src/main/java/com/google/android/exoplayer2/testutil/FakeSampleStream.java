@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.testutil;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
@@ -31,7 +31,7 @@ import java.io.IOException;
 public final class FakeSampleStream implements SampleStream {
 
   private final Format format;
-  private final @Nullable EventDispatcher eventDispatcher;
+  @Nullable private final EventDispatcher eventDispatcher;
 
   private boolean notifiedDownstreamFormat;
   private boolean readFormat;

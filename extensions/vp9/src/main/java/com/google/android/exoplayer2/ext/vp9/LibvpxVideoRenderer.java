@@ -15,14 +15,14 @@
  */
 package com.google.android.exoplayer2.ext.vp9;
 
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
+import static java.lang.Runtime.getRuntime;
+
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
-import android.support.annotation.CallSuper;
-import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
+import androidx.annotation.CallSuper;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import android.view.Surface;
 import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
@@ -42,6 +42,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TimedValueQueue;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.VideoDecoderInputBuffer;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import com.google.android.exoplayer2.video.VideoRendererEventListener.EventDispatcher;
@@ -97,19 +98,17 @@ public class LibvpxVideoRenderer extends BaseRenderer {
    */
   public static final int MSG_SET_OUTPUT_BUFFER_RENDERER = C.MSG_CUSTOM_BASE;
 
-  /**
-   * The number of input buffers.
-   */
-  private static final int NUM_INPUT_BUFFERS = 8;
+  /** The number of input buffers. */
+  private final int numInputBuffers;
   /**
    * The number of output buffers. The renderer may limit the minimum possible value due to
    * requiring multiple output buffers to be dequeued at a time for it to make progress.
    */
-  private static final int NUM_OUTPUT_BUFFERS = 8;
+  private final int numOutputBuffers;
   /** The default input buffer size. */
   private static final int DEFAULT_INPUT_BUFFER_SIZE = 768 * 1024; // Value based on cs/SoftVpx.cpp.
 
-  private final boolean scaleToFit;
+  private final boolean enableRowMultiThreadMode;
   private final boolean disableLoopFilter;
   private final long allowedJoiningTimeMs;
   private final int maxDroppedFramesToNotify;
@@ -119,27 +118,26 @@ public class LibvpxVideoRenderer extends BaseRenderer {
   private final TimedValueQueue<Format> formatQueue;
   private final DecoderInputBuffer flagsOnlyBuffer;
   private final DrmSessionManager<ExoMediaCrypto> drmSessionManager;
-  private final boolean useSurfaceYuvOutput;
+  private final int threads;
 
   private Format format;
   private Format pendingFormat;
   private Format outputFormat;
   private VpxDecoder decoder;
-  private VpxInputBuffer inputBuffer;
+  private VideoDecoderInputBuffer inputBuffer;
   private VpxOutputBuffer outputBuffer;
-  private DrmSession<ExoMediaCrypto> drmSession;
-  private DrmSession<ExoMediaCrypto> pendingDrmSession;
+  @Nullable private DrmSession<ExoMediaCrypto> decoderDrmSession;
+  @Nullable private DrmSession<ExoMediaCrypto> sourceDrmSession;
 
   private @ReinitializationState int decoderReinitializationState;
   private boolean decoderReceivedBuffers;
 
-  private Bitmap bitmap;
   private boolean renderedFirstFrame;
   private long initialPositionUs;
   private long joiningDeadlineMs;
   private Surface surface;
   private VpxOutputBufferRenderer outputBufferRenderer;
-  private int outputMode;
+  @C.VideoOutputMode private int outputMode;
   private boolean waitingForKeys;
 
   private boolean inputStreamEnded;
@@ -158,16 +156,14 @@ public class LibvpxVideoRenderer extends BaseRenderer {
   protected DecoderCounters decoderCounters;
 
   /**
-   * @param scaleToFit Whether video frames should be scaled to fit when rendering.
    * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
    *     can attempt to seamlessly join an ongoing playback.
    */
-  public LibvpxVideoRenderer(boolean scaleToFit, long allowedJoiningTimeMs) {
-    this(scaleToFit, allowedJoiningTimeMs, null, null, 0);
+  public LibvpxVideoRenderer(long allowedJoiningTimeMs) {
+    this(allowedJoiningTimeMs, null, null, 0);
   }
 
   /**
-   * @param scaleToFit Whether video frames should be scaled to fit when rendering.
    * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
    *     can attempt to seamlessly join an ongoing playback.
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
@@ -176,23 +172,22 @@ public class LibvpxVideoRenderer extends BaseRenderer {
    * @param maxDroppedFramesToNotify The maximum number of frames that can be dropped between
    *     invocations of {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
    */
-  public LibvpxVideoRenderer(boolean scaleToFit, long allowedJoiningTimeMs,
-      Handler eventHandler, VideoRendererEventListener eventListener,
+  public LibvpxVideoRenderer(
+      long allowedJoiningTimeMs,
+      @Nullable Handler eventHandler,
+      @Nullable VideoRendererEventListener eventListener,
       int maxDroppedFramesToNotify) {
     this(
-        scaleToFit,
         allowedJoiningTimeMs,
         eventHandler,
         eventListener,
         maxDroppedFramesToNotify,
         /* drmSessionManager= */ null,
         /* playClearSamplesWithoutKeys= */ false,
-        /* disableLoopFilter= */ false,
-        /* useSurfaceYuvOutput= */ false);
+        /* disableLoopFilter= */ false);
   }
 
   /**
-   * @param scaleToFit Whether video frames should be scaled to fit when rendering.
    * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
    *     can attempt to seamlessly join an ongoing playback.
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
@@ -208,33 +203,79 @@ public class LibvpxVideoRenderer extends BaseRenderer {
    *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
    *     has obtained the keys necessary to decrypt encrypted regions of the media.
    * @param disableLoopFilter Disable the libvpx in-loop smoothing filter.
-   * @param useSurfaceYuvOutput Directly output YUV to the Surface via ANativeWindow.
    */
   public LibvpxVideoRenderer(
-      boolean scaleToFit,
       long allowedJoiningTimeMs,
-      Handler eventHandler,
-      VideoRendererEventListener eventListener,
+      @Nullable Handler eventHandler,
+      @Nullable VideoRendererEventListener eventListener,
       int maxDroppedFramesToNotify,
-      DrmSessionManager<ExoMediaCrypto> drmSessionManager,
+      @Nullable DrmSessionManager<ExoMediaCrypto> drmSessionManager,
+      boolean playClearSamplesWithoutKeys,
+      boolean disableLoopFilter) {
+    this(
+        allowedJoiningTimeMs,
+        eventHandler,
+        eventListener,
+        maxDroppedFramesToNotify,
+        drmSessionManager,
+        playClearSamplesWithoutKeys,
+        disableLoopFilter,
+        /* enableRowMultiThreadMode= */ false,
+        getRuntime().availableProcessors(),
+        /* numInputBuffers= */ 4,
+        /* numOutputBuffers= */ 4);
+  }
+
+  /**
+   * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
+   *     can attempt to seamlessly join an ongoing playback.
+   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
+   *     null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @param maxDroppedFramesToNotify The maximum number of frames that can be dropped between
+   *     invocations of {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
+   * @param drmSessionManager For use with encrypted media. May be null if support for encrypted
+   *     media is not required.
+   * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
+   *     For example a media file may start with a short clear region so as to allow playback to
+   *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
+   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
+   *     has obtained the keys necessary to decrypt encrypted regions of the media.
+   * @param disableLoopFilter Disable the libvpx in-loop smoothing filter.
+   * @param enableRowMultiThreadMode Whether row multi threading decoding is enabled.
+   * @param threads Number of threads libvpx will use to decode.
+   * @param numInputBuffers Number of input buffers.
+   * @param numOutputBuffers Number of output buffers.
+   */
+  public LibvpxVideoRenderer(
+      long allowedJoiningTimeMs,
+      @Nullable Handler eventHandler,
+      @Nullable VideoRendererEventListener eventListener,
+      int maxDroppedFramesToNotify,
+      @Nullable DrmSessionManager<ExoMediaCrypto> drmSessionManager,
       boolean playClearSamplesWithoutKeys,
       boolean disableLoopFilter,
-      boolean useSurfaceYuvOutput) {
+      boolean enableRowMultiThreadMode,
+      int threads,
+      int numInputBuffers,
+      int numOutputBuffers) {
     super(C.TRACK_TYPE_VIDEO);
-    this.scaleToFit = scaleToFit;
     this.disableLoopFilter = disableLoopFilter;
     this.allowedJoiningTimeMs = allowedJoiningTimeMs;
     this.maxDroppedFramesToNotify = maxDroppedFramesToNotify;
     this.drmSessionManager = drmSessionManager;
     this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
-    this.useSurfaceYuvOutput = useSurfaceYuvOutput;
+    this.enableRowMultiThreadMode = enableRowMultiThreadMode;
+    this.threads = threads;
+    this.numInputBuffers = numInputBuffers;
+    this.numOutputBuffers = numOutputBuffers;
     joiningDeadlineMs = C.TIME_UNSET;
     clearReportedVideoSize();
     formatHolder = new FormatHolder();
     formatQueue = new TimedValueQueue<>();
     flagsOnlyBuffer = DecoderInputBuffer.newFlagsOnlyInstance();
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
-    outputMode = VpxDecoder.OUTPUT_MODE_NONE;
+    outputMode = C.VIDEO_OUTPUT_MODE_NONE;
     decoderReinitializationState = REINITIALIZATION_STATE_NONE;
   }
 
@@ -244,7 +285,13 @@ public class LibvpxVideoRenderer extends BaseRenderer {
   public int supportsFormat(Format format) {
     if (!VpxLibrary.isAvailable() || !MimeTypes.VIDEO_VP9.equalsIgnoreCase(format.sampleMimeType)) {
       return FORMAT_UNSUPPORTED_TYPE;
-    } else if (!supportsFormatDrm(drmSessionManager, format.drmInitData)) {
+    }
+    boolean drmIsSupported =
+        format.drmInitData == null
+            || VpxLibrary.matchesExpectedExoMediaCryptoType(format.exoMediaCryptoType)
+            || (format.exoMediaCryptoType == null
+                && supportsFormatDrm(drmSessionManager, format.drmInitData));
+    if (!drmIsSupported) {
       return FORMAT_UNSUPPORTED_DRM;
     }
     return FORMAT_HANDLED | ADAPTIVE_SEAMLESS;
@@ -261,7 +308,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
       flagsOnlyBuffer.clear();
       int result = readSource(formatHolder, flagsOnlyBuffer, true);
       if (result == C.RESULT_FORMAT_READ) {
-        onInputFormatChanged(formatHolder.format);
+        onInputFormatChanged(formatHolder);
       } else if (result == C.RESULT_BUFFER_READ) {
         // End of stream read having not read a format.
         Assertions.checkState(flagsOnlyBuffer.isEndOfStream());
@@ -302,8 +349,9 @@ public class LibvpxVideoRenderer extends BaseRenderer {
     if (waitingForKeys) {
       return false;
     }
-    if (format != null && (isSourceReady() || outputBuffer != null)
-        && (renderedFirstFrame || outputMode == VpxDecoder.OUTPUT_MODE_NONE)) {
+    if (format != null
+        && (isSourceReady() || outputBuffer != null)
+        && (renderedFirstFrame || outputMode == C.VIDEO_OUTPUT_MODE_NONE)) {
       // Ready. If we were joining then we've now joined, so clear the joining deadline.
       joiningDeadlineMs = C.TIME_UNSET;
       return true;
@@ -364,24 +412,10 @@ public class LibvpxVideoRenderer extends BaseRenderer {
     clearReportedVideoSize();
     clearRenderedFirstFrame();
     try {
+      setSourceDrmSession(null);
       releaseDecoder();
     } finally {
-      try {
-        if (drmSession != null) {
-          drmSessionManager.releaseSession(drmSession);
-        }
-      } finally {
-        try {
-          if (pendingDrmSession != null && pendingDrmSession != drmSession) {
-            drmSessionManager.releaseSession(pendingDrmSession);
-          }
-        } finally {
-          drmSession = null;
-          pendingDrmSession = null;
-          decoderCounters.ensureUpdated();
-          eventDispatcher.disabled(decoderCounters);
-        }
-      }
+      eventDispatcher.disabled(decoderCounters);
     }
   }
 
@@ -433,50 +467,66 @@ public class LibvpxVideoRenderer extends BaseRenderer {
   /** Releases the decoder. */
   @CallSuper
   protected void releaseDecoder() {
-    if (decoder == null) {
-      return;
-    }
-
     inputBuffer = null;
     outputBuffer = null;
-    decoder.release();
-    decoder = null;
-    decoderCounters.decoderReleaseCount++;
     decoderReinitializationState = REINITIALIZATION_STATE_NONE;
     decoderReceivedBuffers = false;
     buffersInCodecCount = 0;
+    if (decoder != null) {
+      decoder.release();
+      decoder = null;
+      decoderCounters.decoderReleaseCount++;
+    }
+    setDecoderDrmSession(null);
+  }
+
+  private void setSourceDrmSession(@Nullable DrmSession<ExoMediaCrypto> session) {
+    DrmSession.replaceSessionReferences(sourceDrmSession, session);
+    sourceDrmSession = session;
+  }
+
+  private void setDecoderDrmSession(@Nullable DrmSession<ExoMediaCrypto> session) {
+    DrmSession.replaceSessionReferences(decoderDrmSession, session);
+    decoderDrmSession = session;
   }
 
   /**
    * Called when a new format is read from the upstream source.
    *
-   * @param newFormat The new format.
+   * @param formatHolder A {@link FormatHolder} that holds the new {@link Format}.
    * @throws ExoPlaybackException If an error occurs (re-)initializing the decoder.
    */
   @CallSuper
-  protected void onInputFormatChanged(Format newFormat) throws ExoPlaybackException {
+  @SuppressWarnings("unchecked")
+  protected void onInputFormatChanged(FormatHolder formatHolder) throws ExoPlaybackException {
     Format oldFormat = format;
-    format = newFormat;
-    pendingFormat = newFormat;
+    format = formatHolder.format;
+    pendingFormat = format;
 
     boolean drmInitDataChanged = !Util.areEqual(format.drmInitData, oldFormat == null ? null
         : oldFormat.drmInitData);
     if (drmInitDataChanged) {
       if (format.drmInitData != null) {
-        if (drmSessionManager == null) {
-          throw ExoPlaybackException.createForRenderer(
-              new IllegalStateException("Media requires a DrmSessionManager"), getIndex());
-        }
-        pendingDrmSession = drmSessionManager.acquireSession(Looper.myLooper(), format.drmInitData);
-        if (pendingDrmSession == drmSession) {
-          drmSessionManager.releaseSession(pendingDrmSession);
+        if (formatHolder.includesDrmSession) {
+          setSourceDrmSession((DrmSession<ExoMediaCrypto>) formatHolder.drmSession);
+        } else {
+          if (drmSessionManager == null) {
+            throw ExoPlaybackException.createForRenderer(
+                new IllegalStateException("Media requires a DrmSessionManager"), getIndex());
+          }
+          DrmSession<ExoMediaCrypto> session =
+              drmSessionManager.acquireSession(Looper.myLooper(), format.drmInitData);
+          if (sourceDrmSession != null) {
+            sourceDrmSession.releaseReference();
+          }
+          sourceDrmSession = session;
         }
       } else {
-        pendingDrmSession = null;
+        setSourceDrmSession(null);
       }
     }
 
-    if (pendingDrmSession != drmSession) {
+    if (sourceDrmSession != decoderDrmSession) {
       if (decoderReceivedBuffers) {
         // Signal end of stream and wait for any final output buffers before re-initialization.
         decoderReinitializationState = REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM;
@@ -497,7 +547,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
    *
    * @param buffer The buffer that will be queued.
    */
-  protected void onQueueInputBuffer(VpxInputBuffer buffer) {
+  protected void onQueueInputBuffer(VideoDecoderInputBuffer buffer) {
     // Do nothing.
   }
 
@@ -579,18 +629,14 @@ public class LibvpxVideoRenderer extends BaseRenderer {
    */
   protected void renderOutputBuffer(VpxOutputBuffer outputBuffer) throws VpxDecoderException {
     int bufferMode = outputBuffer.mode;
-    boolean renderRgb = bufferMode == VpxDecoder.OUTPUT_MODE_RGB && surface != null;
-    boolean renderSurface = bufferMode == VpxDecoder.OUTPUT_MODE_SURFACE_YUV && surface != null;
-    boolean renderYuv = bufferMode == VpxDecoder.OUTPUT_MODE_YUV && outputBufferRenderer != null;
+    boolean renderSurface = bufferMode == C.VIDEO_OUTPUT_MODE_SURFACE_YUV && surface != null;
+    boolean renderYuv = bufferMode == C.VIDEO_OUTPUT_MODE_YUV && outputBufferRenderer != null;
     lastRenderTimeUs = SystemClock.elapsedRealtime() * 1000;
-    if (!renderRgb && !renderYuv && !renderSurface) {
+    if (!renderYuv && !renderSurface) {
       dropOutputBuffer(outputBuffer);
     } else {
       maybeNotifyVideoSizeChanged(outputBuffer.width, outputBuffer.height);
-      if (renderRgb) {
-        renderRgbFrame(outputBuffer, scaleToFit);
-        outputBuffer.release();
-      } else if (renderYuv) {
+      if (renderYuv) {
         outputBufferRenderer.setOutputBuffer(outputBuffer);
         // The renderer will release the buffer.
       } else { // renderSurface
@@ -668,13 +714,12 @@ public class LibvpxVideoRenderer extends BaseRenderer {
       this.surface = surface;
       this.outputBufferRenderer = outputBufferRenderer;
       if (surface != null) {
-        outputMode =
-            useSurfaceYuvOutput ? VpxDecoder.OUTPUT_MODE_SURFACE_YUV : VpxDecoder.OUTPUT_MODE_RGB;
+        outputMode = C.VIDEO_OUTPUT_MODE_SURFACE_YUV;
       } else {
         outputMode =
-            outputBufferRenderer != null ? VpxDecoder.OUTPUT_MODE_YUV : VpxDecoder.OUTPUT_MODE_NONE;
+            outputBufferRenderer != null ? C.VIDEO_OUTPUT_MODE_YUV : C.VIDEO_OUTPUT_MODE_NONE;
       }
-      if (outputMode != VpxDecoder.OUTPUT_MODE_NONE) {
+      if (outputMode != C.VIDEO_OUTPUT_MODE_NONE) {
         if (decoder != null) {
           decoder.setOutputMode(outputMode);
         }
@@ -691,7 +736,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
         clearReportedVideoSize();
         clearRenderedFirstFrame();
       }
-    } else if (outputMode != VpxDecoder.OUTPUT_MODE_NONE) {
+    } else if (outputMode != C.VIDEO_OUTPUT_MODE_NONE) {
       // The output is unchanged and non-null. If we know the video size and/or have already
       // rendered to the output, report these again immediately.
       maybeRenotifyVideoSizeChanged();
@@ -704,12 +749,13 @@ public class LibvpxVideoRenderer extends BaseRenderer {
       return;
     }
 
-    drmSession = pendingDrmSession;
+    setDecoderDrmSession(sourceDrmSession);
+
     ExoMediaCrypto mediaCrypto = null;
-    if (drmSession != null) {
-      mediaCrypto = drmSession.getMediaCrypto();
+    if (decoderDrmSession != null) {
+      mediaCrypto = decoderDrmSession.getMediaCrypto();
       if (mediaCrypto == null) {
-        DrmSessionException drmError = drmSession.getError();
+        DrmSessionException drmError = decoderDrmSession.getError();
         if (drmError != null) {
           // Continue for now. We may be able to avoid failure if the session recovers, or if a new
           // input format causes the session to be replaced before it's used.
@@ -727,12 +773,13 @@ public class LibvpxVideoRenderer extends BaseRenderer {
           format.maxInputSize != Format.NO_VALUE ? format.maxInputSize : DEFAULT_INPUT_BUFFER_SIZE;
       decoder =
           new VpxDecoder(
-              NUM_INPUT_BUFFERS,
-              NUM_OUTPUT_BUFFERS,
+              numInputBuffers,
+              numOutputBuffers,
               initialInputBufferSize,
               mediaCrypto,
               disableLoopFilter,
-              useSurfaceYuvOutput);
+              enableRowMultiThreadMode,
+              threads);
       decoder.setOutputMode(outputMode);
       TraceUtil.endSection();
       long decoderInitializedTimestamp = SystemClock.elapsedRealtime();
@@ -781,7 +828,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
       return false;
     }
     if (result == C.RESULT_FORMAT_READ) {
-      onInputFormatChanged(formatHolder.format);
+      onInputFormatChanged(formatHolder);
       return true;
     }
     if (inputBuffer.isEndOfStream()) {
@@ -800,7 +847,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
       pendingFormat = null;
     }
     inputBuffer.flip();
-    inputBuffer.colorInfo = formatHolder.format.colorInfo;
+    inputBuffer.colorInfo = format.colorInfo;
     onQueueInputBuffer(inputBuffer);
     decoder.queueInputBuffer(inputBuffer);
     buffersInCodecCount++;
@@ -869,7 +916,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
     }
 
     long earlyUs = outputBuffer.timeUs - positionUs;
-    if (outputMode == VpxDecoder.OUTPUT_MODE_NONE) {
+    if (outputMode == C.VIDEO_OUTPUT_MODE_NONE) {
       // Skip frames in sync with playback, so we'll be at the right frame if the mode changes.
       if (isBufferLate(earlyUs)) {
         skipOutputBuffer(outputBuffer);
@@ -922,31 +969,14 @@ public class LibvpxVideoRenderer extends BaseRenderer {
   }
 
   private boolean shouldWaitForKeys(boolean bufferEncrypted) throws ExoPlaybackException {
-    if (drmSession == null || (!bufferEncrypted && playClearSamplesWithoutKeys)) {
+    if (decoderDrmSession == null || (!bufferEncrypted && playClearSamplesWithoutKeys)) {
       return false;
     }
-    @DrmSession.State int drmSessionState = drmSession.getState();
+    @DrmSession.State int drmSessionState = decoderDrmSession.getState();
     if (drmSessionState == DrmSession.STATE_ERROR) {
-      throw ExoPlaybackException.createForRenderer(drmSession.getError(), getIndex());
+      throw ExoPlaybackException.createForRenderer(decoderDrmSession.getError(), getIndex());
     }
     return drmSessionState != DrmSession.STATE_OPENED_WITH_KEYS;
-  }
-
-  private void renderRgbFrame(VpxOutputBuffer outputBuffer, boolean scale) {
-    if (bitmap == null
-        || bitmap.getWidth() != outputBuffer.width
-        || bitmap.getHeight() != outputBuffer.height) {
-      bitmap = Bitmap.createBitmap(outputBuffer.width, outputBuffer.height, Bitmap.Config.RGB_565);
-    }
-    bitmap.copyPixelsFromBuffer(outputBuffer.data);
-    Canvas canvas = surface.lockCanvas(null);
-    if (scale) {
-      canvas.scale(
-          ((float) canvas.getWidth()) / outputBuffer.width,
-          ((float) canvas.getHeight()) / outputBuffer.height);
-    }
-    canvas.drawBitmap(bitmap, 0, 0, null);
-    surface.unlockCanvasAndPost(canvas);
   }
 
   private void setJoiningDeadlineMs() {

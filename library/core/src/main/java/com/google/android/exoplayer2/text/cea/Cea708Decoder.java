@@ -272,7 +272,10 @@ public final class Cea708Decoder extends CeaDecoder {
     if (serviceNumber == 7) {
       // extended service numbers
       serviceBlockPacket.skipBits(2);
-      serviceNumber += serviceBlockPacket.readBits(6);
+      serviceNumber = serviceBlockPacket.readBits(6);
+      if (serviceNumber < 7) {
+        Log.w(TAG, "Invalid extended service number: " + serviceNumber);
+      }
     }
 
     // Ignore packets in which blockSize is 0

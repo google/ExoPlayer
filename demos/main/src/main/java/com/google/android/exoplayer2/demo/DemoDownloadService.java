@@ -16,13 +16,14 @@
 package com.google.android.exoplayer2.demo;
 
 import android.app.Notification;
+import com.google.android.exoplayer2.offline.Download;
 import com.google.android.exoplayer2.offline.DownloadManager;
-import com.google.android.exoplayer2.offline.DownloadManager.TaskState;
 import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.scheduler.PlatformScheduler;
-import com.google.android.exoplayer2.ui.DownloadNotificationUtil;
+import com.google.android.exoplayer2.ui.DownloadNotificationHelper;
 import com.google.android.exoplayer2.util.NotificationUtil;
 import com.google.android.exoplayer2.util.Util;
+import java.util.List;
 
 /** A service for downloading media. */
 public class DemoDownloadService extends DownloadService {
@@ -31,12 +32,24 @@ public class DemoDownloadService extends DownloadService {
   private static final int JOB_ID = 1;
   private static final int FOREGROUND_NOTIFICATION_ID = 1;
 
+  private static int nextNotificationId = FOREGROUND_NOTIFICATION_ID + 1;
+
+  private DownloadNotificationHelper notificationHelper;
+
   public DemoDownloadService() {
     super(
         FOREGROUND_NOTIFICATION_ID,
         DEFAULT_FOREGROUND_NOTIFICATION_UPDATE_INTERVAL,
         CHANNEL_ID,
-        R.string.exo_download_notification_channel_name);
+        R.string.exo_download_notification_channel_name,
+        /* channelDescriptionResourceId= */ 0);
+    nextNotificationId = FOREGROUND_NOTIFICATION_ID + 1;
+  }
+
+  @Override
+  public void onCreate() {
+    super.onCreate();
+    notificationHelper = new DownloadNotificationHelper(this, CHANNEL_ID);
   }
 
   @Override
@@ -50,40 +63,29 @@ public class DemoDownloadService extends DownloadService {
   }
 
   @Override
-  protected Notification getForegroundNotification(TaskState[] taskStates) {
-    return DownloadNotificationUtil.buildProgressNotification(
-        /* context= */ this,
-        R.drawable.exo_controls_play,
-        CHANNEL_ID,
-        /* contentIntent= */ null,
-        /* message= */ null,
-        taskStates);
+  protected Notification getForegroundNotification(List<Download> downloads) {
+    return notificationHelper.buildProgressNotification(
+        R.drawable.ic_download, /* contentIntent= */ null, /* message= */ null, downloads);
   }
 
   @Override
-  protected void onTaskStateChanged(TaskState taskState) {
-    if (taskState.action.isRemoveAction) {
+  protected void onDownloadChanged(Download download) {
+    Notification notification;
+    if (download.state == Download.STATE_COMPLETED) {
+      notification =
+          notificationHelper.buildDownloadCompletedNotification(
+              R.drawable.ic_download_done,
+              /* contentIntent= */ null,
+              Util.fromUtf8Bytes(download.request.data));
+    } else if (download.state == Download.STATE_FAILED) {
+      notification =
+          notificationHelper.buildDownloadFailedNotification(
+              R.drawable.ic_download_done,
+              /* contentIntent= */ null,
+              Util.fromUtf8Bytes(download.request.data));
+    } else {
       return;
     }
-    Notification notification = null;
-    if (taskState.state == TaskState.STATE_COMPLETED) {
-      notification =
-          DownloadNotificationUtil.buildDownloadCompletedNotification(
-              /* context= */ this,
-              R.drawable.exo_controls_play,
-              CHANNEL_ID,
-              /* contentIntent= */ null,
-              Util.fromUtf8Bytes(taskState.action.data));
-    } else if (taskState.state == TaskState.STATE_FAILED) {
-      notification =
-          DownloadNotificationUtil.buildDownloadFailedNotification(
-              /* context= */ this,
-              R.drawable.exo_controls_play,
-              CHANNEL_ID,
-              /* contentIntent= */ null,
-              Util.fromUtf8Bytes(taskState.action.data));
-    }
-    int notificationId = FOREGROUND_NOTIFICATION_ID + 1 + taskState.taskId;
-    NotificationUtil.setNotification(this, notificationId, notification);
+    NotificationUtil.setNotification(this, nextNotificationId++, notification);
   }
 }

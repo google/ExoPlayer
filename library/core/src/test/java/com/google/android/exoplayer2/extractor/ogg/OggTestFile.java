@@ -30,35 +30,39 @@ import java.util.Random;
   private static final int MAX_GRANULES_IN_PAGE = 100000;
 
   public final byte[] data;
-  public final long lastGranule;
-  public final int packetCount;
+  public final int granuleCount;
   public final int pageCount;
   public final int firstPayloadPageSize;
-  public final long firstPayloadPageGranulePosition;
+  public final int firstPayloadPageGranuleCount;
+  public final int lastPayloadPageSize;
+  public final int lastPayloadPageGranuleCount;
 
   private OggTestFile(
       byte[] data,
-      long lastGranule,
-      int packetCount,
+      int granuleCount,
       int pageCount,
       int firstPayloadPageSize,
-      long firstPayloadPageGranulePosition) {
+      int firstPayloadPageGranuleCount,
+      int lastPayloadPageSize,
+      int lastPayloadPageGranuleCount) {
     this.data = data;
-    this.lastGranule = lastGranule;
-    this.packetCount = packetCount;
+    this.granuleCount = granuleCount;
     this.pageCount = pageCount;
     this.firstPayloadPageSize = firstPayloadPageSize;
-    this.firstPayloadPageGranulePosition = firstPayloadPageGranulePosition;
+    this.firstPayloadPageGranuleCount = firstPayloadPageGranuleCount;
+    this.lastPayloadPageSize = lastPayloadPageSize;
+    this.lastPayloadPageGranuleCount = lastPayloadPageGranuleCount;
   }
 
   public static OggTestFile generate(Random random, int pageCount) {
     ArrayList<byte[]> fileData = new ArrayList<>();
     int fileSize = 0;
-    long granule = 0;
-    int packetLength = -1;
-    int packetCount = 0;
+    int granuleCount = 0;
     int firstPayloadPageSize = 0;
-    long firstPayloadPageGranulePosition = 0;
+    int firstPayloadPageGranuleCount = 0;
+    int lastPageloadPageSize = 0;
+    int lastPayloadPageGranuleCount = 0;
+    int packetLength = -1;
 
     for (int i = 0; i < pageCount; i++) {
       int headerType = 0x00;
@@ -71,17 +75,17 @@ import java.util.Random;
       if (i == pageCount - 1) {
         headerType |= 4;
       }
-      granule += random.nextInt(MAX_GRANULES_IN_PAGE - 1) + 1;
+      int pageGranuleCount = random.nextInt(MAX_GRANULES_IN_PAGE - 1) + 1;
       int pageSegmentCount = random.nextInt(MAX_SEGMENT_COUNT);
-      byte[] header = OggTestData.buildOggHeader(headerType, granule, 0, pageSegmentCount);
+      granuleCount += pageGranuleCount;
+      byte[] header = OggTestData.buildOggHeader(headerType, granuleCount, 0, pageSegmentCount);
       fileData.add(header);
-      fileSize += header.length;
+      int pageSize = header.length;
 
       byte[] laces = new byte[pageSegmentCount];
       int bodySize = 0;
       for (int j = 0; j < pageSegmentCount; j++) {
         if (packetLength < 0) {
-          packetCount++;
           if (i < pageCount - 1) {
             packetLength = random.nextInt(MAX_PACKET_LENGTH);
           } else {
@@ -96,14 +100,19 @@ import java.util.Random;
         packetLength -= 255;
       }
       fileData.add(laces);
-      fileSize += laces.length;
+      pageSize += laces.length;
 
       byte[] payload = TestUtil.buildTestData(bodySize, random);
       fileData.add(payload);
-      fileSize += payload.length;
+      pageSize += payload.length;
+
+      fileSize += pageSize;
       if (i == 0) {
-        firstPayloadPageSize = header.length + bodySize;
-        firstPayloadPageGranulePosition = granule;
+        firstPayloadPageSize = pageSize;
+        firstPayloadPageGranuleCount = pageGranuleCount;
+      } else if (i == pageCount - 1) {
+        lastPageloadPageSize = pageSize;
+        lastPayloadPageGranuleCount = pageGranuleCount;
       }
     }
 
@@ -115,11 +124,12 @@ import java.util.Random;
     }
     return new OggTestFile(
         file,
-        granule,
-        packetCount,
+        granuleCount,
         pageCount,
         firstPayloadPageSize,
-        firstPayloadPageGranulePosition);
+        firstPayloadPageGranuleCount,
+        lastPageloadPageSize,
+        lastPayloadPageGranuleCount);
   }
 
   public int findPreviousPageStart(long position) {

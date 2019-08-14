@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.amr;
 
-import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
@@ -140,7 +140,7 @@ public final class AmrExtractor implements Extractor {
 
   private ExtractorOutput extractorOutput;
   private TrackOutput trackOutput;
-  private @Nullable SeekMap seekMap;
+  @Nullable private SeekMap seekMap;
   private boolean hasOutputFormat;
 
   public AmrExtractor() {

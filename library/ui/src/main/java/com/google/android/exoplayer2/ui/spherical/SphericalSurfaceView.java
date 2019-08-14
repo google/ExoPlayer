@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.ui.spherical;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.PointF;
 import android.graphics.SurfaceTexture;
@@ -26,10 +25,11 @@ import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.AnyThread;
-import android.support.annotation.BinderThread;
-import android.support.annotation.Nullable;
-import android.support.annotation.UiThread;
+import androidx.annotation.AnyThread;
+import androidx.annotation.BinderThread;
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
+import androidx.annotation.VisibleForTesting;
 import android.util.AttributeSet;
 import android.view.Display;
 import android.view.Surface;
@@ -51,22 +51,7 @@ import javax.microedition.khronos.opengles.GL10;
  * apply the touch and sensor rotations in the correct order or the user's touch manipulations won't
  * match what they expect.
  */
-@TargetApi(15)
 public final class SphericalSurfaceView extends GLSurfaceView {
-
-  /**
-   * This listener can be used to be notified when the {@link Surface} associated with this view is
-   * changed.
-   */
-  public interface SurfaceListener {
-    /**
-     * Invoked when the surface is changed or there isn't one anymore. Any previous surface
-     * shouldn't be used after this call.
-     *
-     * @param surface The new surface or null if there isn't one anymore.
-     */
-    void surfaceChanged(@Nullable Surface surface);
-  }
 
   // Arbitrary vertical field of view.
   private static final int FIELD_OF_VIEW_DEGREES = 90;
@@ -79,16 +64,14 @@ public final class SphericalSurfaceView extends GLSurfaceView {
   /* package */ static final float UPRIGHT_ROLL = (float) Math.PI;
 
   private final SensorManager sensorManager;
-  private final @Nullable Sensor orientationSensor;
+  @Nullable private final Sensor orientationSensor;
   private final OrientationListener orientationListener;
-  private final Renderer renderer;
   private final Handler mainHandler;
   private final TouchTracker touchTracker;
   private final SceneRenderer scene;
-  private @Nullable SurfaceListener surfaceListener;
-  private @Nullable SurfaceTexture surfaceTexture;
-  private @Nullable Surface surface;
-  private @Nullable Player.VideoComponent videoComponent;
+  @Nullable private SurfaceTexture surfaceTexture;
+  @Nullable private Surface surface;
+  @Nullable private Player.VideoComponent videoComponent;
 
   public SphericalSurfaceView(Context context) {
     this(context, null);
@@ -101,15 +84,21 @@ public final class SphericalSurfaceView extends GLSurfaceView {
     // Configure sensors and touch.
     sensorManager =
         (SensorManager) Assertions.checkNotNull(context.getSystemService(Context.SENSOR_SERVICE));
-    // TYPE_GAME_ROTATION_VECTOR is the easiest sensor since it handles all the complex math for
-    // fusion. It's used instead of TYPE_ROTATION_VECTOR since the latter uses the magnetometer on
-    // devices. When used indoors, the magnetometer can take some time to settle depending on the
-    // device and amount of metal in the environment.
-    int type = Util.SDK_INT >= 18 ? Sensor.TYPE_GAME_ROTATION_VECTOR : Sensor.TYPE_ROTATION_VECTOR;
-    orientationSensor = sensorManager.getDefaultSensor(type);
+    Sensor orientationSensor = null;
+    if (Util.SDK_INT >= 18) {
+      // TYPE_GAME_ROTATION_VECTOR is the easiest sensor since it handles all the complex math for
+      // fusion. It's used instead of TYPE_ROTATION_VECTOR since the latter uses the magnetometer on
+      // devices. When used indoors, the magnetometer can take some time to settle depending on the
+      // device and amount of metal in the environment.
+      orientationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR);
+    }
+    if (orientationSensor == null) {
+      orientationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+    }
+    this.orientationSensor = orientationSensor;
 
     scene = new SceneRenderer();
-    renderer = new Renderer(scene);
+    Renderer renderer = new Renderer(scene);
 
     touchTracker = new TouchTracker(context, renderer, PX_PER_DEGREES);
     WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
@@ -151,15 +140,6 @@ public final class SphericalSurfaceView extends GLSurfaceView {
     }
   }
 
-  /**
-   * Sets the {@link SurfaceListener} used to listen to surface events.
-   *
-   * @param listener The listener for surface events.
-   */
-  public void setSurfaceListener(@Nullable SurfaceListener listener) {
-    surfaceListener = listener;
-  }
-
   /** Sets the {@link SingleTapListener} used to listen to single tap events on this view. */
   public void setSingleTapListener(@Nullable SingleTapListener listener) {
     touchTracker.setSingleTapListener(listener);
@@ -191,8 +171,8 @@ public final class SphericalSurfaceView extends GLSurfaceView {
     mainHandler.post(
         () -> {
           if (surface != null) {
-            if (surfaceListener != null) {
-              surfaceListener.surfaceChanged(null);
+            if (videoComponent != null) {
+              videoComponent.clearVideoSurface(surface);
             }
             releaseSurface(surfaceTexture, surface);
             surfaceTexture = null;
@@ -209,8 +189,8 @@ public final class SphericalSurfaceView extends GLSurfaceView {
           Surface oldSurface = this.surface;
           this.surfaceTexture = surfaceTexture;
           this.surface = new Surface(surfaceTexture);
-          if (surfaceListener != null) {
-            surfaceListener.surfaceChanged(surface);
+          if (videoComponent != null) {
+            videoComponent.setVideoSurface(surface);
           }
           releaseSurface(oldSurfaceTexture, oldSurface);
         });
@@ -230,7 +210,7 @@ public final class SphericalSurfaceView extends GLSurfaceView {
    * Standard GL Renderer implementation. The notable code is the matrix multiplication in
    * onDrawFrame and updatePitchMatrix.
    */
-  // @VisibleForTesting
+  @VisibleForTesting
   /* package */ class Renderer
       implements GLSurfaceView.Renderer, TouchTracker.Listener, OrientationListener.Listener {
     private final SceneRenderer scene;
@@ -327,7 +307,7 @@ public final class SphericalSurfaceView extends GLSurfaceView {
     private float calculateFieldOfViewInYDirection(float aspect) {
       boolean landscapeMode = aspect > 1;
       if (landscapeMode) {
-        double halfFovX = FIELD_OF_VIEW_DEGREES / 2;
+        double halfFovX = FIELD_OF_VIEW_DEGREES / 2f;
         double tanY = Math.tan(Math.toRadians(halfFovX)) / aspect;
         double halfFovY = Math.toDegrees(Math.atan(tanY));
         return (float) (halfFovY * 2);

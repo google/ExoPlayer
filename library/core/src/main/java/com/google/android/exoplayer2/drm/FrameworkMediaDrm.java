@@ -18,20 +18,24 @@ package com.google.android.exoplayer2.drm;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.media.DeniedByServerException;
-import android.media.MediaCrypto;
 import android.media.MediaCryptoException;
 import android.media.MediaDrm;
 import android.media.MediaDrmException;
 import android.media.NotProvisionedException;
 import android.media.UnsupportedSchemeException;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.extractor.mp4.PsshAtomUtil;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,6 +49,10 @@ import java.util.UUID;
 public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto> {
 
   private static final String CENC_SCHEME_MIME_TYPE = "cenc";
+  private static final String MOCK_LA_URL_VALUE = "https://x";
+  private static final String MOCK_LA_URL = "<LA_URL>" + MOCK_LA_URL_VALUE + "</LA_URL>";
+  private static final int UTF_16_BYTES_PER_CHARACTER = 2;
+  private static final String TAG = "FrameworkMediaDrm";
 
   private final UUID uuid;
   private final MediaDrm mediaDrm;
@@ -70,9 +78,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
     Assertions.checkNotNull(uuid);
     Assertions.checkArgument(!C.COMMON_PSSH_UUID.equals(uuid), "Use C.CLEARKEY_UUID instead");
     this.uuid = uuid;
-    // ClearKey had to be accessed using the Common PSSH UUID prior to API level 27.
-    this.mediaDrm =
-        new MediaDrm(Util.SDK_INT < 27 && C.CLEARKEY_UUID.equals(uuid) ? C.COMMON_PSSH_UUID : uuid);
+    this.mediaDrm = new MediaDrm(adjustUuid(uuid));
     if (C.WIDEVINE_UUID.equals(uuid) && needsForceWidevineL3Workaround()) {
       forceWidevineL3(mediaDrm);
     }
@@ -140,6 +146,9 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
     byte[] requestData = adjustRequestData(uuid, request.getData());
 
     String licenseServerUrl = request.getDefaultUrl();
+    if (MOCK_LA_URL_VALUE.equals(licenseServerUrl)) {
+      licenseServerUrl = "";
+    }
     if (TextUtils.isEmpty(licenseServerUrl)
         && schemeData != null
         && !TextUtils.isEmpty(schemeData.licenseServerUrl)) {
@@ -149,10 +158,10 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
     return new KeyRequest(requestData, licenseServerUrl);
   }
 
+  @Nullable
   @Override
   public byte[] provideKeyResponse(byte[] scope, byte[] response)
       throws NotProvisionedException, DeniedByServerException {
-
     if (C.CLEARKEY_UUID.equals(uuid)) {
       response = ClearKeyUtil.adjustResponseData(response);
     }
@@ -212,8 +221,13 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
     // indicate that it required secure video decoders [Internal ref: b/11428937].
     boolean forceAllowInsecureDecoderComponents = Util.SDK_INT < 21
         && C.WIDEVINE_UUID.equals(uuid) && "L3".equals(getPropertyString("securityLevel"));
-    return new FrameworkMediaCrypto(new MediaCrypto(uuid, initData),
-        forceAllowInsecureDecoderComponents);
+    return new FrameworkMediaCrypto(
+        adjustUuid(uuid), initData, forceAllowInsecureDecoderComponents);
+  }
+
+  @Override
+  public Class<FrameworkMediaCrypto> getExoMediaCryptoType() {
+    return FrameworkMediaCrypto.class;
   }
 
   private static SchemeData getSchemeData(UUID uuid, List<SchemeData> schemeDatas) {
@@ -230,8 +244,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
       for (int i = 0; i < schemeDatas.size(); i++) {
         SchemeData schemeData = schemeDatas.get(i);
         byte[] schemeDataData = Util.castNonNull(schemeData.data);
-        if (schemeData.requiresSecureDecryption == firstSchemeData.requiresSecureDecryption
-            && Util.areEqual(schemeData.mimeType, firstSchemeData.mimeType)
+        if (Util.areEqual(schemeData.mimeType, firstSchemeData.mimeType)
             && Util.areEqual(schemeData.licenseServerUrl, firstSchemeData.licenseServerUrl)
             && PsshAtomUtil.isPsshAtom(schemeDataData)) {
           concatenatedDataLength += schemeDataData.length;
@@ -271,7 +284,24 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
     return schemeDatas.get(0);
   }
 
+  private static UUID adjustUuid(UUID uuid) {
+    // ClearKey had to be accessed using the Common PSSH UUID prior to API level 27.
+    return Util.SDK_INT < 27 && C.CLEARKEY_UUID.equals(uuid) ? C.COMMON_PSSH_UUID : uuid;
+  }
+
   private static byte[] adjustRequestInitData(UUID uuid, byte[] initData) {
+    // TODO: Add API level check once [Internal ref: b/112142048] is fixed.
+    if (C.PLAYREADY_UUID.equals(uuid)) {
+      byte[] schemeSpecificData = PsshAtomUtil.parseSchemeSpecificData(initData, uuid);
+      if (schemeSpecificData == null) {
+        // The init data is not contained in a pssh box.
+        schemeSpecificData = initData;
+      }
+      initData =
+          PsshAtomUtil.buildPsshAtom(
+              C.PLAYREADY_UUID, addLaUrlAttributeIfMissing(schemeSpecificData));
+    }
+
     // Prior to L the Widevine CDM required data to be extracted from the PSSH atom. Some Amazon
     // devices also required data to be extracted from the PSSH atom for PlayReady.
     if ((Util.SDK_INT < 21 && C.WIDEVINE_UUID.equals(uuid))
@@ -318,5 +348,48 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
    */
   private static boolean needsForceWidevineL3Workaround() {
     return "ASUS_Z00AD".equals(Util.MODEL);
+  }
+
+  /**
+   * If the LA_URL tag is missing, injects a mock LA_URL value to avoid causing the CDM to throw
+   * when creating the key request. The LA_URL attribute is optional but some Android PlayReady
+   * implementations are known to require it. Does nothing it the provided {@code data} already
+   * contains an LA_URL value.
+   */
+  private static byte[] addLaUrlAttributeIfMissing(byte[] data) {
+    ParsableByteArray byteArray = new ParsableByteArray(data);
+    // See https://docs.microsoft.com/en-us/playready/specifications/specifications for more
+    // information about the init data format.
+    int length = byteArray.readLittleEndianInt();
+    int objectRecordCount = byteArray.readLittleEndianShort();
+    int recordType = byteArray.readLittleEndianShort();
+    if (objectRecordCount != 1 || recordType != 1) {
+      Log.i(TAG, "Unexpected record count or type. Skipping LA_URL workaround.");
+      return data;
+    }
+    int recordLength = byteArray.readLittleEndianShort();
+    String xml = byteArray.readString(recordLength, Charset.forName(C.UTF16LE_NAME));
+    if (xml.contains("<LA_URL>")) {
+      // LA_URL already present. Do nothing.
+      return data;
+    }
+    // This PlayReady object record does not include an LA_URL. We add a mock value for it.
+    int endOfDataTagIndex = xml.indexOf("</DATA>");
+    if (endOfDataTagIndex == -1) {
+      Log.w(TAG, "Could not find the </DATA> tag. Skipping LA_URL workaround.");
+    }
+    String xmlWithMockLaUrl =
+        xml.substring(/* beginIndex= */ 0, /* endIndex= */ endOfDataTagIndex)
+            + MOCK_LA_URL
+            + xml.substring(/* beginIndex= */ endOfDataTagIndex);
+    int extraBytes = MOCK_LA_URL.length() * UTF_16_BYTES_PER_CHARACTER;
+    ByteBuffer newData = ByteBuffer.allocate(length + extraBytes);
+    newData.order(ByteOrder.LITTLE_ENDIAN);
+    newData.putInt(length + extraBytes);
+    newData.putShort((short) objectRecordCount);
+    newData.putShort((short) recordType);
+    newData.putShort((short) (xmlWithMockLaUrl.length() * UTF_16_BYTES_PER_CHARACTER));
+    newData.put(xmlWithMockLaUrl.getBytes(Charset.forName(C.UTF16LE_NAME)));
+    return newData.array();
   }
 }

@@ -19,6 +19,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 import android.net.Uri;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -39,11 +41,9 @@ import java.util.Random;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
 /** Seeking tests for {@link PsExtractor}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class PsExtractorSeekTest {
 
   private static final String PS_FILE_PATH = "ts/elephants_dream.mpg";
@@ -63,11 +63,12 @@ public final class PsExtractorSeekTest {
   public void setUp() throws IOException, InterruptedException {
     expectedOutput = new FakeExtractorOutput();
     positionHolder = new PositionHolder();
-    extractAllSamplesFromFileToExpectedOutput(RuntimeEnvironment.application, PS_FILE_PATH);
+    extractAllSamplesFromFileToExpectedOutput(
+        ApplicationProvider.getApplicationContext(), PS_FILE_PATH);
     expectedTrackOutput = expectedOutput.trackOutputs.get(VIDEO_TRACK_ID);
 
     dataSource =
-        new DefaultDataSourceFactory(RuntimeEnvironment.application, "UserAgent")
+        new DefaultDataSourceFactory(ApplicationProvider.getApplicationContext(), "UserAgent")
             .createDataSource();
     totalInputLength = readInputLength();
   }

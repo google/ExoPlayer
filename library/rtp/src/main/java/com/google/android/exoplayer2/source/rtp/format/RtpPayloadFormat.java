@@ -15,9 +15,9 @@
  */
 package com.google.android.exoplayer2.source.rtp.format;
 
-import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
-import android.support.annotation.StringDef;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringDef;
 
 import com.google.android.exoplayer2.util.MimeTypes;
 

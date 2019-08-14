@@ -19,11 +19,15 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.database.DatabaseProvider;
+import com.google.android.exoplayer2.database.DefaultDatabaseProvider;
 import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
@@ -153,6 +157,23 @@ public class TestUtil {
 
   public static Bitmap readBitmapFromFile(Context context, String fileName) throws IOException {
     return BitmapFactory.decodeStream(getInputStream(context, fileName));
+  }
+
+  public static DatabaseProvider getTestDatabaseProvider() {
+    // Provides an in-memory database.
+    return new DefaultDatabaseProvider(
+        new SQLiteOpenHelper(
+            /* context= */ null, /* name= */ null, /* factory= */ null, /* version= */ 1) {
+          @Override
+          public void onCreate(SQLiteDatabase db) {
+            // Do nothing.
+          }
+
+          @Override
+          public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+            // Do nothing.
+          }
+        });
   }
 
   /**

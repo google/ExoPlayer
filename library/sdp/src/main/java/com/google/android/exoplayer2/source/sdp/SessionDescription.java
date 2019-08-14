@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.source.sdp;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.google.android.exoplayer2.source.sdp.core.Attribute;
 import com.google.android.exoplayer2.source.sdp.core.Bandwidth;

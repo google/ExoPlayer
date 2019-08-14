@@ -12,6 +12,7 @@
   <string name="exo_controls_repeat_all_description">Phinda konke</string>
   <string name="exo_controls_shuffle_description">Shova</string>
   <string name="exo_controls_fullscreen_description">Imodi yesikrini esigcwele</string>
+  <string name="exo_controls_vr_description">Inqubo ye-VR</string>
   <string name="exo_download_description">Landa</string>
   <string name="exo_download_notification_channel_name">Ukulandwa</string>
   <string name="exo_download_downloading">Iyalanda</string>
@@ -30,6 +31,10 @@
   <string name="exo_track_surround">Umsindo ozungelezile</string>
   <string name="exo_track_surround_5_point_1">Umsindo ozungelezile ongu-5.1</string>
   <string name="exo_track_surround_7_point_1">Umsindo ozungelezile ongu-7.1</string>
+  <string name="exo_track_role_alternate">Okunye</string>
+  <string name="exo_track_role_supplementary">Okungeziwe</string>
+  <string name="exo_track_role_commentary">Abahlaziyi</string>
+  <string name="exo_track_role_closed_captions">CC</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>

@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.source.rtp.upstream;
 
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 
 import com.google.android.exoplayer2.source.rtp.RtpPacket;
 import com.google.android.exoplayer2.source.rtp.rtcp.RtcpCompoundPacket;

@@ -22,7 +22,8 @@ import java.nio.charset.Charset;
 /** Data for DASH downloading tests. */
 /* package */ interface DashDownloadTestData {
 
-  Uri TEST_MPD_URI = Uri.parse("test.mpd");
+  String TEST_ID = "test.mpd";
+  Uri TEST_MPD_URI = Uri.parse(TEST_ID);
 
   byte[] TEST_MPD =
       ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"

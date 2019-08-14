@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.source.rtp.extractor;
 
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.google.android.exoplayer2.source.rtp.format.RtpAudioPayload;
 import com.google.android.exoplayer2.source.rtp.format.RtpPayloadFormat;
@@ -28,7 +28,8 @@ import com.google.android.exoplayer2.util.MimeTypes;
  */
 /*package*/ final class DefaultRtpPayloadReaderFactory implements RtpPayloadReader.Factory {
 
-  @NonNull @Override
+  @NonNull
+  @Override
   public RtpPayloadReader createPayloadReader(RtpPayloadFormat format) {
     if (MimeTypes.VIDEO_H264.equals(format.sampleMimeType())) {
       return new RtpH264PayloadReader((RtpVideoPayload) format);

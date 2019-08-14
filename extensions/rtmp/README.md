@@ -3,7 +3,7 @@
 The RTMP extension is a [DataSource][] implementation for playing [RTMP][]
 streams using [LibRtmp Client for Android][].
 
-[DataSource]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/upstream/DataSource.html
+[DataSource]: https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/upstream/DataSource.html
 [RTMP]: https://en.wikipedia.org/wiki/Real-Time_Messaging_Protocol
 [LibRtmp Client for Android]: https://github.com/ant-media/LibRtmp-Client-for-Android
 
@@ -39,7 +39,7 @@ either instantiated and injected from application code, or obtained from
 instances of `DataSource.Factory` that are instantiated and injected from
 application code.
 
-`DefaultDataSource` will automatically use uses the RTMP extension whenever it's
+`DefaultDataSource` will automatically use the RTMP extension whenever it's
 available. Hence if your application is using `DefaultDataSource` or
 `DefaultDataSourceFactory`, adding support for RTMP streams is as simple as
 adding a dependency to the RTMP extension as described above. No changes to your
@@ -53,4 +53,4 @@ doesn't need to handle any other protocols, you can update any `DataSource`s and
 * [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.rtmp.*`
   belong to this module.
 
-[Javadoc]: https://google.github.io/ExoPlayer/doc/reference/index.html
+[Javadoc]: https://exoplayer.dev/doc/reference/index.html

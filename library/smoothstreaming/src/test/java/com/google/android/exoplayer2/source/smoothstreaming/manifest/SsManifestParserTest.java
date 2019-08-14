@@ -16,15 +16,15 @@
 package com.google.android.exoplayer2.source.smoothstreaming.manifest;
 
 import android.net.Uri;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
 /** Unit tests for {@link SsManifestParser}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class SsManifestParserTest {
 
   private static final String SAMPLE_ISMC_1 = "sample_ismc_1";
@@ -36,9 +36,9 @@ public final class SsManifestParserTest {
     SsManifestParser parser = new SsManifestParser();
     parser.parse(
         Uri.parse("https://example.com/test.ismc"),
-        TestUtil.getInputStream(RuntimeEnvironment.application, SAMPLE_ISMC_1));
+        TestUtil.getInputStream(ApplicationProvider.getApplicationContext(), SAMPLE_ISMC_1));
     parser.parse(
         Uri.parse("https://example.com/test.ismc"),
-        TestUtil.getInputStream(RuntimeEnvironment.application, SAMPLE_ISMC_2));
+        TestUtil.getInputStream(ApplicationProvider.getApplicationContext(), SAMPLE_ISMC_2));
   }
 }

@@ -12,6 +12,7 @@
   <string name="exo_controls_repeat_all_description">Kartoti viską</string>
   <string name="exo_controls_shuffle_description">Maišyti</string>
   <string name="exo_controls_fullscreen_description">Viso ekrano režimas</string>
+  <string name="exo_controls_vr_description">VR režimas</string>
   <string name="exo_download_description">Atsisiųsti</string>
   <string name="exo_download_notification_channel_name">Atsisiuntimai</string>
   <string name="exo_download_downloading">Atsisiunčiama</string>
@@ -30,6 +31,10 @@
   <string name="exo_track_surround">Erdvinis garsas</string>
   <string name="exo_track_surround_5_point_1">5.1 erdvinis garsas</string>
   <string name="exo_track_surround_7_point_1">7.1 erdvinis garsas</string>
+  <string name="exo_track_role_alternate">Alternatyvus</string>
+  <string name="exo_track_role_supplementary">Papildomas</string>
+  <string name="exo_track_role_commentary">Komentaras</string>
+  <string name="exo_track_role_closed_captions">Subtitrai</string>
   <string name="exo_track_bitrate">%1$.2f Mb/s</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>

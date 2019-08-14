@@ -12,6 +12,7 @@
   <string name="exo_controls_repeat_all_description">Opakovať všetko</string>
   <string name="exo_controls_shuffle_description">Náhodne prehrávať</string>
   <string name="exo_controls_fullscreen_description">Režim celej obrazovky</string>
+  <string name="exo_controls_vr_description">režim VR</string>
   <string name="exo_download_description">Stiahnuť</string>
   <string name="exo_download_notification_channel_name">Stiahnuté</string>
   <string name="exo_download_downloading">Sťahuje sa</string>
@@ -30,6 +31,10 @@
   <string name="exo_track_surround">Priestorový zvuk</string>
   <string name="exo_track_surround_5_point_1">Priestorový zvuk 5.1</string>
   <string name="exo_track_surround_7_point_1">Priestorový zvuk 7.1</string>
+  <string name="exo_track_role_alternate">Alternatívna stopa</string>
+  <string name="exo_track_role_supplementary">Doplnková stopa</string>
+  <string name="exo_track_role_commentary">Komentár</string>
+  <string name="exo_track_role_closed_captions">Skryté titulky</string>
   <string name="exo_track_bitrate">%1$.2f MB/s</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>

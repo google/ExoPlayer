@@ -12,6 +12,7 @@
   <string name="exo_controls_repeat_all_description">全部重複播放</string>
   <string name="exo_controls_shuffle_description">隨機播放</string>
   <string name="exo_controls_fullscreen_description">全螢幕模式</string>
+  <string name="exo_controls_vr_description">虛擬現實模式</string>
   <string name="exo_download_description">下載</string>
   <string name="exo_download_notification_channel_name">下載內容</string>
   <string name="exo_download_downloading">正在下載</string>
@@ -30,6 +31,10 @@
   <string name="exo_track_surround">環迴立體聲</string>
   <string name="exo_track_surround_5_point_1">5.1 環迴立體聲</string>
   <string name="exo_track_surround_7_point_1">7.1 環迴立體聲</string>
+  <string name="exo_track_role_alternate">其他</string>
+  <string name="exo_track_role_supplementary">附加</string>
+  <string name="exo_track_role_commentary">評論</string>
+  <string name="exo_track_role_closed_captions">字幕</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s、%2$s</string>
 </resources>

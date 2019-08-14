@@ -17,8 +17,8 @@ package com.google.android.exoplayer2.ui.spherical;
 
 import android.content.Context;
 import android.graphics.PointF;
-import android.support.annotation.BinderThread;
-import android.support.annotation.Nullable;
+import androidx.annotation.BinderThread;
+import androidx.annotation.Nullable;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -44,7 +44,6 @@ import android.view.View;
  * a nicer UI. An even more advanced UI would reproject the user's touch point into 3D and drag the
  * Mesh as the user moves their finger. However, that requires quaternion interpolation.
  */
-// @VisibleForTesting
 /* package */ class TouchTracker extends GestureDetector.SimpleOnGestureListener
     implements View.OnTouchListener, OrientationListener.Listener {
 
@@ -66,7 +65,7 @@ import android.view.View;
   // The conversion from touch to yaw & pitch requires compensating for device roll. This is set
   // on the sensor thread and read on the UI thread.
   private volatile float roll;
-  private @Nullable SingleTapListener singleTapListener;
+  @Nullable private SingleTapListener singleTapListener;
 
   @SuppressWarnings({
     "nullness:assignment.type.incompatible",

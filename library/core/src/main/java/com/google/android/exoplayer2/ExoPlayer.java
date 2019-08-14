@@ -16,15 +16,15 @@
 package com.google.android.exoplayer2;
 
 import android.os.Looper;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
 import com.google.android.exoplayer2.source.ClippingMediaSource;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.LoopingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MergingMediaSource;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.SingleSampleMediaSource;
 import com.google.android.exoplayer2.text.TextRenderer;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
@@ -48,7 +48,7 @@ import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
  *   <li>A <b>{@link MediaSource}</b> that defines the media to be played, loads the media, and from
  *       which the loaded media can be read. A MediaSource is injected via {@link
  *       #prepare(MediaSource)} at the start of playback. The library modules provide default
- *       implementations for regular media files ({@link ExtractorMediaSource}), DASH
+ *       implementations for progressive media files ({@link ProgressiveMediaSource}), DASH
  *       (DashMediaSource), SmoothStreaming (SsMediaSource) and HLS (HlsMediaSource), an
  *       implementation for loading single media samples ({@link SingleSampleMediaSource}) that's
  *       most often used for side-loaded subtitle files, and implementations for building more
@@ -117,30 +117,6 @@ import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
  */
 public interface ExoPlayer extends Player {
 
-  /** @deprecated Use {@link PlayerMessage.Target} instead. */
-  @Deprecated
-  interface ExoPlayerComponent extends PlayerMessage.Target {}
-
-  /** @deprecated Use {@link PlayerMessage} instead. */
-  @Deprecated
-  final class ExoPlayerMessage {
-
-    /** The target to receive the message. */
-    public final PlayerMessage.Target target;
-    /** The type of the message. */
-    public final int messageType;
-    /** The message. */
-    public final Object message;
-
-    /** @deprecated Use {@link ExoPlayer#createMessage(PlayerMessage.Target)} instead. */
-    @Deprecated
-    public ExoPlayerMessage(PlayerMessage.Target target, int messageType, Object message) {
-      this.target = target;
-      this.messageType = messageType;
-      this.message = message;
-    }
-  }
-
   /** Returns the {@link Looper} associated with the playback thread. */
   Looper getPlaybackLooper();
 
@@ -153,18 +129,12 @@ public interface ExoPlayer extends Player {
   /**
    * Prepares the player to play the provided {@link MediaSource}. Equivalent to
    * {@code prepare(mediaSource, true, true)}.
-   * <p>
-   * Note: {@link MediaSource} instances are not designed to be re-used. If you want to prepare a
-   * player more than once with the same piece of media, use a new instance each time.
    */
   void prepare(MediaSource mediaSource);
 
   /**
    * Prepares the player to play the provided {@link MediaSource}, optionally resetting the playback
    * position the default position in the first {@link Timeline.Window}.
-   * <p>
-   * Note: {@link MediaSource} instances are not designed to be re-used. If you want to prepare a
-   * player more than once with the same piece of media, use a new instance each time.
    *
    * @param mediaSource The {@link MediaSource} to play.
    * @param resetPosition Whether the playback position should be reset to the default position in
@@ -187,19 +157,6 @@ public interface ExoPlayer extends Player {
    */
   PlayerMessage createMessage(PlayerMessage.Target target);
 
-  /** @deprecated Use {@link #createMessage(PlayerMessage.Target)} instead. */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  void sendMessages(ExoPlayerMessage... messages);
-
-  /**
-   * @deprecated Use {@link #createMessage(PlayerMessage.Target)} with {@link
-   *     PlayerMessage#blockUntilDelivered()}.
-   */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  void blockingSendMessages(ExoPlayerMessage... messages);
-
   /**
    * Sets the parameters that control how seek operations are performed.
    *
@@ -209,4 +166,34 @@ public interface ExoPlayer extends Player {
 
   /** Returns the currently active {@link SeekParameters} of the player. */
   SeekParameters getSeekParameters();
+
+  /**
+   * Sets whether the player is allowed to keep holding limited resources such as video decoders,
+   * even when in the idle state. By doing so, the player may be able to reduce latency when
+   * starting to play another piece of content for which the same resources are required.
+   *
+   * <p>This mode should be used with caution, since holding limited resources may prevent other
+   * players of media components from acquiring them. It should only be enabled when <em>both</em>
+   * of the following conditions are true:
+   *
+   * <ul>
+   *   <li>The application that owns the player is in the foreground.
+   *   <li>The player is used in a way that may benefit from foreground mode. For this to be true,
+   *       the same player instance must be used to play multiple pieces of content, and there must
+   *       be gaps between the playbacks (i.e. {@link #stop} is called to halt one playback, and
+   *       {@link #prepare} is called some time later to start a new one).
+   * </ul>
+   *
+   * <p>Note that foreground mode is <em>not</em> useful for switching between content without gaps
+   * between the playbacks. For this use case {@link #stop} does not need to be called, and simply
+   * calling {@link #prepare} for the new media will cause limited resources to be retained even if
+   * foreground mode is not enabled.
+   *
+   * <p>If foreground mode is enabled, it's the application's responsibility to disable it when the
+   * conditions described above no longer hold.
+   *
+   * @param foregroundMode Whether the player is allowed to keep limited resources even when in the
+   *     idle state.
+   */
+  void setForegroundMode(boolean foregroundMode);
 }

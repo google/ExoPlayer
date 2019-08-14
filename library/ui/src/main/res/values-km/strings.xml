@@ -12,6 +12,7 @@
   <string name="exo_controls_repeat_all_description">លេង​ឡើងវិញ​ទាំងអស់</string>
   <string name="exo_controls_shuffle_description">ច្របល់</string>
   <string name="exo_controls_fullscreen_description">មុខងារពេញ​អេក្រង់</string>
+  <string name="exo_controls_vr_description">មុខងារ VR</string>
   <string name="exo_download_description">ទាញយក</string>
   <string name="exo_download_notification_channel_name">ទាញយក</string>
   <string name="exo_download_downloading">កំពុង​ទាញ​យក</string>
@@ -30,6 +31,10 @@
   <string name="exo_track_surround">សំឡេង​រងំ</string>
   <string name="exo_track_surround_5_point_1">សំឡេង​រងំ​ខ្នាត 5.1</string>
   <string name="exo_track_surround_7_point_1">សំឡេង​រងំ​ខ្នាត 7.1</string>
+  <string name="exo_track_role_alternate">ជំនួស</string>
+  <string name="exo_track_role_supplementary">បំពេញបន្ថែម</string>
+  <string name="exo_track_role_commentary">ការអត្ថាធិប្បាយ</string>
+  <string name="exo_track_role_closed_captions">អក្សររត់</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>

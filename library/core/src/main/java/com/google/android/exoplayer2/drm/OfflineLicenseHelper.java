@@ -19,7 +19,7 @@ import android.media.MediaDrm;
 import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager.Mode;
@@ -92,7 +92,7 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
    * @throws UnsupportedDrmException If the Widevine DRM scheme is unsupported or cannot be
    *     instantiated.
    * @see DefaultDrmSessionManager#DefaultDrmSessionManager(java.util.UUID, ExoMediaDrm,
-   *     MediaDrmCallback, HashMap, Handler, DefaultDrmSessionEventListener)
+   *     MediaDrmCallback, HashMap)
    */
   public static OfflineLicenseHelper<FrameworkMediaCrypto> newWidevineInstance(
       String defaultLicenseUrl,
@@ -115,7 +115,7 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
    * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
    *     to {@link MediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap)}. May be null.
    * @see DefaultDrmSessionManager#DefaultDrmSessionManager(java.util.UUID, ExoMediaDrm,
-   *     MediaDrmCallback, HashMap, Handler, DefaultDrmSessionEventListener)
+   *     MediaDrmCallback, HashMap)
    */
   public OfflineLicenseHelper(
       UUID uuid,
@@ -235,7 +235,7 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
     DrmSessionException error = drmSession.getError();
     Pair<Long, Long> licenseDurationRemainingSec =
         WidevineUtil.getLicenseDurationRemainingSec(drmSession);
-    drmSessionManager.releaseSession(drmSession);
+    drmSession.releaseReference();
     if (error != null) {
       if (error.getCause() instanceof KeysExpiredException) {
         return Pair.create(0L, 0L);
@@ -259,7 +259,7 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
         drmInitData);
     DrmSessionException error = drmSession.getError();
     byte[] keySetId = drmSession.getOfflineLicenseKeySetId();
-    drmSessionManager.releaseSession(drmSession);
+    drmSession.releaseReference();
     if (error != null) {
       throw error;
     }

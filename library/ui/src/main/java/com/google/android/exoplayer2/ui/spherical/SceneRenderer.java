@@ -20,7 +20,7 @@ import static com.google.android.exoplayer2.util.GlUtil.checkGlError;
 import android.graphics.SurfaceTexture;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Assertions;
@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Renders a GL Scene. */
-/* package */ class SceneRenderer implements VideoFrameMetadataListener, CameraMotionListener {
+public final class SceneRenderer implements VideoFrameMetadataListener, CameraMotionListener {
 
   private final AtomicBoolean frameAvailable;
   private final AtomicBoolean resetRotationAtNextFrame;
@@ -54,7 +54,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   // Used by other threads only
   private volatile @C.StreamType int defaultStereoMode;
   private @C.StreamType int lastStereoMode;
-  private @Nullable byte[] lastProjectionData;
+  @Nullable private byte[] lastProjectionData;
 
   // Methods called on any thread.
 
@@ -129,6 +129,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
     Matrix.multiplyMM(tempMatrix, 0, viewProjectionMatrix, 0, rotationMatrix, 0);
     projectionRenderer.draw(textureId, tempMatrix, rightEye);
+  }
+
+  /** Cleans up the GL resources. */
+  public void shutdown() {
+    projectionRenderer.shutdown();
   }
 
   // Methods called on playback thread.

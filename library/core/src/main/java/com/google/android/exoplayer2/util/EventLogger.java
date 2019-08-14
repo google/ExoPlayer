@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.util;
 
 import android.os.SystemClock;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -54,7 +54,7 @@ public class EventLogger implements AnalyticsListener {
     TIME_FORMAT.setGroupingUsed(false);
   }
 
-  private final @Nullable MappingTrackSelector trackSelector;
+  @Nullable private final MappingTrackSelector trackSelector;
   private final String tag;
   private final Timeline.Window window;
   private final Timeline.Period period;
@@ -93,7 +93,8 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
-  public void onPlayerStateChanged(EventTime eventTime, boolean playWhenReady, int state) {
+  public void onPlayerStateChanged(
+      EventTime eventTime, boolean playWhenReady, @Player.State int state) {
     logd(eventTime, "state", playWhenReady + ", " + getStateString(state));
   }
 

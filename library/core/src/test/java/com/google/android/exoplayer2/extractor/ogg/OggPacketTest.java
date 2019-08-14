@@ -17,6 +17,8 @@ package com.google.android.exoplayer2.extractor.ogg;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.OggTestData;
 import com.google.android.exoplayer2.testutil.TestUtil;
@@ -27,11 +29,9 @@ import java.util.Random;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
 /** Unit test for {@link OggPacket}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class OggPacketTest {
 
   private static final String TEST_FILE = "ogg/bear.opus";
@@ -233,7 +233,7 @@ public final class OggPacketTest {
 
   @Test
   public void testParseRealFile() throws IOException, InterruptedException {
-    byte[] data = TestUtil.getByteArray(RuntimeEnvironment.application, TEST_FILE);
+    byte[] data = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TEST_FILE);
     FakeExtractorInput input = new FakeExtractorInput.Builder().setData(data).build();
     int packetCounter = 0;
     while (readPacket(input)) {

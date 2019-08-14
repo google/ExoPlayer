@@ -12,6 +12,7 @@
   <string name="exo_controls_repeat_all_description">Rudia zote</string>
   <string name="exo_controls_shuffle_description">Changanya</string>
   <string name="exo_controls_fullscreen_description">Hali ya skrini nzima</string>
+  <string name="exo_controls_vr_description">Hali ya Uhalisia Pepe</string>
   <string name="exo_download_description">Pakua</string>
   <string name="exo_download_notification_channel_name">Vipakuliwa</string>
   <string name="exo_download_downloading">Inapakua</string>
@@ -20,7 +21,7 @@
   <string name="exo_download_removing">Inaondoa vipakuliwa</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Sauti</string>
-  <string name="exo_track_selection_title_text">SMS</string>
+  <string name="exo_track_selection_title_text">Maandishi</string>
   <string name="exo_track_selection_none">Hamna</string>
   <string name="exo_track_selection_auto">Otomatiki</string>
   <string name="exo_track_unknown">Haijulikani</string>
@@ -30,6 +31,10 @@
   <string name="exo_track_surround">Sauti ya mzunguko</string>
   <string name="exo_track_surround_5_point_1">Sauti ya mzunguko ya 5.1</string>
   <string name="exo_track_surround_7_point_1">Sauti ya mzunguko ya 7.1</string>
+  <string name="exo_track_role_alternate">Mbadala</string>
+  <string name="exo_track_role_supplementary">Wa ziada</string>
+  <string name="exo_track_role_commentary">Uchambuzi</string>
+  <string name="exo_track_role_closed_captions">Manukuu</string>
   <string name="exo_track_bitrate">Mbps %1$.2f</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>

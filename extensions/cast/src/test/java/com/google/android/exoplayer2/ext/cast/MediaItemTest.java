@@ -18,75 +18,69 @@ package com.google.android.exoplayer2.ext.cast;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.MimeTypes;
-import java.util.UUID;
+import java.util.HashMap;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
 /** Test for {@link MediaItem}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class MediaItemTest {
-
-  @Test
-  public void buildMediaItem_resetsUuid() {
-    MediaItem.Builder builder = new MediaItem.Builder();
-    UUID uuid = new UUID(1, 1);
-    MediaItem item1 = builder.setUuid(uuid).build();
-    MediaItem item2 = builder.build();
-    MediaItem item3 = builder.build();
-    assertThat(item1.uuid).isEqualTo(uuid);
-    assertThat(item2.uuid).isNotEqualTo(uuid);
-    assertThat(item3.uuid).isNotEqualTo(item2.uuid);
-    assertThat(item3.uuid).isNotEqualTo(uuid);
-  }
 
   @Test
   public void buildMediaItem_doesNotChangeState() {
     MediaItem.Builder builder = new MediaItem.Builder();
     MediaItem item1 =
         builder
-            .setMedia("http://example.com")
+            .setUri(Uri.parse("http://example.com"))
             .setTitle("title")
             .setMimeType(MimeTypes.AUDIO_MP4)
-            .setStartPositionUs(3)
-            .setEndPositionUs(4)
             .build();
     MediaItem item2 = builder.build();
-    assertThat(item1.title).isEqualTo(item2.title);
-    assertThat(item1.media.uri).isEqualTo(item2.media.uri);
-    assertThat(item1.mimeType).isEqualTo(item2.mimeType);
-    assertThat(item1.startPositionUs).isEqualTo(item2.startPositionUs);
-    assertThat(item1.endPositionUs).isEqualTo(item2.endPositionUs);
+    assertThat(item1).isEqualTo(item2);
   }
 
   @Test
-  public void buildMediaItem_assertDefaultValues() {
-    assertDefaultValues(new MediaItem.Builder().build());
+  public void equals_withEqualDrmSchemes_returnsTrue() {
+    MediaItem.Builder builder1 = new MediaItem.Builder();
+    MediaItem mediaItem1 =
+        builder1
+            .setUri(Uri.parse("www.google.com"))
+            .setDrmConfiguration(buildDrmConfiguration(1))
+            .build();
+    MediaItem.Builder builder2 = new MediaItem.Builder();
+    MediaItem mediaItem2 =
+        builder2
+            .setUri(Uri.parse("www.google.com"))
+            .setDrmConfiguration(buildDrmConfiguration(1))
+            .build();
+    assertThat(mediaItem1).isEqualTo(mediaItem2);
   }
 
   @Test
-  public void buildMediaItem_testClear() {
-    MediaItem.Builder builder = new MediaItem.Builder();
-    builder
-        .setMedia("http://example.com")
-        .setTitle("title")
-        .setMimeType(MimeTypes.AUDIO_MP4)
-        .setStartPositionUs(3)
-        .setEndPositionUs(4)
-        .buildAndClear();
-    assertDefaultValues(builder.build());
+  public void equals_withDifferentDrmRequestHeaders_returnsFalse() {
+    MediaItem.Builder builder1 = new MediaItem.Builder();
+    MediaItem mediaItem1 =
+        builder1
+            .setUri(Uri.parse("www.google.com"))
+            .setDrmConfiguration(buildDrmConfiguration(1))
+            .build();
+    MediaItem.Builder builder2 = new MediaItem.Builder();
+    MediaItem mediaItem2 =
+        builder2
+            .setUri(Uri.parse("www.google.com"))
+            .setDrmConfiguration(buildDrmConfiguration(2))
+            .build();
+    assertThat(mediaItem1).isNotEqualTo(mediaItem2);
   }
 
-  private static void assertDefaultValues(MediaItem item) {
-    assertThat(item.title).isEmpty();
-    assertThat(item.description).isEmpty();
-    assertThat(item.media.uri).isEqualTo(Uri.EMPTY);
-    assertThat(item.attachment).isNull();
-    assertThat(item.drmSchemes).isEmpty();
-    assertThat(item.startPositionUs).isEqualTo(C.TIME_UNSET);
-    assertThat(item.endPositionUs).isEqualTo(C.TIME_UNSET);
-    assertThat(item.mimeType).isEmpty();
+  private static MediaItem.DrmConfiguration buildDrmConfiguration(int seed) {
+    HashMap<String, String> requestHeaders = new HashMap<>();
+    requestHeaders.put("key1", "value1");
+    requestHeaders.put("key2", "value2" + seed);
+    return new MediaItem.DrmConfiguration(
+        C.WIDEVINE_UUID, Uri.parse("www.uri1.com"), requestHeaders);
   }
 }

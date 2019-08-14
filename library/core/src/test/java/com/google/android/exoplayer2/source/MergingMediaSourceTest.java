@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MergingMediaSource.IllegalMergeException;
@@ -25,16 +26,14 @@ import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.testutil.MediaSourceTestRunner;
-import com.google.android.exoplayer2.testutil.RobolectricUtil;
 import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
+import org.robolectric.annotation.LooperMode;
 
 /** Unit tests for {@link MergingMediaSource}. */
-@RunWith(RobolectricTestRunner.class)
-@Config(shadows = {RobolectricUtil.CustomLooper.class, RobolectricUtil.CustomMessageQueue.class})
+@RunWith(AndroidJUnit4.class)
+@LooperMode(LooperMode.Mode.PAUSED)
 public class MergingMediaSourceTest {
 
   @Test
@@ -69,8 +68,7 @@ public class MergingMediaSourceTest {
   public void testMergingMediaSourcePeriodCreation() throws Exception {
     FakeMediaSource[] mediaSources = new FakeMediaSource[2];
     for (int i = 0; i < mediaSources.length; i++) {
-      mediaSources[i] =
-          new FakeMediaSource(new FakeTimeline(/* windowCount= */ 2), /* manifest= */ null);
+      mediaSources[i] = new FakeMediaSource(new FakeTimeline(/* windowCount= */ 2));
     }
     MergingMediaSource mediaSource = new MergingMediaSource(mediaSources);
     MediaSourceTestRunner testRunner = new MediaSourceTestRunner(mediaSource, null);
@@ -93,7 +91,7 @@ public class MergingMediaSourceTest {
   private static void testMergingMediaSourcePrepare(Timeline... timelines) throws IOException {
     FakeMediaSource[] mediaSources = new FakeMediaSource[timelines.length];
     for (int i = 0; i < timelines.length; i++) {
-      mediaSources[i] = new FakeMediaSource(timelines[i], null);
+      mediaSources[i] = new FakeMediaSource(timelines[i]);
     }
     MergingMediaSource mergingMediaSource = new MergingMediaSource(mediaSources);
     MediaSourceTestRunner testRunner = new MediaSourceTestRunner(mergingMediaSource, null);
