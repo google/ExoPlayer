@@ -27,6 +27,6 @@ public interface CameraMotionListener {
    */
   void onCameraMotion(long timeUs, float[] rotation);
 
-  /** Called when the camera motion track position is reset. */
+  /** Called when the camera motion track position is reset or the track is disabled. */
   void onCameraMotionReset();
 }

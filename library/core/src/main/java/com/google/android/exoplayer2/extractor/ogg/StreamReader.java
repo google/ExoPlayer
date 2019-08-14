@@ -91,7 +91,8 @@ import java.io.IOException;
       reset(!seekMapSet);
     } else {
       if (state != STATE_READ_HEADERS) {
-        targetGranule = oggSeeker.startSeek(timeUs);
+        targetGranule = convertTimeToGranule(timeUs);
+        oggSeeker.startSeek(targetGranule);
         state = STATE_READ_PAYLOAD;
       }
     }
@@ -144,9 +145,15 @@ import java.io.IOException;
       oggSeeker = new UnseekableOggSeeker();
     } else {
       OggPageHeader firstPayloadPageHeader = oggPacket.getPageHeader();
-      oggSeeker = new DefaultOggSeeker(payloadStartPosition, input.getLength(), this,
-          firstPayloadPageHeader.headerSize + firstPayloadPageHeader.bodySize,
-          firstPayloadPageHeader.granulePosition);
+      boolean isLastPage = (firstPayloadPageHeader.type & 0x04) != 0; // Type 4 is end of stream.
+      oggSeeker =
+          new DefaultOggSeeker(
+              this,
+              payloadStartPosition,
+              input.getLength(),
+              firstPayloadPageHeader.headerSize + firstPayloadPageHeader.bodySize,
+              firstPayloadPageHeader.granulePosition,
+              isLastPage);
     }
 
     setupData = null;
@@ -242,13 +249,13 @@ import java.io.IOException;
   private static final class UnseekableOggSeeker implements OggSeeker {
 
     @Override
-    public long read(ExtractorInput input) throws IOException, InterruptedException {
+    public long read(ExtractorInput input) {
       return -1;
     }
 
     @Override
-    public long startSeek(long timeUs) {
-      return 0;
+    public void startSeek(long targetGranule) {
+      // Do nothing.
     }
 
     @Override

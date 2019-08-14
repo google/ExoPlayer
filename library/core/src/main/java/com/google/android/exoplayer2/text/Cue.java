@@ -17,8 +17,10 @@ package com.google.android.exoplayer2.text;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import android.text.Layout.Alignment;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -27,15 +29,17 @@ import java.lang.annotation.RetentionPolicy;
  */
 public class Cue {
 
-  /**
-   * An unset position or width.
-   */
+  /** The empty cue. */
+  public static final Cue EMPTY = new Cue("");
+
+  /** An unset position or width. */
   public static final float DIMEN_UNSET = Float.MIN_VALUE;
 
   /**
    * The type of anchor, which may be unset. One of {@link #TYPE_UNSET}, {@link #ANCHOR_TYPE_START},
    * {@link #ANCHOR_TYPE_MIDDLE} or {@link #ANCHOR_TYPE_END}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({TYPE_UNSET, ANCHOR_TYPE_START, ANCHOR_TYPE_MIDDLE, ANCHOR_TYPE_END})
   public @interface AnchorType {}
@@ -66,6 +70,7 @@ public class Cue {
    * The type of line, which may be unset. One of {@link #TYPE_UNSET}, {@link #LINE_TYPE_FRACTION}
    * or {@link #LINE_TYPE_NUMBER}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({TYPE_UNSET, LINE_TYPE_FRACTION, LINE_TYPE_NUMBER})
   public @interface LineType {}
@@ -85,6 +90,7 @@ public class Cue {
    * {@link #TEXT_SIZE_TYPE_FRACTIONAL}, {@link #TEXT_SIZE_TYPE_FRACTIONAL_IGNORE_PADDING} or {@link
    * #TEXT_SIZE_TYPE_ABSOLUTE}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     TYPE_UNSET,
@@ -107,17 +113,13 @@ public class Cue {
    * The cue text, or null if this is an image cue. Note the {@link CharSequence} may be decorated
    * with styling spans.
    */
-  public final CharSequence text;
+  @Nullable public final CharSequence text;
 
-  /**
-   * The alignment of the cue text within the cue box, or null if the alignment is undefined.
-   */
-  public final Alignment textAlignment;
+  /** The alignment of the cue text within the cue box, or null if the alignment is undefined. */
+  @Nullable public final Alignment textAlignment;
 
-  /**
-   * The cue image, or null if this is a text cue.
-   */
-  public final Bitmap bitmap;
+  /** The cue image, or null if this is a text cue. */
+  @Nullable public final Bitmap bitmap;
 
   /**
    * The position of the {@link #lineAnchor} of the cue box within the viewport in the direction
@@ -294,7 +296,7 @@ public class Cue {
    */
   public Cue(
       CharSequence text,
-      Alignment textAlignment,
+      @Nullable Alignment textAlignment,
       float line,
       @LineType int lineType,
       @AnchorType int lineAnchor,
@@ -372,7 +374,7 @@ public class Cue {
    */
   public Cue(
       CharSequence text,
-      Alignment textAlignment,
+      @Nullable Alignment textAlignment,
       float line,
       @LineType int lineType,
       @AnchorType int lineAnchor,
@@ -399,9 +401,9 @@ public class Cue {
   }
 
   private Cue(
-      CharSequence text,
-      Alignment textAlignment,
-      Bitmap bitmap,
+      @Nullable CharSequence text,
+      @Nullable Alignment textAlignment,
+      @Nullable Bitmap bitmap,
       float line,
       @LineType int lineType,
       @AnchorType int lineAnchor,

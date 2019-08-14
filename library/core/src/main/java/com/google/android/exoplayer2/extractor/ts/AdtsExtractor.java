@@ -15,8 +15,12 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
-import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
+import static com.google.android.exoplayer2.extractor.ts.TsPayloadReader.FLAG_DATA_ALIGNMENT_INDICATOR;
+import static com.google.android.exoplayer2.metadata.id3.Id3Decoder.ID3_HEADER_LENGTH;
+import static com.google.android.exoplayer2.metadata.id3.Id3Decoder.ID3_TAG;
+
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.ConstantBitrateSeekMap;
@@ -30,8 +34,8 @@ import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerat
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
-import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -47,6 +51,7 @@ public final class AdtsExtractor implements Extractor {
    * Flags controlling the behavior of the extractor. Possible flag value is {@link
    * #FLAG_ENABLE_CONSTANT_BITRATE_SEEKING}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
       flag = true,
@@ -62,7 +67,6 @@ public final class AdtsExtractor implements Extractor {
   public static final int FLAG_ENABLE_CONSTANT_BITRATE_SEEKING = 1;
 
   private static final int MAX_PACKET_SIZE = 2 * 1024;
-  private static final int ID3_TAG = Util.getIntegerCodeForString("ID3");
   /**
    * The maximum number of bytes to search when sniffing, excluding the header, before giving up.
    * Frame sizes are represented by 13-bit fields, so expect a valid frame in the first 8192 bytes.
@@ -80,9 +84,8 @@ public final class AdtsExtractor implements Extractor {
   private final ParsableByteArray packetBuffer;
   private final ParsableByteArray scratch;
   private final ParsableBitArray scratchBits;
-  private final long firstStreamSampleTimestampUs;
 
-  private @Nullable ExtractorOutput extractorOutput;
+  @Nullable private ExtractorOutput extractorOutput;
 
   private long firstSampleTimestampUs;
   private long firstFramePosition;
@@ -91,28 +94,24 @@ public final class AdtsExtractor implements Extractor {
   private boolean startedPacket;
   private boolean hasOutputSeekMap;
 
+  /** Creates a new extractor for ADTS bitstreams. */
   public AdtsExtractor() {
-    this(0);
-  }
-
-  public AdtsExtractor(long firstStreamSampleTimestampUs) {
-    this(/* firstStreamSampleTimestampUs= */ firstStreamSampleTimestampUs, /* flags= */ 0);
+    this(/* flags= */ 0);
   }
 
   /**
-   * @param firstStreamSampleTimestampUs The timestamp to be used for the first sample of the stream
-   *     output from this extractor.
+   * Creates a new extractor for ADTS bitstreams.
+   *
    * @param flags Flags that control the extractor's behavior.
    */
-  public AdtsExtractor(long firstStreamSampleTimestampUs, @Flags int flags) {
-    this.firstStreamSampleTimestampUs = firstStreamSampleTimestampUs;
-    this.firstSampleTimestampUs = firstStreamSampleTimestampUs;
+  public AdtsExtractor(@Flags int flags) {
     this.flags = flags;
     reader = new AdtsReader(true);
     packetBuffer = new ParsableByteArray(MAX_PACKET_SIZE);
     averageFrameSize = C.LENGTH_UNSET;
     firstFramePosition = C.POSITION_UNSET;
-    scratch = new ParsableByteArray(10);
+    // Allocate scratch space for an ID3 header. The same buffer is also used to read 4 byte values.
+    scratch = new ParsableByteArray(ID3_HEADER_LENGTH);
     scratchBits = new ParsableBitArray(scratch.data);
   }
 
@@ -169,7 +168,7 @@ public final class AdtsExtractor implements Extractor {
   public void seek(long position, long timeUs) {
     startedPacket = false;
     reader.seek();
-    firstSampleTimestampUs = firstStreamSampleTimestampUs + timeUs;
+    firstSampleTimestampUs = timeUs;
   }
 
   @Override
@@ -200,7 +199,7 @@ public final class AdtsExtractor implements Extractor {
 
     if (!startedPacket) {
       // Pass data to the reader as though it's contained within a single infinitely long packet.
-      reader.packetStarted(firstSampleTimestampUs, true);
+      reader.packetStarted(firstSampleTimestampUs, FLAG_DATA_ALIGNMENT_INDICATOR);
       startedPacket = true;
     }
     // TODO: Make it possible for reader to consume the dataSource directly, so that it becomes
@@ -212,7 +211,7 @@ public final class AdtsExtractor implements Extractor {
   private int peekId3Header(ExtractorInput input) throws IOException, InterruptedException {
     int firstFramePosition = 0;
     while (true) {
-      input.peekFully(scratch.data, 0, 10);
+      input.peekFully(scratch.data, /* offset= */ 0, ID3_HEADER_LENGTH);
       scratch.setPosition(0);
       if (scratch.readUnsignedInt24() != ID3_TAG) {
         break;

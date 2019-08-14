@@ -26,10 +26,14 @@ track 256:
     drmInitData = -
     initializationData:
       data = length 22, hash CE183139
-  total output bytes = 24315
-  sample count = 1
+  total output bytes = 45026
+  sample count = 2
   sample 0:
-    time = 55611
+    time = 55610
+    flags = 1
+    data = length 20711, hash 34341E8
+  sample 1:
+    time = 88977
     flags = 0
     data = length 18112, hash EC44B35B
 track 257:
@@ -57,19 +61,19 @@ track 257:
   total output bytes = 5015
   sample count = 4
   sample 0:
-    time = 11333
+    time = 44699
     flags = 1
     data = length 1253, hash 727FD1C6
   sample 1:
-    time = 37455
+    time = 70821
     flags = 1
     data = length 1254, hash 73FB07B8
   sample 2:
-    time = 63578
+    time = 96944
     flags = 1
     data = length 1254, hash 73FB07B8
   sample 3:
-    time = 89700
+    time = 123066
     flags = 1
     data = length 1254, hash 73FB07B8
 track 8448:

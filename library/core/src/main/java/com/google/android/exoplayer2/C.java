@@ -21,13 +21,14 @@ import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.MediaCodec;
 import android.media.MediaFormat;
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 import android.view.Surface;
 import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.UUID;
@@ -70,9 +71,10 @@ public final class C {
   /** Represents an unset or unknown percentage. */
   public static final int PERCENTAGE_UNSET = -1;
 
-  /**
-   * The number of microseconds in one second.
-   */
+  /** The number of milliseconds in one second. */
+  public static final long MILLIS_PER_SECOND = 1000L;
+
+  /** The number of microseconds in one second. */
   public static final long MICROS_PER_SECOND = 1000000L;
 
   /**
@@ -100,6 +102,9 @@ public final class C {
    */
   public static final String UTF16_NAME = "UTF-16";
 
+  /** The name of the UTF-16 little-endian charset. */
+  public static final String UTF16LE_NAME = "UTF-16LE";
+
   /**
    * The name of the serif font family.
    */
@@ -114,6 +119,7 @@ public final class C {
    * Crypto modes for a codec. One of {@link #CRYPTO_MODE_UNENCRYPTED}, {@link #CRYPTO_MODE_AES_CTR}
    * or {@link #CRYPTO_MODE_AES_CBC}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({CRYPTO_MODE_UNENCRYPTED, CRYPTO_MODE_AES_CTR, CRYPTO_MODE_AES_CBC})
   public @interface CryptoMode {}
@@ -141,9 +147,10 @@ public final class C {
    * {@link #ENCODING_INVALID}, {@link #ENCODING_PCM_8BIT}, {@link #ENCODING_PCM_16BIT}, {@link
    * #ENCODING_PCM_24BIT}, {@link #ENCODING_PCM_32BIT}, {@link #ENCODING_PCM_FLOAT}, {@link
    * #ENCODING_PCM_MU_LAW}, {@link #ENCODING_PCM_A_LAW}, {@link #ENCODING_AC3}, {@link
-   * #ENCODING_E_AC3}, {@link #ENCODING_DTS}, {@link #ENCODING_DTS_HD} or {@link
-   * #ENCODING_DOLBY_TRUEHD}.
+   * #ENCODING_E_AC3}, {@link #ENCODING_E_AC3_JOC}, {@link #ENCODING_AC4}, {@link #ENCODING_DTS},
+   * {@link #ENCODING_DTS_HD} or {@link #ENCODING_DOLBY_TRUEHD}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     Format.NO_VALUE,
@@ -157,9 +164,11 @@ public final class C {
     ENCODING_PCM_A_LAW,
     ENCODING_AC3,
     ENCODING_E_AC3,
+    ENCODING_E_AC3_JOC,
+    ENCODING_AC4,
     ENCODING_DTS,
     ENCODING_DTS_HD,
-    ENCODING_DOLBY_TRUEHD
+    ENCODING_DOLBY_TRUEHD,
   })
   public @interface Encoding {}
 
@@ -169,6 +178,7 @@ public final class C {
    * #ENCODING_PCM_24BIT}, {@link #ENCODING_PCM_32BIT}, {@link #ENCODING_PCM_FLOAT}, {@link
    * #ENCODING_PCM_MU_LAW} or {@link #ENCODING_PCM_A_LAW}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     Format.NO_VALUE,
@@ -202,6 +212,10 @@ public final class C {
   public static final int ENCODING_AC3 = AudioFormat.ENCODING_AC3;
   /** @see AudioFormat#ENCODING_E_AC3 */
   public static final int ENCODING_E_AC3 = AudioFormat.ENCODING_E_AC3;
+  /** @see AudioFormat#ENCODING_E_AC3_JOC */
+  public static final int ENCODING_E_AC3_JOC = AudioFormat.ENCODING_E_AC3_JOC;
+  /** @see AudioFormat#ENCODING_AC4 */
+  public static final int ENCODING_AC4 = AudioFormat.ENCODING_AC4;
   /** @see AudioFormat#ENCODING_DTS */
   public static final int ENCODING_DTS = AudioFormat.ENCODING_DTS;
   /** @see AudioFormat#ENCODING_DTS_HD */
@@ -215,6 +229,7 @@ public final class C {
    * #STREAM_TYPE_RING}, {@link #STREAM_TYPE_SYSTEM}, {@link #STREAM_TYPE_VOICE_CALL} or {@link
    * #STREAM_TYPE_USE_DEFAULT}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     STREAM_TYPE_ALARM,
@@ -269,6 +284,7 @@ public final class C {
    * #CONTENT_TYPE_MOVIE}, {@link #CONTENT_TYPE_MUSIC}, {@link #CONTENT_TYPE_SONIFICATION}, {@link
    * #CONTENT_TYPE_SPEECH} or {@link #CONTENT_TYPE_UNKNOWN}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     CONTENT_TYPE_MOVIE,
@@ -309,6 +325,7 @@ public final class C {
    * <p>Note that {@code FLAG_HW_AV_SYNC} is not available because the player takes care of setting
    * the flag when tunneling is enabled via a track selector.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
       flag = true,
@@ -331,6 +348,7 @@ public final class C {
    * #USAGE_UNKNOWN}, {@link #USAGE_VOICE_COMMUNICATION} or {@link
    * #USAGE_VOICE_COMMUNICATION_SIGNALLING}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     USAGE_ALARM,
@@ -427,6 +445,7 @@ public final class C {
    * #AUDIOFOCUS_GAIN_TRANSIENT}, {@link #AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK} or {@link
    * #AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     AUDIOFOCUS_NONE,
@@ -451,15 +470,17 @@ public final class C {
 
   /**
    * Flags which can apply to a buffer containing a media sample. Possible flag values are {@link
-   * #BUFFER_FLAG_KEY_FRAME}, {@link #BUFFER_FLAG_END_OF_STREAM}, {@link #BUFFER_FLAG_ENCRYPTED} and
-   * {@link #BUFFER_FLAG_DECODE_ONLY}.
+   * #BUFFER_FLAG_KEY_FRAME}, {@link #BUFFER_FLAG_END_OF_STREAM}, {@link #BUFFER_FLAG_LAST_SAMPLE},
+   * {@link #BUFFER_FLAG_ENCRYPTED} and {@link #BUFFER_FLAG_DECODE_ONLY}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
       flag = true,
       value = {
         BUFFER_FLAG_KEY_FRAME,
         BUFFER_FLAG_END_OF_STREAM,
+        BUFFER_FLAG_LAST_SAMPLE,
         BUFFER_FLAG_ENCRYPTED,
         BUFFER_FLAG_DECODE_ONLY
       })
@@ -472,16 +493,33 @@ public final class C {
    * Flag for empty buffers that signal that the end of the stream was reached.
    */
   public static final int BUFFER_FLAG_END_OF_STREAM = MediaCodec.BUFFER_FLAG_END_OF_STREAM;
+  /** Indicates that a buffer is known to contain the last media sample of the stream. */
+  public static final int BUFFER_FLAG_LAST_SAMPLE = 1 << 29; // 0x20000000
   /** Indicates that a buffer is (at least partially) encrypted. */
   public static final int BUFFER_FLAG_ENCRYPTED = 1 << 30; // 0x40000000
   /** Indicates that a buffer should be decoded but not rendered. */
-  @SuppressWarnings("NumericOverflow")
   public static final int BUFFER_FLAG_DECODE_ONLY = 1 << 31; // 0x80000000
+
+  /**
+   * Video decoder output modes. Possible modes are {@link #VIDEO_OUTPUT_MODE_NONE}, {@link
+   * #VIDEO_OUTPUT_MODE_YUV} and {@link #VIDEO_OUTPUT_MODE_SURFACE_YUV}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef(value = {VIDEO_OUTPUT_MODE_NONE, VIDEO_OUTPUT_MODE_YUV, VIDEO_OUTPUT_MODE_SURFACE_YUV})
+  public @interface VideoOutputMode {}
+  /** Video decoder output mode is not set. */
+  public static final int VIDEO_OUTPUT_MODE_NONE = -1;
+  /** Video decoder output mode that outputs raw 4:2:0 YUV planes. */
+  public static final int VIDEO_OUTPUT_MODE_YUV = 0;
+  /** Video decoder output mode that renders 4:2:0 YUV planes directly to a surface. */
+  public static final int VIDEO_OUTPUT_MODE_SURFACE_YUV = 1;
 
   /**
    * Video scaling modes for {@link MediaCodec}-based {@link Renderer}s. One of {@link
    * #VIDEO_SCALING_MODE_SCALE_TO_FIT} or {@link #VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(value = {VIDEO_SCALING_MODE_SCALE_TO_FIT, VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING})
   public @interface VideoScalingMode {}
@@ -504,6 +542,7 @@ public final class C {
    * Track selection flags. Possible flag values are {@link #SELECTION_FLAG_DEFAULT}, {@link
    * #SELECTION_FLAG_FORCED} and {@link #SELECTION_FLAG_AUTOSELECT}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
       flag = true,
@@ -521,15 +560,14 @@ public final class C {
    */
   public static final int SELECTION_FLAG_AUTOSELECT = 1 << 2; // 4
 
-  /**
-   * Represents an undetermined language as an ISO 639 alpha-3 language code.
-   */
+  /** Represents an undetermined language as an ISO 639-2 language code. */
   public static final String LANGUAGE_UNDETERMINED = "und";
 
   /**
    * Represents a streaming or other media type. One of {@link #TYPE_DASH}, {@link #TYPE_SS}, {@link
    * #TYPE_HLS} or {@link #TYPE_OTHER}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({TYPE_DASH, TYPE_SS, TYPE_HLS, TYPE_OTHER})
   public @interface ContentType {}
@@ -796,6 +834,7 @@ public final class C {
    * #STEREO_MODE_MONO}, {@link #STEREO_MODE_TOP_BOTTOM}, {@link #STEREO_MODE_LEFT_RIGHT} or {@link
    * #STEREO_MODE_STEREO_MESH}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     Format.NO_VALUE,
@@ -827,6 +866,7 @@ public final class C {
    * Video colorspaces. One of {@link Format#NO_VALUE}, {@link #COLOR_SPACE_BT709}, {@link
    * #COLOR_SPACE_BT601} or {@link #COLOR_SPACE_BT2020}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({Format.NO_VALUE, COLOR_SPACE_BT709, COLOR_SPACE_BT601, COLOR_SPACE_BT2020})
   public @interface ColorSpace {}
@@ -847,6 +887,7 @@ public final class C {
    * Video color transfer characteristics. One of {@link Format#NO_VALUE}, {@link
    * #COLOR_TRANSFER_SDR}, {@link #COLOR_TRANSFER_ST2084} or {@link #COLOR_TRANSFER_HLG}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({Format.NO_VALUE, COLOR_TRANSFER_SDR, COLOR_TRANSFER_ST2084, COLOR_TRANSFER_HLG})
   public @interface ColorTransfer {}
@@ -867,6 +908,7 @@ public final class C {
    * Video color range. One of {@link Format#NO_VALUE}, {@link #COLOR_RANGE_LIMITED} or {@link
    * #COLOR_RANGE_FULL}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({Format.NO_VALUE, COLOR_RANGE_LIMITED, COLOR_RANGE_FULL})
   public @interface ColorRange {}
@@ -878,6 +920,26 @@ public final class C {
    * @see MediaFormat#COLOR_RANGE_FULL
    */
   public static final int COLOR_RANGE_FULL = MediaFormat.COLOR_RANGE_FULL;
+
+  /** Video projection types. */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    Format.NO_VALUE,
+    PROJECTION_RECTANGULAR,
+    PROJECTION_EQUIRECTANGULAR,
+    PROJECTION_CUBEMAP,
+    PROJECTION_MESH
+  })
+  public @interface Projection {}
+  /** Conventional rectangular projection. */
+  public static final int PROJECTION_RECTANGULAR = 0;
+  /** Equirectangular spherical projection. */
+  public static final int PROJECTION_EQUIRECTANGULAR = 1;
+  /** Cube map projection. */
+  public static final int PROJECTION_CUBEMAP = 2;
+  /** 3-D mesh projection. */
+  public static final int PROJECTION_MESH = 3;
 
   /**
    * Priority for media playback.
@@ -899,6 +961,7 @@ public final class C {
    * #NETWORK_TYPE_4G}, {@link #NETWORK_TYPE_CELLULAR_UNKNOWN}, {@link #NETWORK_TYPE_ETHERNET} or
    * {@link #NETWORK_TYPE_OTHER}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     NETWORK_TYPE_UNKNOWN,
@@ -938,6 +1001,79 @@ public final class C {
   public static final int NETWORK_TYPE_OTHER = 8;
 
   /**
+   * Track role flags. Possible flag values are {@link #ROLE_FLAG_MAIN}, {@link
+   * #ROLE_FLAG_ALTERNATE}, {@link #ROLE_FLAG_SUPPLEMENTARY}, {@link #ROLE_FLAG_COMMENTARY}, {@link
+   * #ROLE_FLAG_DUB}, {@link #ROLE_FLAG_EMERGENCY}, {@link #ROLE_FLAG_CAPTION}, {@link
+   * #ROLE_FLAG_SUBTITLE}, {@link #ROLE_FLAG_SIGN}, {@link #ROLE_FLAG_DESCRIBES_VIDEO}, {@link
+   * #ROLE_FLAG_DESCRIBES_MUSIC_AND_SOUND}, {@link #ROLE_FLAG_ENHANCED_DIALOG_INTELLIGIBILITY},
+   * {@link #ROLE_FLAG_TRANSCRIBES_DIALOG} and {@link #ROLE_FLAG_EASY_TO_READ}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef(
+      flag = true,
+      value = {
+        ROLE_FLAG_MAIN,
+        ROLE_FLAG_ALTERNATE,
+        ROLE_FLAG_SUPPLEMENTARY,
+        ROLE_FLAG_COMMENTARY,
+        ROLE_FLAG_DUB,
+        ROLE_FLAG_EMERGENCY,
+        ROLE_FLAG_CAPTION,
+        ROLE_FLAG_SUBTITLE,
+        ROLE_FLAG_SIGN,
+        ROLE_FLAG_DESCRIBES_VIDEO,
+        ROLE_FLAG_DESCRIBES_MUSIC_AND_SOUND,
+        ROLE_FLAG_ENHANCED_DIALOG_INTELLIGIBILITY,
+        ROLE_FLAG_TRANSCRIBES_DIALOG,
+        ROLE_FLAG_EASY_TO_READ
+      })
+  public @interface RoleFlags {}
+  /** Indicates a main track. */
+  public static final int ROLE_FLAG_MAIN = 1;
+  /**
+   * Indicates an alternate track. For example a video track recorded from an different view point
+   * than the main track(s).
+   */
+  public static final int ROLE_FLAG_ALTERNATE = 1 << 1;
+  /**
+   * Indicates a supplementary track, meaning the track has lower importance than the main track(s).
+   * For example a video track that provides a visual accompaniment to a main audio track.
+   */
+  public static final int ROLE_FLAG_SUPPLEMENTARY = 1 << 2;
+  /** Indicates the track contains commentary, for example from the director. */
+  public static final int ROLE_FLAG_COMMENTARY = 1 << 3;
+  /**
+   * Indicates the track is in a different language from the original, for example dubbed audio or
+   * translated captions.
+   */
+  public static final int ROLE_FLAG_DUB = 1 << 4;
+  /** Indicates the track contains information about a current emergency. */
+  public static final int ROLE_FLAG_EMERGENCY = 1 << 5;
+  /**
+   * Indicates the track contains captions. This flag may be set on video tracks to indicate the
+   * presence of burned in captions.
+   */
+  public static final int ROLE_FLAG_CAPTION = 1 << 6;
+  /**
+   * Indicates the track contains subtitles. This flag may be set on video tracks to indicate the
+   * presence of burned in subtitles.
+   */
+  public static final int ROLE_FLAG_SUBTITLE = 1 << 7;
+  /** Indicates the track contains a visual sign-language interpretation of an audio track. */
+  public static final int ROLE_FLAG_SIGN = 1 << 8;
+  /** Indicates the track contains an audio or textual description of a video track. */
+  public static final int ROLE_FLAG_DESCRIBES_VIDEO = 1 << 9;
+  /** Indicates the track contains a textual description of music and sound. */
+  public static final int ROLE_FLAG_DESCRIBES_MUSIC_AND_SOUND = 1 << 10;
+  /** Indicates the track is designed for improved intelligibility of dialogue. */
+  public static final int ROLE_FLAG_ENHANCED_DIALOG_INTELLIGIBILITY = 1 << 11;
+  /** Indicates the track contains a transcription of spoken dialog. */
+  public static final int ROLE_FLAG_TRANSCRIBES_DIALOG = 1 << 12;
+  /** Indicates the track contains a text that has been edited for ease of reading. */
+  public static final int ROLE_FLAG_EASY_TO_READ = 1 << 13;
+
+  /**
    * Converts a time in microseconds to the corresponding time in milliseconds, preserving
    * {@link #TIME_UNSET} and {@link #TIME_END_OF_SOURCE} values.
    *
@@ -960,7 +1096,10 @@ public final class C {
   }
 
   /**
-   * Returns a newly generated {@link android.media.AudioTrack} session identifier.
+   * Returns a newly generated audio session identifier, or {@link AudioManager#ERROR} if an error
+   * occurred in which case audio playback may fail.
+   *
+   * @see AudioManager#generateAudioSessionId()
    */
   @TargetApi(21)
   public static int generateAudioSessionIdV21(Context context) {

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.chunk;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -26,10 +27,15 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 public abstract class BaseMediaChunk extends MediaChunk {
 
   /**
-   * The media time from which output will begin, or {@link C#TIME_UNSET} if the whole chunk should
-   * be output.
+   * The time from which output will begin, or {@link C#TIME_UNSET} if output will begin from the
+   * start of the chunk.
    */
-  public final long seekTimeUs;
+  public final long clippedStartTimeUs;
+  /**
+   * The time from which output will end, or {@link C#TIME_UNSET} if output will end at the end of
+   * the chunk.
+   */
+  public final long clippedEndTimeUs;
 
   private BaseMediaChunkOutput output;
   private int[] firstSampleIndices;
@@ -42,8 +48,10 @@ public abstract class BaseMediaChunk extends MediaChunk {
    * @param trackSelectionData See {@link #trackSelectionData}.
    * @param startTimeUs The start time of the media contained by the chunk, in microseconds.
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
-   * @param seekTimeUs The media time from which output will begin, or {@link C#TIME_UNSET} if the
-   *     whole chunk should be output.
+   * @param clippedStartTimeUs The time in the chunk from which output will begin, or {@link
+   *     C#TIME_UNSET} to output from the start of the chunk.
+   * @param clippedEndTimeUs The time in the chunk from which output will end, or {@link
+   *     C#TIME_UNSET} to output to the end of the chunk.
    * @param chunkIndex The index of the chunk, or {@link C#INDEX_UNSET} if it is not known.
    */
   public BaseMediaChunk(
@@ -51,14 +59,16 @@ public abstract class BaseMediaChunk extends MediaChunk {
       DataSpec dataSpec,
       Format trackFormat,
       int trackSelectionReason,
-      Object trackSelectionData,
+      @Nullable Object trackSelectionData,
       long startTimeUs,
       long endTimeUs,
-      long seekTimeUs,
+      long clippedStartTimeUs,
+      long clippedEndTimeUs,
       long chunkIndex) {
     super(dataSource, dataSpec, trackFormat, trackSelectionReason, trackSelectionData, startTimeUs,
         endTimeUs, chunkIndex);
-    this.seekTimeUs = seekTimeUs;
+    this.clippedStartTimeUs = clippedStartTimeUs;
+    this.clippedEndTimeUs = clippedEndTimeUs;
   }
 
   /**

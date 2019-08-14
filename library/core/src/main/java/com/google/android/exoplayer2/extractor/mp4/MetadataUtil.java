@@ -15,60 +15,61 @@
  */
 package com.google.android.exoplayer2.extractor.mp4;
 
-import android.support.annotation.Nullable;
-import android.util.Log;
+import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.extractor.GaplessInfoHolder;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.ApicFrame;
 import com.google.android.exoplayer2.metadata.id3.CommentFrame;
 import com.google.android.exoplayer2.metadata.id3.Id3Frame;
 import com.google.android.exoplayer2.metadata.id3.InternalFrame;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
-import com.google.android.exoplayer2.util.Util;
+import java.nio.ByteBuffer;
 
-/**
- * Parses metadata items stored in ilst atoms.
- */
+/** Utilities for handling metadata in MP4. */
 /* package */ final class MetadataUtil {
 
   private static final String TAG = "MetadataUtil";
 
   // Codes that start with the copyright character (omitted) and have equivalent ID3 frames.
-  private static final int SHORT_TYPE_NAME_1 = Util.getIntegerCodeForString("nam");
-  private static final int SHORT_TYPE_NAME_2 = Util.getIntegerCodeForString("trk");
-  private static final int SHORT_TYPE_COMMENT = Util.getIntegerCodeForString("cmt");
-  private static final int SHORT_TYPE_YEAR = Util.getIntegerCodeForString("day");
-  private static final int SHORT_TYPE_ARTIST = Util.getIntegerCodeForString("ART");
-  private static final int SHORT_TYPE_ENCODER = Util.getIntegerCodeForString("too");
-  private static final int SHORT_TYPE_ALBUM = Util.getIntegerCodeForString("alb");
-  private static final int SHORT_TYPE_COMPOSER_1 = Util.getIntegerCodeForString("com");
-  private static final int SHORT_TYPE_COMPOSER_2 = Util.getIntegerCodeForString("wrt");
-  private static final int SHORT_TYPE_LYRICS = Util.getIntegerCodeForString("lyr");
-  private static final int SHORT_TYPE_GENRE = Util.getIntegerCodeForString("gen");
+  private static final int SHORT_TYPE_NAME_1 = 0x006e616d;
+  private static final int SHORT_TYPE_NAME_2 = 0x0074726b;
+  private static final int SHORT_TYPE_COMMENT = 0x00636d74;
+  private static final int SHORT_TYPE_YEAR = 0x00646179;
+  private static final int SHORT_TYPE_ARTIST = 0x00415254;
+  private static final int SHORT_TYPE_ENCODER = 0x00746f6f;
+  private static final int SHORT_TYPE_ALBUM = 0x00616c62;
+  private static final int SHORT_TYPE_COMPOSER_1 = 0x00636f6d;
+  private static final int SHORT_TYPE_COMPOSER_2 = 0x00777274;
+  private static final int SHORT_TYPE_LYRICS = 0x006c7972;
+  private static final int SHORT_TYPE_GENRE = 0x0067656e;
 
   // Codes that have equivalent ID3 frames.
-  private static final int TYPE_COVER_ART = Util.getIntegerCodeForString("covr");
-  private static final int TYPE_GENRE = Util.getIntegerCodeForString("gnre");
-  private static final int TYPE_GROUPING = Util.getIntegerCodeForString("grp");
-  private static final int TYPE_DISK_NUMBER = Util.getIntegerCodeForString("disk");
-  private static final int TYPE_TRACK_NUMBER = Util.getIntegerCodeForString("trkn");
-  private static final int TYPE_TEMPO = Util.getIntegerCodeForString("tmpo");
-  private static final int TYPE_COMPILATION = Util.getIntegerCodeForString("cpil");
-  private static final int TYPE_ALBUM_ARTIST = Util.getIntegerCodeForString("aART");
-  private static final int TYPE_SORT_TRACK_NAME = Util.getIntegerCodeForString("sonm");
-  private static final int TYPE_SORT_ALBUM = Util.getIntegerCodeForString("soal");
-  private static final int TYPE_SORT_ARTIST = Util.getIntegerCodeForString("soar");
-  private static final int TYPE_SORT_ALBUM_ARTIST = Util.getIntegerCodeForString("soaa");
-  private static final int TYPE_SORT_COMPOSER = Util.getIntegerCodeForString("soco");
+  private static final int TYPE_COVER_ART = 0x636f7672;
+  private static final int TYPE_GENRE = 0x676e7265;
+  private static final int TYPE_GROUPING = 0x00677270;
+  private static final int TYPE_DISK_NUMBER = 0x6469736b;
+  private static final int TYPE_TRACK_NUMBER = 0x74726b6e;
+  private static final int TYPE_TEMPO = 0x746d706f;
+  private static final int TYPE_COMPILATION = 0x6370696c;
+  private static final int TYPE_ALBUM_ARTIST = 0x61415254;
+  private static final int TYPE_SORT_TRACK_NAME = 0x736f6e6d;
+  private static final int TYPE_SORT_ALBUM = 0x736f616c;
+  private static final int TYPE_SORT_ARTIST = 0x736f6172;
+  private static final int TYPE_SORT_ALBUM_ARTIST = 0x736f6161;
+  private static final int TYPE_SORT_COMPOSER = 0x736f636f;
 
   // Types that do not have equivalent ID3 frames.
-  private static final int TYPE_RATING = Util.getIntegerCodeForString("rtng");
-  private static final int TYPE_GAPLESS_ALBUM = Util.getIntegerCodeForString("pgap");
-  private static final int TYPE_TV_SORT_SHOW = Util.getIntegerCodeForString("sosn");
-  private static final int TYPE_TV_SHOW = Util.getIntegerCodeForString("tvsh");
+  private static final int TYPE_RATING = 0x72746e67;
+  private static final int TYPE_GAPLESS_ALBUM = 0x70676170;
+  private static final int TYPE_TV_SORT_SHOW = 0x736f736e;
+  private static final int TYPE_TV_SHOW = 0x74767368;
 
   // Type for items that are intended for internal use by the player.
-  private static final int TYPE_INTERNAL = Util.getIntegerCodeForString("----");
+  private static final int TYPE_INTERNAL = 0x2d2d2d2d;
 
   private static final int PICTURE_TYPE_FRONT_COVER = 3;
 
@@ -103,24 +104,73 @@ import com.google.android.exoplayer2.util.Util;
 
   private static final String LANGUAGE_UNDEFINED = "und";
 
+  private static final int TYPE_TOP_BYTE_COPYRIGHT = 0xA9;
+  private static final int TYPE_TOP_BYTE_REPLACEMENT = 0xFD; // Truncated value of \uFFFD.
+
+  private static final String MDTA_KEY_ANDROID_CAPTURE_FPS = "com.android.capture.fps";
+  private static final int MDTA_TYPE_INDICATOR_FLOAT = 23;
+
   private MetadataUtil() {}
 
   /**
-   * Parses a single ilst element from a {@link ParsableByteArray}. The element is read starting
-   * from the current position of the {@link ParsableByteArray}, and the position is advanced by the
-   * size of the element. The position is advanced even if the element's type is unrecognized.
+   * Returns a {@link Format} that is the same as the input format but includes information from the
+   * specified sources of metadata.
+   */
+  public static Format getFormatWithMetadata(
+      int trackType,
+      Format format,
+      @Nullable Metadata udtaMetadata,
+      @Nullable Metadata mdtaMetadata,
+      GaplessInfoHolder gaplessInfoHolder) {
+    if (trackType == C.TRACK_TYPE_AUDIO) {
+      if (gaplessInfoHolder.hasGaplessInfo()) {
+        format =
+            format.copyWithGaplessInfo(
+                gaplessInfoHolder.encoderDelay, gaplessInfoHolder.encoderPadding);
+      }
+      // We assume all udta metadata is associated with the audio track.
+      if (udtaMetadata != null) {
+        format = format.copyWithMetadata(udtaMetadata);
+      }
+    } else if (trackType == C.TRACK_TYPE_VIDEO && mdtaMetadata != null) {
+      // Populate only metadata keys that are known to be specific to video.
+      for (int i = 0; i < mdtaMetadata.length(); i++) {
+        Metadata.Entry entry = mdtaMetadata.get(i);
+        if (entry instanceof MdtaMetadataEntry) {
+          MdtaMetadataEntry mdtaMetadataEntry = (MdtaMetadataEntry) entry;
+          if (MDTA_KEY_ANDROID_CAPTURE_FPS.equals(mdtaMetadataEntry.key)
+              && mdtaMetadataEntry.typeIndicator == MDTA_TYPE_INDICATOR_FLOAT) {
+            try {
+              float fps = ByteBuffer.wrap(mdtaMetadataEntry.value).asFloatBuffer().get();
+              format = format.copyWithFrameRate(fps);
+              format = format.copyWithMetadata(new Metadata(mdtaMetadataEntry));
+            } catch (NumberFormatException e) {
+              Log.w(TAG, "Ignoring invalid framerate");
+            }
+          }
+        }
+      }
+    }
+    return format;
+  }
+
+  /**
+   * Parses a single userdata ilst element from a {@link ParsableByteArray}. The element is read
+   * starting from the current position of the {@link ParsableByteArray}, and the position is
+   * advanced by the size of the element. The position is advanced even if the element's type is
+   * unrecognized.
    *
    * @param ilst Holds the data to be parsed.
    * @return The parsed element, or null if the element's type was not recognized.
    */
-  public static @Nullable Metadata.Entry parseIlstElement(ParsableByteArray ilst) {
+  @Nullable
+  public static Metadata.Entry parseIlstElement(ParsableByteArray ilst) {
     int position = ilst.getPosition();
     int endPosition = position + ilst.readInt();
     int type = ilst.readInt();
     int typeTopByte = (type >> 24) & 0xFF;
     try {
-      if (typeTopByte == '\u00A9' /* Copyright char */
-          || typeTopByte == '\uFFFD' /* Replacement char */) {
+      if (typeTopByte == TYPE_TOP_BYTE_COPYRIGHT || typeTopByte == TYPE_TOP_BYTE_REPLACEMENT) {
         int shortType = type & 0x00FFFFFF;
         if (shortType == SHORT_TYPE_COMMENT) {
           return parseCommentAttribute(type, ilst);
@@ -185,7 +235,36 @@ import com.google.android.exoplayer2.util.Util;
     }
   }
 
-  private static @Nullable TextInformationFrame parseTextAttribute(
+  /**
+   * Parses an 'mdta' metadata entry starting at the current position in an ilst box.
+   *
+   * @param ilst The ilst box.
+   * @param endPosition The end position of the entry in the ilst box.
+   * @param key The mdta metadata entry key for the entry.
+   * @return The parsed element, or null if the entry wasn't recognized.
+   */
+  @Nullable
+  public static MdtaMetadataEntry parseMdtaMetadataEntryFromIlst(
+      ParsableByteArray ilst, int endPosition, String key) {
+    int atomPosition;
+    while ((atomPosition = ilst.getPosition()) < endPosition) {
+      int atomSize = ilst.readInt();
+      int atomType = ilst.readInt();
+      if (atomType == Atom.TYPE_data) {
+        int typeIndicator = ilst.readInt();
+        int localeIndicator = ilst.readInt();
+        int dataSize = atomSize - 16;
+        byte[] value = new byte[dataSize];
+        ilst.readBytes(value, 0, dataSize);
+        return new MdtaMetadataEntry(key, value, localeIndicator, typeIndicator);
+      }
+      ilst.setPosition(atomPosition + atomSize);
+    }
+    return null;
+  }
+
+  @Nullable
+  private static TextInformationFrame parseTextAttribute(
       int type, String id, ParsableByteArray data) {
     int atomSize = data.readInt();
     int atomType = data.readInt();
@@ -198,7 +277,8 @@ import com.google.android.exoplayer2.util.Util;
     return null;
   }
 
-  private static @Nullable CommentFrame parseCommentAttribute(int type, ParsableByteArray data) {
+  @Nullable
+  private static CommentFrame parseCommentAttribute(int type, ParsableByteArray data) {
     int atomSize = data.readInt();
     int atomType = data.readInt();
     if (atomType == Atom.TYPE_data) {
@@ -210,7 +290,8 @@ import com.google.android.exoplayer2.util.Util;
     return null;
   }
 
-  private static @Nullable Id3Frame parseUint8Attribute(
+  @Nullable
+  private static Id3Frame parseUint8Attribute(
       int type,
       String id,
       ParsableByteArray data,
@@ -229,7 +310,8 @@ import com.google.android.exoplayer2.util.Util;
     return null;
   }
 
-  private static @Nullable TextInformationFrame parseIndexAndCountAttribute(
+  @Nullable
+  private static TextInformationFrame parseIndexAndCountAttribute(
       int type, String attributeName, ParsableByteArray data) {
     int atomSize = data.readInt();
     int atomType = data.readInt();
@@ -249,8 +331,8 @@ import com.google.android.exoplayer2.util.Util;
     return null;
   }
 
-  private static @Nullable TextInformationFrame parseStandardGenreAttribute(
-      ParsableByteArray data) {
+  @Nullable
+  private static TextInformationFrame parseStandardGenreAttribute(ParsableByteArray data) {
     int genreCode = parseUint8AttributeValue(data);
     String genreString = (0 < genreCode && genreCode <= STANDARD_GENRES.length)
         ? STANDARD_GENRES[genreCode - 1] : null;
@@ -261,7 +343,8 @@ import com.google.android.exoplayer2.util.Util;
     return null;
   }
 
-  private static @Nullable ApicFrame parseCoverArt(ParsableByteArray data) {
+  @Nullable
+  private static ApicFrame parseCoverArt(ParsableByteArray data) {
     int atomSize = data.readInt();
     int atomType = data.readInt();
     if (atomType == Atom.TYPE_data) {
@@ -285,8 +368,8 @@ import com.google.android.exoplayer2.util.Util;
     return null;
   }
 
-  private static @Nullable Id3Frame parseInternalAttribute(
-      ParsableByteArray data, int endPosition) {
+  @Nullable
+  private static Id3Frame parseInternalAttribute(ParsableByteArray data, int endPosition) {
     String domain = null;
     String name = null;
     int dataAtomPosition = -1;

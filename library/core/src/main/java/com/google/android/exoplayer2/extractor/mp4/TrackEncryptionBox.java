@@ -15,11 +15,11 @@
  */
 package com.google.android.exoplayer2.extractor.mp4;
 
-import android.support.annotation.Nullable;
-import android.util.Log;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 
 /**
  * Encapsulates information parsed from a track encryption (tenc) box or sample group description 
@@ -52,7 +52,7 @@ public final class TrackEncryptionBox {
    * If {@link #perSampleIvSize} is 0, holds the default initialization vector as defined in the
    * track encryption box or sample group description box. Null otherwise.
    */
-  public final byte[] defaultInitializationVector;
+  @Nullable public final byte[] defaultInitializationVector;
 
   /**
    * @param isEncrypted See {@link #isEncrypted}.

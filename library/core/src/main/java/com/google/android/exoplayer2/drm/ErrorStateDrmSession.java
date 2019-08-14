@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.drm;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Assertions;
 import java.util.Map;
 
@@ -33,23 +34,36 @@ public final class ErrorStateDrmSession<T extends ExoMediaCrypto> implements Drm
   }
 
   @Override
+  @Nullable
   public DrmSessionException getError() {
     return error;
   }
 
   @Override
+  @Nullable
   public T getMediaCrypto() {
     return null;
   }
 
   @Override
+  @Nullable
   public Map<String, String> queryKeyStatus() {
     return null;
   }
 
   @Override
+  @Nullable
   public byte[] getOfflineLicenseKeySetId() {
     return null;
   }
 
+  @Override
+  public void acquireReference() {
+    // Do nothing.
+  }
+
+  @Override
+  public void releaseReference() {
+    // Do nothing.
+  }
 }

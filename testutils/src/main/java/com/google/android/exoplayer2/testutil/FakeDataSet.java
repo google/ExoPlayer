@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.testutil;
 
 import android.net.Uri;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
@@ -79,11 +79,11 @@ public class FakeDataSet {
      */
     public static final class Segment {
 
-      public @Nullable final IOException exception;
-      public @Nullable final byte[] data;
+      @Nullable public final IOException exception;
+      @Nullable public final byte[] data;
       public final int length;
       public final long byteOffset;
-      public @Nullable final Runnable action;
+      @Nullable public final Runnable action;
 
       public boolean exceptionThrown;
       public boolean exceptionCleared;

@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.source.dash.manifest;
 
 import android.net.Uri;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.UriUtil;
 
@@ -83,10 +83,11 @@ public final class RangedUri {
    * <p>If {@code other} is null then the merge is considered unsuccessful, and null is returned.
    *
    * @param other The {@link RangedUri} to merge.
-   * @param baseUri The optional base Uri.
+   * @param baseUri The base Uri.
    * @return The merged {@link RangedUri} if the merge was successful. Null otherwise.
    */
-  public @Nullable RangedUri attemptMerge(@Nullable RangedUri other, String baseUri) {
+  @Nullable
+  public RangedUri attemptMerge(@Nullable RangedUri other, String baseUri) {
     final String resolvedUri = resolveUriString(baseUri);
     if (other == null || !resolvedUri.equals(other.resolveUriString(baseUri))) {
       return null;

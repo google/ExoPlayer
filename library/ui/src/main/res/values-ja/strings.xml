@@ -12,6 +12,7 @@
   <string name="exo_controls_repeat_all_description">全曲をリピート</string>
   <string name="exo_controls_shuffle_description">シャッフル</string>
   <string name="exo_controls_fullscreen_description">全画面モード</string>
+  <string name="exo_controls_vr_description">VR モード</string>
   <string name="exo_download_description">ダウンロード</string>
   <string name="exo_download_notification_channel_name">ダウンロード</string>
   <string name="exo_download_downloading">ダウンロードしています</string>
@@ -20,7 +21,7 @@
   <string name="exo_download_removing">ダウンロードを削除しています</string>
   <string name="exo_track_selection_title_video">動画</string>
   <string name="exo_track_selection_title_audio">音声</string>
-  <string name="exo_track_selection_title_text">SMS</string>
+  <string name="exo_track_selection_title_text">文字</string>
   <string name="exo_track_selection_none">なし</string>
   <string name="exo_track_selection_auto">自動</string>
   <string name="exo_track_unknown">不明</string>
@@ -30,6 +31,10 @@
   <string name="exo_track_surround">サラウンド サウンド</string>
   <string name="exo_track_surround_5_point_1">5.1 サラウンド サウンド</string>
   <string name="exo_track_surround_7_point_1">7.1 サラウンド サウンド</string>
+  <string name="exo_track_role_alternate">代替</string>
+  <string name="exo_track_role_supplementary">補足</string>
+  <string name="exo_track_role_commentary">解説</string>
+  <string name="exo_track_role_closed_captions">字幕</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s、%2$s</string>
 </resources>

@@ -16,9 +16,11 @@
 package com.google.android.exoplayer2.ext.cronet;
 
 import android.content.Context;
-import android.support.annotation.IntDef;
-import android.util.Log;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
@@ -36,13 +38,14 @@ public final class CronetEngineWrapper {
 
   private static final String TAG = "CronetEngineWrapper";
 
-  private final CronetEngine cronetEngine;
-  private final @CronetEngineSource int cronetEngineSource;
+  @Nullable private final CronetEngine cronetEngine;
+  @CronetEngineSource private final int cronetEngineSource;
 
   /**
    * Source of {@link CronetEngine}. One of {@link #SOURCE_NATIVE}, {@link #SOURCE_GMS}, {@link
    * #SOURCE_UNKNOWN}, {@link #SOURCE_USER_PROVIDED} or {@link #SOURCE_UNAVAILABLE}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({SOURCE_NATIVE, SOURCE_GMS, SOURCE_UNKNOWN, SOURCE_USER_PROVIDED, SOURCE_UNAVAILABLE})
   public @interface CronetEngineSource {}
@@ -142,7 +145,8 @@ public final class CronetEngineWrapper {
    *
    * @return A {@link CronetEngineSource} value.
    */
-  public @CronetEngineSource int getCronetEngineSource() {
+  @CronetEngineSource
+  public int getCronetEngineSource() {
     return cronetEngineSource;
   }
 
@@ -151,13 +155,14 @@ public final class CronetEngineWrapper {
    *
    * @return The CronetEngine, or null if no CronetEngine is available.
    */
+  @Nullable
   /* package */ CronetEngine getCronetEngine() {
     return cronetEngine;
   }
 
   private static class CronetProviderComparator implements Comparator<CronetProvider> {
 
-    private final String gmsCoreCronetName;
+    @Nullable private final String gmsCoreCronetName;
     private final boolean preferGMSCoreCronet;
 
     // Multi-catch can only be used for API 19+ in this case.

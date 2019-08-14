@@ -19,14 +19,12 @@ import static com.google.android.exoplayer2.testutil.TestUtil.createByteArray;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Tests for {@link ParsableNalUnitBitArray}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Tests for {@link ParsableNalUnitBitArray}. */
+@RunWith(AndroidJUnit4.class)
 public final class ParsableNalUnitBitArrayTest {
 
   private static final byte[] NO_ESCAPING_TEST_DATA = createByteArray(0, 3, 0, 1, 3, 0, 0);

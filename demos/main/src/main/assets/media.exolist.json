@@ -330,11 +330,11 @@
     "samples": [
       {
         "name": "Super speed",
-        "uri": "https://playready.directtaps.net/smoothstreaming/SSWSS720H264/SuperSpeedway_720.ism"
+        "uri": "https://playready.directtaps.net/smoothstreaming/SSWSS720H264/SuperSpeedway_720.ism/Manifest"
       },
       {
         "name": "Super speed (PlayReady)",
-        "uri": "https://playready.directtaps.net/smoothstreaming/SSWSS720H264PR/SuperSpeedway_720.ism",
+        "uri": "https://playready.directtaps.net/smoothstreaming/SSWSS720H264PR/SuperSpeedway_720.ism/Manifest",
         "drm_scheme": "playready"
       }
     ]
@@ -352,11 +352,11 @@
       },
       {
         "name": "Apple master playlist advanced (TS)",
-        "uri": "https://tungsten.aaplimg.com/VOD/bipbop_adv_example_v2/master.m3u8"
+        "uri": "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_ts/master.m3u8"
       },
       {
         "name": "Apple master playlist advanced (fMP4)",
-        "uri": "https://tungsten.aaplimg.com/VOD/bipbop_adv_fmp4_example/master.m3u8"
+        "uri": "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8"
       },
       {
         "name": "Apple TS media playlist",

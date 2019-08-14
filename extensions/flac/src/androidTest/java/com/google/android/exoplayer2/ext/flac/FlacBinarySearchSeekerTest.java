@@ -16,22 +16,26 @@
 package com.google.android.exoplayer2.ext.flac;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
 
-import android.test.InstrumentationTestCase;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import java.io.IOException;
+import org.junit.Before;
+import org.junit.runner.RunWith;
 
 /** Unit test for {@link FlacBinarySearchSeeker}. */
-public final class FlacBinarySearchSeekerTest extends InstrumentationTestCase {
+@RunWith(AndroidJUnit4.class)
+public final class FlacBinarySearchSeekerTest {
 
   private static final String NOSEEKTABLE_FLAC = "bear_no_seek.flac";
   private static final int DURATION_US = 2_741_000;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() {
     if (!FlacLibrary.isAvailable()) {
       fail("Flac library not available.");
     }
@@ -39,7 +43,8 @@ public final class FlacBinarySearchSeekerTest extends InstrumentationTestCase {
 
   public void testGetSeekMap_returnsSeekMapWithCorrectDuration()
       throws IOException, FlacDecoderException, InterruptedException {
-    byte[] data = TestUtil.getByteArray(getInstrumentation().getContext(), NOSEEKTABLE_FLAC);
+    byte[] data =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), NOSEEKTABLE_FLAC);
 
     FakeExtractorInput input = new FakeExtractorInput.Builder().setData(data).build();
     FlacDecoderJni decoderJni = new FlacDecoderJni();
@@ -47,7 +52,10 @@ public final class FlacBinarySearchSeekerTest extends InstrumentationTestCase {
 
     FlacBinarySearchSeeker seeker =
         new FlacBinarySearchSeeker(
-            decoderJni.decodeMetadata(), /* firstFramePosition= */ 0, data.length, decoderJni);
+            decoderJni.decodeStreamMetadata(),
+            /* firstFramePosition= */ 0,
+            data.length,
+            decoderJni);
 
     SeekMap seekMap = seeker.getSeekMap();
     assertThat(seekMap).isNotNull();
@@ -57,14 +65,18 @@ public final class FlacBinarySearchSeekerTest extends InstrumentationTestCase {
 
   public void testSetSeekTargetUs_returnsSeekPending()
       throws IOException, FlacDecoderException, InterruptedException {
-    byte[] data = TestUtil.getByteArray(getInstrumentation().getContext(), NOSEEKTABLE_FLAC);
+    byte[] data =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), NOSEEKTABLE_FLAC);
 
     FakeExtractorInput input = new FakeExtractorInput.Builder().setData(data).build();
     FlacDecoderJni decoderJni = new FlacDecoderJni();
     decoderJni.setData(input);
     FlacBinarySearchSeeker seeker =
         new FlacBinarySearchSeeker(
-            decoderJni.decodeMetadata(), /* firstFramePosition= */ 0, data.length, decoderJni);
+            decoderJni.decodeStreamMetadata(),
+            /* firstFramePosition= */ 0,
+            data.length,
+            decoderJni);
 
     seeker.setSeekTargetUs(/* timeUs= */ 1000);
     assertThat(seeker.isSeeking()).isTrue();

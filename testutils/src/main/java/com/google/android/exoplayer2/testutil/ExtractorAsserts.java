@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.testutil;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
+import androidx.test.core.app.ApplicationProvider;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
@@ -27,29 +28,12 @@ import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput.SimulatedIOException;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.Arrays;
 
 /**
  * Assertion methods for {@link Extractor}.
  */
 public final class ExtractorAsserts {
-
-  private static Context robolectricContext;
-
-  static {
-    try {
-      Class<?> runtimeEnvironmentClass = Class.forName("org.robolectric.RuntimeEnvironment");
-      Field applicationField = runtimeEnvironmentClass.getDeclaredField("application");
-      robolectricContext = (Context) applicationField.get(null);
-    } catch (ClassNotFoundException e) {
-      // Keep Robolectric context at null if not found.
-    } catch (NoSuchFieldException e) {
-      // Keep Robolectric context at null if not found.
-    } catch (IllegalAccessException e) {
-      // Keep Robolectric context at null if not found.
-    }
-  }
 
   /**
    * A factory for {@link Extractor} instances.
@@ -85,8 +69,8 @@ public final class ExtractorAsserts {
     extractor.seek(0, 0);
     extractor.release();
     // Assert output.
-    byte[] fileData = TestUtil.getByteArray(robolectricContext, file);
-    assertOutput(factory, file, fileData, robolectricContext);
+    byte[] fileData = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), file);
+    assertOutput(factory, file, fileData, ApplicationProvider.getApplicationContext());
   }
 
   /**
@@ -191,17 +175,26 @@ public final class ExtractorAsserts {
       extractorOutput.assertOutput(context, file + ".0" + DUMP_EXTENSION);
     }
 
+    // Seeking to (timeUs=0, position=0) should always work, and cause the same data to be output.
+    extractorOutput.clearTrackOutputs();
+    input.reset();
+    consumeTestData(extractor, input, /* timeUs= */ 0, extractorOutput, false);
+    if (simulateUnknownLength && assetExists(context, file + UNKNOWN_LENGTH_EXTENSION)) {
+      extractorOutput.assertOutput(context, file + UNKNOWN_LENGTH_EXTENSION);
+    } else {
+      extractorOutput.assertOutput(context, file + ".0" + DUMP_EXTENSION);
+    }
+
+    // If the SeekMap is seekable, test seeking to 4 positions in the stream.
     SeekMap seekMap = extractorOutput.seekMap;
     if (seekMap.isSeekable()) {
       long durationUs = seekMap.getDurationUs();
       for (int j = 0; j < 4; j++) {
+        extractorOutput.clearTrackOutputs();
         long timeUs = (durationUs * j) / 3;
         long position = seekMap.getSeekPoints(timeUs).first.position;
+        input.reset();
         input.setPosition((int) position);
-        for (int i = 0; i < extractorOutput.numberOfTracks; i++) {
-          extractorOutput.trackOutputs.valueAt(i).clear();
-        }
-
         consumeTestData(extractor, input, timeUs, extractorOutput, false);
         extractorOutput.assertOutput(context, file + '.' + j + DUMP_EXTENSION);
       }

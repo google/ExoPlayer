@@ -20,16 +20,17 @@ import android.content.Context;
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
 import android.os.Handler;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
-import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.nio.ByteBuffer;
@@ -37,23 +38,38 @@ import java.util.ArrayList;
 
 /**
  * A debug extension of {@link DefaultRenderersFactory}. Provides a video renderer that performs
- * video buffer timestamp assertions.
+ * video buffer timestamp assertions, and modifies the default value for {@link
+ * #setAllowedVideoJoiningTimeMs(long)} to be {@code 0}.
  */
-@TargetApi(16)
 public class DebugRenderersFactory extends DefaultRenderersFactory {
 
   public DebugRenderersFactory(Context context) {
-    super(context, DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF, 0);
+    super(context);
+    setAllowedVideoJoiningTimeMs(0);
   }
 
   @Override
-  protected void buildVideoRenderers(Context context,
-      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager, long allowedVideoJoiningTimeMs,
-      Handler eventHandler, VideoRendererEventListener eventListener,
-      @ExtensionRendererMode int extensionRendererMode, ArrayList<Renderer> out) {
-    out.add(new DebugMediaCodecVideoRenderer(context, MediaCodecSelector.DEFAULT,
-        allowedVideoJoiningTimeMs, drmSessionManager, eventHandler, eventListener,
-        MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY));
+  protected void buildVideoRenderers(
+      Context context,
+      @ExtensionRendererMode int extensionRendererMode,
+      MediaCodecSelector mediaCodecSelector,
+      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      boolean playClearSamplesWithoutKeys,
+      boolean enableDecoderFallback,
+      Handler eventHandler,
+      VideoRendererEventListener eventListener,
+      long allowedVideoJoiningTimeMs,
+      ArrayList<Renderer> out) {
+    out.add(
+        new DebugMediaCodecVideoRenderer(
+            context,
+            mediaCodecSelector,
+            allowedVideoJoiningTimeMs,
+            drmSessionManager,
+            playClearSamplesWithoutKeys,
+            eventHandler,
+            eventListener,
+            MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY));
   }
 
   /**
@@ -72,12 +88,24 @@ public class DebugRenderersFactory extends DefaultRenderersFactory {
     private int minimumInsertIndex;
     private boolean skipToPositionBeforeRenderingFirstFrame;
 
-    public DebugMediaCodecVideoRenderer(Context context, MediaCodecSelector mediaCodecSelector,
-        long allowedJoiningTimeMs, DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-        Handler eventHandler, VideoRendererEventListener eventListener,
+    public DebugMediaCodecVideoRenderer(
+        Context context,
+        MediaCodecSelector mediaCodecSelector,
+        long allowedJoiningTimeMs,
+        DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+        boolean playClearSamplesWithoutKeys,
+        Handler eventHandler,
+        VideoRendererEventListener eventListener,
         int maxDroppedFrameCountToNotify) {
-      super(context, mediaCodecSelector, allowedJoiningTimeMs, drmSessionManager, false,
-          eventHandler, eventListener, maxDroppedFrameCountToNotify);
+      super(
+          context,
+          mediaCodecSelector,
+          allowedJoiningTimeMs,
+          drmSessionManager,
+          playClearSamplesWithoutKeys,
+          eventHandler,
+          eventListener,
+          maxDroppedFrameCountToNotify);
     }
 
     @Override
@@ -86,8 +114,7 @@ public class DebugRenderersFactory extends DefaultRenderersFactory {
         MediaCodec codec,
         Format format,
         MediaCrypto crypto,
-        float operatingRate)
-        throws DecoderQueryException {
+        float operatingRate) {
       // If the codec is being initialized whilst the renderer is started, default behavior is to
       // render the first frame (i.e. the keyframe before the current position), then drop frames up
       // to the current playback position. For test runs that place a maximum limit on the number of
@@ -105,14 +132,17 @@ public class DebugRenderersFactory extends DefaultRenderersFactory {
     }
 
     @Override
-    protected void flushCodec() throws ExoPlaybackException {
-      super.flushCodec();
-      clearTimestamps();
+    protected boolean flushOrReleaseCodec() {
+      try {
+        return super.flushOrReleaseCodec();
+      } finally {
+        clearTimestamps();
+      }
     }
 
     @Override
-    protected void onInputFormatChanged(Format newFormat) throws ExoPlaybackException {
-      super.onInputFormatChanged(newFormat);
+    protected void onInputFormatChanged(FormatHolder formatHolder) throws ExoPlaybackException {
+      super.onInputFormatChanged(formatHolder);
       // Ensure timestamps of buffers queued after this format change are never inserted into the
       // queue of expected output timestamps before those of buffers that have already been queued.
       minimumInsertIndex = startIndex + queueSize;
@@ -134,14 +164,15 @@ public class DebugRenderersFactory extends DefaultRenderersFactory {
         int bufferIndex,
         int bufferFlags,
         long bufferPresentationTimeUs,
-        boolean shouldSkip,
+        boolean isDecodeOnlyBuffer,
+        boolean isLastBuffer,
         Format format)
         throws ExoPlaybackException {
       if (skipToPositionBeforeRenderingFirstFrame && bufferPresentationTimeUs < positionUs) {
         // After the codec has been initialized, don't render the first frame until we've caught up
         // to the playback position. Else test runs on devices that do not support dummy surface
         // will drop frames between rendering the first one and catching up [Internal: b/66494991].
-        shouldSkip = true;
+        isDecodeOnlyBuffer = true;
       }
       return super.processOutputBuffer(
           positionUs,
@@ -151,7 +182,8 @@ public class DebugRenderersFactory extends DefaultRenderersFactory {
           bufferIndex,
           bufferFlags,
           bufferPresentationTimeUs,
-          shouldSkip,
+          isDecodeOnlyBuffer,
+          isLastBuffer,
           format);
     }
 

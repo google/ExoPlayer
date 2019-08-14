@@ -19,6 +19,7 @@ import android.media.MediaDrm;
 import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.HandlerThread;
+import androidx.annotation.Nullable;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager.Mode;
@@ -33,6 +34,8 @@ import java.util.UUID;
  * Helper class to download, renew and release offline licenses.
  */
 public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
+
+  private static final DrmInitData DUMMY_DRM_INIT_DATA = new DrmInitData();
 
   private final ConditionVariable conditionVariable;
   private final DefaultDrmSessionManager<T> drmSessionManager;
@@ -89,13 +92,13 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
    * @throws UnsupportedDrmException If the Widevine DRM scheme is unsupported or cannot be
    *     instantiated.
    * @see DefaultDrmSessionManager#DefaultDrmSessionManager(java.util.UUID, ExoMediaDrm,
-   *     MediaDrmCallback, HashMap, Handler, DefaultDrmSessionEventListener)
+   *     MediaDrmCallback, HashMap)
    */
   public static OfflineLicenseHelper<FrameworkMediaCrypto> newWidevineInstance(
       String defaultLicenseUrl,
       boolean forceDefaultLicenseUrl,
       Factory httpDataSourceFactory,
-      HashMap<String, String> optionalKeyRequestParameters)
+      @Nullable HashMap<String, String> optionalKeyRequestParameters)
       throws UnsupportedDrmException {
     return new OfflineLicenseHelper<>(C.WIDEVINE_UUID,
         FrameworkMediaDrm.newInstance(C.WIDEVINE_UUID),
@@ -112,13 +115,13 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
    * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
    *     to {@link MediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap)}. May be null.
    * @see DefaultDrmSessionManager#DefaultDrmSessionManager(java.util.UUID, ExoMediaDrm,
-   *     MediaDrmCallback, HashMap, Handler, DefaultDrmSessionEventListener)
+   *     MediaDrmCallback, HashMap)
    */
   public OfflineLicenseHelper(
       UUID uuid,
       ExoMediaDrm<T> mediaDrm,
       MediaDrmCallback callback,
-      HashMap<String, String> optionalKeyRequestParameters) {
+      @Nullable HashMap<String, String> optionalKeyRequestParameters) {
     handlerThread = new HandlerThread("OfflineLicenseHelper");
     handlerThread.start();
     conditionVariable = new ConditionVariable();
@@ -199,7 +202,8 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
   public synchronized byte[] renewLicense(byte[] offlineLicenseKeySetId)
       throws DrmSessionException {
     Assertions.checkNotNull(offlineLicenseKeySetId);
-    return blockingKeyRequest(DefaultDrmSessionManager.MODE_DOWNLOAD, offlineLicenseKeySetId, null);
+    return blockingKeyRequest(
+        DefaultDrmSessionManager.MODE_DOWNLOAD, offlineLicenseKeySetId, DUMMY_DRM_INIT_DATA);
   }
 
   /**
@@ -211,7 +215,8 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
   public synchronized void releaseLicense(byte[] offlineLicenseKeySetId)
       throws DrmSessionException {
     Assertions.checkNotNull(offlineLicenseKeySetId);
-    blockingKeyRequest(DefaultDrmSessionManager.MODE_RELEASE, offlineLicenseKeySetId, null);
+    blockingKeyRequest(
+        DefaultDrmSessionManager.MODE_RELEASE, offlineLicenseKeySetId, DUMMY_DRM_INIT_DATA);
   }
 
   /**
@@ -224,19 +229,20 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
   public synchronized Pair<Long, Long> getLicenseDurationRemainingSec(byte[] offlineLicenseKeySetId)
       throws DrmSessionException {
     Assertions.checkNotNull(offlineLicenseKeySetId);
-    DrmSession<T> drmSession = openBlockingKeyRequest(DefaultDrmSessionManager.MODE_QUERY,
-        offlineLicenseKeySetId, null);
+    DrmSession<T> drmSession =
+        openBlockingKeyRequest(
+            DefaultDrmSessionManager.MODE_QUERY, offlineLicenseKeySetId, DUMMY_DRM_INIT_DATA);
     DrmSessionException error = drmSession.getError();
     Pair<Long, Long> licenseDurationRemainingSec =
         WidevineUtil.getLicenseDurationRemainingSec(drmSession);
-    drmSessionManager.releaseSession(drmSession);
+    drmSession.releaseReference();
     if (error != null) {
       if (error.getCause() instanceof KeysExpiredException) {
         return Pair.create(0L, 0L);
       }
       throw error;
     }
-    return licenseDurationRemainingSec;
+    return Assertions.checkNotNull(licenseDurationRemainingSec);
   }
 
   /**
@@ -246,21 +252,22 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
     handlerThread.quit();
   }
 
-  private byte[] blockingKeyRequest(@Mode int licenseMode, byte[] offlineLicenseKeySetId,
-      DrmInitData drmInitData) throws DrmSessionException {
+  private byte[] blockingKeyRequest(
+      @Mode int licenseMode, @Nullable byte[] offlineLicenseKeySetId, DrmInitData drmInitData)
+      throws DrmSessionException {
     DrmSession<T> drmSession = openBlockingKeyRequest(licenseMode, offlineLicenseKeySetId,
         drmInitData);
     DrmSessionException error = drmSession.getError();
     byte[] keySetId = drmSession.getOfflineLicenseKeySetId();
-    drmSessionManager.releaseSession(drmSession);
+    drmSession.releaseReference();
     if (error != null) {
       throw error;
     }
-    return keySetId;
+    return Assertions.checkNotNull(keySetId);
   }
 
-  private DrmSession<T> openBlockingKeyRequest(@Mode int licenseMode, byte[] offlineLicenseKeySetId,
-      DrmInitData drmInitData) {
+  private DrmSession<T> openBlockingKeyRequest(
+      @Mode int licenseMode, @Nullable byte[] offlineLicenseKeySetId, DrmInitData drmInitData) {
     drmSessionManager.setMode(licenseMode, offlineLicenseKeySetId);
     conditionVariable.close();
     DrmSession<T> drmSession = drmSessionManager.acquireSession(handlerThread.getLooper(),

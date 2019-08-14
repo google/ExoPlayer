@@ -15,11 +15,14 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.source.TrackGroup;
+import com.google.android.exoplayer2.source.chunk.MediaChunk;
+import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
-import com.google.android.exoplayer2.util.Assertions;
+import java.util.List;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
  * A {@link TrackSelection} consisting of a single track.
@@ -27,12 +30,16 @@ import com.google.android.exoplayer2.util.Assertions;
 public final class FixedTrackSelection extends BaseTrackSelection {
 
   /**
-   * Factory for {@link FixedTrackSelection} instances.
+   * @deprecated Don't use as adaptive track selection factory as it will throw when multiple tracks
+   *     are selected. If you would like to disable adaptive selection in {@link
+   *     DefaultTrackSelector}, enable the {@link
+   *     DefaultTrackSelector.Parameters#forceHighestSupportedBitrate} flag instead.
    */
+  @Deprecated
   public static final class Factory implements TrackSelection.Factory {
 
     private final int reason;
-    private final @Nullable Object data;
+    @Nullable private final Object data;
 
     public Factory() {
       this.reason = C.SELECTION_REASON_UNKNOWN;
@@ -49,15 +56,17 @@ public final class FixedTrackSelection extends BaseTrackSelection {
     }
 
     @Override
-    public FixedTrackSelection createTrackSelection(
-        TrackGroup group, BandwidthMeter bandwidthMeter, int... tracks) {
-      Assertions.checkArgument(tracks.length == 1);
-      return new FixedTrackSelection(group, tracks[0], reason, data);
+    public @NullableType TrackSelection[] createTrackSelections(
+        @NullableType Definition[] definitions, BandwidthMeter bandwidthMeter) {
+      return TrackSelectionUtil.createTrackSelectionsForDefinitions(
+          definitions,
+          definition ->
+              new FixedTrackSelection(definition.group, definition.tracks[0], reason, data));
     }
   }
 
   private final int reason;
-  private final @Nullable Object data;
+  @Nullable private final Object data;
 
   /**
    * @param group The {@link TrackGroup}. Must not be null.
@@ -80,8 +89,12 @@ public final class FixedTrackSelection extends BaseTrackSelection {
   }
 
   @Override
-  public void updateSelectedTrack(long playbackPositionUs, long bufferedDurationUs,
-      long availableDurationUs) {
+  public void updateSelectedTrack(
+      long playbackPositionUs,
+      long bufferedDurationUs,
+      long availableDurationUs,
+      List<? extends MediaChunk> queue,
+      MediaChunkIterator[] mediaChunkIterators) {
     // Do nothing.
   }
 
@@ -96,7 +109,8 @@ public final class FixedTrackSelection extends BaseTrackSelection {
   }
 
   @Override
-  public @Nullable Object getSelectionData() {
+  @Nullable
+  public Object getSelectionData() {
     return data;
   }
 

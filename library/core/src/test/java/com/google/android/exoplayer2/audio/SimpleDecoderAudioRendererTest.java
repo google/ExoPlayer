@@ -24,6 +24,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import androidx.annotation.Nullable;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererConfiguration;
@@ -39,13 +41,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
-/**
- * Unit test for {@link SimpleDecoderAudioRenderer}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Unit test for {@link SimpleDecoderAudioRenderer}. */
+@RunWith(AndroidJUnit4.class)
 public class SimpleDecoderAudioRendererTest {
 
   private static final Format FORMAT = Format.createSampleFormat(null, MimeTypes.AUDIO_RAW, 0);
@@ -56,20 +55,22 @@ public class SimpleDecoderAudioRendererTest {
   @Before
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
-    audioRenderer = new SimpleDecoderAudioRenderer(null, null, null, false, mockAudioSink) {
-      @Override
-      protected int supportsFormatInternal(DrmSessionManager<ExoMediaCrypto> drmSessionManager,
-          Format format) {
-        return FORMAT_HANDLED;
-      }
+    audioRenderer =
+        new SimpleDecoderAudioRenderer(null, null, null, false, mockAudioSink) {
+          @Override
+          protected int supportsFormatInternal(
+              @Nullable DrmSessionManager<ExoMediaCrypto> drmSessionManager, Format format) {
+            return FORMAT_HANDLED;
+          }
 
-      @Override
-      protected SimpleDecoder<DecoderInputBuffer, ? extends SimpleOutputBuffer,
-          ? extends AudioDecoderException> createDecoder(Format format, ExoMediaCrypto mediaCrypto)
-          throws AudioDecoderException {
-        return new FakeDecoder();
-      }
-    };
+          @Override
+          protected SimpleDecoder<
+                  DecoderInputBuffer, ? extends SimpleOutputBuffer, ? extends AudioDecoderException>
+              createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
+                  throws AudioDecoderException {
+            return new FakeDecoder();
+          }
+        };
   }
 
   @Config(sdk = 19)
@@ -103,7 +104,8 @@ public class SimpleDecoderAudioRendererTest {
     }
     verify(mockAudioSink, times(1)).playToEndOfStream();
     audioRenderer.disable();
-    verify(mockAudioSink, times(1)).release();
+    audioRenderer.reset();
+    verify(mockAudioSink, times(1)).reset();
   }
 
   private static final class FakeDecoder

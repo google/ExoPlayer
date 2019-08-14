@@ -22,6 +22,7 @@ import static java.util.Arrays.copyOfRange;
 import static org.junit.Assert.fail;
 
 import android.net.Uri;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -30,12 +31,9 @@ import java.io.IOException;
 import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Test for {@link DefaultExtractorInput}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Test for {@link DefaultExtractorInput}. */
+@RunWith(AndroidJUnit4.class)
 public class DefaultExtractorInputTest {
 
   private static final String TEST_URI = "http://www.google.com";
@@ -336,6 +334,23 @@ public class DefaultExtractorInputTest {
     } catch (EOFException e) {
       // Expected.
     }
+  }
+
+  @Test
+  public void testPeekFullyAfterEofExceptionPeeksAsExpected() throws Exception {
+    DefaultExtractorInput input = createDefaultExtractorInput();
+    byte[] target = new byte[TEST_DATA.length + 10];
+
+    try {
+      input.peekFully(target, /* offset= */ 0, target.length);
+      fail();
+    } catch (EOFException expected) {
+      // Do nothing. Expected.
+    }
+    input.peekFully(target, /* offset= */ 0, /* length= */ TEST_DATA.length);
+
+    assertThat(input.getPeekPosition()).isEqualTo(TEST_DATA.length);
+    assertThat(Arrays.equals(TEST_DATA, Arrays.copyOf(target, TEST_DATA.length))).isTrue();
   }
 
   @Test

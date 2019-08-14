@@ -20,14 +20,15 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
-import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
-import android.util.Log;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.ExecutorService;
@@ -136,6 +137,7 @@ public final class Loader implements LoaderErrorThrower {
   }
 
   /** Types of action that can be taken in response to a load error. */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     ACTION_TYPE_RETRY,
@@ -309,7 +311,7 @@ public final class Loader implements LoaderErrorThrower {
     private final T loadable;
     private final long startTimeMs;
 
-    private @Nullable Loader.Callback<T> callback;
+    @Nullable private Loader.Callback<T> callback;
     private IOException currentError;
     private int errorCount;
 

@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.video.spherical;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -39,7 +39,7 @@ public class CameraMotionRenderer extends BaseRenderer {
   private final ParsableByteArray scratch;
 
   private long offsetUs;
-  private @Nullable CameraMotionListener listener;
+  @Nullable private CameraMotionListener listener;
   private long lastTimestampUs;
 
   public CameraMotionRenderer() {
@@ -57,7 +57,7 @@ public class CameraMotionRenderer extends BaseRenderer {
   }
 
   @Override
-  public void handleMessage(int messageType, Object message) throws ExoPlaybackException {
+  public void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException {
     if (messageType == C.MSG_SET_CAMERA_MOTION_LISTENER) {
       listener = (CameraMotionListener) message;
     } else {
@@ -72,15 +72,12 @@ public class CameraMotionRenderer extends BaseRenderer {
 
   @Override
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
-    lastTimestampUs = 0;
-    if (listener != null) {
-      listener.onCameraMotionReset();
-    }
+    resetListener();
   }
 
   @Override
   protected void onDisabled() {
-    lastTimestampUs = 0;
+    resetListener();
   }
 
   @Override
@@ -125,5 +122,12 @@ public class CameraMotionRenderer extends BaseRenderer {
       result[i] = Float.intBitsToFloat(scratch.readLittleEndianInt());
     }
     return result;
+  }
+
+  private void resetListener() {
+    lastTimestampUs = 0;
+    if (listener != null) {
+      listener.onCameraMotionReset();
+    }
   }
 }

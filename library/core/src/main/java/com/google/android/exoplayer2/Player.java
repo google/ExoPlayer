@@ -16,15 +16,17 @@
 package com.google.android.exoplayer2;
 
 import android.os.Looper;
-import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
+import com.google.android.exoplayer2.C.VideoScalingMode;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AudioListener;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
+import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
@@ -32,6 +34,7 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoListener;
 import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -143,14 +146,14 @@ public interface Player {
   interface VideoComponent {
 
     /**
-     * Sets the video scaling mode.
+     * Sets the {@link VideoScalingMode}.
      *
-     * @param videoScalingMode The video scaling mode.
+     * @param videoScalingMode The {@link VideoScalingMode}.
      */
-    void setVideoScalingMode(@C.VideoScalingMode int videoScalingMode);
+    void setVideoScalingMode(@VideoScalingMode int videoScalingMode);
 
-    /** Returns the video scaling mode. */
-    @C.VideoScalingMode
+    /** Returns the {@link VideoScalingMode}. */
+    @VideoScalingMode
     int getVideoScalingMode();
 
     /**
@@ -297,11 +300,52 @@ public interface Player {
     void removeTextOutput(TextOutput listener);
   }
 
+  /** The metadata component of a {@link Player}. */
+  interface MetadataComponent {
+
+    /**
+     * Adds a {@link MetadataOutput} to receive metadata.
+     *
+     * @param output The output to register.
+     */
+    void addMetadataOutput(MetadataOutput output);
+
+    /**
+     * Removes a {@link MetadataOutput}.
+     *
+     * @param output The output to remove.
+     */
+    void removeMetadataOutput(MetadataOutput output);
+  }
+
   /**
    * Listener of changes in player state. All methods have no-op default implementations to allow
    * selective overrides.
    */
   interface EventListener {
+
+    /**
+     * Called when the timeline has been refreshed.
+     *
+     * <p>Note that if the timeline has changed then a position discontinuity may also have
+     * occurred. For example, the current period index may have changed as a result of periods being
+     * added or removed from the timeline. This will <em>not</em> be reported via a separate call to
+     * {@link #onPositionDiscontinuity(int)}.
+     *
+     * @param timeline The latest timeline. Never null, but may be empty.
+     * @param reason The {@link TimelineChangeReason} responsible for this timeline change.
+     */
+    @SuppressWarnings("deprecation")
+    default void onTimelineChanged(Timeline timeline, @TimelineChangeReason int reason) {
+      Object manifest = null;
+      if (timeline.getWindowCount() == 1) {
+        // Legacy behavior was to report the manifest for single window timelines only.
+        Timeline.Window window = new Timeline.Window();
+        manifest = timeline.getWindow(0, window).manifest;
+      }
+      // Call deprecated version.
+      onTimelineChanged(timeline, manifest, reason);
+    }
 
     /**
      * Called when the timeline and/or manifest has been refreshed.
@@ -314,7 +358,11 @@ public interface Player {
      * @param timeline The latest timeline. Never null, but may be empty.
      * @param manifest The latest manifest. May be null.
      * @param reason The {@link TimelineChangeReason} responsible for this timeline change.
+     * @deprecated Use {@link #onTimelineChanged(Timeline, int)} instead. The manifest can be
+     *     accessed by using {@link #getCurrentManifest()} or {@code timeline.getWindow(windowIndex,
+     *     window).manifest} for a given window index.
      */
+    @Deprecated
     default void onTimelineChanged(
         Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason) {}
 
@@ -340,9 +388,9 @@ public interface Player {
      * #getPlaybackState()} changes.
      *
      * @param playWhenReady Whether playback will proceed when ready.
-     * @param playbackState One of the {@code STATE} constants.
+     * @param playbackState The new {@link State playback state}.
      */
-    default void onPlayerStateChanged(boolean playWhenReady, int playbackState) {}
+    default void onPlayerStateChanged(boolean playWhenReady, @State int playbackState) {}
 
     /**
      * Called when the value of {@link #getRepeatMode()} changes.
@@ -375,8 +423,7 @@ public interface Player {
      * when the source introduces a discontinuity internally).
      *
      * <p>When a position discontinuity occurs as a result of a change to the timeline this method
-     * is <em>not</em> called. {@link #onTimelineChanged(Timeline, Object, int)} is called in this
-     * case.
+     * is <em>not</em> called. {@link #onTimelineChanged(Timeline, int)} is called in this case.
      *
      * @param reason The {@link DiscontinuityReason} responsible for the discontinuity.
      */
@@ -409,19 +456,40 @@ public interface Player {
 
     @Override
     @SuppressWarnings("deprecation")
+    public void onTimelineChanged(Timeline timeline, @TimelineChangeReason int reason) {
+      Object manifest = null;
+      if (timeline.getWindowCount() == 1) {
+        // Legacy behavior was to report the manifest for single window timelines only.
+        Timeline.Window window = new Timeline.Window();
+        manifest = timeline.getWindow(0, window).manifest;
+      }
+      // Call deprecated version.
+      onTimelineChanged(timeline, manifest, reason);
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
     public void onTimelineChanged(
         Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason) {
       // Call deprecated version. Otherwise, do nothing.
       onTimelineChanged(timeline, manifest);
     }
 
-    /** @deprecated Use {@link EventListener#onTimelineChanged(Timeline, Object, int)} instead. */
+    /** @deprecated Use {@link EventListener#onTimelineChanged(Timeline, int)} instead. */
     @Deprecated
     public void onTimelineChanged(Timeline timeline, @Nullable Object manifest) {
       // Do nothing.
     }
   }
 
+  /**
+   * Playback state. One of {@link #STATE_IDLE}, {@link #STATE_BUFFERING}, {@link #STATE_READY} or
+   * {@link #STATE_ENDED}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({STATE_IDLE, STATE_BUFFERING, STATE_READY, STATE_ENDED})
+  @interface State {}
   /**
    * The player does not have any media to play.
    */
@@ -445,6 +513,7 @@ public interface Player {
    * Repeat modes for playback. One of {@link #REPEAT_MODE_OFF}, {@link #REPEAT_MODE_ONE} or {@link
    * #REPEAT_MODE_ALL}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({REPEAT_MODE_OFF, REPEAT_MODE_ONE, REPEAT_MODE_ALL})
   @interface RepeatMode {}
@@ -466,6 +535,7 @@ public interface Player {
    * {@link #DISCONTINUITY_REASON_SEEK}, {@link #DISCONTINUITY_REASON_SEEK_ADJUSTMENT}, {@link
    * #DISCONTINUITY_REASON_AD_INSERTION} or {@link #DISCONTINUITY_REASON_INTERNAL}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     DISCONTINUITY_REASON_PERIOD_TRANSITION,
@@ -493,9 +563,10 @@ public interface Player {
   int DISCONTINUITY_REASON_INTERNAL = 4;
 
   /**
-   * Reasons for timeline and/or manifest changes. One of {@link #TIMELINE_CHANGE_REASON_PREPARED},
-   * {@link #TIMELINE_CHANGE_REASON_RESET} or {@link #TIMELINE_CHANGE_REASON_DYNAMIC}.
+   * Reasons for timeline changes. One of {@link #TIMELINE_CHANGE_REASON_PREPARED}, {@link
+   * #TIMELINE_CHANGE_REASON_RESET} or {@link #TIMELINE_CHANGE_REASON_DYNAMIC}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     TIMELINE_CHANGE_REASON_PREPARED,
@@ -529,6 +600,18 @@ public interface Player {
   TextComponent getTextComponent();
 
   /**
+   * Returns the component of this player for metadata output, or null if metadata is not supported.
+   */
+  @Nullable
+  MetadataComponent getMetadataComponent();
+
+  /**
+   * Returns the {@link Looper} associated with the application thread that's used to access the
+   * player and on which player events are received.
+   */
+  Looper getApplicationLooper();
+
+  /**
    * Register a listener to receive events from the player. The listener's methods will be called on
    * the thread that was used to construct the player. However, if the thread used to construct the
    * player does not have a {@link Looper}, then the listener will be called on the main thread.
@@ -545,10 +628,11 @@ public interface Player {
   void removeListener(EventListener listener);
 
   /**
-   * Returns the current state of the player.
+   * Returns the current {@link State playback state} of the player.
    *
-   * @return One of the {@code STATE} constants defined in this interface.
+   * @return The current {@link State playback state}.
    */
+  @State
   int getPlaybackState();
 
   /**
@@ -649,15 +733,38 @@ public interface Player {
   void seekTo(int windowIndex, long positionMs);
 
   /**
+   * Returns whether a previous window exists, which may depend on the current repeat mode and
+   * whether shuffle mode is enabled.
+   */
+  boolean hasPrevious();
+
+  /**
+   * Seeks to the default position of the previous window in the timeline, which may depend on the
+   * current repeat mode and whether shuffle mode is enabled. Does nothing if {@link #hasPrevious()}
+   * is {@code false}.
+   */
+  void previous();
+
+  /**
+   * Returns whether a next window exists, which may depend on the current repeat mode and whether
+   * shuffle mode is enabled.
+   */
+  boolean hasNext();
+
+  /**
+   * Seeks to the default position of the next window in the timeline, which may depend on the
+   * current repeat mode and whether shuffle mode is enabled. Does nothing if {@link #hasNext()} is
+   * {@code false}.
+   */
+  void next();
+
+  /**
    * Attempts to set the playback parameters. Passing {@code null} sets the parameters to the
    * default, {@link PlaybackParameters#DEFAULT}, which means there is no speed or pitch adjustment.
-   * <p>
-   * Playback parameters changes may cause the player to buffer.
-   * {@link EventListener#onPlaybackParametersChanged(PlaybackParameters)} will be called whenever
-   * the currently active playback parameters change. When that listener is called, the parameters
-   * passed to it may not match {@code playbackParameters}. For example, the chosen speed or pitch
-   * may be out of range, in which case they are constrained to a set of permitted values. If it is
-   * not possible to change the playback parameters, the listener will not be invoked.
+   *
+   * <p>Playback parameters changes may cause the player to buffer. {@link
+   * EventListener#onPlaybackParametersChanged(PlaybackParameters)} will be called whenever the
+   * currently active playback parameters change.
    *
    * @param playbackParameters The playback parameters, or {@code null} to use the defaults.
    */

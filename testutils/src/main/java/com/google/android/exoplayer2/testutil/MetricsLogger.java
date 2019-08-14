@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer2.testutil;
 
-import android.app.Instrumentation;
-
 /**
  * Metric Logging interface for ExoPlayer playback tests.
  */
@@ -76,13 +74,9 @@ public interface MetricsLogger {
     /**
      * Obtains a new instance of {@link MetricsLogger}.
      *
-     * @param instrumentation The test instrumentation.
      * @param tag The tag to be used for logcat logs.
-     * @param reportName The name of the report log.
-     * @param streamName The name of the stream of metrics.
      */
-    public static MetricsLogger createDefault(Instrumentation instrumentation, String tag,
-        String reportName, String streamName) {
+    public static MetricsLogger createDefault(String tag) {
       return new LogcatMetricsLogger(tag);
     }
   }

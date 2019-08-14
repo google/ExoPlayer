@@ -17,17 +17,13 @@ package com.google.android.exoplayer2.upstream.cache;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
 /** Tests {@link DefaultContentMetadata}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class DefaultContentMetadataTest {
 
   private DefaultContentMetadata contentMetadata;
@@ -131,24 +127,6 @@ public class DefaultContentMetadataTest {
     mutations.set("metadata name", "value");
     contentMetadata = contentMetadata.copyWithMutationsApplied(mutations);
     assertThat(contentMetadata.get("metadata name", "default value")).isEqualTo("value");
-  }
-
-  @Test
-  public void testSerializeDeserialize() throws Exception {
-    byte[] metadata3 = {1, 2, 3};
-    contentMetadata =
-        createContentMetadata(
-            "metadata1 name", "value", "metadata2 name", 12345, "metadata3 name", metadata3);
-
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    contentMetadata.writeToStream(new DataOutputStream(outputStream));
-    ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
-    DefaultContentMetadata contentMetadata2 =
-        DefaultContentMetadata.readFromStream(new DataInputStream(inputStream));
-
-    assertThat(contentMetadata2.get("metadata1 name", "default value")).isEqualTo("value");
-    assertThat(contentMetadata2.get("metadata2 name", 0)).isEqualTo(12345);
-    assertThat(contentMetadata2.get("metadata3 name", new byte[] {})).isEqualTo(metadata3);
   }
 
   @Test

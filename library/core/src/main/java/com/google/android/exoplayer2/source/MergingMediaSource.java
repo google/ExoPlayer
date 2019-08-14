@@ -15,13 +15,13 @@
  */
 package com.google.android.exoplayer2.source;
 
-import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
-import com.google.android.exoplayer2.ExoPlayer;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import java.io.IOException;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
@@ -41,6 +41,7 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
   public static final class IllegalMergeException extends IOException {
 
     /** The reason the merge failed. One of {@link #REASON_PERIOD_COUNT_MISMATCH}. */
+    @Documented
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({REASON_PERIOD_COUNT_MISMATCH})
     public @interface Reason {}
@@ -70,9 +71,8 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
   private final ArrayList<MediaSource> pendingTimelineSources;
   private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
 
-  private Object primaryManifest;
   private int periodCount;
-  private IllegalMergeException mergeError;
+  @Nullable private IllegalMergeException mergeError;
 
   /**
    * @param mediaSources The {@link MediaSource}s to merge.
@@ -97,11 +97,14 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
   }
 
   @Override
-  public void prepareSourceInternal(
-      ExoPlayer player,
-      boolean isTopLevelSource,
-      @Nullable TransferListener mediaTransferListener) {
-    super.prepareSourceInternal(player, isTopLevelSource, mediaTransferListener);
+  @Nullable
+  public Object getTag() {
+    return mediaSources.length > 0 ? mediaSources[0].getTag() : null;
+  }
+
+  @Override
+  protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
+    super.prepareSourceInternal(mediaTransferListener);
     for (int i = 0; i < mediaSources.length; i++) {
       prepareChildSource(i, mediaSources[i]);
     }
@@ -116,13 +119,13 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
   }
 
   @Override
-  public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
+  public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs) {
     MediaPeriod[] periods = new MediaPeriod[mediaSources.length];
     int periodIndex = timelines[0].getIndexOfPeriod(id.periodUid);
     for (int i = 0; i < periods.length; i++) {
       MediaPeriodId childMediaPeriodId =
           id.copyWithPeriodUid(timelines[i].getUidOfPeriod(periodIndex));
-      periods[i] = mediaSources[i].createPeriod(childMediaPeriodId, allocator);
+      periods[i] = mediaSources[i].createPeriod(childMediaPeriodId, allocator, startPositionUs);
     }
     return new MergingMediaPeriod(compositeSequenceableLoaderFactory, periods);
   }
@@ -136,10 +139,9 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
   }
 
   @Override
-  public void releaseSourceInternal() {
+  protected void releaseSourceInternal() {
     super.releaseSourceInternal();
     Arrays.fill(timelines, null);
-    primaryManifest = null;
     periodCount = PERIOD_COUNT_UNSET;
     mergeError = null;
     pendingTimelineSources.clear();
@@ -148,7 +150,7 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
 
   @Override
   protected void onChildSourceInfoRefreshed(
-      Integer id, MediaSource mediaSource, Timeline timeline, @Nullable Object manifest) {
+      Integer id, MediaSource mediaSource, Timeline timeline) {
     if (mergeError == null) {
       mergeError = checkTimelineMerges(timeline);
     }
@@ -157,20 +159,19 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
     }
     pendingTimelineSources.remove(mediaSource);
     timelines[id] = timeline;
-    if (mediaSource == mediaSources[0]) {
-      primaryManifest = manifest;
-    }
     if (pendingTimelineSources.isEmpty()) {
-      refreshSourceInfo(timelines[0], primaryManifest);
+      refreshSourceInfo(timelines[0]);
     }
   }
 
   @Override
-  protected @Nullable MediaPeriodId getMediaPeriodIdForChildMediaPeriodId(
+  @Nullable
+  protected MediaPeriodId getMediaPeriodIdForChildMediaPeriodId(
       Integer id, MediaPeriodId mediaPeriodId) {
     return id == 0 ? mediaPeriodId : null;
   }
 
+  @Nullable
   private IllegalMergeException checkTimelineMerges(Timeline timeline) {
     if (periodCount == PERIOD_COUNT_UNSET) {
       periodCount = timeline.getPeriodCount();

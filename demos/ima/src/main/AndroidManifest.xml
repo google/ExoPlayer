@@ -17,6 +17,7 @@
     package="com.google.android.exoplayer2.imademo">
 
   <uses-permission android:name="android.permission.INTERNET"/>
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
   <uses-sdk/>
 
   <application android:label="@string/application_name" android:icon="@mipmap/ic_launcher"

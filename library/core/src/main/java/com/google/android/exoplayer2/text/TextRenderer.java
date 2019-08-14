@@ -19,8 +19,8 @@ import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Looper;
 import android.os.Message;
-import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
@@ -43,15 +44,13 @@ import java.util.List;
  */
 public final class TextRenderer extends BaseRenderer implements Callback {
 
-  /**
-   * @deprecated Use {@link TextOutput}.
-   */
-  @Deprecated
-  public interface Output extends TextOutput {}
-
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({REPLACEMENT_STATE_NONE, REPLACEMENT_STATE_SIGNAL_END_OF_STREAM,
-      REPLACEMENT_STATE_WAIT_END_OF_STREAM})
+  @IntDef({
+    REPLACEMENT_STATE_NONE,
+    REPLACEMENT_STATE_SIGNAL_END_OF_STREAM,
+    REPLACEMENT_STATE_WAIT_END_OF_STREAM
+  })
   private @interface ReplacementState {}
   /**
    * The decoder does not need to be replaced.
@@ -72,7 +71,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
 
   private static final int MSG_UPDATE_OUTPUT = 0;
 
-  private final @Nullable Handler outputHandler;
+  @Nullable private final Handler outputHandler;
   private final TextOutput output;
   private final SubtitleDecoderFactory decoderFactory;
   private final FormatHolder formatHolder;

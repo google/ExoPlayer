@@ -18,10 +18,11 @@ package com.google.android.exoplayer2.audio;
 import android.annotation.TargetApi;
 import android.media.AudioTimestamp;
 import android.media.AudioTrack;
-import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -45,6 +46,7 @@ import java.lang.annotation.RetentionPolicy;
 /* package */ final class AudioTimestampPoller {
 
   /** Timestamp polling states. */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     STATE_INITIALIZING,
@@ -80,7 +82,7 @@ import java.lang.annotation.RetentionPolicy;
    */
   private static final int INITIALIZING_DURATION_US = 500_000;
 
-  private final @Nullable AudioTimestampV19 audioTimestamp;
+  @Nullable private final AudioTimestampV19 audioTimestamp;
 
   private @State int state;
   private long initializeSystemTimeUs;

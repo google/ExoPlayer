@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.amr;
 
-import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
 import java.io.IOException;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
@@ -51,6 +52,7 @@ public final class AmrExtractor implements Extractor {
    * Flags controlling the behavior of the extractor. Possible flag value is {@link
    * #FLAG_ENABLE_CONSTANT_BITRATE_SEEKING}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
       flag = true,
@@ -138,7 +140,7 @@ public final class AmrExtractor implements Extractor {
 
   private ExtractorOutput extractorOutput;
   private TrackOutput trackOutput;
-  private @Nullable SeekMap seekMap;
+  @Nullable private SeekMap seekMap;
   private boolean hasOutputFormat;
 
   public AmrExtractor() {

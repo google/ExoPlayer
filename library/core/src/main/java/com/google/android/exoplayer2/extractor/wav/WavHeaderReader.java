@@ -15,14 +15,13 @@
  */
 package com.google.android.exoplayer2.extractor.wav;
 
-import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.audio.WavUtil;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
-import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /** Reads a {@code WavHeader} from an input stream; supports resuming from input failures. */
@@ -92,18 +91,20 @@ import java.io.IOException;
     // If present, skip extensionSize, validBitsPerSample, channelMask, subFormatGuid, ...
     input.advancePeekPosition((int) chunkHeader.size - 16);
 
-    return new WavHeader(numChannels, sampleRateHz, averageBytesPerSecond, blockAlignment,
-        bitsPerSample, encoding);
+    return new WavHeader(
+        numChannels, sampleRateHz, averageBytesPerSecond, blockAlignment, bitsPerSample, encoding);
   }
 
   /**
-   * Skips to the data in the given WAV input stream and returns its data size. After calling, the
-   * input stream's position will point to the start of sample data in the WAV.
-   * <p>
-   * If an exception is thrown, the input position will be left pointing to a chunk header.
+   * Skips to the data in the given WAV input stream. After calling, the input stream's position
+   * will point to the start of sample data in the WAV, and the data bounds of the provided {@link
+   * WavHeader} will have been set.
    *
-   * @param input Input stream to skip to the data chunk in. Its peek position must be pointing to
-   *     a valid chunk header.
+   * <p>If an exception is thrown, the input position will be left pointing to a chunk header and
+   * the bounds of the provided {@link WavHeader} will not have been set.
+   *
+   * @param input Input stream to skip to the data chunk in. Its peek position must be pointing to a
+   *     valid chunk header.
    * @param wavHeader WAV header to populate with data bounds.
    * @throws ParserException If an error occurs parsing chunks.
    * @throws IOException If reading from the input fails.
@@ -120,11 +121,13 @@ import java.io.IOException;
     ParsableByteArray scratch = new ParsableByteArray(ChunkHeader.SIZE_IN_BYTES);
     // Skip all chunks until we hit the data header.
     ChunkHeader chunkHeader = ChunkHeader.peek(input, scratch);
-    while (chunkHeader.id != Util.getIntegerCodeForString("data")) {
-      Log.w(TAG, "Ignoring unknown WAV chunk: " + chunkHeader.id);
+    while (chunkHeader.id != WavUtil.DATA_FOURCC) {
+      if (chunkHeader.id != WavUtil.RIFF_FOURCC && chunkHeader.id != WavUtil.FMT_FOURCC) {
+        Log.w(TAG, "Ignoring unknown WAV chunk: " + chunkHeader.id);
+      }
       long bytesToSkip = ChunkHeader.SIZE_IN_BYTES + chunkHeader.size;
       // Override size of RIFF chunk, since it describes its size as the entire file.
-      if (chunkHeader.id == Util.getIntegerCodeForString("RIFF")) {
+      if (chunkHeader.id == WavUtil.RIFF_FOURCC) {
         bytesToSkip = ChunkHeader.SIZE_IN_BYTES + 4;
       }
       if (bytesToSkip > Integer.MAX_VALUE) {
@@ -136,7 +139,14 @@ import java.io.IOException;
     // Skip past the "data" header.
     input.skipFully(ChunkHeader.SIZE_IN_BYTES);
 
-    wavHeader.setDataBounds(input.getPosition(), chunkHeader.size);
+    int dataStartPosition = (int) input.getPosition();
+    long dataEndPosition = dataStartPosition + chunkHeader.size;
+    long inputLength = input.getLength();
+    if (inputLength != C.LENGTH_UNSET && dataEndPosition > inputLength) {
+      Log.w(TAG, "Data exceeds input length: " + dataEndPosition + ", " + inputLength);
+      dataEndPosition = inputLength;
+    }
+    wavHeader.setDataBounds(dataStartPosition, dataEndPosition);
   }
 
   private WavHeaderReader() {

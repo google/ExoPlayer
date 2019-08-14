@@ -72,7 +72,7 @@ public final class H262Reader implements ElementaryStreamReader {
     this(null);
   }
 
-  public H262Reader(UserDataReader userDataReader) {
+  /* package */ H262Reader(UserDataReader userDataReader) {
     this.userDataReader = userDataReader;
     prefixFlags = new boolean[4];
     csdBuffer = new CsdBuffer(128);
@@ -107,7 +107,8 @@ public final class H262Reader implements ElementaryStreamReader {
   }
 
   @Override
-  public void packetStarted(long pesTimeUs, boolean dataAlignmentIndicator) {
+  public void packetStarted(long pesTimeUs, @TsPayloadReader.Flags int flags) {
+    // TODO (Internal b/32267012): Consider using random access indicator.
     this.pesTimeUs = pesTimeUs;
   }
 

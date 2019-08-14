@@ -23,23 +23,20 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.MediaSourceFactory;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
-import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
 /** Manages the {@link ExoPlayer}, the IMA plugin and all video playback. */
-/* package */ final class PlayerManager implements AdsMediaSource.MediaSourceFactory {
+/* package */ final class PlayerManager implements MediaSourceFactory {
 
   private final ImaAdsLoader adsLoader;
   private final DataSource.Factory dataSourceFactory;
@@ -56,14 +53,9 @@ import com.google.android.exoplayer2.util.Util;
   }
 
   public void init(Context context, PlayerView playerView) {
-    // Create a default track selector.
-    TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory();
-    TrackSelector trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
-
     // Create a player instance.
-    player = ExoPlayerFactory.newSimpleInstance(context, trackSelector);
-
-    // Bind the player to the view.
+    player = ExoPlayerFactory.newSimpleInstance(context);
+    adsLoader.setPlayer(player);
     playerView.setPlayer(player);
 
     // This is the MediaSource representing the content media (i.e. not the ad).
@@ -73,10 +65,7 @@ import com.google.android.exoplayer2.util.Util;
     // Compose the content media source into a new AdsMediaSource with both ads and content.
     MediaSource mediaSourceWithAds =
         new AdsMediaSource(
-            contentMediaSource,
-            /* adMediaSourceFactory= */ this,
-            adsLoader,
-            playerView.getOverlayFrameLayout());
+            contentMediaSource, /* adMediaSourceFactory= */ this, adsLoader, playerView);
 
     // Prepare the player with the source.
     player.seekTo(contentPosition);
@@ -89,6 +78,7 @@ import com.google.android.exoplayer2.util.Util;
       contentPosition = player.getContentPosition();
       player.release();
       player = null;
+      adsLoader.setPlayer(null);
     }
   }
 
@@ -100,7 +90,7 @@ import com.google.android.exoplayer2.util.Util;
     adsLoader.release();
   }
 
-  // AdsMediaSource.MediaSourceFactory implementation.
+  // MediaSourceFactory implementation.
 
   @Override
   public MediaSource createMediaSource(Uri uri) {
@@ -125,7 +115,7 @@ import com.google.android.exoplayer2.util.Util;
       case C.TYPE_HLS:
         return new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
       case C.TYPE_OTHER:
-        return new ExtractorMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
+        return new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
       default:
         throw new IllegalStateException("Unsupported type: " + type);
     }

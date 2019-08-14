@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.RendererConfiguration;
 import com.google.android.exoplayer2.util.Util;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
@@ -70,7 +71,7 @@ public final class TrackSelectorResult {
    *     will be returned.
    * @return Whether this result is equivalent to {@code other} for all renderers.
    */
-  public boolean isEquivalent(TrackSelectorResult other) {
+  public boolean isEquivalent(@Nullable TrackSelectorResult other) {
     if (other == null || other.selections.length != selections.length) {
       return false;
     }
@@ -84,8 +85,8 @@ public final class TrackSelectorResult {
 
   /**
    * Returns whether this result is equivalent to {@code other} for the renderer at the given index.
-   * The results are equivalent if they have equal renderersEnabled array, track selections, and
-   * configurations for the renderer.
+   * The results are equivalent if they have equal track selections and configurations for the
+   * renderer.
    *
    * @param other The other {@link TrackSelectorResult}. May be null, in which case {@code false}
    *     will be returned.
@@ -93,7 +94,7 @@ public final class TrackSelectorResult {
    * @return Whether this result is equivalent to {@code other} for the renderer at the specified
    *     index.
    */
-  public boolean isEquivalent(TrackSelectorResult other, int index) {
+  public boolean isEquivalent(@Nullable TrackSelectorResult other, int index) {
     if (other == null) {
       return false;
     }

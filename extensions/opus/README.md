@@ -98,4 +98,4 @@ player, then implement your own logic to use the renderer for a given track.
 * [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.opus.*`
   belong to this module.
 
-[Javadoc]: https://google.github.io/ExoPlayer/doc/reference/index.html
+[Javadoc]: https://exoplayer.dev/doc/reference/index.html

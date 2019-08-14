@@ -24,8 +24,9 @@ import android.opengl.EGLDisplay;
 import android.opengl.EGLSurface;
 import android.opengl.GLES20;
 import android.os.Handler;
-import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -43,6 +44,7 @@ public final class EGLSurfaceTexture implements SurfaceTexture.OnFrameAvailableL
    * Secure mode to be used by the EGL surface and context. One of {@link #SECURE_MODE_NONE}, {@link
    * #SECURE_MODE_SURFACELESS_CONTEXT} or {@link #SECURE_MODE_PROTECTED_PBUFFER}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({SECURE_MODE_NONE, SECURE_MODE_SURFACELESS_CONTEXT, SECURE_MODE_PROTECTED_PBUFFER})
   public @interface SecureMode {}
@@ -81,12 +83,12 @@ public final class EGLSurfaceTexture implements SurfaceTexture.OnFrameAvailableL
 
   private final Handler handler;
   private final int[] textureIdHolder;
-  private final @Nullable TextureImageListener callback;
+  @Nullable private final TextureImageListener callback;
 
-  private @Nullable EGLDisplay display;
-  private @Nullable EGLContext context;
-  private @Nullable EGLSurface surface;
-  private @Nullable SurfaceTexture texture;
+  @Nullable private EGLDisplay display;
+  @Nullable private EGLContext context;
+  @Nullable private EGLSurface surface;
+  @Nullable private SurfaceTexture texture;
 
   /**
    * @param handler The {@link Handler} that will be used to call {@link
@@ -305,9 +307,6 @@ public final class EGLSurfaceTexture implements SurfaceTexture.OnFrameAvailableL
 
   private static void generateTextureIds(int[] textureIdHolder) {
     GLES20.glGenTextures(/* n= */ 1, textureIdHolder, /* offset= */ 0);
-    int errorCode = GLES20.glGetError();
-    if (errorCode != GLES20.GL_NO_ERROR) {
-      throw new GlException("glGenTextures failed. Error: " + Integer.toHexString(errorCode));
-    }
+    GlUtil.checkGlError();
   }
 }

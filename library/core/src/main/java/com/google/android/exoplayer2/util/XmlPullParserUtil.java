@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.util;
 
+import androidx.annotation.Nullable;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -93,7 +94,7 @@ public final class XmlPullParserUtil {
    * @return The value of the attribute, or null if the current event is not a start tag or if no
    *     such attribute was found.
    */
-  public static String getAttributeValue(XmlPullParser xpp, String attributeName) {
+  public static @Nullable String getAttributeValue(XmlPullParser xpp, String attributeName) {
     int attributeCount = xpp.getAttributeCount();
     for (int i = 0; i < attributeCount; i++) {
       if (xpp.getAttributeName(i).equals(attributeName)) {
@@ -112,7 +113,8 @@ public final class XmlPullParserUtil {
    * @return The value of the attribute, or null if the current event is not a start tag or if no
    *     such attribute was found.
    */
-  public static String getAttributeValueIgnorePrefix(XmlPullParser xpp, String attributeName) {
+  public static @Nullable String getAttributeValueIgnorePrefix(
+      XmlPullParser xpp, String attributeName) {
     int attributeCount = xpp.getAttributeCount();
     for (int i = 0; i < attributeCount; i++) {
       if (stripPrefix(xpp.getAttributeName(i)).equals(attributeName)) {

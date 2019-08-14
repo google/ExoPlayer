@@ -18,18 +18,16 @@ package com.google.android.exoplayer2.source;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.util.Pair;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.Timeline.Window;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Unit test for {@link SinglePeriodTimeline}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Unit test for {@link SinglePeriodTimeline}. */
+@RunWith(AndroidJUnit4.class)
 public final class SinglePeriodTimelineTest {
 
   private Window window;
@@ -64,6 +62,7 @@ public final class SinglePeriodTimelineTest {
             /* windowDefaultStartPositionUs= */ 0,
             /* isSeekable= */ false,
             /* isDynamic= */ true,
+            /* manifest= */ null,
             /* tag= */ null);
     // Should return null with a positive position projection beyond window duration.
     Pair<Object, Long> position =
@@ -86,6 +85,7 @@ public final class SinglePeriodTimelineTest {
             /* durationUs= */ C.TIME_UNSET,
             /* isSeekable= */ false,
             /* isDynamic= */ false,
+            /* manifest= */ null,
             /* tag= */ null);
 
     assertThat(timeline.getWindow(/* windowIndex= */ 0, window, /* setTag= */ false).tag).isNull();
@@ -102,7 +102,11 @@ public final class SinglePeriodTimelineTest {
     Object tag = new Object();
     SinglePeriodTimeline timeline =
         new SinglePeriodTimeline(
-            /* durationUs= */ C.TIME_UNSET, /* isSeekable= */ false, /* isDynamic= */ false, tag);
+            /* durationUs= */ C.TIME_UNSET,
+            /* isSeekable= */ false,
+            /* isDynamic= */ false,
+            /* manifest= */ null,
+            tag);
 
     assertThat(timeline.getWindow(/* windowIndex= */ 0, window, /* setTag= */ false).tag).isNull();
     assertThat(timeline.getWindow(/* windowIndex= */ 0, window, /* setTag= */ true).tag)
@@ -116,6 +120,7 @@ public final class SinglePeriodTimelineTest {
             /* durationUs= */ C.TIME_UNSET,
             /* isSeekable= */ false,
             /* isDynamic= */ false,
+            /* manifest= */ null,
             /* tag= */ null);
     Object uid = timeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ true).uid;
 

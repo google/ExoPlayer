@@ -16,12 +16,13 @@
 package com.google.android.exoplayer2.upstream;
 
 import android.net.Uri;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.text.TextUtils;
-import android.util.Log;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.metadata.icy.IcyHeaders;
 import com.google.android.exoplayer2.upstream.DataSpec.HttpMethod;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Predicate;
 import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
@@ -40,14 +41,15 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
 
 /**
  * An {@link HttpDataSource} that uses Android's {@link HttpURLConnection}.
  *
  * <p>By default this implementation will not follow cross-protocol redirects (i.e. redirects from
  * HTTP to HTTPS or vice versa). Cross-protocol redirects can be enabled by using the {@link
- * #DefaultHttpDataSource(String, Predicate, TransferListener, int, int, boolean,
- * RequestProperties)} constructor and passing {@code true} as the second last argument.
+ * #DefaultHttpDataSource(String, Predicate, int, int, boolean, RequestProperties)} constructor and
+ * passing {@code true} as the second last argument.
  */
 public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSource {
 
@@ -73,13 +75,13 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   private final int connectTimeoutMillis;
   private final int readTimeoutMillis;
   private final String userAgent;
-  private final @Nullable Predicate<String> contentTypePredicate;
-  private final @Nullable RequestProperties defaultRequestProperties;
+  @Nullable private final RequestProperties defaultRequestProperties;
   private final RequestProperties requestProperties;
 
-  private @Nullable DataSpec dataSpec;
-  private @Nullable HttpURLConnection connection;
-  private @Nullable InputStream inputStream;
+  @Nullable private Predicate<String> contentTypePredicate;
+  @Nullable private DataSpec dataSpec;
+  @Nullable private HttpURLConnection connection;
+  @Nullable private InputStream inputStream;
   private boolean opened;
 
   private long bytesToSkip;
@@ -88,12 +90,63 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   private long bytesSkipped;
   private long bytesRead;
 
+  /** @param userAgent The User-Agent string that should be used. */
+  public DefaultHttpDataSource(String userAgent) {
+    this(userAgent, DEFAULT_CONNECT_TIMEOUT_MILLIS, DEFAULT_READ_TIMEOUT_MILLIS);
+  }
+
+  /**
+   * @param userAgent The User-Agent string that should be used.
+   * @param connectTimeoutMillis The connection timeout, in milliseconds. A timeout of zero is
+   *     interpreted as an infinite timeout.
+   * @param readTimeoutMillis The read timeout, in milliseconds. A timeout of zero is interpreted as
+   *     an infinite timeout.
+   */
+  public DefaultHttpDataSource(String userAgent, int connectTimeoutMillis, int readTimeoutMillis) {
+    this(
+        userAgent,
+        connectTimeoutMillis,
+        readTimeoutMillis,
+        /* allowCrossProtocolRedirects= */ false,
+        /* defaultRequestProperties= */ null);
+  }
+
+  /**
+   * @param userAgent The User-Agent string that should be used.
+   * @param connectTimeoutMillis The connection timeout, in milliseconds. A timeout of zero is
+   *     interpreted as an infinite timeout. Pass {@link #DEFAULT_CONNECT_TIMEOUT_MILLIS} to use the
+   *     default value.
+   * @param readTimeoutMillis The read timeout, in milliseconds. A timeout of zero is interpreted as
+   *     an infinite timeout. Pass {@link #DEFAULT_READ_TIMEOUT_MILLIS} to use the default value.
+   * @param allowCrossProtocolRedirects Whether cross-protocol redirects (i.e. redirects from HTTP
+   *     to HTTPS and vice versa) are enabled.
+   * @param defaultRequestProperties The default request properties to be sent to the server as HTTP
+   *     headers or {@code null} if not required.
+   */
+  public DefaultHttpDataSource(
+      String userAgent,
+      int connectTimeoutMillis,
+      int readTimeoutMillis,
+      boolean allowCrossProtocolRedirects,
+      @Nullable RequestProperties defaultRequestProperties) {
+    super(/* isNetwork= */ true);
+    this.userAgent = Assertions.checkNotEmpty(userAgent);
+    this.requestProperties = new RequestProperties();
+    this.connectTimeoutMillis = connectTimeoutMillis;
+    this.readTimeoutMillis = readTimeoutMillis;
+    this.allowCrossProtocolRedirects = allowCrossProtocolRedirects;
+    this.defaultRequestProperties = defaultRequestProperties;
+  }
+
   /**
    * @param userAgent The User-Agent string that should be used.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
    *     predicate then a {@link HttpDataSource.InvalidContentTypeException} is thrown from {@link
    *     #open(DataSpec)}.
+   * @deprecated Use {@link #DefaultHttpDataSource(String)} and {@link
+   *     #setContentTypePredicate(Predicate)}.
    */
+  @Deprecated
   public DefaultHttpDataSource(String userAgent, @Nullable Predicate<String> contentTypePredicate) {
     this(
         userAgent,
@@ -111,7 +164,10 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    *     interpreted as an infinite timeout.
    * @param readTimeoutMillis The read timeout, in milliseconds. A timeout of zero is interpreted as
    *     an infinite timeout.
+   * @deprecated Use {@link #DefaultHttpDataSource(String, int, int)} and {@link
+   *     #setContentTypePredicate(Predicate)}.
    */
+  @Deprecated
   public DefaultHttpDataSource(
       String userAgent,
       @Nullable Predicate<String> contentTypePredicate,
@@ -140,7 +196,10 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    *     to HTTPS and vice versa) are enabled.
    * @param defaultRequestProperties The default request properties to be sent to the server as HTTP
    *     headers or {@code null} if not required.
+   * @deprecated Use {@link #DefaultHttpDataSource(String, int, int, boolean, RequestProperties)}
+   *     and {@link #setContentTypePredicate(Predicate)}.
    */
+  @Deprecated
   public DefaultHttpDataSource(
       String userAgent,
       @Nullable Predicate<String> contentTypePredicate,
@@ -159,90 +218,19 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   }
 
   /**
-   * @param userAgent The User-Agent string that should be used.
-   * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
-   *     predicate then a {@link HttpDataSource.InvalidContentTypeException} is thrown from {@link
-   *     #open(DataSpec)}.
-   * @param listener An optional listener.
-   * @deprecated Use {@link #DefaultHttpDataSource(String, Predicate)} and {@link
-   *     #addTransferListener(TransferListener)}.
+   * Sets a content type {@link Predicate}. If a content type is rejected by the predicate then a
+   * {@link HttpDataSource.InvalidContentTypeException} is thrown from {@link #open(DataSpec)}.
+   *
+   * @param contentTypePredicate The content type {@link Predicate}, or {@code null} to clear a
+   *     predicate that was previously set.
    */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public DefaultHttpDataSource(
-      String userAgent,
-      @Nullable Predicate<String> contentTypePredicate,
-      @Nullable TransferListener listener) {
-    this(userAgent, contentTypePredicate, listener, DEFAULT_CONNECT_TIMEOUT_MILLIS,
-        DEFAULT_READ_TIMEOUT_MILLIS);
-  }
-
-  /**
-   * @param userAgent The User-Agent string that should be used.
-   * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
-   *     predicate then a {@link HttpDataSource.InvalidContentTypeException} is thrown from {@link
-   *     #open(DataSpec)}.
-   * @param listener An optional listener.
-   * @param connectTimeoutMillis The connection timeout, in milliseconds. A timeout of zero is
-   *     interpreted as an infinite timeout.
-   * @param readTimeoutMillis The read timeout, in milliseconds. A timeout of zero is interpreted as
-   *     an infinite timeout.
-   * @deprecated Use {@link #DefaultHttpDataSource(String, Predicate, int, int)} and {@link
-   *     #addTransferListener(TransferListener)}.
-   */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public DefaultHttpDataSource(
-      String userAgent,
-      @Nullable Predicate<String> contentTypePredicate,
-      @Nullable TransferListener listener,
-      int connectTimeoutMillis,
-      int readTimeoutMillis) {
-    this(userAgent, contentTypePredicate, listener, connectTimeoutMillis, readTimeoutMillis, false,
-        null);
-  }
-
-  /**
-   * @param userAgent The User-Agent string that should be used.
-   * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
-   *     predicate then a {@link HttpDataSource.InvalidContentTypeException} is thrown from {@link
-   *     #open(DataSpec)}.
-   * @param listener An optional listener.
-   * @param connectTimeoutMillis The connection timeout, in milliseconds. A timeout of zero is
-   *     interpreted as an infinite timeout. Pass {@link #DEFAULT_CONNECT_TIMEOUT_MILLIS} to use the
-   *     default value.
-   * @param readTimeoutMillis The read timeout, in milliseconds. A timeout of zero is interpreted as
-   *     an infinite timeout. Pass {@link #DEFAULT_READ_TIMEOUT_MILLIS} to use the default value.
-   * @param allowCrossProtocolRedirects Whether cross-protocol redirects (i.e. redirects from HTTP
-   *     to HTTPS and vice versa) are enabled.
-   * @param defaultRequestProperties The default request properties to be sent to the server as HTTP
-   *     headers or {@code null} if not required.
-   * @deprecated Use {@link #DefaultHttpDataSource(String, Predicate, int, int, boolean,
-   *     RequestProperties)} and {@link #addTransferListener(TransferListener)}.
-   */
-  @Deprecated
-  public DefaultHttpDataSource(
-      String userAgent,
-      @Nullable Predicate<String> contentTypePredicate,
-      @Nullable TransferListener listener,
-      int connectTimeoutMillis,
-      int readTimeoutMillis,
-      boolean allowCrossProtocolRedirects,
-      @Nullable RequestProperties defaultRequestProperties) {
-    this(
-        userAgent,
-        contentTypePredicate,
-        connectTimeoutMillis,
-        readTimeoutMillis,
-        allowCrossProtocolRedirects,
-        defaultRequestProperties);
-    if (listener != null) {
-      addTransferListener(listener);
-    }
+  public void setContentTypePredicate(@Nullable Predicate<String> contentTypePredicate) {
+    this.contentTypePredicate = contentTypePredicate;
   }
 
   @Override
-  public @Nullable Uri getUri() {
+  @Nullable
+  public Uri getUri() {
     return connection == null ? null : Uri.parse(connection.getURL().toString());
   }
 
@@ -283,8 +271,10 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     }
 
     int responseCode;
+    String responseMessage;
     try {
       responseCode = connection.getResponseCode();
+      responseMessage = connection.getResponseMessage();
     } catch (IOException e) {
       closeConnectionQuietly();
       throw new HttpDataSourceException("Unable to connect to " + dataSpec.uri.toString(), e,
@@ -296,7 +286,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       Map<String, List<String>> headers = connection.getHeaderFields();
       closeConnectionQuietly();
       InvalidResponseCodeException exception =
-          new InvalidResponseCodeException(responseCode, headers, dataSpec);
+          new InvalidResponseCodeException(responseCode, responseMessage, headers, dataSpec);
       if (responseCode == 416) {
         exception.initCause(new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE));
       }
@@ -316,7 +306,8 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     bytesToSkip = responseCode == 200 && dataSpec.position != 0 ? dataSpec.position : 0;
 
     // Determine the length of the data to be read, after skipping.
-    if (!dataSpec.isFlagSet(DataSpec.FLAG_ALLOW_GZIP)) {
+    boolean isCompressed = isCompressed(connection);
+    if (!isCompressed) {
       if (dataSpec.length != C.LENGTH_UNSET) {
         bytesToRead = dataSpec.length;
       } else {
@@ -326,14 +317,16 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       }
     } else {
       // Gzip is enabled. If the server opts to use gzip then the content length in the response
-      // will be that of the compressed data, which isn't what we want. Furthermore, there isn't a
-      // reliable way to determine whether the gzip was used or not. Always use the dataSpec length
-      // in this case.
+      // will be that of the compressed data, which isn't what we want. Always use the dataSpec
+      // length in this case.
       bytesToRead = dataSpec.length;
     }
 
     try {
       inputStream = connection.getInputStream();
+      if (isCompressed) {
+        inputStream = new GZIPInputStream(inputStream);
+      }
     } catch (IOException e) {
       closeConnectionQuietly();
       throw new HttpDataSourceException(e, dataSpec, HttpDataSourceException.TYPE_OPEN);
@@ -427,12 +420,20 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     long position = dataSpec.position;
     long length = dataSpec.length;
     boolean allowGzip = dataSpec.isFlagSet(DataSpec.FLAG_ALLOW_GZIP);
+    boolean allowIcyMetadata = dataSpec.isFlagSet(DataSpec.FLAG_ALLOW_ICY_METADATA);
 
     if (!allowCrossProtocolRedirects) {
       // HttpURLConnection disallows cross-protocol redirects, but otherwise performs redirection
       // automatically. This is the behavior we want, so use it.
       return makeConnection(
-          url, httpMethod, httpBody, position, length, allowGzip, true /* followRedirects */);
+          url,
+          httpMethod,
+          httpBody,
+          position,
+          length,
+          allowGzip,
+          allowIcyMetadata,
+          /* followRedirects= */ true);
     }
 
     // We need to handle redirects ourselves to allow cross-protocol redirects.
@@ -440,7 +441,14 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     while (redirectCount++ <= MAX_REDIRECTS) {
       HttpURLConnection connection =
           makeConnection(
-              url, httpMethod, httpBody, position, length, allowGzip, false /* followRedirects */);
+              url,
+              httpMethod,
+              httpBody,
+              position,
+              length,
+              allowGzip,
+              allowIcyMetadata,
+              /* followRedirects= */ false);
       int responseCode = connection.getResponseCode();
       String location = connection.getHeaderField("Location");
       if ((httpMethod == DataSpec.HTTP_METHOD_GET || httpMethod == DataSpec.HTTP_METHOD_HEAD)
@@ -480,6 +488,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    * @param position The byte offset of the requested data.
    * @param length The length of the requested data, or {@link C#LENGTH_UNSET}.
    * @param allowGzip Whether to allow the use of gzip.
+   * @param allowIcyMetadata Whether to allow ICY metadata.
    * @param followRedirects Whether to follow redirects.
    */
   private HttpURLConnection makeConnection(
@@ -489,6 +498,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       long position,
       long length,
       boolean allowGzip,
+      boolean allowIcyMetadata,
       boolean followRedirects)
       throws IOException {
     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -510,8 +520,11 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       connection.setRequestProperty("Range", rangeRequest);
     }
     connection.setRequestProperty("User-Agent", userAgent);
-    if (!allowGzip) {
-      connection.setRequestProperty("Accept-Encoding", "identity");
+    connection.setRequestProperty("Accept-Encoding", allowGzip ? "gzip" : "identity");
+    if (allowIcyMetadata) {
+      connection.setRequestProperty(
+          IcyHeaders.REQUEST_HEADER_ENABLE_METADATA_NAME,
+          IcyHeaders.REQUEST_HEADER_ENABLE_METADATA_VALUE);
     }
     connection.setInstanceFollowRedirects(followRedirects);
     connection.setDoOutput(httpBody != null);
@@ -736,4 +749,8 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     }
   }
 
+  private static boolean isCompressed(HttpURLConnection connection) {
+    String contentEncoding = connection.getHeaderField("Content-Encoding");
+    return "gzip".equalsIgnoreCase(contentEncoding);
+  }
 }

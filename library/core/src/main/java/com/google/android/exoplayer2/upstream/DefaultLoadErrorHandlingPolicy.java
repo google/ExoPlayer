@@ -18,10 +18,12 @@ package com.google.android.exoplayer2.upstream;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCodeException;
+import com.google.android.exoplayer2.upstream.Loader.UnexpectedLoaderException;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 /** Default implementation of {@link LoadErrorHandlingPolicy}. */
-public final class DefaultLoadErrorHandlingPolicy implements LoadErrorHandlingPolicy {
+public class DefaultLoadErrorHandlingPolicy implements LoadErrorHandlingPolicy {
 
   /** The default minimum number of times to retry loading data prior to propagating the error. */
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
@@ -76,13 +78,16 @@ public final class DefaultLoadErrorHandlingPolicy implements LoadErrorHandlingPo
   }
 
   /**
-   * Retries for any exception that is not a subclass of {@link ParserException}. The retry delay is
-   * calculated as {@code Math.min((errorCount - 1) * 1000, 5000)}.
+   * Retries for any exception that is not a subclass of {@link ParserException}, {@link
+   * FileNotFoundException} or {@link UnexpectedLoaderException}. The retry delay is calculated as
+   * {@code Math.min((errorCount - 1) * 1000, 5000)}.
    */
   @Override
   public long getRetryDelayMsFor(
       int dataType, long loadDurationMs, IOException exception, int errorCount) {
     return exception instanceof ParserException
+            || exception instanceof FileNotFoundException
+            || exception instanceof UnexpectedLoaderException
         ? C.TIME_UNSET
         : Math.min((errorCount - 1) * 1000, 5000);
   }

@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.ext.ffmpeg;
 
 import android.os.Handler;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
@@ -92,8 +92,8 @@ public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
   }
 
   @Override
-  protected int supportsFormatInternal(DrmSessionManager<ExoMediaCrypto> drmSessionManager,
-      Format format) {
+  protected int supportsFormatInternal(
+      @Nullable DrmSessionManager<ExoMediaCrypto> drmSessionManager, Format format) {
     Assertions.checkNotNull(format.sampleMimeType);
     if (!FfmpegLibrary.isAvailable()) {
       return FORMAT_UNSUPPORTED_TYPE;
@@ -113,7 +113,7 @@ public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
   }
 
   @Override
-  protected FfmpegDecoder createDecoder(Format format, ExoMediaCrypto mediaCrypto)
+  protected FfmpegDecoder createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
       throws FfmpegDecoderException {
     int initialInputBufferSize =
         format.maxInputSize != Format.NO_VALUE ? format.maxInputSize : DEFAULT_INPUT_BUFFER_SIZE;
@@ -145,12 +145,13 @@ public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
   }
 
   private boolean isOutputSupported(Format inputFormat) {
-    return shouldUseFloatOutput(inputFormat) || supportsOutputEncoding(C.ENCODING_PCM_16BIT);
+    return shouldUseFloatOutput(inputFormat)
+        || supportsOutput(inputFormat.channelCount, C.ENCODING_PCM_16BIT);
   }
 
   private boolean shouldUseFloatOutput(Format inputFormat) {
     Assertions.checkNotNull(inputFormat.sampleMimeType);
-    if (!enableFloatOutput || !supportsOutputEncoding(C.ENCODING_PCM_FLOAT)) {
+    if (!enableFloatOutput || !supportsOutput(inputFormat.channelCount, C.ENCODING_PCM_FLOAT)) {
       return false;
     }
     switch (inputFormat.sampleMimeType) {

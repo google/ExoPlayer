@@ -22,7 +22,8 @@ import static com.google.android.exoplayer2.extractor.amr.AmrExtractor.frameSize
 import static com.google.common.truth.Truth.assertThat;
 import static junit.framework.Assert.fail;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.PositionHolder;
@@ -34,10 +35,9 @@ import java.io.IOException;
 import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
 /** Unit test for {@link AmrExtractor}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class AmrExtractorTest {
 
   private static final Random RANDOM = new Random(1234);
