@@ -146,7 +146,6 @@ public interface ExoPlayer extends Player {
      * <p>The builder uses the following default values:
      *
      * <ul>
-     *   <li>{@link RenderersFactory}: {@link DefaultRenderersFactory}
      *   <li>{@link TrackSelector}: {@link DefaultTrackSelector}
      *   <li>{@link LoadControl}: {@link DefaultLoadControl}
      *   <li>{@link BandwidthMeter}: {@link DefaultBandwidthMeter#getSingletonInstance(Context)}
