@@ -107,7 +107,7 @@ public final class AtomicFile {
       str = new AtomicFileOutputStream(baseName);
     } catch (FileNotFoundException e) {
       File parent = baseName.getParentFile();
-      if (parent == null || !parent.mkdirs()) {
+      if (parent == null || (!parent.exists() && !parent.mkdirs())) {
         throw new IOException("Couldn't create directory " + baseName, e);
       }
       try {
