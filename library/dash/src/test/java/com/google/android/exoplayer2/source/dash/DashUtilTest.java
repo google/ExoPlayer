@@ -80,6 +80,7 @@ public final class DashUtilTest {
             MimeTypes.VIDEO_MP4,
             MimeTypes.VIDEO_H264,
             /* codecs= */ "",
+            /* metadata= */ null,
             Format.NO_VALUE,
             /* width= */ 1024,
             /* height= */ 768,
