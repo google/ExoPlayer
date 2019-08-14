@@ -71,22 +71,22 @@ Once you've followed the instructions above to check out, build and depend on
 the extension, the next step is to tell ExoPlayer to use `LibopusAudioRenderer`.
 How you do this depends on which player API you're using:
 
-* If you're passing a `DefaultRenderersFactory` to
-  `ExoPlayerFactory.newSimpleInstance`, you can enable using the extension by
-  setting the `extensionRendererMode` parameter of the `DefaultRenderersFactory`
-  constructor to `EXTENSION_RENDERER_MODE_ON`. This will use
-  `LibopusAudioRenderer` for playback if `MediaCodecAudioRenderer` doesn't
-  support the input format. Pass `EXTENSION_RENDERER_MODE_PREFER` to give
-  `LibopusAudioRenderer` priority over `MediaCodecAudioRenderer`.
+* If you're passing a `DefaultRenderersFactory` to `SimpleExoPlayer.Builder`,
+  you can enable using the extension by setting the `extensionRendererMode`
+  parameter of the `DefaultRenderersFactory` constructor to
+  `EXTENSION_RENDERER_MODE_ON`. This will use `LibopusAudioRenderer` for
+  playback if `MediaCodecAudioRenderer` doesn't support the input format. Pass
+  `EXTENSION_RENDERER_MODE_PREFER` to give `LibopusAudioRenderer` priority over
+  `MediaCodecAudioRenderer`.
 * If you've subclassed `DefaultRenderersFactory`, add a `LibopusAudioRenderer`
   to the output list in `buildAudioRenderers`. ExoPlayer will use the first
   `Renderer` in the list that supports the input media format.
 * If you've implemented your own `RenderersFactory`, return a
   `LibopusAudioRenderer` instance from `createRenderers`. ExoPlayer will use the
   first `Renderer` in the returned array that supports the input media format.
-* If you're using `ExoPlayerFactory.newInstance`, pass a `LibopusAudioRenderer`
-  in the array of `Renderer`s. ExoPlayer will use the first `Renderer` in the
-  list that supports the input media format.
+* If you're using `ExoPlayer.Builder`, pass a `LibopusAudioRenderer` in the
+  array of `Renderer`s. ExoPlayer will use the first `Renderer` in the list that
+  supports the input media format.
 
 Note: These instructions assume you're using `DefaultTrackSelector`. If you have
 a custom track selector the choice of `Renderer` is up to your implementation,

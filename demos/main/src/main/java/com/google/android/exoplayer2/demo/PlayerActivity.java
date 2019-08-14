@@ -33,7 +33,6 @@ import android.widget.Toast;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.C.ContentType;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.RenderersFactory;
@@ -371,7 +370,9 @@ public class PlayerActivity extends AppCompatActivity
       lastSeenTrackGroupArray = null;
 
       player =
-          ExoPlayerFactory.newSimpleInstance(/* context= */ this, renderersFactory, trackSelector);
+          new SimpleExoPlayer.Builder(/* context= */ this, renderersFactory)
+              .setTrackSelector(trackSelector)
+              .build();
       player.addListener(new PlayerEventListener());
       player.setPlayWhenReady(startAutoPlay);
       player.addAnalyticsListener(new EventLogger(trackSelector));

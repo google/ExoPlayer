@@ -79,6 +79,8 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
   /** Default maximum weight for the sliding window. */
   public static final int DEFAULT_SLIDING_WINDOW_MAX_WEIGHT = 2000;
 
+  @Nullable private static DefaultBandwidthMeter singletonInstance;
+
   /** Builder for a bandwidth meter. */
   public static final class Builder {
 
@@ -212,6 +214,19 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
       // Assume median group if not found.
       return groupIndices == null ? new int[] {2, 2, 2, 2} : groupIndices;
     }
+  }
+
+  /**
+   * Returns a singleton instance of a {@link DefaultBandwidthMeter} with default configuration.
+   *
+   * @param context A {@link Context}.
+   * @return The singleton instance.
+   */
+  public static synchronized DefaultBandwidthMeter getSingletonInstance(Context context) {
+    if (singletonInstance == null) {
+      singletonInstance = new DefaultBandwidthMeter.Builder(context).build();
+    }
+    return singletonInstance;
   }
 
   private static final int ELAPSED_MILLIS_FOR_ESTIMATE = 2000;

@@ -20,7 +20,6 @@ import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.C.ContentType;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -54,7 +53,7 @@ import com.google.android.exoplayer2.util.Util;
 
   public void init(Context context, PlayerView playerView) {
     // Create a player instance.
-    player = ExoPlayerFactory.newSimpleInstance(context);
+    player = new SimpleExoPlayer.Builder(context).build();
     adsLoader.setPlayer(player);
     playerView.setPlayer(player);
 

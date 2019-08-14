@@ -24,6 +24,7 @@ import android.media.PlaybackParams;
 import android.os.Handler;
 import android.os.Looper;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -45,9 +46,11 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextOutput;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Log;
@@ -63,7 +66,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * An {@link ExoPlayer} implementation that uses default {@link Renderer} components. Instances can
- * be obtained from {@link ExoPlayerFactory}.
+ * be obtained from {@link SimpleExoPlayer.Builder}.
  */
 public class SimpleExoPlayer extends BasePlayer
     implements ExoPlayer,
@@ -75,6 +78,229 @@ public class SimpleExoPlayer extends BasePlayer
   /** @deprecated Use {@link com.google.android.exoplayer2.video.VideoListener}. */
   @Deprecated
   public interface VideoListener extends com.google.android.exoplayer2.video.VideoListener {}
+
+  /**
+   * A builder for {@link SimpleExoPlayer} instances.
+   *
+   * <p>See {@link #Builder(Context)} for the list of default values.
+   */
+  public static final class Builder {
+
+    private final Context context;
+    private final RenderersFactory renderersFactory;
+
+    private Clock clock;
+    private TrackSelector trackSelector;
+    private LoadControl loadControl;
+    private DrmSessionManager<FrameworkMediaCrypto> drmSessionManager;
+    private BandwidthMeter bandwidthMeter;
+    private AnalyticsCollector analyticsCollector;
+    private Looper looper;
+    private boolean buildCalled;
+
+    /**
+     * Creates a builder.
+     *
+     * <p>Use {@link #Builder(Context, RenderersFactory)} instead, if you intend to provide a custom
+     * {@link RenderersFactory}. This is to ensure that ProGuard or R8 can remove ExoPlayer's {@link
+     * DefaultRenderersFactory} from the APK.
+     *
+     * <p>The builder uses the following default values:
+     *
+     * <ul>
+     *   <li>{@link RenderersFactory}: {@link DefaultRenderersFactory}
+     *   <li>{@link TrackSelector}: {@link DefaultTrackSelector}
+     *   <li>{@link LoadControl}: {@link DefaultLoadControl}
+     *   <li>{@link DrmSessionManager}: {@link DrmSessionManager#getDummyDrmSessionManager()}
+     *   <li>{@link BandwidthMeter}: {@link DefaultBandwidthMeter#getSingletonInstance(Context)}
+     *   <li>{@link Looper}: The {@link Looper} associated with the current thread, or the {@link
+     *       Looper} of the application's main thread if the current thread doesn't have a {@link
+     *       Looper}
+     *   <li>{@link AnalyticsCollector}: {@link AnalyticsCollector} with {@link Clock#DEFAULT}
+     *   <li>{@link Clock}: {@link Clock#DEFAULT}
+     * </ul>
+     *
+     * @param context A {@link Context}.
+     */
+    public Builder(Context context) {
+      this(context, new DefaultRenderersFactory(context));
+    }
+
+    /**
+     * Creates a builder with a custom {@link RenderersFactory}.
+     *
+     * <p>See {@link #Builder(Context)} for a list of default values.
+     *
+     * @param context A {@link Context}.
+     * @param renderersFactory A factory for creating {@link Renderer Renderers} to be used by the
+     *     player.
+     */
+    public Builder(Context context, RenderersFactory renderersFactory) {
+      this(
+          context,
+          renderersFactory,
+          new DefaultTrackSelector(context),
+          new DefaultLoadControl(),
+          DrmSessionManager.getDummyDrmSessionManager(),
+          DefaultBandwidthMeter.getSingletonInstance(context),
+          Util.getLooper(),
+          new AnalyticsCollector(Clock.DEFAULT),
+          Clock.DEFAULT);
+    }
+
+    /**
+     * Creates a builder with the specified custom components.
+     *
+     * <p>Note that this constructor is only useful if you try to ensure that ExoPlayer's default
+     * components can be removed by ProGuard or R8. For most components except renderers, there is
+     * only a marginal benefit of doing that.
+     *
+     * @param context A {@link Context}.
+     * @param renderersFactory A factory for creating {@link Renderer Renderers} to be used by the
+     *     player.
+     * @param trackSelector A {@link TrackSelector}.
+     * @param loadControl A {@link LoadControl}.
+     * @param drmSessionManager A {@link DrmSessionManager}.
+     * @param bandwidthMeter A {@link BandwidthMeter}.
+     * @param looper A {@link Looper} that must be used for all calls to the player.
+     * @param analyticsCollector An {@link AnalyticsCollector}.
+     * @param clock A {@link Clock}. Should always be {@link Clock#DEFAULT}.
+     */
+    public Builder(
+        Context context,
+        RenderersFactory renderersFactory,
+        TrackSelector trackSelector,
+        LoadControl loadControl,
+        DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+        BandwidthMeter bandwidthMeter,
+        Looper looper,
+        AnalyticsCollector analyticsCollector,
+        Clock clock) {
+      this.context = context;
+      this.renderersFactory = renderersFactory;
+      this.trackSelector = trackSelector;
+      this.loadControl = loadControl;
+      this.drmSessionManager = drmSessionManager;
+      this.bandwidthMeter = bandwidthMeter;
+      this.looper = looper;
+      this.analyticsCollector = analyticsCollector;
+      this.clock = clock;
+    }
+
+    /**
+     * Sets the {@link TrackSelector} that will be used by the player.
+     *
+     * @param trackSelector A {@link TrackSelector}.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setTrackSelector(TrackSelector trackSelector) {
+      Assertions.checkState(!buildCalled);
+      this.trackSelector = trackSelector;
+      return this;
+    }
+
+    /**
+     * Sets the {@link LoadControl} that will be used by the player.
+     *
+     * @param loadControl A {@link LoadControl}.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setLoadControl(LoadControl loadControl) {
+      Assertions.checkState(!buildCalled);
+      this.loadControl = loadControl;
+      return this;
+    }
+
+    /**
+     * Sets the {@link DrmSessionManager} that will be used for DRM protected playbacks.
+     *
+     * @param drmSessionManager A {@link DrmSessionManager}.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setDrmSessionManager(DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
+      Assertions.checkState(!buildCalled);
+      this.drmSessionManager = drmSessionManager;
+      return this;
+    }
+
+    /**
+     * Sets the {@link BandwidthMeter} that will be used by the player.
+     *
+     * @param bandwidthMeter A {@link BandwidthMeter}.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setBandwidthMeter(BandwidthMeter bandwidthMeter) {
+      Assertions.checkState(!buildCalled);
+      this.bandwidthMeter = bandwidthMeter;
+      return this;
+    }
+
+    /**
+     * Sets the {@link Looper} that must be used for all calls to the player and that is used to
+     * call listeners on.
+     *
+     * @param looper A {@link Looper}.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setLooper(Looper looper) {
+      Assertions.checkState(!buildCalled);
+      this.looper = looper;
+      return this;
+    }
+
+    /**
+     * Sets the {@link AnalyticsCollector} that will collect and forward all player events.
+     *
+     * @param analyticsCollector An {@link AnalyticsCollector}.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setAnalyticsCollector(AnalyticsCollector analyticsCollector) {
+      Assertions.checkState(!buildCalled);
+      this.analyticsCollector = analyticsCollector;
+      return this;
+    }
+
+    /**
+     * Sets the {@link Clock} that will be used by the player. Should only be set for testing
+     * purposes.
+     *
+     * @param clock A {@link Clock}.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    @VisibleForTesting
+    public Builder setClock(Clock clock) {
+      Assertions.checkState(!buildCalled);
+      this.clock = clock;
+      return this;
+    }
+
+    /**
+     * Builds a {@link SimpleExoPlayer} instance.
+     *
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public SimpleExoPlayer build() {
+      Assertions.checkState(!buildCalled);
+      buildCalled = true;
+      return new SimpleExoPlayer(
+          context,
+          renderersFactory,
+          trackSelector,
+          loadControl,
+          drmSessionManager,
+          bandwidthMeter,
+          analyticsCollector,
+          clock,
+          looper);
+    }
+  }
 
   private static final String TAG = "SimpleExoPlayer";
 

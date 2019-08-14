@@ -24,7 +24,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.C.ContentType;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -138,7 +137,9 @@ public class PlayerActivity extends GvrPlayerActivity implements PlaybackPrepare
       lastSeenTrackGroupArray = null;
 
       player =
-          ExoPlayerFactory.newSimpleInstance(/* context= */ this, renderersFactory, trackSelector);
+          new SimpleExoPlayer.Builder(/* context= */ this, renderersFactory)
+              .setTrackSelector(trackSelector)
+              .build();
       player.addListener(new PlayerEventListener());
       player.setPlayWhenReady(startAutoPlay);
       player.addAnalyticsListener(new EventLogger(trackSelector));

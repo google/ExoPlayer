@@ -104,7 +104,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
 
   /**
    * @deprecated Use {@link #DefaultRenderersFactory(Context)} and pass {@link DrmSessionManager}
-   *     directly to {@link SimpleExoPlayer} or {@link ExoPlayerFactory}.
+   *     directly to {@link SimpleExoPlayer.Builder}.
    */
   @Deprecated
   @SuppressWarnings("deprecation")
@@ -127,7 +127,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
   /**
    * @deprecated Use {@link #DefaultRenderersFactory(Context)} and {@link
    *     #setExtensionRendererMode(int)}, and pass {@link DrmSessionManager} directly to {@link
-   *     SimpleExoPlayer} or {@link ExoPlayerFactory}.
+   *     SimpleExoPlayer.Builder}.
    */
   @Deprecated
   @SuppressWarnings("deprecation")
@@ -154,7 +154,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
   /**
    * @deprecated Use {@link #DefaultRenderersFactory(Context)}, {@link
    *     #setExtensionRendererMode(int)} and {@link #setAllowedVideoJoiningTimeMs(long)}, and pass
-   *     {@link DrmSessionManager} directly to {@link SimpleExoPlayer} or {@link ExoPlayerFactory}.
+   *     {@link DrmSessionManager} directly to {@link SimpleExoPlayer.Builder}.
    */
   @Deprecated
   public DefaultRenderersFactory(

@@ -26,7 +26,6 @@ import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
@@ -1408,7 +1407,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
   /**
    * @deprecated Use {@link #DefaultTrackSelector(Context)} instead. The bandwidth meter should be
-   *     passed directly to the player in {@link ExoPlayerFactory}.
+   *     passed directly to the player in {@link SimpleExoPlayer.Builder}.
    */
   @Deprecated
   @SuppressWarnings("deprecation")

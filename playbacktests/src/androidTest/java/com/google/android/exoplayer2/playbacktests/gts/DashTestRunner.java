@@ -23,8 +23,6 @@ import android.media.UnsupportedSchemeException;
 import android.net.Uri;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.DefaultLoadControl;
-import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -290,12 +288,10 @@ public final class DashTestRunner {
         MappingTrackSelector trackSelector,
         DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
       SimpleExoPlayer player =
-          ExoPlayerFactory.newSimpleInstance(
-              host,
-              new DebugRenderersFactory(host),
-              trackSelector,
-              new DefaultLoadControl(),
-              drmSessionManager);
+          new SimpleExoPlayer.Builder(host, new DebugRenderersFactory(host))
+              .setTrackSelector(trackSelector)
+              .setDrmSessionManager(drmSessionManager)
+              .build();
       player.setVideoSurface(surface);
       return player;
     }
