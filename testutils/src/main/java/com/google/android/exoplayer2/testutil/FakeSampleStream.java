@@ -32,6 +32,7 @@ public final class FakeSampleStream implements SampleStream {
 
   private final Format format;
   @Nullable private final EventDispatcher eventDispatcher;
+  private final byte[] sampleData;
 
   private boolean notifiedDownstreamFormat;
   private boolean readFormat;
@@ -47,9 +48,23 @@ public final class FakeSampleStream implements SampleStream {
    */
   public FakeSampleStream(
       Format format, @Nullable EventDispatcher eventDispatcher, boolean shouldOutputSample) {
+    this(format, eventDispatcher, new byte[] {0});
+    readSample = !shouldOutputSample;
+  }
+
+  /**
+   * Creates fake sample stream which outputs the given {@link Format}, one sample with the provided
+   * bytes, then end of stream.
+   *
+   * @param format The {@link Format} to output.
+   * @param eventDispatcher An {@link EventDispatcher} to notify of read events.
+   * @param sampleData The sample data to output.
+   */
+  public FakeSampleStream(
+      Format format, @Nullable EventDispatcher eventDispatcher, byte[] sampleData) {
     this.format = format;
     this.eventDispatcher = eventDispatcher;
-    readSample = !shouldOutputSample;
+    this.sampleData = sampleData;
   }
 
   @Override
@@ -58,8 +73,8 @@ public final class FakeSampleStream implements SampleStream {
   }
 
   @Override
-  public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer,
-      boolean formatRequired) {
+  public int readData(
+      FormatHolder formatHolder, DecoderInputBuffer buffer, boolean formatRequired) {
     if (eventDispatcher != null && !notifiedDownstreamFormat) {
       eventDispatcher.downstreamFormatChanged(
           C.TRACK_TYPE_UNKNOWN,
@@ -75,9 +90,8 @@ public final class FakeSampleStream implements SampleStream {
       return C.RESULT_FORMAT_READ;
     } else if (!readSample) {
       buffer.timeUs = 0;
-      buffer.ensureSpaceForWrite(1);
-      buffer.data.put((byte) 0);
-      buffer.flip();
+      buffer.ensureSpaceForWrite(sampleData.length);
+      buffer.data.put(sampleData);
       readSample = true;
       return C.RESULT_BUFFER_READ;
     } else {
@@ -95,5 +109,4 @@ public final class FakeSampleStream implements SampleStream {
   public int skipData(long positionUs) {
     return 0;
   }
-
 }
