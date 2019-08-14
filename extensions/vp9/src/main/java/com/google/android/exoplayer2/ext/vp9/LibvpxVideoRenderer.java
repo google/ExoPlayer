@@ -68,8 +68,11 @@ public class LibvpxVideoRenderer extends SimpleDecoderVideoRenderer {
    * requiring multiple output buffers to be dequeued at a time for it to make progress.
    */
   private final int numOutputBuffers;
-  /** The default input buffer size. */
-  private static final int DEFAULT_INPUT_BUFFER_SIZE = 768 * 1024; // Value based on cs/SoftVpx.cpp.
+  /**
+   * The default input buffer size. The value is based on <a
+   * href="https://android.googlesource.com/platform/frameworks/av/+/d42b90c5183fbd9d6a28d9baee613fddbf8131d6/media/libstagefright/codecs/on2/dec/SoftVPX.cpp">SoftVPX.cpp</a>.
+   */
+  private static final int DEFAULT_INPUT_BUFFER_SIZE = 768 * 1024;
 
   private final boolean enableRowMultiThreadMode;
   private final boolean disableLoopFilter;
