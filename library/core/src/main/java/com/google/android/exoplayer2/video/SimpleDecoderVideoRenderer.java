@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
@@ -155,15 +156,8 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
   // BaseRenderer implementation.
 
   @Override
-  public int supportsFormat(Format format) {
-    boolean drmIsSupported =
-        format.drmInitData == null
-            || (format.exoMediaCryptoType == null
-                && supportsFormatDrm(drmSessionManager, format.drmInitData));
-    if (!drmIsSupported) {
-      return FORMAT_UNSUPPORTED_DRM;
-    }
-    return FORMAT_HANDLED | ADAPTIVE_SEAMLESS;
+  public final int supportsFormat(Format format) {
+    return supportsFormatInternal(drmSessionManager, format);
   }
 
   @Override
@@ -525,6 +519,17 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
       maybeNotifyDroppedFrames();
     }
   }
+
+  /**
+   * Returns the extent to which the subclass supports a given format.
+   *
+   * @param drmSessionManager The renderer's {@link DrmSessionManager}.
+   * @param format The format, which has a video {@link Format#sampleMimeType}.
+   * @return The extent to which the subclass supports the format itself.
+   * @see RendererCapabilities#supportsFormat(Format)
+   */
+  protected abstract int supportsFormatInternal(
+      @Nullable DrmSessionManager<ExoMediaCrypto> drmSessionManager, Format format);
 
   /**
    * Creates a decoder for the given format.
