@@ -122,6 +122,11 @@ public final class Metadata implements Parcelable {
     return Arrays.hashCode(entries);
   }
 
+  @Override
+  public String toString() {
+    return "entries=" + Arrays.toString(entries);
+  }
+
   // Parcelable implementation.
 
   @Override
