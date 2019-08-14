@@ -37,7 +37,9 @@ import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayDeque;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-/** An {@link ExoPlayer} implementation. Instances can be obtained from {@link ExoPlayerFactory}. */
+/**
+ * An {@link ExoPlayer} implementation. Instances can be obtained from {@link ExoPlayer.Builder}.
+ */
 /* package */ final class ExoPlayerImpl extends BasePlayer implements ExoPlayer {
 
   private static final String TAG = "ExoPlayerImpl";

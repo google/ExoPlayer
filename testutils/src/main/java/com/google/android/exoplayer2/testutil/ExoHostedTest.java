@@ -22,13 +22,10 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.audio.DefaultAudioSink;
@@ -245,14 +242,14 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
       Surface surface,
       MappingTrackSelector trackSelector,
       DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
-    RenderersFactory renderersFactory =
-        new DefaultRenderersFactory(
-            host,
-            DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF,
-            /* allowedVideoJoiningTimeMs= */ 0);
+    DefaultRenderersFactory renderersFactory = new DefaultRenderersFactory(host);
+    renderersFactory.setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF);
+    renderersFactory.setAllowedVideoJoiningTimeMs(/* allowedVideoJoiningTimeMs= */ 0);
     SimpleExoPlayer player =
-        ExoPlayerFactory.newSimpleInstance(
-            host, renderersFactory, trackSelector, new DefaultLoadControl(), drmSessionManager);
+        new SimpleExoPlayer.Builder(host, renderersFactory)
+            .setTrackSelector(trackSelector)
+            .setDrmSessionManager(drmSessionManager)
+            .build();
     player.setVideoSurface(surface);
     return player;
   }

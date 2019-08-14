@@ -34,6 +34,8 @@
 * Reset `DefaultBandwidthMeter` to initial values on network change.
 * Increase maximum buffer size for video in `DefaultLoadControl` to ensure high
   quality video can be loaded up to the full default buffer duration.
+* Replace `ExoPlayerFactory` by `SimpleExoPlayer.Builder` and
+  `ExoPlayer.Builder`.
 
 ### 2.10.4 ###
 

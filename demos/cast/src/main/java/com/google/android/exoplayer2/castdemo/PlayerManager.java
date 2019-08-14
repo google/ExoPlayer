@@ -20,7 +20,6 @@ import android.net.Uri;
 import android.view.KeyEvent;
 import android.view.View;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.Player.EventListener;
@@ -119,7 +118,7 @@ import java.util.Map;
     mediaDrms = new IdentityHashMap<>();
 
     trackSelector = new DefaultTrackSelector(context);
-    exoPlayer = ExoPlayerFactory.newSimpleInstance(context, trackSelector);
+    exoPlayer = new SimpleExoPlayer.Builder(context).setTrackSelector(trackSelector).build();
     exoPlayer.addListener(this);
     localPlayerView.setPlayer(exoPlayer);
 
