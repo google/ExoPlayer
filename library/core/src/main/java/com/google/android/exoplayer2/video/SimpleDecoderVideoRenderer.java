@@ -544,7 +544,8 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
           VideoDecoderInputBuffer,
           ? extends VideoDecoderOutputBuffer,
           ? extends VideoDecoderException>
-      createDecoder(Format format, ExoMediaCrypto mediaCrypto) throws VideoDecoderException;
+      createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
+          throws VideoDecoderException;
 
   /**
    * Dequeues output buffer.
