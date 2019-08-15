@@ -228,7 +228,8 @@ public class LibvpxVideoRenderer extends SimpleDecoderVideoRenderer {
           VideoDecoderInputBuffer,
           ? extends VideoDecoderOutputBuffer,
           ? extends VideoDecoderException>
-      createDecoder(Format format, ExoMediaCrypto mediaCrypto) throws VideoDecoderException {
+      createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
+          throws VideoDecoderException {
     TraceUtil.beginSection("createVpxDecoder");
     int initialInputBufferSize =
         format.maxInputSize != Format.NO_VALUE ? format.maxInputSize : DEFAULT_INPUT_BUFFER_SIZE;
