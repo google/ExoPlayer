@@ -20,7 +20,10 @@ import static com.google.android.exoplayer2.util.Util.castNonNull;
 import android.os.Parcel;
 import android.os.Parcelable;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 
@@ -28,6 +31,13 @@ import java.util.Arrays;
  * An Event Message (emsg) as defined in ISO 23009-1.
  */
 public final class EventMessage implements Metadata.Entry {
+
+  @VisibleForTesting
+  public static final String ID3_SCHEME_ID = "https://developer.apple.com/streaming/emsg-id3";
+
+  private static final Format ID3_FORMAT =
+      Format.createSampleFormat(
+          /* id= */ null, MimeTypes.APPLICATION_ID3, Format.OFFSET_SAMPLE_RELATIVE);
 
   /**
    * The message scheme.
@@ -79,6 +89,18 @@ public final class EventMessage implements Metadata.Entry {
     durationMs = in.readLong();
     id = in.readLong();
     messageData = castNonNull(in.createByteArray());
+  }
+
+  @Override
+  @Nullable
+  public Format getWrappedMetadataFormat() {
+    return ID3_SCHEME_ID.equals(schemeIdUri) ? ID3_FORMAT : null;
+  }
+
+  @Override
+  @Nullable
+  public byte[] getWrappedMetadataBytes() {
+    return ID3_SCHEME_ID.equals(schemeIdUri) ? messageData : null;
   }
 
   @Override
