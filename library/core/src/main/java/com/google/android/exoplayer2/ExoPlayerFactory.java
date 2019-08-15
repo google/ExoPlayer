@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
+import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
@@ -34,7 +35,11 @@ public final class ExoPlayerFactory {
 
   private ExoPlayerFactory() {}
 
-  /** @deprecated Use {@link SimpleExoPlayer.Builder} instead. */
+  /**
+   * @deprecated Use {@link SimpleExoPlayer.Builder} instead. The {@link DrmSessionManager} cannot
+   *     be passed to {@link SimpleExoPlayer.Builder} and should instead be injected into the {@link
+   *     MediaSource} factories.
+   */
   @Deprecated
   @SuppressWarnings("deprecation")
   public static SimpleExoPlayer newSimpleInstance(
@@ -49,7 +54,11 @@ public final class ExoPlayerFactory {
         context, renderersFactory, trackSelector, loadControl, drmSessionManager);
   }
 
-  /** @deprecated Use {@link SimpleExoPlayer.Builder} instead. */
+  /**
+   * @deprecated Use {@link SimpleExoPlayer.Builder} instead. The {@link DrmSessionManager} cannot
+   *     be passed to {@link SimpleExoPlayer.Builder} and should instead be injected into the {@link
+   *     MediaSource} factories.
+   */
   @Deprecated
   @SuppressWarnings("deprecation")
   public static SimpleExoPlayer newSimpleInstance(
@@ -98,7 +107,11 @@ public final class ExoPlayerFactory {
     return newSimpleInstance(context, renderersFactory, trackSelector, loadControl);
   }
 
-  /** @deprecated Use {@link SimpleExoPlayer.Builder} instead. */
+  /**
+   * @deprecated Use {@link SimpleExoPlayer.Builder} instead. The {@link DrmSessionManager} cannot
+   *     be passed to {@link SimpleExoPlayer.Builder} and should instead be injected into the {@link
+   *     MediaSource} factories.
+   */
   @Deprecated
   @SuppressWarnings("deprecation")
   public static SimpleExoPlayer newSimpleInstance(
@@ -111,7 +124,11 @@ public final class ExoPlayerFactory {
         context, renderersFactory, trackSelector, loadControl, drmSessionManager);
   }
 
-  /** @deprecated Use {@link SimpleExoPlayer.Builder} instead. */
+  /**
+   * @deprecated Use {@link SimpleExoPlayer.Builder} instead. The {@link DrmSessionManager} cannot
+   *     be passed to {@link SimpleExoPlayer.Builder} and should instead be injected into the {@link
+   *     MediaSource} factories.
+   */
   @Deprecated
   @SuppressWarnings("deprecation")
   public static SimpleExoPlayer newSimpleInstance(
@@ -140,7 +157,11 @@ public final class ExoPlayerFactory {
         Util.getLooper());
   }
 
-  /** @deprecated Use {@link SimpleExoPlayer.Builder} instead. */
+  /**
+   * @deprecated Use {@link SimpleExoPlayer.Builder} instead. The {@link DrmSessionManager} cannot
+   *     be passed to {@link SimpleExoPlayer.Builder} and should instead be injected into the {@link
+   *     MediaSource} factories.
+   */
   @Deprecated
   @SuppressWarnings("deprecation")
   public static SimpleExoPlayer newSimpleInstance(
@@ -153,7 +174,11 @@ public final class ExoPlayerFactory {
         context, renderersFactory, trackSelector, loadControl, drmSessionManager, Util.getLooper());
   }
 
-  /** @deprecated Use {@link SimpleExoPlayer.Builder} instead. */
+  /**
+   * @deprecated Use {@link SimpleExoPlayer.Builder} instead. The {@link DrmSessionManager} cannot
+   *     be passed to {@link SimpleExoPlayer.Builder} and should instead be injected into the {@link
+   *     MediaSource} factories.
+   */
   @Deprecated
   @SuppressWarnings("deprecation")
   public static SimpleExoPlayer newSimpleInstance(
@@ -174,7 +199,11 @@ public final class ExoPlayerFactory {
         Util.getLooper());
   }
 
-  /** @deprecated Use {@link SimpleExoPlayer.Builder} instead. */
+  /**
+   * @deprecated Use {@link SimpleExoPlayer.Builder} instead. The {@link DrmSessionManager} cannot
+   *     be passed to {@link SimpleExoPlayer.Builder} and should instead be injected into the {@link
+   *     MediaSource} factories.
+   */
   @Deprecated
   @SuppressWarnings("deprecation")
   public static SimpleExoPlayer newSimpleInstance(
@@ -194,7 +223,11 @@ public final class ExoPlayerFactory {
         Util.getLooper());
   }
 
-  /** @deprecated Use {@link SimpleExoPlayer.Builder} instead. */
+  /**
+   * @deprecated Use {@link SimpleExoPlayer.Builder} instead. The {@link DrmSessionManager} cannot
+   *     be passed to {@link SimpleExoPlayer.Builder} and should instead be injected into the {@link
+   *     MediaSource} factories.
+   */
   @Deprecated
   @SuppressWarnings("deprecation")
   public static SimpleExoPlayer newSimpleInstance(
@@ -214,7 +247,11 @@ public final class ExoPlayerFactory {
         looper);
   }
 
-  /** @deprecated Use {@link SimpleExoPlayer.Builder} instead. */
+  /**
+   * @deprecated Use {@link SimpleExoPlayer.Builder} instead. The {@link DrmSessionManager} cannot
+   *     be passed to {@link SimpleExoPlayer.Builder} and should instead be injected into the {@link
+   *     MediaSource} factories.
+   */
   @Deprecated
   @SuppressWarnings("deprecation")
   public static SimpleExoPlayer newSimpleInstance(
@@ -236,7 +273,11 @@ public final class ExoPlayerFactory {
         looper);
   }
 
-  /** @deprecated Use {@link SimpleExoPlayer.Builder} instead. */
+  /**
+   * @deprecated Use {@link SimpleExoPlayer.Builder} instead. The {@link DrmSessionManager} cannot
+   *     be passed to {@link SimpleExoPlayer.Builder} and should instead be injected into the {@link
+   *     MediaSource} factories.
+   */
   @Deprecated
   public static SimpleExoPlayer newSimpleInstance(
       Context context,
