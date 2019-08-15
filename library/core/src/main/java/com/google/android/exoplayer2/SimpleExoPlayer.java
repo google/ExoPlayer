@@ -92,7 +92,6 @@ public class SimpleExoPlayer extends BasePlayer
     private Clock clock;
     private TrackSelector trackSelector;
     private LoadControl loadControl;
-    private DrmSessionManager<FrameworkMediaCrypto> drmSessionManager;
     private BandwidthMeter bandwidthMeter;
     private AnalyticsCollector analyticsCollector;
     private Looper looper;
@@ -111,7 +110,6 @@ public class SimpleExoPlayer extends BasePlayer
      *   <li>{@link RenderersFactory}: {@link DefaultRenderersFactory}
      *   <li>{@link TrackSelector}: {@link DefaultTrackSelector}
      *   <li>{@link LoadControl}: {@link DefaultLoadControl}
-     *   <li>{@link DrmSessionManager}: {@link DrmSessionManager#getDummyDrmSessionManager()}
      *   <li>{@link BandwidthMeter}: {@link DefaultBandwidthMeter#getSingletonInstance(Context)}
      *   <li>{@link Looper}: The {@link Looper} associated with the current thread, or the {@link
      *       Looper} of the application's main thread if the current thread doesn't have a {@link
@@ -141,7 +139,6 @@ public class SimpleExoPlayer extends BasePlayer
           renderersFactory,
           new DefaultTrackSelector(context),
           new DefaultLoadControl(),
-          DrmSessionManager.getDummyDrmSessionManager(),
           DefaultBandwidthMeter.getSingletonInstance(context),
           Util.getLooper(),
           new AnalyticsCollector(Clock.DEFAULT),
@@ -160,7 +157,6 @@ public class SimpleExoPlayer extends BasePlayer
      *     player.
      * @param trackSelector A {@link TrackSelector}.
      * @param loadControl A {@link LoadControl}.
-     * @param drmSessionManager A {@link DrmSessionManager}.
      * @param bandwidthMeter A {@link BandwidthMeter}.
      * @param looper A {@link Looper} that must be used for all calls to the player.
      * @param analyticsCollector An {@link AnalyticsCollector}.
@@ -171,7 +167,6 @@ public class SimpleExoPlayer extends BasePlayer
         RenderersFactory renderersFactory,
         TrackSelector trackSelector,
         LoadControl loadControl,
-        DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
         BandwidthMeter bandwidthMeter,
         Looper looper,
         AnalyticsCollector analyticsCollector,
@@ -180,7 +175,6 @@ public class SimpleExoPlayer extends BasePlayer
       this.renderersFactory = renderersFactory;
       this.trackSelector = trackSelector;
       this.loadControl = loadControl;
-      this.drmSessionManager = drmSessionManager;
       this.bandwidthMeter = bandwidthMeter;
       this.looper = looper;
       this.analyticsCollector = analyticsCollector;
@@ -210,19 +204,6 @@ public class SimpleExoPlayer extends BasePlayer
     public Builder setLoadControl(LoadControl loadControl) {
       Assertions.checkState(!buildCalled);
       this.loadControl = loadControl;
-      return this;
-    }
-
-    /**
-     * Sets the {@link DrmSessionManager} that will be used for DRM protected playbacks.
-     *
-     * @param drmSessionManager A {@link DrmSessionManager}.
-     * @return This builder.
-     * @throws IllegalStateException If {@link #build()} has already been called.
-     */
-    public Builder setDrmSessionManager(DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
-      Assertions.checkState(!buildCalled);
-      this.drmSessionManager = drmSessionManager;
       return this;
     }
 
@@ -294,7 +275,6 @@ public class SimpleExoPlayer extends BasePlayer
           renderersFactory,
           trackSelector,
           loadControl,
-          drmSessionManager,
           bandwidthMeter,
           analyticsCollector,
           clock,
@@ -354,7 +334,11 @@ public class SimpleExoPlayer extends BasePlayer
    *     will not be used for DRM protected playbacks.
    * @param looper The {@link Looper} which must be used for all calls to the player and which is
    *     used to call listeners on.
+   * @deprecated Use {@link #SimpleExoPlayer(Context, RenderersFactory, TrackSelector, LoadControl,
+   *     BandwidthMeter, AnalyticsCollector, Clock, Looper)} instead, and pass the {@link
+   *     DrmSessionManager} to the {@link MediaSource} factories.
    */
+  @Deprecated
   protected SimpleExoPlayer(
       Context context,
       RenderersFactory renderersFactory,
@@ -386,7 +370,11 @@ public class SimpleExoPlayer extends BasePlayer
    *     player events.
    * @param looper The {@link Looper} which must be used for all calls to the player and which is
    *     used to call listeners on.
+   * @deprecated Use {@link #SimpleExoPlayer(Context, RenderersFactory, TrackSelector, LoadControl,
+   *     BandwidthMeter, AnalyticsCollector, Clock, Looper)} instead, and pass the {@link
+   *     DrmSessionManager} to the {@link MediaSource} factories.
    */
+  @Deprecated
   protected SimpleExoPlayer(
       Context context,
       RenderersFactory renderersFactory,
@@ -413,6 +401,41 @@ public class SimpleExoPlayer extends BasePlayer
    * @param renderersFactory A factory for creating {@link Renderer}s to be used by the instance.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
    * @param loadControl The {@link LoadControl} that will be used by the instance.
+   * @param bandwidthMeter The {@link BandwidthMeter} that will be used by the instance.
+   * @param analyticsCollector A factory for creating the {@link AnalyticsCollector} that will
+   *     collect and forward all player events.
+   * @param clock The {@link Clock} that will be used by the instance. Should always be {@link
+   *     Clock#DEFAULT}, unless the player is being used from a test.
+   * @param looper The {@link Looper} which must be used for all calls to the player and which is
+   *     used to call listeners on.
+   */
+  @SuppressWarnings("deprecation")
+  protected SimpleExoPlayer(
+      Context context,
+      RenderersFactory renderersFactory,
+      TrackSelector trackSelector,
+      LoadControl loadControl,
+      BandwidthMeter bandwidthMeter,
+      AnalyticsCollector analyticsCollector,
+      Clock clock,
+      Looper looper) {
+    this(
+        context,
+        renderersFactory,
+        trackSelector,
+        loadControl,
+        DrmSessionManager.getDummyDrmSessionManager(),
+        bandwidthMeter,
+        analyticsCollector,
+        clock,
+        looper);
+  }
+
+  /**
+   * @param context A {@link Context}.
+   * @param renderersFactory A factory for creating {@link Renderer}s to be used by the instance.
+   * @param trackSelector The {@link TrackSelector} that will be used by the instance.
+   * @param loadControl The {@link LoadControl} that will be used by the instance.
    * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if the instance
    *     will not be used for DRM protected playbacks.
    * @param bandwidthMeter The {@link BandwidthMeter} that will be used by the instance.
@@ -422,7 +445,11 @@ public class SimpleExoPlayer extends BasePlayer
    *     Clock#DEFAULT}, unless the player is being used from a test.
    * @param looper The {@link Looper} which must be used for all calls to the player and which is
    *     used to call listeners on.
+   * @deprecated Use {@link #SimpleExoPlayer(Context, RenderersFactory, TrackSelector, LoadControl,
+   *     BandwidthMeter, AnalyticsCollector, Clock, Looper)} instead, and pass the {@link
+   *     DrmSessionManager} to the {@link MediaSource} factories.
    */
+  @Deprecated
   protected SimpleExoPlayer(
       Context context,
       RenderersFactory renderersFactory,

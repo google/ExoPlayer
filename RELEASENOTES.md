@@ -36,6 +36,8 @@
   quality video can be loaded up to the full default buffer duration.
 * Replace `ExoPlayerFactory` by `SimpleExoPlayer.Builder` and
   `ExoPlayer.Builder`.
+* Inject `DrmSessionManager` into the `MediaSources` instead of `Renderers`
+  ([#5619](https://github.com/google/ExoPlayer/issues/5619)).
 
 ### 2.10.4 ###
 
