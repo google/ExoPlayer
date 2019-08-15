@@ -23,7 +23,7 @@ For a given use case, we aim to support ExoPlayer on all Android devices that
 satisfy the minimum version requirement. Known device specific compatibility
 issues are listed below. Device specific issues on our GitHub issue tracker can
 be found
-[here](https://github.com/google/ExoPlayer/labels/device%20specific%20issue).
+[here](https://github.com/google/ExoPlayer/labels/bug%3A%20device%20specific).
 
 * **FireOS (version 4 and earlier)** - Whilst we endeavour to support FireOS
   devices, FireOS is a fork of Android and as a result we are unable to
