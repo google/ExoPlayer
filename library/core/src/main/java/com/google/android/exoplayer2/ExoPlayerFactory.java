@@ -296,6 +296,7 @@ public final class ExoPlayerFactory {
         drmSessionManager,
         bandwidthMeter,
         analyticsCollector,
+        Clock.DEFAULT,
         looper);
   }
 
