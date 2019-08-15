@@ -594,8 +594,14 @@ DECODER_FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer) {
       memcpy(data + yLength, img->planes[VPX_PLANE_U], uvLength);
       memcpy(data + yLength + uvLength, img->planes[VPX_PLANE_V], uvLength);
     }
-  } else if (outputMode == kOutputModeSurfaceYuv &&
-             img->fmt != VPX_IMG_FMT_I42016) {
+  } else if (outputMode == kOutputModeSurfaceYuv) {
+    if (img->fmt & VPX_IMG_FMT_HIGHBITDEPTH) {
+      LOGE(
+          "ERROR: High bit depth output format %d not supported in surface "
+          "YUV output mode",
+          img->fmt);
+      return -1;
+    }
     int id = *(int*)img->fb_priv;
     context->buffer_manager->add_ref(id);
     JniFrameBuffer* jfb = context->buffer_manager->get_buffer(id);
