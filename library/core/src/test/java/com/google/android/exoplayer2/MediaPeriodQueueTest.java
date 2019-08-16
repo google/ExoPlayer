@@ -370,7 +370,9 @@ public final class MediaPeriodQueueTest {
 
   private void advance() {
     enqueueNext();
-    advancePlaying();
+    if (mediaPeriodQueue.getLoadingPeriod() != mediaPeriodQueue.getPlayingPeriod()) {
+      advancePlaying();
+    }
   }
 
   private void advancePlaying() {
@@ -382,7 +384,7 @@ public final class MediaPeriodQueueTest {
   }
 
   private void enqueueNext() {
-    mediaPeriodQueue.enqueueNextMediaPeriod(
+    mediaPeriodQueue.enqueueNextMediaPeriodHolder(
         rendererCapabilities,
         trackSelector,
         allocator,
@@ -460,7 +462,7 @@ public final class MediaPeriodQueueTest {
 
   private int getQueueLength() {
     int length = 0;
-    MediaPeriodHolder periodHolder = mediaPeriodQueue.getFrontPeriod();
+    MediaPeriodHolder periodHolder = mediaPeriodQueue.getPlayingPeriod();
     while (periodHolder != null) {
       length++;
       periodHolder = periodHolder.getNext();
