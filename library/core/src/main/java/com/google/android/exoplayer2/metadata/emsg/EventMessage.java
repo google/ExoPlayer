@@ -135,7 +135,14 @@ public final class EventMessage implements Metadata.Entry {
 
   @Override
   public String toString() {
-    return "EMSG: scheme=" + schemeIdUri + ", id=" + id + ", value=" + value;
+    return "EMSG: scheme="
+        + schemeIdUri
+        + ", id="
+        + id
+        + ", durationMs="
+        + durationMs
+        + ", value="
+        + value;
   }
 
   // Parcelable implementation.
