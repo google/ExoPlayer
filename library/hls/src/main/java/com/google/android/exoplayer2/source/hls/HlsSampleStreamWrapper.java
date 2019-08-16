@@ -696,9 +696,65 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   public void reevaluateBuffer(long positionUs) {
-    // Do nothing.
+    if (loader.isLoading() || isPendingReset()) {
+      return;
+    }
+
+    int currentQueueSize = mediaChunks.size();
+    int preferredQueueSize = chunkSource.getPreferredQueueSize(positionUs, readOnlyMediaChunks);
+    if (currentQueueSize > preferredQueueSize) {
+      Log.d(TAG, "reevaluateBuffer() -  position: " + positionUs + " preferredQueueSize: "
+          + preferredQueueSize + " current size: "+ currentQueueSize);
+
+      long firstRemovedStartTimeUs = discardMediaChunks(preferredQueueSize);
+      long endTimeUs = getLastMediaChunk().endTimeUs;
+      eventDispatcher.upstreamDiscarded(primarySampleQueueType, firstRemovedStartTimeUs, endTimeUs);
+    }
   }
 
+
+  /**
+   * Discards HlsMediaChunks, after currently playing chunk {@see #haveReadFromMediaChunk}, that have
+   * not yet started to play to allow (hopefully) higher quality chunks to replace them
+   *
+   * @param preferredQueueSize - desired media chunk queue size (always < mediaChunks.size())
+   * @return endTimeUs of first chunk removed
+   */
+  private long discardMediaChunks(int preferredQueueSize) {
+    Log.d(TAG, "discardChunksToIndex() -  preferredQueueSize " + preferredQueueSize
+        + " currentSize " + mediaChunks.size()
+        + " write: "+sampleQueues[primarySampleQueueIndex].getWriteIndex()
+        + " read: "+sampleQueues[primarySampleQueueIndex].getReadIndex()
+    );
+    for (int i=0; i<mediaChunks.size(); i++) {
+      HlsMediaChunk chunk = mediaChunks.get(i);
+      Log.d(TAG, "chunk " + chunk.uid + " reading: " + haveReadFromMediaChunk(i)
+          + " start/end: " + chunk.startTimeUs + "/" + chunk.endTimeUs + " sample index: "
+          + chunk.getFirstPrimarySampleIndex() + " format: "+chunk.trackFormat);
+    }
+
+    // Preserve current playing chunk and/or enough following it to reach the desired queue size
+    int firstRemovedChunkIndex = 0;
+    while (haveReadFromMediaChunk(firstRemovedChunkIndex) || preferredQueueSize > 0) {
+      firstRemovedChunkIndex++;
+      preferredQueueSize--;
+    }
+
+    HlsMediaChunk firstRemovedChunk = mediaChunks.get(firstRemovedChunkIndex);
+    Util.removeRange(mediaChunks, firstRemovedChunkIndex, mediaChunks.size() - 1);
+    Log.d(TAG, "discardChunksToIndex() -  discard from: " + firstRemovedChunk.getFirstPrimarySampleIndex());
+
+    sampleQueues[primarySampleQueueIndex].discardUpstreamSamples(firstRemovedChunk.getFirstPrimarySampleIndex());
+
+    return firstRemovedChunk.endTimeUs;
+  }
+
+
+  /** Returns whether samples have been read from primary sample queue of the indicated chunk */
+  private boolean haveReadFromMediaChunk(int mediaChunkIndex) {
+    HlsMediaChunk mediaChunk = mediaChunks.get(mediaChunkIndex);
+    return sampleQueues[primarySampleQueueIndex].getReadIndex() > mediaChunk.getFirstPrimarySampleIndex();
+  }
   // Loader.Callback implementation.
 
   @Override
@@ -957,6 +1013,22 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     for (SampleQueue sampleQueue : sampleQueues) {
       sampleQueue.setSampleOffsetUs(sampleOffsetUs);
     }
+  }
+
+  /**
+   * Get the SampleQueue write position index.  Used to associate group of
+   * samples with a MediaChunk.
+   *
+   * @return write position {@link SampleQueue#getWriteIndex()}, or 0 (safe bet) if sample queues not created
+   */
+  int getPrimaryTrackWritePosition() {
+    int indexValue = 0;
+
+    if (primaryTrackGroupIndex != C.INDEX_UNSET && prepared) {
+      int sampleQueueIndex = trackGroupToSampleQueueIndex[primaryTrackGroupIndex];
+      indexValue = sampleQueues[sampleQueueIndex].getWriteIndex();
+    }
+    return indexValue;
   }
 
   // Internal methods.
