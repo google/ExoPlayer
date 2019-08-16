@@ -35,13 +35,21 @@ public final class EventMessage implements Metadata.Entry {
   @VisibleForTesting
   public static final String ID3_SCHEME_ID = "https://developer.apple.com/streaming/emsg-id3";
 
+  /**
+   * scheme_id_uri from section 7.3.2 of <a
+   * href="https://www.scte.org/SCTEDocs/Standards/ANSI_SCTE%20214-3%202015.pdf">SCTE 214-3
+   * 2015</a>.
+   */
+  @VisibleForTesting public static final String SCTE35_SCHEME_ID = "urn:scte:scte35:2014:bin";
+
   private static final Format ID3_FORMAT =
       Format.createSampleFormat(
           /* id= */ null, MimeTypes.APPLICATION_ID3, Format.OFFSET_SAMPLE_RELATIVE);
+  private static final Format SCTE35_FORMAT =
+      Format.createSampleFormat(
+          /* id= */ null, MimeTypes.APPLICATION_SCTE35, Format.OFFSET_SAMPLE_RELATIVE);
 
-  /**
-   * The message scheme.
-   */
+  /** The message scheme. */
   public final String schemeIdUri;
 
   /**
@@ -94,13 +102,20 @@ public final class EventMessage implements Metadata.Entry {
   @Override
   @Nullable
   public Format getWrappedMetadataFormat() {
-    return ID3_SCHEME_ID.equals(schemeIdUri) ? ID3_FORMAT : null;
+    switch (schemeIdUri) {
+      case ID3_SCHEME_ID:
+        return ID3_FORMAT;
+      case SCTE35_SCHEME_ID:
+        return SCTE35_FORMAT;
+      default:
+        return null;
+    }
   }
 
   @Override
   @Nullable
   public byte[] getWrappedMetadataBytes() {
-    return ID3_SCHEME_ID.equals(schemeIdUri) ? messageData : null;
+    return getWrappedMetadataFormat() != null ? messageData : null;
   }
 
   @Override
