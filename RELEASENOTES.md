@@ -38,6 +38,8 @@
   `ExoPlayer.Builder`.
 * Inject `DrmSessionManager` into the `MediaSources` instead of `Renderers`
   ([#5619](https://github.com/google/ExoPlayer/issues/5619)).
+* Fix issue where player errors are thrown too early at playlist transitions
+  ([#5407](https://github.com/google/ExoPlayer/issues/5407)).
 
 ### 2.10.4 ###
 
