@@ -520,8 +520,7 @@ public abstract class Timeline {
         }
 
         @Override
-        public Window getWindow(
-            int windowIndex, Window window, boolean setTag, long defaultPositionProjectionUs) {
+        public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
           throw new IndexOutOfBoundsException();
         }
 
@@ -633,28 +632,20 @@ public abstract class Timeline {
   }
 
   /**
-   * Populates a {@link Window} with data for the window at the specified index. Does not populate
-   * {@link Window#tag}.
+   * Populates a {@link Window} with data for the window at the specified index.
    *
    * @param windowIndex The index of the window.
    * @param window The {@link Window} to populate. Must not be null.
    * @return The populated {@link Window}, for convenience.
    */
   public final Window getWindow(int windowIndex, Window window) {
-    return getWindow(windowIndex, window, false);
+    return getWindow(windowIndex, window, /* defaultPositionProjectionUs= */ 0);
   }
 
-  /**
-   * Populates a {@link Window} with data for the window at the specified index.
-   *
-   * @param windowIndex The index of the window.
-   * @param window The {@link Window} to populate. Must not be null.
-   * @param setTag Whether {@link Window#tag} should be populated. If false, the field will be set
-   *     to null. The caller should pass false for efficiency reasons unless the field is required.
-   * @return The populated {@link Window}, for convenience.
-   */
+  /** @deprecated Use {@link #getWindow(int, Window)} instead. Tags will always be set. */
+  @Deprecated
   public final Window getWindow(int windowIndex, Window window, boolean setTag) {
-    return getWindow(windowIndex, window, setTag, 0);
+    return getWindow(windowIndex, window, /* defaultPositionProjectionUs= */ 0);
   }
 
   /**
@@ -662,14 +653,21 @@ public abstract class Timeline {
    *
    * @param windowIndex The index of the window.
    * @param window The {@link Window} to populate. Must not be null.
-   * @param setTag Whether {@link Window#tag} should be populated. If false, the field will be set
-   *     to null. The caller should pass false for efficiency reasons unless the field is required.
    * @param defaultPositionProjectionUs A duration into the future that the populated window's
    *     default start position should be projected.
    * @return The populated {@link Window}, for convenience.
    */
-  public abstract Window getWindow(
-      int windowIndex, Window window, boolean setTag, long defaultPositionProjectionUs);
+  @SuppressWarnings("deprecation")
+  public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
+    return getWindow(windowIndex, window, /* setTag= */ true, defaultPositionProjectionUs);
+  }
+
+  /** @deprecated Implement {@link #getWindow(int, Window, long)} instead and always set the tag. */
+  @Deprecated
+  public Window getWindow(
+      int windowIndex, Window window, boolean setTag, long defaultPositionProjectionUs) {
+    return getWindow(windowIndex, window, defaultPositionProjectionUs);
+  }
 
   /**
    * Returns the number of periods in the timeline.
@@ -750,7 +748,7 @@ public abstract class Timeline {
       long windowPositionUs,
       long defaultPositionProjectionUs) {
     Assertions.checkIndex(windowIndex, 0, getWindowCount());
-    getWindow(windowIndex, window, false, defaultPositionProjectionUs);
+    getWindow(windowIndex, window, defaultPositionProjectionUs);
     if (windowPositionUs == C.TIME_UNSET) {
       windowPositionUs = window.getDefaultPositionUs();
       if (windowPositionUs == C.TIME_UNSET) {

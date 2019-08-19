@@ -287,8 +287,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
     }
 
     @Override
-    public Window getWindow(
-        int windowIndex, Window window, boolean setTag, long defaultPositionProjectionUs) {
+    public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
       return window.set(
           tag,
           /* manifest= */ null,

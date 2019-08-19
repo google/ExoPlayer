@@ -159,10 +159,8 @@ public final class SinglePeriodTimeline extends Timeline {
   }
 
   @Override
-  public Window getWindow(
-      int windowIndex, Window window, boolean setTag, long defaultPositionProjectionUs) {
+  public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
     Assertions.checkIndex(windowIndex, 0, 1);
-    Object tag = setTag ? this.tag : null;
     long windowDefaultStartPositionUs = this.windowDefaultStartPositionUs;
     if (isDynamic && defaultPositionProjectionUs != 0) {
       if (windowDurationUs == C.TIME_UNSET) {

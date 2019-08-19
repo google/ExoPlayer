@@ -1207,18 +1207,16 @@ public final class DashMediaSource extends BaseMediaSource {
     }
 
     @Override
-    public Window getWindow(
-        int windowIndex, Window window, boolean setTag, long defaultPositionProjectionUs) {
+    public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
       Assertions.checkIndex(windowIndex, 0, 1);
       long windowDefaultStartPositionUs = getAdjustedWindowDefaultStartPositionUs(
           defaultPositionProjectionUs);
-      Object tag = setTag ? windowTag : null;
       boolean isDynamic =
           manifest.dynamic
               && manifest.minUpdatePeriodMs != C.TIME_UNSET
               && manifest.durationMs == C.TIME_UNSET;
       return window.set(
-          tag,
+          windowTag,
           manifest,
           presentationStartTimeMs,
           windowStartTimeMs,

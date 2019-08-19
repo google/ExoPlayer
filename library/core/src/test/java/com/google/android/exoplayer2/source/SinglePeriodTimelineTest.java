@@ -88,8 +88,7 @@ public final class SinglePeriodTimelineTest {
             /* manifest= */ null,
             /* tag= */ null);
 
-    assertThat(timeline.getWindow(/* windowIndex= */ 0, window, /* setTag= */ false).tag).isNull();
-    assertThat(timeline.getWindow(/* windowIndex= */ 0, window, /* setTag= */ true).tag).isNull();
+    assertThat(timeline.getWindow(/* windowIndex= */ 0, window).tag).isNull();
     assertThat(timeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ false).id).isNull();
     assertThat(timeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ true).id).isNull();
     assertThat(timeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ false).uid).isNull();
@@ -98,7 +97,7 @@ public final class SinglePeriodTimelineTest {
   }
 
   @Test
-  public void setTag_isUsedForWindowTag() {
+  public void getWindow_setsTag() {
     Object tag = new Object();
     SinglePeriodTimeline timeline =
         new SinglePeriodTimeline(
@@ -108,9 +107,7 @@ public final class SinglePeriodTimelineTest {
             /* manifest= */ null,
             tag);
 
-    assertThat(timeline.getWindow(/* windowIndex= */ 0, window, /* setTag= */ false).tag).isNull();
-    assertThat(timeline.getWindow(/* windowIndex= */ 0, window, /* setTag= */ true).tag)
-        .isEqualTo(tag);
+    assertThat(timeline.getWindow(/* windowIndex= */ 0, window).tag).isEqualTo(tag);
   }
 
   @Test
