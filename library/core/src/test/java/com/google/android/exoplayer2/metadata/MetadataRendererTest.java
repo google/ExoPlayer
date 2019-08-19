@@ -96,7 +96,7 @@ public class MetadataRendererTest {
   public void decodeMetadata_handlesId3WrappedInEmsg() throws Exception {
     EventMessage emsg =
         new EventMessage(
-            EventMessage.ID3_SCHEME_ID,
+            EventMessage.ID3_SCHEME_ID_AOM,
             /* value= */ "",
             /* durationMs= */ 1,
             /* id= */ 0,
@@ -133,7 +133,7 @@ public class MetadataRendererTest {
   public void decodeMetadata_skipsMalformedWrappedMetadata() throws Exception {
     EventMessage emsg =
         new EventMessage(
-            EventMessage.ID3_SCHEME_ID,
+            EventMessage.ID3_SCHEME_ID_AOM,
             /* value= */ "",
             /* durationMs= */ 1,
             /* id= */ 0,

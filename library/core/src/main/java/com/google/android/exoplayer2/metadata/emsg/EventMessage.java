@@ -27,13 +27,20 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 
-/**
- * An Event Message (emsg) as defined in ISO 23009-1.
- */
+/** An Event Message (emsg) as defined in ISO 23009-1. */
 public final class EventMessage implements Metadata.Entry {
 
-  @VisibleForTesting
-  public static final String ID3_SCHEME_ID = "https://developer.apple.com/streaming/emsg-id3";
+  /**
+   * emsg scheme_id_uri from the <a href="https://aomediacodec.github.io/av1-id3/#semantics">CMAF
+   * spec</a>.
+   */
+  @VisibleForTesting public static final String ID3_SCHEME_ID_AOM = "https://aomedia.org/emsg/ID3";
+
+  /**
+   * The Apple-hosted scheme_id equivalent to {@code ID3_SCHEME_ID_AOM} - used before AOM adoption.
+   */
+  private static final String ID3_SCHEME_ID_APPLE =
+      "https://developer.apple.com/streaming/emsg-id3";
 
   /**
    * scheme_id_uri from section 7.3.2 of <a
@@ -103,7 +110,8 @@ public final class EventMessage implements Metadata.Entry {
   @Nullable
   public Format getWrappedMetadataFormat() {
     switch (schemeIdUri) {
-      case ID3_SCHEME_ID:
+      case ID3_SCHEME_ID_AOM:
+      case ID3_SCHEME_ID_APPLE:
         return ID3_FORMAT;
       case SCTE35_SCHEME_ID:
         return SCTE35_FORMAT;
