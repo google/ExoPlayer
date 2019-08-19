@@ -95,6 +95,7 @@ public class SimpleExoPlayer extends BasePlayer
     private BandwidthMeter bandwidthMeter;
     private AnalyticsCollector analyticsCollector;
     private Looper looper;
+    private boolean useLazyPreparation;
     private boolean buildCalled;
 
     /**
@@ -115,6 +116,7 @@ public class SimpleExoPlayer extends BasePlayer
      *       Looper} of the application's main thread if the current thread doesn't have a {@link
      *       Looper}
      *   <li>{@link AnalyticsCollector}: {@link AnalyticsCollector} with {@link Clock#DEFAULT}
+     *   <li>{@code useLazyPreparation}: {@code true}
      *   <li>{@link Clock}: {@link Clock#DEFAULT}
      * </ul>
      *
@@ -142,6 +144,7 @@ public class SimpleExoPlayer extends BasePlayer
           DefaultBandwidthMeter.getSingletonInstance(context),
           Util.getLooper(),
           new AnalyticsCollector(Clock.DEFAULT),
+          /* useLazyPreparation= */ true,
           Clock.DEFAULT);
     }
 
@@ -160,6 +163,7 @@ public class SimpleExoPlayer extends BasePlayer
      * @param bandwidthMeter A {@link BandwidthMeter}.
      * @param looper A {@link Looper} that must be used for all calls to the player.
      * @param analyticsCollector An {@link AnalyticsCollector}.
+     * @param useLazyPreparation Whether media sources should be initialized lazily.
      * @param clock A {@link Clock}. Should always be {@link Clock#DEFAULT}.
      */
     public Builder(
@@ -170,6 +174,7 @@ public class SimpleExoPlayer extends BasePlayer
         BandwidthMeter bandwidthMeter,
         Looper looper,
         AnalyticsCollector analyticsCollector,
+        boolean useLazyPreparation,
         Clock clock) {
       this.context = context;
       this.renderersFactory = renderersFactory;
@@ -178,6 +183,7 @@ public class SimpleExoPlayer extends BasePlayer
       this.bandwidthMeter = bandwidthMeter;
       this.looper = looper;
       this.analyticsCollector = analyticsCollector;
+      this.useLazyPreparation = useLazyPreparation;
       this.clock = clock;
     }
 
@@ -244,6 +250,23 @@ public class SimpleExoPlayer extends BasePlayer
     public Builder setAnalyticsCollector(AnalyticsCollector analyticsCollector) {
       Assertions.checkState(!buildCalled);
       this.analyticsCollector = analyticsCollector;
+      return this;
+    }
+
+    /**
+     * Sets whether media sources should be initialized lazily.
+     *
+     * <p>If false, all initial preparation steps (e.g., manifest loads) happen immediately. If
+     * true, these initial preparations are triggered only when the player starts buffering the
+     * media.
+     *
+     * @param useLazyPreparation Whether to use lazy preparation.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setUseLazyPreparation(boolean useLazyPreparation) {
+      Assertions.checkState(!buildCalled);
+      this.useLazyPreparation = useLazyPreparation;
       return this;
     }
 

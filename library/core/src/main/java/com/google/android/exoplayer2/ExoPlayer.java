@@ -19,6 +19,7 @@ import android.content.Context;
 import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import com.google.android.exoplayer2.analytics.AnalyticsCollector;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
 import com.google.android.exoplayer2.source.ClippingMediaSource;
@@ -138,6 +139,8 @@ public interface ExoPlayer extends Player {
     private LoadControl loadControl;
     private BandwidthMeter bandwidthMeter;
     private Looper looper;
+    private AnalyticsCollector analyticsCollector;
+    private boolean useLazyPreparation;
     private boolean buildCalled;
 
     /**
@@ -152,6 +155,8 @@ public interface ExoPlayer extends Player {
      *   <li>{@link Looper}: The {@link Looper} associated with the current thread, or the {@link
      *       Looper} of the application's main thread if the current thread doesn't have a {@link
      *       Looper}
+     *   <li>{@link AnalyticsCollector}: {@link AnalyticsCollector} with {@link Clock#DEFAULT}
+     *   <li>{@code useLazyPreparation}: {@code true}
      *   <li>{@link Clock}: {@link Clock#DEFAULT}
      * </ul>
      *
@@ -165,6 +170,8 @@ public interface ExoPlayer extends Player {
           new DefaultLoadControl(),
           DefaultBandwidthMeter.getSingletonInstance(context),
           Util.getLooper(),
+          new AnalyticsCollector(Clock.DEFAULT),
+          /* useLazyPreparation= */ true,
           Clock.DEFAULT);
     }
 
@@ -180,6 +187,8 @@ public interface ExoPlayer extends Player {
      * @param loadControl A {@link LoadControl}.
      * @param bandwidthMeter A {@link BandwidthMeter}.
      * @param looper A {@link Looper} that must be used for all calls to the player.
+     * @param analyticsCollector An {@link AnalyticsCollector}.
+     * @param useLazyPreparation Whether media sources should be initialized lazily.
      * @param clock A {@link Clock}. Should always be {@link Clock#DEFAULT}.
      */
     public Builder(
@@ -188,6 +197,8 @@ public interface ExoPlayer extends Player {
         LoadControl loadControl,
         BandwidthMeter bandwidthMeter,
         Looper looper,
+        AnalyticsCollector analyticsCollector,
+        boolean useLazyPreparation,
         Clock clock) {
       Assertions.checkArgument(renderers.length > 0);
       this.renderers = renderers;
@@ -195,6 +206,8 @@ public interface ExoPlayer extends Player {
       this.loadControl = loadControl;
       this.bandwidthMeter = bandwidthMeter;
       this.looper = looper;
+      this.analyticsCollector = analyticsCollector;
+      this.useLazyPreparation = useLazyPreparation;
       this.clock = clock;
     }
 
@@ -248,6 +261,36 @@ public interface ExoPlayer extends Player {
     public Builder setLooper(Looper looper) {
       Assertions.checkState(!buildCalled);
       this.looper = looper;
+      return this;
+    }
+
+    /**
+     * Sets the {@link AnalyticsCollector} that will collect and forward all player events.
+     *
+     * @param analyticsCollector An {@link AnalyticsCollector}.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setAnalyticsCollector(AnalyticsCollector analyticsCollector) {
+      Assertions.checkState(!buildCalled);
+      this.analyticsCollector = analyticsCollector;
+      return this;
+    }
+
+    /**
+     * Sets whether media sources should be initialized lazily.
+     *
+     * <p>If false, all initial preparation steps (e.g., manifest loads) happen immediately. If
+     * true, these initial preparations are triggered only when the player starts buffering the
+     * media.
+     *
+     * @param useLazyPreparation Whether to use lazy preparation.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setUseLazyPreparation(boolean useLazyPreparation) {
+      Assertions.checkState(!buildCalled);
+      this.useLazyPreparation = useLazyPreparation;
       return this;
     }
 
