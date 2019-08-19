@@ -52,7 +52,7 @@ public final class TimelineAsserts {
     Window window = new Window();
     assertThat(timeline.getWindowCount()).isEqualTo(expectedWindowTags.length);
     for (int i = 0; i < timeline.getWindowCount(); i++) {
-      timeline.getWindow(i, window, true);
+      timeline.getWindow(i, window);
       if (expectedWindowTags[i] != null) {
         assertThat(window.tag).isEqualTo(expectedWindowTags[i]);
       }
@@ -63,7 +63,7 @@ public final class TimelineAsserts {
   public static void assertWindowIsDynamic(Timeline timeline, boolean... windowIsDynamic) {
     Window window = new Window();
     for (int i = 0; i < timeline.getWindowCount(); i++) {
-      timeline.getWindow(i, window, true);
+      timeline.getWindow(i, window);
       assertThat(window.isDynamic).isEqualTo(windowIsDynamic[i]);
     }
   }
@@ -129,7 +129,7 @@ public final class TimelineAsserts {
     Window window = new Window();
     Period period = new Period();
     for (int i = 0; i < windowCount; i++) {
-      timeline.getWindow(i, window, true);
+      timeline.getWindow(i, window);
       assertThat(window.firstPeriodIndex).isEqualTo(accumulatedPeriodCounts[i]);
       assertThat(window.lastPeriodIndex).isEqualTo(accumulatedPeriodCounts[i + 1] - 1);
     }
