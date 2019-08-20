@@ -327,6 +327,7 @@ public final class ImaAdsLoader
   private final AdDisplayContainer adDisplayContainer;
   private final com.google.ads.interactivemedia.v3.api.AdsLoader adsLoader;
 
+  private boolean wasSetPlayerCalled;
   @Nullable private Player nextPlayer;
   private Object pendingAdRequestContext;
   private List<String> supportedMimeTypes;
@@ -558,6 +559,7 @@ public final class ImaAdsLoader
     Assertions.checkState(
         player == null || player.getApplicationLooper() == Looper.getMainLooper());
     nextPlayer = player;
+    wasSetPlayerCalled = true;
   }
 
   @Override
@@ -585,9 +587,12 @@ public final class ImaAdsLoader
 
   @Override
   public void start(EventListener eventListener, AdViewProvider adViewProvider) {
-    Assertions.checkNotNull(
-        nextPlayer, "Set player using adsLoader.setPlayer before preparing the player.");
+    Assertions.checkState(
+        wasSetPlayerCalled, "Set player using adsLoader.setPlayer before preparing the player.");
     player = nextPlayer;
+    if (player == null) {
+      return;
+    }
     this.eventListener = eventListener;
     lastVolumePercentage = 0;
     lastAdProgress = null;
@@ -617,6 +622,9 @@ public final class ImaAdsLoader
 
   @Override
   public void stop() {
+    if (player == null) {
+      return;
+    }
     if (adsManager != null && imaPausedContent) {
       adPlaybackState =
           adPlaybackState.withAdResumePositionUs(
