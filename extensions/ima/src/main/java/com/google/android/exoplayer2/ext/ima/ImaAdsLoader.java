@@ -484,6 +484,7 @@ public final class ImaAdsLoader
     pendingContentPositionMs = C.TIME_UNSET;
     adGroupIndex = C.INDEX_UNSET;
     contentDurationMs = C.TIME_UNSET;
+    timeline = Timeline.EMPTY;
   }
 
   /**
@@ -966,7 +967,7 @@ public final class ImaAdsLoader
     if (contentDurationUs != C.TIME_UNSET) {
       adPlaybackState = adPlaybackState.withContentDurationUs(contentDurationUs);
     }
-    updateImaStateForPlayerState();
+    onPositionDiscontinuity(Player.DISCONTINUITY_REASON_INTERNAL);
   }
 
   @Override
@@ -1021,7 +1022,7 @@ public final class ImaAdsLoader
           }
         }
         updateAdPlaybackState();
-      } else {
+      } else if (!timeline.isEmpty()) {
         long positionMs = player.getCurrentPosition();
         timeline.getPeriod(0, period);
         int newAdGroupIndex = period.getAdGroupIndexForPositionUs(C.msToUs(positionMs));
@@ -1033,9 +1034,8 @@ public final class ImaAdsLoader
           }
         }
       }
-    } else {
-      updateImaStateForPlayerState();
     }
+    updateImaStateForPlayerState();
   }
 
   // Internal methods.
