@@ -351,10 +351,10 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     }
     RequestBody requestBody = null;
     if (dataSpec.httpBody != null) {
-      requestBody = RequestBody.create(null, dataSpec.httpBody);
+      requestBody = RequestBody.create(dataSpec.httpBody, null);
     } else if (dataSpec.httpMethod == DataSpec.HTTP_METHOD_POST) {
       // OkHttp requires a non-null body for POST requests.
-      requestBody = RequestBody.create(null, Util.EMPTY_BYTE_ARRAY);
+      requestBody = RequestBody.create(Util.EMPTY_BYTE_ARRAY, null);
     }
     builder.method(dataSpec.getHttpMethodString(), requestBody);
     return builder.build();
