@@ -139,7 +139,10 @@ import java.nio.ByteBuffer;
     }
 
     if (!inputBuffer.isDecodeOnly()) {
-      outputBuffer.init(inputBuffer.timeUs, outputMode);
+      @Nullable
+      ByteBuffer supplementalData =
+          inputBuffer.hasSupplementalData() ? inputBuffer.supplementalData : null;
+      outputBuffer.init(inputBuffer.timeUs, outputMode, supplementalData);
       int getFrameResult = vpxGetFrame(vpxDecContext, outputBuffer);
       if (getFrameResult == 1) {
         outputBuffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);

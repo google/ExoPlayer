@@ -1140,6 +1140,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           Math.max(largestQueuedPresentationTimeUs, presentationTimeUs);
 
       buffer.flip();
+      if (buffer.hasSupplementalData()) {
+        handleInputBufferSupplementalData(buffer);
+      }
       onQueueInputBuffer(buffer);
 
       if (bufferEncrypted) {
@@ -1298,9 +1301,22 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
+   * Handles supplemental data associated with an input buffer.
+   *
+   * <p>The default implementation is a no-op.
+   *
+   * @param buffer The input buffer that is about to be queued.
+   * @throws ExoPlaybackException Thrown if an error occurs handling supplemental data.
+   */
+  protected void handleInputBufferSupplementalData(DecoderInputBuffer buffer)
+      throws ExoPlaybackException {
+    // Do nothing.
+  }
+
+  /**
    * Called immediately before an input buffer is queued into the codec.
-   * <p>
-   * The default implementation is a no-op.
+   *
+   * <p>The default implementation is a no-op.
    *
    * @param buffer The buffer to be queued.
    */

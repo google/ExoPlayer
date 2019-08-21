@@ -393,13 +393,7 @@ public class SampleQueue implements TrackOutput {
             buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
           }
           if (!buffer.isFlagsOnly()) {
-            // Read encryption data if the sample is encrypted.
-            if (buffer.isEncrypted()) {
-              readEncryptionData(buffer, extrasHolder);
-            }
-            // Write the sample data into the holder.
-            buffer.ensureSpaceForWrite(extrasHolder.size);
-            readData(extrasHolder.offset, buffer.data, extrasHolder.size);
+            readToBuffer(buffer, extrasHolder);
           }
         }
         return C.RESULT_BUFFER_READ;
@@ -411,11 +405,47 @@ public class SampleQueue implements TrackOutput {
   }
 
   /**
+   * Reads data from the rolling buffer to populate a decoder input buffer.
+   *
+   * @param buffer The buffer to populate.
+   * @param extrasHolder The extras holder whose offset should be read and subsequently adjusted.
+   */
+  private void readToBuffer(DecoderInputBuffer buffer, SampleExtrasHolder extrasHolder) {
+    // Read encryption data if the sample is encrypted.
+    if (buffer.isEncrypted()) {
+      readEncryptionData(buffer, extrasHolder);
+    }
+    // Read sample data, extracting supplemental data into a separate buffer if needed.
+    if (buffer.hasSupplementalData()) {
+      // If there is supplemental data, the sample data is prefixed by its size.
+      scratch.reset(4);
+      readData(extrasHolder.offset, scratch.data, 4);
+      int sampleSize = scratch.readUnsignedIntToInt();
+      extrasHolder.offset += 4;
+      extrasHolder.size -= 4;
+
+      // Write the sample data.
+      buffer.ensureSpaceForWrite(sampleSize);
+      readData(extrasHolder.offset, buffer.data, sampleSize);
+      extrasHolder.offset += sampleSize;
+      extrasHolder.size -= sampleSize;
+
+      // Write the remaining data as supplemental data.
+      buffer.resetSupplementalData(extrasHolder.size);
+      readData(extrasHolder.offset, buffer.supplementalData, extrasHolder.size);
+    } else {
+      // Write the sample data.
+      buffer.ensureSpaceForWrite(extrasHolder.size);
+      readData(extrasHolder.offset, buffer.data, extrasHolder.size);
+    }
+  }
+
+  /**
    * Reads encryption data for the current sample.
-   * <p>
-   * The encryption data is written into {@link DecoderInputBuffer#cryptoInfo}, and
-   * {@link SampleExtrasHolder#size} is adjusted to subtract the number of bytes that were read. The
-   * same value is added to {@link SampleExtrasHolder#offset}.
+   *
+   * <p>The encryption data is written into {@link DecoderInputBuffer#cryptoInfo}, and {@link
+   * SampleExtrasHolder#size} is adjusted to subtract the number of bytes that were read. The same
+   * value is added to {@link SampleExtrasHolder#offset}.
    *
    * @param buffer The buffer into which the encryption data should be written.
    * @param extrasHolder The extras holder whose offset should be read and subsequently adjusted.
