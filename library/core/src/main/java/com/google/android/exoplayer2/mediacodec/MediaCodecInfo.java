@@ -264,6 +264,18 @@ public final class MediaCodecInfo {
     return false;
   }
 
+  /** Whether the codec handles HDR10+ out-of-band metadata. */
+  public boolean isHdr10PlusOutOfBandMetadataSupported() {
+    if (Util.SDK_INT >= 29 && MimeTypes.VIDEO_VP9.equals(mimeType)) {
+      for (CodecProfileLevel capabilities : getProfileLevels()) {
+        if (capabilities.profile == CodecProfileLevel.VP9Profile2HDR10Plus) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   /**
    * Returns whether it may be possible to adapt to playing a different format when the codec is
    * configured to play media in the specified {@code format}. For adaptation to succeed, the codec

@@ -23,6 +23,7 @@ import android.media.MediaCodec;
 import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import androidx.annotation.CallSuper;
@@ -123,6 +124,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   private CodecMaxValues codecMaxValues;
   private boolean codecNeedsSetOutputSurfaceWorkaround;
+  private boolean codecHandlesHdr10PlusOutOfBandMetadata;
 
   private Surface surface;
   private Surface dummySurface;
@@ -683,6 +685,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       long initializationDurationMs) {
     eventDispatcher.decoderInitialized(name, initializedTimestampMs, initializationDurationMs);
     codecNeedsSetOutputSurfaceWorkaround = codecNeedsSetOutputSurfaceWorkaround(name);
+    codecHandlesHdr10PlusOutOfBandMetadata =
+        Assertions.checkNotNull(getCodecInfo()).isHdr10PlusOutOfBandMetadataSupported();
   }
 
   @Override
@@ -725,6 +729,37 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
             ? outputFormat.getInteger(KEY_CROP_BOTTOM) - outputFormat.getInteger(KEY_CROP_TOP) + 1
             : outputFormat.getInteger(MediaFormat.KEY_HEIGHT);
     processOutputFormat(codec, width, height);
+  }
+
+  @Override
+  protected void handleInputBufferSupplementalData(DecoderInputBuffer buffer)
+      throws ExoPlaybackException {
+    if (!codecHandlesHdr10PlusOutOfBandMetadata) {
+      return;
+    }
+    ByteBuffer data = Assertions.checkNotNull(buffer.supplementalData);
+    if (data.remaining() >= 7) {
+      // Check for HDR10+ out-of-band metadata. See User_data_registered_itu_t_t35 in ST 2094-40.
+      byte ituTT35CountryCode = data.get();
+      int ituTT35TerminalProviderCode = data.getShort();
+      int ituTT35TerminalProviderOrientedCode = data.getShort();
+      byte applicationIdentifier = data.get();
+      byte applicationVersion = data.get();
+      data.position(0);
+      if (ituTT35CountryCode == (byte) 0xB5
+          && ituTT35TerminalProviderCode == 0x003C
+          && ituTT35TerminalProviderOrientedCode == 0x0001
+          && applicationIdentifier == 4
+          && applicationVersion == 0) {
+        // The metadata size may vary so allocate a new array every time. This is not too
+        // inefficient because the metadata is only a few tens of bytes.
+        byte[] hdr10PlusInfo = new byte[data.remaining()];
+        data.get(hdr10PlusInfo);
+        data.position(0);
+        // If codecHandlesHdr10PlusOutOfBandMetadata is true, this is an API 29 or later build.
+        setHdr10PlusInfoV29(getCodec(), hdr10PlusInfo);
+      }
+    }
   }
 
   @Override
@@ -1151,6 +1186,13 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private static boolean isBufferVeryLate(long earlyUs) {
     // Class a buffer as very late if it should have been presented more than 500 ms ago.
     return earlyUs < -500000;
+  }
+
+  @TargetApi(29)
+  private static void setHdr10PlusInfoV29(MediaCodec codec, byte[] hdr10PlusInfo) {
+    Bundle codecParameters = new Bundle();
+    codecParameters.putByteArray(MediaCodec.PARAMETER_KEY_HDR10_PLUS_INFO, hdr10PlusInfo);
+    codec.setParameters(codecParameters);
   }
 
   @TargetApi(23)

@@ -68,6 +68,12 @@ public class DecoderInputBuffer extends Buffer {
    */
   public long timeUs;
 
+  /**
+   * Supplemental data related to the buffer, if {@link #hasSupplementalData()} returns true. If
+   * present, the buffer is populated with supplemental data from position 0 to its limit.
+   */
+  @Nullable public ByteBuffer supplementalData;
+
   @BufferReplacementMode private final int bufferReplacementMode;
 
   /**
@@ -87,6 +93,16 @@ public class DecoderInputBuffer extends Buffer {
   public DecoderInputBuffer(@BufferReplacementMode int bufferReplacementMode) {
     this.cryptoInfo = new CryptoInfo();
     this.bufferReplacementMode = bufferReplacementMode;
+  }
+
+  /** Resets {@link #supplementalData} in preparation for storing {@code length} bytes. */
+  @EnsuresNonNull("supplementalData")
+  public void resetSupplementalData(int length) {
+    if (supplementalData == null || supplementalData.capacity() < length) {
+      supplementalData = ByteBuffer.allocate(length);
+    }
+    supplementalData.position(0);
+    supplementalData.limit(length);
   }
 
   /**
@@ -148,6 +164,9 @@ public class DecoderInputBuffer extends Buffer {
    */
   public final void flip() {
     data.flip();
+    if (supplementalData != null) {
+      supplementalData.flip();
+    }
   }
 
   @Override

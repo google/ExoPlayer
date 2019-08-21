@@ -47,15 +47,34 @@ public abstract class VideoDecoderOutputBuffer extends OutputBuffer {
   public int colorspace;
 
   /**
+   * Supplemental data related to the output frame, if {@link #hasSupplementalData()} returns true.
+   * If present, the buffer is populated with supplemental data from position 0 to its limit.
+   */
+  @Nullable public ByteBuffer supplementalData;
+
+  /**
    * Initializes the buffer.
    *
    * @param timeUs The presentation timestamp for the buffer, in microseconds.
    * @param mode The output mode. One of {@link C#VIDEO_OUTPUT_MODE_NONE}, {@link
    *     C#VIDEO_OUTPUT_MODE_YUV} and {@link C#VIDEO_OUTPUT_MODE_SURFACE_YUV}.
+   * @param supplementalData Supplemental data associated with the frame, or {@code null} if not
+   *     present. It is safe to reuse the provided buffer after this method returns.
    */
-  public void init(long timeUs, @C.VideoOutputMode int mode) {
+  public void init(
+      long timeUs, @C.VideoOutputMode int mode, @Nullable ByteBuffer supplementalData) {
     this.timeUs = timeUs;
     this.mode = mode;
+    if (supplementalData != null) {
+      int size = supplementalData.limit();
+      if (this.supplementalData == null || this.supplementalData.capacity() < size) {
+        this.supplementalData = ByteBuffer.allocate(size);
+      }
+      this.supplementalData.position(0);
+      this.supplementalData.put(supplementalData);
+      this.supplementalData.flip();
+      supplementalData.position(0);
+    }
   }
 
   /**
