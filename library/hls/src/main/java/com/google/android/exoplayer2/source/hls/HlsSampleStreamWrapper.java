@@ -1049,23 +1049,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
   }
 
-  /**
-   * Get the SampleQueue write position indexes.  Used to associate group of
-   * samples with a MediaChunk.
-   *
-   * @return array of write positions {@link SampleQueue#getWriteIndex()}, by sample queue index
-   */
-  int [] getTrackWritePositions() {
-    int [] writePositions;
-
-    writePositions = new int[sampleQueues.length];
-    for (int i=0; i < sampleQueues.length; i++) {
-      writePositions[i] = sampleQueues[i].getWriteIndex();
-    }
-
-    return writePositions;
-  }
-
   // Internal methods.
 
   private HlsMediaChunk findChunkMatching(int chunkUid) {
