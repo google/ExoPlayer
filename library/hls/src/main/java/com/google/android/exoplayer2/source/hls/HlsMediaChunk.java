@@ -300,7 +300,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   /**
-   * Return the index of the first sample from the primary sample stream for this media chunk
+   * Return the indexes of the first samples from each sample queue for this media chunk
    *
    * @return sample index {@link SampleQueue#getWriteIndex()}
    */
@@ -308,6 +308,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     return firstSampleIndexes;
   }
 
+  /**
+   * Set the index of the first sample written to a sample queue from this media chunk,
+   * indexed by the caller's stream index for the sample queue
+   *
+   * @param streamIndex - caller's index for the {@link SampleQueue}
+   * @param firstSampleIndex - index value to store
+   */
   void setFirstSampleIndex(int streamIndex, int firstSampleIndex) {
     firstSampleIndexes = Arrays.copyOf(firstSampleIndexes, streamIndex + 1);
     firstSampleIndexes[streamIndex] = firstSampleIndex;
@@ -330,7 +337,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       initDataLoadRequired = false;
       output.init(uid, shouldSpliceIn, /* reusingExtractor= */ true);
     }
-    firstSampleIndexes = output.getTrackWritePositions();
     maybeLoadInitData();
     if (!loadCanceled) {
       if (!hasGapTag) {
