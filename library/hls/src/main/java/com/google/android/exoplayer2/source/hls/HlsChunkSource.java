@@ -225,10 +225,17 @@ import java.util.Map;
    *     media in previous periods still to be played.
    * @param loadPositionUs The current load position relative to the period start in microseconds.
    * @param queue The queue of buffered {@link HlsMediaChunk}s.
+   * @param allowEndOfStream Whether {@link HlsChunkHolder#endOfStream} is allowed to be set for
+   *     non-empty media playlists. If {@code false}, the last available chunk is returned instead.
+   *     If the media playlist is empty, {@link HlsChunkHolder#endOfStream} is always set.
    * @param out A holder to populate.
    */
   public void getNextChunk(
-      long playbackPositionUs, long loadPositionUs, List<HlsMediaChunk> queue, HlsChunkHolder out) {
+      long playbackPositionUs,
+      long loadPositionUs,
+      List<HlsMediaChunk> queue,
+      boolean allowEndOfStream,
+      HlsChunkHolder out) {
     HlsMediaChunk previous = queue.isEmpty() ? null : queue.get(queue.size() - 1);
     int oldTrackIndex = previous == null ? C.INDEX_UNSET : trackGroup.indexOf(previous.trackFormat);
     long bufferedDurationUs = loadPositionUs - playbackPositionUs;
@@ -292,15 +299,20 @@ import java.util.Map;
     }
 
     int segmentIndexInPlaylist = (int) (chunkMediaSequence - mediaPlaylist.mediaSequence);
-    if (segmentIndexInPlaylist >= mediaPlaylist.segments.size()) {
+    int availableSegmentCount = mediaPlaylist.segments.size();
+    if (segmentIndexInPlaylist >= availableSegmentCount) {
       if (mediaPlaylist.hasEndTag) {
-        out.endOfStream = true;
+        if (allowEndOfStream || availableSegmentCount == 0) {
+          out.endOfStream = true;
+          return;
+        }
+        segmentIndexInPlaylist = availableSegmentCount - 1;
       } else /* Live */ {
         out.playlistUrl = selectedPlaylistUrl;
         seenExpectedPlaylistError &= selectedPlaylistUrl.equals(expectedPlaylistUrl);
         expectedPlaylistUrl = selectedPlaylistUrl;
+        return;
       }
-      return;
     }
     // We have a valid playlist snapshot, we can discard any playlist errors at this point.
     seenExpectedPlaylistError = false;

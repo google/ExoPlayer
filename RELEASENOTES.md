@@ -42,6 +42,8 @@
   ([#5407](https://github.com/google/ExoPlayer/issues/5407)).
 * Deprecate `setTag` parameter of `Timeline.getWindow`. Tags will always be set.
 * Support out-of-band HDR10+ metadata for VP9 in WebM/Matroska.
+* Fix issue where HLS streams get stuck in infinite buffering state after
+  postroll ad ([#6314](https://github.com/google/ExoPlayer/issues/6314)).
 
 ### 2.10.4 ###
 
