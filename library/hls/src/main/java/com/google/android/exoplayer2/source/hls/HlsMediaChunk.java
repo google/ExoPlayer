@@ -40,6 +40,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
@@ -224,10 +225,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private boolean loadCompleted;
 
   /**
-   * Index of first sample written to the SampleQueue for the primary track from
-   * this segment.
+   * Index of first sample written for each SampleQueue created from the extraction of this
+   * media chunk
    */
-  private int firstSampleIndex = C.INDEX_UNSET;
+  private int [] firstSampleIndexes = new int[0];
 
   private HlsMediaChunk(
       HlsExtractorFactory extractorFactory,
@@ -303,8 +304,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    *
    * @return sample index {@link SampleQueue#getWriteIndex()}
    */
-  public int getFirstPrimarySampleIndex() {
-    return firstSampleIndex;
+  int [] getFirstSampleIndexes() {
+    return firstSampleIndexes;
+  }
+
+  void setFirstSampleIndex(int streamIndex, int firstSampleIndex) {
+    firstSampleIndexes = Arrays.copyOf(firstSampleIndexes, streamIndex + 1);
+    firstSampleIndexes[streamIndex] = firstSampleIndex;
   }
 
   // Loadable implementation
@@ -324,7 +330,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       initDataLoadRequired = false;
       output.init(uid, shouldSpliceIn, /* reusingExtractor= */ true);
     }
-    firstSampleIndex = output.getPrimaryTrackWritePosition();
+    firstSampleIndexes = output.getTrackWritePositions();
     maybeLoadInitData();
     if (!loadCanceled) {
       if (!hasGapTag) {
