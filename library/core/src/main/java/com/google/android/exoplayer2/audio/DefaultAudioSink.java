@@ -37,7 +37,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 
 /**
@@ -122,7 +121,15 @@ public final class DefaultAudioSink implements AudioSink {
      * audioProcessors} applied before silence skipping and playback parameters.
      */
     public DefaultAudioProcessorChain(AudioProcessor... audioProcessors) {
-      this.audioProcessors = Arrays.copyOf(audioProcessors, audioProcessors.length + 2);
+      // The passed-in type may be more specialized than AudioProcessor[], so allocate a new array
+      // rather than using Arrays.copyOf.
+      this.audioProcessors = new AudioProcessor[audioProcessors.length + 2];
+      System.arraycopy(
+          /* src= */ audioProcessors,
+          /* srcPos= */ 0,
+          /* dest= */ this.audioProcessors,
+          /* destPos= */ 0,
+          /* length= */ audioProcessors.length);
       silenceSkippingAudioProcessor = new SilenceSkippingAudioProcessor();
       sonicAudioProcessor = new SonicAudioProcessor();
       this.audioProcessors[audioProcessors.length] = silenceSkippingAudioProcessor;
