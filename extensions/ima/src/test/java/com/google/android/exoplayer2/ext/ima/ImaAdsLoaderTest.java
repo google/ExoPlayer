@@ -143,7 +143,8 @@ public class ImaAdsLoaderTest {
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
             new AdPlaybackState(/* adGroupTimesUs= */ 0)
-                .withAdDurationsUs(PREROLL_ADS_DURATIONS_US));
+                .withAdDurationsUs(PREROLL_ADS_DURATIONS_US)
+                .withContentDurationUs(CONTENT_DURATION_US));
   }
 
   @Test
