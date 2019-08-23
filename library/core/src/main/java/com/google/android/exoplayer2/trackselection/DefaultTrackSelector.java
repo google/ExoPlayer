@@ -2548,6 +2548,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      */
     public final boolean isWithinConstraints;
 
+    @Nullable private final String language;
     private final Parameters parameters;
     private final boolean isWithinRendererCapabilities;
     private final int preferredLanguageScore;
@@ -2560,6 +2561,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
     public AudioTrackScore(Format format, Parameters parameters, int formatSupport) {
       this.parameters = parameters;
+      this.language = normalizeUndeterminedLanguageToNull(format.language);
       isWithinRendererCapabilities = isSupported(formatSupport, false);
       preferredLanguageScore =
           getFormatLanguageScore(
@@ -2633,7 +2635,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       if (this.sampleRate != other.sampleRate) {
         return resultSign * compareInts(this.sampleRate, other.sampleRate);
       }
-      return resultSign * compareInts(this.bitrate, other.bitrate);
+      if (Util.areEqual(this.language, other.language)) {
+        // Only compare bit rates of tracks with the same or unknown language.
+        return resultSign * compareInts(this.bitrate, other.bitrate);
+      }
+      return 0;
     }
   }
 
