@@ -9,6 +9,8 @@
 * Reset `DefaultBandwidthMeter` to initial values on network change.
 * Increase maximum buffer size for video in `DefaultLoadControl` to ensure high
   quality video can be loaded up to the full default buffer duration.
+* Fix audio selection issue where languages are compared by bit rate
+  ([#6335](https://github.com/google/ExoPlayer/issues/6335)).
 
 ### 2.10.4 ###
 
