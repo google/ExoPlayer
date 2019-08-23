@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2;
 
 import androidx.annotation.CheckResult;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
@@ -51,6 +52,8 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
   public final long contentPositionUs;
   /** The current playback state. One of the {@link Player}.STATE_ constants. */
   @Player.State public final int playbackState;
+  /** The current playback error, or null if this is not an error state. */
+  @Nullable public final ExoPlaybackException playbackError;
   /** Whether the player is currently loading. */
   public final boolean isLoading;
   /** The currently available track groups. */
@@ -93,6 +96,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         startPositionUs,
         /* contentPositionUs= */ C.TIME_UNSET,
         Player.STATE_IDLE,
+        /* playbackError= */ null,
         /* isLoading= */ false,
         TrackGroupArray.EMPTY,
         emptyTrackSelectorResult,
@@ -124,6 +128,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
       long startPositionUs,
       long contentPositionUs,
       @Player.State int playbackState,
+      @Nullable ExoPlaybackException playbackError,
       boolean isLoading,
       TrackGroupArray trackGroups,
       TrackSelectorResult trackSelectorResult,
@@ -136,6 +141,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
     this.startPositionUs = startPositionUs;
     this.contentPositionUs = contentPositionUs;
     this.playbackState = playbackState;
+    this.playbackError = playbackError;
     this.isLoading = isLoading;
     this.trackGroups = trackGroups;
     this.trackSelectorResult = trackSelectorResult;
@@ -194,6 +200,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         positionUs,
         periodId.isAd() ? contentPositionUs : C.TIME_UNSET,
         playbackState,
+        playbackError,
         isLoading,
         trackGroups,
         trackSelectorResult,
@@ -217,6 +224,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         startPositionUs,
         contentPositionUs,
         playbackState,
+        playbackError,
         isLoading,
         trackGroups,
         trackSelectorResult,
@@ -240,6 +248,31 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         startPositionUs,
         contentPositionUs,
         playbackState,
+        playbackError,
+        isLoading,
+        trackGroups,
+        trackSelectorResult,
+        loadingMediaPeriodId,
+        bufferedPositionUs,
+        totalBufferedDurationUs,
+        positionUs);
+  }
+
+  /**
+   * Copies playback info with a playback error.
+   *
+   * @param playbackError The error. See {@link #playbackError}.
+   * @return Copied playback info with the playback error.
+   */
+  @CheckResult
+  public PlaybackInfo copyWithPlaybackError(@Nullable ExoPlaybackException playbackError) {
+    return new PlaybackInfo(
+        timeline,
+        periodId,
+        startPositionUs,
+        contentPositionUs,
+        playbackState,
+        playbackError,
         isLoading,
         trackGroups,
         trackSelectorResult,
@@ -263,6 +296,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         startPositionUs,
         contentPositionUs,
         playbackState,
+        playbackError,
         isLoading,
         trackGroups,
         trackSelectorResult,
@@ -288,6 +322,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         startPositionUs,
         contentPositionUs,
         playbackState,
+        playbackError,
         isLoading,
         trackGroups,
         trackSelectorResult,
@@ -311,6 +346,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         startPositionUs,
         contentPositionUs,
         playbackState,
+        playbackError,
         isLoading,
         trackGroups,
         trackSelectorResult,
