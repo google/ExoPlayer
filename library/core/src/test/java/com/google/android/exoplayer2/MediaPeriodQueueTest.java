@@ -359,6 +359,7 @@ public final class MediaPeriodQueueTest {
             /* startPositionUs= */ 0,
             /* contentPositionUs= */ 0,
             Player.STATE_READY,
+            /* playbackError= */ null,
             /* isLoading= */ false,
             /* trackGroups= */ null,
             /* trackSelectorResult= */ null,

@@ -61,7 +61,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
   // External messages
   public static final int MSG_PLAYBACK_INFO_CHANGED = 0;
   public static final int MSG_PLAYBACK_PARAMETERS_CHANGED = 1;
-  public static final int MSG_ERROR = 2;
 
   // Internal messages
   private static final int MSG_PREPARE = 0;
@@ -374,19 +373,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
       maybeNotifyPlaybackInfoChanged();
     } catch (ExoPlaybackException e) {
       Log.e(TAG, "Playback error.", e);
-      eventHandler.obtainMessage(MSG_ERROR, e).sendToTarget();
       stopInternal(
           /* forceResetRenderers= */ true,
           /* resetPositionAndState= */ false,
           /* acknowledgeStop= */ false);
+      playbackInfo = playbackInfo.copyWithPlaybackError(e);
       maybeNotifyPlaybackInfoChanged();
     } catch (IOException e) {
       Log.e(TAG, "Source error.", e);
-      eventHandler.obtainMessage(MSG_ERROR, ExoPlaybackException.createForSource(e)).sendToTarget();
       stopInternal(
           /* forceResetRenderers= */ false,
           /* resetPositionAndState= */ false,
           /* acknowledgeStop= */ false);
+      playbackInfo = playbackInfo.copyWithPlaybackError(ExoPlaybackException.createForSource(e));
       maybeNotifyPlaybackInfoChanged();
     } catch (RuntimeException | OutOfMemoryError e) {
       Log.e(TAG, "Internal runtime error.", e);
@@ -394,11 +393,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
           e instanceof OutOfMemoryError
               ? ExoPlaybackException.createForOutOfMemoryError((OutOfMemoryError) e)
               : ExoPlaybackException.createForUnexpected((RuntimeException) e);
-      eventHandler.obtainMessage(MSG_ERROR, error).sendToTarget();
       stopInternal(
           /* forceResetRenderers= */ true,
           /* resetPositionAndState= */ false,
           /* acknowledgeStop= */ false);
+      playbackInfo = playbackInfo.copyWithPlaybackError(error);
       maybeNotifyPlaybackInfoChanged();
     }
     return true;
@@ -436,7 +435,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private void prepareInternal(MediaSource mediaSource, boolean resetPosition, boolean resetState) {
     pendingPrepareCount++;
     resetInternal(
-        /* resetRenderers= */ false, /* releaseMediaSource= */ true, resetPosition, resetState);
+        /* resetRenderers= */ false,
+        /* releaseMediaSource= */ true,
+        resetPosition,
+        resetState,
+        /* resetError= */ true);
     loadControl.onPrepared();
     this.mediaSource = mediaSource;
     setState(Player.STATE_BUFFERING);
@@ -688,7 +691,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
             /* resetRenderers= */ false,
             /* releaseMediaSource= */ false,
             /* resetPosition= */ true,
-            /* resetState= */ false);
+            /* resetState= */ false,
+            /* resetError= */ true);
       } else {
         // Execute the seek in the current media periods.
         long newPeriodPositionUs = periodPositionUs;
@@ -834,7 +838,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
         /* resetRenderers= */ forceResetRenderers || !foregroundMode,
         /* releaseMediaSource= */ true,
         /* resetPosition= */ resetPositionAndState,
-        /* resetState= */ resetPositionAndState);
+        /* resetState= */ resetPositionAndState,
+        /* resetError= */ resetPositionAndState);
     playbackInfoUpdate.incrementPendingOperationAcks(
         pendingPrepareCount + (acknowledgeStop ? 1 : 0));
     pendingPrepareCount = 0;
@@ -847,7 +852,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
         /* resetRenderers= */ true,
         /* releaseMediaSource= */ true,
         /* resetPosition= */ true,
-        /* resetState= */ true);
+        /* resetState= */ true,
+        /* resetError= */ false);
     loadControl.onReleased();
     setState(Player.STATE_IDLE);
     internalPlaybackThread.quit();
@@ -861,7 +867,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
       boolean resetRenderers,
       boolean releaseMediaSource,
       boolean resetPosition,
-      boolean resetState) {
+      boolean resetState,
+      boolean resetError) {
     handler.removeMessages(MSG_DO_SOME_WORK);
     rebuffering = false;
     mediaClock.stop();
@@ -924,6 +931,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
             startPositionUs,
             contentPositionUs,
             playbackInfo.playbackState,
+            resetError ? null : playbackInfo.playbackError,
             /* isLoading= */ false,
             resetState ? TrackGroupArray.EMPTY : playbackInfo.trackGroups,
             resetState ? emptyTrackSelectorResult : playbackInfo.trackSelectorResult,
@@ -1382,7 +1390,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
         /* resetRenderers= */ false,
         /* releaseMediaSource= */ false,
         /* resetPosition= */ true,
-        /* resetState= */ false);
+        /* resetState= */ false,
+        /* resetError= */ true);
   }
 
   /**
