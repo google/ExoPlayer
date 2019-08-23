@@ -30,9 +30,11 @@ import java.nio.ByteBuffer;
 /* package */ final class VpxDecoder
     extends SimpleDecoder<VideoDecoderInputBuffer, VpxOutputBuffer, VpxDecoderException> {
 
+  // These constants should match the codes returned from vpxDecode and vpxSecureDecode functions in
+  // https://github.com/google/ExoPlayer/blob/release-v2/extensions/vp9/src/main/jni/vpx_jni.cc.
   private static final int NO_ERROR = 0;
-  private static final int DECODE_ERROR = 1;
-  private static final int DRM_ERROR = 2;
+  private static final int DECODE_ERROR = -1;
+  private static final int DRM_ERROR = -2;
 
   @Nullable private final ExoMediaCrypto exoMediaCrypto;
   private final long vpxDecContext;
