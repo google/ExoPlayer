@@ -31,6 +31,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.CheckBox;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ImageButton;
@@ -160,14 +161,18 @@ public class SampleChooserActivity extends AppCompatActivity
   @Override
   public boolean onChildClick(
       ExpandableListView parent, View view, int groupPosition, int childPosition, long id) {
+
+    CheckBox tunnelMode = findViewById(R.id.tunnelMode);
+    Boolean tunnel = tunnelMode.isChecked();
+
     Sample sample = (Sample) view.getTag();
-    startActivity(
-        sample.buildIntent(
+    String abrAlgorithm = isNonNullAndChecked(randomAbrMenuItem)
+            ? PlayerActivity.ABR_ALGORITHM_RANDOM
+            : PlayerActivity.ABR_ALGORITHM_DEFAULT;
+    Intent intent = sample.buildIntent(
             /* context= */ this,
-            isNonNullAndChecked(preferExtensionDecodersMenuItem),
-            isNonNullAndChecked(randomAbrMenuItem)
-                ? PlayerActivity.ABR_ALGORITHM_RANDOM
-                : PlayerActivity.ABR_ALGORITHM_DEFAULT));
+            isNonNullAndChecked(preferExtensionDecodersMenuItem), abrAlgorithm, tunnel);
+    startActivity(intent);
     return true;
   }
 
@@ -534,10 +539,11 @@ public class SampleChooserActivity extends AppCompatActivity
     }
 
     public Intent buildIntent(
-        Context context, boolean preferExtensionDecoders, String abrAlgorithm) {
+        Context context, boolean preferExtensionDecoders, String abrAlgorithm, Boolean tunnel) {
       Intent intent = new Intent(context, PlayerActivity.class);
       intent.putExtra(PlayerActivity.PREFER_EXTENSION_DECODERS_EXTRA, preferExtensionDecoders);
       intent.putExtra(PlayerActivity.ABR_ALGORITHM_EXTRA, abrAlgorithm);
+      intent.putExtra(PlayerActivity.ENABLE_TUNNELED_PLAYBACK, tunnel);
       if (drmInfo != null) {
         drmInfo.updateIntent(intent);
       }
@@ -569,8 +575,8 @@ public class SampleChooserActivity extends AppCompatActivity
 
     @Override
     public Intent buildIntent(
-        Context context, boolean preferExtensionDecoders, String abrAlgorithm) {
-      return super.buildIntent(context, preferExtensionDecoders, abrAlgorithm)
+        Context context, boolean preferExtensionDecoders, String abrAlgorithm, Boolean tunnel) {
+      return super.buildIntent(context, preferExtensionDecoders, abrAlgorithm, tunnel)
           .setData(uri)
           .putExtra(PlayerActivity.EXTENSION_EXTRA, extension)
           .putExtra(PlayerActivity.AD_TAG_URI_EXTRA, adTagUri)
@@ -594,14 +600,14 @@ public class SampleChooserActivity extends AppCompatActivity
 
     @Override
     public Intent buildIntent(
-        Context context, boolean preferExtensionDecoders, String abrAlgorithm) {
+        Context context, boolean preferExtensionDecoders, String abrAlgorithm, Boolean tunnel) {
       String[] uris = new String[children.length];
       String[] extensions = new String[children.length];
       for (int i = 0; i < children.length; i++) {
         uris[i] = children[i].uri.toString();
         extensions[i] = children[i].extension;
       }
-      return super.buildIntent(context, preferExtensionDecoders, abrAlgorithm)
+      return super.buildIntent(context, preferExtensionDecoders, abrAlgorithm, tunnel)
           .putExtra(PlayerActivity.URI_LIST_EXTRA, uris)
           .putExtra(PlayerActivity.EXTENSION_LIST_EXTRA, extensions)
           .setAction(PlayerActivity.ACTION_VIEW_LIST);

@@ -677,6 +677,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       }
       allowFirstBufferPositionDiscontinuity = false;
     }
+    Log.d("EXO-AUDIO", "queued audio input: currPos: " + currentPositionUs + " buffer.timeUs: " + buffer.timeUs + " buffer.pos: " + buffer.data.position());
     lastInputTimeUs = Math.max(buffer.timeUs, lastInputTimeUs);
   }
 
@@ -715,6 +716,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       bufferPresentationTimeUs = lastInputTimeUs;
     }
 
+    Log.d("EXO-AUDIO", "process audio output bufferIndex: " +bufferIndex + " positionUs: " + positionUs + " lastQueuedUs: " + lastInputTimeUs + " isDecodeOnly: "+isDecodeOnlyBuffer);
     if (passthroughEnabled && (bufferFlags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG) != 0) {
       // Discard output buffers from the passthrough (raw) decoder containing codec specific data.
       codec.releaseOutputBuffer(bufferIndex, false);
@@ -730,6 +732,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
 
     try {
       if (audioSink.handleBuffer(buffer, bufferPresentationTimeUs)) {
+        Log.d("EXO-AUDIO", "rendered audio output bufferIndex: " +bufferIndex + " positionUs: " + positionUs + " lastQueuedUs: " + lastInputTimeUs + " isDecodeOnly: "+isDecodeOnlyBuffer);
         codec.releaseOutputBuffer(bufferIndex, false);
         decoderCounters.renderedOutputBufferCount++;
         return true;

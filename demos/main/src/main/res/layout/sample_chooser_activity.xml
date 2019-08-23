@@ -18,8 +18,17 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+  <LinearLayout
+          android:orientation="horizontal"
+          android:layout_width="match_parent"
+          android:layout_height="50dp">
+    <CheckBox
+            android:text="Tunneling"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:id="@+id/tunnelMode" android:layout_weight="1"/>
+  </LinearLayout>
   <ExpandableListView android:id="@+id/sample_list"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"/>
+                      android:layout_width="match_parent"
+                      android:layout_height="match_parent"/>
 
 </LinearLayout>

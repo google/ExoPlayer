@@ -34,6 +34,7 @@
       android:banner="@drawable/ic_banner"
       android:largeHeap="true"
       android:allowBackup="false"
+      android:networkSecurityConfig="@xml/network_security_config"
       android:name="com.google.android.exoplayer2.demo.DemoApplication"
       tools:ignore="UnusedAttribute">
 

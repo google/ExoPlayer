@@ -15,13 +15,12 @@
  */
 package com.google.android.exoplayer2.demo;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
+import android.util.Log;
 import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.View;
@@ -30,14 +29,22 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.C.ContentType;
+import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.audio.AudioCapabilities;
+import com.google.android.exoplayer2.audio.AudioCapabilitiesReceiver;
+import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
@@ -55,6 +62,7 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
+import com.google.android.exoplayer2.source.hls.DefaultHlsExtractorFactory;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
@@ -72,6 +80,8 @@ import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.EventLogger;
 import com.google.android.exoplayer2.util.Util;
+
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.CookieHandler;
 import java.net.CookieManager;
@@ -87,12 +97,15 @@ public class PlayerActivity extends AppCompatActivity
   public static final String DRM_KEY_REQUEST_PROPERTIES_EXTRA = "drm_key_request_properties";
   public static final String DRM_MULTI_SESSION_EXTRA = "drm_multi_session";
   public static final String PREFER_EXTENSION_DECODERS_EXTRA = "prefer_extension_decoders";
+  public static final String ENABLE_TUNNELED_PLAYBACK = "enable_tunneled_playback";
 
   public static final String ACTION_VIEW = "com.google.android.exoplayer.demo.action.VIEW";
   public static final String EXTENSION_EXTRA = "extension";
 
   public static final String ACTION_VIEW_LIST =
       "com.google.android.exoplayer.demo.action.VIEW_LIST";
+  public static final String ACTION_CHANNEL_LIST =
+      "com.google.android.exoplayer.demo.action.CHANNEL_LIST";
   public static final String URI_LIST_EXTRA = "uri_list";
   public static final String EXTENSION_LIST_EXTRA = "extension_list";
 
@@ -141,10 +154,27 @@ public class PlayerActivity extends AppCompatActivity
   private int startWindow;
   private long startPosition;
 
+  private int currentChannel;
+  private Uri[] channelUris;
+
+  private AudioCapabilitiesReceiver audioChangeReceiver;
+
   // Fields used only for ad playback. The ads loader is loaded via reflection.
 
   private AdsLoader adsLoader;
   private Uri loadedAdTagUri;
+
+  private class AudioHotplugListener implements AudioCapabilitiesReceiver.Listener {
+
+    @Override
+    public void onAudioCapabilitiesChanged(AudioCapabilities audioCapabilities) {
+      Log.d("ExoPlayer", "audio hotplug.  new capabilities " + audioCapabilities);
+      if (player != null && trackSelector != null) {
+        trackSelector.buildUponParameters().clearSelectionOverrides();
+        recreatePlayer();
+      }
+    }
+  }
 
   // Activity lifecycle
 
@@ -195,6 +225,10 @@ public class PlayerActivity extends AppCompatActivity
       trackSelectorParameters = new DefaultTrackSelector.ParametersBuilder().build();
       clearStartPosition();
     }
+
+//    playerView.setControllerShowTimeoutMs(0);
+    audioChangeReceiver = new AudioCapabilitiesReceiver(getApplicationContext(), new AudioHotplugListener());
+    audioChangeReceiver.register();
   }
 
   @Override
@@ -210,7 +244,7 @@ public class PlayerActivity extends AppCompatActivity
   public void onStart() {
     super.onStart();
     if (Util.SDK_INT > 23) {
-      initializePlayer();
+      initializePlayer(true);
       if (playerView != null) {
         playerView.onResume();
       }
@@ -221,7 +255,7 @@ public class PlayerActivity extends AppCompatActivity
   public void onResume() {
     super.onResume();
     if (Util.SDK_INT <= 23 || player == null) {
-      initializePlayer();
+      initializePlayer(true);
       if (playerView != null) {
         playerView.onResume();
       }
@@ -265,7 +299,7 @@ public class PlayerActivity extends AppCompatActivity
       return;
     }
     if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-      initializePlayer();
+      initializePlayer(true);
     } else {
       showToast(R.string.storage_permission_denied);
       finish();
@@ -288,7 +322,33 @@ public class PlayerActivity extends AppCompatActivity
   @Override
   public boolean dispatchKeyEvent(KeyEvent event) {
     // See whether the player view wants to handle media or DPAD keys events.
-    return playerView.dispatchKeyEvent(event) || super.dispatchKeyEvent(event);
+    boolean handled = false;
+
+    if (event.getAction() == KeyEvent.ACTION_DOWN) {
+      Uri nextChannel = null;
+
+      switch (event.getKeyCode()) {
+
+        case KeyEvent.KEYCODE_CHANNEL_DOWN:
+          if (channelUris != null) {
+            currentChannel = (currentChannel + (channelUris.length - 1)) % channelUris.length;
+            nextChannel = channelUris[currentChannel];
+          }
+          break;
+        case KeyEvent.KEYCODE_CHANNEL_UP:
+          if (channelUris != null) {
+            currentChannel = (currentChannel + 1) % channelUris.length;
+            nextChannel = channelUris[currentChannel];
+          }
+          break;
+      }
+
+      if (nextChannel != null) {
+        playUnencryptedUri(nextChannel);
+      }
+    }
+
+    return handled || playerView.dispatchKeyEvent(event) || super.dispatchKeyEvent(event);
   }
 
   // OnClickListener methods
@@ -323,36 +383,51 @@ public class PlayerActivity extends AppCompatActivity
 
   // Internal methods
 
-  private void initializePlayer() {
+  private void initializePlayer(boolean allowTunneling) {
     if (player == null) {
       Intent intent = getIntent();
       String action = intent.getAction();
-      Uri[] uris;
-      String[] extensions;
+      Uri[] uris = new Uri[0];
+      String[] extensions = new String[0];
+      String[] uriStrings = intent.getStringArrayExtra(URI_LIST_EXTRA);
+
       if (ACTION_VIEW.equals(action)) {
-        uris = new Uri[] {intent.getData()};
-        extensions = new String[] {intent.getStringExtra(EXTENSION_EXTRA)};
+        uris = new Uri[]{intent.getData()};
+        extensions = new String[]{intent.getStringExtra(EXTENSION_EXTRA)};
       } else if (ACTION_VIEW_LIST.equals(action)) {
-        String[] uriStrings = intent.getStringArrayExtra(URI_LIST_EXTRA);
-        uris = new Uri[uriStrings.length];
-        for (int i = 0; i < uriStrings.length; i++) {
-          uris[i] = Uri.parse(uriStrings[i]);
-        }
+        uris = parseToUriList(uriStrings);
         extensions = intent.getStringArrayExtra(EXTENSION_LIST_EXTRA);
         if (extensions == null) {
           extensions = new String[uriStrings.length];
         }
+      } else if (ACTION_CHANNEL_LIST.equals(action)) {
+        channelUris = parseToUriList(uriStrings);
+        uris = new Uri[] { channelUris[0] };
+        extensions = new String[] { null };
       } else {
         showToast(getString(R.string.unexpected_intent_action, action));
         finish();
         return;
       }
+
       if (!Util.checkCleartextTrafficPermitted(uris)) {
         showToast(R.string.error_cleartext_not_permitted);
         return;
       }
       if (Util.maybeRequestReadExternalStoragePermission(/* activity= */ this, uris)) {
         // The player will be reinitialized if the permission is granted.
+        return;
+      }
+
+      TrackSelection.Factory trackSelectionFactory;
+      String abrAlgorithm = intent.getStringExtra(ABR_ALGORITHM_EXTRA);
+      if (abrAlgorithm == null || ABR_ALGORITHM_DEFAULT.equals(abrAlgorithm)) {
+        trackSelectionFactory = new AdaptiveTrackSelection.Factory();
+      } else if (ABR_ALGORITHM_RANDOM.equals(abrAlgorithm)) {
+        trackSelectionFactory = new RandomTrackSelection.Factory();
+      } else {
+        showToast(R.string.error_unrecognized_abr_algorithm);
+        finish();
         return;
       }
 
@@ -389,37 +464,12 @@ public class PlayerActivity extends AppCompatActivity
         }
       }
 
-      TrackSelection.Factory trackSelectionFactory;
-      String abrAlgorithm = intent.getStringExtra(ABR_ALGORITHM_EXTRA);
-      if (abrAlgorithm == null || ABR_ALGORITHM_DEFAULT.equals(abrAlgorithm)) {
-        trackSelectionFactory = new AdaptiveTrackSelection.Factory();
-      } else if (ABR_ALGORITHM_RANDOM.equals(abrAlgorithm)) {
-        trackSelectionFactory = new RandomTrackSelection.Factory();
-      } else {
-        showToast(R.string.error_unrecognized_abr_algorithm);
-        finish();
-        return;
-      }
-
+      boolean enableTunneling = intent.getBooleanExtra(ENABLE_TUNNELED_PLAYBACK, false) && allowTunneling;
       boolean preferExtensionDecoders =
           intent.getBooleanExtra(PREFER_EXTENSION_DECODERS_EXTRA, false);
-      RenderersFactory renderersFactory =
-          ((DemoApplication) getApplication()).buildRenderersFactory(preferExtensionDecoders);
 
-      trackSelector = new DefaultTrackSelector(trackSelectionFactory);
-      trackSelector.setParameters(trackSelectorParameters);
-      lastSeenTrackGroupArray = null;
 
-      player =
-          ExoPlayerFactory.newSimpleInstance(
-              /* context= */ this, renderersFactory, trackSelector, drmSessionManager);
-      player.addListener(new PlayerEventListener());
-      player.setPlayWhenReady(startAutoPlay);
-      player.addAnalyticsListener(new EventLogger(trackSelector));
-      playerView.setPlayer(player);
-      playerView.setPlaybackPreparer(this);
-      debugViewHelper = new DebugTextViewHelper(player, debugTextView);
-      debugViewHelper.start();
+      createPlayer(trackSelectionFactory, drmSessionManager, enableTunneling, preferExtensionDecoders);
 
       MediaSource[] mediaSources = new MediaSource[uris.length];
       for (int i = 0; i < uris.length; i++) {
@@ -444,12 +494,86 @@ public class PlayerActivity extends AppCompatActivity
         releaseAdsLoader();
       }
     }
+    restartMediaSource();
+  }
+
+  private void restartMediaSource() {
     boolean haveStartPosition = startWindow != C.INDEX_UNSET;
     if (haveStartPosition) {
       player.seekTo(startWindow, startPosition);
     }
     player.prepare(mediaSource, !haveStartPosition, false);
     updateButtonVisibility();
+  }
+
+  private Uri[] parseToUriList(String[] uriStrings) {
+    Uri[] uris;
+    uris = new Uri[uriStrings.length];
+    for (int i = 0; i < uriStrings.length; i++) {
+      uris[i] = Uri.parse(uriStrings[i]);
+    }
+    return uris;
+  }
+
+  private void playUnencryptedUri(Uri uri) {
+
+    Log.d("ExoPlayer", "change channel to " + uri);
+    mediaSource = buildMediaSource(uri);
+    clearStartPosition();
+
+    if (player == null) {
+      Intent intent = getIntent();
+      boolean enableTunneling = intent.getBooleanExtra(ENABLE_TUNNELED_PLAYBACK, false);
+
+      createPlayer(new AdaptiveTrackSelection.Factory(), null, enableTunneling, false);
+    }
+    restartMediaSource();
+  }
+
+  private void recreatePlayer() {
+    Intent intent = getIntent();
+    boolean enableTunneling = intent.getBooleanExtra(ENABLE_TUNNELED_PLAYBACK, false);
+
+    createPlayer(new AdaptiveTrackSelection.Factory(), null, enableTunneling, false);
+    restartMediaSource();
+  }
+
+  private void createPlayer(TrackSelection.Factory trackSelectionFactory, DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager, boolean enableTunneling, boolean preferExtensionDecoders) {
+    if (player != null) {
+      releasePlayer();
+    }
+    RenderersFactory renderersFactory =
+        ((DemoApplication) getApplication()).buildRenderersFactory(preferExtensionDecoders);
+
+    trackSelector = new DefaultTrackSelector(trackSelectionFactory);
+
+    // Get a builder with current parameters then set/clear tunnling based on the intent
+    //
+    Context context = getApplicationContext();
+    int tunnelingSessionId = enableTunneling
+            ? C.generateAudioSessionIdV21(context) : C.AUDIO_SESSION_ID_UNSET;
+
+    trackSelectorParameters = trackSelectorParameters.buildUpon()
+            .setTunnelingAudioSessionId(tunnelingSessionId)
+            .build();
+
+    // set the updated parameters for the trackSelector
+    trackSelector.setParameters(trackSelectorParameters);
+    lastSeenTrackGroupArray = null;
+
+    player =
+        ExoPlayerFactory.newSimpleInstance(context, renderersFactory, trackSelector, new DefaultLoadControl(), drmSessionManager);
+
+    player.addListener(new PlayerEventListener());
+    player.setPlayWhenReady(startAutoPlay);
+    player.addAnalyticsListener(new EventLogger(trackSelector));
+
+    playerView.setPlayer(player);
+    playerView.setPlaybackPreparer(this);
+
+    debugViewHelper = new DebugTextViewHelper(player, debugTextView);
+    debugViewHelper.start();
+
   }
 
   private MediaSource buildMediaSource(Uri uri) {
@@ -469,7 +593,7 @@ public class PlayerActivity extends AppCompatActivity
       case C.TYPE_SS:
         return new SsMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
       case C.TYPE_HLS:
-        return new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
+        return new HlsMediaSource.Factory(dataSourceFactory).setAllowChunklessPreparation(true).createMediaSource(uri);
       case C.TYPE_OTHER:
         return new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
       default:
@@ -503,7 +627,6 @@ public class PlayerActivity extends AppCompatActivity
       debugViewHelper = null;
       player.release();
       player = null;
-      mediaSource = null;
       trackSelector = null;
     }
     if (adsLoader != null) {
@@ -615,6 +738,10 @@ public class PlayerActivity extends AppCompatActivity
       return false;
     }
     Throwable cause = e.getSourceException();
+    return isCauseBehindLiveWindow(cause);
+  }
+
+  private static boolean isCauseBehindLiveWindow(Throwable cause) {
     while (cause != null) {
       if (cause instanceof BehindLiveWindowException) {
         return true;
@@ -623,6 +750,18 @@ public class PlayerActivity extends AppCompatActivity
     }
     return false;
   }
+
+  private static <T extends Throwable> T getRootCauseOfType(Throwable exeception, Class<T> exceptionType) {
+    T foundCause = null;
+    while (exeception != null && foundCause == null) {
+      if (exceptionType.isAssignableFrom(exeception.getClass())) {
+        foundCause = (T) exeception;
+      }
+      exeception = exeception.getCause();
+    }
+    return foundCause;
+  }
+
 
   private class PlayerEventListener implements Player.EventListener {
 
@@ -636,10 +775,67 @@ public class PlayerActivity extends AppCompatActivity
 
     @Override
     public void onPlayerError(ExoPlaybackException e) {
-      if (isBehindLiveWindow(e)) {
-        clearStartPosition();
-        initializePlayer();
-      } else {
+
+      boolean handled = false;
+
+      switch (e.type) {
+
+        /**
+         * Renderer exceptions occur for errors in writing samples, as well as codec initialization.
+         * Track selection may pick correct codecs but they may not play well togeather (for example
+         * tunneling mode not supported). Switching to an alternate decoder or changing attributes can
+         * work around this.
+         */
+        case ExoPlaybackException.TYPE_RENDERER:
+          Exception renderException = e.getRendererException();
+          if (renderException instanceof AudioSink.InitializationException) {
+            clearStartPosition();
+            releasePlayer();
+            initializePlayer(false);
+            handled = true;
+          } else if (renderException instanceof AudioSink.WriteException) {
+            AudioSink.WriteException writeException = (AudioSink.WriteException) renderException;
+            if (writeException.errorCode == android.media.AudioTrack.ERROR_DEAD_OBJECT) {
+              DefaultTrackSelector.Parameters trackSelectorParameters = trackSelector.getParameters();
+              DefaultTrackSelector.ParametersBuilder builder = trackSelectorParameters.buildUpon();
+
+              TrackSelectionArray trackSelections = player.getCurrentTrackSelections();
+              for (int i = 0; i < player.getRendererCount() && i < trackSelections.length; i++) {
+                if (player.getRendererType(i) == C.TRACK_TYPE_AUDIO && trackSelections.get(i) != null) {
+                    builder.setRendererDisabled(i, true);
+                  Log.d("ExoPlayer", "AudioSink.WriteException - disable audio track " + player.getRendererType(i) + " to recover");
+                }
+              }
+              trackSelector.setParameters(builder);
+
+              Log.d("ExoPlayer", "AudioSink.WriteException - reset player with prepare");
+              player.prepare(mediaSource, true, true);
+              handled = true;
+            }
+
+          }
+          break;
+
+        case ExoPlaybackException.TYPE_SOURCE:
+          IOException sourceException = e.getSourceException();
+
+          BehindLiveWindowException liveWindowException = getRootCauseOfType(sourceException, BehindLiveWindowException.class);
+          if (liveWindowException != null) {
+            clearStartPosition();
+            initializePlayer(true);
+            handled = true;
+          } else {
+            HttpDataSource.InvalidResponseCodeException invalidResponseCodeException =
+                    getRootCauseOfType(sourceException, HttpDataSource.InvalidResponseCodeException.class);
+
+            Log.d("ERROR", "Invalid HTTP response: " + invalidResponseCodeException.responseCode +
+                    " headers: " + invalidResponseCodeException.headerFields +
+                    " messaage: " + invalidResponseCodeException.responseMessage);
+            handled = true;
+          }
+      }
+
+      if (! handled) {
         updateButtonVisibility();
         showControls();
       }
