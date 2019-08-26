@@ -24,7 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class BasicCredentials extends Credentials {
-    private static final Pattern REGEX_REALM = Pattern.compile("realm=(?:(\\\"[\\w]+\\\")?)");
+    private static final Pattern REGEX_REALM = Pattern.compile("realm=(?:(\\\"[\\S\\s]+\\\")?)");
 
     public static final String REALM = "realm";
 
@@ -52,6 +52,9 @@ public final class BasicCredentials extends Credentials {
     }
 
     public final void applyToRequest(Request request) {
+        if (username == null) throw new NullPointerException("username is null");
+        if (password == null) throw new NullPointerException("password is null");
+
         BasicAuthCipher basicAuthCipher = new BasicAuthCipher.Builder().
                 username(username()).password(password()).build();
 
@@ -130,8 +133,6 @@ public final class BasicCredentials extends Credentials {
 
         @Override
         public Credentials build() {
-            if (username == null) throw new NullPointerException("username is null");
-            if (password == null) throw new NullPointerException("password is null");
             if (params.get(REALM) == null) throw new NullPointerException("realm is null");
 
             return new BasicCredentials(this);
