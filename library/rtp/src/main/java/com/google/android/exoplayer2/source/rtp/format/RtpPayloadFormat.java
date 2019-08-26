@@ -129,6 +129,7 @@ public abstract class RtpPayloadFormat {
 
             case 8:
                 this.encoding = PCMA;
+                clockrate = (clockrate == -1) ? 8000 : clockrate;
                 bitrate = (bitrate == -1) ? (clockrate == 8000 ? 64 : 128) : bitrate;
                 ((RtpAudioPayload)this).setChannels(1);
                 break;
