@@ -932,6 +932,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
 
     @Override
     public void onAudioSessionId(int audioSessionId) {
+      Log.d("EXO", "AudioSink.Listener - new session id: "+audioSessionId);
       eventDispatcher.audioSessionId(audioSessionId);
       MediaCodecAudioRenderer.this.onAudioSessionId(audioSessionId);
     }

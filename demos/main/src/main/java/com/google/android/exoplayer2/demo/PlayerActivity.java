@@ -557,6 +557,10 @@ public class PlayerActivity extends AppCompatActivity
             .setTunnelingAudioSessionId(tunnelingSessionId)
             .build();
 
+    if (enableTunneling) {
+       Log.d("EXO", "Enabling tunneling with sessionId: " + tunnelingSessionId);
+    }
+
     // set the updated parameters for the trackSelector
     trackSelector.setParameters(trackSelectorParameters);
     lastSeenTrackGroupArray = null;
