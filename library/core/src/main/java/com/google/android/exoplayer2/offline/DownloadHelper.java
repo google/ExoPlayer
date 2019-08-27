@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import android.util.SparseIntArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.Timeline;
@@ -41,6 +42,7 @@ import com.google.android.exoplayer2.trackselection.BaseTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
+import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
@@ -51,6 +53,8 @@ import com.google.android.exoplayer2.upstream.DataSource.Factory;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.DurationProvider;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -721,6 +725,61 @@ public final class DownloadHelper {
       streamKeys.addAll(mediaPreparer.mediaPeriods[periodIndex].getStreamKeys(allSelections));
     }
     return new DownloadRequest(id, downloadType, uri, streamKeys, cacheKey, data);
+  }
+
+  /**
+   * Try to estimate the total size of chunked downloads. Returns {@link C#LENGTH_UNSET} for
+   * progressive downloads.
+   * @param estimatedAudioBitrateWhenUnknown Used when audio track bitrate is not known, typical with HLS
+   * alternate audio tracks.
+   * @param estimatedTextBytesPerMinute Estimated average bytes per minute in text tracks.
+   * @return Estimated total download size, in bytes, or {@link C#LENGTH_UNSET} if not known.
+   */
+  public long estimateTotalSize(int estimatedAudioBitrateWhenUnknown, int estimatedTextBytesPerMinute) {
+
+    if (DownloadRequest.TYPE_PROGRESSIVE.equals(downloadType)) {
+      return C.LENGTH_UNSET;
+    }
+
+    assertPreparedWithMedia();
+
+    @Nullable final Object manifest = getManifest();
+    final long durationMs;
+    if (manifest instanceof DurationProvider) {
+      durationMs = ((DurationProvider) manifest).getDurationMs();
+      if (durationMs == C.TIME_UNSET) {
+        return C.LENGTH_UNSET;
+      }
+    } else {
+      return C.LENGTH_UNSET;
+    }
+
+    long selectedSize = 0;
+
+    for (int periodIndex = 0; periodIndex < this.getPeriodCount(); periodIndex++) {
+
+      final MappingTrackSelector.MappedTrackInfo mappedTrackInfo = mappedTrackInfos[periodIndex];
+      final int rendererCount = mappedTrackInfo.getRendererCount();
+
+      for (int rendererIndex = 0; rendererIndex < rendererCount; rendererIndex++) {
+        final List<TrackSelection> trackSelections = this.getTrackSelections(periodIndex, rendererIndex);
+        for (TrackSelection selection : trackSelections) {
+          final Format format = selection.getSelectedFormat();
+
+          int bitrate = format.bitrate;
+          if (bitrate == Format.NO_VALUE) {
+            if (MimeTypes.isAudio(format.sampleMimeType)) {
+              bitrate = estimatedAudioBitrateWhenUnknown;
+            } else if (MimeTypes.isText(format.sampleMimeType)) {
+              bitrate = estimatedTextBytesPerMinute * 60 * 8;
+            }
+          }
+          selectedSize += (bitrate * durationMs) / 1000 / 8;
+        }
+      }
+    }
+
+    return selectedSize;
   }
 
   // Initialization of array of Lists.

@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.extractor.mp4.TrackEncryptionBox;
 import com.google.android.exoplayer2.offline.FilterableManifest;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.DurationProvider;
 import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ import java.util.UUID;
  * @see <a href="http://msdn.microsoft.com/en-us/library/ee673436(v=vs.90).aspx">IIS Smooth
  *     Streaming Client Manifest Format</a>
  */
-public class SsManifest implements FilterableManifest<SsManifest> {
+public class SsManifest implements FilterableManifest<SsManifest>, DurationProvider {
 
   /** Represents a protection element containing a single header. */
   public static class ProtectionElement {
@@ -343,5 +344,11 @@ public class SsManifest implements FilterableManifest<SsManifest> {
         isLive,
         protectionElement,
         copiedStreamElementsArray);
+  }
+
+  @Override
+  public final long getDurationMs() {
+    return durationUs == C.TIME_UNSET ? C.TIME_UNSET
+        : durationUs / 1000;
   }
 }

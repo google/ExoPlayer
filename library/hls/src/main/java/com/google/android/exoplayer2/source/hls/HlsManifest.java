@@ -15,13 +15,15 @@
  */
 package com.google.android.exoplayer2.source.hls;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
+import com.google.android.exoplayer2.util.DurationProvider;
 
 /**
  * Holds a master playlist along with a snapshot of one of its media playlists.
  */
-public final class HlsManifest {
+public final class HlsManifest implements DurationProvider {
 
   /**
    * The master playlist of an HLS stream.
@@ -41,4 +43,9 @@ public final class HlsManifest {
     this.mediaPlaylist = mediaPlaylist;
   }
 
+  @Override
+  public final long getDurationMs() {
+    return mediaPlaylist.durationUs == C.TIME_UNSET ? C.TIME_UNSET
+        : mediaPlaylist.durationUs / 1000;
+  }
 }

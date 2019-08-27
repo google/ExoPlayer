@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.FilterableManifest;
 import com.google.android.exoplayer2.offline.StreamKey;
+import com.google.android.exoplayer2.util.DurationProvider;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -29,7 +30,7 @@ import java.util.List;
  * Represents a DASH media presentation description (mpd), as defined by ISO/IEC 23009-1:2014
  * Section 5.3.1.2.
  */
-public class DashManifest implements FilterableManifest<DashManifest> {
+public class DashManifest implements FilterableManifest<DashManifest>, DurationProvider {
 
   /**
    * The {@code availabilityStartTime} value in milliseconds since epoch, or {@link C#TIME_UNSET} if
@@ -233,4 +234,8 @@ public class DashManifest implements FilterableManifest<DashManifest> {
     return copyAdaptationSets;
   }
 
+  @Override
+  public final long getDurationMs() {
+    return durationMs;
+  }
 }
