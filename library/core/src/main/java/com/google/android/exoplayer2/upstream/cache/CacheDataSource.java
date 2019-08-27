@@ -285,7 +285,7 @@ public final class CacheDataSource implements DataSource {
       }
       openNextSource(false);
       return bytesRemaining;
-    } catch (IOException e) {
+    } catch (Throwable e) {
       handleBeforeThrow(e);
       throw e;
     }
@@ -327,6 +327,9 @@ public final class CacheDataSource implements DataSource {
       }
       handleBeforeThrow(e);
       throw e;
+    } catch (Throwable e) {
+      handleBeforeThrow(e);
+      throw e;
     }
   }
 
@@ -353,7 +356,7 @@ public final class CacheDataSource implements DataSource {
     notifyBytesRead();
     try {
       closeCurrentSource();
-    } catch (IOException e) {
+    } catch (Throwable e) {
       handleBeforeThrow(e);
       throw e;
     }
@@ -520,7 +523,7 @@ public final class CacheDataSource implements DataSource {
     }
   }
 
-  private void handleBeforeThrow(IOException exception) {
+  private void handleBeforeThrow(Throwable exception) {
     if (isReadingFromCache() || exception instanceof CacheException) {
       seenCacheError = true;
     }
