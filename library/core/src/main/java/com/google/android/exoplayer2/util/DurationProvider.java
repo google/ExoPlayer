@@ -6,7 +6,7 @@ public interface DurationProvider {
 
   /**
    * Return the duration in milliseconds.
-   * @return duration is milliseconds, or {@link C#TIME_UNSET} is not known.
+   * @return duration in milliseconds, or {@link C#TIME_UNSET} is not known.
    */
   long getDurationMs();
 }
