@@ -716,7 +716,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       bufferPresentationTimeUs = lastInputTimeUs;
     }
 
-    Log.d("EXO-AUDIO", "process audio output bufferIndex: " +bufferIndex + " positionUs: " + positionUs + " lastQueuedUs: " + lastInputTimeUs + " isDecodeOnly: "+isDecodeOnlyBuffer);
+    Log.d("EXO-AUDIO", "Process audio outputBuffer PTS - " + bufferPresentationTimeUs + " bufferIndex: " +bufferIndex + " positionUs: " + positionUs + " lastQueuedUs: " + lastInputTimeUs + " isDecodeOnly: "+isDecodeOnlyBuffer);
     if (passthroughEnabled && (bufferFlags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG) != 0) {
       // Discard output buffers from the passthrough (raw) decoder containing codec specific data.
       codec.releaseOutputBuffer(bufferIndex, false);

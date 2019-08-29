@@ -513,6 +513,7 @@ public final class DefaultAudioSink implements AudioSink {
         Assertions.checkNotNull(configuration)
             .buildAudioTrack(tunneling, audioAttributes, audioSessionId);
     int audioSessionId = audioTrack.getAudioSessionId();
+    Log.d("EXO-AUDIO", "DefaultAudioTrack.initilize() built audioTrack - pts: " + presentationTimeUs + " sessionId: " +audioSessionId + " tunneling: " + tunneling);
     if (enablePreV21AudioSessionWorkaround) {
       if (Util.SDK_INT < 21) {
         // The workaround creates an audio track with a two byte buffer on the same session, and
@@ -757,6 +758,8 @@ public final class DefaultAudioSink implements AudioSink {
     } else {
       bytesWritten = writeNonBlockingV21(audioTrack, buffer, bytesRemaining);
     }
+
+    Log.d("EXO-AUDIO", "Write audio output PTS - " + avSyncPresentationTimeUs + " written: " + bytesWritten + " buffer pos/limit: " + buffer.position() + "/" + buffer.limit());
 
     lastFeedElapsedRealtimeMs = SystemClock.elapsedRealtime();
 

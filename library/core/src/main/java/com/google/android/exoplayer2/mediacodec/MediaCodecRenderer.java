@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmSession;
@@ -1106,6 +1107,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
       buffer.flip();
       onQueueInputBuffer(buffer);
+
+      if (this instanceof MediaCodecAudioRenderer) {
+        Log.d("EXO-AUDIO", "Queued audio buffer PTS: " + buffer.timeUs + " index: " + inputIndex + " buffer size: " + buffer.data.limit());
+      }
 
       if (bufferEncrypted) {
         MediaCodec.CryptoInfo cryptoInfo = getFrameworkCryptoInfo(buffer,
