@@ -20,7 +20,6 @@ import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
-import com.google.android.material.tabs.TabLayout;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -39,6 +38,7 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Selecti
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.ui.TrackSelectionView;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.material.tabs.TabLayout;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
