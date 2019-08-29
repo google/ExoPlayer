@@ -46,6 +46,8 @@
   postroll ad ([#6314](https://github.com/google/ExoPlayer/issues/6314)).
 * Fix audio selection issue where languages are compared by bit rate
   ([#6335](https://github.com/google/ExoPlayer/issues/6335)).
+* Add `HttpDataSource.getResponseCode` to provide the status code associated
+  with the most recent HTTP response.
 
 ### 2.10.4 ###
 
