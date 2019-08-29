@@ -300,6 +300,13 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   }
 
   @Override
+  public int getResponseCode() {
+    return responseInfo == null || responseInfo.getHttpStatusCode() <= 0
+        ? -1
+        : responseInfo.getHttpStatusCode();
+  }
+
+  @Override
   public Map<String, List<String>> getResponseHeaders() {
     return responseInfo == null ? Collections.emptyMap() : responseInfo.getAllHeaders();
   }
