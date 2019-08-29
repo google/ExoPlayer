@@ -21,4 +21,4 @@ before_script:
   - android-wait-for-emulator
   - adb shell setprop dalvik.vm.dexopt-flags v=n,o=v
 script:
-  - travis_wait 90 ./gradlew build
+  - travis_wait 90 ./gradlew library-core:build library-hls:build
