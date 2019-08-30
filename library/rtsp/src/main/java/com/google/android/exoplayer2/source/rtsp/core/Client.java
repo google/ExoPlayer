@@ -910,7 +910,8 @@ public abstract class Client implements Dispatcher.EventListener {
             if (uri == null) throw new NullPointerException("uri == null");
 
             if (uri.getPort() == C.PORT_UNSET) {
-                this.uri = Uri.parse(uri.getScheme() + "://" + uri.getHost() +
+                this.uri = Uri.parse(uri.getScheme() + "://" + ((uri.getUserInfo() != null) ?
+                        uri.getUserInfo() + "@" : "") + uri.getHost() +
                         ((uri.getPort() > 0) ? ":" + uri.getPort() : ":" + DEFAULT_PORT) +
                         uri.getPath() + ((uri.getQuery() != null) ? "?" + uri.getQuery() : ""));
             } else {
