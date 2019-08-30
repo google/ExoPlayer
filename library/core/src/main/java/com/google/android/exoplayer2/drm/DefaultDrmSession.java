@@ -28,10 +28,13 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.ProvisionRequest;
+import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
+import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.EventDispatcher;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -46,6 +49,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 /** A {@link DrmSession} that supports playbacks using {@link ExoMediaDrm}. */
 @TargetApi(18)
 public class DefaultDrmSession<T extends ExoMediaCrypto> implements DrmSession<T> {
+
+  /** Thrown when an unexpected exception or error is thrown during provisioning or key requests. */
+  public static final class UnexpectedDrmSessionException extends IOException {
+
+    public UnexpectedDrmSessionException(Throwable cause) {
+      super("Unexpected " + cause.getClass().getSimpleName() + ": " + cause.getMessage(), cause);
+    }
+  }
 
   /** Manages provisioning requests. */
   public interface ProvisioningManager<T extends ExoMediaCrypto> {
@@ -97,7 +108,7 @@ public class DefaultDrmSession<T extends ExoMediaCrypto> implements DrmSession<T
   private final @DefaultDrmSessionManager.Mode int mode;
   @Nullable private final HashMap<String, String> optionalKeyRequestParameters;
   private final EventDispatcher<DefaultDrmSessionEventListener> eventDispatcher;
-  private final int initialDrmRequestRetryCount;
+  private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
 
   /* package */ final MediaDrmCallback callback;
   /* package */ final UUID uuid;
@@ -164,8 +175,10 @@ public class DefaultDrmSession<T extends ExoMediaCrypto> implements DrmSession<T
     }
     this.optionalKeyRequestParameters = optionalKeyRequestParameters;
     this.callback = callback;
-    this.initialDrmRequestRetryCount = initialDrmRequestRetryCount;
     this.eventDispatcher = eventDispatcher;
+    loadErrorHandlingPolicy =
+        new DefaultLoadErrorHandlingPolicy(
+            /* minimumLoadableRetryCount= */ initialDrmRequestRetryCount);
     state = STATE_OPENING;
     postResponseHandler = new PostResponseHandler(playbackLooper);
   }
@@ -531,7 +544,7 @@ public class DefaultDrmSession<T extends ExoMediaCrypto> implements DrmSession<T
             throw new RuntimeException();
         }
       } catch (Exception e) {
-        if (maybeRetryRequest(msg)) {
+        if (maybeRetryRequest(msg, e)) {
           return;
         }
         response = e;
@@ -539,23 +552,27 @@ public class DefaultDrmSession<T extends ExoMediaCrypto> implements DrmSession<T
       postResponseHandler.obtainMessage(msg.what, Pair.create(request, response)).sendToTarget();
     }
 
-    private boolean maybeRetryRequest(Message originalMsg) {
+    private boolean maybeRetryRequest(Message originalMsg, Exception e) {
       boolean allowRetry = originalMsg.arg1 == 1;
       if (!allowRetry) {
         return false;
       }
       int errorCount = originalMsg.arg2 + 1;
-      if (errorCount > initialDrmRequestRetryCount) {
+      if (errorCount > loadErrorHandlingPolicy.getMinimumLoadableRetryCount(C.DATA_TYPE_DRM)) {
         return false;
       }
       Message retryMsg = Message.obtain(originalMsg);
       retryMsg.arg2 = errorCount;
-      sendMessageDelayed(retryMsg, getRetryDelayMillis(errorCount));
-      return true;
-    }
 
-    private long getRetryDelayMillis(int errorCount) {
-      return Math.min((errorCount - 1) * 1000, 5000);
+      IOException ioException =
+          e instanceof IOException ? (IOException) e : new UnexpectedDrmSessionException(e);
+      // TODO: Add loadDurationMs calculation before allowing user-provided load error handling
+      // policies.
+      long retryDelayMs =
+          loadErrorHandlingPolicy.getRetryDelayMsFor(
+              C.DATA_TYPE_DRM, /* loadDurationMs= */ C.TIME_UNSET, ioException, errorCount);
+      sendMessageDelayed(retryMsg, retryDelayMs);
+      return true;
     }
   }
 }
