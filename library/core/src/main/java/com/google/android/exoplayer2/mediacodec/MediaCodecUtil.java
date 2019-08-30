@@ -312,6 +312,9 @@ public final class MediaCodecUtil {
           if ((!key.secure && secureRequired) || (key.secure && !secureSupported)) {
             continue;
           }
+          boolean hardwareAccelerated = isHardwareAccelerated(codecInfo);
+          boolean softwareOnly = isSoftwareOnly(codecInfo);
+          boolean vendor = isVendor(codecInfo);
           boolean forceDisableAdaptive = codecNeedsDisableAdaptationWorkaround(name);
           if ((secureDecodersExplicit && key.secure == secureSupported)
               || (!secureDecodersExplicit && !key.secure)) {
@@ -321,6 +324,9 @@ public final class MediaCodecUtil {
                     mimeType,
                     codecMimeType,
                     capabilities,
+                    hardwareAccelerated,
+                    softwareOnly,
+                    vendor,
                     forceDisableAdaptive,
                     /* forceSecure= */ false));
           } else if (!secureDecodersExplicit && secureSupported) {
@@ -330,6 +336,9 @@ public final class MediaCodecUtil {
                     mimeType,
                     codecMimeType,
                     capabilities,
+                    hardwareAccelerated,
+                    softwareOnly,
+                    vendor,
                     forceDisableAdaptive,
                     /* forceSecure= */ true));
             // It only makes sense to have one synthesized secure decoder, return immediately.
@@ -532,6 +541,9 @@ public final class MediaCodecUtil {
                 /* mimeType= */ MimeTypes.AUDIO_RAW,
                 /* codecMimeType= */ MimeTypes.AUDIO_RAW,
                 /* capabilities= */ null,
+                /* hardwareAccelerated= */ false,
+                /* softwareOnly= */ true,
+                /* vendor= */ false,
                 /* forceDisableAdaptive= */ false,
                 /* forceSecure= */ false));
       }
@@ -563,6 +575,69 @@ public final class MediaCodecUtil {
         sortByScore(decoderInfos, decoderInfo -> decoderInfo.name.startsWith("OMX.google") ? 1 : 0);
       }
     }
+  }
+
+  /**
+   * The result of {@link android.media.MediaCodecInfo#isHardwareAccelerated()} for API levels 29+,
+   * or a best-effort approximation for lower levels.
+   */
+  private static boolean isHardwareAccelerated(android.media.MediaCodecInfo codecInfo) {
+    if (Util.SDK_INT >= 29) {
+      return isHardwareAcceleratedV29(codecInfo);
+    }
+    // codecInfo.isHardwareAccelerated() != codecInfo.isSoftwareOnly() is not necessarily true.
+    // However, we assume this to be true as an approximation.
+    return !isSoftwareOnly(codecInfo);
+  }
+
+  @TargetApi(29)
+  private static boolean isHardwareAcceleratedV29(android.media.MediaCodecInfo codecInfo) {
+    return codecInfo.isHardwareAccelerated();
+  }
+
+  /**
+   * The result of {@link android.media.MediaCodecInfo#isSoftwareOnly()} for API levels 29+, or a
+   * best-effort approximation for lower levels.
+   */
+  private static boolean isSoftwareOnly(android.media.MediaCodecInfo codecInfo) {
+    if (Util.SDK_INT >= 29) {
+      return isSoftwareOnlyV29(codecInfo);
+    }
+    String codecName = codecInfo.getName().toLowerCase();
+    if (codecName.startsWith("arc.")) { // App Runtime for Chrome (ARC) codecs
+      return false;
+    }
+    return codecName.startsWith("omx.google.")
+        || codecName.startsWith("omx.ffmpeg.")
+        || (codecName.startsWith("omx.sec.") && codecName.contains(".sw."))
+        || codecName.equals("omx.qcom.video.decoder.hevcswvdec")
+        || codecName.startsWith("c2.android.")
+        || codecName.startsWith("c2.google.")
+        || (!codecName.startsWith("omx.") && !codecName.startsWith("c2."));
+  }
+
+  @TargetApi(29)
+  private static boolean isSoftwareOnlyV29(android.media.MediaCodecInfo codecInfo) {
+    return codecInfo.isSoftwareOnly();
+  }
+
+  /**
+   * The result of {@link android.media.MediaCodecInfo#isVendor()} for API levels 29+, or a
+   * best-effort approximation for lower levels.
+   */
+  private static boolean isVendor(android.media.MediaCodecInfo codecInfo) {
+    if (Util.SDK_INT >= 29) {
+      return isVendorV29(codecInfo);
+    }
+    String codecName = codecInfo.getName().toLowerCase();
+    return !codecName.startsWith("omx.google.")
+        && !codecName.startsWith("c2.android.")
+        && !codecName.startsWith("c2.google.");
+  }
+
+  @TargetApi(29)
+  private static boolean isVendorV29(android.media.MediaCodecInfo codecInfo) {
+    return codecInfo.isVendor();
   }
 
   /**
