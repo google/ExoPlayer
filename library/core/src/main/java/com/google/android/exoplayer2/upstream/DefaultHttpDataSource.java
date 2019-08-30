@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.upstream;
 
 import android.net.Uri;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.metadata.icy.IcyHeaders;
@@ -36,6 +37,7 @@ import java.net.NoRouteToHostException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -53,9 +55,7 @@ import java.util.zip.GZIPInputStream;
  */
 public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSource {
 
-  /**
-   * The default connection timeout, in milliseconds.
-   */
+  /** The default connection timeout, in milliseconds. */
   public static final int DEFAULT_CONNECT_TIMEOUT_MILLIS = 8 * 1000;
   /**
    * The default read timeout, in milliseconds.
@@ -263,6 +263,13 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     requestProperties.clear();
   }
 
+  /**
+   * Opens the source to read the specified data.
+   *
+   * <p>Note: HTTP request headers will be set using parameters passed via (in order of decreasing
+   * priority) the {@code dataSpec}, {@link #setRequestProperty} and the default parameters used to
+   * construct the instance.
+   */
   @Override
   public long open(DataSpec dataSpec) throws HttpDataSourceException {
     this.dataSpec = dataSpec;
@@ -374,6 +381,13 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     }
   }
 
+  /** Creates an {@link HttpURLConnection} that is connected with the {@code url}. */
+  @VisibleForTesting
+  /* package */
+  HttpURLConnection openConnection(URL url) throws IOException {
+    return (HttpURLConnection) url.openConnection();
+  }
+
   /**
    * Returns the current connection, or null if the source is not currently opened.
    *
@@ -438,7 +452,8 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
           length,
           allowGzip,
           allowIcyMetadata,
-          /* followRedirects= */ true);
+          /* followRedirects= */ true,
+          dataSpec.httpRequestHeaders);
     }
 
     // We need to handle redirects ourselves to allow cross-protocol redirects.
@@ -453,7 +468,8 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
               length,
               allowGzip,
               allowIcyMetadata,
-              /* followRedirects= */ false);
+              /* followRedirects= */ false,
+              dataSpec.httpRequestHeaders);
       int responseCode = connection.getResponseCode();
       String location = connection.getHeaderField("Location");
       if ((httpMethod == DataSpec.HTTP_METHOD_GET || httpMethod == DataSpec.HTTP_METHOD_HEAD)
@@ -495,6 +511,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    * @param allowGzip Whether to allow the use of gzip.
    * @param allowIcyMetadata Whether to allow ICY metadata.
    * @param followRedirects Whether to follow redirects.
+   * @param requestParameters parameters (HTTP headers) to include in request.
    */
   private HttpURLConnection makeConnection(
       URL url,
@@ -504,19 +521,24 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       long length,
       boolean allowGzip,
       boolean allowIcyMetadata,
-      boolean followRedirects)
+      boolean followRedirects,
+      Map<String, String> requestParameters)
       throws IOException {
-    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+    HttpURLConnection connection = openConnection(url);
     connection.setConnectTimeout(connectTimeoutMillis);
     connection.setReadTimeout(readTimeoutMillis);
+
+    Map<String, String> requestHeaders = new HashMap<>();
     if (defaultRequestProperties != null) {
-      for (Map.Entry<String, String> property : defaultRequestProperties.getSnapshot().entrySet()) {
-        connection.setRequestProperty(property.getKey(), property.getValue());
-      }
+      requestHeaders.putAll(defaultRequestProperties.getSnapshot());
     }
-    for (Map.Entry<String, String> property : requestProperties.getSnapshot().entrySet()) {
+    requestHeaders.putAll(requestProperties.getSnapshot());
+    requestHeaders.putAll(requestParameters);
+
+    for (Map.Entry<String, String> property : requestHeaders.entrySet()) {
       connection.setRequestProperty(property.getKey(), property.getValue());
     }
+
     if (!(position == 0 && length == C.LENGTH_UNSET)) {
       String rangeRequest = "bytes=" + position + "-";
       if (length != C.LENGTH_UNSET) {
