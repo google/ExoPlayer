@@ -1,0 +1,24 @@
+language: android
+jdk: oraclejdk8
+env:
+  global:
+    - ANDROID_EMULATOR_LEVEL=android-22
+    - ANDROID_API_LEVEL=android-29
+    - ANDROID_BUILD_TOOL_VERSION=build-tools-28.0.3
+    - ANDROID_ABI=armeabi-v7a
+android:
+  components:
+  - tools
+  - platform-tools
+  - $ANDROID_BUILD_TOOL_VERSION
+  - $ANDROID_API_LEVEL
+  - extra-android-m2repository
+  - $ANDROID_EMULATOR_LEVEL
+  - sys-img-${ANDROID_ABI}-${ANDROID_EMULATOR_LEVEL}
+before_script:
+  - echo no | android create avd --force -n test -t $ANDROID_EMULATOR_LEVEL --abi $ANDROID_ABI
+  - emulator -avd test -no-skin -no-audio -no-window &
+  - android-wait-for-emulator
+  - adb shell setprop dalvik.vm.dexopt-flags v=n,o=v
+script:
+  - travis_wait 90 ./gradlew library-core:build library-hls:build
