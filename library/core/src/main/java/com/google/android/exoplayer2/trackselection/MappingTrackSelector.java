@@ -15,9 +15,9 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
+import android.util.Pair;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
-import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Renderer;

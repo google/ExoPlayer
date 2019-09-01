@@ -16,9 +16,9 @@
 package com.google.android.exoplayer2.upstream;
 
 import android.net.Uri;
+import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.metadata.icy.IcyHeaders;
 import com.google.android.exoplayer2.upstream.DataSpec.HttpMethod;

@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer2.source;
 
-import androidx.annotation.Nullable;
 import android.util.Pair;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;

@@ -17,9 +17,9 @@ package com.google.android.exoplayer2.text;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.text.Layout.Alignment;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
-import android.text.Layout.Alignment;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

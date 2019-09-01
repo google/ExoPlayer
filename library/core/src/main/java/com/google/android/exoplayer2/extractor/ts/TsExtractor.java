@@ -17,10 +17,10 @@ package com.google.android.exoplayer2.extractor.ts;
 
 import static com.google.android.exoplayer2.extractor.ts.TsPayloadReader.FLAG_PAYLOAD_UNIT_START_INDICATOR;
 
-import androidx.annotation.IntDef;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
+import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.Extractor;

@@ -16,9 +16,9 @@
 package com.google.android.exoplayer2.source.hls.playlist;
 
 import android.net.Uri;
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Base64;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;

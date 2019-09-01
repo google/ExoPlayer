@@ -16,8 +16,8 @@
 package com.google.android.exoplayer2.util;
 
 import android.net.Uri;
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
+import androidx.annotation.Nullable;
 
 /**
  * Utility methods for manipulating URIs.
