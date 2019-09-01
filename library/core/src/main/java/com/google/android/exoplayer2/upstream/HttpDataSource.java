@@ -15,9 +15,9 @@
  */
 package com.google.android.exoplayer2.upstream;
 
+import android.text.TextUtils;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
-import android.text.TextUtils;
 import com.google.android.exoplayer2.util.Predicate;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;

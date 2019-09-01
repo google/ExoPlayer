@@ -22,12 +22,12 @@ import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.PorterDuff;
 import android.os.SystemClock;
-import androidx.annotation.AnyThread;
-import androidx.annotation.UiThread;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import androidx.annotation.AnyThread;
+import androidx.annotation.UiThread;
 import com.google.android.exoplayer2.util.Assertions;
 
 /** This View uses standard Android APIs to render its child Views to a texture. */
