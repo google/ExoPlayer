@@ -1182,10 +1182,10 @@ public class PlayerNotificationManager {
     if (skipPreviousActionIndex != -1) {
       actionIndices[actionCounter++] = skipPreviousActionIndex;
     }
-    boolean playWhenReady = player.getPlayWhenReady();
-    if (pauseActionIndex != -1 && playWhenReady) {
+    boolean isPlaying = isPlaying(player);
+    if (pauseActionIndex != -1 && isPlaying) {
       actionIndices[actionCounter++] = pauseActionIndex;
-    } else if (playActionIndex != -1 && !playWhenReady) {
+    } else if (playActionIndex != -1 && !isPlaying) {
       actionIndices[actionCounter++] = playActionIndex;
     }
     if (skipNextActionIndex != -1) {

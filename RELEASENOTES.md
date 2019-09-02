@@ -11,6 +11,8 @@
   quality video can be loaded up to the full default buffer duration.
 * Bypass sniffing in `ProgressiveMediaPeriod` in case a single extractor is
   provided ([#6325](https://github.com/google/ExoPlayer/issues/6325)).
+* Fix `PlayerNotificationManager` to show play icon rather than pause icon when
+  playback is ended ([#6324](https://github.com/google/ExoPlayer/issues/6324)).
 * Fix audio selection issue where languages are compared by bit rate
   ([#6335](https://github.com/google/ExoPlayer/issues/6335)).
 * Add `HttpDataSource.getResponseCode` to provide the status code associated
