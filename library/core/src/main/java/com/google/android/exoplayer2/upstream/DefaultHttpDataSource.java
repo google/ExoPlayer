@@ -381,13 +381,6 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     }
   }
 
-  /** Creates an {@link HttpURLConnection} that is connected with the {@code url}. */
-  @VisibleForTesting
-  /* package */
-  HttpURLConnection openConnection(URL url) throws IOException {
-    return (HttpURLConnection) url.openConnection();
-  }
-
   /**
    * Returns the current connection, or null if the source is not currently opened.
    *
@@ -566,6 +559,12 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       connection.connect();
     }
     return connection;
+  }
+
+  /** Creates an {@link HttpURLConnection} that is connected with the {@code url}. */
+  @VisibleForTesting
+  /* package */ HttpURLConnection openConnection(URL url) throws IOException {
+    return (HttpURLConnection) url.openConnection();
   }
 
   /**
