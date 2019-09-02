@@ -49,3 +49,14 @@ dependencies {
     testImplementation project(modulePrefix + 'testutils')
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
+
+ext {
+    javadocTitle = 'Test utils'
+}
+apply from: '../javadoc_library.gradle'
+
+ext {
+    releaseArtifact = 'exoplayer-testutils'
+    releaseDescription = 'Test utils for ExoPlayer.'
+}
+apply from: '../publish.gradle'
