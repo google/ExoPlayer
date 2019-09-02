@@ -22,6 +22,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.os.SystemClock;
 import android.util.Pair;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -112,12 +113,12 @@ public class DefaultDrmSession<T extends ExoMediaCrypto> implements DrmSession<T
 
   /* package */ final MediaDrmCallback callback;
   /* package */ final UUID uuid;
-  /* package */ final PostResponseHandler postResponseHandler;
+  /* package */ final ResponseHandler responseHandler;
 
   private @DrmSession.State int state;
   private int referenceCount;
   @Nullable private HandlerThread requestHandlerThread;
-  @Nullable private PostRequestHandler postRequestHandler;
+  @Nullable private RequestHandler requestHandler;
   @Nullable private T mediaCrypto;
   @Nullable private DrmSessionException lastException;
   private byte @NullableType [] sessionId;
@@ -180,7 +181,7 @@ public class DefaultDrmSession<T extends ExoMediaCrypto> implements DrmSession<T
         new DefaultLoadErrorHandlingPolicy(
             /* minimumLoadableRetryCount= */ initialDrmRequestRetryCount);
     state = STATE_OPENING;
-    postResponseHandler = new PostResponseHandler(playbackLooper);
+    responseHandler = new ResponseHandler(playbackLooper);
   }
 
   public boolean hasSessionId(byte[] sessionId) {
@@ -201,7 +202,7 @@ public class DefaultDrmSession<T extends ExoMediaCrypto> implements DrmSession<T
 
   public void provision() {
     currentProvisionRequest = mediaDrm.getProvisionRequest();
-    Util.castNonNull(postRequestHandler)
+    Util.castNonNull(requestHandler)
         .post(
             MSG_PROVISION,
             Assertions.checkNotNull(currentProvisionRequest),
@@ -254,7 +255,7 @@ public class DefaultDrmSession<T extends ExoMediaCrypto> implements DrmSession<T
       Assertions.checkState(state == STATE_OPENING);
       requestHandlerThread = new HandlerThread("DrmRequestHandler");
       requestHandlerThread.start();
-      postRequestHandler = new PostRequestHandler(requestHandlerThread.getLooper());
+      requestHandler = new RequestHandler(requestHandlerThread.getLooper());
       if (openInternal(true)) {
         doLicense(true);
       }
@@ -266,9 +267,9 @@ public class DefaultDrmSession<T extends ExoMediaCrypto> implements DrmSession<T
     if (--referenceCount == 0) {
       // Assigning null to various non-null variables for clean-up.
       state = STATE_RELEASED;
-      Util.castNonNull(postResponseHandler).removeCallbacksAndMessages(null);
-      Util.castNonNull(postRequestHandler).removeCallbacksAndMessages(null);
-      postRequestHandler = null;
+      Util.castNonNull(responseHandler).removeCallbacksAndMessages(null);
+      Util.castNonNull(requestHandler).removeCallbacksAndMessages(null);
+      requestHandler = null;
       Util.castNonNull(requestHandlerThread).quit();
       requestHandlerThread = null;
       mediaCrypto = null;
@@ -417,7 +418,7 @@ public class DefaultDrmSession<T extends ExoMediaCrypto> implements DrmSession<T
     try {
       currentKeyRequest =
           mediaDrm.getKeyRequest(scope, schemeDatas, type, optionalKeyRequestParameters);
-      Util.castNonNull(postRequestHandler)
+      Util.castNonNull(requestHandler)
           .post(MSG_KEYS, Assertions.checkNotNull(currentKeyRequest), allowRetry);
     } catch (Exception e) {
       onKeysError(e);
@@ -490,9 +491,9 @@ public class DefaultDrmSession<T extends ExoMediaCrypto> implements DrmSession<T
   // Internal classes.
 
   @SuppressLint("HandlerLeak")
-  private class PostResponseHandler extends Handler {
+  private class ResponseHandler extends Handler {
 
-    public PostResponseHandler(Looper looper) {
+    public ResponseHandler(Looper looper) {
       super(looper);
     }
 
@@ -516,29 +517,30 @@ public class DefaultDrmSession<T extends ExoMediaCrypto> implements DrmSession<T
   }
 
   @SuppressLint("HandlerLeak")
-  private class PostRequestHandler extends Handler {
+  private class RequestHandler extends Handler {
 
-    public PostRequestHandler(Looper backgroundLooper) {
+    public RequestHandler(Looper backgroundLooper) {
       super(backgroundLooper);
     }
 
     void post(int what, Object request, boolean allowRetry) {
-      int allowRetryInt = allowRetry ? 1 : 0;
-      int errorCount = 0;
-      obtainMessage(what, allowRetryInt, errorCount, request).sendToTarget();
+      RequestTask requestTask =
+          new RequestTask(allowRetry, /* startTimeMs= */ SystemClock.elapsedRealtime(), request);
+      obtainMessage(what, requestTask).sendToTarget();
     }
 
     @Override
     public void handleMessage(Message msg) {
-      Object request = msg.obj;
+      RequestTask requestTask = (RequestTask) msg.obj;
       Object response;
       try {
         switch (msg.what) {
           case MSG_PROVISION:
-            response = callback.executeProvisionRequest(uuid, (ProvisionRequest) request);
+            response =
+                callback.executeProvisionRequest(uuid, (ProvisionRequest) requestTask.request);
             break;
           case MSG_KEYS:
-            response = callback.executeKeyRequest(uuid, (KeyRequest) request);
+            response = callback.executeKeyRequest(uuid, (KeyRequest) requestTask.request);
             break;
           default:
             throw new RuntimeException();
@@ -549,30 +551,47 @@ public class DefaultDrmSession<T extends ExoMediaCrypto> implements DrmSession<T
         }
         response = e;
       }
-      postResponseHandler.obtainMessage(msg.what, Pair.create(request, response)).sendToTarget();
+      responseHandler
+          .obtainMessage(msg.what, Pair.create(requestTask.request, response))
+          .sendToTarget();
     }
 
     private boolean maybeRetryRequest(Message originalMsg, Exception e) {
-      boolean allowRetry = originalMsg.arg1 == 1;
-      if (!allowRetry) {
+      RequestTask requestTask = (RequestTask) originalMsg.obj;
+      if (!requestTask.allowRetry) {
         return false;
       }
-      int errorCount = originalMsg.arg2 + 1;
-      if (errorCount > loadErrorHandlingPolicy.getMinimumLoadableRetryCount(C.DATA_TYPE_DRM)) {
+      requestTask.errorCount++;
+      if (requestTask.errorCount
+          > loadErrorHandlingPolicy.getMinimumLoadableRetryCount(C.DATA_TYPE_DRM)) {
         return false;
       }
       Message retryMsg = Message.obtain(originalMsg);
-      retryMsg.arg2 = errorCount;
 
       IOException ioException =
           e instanceof IOException ? (IOException) e : new UnexpectedDrmSessionException(e);
-      // TODO: Add loadDurationMs calculation before allowing user-provided load error handling
-      // policies.
       long retryDelayMs =
           loadErrorHandlingPolicy.getRetryDelayMsFor(
-              C.DATA_TYPE_DRM, /* loadDurationMs= */ C.TIME_UNSET, ioException, errorCount);
+              C.DATA_TYPE_DRM,
+              /* loadDurationMs= */ SystemClock.elapsedRealtime() - requestTask.startTimeMs,
+              ioException,
+              requestTask.errorCount);
       sendMessageDelayed(retryMsg, retryDelayMs);
       return true;
+    }
+  }
+
+  private static final class RequestTask {
+
+    public final boolean allowRetry;
+    public final long startTimeMs;
+    public final Object request;
+    public int errorCount;
+
+    public RequestTask(boolean allowRetry, long startTimeMs, Object request) {
+      this.allowRetry = allowRetry;
+      this.startTimeMs = startTimeMs;
+      this.request = request;
     }
   }
 }
