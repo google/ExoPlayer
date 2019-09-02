@@ -238,7 +238,7 @@ public class PlayerControlView extends FrameLayout {
   private final View fastForwardButton;
   private final View rewindButton;
   private final ImageView repeatToggleButton;
-  private final View shuffleButton;
+  private final ImageView shuffleButton;
   private final View vrButton;
   private final TextView durationView;
   private final TextView positionView;
@@ -256,6 +256,8 @@ public class PlayerControlView extends FrameLayout {
   private final String repeatOffButtonContentDescription;
   private final String repeatOneButtonContentDescription;
   private final String repeatAllButtonContentDescription;
+  private final Drawable shuffleOnButtonDrawable;
+  private final Drawable shuffleOffButtonDrawable;
 
   @Nullable private Player player;
   private com.google.android.exoplayer2.ControlDispatcher controlDispatcher;
@@ -407,6 +409,8 @@ public class PlayerControlView extends FrameLayout {
     repeatOffButtonDrawable = resources.getDrawable(R.drawable.exo_controls_repeat_off);
     repeatOneButtonDrawable = resources.getDrawable(R.drawable.exo_controls_repeat_one);
     repeatAllButtonDrawable = resources.getDrawable(R.drawable.exo_controls_repeat_all);
+    shuffleOnButtonDrawable = resources.getDrawable(R.drawable.exo_controls_shuffle_on);
+    shuffleOffButtonDrawable = resources.getDrawable(R.drawable.exo_controls_shuffle_off);
     repeatOffButtonContentDescription =
         resources.getString(R.string.exo_controls_repeat_off_description);
     repeatOneButtonContentDescription =
@@ -815,10 +819,11 @@ public class PlayerControlView extends FrameLayout {
       shuffleButton.setVisibility(GONE);
     } else if (player == null) {
       setButtonEnabled(false, shuffleButton);
+      shuffleButton.setImageDrawable(shuffleOffButtonDrawable);
     } else {
-      shuffleButton.setAlpha(player.getShuffleModeEnabled() ? 1f : 0.3f);
-      shuffleButton.setEnabled(true);
-      shuffleButton.setVisibility(VISIBLE);
+      setButtonEnabled(true, shuffleButton);
+      shuffleButton.setImageDrawable(
+          player.getShuffleModeEnabled() ? shuffleOnButtonDrawable : shuffleOffButtonDrawable);
     }
   }
 
