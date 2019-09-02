@@ -1068,21 +1068,28 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       if (extractor != null) {
         return extractor;
       }
-      for (Extractor extractor : extractors) {
-        try {
-          if (extractor.sniff(input)) {
-            this.extractor = extractor;
-            break;
+      if (extractors.length == 1) {
+        this.extractor = extractors[0];
+      } else {
+        for (Extractor extractor : extractors) {
+          try {
+            if (extractor.sniff(input)) {
+              this.extractor = extractor;
+              break;
+            }
+          } catch (EOFException e) {
+            // Do nothing.
+          } finally {
+            input.resetPeekPosition();
           }
-        } catch (EOFException e) {
-          // Do nothing.
-        } finally {
-          input.resetPeekPosition();
         }
-      }
-      if (extractor == null) {
-        throw new UnrecognizedInputFormatException("None of the available extractors ("
-            + Util.getCommaDelimitedSimpleClassNames(extractors) + ") could read the stream.", uri);
+        if (extractor == null) {
+          throw new UnrecognizedInputFormatException(
+              "None of the available extractors ("
+                  + Util.getCommaDelimitedSimpleClassNames(extractors)
+                  + ") could read the stream.",
+              uri);
+        }
       }
       extractor.init(output);
       return extractor;
