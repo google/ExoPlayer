@@ -319,7 +319,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (!MimeTypes.isVideo(mimeType)) {
       return FORMAT_UNSUPPORTED_TYPE;
     }
-    DrmInitData drmInitData = format.drmInitData;
+    @Nullable DrmInitData drmInitData = format.drmInitData;
     // Assume encrypted content requires secure decoders.
     boolean requiresSecureDecryption = drmInitData != null;
     List<MediaCodecInfo> decoderInfos =
@@ -341,10 +341,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       return FORMAT_UNSUPPORTED_SUBTYPE;
     }
     boolean supportsFormatDrm =
-        format.drmInitData == null
+        drmInitData == null
             || FrameworkMediaCrypto.class.equals(format.exoMediaCryptoType)
             || (format.exoMediaCryptoType == null
-                && supportsFormatDrm(drmSessionManager, format.drmInitData));
+                && supportsFormatDrm(drmSessionManager, drmInitData));
     if (!supportsFormatDrm) {
       return FORMAT_UNSUPPORTED_DRM;
     }
