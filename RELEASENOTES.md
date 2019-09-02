@@ -2,6 +2,8 @@
 
 ### dev-v2 (not yet released) ###
 
+* Bypass sniffing in `ProgressiveMediaPeriod` in case a single extractor is
+  provided ([#6325](https://github.com/google/ExoPlayer/issues/6325)).
 * Surface information provided by methods `isHardwareAccelerated`,
   `isSoftwareOnly` and `isVendor` added in Android Q in `MediaCodecInfo` class
   ([#5839](https://github.com/google/ExoPlayer/issues/5839)).
