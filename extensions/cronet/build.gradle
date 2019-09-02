@@ -31,7 +31,7 @@ android {
 }
 
 dependencies {
-    api 'org.chromium.net:cronet-embedded:75.3770.101'
+    api 'org.chromium.net:cronet-embedded:76.3809.111'
     implementation project(modulePrefix + 'library-core')
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
