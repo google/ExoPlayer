@@ -26,7 +26,8 @@ project.ext {
     checkerframeworkVersion = '2.5.0'
     jsr305Version = '3.0.2'
     kotlinAnnotationsVersion = '1.3.31'
-    androidXTestVersion = '1.1.0'
+    androidxAnnotationVersion = '1.1.0'
+    androidxTestVersion = '1.1.0'
     truthVersion = '0.44'
     modulePrefix = ':'
     if (gradle.ext.has('exoplayerModulePrefix')) {
