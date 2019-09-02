@@ -56,6 +56,8 @@
   [#4249](https://github.com/google/ExoPlayer/issues/4249),
   [#4319](https://github.com/google/ExoPlayer/issues/4319),
   [#4337](https://github.com/google/ExoPlayer/issues/4337)).
+* Publish `testutils` module to simplify unit testing with ExoPlayer
+  ([#6267](https://github.com/google/ExoPlayer/issues/6267)).
 
 ### 2.10.4 ###
 

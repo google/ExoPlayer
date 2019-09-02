@@ -34,7 +34,7 @@ import java.util.List;
 
 /**
  * Fake {@link MediaPeriod} that provides tracks from the given {@link TrackGroupArray}. Selecting a
- * track will give the player a {@link ChunkSampleStream<FakeChunkSource>}.
+ * track will give the player a {@link ChunkSampleStream}.
  */
 public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
     implements SequenceableLoader.Callback<ChunkSampleStream<FakeChunkSource>> {
