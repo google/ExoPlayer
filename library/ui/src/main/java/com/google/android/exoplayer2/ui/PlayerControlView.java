@@ -260,6 +260,8 @@ public class PlayerControlView extends FrameLayout {
   private final Drawable shuffleOffButtonDrawable;
   private final float buttonAlphaEnabled;
   private final float buttonAlphaDisabled;
+  private final String shuffleOnContentDescription;
+  private final String shuffleOffContentDescription;
 
   @Nullable private Player player;
   private com.google.android.exoplayer2.ControlDispatcher controlDispatcher;
@@ -426,6 +428,9 @@ public class PlayerControlView extends FrameLayout {
         resources.getString(R.string.exo_controls_repeat_one_description);
     repeatAllButtonContentDescription =
         resources.getString(R.string.exo_controls_repeat_all_description);
+    shuffleOnContentDescription = resources.getString(R.string.exo_controls_shuffle_on_description);
+    shuffleOffContentDescription =
+        resources.getString(R.string.exo_controls_shuffle_off_description);
   }
 
   @SuppressWarnings("ResourceType")
@@ -798,6 +803,8 @@ public class PlayerControlView extends FrameLayout {
     }
     if (player == null) {
       setButtonEnabled(false, repeatToggleButton);
+      repeatToggleButton.setImageDrawable(repeatOffButtonDrawable);
+      repeatToggleButton.setContentDescription(repeatOffButtonContentDescription);
       return;
     }
     setButtonEnabled(true, repeatToggleButton);
@@ -829,10 +836,15 @@ public class PlayerControlView extends FrameLayout {
     } else if (player == null) {
       setButtonEnabled(false, shuffleButton);
       shuffleButton.setImageDrawable(shuffleOffButtonDrawable);
+      shuffleButton.setContentDescription(shuffleOffContentDescription);
     } else {
       setButtonEnabled(true, shuffleButton);
       shuffleButton.setImageDrawable(
           player.getShuffleModeEnabled() ? shuffleOnButtonDrawable : shuffleOffButtonDrawable);
+      shuffleButton.setContentDescription(
+          player.getShuffleModeEnabled()
+              ? shuffleOnContentDescription
+              : shuffleOffContentDescription);
     }
   }
 
