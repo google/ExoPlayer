@@ -223,7 +223,7 @@ import java.nio.ByteBuffer;
    * @return The corresponding position (byte offset) in the flac stream or -1 if the stream doesn't
    * have a seek table.
    */
-  public long getSeekPosition(long timeUs) {
+  public long[] getSeekPosition(long timeUs) {
     return flacGetSeekPosition(nativeDecoderContext, timeUs);
   }
 
@@ -283,7 +283,7 @@ import java.nio.ByteBuffer;
 
   private native long flacGetNextFrameFirstSampleIndex(long context);
 
-  private native long flacGetSeekPosition(long context, long timeUs);
+  private native long[] flacGetSeekPosition(long context, long timeUs);
 
   private native String flacGetStateString(long context);
 

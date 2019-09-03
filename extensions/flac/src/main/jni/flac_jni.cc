@@ -200,9 +200,13 @@ DECODER_FUNC(jlong, flacGetNextFrameFirstSampleIndex, jlong jContext) {
   return context->parser->getNextFrameFirstSampleIndex();
 }
 
-DECODER_FUNC(jlong, flacGetSeekPosition, jlong jContext, jlong timeUs) {
+DECODER_FUNC(jlongArray, flacGetSeekPosition, jlong jContext, jlong timeUs) {
   Context *context = reinterpret_cast<Context *>(jContext);
-  return context->parser->getSeekPosition(timeUs);
+  int64_t *result = context->parser->getSeekPosition(timeUs);
+  const jlong resultJLong[4] = {result[0], result[1], result[2], result[3]};
+  jlongArray resultArray = env->NewLongArray(4);
+  env->SetLongArrayRegion(resultArray, 0, 4, resultJLong);
+  return resultArray;
 }
 
 DECODER_FUNC(jstring, flacGetStateString, jlong jContext) {
