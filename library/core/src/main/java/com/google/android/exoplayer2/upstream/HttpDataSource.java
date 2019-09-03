@@ -326,6 +326,13 @@ public interface HttpDataSource extends DataSource {
 
   }
 
+  /**
+   * Opens the source to read the specified data.
+   *
+   * <p>Note: {@link HttpDataSource} implementations are advised to set request headers passed via
+   * (in order of decreasing priority) the {@code dataSpec}, {@link #setRequestProperty} and the
+   * default parameters set in the {@link Factory}.
+   */
   @Override
   long open(DataSpec dataSpec) throws HttpDataSourceException;
 
@@ -338,6 +345,10 @@ public interface HttpDataSource extends DataSource {
   /**
    * Sets the value of a request header. The value will be used for subsequent connections
    * established by the source.
+   *
+   * <p>Note: If the same header is set as a default parameter in the {@link Factory}, then the
+   * header value set with this method should be preferred when connecting with the data source. See
+   * {@link #open}.
    *
    * @param name The name of the header field.
    * @param value The value of the field.

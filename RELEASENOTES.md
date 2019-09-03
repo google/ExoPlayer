@@ -2,6 +2,10 @@
 
 ### dev-v2 (not yet released) ###
 
+* Add `DataSpec.httpRequestHeaders` to set HTTP request headers when connecting
+  to an HTTP source. `DefaultHttpDataSource`, `CronetDataSource` and
+  `OkHttpDataSource` include headers set in the DataSpec when connecting to the
+  source.
 * Bypass sniffing in `ProgressiveMediaPeriod` in case a single extractor is
   provided ([#6325](https://github.com/google/ExoPlayer/issues/6325)).
 * Surface information provided by methods `isHardwareAccelerated`,
