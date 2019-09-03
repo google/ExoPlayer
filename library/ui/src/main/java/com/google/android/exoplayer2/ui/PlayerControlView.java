@@ -258,6 +258,8 @@ public class PlayerControlView extends FrameLayout {
   private final String repeatAllButtonContentDescription;
   private final Drawable shuffleOnButtonDrawable;
   private final Drawable shuffleOffButtonDrawable;
+  private final float buttonAlphaEnabled;
+  private final float buttonAlphaDisabled;
 
   @Nullable private Player player;
   private com.google.android.exoplayer2.ControlDispatcher controlDispatcher;
@@ -405,7 +407,14 @@ public class PlayerControlView extends FrameLayout {
     }
     vrButton = findViewById(R.id.exo_vr);
     setShowVrButton(false);
+
     Resources resources = context.getResources();
+
+    buttonAlphaEnabled =
+        (float) resources.getInteger(R.integer.exo_media_button_opacity_percentage_enabled) / 100;
+    buttonAlphaDisabled =
+        (float) resources.getInteger(R.integer.exo_media_button_opacity_percentage_disabled) / 100;
+
     repeatOffButtonDrawable = resources.getDrawable(R.drawable.exo_controls_repeat_off);
     repeatOneButtonDrawable = resources.getDrawable(R.drawable.exo_controls_repeat_one);
     repeatAllButtonDrawable = resources.getDrawable(R.drawable.exo_controls_repeat_all);
@@ -959,7 +968,7 @@ public class PlayerControlView extends FrameLayout {
       return;
     }
     view.setEnabled(enabled);
-    view.setAlpha(enabled ? 1f : 0.3f);
+    view.setAlpha(enabled ? buttonAlphaEnabled : buttonAlphaDisabled);
     view.setVisibility(VISIBLE);
   }
 
