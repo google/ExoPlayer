@@ -28,6 +28,8 @@ import com.google.android.exoplayer2.drm.DefaultDrmSession.ProvisioningManager;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.OnEventListener;
+import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
+import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.EventDispatcher;
 import com.google.android.exoplayer2.util.Log;
@@ -91,7 +93,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
   @Nullable private final HashMap<String, String> optionalKeyRequestParameters;
   private final EventDispatcher<DefaultDrmSessionEventListener> eventDispatcher;
   private final boolean multiSession;
-  private final int initialDrmRequestRetryCount;
+  private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
 
   private final List<DefaultDrmSession<T>> sessions;
   private final List<DefaultDrmSession<T>> provisioningSessions;
@@ -224,6 +226,22 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
       @Nullable HashMap<String, String> optionalKeyRequestParameters,
       boolean multiSession,
       int initialDrmRequestRetryCount) {
+    this(
+        uuid,
+        mediaDrm,
+        callback,
+        optionalKeyRequestParameters,
+        multiSession,
+        new DefaultLoadErrorHandlingPolicy(initialDrmRequestRetryCount));
+  }
+
+  private DefaultDrmSessionManager(
+      UUID uuid,
+      ExoMediaDrm<T> mediaDrm,
+      MediaDrmCallback callback,
+      @Nullable HashMap<String, String> optionalKeyRequestParameters,
+      boolean multiSession,
+      LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
     Assertions.checkNotNull(uuid);
     Assertions.checkNotNull(mediaDrm);
     Assertions.checkArgument(!C.COMMON_PSSH_UUID.equals(uuid), "Use C.CLEARKEY_UUID instead");
@@ -233,7 +251,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
     this.optionalKeyRequestParameters = optionalKeyRequestParameters;
     this.eventDispatcher = new EventDispatcher<>();
     this.multiSession = multiSession;
-    this.initialDrmRequestRetryCount = initialDrmRequestRetryCount;
+    this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     mode = MODE_PLAYBACK;
     sessions = new ArrayList<>();
     provisioningSessions = new ArrayList<>();
@@ -429,7 +447,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
               callback,
               playbackLooper,
               eventDispatcher,
-              initialDrmRequestRetryCount);
+              loadErrorHandlingPolicy);
       sessions.add(session);
     }
     session.acquireReference();
