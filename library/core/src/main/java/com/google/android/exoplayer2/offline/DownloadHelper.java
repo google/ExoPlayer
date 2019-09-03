@@ -53,7 +53,6 @@ import com.google.android.exoplayer2.upstream.DataSource.Factory;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.DurationProvider;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -743,20 +742,12 @@ public final class DownloadHelper {
 
     assertPreparedWithMedia();
 
-    @Nullable final Object manifest = getManifest();
-    final long durationMs;
-    if (manifest instanceof DurationProvider) {
-      durationMs = ((DurationProvider) manifest).getDurationMs();
-      if (durationMs == C.TIME_UNSET) {
-        return C.LENGTH_UNSET;
-      }
-    } else {
-      return C.LENGTH_UNSET;
-    }
-
     long selectedSize = 0;
 
-    for (int periodIndex = 0; periodIndex < this.getPeriodCount(); periodIndex++) {
+    final Timeline timeline = mediaPreparer.timeline;
+    for (int periodIndex = 0; periodIndex < timeline.getPeriodCount(); periodIndex++) {
+      final Timeline.Period period = timeline.getPeriod(periodIndex, new Timeline.Period());
+      final long periodDurationUs = period.durationUs;
 
       final MappingTrackSelector.MappedTrackInfo mappedTrackInfo = mappedTrackInfos[periodIndex];
       final int rendererCount = mappedTrackInfo.getRendererCount();
@@ -774,7 +765,8 @@ public final class DownloadHelper {
               bitrate = estimatedTextBytesPerMinute * 60 * 8;
             }
           }
-          selectedSize += (bitrate * durationMs) / 1000 / 8;
+
+          selectedSize += (bitrate * periodDurationUs) / C.MICROS_PER_SECOND / 8;
         }
       }
     }
