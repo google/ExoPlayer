@@ -16,8 +16,8 @@
 package com.google.android.exoplayer2.upstream.cache;
 
 import android.net.Uri;
-import androidx.annotation.Nullable;
 import android.util.Pair;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceException;
@@ -359,7 +359,7 @@ public final class CacheUtil {
     }
   }
 
-  /*package*/ static boolean isCausedByPositionOutOfRange(IOException e) {
+  /* package */ static boolean isCausedByPositionOutOfRange(IOException e) {
     Throwable cause = e;
     while (cause != null) {
       if (cause instanceof DataSourceException) {

@@ -17,8 +17,8 @@ package com.google.android.exoplayer2.ext.vp9;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
-import androidx.annotation.Nullable;
 import android.util.AttributeSet;
+import androidx.annotation.Nullable;
 
 /**
  * A GLSurfaceView extension that scales itself to the given aspect ratio.

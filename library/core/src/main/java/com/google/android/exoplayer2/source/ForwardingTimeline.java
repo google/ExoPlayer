@@ -62,6 +62,12 @@ public abstract class ForwardingTimeline extends Timeline {
   }
 
   @Override
+  public final Window getWindow(
+      int windowIndex, Window window, boolean setIds, long defaultPositionProjectionUs) {
+    return getWindow(windowIndex, window, defaultPositionProjectionUs);
+  }
+
+  @Override
   public int getPeriodCount() {
     return timeline.getPeriodCount();
   }

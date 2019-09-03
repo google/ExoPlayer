@@ -18,8 +18,8 @@ package com.google.android.exoplayer2.ext.cronet;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import android.net.Uri;
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.metadata.icy.IcyHeaders;
@@ -390,6 +390,13 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   @Override
   public void clearAllRequestProperties() {
     requestProperties.clear();
+  }
+
+  @Override
+  public int getResponseCode() {
+    return responseInfo == null || responseInfo.getHttpStatusCode() <= 0
+        ? -1
+        : responseInfo.getHttpStatusCode();
   }
 
   @Override

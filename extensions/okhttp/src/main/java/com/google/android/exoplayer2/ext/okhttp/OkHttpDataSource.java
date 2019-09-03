@@ -173,6 +173,11 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
   }
 
   @Override
+  public int getResponseCode() {
+    return response == null ? -1 : response.code();
+  }
+
+  @Override
   public Map<String, List<String>> getResponseHeaders() {
     return response == null ? Collections.emptyMap() : response.headers().toMultimap();
   }

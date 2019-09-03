@@ -66,6 +66,7 @@ public abstract class VideoDecoderOutputBuffer extends OutputBuffer {
     this.timeUs = timeUs;
     this.mode = mode;
     if (supplementalData != null) {
+      addFlag(C.BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA);
       int size = supplementalData.limit();
       if (this.supplementalData == null || this.supplementalData.capacity() < size) {
         this.supplementalData = ByteBuffer.allocate(size);
