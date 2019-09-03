@@ -29,7 +29,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.ProvisionRequest;
-import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.EventDispatcher;
@@ -143,8 +142,8 @@ public class DefaultDrmSession<T extends ExoMediaCrypto> implements DrmSession<T
    * @param callback The media DRM callback.
    * @param playbackLooper The playback looper.
    * @param eventDispatcher The dispatcher for DRM session manager events.
-   * @param initialDrmRequestRetryCount The number of times to retry for initial provisioning and
-   *     key request before reporting error.
+   * @param loadErrorHandlingPolicy The {@link LoadErrorHandlingPolicy} for key and provisioning
+   *     requests.
    */
   public DefaultDrmSession(
       UUID uuid,
@@ -158,7 +157,7 @@ public class DefaultDrmSession<T extends ExoMediaCrypto> implements DrmSession<T
       MediaDrmCallback callback,
       Looper playbackLooper,
       EventDispatcher<DefaultDrmSessionEventListener> eventDispatcher,
-      int initialDrmRequestRetryCount) {
+      LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
     if (mode == DefaultDrmSessionManager.MODE_QUERY
         || mode == DefaultDrmSessionManager.MODE_RELEASE) {
       Assertions.checkNotNull(offlineLicenseKeySetId);
@@ -177,9 +176,7 @@ public class DefaultDrmSession<T extends ExoMediaCrypto> implements DrmSession<T
     this.optionalKeyRequestParameters = optionalKeyRequestParameters;
     this.callback = callback;
     this.eventDispatcher = eventDispatcher;
-    loadErrorHandlingPolicy =
-        new DefaultLoadErrorHandlingPolicy(
-            /* minimumLoadableRetryCount= */ initialDrmRequestRetryCount);
+    this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     state = STATE_OPENING;
     responseHandler = new ResponseHandler(playbackLooper);
   }
