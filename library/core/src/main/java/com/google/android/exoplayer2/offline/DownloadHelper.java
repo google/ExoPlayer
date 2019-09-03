@@ -753,7 +753,7 @@ public final class DownloadHelper {
       final int rendererCount = mappedTrackInfo.getRendererCount();
 
       for (int rendererIndex = 0; rendererIndex < rendererCount; rendererIndex++) {
-        final List<TrackSelection> trackSelections = this.getTrackSelections(periodIndex, rendererIndex);
+        final List<TrackSelection> trackSelections = trackSelectionsByPeriodAndRenderer[periodIndex][rendererIndex];
         for (TrackSelection selection : trackSelections) {
           final Format format = selection.getSelectedFormat();
 
