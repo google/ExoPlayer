@@ -438,9 +438,11 @@ size_t FLACParser::readBuffer(void *output, size_t output_size) {
   return bufferSize;
 }
 
-int64_t FLACParser::getSeekPosition(int64_t timeUs) {
+int64_t* FLACParser::getSeekPosition(int64_t timeUs) {
+  int64_t *result = new int64_t[4];
+  memset(result, -1, sizeof(result));
   if (!mSeekTable) {
-    return -1;
+    return result;
   }
 
   int64_t sample = (timeUs * getSampleRate()) / 1000000LL;
@@ -452,8 +454,21 @@ int64_t FLACParser::getSeekPosition(int64_t timeUs) {
   for (unsigned i = mSeekTable->num_points; i > 0; ) {
     i--;
     if (points[i].sample_number <= sample) {
-      return firstFrameOffset + points[i].stream_offset;
+      result[0] = points[i].sample_number / getSampleRate() * 1000000LL;
+      result[1] = firstFrameOffset + points[i].stream_offset;
+      if (i + 1 <= mSeekTable->num_points) {
+        result[2] = points[i + 1].sample_number / getSampleRate() * 1000000LL;
+        result[3] = firstFrameOffset + points[i + 1].stream_offset;
+      } else {
+        result[2] = result[0];
+        result[3] = result[1];
+      }
+      return result;
     }
   }
-  return firstFrameOffset;
+  result[0] = timeUs;
+  result[1] = firstFrameOffset;
+  result[2] = timeUs;
+  result[3] = firstFrameOffset;
+  return result;
 }
