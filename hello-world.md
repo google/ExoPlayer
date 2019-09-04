@@ -131,8 +131,9 @@ onto which video is rendered, you can set the player's target `SurfaceView`,
 `setVideoSurfaceView`, `setVideoTextureView`, `setVideoSurfaceHolder` and
 `setVideoSurface` methods respectively. You can also use `PlayerControlView` as
 a standalone component, or implement your own playback controls that interact
-directly with the player. `SimpleExoPlayer`'s `addTextOutput` and `setId3Output`
-methods can be used to receive caption and ID3 metadata during playback.
+directly with the player. `SimpleExoPlayer`'s `addTextOutput` and
+`addMetadataOutput` methods can be used to receive caption and ID3 metadata
+during playback.
 
 ## Preparing the player ##
 
