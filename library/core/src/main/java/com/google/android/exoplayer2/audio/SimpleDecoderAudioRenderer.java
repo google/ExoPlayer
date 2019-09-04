@@ -361,6 +361,17 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
         null, null, 0, null);
   }
 
+  /**
+   * Returns whether the existing decoder can be kept for a new format.
+   *
+   * @param oldFormat The previous format.
+   * @param newFormat The new format.
+   * @return True if the existing decoder can be kept.
+   */
+  protected boolean canKeepCodec(Format oldFormat, Format newFormat) {
+    return false;
+  }
+
   private boolean drainOutputBuffer() throws ExoPlaybackException, AudioDecoderException,
       AudioSink.ConfigurationException, AudioSink.InitializationException,
       AudioSink.WriteException {
@@ -689,14 +700,16 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
       }
     }
 
-    if (decoderReceivedBuffers) {
-      // Signal end of stream and wait for any final output buffers before re-initialization.
-      decoderReinitializationState = REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM;
-    } else {
-      // There aren't any final output buffers, so release the decoder immediately.
-      releaseDecoder();
-      maybeInitDecoder();
-      audioTrackNeedsConfigure = true;
+    if (!canKeepCodec(oldFormat, inputFormat)) {
+      if (decoderReceivedBuffers) {
+        // Signal end of stream and wait for any final output buffers before re-initialization.
+        decoderReinitializationState = REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM;
+      } else {
+        // There aren't any final output buffers, so release the decoder immediately.
+        releaseDecoder();
+        maybeInitDecoder();
+        audioTrackNeedsConfigure = true;
+      }
     }
 
     encoderDelay = inputFormat.encoderDelay;
