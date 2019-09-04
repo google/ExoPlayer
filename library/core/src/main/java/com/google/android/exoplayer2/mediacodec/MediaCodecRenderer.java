@@ -770,10 +770,12 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   /** Reads into {@link #flagsOnlyBuffer} and returns whether a format was read. */
   private boolean readToFlagsOnlyBuffer(boolean requireFormat) throws ExoPlaybackException {
+    formatHolder.clear();
     flagsOnlyBuffer.clear();
     int result = readSource(formatHolder, flagsOnlyBuffer, requireFormat);
     if (result == C.RESULT_FORMAT_READ) {
       onInputFormatChanged(formatHolder);
+      formatHolder.clear();
       return true;
     } else if (result == C.RESULT_BUFFER_READ && flagsOnlyBuffer.isEndOfStream()) {
       inputStreamEnded = true;
@@ -1056,6 +1058,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         codecReconfigurationState = RECONFIGURATION_STATE_QUEUE_PENDING;
       }
       adaptiveReconfigurationBytes = buffer.data.position();
+      formatHolder.clear();
       result = readSource(formatHolder, buffer, false);
     }
 
@@ -1075,6 +1078,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
       }
       onInputFormatChanged(formatHolder);
+      formatHolder.clear();
       return true;
     }
 
