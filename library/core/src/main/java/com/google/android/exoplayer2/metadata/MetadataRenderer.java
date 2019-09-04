@@ -114,6 +114,7 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
   public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
     if (!inputStreamEnded && pendingMetadataCount < MAX_PENDING_METADATA_COUNT) {
       buffer.clear();
+      formatHolder.clear();
       int result = readSource(formatHolder, buffer, false);
       if (result == C.RESULT_BUFFER_READ) {
         if (buffer.isEndOfStream()) {
@@ -141,6 +142,7 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
         }
       } else if (result == C.RESULT_FORMAT_READ) {
         subsampleOffsetUs = formatHolder.format.subsampleOffsetUs;
+        formatHolder.clear();
       }
     }
 

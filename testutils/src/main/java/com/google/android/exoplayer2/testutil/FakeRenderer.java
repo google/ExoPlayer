@@ -79,13 +79,14 @@ public class FakeRenderer extends BaseRenderer {
     }
     playbackPositionUs = positionUs;
     while (lastSamplePositionUs < positionUs + SOURCE_READAHEAD_US) {
-      formatHolder.format = null;
+      formatHolder.clear();
       buffer.clear();
       int result = readSource(formatHolder, buffer, false);
       if (result == C.RESULT_FORMAT_READ) {
         formatReadCount++;
         assertThat(expectedFormats).contains(formatHolder.format);
         onFormatChanged(formatHolder.format);
+        formatHolder.clear();
       } else if (result == C.RESULT_BUFFER_READ) {
         if (buffer.isEndOfStream()) {
           isEnded = true;

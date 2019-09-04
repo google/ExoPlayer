@@ -85,8 +85,10 @@ public class CameraMotionRenderer extends BaseRenderer {
     // Keep reading available samples as long as the sample time is not too far into the future.
     while (!hasReadStreamToEnd() && lastTimestampUs < positionUs + SAMPLE_WINDOW_DURATION_US) {
       buffer.clear();
+      formatHolder.clear();
       int result = readSource(formatHolder, buffer, /* formatRequired= */ false);
       if (result != C.RESULT_BUFFER_READ || buffer.isEndOfStream()) {
+        formatHolder.clear();
         return;
       }
 
