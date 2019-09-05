@@ -470,6 +470,15 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @Override
+  protected boolean isSourceReady() {
+    boolean sourceReady = super.isSourceReady();
+    if (! sourceReady) {
+      Log.d("EXO-VIDEO", "renderer not ready - readingPositionUs: " +  getReadingPositionUs() + "  lastInputTimeUs: " + lastInputTimeUs + " buffersInCodecCount:" + buffersInCodecCount);
+    }
+    return sourceReady;
+  }
+
+  @Override
   public void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException {
     if (messageType == C.MSG_SET_SURFACE) {
       setSurface((Surface) message);
@@ -825,6 +834,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
     maybeNotifyVideoSizeChanged();
     maybeNotifyRenderedFirstFrame();
+    Log.d("EXO-VIDEO", "processed tunneled buffer - PTS: " + presentationTimeUs + " buffersInCodec: " + buffersInCodecCount);
     onProcessedOutputBuffer(presentationTimeUs);
   }
 
@@ -1603,6 +1613,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         // Stale event.
         return;
       }
+      Log.d("EXO-VIDEO", "Tunneled frame rendered, PTS - " + presentationTimeUs);
       onProcessedTunneledBuffer(presentationTimeUs);
     }
 

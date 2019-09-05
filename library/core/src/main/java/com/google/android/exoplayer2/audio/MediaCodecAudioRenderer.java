@@ -639,6 +639,15 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
+  protected boolean isSourceReady() {
+    boolean sourceReady = super.isSourceReady();
+    if (! sourceReady) {
+      Log.d("EXO-AUDIO", "renderer not ready - readingPositionUs: " +  getReadingPositionUs() + "  currentPositionUs: " + currentPositionUs);
+    }
+    return sourceReady;
+  }
+
+  @Override
   public boolean isEnded() {
     return super.isEnded() && audioSink.isEnded();
   }
@@ -677,7 +686,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       }
       allowFirstBufferPositionDiscontinuity = false;
     }
-    Log.d("EXO-AUDIO", "queued audio input: currPos: " + currentPositionUs + " buffer.timeUs: " + buffer.timeUs + " buffer.pos: " + buffer.data.position());
     lastInputTimeUs = Math.max(buffer.timeUs, lastInputTimeUs);
   }
 
@@ -876,6 +884,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
 
   private void updateCurrentPosition() {
     long newCurrentPositionUs = audioSink.getCurrentPositionUs(isEnded());
+    Log.d("EXO-AUDIO", "audioSink getCurrentPositionUs() - " + newCurrentPositionUs);
+
     if (newCurrentPositionUs != AudioSink.CURRENT_POSITION_NOT_SET) {
       currentPositionUs =
           allowPositionDiscontinuity

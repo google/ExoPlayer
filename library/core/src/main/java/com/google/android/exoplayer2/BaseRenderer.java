@@ -16,12 +16,15 @@
 package com.google.android.exoplayer2;
 
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MediaClock;
+import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
 import java.io.IOException;
 
 /**
@@ -337,7 +340,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   /**
    * Returns whether the upstream source is ready.
    */
-  protected final boolean isSourceReady() {
+  protected boolean isSourceReady() {
     return hasReadStreamToEnd() ? streamIsFinal : stream.isReady();
   }
 

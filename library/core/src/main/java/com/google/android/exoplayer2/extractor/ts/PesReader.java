@@ -231,7 +231,7 @@ public final class PesReader implements TsPayloadReader {
         // decode timestamp to the adjuster here so that in the case that this is the first to be
         // fed, the adjuster will be able to compute an offset to apply such that the adjusted
         // presentation timestamps of all future packets are non-negative.
-        timestampAdjuster.adjustTsTimestamp(dts);
+//        timestampAdjuster.adjustTsTimestamp(dts);
         seenFirstDts = true;
       }
       timeUs = timestampAdjuster.adjustTsTimestamp(pts);

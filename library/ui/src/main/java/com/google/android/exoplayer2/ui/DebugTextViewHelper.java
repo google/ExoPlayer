@@ -17,19 +17,33 @@ package com.google.android.exoplayer2.ui;
 
 import android.annotation.SuppressLint;
 import android.os.Looper;
+import android.util.Pair;
 import android.widget.TextView;
+
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.source.MediaSourceEventListener;
+import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.Log;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 
 /**
  * A helper class for periodically updating a {@link TextView} with debug information obtained from
  * a {@link SimpleExoPlayer}.
  */
-public class DebugTextViewHelper implements Player.EventListener, Runnable {
+public class DebugTextViewHelper implements AnalyticsListener, Runnable {
 
   private static final int REFRESH_INTERVAL_MS = 1000;
 
@@ -37,6 +51,12 @@ public class DebugTextViewHelper implements Player.EventListener, Runnable {
   private final TextView textView;
 
   private boolean started;
+  private long bitrateEstimate;
+
+  private long networkActiveTime;
+  private long totalBytesLoaded;
+  private long startTime;
+  private Format loadingVideoFormat;
 
   /**
    * @param player The {@link SimpleExoPlayer} from which debug information should be obtained. Only
@@ -59,7 +79,10 @@ public class DebugTextViewHelper implements Player.EventListener, Runnable {
       return;
     }
     started = true;
-    player.addListener(this);
+    networkActiveTime = 0;
+    totalBytesLoaded = 0;
+    startTime = Clock.DEFAULT.elapsedRealtime();
+    player.addAnalyticsListener(this);
     updateAndPost();
   }
 
@@ -72,20 +95,54 @@ public class DebugTextViewHelper implements Player.EventListener, Runnable {
       return;
     }
     started = false;
-    player.removeListener(this);
+    player.removeAnalyticsListener(this);
     textView.removeCallbacks(this);
   }
 
-  // Player.EventListener implementation.
-
+  // Analytics implementation.
   @Override
-  public final void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+  public void onPlayerStateChanged(EventTime eventTime, boolean playWhenReady, int playbackState) {
     updateAndPost();
   }
 
   @Override
-  public final void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
+  public void onPositionDiscontinuity(EventTime eventTime, int reason) {
     updateAndPost();
+  }
+
+  @Override
+  public void onTimelineChanged(EventTime eventTime, int reason) {
+    Timeline timeline = eventTime.timeline;
+
+    if (timeline.getWindowCount() > 0) {
+      Timeline.Window window = new Timeline.Window();
+      timeline.getWindow(0, window);
+      DateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.S");
+      Date start = new Date(window.windowStartTimeMs);
+      String epochDate = format.format(start);
+
+      Log.d("DEBUG", "TimeLine changed: first window start: " + epochDate + " position: " + window.positionInFirstPeriodUs);
+    }
+    updateAndPost();
+  }
+
+  @Override
+  public void onBandwidthEstimate(EventTime eventTime, int totalLoadTimeMs, long totalBytesLoaded, long bitrateEstimate) {
+    this.bitrateEstimate = bitrateEstimate;
+    this.networkActiveTime += totalLoadTimeMs;
+    this.totalBytesLoaded += totalBytesLoaded;
+  }
+
+  @Override
+  public void onTracksChanged(EventTime eventTime, TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+    Log.d("DebugText", "tracksChanegd: " + trackSelections);
+  }
+
+  @Override
+  public void onDownstreamFormatChanged(EventTime eventTime, MediaSourceEventListener.MediaLoadData mediaLoadData) {
+    if (mediaLoadData.trackType != C.TRACK_TYPE_AUDIO) {
+      this.loadingVideoFormat = mediaLoadData.trackFormat;
+    }
   }
 
   // Runnable implementation.
@@ -129,16 +186,45 @@ public class DebugTextViewHelper implements Player.EventListener, Runnable {
         playbackStateString = "unknown";
         break;
     }
-    return String.format(
-        "playWhenReady:%s playbackState:%s window:%s",
-        player.getPlayWhenReady(), playbackStateString, player.getCurrentWindowIndex());
+
+    long bandwidthUsed = networkActiveTime == 0 ? 0 : totalBytesLoaded / networkActiveTime;
+    long timeSinceStart = Clock.DEFAULT.elapsedRealtime() - startTime;
+    double percentNet = ((double) networkActiveTime / (double) timeSinceStart) * 100.0;
+
+    return String.format(Locale.getDefault(),"playWhenReady:%s bw:%d (%d KBps) totalBw: %d netu: %3.2f window:%s cp:%s playbackState:%s",
+        player.getPlayWhenReady(), bitrateEstimate, bitrateEstimate / 8000, bandwidthUsed, percentNet, player.getCurrentWindowIndex(), getPositionString(), playbackStateString);
+  }
+
+  protected String getPositionString() {
+    long position = player.getCurrentPosition();
+    String time = "";
+
+    Timeline timeline = player.getCurrentTimeline();
+    if (timeline != Timeline.EMPTY) {
+      int windowIndex = player.getCurrentWindowIndex();
+      Timeline.Window currentWindow = new Timeline.Window();
+      Pair<Object, Long> periodPosition = timeline.getPeriodPosition(currentWindow, new Timeline.Period(), windowIndex, position);
+      long absTime;
+      DateFormat format;
+      if (currentWindow.windowStartTimeMs == C.TIME_UNSET) {
+        format = new SimpleDateFormat("HH:mm:ss.S Z", Locale.getDefault());
+        absTime = position;
+      } else {
+        format = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.S Z", Locale.getDefault());
+        absTime = currentWindow.windowStartTimeMs + position;
+      }
+      Date currentMediaTime = new Date(absTime);
+      time = format.format(currentMediaTime);
+    }
+
+    return time + " (" + position + ")";
   }
 
   /** Returns a string containing video debugging information. */
   protected String getVideoString() {
     Format format = player.getVideoFormat();
     DecoderCounters decoderCounters = player.getVideoDecoderCounters();
-    if (format == null || decoderCounters == null) {
+    if (format == null || decoderCounters == null || loadingVideoFormat == null) {
       return "";
     }
     return "\n"
@@ -150,6 +236,8 @@ public class DebugTextViewHelper implements Player.EventListener, Runnable {
         + "x"
         + format.height
         + getPixelAspectRatioString(format.pixelWidthHeightRatio)
+        + " bitrate:"+format.bitrate+" "
+        + " loading (bitrate:"+ loadingVideoFormat.bitrate+", id:"+ loadingVideoFormat.id+") "
         + getDecoderCountersBufferCountString(decoderCounters)
         + ")";
   }
@@ -178,7 +266,8 @@ public class DebugTextViewHelper implements Player.EventListener, Runnable {
       return "";
     }
     counters.ensureUpdated();
-    return " sib:" + counters.skippedInputBufferCount
+    return " qib:" + counters.inputBufferCount
+        + " sib:" + counters.skippedInputBufferCount
         + " sb:" + counters.skippedOutputBufferCount
         + " rb:" + counters.renderedOutputBufferCount
         + " db:" + counters.droppedBufferCount

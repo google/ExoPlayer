@@ -48,6 +48,7 @@ import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.TimedValueQueue;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -1110,6 +1111,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
       if (this instanceof MediaCodecAudioRenderer) {
         Log.d("EXO-AUDIO", "Queued audio buffer PTS: " + buffer.timeUs + " index: " + inputIndex + " buffer size: " + buffer.data.limit());
+      } else if (this instanceof MediaCodecVideoRenderer) {
+        Log.d("EXO-VIDEO", "Queued video buffer PTS: " + buffer.timeUs + " index: " + inputIndex + " buffer size: " + buffer.data.limit());
       }
 
       if (bufferEncrypted) {

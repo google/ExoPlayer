@@ -553,6 +553,8 @@ public final class DefaultAudioSink implements AudioSink {
   public void play() {
     playing = true;
     if (isInitialized()) {
+      Log.d("EXO-AUDIO", "calling audioTrack.play()");
+
       audioTrackPositionTracker.start();
       audioTrack.play();
     }
@@ -755,11 +757,13 @@ public final class DefaultAudioSink implements AudioSink {
       Assertions.checkState(avSyncPresentationTimeUs != C.TIME_UNSET);
       bytesWritten = writeNonBlockingWithAvSyncV21(audioTrack, buffer, bytesRemaining,
           avSyncPresentationTimeUs);
+      Log.d("EXO-AUDIO", "called writeNonBlockingWithAvSyncV21() PTS - " + avSyncPresentationTimeUs + " written: " + bytesWritten
+          + " size: " + bytesRemaining +" buffer pos/limit: " + buffer.position() + "/" + buffer.limit());
+
     } else {
       bytesWritten = writeNonBlockingV21(audioTrack, buffer, bytesRemaining);
     }
 
-    Log.d("EXO-AUDIO", "Write audio output PTS - " + avSyncPresentationTimeUs + " written: " + bytesWritten + " buffer pos/limit: " + buffer.position() + "/" + buffer.limit());
 
     lastFeedElapsedRealtimeMs = SystemClock.elapsedRealtime();
 
@@ -938,7 +942,9 @@ public final class DefaultAudioSink implements AudioSink {
   @Override
   public void pause() {
     playing = false;
-    if (isInitialized() && audioTrackPositionTracker.pause()) {
+    boolean value = false;
+    if (isInitialized() && (value = audioTrackPositionTracker.pause())) {
+      Log.d("EXO-AUDIO", "calling audioTrack.pause() - audioTrackPositionTracker.pause() returned:  " + value);
       audioTrack.pause();
     }
   }
