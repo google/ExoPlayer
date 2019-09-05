@@ -578,7 +578,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
       // ready if it needs the next sample stream. This is necessary to avoid getting stuck if
       // tracks in the current period have uneven durations. See:
       // https://github.com/google/ExoPlayer/issues/1874
-      boolean rendererReadyOrEnded = renderer.isReady() || renderer.isEnded()
+      boolean oneRendererReady = renderer.isReady();
+      if (! oneRendererReady) {
+        Log.d("EXO-STUCK", "renderer not ready - track type: " + renderer.getTrackType());
+      }
+      boolean rendererReadyOrEnded = oneRendererReady || renderer.isEnded()
           || rendererWaitingForNextStream(renderer);
       if (!rendererReadyOrEnded) {
         renderer.maybeThrowStreamError();

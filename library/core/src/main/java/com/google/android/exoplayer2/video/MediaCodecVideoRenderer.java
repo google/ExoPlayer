@@ -405,7 +405,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   @Override
   public boolean isReady() {
-    if (super.isReady() && (renderedFirstFrame || (dummySurface != null && surface == dummySurface)
+//        if (super.isReady() && (renderedFirstFrame || (dummySurface != null && surface == dummySurface)
+    // This "works around" the problem, even if it is not time to render a frame, and we don't have samples
+    // (because the entire LoadControl limited buffered sample queue is in the decoder), stay 'ready' to render the frame
+    // when it is due.
+    if ((super.isReady() || buffersInCodecCount > 0) && (renderedFirstFrame || (dummySurface != null && surface == dummySurface)
         || getCodec() == null || tunneling)) {
       // Ready. If we were joining then we've now joined, so clear the joining deadline.
       joiningDeadlineMs = C.TIME_UNSET;
