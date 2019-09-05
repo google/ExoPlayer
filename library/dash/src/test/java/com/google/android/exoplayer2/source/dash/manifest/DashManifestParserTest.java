@@ -23,14 +23,18 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.metadata.emsg.EventMessage;
+import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SegmentTimelineElement;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserFactory;
 
 /** Unit tests for {@link DashManifestParser}. */
 @RunWith(AndroidJUnit4.class)
@@ -253,6 +257,74 @@ public class DashManifestParserTest {
             DashManifestParser.parseCea708AccessibilityChannel(
                 buildCea708AccessibilityDescriptors("Wrong format")))
         .isEqualTo(Format.NO_VALUE);
+  }
+
+  @Test
+  public void parseSegmentTimeline_withRepeatCount() throws Exception {
+    DashManifestParser parser = new DashManifestParser();
+    XmlPullParser xpp = XmlPullParserFactory.newInstance().newPullParser();
+    xpp.setInput(
+        new StringReader(
+            "<SegmentTimeline><S d=\"96000\" r=\"2\"/><S d=\"48000\" r=\"0\"/></SegmentTimeline>"));
+    xpp.next();
+
+    List<SegmentTimelineElement> elements =
+        parser.parseSegmentTimeline(xpp, /* timescale= */ 48000, /* periodDurationMs= */ 10000);
+
+    assertThat(elements)
+        .containsExactly(
+            new SegmentTimelineElement(/* startTime= */ 0, /* duration= */ 96000),
+            new SegmentTimelineElement(/* startTime= */ 96000, /* duration= */ 96000),
+            new SegmentTimelineElement(/* startTime= */ 192000, /* duration= */ 96000),
+            new SegmentTimelineElement(/* startTime= */ 288000, /* duration= */ 48000))
+        .inOrder();
+  }
+
+  @Test
+  public void parseSegmentTimeline_withSingleUndefinedRepeatCount() throws Exception {
+    DashManifestParser parser = new DashManifestParser();
+    XmlPullParser xpp = XmlPullParserFactory.newInstance().newPullParser();
+    xpp.setInput(new StringReader("<SegmentTimeline><S d=\"96000\" r=\"-1\"/></SegmentTimeline>"));
+    xpp.next();
+
+    List<SegmentTimelineElement> elements =
+        parser.parseSegmentTimeline(xpp, /* timescale= */ 48000, /* periodDurationMs= */ 10000);
+
+    assertThat(elements)
+        .containsExactly(
+            new SegmentTimelineElement(/* startTime= */ 0, /* duration= */ 96000),
+            new SegmentTimelineElement(/* startTime= */ 96000, /* duration= */ 96000),
+            new SegmentTimelineElement(/* startTime= */ 192000, /* duration= */ 96000),
+            new SegmentTimelineElement(/* startTime= */ 288000, /* duration= */ 96000),
+            new SegmentTimelineElement(/* startTime= */ 384000, /* duration= */ 96000))
+        .inOrder();
+  }
+
+  @Test
+  public void parseSegmentTimeline_withTimeOffsetsAndUndefinedRepeatCount() throws Exception {
+    DashManifestParser parser = new DashManifestParser();
+    XmlPullParser xpp = XmlPullParserFactory.newInstance().newPullParser();
+    xpp.setInput(
+        new StringReader(
+            "<SegmentTimeline><S t=\"0\" "
+                + "d=\"96000\" r=\"-1\"/><S t=\"192000\" d=\"48000\" r=\"-1\"/>"
+                + "</SegmentTimeline>"));
+    xpp.next();
+
+    List<SegmentTimelineElement> elements =
+        parser.parseSegmentTimeline(xpp, /* timescale= */ 48000, /* periodDurationMs= */ 10000);
+
+    assertThat(elements)
+        .containsExactly(
+            new SegmentTimelineElement(/* startTime= */ 0, /* duration= */ 96000),
+            new SegmentTimelineElement(/* startTime= */ 96000, /* duration= */ 96000),
+            new SegmentTimelineElement(/* startTime= */ 192000, /* duration= */ 48000),
+            new SegmentTimelineElement(/* startTime= */ 240000, /* duration= */ 48000),
+            new SegmentTimelineElement(/* startTime= */ 288000, /* duration= */ 48000),
+            new SegmentTimelineElement(/* startTime= */ 336000, /* duration= */ 48000),
+            new SegmentTimelineElement(/* startTime= */ 384000, /* duration= */ 48000),
+            new SegmentTimelineElement(/* startTime= */ 432000, /* duration= */ 48000))
+        .inOrder();
   }
 
   private static List<Descriptor> buildCea608AccessibilityDescriptors(String value) {
