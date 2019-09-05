@@ -657,17 +657,8 @@ public abstract class Timeline {
    *     default start position should be projected.
    * @return The populated {@link Window}, for convenience.
    */
-  @SuppressWarnings("deprecation")
-  public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
-    return getWindow(windowIndex, window, /* setTag= */ true, defaultPositionProjectionUs);
-  }
-
-  /** @deprecated Implement {@link #getWindow(int, Window, long)} instead and always set the tag. */
-  @Deprecated
-  public Window getWindow(
-      int windowIndex, Window window, boolean setTag, long defaultPositionProjectionUs) {
-    return getWindow(windowIndex, window, defaultPositionProjectionUs);
-  }
+  public abstract Window getWindow(
+      int windowIndex, Window window, long defaultPositionProjectionUs);
 
   /**
    * Returns the number of periods in the timeline.
