@@ -2695,6 +2695,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private final boolean isWithinRendererCapabilities;
     private final boolean isDefault;
     private final boolean hasPreferredIsForcedFlag;
+    private final boolean hasPreferredRoleFlags;
+    private final int hasCaptionRoleFlags;
     private final int preferredLanguageScore;
     private final int preferredRoleFlagsScore;
     private final int selectedAudioLanguageScore;
@@ -2713,18 +2715,21 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       preferredLanguageScore =
           getFormatLanguageScore(
               format, parameters.preferredTextLanguage, parameters.selectUndeterminedTextLanguage);
-      preferredRoleFlagsScore = format.roleFlags & parameters.preferredRoleFlags;
+      preferredRoleFlagsScore = Integer.bitCount(format.roleFlags & parameters.preferredRoleFlags);
       // Prefer non-forced to forced if a preferred text language has been matched. Where both are
       // provided the non-forced track will usually contain the forced subtitles as a subset.
       // Otherwise, prefer a forced track.
       hasPreferredIsForcedFlag =
           (preferredLanguageScore > 0 && !isForced) || (preferredLanguageScore == 0 && isForced);
+      hasPreferredRoleFlags = parameters.preferredRoleFlags > 0;
+      hasCaptionRoleFlags = Integer.bitCount(format.roleFlags
+              & (C.ROLE_FLAG_CAPTION | C.ROLE_FLAG_DESCRIBES_MUSIC_AND_SOUND));
       boolean selectedAudioLanguageUndetermined =
           normalizeUndeterminedLanguageToNull(selectedAudioLanguage) == null;
       selectedAudioLanguageScore =
           getFormatLanguageScore(format, selectedAudioLanguage, selectedAudioLanguageUndetermined);
       isWithinConstraints =
-          (preferredLanguageScore > 0 || (parameters.preferredTextLanguage == null && selectedAudioLanguageScore > 0 && preferredRoleFlagsScore > 0)) || isDefault || (isForced && selectedAudioLanguageScore > 0);
+          (preferredLanguageScore > 0 || (parameters.preferredTextLanguage == null && preferredRoleFlagsScore > 0)) || isDefault || (isForced && selectedAudioLanguageScore > 0);
     }
 
     /**
@@ -2742,16 +2747,23 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       if (this.preferredLanguageScore != other.preferredLanguageScore) {
         return compareInts(this.preferredLanguageScore, other.preferredLanguageScore);
       }
-      if (this.preferredRoleFlagsScore != other.preferredRoleFlagsScore) {
-        return compareInts(this.preferredRoleFlagsScore, other.preferredRoleFlagsScore);
-      }
       if (this.isDefault != other.isDefault) {
         return this.isDefault ? 1 : -1;
       }
       if (this.hasPreferredIsForcedFlag != other.hasPreferredIsForcedFlag) {
         return this.hasPreferredIsForcedFlag ? 1 : -1;
       }
-      return compareInts(this.selectedAudioLanguageScore, other.selectedAudioLanguageScore);
+      if (this.selectedAudioLanguageScore != other.selectedAudioLanguageScore) {
+        return compareInts(this.selectedAudioLanguageScore, other.selectedAudioLanguageScore);
+      }
+
+      // If no role flag preference is provided in the parameters, prefer tracks
+      // without C.ROLE_FLAG_CAPTION or C.ROLE_FLAG_DESCRIBES_MUSIC_AND_SOUND
+      // No specification means that non-captioning text tracks are preferred.
+      if (!this.hasPreferredRoleFlags) {
+        return compareInts(other.hasCaptionRoleFlags, this.hasCaptionRoleFlags);
+      }
+      return compareInts(this.preferredRoleFlagsScore, other.preferredRoleFlagsScore);
     }
   }
 }
