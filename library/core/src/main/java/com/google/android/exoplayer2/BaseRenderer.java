@@ -15,13 +15,17 @@
  */
 package com.google.android.exoplayer2;
 
+import android.os.Looper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmInitData;
+import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MediaClock;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /**
@@ -281,6 +285,35 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    */
   protected final RendererConfiguration getConfiguration() {
     return configuration;
+  }
+
+  /** Returns a {@link DrmSession} ready for assignment, handling resource management. */
+  @Nullable
+  protected final <T extends ExoMediaCrypto> DrmSession<T> getUpdatedSourceDrmSession(
+      @Nullable Format oldFormat,
+      Format newFormat,
+      @Nullable DrmSessionManager<T> drmSessionManager,
+      @Nullable DrmSession<T> existingSourceSession)
+      throws ExoPlaybackException {
+    boolean drmInitDataChanged =
+        !Util.areEqual(newFormat.drmInitData, oldFormat == null ? null : oldFormat.drmInitData);
+    if (!drmInitDataChanged) {
+      return existingSourceSession;
+    }
+    @Nullable DrmSession<T> newSourceDrmSession = null;
+    if (newFormat.drmInitData != null) {
+      if (drmSessionManager == null) {
+        throw ExoPlaybackException.createForRenderer(
+            new IllegalStateException("Media requires a DrmSessionManager"), getIndex());
+      }
+      newSourceDrmSession =
+          drmSessionManager.acquireSession(
+              Assertions.checkNotNull(Looper.myLooper()), newFormat.drmInitData);
+    }
+    if (existingSourceSession != null) {
+      existingSourceSession.releaseReference();
+    }
+    return newSourceDrmSession;
   }
 
   /**

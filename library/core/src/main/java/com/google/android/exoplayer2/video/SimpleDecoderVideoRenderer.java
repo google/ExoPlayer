@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.video;
 
 import android.os.Handler;
-import android.os.Looper;
 import android.os.SystemClock;
 import android.view.Surface;
 import androidx.annotation.CallSuper;
@@ -38,7 +37,6 @@ import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.TimedValueQueue;
 import com.google.android.exoplayer2.util.TraceUtil;
-import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener.EventDispatcher;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -363,32 +361,15 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
   @CallSuper
   @SuppressWarnings("unchecked")
   protected void onInputFormatChanged(FormatHolder formatHolder) throws ExoPlaybackException {
-    Format oldFormat = format;
-    format = formatHolder.format;
     pendingFormat = format;
-
-    boolean drmInitDataChanged =
-        !Util.areEqual(format.drmInitData, oldFormat == null ? null : oldFormat.drmInitData);
-    if (drmInitDataChanged) {
-      if (format.drmInitData != null) {
-        if (formatHolder.includesDrmSession) {
-          setSourceDrmSession((DrmSession<ExoMediaCrypto>) formatHolder.drmSession);
-        } else {
-          if (drmSessionManager == null) {
-            throw ExoPlaybackException.createForRenderer(
-                new IllegalStateException("Media requires a DrmSessionManager"), getIndex());
-          }
-          DrmSession<ExoMediaCrypto> session =
-              drmSessionManager.acquireSession(Looper.myLooper(), format.drmInitData);
-          if (sourceDrmSession != null) {
-            sourceDrmSession.releaseReference();
-          }
-          sourceDrmSession = session;
-        }
-      } else {
-        setSourceDrmSession(null);
-      }
+    Format newFormat = Assertions.checkNotNull(formatHolder.format);
+    if (formatHolder.includesDrmSession) {
+      setSourceDrmSession((DrmSession<ExoMediaCrypto>) formatHolder.drmSession);
+    } else {
+      sourceDrmSession =
+          getUpdatedSourceDrmSession(format, newFormat, drmSessionManager, sourceDrmSession);
     }
+    format = newFormat;
 
     if (sourceDrmSession != decoderDrmSession) {
       if (decoderReceivedBuffers) {

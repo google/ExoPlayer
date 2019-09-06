@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.audio;
 
 import android.media.audiofx.Virtualizer;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.SystemClock;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -673,32 +672,15 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
 
   @SuppressWarnings("unchecked")
   private void onInputFormatChanged(FormatHolder formatHolder) throws ExoPlaybackException {
-    Format oldFormat = inputFormat;
-    inputFormat = formatHolder.format;
-
-    boolean drmInitDataChanged = !Util.areEqual(inputFormat.drmInitData, oldFormat == null ? null
-        : oldFormat.drmInitData);
-    if (drmInitDataChanged) {
-      if (inputFormat.drmInitData != null) {
-
-        if (formatHolder.includesDrmSession) {
-          setSourceDrmSession((DrmSession<ExoMediaCrypto>) formatHolder.drmSession);
-        } else {
-          if (drmSessionManager == null) {
-            throw ExoPlaybackException.createForRenderer(
-                new IllegalStateException("Media requires a DrmSessionManager"), getIndex());
-          }
-          DrmSession<ExoMediaCrypto> session =
-              drmSessionManager.acquireSession(Looper.myLooper(), inputFormat.drmInitData);
-          if (sourceDrmSession != null) {
-            sourceDrmSession.releaseReference();
-          }
-          sourceDrmSession = session;
-        }
-      } else {
-        setSourceDrmSession(null);
-      }
+    Format newFormat = Assertions.checkNotNull(formatHolder.format);
+    if (formatHolder.includesDrmSession) {
+      setSourceDrmSession((DrmSession<ExoMediaCrypto>) formatHolder.drmSession);
+    } else {
+      sourceDrmSession =
+          getUpdatedSourceDrmSession(inputFormat, newFormat, drmSessionManager, sourceDrmSession);
     }
+    Format oldFormat = inputFormat;
+    inputFormat = newFormat;
 
     if (!canKeepCodec(oldFormat, inputFormat)) {
       if (decoderReceivedBuffers) {
