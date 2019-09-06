@@ -95,6 +95,8 @@
 * Fix issue where playback speeds are not used in adaptive track selections
   after manual selection changes for other renderers
   ([#6256](https://github.com/google/ExoPlayer/issues/6256)).
+* Fix initialization data handling for FLAC in MP4
+  ([#6396](https://github.com/google/ExoPlayer/issues/6396)).
 
 ### 2.10.3 ###
 
