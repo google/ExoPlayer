@@ -400,6 +400,18 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
   }
 
+  /**
+   * Override, to handle tunneling.  In the tunneled case we must assume there is
+   * output ready to render whenever we have queued any sample buffers to the codec that
+   * it has not reported as rendered.
+   *
+   * @return
+   */
+  @Override
+  protected boolean hasOutputReady() {
+    return tunneling && buffersInCodecCount > 0 || super.hasOutputReady();
+  }
+
   @Override
   protected void onStarted() {
     super.onStarted();
