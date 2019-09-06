@@ -17,6 +17,8 @@
   ([#6396](https://github.com/google/ExoPlayer/issues/6396)).
 * Fix audio selection issue where languages are compared by bit rate
   ([#6335](https://github.com/google/ExoPlayer/issues/6335)).
+* Fix decoder selection for E-AC3 JOC streams
+  ([#6398](https://github.com/google/ExoPlayer/issues/6398)).
 * Fix `PlayerNotificationManager` to show play icon rather than pause icon when
   playback is ended ([#6324](https://github.com/google/ExoPlayer/issues/6324)).
 * Upgrade LibRtmp-Client-for-Android to fix RTMP playback issues
