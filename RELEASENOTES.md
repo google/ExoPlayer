@@ -64,6 +64,7 @@
   [#4337](https://github.com/google/ExoPlayer/issues/4337)).
 * Publish `testutils` module to simplify unit testing with ExoPlayer
   ([#6267](https://github.com/google/ExoPlayer/issues/6267)).
+* Add `uid` to `Timeline.Window` to uniquely identify window instances.
 
 ### 2.10.4 ###
 

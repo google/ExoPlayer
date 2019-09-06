@@ -175,6 +175,7 @@ public final class SinglePeriodTimeline extends Timeline {
       }
     }
     return window.set(
+        Window.SINGLE_WINDOW_UID,
         tag,
         manifest,
         presentationStartTimeMs,
