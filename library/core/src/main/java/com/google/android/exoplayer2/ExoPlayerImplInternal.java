@@ -1326,9 +1326,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
               timeline, timeline.getPeriodByUid(newPeriodUid, period).windowIndex, C.TIME_UNSET);
       newContentPositionUs = defaultPosition.second;
       newPeriodId = queue.resolveMediaPeriodIdForAds(defaultPosition.first, newContentPositionUs);
-    } else if (newPeriodId.isAd()) {
-      // Recheck if the current ad still needs to be played.
-      newPeriodId = queue.resolveMediaPeriodIdForAds(newPeriodId.periodUid, newContentPositionUs);
+    } else {
+      // Recheck if the current ad still needs to be played or if we need to start playing an ad.
+      newPeriodId =
+          queue.resolveMediaPeriodIdForAds(playbackInfo.periodId.periodUid, newContentPositionUs);
+      if (!playbackInfo.periodId.isAd() && !newPeriodId.isAd()) {
+        // Drop update if we keep playing the same content (MediaPeriod.periodUid are identical) and
+        // only MediaPeriodId.nextAdGroupIndex may have changed. This postpones a potential
+        // discontinuity until we reach the former next ad group position.
+        newPeriodId = playbackInfo.periodId;
+      }
     }
 
     if (playbackInfo.periodId.equals(newPeriodId) && oldContentPositionUs == newContentPositionUs) {
