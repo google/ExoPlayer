@@ -65,6 +65,8 @@
 * Publish `testutils` module to simplify unit testing with ExoPlayer
   ([#6267](https://github.com/google/ExoPlayer/issues/6267)).
 * Add `uid` to `Timeline.Window` to uniquely identify window instances.
+* Fix decoder selection for E-AC3 JOC streams
+  ([#6398](https://github.com/google/ExoPlayer/issues/6398)).
 
 ### 2.10.4 ###
 
