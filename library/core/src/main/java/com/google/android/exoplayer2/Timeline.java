@@ -115,6 +115,17 @@ public abstract class Timeline {
    */
   public static final class Window {
 
+    /**
+     * A {@link #uid} for a window that must be used for single-window {@link Timeline Timelines}.
+     */
+    public static final Object SINGLE_WINDOW_UID = new Object();
+
+    /**
+     * A unique identifier for the window. Single-window {@link Timeline Timelines} must use {@link
+     * #SINGLE_WINDOW_UID}.
+     */
+    public Object uid;
+
     /** A tag for the window. Not necessarily unique. */
     @Nullable public Object tag;
 
@@ -175,8 +186,14 @@ public abstract class Timeline {
      */
     public long positionInFirstPeriodUs;
 
+    /** Creates window. */
+    public Window() {
+      uid = SINGLE_WINDOW_UID;
+    }
+
     /** Sets the data held by this window. */
     public Window set(
+        Object uid,
         @Nullable Object tag,
         @Nullable Object manifest,
         long presentationStartTimeMs,
@@ -188,6 +205,7 @@ public abstract class Timeline {
         int firstPeriodIndex,
         int lastPeriodIndex,
         long positionInFirstPeriodUs) {
+      this.uid = uid;
       this.tag = tag;
       this.manifest = manifest;
       this.presentationStartTimeMs = presentationStartTimeMs;
@@ -793,8 +811,8 @@ public abstract class Timeline {
   public abstract Period getPeriod(int periodIndex, Period period, boolean setIds);
 
   /**
-   * Returns the index of the period identified by its unique {@code id}, or {@link C#INDEX_UNSET}
-   * if the period is not in the timeline.
+   * Returns the index of the period identified by its unique {@link Period#uid}, or {@link
+   * C#INDEX_UNSET} if the period is not in the timeline.
    *
    * @param uid A unique identifier for a period.
    * @return The index of the period, or {@link C#INDEX_UNSET} if the period was not found.
