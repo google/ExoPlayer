@@ -81,8 +81,6 @@ public final class MediaCodecUtil {
   // Dolby Vision.
   private static final Map<String, Integer> DOLBY_VISION_STRING_TO_PROFILE;
   private static final Map<String, Integer> DOLBY_VISION_STRING_TO_LEVEL;
-  private static final String CODEC_ID_DVHE = "dvhe";
-  private static final String CODEC_ID_DVH1 = "dvh1";
   // AV1.
   private static final SparseIntArray AV1_LEVEL_NUMBER_TO_CONST;
   private static final String CODEC_ID_AV01 = "av01";
@@ -245,6 +243,10 @@ public final class MediaCodecUtil {
       return null;
     }
     String[] parts = format.codecs.split("\\.");
+    // Dolby Vision can use DV, AVC or HEVC codec IDs, so check the MIME type first.
+    if (MimeTypes.VIDEO_DOLBY_VISION.equals(format.sampleMimeType)) {
+      return getDolbyVisionProfileAndLevel(format.codecs, parts);
+    }
     switch (parts[0]) {
       case CODEC_ID_AVC1:
       case CODEC_ID_AVC2:
@@ -254,9 +256,6 @@ public final class MediaCodecUtil {
       case CODEC_ID_HEV1:
       case CODEC_ID_HVC1:
         return getHevcProfileAndLevel(format.codecs, parts);
-      case CODEC_ID_DVHE:
-      case CODEC_ID_DVH1:
-        return getDolbyVisionProfileAndLevel(format.codecs, parts);
       case CODEC_ID_AV01:
         return getAv1ProfileAndLevel(format.codecs, parts, format.colorInfo);
       case CODEC_ID_MP4A:
