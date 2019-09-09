@@ -67,6 +67,7 @@
 * Add `uid` to `Timeline.Window` to uniquely identify window instances.
 * Fix decoder selection for E-AC3 JOC streams
   ([#6398](https://github.com/google/ExoPlayer/issues/6398)).
+* Fix Dolby Vision fallback to AVC and HEVC.
 
 ### 2.10.4 ###
 

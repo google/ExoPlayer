@@ -21,6 +21,7 @@ import android.content.Context;
 import android.graphics.Point;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo.CodecCapabilities;
+import android.media.MediaCodecInfo.CodecProfileLevel;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.os.Bundle;
@@ -393,15 +394,17 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
             format.sampleMimeType, requiresSecureDecoder, requiresTunnelingDecoder);
     decoderInfos = MediaCodecUtil.getDecoderInfosSortedByFormatSupport(decoderInfos, format);
     if (MimeTypes.VIDEO_DOLBY_VISION.equals(format.sampleMimeType)) {
-      // Fallback to primary decoders for H.265/HEVC or H.264/AVC for the relevant DV profiles.
+      // Fall back to H.264/AVC or H.265/HEVC for the relevant DV profiles.
+      @Nullable
       Pair<Integer, Integer> codecProfileAndLevel = MediaCodecUtil.getCodecProfileAndLevel(format);
       if (codecProfileAndLevel != null) {
         int profile = codecProfileAndLevel.first;
-        if (profile == 4 || profile == 8) {
+        if (profile == CodecProfileLevel.DolbyVisionProfileDvheDtr
+            || profile == CodecProfileLevel.DolbyVisionProfileDvheSt) {
           decoderInfos.addAll(
               mediaCodecSelector.getDecoderInfos(
                   MimeTypes.VIDEO_H265, requiresSecureDecoder, requiresTunnelingDecoder));
-        } else if (profile == 9) {
+        } else if (profile == CodecProfileLevel.DolbyVisionProfileDvavSe) {
           decoderInfos.addAll(
               mediaCodecSelector.getDecoderInfos(
                   MimeTypes.VIDEO_H264, requiresSecureDecoder, requiresTunnelingDecoder));
