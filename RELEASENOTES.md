@@ -2,6 +2,8 @@
 
 ### dev-v2 (not yet released) ###
 
+* Add `allowedCapturePolicy` field to `AudioAttributes` wrapper to allow to
+  opt-out of audio recording.
 * Add `DataSpec.httpRequestHeaders` to set HTTP request headers when connecting
   to an HTTP source. `DefaultHttpDataSource`, `CronetDataSource` and
   `OkHttpDataSource` include headers set in the DataSpec when connecting to the

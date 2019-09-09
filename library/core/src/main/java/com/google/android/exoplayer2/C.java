@@ -17,6 +17,7 @@ package com.google.android.exoplayer2;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.media.AudioAttributes;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.MediaCodec;
@@ -439,6 +440,21 @@ public final class C {
    */
   public static final int USAGE_VOICE_COMMUNICATION_SIGNALLING =
       android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING;
+
+  /**
+   * Capture policies for {@link com.google.android.exoplayer2.audio.AudioAttributes}. One of {@link
+   * #ALLOW_CAPTURE_BY_ALL}, {@link #ALLOW_CAPTURE_BY_NONE} or {@link #ALLOW_CAPTURE_BY_SYSTEM}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({ALLOW_CAPTURE_BY_ALL, ALLOW_CAPTURE_BY_NONE, ALLOW_CAPTURE_BY_SYSTEM})
+  public @interface AudioAllowedCapturePolicy {}
+  /** See {@link android.media.AudioAttributes#ALLOW_CAPTURE_BY_ALL}. */
+  public static final int ALLOW_CAPTURE_BY_ALL = AudioAttributes.ALLOW_CAPTURE_BY_ALL;
+  /** See {@link android.media.AudioAttributes#ALLOW_CAPTURE_BY_NONE}. */
+  public static final int ALLOW_CAPTURE_BY_NONE = AudioAttributes.ALLOW_CAPTURE_BY_NONE;
+  /** See {@link android.media.AudioAttributes#ALLOW_CAPTURE_BY_SYSTEM}. */
+  public static final int ALLOW_CAPTURE_BY_SYSTEM = AudioAttributes.ALLOW_CAPTURE_BY_SYSTEM;
 
   /**
    * Audio focus types. One of {@link #AUDIOFOCUS_NONE}, {@link #AUDIOFOCUS_GAIN}, {@link
