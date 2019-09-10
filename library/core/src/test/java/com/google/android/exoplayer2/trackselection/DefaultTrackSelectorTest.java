@@ -151,6 +151,7 @@ public final class DefaultTrackSelectorTest {
             /* allowAudioMixedChannelCountAdaptiveness= */ true,
             // Text
             /* preferredTextLanguage= */ "de",
+            /* preferredTextRoleFlags= */ C.ROLE_FLAG_CAPTION,
             /* selectUndeterminedTextLanguage= */ true,
             /* disabledTextTrackSelectionFlags= */ 8,
             // General

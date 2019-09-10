@@ -481,6 +481,12 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     @Override
+    public ParametersBuilder setPreferredTextRoleFlags(@C.RoleFlags int preferredTextRoleFlags) {
+      super.setPreferredTextRoleFlags(preferredTextRoleFlags);
+      return this;
+    }
+
+    @Override
     public ParametersBuilder setSelectUndeterminedTextLanguage(
         boolean selectUndeterminedTextLanguage) {
       super.setSelectUndeterminedTextLanguage(selectUndeterminedTextLanguage);
@@ -713,6 +719,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           allowAudioMixedChannelCountAdaptiveness,
           // Text
           preferredTextLanguage,
+          preferredTextRoleFlags,
           selectUndeterminedTextLanguage,
           disabledTextTrackSelectionFlags,
           // General
@@ -917,6 +924,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           /* allowAudioMixedChannelCountAdaptiveness= */ false,
           // Text
           TrackSelectionParameters.DEFAULT.preferredTextLanguage,
+          TrackSelectionParameters.DEFAULT.preferredTextRoleFlags,
           TrackSelectionParameters.DEFAULT.selectUndeterminedTextLanguage,
           TrackSelectionParameters.DEFAULT.disabledTextTrackSelectionFlags,
           // General
@@ -950,6 +958,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         boolean allowAudioMixedChannelCountAdaptiveness,
         // Text
         @Nullable String preferredTextLanguage,
+        @C.RoleFlags int preferredTextRoleFlags,
         boolean selectUndeterminedTextLanguage,
         @C.SelectionFlags int disabledTextTrackSelectionFlags,
         // General
@@ -963,6 +972,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       super(
           preferredAudioLanguage,
           preferredTextLanguage,
+          preferredTextRoleFlags,
           selectUndeterminedTextLanguage,
           disabledTextTrackSelectionFlags);
       // Video
@@ -1407,7 +1417,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
   /**
    * @deprecated Use {@link #DefaultTrackSelector(Context)} instead. The bandwidth meter should be
-   *     passed directly to the player in {@link SimpleExoPlayer.Builder}.
+   *     passed directly to the player in {@link
+   *     com.google.android.exoplayer2.SimpleExoPlayer.Builder}.
    */
   @Deprecated
   @SuppressWarnings("deprecation")
@@ -2691,7 +2702,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private final boolean isDefault;
     private final boolean hasPreferredIsForcedFlag;
     private final int preferredLanguageScore;
+    private final int preferredRoleFlagsScore;
     private final int selectedAudioLanguageScore;
+    private final boolean hasCaptionRoleFlags;
 
     public TextTrackScore(
         Format format,
@@ -2707,6 +2720,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       preferredLanguageScore =
           getFormatLanguageScore(
               format, parameters.preferredTextLanguage, parameters.selectUndeterminedTextLanguage);
+      preferredRoleFlagsScore =
+          Integer.bitCount(format.roleFlags & parameters.preferredTextRoleFlags);
+      hasCaptionRoleFlags =
+          (format.roleFlags & (C.ROLE_FLAG_CAPTION | C.ROLE_FLAG_DESCRIBES_MUSIC_AND_SOUND)) != 0;
       // Prefer non-forced to forced if a preferred text language has been matched. Where both are
       // provided the non-forced track will usually contain the forced subtitles as a subset.
       // Otherwise, prefer a forced track.
@@ -2717,7 +2734,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       selectedAudioLanguageScore =
           getFormatLanguageScore(format, selectedAudioLanguage, selectedAudioLanguageUndetermined);
       isWithinConstraints =
-          preferredLanguageScore > 0 || isDefault || (isForced && selectedAudioLanguageScore > 0);
+          preferredLanguageScore > 0
+              || (parameters.preferredTextLanguage == null && preferredRoleFlagsScore > 0)
+              || isDefault
+              || (isForced && selectedAudioLanguageScore > 0);
     }
 
     /**
@@ -2735,13 +2755,22 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       if (this.preferredLanguageScore != other.preferredLanguageScore) {
         return compareInts(this.preferredLanguageScore, other.preferredLanguageScore);
       }
+      if (this.preferredRoleFlagsScore != other.preferredRoleFlagsScore) {
+        return compareInts(this.preferredRoleFlagsScore, other.preferredRoleFlagsScore);
+      }
       if (this.isDefault != other.isDefault) {
         return this.isDefault ? 1 : -1;
       }
       if (this.hasPreferredIsForcedFlag != other.hasPreferredIsForcedFlag) {
         return this.hasPreferredIsForcedFlag ? 1 : -1;
       }
-      return compareInts(this.selectedAudioLanguageScore, other.selectedAudioLanguageScore);
+      if (this.selectedAudioLanguageScore != other.selectedAudioLanguageScore) {
+        return compareInts(this.selectedAudioLanguageScore, other.selectedAudioLanguageScore);
+      }
+      if (preferredRoleFlagsScore == 0 && this.hasCaptionRoleFlags != other.hasCaptionRoleFlags) {
+        return this.hasCaptionRoleFlags ? -1 : 1;
+      }
+      return 0;
     }
   }
 }
