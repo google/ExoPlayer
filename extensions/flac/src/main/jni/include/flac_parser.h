@@ -84,7 +84,7 @@ class FLACParser {
   bool decodeMetadata();
   size_t readBuffer(void *output, size_t output_size);
 
-  int64_t* getSeekPosition(int64_t timeUs);
+  int64_t* getSeekPositions(int64_t timeUs);
 
   void flush() {
     reset(mCurrentPos);

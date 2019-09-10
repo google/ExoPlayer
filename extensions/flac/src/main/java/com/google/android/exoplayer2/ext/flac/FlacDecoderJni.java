@@ -19,6 +19,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
+import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.util.FlacStreamMetadata;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -220,11 +221,12 @@ import java.nio.ByteBuffer;
    * stream.
    *
    * @param timeUs A seek position in microseconds.
-   * @return The corresponding position (byte offset) in the flac stream or -1 if the stream doesn't
+   * @return The corresponding SeekPoints in the flac seek table or
+   * {@link com.google.android.exoplayer2.extractor.SeekPoint#position} set -1 if the stream doesn't
    * have a seek table.
    */
-  public long[] getSeekPosition(long timeUs) {
-    return flacGetSeekPosition(nativeDecoderContext, timeUs);
+  public SeekMap.SeekPoints getSeekPoints(long timeUs) {
+    return flacGetSeekPoints(nativeDecoderContext, timeUs);
   }
 
   public String getStateString() {
@@ -283,7 +285,7 @@ import java.nio.ByteBuffer;
 
   private native long flacGetNextFrameFirstSampleIndex(long context);
 
-  private native long[] flacGetSeekPosition(long context, long timeUs);
+  private native SeekMap.SeekPoints flacGetSeekPoints(long context, long timeUs);
 
   private native String flacGetStateString(long context);
 
