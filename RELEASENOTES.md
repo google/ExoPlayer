@@ -14,7 +14,8 @@
 * Add `HttpDataSource.getResponseCode` to provide the status code associated
   with the most recent HTTP response.
 * Fix initialization data handling for FLAC in MP4
-  ([#6396](https://github.com/google/ExoPlayer/issues/6396)).
+  ([#6396](https://github.com/google/ExoPlayer/issues/6396),
+  [#6397](https://github.com/google/ExoPlayer/issues/6397)).
 * Fix audio selection issue where languages are compared by bit rate
   ([#6335](https://github.com/google/ExoPlayer/issues/6335)).
 * Fix decoder selection for E-AC3 JOC streams
