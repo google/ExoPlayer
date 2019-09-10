@@ -29,7 +29,6 @@ import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.extractor.Id3Peeker;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
-import com.google.android.exoplayer2.extractor.SeekPoint;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
@@ -276,8 +275,8 @@ public final class FlacExtractor implements Extractor {
       FlacStreamMetadata streamMetadata,
       long streamLength,
       ExtractorOutput output) {
-    long[] result = decoderJni.getSeekPosition(/* timeUs= */ 0);
-    boolean hasSeekTable = result.length == 4 && result[1] != -1 && result[3] != -1;
+    SeekMap.SeekPoints seekPoints = decoderJni.getSeekPoints(/* timeUs= */ 0);
+    boolean hasSeekTable = seekPoints.first.position != -1 && seekPoints.second.position != -1;
     FlacBinarySearchSeeker binarySearchSeeker = null;
     SeekMap seekMap;
     if (hasSeekTable) {
@@ -342,12 +341,7 @@ public final class FlacExtractor implements Extractor {
 
     @Override
     public SeekPoints getSeekPoints(long timeUs) {
-      long[] result = decoderJni.getSeekPosition(timeUs);
-      if (result.length == 4) {
-        return new SeekPoints(new SeekPoint(result[0], result[1]), new SeekPoint(result[2], result[3]));
-      } else {
-        return new SeekPoints(new SeekPoint(timeUs, decoderJni.getDecodePosition()));
-      }
+      return decoderJni.getSeekPoints(timeUs);
     }
 
     @Override
