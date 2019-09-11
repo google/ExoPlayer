@@ -73,7 +73,6 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
   private final int maxDroppedFramesToNotify;
   private final boolean playClearSamplesWithoutKeys;
   private final EventDispatcher eventDispatcher;
-  private final FormatHolder formatHolder;
   private final TimedValueQueue<Format> formatQueue;
   private final DecoderInputBuffer flagsOnlyBuffer;
   private final DrmSessionManager<ExoMediaCrypto> drmSessionManager;
@@ -144,7 +143,6 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
     this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
     joiningDeadlineMs = C.TIME_UNSET;
     clearReportedVideoSize();
-    formatHolder = new FormatHolder();
     formatQueue = new TimedValueQueue<>();
     flagsOnlyBuffer = DecoderInputBuffer.newFlagsOnlyInstance();
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
@@ -166,12 +164,11 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
 
     if (inputFormat == null) {
       // We don't have a format yet, so try and read one.
-      formatHolder.clear();
+      FormatHolder formatHolder = getFormatHolder();
       flagsOnlyBuffer.clear();
       int result = readSource(formatHolder, flagsOnlyBuffer, true);
       if (result == C.RESULT_FORMAT_READ) {
         onInputFormatChanged(formatHolder);
-        formatHolder.clear();
       } else if (result == C.RESULT_BUFFER_READ) {
         // End of stream read having not read a format.
         Assertions.checkState(flagsOnlyBuffer.isEndOfStream());
@@ -680,11 +677,11 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
     }
 
     int result;
+    FormatHolder formatHolder = getFormatHolder();
     if (waitingForKeys) {
       // We've already read an encrypted sample into buffer, and are waiting for keys.
       result = C.RESULT_BUFFER_READ;
     } else {
-      formatHolder.clear();
       result = readSource(formatHolder, inputBuffer, false);
     }
 
@@ -693,7 +690,6 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
     }
     if (result == C.RESULT_FORMAT_READ) {
       onInputFormatChanged(formatHolder);
-      formatHolder.clear();
       return true;
     }
     if (inputBuffer.isEndOfStream()) {

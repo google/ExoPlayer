@@ -319,7 +319,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private final float assumedMinimumCodecOperatingRate;
   private final DecoderInputBuffer buffer;
   private final DecoderInputBuffer flagsOnlyBuffer;
-  private final FormatHolder formatHolder;
   private final TimedValueQueue<Format> formatQueue;
   private final ArrayList<Long> decodeOnlyPresentationTimestamps;
   private final MediaCodec.BufferInfo outputBufferInfo;
@@ -405,7 +404,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     this.assumedMinimumCodecOperatingRate = assumedMinimumCodecOperatingRate;
     buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
     flagsOnlyBuffer = DecoderInputBuffer.newFlagsOnlyInstance();
-    formatHolder = new FormatHolder();
     formatQueue = new TimedValueQueue<>();
     decodeOnlyPresentationTimestamps = new ArrayList<>();
     outputBufferInfo = new MediaCodec.BufferInfo();
@@ -769,12 +767,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   /** Reads into {@link #flagsOnlyBuffer} and returns whether a format was read. */
   private boolean readToFlagsOnlyBuffer(boolean requireFormat) throws ExoPlaybackException {
-    formatHolder.clear();
+    FormatHolder formatHolder = getFormatHolder();
     flagsOnlyBuffer.clear();
     int result = readSource(formatHolder, flagsOnlyBuffer, requireFormat);
     if (result == C.RESULT_FORMAT_READ) {
       onInputFormatChanged(formatHolder);
-      formatHolder.clear();
       return true;
     } else if (result == C.RESULT_BUFFER_READ && flagsOnlyBuffer.isEndOfStream()) {
       inputStreamEnded = true;
@@ -1042,6 +1039,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
 
     int result;
+    FormatHolder formatHolder = getFormatHolder();
     int adaptiveReconfigurationBytes = 0;
     if (waitingForKeys) {
       // We've already read an encrypted sample into buffer, and are waiting for keys.
@@ -1057,7 +1055,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         codecReconfigurationState = RECONFIGURATION_STATE_QUEUE_PENDING;
       }
       adaptiveReconfigurationBytes = buffer.data.position();
-      formatHolder.clear();
       result = readSource(formatHolder, buffer, false);
     }
 
@@ -1077,7 +1074,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
       }
       onInputFormatChanged(formatHolder);
-      formatHolder.clear();
       return true;
     }
 

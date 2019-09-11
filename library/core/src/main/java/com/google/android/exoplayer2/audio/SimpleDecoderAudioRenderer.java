@@ -94,7 +94,6 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   private final boolean playClearSamplesWithoutKeys;
   private final EventDispatcher eventDispatcher;
   private final AudioSink audioSink;
-  private final FormatHolder formatHolder;
   private final DecoderInputBuffer flagsOnlyBuffer;
 
   private DecoderCounters decoderCounters;
@@ -212,7 +211,6 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     this.audioSink = audioSink;
     audioSink.setListener(new AudioSinkListener());
-    formatHolder = new FormatHolder();
     flagsOnlyBuffer = DecoderInputBuffer.newFlagsOnlyInstance();
     decoderReinitializationState = REINITIALIZATION_STATE_NONE;
     audioTrackNeedsConfigure = true;
@@ -270,12 +268,11 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
     // Try and read a format if we don't have one already.
     if (inputFormat == null) {
       // We don't have a format yet, so try and read one.
-      formatHolder.clear();
+      FormatHolder formatHolder = getFormatHolder();
       flagsOnlyBuffer.clear();
       int result = readSource(formatHolder, flagsOnlyBuffer, true);
       if (result == C.RESULT_FORMAT_READ) {
         onInputFormatChanged(formatHolder);
-        formatHolder.clear();
       } else if (result == C.RESULT_BUFFER_READ) {
         // End of stream read having not read a format.
         Assertions.checkState(flagsOnlyBuffer.isEndOfStream());
@@ -440,11 +437,11 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
     }
 
     int result;
+    FormatHolder formatHolder = getFormatHolder();
     if (waitingForKeys) {
       // We've already read an encrypted sample into buffer, and are waiting for keys.
       result = C.RESULT_BUFFER_READ;
     } else {
-      formatHolder.clear();
       result = readSource(formatHolder, inputBuffer, false);
     }
 
@@ -453,7 +450,6 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
     }
     if (result == C.RESULT_FORMAT_READ) {
       onInputFormatChanged(formatHolder);
-      formatHolder.clear();
       return true;
     }
     if (inputBuffer.isEndOfStream()) {

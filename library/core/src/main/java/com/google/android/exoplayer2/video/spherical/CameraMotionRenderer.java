@@ -34,7 +34,6 @@ public class CameraMotionRenderer extends BaseRenderer {
   // The amount of time to read samples ahead of the current time.
   private static final int SAMPLE_WINDOW_DURATION_US = 100000;
 
-  private final FormatHolder formatHolder;
   private final DecoderInputBuffer buffer;
   private final ParsableByteArray scratch;
 
@@ -44,7 +43,6 @@ public class CameraMotionRenderer extends BaseRenderer {
 
   public CameraMotionRenderer() {
     super(C.TRACK_TYPE_CAMERA_MOTION);
-    formatHolder = new FormatHolder();
     buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
     scratch = new ParsableByteArray();
   }
@@ -85,10 +83,9 @@ public class CameraMotionRenderer extends BaseRenderer {
     // Keep reading available samples as long as the sample time is not too far into the future.
     while (!hasReadStreamToEnd() && lastTimestampUs < positionUs + SAMPLE_WINDOW_DURATION_US) {
       buffer.clear();
-      formatHolder.clear();
+      FormatHolder formatHolder = getFormatHolder();
       int result = readSource(formatHolder, buffer, /* formatRequired= */ false);
       if (result != C.RESULT_BUFFER_READ || buffer.isEndOfStream()) {
-        formatHolder.clear();
         return;
       }
 

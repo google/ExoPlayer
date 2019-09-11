@@ -45,7 +45,6 @@ public class FakeRenderer extends BaseRenderer {
 
   private final List<Format> expectedFormats;
   private final DecoderInputBuffer buffer;
-  private final FormatHolder formatHolder;
 
   private long playbackPositionUs;
   private long lastSamplePositionUs;
@@ -60,7 +59,6 @@ public class FakeRenderer extends BaseRenderer {
         : MimeTypes.getTrackType(expectedFormats[0].sampleMimeType));
     this.expectedFormats = Collections.unmodifiableList(Arrays.asList(expectedFormats));
     buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
-    formatHolder = new FormatHolder();
     lastSamplePositionUs = Long.MIN_VALUE;
   }
 
@@ -79,14 +77,13 @@ public class FakeRenderer extends BaseRenderer {
     }
     playbackPositionUs = positionUs;
     while (lastSamplePositionUs < positionUs + SOURCE_READAHEAD_US) {
-      formatHolder.clear();
+      FormatHolder formatHolder = getFormatHolder();
       buffer.clear();
       int result = readSource(formatHolder, buffer, false);
       if (result == C.RESULT_FORMAT_READ) {
         formatReadCount++;
         assertThat(expectedFormats).contains(formatHolder.format);
         onFormatChanged(formatHolder.format);
-        formatHolder.clear();
       } else if (result == C.RESULT_BUFFER_READ) {
         if (buffer.isEndOfStream()) {
           isEnded = true;

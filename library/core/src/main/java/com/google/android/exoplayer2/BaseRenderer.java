@@ -34,6 +34,7 @@ import java.io.IOException;
 public abstract class BaseRenderer implements Renderer, RendererCapabilities {
 
   private final int trackType;
+  private final FormatHolder formatHolder;
 
   private RendererConfiguration configuration;
   private int index;
@@ -50,6 +51,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    */
   public BaseRenderer(int trackType) {
     this.trackType = trackType;
+    formatHolder = new FormatHolder();
     readingPositionUs = C.TIME_END_OF_SOURCE;
   }
 
@@ -157,6 +159,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   @Override
   public final void disable() {
     Assertions.checkState(state == STATE_ENABLED);
+    formatHolder.clear();
     state = STATE_DISABLED;
     stream = null;
     streamFormats = null;
@@ -167,6 +170,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   @Override
   public final void reset() {
     Assertions.checkState(state == STATE_DISABLED);
+    formatHolder.clear();
     onReset();
   }
 
@@ -274,6 +278,12 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   }
 
   // Methods to be called by subclasses.
+
+  /** Returns a clear {@link FormatHolder}. */
+  protected final FormatHolder getFormatHolder() {
+    formatHolder.clear();
+    return formatHolder;
+  }
 
   /** Returns the formats of the currently enabled stream. */
   protected final Format[] getStreamFormats() {

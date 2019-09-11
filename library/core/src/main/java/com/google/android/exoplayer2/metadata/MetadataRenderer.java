@@ -45,7 +45,6 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
   private final MetadataDecoderFactory decoderFactory;
   private final MetadataOutput output;
   @Nullable private final Handler outputHandler;
-  private final FormatHolder formatHolder;
   private final MetadataInputBuffer buffer;
   private final Metadata[] pendingMetadata;
   private final long[] pendingMetadataTimestamps;
@@ -84,7 +83,6 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
     this.outputHandler =
         outputLooper == null ? null : Util.createHandler(outputLooper, /* callback= */ this);
     this.decoderFactory = Assertions.checkNotNull(decoderFactory);
-    formatHolder = new FormatHolder();
     buffer = new MetadataInputBuffer();
     pendingMetadata = new Metadata[MAX_PENDING_METADATA_COUNT];
     pendingMetadataTimestamps = new long[MAX_PENDING_METADATA_COUNT];
@@ -114,7 +112,7 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
   public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
     if (!inputStreamEnded && pendingMetadataCount < MAX_PENDING_METADATA_COUNT) {
       buffer.clear();
-      formatHolder.clear();
+      FormatHolder formatHolder = getFormatHolder();
       int result = readSource(formatHolder, buffer, false);
       if (result == C.RESULT_BUFFER_READ) {
         if (buffer.isEndOfStream()) {
@@ -142,7 +140,6 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
         }
       } else if (result == C.RESULT_FORMAT_READ) {
         subsampleOffsetUs = formatHolder.format.subsampleOffsetUs;
-        formatHolder.clear();
       }
     }
 
