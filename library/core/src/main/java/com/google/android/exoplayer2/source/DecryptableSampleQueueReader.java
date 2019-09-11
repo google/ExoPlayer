@@ -156,6 +156,7 @@ public final class DecryptableSampleQueueReader {
    */
   private void onFormat(Format format, FormatHolder outputFormatHolder) {
     outputFormatHolder.format = format;
+    boolean isFirstFormat = currentFormat == null;
     DrmInitData oldDrmInitData = currentFormat != null ? currentFormat.drmInitData : null;
     currentFormat = format;
     if (sessionManager == DrmSessionManager.DUMMY) {
@@ -167,7 +168,7 @@ public final class DecryptableSampleQueueReader {
     }
     outputFormatHolder.includesDrmSession = true;
     outputFormatHolder.drmSession = currentSession;
-    if (Util.areEqual(oldDrmInitData, format.drmInitData)) {
+    if (!isFirstFormat && Util.areEqual(oldDrmInitData, format.drmInitData)) {
       // Nothing to do.
       return;
     }
@@ -175,12 +176,11 @@ public final class DecryptableSampleQueueReader {
     // can be used for both DrmInitData.
     DrmSession<?> previousSession = currentSession;
     DrmInitData drmInitData = currentFormat.drmInitData;
-    if (drmInitData != null) {
-      currentSession =
-          sessionManager.acquireSession(Assertions.checkNotNull(Looper.myLooper()), drmInitData);
-    } else {
-      currentSession = null;
-    }
+    Looper playbackLooper = Assertions.checkNotNull(Looper.myLooper());
+    currentSession =
+        drmInitData != null
+            ? sessionManager.acquireSession(playbackLooper, drmInitData)
+            : sessionManager.acquirePlaceholderSession(playbackLooper);
     outputFormatHolder.drmSession = currentSession;
 
     if (previousSession != null) {
