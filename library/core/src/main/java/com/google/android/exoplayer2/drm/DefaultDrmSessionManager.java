@@ -442,6 +442,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
               /* releaseCallback= */ this::onSessionReleased,
               schemeDatas,
               mode,
+              /* isPlaceholderSession= */ false,
               offlineLicenseKeySetId,
               optionalKeyRequestParameters,
               callback,
