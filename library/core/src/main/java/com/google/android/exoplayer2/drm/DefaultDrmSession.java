@@ -367,13 +367,8 @@ public class DefaultDrmSession<T extends ExoMediaCrypto> implements DrmSession<T
         }
         break;
       case DefaultDrmSessionManager.MODE_DOWNLOAD:
-        if (offlineLicenseKeySetId == null) {
+        if (offlineLicenseKeySetId == null || restoreKeys()) {
           postKeyRequest(sessionId, ExoMediaDrm.KEY_TYPE_OFFLINE, allowRetry);
-        } else {
-          // Renew
-          if (restoreKeys()) {
-            postKeyRequest(sessionId, ExoMediaDrm.KEY_TYPE_OFFLINE, allowRetry);
-          }
         }
         break;
       case DefaultDrmSessionManager.MODE_RELEASE:
