@@ -106,6 +106,7 @@ public class DefaultDrmSession<T extends ExoMediaCrypto> implements DrmSession<T
   private final ProvisioningManager<T> provisioningManager;
   private final ReleaseCallback<T> releaseCallback;
   private final @DefaultDrmSessionManager.Mode int mode;
+  private final boolean isPlaceholderSession;
   @Nullable private final HashMap<String, String> optionalKeyRequestParameters;
   private final EventDispatcher<DefaultDrmSessionEventListener> eventDispatcher;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
@@ -134,8 +135,9 @@ public class DefaultDrmSession<T extends ExoMediaCrypto> implements DrmSession<T
    * @param provisioningManager The manager for provisioning.
    * @param releaseCallback The {@link ReleaseCallback}.
    * @param schemeDatas DRM scheme datas for this session, or null if an {@code
-   *     offlineLicenseKeySetId} is provided.
-   * @param mode The DRM mode.
+   *     offlineLicenseKeySetId} is provided or if {@code isPlaceholderSession} is true.
+   * @param mode The DRM mode. Ignored if {@code isPlaceholderSession} is true.
+   * @param isPlaceholderSession Whether this session is not expected to acquire any keys.
    * @param offlineLicenseKeySetId The offline license key set identifier, or null when not using
    *     offline keys.
    * @param optionalKeyRequestParameters The optional key request parameters.
@@ -152,6 +154,7 @@ public class DefaultDrmSession<T extends ExoMediaCrypto> implements DrmSession<T
       ReleaseCallback<T> releaseCallback,
       @Nullable List<SchemeData> schemeDatas,
       @DefaultDrmSessionManager.Mode int mode,
+      boolean isPlaceholderSession,
       @Nullable byte[] offlineLicenseKeySetId,
       @Nullable HashMap<String, String> optionalKeyRequestParameters,
       MediaDrmCallback callback,
@@ -167,6 +170,7 @@ public class DefaultDrmSession<T extends ExoMediaCrypto> implements DrmSession<T
     this.releaseCallback = releaseCallback;
     this.mediaDrm = mediaDrm;
     this.mode = mode;
+    this.isPlaceholderSession = isPlaceholderSession;
     if (offlineLicenseKeySetId != null) {
       this.offlineLicenseKeySetId = offlineLicenseKeySetId;
       this.schemeDatas = null;
@@ -342,6 +346,10 @@ public class DefaultDrmSession<T extends ExoMediaCrypto> implements DrmSession<T
 
   @RequiresNonNull("sessionId")
   private void doLicense(boolean allowRetry) {
+    if (isPlaceholderSession) {
+      state = STATE_OPENED_WITH_KEYS;
+      return;
+    }
     byte[] sessionId = Util.castNonNull(this.sessionId);
     switch (mode) {
       case DefaultDrmSessionManager.MODE_PLAYBACK:
