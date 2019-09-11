@@ -521,7 +521,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
                   && mediaCrypto.requiresSecureDecoderComponent(mimeType);
         }
       }
-      if (deviceNeedsDrmKeysToConfigureCodecWorkaround()) {
+      if (FrameworkMediaCrypto.WORKAROUND_DEVICE_NEEDS_KEYS_TO_CONFIGURE_CODEC) {
         @DrmSession.State int drmSessionState = codecDrmSession.getState();
         if (drmSessionState == DrmSession.STATE_ERROR) {
           throw ExoPlaybackException.createForRenderer(codecDrmSession.getError(), getIndex());
@@ -1752,16 +1752,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @TargetApi(21)
   private static boolean isMediaCodecExceptionV21(IllegalStateException error) {
     return error instanceof MediaCodec.CodecException;
-  }
-
-  /**
-   * Returns whether the device needs keys to have been loaded into the {@link DrmSession} before
-   * codec configuration.
-   */
-  private boolean deviceNeedsDrmKeysToConfigureCodecWorkaround() {
-    return "Amazon".equals(Util.MANUFACTURER)
-        && ("AFTM".equals(Util.MODEL) // Fire TV Stick Gen 1
-            || "AFTB".equals(Util.MODEL)); // Fire TV Gen 1
   }
 
   /**
