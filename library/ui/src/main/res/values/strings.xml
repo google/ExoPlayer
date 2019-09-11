@@ -34,9 +34,9 @@
   <string name="exo_controls_repeat_one_description">Repeat one</string>
   <!-- Description for a button that controls the repeat mode of a media playback. In this mode the entire playlist is repeated. [CHAR LIMIT=30] -->
   <string name="exo_controls_repeat_all_description">Repeat all</string>
-  <!-- Description for a button that controls the shuffle mode of media playback. In this mode shuffle is on. [CHAR LIMIT=33] -->
+  <!-- Description for a button that controls the shuffle mode of media playback. In this mode shuffle is on. [CHAR LIMIT=40] -->
   <string name="exo_controls_shuffle_on_description">Shuffle on</string>
-  <!-- Description for a button that controls the shuffle mode of media playback. In this mode shuffle is off. [CHAR LIMIT=33] -->
+  <!-- Description for a button that controls the shuffle mode of media playback. In this mode shuffle is off. [CHAR LIMIT=40] -->
   <string name="exo_controls_shuffle_off_description">Shuffle off</string>
   <!-- Description for a media control button that toggles whether a video playback is fullscreen. [CHAR LIMIT=30] -->
   <string name="exo_controls_fullscreen_description">Fullscreen mode</string>
