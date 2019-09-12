@@ -454,7 +454,13 @@ import com.google.android.exoplayer2.util.Assertions;
       mediaPeriodHolder = mediaPeriodHolder.getNext();
     }
     // If no match is found, create new sequence number.
-    return nextWindowSequenceNumber++;
+    long windowSequenceNumber = nextWindowSequenceNumber++;
+    if (playing == null) {
+      // If the queue is empty, save it as old front uid to allow later reuse.
+      oldFrontPeriodUid = periodUid;
+      oldFrontPeriodWindowSequenceNumber = windowSequenceNumber;
+    }
+    return windowSequenceNumber;
   }
 
   /**
