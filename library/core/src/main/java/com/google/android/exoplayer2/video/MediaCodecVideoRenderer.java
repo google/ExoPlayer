@@ -800,10 +800,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
 
     long elapsedRealtimeNowUs = SystemClock.elapsedRealtime() * 1000;
+    long elapsedSinceLastRenderUs = elapsedRealtimeNowUs - lastRenderTimeUs;
     boolean isStarted = getState() == STATE_STARTED;
-    if (!renderedFirstFrame
-        || (isStarted
-            && shouldForceRenderOutputBuffer(earlyUs, elapsedRealtimeNowUs - lastRenderTimeUs))) {
+    // Don't force output until we joined and always render first frame if not joining.
+    boolean forceRenderOutputBuffer =
+        joiningDeadlineMs == C.TIME_UNSET
+            && (!renderedFirstFrame
+                || (isStarted && shouldForceRenderOutputBuffer(earlyUs, elapsedSinceLastRenderUs)));
+    if (forceRenderOutputBuffer) {
       long releaseTimeNs = System.nanoTime();
       notifyFrameMetadataListener(presentationTimeUs, releaseTimeNs, format);
       if (Util.SDK_INT >= 21) {
@@ -988,6 +992,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * @return Returns whether to force rendering an output buffer.
    */
   protected boolean shouldForceRenderOutputBuffer(long earlyUs, long elapsedSinceLastRenderUs) {
+    // Force render late buffers every 100ms to avoid frozen video effect.
     return isBufferLate(earlyUs) && elapsedSinceLastRenderUs > 100000;
   }
 
