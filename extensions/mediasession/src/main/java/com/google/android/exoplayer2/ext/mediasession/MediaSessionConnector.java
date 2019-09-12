@@ -943,7 +943,9 @@ public final class MediaSessionConnector {
       }
       builder.putLong(
           MediaMetadataCompat.METADATA_KEY_DURATION,
-          player.getDuration() == C.TIME_UNSET ? -1 : player.getDuration());
+          player.isCurrentWindowDynamic() || player.getDuration() == C.TIME_UNSET
+              ? -1
+              : player.getDuration());
       long activeQueueItemId = mediaController.getPlaybackState().getActiveQueueItemId();
       if (activeQueueItemId != MediaSessionCompat.QueueItem.UNKNOWN_ID) {
         List<MediaSessionCompat.QueueItem> queue = mediaController.getQueue();
