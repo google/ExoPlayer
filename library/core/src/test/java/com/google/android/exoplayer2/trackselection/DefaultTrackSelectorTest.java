@@ -15,23 +15,24 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
+import static com.google.android.exoplayer2.RendererCapabilities.ADAPTIVE_NOT_SEAMLESS;
 import static com.google.android.exoplayer2.RendererCapabilities.FORMAT_EXCEEDS_CAPABILITIES;
 import static com.google.android.exoplayer2.RendererCapabilities.FORMAT_HANDLED;
 import static com.google.android.exoplayer2.RendererCapabilities.FORMAT_UNSUPPORTED_SUBTYPE;
 import static com.google.android.exoplayer2.RendererConfiguration.DEFAULT;
 import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import android.content.Context;
 import android.os.Parcel;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
@@ -55,12 +56,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Unit tests for {@link DefaultTrackSelector}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Unit tests for {@link DefaultTrackSelector}. */
+@RunWith(AndroidJUnit4.class)
 public final class DefaultTrackSelectorTest {
 
   private static final RendererCapabilities ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES =
@@ -87,13 +85,13 @@ public final class DefaultTrackSelectorTest {
   private static final TrackGroup AUDIO_TRACK_GROUP = new TrackGroup(AUDIO_FORMAT);
   private static final TrackGroupArray TRACK_GROUPS =
       new TrackGroupArray(VIDEO_TRACK_GROUP, AUDIO_TRACK_GROUP);
-
   private static final TrackSelection[] TRACK_SELECTIONS =
       new TrackSelection[] {
         new FixedTrackSelection(VIDEO_TRACK_GROUP, 0), new FixedTrackSelection(AUDIO_TRACK_GROUP, 0)
       };
   private static final TrackSelection[] TRACK_SELECTIONS_WITH_NO_SAMPLE_RENDERER =
       new TrackSelection[] {new FixedTrackSelection(VIDEO_TRACK_GROUP, 0), null};
+
   private static final Timeline TIMELINE = new FakeTimeline(/* windowCount= */ 1);
 
   private static MediaPeriodId periodId;
@@ -101,6 +99,7 @@ public final class DefaultTrackSelectorTest {
   @Mock private InvalidationListener invalidationListener;
   @Mock private BandwidthMeter bandwidthMeter;
 
+  private Parameters defaultParameters;
   private DefaultTrackSelector trackSelector;
 
   @BeforeClass
@@ -112,7 +111,9 @@ public final class DefaultTrackSelectorTest {
   public void setUp() {
     initMocks(this);
     when(bandwidthMeter.getBitrateEstimate()).thenReturn(1000000L);
-    trackSelector = new DefaultTrackSelector();
+    Context context = ApplicationProvider.getApplicationContext();
+    defaultParameters = Parameters.getDefaults(context);
+    trackSelector = new DefaultTrackSelector(context);
     trackSelector.init(invalidationListener, bandwidthMeter);
   }
 
@@ -129,26 +130,37 @@ public final class DefaultTrackSelectorTest {
 
     Parameters parametersToParcel =
         new Parameters(
-            selectionOverrides,
-            rendererDisabledFlags,
-            /* preferredAudioLanguage= */ "en",
-            /* preferredTextLanguage= */ "de",
-            /* selectUndeterminedTextLanguage= */ false,
-            /* disabledTextTrackSelectionFlags= */ 0,
-            /* forceLowestBitrate= */ true,
-            /* forceHighestSupportedBitrate= */ true,
-            /* allowMixedMimeAdaptiveness= */ false,
-            /* allowNonSeamlessAdaptiveness= */ true,
-            /* maxVideoWidth= */ 1,
-            /* maxVideoHeight= */ 2,
-            /* maxVideoFrameRate= */ 3,
-            /* maxVideoBitrate= */ 4,
+            // Video
+            /* maxVideoWidth= */ 0,
+            /* maxVideoHeight= */ 1,
+            /* maxVideoFrameRate= */ 2,
+            /* maxVideoBitrate= */ 3,
             /* exceedVideoConstraintsIfNecessary= */ false,
-            /* exceedRendererCapabilitiesIfNecessary= */ true,
-            /* viewportWidth= */ 5,
-            /* viewportHeight= */ 6,
-            /* viewportOrientationMayChange= */ false,
-            /* tunnelingAudioSessionId= */ C.AUDIO_SESSION_ID_UNSET);
+            /* allowVideoMixedMimeTypeAdaptiveness= */ true,
+            /* allowVideoNonSeamlessAdaptiveness= */ false,
+            /* viewportWidth= */ 4,
+            /* viewportHeight= */ 5,
+            /* viewportOrientationMayChange= */ true,
+            // Audio
+            /* preferredAudioLanguage= */ "en",
+            /* maxAudioChannelCount= */ 6,
+            /* maxAudioBitrate= */ 7,
+            /* exceedAudioConstraintsIfNecessary= */ false,
+            /* allowAudioMixedMimeTypeAdaptiveness= */ true,
+            /* allowAudioMixedSampleRateAdaptiveness= */ false,
+            /* allowAudioMixedChannelCountAdaptiveness= */ true,
+            // Text
+            /* preferredTextLanguage= */ "de",
+            /* selectUndeterminedTextLanguage= */ true,
+            /* disabledTextTrackSelectionFlags= */ 8,
+            // General
+            /* forceLowestBitrate= */ false,
+            /* forceHighestSupportedBitrate= */ true,
+            /* exceedRendererCapabilitiesIfNecessary= */ false,
+            /* tunnelingAudioSessionId= */ C.AUDIO_SESSION_ID_UNSET,
+            // Overrides
+            selectionOverrides,
+            rendererDisabledFlags);
 
     Parcel parcel = Parcel.obtain();
     parametersToParcel.writeToParcel(parcel, 0);
@@ -181,15 +193,13 @@ public final class DefaultTrackSelectorTest {
   /** Tests that a null override clears a track selection. */
   @Test
   public void testSelectTracksWithNullOverride() throws ExoPlaybackException {
-    DefaultTrackSelector trackSelector = new DefaultTrackSelector();
-    trackSelector.init(invalidationListener, bandwidthMeter);
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
             .setSelectionOverride(0, new TrackGroupArray(VIDEO_TRACK_GROUP), null));
     TrackSelectorResult result =
         trackSelector.selectTracks(RENDERER_CAPABILITIES, TRACK_GROUPS, periodId, TIMELINE);
-    assertTrackSelections(result, new TrackSelection[] {null, TRACK_SELECTIONS[1]});
+    assertSelections(result, new TrackSelection[] {null, TRACK_SELECTIONS[1]});
     assertThat(result.rendererConfigurations)
         .isEqualTo(new RendererConfiguration[] {null, DEFAULT});
   }
@@ -197,8 +207,6 @@ public final class DefaultTrackSelectorTest {
   /** Tests that a null override can be cleared. */
   @Test
   public void testSelectTracksWithClearedNullOverride() throws ExoPlaybackException {
-    DefaultTrackSelector trackSelector = new DefaultTrackSelector();
-    trackSelector.init(invalidationListener, bandwidthMeter);
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
@@ -206,7 +214,7 @@ public final class DefaultTrackSelectorTest {
             .clearSelectionOverride(0, new TrackGroupArray(VIDEO_TRACK_GROUP)));
     TrackSelectorResult result =
         trackSelector.selectTracks(RENDERER_CAPABILITIES, TRACK_GROUPS, periodId, TIMELINE);
-    assertTrackSelections(result, TRACK_SELECTIONS);
+    assertSelections(result, TRACK_SELECTIONS);
     assertThat(result.rendererConfigurations)
         .isEqualTo(new RendererConfiguration[] {DEFAULT, DEFAULT});
   }
@@ -214,8 +222,6 @@ public final class DefaultTrackSelectorTest {
   /** Tests that an override is not applied for a different set of available track groups. */
   @Test
   public void testSelectTracksWithNullOverrideForDifferentTracks() throws ExoPlaybackException {
-    DefaultTrackSelector trackSelector = new DefaultTrackSelector();
-    trackSelector.init(invalidationListener, bandwidthMeter);
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
@@ -226,7 +232,7 @@ public final class DefaultTrackSelectorTest {
             new TrackGroupArray(VIDEO_TRACK_GROUP, AUDIO_TRACK_GROUP, VIDEO_TRACK_GROUP),
             periodId,
             TIMELINE);
-    assertTrackSelections(result, TRACK_SELECTIONS);
+    assertSelections(result, TRACK_SELECTIONS);
     assertThat(result.rendererConfigurations)
         .isEqualTo(new RendererConfiguration[] {DEFAULT, DEFAULT});
   }
@@ -234,12 +240,10 @@ public final class DefaultTrackSelectorTest {
   /** Tests disabling a renderer. */
   @Test
   public void testSelectTracksWithDisabledRenderer() throws ExoPlaybackException {
-    DefaultTrackSelector trackSelector = new DefaultTrackSelector();
-    trackSelector.init(invalidationListener, bandwidthMeter);
-    trackSelector.setParameters(trackSelector.buildUponParameters().setRendererDisabled(1, true));
+    trackSelector.setParameters(defaultParameters.buildUpon().setRendererDisabled(1, true));
     TrackSelectorResult result =
         trackSelector.selectTracks(RENDERER_CAPABILITIES, TRACK_GROUPS, periodId, TIMELINE);
-    assertTrackSelections(result, new TrackSelection[] {TRACK_SELECTIONS[0], null});
+    assertSelections(result, new TrackSelection[] {TRACK_SELECTIONS[0], null});
     assertThat(new RendererConfiguration[] {DEFAULT, null})
         .isEqualTo(result.rendererConfigurations);
   }
@@ -247,8 +251,6 @@ public final class DefaultTrackSelectorTest {
   /** Tests that a disabled renderer can be enabled again. */
   @Test
   public void testSelectTracksWithClearedDisabledRenderer() throws ExoPlaybackException {
-    DefaultTrackSelector trackSelector = new DefaultTrackSelector();
-    trackSelector.init(invalidationListener, bandwidthMeter);
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
@@ -256,7 +258,7 @@ public final class DefaultTrackSelectorTest {
             .setRendererDisabled(1, false));
     TrackSelectorResult result =
         trackSelector.selectTracks(RENDERER_CAPABILITIES, TRACK_GROUPS, periodId, TIMELINE);
-    assertTrackSelections(result, TRACK_SELECTIONS);
+    assertSelections(result, TRACK_SELECTIONS);
     assertThat(new RendererConfiguration[] {DEFAULT, DEFAULT})
         .isEqualTo(result.rendererConfigurations);
   }
@@ -264,12 +266,10 @@ public final class DefaultTrackSelectorTest {
   /** Tests a no-sample renderer is enabled without a track selection by default. */
   @Test
   public void testSelectTracksWithNoSampleRenderer() throws ExoPlaybackException {
-    DefaultTrackSelector trackSelector = new DefaultTrackSelector();
-    trackSelector.init(invalidationListener, bandwidthMeter);
     TrackSelectorResult result =
         trackSelector.selectTracks(
             RENDERER_CAPABILITIES_WITH_NO_SAMPLE_RENDERER, TRACK_GROUPS, periodId, TIMELINE);
-    assertTrackSelections(result, TRACK_SELECTIONS_WITH_NO_SAMPLE_RENDERER);
+    assertSelections(result, TRACK_SELECTIONS_WITH_NO_SAMPLE_RENDERER);
     assertThat(new RendererConfiguration[] {DEFAULT, DEFAULT})
         .isEqualTo(result.rendererConfigurations);
   }
@@ -277,27 +277,23 @@ public final class DefaultTrackSelectorTest {
   /** Tests disabling a no-sample renderer. */
   @Test
   public void testSelectTracksWithDisabledNoSampleRenderer() throws ExoPlaybackException {
-    DefaultTrackSelector trackSelector = new DefaultTrackSelector();
-    trackSelector.init(invalidationListener, bandwidthMeter);
-    trackSelector.setParameters(trackSelector.buildUponParameters().setRendererDisabled(1, true));
+    trackSelector.setParameters(defaultParameters.buildUpon().setRendererDisabled(1, true));
     TrackSelectorResult result =
         trackSelector.selectTracks(
             RENDERER_CAPABILITIES_WITH_NO_SAMPLE_RENDERER, TRACK_GROUPS, periodId, TIMELINE);
-    assertTrackSelections(result, TRACK_SELECTIONS_WITH_NO_SAMPLE_RENDERER);
+    assertSelections(result, TRACK_SELECTIONS_WITH_NO_SAMPLE_RENDERER);
     assertThat(new RendererConfiguration[] {DEFAULT, null})
         .isEqualTo(result.rendererConfigurations);
   }
 
   /**
-   * Tests that track selector will not call
-   * {@link InvalidationListener#onTrackSelectionsInvalidated()} when it's set with default
-   * values of {@link Parameters}.
+   * Tests that track selector will not call {@link
+   * InvalidationListener#onTrackSelectionsInvalidated()} when it's set with default values of
+   * {@link Parameters}.
    */
   @Test
-  public void testSetParameterWithDefaultParametersDoesNotNotifyInvalidationListener()
-      throws Exception {
-    trackSelector.init(invalidationListener, /* bandwidthMeter= */ null);
-
+  public void testSetParameterWithDefaultParametersDoesNotNotifyInvalidationListener() {
+    trackSelector.setParameters(defaultParameters);
     verify(invalidationListener, never()).onTrackSelectionsInvalidated();
   }
 
@@ -306,28 +302,22 @@ public final class DefaultTrackSelectorTest {
    * when it's set with non-default values of {@link Parameters}.
    */
   @Test
-  public void testSetParameterWithNonDefaultParameterNotifyInvalidationListener()
-      throws Exception {
-    Parameters parameters = new ParametersBuilder().setPreferredAudioLanguage("eng").build();
-    trackSelector.init(invalidationListener, /* bandwidthMeter= */ null);
-    trackSelector.setParameters(parameters);
-
+  public void testSetParameterWithNonDefaultParameterNotifyInvalidationListener() {
+    ParametersBuilder builder = defaultParameters.buildUpon().setPreferredAudioLanguage("eng");
+    trackSelector.setParameters(builder);
     verify(invalidationListener).onTrackSelectionsInvalidated();
   }
 
   /**
-   * Tests that track selector will not call
-   * {@link InvalidationListener#onTrackSelectionsInvalidated()} again when it's set with
-   * the same values of {@link Parameters}.
+   * Tests that track selector will not call {@link
+   * InvalidationListener#onTrackSelectionsInvalidated()} again when it's set with the same values
+   * of {@link Parameters}.
    */
   @Test
-  public void testSetParameterWithSameParametersDoesNotNotifyInvalidationListenerAgain()
-      throws Exception {
-    ParametersBuilder builder = new ParametersBuilder().setPreferredAudioLanguage("eng");
-    trackSelector.init(invalidationListener, /* bandwidthMeter= */ null);
-    trackSelector.setParameters(builder.build());
-    trackSelector.setParameters(builder.build());
-
+  public void testSetParameterWithSameParametersDoesNotNotifyInvalidationListenerAgain() {
+    ParametersBuilder builder = defaultParameters.buildUpon().setPreferredAudioLanguage("eng");
+    trackSelector.setParameters(builder);
+    trackSelector.setParameters(builder);
     verify(invalidationListener, times(1)).onTrackSelectionsInvalidated();
   }
 
@@ -337,17 +327,91 @@ public final class DefaultTrackSelectorTest {
    */
   @Test
   public void testSelectTracksSelectTrackWithSelectionFlag() throws Exception {
-    Format audioFormat = buildAudioFormat("audio", /* language= */ null, /* selectionFlags= */ 0);
+    Format audioFormat =
+        buildAudioFormatWithLanguageAndFlags(
+            "audio", /* language= */ null, /* selectionFlags= */ 0);
     Format formatWithSelectionFlag =
-        buildAudioFormat("audio", /* language= */ null, C.SELECTION_FLAG_DEFAULT);
+        buildAudioFormatWithLanguageAndFlags(
+            "audio", /* language= */ null, C.SELECTION_FLAG_DEFAULT);
+    TrackGroupArray trackGroups = wrapFormats(audioFormat, formatWithSelectionFlag);
 
     TrackSelectorResult result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES},
-            singleTrackGroup(formatWithSelectionFlag, audioFormat),
+            trackGroups,
             periodId,
             TIMELINE);
-    assertThat(result.selections.get(0).getSelectedFormat()).isEqualTo(formatWithSelectionFlag);
+    assertFixedSelection(result.selections.get(0), trackGroups, formatWithSelectionFlag);
+  }
+
+  /** Tests that adaptive audio track selections respect the maximum audio bitrate. */
+  public void testSelectAdaptiveAudioTrackGroupWithMaxBitrate() throws ExoPlaybackException {
+    Format format128k =
+        Format.createAudioSampleFormat(
+            /* id= */ "128",
+            /* sampleMimeType= */ MimeTypes.AUDIO_AAC,
+            /* codecs= */ "mp4a.40.2",
+            /* bitrate= */ 128 * 1024,
+            /* maxInputSize= */ Format.NO_VALUE,
+            /* channelCount= */ 2,
+            /* sampleRate= */ 44100,
+            /* initializationData= */ null,
+            /* drmInitData= */ null,
+            /* selectionFlags= */ 0,
+            /* language= */ null);
+    Format format192k =
+        Format.createAudioSampleFormat(
+            /* id= */ "192",
+            /* sampleMimeType= */ MimeTypes.AUDIO_AAC,
+            /* codecs= */ "mp4a.40.2",
+            /* bitrate= */ 192 * 1024,
+            /* maxInputSize= */ Format.NO_VALUE,
+            /* channelCount= */ 2,
+            /* sampleRate= */ 44100,
+            /* initializationData= */ null,
+            /* drmInitData= */ null,
+            /* selectionFlags= */ 0,
+            /* language= */ null);
+    Format format256k =
+        Format.createAudioSampleFormat(
+            /* id= */ "256",
+            /* sampleMimeType= */ MimeTypes.AUDIO_AAC,
+            /* codecs= */ "mp4a.40.2",
+            /* bitrate= */ 256 * 1024,
+            /* maxInputSize= */ Format.NO_VALUE,
+            /* channelCount= */ 2,
+            /* sampleRate= */ 44100,
+            /* initializationData= */ null,
+            /* drmInitData= */ null,
+            /* selectionFlags= */ 0,
+            /* language= */ null);
+    RendererCapabilities[] rendererCapabilities = {
+      ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES
+    };
+    TrackGroupArray trackGroups =
+        new TrackGroupArray(new TrackGroup(format192k, format128k, format256k));
+
+    TrackSelectorResult result =
+        trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
+    assertAdaptiveSelection(result.selections.get(0), trackGroups.get(0), 0, 1, 2);
+
+    trackSelector.setParameters(
+        trackSelector.buildUponParameters().setMaxAudioBitrate(256 * 1024 - 1));
+    result = trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
+    assertAdaptiveSelection(result.selections.get(0), trackGroups.get(0), 0, 1);
+
+    trackSelector.setParameters(trackSelector.buildUponParameters().setMaxAudioBitrate(192 * 1024));
+    result = trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
+    assertAdaptiveSelection(result.selections.get(0), trackGroups.get(0), 0, 1);
+
+    trackSelector.setParameters(
+        trackSelector.buildUponParameters().setMaxAudioBitrate(192 * 1024 - 1));
+    result = trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
+    assertAdaptiveSelection(result.selections.get(0), trackGroups.get(0), 1);
+
+    trackSelector.setParameters(trackSelector.buildUponParameters().setMaxAudioBitrate(10));
+    result = trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
+    assertAdaptiveSelection(result.selections.get(0), trackGroups.get(0), 1);
   }
 
   /**
@@ -357,23 +421,22 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void testSelectTracksSelectPreferredAudioLanguage()
       throws Exception {
-    trackSelector.setParameters(new ParametersBuilder().setPreferredAudioLanguage("eng").build());
-
     Format frAudioFormat =
         Format.createAudioSampleFormat("audio", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
             Format.NO_VALUE, 2, 44100, null, null, 0, "fra");
     Format enAudioFormat =
         Format.createAudioSampleFormat("audio", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
             Format.NO_VALUE, 2, 44100, null, null, 0, "eng");
+    TrackGroupArray trackGroups = wrapFormats(frAudioFormat, enAudioFormat);
 
+    trackSelector.setParameters(defaultParameters.buildUpon().setPreferredAudioLanguage("eng"));
     TrackSelectorResult result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES},
             wrapFormats(frAudioFormat, enAudioFormat),
             periodId,
             TIMELINE);
-
-    assertThat(result.selections.get(0).getSelectedFormat()).isEqualTo(enAudioFormat);
+    assertFixedSelection(result.selections.get(0), trackGroups, enAudioFormat);
   }
 
   /**
@@ -383,23 +446,22 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void testSelectTracksSelectPreferredAudioLanguageOverSelectionFlag()
       throws Exception {
-    trackSelector.setParameters(new ParametersBuilder().setPreferredAudioLanguage("eng").build());
-
     Format frAudioFormat =
         Format.createAudioSampleFormat("audio", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
             Format.NO_VALUE, 2, 44100, null, null, C.SELECTION_FLAG_DEFAULT, "fra");
     Format enAudioFormat =
         Format.createAudioSampleFormat("audio", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
             Format.NO_VALUE, 2, 44100, null, null, 0, "eng");
+    TrackGroupArray trackGroups = wrapFormats(frAudioFormat, enAudioFormat);
 
+    trackSelector.setParameters(defaultParameters.buildUpon().setPreferredAudioLanguage("eng"));
     TrackSelectorResult result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES},
-            wrapFormats(frAudioFormat, enAudioFormat),
+            trackGroups,
             periodId,
             TIMELINE);
-
-    assertThat(result.selections.get(0).getSelectedFormat()).isEqualTo(enAudioFormat);
+    assertFixedSelection(result.selections.get(0), trackGroups, enAudioFormat);
   }
 
   /**
@@ -410,6 +472,7 @@ public final class DefaultTrackSelectorTest {
   public void testSelectTracksPreferTrackWithinCapabilities() throws Exception {
     Format supportedFormat = buildAudioFormat("supportedFormat");
     Format exceededFormat = buildAudioFormat("exceededFormat");
+    TrackGroupArray trackGroups = wrapFormats(exceededFormat, supportedFormat);
 
     Map<String, Integer> mappedCapabilities = new HashMap<>();
     mappedCapabilities.put(supportedFormat.id, FORMAT_HANDLED);
@@ -420,11 +483,10 @@ public final class DefaultTrackSelectorTest {
     TrackSelectorResult result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {mappedAudioRendererCapabilities},
-            singleTrackGroup(exceededFormat, supportedFormat),
+            trackGroups,
             periodId,
             TIMELINE);
-
-    assertThat(result.selections.get(0).getSelectedFormat()).isEqualTo(supportedFormat);
+    assertFixedSelection(result.selections.get(0), trackGroups, supportedFormat);
   }
 
   /**
@@ -437,14 +499,15 @@ public final class DefaultTrackSelectorTest {
     Format audioFormat =
         Format.createAudioSampleFormat("audio", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
             Format.NO_VALUE, 2, 44100, null, null, 0, null);
+    TrackGroupArray trackGroups = singleTrackGroup(audioFormat);
+
     TrackSelectorResult result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {ALL_AUDIO_FORMAT_EXCEEDED_RENDERER_CAPABILITIES},
-            singleTrackGroup(audioFormat),
+            trackGroups,
             periodId,
             TIMELINE);
-
-    assertThat(result.selections.get(0).getSelectedFormat()).isEqualTo(audioFormat);
+    assertFixedSelection(result.selections.get(0), trackGroups, audioFormat);
   }
 
   /**
@@ -455,20 +518,20 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void testSelectTracksWithNoTrackWithinCapabilitiesAndSetByParamsReturnNoSelection()
       throws Exception {
-    trackSelector.setParameters(
-        new ParametersBuilder().setExceedRendererCapabilitiesIfNecessary(false).build());
-
     Format audioFormat =
         Format.createAudioSampleFormat("audio", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
             Format.NO_VALUE, 2, 44100, null, null, 0, null);
+    TrackGroupArray trackGroups = singleTrackGroup(audioFormat);
+
+    trackSelector.setParameters(
+        defaultParameters.buildUpon().setExceedRendererCapabilitiesIfNecessary(false));
     TrackSelectorResult result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {ALL_AUDIO_FORMAT_EXCEEDED_RENDERER_CAPABILITIES},
-            singleTrackGroup(audioFormat),
+            trackGroups,
             periodId,
             TIMELINE);
-
-    assertThat(result.selections.get(0)).isNull();
+    assertNoSelection(result.selections.get(0));
   }
 
   /**
@@ -478,12 +541,23 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void testSelectTracksPreferTrackWithinCapabilitiesOverSelectionFlag()
       throws Exception {
+    Format exceededWithSelectionFlagFormat =
+        Format.createAudioSampleFormat(
+            "exceededFormat",
+            MimeTypes.AUDIO_AAC,
+            null,
+            Format.NO_VALUE,
+            Format.NO_VALUE,
+            2,
+            44100,
+            null,
+            null,
+            C.SELECTION_FLAG_DEFAULT,
+            null);
     Format supportedFormat =
         Format.createAudioSampleFormat("supportedFormat", MimeTypes.AUDIO_AAC, null,
             Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, null);
-    Format exceededWithSelectionFlagFormat =
-        Format.createAudioSampleFormat("exceededFormat", MimeTypes.AUDIO_AAC, null,
-            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, C.SELECTION_FLAG_DEFAULT, null);
+    TrackGroupArray trackGroups = wrapFormats(exceededWithSelectionFlagFormat, supportedFormat);
 
     Map<String, Integer> mappedCapabilities = new HashMap<>();
     mappedCapabilities.put(supportedFormat.id, FORMAT_HANDLED);
@@ -494,11 +568,10 @@ public final class DefaultTrackSelectorTest {
     TrackSelectorResult result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {mappedAudioRendererCapabilities},
-            singleTrackGroup(exceededWithSelectionFlagFormat, supportedFormat),
+            trackGroups,
             periodId,
             TIMELINE);
-
-    assertThat(result.selections.get(0).getSelectedFormat()).isEqualTo(supportedFormat);
+    assertFixedSelection(result.selections.get(0), trackGroups, supportedFormat);
   }
 
   /**
@@ -509,14 +582,23 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void testSelectTracksPreferTrackWithinCapabilitiesOverPreferredLanguage()
       throws Exception {
-    trackSelector.setParameters(new ParametersBuilder().setPreferredAudioLanguage("eng").build());
-
+    Format exceededEnFormat =
+        Format.createAudioSampleFormat(
+            "exceededFormat",
+            MimeTypes.AUDIO_AAC,
+            null,
+            Format.NO_VALUE,
+            Format.NO_VALUE,
+            2,
+            44100,
+            null,
+            null,
+            0,
+            "eng");
     Format supportedFrFormat =
         Format.createAudioSampleFormat("supportedFormat", MimeTypes.AUDIO_AAC, null,
             Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, "fra");
-    Format exceededEnFormat =
-        Format.createAudioSampleFormat("exceededFormat", MimeTypes.AUDIO_AAC, null,
-            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, "eng");
+    TrackGroupArray trackGroups = wrapFormats(exceededEnFormat, supportedFrFormat);
 
     Map<String, Integer> mappedCapabilities = new HashMap<>();
     mappedCapabilities.put(exceededEnFormat.id, FORMAT_EXCEEDS_CAPABILITIES);
@@ -524,14 +606,14 @@ public final class DefaultTrackSelectorTest {
     RendererCapabilities mappedAudioRendererCapabilities =
         new FakeMappedRendererCapabilities(C.TRACK_TYPE_AUDIO, mappedCapabilities);
 
+    trackSelector.setParameters(defaultParameters.buildUpon().setPreferredAudioLanguage("eng"));
     TrackSelectorResult result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {mappedAudioRendererCapabilities},
-            singleTrackGroup(exceededEnFormat, supportedFrFormat),
+            trackGroups,
             periodId,
             TIMELINE);
-
-    assertThat(result.selections.get(0).getSelectedFormat()).isEqualTo(supportedFrFormat);
+    assertFixedSelection(result.selections.get(0), trackGroups, supportedFrFormat);
   }
 
   /**
@@ -542,14 +624,23 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void testSelectTracksPreferTrackWithinCapabilitiesOverSelectionFlagAndPreferredLanguage()
       throws Exception {
-    trackSelector.setParameters(new ParametersBuilder().setPreferredAudioLanguage("eng").build());
-
+    Format exceededDefaultSelectionEnFormat =
+        Format.createAudioSampleFormat(
+            "exceededFormat",
+            MimeTypes.AUDIO_AAC,
+            null,
+            Format.NO_VALUE,
+            Format.NO_VALUE,
+            2,
+            44100,
+            null,
+            null,
+            C.SELECTION_FLAG_DEFAULT,
+            "eng");
     Format supportedFrFormat =
         Format.createAudioSampleFormat("supportedFormat", MimeTypes.AUDIO_AAC, null,
             Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, "fra");
-    Format exceededDefaultSelectionEnFormat =
-        Format.createAudioSampleFormat("exceededFormat", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
-            Format.NO_VALUE, 2, 44100, null, null, C.SELECTION_FLAG_DEFAULT, "eng");
+    TrackGroupArray trackGroups = wrapFormats(exceededDefaultSelectionEnFormat, supportedFrFormat);
 
     Map<String, Integer> mappedCapabilities = new HashMap<>();
     mappedCapabilities.put(exceededDefaultSelectionEnFormat.id, FORMAT_EXCEEDS_CAPABILITIES);
@@ -557,14 +648,14 @@ public final class DefaultTrackSelectorTest {
     RendererCapabilities mappedAudioRendererCapabilities =
         new FakeMappedRendererCapabilities(C.TRACK_TYPE_AUDIO, mappedCapabilities);
 
+    trackSelector.setParameters(defaultParameters.buildUpon().setPreferredAudioLanguage("eng"));
     TrackSelectorResult result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {mappedAudioRendererCapabilities},
-            singleTrackGroup(exceededDefaultSelectionEnFormat, supportedFrFormat),
+            trackGroups,
             periodId,
             TIMELINE);
-
-    assertThat(result.selections.get(0).getSelectedFormat()).isEqualTo(supportedFrFormat);
+    assertFixedSelection(result.selections.get(0), trackGroups, supportedFrFormat);
   }
 
   /**
@@ -574,21 +665,31 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void testSelectTracksWithinCapabilitiesSelectHigherNumChannel()
       throws Exception {
+    Format higherChannelFormat =
+        Format.createAudioSampleFormat(
+            "audioFormat",
+            MimeTypes.AUDIO_AAC,
+            null,
+            Format.NO_VALUE,
+            Format.NO_VALUE,
+            6,
+            44100,
+            null,
+            null,
+            0,
+            null);
     Format lowerChannelFormat =
         Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
             Format.NO_VALUE, 2, 44100, null, null, 0, null);
-    Format higherChannelFormat =
-        Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
-            Format.NO_VALUE, 6, 44100, null, null, 0, null);
+    TrackGroupArray trackGroups = wrapFormats(higherChannelFormat, lowerChannelFormat);
 
     TrackSelectorResult result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES},
-            singleTrackGroup(higherChannelFormat, lowerChannelFormat),
+            trackGroups,
             periodId,
             TIMELINE);
-
-    assertThat(result.selections.get(0).getSelectedFormat()).isEqualTo(higherChannelFormat);
+    assertFixedSelection(result.selections.get(0), trackGroups, higherChannelFormat);
   }
 
   /**
@@ -604,39 +705,58 @@ public final class DefaultTrackSelectorTest {
     Format lowerSampleRateFormat =
         Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
             Format.NO_VALUE, 2, 22050, null, null, 0, null);
+    TrackGroupArray trackGroups = wrapFormats(higherSampleRateFormat, lowerSampleRateFormat);
 
     TrackSelectorResult result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES},
-            singleTrackGroup(higherSampleRateFormat, lowerSampleRateFormat),
+            trackGroups,
             periodId,
             TIMELINE);
-
-    assertThat(result.selections.get(0).getSelectedFormat()).isEqualTo(higherSampleRateFormat);
+    assertFixedSelection(result.selections.get(0), trackGroups, higherSampleRateFormat);
   }
 
   /**
-   * Tests that track selector will select audio tracks with higher bit-rate when other factors
-   * are the same, and tracks are within renderer's capabilities.
+   * Tests that track selector will select audio tracks with higher bit-rate when other factors are
+   * the same, and tracks are within renderer's capabilities.
    */
   @Test
-  public void testSelectTracksWithinCapabilitiesSelectHigherBitrate()
-      throws Exception {
+  public void testSelectTracksWithinCapabilitiesSelectHigherBitrate() throws Exception {
     Format lowerBitrateFormat =
-        Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, 15000,
-            Format.NO_VALUE, 2, 44100, null, null, 0, null);
+        Format.createAudioSampleFormat(
+            "audioFormat",
+            MimeTypes.AUDIO_AAC,
+            null,
+            15000,
+            Format.NO_VALUE,
+            2,
+            44100,
+            null,
+            null,
+            0,
+            null);
     Format higherBitrateFormat =
-        Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, 30000,
-            Format.NO_VALUE, 2, 44100, null, null, 0, null);
+        Format.createAudioSampleFormat(
+            "audioFormat",
+            MimeTypes.AUDIO_AAC,
+            null,
+            30000,
+            Format.NO_VALUE,
+            2,
+            44100,
+            null,
+            null,
+            0,
+            null);
+    TrackGroupArray trackGroups = wrapFormats(lowerBitrateFormat, higherBitrateFormat);
 
     TrackSelectorResult result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES},
-            singleTrackGroup(lowerBitrateFormat, higherBitrateFormat),
+            trackGroups,
             periodId,
             TIMELINE);
-
-    assertThat(result.selections.get(0).getSelectedFormat()).isEqualTo(higherBitrateFormat);
+    assertFixedSelection(result.selections.get(0), trackGroups, higherBitrateFormat);
   }
 
   /**
@@ -647,23 +767,32 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void testSelectTracksPreferHigherNumChannelBeforeSampleRate()
       throws Exception {
+    Format higherChannelLowerSampleRateFormat =
+        Format.createAudioSampleFormat(
+            "audioFormat",
+            MimeTypes.AUDIO_AAC,
+            null,
+            Format.NO_VALUE,
+            Format.NO_VALUE,
+            6,
+            22050,
+            null,
+            null,
+            0,
+            null);
     Format lowerChannelHigherSampleRateFormat =
         Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
             Format.NO_VALUE, 2, 44100, null, null, 0, null);
-    Format higherChannelLowerSampleRateFormat =
-        Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
-            Format.NO_VALUE, 6, 22050, null, null, 0, null);
+    TrackGroupArray trackGroups =
+        wrapFormats(higherChannelLowerSampleRateFormat, lowerChannelHigherSampleRateFormat);
 
     TrackSelectorResult result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES},
-            singleTrackGroup(
-                higherChannelLowerSampleRateFormat, lowerChannelHigherSampleRateFormat),
+            trackGroups,
             periodId,
             TIMELINE);
-
-    assertThat(result.selections.get(0).getSelectedFormat())
-        .isEqualTo(higherChannelLowerSampleRateFormat);
+    assertFixedSelection(result.selections.get(0), trackGroups, higherChannelLowerSampleRateFormat);
   }
 
   /**
@@ -680,17 +809,16 @@ public final class DefaultTrackSelectorTest {
     Format lowerSampleRateHigherBitrateFormat =
         Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, 30000,
             Format.NO_VALUE, 2, 22050, null, null, 0, null);
+    TrackGroupArray trackGroups =
+        wrapFormats(higherSampleRateLowerBitrateFormat, lowerSampleRateHigherBitrateFormat);
 
     TrackSelectorResult result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES},
-            singleTrackGroup(
-                higherSampleRateLowerBitrateFormat, lowerSampleRateHigherBitrateFormat),
+            trackGroups,
             periodId,
             TIMELINE);
-
-    assertThat(result.selections.get(0).getSelectedFormat())
-        .isEqualTo(higherSampleRateLowerBitrateFormat);
+    assertFixedSelection(result.selections.get(0), trackGroups, higherSampleRateLowerBitrateFormat);
   }
 
   /**
@@ -700,21 +828,31 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void testSelectTracksExceedingCapabilitiesSelectLowerNumChannel()
       throws Exception {
+    Format higherChannelFormat =
+        Format.createAudioSampleFormat(
+            "audioFormat",
+            MimeTypes.AUDIO_AAC,
+            null,
+            Format.NO_VALUE,
+            Format.NO_VALUE,
+            6,
+            44100,
+            null,
+            null,
+            0,
+            null);
     Format lowerChannelFormat =
         Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
             Format.NO_VALUE, 2, 44100, null, null, 0, null);
-    Format higherChannelFormat =
-        Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
-            Format.NO_VALUE, 6, 44100, null, null, 0, null);
+    TrackGroupArray trackGroups = wrapFormats(higherChannelFormat, lowerChannelFormat);
 
     TrackSelectorResult result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {ALL_AUDIO_FORMAT_EXCEEDED_RENDERER_CAPABILITIES},
-            singleTrackGroup(higherChannelFormat, lowerChannelFormat),
+            trackGroups,
             periodId,
             TIMELINE);
-
-    assertThat(result.selections.get(0).getSelectedFormat()).isEqualTo(lowerChannelFormat);
+    assertFixedSelection(result.selections.get(0), trackGroups, lowerChannelFormat);
   }
 
   /**
@@ -730,15 +868,15 @@ public final class DefaultTrackSelectorTest {
     Format higherSampleRateFormat =
         Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
             Format.NO_VALUE, 2, 44100, null, null, 0, null);
+    TrackGroupArray trackGroups = wrapFormats(higherSampleRateFormat, lowerSampleRateFormat);
 
     TrackSelectorResult result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {ALL_AUDIO_FORMAT_EXCEEDED_RENDERER_CAPABILITIES},
-            singleTrackGroup(higherSampleRateFormat, lowerSampleRateFormat),
+            trackGroups,
             periodId,
             TIMELINE);
-
-    assertThat(result.selections.get(0).getSelectedFormat()).isEqualTo(lowerSampleRateFormat);
+    assertFixedSelection(result.selections.get(0), trackGroups, lowerSampleRateFormat);
   }
 
   /**
@@ -754,15 +892,15 @@ public final class DefaultTrackSelectorTest {
     Format higherBitrateFormat =
         Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, 30000,
             Format.NO_VALUE, 2, 44100, null, null, 0, null);
+    TrackGroupArray trackGroups = wrapFormats(lowerBitrateFormat, higherBitrateFormat);
 
     TrackSelectorResult result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {ALL_AUDIO_FORMAT_EXCEEDED_RENDERER_CAPABILITIES},
-            singleTrackGroup(lowerBitrateFormat, higherBitrateFormat),
+            trackGroups,
             periodId,
             TIMELINE);
-
-    assertThat(result.selections.get(0).getSelectedFormat()).isEqualTo(lowerBitrateFormat);
+    assertFixedSelection(result.selections.get(0), trackGroups, lowerBitrateFormat);
   }
 
   /**
@@ -779,17 +917,16 @@ public final class DefaultTrackSelectorTest {
     Format higherChannelLowerSampleRateFormat =
         Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
             Format.NO_VALUE, 6, 22050, null, null, 0, null);
+    TrackGroupArray trackGroups =
+        wrapFormats(higherChannelLowerSampleRateFormat, lowerChannelHigherSampleRateFormat);
 
     TrackSelectorResult result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {ALL_AUDIO_FORMAT_EXCEEDED_RENDERER_CAPABILITIES},
-            singleTrackGroup(
-                higherChannelLowerSampleRateFormat, lowerChannelHigherSampleRateFormat),
+            trackGroups,
             periodId,
             TIMELINE);
-
-    assertThat(result.selections.get(0).getSelectedFormat())
-        .isEqualTo(lowerChannelHigherSampleRateFormat);
+    assertFixedSelection(result.selections.get(0), trackGroups, lowerChannelHigherSampleRateFormat);
   }
 
   /**
@@ -806,132 +943,134 @@ public final class DefaultTrackSelectorTest {
     Format lowerSampleRateHigherBitrateFormat =
         Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, 30000,
             Format.NO_VALUE, 2, 22050, null, null, 0, null);
+    TrackGroupArray trackGroups =
+        wrapFormats(higherSampleRateLowerBitrateFormat, lowerSampleRateHigherBitrateFormat);
 
     TrackSelectorResult result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {ALL_AUDIO_FORMAT_EXCEEDED_RENDERER_CAPABILITIES},
-            singleTrackGroup(
-                higherSampleRateLowerBitrateFormat, lowerSampleRateHigherBitrateFormat),
+            trackGroups,
             periodId,
             TIMELINE);
-
-    assertThat(result.selections.get(0).getSelectedFormat())
-        .isEqualTo(lowerSampleRateHigherBitrateFormat);
+    assertFixedSelection(result.selections.get(0), trackGroups, lowerSampleRateHigherBitrateFormat);
   }
 
   /** Tests text track selection flags. */
   @Test
-  public void testsTextTrackSelectionFlags() throws ExoPlaybackException {
+  public void testTextTrackSelectionFlags() throws ExoPlaybackException {
     Format forcedOnly = buildTextFormat("forcedOnly", "eng", C.SELECTION_FLAG_FORCED);
     Format forcedDefault =
         buildTextFormat("forcedDefault", "eng", C.SELECTION_FLAG_FORCED | C.SELECTION_FLAG_DEFAULT);
     Format defaultOnly = buildTextFormat("defaultOnly", "eng", C.SELECTION_FLAG_DEFAULT);
-    Format forcedOnlySpanish = buildTextFormat("forcedOnlySpanish", "spa", C.SELECTION_FLAG_FORCED);
     Format noFlag = buildTextFormat("noFlag", "eng");
 
     RendererCapabilities[] textRendererCapabilities =
         new RendererCapabilities[] {ALL_TEXT_FORMAT_SUPPORTED_RENDERER_CAPABILITIES};
 
     // There is no text language preference, the first track flagged as default should be selected.
+    TrackGroupArray trackGroups = wrapFormats(forcedOnly, forcedDefault, defaultOnly, noFlag);
     TrackSelectorResult result =
-        trackSelector.selectTracks(
-            textRendererCapabilities,
-            wrapFormats(forcedOnly, forcedDefault, defaultOnly, noFlag),
-            periodId,
-            TIMELINE);
-    assertThat(result.selections.get(0).getFormat(0)).isSameAs(forcedDefault);
+        trackSelector.selectTracks(textRendererCapabilities, trackGroups, periodId, TIMELINE);
+    assertFixedSelection(result.selections.get(0), trackGroups, forcedDefault);
 
     // Ditto.
-    result =
-        trackSelector.selectTracks(
-            textRendererCapabilities,
-            wrapFormats(forcedOnly, noFlag, defaultOnly),
-            periodId,
-            TIMELINE);
-    assertThat(result.selections.get(0).getFormat(0)).isSameAs(defaultOnly);
+    trackGroups = wrapFormats(forcedOnly, noFlag, defaultOnly);
+    result = trackSelector.selectTracks(textRendererCapabilities, trackGroups, periodId, TIMELINE);
+    assertFixedSelection(result.selections.get(0), trackGroups, defaultOnly);
 
-    // With no language preference and no text track flagged as default, the first forced should be
+    // Default flags are disabled and no language preference is provided, so no text track is
     // selected.
-    result =
-        trackSelector.selectTracks(
-            textRendererCapabilities, wrapFormats(forcedOnly, noFlag), periodId, TIMELINE);
-    assertThat(result.selections.get(0).getFormat(0)).isSameAs(forcedOnly);
-
+    trackGroups = wrapFormats(defaultOnly, noFlag, forcedOnly, forcedDefault);
     trackSelector.setParameters(
-        Parameters.DEFAULT
-            .buildUpon()
-            .setDisabledTextTrackSelectionFlags(C.SELECTION_FLAG_DEFAULT)
-            .build());
-
-    // Default flags are disabled, so the first track flagged as forced should be selected.
-    result =
-        trackSelector.selectTracks(
-            textRendererCapabilities,
-            wrapFormats(defaultOnly, noFlag, forcedOnly, forcedDefault),
-            periodId,
-            TIMELINE);
-    assertThat(result.selections.get(0).getFormat(0)).isSameAs(forcedOnly);
-
-    trackSelector.setParameters(
-        trackSelector.getParameters().buildUpon().setPreferredAudioLanguage("spa").build());
-
-    // Default flags are disabled, but there is a text track flagged as forced whose language
-    // matches the preferred audio language.
-    result =
-        trackSelector.selectTracks(
-            textRendererCapabilities,
-            wrapFormats(forcedDefault, forcedOnly, defaultOnly, noFlag, forcedOnlySpanish),
-            periodId,
-            TIMELINE);
-    assertThat(result.selections.get(0).getFormat(0)).isSameAs(forcedOnlySpanish);
-
-    trackSelector.setParameters(
-        trackSelector
-            .getParameters()
-            .buildUpon()
-            .setDisabledTextTrackSelectionFlags(C.SELECTION_FLAG_DEFAULT | C.SELECTION_FLAG_FORCED)
-            .build());
+        defaultParameters.buildUpon().setDisabledTextTrackSelectionFlags(C.SELECTION_FLAG_DEFAULT));
+    result = trackSelector.selectTracks(textRendererCapabilities, trackGroups, periodId, TIMELINE);
+    assertNoSelection(result.selections.get(0));
 
     // All selection flags are disabled and there is no language preference, so nothing should be
     // selected.
-    result =
-        trackSelector.selectTracks(
-            textRendererCapabilities,
-            wrapFormats(forcedOnly, forcedDefault, defaultOnly, noFlag),
-            periodId,
-            TIMELINE);
-    assertThat(result.selections.get(0)).isNull();
-
-    trackSelector.setParameters(
-        Parameters.DEFAULT.buildUpon().setPreferredTextLanguage("eng").build());
-
-    // There is a preferred language, so the first language-matching track flagged as default should
-    // be selected.
-    result =
-        trackSelector.selectTracks(
-            textRendererCapabilities,
-            wrapFormats(forcedOnly, forcedDefault, defaultOnly, noFlag),
-            periodId,
-            TIMELINE);
-    assertThat(result.selections.get(0).getFormat(0)).isSameAs(forcedDefault);
-
+    trackGroups = wrapFormats(forcedOnly, forcedDefault, defaultOnly, noFlag);
     trackSelector.setParameters(
         trackSelector
             .getParameters()
             .buildUpon()
-            .setDisabledTextTrackSelectionFlags(C.SELECTION_FLAG_DEFAULT)
-            .build());
+            .setDisabledTextTrackSelectionFlags(
+                C.SELECTION_FLAG_DEFAULT | C.SELECTION_FLAG_FORCED));
+    result = trackSelector.selectTracks(textRendererCapabilities, trackGroups, periodId, TIMELINE);
+    assertNoSelection(result.selections.get(0));
+
+    // There is a preferred language, so a language-matching track flagged as default should
+    // be selected, and the one without forced flag should be preferred.
+    trackSelector.setParameters(defaultParameters.buildUpon().setPreferredTextLanguage("eng"));
+    result = trackSelector.selectTracks(textRendererCapabilities, trackGroups, periodId, TIMELINE);
+    assertFixedSelection(result.selections.get(0), trackGroups, defaultOnly);
 
     // Same as above, but the default flag is disabled. If multiple tracks match the preferred
     // language, those not flagged as forced are preferred, as they likely include the contents of
     // forced subtitles.
-    result =
-        trackSelector.selectTracks(
-            textRendererCapabilities,
-            wrapFormats(noFlag, forcedOnly, forcedDefault, defaultOnly),
-            periodId,
-            TIMELINE);
-    assertThat(result.selections.get(0).getFormat(0)).isSameAs(noFlag);
+    trackGroups = wrapFormats(noFlag, forcedOnly, forcedDefault, defaultOnly);
+    trackSelector.setParameters(
+        trackSelector
+            .getParameters()
+            .buildUpon()
+            .setDisabledTextTrackSelectionFlags(C.SELECTION_FLAG_DEFAULT));
+    result = trackSelector.selectTracks(textRendererCapabilities, trackGroups, periodId, TIMELINE);
+    assertFixedSelection(result.selections.get(0), trackGroups, noFlag);
+  }
+
+  /**
+   * Tests that the default track selector will select a forced text track matching the selected
+   * audio language when no text language preferences match.
+   */
+  @Test
+  public void testSelectingForcedTextTrackMatchesAudioLanguage() throws ExoPlaybackException {
+    Format forcedEnglish =
+        buildTextFormat(/* id= */ "forcedEnglish", /* language= */ "eng", C.SELECTION_FLAG_FORCED);
+    Format forcedGerman =
+        buildTextFormat(/* id= */ "forcedGerman", /* language= */ "deu", C.SELECTION_FLAG_FORCED);
+    Format forcedNoLanguage =
+        buildTextFormat(
+            /* id= */ "forcedNoLanguage",
+            /* language= */ C.LANGUAGE_UNDETERMINED,
+            C.SELECTION_FLAG_FORCED);
+    Format audio = buildAudioFormat(/* id= */ "audio");
+    Format germanAudio =
+        buildAudioFormat(
+            /* id= */ "germanAudio",
+            MimeTypes.AUDIO_AAC,
+            /* bitrate= */ Format.NO_VALUE,
+            "deu",
+            /* selectionFlags= */ 0,
+            /* channelCount= */ Format.NO_VALUE,
+            /* sampleRate= */ Format.NO_VALUE);
+
+    RendererCapabilities[] rendererCapabilities =
+        new RendererCapabilities[] {
+          ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES,
+          ALL_TEXT_FORMAT_SUPPORTED_RENDERER_CAPABILITIES
+        };
+
+    // Neither the audio nor the forced text track define a language. We select them both under the
+    // assumption that they have matching language.
+    TrackGroupArray trackGroups = wrapFormats(audio, forcedNoLanguage);
+    TrackSelectorResult result =
+        trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
+    assertFixedSelection(result.selections.get(1), trackGroups, forcedNoLanguage);
+
+    // No forced text track should be selected because none of the forced text tracks' languages
+    // matches the selected audio language.
+    trackGroups = wrapFormats(audio, forcedEnglish, forcedGerman);
+    result = trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
+    assertNoSelection(result.selections.get(1));
+
+    // The audio declares german. The german forced track should be selected.
+    trackGroups = wrapFormats(germanAudio, forcedGerman, forcedEnglish);
+    result = trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
+    assertFixedSelection(result.selections.get(1), trackGroups, forcedGerman);
+
+    // Ditto
+    trackGroups = wrapFormats(germanAudio, forcedEnglish, forcedGerman);
+    result = trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
+    assertFixedSelection(result.selections.get(1), trackGroups, forcedGerman);
   }
 
   /**
@@ -949,60 +1088,37 @@ public final class DefaultTrackSelectorTest {
     RendererCapabilities[] textRendererCapabilites =
         new RendererCapabilities[] {ALL_TEXT_FORMAT_SUPPORTED_RENDERER_CAPABILITIES};
 
+    TrackGroupArray trackGroups = wrapFormats(spanish, german, undeterminedUnd, undeterminedNull);
     TrackSelectorResult result =
-        trackSelector.selectTracks(
-            textRendererCapabilites,
-            wrapFormats(spanish, german, undeterminedUnd, undeterminedNull),
-            periodId,
-            TIMELINE);
-    assertThat(result.selections.get(0)).isNull();
+        trackSelector.selectTracks(textRendererCapabilites, trackGroups, periodId, TIMELINE);
+    assertNoSelection(result.selections.get(0));
 
     trackSelector.setParameters(
-        new ParametersBuilder().setSelectUndeterminedTextLanguage(true).build());
-    result =
-        trackSelector.selectTracks(
-            textRendererCapabilites,
-            wrapFormats(spanish, german, undeterminedUnd, undeterminedNull),
-            periodId,
-            TIMELINE);
-    assertThat(result.selections.get(0).getFormat(0)).isSameAs(undeterminedUnd);
+        defaultParameters.buildUpon().setSelectUndeterminedTextLanguage(true));
+    result = trackSelector.selectTracks(textRendererCapabilites, trackGroups, periodId, TIMELINE);
+    assertFixedSelection(result.selections.get(0), trackGroups, undeterminedUnd);
 
-    ParametersBuilder builder = new ParametersBuilder().setPreferredTextLanguage("spa");
-    trackSelector.setParameters(builder.build());
-    result =
-        trackSelector.selectTracks(
-            textRendererCapabilites,
-            wrapFormats(spanish, german, undeterminedUnd, undeterminedNull),
-            periodId,
-            TIMELINE);
-    assertThat(result.selections.get(0).getFormat(0)).isSameAs(spanish);
+    ParametersBuilder builder = defaultParameters.buildUpon().setPreferredTextLanguage("spa");
+    trackSelector.setParameters(builder);
+    result = trackSelector.selectTracks(textRendererCapabilites, trackGroups, periodId, TIMELINE);
+    assertFixedSelection(result.selections.get(0), trackGroups, spanish);
 
-    result =
-        trackSelector.selectTracks(
-            textRendererCapabilites,
-            wrapFormats(german, undeterminedUnd, undeterminedNull),
-            periodId,
-            TIMELINE);
-    assertThat(result.selections.get(0)).isNull();
+    trackGroups = wrapFormats(german, undeterminedUnd, undeterminedNull);
 
-    trackSelector.setParameters(builder.setSelectUndeterminedTextLanguage(true).build());
-    result =
-        trackSelector.selectTracks(
-            textRendererCapabilites,
-            wrapFormats(german, undeterminedUnd, undeterminedNull),
-            periodId,
-            TIMELINE);
-    assertThat(result.selections.get(0).getFormat(0)).isSameAs(undeterminedUnd);
+    result = trackSelector.selectTracks(textRendererCapabilites, trackGroups, periodId, TIMELINE);
+    assertNoSelection(result.selections.get(0));
 
-    result =
-        trackSelector.selectTracks(
-            textRendererCapabilites, wrapFormats(german, undeterminedNull), periodId, TIMELINE);
-    assertThat(result.selections.get(0).getFormat(0)).isSameAs(undeterminedNull);
+    trackSelector.setParameters(builder.setSelectUndeterminedTextLanguage(true));
+    result = trackSelector.selectTracks(textRendererCapabilites, trackGroups, periodId, TIMELINE);
+    assertFixedSelection(result.selections.get(0), trackGroups, undeterminedUnd);
 
-    result =
-        trackSelector.selectTracks(
-            textRendererCapabilites, wrapFormats(german), periodId, TIMELINE);
-    assertThat(result.selections.get(0)).isNull();
+    trackGroups = wrapFormats(german, undeterminedNull);
+    result = trackSelector.selectTracks(textRendererCapabilites, trackGroups, periodId, TIMELINE);
+    assertFixedSelection(result.selections.get(0), trackGroups, undeterminedNull);
+
+    trackGroups = wrapFormats(german);
+    result = trackSelector.selectTracks(textRendererCapabilites, trackGroups, periodId, TIMELINE);
+    assertNoSelection(result.selections.get(0));
   }
 
   /** Tests audio track selection when there are multiple audio renderers. */
@@ -1027,113 +1143,255 @@ public final class DefaultTrackSelectorTest {
 
     RendererCapabilities[] rendererCapabilities =
         new RendererCapabilities[] {firstRendererCapabilities, secondRendererCapabilities};
+    TrackGroupArray trackGroups = wrapFormats(english, german);
 
     // Without an explicit language preference, nothing should be selected.
     TrackSelectorResult result =
-        trackSelector.selectTracks(
-            rendererCapabilities, wrapFormats(english, german), periodId, TIMELINE);
-    assertThat(result.selections.get(0)).isNull();
-    assertThat(result.selections.get(1)).isNull();
+        trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
+    assertNoSelection(result.selections.get(0));
+    assertNoSelection(result.selections.get(1));
 
     // Explicit language preference for english. First renderer should be used.
-    trackSelector.setParameters(trackSelector.buildUponParameters().setPreferredTextLanguage("en"));
-    result =
-        trackSelector.selectTracks(
-            rendererCapabilities, wrapFormats(english, german), periodId, TIMELINE);
-    assertThat(result.selections.get(0).getFormat(0)).isSameAs(english);
-    assertThat(result.selections.get(1)).isNull();
+    trackSelector.setParameters(defaultParameters.buildUpon().setPreferredTextLanguage("en"));
+    result = trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
+    assertFixedSelection(result.selections.get(0), trackGroups, english);
+    assertNoSelection(result.selections.get(1));
 
     // Explicit language preference for German. Second renderer should be used.
-    trackSelector.setParameters(trackSelector.buildUponParameters().setPreferredTextLanguage("de"));
-    result =
-        trackSelector.selectTracks(
-            rendererCapabilities, wrapFormats(english, german), periodId, TIMELINE);
-    assertThat(result.selections.get(0)).isNull();
-    assertThat(result.selections.get(1).getFormat(0)).isSameAs(german);
+    trackSelector.setParameters(defaultParameters.buildUpon().setPreferredTextLanguage("de"));
+    result = trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
+    assertNoSelection(result.selections.get(0));
+    assertFixedSelection(result.selections.get(1), trackGroups, german);
   }
 
   /**
-   * Tests that track selector will select audio tracks with lower bitrate when {@link Parameters}
-   * indicate lowest bitrate preference, even when tracks are within capabilities.
+   * Tests that track selector will select the lowest bitrate supported audio track when {@link
+   * Parameters#forceLowestBitrate} is set.
    */
   @Test
   public void testSelectTracksWithinCapabilitiesAndForceLowestBitrateSelectLowerBitrate()
       throws Exception {
-    trackSelector.setParameters(new ParametersBuilder().setForceLowestBitrate(true).build());
+    Format unsupportedLowBitrateFormat = buildAudioFormatWithBitrate("unsupportedLowBitrate", 5000);
+    Format lowerBitrateFormat = buildAudioFormatWithBitrate("lowBitrate", 15000);
+    Format higherBitrateFormat = buildAudioFormatWithBitrate("highBitrate", 30000);
+    TrackGroupArray trackGroups =
+        wrapFormats(unsupportedLowBitrateFormat, lowerBitrateFormat, higherBitrateFormat);
 
-    Format lowerBitrateFormat =
-        Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, 15000,
-            Format.NO_VALUE, 2, 44100, null, null, 0, null);
-    Format higherBitrateFormat =
-        Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, 30000,
-            Format.NO_VALUE, 2, 44100, null, null, 0, null);
+    Map<String, Integer> mappedCapabilities = new HashMap<>();
+    mappedCapabilities.put(unsupportedLowBitrateFormat.id, FORMAT_EXCEEDS_CAPABILITIES);
+    mappedCapabilities.put(lowerBitrateFormat.id, FORMAT_HANDLED);
+    mappedCapabilities.put(higherBitrateFormat.id, FORMAT_HANDLED);
+    RendererCapabilities mappedAudioRendererCapabilities =
+        new FakeMappedRendererCapabilities(C.TRACK_TYPE_AUDIO, mappedCapabilities);
 
+    trackSelector.setParameters(defaultParameters.buildUpon().setForceLowestBitrate(true));
     TrackSelectorResult result =
         trackSelector.selectTracks(
-            new RendererCapabilities[] {ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES},
-            singleTrackGroup(lowerBitrateFormat, higherBitrateFormat),
+            new RendererCapabilities[] {mappedAudioRendererCapabilities},
+            trackGroups,
             periodId,
             TIMELINE);
+    assertFixedSelection(result.selections.get(0), trackGroups, lowerBitrateFormat);
+  }
 
-    assertThat(result.selections.get(0).getSelectedFormat()).isEqualTo(lowerBitrateFormat);
+  /**
+   * Tests that track selector will select the highest bitrate supported audio track when {@link
+   * Parameters#forceHighestSupportedBitrate} is set.
+   */
+  @Test
+  public void testSelectTracksWithinCapabilitiesAndForceHighestBitrateSelectHigherBitrate()
+      throws Exception {
+    Format lowerBitrateFormat = buildAudioFormatWithBitrate("lowerBitrateFormat", 5000);
+    Format higherBitrateFormat = buildAudioFormatWithBitrate("higherBitrateFormat", 15000);
+    Format exceedsBitrateFormat = buildAudioFormatWithBitrate("exceedsBitrateFormat", 30000);
+    TrackGroupArray trackGroups =
+        wrapFormats(lowerBitrateFormat, higherBitrateFormat, exceedsBitrateFormat);
+
+    Map<String, Integer> mappedCapabilities = new HashMap<>();
+    mappedCapabilities.put(lowerBitrateFormat.id, FORMAT_HANDLED);
+    mappedCapabilities.put(higherBitrateFormat.id, FORMAT_HANDLED);
+    mappedCapabilities.put(exceedsBitrateFormat.id, FORMAT_EXCEEDS_CAPABILITIES);
+    RendererCapabilities mappedAudioRendererCapabilities =
+        new FakeMappedRendererCapabilities(C.TRACK_TYPE_AUDIO, mappedCapabilities);
+
+    trackSelector.setParameters(
+        defaultParameters.buildUpon().setForceHighestSupportedBitrate(true));
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {mappedAudioRendererCapabilities},
+            trackGroups,
+            periodId,
+            TIMELINE);
+    assertFixedSelection(result.selections.get(0), trackGroups, higherBitrateFormat);
   }
 
   @Test
-  public void testSelectTracksWithMultipleAudioTracksReturnsAdaptiveTrackSelection()
-      throws Exception {
-    TrackSelection adaptiveTrackSelection = mock(TrackSelection.class);
-    TrackSelection.Factory adaptiveTrackSelectionFactory = mock(TrackSelection.Factory.class);
-    when(adaptiveTrackSelectionFactory.createTrackSelection(any(), any(), anyVararg()))
-        .thenReturn(adaptiveTrackSelection);
-
-    trackSelector = new DefaultTrackSelector(adaptiveTrackSelectionFactory);
-    trackSelector.init(invalidationListener, bandwidthMeter);
-
-    TrackGroupArray trackGroupArray = singleTrackGroup(AUDIO_FORMAT, AUDIO_FORMAT);
+  public void testSelectTracksWithMultipleAudioTracks() throws Exception {
+    TrackGroupArray trackGroups = singleTrackGroup(buildAudioFormat("0"), buildAudioFormat("1"));
     TrackSelectorResult result =
         trackSelector.selectTracks(
-            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroupArray, periodId, TIMELINE);
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
 
     assertThat(result.length).isEqualTo(1);
-    assertThat(result.selections.get(0)).isEqualTo(adaptiveTrackSelection);
-    verify(adaptiveTrackSelectionFactory)
-        .createTrackSelection(trackGroupArray.get(0), bandwidthMeter, 0, 1);
+    assertAdaptiveSelection(result.selections.get(0), trackGroups.get(0), 0, 1);
+  }
+
+  @Test
+  public void testSelectTracksWithMultipleAudioTracksWithMixedSampleRates() throws Exception {
+    Format highSampleRateAudioFormat =
+        buildAudioFormatWithSampleRate("44100", /* sampleRate= */ 44100);
+    Format lowSampleRateAudioFormat =
+        buildAudioFormatWithSampleRate("22050", /* sampleRate= */ 22050);
+
+    // Should not adapt between mixed sample rates by default, so we expect a fixed selection
+    // containing the higher sample rate stream.
+    TrackGroupArray trackGroups =
+        singleTrackGroup(highSampleRateAudioFormat, lowSampleRateAudioFormat);
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections.get(0), trackGroups, highSampleRateAudioFormat);
+
+    // The same applies if the tracks are provided in the opposite order.
+    trackGroups = singleTrackGroup(lowSampleRateAudioFormat, highSampleRateAudioFormat);
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections.get(0), trackGroups, highSampleRateAudioFormat);
+
+    // If we explicitly enable mixed sample rate adaptiveness, expect an adaptive selection.
+    trackSelector.setParameters(
+        defaultParameters.buildUpon().setAllowAudioMixedSampleRateAdaptiveness(true));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertAdaptiveSelection(result.selections.get(0), trackGroups.get(0), 0, 1);
+  }
+
+  @Test
+  public void testSelectTracksWithMultipleAudioTracksWithMixedMimeTypes() throws Exception {
+    Format aacAudioFormat = buildAudioFormatWithMimeType("aac", MimeTypes.AUDIO_AAC);
+    Format opusAudioFormat = buildAudioFormatWithMimeType("opus", MimeTypes.AUDIO_OPUS);
+
+    // Should not adapt between mixed mime types by default, so we expect a fixed selection
+    // containing the first stream.
+    TrackGroupArray trackGroups = singleTrackGroup(aacAudioFormat, opusAudioFormat);
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections.get(0), trackGroups, aacAudioFormat);
+
+    // The same applies if the tracks are provided in the opposite order.
+    trackGroups = singleTrackGroup(opusAudioFormat, aacAudioFormat);
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections.get(0), trackGroups, opusAudioFormat);
+
+    // If we explicitly enable mixed mime type adaptiveness, expect an adaptive selection.
+    trackSelector.setParameters(
+        defaultParameters.buildUpon().setAllowAudioMixedMimeTypeAdaptiveness(true));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertAdaptiveSelection(result.selections.get(0), trackGroups.get(0), 0, 1);
+  }
+
+  @Test
+  public void testSelectTracksWithMultipleAudioTracksWithMixedChannelCounts() throws Exception {
+    Format stereoAudioFormat =
+        buildAudioFormatWithChannelCount("2-channels", /* channelCount= */ 2);
+    Format surroundAudioFormat =
+        buildAudioFormatWithChannelCount("5-channels", /* channelCount= */ 5);
+
+    // Should not adapt between different channel counts, so we expect a fixed selection containing
+    // the track with more channels.
+    TrackGroupArray trackGroups = singleTrackGroup(stereoAudioFormat, surroundAudioFormat);
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections.get(0), trackGroups, surroundAudioFormat);
+
+    // The same applies if the tracks are provided in the opposite order.
+    trackGroups = singleTrackGroup(surroundAudioFormat, stereoAudioFormat);
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections.get(0), trackGroups, surroundAudioFormat);
+
+    // If we constrain the channel count to 4 we expect a fixed selection containing the track with
+    // fewer channels.
+    trackSelector.setParameters(defaultParameters.buildUpon().setMaxAudioChannelCount(4));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections.get(0), trackGroups, stereoAudioFormat);
+
+    // If we constrain the channel count to 2 we expect a fixed selection containing the track with
+    // fewer channels.
+    trackSelector.setParameters(defaultParameters.buildUpon().setMaxAudioChannelCount(2));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections.get(0), trackGroups, stereoAudioFormat);
+
+    // If we constrain the channel count to 1 we expect a fixed selection containing the track with
+    // fewer channels.
+    trackSelector.setParameters(defaultParameters.buildUpon().setMaxAudioChannelCount(1));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections.get(0), trackGroups, stereoAudioFormat);
+
+    // If we disable exceeding of constraints we expect no selection.
+    trackSelector.setParameters(
+        defaultParameters
+            .buildUpon()
+            .setMaxAudioChannelCount(1)
+            .setExceedAudioConstraintsIfNecessary(false));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertNoSelection(result.selections.get(0));
   }
 
   @Test
   public void testSelectTracksWithMultipleAudioTracksOverrideReturnsAdaptiveTrackSelection()
       throws Exception {
-    TrackSelection adaptiveTrackSelection = mock(TrackSelection.class);
-    TrackSelection.Factory adaptiveTrackSelectionFactory = mock(TrackSelection.Factory.class);
-    when(adaptiveTrackSelectionFactory.createTrackSelection(any(), any(), anyVararg()))
-        .thenReturn(adaptiveTrackSelection);
-
-    trackSelector = new DefaultTrackSelector(adaptiveTrackSelectionFactory);
-    trackSelector.init(invalidationListener, bandwidthMeter);
-
-    TrackGroupArray trackGroupArray = singleTrackGroup(AUDIO_FORMAT, AUDIO_FORMAT, AUDIO_FORMAT);
+    TrackGroupArray trackGroups =
+        singleTrackGroup(buildAudioFormat("0"), buildAudioFormat("1"), buildAudioFormat("2"));
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
             .setSelectionOverride(
                 /* rendererIndex= */ 0,
-                trackGroupArray,
+                trackGroups,
                 new SelectionOverride(/* groupIndex= */ 0, /* tracks= */ 1, 2)));
     TrackSelectorResult result =
         trackSelector.selectTracks(
-            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroupArray, periodId, TIMELINE);
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
 
     assertThat(result.length).isEqualTo(1);
-    assertThat(result.selections.get(0)).isEqualTo(adaptiveTrackSelection);
-    verify(adaptiveTrackSelectionFactory)
-        .createTrackSelection(trackGroupArray.get(0), bandwidthMeter, 1, 2);
+    assertAdaptiveSelection(result.selections.get(0), trackGroups.get(0), 1, 2);
   }
 
   /** Tests audio track selection when there are multiple audio renderers. */
   @Test
   public void testSelectPreferredAudioTrackMultipleRenderers() throws Exception {
-    Format english = buildAudioFormat("en", "en");
-    Format german = buildAudioFormat("de", "de");
+    Format english = buildAudioFormatWithLanguage("en", "en");
+    Format german = buildAudioFormatWithLanguage("de", "de");
 
     // First renderer handles english.
     Map<String, Integer> firstRendererMappedCapabilities = new HashMap<>();
@@ -1153,86 +1411,165 @@ public final class DefaultTrackSelectorTest {
         new RendererCapabilities[] {firstRendererCapabilities, secondRendererCapabilities};
 
     // Without an explicit language preference, prefer the first renderer.
+    TrackGroupArray trackGroups = wrapFormats(english, german);
     TrackSelectorResult result =
-        trackSelector.selectTracks(
-            rendererCapabilities, wrapFormats(english, german), periodId, TIMELINE);
-    assertThat(result.selections.get(0).getFormat(0)).isSameAs(english);
-    assertThat(result.selections.get(1)).isNull();
+        trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
+    assertFixedSelection(result.selections.get(0), trackGroups, english);
+    assertNoSelection(result.selections.get(1));
 
     // Explicit language preference for english. First renderer should be used.
-    trackSelector.setParameters(
-        trackSelector.buildUponParameters().setPreferredAudioLanguage("en"));
-    result =
-        trackSelector.selectTracks(
-            rendererCapabilities, wrapFormats(english, german), periodId, TIMELINE);
-    assertThat(result.selections.get(0).getFormat(0)).isSameAs(english);
-    assertThat(result.selections.get(1)).isNull();
+    trackSelector.setParameters(defaultParameters.buildUpon().setPreferredAudioLanguage("en"));
+    result = trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
+    assertFixedSelection(result.selections.get(0), trackGroups, english);
+    assertNoSelection(result.selections.get(1));
 
     // Explicit language preference for German. Second renderer should be used.
-    trackSelector.setParameters(
-        trackSelector.buildUponParameters().setPreferredAudioLanguage("de"));
-    result =
-        trackSelector.selectTracks(
-            rendererCapabilities, wrapFormats(english, german), periodId, TIMELINE);
-    assertThat(result.selections.get(0)).isNull();
-    assertThat(result.selections.get(1).getFormat(0)).isSameAs(german);
+    trackSelector.setParameters(defaultParameters.buildUpon().setPreferredAudioLanguage("de"));
+    result = trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
+    assertNoSelection(result.selections.get(0));
+    assertFixedSelection(result.selections.get(1), trackGroups, german);
   }
 
   @Test
-  public void testSelectTracksWithMultipleVideoTracksReturnsAdaptiveTrackSelection()
-      throws Exception {
-    TrackSelection adaptiveTrackSelection = mock(TrackSelection.class);
-    TrackSelection.Factory adaptiveTrackSelectionFactory = mock(TrackSelection.Factory.class);
-    when(adaptiveTrackSelectionFactory.createTrackSelection(any(), any(), anyVararg()))
-        .thenReturn(adaptiveTrackSelection);
-
-    trackSelector = new DefaultTrackSelector(adaptiveTrackSelectionFactory);
-    trackSelector.init(invalidationListener, bandwidthMeter);
-
-    TrackGroupArray trackGroupArray = singleTrackGroup(VIDEO_FORMAT, VIDEO_FORMAT);
+  public void testSelectTracksWithMultipleVideoTracks() throws Exception {
+    TrackGroupArray trackGroups = singleTrackGroup(buildVideoFormat("0"), buildVideoFormat("1"));
     TrackSelectorResult result =
         trackSelector.selectTracks(
-            new RendererCapabilities[] {VIDEO_CAPABILITIES}, trackGroupArray, periodId, TIMELINE);
+            new RendererCapabilities[] {VIDEO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
 
     assertThat(result.length).isEqualTo(1);
-    assertThat(result.selections.get(0)).isEqualTo(adaptiveTrackSelection);
-    verify(adaptiveTrackSelectionFactory)
-        .createTrackSelection(trackGroupArray.get(0), bandwidthMeter, 0, 1);
+    assertAdaptiveSelection(result.selections.get(0), trackGroups.get(0), 0, 1);
+  }
+
+  @Test
+  public void testSelectTracksWithMultipleVideoTracksWithNonSeamlessAdaptiveness()
+      throws Exception {
+    FakeRendererCapabilities nonSeamlessVideoCapabilities =
+        new FakeRendererCapabilities(C.TRACK_TYPE_VIDEO, FORMAT_HANDLED | ADAPTIVE_NOT_SEAMLESS);
+
+    // Should do non-seamless adaptiveness by default, so expect an adaptive selection.
+    TrackGroupArray trackGroups = singleTrackGroup(buildVideoFormat("0"), buildVideoFormat("1"));
+    trackSelector.setParameters(
+        defaultParameters.buildUpon().setAllowVideoNonSeamlessAdaptiveness(true));
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {nonSeamlessVideoCapabilities},
+            trackGroups,
+            periodId,
+            TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertAdaptiveSelection(result.selections.get(0), trackGroups.get(0), 0, 1);
+
+    // If we explicitly disable non-seamless adaptiveness, expect a fixed selection.
+    trackSelector.setParameters(
+        defaultParameters.buildUpon().setAllowVideoNonSeamlessAdaptiveness(false));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {nonSeamlessVideoCapabilities},
+            trackGroups,
+            periodId,
+            TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections.get(0), trackGroups.get(0), 0);
+  }
+
+  @Test
+  public void testSelectTracksWithMultipleVideoTracksWithMixedMimeTypes() throws Exception {
+    Format h264VideoFormat = buildVideoFormatWithMimeType("h264", MimeTypes.VIDEO_H264);
+    Format h265VideoFormat = buildVideoFormatWithMimeType("h265", MimeTypes.VIDEO_H265);
+
+    // Should not adapt between mixed mime types by default, so we expect a fixed selection
+    // containing the first stream.
+    TrackGroupArray trackGroups = singleTrackGroup(h264VideoFormat, h265VideoFormat);
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {VIDEO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections.get(0), trackGroups, h264VideoFormat);
+
+    // The same applies if the tracks are provided in the opposite order.
+    trackGroups = singleTrackGroup(h265VideoFormat, h264VideoFormat);
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {VIDEO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections.get(0), trackGroups, h265VideoFormat);
+
+    // If we explicitly enable mixed mime type adaptiveness, expect an adaptive selection.
+    trackSelector.setParameters(
+        defaultParameters.buildUpon().setAllowVideoMixedMimeTypeAdaptiveness(true));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {VIDEO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertAdaptiveSelection(result.selections.get(0), trackGroups.get(0), 0, 1);
   }
 
   @Test
   public void testSelectTracksWithMultipleVideoTracksOverrideReturnsAdaptiveTrackSelection()
       throws Exception {
-    TrackSelection adaptiveTrackSelection = mock(TrackSelection.class);
-    TrackSelection.Factory adaptiveTrackSelectionFactory = mock(TrackSelection.Factory.class);
-    when(adaptiveTrackSelectionFactory.createTrackSelection(any(), any(), anyVararg()))
-        .thenReturn(adaptiveTrackSelection);
-
-    trackSelector = new DefaultTrackSelector(adaptiveTrackSelectionFactory);
-    trackSelector.init(invalidationListener, bandwidthMeter);
-
-    TrackGroupArray trackGroupArray = singleTrackGroup(VIDEO_FORMAT, VIDEO_FORMAT, VIDEO_FORMAT);
+    TrackGroupArray trackGroups =
+        singleTrackGroup(buildVideoFormat("0"), buildVideoFormat("1"), buildVideoFormat("2"));
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
             .setSelectionOverride(
                 /* rendererIndex= */ 0,
-                trackGroupArray,
+                trackGroups,
                 new SelectionOverride(/* groupIndex= */ 0, /* tracks= */ 1, 2)));
     TrackSelectorResult result =
         trackSelector.selectTracks(
-            new RendererCapabilities[] {VIDEO_CAPABILITIES}, trackGroupArray, periodId, TIMELINE);
+            new RendererCapabilities[] {VIDEO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
 
     assertThat(result.length).isEqualTo(1);
-    assertThat(result.selections.get(0)).isEqualTo(adaptiveTrackSelection);
-    verify(adaptiveTrackSelectionFactory)
-        .createTrackSelection(trackGroupArray.get(0), bandwidthMeter, 1, 2);
+    assertAdaptiveSelection(result.selections.get(0), trackGroups.get(0), 1, 2);
   }
 
-  private static void assertTrackSelections(TrackSelectorResult result, TrackSelection[] expected) {
+  private static void assertSelections(TrackSelectorResult result, TrackSelection[] expected) {
     assertThat(result.length).isEqualTo(expected.length);
     for (int i = 0; i < expected.length; i++) {
       assertThat(result.selections.get(i)).isEqualTo(expected[i]);
+    }
+  }
+
+  private static void assertFixedSelection(
+      TrackSelection selection, TrackGroupArray trackGroups, Format expectedFormat) {
+    int trackGroupIndex = -1;
+    for (int i = 0; i < trackGroups.length; i++) {
+      int expectedTrack = trackGroups.get(i).indexOf(expectedFormat);
+      if (expectedTrack != -1) {
+        assertThat(trackGroupIndex).isEqualTo(-1);
+        assertFixedSelection(selection, trackGroups.get(i), expectedTrack);
+        trackGroupIndex = i;
+      }
+    }
+    // Assert that we found the expected format in a track group
+    assertThat(trackGroupIndex).isNotEqualTo(-1);
+  }
+
+  private static void assertFixedSelection(
+      TrackSelection selection, TrackGroup expectedTrackGroup, int expectedTrack) {
+    assertThat(selection).isInstanceOf(FixedTrackSelection.class);
+    assertThat(selection.getTrackGroup()).isEqualTo(expectedTrackGroup);
+    assertThat(selection.length()).isEqualTo(1);
+    assertThat(selection.getIndexInTrackGroup(0)).isEqualTo(expectedTrack);
+    assertThat(selection.getFormat(0))
+        .isSameInstanceAs(expectedTrackGroup.getFormat(selection.getIndexInTrackGroup(0)));
+  }
+
+  private static void assertNoSelection(TrackSelection selection) {
+    assertThat(selection).isNull();
+  }
+
+  private static void assertAdaptiveSelection(
+      TrackSelection selection, TrackGroup expectedTrackGroup, int... expectedTracks) {
+    assertThat(selection).isInstanceOf(AdaptiveTrackSelection.class);
+    assertThat(selection.getTrackGroup()).isEqualTo(expectedTrackGroup);
+    assertThat(selection.length()).isEqualTo(expectedTracks.length);
+    for (int i = 0; i < expectedTracks.length; i++) {
+      assertThat(selection.getIndexInTrackGroup(i)).isEqualTo(expectedTracks[i]);
+      assertThat(selection.getFormat(i))
+          .isSameInstanceAs(expectedTrackGroup.getFormat(selection.getIndexInTrackGroup(i)));
     }
   }
 
@@ -1248,10 +1585,10 @@ public final class DefaultTrackSelectorTest {
     return new TrackGroupArray(trackGroups);
   }
 
-  private static Format buildVideoFormat(String id) {
+  private static Format buildVideoFormatWithMimeType(String id, String mimeType) {
     return Format.createVideoSampleFormat(
         id,
-        MimeTypes.VIDEO_H264,
+        mimeType,
         null,
         Format.NO_VALUE,
         Format.NO_VALUE,
@@ -1262,23 +1599,97 @@ public final class DefaultTrackSelectorTest {
         null);
   }
 
-  private static Format buildAudioFormat(String id) {
-    return buildAudioFormat(id, /* language= */ null);
+  private static Format buildVideoFormat(String id) {
+    return buildVideoFormatWithMimeType(id, MimeTypes.VIDEO_H264);
   }
 
-  private static Format buildAudioFormat(String id, String language) {
-    return buildAudioFormat(id, language, /* selectionFlags= */ 0);
+  private static Format buildAudioFormatWithLanguage(String id, String language) {
+    return buildAudioFormatWithLanguageAndFlags(id, language, /* selectionFlags= */ 0);
   }
 
-  private static Format buildAudioFormat(String id, String language, int selectionFlags) {
-    return Format.createAudioSampleFormat(
+  private static Format buildAudioFormatWithLanguageAndFlags(
+      String id, String language, int selectionFlags) {
+    return buildAudioFormat(
         id,
         MimeTypes.AUDIO_AAC,
-        /* codecs= */ null,
         /* bitrate= */ Format.NO_VALUE,
-        /* maxInputSize= */ Format.NO_VALUE,
+        language,
+        selectionFlags,
         /* channelCount= */ 2,
-        /* sampleRate= */ 44100,
+        /* sampleRate= */ 44100);
+  }
+
+  private static Format buildAudioFormatWithBitrate(String id, int bitrate) {
+    return buildAudioFormat(
+        id,
+        MimeTypes.AUDIO_AAC,
+        bitrate,
+        /* language= */ null,
+        /* selectionFlags= */ 0,
+        /* channelCount= */ 2,
+        /* sampleRate= */ 44100);
+  }
+
+  private static Format buildAudioFormatWithSampleRate(String id, int sampleRate) {
+    return buildAudioFormat(
+        id,
+        MimeTypes.AUDIO_AAC,
+        /* bitrate= */ Format.NO_VALUE,
+        /* language= */ null,
+        /* selectionFlags= */ 0,
+        /* channelCount= */ 2,
+        sampleRate);
+  }
+
+  private static Format buildAudioFormatWithChannelCount(String id, int channelCount) {
+    return buildAudioFormat(
+        id,
+        MimeTypes.AUDIO_AAC,
+        /* bitrate= */ Format.NO_VALUE,
+        /* language= */ null,
+        /* selectionFlags= */ 0,
+        channelCount,
+        /* sampleRate= */ 44100);
+  }
+
+  private static Format buildAudioFormatWithMimeType(String id, String mimeType) {
+    return buildAudioFormat(
+        id,
+        mimeType,
+        /* bitrate= */ Format.NO_VALUE,
+        /* language= */ null,
+        /* selectionFlags= */ 0,
+        /* channelCount= */ 2,
+        /* sampleRate= */ 44100);
+  }
+
+  private static Format buildAudioFormat(String id) {
+    return buildAudioFormat(
+        id,
+        MimeTypes.AUDIO_AAC,
+        /* bitrate= */ Format.NO_VALUE,
+        /* language= */ null,
+        /* selectionFlags= */ 0,
+        /* channelCount= */ 2,
+        /* sampleRate= */ 44100);
+  }
+
+  private static Format buildAudioFormat(
+      String id,
+      String mimeType,
+      int bitrate,
+      String language,
+      int selectionFlags,
+      int channelCount,
+      int sampleRate) {
+    return Format.createAudioSampleFormat(
+        id,
+        mimeType,
+        /* codecs= */ null,
+        bitrate,
+        /* maxInputSize= */ Format.NO_VALUE,
+        channelCount,
+        sampleRate,
         /* initializationData= */ null,
         /* drmInitData= */ null,
         selectionFlags,
@@ -1298,6 +1709,7 @@ public final class DefaultTrackSelectorTest {
         /* codecs= */ null,
         /* bitrate= */ Format.NO_VALUE,
         selectionFlags,
+        /* roleFlags= */ 0,
         language);
   }
 
@@ -1342,13 +1754,13 @@ public final class DefaultTrackSelectorTest {
     }
 
     @Override
-    public int supportsFormat(Format format) throws ExoPlaybackException {
+    public int supportsFormat(Format format) {
       return MimeTypes.getTrackType(format.sampleMimeType) == trackType
           ? (supportValue) : FORMAT_UNSUPPORTED_TYPE;
     }
 
     @Override
-    public int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
+    public int supportsMixedMimeTypeAdaptation() {
       return ADAPTIVE_SEAMLESS;
     }
 
@@ -1383,14 +1795,14 @@ public final class DefaultTrackSelectorTest {
     }
 
     @Override
-    public int supportsFormat(Format format) throws ExoPlaybackException {
+    public int supportsFormat(Format format) {
       return format.id != null && formatToCapability.containsKey(format.id)
           ? formatToCapability.get(format.id)
           : FORMAT_UNSUPPORTED_TYPE;
     }
 
     @Override
-    public int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
+    public int supportsMixedMimeTypeAdaptation() {
       return ADAPTIVE_SEAMLESS;
     }
 

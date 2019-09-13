@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.source.rtp.rtcp;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 /**
  * This class wraps a RTCP Report block providing method to convert from and to a byte array.

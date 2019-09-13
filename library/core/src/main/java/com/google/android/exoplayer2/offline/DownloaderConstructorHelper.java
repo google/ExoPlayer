@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.offline;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSink;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -23,16 +23,19 @@ import com.google.android.exoplayer2.upstream.DummyDataSource;
 import com.google.android.exoplayer2.upstream.FileDataSourceFactory;
 import com.google.android.exoplayer2.upstream.PriorityDataSourceFactory;
 import com.google.android.exoplayer2.upstream.cache.Cache;
+import com.google.android.exoplayer2.upstream.cache.CacheDataSink;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSinkFactory;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSourceFactory;
 import com.google.android.exoplayer2.upstream.cache.CacheKeyFactory;
+import com.google.android.exoplayer2.upstream.cache.CacheUtil;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 
 /** A helper class that holds necessary parameters for {@link Downloader} construction. */
 public final class DownloaderConstructorHelper {
 
   private final Cache cache;
+  @Nullable private final CacheKeyFactory cacheKeyFactory;
   @Nullable private final PriorityTaskManager priorityTaskManager;
   private final CacheDataSourceFactory onlineCacheDataSourceFactory;
   private final CacheDataSourceFactory offlineCacheDataSourceFactory;
@@ -106,16 +109,16 @@ public final class DownloaderConstructorHelper {
         cacheReadDataSourceFactory != null
             ? cacheReadDataSourceFactory
             : new FileDataSourceFactory();
-    DataSink.Factory writeDataSinkFactory =
-        cacheWriteDataSinkFactory != null
-            ? cacheWriteDataSinkFactory
-            : new CacheDataSinkFactory(cache, CacheDataSource.DEFAULT_MAX_CACHE_FILE_SIZE);
+    if (cacheWriteDataSinkFactory == null) {
+      cacheWriteDataSinkFactory =
+          new CacheDataSinkFactory(cache, CacheDataSink.DEFAULT_FRAGMENT_SIZE);
+    }
     onlineCacheDataSourceFactory =
         new CacheDataSourceFactory(
             cache,
             upstreamFactory,
             readDataSourceFactory,
-            writeDataSinkFactory,
+            cacheWriteDataSinkFactory,
             CacheDataSource.FLAG_BLOCK_ON_CACHE,
             /* eventListener= */ null,
             cacheKeyFactory);
@@ -130,11 +133,17 @@ public final class DownloaderConstructorHelper {
             cacheKeyFactory);
     this.cache = cache;
     this.priorityTaskManager = priorityTaskManager;
+    this.cacheKeyFactory = cacheKeyFactory;
   }
 
   /** Returns the {@link Cache} instance. */
   public Cache getCache() {
     return cache;
+  }
+
+  /** Returns the {@link CacheKeyFactory}. */
+  public CacheKeyFactory getCacheKeyFactory() {
+    return cacheKeyFactory != null ? cacheKeyFactory : CacheUtil.DEFAULT_CACHE_KEY_FACTORY;
   }
 
   /** Returns a {@link PriorityTaskManager} instance. */

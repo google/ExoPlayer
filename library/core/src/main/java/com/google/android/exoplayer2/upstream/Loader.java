@@ -20,8 +20,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
-import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
@@ -331,7 +331,7 @@ public final class Loader implements LoaderErrorThrower {
     private final T loadable;
     private final long startTimeMs;
 
-    private @Nullable Loader.Callback<T> callback;
+    @Nullable private Loader.Callback<T> callback;
     private IOException currentError;
     private int errorCount;
 

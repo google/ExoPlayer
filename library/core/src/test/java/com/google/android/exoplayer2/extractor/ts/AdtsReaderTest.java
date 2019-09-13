@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import static com.google.android.exoplayer2.extractor.ts.TsPayloadReader.FLAG_DATA_ALIGNMENT_INDICATOR;
+
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
@@ -26,10 +29,9 @@ import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
 /** Test for {@link AdtsReader}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class AdtsReaderTest {
 
   public static final byte[] ID3_DATA_1 =
@@ -198,7 +200,7 @@ public class AdtsReaderTest {
 
   private void maybeStartPacket() {
     if (firstFeed) {
-      adtsReader.packetStarted(0, true);
+      adtsReader.packetStarted(0, FLAG_DATA_ALIGNMENT_INDICATOR);
       firstFeed = false;
     }
   }

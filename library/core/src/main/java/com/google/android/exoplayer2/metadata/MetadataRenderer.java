@@ -19,7 +19,7 @@ import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Looper;
 import android.os.Message;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -34,12 +34,6 @@ import java.util.Arrays;
  */
 public final class MetadataRenderer extends BaseRenderer implements Callback {
 
-  /**
-   * @deprecated Use {@link MetadataOutput}.
-   */
-  @Deprecated
-  public interface Output extends MetadataOutput {}
-
   private static final int MSG_INVOKE_RENDERER = 0;
   // TODO: Holding multiple pending metadata objects is temporary mitigation against
   // https://github.com/google/ExoPlayer/issues/1874. It should be removed once this issue has been
@@ -48,7 +42,7 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
 
   private final MetadataDecoderFactory decoderFactory;
   private final MetadataOutput output;
-  private final @Nullable Handler outputHandler;
+  @Nullable private final Handler outputHandler;
   private final FormatHolder formatHolder;
   private final MetadataInputBuffer buffer;
   private final Metadata[] pendingMetadata;
@@ -58,6 +52,7 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
   private int pendingMetadataCount;
   private MetadataDecoder decoder;
   private boolean inputStreamEnded;
+  private long subsampleOffsetUs;
 
   /**
    * @param output The output.
@@ -126,13 +121,18 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
           // If we ever need to support a metadata format where this is not the case, we'll need to
           // pass the buffer to the decoder and discard the output.
         } else {
-          buffer.subsampleOffsetUs = formatHolder.format.subsampleOffsetUs;
+          buffer.subsampleOffsetUs = subsampleOffsetUs;
           buffer.flip();
           int index = (pendingMetadataIndex + pendingMetadataCount) % MAX_PENDING_METADATA_COUNT;
-          pendingMetadata[index] = decoder.decode(buffer);
-          pendingMetadataTimestamps[index] = buffer.timeUs;
-          pendingMetadataCount++;
+          Metadata metadata = decoder.decode(buffer);
+          if (metadata != null) {
+            pendingMetadata[index] = metadata;
+            pendingMetadataTimestamps[index] = buffer.timeUs;
+            pendingMetadataCount++;
+          }
         }
+      } else if (result == C.RESULT_FORMAT_READ) {
+        subsampleOffsetUs = formatHolder.format.subsampleOffsetUs;
       }
     }
 
@@ -174,7 +174,6 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
     pendingMetadataCount = 0;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public boolean handleMessage(Message msg) {
     switch (msg.what) {

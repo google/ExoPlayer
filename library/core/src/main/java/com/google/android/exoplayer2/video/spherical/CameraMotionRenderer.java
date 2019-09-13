@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.video.spherical;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -39,7 +39,7 @@ public class CameraMotionRenderer extends BaseRenderer {
   private final ParsableByteArray scratch;
 
   private long offsetUs;
-  private @Nullable CameraMotionListener listener;
+  @Nullable private CameraMotionListener listener;
   private long lastTimestampUs;
 
   public CameraMotionRenderer() {
@@ -72,12 +72,12 @@ public class CameraMotionRenderer extends BaseRenderer {
 
   @Override
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
-    reset();
+    resetListener();
   }
 
   @Override
   protected void onDisabled() {
-    reset();
+    resetListener();
   }
 
   @Override
@@ -124,7 +124,7 @@ public class CameraMotionRenderer extends BaseRenderer {
     return result;
   }
 
-  private void reset() {
+  private void resetListener() {
     lastTimestampUs = 0;
     if (listener != null) {
       listener.onCameraMotionReset();

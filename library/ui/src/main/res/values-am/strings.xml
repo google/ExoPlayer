@@ -12,6 +12,7 @@
   <string name="exo_controls_repeat_all_description">ሁሉንም ድገም</string>
   <string name="exo_controls_shuffle_description">በውዝ</string>
   <string name="exo_controls_fullscreen_description">የሙሉ ማያ ሁነታ</string>
+  <string name="exo_controls_vr_description">የቪአር ሁነታ</string>
   <string name="exo_download_description">አውርድ</string>
   <string name="exo_download_notification_channel_name">የወረዱ</string>
   <string name="exo_download_downloading">በማውረድ ላይ</string>
@@ -30,6 +31,10 @@
   <string name="exo_track_surround">የዙሪያ ድምፅ</string>
   <string name="exo_track_surround_5_point_1">5.1 የዙሪያ ድምፅ</string>
   <string name="exo_track_surround_7_point_1">7.1 የዙሪያ ድምፅ</string>
+  <string name="exo_track_role_alternate">ተለዋጭ</string>
+  <string name="exo_track_role_supplementary">ተጨማሪ</string>
+  <string name="exo_track_role_commentary">ጥናታዊ</string>
+  <string name="exo_track_role_closed_captions">የተዘጉ የመግለጫ ጽሑፎች</string>
   <string name="exo_track_bitrate">%1$.2f ሜብስ</string>
   <string name="exo_item_list">%1$s፣ %2$s</string>
 </resources>

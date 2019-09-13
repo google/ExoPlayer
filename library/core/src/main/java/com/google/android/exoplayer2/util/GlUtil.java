@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.util;
 
 import static android.opengl.GLU.gluErrorString;
 
-import android.annotation.TargetApi;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.text.TextUtils;
@@ -40,23 +39,19 @@ public final class GlUtil {
    * ExoPlayerLibraryInfo#GL_ASSERTIONS_ENABLED} is true throws a {@link RuntimeException}.
    */
   public static void checkGlError() {
-    int error = GLES20.glGetError();
-    int lastError;
-    if (error != GLES20.GL_NO_ERROR) {
-      do {
-        lastError = error;
-        Log.e(TAG, "glError " + gluErrorString(lastError));
-        error = GLES20.glGetError();
-      } while (error != GLES20.GL_NO_ERROR);
-
-      if (ExoPlayerLibraryInfo.GL_ASSERTIONS_ENABLED) {
-        throw new RuntimeException("glError " + gluErrorString(lastError));
-      }
+    int lastError = GLES20.GL_NO_ERROR;
+    int error;
+    while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
+      Log.e(TAG, "glError " + gluErrorString(lastError));
+      lastError = error;
+    }
+    if (ExoPlayerLibraryInfo.GL_ASSERTIONS_ENABLED && lastError != GLES20.GL_NO_ERROR) {
+      throw new RuntimeException("glError " + gluErrorString(lastError));
     }
   }
 
   /**
-   * Builds a GL shader program from vertex & fragment shader code.
+   * Builds a GL shader program from vertex and fragment shader code.
    *
    * @param vertexCode GLES20 vertex shader program as arrays of strings. Strings are joined by
    *     adding a new line character in between each of them.
@@ -69,7 +64,7 @@ public final class GlUtil {
   }
 
   /**
-   * Builds a GL shader program from vertex & fragment shader code.
+   * Builds a GL shader program from vertex and fragment shader code.
    *
    * @param vertexCode GLES20 vertex shader program.
    * @param fragmentCode GLES20 fragment shader program.
@@ -95,21 +90,29 @@ public final class GlUtil {
     return program;
   }
 
-  /** Allocates a FloatBuffer with the given data. */
+  /**
+   * Allocates a FloatBuffer with the given data.
+   *
+   * @param data Used to initialize the new buffer.
+   */
   public static FloatBuffer createBuffer(float[] data) {
-    ByteBuffer byteBuffer = ByteBuffer.allocateDirect(data.length * C.BYTES_PER_FLOAT);
-    byteBuffer.order(ByteOrder.nativeOrder());
-    FloatBuffer buffer = byteBuffer.asFloatBuffer();
-    buffer.put(data);
-    buffer.flip();
-    return buffer;
+    return (FloatBuffer) createBuffer(data.length).put(data).flip();
+  }
+
+  /**
+   * Allocates a FloatBuffer.
+   *
+   * @param capacity The new buffer's capacity, in floats.
+   */
+  public static FloatBuffer createBuffer(int capacity) {
+    ByteBuffer byteBuffer = ByteBuffer.allocateDirect(capacity * C.BYTES_PER_FLOAT);
+    return byteBuffer.order(ByteOrder.nativeOrder()).asFloatBuffer();
   }
 
   /**
    * Creates a GL_TEXTURE_EXTERNAL_OES with default configuration of GL_LINEAR filtering and
    * GL_CLAMP_TO_EDGE wrapping.
    */
-  @TargetApi(15)
   public static int createExternalTexture() {
     int[] texId = new int[1];
     GLES20.glGenTextures(1, IntBuffer.wrap(texId));

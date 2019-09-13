@@ -15,53 +15,84 @@
  */
 package com.google.android.exoplayer2.ext.cast;
 
-import com.google.android.gms.cast.MediaInfo;
+import android.util.SparseArray;
+import com.google.android.exoplayer2.C;
 import com.google.android.gms.cast.MediaQueueItem;
 import com.google.android.gms.cast.MediaStatus;
-import java.util.HashMap;
+import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 import java.util.HashSet;
-import java.util.List;
 
 /**
- * Creates {@link CastTimeline}s from cast receiver app media status.
+ * Creates {@link CastTimeline CastTimelines} from cast receiver app status updates.
  *
  * <p>This class keeps track of the duration reported by the current item to fill any missing
  * durations in the media queue items [See internal: b/65152553].
  */
 /* package */ final class CastTimelineTracker {
 
-  private final HashMap<String, Long> contentIdToDurationUsMap;
-  private final HashSet<String> scratchContentIdSet;
+  private final SparseArray<CastTimeline.ItemData> itemIdToData;
 
   public CastTimelineTracker() {
-    contentIdToDurationUsMap = new HashMap<>();
-    scratchContentIdSet = new HashSet<>();
+    itemIdToData = new SparseArray<>();
   }
 
   /**
-   * Returns a {@link CastTimeline} that represent the given {@code status}.
+   * Returns a {@link CastTimeline} that represents the state of the given {@code
+   * remoteMediaClient}.
    *
-   * @param status The Cast media status.
-   * @return A {@link CastTimeline} that represent the given {@code status}.
+   * <p>Returned timelines may contain values obtained from {@code remoteMediaClient} in previous
+   * invocations of this method.
+   *
+   * @param remoteMediaClient The Cast media client.
+   * @return A {@link CastTimeline} that represents the given {@code remoteMediaClient} status.
    */
-  public CastTimeline getCastTimeline(MediaStatus status) {
-    MediaInfo mediaInfo = status.getMediaInfo();
-    List<MediaQueueItem> items = status.getQueueItems();
-    removeUnusedDurationEntries(items);
-
-    if (mediaInfo != null) {
-      String contentId = mediaInfo.getContentId();
-      long durationUs = CastUtils.getStreamDurationUs(mediaInfo);
-      contentIdToDurationUsMap.put(contentId, durationUs);
+  public CastTimeline getCastTimeline(RemoteMediaClient remoteMediaClient) {
+    int[] itemIds = remoteMediaClient.getMediaQueue().getItemIds();
+    if (itemIds.length > 0) {
+      // Only remove unused items when there is something in the queue to avoid removing all entries
+      // if the remote media client clears the queue temporarily. See [Internal ref: b/128825216].
+      removeUnusedItemDataEntries(itemIds);
     }
-    return new CastTimeline(items, contentIdToDurationUsMap);
+
+    // TODO: Reset state when the app instance changes [Internal ref: b/129672468].
+    MediaStatus mediaStatus = remoteMediaClient.getMediaStatus();
+    if (mediaStatus == null) {
+      return CastTimeline.EMPTY_CAST_TIMELINE;
+    }
+
+    int currentItemId = mediaStatus.getCurrentItemId();
+    long durationUs = CastUtils.getStreamDurationUs(mediaStatus.getMediaInfo());
+    itemIdToData.put(
+        currentItemId,
+        itemIdToData
+            .get(currentItemId, CastTimeline.ItemData.EMPTY)
+            .copyWithDurationUs(durationUs));
+
+    for (MediaQueueItem item : mediaStatus.getQueueItems()) {
+      int itemId = item.getItemId();
+      itemIdToData.put(
+          itemId,
+          itemIdToData
+              .get(itemId, CastTimeline.ItemData.EMPTY)
+              .copyWithDefaultPositionUs((long) (item.getStartTime() * C.MICROS_PER_SECOND)));
+    }
+
+    return new CastTimeline(itemIds, itemIdToData);
   }
 
-  private void removeUnusedDurationEntries(List<MediaQueueItem> items) {
-    scratchContentIdSet.clear();
-    for (MediaQueueItem item : items) {
-      scratchContentIdSet.add(item.getMedia().getContentId());
+  private void removeUnusedItemDataEntries(int[] itemIds) {
+    HashSet<Integer> scratchItemIds = new HashSet<>(/* initialCapacity= */ itemIds.length * 2);
+    for (int id : itemIds) {
+      scratchItemIds.add(id);
     }
-    contentIdToDurationUsMap.keySet().retainAll(scratchContentIdSet);
+
+    int index = 0;
+    while (index < itemIdToData.size()) {
+      if (!scratchItemIds.contains(itemIdToData.keyAt(index))) {
+        itemIdToData.removeAt(index);
+      } else {
+        index++;
+      }
+    }
   }
 }

@@ -23,15 +23,13 @@ import android.graphics.Typeface;
 import android.text.Spanned;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Unit test for {@link WebvttCueParser}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Unit test for {@link WebvttCueParser}. */
+@RunWith(AndroidJUnit4.class)
 public final class WebvttCueParserTest {
 
   @Test

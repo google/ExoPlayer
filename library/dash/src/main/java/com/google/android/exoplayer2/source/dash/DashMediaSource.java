@@ -18,14 +18,17 @@ package com.google.android.exoplayer2.source.dash;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.drm.DrmSession;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.offline.FilteringManifestParser;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.BaseMediaSource;
 import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
 import com.google.android.exoplayer2.source.DefaultCompositeSequenceableLoaderFactory;
@@ -33,8 +36,8 @@ import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.SequenceableLoader;
-import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerEmsgCallback;
 import com.google.android.exoplayer2.source.dash.manifest.AdaptationSet;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
@@ -59,6 +62,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
@@ -72,18 +76,20 @@ public final class DashMediaSource extends BaseMediaSource {
   }
 
   /** Factory for {@link DashMediaSource}s. */
-  public static final class Factory implements AdsMediaSource.MediaSourceFactory {
+  public static final class Factory implements MediaSourceFactory {
 
     private final DashChunkSource.Factory chunkSourceFactory;
-    private final @Nullable DataSource.Factory manifestDataSourceFactory;
+    @Nullable private final DataSource.Factory manifestDataSourceFactory;
 
-    private @Nullable ParsingLoadable.Parser<? extends DashManifest> manifestParser;
+    private DrmSessionManager<?> drmSessionManager;
+    @Nullable private ParsingLoadable.Parser<? extends DashManifest> manifestParser;
+    @Nullable private List<StreamKey> streamKeys;
     private CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
     private long livePresentationDelayMs;
     private boolean livePresentationDelayOverridesManifest;
     private boolean isCreateCalled;
-    private @Nullable Object tag;
+    @Nullable private Object tag;
 
     /**
      * Creates a new factory for {@link DashMediaSource}s.
@@ -109,6 +115,7 @@ public final class DashMediaSource extends BaseMediaSource {
         @Nullable DataSource.Factory manifestDataSourceFactory) {
       this.chunkSourceFactory = Assertions.checkNotNull(chunkSourceFactory);
       this.manifestDataSourceFactory = manifestDataSourceFactory;
+      drmSessionManager = DrmSessionManager.getDummyDrmSessionManager();
       loadErrorHandlingPolicy = new DefaultLoadErrorHandlingPolicy();
       livePresentationDelayMs = DEFAULT_LIVE_PRESENTATION_DELAY_MS;
       compositeSequenceableLoaderFactory = new DefaultCompositeSequenceableLoaderFactory();
@@ -123,9 +130,23 @@ public final class DashMediaSource extends BaseMediaSource {
      * @return This factory, for convenience.
      * @throws IllegalStateException If one of the {@code create} methods has already been called.
      */
-    public Factory setTag(Object tag) {
+    public Factory setTag(@Nullable Object tag) {
       Assertions.checkState(!isCreateCalled);
       this.tag = tag;
+      return this;
+    }
+
+    /**
+     * Sets the {@link DrmSessionManager} to use for acquiring {@link DrmSession DrmSessions}. The
+     * default value is {@link DrmSessionManager#DUMMY}.
+     *
+     * @param drmSessionManager The {@link DrmSessionManager}.
+     * @return This factory, for convenience.
+     * @throws IllegalStateException If one of the {@code create} methods has already been called.
+     */
+    public Factory setDrmSessionManager(DrmSessionManager<?> drmSessionManager) {
+      Assertions.checkState(!isCreateCalled);
+      this.drmSessionManager = drmSessionManager;
       return this;
     }
 
@@ -240,6 +261,9 @@ public final class DashMediaSource extends BaseMediaSource {
     public DashMediaSource createMediaSource(DashManifest manifest) {
       Assertions.checkArgument(!manifest.dynamic);
       isCreateCalled = true;
+      if (streamKeys != null && !streamKeys.isEmpty()) {
+        manifest = manifest.copy(streamKeys);
+      }
       return new DashMediaSource(
           manifest,
           /* manifestUri= */ null,
@@ -247,6 +271,7 @@ public final class DashMediaSource extends BaseMediaSource {
           /* manifestParser= */ null,
           chunkSourceFactory,
           compositeSequenceableLoaderFactory,
+          drmSessionManager,
           loadErrorHandlingPolicy,
           livePresentationDelayMs,
           livePresentationDelayOverridesManifest,
@@ -270,31 +295,6 @@ public final class DashMediaSource extends BaseMediaSource {
     }
 
     /**
-     * Returns a new {@link DashMediaSource} using the current parameters.
-     *
-     * @param manifestUri The manifest {@link Uri}.
-     * @return The new {@link DashMediaSource}.
-     */
-    @Override
-    public DashMediaSource createMediaSource(Uri manifestUri) {
-      isCreateCalled = true;
-      if (manifestParser == null) {
-        manifestParser = new DashManifestParser();
-      }
-      return new DashMediaSource(
-          /* manifest= */ null,
-          Assertions.checkNotNull(manifestUri),
-          manifestDataSourceFactory,
-          manifestParser,
-          chunkSourceFactory,
-          compositeSequenceableLoaderFactory,
-          loadErrorHandlingPolicy,
-          livePresentationDelayMs,
-          livePresentationDelayOverridesManifest,
-          tag);
-    }
-
-    /**
      * @deprecated Use {@link #createMediaSource(Uri)} and {@link #addEventListener(Handler,
      *     MediaSourceEventListener)} instead.
      */
@@ -308,6 +308,42 @@ public final class DashMediaSource extends BaseMediaSource {
         mediaSource.addEventListener(eventHandler, eventListener);
       }
       return mediaSource;
+    }
+
+    /**
+     * Returns a new {@link DashMediaSource} using the current parameters.
+     *
+     * @param manifestUri The manifest {@link Uri}.
+     * @return The new {@link DashMediaSource}.
+     */
+    @Override
+    public DashMediaSource createMediaSource(Uri manifestUri) {
+      isCreateCalled = true;
+      if (manifestParser == null) {
+        manifestParser = new DashManifestParser();
+      }
+      if (streamKeys != null) {
+        manifestParser = new FilteringManifestParser<>(manifestParser, streamKeys);
+      }
+      return new DashMediaSource(
+          /* manifest= */ null,
+          Assertions.checkNotNull(manifestUri),
+          manifestDataSourceFactory,
+          manifestParser,
+          chunkSourceFactory,
+          compositeSequenceableLoaderFactory,
+          drmSessionManager,
+          loadErrorHandlingPolicy,
+          livePresentationDelayMs,
+          livePresentationDelayOverridesManifest,
+          tag);
+    }
+
+    @Override
+    public Factory setStreamKeys(List<StreamKey> streamKeys) {
+      Assertions.checkState(!isCreateCalled);
+      this.streamKeys = streamKeys;
+      return this;
     }
 
     @Override
@@ -330,8 +366,8 @@ public final class DashMediaSource extends BaseMediaSource {
 
   /**
    * The interval in milliseconds between invocations of {@link
-   * SourceInfoRefreshListener#onSourceInfoRefreshed(MediaSource, Timeline, Object)} when the
-   * source's {@link Timeline} is changing dynamically (for example, for incomplete live streams).
+   * MediaSourceCaller#onSourceInfoRefreshed(MediaSource, Timeline)} when the source's {@link
+   * Timeline} is changing dynamically (for example, for incomplete live streams).
    */
   private static final int NOTIFY_MANIFEST_INTERVAL_MS = 5000;
   /**
@@ -345,6 +381,7 @@ public final class DashMediaSource extends BaseMediaSource {
   private final DataSource.Factory manifestDataSourceFactory;
   private final DashChunkSource.Factory chunkSourceFactory;
   private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
+  private final DrmSessionManager<?> drmSessionManager;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final long livePresentationDelayMs;
   private final boolean livePresentationDelayOverridesManifest;
@@ -357,11 +394,11 @@ public final class DashMediaSource extends BaseMediaSource {
   private final Runnable simulateManifestRefreshRunnable;
   private final PlayerEmsgCallback playerEmsgCallback;
   private final LoaderErrorThrower manifestLoadErrorThrower;
-  private final @Nullable Object tag;
+  @Nullable private final Object tag;
 
   private DataSource dataSource;
   private Loader loader;
-  private @Nullable TransferListener mediaTransferListener;
+  @Nullable private TransferListener mediaTransferListener;
 
   private IOException manifestFatalError;
   private Handler handler;
@@ -376,7 +413,6 @@ public final class DashMediaSource extends BaseMediaSource {
 
   private int staleManifestReloadAttempt;
   private long expiredManifestPublishTimeUs;
-  private boolean dynamicMediaPresentationEnded;
 
   private int firstPeriodId;
 
@@ -394,8 +430,8 @@ public final class DashMediaSource extends BaseMediaSource {
   public DashMediaSource(
       DashManifest manifest,
       DashChunkSource.Factory chunkSourceFactory,
-      Handler eventHandler,
-      MediaSourceEventListener eventListener) {
+      @Nullable Handler eventHandler,
+      @Nullable MediaSourceEventListener eventListener) {
     this(
         manifest,
         chunkSourceFactory,
@@ -419,8 +455,8 @@ public final class DashMediaSource extends BaseMediaSource {
       DashManifest manifest,
       DashChunkSource.Factory chunkSourceFactory,
       int minLoadableRetryCount,
-      Handler eventHandler,
-      MediaSourceEventListener eventListener) {
+      @Nullable Handler eventHandler,
+      @Nullable MediaSourceEventListener eventListener) {
     this(
         manifest,
         /* manifestUri= */ null,
@@ -428,6 +464,7 @@ public final class DashMediaSource extends BaseMediaSource {
         /* manifestParser= */ null,
         chunkSourceFactory,
         new DefaultCompositeSequenceableLoaderFactory(),
+        DrmSessionManager.getDummyDrmSessionManager(),
         new DefaultLoadErrorHandlingPolicy(minLoadableRetryCount),
         DEFAULT_LIVE_PRESENTATION_DELAY_MS,
         /* livePresentationDelayOverridesManifest= */ false,
@@ -455,8 +492,8 @@ public final class DashMediaSource extends BaseMediaSource {
       Uri manifestUri,
       DataSource.Factory manifestDataSourceFactory,
       DashChunkSource.Factory chunkSourceFactory,
-      Handler eventHandler,
-      MediaSourceEventListener eventListener) {
+      @Nullable Handler eventHandler,
+      @Nullable MediaSourceEventListener eventListener) {
     this(
         manifestUri,
         manifestDataSourceFactory,
@@ -492,8 +529,8 @@ public final class DashMediaSource extends BaseMediaSource {
       DashChunkSource.Factory chunkSourceFactory,
       int minLoadableRetryCount,
       long livePresentationDelayMs,
-      Handler eventHandler,
-      MediaSourceEventListener eventListener) {
+      @Nullable Handler eventHandler,
+      @Nullable MediaSourceEventListener eventListener) {
     this(
         manifestUri,
         manifestDataSourceFactory,
@@ -532,8 +569,8 @@ public final class DashMediaSource extends BaseMediaSource {
       DashChunkSource.Factory chunkSourceFactory,
       int minLoadableRetryCount,
       long livePresentationDelayMs,
-      Handler eventHandler,
-      MediaSourceEventListener eventListener) {
+      @Nullable Handler eventHandler,
+      @Nullable MediaSourceEventListener eventListener) {
     this(
         /* manifest= */ null,
         manifestUri,
@@ -541,6 +578,7 @@ public final class DashMediaSource extends BaseMediaSource {
         manifestParser,
         chunkSourceFactory,
         new DefaultCompositeSequenceableLoaderFactory(),
+        DrmSessionManager.getDummyDrmSessionManager(),
         new DefaultLoadErrorHandlingPolicy(minLoadableRetryCount),
         livePresentationDelayMs == DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS
             ? DEFAULT_LIVE_PRESENTATION_DELAY_MS
@@ -553,12 +591,13 @@ public final class DashMediaSource extends BaseMediaSource {
   }
 
   private DashMediaSource(
-      DashManifest manifest,
-      Uri manifestUri,
-      DataSource.Factory manifestDataSourceFactory,
-      ParsingLoadable.Parser<? extends DashManifest> manifestParser,
+      @Nullable DashManifest manifest,
+      @Nullable Uri manifestUri,
+      @Nullable DataSource.Factory manifestDataSourceFactory,
+      @Nullable ParsingLoadable.Parser<? extends DashManifest> manifestParser,
       DashChunkSource.Factory chunkSourceFactory,
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
+      DrmSessionManager<?> drmSessionManager,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       long livePresentationDelayMs,
       boolean livePresentationDelayOverridesManifest,
@@ -569,6 +608,7 @@ public final class DashMediaSource extends BaseMediaSource {
     this.manifestDataSourceFactory = manifestDataSourceFactory;
     this.manifestParser = manifestParser;
     this.chunkSourceFactory = chunkSourceFactory;
+    this.drmSessionManager = drmSessionManager;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     this.livePresentationDelayMs = livePresentationDelayMs;
     this.livePresentationDelayOverridesManifest = livePresentationDelayOverridesManifest;
@@ -609,10 +649,13 @@ public final class DashMediaSource extends BaseMediaSource {
   // MediaSource implementation.
 
   @Override
-  public void prepareSourceInternal(
-      ExoPlayer player,
-      boolean isTopLevelSource,
-      @Nullable TransferListener mediaTransferListener) {
+  @Nullable
+  public Object getTag() {
+    return tag;
+  }
+
+  @Override
+  protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
     this.mediaTransferListener = mediaTransferListener;
     if (sideloadedManifest) {
       processManifest(false);
@@ -630,7 +673,8 @@ public final class DashMediaSource extends BaseMediaSource {
   }
 
   @Override
-  public MediaPeriod createPeriod(MediaPeriodId periodId, Allocator allocator) {
+  public MediaPeriod createPeriod(
+      MediaPeriodId periodId, Allocator allocator, long startPositionUs) {
     int periodIndex = (Integer) periodId.periodUid - firstPeriodId;
     EventDispatcher periodEventDispatcher =
         createEventDispatcher(periodId, manifest.getPeriod(periodIndex).startMs);
@@ -641,6 +685,7 @@ public final class DashMediaSource extends BaseMediaSource {
             periodIndex,
             chunkSourceFactory,
             mediaTransferListener,
+            drmSessionManager,
             loadErrorHandlingPolicy,
             periodEventDispatcher,
             elapsedRealtimeOffsetMs,
@@ -660,7 +705,7 @@ public final class DashMediaSource extends BaseMediaSource {
   }
 
   @Override
-  public void releaseSourceInternal() {
+  protected void releaseSourceInternal() {
     manifestLoadPending = false;
     dataSource = null;
     if (loader != null) {
@@ -679,7 +724,6 @@ public final class DashMediaSource extends BaseMediaSource {
     elapsedRealtimeOffsetMs = 0;
     staleManifestReloadAttempt = 0;
     expiredManifestPublishTimeUs = C.TIME_UNSET;
-    dynamicMediaPresentationEnded = false;
     firstPeriodId = 0;
     periodsById.clear();
   }
@@ -689,10 +733,6 @@ public final class DashMediaSource extends BaseMediaSource {
   /* package */ void onDashManifestRefreshRequested() {
     handler.removeCallbacks(simulateManifestRefreshRunnable);
     startLoadingManifest();
-  }
-
-  /* package */ void onDashLiveMediaPresentationEndSignalEncountered() {
-    this.dynamicMediaPresentationEnded = true;
   }
 
   /* package */ void onDashManifestPublishTimeExpired(long expiredManifestPublishTimeUs) {
@@ -716,17 +756,17 @@ public final class DashMediaSource extends BaseMediaSource {
         loadable.bytesLoaded());
     DashManifest newManifest = loadable.getResult();
 
-    int periodCount = manifest == null ? 0 : manifest.getPeriodCount();
+    int oldPeriodCount = manifest == null ? 0 : manifest.getPeriodCount();
     int removedPeriodCount = 0;
     long newFirstPeriodStartTimeMs = newManifest.getPeriod(0).startMs;
-    while (removedPeriodCount < periodCount
+    while (removedPeriodCount < oldPeriodCount
         && manifest.getPeriod(removedPeriodCount).startMs < newFirstPeriodStartTimeMs) {
       removedPeriodCount++;
     }
 
     if (newManifest.dynamic) {
       boolean isManifestStale = false;
-      if (periodCount - removedPeriodCount > newManifest.getPeriodCount()) {
+      if (oldPeriodCount - removedPeriodCount > newManifest.getPeriodCount()) {
         // After discarding old periods, we should never have more periods than listed in the new
         // manifest. That would mean that a previously announced period is no longer advertised. If
         // this condition occurs, assume that we are hitting a manifest server that is out of sync
@@ -734,9 +774,8 @@ public final class DashMediaSource extends BaseMediaSource {
         // behind.
         Log.w(TAG, "Loaded out of sync manifest");
         isManifestStale = true;
-      } else if (dynamicMediaPresentationEnded
-          || (expiredManifestPublishTimeUs != C.TIME_UNSET
-              && newManifest.publishTimeMs * 1000 <= expiredManifestPublishTimeUs)) {
+      } else if (expiredManifestPublishTimeUs != C.TIME_UNSET
+          && newManifest.publishTimeMs * 1000 <= expiredManifestPublishTimeUs) {
         // If we receive a dynamic manifest that's older than expected (i.e. its publish time has
         // expired, or it's dynamic and we know the presentation has ended), then this manifest is
         // stale.
@@ -744,8 +783,6 @@ public final class DashMediaSource extends BaseMediaSource {
             TAG,
             "Loaded stale dynamic manifest: "
                 + newManifest.publishTimeMs
-                + ", "
-                + dynamicMediaPresentationEnded
                 + ", "
                 + expiredManifestPublishTimeUs);
         isManifestStale = true;
@@ -763,7 +800,6 @@ public final class DashMediaSource extends BaseMediaSource {
       staleManifestReloadAttempt = 0;
     }
 
-
     manifest = newManifest;
     manifestLoadPending &= manifest.dynamic;
     manifestLoadStartTimestampMs = elapsedRealtimeMs - loadDurationMs;
@@ -780,8 +816,8 @@ public final class DashMediaSource extends BaseMediaSource {
       }
     }
 
-    if (periodCount == 0) {
-      if (manifest.utcTiming != null) {
+    if (oldPeriodCount == 0) {
+      if (manifest.dynamic && manifest.utcTiming != null) {
         resolveUtcTimingElement(manifest.utcTiming);
       } else {
         processManifest(true);
@@ -796,8 +832,15 @@ public final class DashMediaSource extends BaseMediaSource {
       ParsingLoadable<DashManifest> loadable,
       long elapsedRealtimeMs,
       long loadDurationMs,
-      IOException error) {
-    boolean isFatal = error instanceof ParserException;
+      IOException error,
+      int errorCount) {
+    long retryDelayMs =
+        loadErrorHandlingPolicy.getRetryDelayMsFor(
+            C.DATA_TYPE_MANIFEST, loadDurationMs, error, errorCount);
+    LoadErrorAction loadErrorAction =
+        retryDelayMs == C.TIME_UNSET
+            ? Loader.DONT_RETRY_FATAL
+            : Loader.createRetryAction(/* resetErrorCount= */ false, retryDelayMs);
     manifestEventDispatcher.loadError(
         loadable.dataSpec,
         loadable.getUri(),
@@ -807,8 +850,8 @@ public final class DashMediaSource extends BaseMediaSource {
         loadDurationMs,
         loadable.bytesLoaded(),
         error,
-        isFatal);
-    return isFatal ? Loader.DONT_RETRY_FATAL : Loader.RETRY;
+        !loadErrorAction.isRetry());
+    return loadErrorAction;
   }
 
   /* package */ void onUtcTimestampLoadCompleted(ParsingLoadable<Long> loadable,
@@ -977,7 +1020,7 @@ public final class DashMediaSource extends BaseMediaSource {
             windowDefaultStartPositionUs,
             manifest,
             tag);
-    refreshSourceInfo(timeline, manifest);
+    refreshSourceInfo(timeline);
 
     if (!sideloadedManifest) {
       // Remove any pending simulated refresh.
@@ -1122,7 +1165,7 @@ public final class DashMediaSource extends BaseMediaSource {
     private final long windowDurationUs;
     private final long windowDefaultStartPositionUs;
     private final DashManifest manifest;
-    private final @Nullable Object windowTag;
+    @Nullable private final Object windowTag;
 
     public DashTimeline(
         long presentationStartTimeMs,
@@ -1170,12 +1213,17 @@ public final class DashMediaSource extends BaseMediaSource {
       long windowDefaultStartPositionUs = getAdjustedWindowDefaultStartPositionUs(
           defaultPositionProjectionUs);
       Object tag = setTag ? windowTag : null;
+      boolean isDynamic =
+          manifest.dynamic
+              && manifest.minUpdatePeriodMs != C.TIME_UNSET
+              && manifest.durationMs == C.TIME_UNSET;
       return window.set(
           tag,
+          manifest,
           presentationStartTimeMs,
           windowStartTimeMs,
           /* isSeekable= */ true,
-          manifest.dynamic,
+          isDynamic,
           windowDefaultStartPositionUs,
           windowDurationUs,
           /* firstPeriodIndex= */ 0,
@@ -1253,11 +1301,6 @@ public final class DashMediaSource extends BaseMediaSource {
     public void onDashManifestPublishTimeExpired(long expiredManifestPublishTimeUs) {
       DashMediaSource.this.onDashManifestPublishTimeExpired(expiredManifestPublishTimeUs);
     }
-
-    @Override
-    public void onDashLiveMediaPresentationEndSignalEncountered() {
-      DashMediaSource.this.onDashLiveMediaPresentationEndSignalEncountered();
-    }
   }
 
   private final class ManifestCallback implements Loader.Callback<ParsingLoadable<DashManifest>> {
@@ -1281,7 +1324,7 @@ public final class DashMediaSource extends BaseMediaSource {
         long loadDurationMs,
         IOException error,
         int errorCount) {
-      return onManifestLoadError(loadable, elapsedRealtimeMs, loadDurationMs, error);
+      return onManifestLoadError(loadable, elapsedRealtimeMs, loadDurationMs, error, errorCount);
     }
 
   }

@@ -25,6 +25,8 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.text.Cue;
@@ -34,11 +36,9 @@ import java.io.IOException;
 import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
 /** Unit test for {@link Tx3gDecoder}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class Tx3gDecoderTest {
 
   private static final String NO_SUBTITLE = "tx3g/no_subtitle";
@@ -56,7 +56,7 @@ public final class Tx3gDecoderTest {
   @Test
   public void testDecodeNoSubtitle() throws IOException, SubtitleDecoderException {
     Tx3gDecoder decoder = new Tx3gDecoder(Collections.emptyList());
-    byte[] bytes = TestUtil.getByteArray(RuntimeEnvironment.application, NO_SUBTITLE);
+    byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), NO_SUBTITLE);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
     assertThat(subtitle.getCues(0)).isEmpty();
   }
@@ -64,7 +64,8 @@ public final class Tx3gDecoderTest {
   @Test
   public void testDecodeJustText() throws IOException, SubtitleDecoderException {
     Tx3gDecoder decoder = new Tx3gDecoder(Collections.emptyList());
-    byte[] bytes = TestUtil.getByteArray(RuntimeEnvironment.application, SAMPLE_JUST_TEXT);
+    byte[] bytes =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_JUST_TEXT);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
     SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
     assertThat(text.toString()).isEqualTo("CC Test");
@@ -75,7 +76,8 @@ public final class Tx3gDecoderTest {
   @Test
   public void testDecodeWithStyl() throws IOException, SubtitleDecoderException {
     Tx3gDecoder decoder = new Tx3gDecoder(Collections.emptyList());
-    byte[] bytes = TestUtil.getByteArray(RuntimeEnvironment.application, SAMPLE_WITH_STYL);
+    byte[] bytes =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_WITH_STYL);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
     SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
     assertThat(text.toString()).isEqualTo("CC Test");
@@ -92,7 +94,8 @@ public final class Tx3gDecoderTest {
   public void testDecodeWithStylAllDefaults() throws IOException, SubtitleDecoderException {
     Tx3gDecoder decoder = new Tx3gDecoder(Collections.emptyList());
     byte[] bytes =
-        TestUtil.getByteArray(RuntimeEnvironment.application, SAMPLE_WITH_STYL_ALL_DEFAULTS);
+        TestUtil.getByteArray(
+            ApplicationProvider.getApplicationContext(), SAMPLE_WITH_STYL_ALL_DEFAULTS);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
     SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
     assertThat(text.toString()).isEqualTo("CC Test");
@@ -103,7 +106,8 @@ public final class Tx3gDecoderTest {
   @Test
   public void testDecodeUtf16BeNoStyl() throws IOException, SubtitleDecoderException {
     Tx3gDecoder decoder = new Tx3gDecoder(Collections.emptyList());
-    byte[] bytes = TestUtil.getByteArray(RuntimeEnvironment.application, SAMPLE_UTF16_BE_NO_STYL);
+    byte[] bytes =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_UTF16_BE_NO_STYL);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
     SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
     assertThat(text.toString()).isEqualTo("你好");
@@ -114,7 +118,8 @@ public final class Tx3gDecoderTest {
   @Test
   public void testDecodeUtf16LeNoStyl() throws IOException, SubtitleDecoderException {
     Tx3gDecoder decoder = new Tx3gDecoder(Collections.emptyList());
-    byte[] bytes = TestUtil.getByteArray(RuntimeEnvironment.application, SAMPLE_UTF16_LE_NO_STYL);
+    byte[] bytes =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_UTF16_LE_NO_STYL);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
     SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
     assertThat(text.toString()).isEqualTo("你好");
@@ -125,7 +130,9 @@ public final class Tx3gDecoderTest {
   @Test
   public void testDecodeWithMultipleStyl() throws IOException, SubtitleDecoderException {
     Tx3gDecoder decoder = new Tx3gDecoder(Collections.emptyList());
-    byte[] bytes = TestUtil.getByteArray(RuntimeEnvironment.application, SAMPLE_WITH_MULTIPLE_STYL);
+    byte[] bytes =
+        TestUtil.getByteArray(
+            ApplicationProvider.getApplicationContext(), SAMPLE_WITH_MULTIPLE_STYL);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
     SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
     assertThat(text.toString()).isEqualTo("Line 2\nLine 3");
@@ -144,7 +151,8 @@ public final class Tx3gDecoderTest {
   public void testDecodeWithOtherExtension() throws IOException, SubtitleDecoderException {
     Tx3gDecoder decoder = new Tx3gDecoder(Collections.emptyList());
     byte[] bytes =
-        TestUtil.getByteArray(RuntimeEnvironment.application, SAMPLE_WITH_OTHER_EXTENSION);
+        TestUtil.getByteArray(
+            ApplicationProvider.getApplicationContext(), SAMPLE_WITH_OTHER_EXTENSION);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
     SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
     assertThat(text.toString()).isEqualTo("CC Test");
@@ -158,9 +166,11 @@ public final class Tx3gDecoderTest {
 
   @Test
   public void testInitializationDecodeWithStyl() throws IOException, SubtitleDecoderException {
-    byte[] initBytes = TestUtil.getByteArray(RuntimeEnvironment.application, INITIALIZATION);
+    byte[] initBytes =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), INITIALIZATION);
     Tx3gDecoder decoder = new Tx3gDecoder(Collections.singletonList(initBytes));
-    byte[] bytes = TestUtil.getByteArray(RuntimeEnvironment.application, SAMPLE_WITH_STYL);
+    byte[] bytes =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_WITH_STYL);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
     SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
     assertThat(text.toString()).isEqualTo("CC Test");
@@ -179,9 +189,11 @@ public final class Tx3gDecoderTest {
 
   @Test
   public void testInitializationDecodeWithTbox() throws IOException, SubtitleDecoderException {
-    byte[] initBytes = TestUtil.getByteArray(RuntimeEnvironment.application, INITIALIZATION);
+    byte[] initBytes =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), INITIALIZATION);
     Tx3gDecoder decoder = new Tx3gDecoder(Collections.singletonList(initBytes));
-    byte[] bytes = TestUtil.getByteArray(RuntimeEnvironment.application, SAMPLE_WITH_TBOX);
+    byte[] bytes =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_WITH_TBOX);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
     SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
     assertThat(text.toString()).isEqualTo("CC Test");
@@ -200,9 +212,11 @@ public final class Tx3gDecoderTest {
   public void testInitializationAllDefaultsDecodeWithStyl()
       throws IOException, SubtitleDecoderException {
     byte[] initBytes =
-        TestUtil.getByteArray(RuntimeEnvironment.application, INITIALIZATION_ALL_DEFAULTS);
+        TestUtil.getByteArray(
+            ApplicationProvider.getApplicationContext(), INITIALIZATION_ALL_DEFAULTS);
     Tx3gDecoder decoder = new Tx3gDecoder(Collections.singletonList(initBytes));
-    byte[] bytes = TestUtil.getByteArray(RuntimeEnvironment.application, SAMPLE_WITH_STYL);
+    byte[] bytes =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_WITH_STYL);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
     SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
     assertThat(text.toString()).isEqualTo("CC Test");

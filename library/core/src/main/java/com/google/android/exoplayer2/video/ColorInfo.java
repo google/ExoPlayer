@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.video;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Util;
@@ -51,7 +51,7 @@ public final class ColorInfo implements Parcelable {
   public final int colorTransfer;
 
   /** HdrStaticInfo as defined in CTA-861.3, or null if none specified. */
-  public final @Nullable byte[] hdrStaticInfo;
+  @Nullable public final byte[] hdrStaticInfo;
 
   // Lazily initialized hashcode.
   private int hashCode;
@@ -135,16 +135,16 @@ public final class ColorInfo implements Parcelable {
     }
   }
 
-  public static final Parcelable.Creator<ColorInfo> CREATOR = new Parcelable.Creator<ColorInfo>() {
-    @Override
-    public ColorInfo createFromParcel(Parcel in) {
-      return new ColorInfo(in);
-    }
+  public static final Parcelable.Creator<ColorInfo> CREATOR =
+      new Parcelable.Creator<ColorInfo>() {
+        @Override
+        public ColorInfo createFromParcel(Parcel in) {
+          return new ColorInfo(in);
+        }
 
-    @Override
-    public ColorInfo[] newArray(int size) {
-      return new ColorInfo[0];
-    }
-  };
-
+        @Override
+        public ColorInfo[] newArray(int size) {
+          return new ColorInfo[size];
+        }
+      };
 }

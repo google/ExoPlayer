@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.audio;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.audio.AudioProcessor.UnhandledFormatException;
 import com.google.android.exoplayer2.util.Assertions;
@@ -26,10 +27,9 @@ import java.nio.ShortBuffer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
 /** Unit tests for {@link SilenceSkippingAudioProcessor}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class SilenceSkippingAudioProcessorTest {
 
   private static final int TEST_SIGNAL_SAMPLE_RATE_HZ = 1000;

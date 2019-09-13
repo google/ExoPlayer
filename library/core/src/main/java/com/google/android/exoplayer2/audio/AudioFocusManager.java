@@ -18,9 +18,10 @@ package com.google.android.exoplayer2.audio;
 import android.content.Context;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
-import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Player;
@@ -99,14 +100,14 @@ public final class AudioFocusManager {
   private static final float VOLUME_MULTIPLIER_DUCK = 0.2f;
   private static final float VOLUME_MULTIPLIER_DEFAULT = 1.0f;
 
-  private final @Nullable AudioManager audioManager;
+  private final AudioManager audioManager;
   private final AudioFocusListener focusListener;
   private final PlayerControl playerControl;
-  private @Nullable AudioAttributes audioAttributes;
+  @Nullable private AudioAttributes audioAttributes;
 
-  private @AudioFocusState int audioFocusState;
-  private int focusGain;
-  private float volumeMultiplier = 1.0f;
+  @AudioFocusState private int audioFocusState;
+  @C.AudioFocusGain private int focusGain;
+  private float volumeMultiplier = VOLUME_MULTIPLIER_DEFAULT;
 
   private @MonotonicNonNull AudioFocusRequest audioFocusRequest;
   private boolean rebuildAudioFocusRequest;
@@ -117,12 +118,9 @@ public final class AudioFocusManager {
    * @param context The current context.
    * @param playerControl A {@link PlayerControl} to handle commands from this instance.
    */
-  public AudioFocusManager(@Nullable Context context, PlayerControl playerControl) {
+  public AudioFocusManager(Context context, PlayerControl playerControl) {
     this.audioManager =
-        context == null
-            ? null
-            : (AudioManager)
-                context.getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+        (AudioManager) context.getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
     this.playerControl = playerControl;
     this.focusListener = new AudioFocusListener();
     this.audioFocusState = AUDIO_FOCUS_STATE_NO_FOCUS;
@@ -142,14 +140,9 @@ public final class AudioFocusManager {
    * @param playerState The current player state; {@link ExoPlayer#getPlaybackState()}.
    * @return A {@link PlayerCommand} to execute on the player.
    */
-  public @PlayerCommand int setAudioAttributes(
+  @PlayerCommand
+  public int setAudioAttributes(
       @Nullable AudioAttributes audioAttributes, boolean playWhenReady, int playerState) {
-    if (audioAttributes == null) {
-      return PLAYER_COMMAND_PLAY_WHEN_READY;
-    }
-
-    Assertions.checkNotNull(
-        audioManager, "SimpleExoPlayer must be created with a context to handle audio focus.");
     if (!Util.areEqual(this.audioAttributes, audioAttributes)) {
       this.audioAttributes = audioAttributes;
       focusGain = convertAudioAttributesToFocusGain(audioAttributes);
@@ -163,11 +156,9 @@ public final class AudioFocusManager {
       }
     }
 
-    if (playerState == Player.STATE_IDLE) {
-      return PLAYER_COMMAND_WAIT_FOR_CALLBACK;
-    } else {
-      return handlePrepare(playWhenReady);
-    }
+    return playerState == Player.STATE_IDLE
+        ? handleIdle(playWhenReady)
+        : handlePrepare(playWhenReady);
   }
 
   /**
@@ -176,11 +167,8 @@ public final class AudioFocusManager {
    * @param playWhenReady The current state of {@link ExoPlayer#getPlayWhenReady()}.
    * @return A {@link PlayerCommand} to execute on the player.
    */
-  public @PlayerCommand int handlePrepare(boolean playWhenReady) {
-    if (audioManager == null) {
-      return PLAYER_COMMAND_PLAY_WHEN_READY;
-    }
-
+  @PlayerCommand
+  public int handlePrepare(boolean playWhenReady) {
     return playWhenReady ? requestAudioFocus() : PLAYER_COMMAND_DO_NOT_PLAY;
   }
 
@@ -191,34 +179,35 @@ public final class AudioFocusManager {
    * @param playerState The current state of the player.
    * @return A {@link PlayerCommand} to execute on the player.
    */
-  public @PlayerCommand int handleSetPlayWhenReady(boolean playWhenReady, int playerState) {
-    if (audioManager == null) {
-      return PLAYER_COMMAND_PLAY_WHEN_READY;
-    }
-
+  @PlayerCommand
+  public int handleSetPlayWhenReady(boolean playWhenReady, int playerState) {
     if (!playWhenReady) {
       abandonAudioFocus();
       return PLAYER_COMMAND_DO_NOT_PLAY;
-    } else if (playerState != Player.STATE_IDLE) {
-      return requestAudioFocus();
     }
-    return focusGain != C.AUDIOFOCUS_NONE
-        ? PLAYER_COMMAND_WAIT_FOR_CALLBACK
-        : PLAYER_COMMAND_PLAY_WHEN_READY;
+
+    return playerState == Player.STATE_IDLE ? handleIdle(playWhenReady) : requestAudioFocus();
   }
 
   /** Called by the player as part of {@link ExoPlayer#stop(boolean)}. */
   public void handleStop() {
-    if (audioManager == null) {
-      return;
-    }
-
     abandonAudioFocus(/* forceAbandon= */ true);
   }
 
   // Internal methods.
 
-  private @PlayerCommand int requestAudioFocus() {
+  @VisibleForTesting
+  /* package */ AudioManager.OnAudioFocusChangeListener getFocusListener() {
+    return focusListener;
+  }
+
+  @PlayerCommand
+  private int handleIdle(boolean playWhenReady) {
+    return playWhenReady ? PLAYER_COMMAND_PLAY_WHEN_READY : PLAYER_COMMAND_DO_NOT_PLAY;
+  }
+
+  @PlayerCommand
+  private int requestAudioFocus() {
     int focusRequestResult;
 
     if (focusGain == C.AUDIOFOCUS_NONE) {
@@ -271,7 +260,6 @@ public final class AudioFocusManager {
   }
 
   private int requestAudioFocusDefault() {
-    AudioManager audioManager = Assertions.checkNotNull(this.audioManager);
     return audioManager.requestAudioFocus(
         focusListener,
         Util.getStreamTypeForAudioUsage(Assertions.checkNotNull(audioAttributes).usage),
@@ -296,17 +284,17 @@ public final class AudioFocusManager {
 
       rebuildAudioFocusRequest = false;
     }
-    return Assertions.checkNotNull(audioManager).requestAudioFocus(audioFocusRequest);
+    return audioManager.requestAudioFocus(audioFocusRequest);
   }
 
   private void abandonAudioFocusDefault() {
-    Assertions.checkNotNull(audioManager).abandonAudioFocus(focusListener);
+    audioManager.abandonAudioFocus(focusListener);
   }
 
   @RequiresApi(26)
   private void abandonAudioFocusV26() {
     if (audioFocusRequest != null) {
-      Assertions.checkNotNull(audioManager).abandonAudioFocusRequest(audioFocusRequest);
+      audioManager.abandonAudioFocusRequest(audioFocusRequest);
     }
   }
 
@@ -322,6 +310,7 @@ public final class AudioFocusManager {
    * @param audioAttributes The audio attributes associated with this focus request.
    * @return The type of audio focus gain that should be requested.
    */
+  @C.AudioFocusGain
   private static int convertAudioAttributesToFocusGain(@Nullable AudioAttributes audioAttributes) {
 
     if (audioAttributes == null) {

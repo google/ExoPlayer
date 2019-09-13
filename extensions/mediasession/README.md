@@ -29,4 +29,4 @@ locally. Instructions for doing this can be found in ExoPlayer's
 * [Javadoc][]: Classes matching
   `com.google.android.exoplayer2.ext.mediasession.*` belong to this module.
 
-[Javadoc]: https://google.github.io/ExoPlayer/doc/reference/index.html
+[Javadoc]: https://exoplayer.dev/doc/reference/index.html

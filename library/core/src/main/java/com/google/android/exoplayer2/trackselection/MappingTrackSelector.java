@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
-import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -156,10 +156,10 @@ public abstract class MappingTrackSelector extends TrackSelector {
     public @RendererSupport int getRendererSupport(int rendererIndex) {
       int bestRendererSupport = RENDERER_SUPPORT_NO_TRACKS;
       int[][] rendererFormatSupport = rendererFormatSupports[rendererIndex];
-      for (int i = 0; i < rendererFormatSupport.length; i++) {
-        for (int j = 0; j < rendererFormatSupport[i].length; j++) {
+      for (int[] trackGroupFormatSupport : rendererFormatSupport) {
+        for (int trackFormatSupport : trackGroupFormatSupport) {
           int trackRendererSupport;
-          switch (rendererFormatSupport[i][j] & RendererCapabilities.FORMAT_SUPPORT_MASK) {
+          switch (trackFormatSupport & RendererCapabilities.FORMAT_SUPPORT_MASK) {
             case RendererCapabilities.FORMAT_HANDLED:
               return RENDERER_SUPPORT_PLAYABLE_TRACKS;
             case RendererCapabilities.FORMAT_EXCEEDS_CAPABILITIES:
@@ -312,7 +312,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
 
   }
 
-  private @Nullable MappedTrackInfo currentMappedTrackInfo;
+  @Nullable private MappedTrackInfo currentMappedTrackInfo;
 
   /**
    * Returns the mapping information for the currently active track selection, or null if no

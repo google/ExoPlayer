@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.testutil;
 
 import android.os.Looper;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -41,6 +41,7 @@ import com.google.android.exoplayer2.testutil.Action.SetShuffleModeEnabled;
 import com.google.android.exoplayer2.testutil.Action.SetVideoSurface;
 import com.google.android.exoplayer2.testutil.Action.Stop;
 import com.google.android.exoplayer2.testutil.Action.ThrowPlaybackException;
+import com.google.android.exoplayer2.testutil.Action.WaitForIsLoading;
 import com.google.android.exoplayer2.testutil.Action.WaitForPlaybackState;
 import com.google.android.exoplayer2.testutil.Action.WaitForPositionDiscontinuity;
 import com.google.android.exoplayer2.testutil.Action.WaitForSeekProcessed;
@@ -415,6 +416,16 @@ public final class ActionSchedule {
     }
 
     /**
+     * Schedules a delay until {@code player.isLoading()} changes to the specified value.
+     *
+     * @param targetIsLoading The target value of {@code player.isLoading()}.
+     * @return The builder, for convenience.
+     */
+    public Builder waitForIsLoading(boolean targetIsLoading) {
+      return apply(new WaitForIsLoading(tag, targetIsLoading));
+    }
+
+    /**
      * Schedules a {@link Runnable} to be executed.
      *
      * @return The builder, for convenience.
@@ -602,7 +613,7 @@ public final class ActionSchedule {
    */
   private static final class CallbackAction extends Action {
 
-    private @Nullable Callback callback;
+    @Nullable private Callback callback;
 
     public CallbackAction(String tag) {
       super(tag, "FinishedCallback");

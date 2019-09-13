@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.util;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -67,6 +67,12 @@ public final class ParsableByteArray {
     this.limit = limit;
   }
 
+  /** Sets the position and limit to zero. */
+  public void reset() {
+    position = 0;
+    limit = 0;
+  }
+
   /**
    * Resets the position to zero and the limit to the specified value. If the limit exceeds the
    * capacity, {@code data} is replaced with a new array of sufficient size.
@@ -75,6 +81,16 @@ public final class ParsableByteArray {
    */
   public void reset(int limit) {
     reset(capacity() < limit ? new byte[limit] : data, limit);
+  }
+
+  /**
+   * Updates the instance to wrap {@code data}, and resets the position to zero and the limit to
+   * {@code data.length}.
+   *
+   * @param data The array to wrap.
+   */
+  public void reset(byte[] data) {
+    reset(data, data.length);
   }
 
   /**
@@ -87,14 +103,6 @@ public final class ParsableByteArray {
     this.data = data;
     this.limit = limit;
     position = 0;
-  }
-
-  /**
-   * Sets the position and limit to zero.
-   */
-  public void reset() {
-    position = 0;
-    limit = 0;
   }
 
   /**
@@ -482,7 +490,8 @@ public final class ParsableByteArray {
    * @return The string not including any terminating NUL byte, or null if the end of the data has
    *     already been reached.
    */
-  public @Nullable String readNullTerminatedString() {
+  @Nullable
+  public String readNullTerminatedString() {
     if (bytesLeft() == 0) {
       return null;
     }
@@ -508,7 +517,8 @@ public final class ParsableByteArray {
    * @return The line not including any line-termination characters, or null if the end of the data
    *     has already been reached.
    */
-  public @Nullable String readLine() {
+  @Nullable
+  public String readLine() {
     if (bytesLeft() == 0) {
       return null;
     }

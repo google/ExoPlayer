@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.source.rtp.rtcp;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import java.util.Arrays;
 

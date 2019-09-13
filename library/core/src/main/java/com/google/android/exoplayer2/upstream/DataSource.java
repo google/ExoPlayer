@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.upstream;
 
 import android.net.Uri;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import java.io.IOException;
 import java.util.Collections;
@@ -64,11 +64,11 @@ public interface DataSource {
   long open(DataSpec dataSpec) throws IOException;
 
   /**
-   * Reads up to {@code length} bytes of data and stores them into {@code buffer}, starting at
+   * Reads up to {@code readLength} bytes of data and stores them into {@code buffer}, starting at
    * index {@code offset}.
-   * <p>
-   * If {@code length} is zero then 0 is returned. Otherwise, if no data is available because the
-   * end of the opened range has been reached, then {@link C#RESULT_END_OF_INPUT} is returned.
+   *
+   * <p>If {@code readLength} is zero then 0 is returned. Otherwise, if no data is available because
+   * the end of the opened range has been reached, then {@link C#RESULT_END_OF_INPUT} is returned.
    * Otherwise, the call will block until at least one byte of data has been read and the number of
    * bytes read is returned.
    *

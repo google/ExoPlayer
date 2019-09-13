@@ -29,6 +29,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Point;
 import android.media.AudioFormat;
 import android.net.ConnectivityManager;
@@ -39,7 +40,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcel;
 import android.security.NetworkSecurityPolicy;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.view.Display;
@@ -48,8 +49,15 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.Renderer;
+import com.google.android.exoplayer2.RendererCapabilities;
+import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SeekParameters;
+import com.google.android.exoplayer2.audio.AudioRendererEventListener;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
@@ -63,6 +71,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Formatter;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
@@ -127,6 +136,10 @@ public final class Util {
           + "(T(([0-9]*)H)?(([0-9]*)M)?(([0-9.]*)S)?)?$");
   private static final Pattern ESCAPED_CHARACTER_PATTERN = Pattern.compile("%([A-Fa-f0-9]{2})");
 
+  // Android standardizes to ISO 639-1 2-letter codes and provides no way to map a 3-letter
+  // ISO 639-2 code back to the corresponding 2-letter code.
+  @Nullable private static HashMap<String, String> languageTagIso3ToIso2;
+
   private Util() {}
 
   /**
@@ -155,6 +168,7 @@ public final class Util {
    * @param intent The intent to pass to the called method.
    * @return The result of the called method.
    */
+  @Nullable
   public static ComponentName startForegroundService(Context context, Intent intent) {
     if (Util.SDK_INT >= 26) {
       return context.startForegroundService(intent);
@@ -204,7 +218,8 @@ public final class Util {
     }
     for (Uri uri : uris) {
       if ("http".equals(uri.getScheme())
-          && !NetworkSecurityPolicy.getInstance().isCleartextTrafficPermitted(uri.getHost())) {
+          && !NetworkSecurityPolicy.getInstance()
+              .isCleartextTrafficPermitted(Assertions.checkNotNull(uri.getHost()))) {
         // The security policy prevents cleartext traffic.
         return false;
       }
@@ -316,6 +331,40 @@ public final class Util {
   }
 
   /**
+   * Copies a subset of an array.
+   *
+   * @param input The input array.
+   * @param from The start the range to be copied, inclusive
+   * @param to The end of the range to be copied, exclusive.
+   * @return The copied array.
+   */
+  @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:return.type.incompatible"})
+  public static <T> T[] nullSafeArrayCopyOfRange(T[] input, int from, int to) {
+    Assertions.checkArgument(0 <= from);
+    Assertions.checkArgument(to <= input.length);
+    return Arrays.copyOfRange(input, from, to);
+  }
+
+  /**
+   * Concatenates two non-null type arrays.
+   *
+   * @param first The first array.
+   * @param second The second array.
+   * @return The concatenated result.
+   */
+  @SuppressWarnings({"nullness:assignment.type.incompatible"})
+  public static <T> T[] nullSafeArrayConcatenation(T[] first, T[] second) {
+    T[] concatenation = Arrays.copyOf(first, first.length + second.length);
+    System.arraycopy(
+        /* src= */ second,
+        /* srcPos= */ 0,
+        /* dest= */ concatenation,
+        /* destPos= */ first.length,
+        /* length= */ second.length);
+    return concatenation;
+  }
+
+  /**
    * Creates a {@link Handler} with the specified {@link Handler.Callback} on the current {@link
    * Looper} thread. The method accepts partially initialized objects as callback under the
    * assumption that the Handler won't be used to send messages until the callback is fully
@@ -371,7 +420,7 @@ public final class Util {
    *
    * @param dataSource The {@link DataSource} to close.
    */
-  public static void closeQuietly(DataSource dataSource) {
+  public static void closeQuietly(@Nullable DataSource dataSource) {
     try {
       if (dataSource != null) {
         dataSource.close();
@@ -387,7 +436,7 @@ public final class Util {
    *
    * @param closeable The {@link Closeable} to close.
    */
-  public static void closeQuietly(Closeable closeable) {
+  public static void closeQuietly(@Nullable Closeable closeable) {
     try {
       if (closeable != null) {
         closeable.close();
@@ -420,18 +469,42 @@ public final class Util {
   }
 
   /**
-   * Returns a normalized RFC 639-2/T code for {@code language}.
+   * Returns a normalized IETF BCP 47 language tag for {@code language}.
    *
-   * @param language A case-insensitive ISO 639 alpha-2 or alpha-3 language code.
+   * @param language A case-insensitive language code supported by {@link
+   *     Locale#forLanguageTag(String)}.
    * @return The all-lowercase normalized code, or null if the input was null, or {@code
    *     language.toLowerCase()} if the language could not be normalized.
    */
-  public static @Nullable String normalizeLanguageCode(@Nullable String language) {
-    try {
-      return language == null ? null : new Locale(language).getISO3Language();
-    } catch (MissingResourceException e) {
-      return toLowerInvariant(language);
+  public static @PolyNull String normalizeLanguageCode(@PolyNull String language) {
+    if (language == null) {
+      return null;
     }
+    // Locale data (especially for API < 21) may produce tags with '_' instead of the
+    // standard-conformant '-'.
+    String normalizedTag = language.replace('_', '-');
+    if (Util.SDK_INT >= 21) {
+      // Filters out ill-formed sub-tags, replaces deprecated tags and normalizes all valid tags.
+      normalizedTag = normalizeLanguageCodeSyntaxV21(normalizedTag);
+    }
+    if (normalizedTag.isEmpty() || "und".equals(normalizedTag)) {
+      // Tag isn't valid, keep using the original.
+      normalizedTag = language;
+    }
+    normalizedTag = Util.toLowerInvariant(normalizedTag);
+    String mainLanguage = Util.splitAtFirst(normalizedTag, "-")[0];
+    if (mainLanguage.length() == 3) {
+      // 3-letter ISO 639-2/B or ISO 639-2/T language codes will not be converted to 2-letter ISO
+      // 639-1 codes automatically.
+      if (languageTagIso3ToIso2 == null) {
+        languageTagIso3ToIso2 = createIso3ToIso2Map();
+      }
+      String iso2Language = languageTagIso3ToIso2.get(mainLanguage);
+      if (iso2Language != null) {
+        normalizedTag = iso2Language + normalizedTag.substring(/* beginIndex= */ 3);
+      }
+    }
+    return normalizedTag;
   }
 
   /**
@@ -648,7 +721,7 @@ public final class Util {
     if (index < 0) {
       index = -(index + 2);
     } else {
-      while ((--index) >= 0 && array[index] == value) {}
+      while (--index >= 0 && array[index] == value) {}
       if (inclusive) {
         index++;
       }
@@ -680,7 +753,7 @@ public final class Util {
     if (index < 0) {
       index = -(index + 2);
     } else {
-      while ((--index) >= 0 && array[index] == value) {}
+      while (--index >= 0 && array[index] == value) {}
       if (inclusive) {
         index++;
       }
@@ -716,7 +789,7 @@ public final class Util {
     if (index < 0) {
       index = -(index + 2);
     } else {
-      while ((--index) >= 0 && list.get(index).compareTo(value) == 0) {}
+      while (--index >= 0 && list.get(index).compareTo(value) == 0) {}
       if (inclusive) {
         index++;
       }
@@ -744,12 +817,45 @@ public final class Util {
    *     equal to) {@code value}.
    */
   public static int binarySearchCeil(
+      int[] array, int value, boolean inclusive, boolean stayInBounds) {
+    int index = Arrays.binarySearch(array, value);
+    if (index < 0) {
+      index = ~index;
+    } else {
+      while (++index < array.length && array[index] == value) {}
+      if (inclusive) {
+        index--;
+      }
+    }
+    return stayInBounds ? Math.min(array.length - 1, index) : index;
+  }
+
+  /**
+   * Returns the index of the smallest element in {@code array} that is greater than (or optionally
+   * equal to) a specified {@code value}.
+   *
+   * <p>The search is performed using a binary search algorithm, so the array must be sorted. If the
+   * array contains multiple elements equal to {@code value} and {@code inclusive} is true, the
+   * index of the last one will be returned.
+   *
+   * @param array The array to search.
+   * @param value The value being searched for.
+   * @param inclusive If the value is present in the array, whether to return the corresponding
+   *     index. If false then the returned index corresponds to the smallest element strictly
+   *     greater than the value.
+   * @param stayInBounds If true, then {@code (a.length - 1)} will be returned in the case that the
+   *     value is greater than the largest element in the array. If false then {@code a.length} will
+   *     be returned.
+   * @return The index of the smallest element in {@code array} that is greater than (or optionally
+   *     equal to) {@code value}.
+   */
+  public static int binarySearchCeil(
       long[] array, long value, boolean inclusive, boolean stayInBounds) {
     int index = Arrays.binarySearch(array, value);
     if (index < 0) {
       index = ~index;
     } else {
-      while ((++index) < array.length && array[index] == value) {}
+      while (++index < array.length && array[index] == value) {}
       if (inclusive) {
         index--;
       }
@@ -787,7 +893,7 @@ public final class Util {
       index = ~index;
     } else {
       int listSize = list.size();
-      while ((++index) < listSize && list.get(index).compareTo(value) == 0) {}
+      while (++index < listSize && list.get(index).compareTo(value) == 0) {}
       if (inclusive) {
         index--;
       }
@@ -1450,11 +1556,12 @@ public final class Util {
   }
 
   /**
-   * Maps a {@link C} {@code TRACK_TYPE_*} constant to the corresponding {@link C}
-   * {@code DEFAULT_*_BUFFER_SIZE} constant.
+   * Maps a {@link C} {@code TRACK_TYPE_*} constant to the corresponding {@link C} {@code
+   * DEFAULT_*_BUFFER_SIZE} constant.
    *
    * @param trackType The track type.
    * @return The corresponding default buffer size in bytes.
+   * @throws IllegalArgumentException If the track type is an unrecognized or custom track type.
    */
   public static int getDefaultBufferSize(int trackType) {
     switch (trackType) {
@@ -1470,8 +1577,10 @@ public final class Util {
         return C.DEFAULT_METADATA_BUFFER_SIZE;
       case C.TRACK_TYPE_CAMERA_MOTION:
         return C.DEFAULT_CAMERA_MOTION_BUFFER_SIZE;
+      case C.TRACK_TYPE_NONE:
+        return 0;
       default:
-        throw new IllegalStateException();
+        throw new IllegalArgumentException();
     }
   }
 
@@ -1630,29 +1739,27 @@ public final class Util {
   }
 
   /**
-   * Returns the {@link C.NetworkType} of the current network connection. {@link
-   * C#NETWORK_TYPE_UNKNOWN} will be returned if the {@code ACCESS_NETWORK_STATE} permission is not
-   * granted or the network connection type couldn't be determined.
+   * Returns the {@link C.NetworkType} of the current network connection.
    *
    * @param context A context to access the connectivity manager.
-   * @return The {@link C.NetworkType} of the current network connection, or {@link
-   *     C#NETWORK_TYPE_UNKNOWN} if the {@code ACCESS_NETWORK_STATE} permission is not granted or
-   *     {@code context} is null.
+   * @return The {@link C.NetworkType} of the current network connection.
    */
-  public static @C.NetworkType int getNetworkType(@Nullable Context context) {
+  @C.NetworkType
+  public static int getNetworkType(Context context) {
     if (context == null) {
+      // Note: This is for backward compatibility only (context used to be @Nullable).
       return C.NETWORK_TYPE_UNKNOWN;
     }
     NetworkInfo networkInfo;
+    ConnectivityManager connectivityManager =
+        (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+    if (connectivityManager == null) {
+      return C.NETWORK_TYPE_UNKNOWN;
+    }
     try {
-      ConnectivityManager connectivityManager =
-          (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-      if (connectivityManager == null) {
-        return C.NETWORK_TYPE_UNKNOWN;
-      }
       networkInfo = connectivityManager.getActiveNetworkInfo();
     } catch (SecurityException e) {
-      // Permission ACCESS_NETWORK_STATE not granted.
+      // Expected if permission was revoked.
       return C.NETWORK_TYPE_UNKNOWN;
     }
     if (networkInfo == null || !networkInfo.isConnected()) {
@@ -1669,7 +1776,7 @@ public final class Util {
         return getMobileNetworkType(networkInfo);
       case ConnectivityManager.TYPE_ETHERNET:
         return C.NETWORK_TYPE_ETHERNET;
-      default: // Ethernet, VPN, Bluetooth, Dummy.
+      default: // VPN, Bluetooth, Dummy.
         return C.NETWORK_TYPE_OTHER;
     }
   }
@@ -1693,6 +1800,18 @@ public final class Util {
       }
     }
     return toUpperInvariant(Locale.getDefault().getCountry());
+  }
+
+  /**
+   * Returns a non-empty array of normalized IETF BCP 47 language tags for the system languages
+   * ordered by preference.
+   */
+  public static String[] getSystemLanguageCodes() {
+    String[] systemLocales = getSystemLocales();
+    for (int i = 0; i < systemLocales.length; i++) {
+      systemLocales[i] = normalizeLanguageCode(systemLocales[i]);
+    }
+    return systemLocales;
   }
 
   /**
@@ -1817,12 +1936,36 @@ public final class Util {
       getDisplaySizeV23(display, displaySize);
     } else if (Util.SDK_INT >= 17) {
       getDisplaySizeV17(display, displaySize);
-    } else if (Util.SDK_INT >= 16) {
-      getDisplaySizeV16(display, displaySize);
     } else {
-      getDisplaySizeV9(display, displaySize);
+      getDisplaySizeV16(display, displaySize);
     }
     return displaySize;
+  }
+
+  /**
+   * Extract renderer capabilities for the renderers created by the provided renderers factory.
+   *
+   * @param renderersFactory A {@link RenderersFactory}.
+   * @param drmSessionManager An optional {@link DrmSessionManager} used by the renderers.
+   * @return The {@link RendererCapabilities} for each renderer created by the {@code
+   *     renderersFactory}.
+   */
+  public static RendererCapabilities[] getRendererCapabilities(
+      RenderersFactory renderersFactory,
+      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
+    Renderer[] renderers =
+        renderersFactory.createRenderers(
+            new Handler(),
+            new VideoRendererEventListener() {},
+            new AudioRendererEventListener() {},
+            (cues) -> {},
+            (metadata) -> {},
+            drmSessionManager);
+    RendererCapabilities[] capabilities = new RendererCapabilities[renderers.length];
+    for (int i = 0; i < renderers.length; i++) {
+      capabilities[i] = renderers[i].getCapabilities();
+    }
+    return capabilities;
   }
 
   @Nullable
@@ -1850,15 +1993,30 @@ public final class Util {
     display.getRealSize(outSize);
   }
 
-  @TargetApi(16)
   private static void getDisplaySizeV16(Display display, Point outSize) {
     display.getSize(outSize);
   }
 
-  @SuppressWarnings("deprecation")
-  private static void getDisplaySizeV9(Display display, Point outSize) {
-    outSize.x = display.getWidth();
-    outSize.y = display.getHeight();
+  private static String[] getSystemLocales() {
+    Configuration config = Resources.getSystem().getConfiguration();
+    return SDK_INT >= 24
+        ? getSystemLocalesV24(config)
+        : SDK_INT >= 21 ? getSystemLocaleV21(config) : new String[] {config.locale.toString()};
+  }
+
+  @TargetApi(24)
+  private static String[] getSystemLocalesV24(Configuration config) {
+    return Util.split(config.getLocales().toLanguageTags(), ",");
+  }
+
+  @TargetApi(21)
+  private static String[] getSystemLocaleV21(Configuration config) {
+    return new String[] {config.locale.toLanguageTag()};
+  }
+
+  @TargetApi(21)
+  private static String normalizeLanguageCodeSyntaxV21(String languageTag) {
+    return Locale.forLanguageTag(languageTag).toLanguageTag();
   }
 
   private static @C.NetworkType int getMobileNetworkType(NetworkInfo networkInfo) {
@@ -1890,6 +2048,54 @@ public final class Util {
         return C.NETWORK_TYPE_CELLULAR_UNKNOWN;
     }
   }
+
+  private static HashMap<String, String> createIso3ToIso2Map() {
+    String[] iso2Languages = Locale.getISOLanguages();
+    HashMap<String, String> iso3ToIso2 =
+        new HashMap<>(
+            /* initialCapacity= */ iso2Languages.length + iso3BibliographicalToIso2.length);
+    for (String iso2 : iso2Languages) {
+      try {
+        // This returns the ISO 639-2/T code for the language.
+        String iso3 = new Locale(iso2).getISO3Language();
+        if (!TextUtils.isEmpty(iso3)) {
+          iso3ToIso2.put(iso3, iso2);
+        }
+      } catch (MissingResourceException e) {
+        // Shouldn't happen for list of known languages, but we don't want to throw either.
+      }
+    }
+    // Add additional ISO 639-2/B codes to mapping.
+    for (int i = 0; i < iso3BibliographicalToIso2.length; i += 2) {
+      iso3ToIso2.put(iso3BibliographicalToIso2[i], iso3BibliographicalToIso2[i + 1]);
+    }
+    return iso3ToIso2;
+  }
+
+  // See https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes.
+  private static final String[] iso3BibliographicalToIso2 =
+      new String[] {
+        "alb", "sq",
+        "arm", "hy",
+        "baq", "eu",
+        "bur", "my",
+        "tib", "bo",
+        "chi", "zh",
+        "cze", "cs",
+        "dut", "nl",
+        "ger", "de",
+        "gre", "el",
+        "fre", "fr",
+        "geo", "ka",
+        "ice", "is",
+        "mac", "mk",
+        "mao", "mi",
+        "may", "ms",
+        "per", "fa",
+        "rum", "ro",
+        "slo", "sk",
+        "wel", "cy"
+      };
 
   /**
    * Allows the CRC calculation to be done byte by byte instead of bit per bit being the order

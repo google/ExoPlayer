@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.testutil;
 
 import android.os.Handler;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -43,7 +43,7 @@ import com.google.android.exoplayer2.util.Log;
 public abstract class Action {
 
   private final String tag;
-  private final @Nullable String description;
+  @Nullable private final String description;
 
   /**
    * @param tag A tag to use for logging.
@@ -542,12 +542,10 @@ public abstract class Action {
     }
   }
 
-  /**
-   * Waits for {@link Player.EventListener#onTimelineChanged(Timeline, Object, int)}.
-   */
+  /** Waits for {@link Player.EventListener#onTimelineChanged(Timeline, int)}. */
   public static final class WaitForTimelineChanged extends Action {
 
-    private final @Nullable Timeline expectedTimeline;
+    @Nullable private final Timeline expectedTimeline;
 
     /**
      * Creates action waiting for a timeline change.
@@ -575,9 +573,7 @@ public abstract class Action {
           new Player.EventListener() {
             @Override
             public void onTimelineChanged(
-                Timeline timeline,
-                @Nullable Object manifest,
-                @Player.TimelineChangeReason int reason) {
+                Timeline timeline, @Player.TimelineChangeReason int reason) {
               if (expectedTimeline == null || timeline.equals(expectedTimeline)) {
                 player.removeListener(this);
                 nextAction.schedule(player, trackSelector, surface, handler);
@@ -669,8 +665,59 @@ public abstract class Action {
         player.addListener(
             new Player.EventListener() {
               @Override
-              public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+              public void onPlayerStateChanged(
+                  boolean playWhenReady, @Player.State int playbackState) {
                 if (targetPlaybackState == playbackState) {
+                  player.removeListener(this);
+                  nextAction.schedule(player, trackSelector, surface, handler);
+                }
+              }
+            });
+      }
+    }
+
+    @Override
+    protected void doActionImpl(
+        SimpleExoPlayer player, DefaultTrackSelector trackSelector, Surface surface) {
+      // Not triggered.
+    }
+  }
+
+  /**
+   * Waits for a specified loading state, returning either immediately or after a call to {@link
+   * Player.EventListener#onLoadingChanged(boolean)}.
+   */
+  public static final class WaitForIsLoading extends Action {
+
+    private final boolean targetIsLoading;
+
+    /**
+     * @param tag A tag to use for logging.
+     * @param targetIsLoading The loading state to wait for.
+     */
+    public WaitForIsLoading(String tag, boolean targetIsLoading) {
+      super(tag, "WaitForIsLoading");
+      this.targetIsLoading = targetIsLoading;
+    }
+
+    @Override
+    protected void doActionAndScheduleNextImpl(
+        final SimpleExoPlayer player,
+        final DefaultTrackSelector trackSelector,
+        final Surface surface,
+        final HandlerWrapper handler,
+        final ActionNode nextAction) {
+      if (nextAction == null) {
+        return;
+      }
+      if (targetIsLoading == player.isLoading()) {
+        nextAction.schedule(player, trackSelector, surface, handler);
+      } else {
+        player.addListener(
+            new Player.EventListener() {
+              @Override
+              public void onLoadingChanged(boolean isLoading) {
+                if (targetIsLoading == isLoading) {
                   player.removeListener(this);
                   nextAction.schedule(player, trackSelector, surface, handler);
                 }

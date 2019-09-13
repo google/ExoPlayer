@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.source.rtsp.media;
 
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 
 import com.google.android.exoplayer2.source.rtp.format.RtpPayloadFormat;
 import com.google.android.exoplayer2.source.rtsp.message.Transport;

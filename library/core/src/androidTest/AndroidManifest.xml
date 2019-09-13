@@ -18,6 +18,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.google.android.exoplayer2.core.test">
 
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+  <uses-sdk/>
+
   <application android:debuggable="true"
       android:allowBackup="false"
       tools:ignore="MissingApplicationIcon,HardcodedDebugMode">

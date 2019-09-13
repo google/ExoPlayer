@@ -19,8 +19,8 @@ import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Looper;
 import android.os.Message;
-import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -43,12 +43,6 @@ import java.util.List;
  * delegated to a {@link TextOutput}.
  */
 public final class TextRenderer extends BaseRenderer implements Callback {
-
-  /**
-   * @deprecated Use {@link TextOutput}.
-   */
-  @Deprecated
-  public interface Output extends TextOutput {}
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -77,7 +71,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
 
   private static final int MSG_UPDATE_OUTPUT = 0;
 
-  private final @Nullable Handler outputHandler;
+  @Nullable private final Handler outputHandler;
   private final TextOutput output;
   private final SubtitleDecoderFactory decoderFactory;
   private final FormatHolder formatHolder;

@@ -18,7 +18,7 @@ package com.google.android.exoplayer2.source.rtsp;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -656,8 +656,8 @@ public final class RtspSampleStreamWrapper implements
             return C.RESULT_NOTHING_READ;
         }
 
-        return sampleQueues[trackGroupIndex].read(formatHolder, buffer, requireFormat, loadingFinished,
-                C.TIME_UNSET);
+        return sampleQueues[trackGroupIndex].read(formatHolder, buffer, requireFormat, false, loadingFinished,
+                 C.TIME_UNSET);
     }
 
     public int skipData(int trackGroupIndex, long positionUs) {

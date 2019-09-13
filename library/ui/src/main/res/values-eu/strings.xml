@@ -12,6 +12,7 @@
   <string name="exo_controls_repeat_all_description">Errepikatu guztiak</string>
   <string name="exo_controls_shuffle_description">Erreproduzitu ausaz</string>
   <string name="exo_controls_fullscreen_description">Pantaila osoko modua</string>
+  <string name="exo_controls_vr_description">EB modua</string>
   <string name="exo_download_description">Deskargak</string>
   <string name="exo_download_notification_channel_name">Deskargak</string>
   <string name="exo_download_downloading">Deskargatzen</string>
@@ -30,6 +31,10 @@
   <string name="exo_track_surround">Soinu inguratzailea</string>
   <string name="exo_track_surround_5_point_1">5.1 soinu inguratzailea</string>
   <string name="exo_track_surround_7_point_1">7.1 soinu inguratzailea</string>
+  <string name="exo_track_role_alternate">Ordezkoa</string>
+  <string name="exo_track_role_supplementary">Osagarria</string>
+  <string name="exo_track_role_commentary">Iruzkinak</string>
+  <string name="exo_track_role_closed_captions">Azpitituluak</string>
   <string name="exo_track_bitrate">%1$.2f Mb/s</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>

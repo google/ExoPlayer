@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.source.rtsp.message;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 /**
  * Headers that RTSP implements.

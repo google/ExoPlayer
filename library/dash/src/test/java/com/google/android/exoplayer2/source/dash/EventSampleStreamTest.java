@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.dash;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
@@ -29,12 +30,9 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Unit test for {@link EventSampleStream}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Unit test for {@link EventSampleStream}. */
+@RunWith(AndroidJUnit4.class)
 public final class EventSampleStreamTest {
 
   private static final String SCHEME_ID = "urn:test";
@@ -111,7 +109,7 @@ public final class EventSampleStreamTest {
   @Test
   public void testReadDataReturnDataAfterFormat() {
     long presentationTimeUs = 1000000;
-    EventMessage eventMessage = newEventMessageWithIdAndTime(1, presentationTimeUs);
+    EventMessage eventMessage = newEventMessageWithId(1);
     EventStream eventStream = new EventStream(SCHEME_ID, VALUE, TIME_SCALE,
         new long[] {presentationTimeUs}, new EventMessage[] {eventMessage});
     EventSampleStream sampleStream = new EventSampleStream(eventStream, FORMAT, false);
@@ -133,8 +131,8 @@ public final class EventSampleStreamTest {
   public void testSkipDataThenReadDataReturnDataFromSkippedPosition() {
     long presentationTimeUs1 = 1000000;
     long presentationTimeUs2 = 2000000;
-    EventMessage eventMessage1 = newEventMessageWithIdAndTime(1, presentationTimeUs1);
-    EventMessage eventMessage2 = newEventMessageWithIdAndTime(2, presentationTimeUs2);
+    EventMessage eventMessage1 = newEventMessageWithId(1);
+    EventMessage eventMessage2 = newEventMessageWithId(2);
     EventStream eventStream = new EventStream(SCHEME_ID, VALUE, TIME_SCALE,
         new long[] {presentationTimeUs1, presentationTimeUs2},
         new EventMessage[] {eventMessage1, eventMessage2});
@@ -159,8 +157,8 @@ public final class EventSampleStreamTest {
   public void testSeekToUsThenReadDataReturnDataFromSeekPosition() {
     long presentationTimeUs1 = 1000000;
     long presentationTimeUs2 = 2000000;
-    EventMessage eventMessage1 = newEventMessageWithIdAndTime(1, presentationTimeUs1);
-    EventMessage eventMessage2 = newEventMessageWithIdAndTime(2, presentationTimeUs2);
+    EventMessage eventMessage1 = newEventMessageWithId(1);
+    EventMessage eventMessage2 = newEventMessageWithId(2);
     EventStream eventStream = new EventStream(SCHEME_ID, VALUE, TIME_SCALE,
         new long[] {presentationTimeUs1, presentationTimeUs2},
         new EventMessage[] {eventMessage1, eventMessage2});
@@ -186,9 +184,9 @@ public final class EventSampleStreamTest {
     long presentationTimeUs1 = 1000000;
     long presentationTimeUs2 = 2000000;
     long presentationTimeUs3 = 3000000;
-    EventMessage eventMessage1 = newEventMessageWithIdAndTime(1, presentationTimeUs1);
-    EventMessage eventMessage2 = newEventMessageWithIdAndTime(2, presentationTimeUs2);
-    EventMessage eventMessage3 = newEventMessageWithIdAndTime(3, presentationTimeUs3);
+    EventMessage eventMessage1 = newEventMessageWithId(1);
+    EventMessage eventMessage2 = newEventMessageWithId(2);
+    EventMessage eventMessage3 = newEventMessageWithId(3);
     EventStream eventStream1 = new EventStream(SCHEME_ID, VALUE, TIME_SCALE,
         new long[] {presentationTimeUs1, presentationTimeUs2},
         new EventMessage[] {eventMessage1, eventMessage2});
@@ -220,9 +218,9 @@ public final class EventSampleStreamTest {
     long presentationTimeUs1 = 1000000;
     long presentationTimeUs2 = 2000000;
     long presentationTimeUs3 = 3000000;
-    EventMessage eventMessage1 = newEventMessageWithIdAndTime(1, presentationTimeUs1);
-    EventMessage eventMessage2 = newEventMessageWithIdAndTime(2, presentationTimeUs2);
-    EventMessage eventMessage3 = newEventMessageWithIdAndTime(3, presentationTimeUs3);
+    EventMessage eventMessage1 = newEventMessageWithId(1);
+    EventMessage eventMessage2 = newEventMessageWithId(2);
+    EventMessage eventMessage3 = newEventMessageWithId(3);
     EventStream eventStream1 = new EventStream(SCHEME_ID, VALUE, TIME_SCALE,
         new long[] {presentationTimeUs1, presentationTimeUs2},
         new EventMessage[] {eventMessage1, eventMessage2});
@@ -253,9 +251,9 @@ public final class EventSampleStreamTest {
     long presentationTimeUs1 = 1000000;
     long presentationTimeUs2 = 2000000;
     long presentationTimeUs3 = 3000000;
-    EventMessage eventMessage1 = newEventMessageWithIdAndTime(1, presentationTimeUs1);
-    EventMessage eventMessage2 = newEventMessageWithIdAndTime(2, presentationTimeUs2);
-    EventMessage eventMessage3 = newEventMessageWithIdAndTime(3, presentationTimeUs3);
+    EventMessage eventMessage1 = newEventMessageWithId(1);
+    EventMessage eventMessage2 = newEventMessageWithId(2);
+    EventMessage eventMessage3 = newEventMessageWithId(3);
     EventStream eventStream1 = new EventStream(SCHEME_ID, VALUE, TIME_SCALE,
         new long[] {presentationTimeUs1},
         new EventMessage[] {eventMessage1});
@@ -287,9 +285,9 @@ public final class EventSampleStreamTest {
     long presentationTimeUs1 = 1000000;
     long presentationTimeUs2 = 2000000;
     long presentationTimeUs3 = 3000000;
-    EventMessage eventMessage1 = newEventMessageWithIdAndTime(1, presentationTimeUs1);
-    EventMessage eventMessage2 = newEventMessageWithIdAndTime(2, presentationTimeUs2);
-    EventMessage eventMessage3 = newEventMessageWithIdAndTime(3, presentationTimeUs3);
+    EventMessage eventMessage1 = newEventMessageWithId(1);
+    EventMessage eventMessage2 = newEventMessageWithId(2);
+    EventMessage eventMessage3 = newEventMessageWithId(3);
     EventStream eventStream1 = new EventStream(SCHEME_ID, VALUE, TIME_SCALE,
         new long[] {presentationTimeUs1, presentationTimeUs2},
         new EventMessage[] {eventMessage1, eventMessage2});
@@ -319,9 +317,9 @@ public final class EventSampleStreamTest {
     long presentationTimeUs1 = 1000000;
     long presentationTimeUs2 = 2000000;
     long presentationTimeUs3 = 3000000;
-    EventMessage eventMessage1 = newEventMessageWithIdAndTime(1, presentationTimeUs1);
-    EventMessage eventMessage2 = newEventMessageWithIdAndTime(2, presentationTimeUs2);
-    EventMessage eventMessage3 = newEventMessageWithIdAndTime(3, presentationTimeUs3);
+    EventMessage eventMessage1 = newEventMessageWithId(1);
+    EventMessage eventMessage2 = newEventMessageWithId(2);
+    EventMessage eventMessage3 = newEventMessageWithId(3);
     EventStream eventStream1 = new EventStream(SCHEME_ID, VALUE, TIME_SCALE,
         new long[] {presentationTimeUs1},
         new EventMessage[] {eventMessage1});
@@ -345,12 +343,12 @@ public final class EventSampleStreamTest {
     return sampleStream.readData(formatHolder, inputBuffer, false);
   }
 
-  private EventMessage newEventMessageWithIdAndTime(int id, long presentationTimeUs) {
-    return new EventMessage(SCHEME_ID, VALUE, DURATION_MS, id, MESSAGE_DATA, presentationTimeUs);
+  private EventMessage newEventMessageWithId(int id) {
+    return new EventMessage(SCHEME_ID, VALUE, DURATION_MS, id, MESSAGE_DATA);
   }
 
   private byte[] getEncodedMessage(EventMessage eventMessage) {
-    return eventMessageEncoder.encode(eventMessage, TIME_SCALE);
+    return eventMessageEncoder.encode(eventMessage);
   }
 
 }

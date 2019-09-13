@@ -21,6 +21,8 @@ import static java.util.Arrays.copyOfRange;
 
 import android.content.Context;
 import android.net.Uri;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
 import com.google.android.exoplayer2.testutil.TestUtil;
@@ -37,13 +39,9 @@ import java.io.IOException;
 import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
-/**
- * Additional tests for {@link CacheDataSource}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Additional tests for {@link CacheDataSource}. */
+@RunWith(AndroidJUnit4.class)
 public final class CacheDataSourceTest2 {
 
   private static final String EXO_CACHE_DIR = "exo";
@@ -83,7 +81,8 @@ public final class CacheDataSourceTest2 {
   private void testReads(boolean useEncryption) throws IOException {
     FakeDataSource upstreamSource = buildFakeUpstreamSource();
     CacheDataSource source =
-        buildCacheDataSource(RuntimeEnvironment.application, upstreamSource, useEncryption);
+        buildCacheDataSource(
+            ApplicationProvider.getApplicationContext(), upstreamSource, useEncryption);
     // First read, should arrive from upstream.
     testRead(END_ON_BOUNDARY, source);
     assertSingleOpen(upstreamSource, 0, OFFSET_ON_BOUNDARY);

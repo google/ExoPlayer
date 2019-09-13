@@ -16,35 +16,36 @@
 package com.google.android.exoplayer2.source;
 
 import android.os.Handler;
-import android.support.annotation.Nullable;
+import android.os.Looper;
+import androidx.annotation.Nullable;
 
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import java.util.ArrayList;
-
-import static com.google.android.exoplayer2.C.TCP;
+import java.util.HashSet;
 
 /**
  * Base {@link MediaSource} implementation to handle parallel reuse and to keep a list of {@link
  * MediaSourceEventListener}s.
  *
- * <p>Whenever an implementing subclass needs to provide a new timeline and/or manifest, it must
- * call {@link #refreshSourceInfo(Timeline, Object)} to notify all listeners.
+ * <p>Whenever an implementing subclass needs to provide a new timeline, it must call {@link
+ * #refreshSourceInfo(Timeline)} to notify all listeners.
  */
 public abstract class BaseMediaSource implements MediaSource {
 
-  private final ArrayList<SourceInfoRefreshListener> sourceInfoListeners;
+  private final ArrayList<MediaSourceCaller> mediaSourceCallers;
+  private final HashSet<MediaSourceCaller> enabledMediaSourceCallers;
   private final MediaSourceEventListener.EventDispatcher eventDispatcher;
 
-  private @Nullable ExoPlayer player;
-  private @Nullable Timeline timeline;
-  private @Nullable Object manifest;
+  @Nullable private Looper looper;
+  @Nullable private Timeline timeline;
+  @Nullable private ExoPlayer player;
 
   public BaseMediaSource() {
-    sourceInfoListeners = new ArrayList<>(/* initialCapacity= */ 1);
+    mediaSourceCallers = new ArrayList<>(/* initialCapacity= */ 1);
+    enabledMediaSourceCallers = new HashSet<>(/* initialCapacity= */ 1);
     eventDispatcher = new MediaSourceEventListener.EventDispatcher();
   }
 
@@ -57,24 +58,25 @@ public abstract class BaseMediaSource implements MediaSource {
   }
 
   /**
-   * Starts source preparation. This method is called at most once until the next call to {@link
+   * Starts source preparation and enables the source, see {@link MediaSource#prepareSource(MediaSourceCaller, TransferListener, ExoPlayer)}. This method is called at most once until the next call to {@link
    * #releaseSourceInternal()}.
    *
-   * @param player The player for which this source is being prepared.
-   * @param isTopLevelSource Whether this source has been passed directly to {@link
-   *     ExoPlayer#prepare(MediaSource)} or {@link ExoPlayer#prepare(MediaSource, boolean,
-   *     boolean)}.
    * @param mediaTransferListener The transfer listener which should be informed of any media data
    *     transfers. May be null if no listener is available. Note that this listener should usually
    *     be only informed of transfers related to the media loads and not of auxiliary loads for
    *     manifests and other data.
    */
-  protected abstract void prepareSourceInternal(
-      ExoPlayer player, boolean isTopLevelSource, @Nullable TransferListener mediaTransferListener);
+  protected abstract void prepareSourceInternal(@Nullable TransferListener mediaTransferListener);
+
+  /** Enables the source, see {@link #enable(MediaSourceCaller)}. */
+  protected void enableInternal() {}
+
+  /** Disables the source, see {@link #disable(MediaSourceCaller)}. */
+  protected void disableInternal() {}
 
   /**
-   * Releases the source. This method is called exactly once after each call to {@link
-   * #prepareSourceInternal(ExoPlayer, boolean, TransferListener)}.
+   * Releases the source, see {@link #releaseSource(MediaSourceCaller)}. This method is called
+   * exactly once after each call to {@link #prepareSourceInternal(TransferListener)}.
    */
   protected abstract void releaseSourceInternal();
 
@@ -82,13 +84,11 @@ public abstract class BaseMediaSource implements MediaSource {
    * Updates timeline and manifest and notifies all listeners of the update.
    *
    * @param timeline The new {@link Timeline}.
-   * @param manifest The new manifest. May be null.
    */
-  protected final void refreshSourceInfo(Timeline timeline, @Nullable Object manifest) {
+  protected final void refreshSourceInfo(Timeline timeline) {
     this.timeline = timeline;
-    this.manifest = manifest;
-    for (SourceInfoRefreshListener listener : sourceInfoListeners) {
-      listener.onSourceInfoRefreshed(/* source= */ this, timeline, manifest);
+    for (MediaSourceCaller caller : mediaSourceCallers) {
+      caller.onSourceInfoRefreshed(/* source= */ this, timeline);
     }
   }
 
@@ -135,6 +135,11 @@ public abstract class BaseMediaSource implements MediaSource {
     return eventDispatcher.withParameters(windowIndex, mediaPeriodId, mediaTimeOffsetMs);
   }
 
+  /** Returns whether the source is enabled. */
+  protected final boolean isEnabled() {
+    return !enabledMediaSourceCallers.isEmpty();
+  }
+
   @Override
   public final void addEventListener(Handler handler, MediaSourceEventListener eventListener) {
     eventDispatcher.addEventListener(handler, eventListener);
@@ -145,36 +150,59 @@ public abstract class BaseMediaSource implements MediaSource {
     eventDispatcher.removeEventListener(eventListener);
   }
 
-  @Override
-  public final void prepareSource(
-      ExoPlayer player, boolean isTopLevelSource, SourceInfoRefreshListener listener) {
-    prepareSource(player, isTopLevelSource, listener, /* mediaTransferListener= */ null);
+  @Nullable
+  public ExoPlayer getPlayer() {
+    return player;
   }
 
   @Override
   public final void prepareSource(
-      ExoPlayer player,
-      boolean isTopLevelSource,
-      SourceInfoRefreshListener listener,
-      @Nullable TransferListener mediaTransferListener) {
-    Assertions.checkArgument(this.player == null || this.player == player);
-    sourceInfoListeners.add(listener);
-    if (this.player == null) {
-      this.player = player;
-      prepareSourceInternal(player, isTopLevelSource, mediaTransferListener);
+          MediaSourceCaller caller, @Nullable TransferListener mediaTransferListener, ExoPlayer player) {
+    Looper looper = Looper.myLooper();
+    Assertions.checkArgument(this.looper == null || this.looper == looper);
+    Timeline timeline = this.timeline;
+    mediaSourceCallers.add(caller);
+    this.player = player;
+    if (this.looper == null) {
+      this.looper = looper;
+      enabledMediaSourceCallers.add(caller);
+      prepareSourceInternal(mediaTransferListener);
     } else if (timeline != null) {
-      listener.onSourceInfoRefreshed(/* source= */ this, timeline, manifest);
+      enable(caller);
+      caller.onSourceInfoRefreshed(/* source= */ this, timeline);
+    }
+  }
+
+
+  @Override
+  public final void enable(MediaSourceCaller caller) {
+    Assertions.checkNotNull(looper);
+    boolean wasDisabled = enabledMediaSourceCallers.isEmpty();
+    enabledMediaSourceCallers.add(caller);
+    if (wasDisabled) {
+      enableInternal();
     }
   }
 
   @Override
-  public final void releaseSource(SourceInfoRefreshListener listener) {
-    sourceInfoListeners.remove(listener);
-    if (sourceInfoListeners.isEmpty()) {
-      player = null;
+  public final void disable(MediaSourceCaller caller) {
+    boolean wasEnabled = !enabledMediaSourceCallers.isEmpty();
+    enabledMediaSourceCallers.remove(caller);
+    if (wasEnabled && enabledMediaSourceCallers.isEmpty()) {
+      disableInternal();
+    }
+  }
+
+  @Override
+  public final void releaseSource(MediaSourceCaller caller) {
+    mediaSourceCallers.remove(caller);
+    if (mediaSourceCallers.isEmpty()) {
+      looper = null;
       timeline = null;
-      manifest = null;
+      enabledMediaSourceCallers.clear();
       releaseSourceInternal();
+    } else {
+      disable(caller);
     }
   }
 }

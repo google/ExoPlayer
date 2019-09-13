@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.source.rtp.upstream;
 
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 /* package */ final class RtpStatistics {
 

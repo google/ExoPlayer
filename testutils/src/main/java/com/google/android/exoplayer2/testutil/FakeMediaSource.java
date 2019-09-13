@@ -20,9 +20,8 @@ import static com.google.common.truth.Truth.assertThat;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
@@ -57,11 +56,10 @@ public class FakeMediaSource extends BaseMediaSource {
   private final ArrayList<MediaPeriodId> createdMediaPeriods;
 
   protected Timeline timeline;
-  private Object manifest;
   private boolean preparedSource;
   private boolean releasedSource;
   private Handler sourceInfoRefreshHandler;
-  private @Nullable TransferListener transferListener;
+  @Nullable private TransferListener transferListener;
 
   /**
    * Creates a {@link FakeMediaSource}. This media source creates {@link FakeMediaPeriod}s with a
@@ -69,8 +67,8 @@ public class FakeMediaSource extends BaseMediaSource {
    * null to prevent an immediate source info refresh message when preparing the media source. It
    * can be manually set later using {@link #setNewSourceInfo(Timeline, Object)}.
    */
-  public FakeMediaSource(@Nullable Timeline timeline, Object manifest, Format... formats) {
-    this(timeline, manifest, buildTrackGroupArray(formats));
+  public FakeMediaSource(@Nullable Timeline timeline, Format... formats) {
+    this(timeline, buildTrackGroupArray(formats));
   }
 
   /**
@@ -79,20 +77,22 @@ public class FakeMediaSource extends BaseMediaSource {
    * immediate source info refresh message when preparing the media source. It can be manually set
    * later using {@link #setNewSourceInfo(Timeline, Object)}.
    */
-  public FakeMediaSource(@Nullable Timeline timeline, Object manifest,
-      TrackGroupArray trackGroupArray) {
+  public FakeMediaSource(@Nullable Timeline timeline, TrackGroupArray trackGroupArray) {
     this.timeline = timeline;
-    this.manifest = manifest;
     this.activeMediaPeriods = new ArrayList<>();
     this.createdMediaPeriods = new ArrayList<>();
     this.trackGroupArray = trackGroupArray;
   }
 
   @Override
-  public synchronized void prepareSourceInternal(
-      ExoPlayer player,
-      boolean isTopLevelSource,
-      @Nullable TransferListener mediaTransferListener) {
+  @Nullable
+  public Object getTag() {
+    boolean hasTimeline = timeline != null && !timeline.isEmpty();
+    return hasTimeline ? timeline.getWindow(0, new Timeline.Window()).tag : null;
+  }
+
+  @Override
+  public synchronized void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
     assertThat(preparedSource).isFalse();
     transferListener = mediaTransferListener;
     preparedSource = true;
@@ -109,7 +109,7 @@ public class FakeMediaSource extends BaseMediaSource {
   }
 
   @Override
-  public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
+  public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs) {
     assertThat(preparedSource).isTrue();
     assertThat(releasedSource).isFalse();
     int periodIndex = timeline.getIndexOfPeriod(id.periodUid);
@@ -134,7 +134,7 @@ public class FakeMediaSource extends BaseMediaSource {
   }
 
   @Override
-  public void releaseSourceInternal() {
+  protected void releaseSourceInternal() {
     assertThat(preparedSource).isTrue();
     assertThat(releasedSource).isFalse();
     assertThat(activeMediaPeriods.isEmpty()).isTrue();
@@ -155,12 +155,10 @@ public class FakeMediaSource extends BaseMediaSource {
             assertThat(releasedSource).isFalse();
             assertThat(preparedSource).isTrue();
             timeline = newTimeline;
-            manifest = newManifest;
             finishSourcePreparation();
           });
     } else {
       timeline = newTimeline;
-      manifest = newManifest;
     }
   }
 
@@ -209,7 +207,7 @@ public class FakeMediaSource extends BaseMediaSource {
   }
 
   private void finishSourcePreparation() {
-    refreshSourceInfo(timeline, manifest);
+    refreshSourceInfo(timeline);
     if (!timeline.isEmpty()) {
       MediaLoadData mediaLoadData =
           new MediaLoadData(

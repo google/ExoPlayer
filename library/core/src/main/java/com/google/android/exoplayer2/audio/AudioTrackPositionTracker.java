@@ -20,8 +20,8 @@ import static com.google.android.exoplayer2.util.Util.castNonNull;
 import android.media.AudioTimestamp;
 import android.media.AudioTrack;
 import android.os.SystemClock;
-import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
@@ -133,10 +133,10 @@ import java.lang.reflect.Method;
   private final Listener listener;
   private final long[] playheadOffsets;
 
-  private @Nullable AudioTrack audioTrack;
+  @Nullable private AudioTrack audioTrack;
   private int outputPcmFrameSize;
   private int bufferSize;
-  private @Nullable AudioTimestampPoller audioTimestampPoller;
+  @Nullable private AudioTimestampPoller audioTimestampPoller;
   private int outputSampleRate;
   private boolean needsPassthroughWorkarounds;
   private long bufferSizeUs;
@@ -144,7 +144,7 @@ import java.lang.reflect.Method;
   private long smoothedPlayheadOffsetUs;
   private long lastPlayheadSampleTimeUs;
 
-  private @Nullable Method getLatencyMethod;
+  @Nullable private Method getLatencyMethod;
   private long latencyUs;
   private boolean hasData;
 
@@ -517,7 +517,7 @@ import java.lang.reflect.Method;
       rawPlaybackHeadPosition += passthroughWorkaroundPauseOffset;
     }
 
-    if (Util.SDK_INT <= 28) {
+    if (Util.SDK_INT <= 29) {
       if (rawPlaybackHeadPosition == 0
           && lastRawPlaybackHeadPosition > 0
           && state == PLAYSTATE_PLAYING) {

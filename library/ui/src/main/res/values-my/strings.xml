@@ -12,6 +12,7 @@
   <string name="exo_controls_repeat_all_description">အားလုံး ပြန်ကျော့ရန်</string>
   <string name="exo_controls_shuffle_description">ရောသမမွှေ</string>
   <string name="exo_controls_fullscreen_description">မျက်နှာပြင်အပြည့် မုဒ်</string>
+  <string name="exo_controls_vr_description">VR မုဒ်</string>
   <string name="exo_download_description">ဒေါင်းလုဒ် လုပ်ရန်</string>
   <string name="exo_download_notification_channel_name">ဒေါင်းလုဒ်များ</string>
   <string name="exo_download_downloading">ဒေါင်းလုဒ်လုပ်နေသည်</string>
@@ -30,6 +31,10 @@
   <string name="exo_track_surround">ပတ်လည် အသံစနစ်</string>
   <string name="exo_track_surround_5_point_1">5.1 ပတ်လည် အသံစနစ်</string>
   <string name="exo_track_surround_7_point_1">7.1 ပတ်လည် အသံစနစ်</string>
+  <string name="exo_track_role_alternate">အရန်</string>
+  <string name="exo_track_role_supplementary">နောက်ဆက်တွဲ</string>
+  <string name="exo_track_role_commentary">ထင်မြင်သုံးသပ်ချက်</string>
+  <string name="exo_track_role_closed_captions">CC</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s၊ %2$s</string>
 </resources>

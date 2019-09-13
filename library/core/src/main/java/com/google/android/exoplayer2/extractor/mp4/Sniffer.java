@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.extractor.mp4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.util.ParsableByteArray;
-import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /**
@@ -27,37 +26,38 @@ import java.io.IOException;
  */
 /* package */ final class Sniffer {
 
-  /**
-   * The maximum number of bytes to peek when sniffing.
-   */
+  /** The maximum number of bytes to peek when sniffing. */
   private static final int SEARCH_LENGTH = 4 * 1024;
 
-  private static final int[] COMPATIBLE_BRANDS = new int[] {
-      Util.getIntegerCodeForString("isom"),
-      Util.getIntegerCodeForString("iso2"),
-      Util.getIntegerCodeForString("iso3"),
-      Util.getIntegerCodeForString("iso4"),
-      Util.getIntegerCodeForString("iso5"),
-      Util.getIntegerCodeForString("iso6"),
-      Util.getIntegerCodeForString("avc1"),
-      Util.getIntegerCodeForString("hvc1"),
-      Util.getIntegerCodeForString("hev1"),
-      Util.getIntegerCodeForString("mp41"),
-      Util.getIntegerCodeForString("mp42"),
-      Util.getIntegerCodeForString("3g2a"),
-      Util.getIntegerCodeForString("3g2b"),
-      Util.getIntegerCodeForString("3gr6"),
-      Util.getIntegerCodeForString("3gs6"),
-      Util.getIntegerCodeForString("3ge6"),
-      Util.getIntegerCodeForString("3gg6"),
-      Util.getIntegerCodeForString("M4V "),
-      Util.getIntegerCodeForString("M4A "),
-      Util.getIntegerCodeForString("f4v "),
-      Util.getIntegerCodeForString("kddi"),
-      Util.getIntegerCodeForString("M4VP"),
-      Util.getIntegerCodeForString("qt  "), // Apple QuickTime
-      Util.getIntegerCodeForString("MSNV"), // Sony PSP
-  };
+  private static final int[] COMPATIBLE_BRANDS =
+      new int[] {
+        0x69736f6d, // isom
+        0x69736f32, // iso2
+        0x69736f33, // iso3
+        0x69736f34, // iso4
+        0x69736f35, // iso5
+        0x69736f36, // iso6
+        0x61766331, // avc1
+        0x68766331, // hvc1
+        0x68657631, // hev1
+        0x61763031, // av01
+        0x6d703431, // mp41
+        0x6d703432, // mp42
+        0x33673261, // 3g2a
+        0x33673262, // 3g2b
+        0x33677236, // 3gr6
+        0x33677336, // 3gs6
+        0x33676536, // 3ge6
+        0x33676736, // 3gg6
+        0x4d345620, // M4V[space]
+        0x4d344120, // M4A[space]
+        0x66347620, // f4v[space]
+        0x6b646469, // kddi
+        0x4d345650, // M4VP
+        0x71742020, // qt[space][space], Apple QuickTime
+        0x4d534e56, // MSNV, Sony PSP
+        0x64627931, // dby1, Dolby Vision
+      };
 
   /**
    * Returns whether data peeked from the current position in {@code input} is consistent with the
@@ -109,15 +109,19 @@ import java.io.IOException;
         headerSize = Atom.LONG_HEADER_SIZE;
         input.peekFully(buffer.data, Atom.HEADER_SIZE, Atom.LONG_HEADER_SIZE - Atom.HEADER_SIZE);
         buffer.setLimit(Atom.LONG_HEADER_SIZE);
-        atomSize = buffer.readUnsignedLongToLong();
+        atomSize = buffer.readLong();
       } else if (atomSize == Atom.EXTENDS_TO_END_SIZE) {
         // The atom extends to the end of the file.
-        long endPosition = input.getLength();
-        if (endPosition != C.LENGTH_UNSET) {
-          atomSize = endPosition - input.getPosition() + headerSize;
+        long fileEndPosition = input.getLength();
+        if (fileEndPosition != C.LENGTH_UNSET) {
+          atomSize = fileEndPosition - input.getPeekPosition() + headerSize;
         }
       }
 
+      if (inputLength != C.LENGTH_UNSET && bytesSearched + atomSize > inputLength) {
+        // The file is invalid because the atom extends past the end of the file.
+        return false;
+      }
       if (atomSize < headerSize) {
         // The file is invalid because the atom size is too small for its header.
         return false;
@@ -125,6 +129,13 @@ import java.io.IOException;
       bytesSearched += headerSize;
 
       if (atomType == Atom.TYPE_moov) {
+        // We have seen the moov atom. We increase the search size to make sure we don't miss an
+        // mvex atom because the moov's size exceeds the search length.
+        bytesToSearch += (int) atomSize;
+        if (inputLength != C.LENGTH_UNSET && bytesToSearch > inputLength) {
+          // Make sure we don't exceed the file size.
+          bytesToSearch = (int) inputLength;
+        }
         // Check for an mvex atom inside the moov atom to identify whether the file is fragmented.
         continue;
       }
@@ -176,7 +187,7 @@ import java.io.IOException;
    */
   private static boolean isCompatibleBrand(int brand) {
     // Accept all brands starting '3gp'.
-    if (brand >>> 8 == Util.getIntegerCodeForString("3gp")) {
+    if (brand >>> 8 == 0x00336770) {
       return true;
     }
     for (int compatibleBrand : COMPATIBLE_BRANDS) {

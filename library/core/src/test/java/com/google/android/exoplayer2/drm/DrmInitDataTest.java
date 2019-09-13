@@ -22,6 +22,7 @@ import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_MP4;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Parcel;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.testutil.TestUtil;
@@ -29,12 +30,9 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Unit test for {@link DrmInitData}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Unit test for {@link DrmInitData}. */
+@RunWith(AndroidJUnit4.class)
 public class DrmInitDataTest {
 
   private static final SchemeData DATA_1 = new SchemeData(WIDEVINE_UUID, VIDEO_MP4,
@@ -126,7 +124,7 @@ public class DrmInitDataTest {
   @Test
   public void testGetByIndex() {
     DrmInitData testInitData = new DrmInitData(DATA_1, DATA_2);
-    assertThat(getAllSchemeData(testInitData)).containsAllOf(DATA_1, DATA_2);
+    assertThat(getAllSchemeData(testInitData)).containsAtLeast(DATA_1, DATA_2);
   }
 
   @Test

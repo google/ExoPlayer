@@ -103,14 +103,13 @@ import java.util.Arrays;
   /**
    * An OGG Packet may span multiple pages. Returns the {@link OggPageHeader} of the last page read,
    * or an empty header if the packet has yet to be populated.
-   * <p>
-   * Note that the returned {@link OggPageHeader} is mutable and may be updated during subsequent
+   *
+   * <p>Note that the returned {@link OggPageHeader} is mutable and may be updated during subsequent
    * calls to {@link #populate(ExtractorInput)}.
    *
    * @return the {@code PageHeader} of the last page read or an empty header if the packet has yet
    *     to be populated.
    */
-  //@VisibleForTesting
   public OggPageHeader getPageHeader() {
     return pageHeader;
   }

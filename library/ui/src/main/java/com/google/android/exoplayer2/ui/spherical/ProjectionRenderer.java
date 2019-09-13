@@ -17,20 +17,18 @@ package com.google.android.exoplayer2.ui.spherical;
 
 import static com.google.android.exoplayer2.util.GlUtil.checkGlError;
 
-import android.annotation.TargetApi;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.video.spherical.Projection;
 import java.nio.FloatBuffer;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Utility class to render spherical meshes for video or images. Call {@link #init()} on the GL
  * thread when ready.
  */
-@TargetApi(15)
 /* package */ final class ProjectionRenderer {
 
   /**
@@ -93,8 +91,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
   };
 
   private int stereoMode;
-  private @Nullable MeshData leftMeshData;
-  private @Nullable MeshData rightMeshData;
+  @Nullable private MeshData leftMeshData;
+  @Nullable private MeshData rightMeshData;
 
   // Program related GL items. These are only valid if program != 0.
   private int program;

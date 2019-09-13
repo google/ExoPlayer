@@ -15,15 +15,16 @@
  */
 package com.google.android.exoplayer2.castdemo;
 
+import android.net.Uri;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ext.cast.MediaItem;
+import com.google.android.exoplayer2.ext.cast.MediaItem.DrmConfiguration;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Utility methods and constants for the Cast demo application.
- */
+/** Utility methods and constants for the Cast demo application. */
 /* package */ final class DemoUtil {
 
   public static final String MIME_TYPE_DASH = MimeTypes.APPLICATION_MPD;
@@ -35,46 +36,69 @@ import java.util.List;
   public static final List<MediaItem> SAMPLES;
 
   static {
-    // App samples.
     ArrayList<MediaItem> samples = new ArrayList<>();
-    MediaItem.Builder sampleBuilder = new MediaItem.Builder();
 
+    // Clear content.
     samples.add(
-        sampleBuilder
-            .setTitle("DASH (clear,MP4,H264)")
+        new MediaItem.Builder()
+            .setUri("https://storage.googleapis.com/wvmedia/clear/h264/tears/tears.mpd")
+            .setTitle("Clear DASH: Tears")
             .setMimeType(MIME_TYPE_DASH)
-            .setMedia("https://storage.googleapis.com/wvmedia/clear/h264/tears/tears.mpd")
-            .buildAndClear());
-
+            .build());
     samples.add(
-        sampleBuilder
-            .setTitle("Tears of Steel (HLS)")
+        new MediaItem.Builder()
+            .setUri("https://storage.googleapis.com/shaka-demo-assets/angel-one-hls/hls.m3u8")
+            .setTitle("Clear HLS: Angel one")
             .setMimeType(MIME_TYPE_HLS)
-            .setMedia(
-                "https://commondatastorage.googleapis.com/gtv-videos-bucket/CastVideos/"
-                    + "hls/TearsOfSteel.m3u8")
-            .buildAndClear());
-
+            .build());
     samples.add(
-        sampleBuilder
-            .setTitle("HLS Basic (TS)")
-            .setMimeType(MIME_TYPE_HLS)
-            .setMedia(
-                "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3"
-                    + "/bipbop_4x3_variant.m3u8")
-            .buildAndClear());
-
-    samples.add(
-        sampleBuilder
-            .setTitle("Dizzy (MP4)")
+        new MediaItem.Builder()
+            .setUri("https://html5demos.com/assets/dizzy.mp4")
+            .setTitle("Clear MP4: Dizzy")
             .setMimeType(MIME_TYPE_VIDEO_MP4)
-            .setMedia("https://html5demos.com/assets/dizzy.mp4")
-            .buildAndClear());
+            .build());
+
+    // DRM content.
+    samples.add(
+        new MediaItem.Builder()
+            .setUri(Uri.parse("https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd"))
+            .setTitle("Widevine DASH cenc: Tears")
+            .setMimeType(MIME_TYPE_DASH)
+            .setDrmConfiguration(
+                new DrmConfiguration(
+                    C.WIDEVINE_UUID,
+                    Uri.parse("https://proxy.uat.widevine.com/proxy?provider=widevine_test"),
+                    Collections.emptyMap()))
+            .build());
+    samples.add(
+        new MediaItem.Builder()
+            .setUri(
+                Uri.parse(
+                    "https://storage.googleapis.com/wvmedia/cbc1/h264/tears/tears_aes_cbc1.mpd"))
+            .setTitle("Widevine DASH cbc1: Tears")
+            .setMimeType(MIME_TYPE_DASH)
+            .setDrmConfiguration(
+                new DrmConfiguration(
+                    C.WIDEVINE_UUID,
+                    Uri.parse("https://proxy.uat.widevine.com/proxy?provider=widevine_test"),
+                    Collections.emptyMap()))
+            .build());
+    samples.add(
+        new MediaItem.Builder()
+            .setUri(
+                Uri.parse(
+                    "https://storage.googleapis.com/wvmedia/cbcs/h264/tears/tears_aes_cbcs.mpd"))
+            .setTitle("Widevine DASH cbcs: Tears")
+            .setMimeType(MIME_TYPE_DASH)
+            .setDrmConfiguration(
+                new DrmConfiguration(
+                    C.WIDEVINE_UUID,
+                    Uri.parse("https://proxy.uat.widevine.com/proxy?provider=widevine_test"),
+                    Collections.emptyMap()))
+            .build());
 
     SAMPLES = Collections.unmodifiableList(samples);
-
   }
 
   private DemoUtil() {}
-
 }

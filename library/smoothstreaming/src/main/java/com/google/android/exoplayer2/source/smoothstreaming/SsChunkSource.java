@@ -15,8 +15,7 @@
  */
 package com.google.android.exoplayer2.source.smoothstreaming;
 
-import android.support.annotation.Nullable;
-import com.google.android.exoplayer2.extractor.mp4.TrackEncryptionBox;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.source.chunk.ChunkSource;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
@@ -38,7 +37,6 @@ public interface SsChunkSource extends ChunkSource {
      * @param manifest The initial manifest.
      * @param streamElementIndex The index of the corresponding stream element in the manifest.
      * @param trackSelection The track selection.
-     * @param trackEncryptionBoxes Track encryption boxes for the stream.
      * @param transferListener The transfer listener which should be informed of any data transfers.
      *     May be null if no listener is available.
      * @return The created {@link SsChunkSource}.
@@ -48,7 +46,6 @@ public interface SsChunkSource extends ChunkSource {
         SsManifest manifest,
         int streamElementIndex,
         TrackSelection trackSelection,
-        TrackEncryptionBox[] trackEncryptionBoxes,
         @Nullable TransferListener transferListener);
   }
 
@@ -58,4 +55,11 @@ public interface SsChunkSource extends ChunkSource {
    * @param newManifest The new manifest.
    */
   void updateManifest(SsManifest newManifest);
+
+  /**
+   * Updates the track selection.
+   *
+   * @param trackSelection The new track selection instance. Must be equivalent to the previous one.
+   */
+  void updateTrackSelection(TrackSelection trackSelection);
 }
