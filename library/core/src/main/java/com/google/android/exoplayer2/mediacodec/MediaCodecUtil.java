@@ -602,7 +602,7 @@ public final class MediaCodecUtil {
     if (Util.SDK_INT >= 29) {
       return isSoftwareOnlyV29(codecInfo);
     }
-    String codecName = codecInfo.getName().toLowerCase();
+    String codecName = Util.toLowerInvariant(codecInfo.getName());
     if (codecName.startsWith("arc.")) { // App Runtime for Chrome (ARC) codecs
       return false;
     }
@@ -628,7 +628,7 @@ public final class MediaCodecUtil {
     if (Util.SDK_INT >= 29) {
       return isVendorV29(codecInfo);
     }
-    String codecName = codecInfo.getName().toLowerCase();
+    String codecName = Util.toLowerInvariant(codecInfo.getName());
     return !codecName.startsWith("omx.google.")
         && !codecName.startsWith("c2.android.")
         && !codecName.startsWith("c2.google.");
