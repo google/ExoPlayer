@@ -80,6 +80,12 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
+  @PlaybackSuppressionReason
+  public int getPlaybackSuppressionReason() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public ExoPlaybackException getPlaybackError() {
     throw new UnsupportedOperationException();
   }

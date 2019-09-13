@@ -2,6 +2,11 @@
 
 ### 2.10.5 ###
 
+* Add `Player.isPlaying` and `EventListener.onIsPlayingChanged` to check whether
+  the playback position is advancing. This helps to determine if playback is
+  suppressed due to audio focus loss. Also add
+  `Player.getPlaybackSuppressedReason` to determine the reason of the
+  suppression ([#6203](https://github.com/google/ExoPlayer/issues/6203)).
 * Track selection
   * Add `allowAudioMixedChannelCountAdaptiveness` parameter to
     `DefaultTrackSelector` to allow adaptive selections of audio tracks with
