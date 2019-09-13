@@ -59,7 +59,9 @@
   ([#6335](https://github.com/google/ExoPlayer/issues/6335)).
 * Add `HttpDataSource.getResponseCode` to provide the status code associated
   with the most recent HTTP response.
-* Upgrade LibRtmp-Client-for-Android to fix RTMP playback issues
+* OkHttp extension: Upgrade OkHttp to fix HTTP2 socket timeout issue
+  ([#4078](https://github.com/google/ExoPlayer/issues/4078)).
+* RTMP extension: Upgrade LibRtmp-Client-for-Android to fix RTMP playback issues
   ([#4200](https://github.com/google/ExoPlayer/issues/4200),
   [#4249](https://github.com/google/ExoPlayer/issues/4249),
   [#4319](https://github.com/google/ExoPlayer/issues/4319),
