@@ -25,7 +25,7 @@ Next, run the playback tests in the GTS package:
 ~~~
 adb shell am instrument -w -r -e debug false \
   -e package com.google.android.exoplayer2.playbacktests.gts \
-  com.google.android.exoplayer2.playbacktests.test/android.test.InstrumentationTestRunner
+  com.google.android.exoplayer2.playbacktests.test/androidx.test.runner.AndroidJUnitRunner
 ~~~
 {: .language-shell}
 Test results appear in STDOUT.
