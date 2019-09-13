@@ -16,8 +16,8 @@
 package com.google.android.exoplayer2.analytics;
 
 import android.os.SystemClock;
-import androidx.annotation.IntDef;
 import android.util.Pair;
+import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime;

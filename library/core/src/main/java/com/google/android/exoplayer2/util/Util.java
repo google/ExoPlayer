@@ -40,11 +40,11 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcel;
 import android.security.NetworkSecurityPolicy;
-import androidx.annotation.Nullable;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.view.Display;
 import android.view.WindowManager;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Format;
@@ -262,14 +262,14 @@ public final class Util {
   /**
    * Tests whether an {@code items} array contains an object equal to {@code item}, according to
    * {@link Object#equals(Object)}.
-   * <p>
-   * If {@code item} is null then true is returned if and only if {@code items} contains null.
+   *
+   * <p>If {@code item} is null then true is returned if and only if {@code items} contains null.
    *
    * @param items The array of items to search.
    * @param item The item to search for.
    * @return True if the array contains an object equal to the item being searched for.
    */
-  public static boolean contains(Object[] items, Object item) {
+  public static boolean contains(@NullableType Object[] items, @Nullable Object item) {
     for (Object arrayItem : items) {
       if (areEqual(arrayItem, item)) {
         return true;
@@ -1496,7 +1496,7 @@ public final class Util {
    * @return The content type.
    */
   @C.ContentType
-  public static int inferContentType(Uri uri, String overrideExtension) {
+  public static int inferContentType(Uri uri, @Nullable String overrideExtension) {
     return TextUtils.isEmpty(overrideExtension)
         ? inferContentType(uri)
         : inferContentType("." + overrideExtension);
@@ -1553,35 +1553,6 @@ public final class Util {
     builder.setLength(0);
     return hours > 0 ? formatter.format("%d:%02d:%02d", hours, minutes, seconds).toString()
         : formatter.format("%02d:%02d", minutes, seconds).toString();
-  }
-
-  /**
-   * Maps a {@link C} {@code TRACK_TYPE_*} constant to the corresponding {@link C} {@code
-   * DEFAULT_*_BUFFER_SIZE} constant.
-   *
-   * @param trackType The track type.
-   * @return The corresponding default buffer size in bytes.
-   * @throws IllegalArgumentException If the track type is an unrecognized or custom track type.
-   */
-  public static int getDefaultBufferSize(int trackType) {
-    switch (trackType) {
-      case C.TRACK_TYPE_DEFAULT:
-        return C.DEFAULT_MUXED_BUFFER_SIZE;
-      case C.TRACK_TYPE_AUDIO:
-        return C.DEFAULT_AUDIO_BUFFER_SIZE;
-      case C.TRACK_TYPE_VIDEO:
-        return C.DEFAULT_VIDEO_BUFFER_SIZE;
-      case C.TRACK_TYPE_TEXT:
-        return C.DEFAULT_TEXT_BUFFER_SIZE;
-      case C.TRACK_TYPE_METADATA:
-        return C.DEFAULT_METADATA_BUFFER_SIZE;
-      case C.TRACK_TYPE_CAMERA_MOTION:
-        return C.DEFAULT_CAMERA_MOTION_BUFFER_SIZE;
-      case C.TRACK_TYPE_NONE:
-        return 0;
-      default:
-        throw new IllegalArgumentException();
-    }
   }
 
   /**

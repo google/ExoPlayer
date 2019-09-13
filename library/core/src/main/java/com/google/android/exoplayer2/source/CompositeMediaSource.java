@@ -96,11 +96,11 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
   /**
    * Prepares a child source.
    *
-   * <p>{@link #onChildSourceInfoRefreshed(T, MediaSource, Timeline)} will be called when the child
-   * source updates its timeline with the same {@code id} passed to this method.
+   * <p>{@link #onChildSourceInfoRefreshed(Object, MediaSource, Timeline)} will be called when the
+   * child source updates its timeline with the same {@code id} passed to this method.
    *
-   * <p>Any child sources that aren't explicitly released with {@link #releaseChildSource(T)} will
-   * be released in {@link #releaseSourceInternal()}.
+   * <p>Any child sources that aren't explicitly released with {@link #releaseChildSource(Object)}
+   * will be released in {@link #releaseSourceInternal()}.
    *
    * @param id A unique id to identify the child source preparation. Null is allowed as an id.
    * @param mediaSource The child {@link MediaSource}.

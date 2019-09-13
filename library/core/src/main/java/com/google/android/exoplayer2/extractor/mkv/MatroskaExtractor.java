@@ -15,11 +15,11 @@
  */
 package com.google.android.exoplayer2.extractor.mkv;
 
+import android.util.Pair;
+import android.util.SparseArray;
 import androidx.annotation.CallSuper;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
-import android.util.Pair;
-import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
@@ -149,6 +149,10 @@ public class MatroskaExtractor implements Extractor {
   private static final int ID_BLOCK_GROUP = 0xA0;
   private static final int ID_BLOCK = 0xA1;
   private static final int ID_BLOCK_DURATION = 0x9B;
+  private static final int ID_BLOCK_ADDITIONS = 0x75A1;
+  private static final int ID_BLOCK_MORE = 0xA6;
+  private static final int ID_BLOCK_ADD_ID = 0xEE;
+  private static final int ID_BLOCK_ADDITIONAL = 0xA5;
   private static final int ID_REFERENCE_BLOCK = 0xFB;
   private static final int ID_TRACKS = 0x1654AE6B;
   private static final int ID_TRACK_ENTRY = 0xAE;
@@ -157,6 +161,7 @@ public class MatroskaExtractor implements Extractor {
   private static final int ID_FLAG_DEFAULT = 0x88;
   private static final int ID_FLAG_FORCED = 0x55AA;
   private static final int ID_DEFAULT_DURATION = 0x23E383;
+  private static final int ID_MAX_BLOCK_ADDITION_ID = 0x55EE;
   private static final int ID_NAME = 0x536E;
   private static final int ID_CODEC_ID = 0x86;
   private static final int ID_CODEC_PRIVATE = 0x63A2;
@@ -214,6 +219,12 @@ public class MatroskaExtractor implements Extractor {
   private static final int ID_WHITE_POINT_CHROMATICITY_Y = 0x55D8;
   private static final int ID_LUMNINANCE_MAX = 0x55D9;
   private static final int ID_LUMNINANCE_MIN = 0x55DA;
+
+  /**
+   * BlockAddID value for ITU T.35 metadata in a VP9 track. See also
+   * https://www.webmproject.org/docs/container/.
+   */
+  private static final int BLOCK_ADD_ID_VP9_ITU_T_35 = 4;
 
   private static final int LACING_NONE = 0;
   private static final int LACING_XIPH = 1;
@@ -323,6 +334,7 @@ public class MatroskaExtractor implements Extractor {
   private final ParsableByteArray subtitleSample;
   private final ParsableByteArray encryptionInitializationVector;
   private final ParsableByteArray encryptionSubsampleData;
+  private final ParsableByteArray blockAddData;
   private ByteBuffer encryptionSubsampleDataBuffer;
 
   private long segmentContentSize;
@@ -361,6 +373,7 @@ public class MatroskaExtractor implements Extractor {
   private int blockTrackNumberLength;
   @C.BufferFlags
   private int blockFlags;
+  private int blockAddId;
 
   // Sample reading state.
   private int sampleBytesRead;
@@ -401,6 +414,7 @@ public class MatroskaExtractor implements Extractor {
     subtitleSample = new ParsableByteArray();
     encryptionInitializationVector = new ParsableByteArray(ENCRYPTION_IV_SIZE);
     encryptionSubsampleData = new ParsableByteArray();
+    blockAddData = new ParsableByteArray();
   }
 
   @Override
@@ -479,6 +493,8 @@ public class MatroskaExtractor implements Extractor {
       case ID_CUE_POINT:
       case ID_CUE_TRACK_POSITIONS:
       case ID_BLOCK_GROUP:
+      case ID_BLOCK_ADDITIONS:
+      case ID_BLOCK_MORE:
       case ID_PROJECTION:
       case ID_COLOUR:
       case ID_MASTERING_METADATA:
@@ -499,6 +515,7 @@ public class MatroskaExtractor implements Extractor {
       case ID_FLAG_DEFAULT:
       case ID_FLAG_FORCED:
       case ID_DEFAULT_DURATION:
+      case ID_MAX_BLOCK_ADDITION_ID:
       case ID_CODEC_DELAY:
       case ID_SEEK_PRE_ROLL:
       case ID_CHANNELS:
@@ -518,6 +535,7 @@ public class MatroskaExtractor implements Extractor {
       case ID_MAX_CLL:
       case ID_MAX_FALL:
       case ID_PROJECTION_TYPE:
+      case ID_BLOCK_ADD_ID:
         return EbmlProcessor.ELEMENT_TYPE_UNSIGNED_INT;
       case ID_DOC_TYPE:
       case ID_NAME:
@@ -531,6 +549,7 @@ public class MatroskaExtractor implements Extractor {
       case ID_BLOCK:
       case ID_CODEC_PRIVATE:
       case ID_PROJECTION_PRIVATE:
+      case ID_BLOCK_ADDITIONAL:
         return EbmlProcessor.ELEMENT_TYPE_BINARY;
       case ID_DURATION:
       case ID_SAMPLING_FREQUENCY:
@@ -760,6 +779,9 @@ public class MatroskaExtractor implements Extractor {
       case ID_DEFAULT_DURATION:
         currentTrack.defaultSampleDurationNs = (int) value;
         break;
+      case ID_MAX_BLOCK_ADDITION_ID:
+        currentTrack.maxBlockAdditionId = (int) value;
+        break;
       case ID_CODEC_DELAY:
         currentTrack.codecDelayNs = value;
         break;
@@ -913,6 +935,9 @@ public class MatroskaExtractor implements Extractor {
           default:
             break;
         }
+        break;
+      case ID_BLOCK_ADD_ID:
+        blockAddId = (int) value;
         break;
       default:
         break;
@@ -1172,8 +1197,26 @@ public class MatroskaExtractor implements Extractor {
         }
 
         break;
+      case ID_BLOCK_ADDITIONAL:
+        if (blockState != BLOCK_STATE_DATA) {
+          return;
+        }
+        handleBlockAdditionalData(tracks.get(blockTrackNumber), blockAddId, input, contentSize);
+        break;
       default:
         throw new ParserException("Unexpected id: " + id);
+    }
+  }
+
+  protected void handleBlockAdditionalData(
+      Track track, int blockAddId, ExtractorInput input, int contentSize)
+      throws IOException, InterruptedException {
+    if (blockAddId == BLOCK_ADD_ID_VP9_ITU_T_35 && CODEC_ID_VP9.equals(track.codecId)) {
+      blockAddData.reset(contentSize);
+      input.readFully(blockAddData.data, 0, contentSize);
+    } else {
+      // Unhandled block additional data.
+      input.skipFully(contentSize);
     }
   }
 
@@ -1195,6 +1238,12 @@ public class MatroskaExtractor implements Extractor {
             SSA_PREFIX_END_TIMECODE_OFFSET,
             SSA_TIMECODE_LAST_VALUE_SCALING_FACTOR,
             SSA_TIMECODE_EMPTY);
+      }
+      if ((blockFlags & C.BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA) != 0) {
+        // Append supplemental data.
+        int size = blockAddData.limit();
+        track.output.sampleData(blockAddData, size);
+        sampleBytesWritten += size;
       }
       track.output.sampleMetadata(timeUs, blockFlags, sampleBytesWritten, 0, track.cryptoData);
     }
@@ -1328,6 +1377,21 @@ public class MatroskaExtractor implements Extractor {
         // If the sample has header stripping, prepare to read/output the stripped bytes first.
         sampleStrippedBytes.reset(track.sampleStrippedBytes, track.sampleStrippedBytes.length);
       }
+
+      if (track.maxBlockAdditionId > 0) {
+        blockFlags |= C.BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA;
+        blockAddData.reset();
+        // If there is supplemental data, the structure of the sample data is:
+        // sample size (4 bytes) || sample data || supplemental data
+        scratch.reset(/* limit= */ 4);
+        scratch.data[0] = (byte) ((size >> 24) & 0xFF);
+        scratch.data[1] = (byte) ((size >> 16) & 0xFF);
+        scratch.data[2] = (byte) ((size >> 8) & 0xFF);
+        scratch.data[3] = (byte) (size & 0xFF);
+        output.sampleData(scratch, 4);
+        sampleBytesWritten += 4;
+      }
+
       sampleEncodingHandled = true;
     }
     size += sampleStrippedBytes.limit();
@@ -1713,6 +1777,7 @@ public class MatroskaExtractor implements Extractor {
     public int number;
     public int type;
     public int defaultSampleDurationNs;
+    public int maxBlockAdditionId;
     public boolean hasContentEncryption;
     public byte[] sampleStrippedBytes;
     public TrackOutput.CryptoData cryptoData;

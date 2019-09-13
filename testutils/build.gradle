@@ -39,13 +39,24 @@ android {
 
 dependencies {
     api 'org.mockito:mockito-core:' + mockitoVersion
-    api 'androidx.test:core:' + androidXTestVersion
-    api 'androidx.test.ext:junit:' + androidXTestVersion
+    api 'androidx.test:core:' + androidxTestVersion
+    api 'androidx.test.ext:junit:' + androidxTestVersion
     api 'com.google.truth:truth:' + truthVersion
-    implementation 'androidx.annotation:annotation:1.1.0'
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     implementation project(modulePrefix + 'library-core')
     implementation 'com.google.auto.value:auto-value-annotations:' + autoValueVersion
     annotationProcessor 'com.google.auto.value:auto-value:' + autoValueVersion
     testImplementation project(modulePrefix + 'testutils')
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
+
+ext {
+    javadocTitle = 'Test utils'
+}
+apply from: '../javadoc_library.gradle'
+
+ext {
+    releaseArtifact = 'exoplayer-testutils'
+    releaseDescription = 'Test utils for ExoPlayer.'
+}
+apply from: '../publish.gradle'

@@ -53,14 +53,14 @@ import com.google.android.exoplayer2.util.Assertions;
   }
 
   /**
-   * Returns concatenated UID for a period in a child timeline.
+   * Returns a concatenated UID for a period or window in a child timeline.
    *
-   * @param childTimelineUid UID of the child timeline this period belongs to.
-   * @param childPeriodUid UID of the period in the child timeline.
-   * @return UID of the period in the concatenated timeline.
+   * @param childTimelineUid UID of the child timeline this period or window belongs to.
+   * @param childPeriodOrWindowUid UID of the period or window in the child timeline.
+   * @return UID of the period or window in the concatenated timeline.
    */
-  public static Object getConcatenatedUid(Object childTimelineUid, Object childPeriodUid) {
-    return Pair.create(childTimelineUid, childPeriodUid);
+  public static Object getConcatenatedUid(Object childTimelineUid, Object childPeriodOrWindowUid) {
+    return Pair.create(childTimelineUid, childPeriodOrWindowUid);
   }
 
   /**
@@ -189,14 +189,18 @@ import com.google.android.exoplayer2.util.Assertions;
   }
 
   @Override
-  public final Window getWindow(
-      int windowIndex, Window window, boolean setTag, long defaultPositionProjectionUs) {
+  public final Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
     int childIndex = getChildIndexByWindowIndex(windowIndex);
     int firstWindowIndexInChild = getFirstWindowIndexByChildIndex(childIndex);
     int firstPeriodIndexInChild = getFirstPeriodIndexByChildIndex(childIndex);
     getTimelineByChildIndex(childIndex)
-        .getWindow(
-            windowIndex - firstWindowIndexInChild, window, setTag, defaultPositionProjectionUs);
+        .getWindow(windowIndex - firstWindowIndexInChild, window, defaultPositionProjectionUs);
+    Object childUid = getChildUidByChildIndex(childIndex);
+    // Don't create new objects if the child is using SINGLE_WINDOW_UID.
+    window.uid =
+        Window.SINGLE_WINDOW_UID.equals(window.uid)
+            ? childUid
+            : getConcatenatedUid(childUid, window.uid);
     window.firstPeriodIndex += firstPeriodIndexInChild;
     window.lastPeriodIndex += firstPeriodIndexInChild;
     return window;

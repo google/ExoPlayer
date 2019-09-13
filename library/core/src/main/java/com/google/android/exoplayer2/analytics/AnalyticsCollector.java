@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer2.analytics;
 
-import androidx.annotation.Nullable;
 import android.view.Surface;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
@@ -465,10 +465,7 @@ public class AnalyticsCollector
 
   @Override
   public final void onPlayerError(ExoPlaybackException error) {
-    EventTime eventTime =
-        error.type == ExoPlaybackException.TYPE_SOURCE
-            ? generateLoadingMediaPeriodEventTime()
-            : generatePlayingMediaPeriodEventTime();
+    EventTime eventTime = generateLastReportedPlayingMediaPeriodEventTime();
     for (AnalyticsListener listener : listeners) {
       listener.onPlayerError(eventTime, error);
     }

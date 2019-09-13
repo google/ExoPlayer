@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSession;
@@ -232,6 +233,9 @@ import java.util.Set;
 
   public void maybeThrowPrepareError() throws IOException {
     maybeThrowError();
+    if (loadingFinished && !prepared) {
+      throw new ParserException("Loading finished before preparation is complete.");
+    }
   }
 
   public TrackGroupArray getTrackGroups() {
@@ -608,7 +612,12 @@ import java.util.Set;
               ? lastMediaChunk.endTimeUs
               : Math.max(lastSeekPositionUs, lastMediaChunk.startTimeUs);
     }
-    chunkSource.getNextChunk(positionUs, loadPositionUs, chunkQueue, nextChunkHolder);
+    chunkSource.getNextChunk(
+        positionUs,
+        loadPositionUs,
+        chunkQueue,
+        /* allowEndOfStream= */ prepared || !chunkQueue.isEmpty(),
+        nextChunkHolder);
     boolean endOfStream = nextChunkHolder.endOfStream;
     Chunk loadable = nextChunkHolder.chunk;
     Uri playlistUrlToLoad = nextChunkHolder.playlistUrl;

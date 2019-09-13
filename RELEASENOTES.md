@@ -2,6 +2,17 @@
 
 ### dev-v2 (not yet released) ###
 
+* Add `allowedCapturePolicy` field to `AudioAttributes` wrapper to allow to
+  opt-out of audio recording.
+* Add `DataSpec.httpRequestHeaders` to set HTTP request headers when connecting
+  to an HTTP source. `DefaultHttpDataSource`, `CronetDataSource` and
+  `OkHttpDataSource` include headers set in the DataSpec when connecting to the
+  source.
+* Bypass sniffing in `ProgressiveMediaPeriod` in case a single extractor is
+  provided ([#6325](https://github.com/google/ExoPlayer/issues/6325)).
+* Surface information provided by methods `isHardwareAccelerated`,
+  `isSoftwareOnly` and `isVendor` added in Android Q in `MediaCodecInfo` class
+  ([#5839](https://github.com/google/ExoPlayer/issues/5839)).
 * Update `DefaultTrackSelector` to apply a viewport constraint for the default
   display by default.
 * Add `PlaybackStatsListener` to collect `PlaybackStats` for playbacks analysis
@@ -31,6 +42,36 @@
   `DefaultTrackSelector` to allow adaptive selections of audio tracks with
   different channel counts
   ([#6257](https://github.com/google/ExoPlayer/issues/6257)).
+* Reset `DefaultBandwidthMeter` to initial values on network change.
+* Increase maximum buffer size for video in `DefaultLoadControl` to ensure high
+  quality video can be loaded up to the full default buffer duration.
+* Replace `ExoPlayerFactory` by `SimpleExoPlayer.Builder` and
+  `ExoPlayer.Builder`.
+* Inject `DrmSessionManager` into the `MediaSources` instead of `Renderers`
+  ([#5619](https://github.com/google/ExoPlayer/issues/5619)).
+* Fix issue where player errors are thrown too early at playlist transitions
+  ([#5407](https://github.com/google/ExoPlayer/issues/5407)).
+* Deprecate `setTag` parameter of `Timeline.getWindow`. Tags will always be set.
+* Support out-of-band HDR10+ metadata for VP9 in WebM/Matroska.
+* Fix issue where HLS streams get stuck in infinite buffering state after
+  postroll ad ([#6314](https://github.com/google/ExoPlayer/issues/6314)).
+* Fix audio selection issue where languages are compared by bit rate
+  ([#6335](https://github.com/google/ExoPlayer/issues/6335)).
+* Add `HttpDataSource.getResponseCode` to provide the status code associated
+  with the most recent HTTP response.
+* OkHttp extension: Upgrade OkHttp to fix HTTP2 socket timeout issue
+  ([#4078](https://github.com/google/ExoPlayer/issues/4078)).
+* RTMP extension: Upgrade LibRtmp-Client-for-Android to fix RTMP playback issues
+  ([#4200](https://github.com/google/ExoPlayer/issues/4200),
+  [#4249](https://github.com/google/ExoPlayer/issues/4249),
+  [#4319](https://github.com/google/ExoPlayer/issues/4319),
+  [#4337](https://github.com/google/ExoPlayer/issues/4337)).
+* Publish `testutils` module to simplify unit testing with ExoPlayer
+  ([#6267](https://github.com/google/ExoPlayer/issues/6267)).
+* Add `uid` to `Timeline.Window` to uniquely identify window instances.
+* Fix decoder selection for E-AC3 JOC streams
+  ([#6398](https://github.com/google/ExoPlayer/issues/6398)).
+* Fix Dolby Vision fallback to AVC and HEVC.
 
 ### 2.10.4 ###
 
@@ -62,6 +103,8 @@
 * Fix issue where playback speeds are not used in adaptive track selections
   after manual selection changes for other renderers
   ([#6256](https://github.com/google/ExoPlayer/issues/6256)).
+* Fix initialization data handling for FLAC in MP4
+  ([#6396](https://github.com/google/ExoPlayer/issues/6396)).
 
 ### 2.10.3 ###
 

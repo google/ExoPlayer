@@ -16,10 +16,10 @@
 package com.google.android.exoplayer2.source.smoothstreaming.manifest;
 
 import android.net.Uri;
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Pair;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
@@ -681,6 +681,7 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
                 MimeTypes.VIDEO_MP4,
                 sampleMimeType,
                 /* codecs= */ null,
+                /* metadata= */ null,
                 bitrate,
                 width,
                 height,
@@ -706,6 +707,7 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
                 MimeTypes.AUDIO_MP4,
                 sampleMimeType,
                 /* codecs= */ null,
+                /* metadata= */ null,
                 bitrate,
                 channels,
                 samplingRate,

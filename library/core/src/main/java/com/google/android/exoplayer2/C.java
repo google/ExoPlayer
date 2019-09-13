@@ -17,12 +17,13 @@ package com.google.android.exoplayer2;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.media.AudioAttributes;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.MediaCodec;
 import android.media.MediaFormat;
-import androidx.annotation.IntDef;
 import android.view.Surface;
+import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.util.Util;
@@ -446,6 +447,21 @@ public final class C {
           android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING;
 
   /**
+   * Capture policies for {@link com.google.android.exoplayer2.audio.AudioAttributes}. One of {@link
+   * #ALLOW_CAPTURE_BY_ALL}, {@link #ALLOW_CAPTURE_BY_NONE} or {@link #ALLOW_CAPTURE_BY_SYSTEM}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({ALLOW_CAPTURE_BY_ALL, ALLOW_CAPTURE_BY_NONE, ALLOW_CAPTURE_BY_SYSTEM})
+  public @interface AudioAllowedCapturePolicy {}
+  /** See {@link android.media.AudioAttributes#ALLOW_CAPTURE_BY_ALL}. */
+  public static final int ALLOW_CAPTURE_BY_ALL = AudioAttributes.ALLOW_CAPTURE_BY_ALL;
+  /** See {@link android.media.AudioAttributes#ALLOW_CAPTURE_BY_NONE}. */
+  public static final int ALLOW_CAPTURE_BY_NONE = AudioAttributes.ALLOW_CAPTURE_BY_NONE;
+  /** See {@link android.media.AudioAttributes#ALLOW_CAPTURE_BY_SYSTEM}. */
+  public static final int ALLOW_CAPTURE_BY_SYSTEM = AudioAttributes.ALLOW_CAPTURE_BY_SYSTEM;
+
+  /**
    * Audio focus types. One of {@link #AUDIOFOCUS_NONE}, {@link #AUDIOFOCUS_GAIN}, {@link
    * #AUDIOFOCUS_GAIN_TRANSIENT}, {@link #AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK} or {@link
    * #AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE}.
@@ -485,6 +501,7 @@ public final class C {
       value = {
         BUFFER_FLAG_KEY_FRAME,
         BUFFER_FLAG_END_OF_STREAM,
+        BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA,
         BUFFER_FLAG_LAST_SAMPLE,
         BUFFER_FLAG_ENCRYPTED,
         BUFFER_FLAG_DECODE_ONLY
@@ -498,6 +515,8 @@ public final class C {
    * Flag for empty buffers that signal that the end of the stream was reached.
    */
   public static final int BUFFER_FLAG_END_OF_STREAM = MediaCodec.BUFFER_FLAG_END_OF_STREAM;
+  /** Indicates that a buffer has supplemental data. */
+  public static final int BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA = 1 << 28; // 0x10000000
   /** Indicates that a buffer is known to contain the last media sample of the stream. */
   public static final int BUFFER_FLAG_LAST_SAMPLE = 1 << 29; // 0x20000000
   /** Indicates that a buffer is (at least partially) encrypted. */
@@ -689,25 +708,6 @@ public final class C {
 
   /** A default size in bytes for an individual allocation that forms part of a larger buffer. */
   public static final int DEFAULT_BUFFER_SEGMENT_SIZE = 64 * 1024;
-
-  /** A default size in bytes for a video buffer. */
-  public static final int DEFAULT_VIDEO_BUFFER_SIZE = 200 * DEFAULT_BUFFER_SEGMENT_SIZE;
-
-  /** A default size in bytes for an audio buffer. */
-  public static final int DEFAULT_AUDIO_BUFFER_SIZE = 54 * DEFAULT_BUFFER_SEGMENT_SIZE;
-
-  /** A default size in bytes for a text buffer. */
-  public static final int DEFAULT_TEXT_BUFFER_SIZE = 2 * DEFAULT_BUFFER_SEGMENT_SIZE;
-
-  /** A default size in bytes for a metadata buffer. */
-  public static final int DEFAULT_METADATA_BUFFER_SIZE = 2 * DEFAULT_BUFFER_SEGMENT_SIZE;
-
-  /** A default size in bytes for a camera motion buffer. */
-  public static final int DEFAULT_CAMERA_MOTION_BUFFER_SIZE = 2 * DEFAULT_BUFFER_SEGMENT_SIZE;
-
-  /** A default size in bytes for a muxed buffer (e.g. containing video, audio and text). */
-  public static final int DEFAULT_MUXED_BUFFER_SIZE =
-          DEFAULT_VIDEO_BUFFER_SIZE + DEFAULT_AUDIO_BUFFER_SIZE + DEFAULT_TEXT_BUFFER_SIZE;
 
   /** "cenc" scheme type name as defined in ISO/IEC 23001-7:2016. */
   @SuppressWarnings("ConstantField")

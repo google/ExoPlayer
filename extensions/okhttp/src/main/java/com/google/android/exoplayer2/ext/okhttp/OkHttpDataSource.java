@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import okhttp3.CacheControl;
@@ -45,7 +46,13 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-/** An {@link HttpDataSource} that delegates to Square's {@link Call.Factory}. */
+/**
+ * An {@link HttpDataSource} that delegates to Square's {@link Call.Factory}.
+ *
+ * <p>Note: HTTP request headers will be set using all parameters passed via (in order of decreasing
+ * priority) the {@code dataSpec}, {@link #setRequestProperty} and the default parameters used to
+ * construct the instance.
+ */
 public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
 
   static {
@@ -170,6 +177,11 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
   @Nullable
   public Uri getUri() {
     return response == null ? null : Uri.parse(response.request().url().toString());
+  }
+
+  @Override
+  public int getResponseCode() {
+    return response == null ? -1 : response.code();
   }
 
   @Override
@@ -323,14 +335,19 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     if (cacheControl != null) {
       builder.cacheControl(cacheControl);
     }
+
+    Map<String, String> headers = new HashMap<>();
     if (defaultRequestProperties != null) {
-      for (Map.Entry<String, String> property : defaultRequestProperties.getSnapshot().entrySet()) {
-        builder.header(property.getKey(), property.getValue());
-      }
+      headers.putAll(defaultRequestProperties.getSnapshot());
     }
-    for (Map.Entry<String, String> property : requestProperties.getSnapshot().entrySet()) {
-      builder.header(property.getKey(), property.getValue());
+
+    headers.putAll(requestProperties.getSnapshot());
+    headers.putAll(dataSpec.httpRequestHeaders);
+
+    for (Map.Entry<String, String> header : headers.entrySet()) {
+      builder.header(header.getKey(), header.getValue());
     }
+
     if (!(position == 0 && length == C.LENGTH_UNSET)) {
       String rangeRequest = "bytes=" + position + "-";
       if (length != C.LENGTH_UNSET) {

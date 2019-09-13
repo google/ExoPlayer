@@ -16,8 +16,8 @@
 package com.google.android.exoplayer2.testutil;
 
 import android.os.Looper;
-import androidx.annotation.Nullable;
 import android.view.Surface;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
@@ -311,12 +311,12 @@ public final class ActionSchedule {
 
     /**
      * Schedules a new source preparation action to be executed.
-     * @see com.google.android.exoplayer2.ExoPlayer#prepare(MediaSource, boolean, boolean).
      *
+     * @see com.google.android.exoplayer2.ExoPlayer#prepare(MediaSource, boolean, boolean)
      * @return The builder, for convenience.
      */
-    public Builder prepareSource(MediaSource mediaSource, boolean resetPosition,
-        boolean resetState) {
+    public Builder prepareSource(
+        MediaSource mediaSource, boolean resetPosition, boolean resetState) {
       return apply(new PrepareSource(tag, mediaSource, resetPosition, resetState));
     }
 

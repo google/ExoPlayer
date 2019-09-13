@@ -18,6 +18,9 @@
   <dimen name="exo_media_button_width">71dp</dimen>
   <dimen name="exo_media_button_height">52dp</dimen>
 
+  <integer name="exo_media_button_opacity_percentage_enabled">100</integer>
+  <integer name="exo_media_button_opacity_percentage_disabled">33</integer>
+
   <color name="exo_error_message_background_color">#AA000000</color>
   <color name="exo_edit_mode_background_color">#FFF4F3F0</color>
 

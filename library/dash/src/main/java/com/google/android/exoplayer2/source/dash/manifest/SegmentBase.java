@@ -397,6 +397,22 @@ public abstract class SegmentBase {
       this.duration = duration;
     }
 
+    @Override
+    public boolean equals(@Nullable Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      SegmentTimelineElement that = (SegmentTimelineElement) o;
+      return startTime == that.startTime && duration == that.duration;
+    }
+
+    @Override
+    public int hashCode() {
+      return 31 * (int) startTime + (int) duration;
+    }
   }
 
 }

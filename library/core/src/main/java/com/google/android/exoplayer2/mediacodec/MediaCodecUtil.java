@@ -20,11 +20,11 @@ import android.annotation.TargetApi;
 import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaCodecInfo.CodecProfileLevel;
 import android.media.MediaCodecList;
-import androidx.annotation.CheckResult;
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.util.SparseIntArray;
+import androidx.annotation.CheckResult;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Log;
@@ -81,8 +81,6 @@ public final class MediaCodecUtil {
   // Dolby Vision.
   private static final Map<String, Integer> DOLBY_VISION_STRING_TO_PROFILE;
   private static final Map<String, Integer> DOLBY_VISION_STRING_TO_LEVEL;
-  private static final String CODEC_ID_DVHE = "dvhe";
-  private static final String CODEC_ID_DVH1 = "dvh1";
   // AV1.
   private static final SparseIntArray AV1_LEVEL_NUMBER_TO_CONST;
   private static final String CODEC_ID_AV01 = "av01";
@@ -156,8 +154,8 @@ public final class MediaCodecUtil {
    *     unless secure decryption really is required.
    * @param tunneling Whether the decoder is required to support tunneling. Always pass false unless
    *     tunneling really is required.
-   * @return A list of all {@link MediaCodecInfo}s for the given mime type, in the order given by
-   *     {@link MediaCodecList}.
+   * @return An unmodifiable list of all {@link MediaCodecInfo}s for the given mime type, in the
+   *     order given by {@link MediaCodecList}.
    * @throws DecoderQueryException If there was an error querying the available decoders.
    */
   public static synchronized List<MediaCodecInfo> getDecoderInfos(
@@ -239,11 +237,16 @@ public final class MediaCodecUtil {
    * @return A pair (profile constant, level constant) if the codec of the {@code format} is
    *     well-formed and recognized, or null otherwise.
    */
+  @Nullable
   public static Pair<Integer, Integer> getCodecProfileAndLevel(Format format) {
     if (format.codecs == null) {
       return null;
     }
     String[] parts = format.codecs.split("\\.");
+    // Dolby Vision can use DV, AVC or HEVC codec IDs, so check the MIME type first.
+    if (MimeTypes.VIDEO_DOLBY_VISION.equals(format.sampleMimeType)) {
+      return getDolbyVisionProfileAndLevel(format.codecs, parts);
+    }
     switch (parts[0]) {
       case CODEC_ID_AVC1:
       case CODEC_ID_AVC2:
@@ -253,9 +256,6 @@ public final class MediaCodecUtil {
       case CODEC_ID_HEV1:
       case CODEC_ID_HVC1:
         return getHevcProfileAndLevel(format.codecs, parts);
-      case CODEC_ID_DVHE:
-      case CODEC_ID_DVH1:
-        return getDolbyVisionProfileAndLevel(format.codecs, parts);
       case CODEC_ID_AV01:
         return getAv1ProfileAndLevel(format.codecs, parts, format.colorInfo);
       case CODEC_ID_MP4A:
@@ -311,6 +311,9 @@ public final class MediaCodecUtil {
           if ((!key.secure && secureRequired) || (key.secure && !secureSupported)) {
             continue;
           }
+          boolean hardwareAccelerated = isHardwareAccelerated(codecInfo);
+          boolean softwareOnly = isSoftwareOnly(codecInfo);
+          boolean vendor = isVendor(codecInfo);
           boolean forceDisableAdaptive = codecNeedsDisableAdaptationWorkaround(name);
           if ((secureDecodersExplicit && key.secure == secureSupported)
               || (!secureDecodersExplicit && !key.secure)) {
@@ -320,6 +323,9 @@ public final class MediaCodecUtil {
                     mimeType,
                     codecMimeType,
                     capabilities,
+                    hardwareAccelerated,
+                    softwareOnly,
+                    vendor,
                     forceDisableAdaptive,
                     /* forceSecure= */ false));
           } else if (!secureDecodersExplicit && secureSupported) {
@@ -329,6 +335,9 @@ public final class MediaCodecUtil {
                     mimeType,
                     codecMimeType,
                     capabilities,
+                    hardwareAccelerated,
+                    softwareOnly,
+                    vendor,
                     forceDisableAdaptive,
                     /* forceSecure= */ true));
             // It only makes sense to have one synthesized secure decoder, return immediately.
@@ -531,6 +540,9 @@ public final class MediaCodecUtil {
                 /* mimeType= */ MimeTypes.AUDIO_RAW,
                 /* codecMimeType= */ MimeTypes.AUDIO_RAW,
                 /* capabilities= */ null,
+                /* hardwareAccelerated= */ false,
+                /* softwareOnly= */ true,
+                /* vendor= */ false,
                 /* forceDisableAdaptive= */ false,
                 /* forceSecure= */ false));
       }
@@ -562,6 +574,69 @@ public final class MediaCodecUtil {
         sortByScore(decoderInfos, decoderInfo -> decoderInfo.name.startsWith("OMX.google") ? 1 : 0);
       }
     }
+  }
+
+  /**
+   * The result of {@link android.media.MediaCodecInfo#isHardwareAccelerated()} for API levels 29+,
+   * or a best-effort approximation for lower levels.
+   */
+  private static boolean isHardwareAccelerated(android.media.MediaCodecInfo codecInfo) {
+    if (Util.SDK_INT >= 29) {
+      return isHardwareAcceleratedV29(codecInfo);
+    }
+    // codecInfo.isHardwareAccelerated() != codecInfo.isSoftwareOnly() is not necessarily true.
+    // However, we assume this to be true as an approximation.
+    return !isSoftwareOnly(codecInfo);
+  }
+
+  @TargetApi(29)
+  private static boolean isHardwareAcceleratedV29(android.media.MediaCodecInfo codecInfo) {
+    return codecInfo.isHardwareAccelerated();
+  }
+
+  /**
+   * The result of {@link android.media.MediaCodecInfo#isSoftwareOnly()} for API levels 29+, or a
+   * best-effort approximation for lower levels.
+   */
+  private static boolean isSoftwareOnly(android.media.MediaCodecInfo codecInfo) {
+    if (Util.SDK_INT >= 29) {
+      return isSoftwareOnlyV29(codecInfo);
+    }
+    String codecName = Util.toLowerInvariant(codecInfo.getName());
+    if (codecName.startsWith("arc.")) { // App Runtime for Chrome (ARC) codecs
+      return false;
+    }
+    return codecName.startsWith("omx.google.")
+        || codecName.startsWith("omx.ffmpeg.")
+        || (codecName.startsWith("omx.sec.") && codecName.contains(".sw."))
+        || codecName.equals("omx.qcom.video.decoder.hevcswvdec")
+        || codecName.startsWith("c2.android.")
+        || codecName.startsWith("c2.google.")
+        || (!codecName.startsWith("omx.") && !codecName.startsWith("c2."));
+  }
+
+  @TargetApi(29)
+  private static boolean isSoftwareOnlyV29(android.media.MediaCodecInfo codecInfo) {
+    return codecInfo.isSoftwareOnly();
+  }
+
+  /**
+   * The result of {@link android.media.MediaCodecInfo#isVendor()} for API levels 29+, or a
+   * best-effort approximation for lower levels.
+   */
+  private static boolean isVendor(android.media.MediaCodecInfo codecInfo) {
+    if (Util.SDK_INT >= 29) {
+      return isVendorV29(codecInfo);
+    }
+    String codecName = Util.toLowerInvariant(codecInfo.getName());
+    return !codecName.startsWith("omx.google.")
+        && !codecName.startsWith("c2.android.")
+        && !codecName.startsWith("c2.google.");
+  }
+
+  @TargetApi(29)
+  private static boolean isVendorV29(android.media.MediaCodecInfo codecInfo) {
+    return codecInfo.isVendor();
   }
 
   /**

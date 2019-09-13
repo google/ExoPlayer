@@ -697,9 +697,9 @@ public final class SimpleCache implements Cache {
     }
     while (true) {
       SimpleCacheSpan span = cachedContent.getSpan(position);
-      if (span.isCached && !span.file.exists()) {
-        // The file has been deleted from under us. It's likely that other files will have been
-        // deleted too, so scan the whole in-memory representation.
+      if (span.isCached && span.file.length() != span.length) {
+        // The file has been modified or deleted underneath us. It's likely that other files will
+        // have been modified too, so scan the whole in-memory representation.
         removeStaleSpans();
         continue;
       }
@@ -739,14 +739,14 @@ public final class SimpleCache implements Cache {
   }
 
   /**
-   * Scans all of the cached spans in the in-memory representation, removing any for which files no
-   * longer exist.
+   * Scans all of the cached spans in the in-memory representation, removing any for which the
+   * underlying file lengths no longer match.
    */
   private void removeStaleSpans() {
     ArrayList<CacheSpan> spansToBeRemoved = new ArrayList<>();
     for (CachedContent cachedContent : contentIndex.getAll()) {
       for (CacheSpan span : cachedContent.getSpans()) {
-        if (!span.file.exists()) {
+        if (span.file.length() != span.length) {
           spansToBeRemoved.add(span);
         }
       }

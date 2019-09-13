@@ -25,6 +25,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v4.media.session.MediaSessionCompat;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -32,7 +33,6 @@ import androidx.annotation.StringRes;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.media.app.NotificationCompat.MediaStyle;
-import android.support.v4.media.session.MediaSessionCompat;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
@@ -1182,10 +1182,10 @@ public class PlayerNotificationManager {
     if (skipPreviousActionIndex != -1) {
       actionIndices[actionCounter++] = skipPreviousActionIndex;
     }
-    boolean playWhenReady = player.getPlayWhenReady();
-    if (pauseActionIndex != -1 && playWhenReady) {
+    boolean isPlaying = isPlaying(player);
+    if (pauseActionIndex != -1 && isPlaying) {
       actionIndices[actionCounter++] = pauseActionIndex;
-    } else if (playActionIndex != -1 && !playWhenReady) {
+    } else if (playActionIndex != -1 && !isPlaying) {
       actionIndices[actionCounter++] = playActionIndex;
     }
     if (skipNextActionIndex != -1) {

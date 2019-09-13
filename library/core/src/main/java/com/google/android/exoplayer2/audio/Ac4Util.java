@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.drm.DrmInitData;
@@ -95,7 +96,7 @@ public final class Ac4Util {
    * @return The AC-4 format parsed from data in the header.
    */
   public static Format parseAc4AnnexEFormat(
-      ParsableByteArray data, String trackId, String language, DrmInitData drmInitData) {
+      ParsableByteArray data, String trackId, String language, @Nullable DrmInitData drmInitData) {
     data.skipBytes(1); // ac4_dsi_version, bitstream_version[0:5]
     int sampleRate = ((data.readUnsignedByte() & 0x20) >> 5 == 1) ? 48000 : 44100;
     return Format.createAudioSampleFormat(

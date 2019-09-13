@@ -15,9 +15,9 @@
  */
 package com.google.android.exoplayer2.ext.cast;
 
-import androidx.annotation.Nullable;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Timeline;
 import java.util.Arrays;
@@ -110,13 +110,12 @@ import java.util.Arrays;
   }
 
   @Override
-  public Window getWindow(
-      int windowIndex, Window window, boolean setTag, long defaultPositionProjectionUs) {
+  public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
     long durationUs = durationsUs[windowIndex];
     boolean isDynamic = durationUs == C.TIME_UNSET;
-    Object tag = setTag ? ids[windowIndex] : null;
     return window.set(
-        tag,
+        /* uid= */ ids[windowIndex],
+        /* tag= */ ids[windowIndex],
         /* manifest= */ null,
         /* presentationStartTimeMs= */ C.TIME_UNSET,
         /* windowStartTimeMs= */ C.TIME_UNSET,

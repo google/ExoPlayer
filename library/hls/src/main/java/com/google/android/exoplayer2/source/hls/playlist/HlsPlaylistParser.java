@@ -16,9 +16,9 @@
 package com.google.android.exoplayer2.source.hls.playlist;
 
 import android.net.Uri;
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Base64;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
@@ -349,6 +349,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                 /* containerMimeType= */ MimeTypes.APPLICATION_M3U8,
                 /* sampleMimeType= */ null,
                 codecs,
+                /* metadata= */ null,
                 bitrate,
                 width,
                 height,
@@ -422,6 +423,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                       /* containerMimeType= */ MimeTypes.APPLICATION_M3U8,
                       sampleMimeType,
                       codecs,
+                      /* metadata= */ null,
                       /* bitrate= */ Format.NO_VALUE,
                       width,
                       height,
@@ -451,6 +453,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                   /* containerMimeType= */ MimeTypes.APPLICATION_M3U8,
                   sampleMimeType,
                   codecs,
+                  /* metadata= */ null,
                   /* bitrate= */ Format.NO_VALUE,
                   channelCount,
                   /* sampleRate= */ Format.NO_VALUE,

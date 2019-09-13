@@ -15,13 +15,17 @@
  */
 package com.google.android.exoplayer2;
 
+import android.os.Looper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmInitData;
+import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MediaClock;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /**
@@ -30,6 +34,7 @@ import java.io.IOException;
 public abstract class BaseRenderer implements Renderer, RendererCapabilities {
 
   private final int trackType;
+  private final FormatHolder formatHolder;
 
   private RendererConfiguration configuration;
   private int index;
@@ -46,6 +51,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    */
   public BaseRenderer(int trackType) {
     this.trackType = trackType;
+    formatHolder = new FormatHolder();
     readingPositionUs = C.TIME_END_OF_SOURCE;
   }
 
@@ -65,6 +71,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   }
 
   @Override
+  @Nullable
   public MediaClock getMediaClock() {
     return null;
   }
@@ -105,6 +112,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   }
 
   @Override
+  @Nullable
   public final SampleStream getStream() {
     return stream;
   }
@@ -151,6 +159,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   @Override
   public final void disable() {
     Assertions.checkState(state == STATE_ENABLED);
+    formatHolder.clear();
     state = STATE_DISABLED;
     stream = null;
     streamFormats = null;
@@ -161,6 +170,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   @Override
   public final void reset() {
     Assertions.checkState(state == STATE_DISABLED);
+    formatHolder.clear();
     onReset();
   }
 
@@ -269,6 +279,12 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
 
   // Methods to be called by subclasses.
 
+  /** Returns a clear {@link FormatHolder}. */
+  protected final FormatHolder getFormatHolder() {
+    formatHolder.clear();
+    return formatHolder;
+  }
+
   /** Returns the formats of the currently enabled stream. */
   protected final Format[] getStreamFormats() {
     return streamFormats;
@@ -279,6 +295,35 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    */
   protected final RendererConfiguration getConfiguration() {
     return configuration;
+  }
+
+  /** Returns a {@link DrmSession} ready for assignment, handling resource management. */
+  @Nullable
+  protected final <T extends ExoMediaCrypto> DrmSession<T> getUpdatedSourceDrmSession(
+      @Nullable Format oldFormat,
+      Format newFormat,
+      @Nullable DrmSessionManager<T> drmSessionManager,
+      @Nullable DrmSession<T> existingSourceSession)
+      throws ExoPlaybackException {
+    boolean drmInitDataChanged =
+        !Util.areEqual(newFormat.drmInitData, oldFormat == null ? null : oldFormat.drmInitData);
+    if (!drmInitDataChanged) {
+      return existingSourceSession;
+    }
+    @Nullable DrmSession<T> newSourceDrmSession = null;
+    if (newFormat.drmInitData != null) {
+      if (drmSessionManager == null) {
+        throw ExoPlaybackException.createForRenderer(
+            new IllegalStateException("Media requires a DrmSessionManager"), getIndex());
+      }
+      newSourceDrmSession =
+          drmSessionManager.acquireSession(
+              Assertions.checkNotNull(Looper.myLooper()), newFormat.drmInitData);
+    }
+    if (existingSourceSession != null) {
+      existingSourceSession.releaseReference();
+    }
+    return newSourceDrmSession;
   }
 
   /**

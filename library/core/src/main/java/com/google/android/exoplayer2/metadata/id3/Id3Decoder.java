@@ -20,6 +20,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataDecoder;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -99,7 +100,7 @@ public final class Id3Decoder implements MetadataDecoder {
   @Override
   @Nullable
   public Metadata decode(MetadataInputBuffer inputBuffer) {
-    ByteBuffer buffer = inputBuffer.data;
+    ByteBuffer buffer = Assertions.checkNotNull(inputBuffer.data);
     return decode(buffer.array(), buffer.limit());
   }
 

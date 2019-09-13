@@ -22,8 +22,8 @@ import android.media.MediaCodecInfo.AudioCapabilities;
 import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaCodecInfo.CodecProfileLevel;
 import android.media.MediaCodecInfo.VideoCapabilities;
-import androidx.annotation.Nullable;
 import android.util.Pair;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
@@ -93,6 +93,33 @@ public final class MediaCodecInfo {
   /** Whether this instance describes a passthrough codec. */
   public final boolean passthrough;
 
+  /**
+   * Whether the codec is hardware accelerated.
+   *
+   * <p>This could be an approximation as the exact information is only provided in API levels 29+.
+   *
+   * @see android.media.MediaCodecInfo#isHardwareAccelerated()
+   */
+  public final boolean hardwareAccelerated;
+
+  /**
+   * Whether the codec is software only.
+   *
+   * <p>This could be an approximation as the exact information is only provided in API levels 29+.
+   *
+   * @see android.media.MediaCodecInfo#isSoftwareOnly()
+   */
+  public final boolean softwareOnly;
+
+  /**
+   * Whether the codec is from the vendor.
+   *
+   * <p>This could be an approximation as the exact information is only provided in API levels 29+.
+   *
+   * @see android.media.MediaCodecInfo#isVendor()
+   */
+  public final boolean vendor;
+
   private final boolean isVideo;
 
   /**
@@ -108,6 +135,9 @@ public final class MediaCodecInfo {
         /* codecMimeType= */ null,
         /* capabilities= */ null,
         /* passthrough= */ true,
+        /* hardwareAccelerated= */ false,
+        /* softwareOnly= */ true,
+        /* vendor= */ false,
         /* forceDisableAdaptive= */ false,
         /* forceSecure= */ false);
   }
@@ -121,6 +151,9 @@ public final class MediaCodecInfo {
    *     Equal to {@code mimeType} unless the codec is known to use a non-standard MIME type alias.
    * @param capabilities The capabilities of the {@link MediaCodec} for the specified mime type, or
    *     {@code null} if not known.
+   * @param hardwareAccelerated Whether the {@link MediaCodec} is hardware accelerated.
+   * @param softwareOnly Whether the {@link MediaCodec} is software only.
+   * @param vendor Whether the {@link MediaCodec} is provided by the vendor.
    * @param forceDisableAdaptive Whether {@link #adaptive} should be forced to {@code false}.
    * @param forceSecure Whether {@link #secure} should be forced to {@code true}.
    * @return The created instance.
@@ -130,6 +163,9 @@ public final class MediaCodecInfo {
       String mimeType,
       String codecMimeType,
       @Nullable CodecCapabilities capabilities,
+      boolean hardwareAccelerated,
+      boolean softwareOnly,
+      boolean vendor,
       boolean forceDisableAdaptive,
       boolean forceSecure) {
     return new MediaCodecInfo(
@@ -138,6 +174,9 @@ public final class MediaCodecInfo {
         codecMimeType,
         capabilities,
         /* passthrough= */ false,
+        hardwareAccelerated,
+        softwareOnly,
+        vendor,
         forceDisableAdaptive,
         forceSecure);
   }
@@ -148,6 +187,9 @@ public final class MediaCodecInfo {
       @Nullable String codecMimeType,
       @Nullable CodecCapabilities capabilities,
       boolean passthrough,
+      boolean hardwareAccelerated,
+      boolean softwareOnly,
+      boolean vendor,
       boolean forceDisableAdaptive,
       boolean forceSecure) {
     this.name = Assertions.checkNotNull(name);
@@ -155,6 +197,9 @@ public final class MediaCodecInfo {
     this.codecMimeType = codecMimeType;
     this.capabilities = capabilities;
     this.passthrough = passthrough;
+    this.hardwareAccelerated = hardwareAccelerated;
+    this.softwareOnly = softwareOnly;
+    this.vendor = vendor;
     adaptive = !forceDisableAdaptive && capabilities != null && isAdaptive(capabilities);
     tunneling = capabilities != null && isTunneling(capabilities);
     secure = forceSecure || (capabilities != null && isSecure(capabilities));
@@ -261,6 +306,18 @@ public final class MediaCodecInfo {
       }
     }
     logNoSupport("codec.profileLevel, " + format.codecs + ", " + codecMimeType);
+    return false;
+  }
+
+  /** Whether the codec handles HDR10+ out-of-band metadata. */
+  public boolean isHdr10PlusOutOfBandMetadataSupported() {
+    if (Util.SDK_INT >= 29 && MimeTypes.VIDEO_VP9.equals(mimeType)) {
+      for (CodecProfileLevel capabilities : getProfileLevels()) {
+        if (capabilities.profile == CodecProfileLevel.VP9Profile2HDR10Plus) {
+          return true;
+        }
+      }
+    }
     return false;
   }
 

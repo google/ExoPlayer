@@ -62,9 +62,7 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.annotation:annotation:1.1.0'
-    implementation 'androidx.viewpager:viewpager:1.0.0'
-    implementation 'androidx.fragment:fragment:1.0.0'
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     implementation 'com.google.android.material:material:1.0.0'
     implementation project(modulePrefix + 'library-core')
     implementation project(modulePrefix + 'library-dash')

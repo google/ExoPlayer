@@ -15,13 +15,14 @@
  */
 package com.google.android.exoplayer2.ext.vp9;
 
-import androidx.annotation.Nullable;
 import android.view.Surface;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.decoder.CryptoInfo;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.drm.DecryptionException;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoDecoderInputBuffer;
 import java.nio.ByteBuffer;
 
@@ -29,9 +30,11 @@ import java.nio.ByteBuffer;
 /* package */ final class VpxDecoder
     extends SimpleDecoder<VideoDecoderInputBuffer, VpxOutputBuffer, VpxDecoderException> {
 
+  // These constants should match the codes returned from vpxDecode and vpxSecureDecode functions in
+  // https://github.com/google/ExoPlayer/blob/release-v2/extensions/vp9/src/main/jni/vpx_jni.cc.
   private static final int NO_ERROR = 0;
-  private static final int DECODE_ERROR = 1;
-  private static final int DRM_ERROR = 2;
+  private static final int DECODE_ERROR = -1;
+  private static final int DRM_ERROR = -2;
 
   @Nullable private final ExoMediaCrypto exoMediaCrypto;
   private final long vpxDecContext;
@@ -118,7 +121,7 @@ import java.nio.ByteBuffer;
   @Nullable
   protected VpxDecoderException decode(
       VideoDecoderInputBuffer inputBuffer, VpxOutputBuffer outputBuffer, boolean reset) {
-    ByteBuffer inputData = inputBuffer.data;
+    ByteBuffer inputData = Util.castNonNull(inputBuffer.data);
     int inputSize = inputData.limit();
     CryptoInfo cryptoInfo = inputBuffer.cryptoInfo;
     final long result = inputBuffer.isEncrypted()
@@ -138,7 +141,10 @@ import java.nio.ByteBuffer;
     }
 
     if (!inputBuffer.isDecodeOnly()) {
-      outputBuffer.init(inputBuffer.timeUs, outputMode);
+      @Nullable
+      ByteBuffer supplementalData =
+          inputBuffer.hasSupplementalData() ? inputBuffer.supplementalData : null;
+      outputBuffer.init(inputBuffer.timeUs, outputMode, supplementalData);
       int getFrameResult = vpxGetFrame(vpxDecContext, outputBuffer);
       if (getFrameResult == 1) {
         outputBuffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);

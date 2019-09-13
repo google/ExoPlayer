@@ -46,6 +46,7 @@ import com.google.android.exoplayer2.util.MediaClock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -300,8 +301,10 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
-  protected int supportsFormat(MediaCodecSelector mediaCodecSelector,
-      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager, Format format)
+  protected int supportsFormat(
+      MediaCodecSelector mediaCodecSelector,
+      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      Format format)
       throws DecoderQueryException {
     String mimeType = format.sampleMimeType;
     if (!MimeTypes.isAudio(mimeType)) {
@@ -359,10 +362,11 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     decoderInfos = MediaCodecUtil.getDecoderInfosSortedByFormatSupport(decoderInfos, format);
     if (MimeTypes.AUDIO_E_AC3_JOC.equals(format.sampleMimeType)) {
       // E-AC3 decoders can decode JOC streams, but in 2-D rather than 3-D.
-      List<MediaCodecInfo> eac3DecoderInfos =
+      List<MediaCodecInfo> decoderInfosWithEac3 = new ArrayList<>(decoderInfos);
+      decoderInfosWithEac3.addAll(
           mediaCodecSelector.getDecoderInfos(
-              MimeTypes.AUDIO_E_AC3, requiresSecureDecoder, /* requiresTunnelingDecoder= */ false);
-      decoderInfos.addAll(eac3DecoderInfos);
+              MimeTypes.AUDIO_E_AC3, requiresSecureDecoder, /* requiresTunnelingDecoder= */ false));
+      decoderInfos = decoderInfosWithEac3;
     }
     return Collections.unmodifiableList(decoderInfos);
   }
@@ -386,7 +390,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       MediaCodecInfo codecInfo,
       MediaCodec codec,
       Format format,
-      MediaCrypto crypto,
+      @Nullable MediaCrypto crypto,
       float codecOperatingRate) {
     codecMaxInputSize = getCodecMaxInputSize(codecInfo, format, getStreamFormats());
     codecNeedsDiscardChannelsWorkaround = codecNeedsDiscardChannelsWorkaround(codecInfo.name);

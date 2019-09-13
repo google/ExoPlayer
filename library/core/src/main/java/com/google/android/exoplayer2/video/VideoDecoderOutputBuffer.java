@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.video;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.decoder.OutputBuffer;
 import java.nio.ByteBuffer;
@@ -33,17 +34,23 @@ public abstract class VideoDecoderOutputBuffer extends OutputBuffer {
   /** Output mode. */
   @C.VideoOutputMode public int mode;
   /** RGB buffer for RGB mode. */
-  public ByteBuffer data;
+  @Nullable public ByteBuffer data;
 
   public int width;
   public int height;
-  public ColorInfo colorInfo;
+  @Nullable public ColorInfo colorInfo;
 
   /** YUV planes for YUV mode. */
-  public ByteBuffer[] yuvPlanes;
+  @Nullable public ByteBuffer[] yuvPlanes;
 
-  public int[] yuvStrides;
+  @Nullable public int[] yuvStrides;
   public int colorspace;
+
+  /**
+   * Supplemental data related to the output frame, if {@link #hasSupplementalData()} returns true.
+   * If present, the buffer is populated with supplemental data from position 0 to its limit.
+   */
+  @Nullable public ByteBuffer supplementalData;
 
   /**
    * Initializes the buffer.
@@ -51,10 +58,24 @@ public abstract class VideoDecoderOutputBuffer extends OutputBuffer {
    * @param timeUs The presentation timestamp for the buffer, in microseconds.
    * @param mode The output mode. One of {@link C#VIDEO_OUTPUT_MODE_NONE}, {@link
    *     C#VIDEO_OUTPUT_MODE_YUV} and {@link C#VIDEO_OUTPUT_MODE_SURFACE_YUV}.
+   * @param supplementalData Supplemental data associated with the frame, or {@code null} if not
+   *     present. It is safe to reuse the provided buffer after this method returns.
    */
-  public void init(long timeUs, @C.VideoOutputMode int mode) {
+  public void init(
+      long timeUs, @C.VideoOutputMode int mode, @Nullable ByteBuffer supplementalData) {
     this.timeUs = timeUs;
     this.mode = mode;
+    if (supplementalData != null) {
+      addFlag(C.BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA);
+      int size = supplementalData.limit();
+      if (this.supplementalData == null || this.supplementalData.capacity() < size) {
+        this.supplementalData = ByteBuffer.allocate(size);
+      }
+      this.supplementalData.position(0);
+      this.supplementalData.put(supplementalData);
+      this.supplementalData.flip();
+      supplementalData.position(0);
+    }
   }
 
   /**
@@ -88,6 +109,10 @@ public abstract class VideoDecoderOutputBuffer extends OutputBuffer {
     if (yuvPlanes == null) {
       yuvPlanes = new ByteBuffer[3];
     }
+
+    ByteBuffer data = this.data;
+    ByteBuffer[] yuvPlanes = this.yuvPlanes;
+
     // Rewrapping has to be done on every frame since the stride might have changed.
     yuvPlanes[0] = data.slice();
     yuvPlanes[0].limit(yLength);

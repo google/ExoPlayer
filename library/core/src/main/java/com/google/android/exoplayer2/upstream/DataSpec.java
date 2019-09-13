@@ -24,6 +24,9 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Defines a region of data.
@@ -67,7 +70,7 @@ public final class DataSpec {
    * setting this flag may also enable more concurrent access to the data (e.g. reading one fragment
    * whilst writing another).
    */
-  public static final int FLAG_ALLOW_CACHE_FRAGMENTATION = 1 << 4; // 8
+  public static final int FLAG_ALLOW_CACHE_FRAGMENTATION = 1 << 4; // 16
 
   /**
    * Force the source to bound to local address.
@@ -104,9 +107,10 @@ public final class DataSpec {
    */
   @Nullable public final byte[] httpBody;
 
-  /**
-   * The absolute position of the data in the full stream.
-   */
+  /** Immutable map containing the headers to use in HTTP requests. */
+  public final Map<String, String> httpRequestHeaders;
+
+  /** The absolute position of the data in the full stream. */
   public final long absoluteStreamPosition;
   /**
    * The position of the data when read from {@link #uri}.
@@ -237,7 +241,6 @@ public final class DataSpec {
    * @param key {@link #key}.
    * @param flags {@link #flags}.
    */
-  @SuppressWarnings("deprecation")
   public DataSpec(
       Uri uri,
       @HttpMethod int httpMethod,
@@ -247,6 +250,41 @@ public final class DataSpec {
       long length,
       @Nullable String key,
       @Flags int flags) {
+    this(
+        uri,
+        httpMethod,
+        httpBody,
+        absoluteStreamPosition,
+        position,
+        length,
+        key,
+        flags,
+        /* httpRequestHeaders= */ Collections.emptyMap());
+  }
+
+  /**
+   * Construct a data spec with request parameters to be used as HTTP headers inside HTTP requests.
+   *
+   * @param uri {@link #uri}.
+   * @param httpMethod {@link #httpMethod}.
+   * @param httpBody {@link #httpBody}.
+   * @param absoluteStreamPosition {@link #absoluteStreamPosition}.
+   * @param position {@link #position}.
+   * @param length {@link #length}.
+   * @param key {@link #key}.
+   * @param flags {@link #flags}.
+   * @param httpRequestHeaders {@link #httpRequestHeaders}.
+   */
+  public DataSpec(
+      Uri uri,
+      @HttpMethod int httpMethod,
+      @Nullable byte[] httpBody,
+      long absoluteStreamPosition,
+      long position,
+      long length,
+      @Nullable String key,
+      @Flags int flags,
+      Map<String, String> httpRequestHeaders) {
     Assertions.checkArgument(absoluteStreamPosition >= 0);
     Assertions.checkArgument(position >= 0);
     Assertions.checkArgument(length > 0 || length == C.LENGTH_UNSET);
@@ -258,6 +296,7 @@ public final class DataSpec {
     this.length = length;
     this.key = key;
     this.flags = flags;
+    this.httpRequestHeaders = Collections.unmodifiableMap(new HashMap<>(httpRequestHeaders));
   }
 
   /**
@@ -345,7 +384,8 @@ public final class DataSpec {
           position + offset,
           length,
           key,
-          flags);
+          flags,
+          httpRequestHeaders);
     }
   }
 
@@ -357,6 +397,14 @@ public final class DataSpec {
    */
   public DataSpec withUri(Uri uri) {
     return new DataSpec(
-        uri, httpMethod, httpBody, absoluteStreamPosition, position, length, key, flags);
+        uri,
+        httpMethod,
+        httpBody,
+        absoluteStreamPosition,
+        position,
+        length,
+        key,
+        flags,
+        httpRequestHeaders);
   }
 }

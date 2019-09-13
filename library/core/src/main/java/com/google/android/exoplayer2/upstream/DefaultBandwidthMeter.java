@@ -22,8 +22,8 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.os.Handler;
 import android.os.Looper;
-import androidx.annotation.Nullable;
 import android.util.SparseArray;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
@@ -79,6 +79,8 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
   /** Default maximum weight for the sliding window. */
   public static final int DEFAULT_SLIDING_WINDOW_MAX_WEIGHT = 2000;
 
+  @Nullable private static DefaultBandwidthMeter singletonInstance;
+
   /** Builder for a bandwidth meter. */
   public static final class Builder {
 
@@ -100,6 +102,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
       initialBitrateEstimates = getInitialBitrateEstimatesForCountry(Util.getCountryCode(context));
       slidingWindowMaxWeight = DEFAULT_SLIDING_WINDOW_MAX_WEIGHT;
       clock = Clock.DEFAULT;
+      resetOnNetworkTypeChange = true;
     }
 
     /**
@@ -168,14 +171,12 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
     }
 
     /**
-     * Sets whether to reset if the network type changes.
-     *
-     * <p>This method is experimental, and will be renamed or removed in a future release.
+     * Sets whether to reset if the network type changes. The default value is {@code true}.
      *
      * @param resetOnNetworkTypeChange Whether to reset if the network type changes.
      * @return This builder.
      */
-    public Builder experimental_resetOnNetworkTypeChange(boolean resetOnNetworkTypeChange) {
+    public Builder setResetOnNetworkTypeChange(boolean resetOnNetworkTypeChange) {
       this.resetOnNetworkTypeChange = resetOnNetworkTypeChange;
       return this;
     }
@@ -213,6 +214,19 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
       // Assume median group if not found.
       return groupIndices == null ? new int[] {2, 2, 2, 2} : groupIndices;
     }
+  }
+
+  /**
+   * Returns a singleton instance of a {@link DefaultBandwidthMeter} with default configuration.
+   *
+   * @param context A {@link Context}.
+   * @return The singleton instance.
+   */
+  public static synchronized DefaultBandwidthMeter getSingletonInstance(Context context) {
+    if (singletonInstance == null) {
+      singletonInstance = new DefaultBandwidthMeter.Builder(context).build();
+    }
+    return singletonInstance;
   }
 
   private static final int ELAPSED_MILLIS_FOR_ESTIMATE = 2000;

@@ -20,18 +20,43 @@ import static com.google.android.exoplayer2.util.Util.castNonNull;
 import android.os.Parcel;
 import android.os.Parcelable;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 
-/**
- * An Event Message (emsg) as defined in ISO 23009-1.
- */
+/** An Event Message (emsg) as defined in ISO 23009-1. */
 public final class EventMessage implements Metadata.Entry {
 
   /**
-   * The message scheme.
+   * emsg scheme_id_uri from the <a href="https://aomediacodec.github.io/av1-id3/#semantics">CMAF
+   * spec</a>.
    */
+  @VisibleForTesting public static final String ID3_SCHEME_ID_AOM = "https://aomedia.org/emsg/ID3";
+
+  /**
+   * The Apple-hosted scheme_id equivalent to {@code ID3_SCHEME_ID_AOM} - used before AOM adoption.
+   */
+  private static final String ID3_SCHEME_ID_APPLE =
+      "https://developer.apple.com/streaming/emsg-id3";
+
+  /**
+   * scheme_id_uri from section 7.3.2 of <a
+   * href="https://www.scte.org/SCTEDocs/Standards/ANSI_SCTE%20214-3%202015.pdf">SCTE 214-3
+   * 2015</a>.
+   */
+  @VisibleForTesting public static final String SCTE35_SCHEME_ID = "urn:scte:scte35:2014:bin";
+
+  private static final Format ID3_FORMAT =
+      Format.createSampleFormat(
+          /* id= */ null, MimeTypes.APPLICATION_ID3, Format.OFFSET_SAMPLE_RELATIVE);
+  private static final Format SCTE35_FORMAT =
+      Format.createSampleFormat(
+          /* id= */ null, MimeTypes.APPLICATION_SCTE35, Format.OFFSET_SAMPLE_RELATIVE);
+
+  /** The message scheme. */
   public final String schemeIdUri;
 
   /**
@@ -82,6 +107,26 @@ public final class EventMessage implements Metadata.Entry {
   }
 
   @Override
+  @Nullable
+  public Format getWrappedMetadataFormat() {
+    switch (schemeIdUri) {
+      case ID3_SCHEME_ID_AOM:
+      case ID3_SCHEME_ID_APPLE:
+        return ID3_FORMAT;
+      case SCTE35_SCHEME_ID:
+        return SCTE35_FORMAT;
+      default:
+        return null;
+    }
+  }
+
+  @Override
+  @Nullable
+  public byte[] getWrappedMetadataBytes() {
+    return getWrappedMetadataFormat() != null ? messageData : null;
+  }
+
+  @Override
   public int hashCode() {
     if (hashCode == 0) {
       int result = 17;
@@ -113,7 +158,14 @@ public final class EventMessage implements Metadata.Entry {
 
   @Override
   public String toString() {
-    return "EMSG: scheme=" + schemeIdUri + ", id=" + id + ", value=" + value;
+    return "EMSG: scheme="
+        + schemeIdUri
+        + ", id="
+        + id
+        + ", durationMs="
+        + durationMs
+        + ", value="
+        + value;
   }
 
   // Parcelable implementation.

@@ -57,22 +57,21 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.annotation:annotation:1.1.0'
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     compileOnly 'com.google.code.findbugs:jsr305:' + jsr305Version
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkVersion
-    // Uncomment to enable Kotlin non-null strict mode. See [internal: b/138703808].
-    // compileOnly "org.jetbrains.kotlin:kotlin-annotations-jvm:1.1.60"
-    androidTestImplementation 'androidx.test:runner:' + androidXTestVersion
-    androidTestImplementation 'androidx.test.ext:junit:' + androidXTestVersion
+    compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
+    androidTestImplementation 'androidx.test:runner:' + androidxTestVersion
+    androidTestImplementation 'androidx.test.ext:junit:' + androidxTestVersion
     androidTestImplementation 'com.google.truth:truth:' + truthVersion
     androidTestImplementation 'com.google.auto.value:auto-value-annotations:' + autoValueVersion
     androidTestImplementation 'com.linkedin.dexmaker:dexmaker:' + dexmakerVersion
     androidTestImplementation 'com.linkedin.dexmaker:dexmaker-mockito:' + dexmakerVersion
     androidTestImplementation 'org.mockito:mockito-core:' + mockitoVersion
     androidTestAnnotationProcessor 'com.google.auto.value:auto-value:' + autoValueVersion
-    testImplementation 'androidx.test:core:' + androidXTestVersion
-    testImplementation 'androidx.test.ext:junit:' + androidXTestVersion
+    testImplementation 'androidx.test:core:' + androidxTestVersion
+    testImplementation 'androidx.test.ext:junit:' + androidxTestVersion
     testImplementation 'com.google.truth:truth:' + truthVersion
     testImplementation 'org.mockito:mockito-core:' + mockitoVersion
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion

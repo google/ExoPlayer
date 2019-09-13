@@ -17,11 +17,11 @@ package com.google.android.exoplayer2.ext.mediasession;
 
 import android.os.Bundle;
 import android.os.ResultReceiver;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.Player;

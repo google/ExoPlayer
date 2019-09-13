@@ -179,12 +179,11 @@ public final class FakeTimeline extends Timeline {
   }
 
   @Override
-  public Window getWindow(
-      int windowIndex, Window window, boolean setTag, long defaultPositionProjectionUs) {
+  public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
     TimelineWindowDefinition windowDefinition = windowDefinitions[windowIndex];
-    Object tag = setTag ? windowDefinition.id : null;
     return window.set(
-        tag,
+        /* uid= */ windowDefinition.id,
+        /* tag= */ windowDefinition.id,
         manifests[windowIndex],
         /* presentationStartTimeMs= */ C.TIME_UNSET,
         /* windowStartTimeMs= */ C.TIME_UNSET,

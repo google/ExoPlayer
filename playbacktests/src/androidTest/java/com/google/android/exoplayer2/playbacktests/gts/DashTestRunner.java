@@ -23,8 +23,6 @@ import android.media.UnsupportedSchemeException;
 import android.net.Uri;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.DefaultLoadControl;
-import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -259,10 +257,10 @@ public final class DashTestRunner {
     }
 
     @Override
-    protected DefaultDrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManager(
+    protected DrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManager(
         final String userAgent) {
       if (widevineLicenseUrl == null) {
-        return null;
+        return DrmSessionManager.getDummyDrmSessionManager();
       }
       try {
         MediaDrmCallback drmCallback = new HttpMediaDrmCallback(widevineLicenseUrl,
@@ -285,29 +283,25 @@ public final class DashTestRunner {
 
     @Override
     protected SimpleExoPlayer buildExoPlayer(
-        HostActivity host,
-        Surface surface,
-        MappingTrackSelector trackSelector,
-        DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
+        HostActivity host, Surface surface, MappingTrackSelector trackSelector) {
       SimpleExoPlayer player =
-          ExoPlayerFactory.newSimpleInstance(
-              host,
-              new DebugRenderersFactory(host),
-              trackSelector,
-              new DefaultLoadControl(),
-              drmSessionManager);
+          new SimpleExoPlayer.Builder(host, new DebugRenderersFactory(host))
+              .setTrackSelector(trackSelector)
+              .build();
       player.setVideoSurface(surface);
       return player;
     }
 
     @Override
-    protected MediaSource buildSource(HostActivity host, String userAgent) {
+    protected MediaSource buildSource(
+        HostActivity host, String userAgent, DrmSessionManager<?> drmSessionManager) {
       DataSource.Factory dataSourceFactory =
           this.dataSourceFactory != null
               ? this.dataSourceFactory
               : new DefaultDataSourceFactory(host, userAgent);
       Uri manifestUri = Uri.parse(manifestUrl);
       return new DashMediaSource.Factory(dataSourceFactory)
+          .setDrmSessionManager(drmSessionManager)
           .setLoadErrorHandlingPolicy(new DefaultLoadErrorHandlingPolicy(MIN_LOADABLE_RETRY_COUNT))
           .createMediaSource(manifestUri);
     }

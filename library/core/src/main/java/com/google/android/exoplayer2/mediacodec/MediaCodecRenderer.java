@@ -23,7 +23,6 @@ import android.media.MediaCrypto;
 import android.media.MediaCryptoException;
 import android.media.MediaFormat;
 import android.os.Bundle;
-import android.os.Looper;
 import android.os.SystemClock;
 import androidx.annotation.CheckResult;
 import androidx.annotation.IntDef;
@@ -320,7 +319,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private final float assumedMinimumCodecOperatingRate;
   private final DecoderInputBuffer buffer;
   private final DecoderInputBuffer flagsOnlyBuffer;
-  private final FormatHolder formatHolder;
   private final TimedValueQueue<Format> formatQueue;
   private final ArrayList<Long> decodeOnlyPresentationTimestamps;
   private final MediaCodec.BufferInfo outputBufferInfo;
@@ -406,7 +404,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     this.assumedMinimumCodecOperatingRate = assumedMinimumCodecOperatingRate;
     buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
     flagsOnlyBuffer = DecoderInputBuffer.newFlagsOnlyInstance();
-    formatHolder = new FormatHolder();
     formatQueue = new TimedValueQueue<>();
     decodeOnlyPresentationTimestamps = new ArrayList<>();
     outputBufferInfo = new MediaCodec.BufferInfo();
@@ -452,12 +449,14 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @param mediaCodecSelector The decoder selector.
    * @param drmSessionManager The renderer's {@link DrmSessionManager}.
    * @param format The format.
-   * @return The extent to which the renderer is capable of supporting the given format. See
-   *     {@link #supportsFormat(Format)} for more detail.
+   * @return The extent to which the renderer is capable of supporting the given format. See {@link
+   *     #supportsFormat(Format)} for more detail.
    * @throws DecoderQueryException If there was an error querying decoders.
    */
-  protected abstract int supportsFormat(MediaCodecSelector mediaCodecSelector,
-      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager, Format format)
+  protected abstract int supportsFormat(
+      MediaCodecSelector mediaCodecSelector,
+      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      Format format)
       throws DecoderQueryException;
 
   /**
@@ -487,7 +486,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       MediaCodecInfo codecInfo,
       MediaCodec codec,
       Format format,
-      MediaCrypto crypto,
+      @Nullable MediaCrypto crypto,
       float codecOperatingRate);
 
   protected final void maybeInitCodec() throws ExoPlaybackException {
@@ -522,7 +521,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
                   && mediaCrypto.requiresSecureDecoderComponent(mimeType);
         }
       }
-      if (deviceNeedsDrmKeysToConfigureCodecWorkaround()) {
+      if (FrameworkMediaCrypto.WORKAROUND_DEVICE_NEEDS_KEYS_TO_CONFIGURE_CODEC) {
         @DrmSession.State int drmSessionState = codecDrmSession.getState();
         if (drmSessionState == DrmSession.STATE_ERROR) {
           throw ExoPlaybackException.createForRenderer(codecDrmSession.getError(), getIndex());
@@ -769,6 +768,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   /** Reads into {@link #flagsOnlyBuffer} and returns whether a format was read. */
   private boolean readToFlagsOnlyBuffer(boolean requireFormat) throws ExoPlaybackException {
+    FormatHolder formatHolder = getFormatHolder();
     flagsOnlyBuffer.clear();
     int result = readSource(formatHolder, flagsOnlyBuffer, requireFormat);
     if (result == C.RESULT_FORMAT_READ) {
@@ -1040,6 +1040,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
 
     int result;
+    FormatHolder formatHolder = getFormatHolder();
     int adaptiveReconfigurationBytes = 0;
     if (waitingForKeys) {
       // We've already read an encrypted sample into buffer, and are waiting for keys.
@@ -1139,6 +1140,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           Math.max(largestQueuedPresentationTimeUs, presentationTimeUs);
 
       buffer.flip();
+      if (buffer.hasSupplementalData()) {
+        handleInputBufferSupplementalData(buffer);
+      }
       onQueueInputBuffer(buffer);
 
       if (bufferEncrypted) {
@@ -1192,33 +1196,15 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   @SuppressWarnings("unchecked")
   protected void onInputFormatChanged(FormatHolder formatHolder) throws ExoPlaybackException {
-    Format oldFormat = inputFormat;
-    Format newFormat = formatHolder.format;
-    inputFormat = newFormat;
     waitingForFirstSampleInFormat = true;
-
-    boolean drmInitDataChanged =
-        !Util.areEqual(newFormat.drmInitData, oldFormat == null ? null : oldFormat.drmInitData);
-    if (drmInitDataChanged) {
-      if (newFormat.drmInitData != null) {
-        if (formatHolder.includesDrmSession) {
-          setSourceDrmSession((DrmSession<FrameworkMediaCrypto>) formatHolder.drmSession);
-        } else {
-          if (drmSessionManager == null) {
-            throw ExoPlaybackException.createForRenderer(
-                new IllegalStateException("Media requires a DrmSessionManager"), getIndex());
-          }
-          DrmSession<FrameworkMediaCrypto> session =
-              drmSessionManager.acquireSession(Looper.myLooper(), newFormat.drmInitData);
-          if (sourceDrmSession != null) {
-            sourceDrmSession.releaseReference();
-          }
-          sourceDrmSession = session;
-        }
-      } else {
-        setSourceDrmSession(null);
-      }
+    Format newFormat = Assertions.checkNotNull(formatHolder.format);
+    if (formatHolder.includesDrmSession) {
+      setSourceDrmSession((DrmSession<FrameworkMediaCrypto>) formatHolder.drmSession);
+    } else {
+      sourceDrmSession =
+          getUpdatedSourceDrmSession(inputFormat, newFormat, drmSessionManager, sourceDrmSession);
     }
+    inputFormat = newFormat;
 
     if (codec == null) {
       maybeInitCodec();
@@ -1297,9 +1283,22 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
+   * Handles supplemental data associated with an input buffer.
+   *
+   * <p>The default implementation is a no-op.
+   *
+   * @param buffer The input buffer that is about to be queued.
+   * @throws ExoPlaybackException Thrown if an error occurs handling supplemental data.
+   */
+  protected void handleInputBufferSupplementalData(DecoderInputBuffer buffer)
+      throws ExoPlaybackException {
+    // Do nothing.
+  }
+
+  /**
    * Called immediately before an input buffer is queued into the codec.
-   * <p>
-   * The default implementation is a no-op.
+   *
+   * <p>The default implementation is a no-op.
    *
    * @param buffer The buffer to be queued.
    */
@@ -1754,16 +1753,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @TargetApi(21)
   private static boolean isMediaCodecExceptionV21(IllegalStateException error) {
     return error instanceof MediaCodec.CodecException;
-  }
-
-  /**
-   * Returns whether the device needs keys to have been loaded into the {@link DrmSession} before
-   * codec configuration.
-   */
-  private boolean deviceNeedsDrmKeysToConfigureCodecWorkaround() {
-    return "Amazon".equals(Util.MANUFACTURER)
-        && ("AFTM".equals(Util.MODEL) // Fire TV Stick Gen 1
-            || "AFTB".equals(Util.MODEL)); // Fire TV Gen 1
   }
 
   /**

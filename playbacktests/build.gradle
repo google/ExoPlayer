@@ -32,9 +32,9 @@ android {
 }
 
 dependencies {
-    androidTestImplementation 'androidx.test:rules:' + androidXTestVersion
-    androidTestImplementation 'androidx.test:runner:' + androidXTestVersion
-    androidTestImplementation 'androidx.annotation:annotation:1.1.0'
+    androidTestImplementation 'androidx.test:rules:' + androidxTestVersion
+    androidTestImplementation 'androidx.test:runner:' + androidxTestVersion
+    androidTestImplementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     androidTestImplementation project(modulePrefix + 'library-core')
     androidTestImplementation project(modulePrefix + 'library-dash')
     androidTestImplementation project(modulePrefix + 'library-hls')

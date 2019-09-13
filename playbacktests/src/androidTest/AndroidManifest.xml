@@ -23,7 +23,7 @@
   <uses-permission android:name="android.permission.WAKE_LOCK"/>
   <uses-sdk/>
 
-  <application android:debuggable="true"
+  <application
       android:allowBackup="false"
       tools:ignore="MissingApplicationIcon,HardcodedDebugMode">
     <uses-library android:name="android.test.runner"/>

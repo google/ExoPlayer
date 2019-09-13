@@ -22,13 +22,10 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.audio.DefaultAudioSink;
@@ -133,8 +130,7 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
     // Build the player.
     trackSelector = buildTrackSelector(host);
     String userAgent = "ExoPlayerPlaybackTests";
-    DrmSessionManager<FrameworkMediaCrypto> drmSessionManager = buildDrmSessionManager(userAgent);
-    player = buildExoPlayer(host, surface, trackSelector, drmSessionManager);
+    player = buildExoPlayer(host, surface, trackSelector);
     player.setPlayWhenReady(true);
     player.addAnalyticsListener(this);
     player.addAnalyticsListener(new EventLogger(trackSelector, tag));
@@ -144,7 +140,8 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
       pendingSchedule.start(player, trackSelector, surface, actionHandler, /* callback= */ null);
       pendingSchedule = null;
     }
-    player.prepare(buildSource(host, Util.getUserAgent(host, userAgent)));
+    DrmSessionManager<FrameworkMediaCrypto> drmSessionManager = buildDrmSessionManager(userAgent);
+    player.prepare(buildSource(host, Util.getUserAgent(host, userAgent), drmSessionManager));
   }
 
   @Override
@@ -233,7 +230,7 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
 
   protected DrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManager(String userAgent) {
     // Do nothing. Interested subclasses may override.
-    return null;
+    return DrmSessionManager.getDummyDrmSessionManager();
   }
 
   protected DefaultTrackSelector buildTrackSelector(HostActivity host) {
@@ -241,23 +238,20 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
   }
 
   protected SimpleExoPlayer buildExoPlayer(
-      HostActivity host,
-      Surface surface,
-      MappingTrackSelector trackSelector,
-      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
-    RenderersFactory renderersFactory =
-        new DefaultRenderersFactory(
-            host,
-            DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF,
-            /* allowedVideoJoiningTimeMs= */ 0);
+      HostActivity host, Surface surface, MappingTrackSelector trackSelector) {
+    DefaultRenderersFactory renderersFactory = new DefaultRenderersFactory(host);
+    renderersFactory.setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF);
+    renderersFactory.setAllowedVideoJoiningTimeMs(/* allowedVideoJoiningTimeMs= */ 0);
     SimpleExoPlayer player =
-        ExoPlayerFactory.newSimpleInstance(
-            host, renderersFactory, trackSelector, new DefaultLoadControl(), drmSessionManager);
+        new SimpleExoPlayer.Builder(host, renderersFactory)
+            .setTrackSelector(trackSelector)
+            .build();
     player.setVideoSurface(surface);
     return player;
   }
 
-  protected abstract MediaSource buildSource(HostActivity host, String userAgent);
+  protected abstract MediaSource buildSource(
+      HostActivity host, String userAgent, DrmSessionManager<?> drmSessionManager);
 
   protected void onPlayerErrorInternal(ExoPlaybackException error) {
     // Do nothing. Interested subclasses may override.
