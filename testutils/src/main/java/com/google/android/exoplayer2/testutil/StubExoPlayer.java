@@ -75,8 +75,14 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
-  @Player.State
+  @State
   public int getPlaybackState() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  @PlaybackSuppressionReason
+  public int getPlaybackSuppressionReason() {
     throw new UnsupportedOperationException();
   }
 
