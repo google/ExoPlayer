@@ -95,14 +95,19 @@ public class DecoderInputBuffer extends Buffer {
     this.bufferReplacementMode = bufferReplacementMode;
   }
 
-  /** Resets {@link #supplementalData} in preparation for storing {@code length} bytes. */
+  /**
+   * Clears {@link #supplementalData} and ensures that it's large enough to accommodate {@code
+   * length} bytes.
+   *
+   * @param length The length of the supplemental data that must be accommodated, in bytes.
+   */
   @EnsuresNonNull("supplementalData")
   public void resetSupplementalData(int length) {
     if (supplementalData == null || supplementalData.capacity() < length) {
       supplementalData = ByteBuffer.allocate(length);
+    } else {
+      supplementalData.clear();
     }
-    supplementalData.position(0);
-    supplementalData.limit(length);
   }
 
   /**
@@ -134,8 +139,7 @@ public class DecoderInputBuffer extends Buffer {
     ByteBuffer newData = createReplacementByteBuffer(requiredCapacity);
     // Copy data up to the current position from the old buffer to the new one.
     if (position > 0) {
-      data.position(0);
-      data.limit(position);
+      data.flip();
       newData.put(data);
     }
     // Set the new buffer.
@@ -158,7 +162,7 @@ public class DecoderInputBuffer extends Buffer {
   }
 
   /**
-   * Flips {@link #data} in preparation for being queued to a decoder.
+   * Flips {@link #data} and {@link #supplementalData} in preparation for being queued to a decoder.
    *
    * @see java.nio.Buffer#flip()
    */
@@ -174,6 +178,9 @@ public class DecoderInputBuffer extends Buffer {
     super.clear();
     if (data != null) {
       data.clear();
+    }
+    if (supplementalData != null) {
+      supplementalData.clear();
     }
   }
 
