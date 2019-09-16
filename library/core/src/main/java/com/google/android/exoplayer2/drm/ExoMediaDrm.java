@@ -46,6 +46,28 @@ public interface ExoMediaDrm<T extends ExoMediaCrypto> {
     ExoMediaDrm<T> acquireExoMediaDrm(UUID uuid);
   }
 
+  /**
+   * {@link Provider} implementation which provides an {@link ExoMediaDrm} instance owned by the
+   * app.
+   *
+   * <p>This provider should be used to manually handle {@link ExoMediaDrm} resources.
+   */
+  final class AppManagedProvider<T extends ExoMediaCrypto> implements Provider<T> {
+
+    private final ExoMediaDrm<T> exoMediaDrm;
+
+    /** Creates an instance, which provides the given {@link ExoMediaDrm}. */
+    public AppManagedProvider(ExoMediaDrm<T> exoMediaDrm) {
+      this.exoMediaDrm = exoMediaDrm;
+    }
+
+    @Override
+    public ExoMediaDrm<T> acquireExoMediaDrm(UUID uuid) {
+      exoMediaDrm.acquire();
+      return exoMediaDrm;
+    }
+  }
+
   /** @see MediaDrm#EVENT_KEY_REQUIRED */
   @SuppressWarnings("InlinedApi")
   int EVENT_KEY_REQUIRED = MediaDrm.EVENT_KEY_REQUIRED;
