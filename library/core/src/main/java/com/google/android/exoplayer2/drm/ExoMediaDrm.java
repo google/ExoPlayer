@@ -33,9 +33,20 @@ import java.util.UUID;
  */
 public interface ExoMediaDrm<T extends ExoMediaCrypto> {
 
-  /**
-   * @see MediaDrm#EVENT_KEY_REQUIRED
-   */
+  /** {@link ExoMediaDrm} instances provider. */
+  interface Provider<T extends ExoMediaCrypto> {
+
+    /**
+     * Returns an {@link ExoMediaDrm} instance with acquired ownership for the DRM scheme identified
+     * by the given UUID.
+     *
+     * <p>Each call to this method must have a corresponding call to {@link ExoMediaDrm#release()}
+     * to ensure correct resource management.
+     */
+    ExoMediaDrm<T> acquireExoMediaDrm(UUID uuid);
+  }
+
+  /** @see MediaDrm#EVENT_KEY_REQUIRED */
   @SuppressWarnings("InlinedApi")
   int EVENT_KEY_REQUIRED = MediaDrm.EVENT_KEY_REQUIRED;
   /**
@@ -235,6 +246,16 @@ public interface ExoMediaDrm<T extends ExoMediaCrypto> {
   Map<String, String> queryKeyStatus(byte[] sessionId);
 
   /**
+   * Acquires ownership over this instance, which must be released by calling {@link #release()}.
+   */
+  void acquire();
+
+  /**
+   * Releases ownership of this instance. If a call to this method causes this instance to have no
+   * acquired ownerships, releases the underlying resources.
+   *
+   * <p>Callers of this method must not make any further use of this instance.
+   *
    * @see MediaDrm#release()
    */
   void release();

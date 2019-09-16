@@ -186,6 +186,11 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
   }
 
   @Override
+  public void acquire() {
+    // TODO: Implement reference counting.
+  }
+
+  @Override
   public void release() {
     mediaDrm.release();
   }
