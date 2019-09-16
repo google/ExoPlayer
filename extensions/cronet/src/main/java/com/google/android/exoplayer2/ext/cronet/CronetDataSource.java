@@ -37,6 +37,7 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -54,7 +55,9 @@ import org.chromium.net.UrlResponseInfo;
 /**
  * DataSource without intermediate buffer based on Cronet API set using UrlRequest.
  *
- * <p>This class's methods are organized in the sequence of expected calls.
+ * <p>Note: HTTP request headers will be set using all parameters passed via (in order of decreasing
+ * priority) the {@code dataSpec}, {@link #setRequestProperty} and the default parameters used to
+ * construct the instance.
  */
 public class CronetDataSource extends BaseDataSource implements HttpDataSource {
 
@@ -685,22 +688,22 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
         cronetEngine
             .newUrlRequestBuilder(dataSpec.uri.toString(), urlRequestCallback, executor)
             .allowDirectExecutor();
+
     // Set the headers.
-    boolean isContentTypeHeaderSet = false;
+    Map<String, String> requestHeaders = new HashMap<>();
     if (defaultRequestProperties != null) {
-      for (Entry<String, String> headerEntry : defaultRequestProperties.getSnapshot().entrySet()) {
-        String key = headerEntry.getKey();
-        isContentTypeHeaderSet = isContentTypeHeaderSet || CONTENT_TYPE.equals(key);
-        requestBuilder.addHeader(key, headerEntry.getValue());
-      }
+      requestHeaders.putAll(defaultRequestProperties.getSnapshot());
     }
-    Map<String, String> requestPropertiesSnapshot = requestProperties.getSnapshot();
-    for (Entry<String, String> headerEntry : requestPropertiesSnapshot.entrySet()) {
+    requestHeaders.putAll(requestProperties.getSnapshot());
+    requestHeaders.putAll(dataSpec.httpRequestHeaders);
+
+    for (Entry<String, String> headerEntry : requestHeaders.entrySet()) {
       String key = headerEntry.getKey();
-      isContentTypeHeaderSet = isContentTypeHeaderSet || CONTENT_TYPE.equals(key);
-      requestBuilder.addHeader(key, headerEntry.getValue());
+      String value = headerEntry.getValue();
+      requestBuilder.addHeader(key, value);
     }
-    if (dataSpec.httpBody != null && !isContentTypeHeaderSet) {
+
+    if (dataSpec.httpBody != null && !requestHeaders.containsKey(CONTENT_TYPE)) {
       throw new IOException("HTTP request with non-empty body must set Content-Type");
     }
     if (dataSpec.isFlagSet(DataSpec.FLAG_ALLOW_ICY_METADATA)) {

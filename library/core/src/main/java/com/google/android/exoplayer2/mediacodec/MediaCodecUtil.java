@@ -81,8 +81,6 @@ public final class MediaCodecUtil {
   // Dolby Vision.
   private static final Map<String, Integer> DOLBY_VISION_STRING_TO_PROFILE;
   private static final Map<String, Integer> DOLBY_VISION_STRING_TO_LEVEL;
-  private static final String CODEC_ID_DVHE = "dvhe";
-  private static final String CODEC_ID_DVH1 = "dvh1";
   // AV1.
   private static final SparseIntArray AV1_LEVEL_NUMBER_TO_CONST;
   private static final String CODEC_ID_AV01 = "av01";
@@ -156,8 +154,8 @@ public final class MediaCodecUtil {
    *     unless secure decryption really is required.
    * @param tunneling Whether the decoder is required to support tunneling. Always pass false unless
    *     tunneling really is required.
-   * @return A list of all {@link MediaCodecInfo}s for the given mime type, in the order given by
-   *     {@link MediaCodecList}.
+   * @return An unmodifiable list of all {@link MediaCodecInfo}s for the given mime type, in the
+   *     order given by {@link MediaCodecList}.
    * @throws DecoderQueryException If there was an error querying the available decoders.
    */
   public static synchronized List<MediaCodecInfo> getDecoderInfos(
@@ -245,6 +243,10 @@ public final class MediaCodecUtil {
       return null;
     }
     String[] parts = format.codecs.split("\\.");
+    // Dolby Vision can use DV, AVC or HEVC codec IDs, so check the MIME type first.
+    if (MimeTypes.VIDEO_DOLBY_VISION.equals(format.sampleMimeType)) {
+      return getDolbyVisionProfileAndLevel(format.codecs, parts);
+    }
     switch (parts[0]) {
       case CODEC_ID_AVC1:
       case CODEC_ID_AVC2:
@@ -254,9 +256,6 @@ public final class MediaCodecUtil {
       case CODEC_ID_HEV1:
       case CODEC_ID_HVC1:
         return getHevcProfileAndLevel(format.codecs, parts);
-      case CODEC_ID_DVHE:
-      case CODEC_ID_DVH1:
-        return getDolbyVisionProfileAndLevel(format.codecs, parts);
       case CODEC_ID_AV01:
         return getAv1ProfileAndLevel(format.codecs, parts, format.colorInfo);
       case CODEC_ID_MP4A:
@@ -603,7 +602,7 @@ public final class MediaCodecUtil {
     if (Util.SDK_INT >= 29) {
       return isSoftwareOnlyV29(codecInfo);
     }
-    String codecName = codecInfo.getName().toLowerCase();
+    String codecName = Util.toLowerInvariant(codecInfo.getName());
     if (codecName.startsWith("arc.")) { // App Runtime for Chrome (ARC) codecs
       return false;
     }
@@ -629,7 +628,7 @@ public final class MediaCodecUtil {
     if (Util.SDK_INT >= 29) {
       return isVendorV29(codecInfo);
     }
-    String codecName = codecInfo.getName().toLowerCase();
+    String codecName = Util.toLowerInvariant(codecInfo.getName());
     return !codecName.startsWith("omx.google.")
         && !codecName.startsWith("c2.android.")
         && !codecName.startsWith("c2.google.");

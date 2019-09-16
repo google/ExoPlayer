@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.video;
 
 import android.os.Handler;
-import android.os.Looper;
 import android.os.SystemClock;
 import android.view.Surface;
 import androidx.annotation.CallSuper;
@@ -38,7 +37,6 @@ import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.TimedValueQueue;
 import com.google.android.exoplayer2.util.TraceUtil;
-import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener.EventDispatcher;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -75,13 +73,11 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
   private final int maxDroppedFramesToNotify;
   private final boolean playClearSamplesWithoutKeys;
   private final EventDispatcher eventDispatcher;
-  private final FormatHolder formatHolder;
   private final TimedValueQueue<Format> formatQueue;
   private final DecoderInputBuffer flagsOnlyBuffer;
   private final DrmSessionManager<ExoMediaCrypto> drmSessionManager;
 
-  private Format format;
-  private Format pendingFormat;
+  private Format inputFormat;
   private Format outputFormat;
   private SimpleDecoder<
           VideoDecoderInputBuffer,
@@ -100,6 +96,7 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
   private long initialPositionUs;
   private long joiningDeadlineMs;
   private boolean waitingForKeys;
+  private boolean waitingForFirstSampleInFormat;
 
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
@@ -146,7 +143,6 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
     this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
     joiningDeadlineMs = C.TIME_UNSET;
     clearReportedVideoSize();
-    formatHolder = new FormatHolder();
     formatQueue = new TimedValueQueue<>();
     flagsOnlyBuffer = DecoderInputBuffer.newFlagsOnlyInstance();
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
@@ -166,8 +162,9 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
       return;
     }
 
-    if (format == null) {
+    if (inputFormat == null) {
       // We don't have a format yet, so try and read one.
+      FormatHolder formatHolder = getFormatHolder();
       flagsOnlyBuffer.clear();
       int result = readSource(formatHolder, flagsOnlyBuffer, true);
       if (result == C.RESULT_FORMAT_READ) {
@@ -211,7 +208,7 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
     if (waitingForKeys) {
       return false;
     }
-    if (format != null
+    if (inputFormat != null
         && (isSourceReady() || outputBuffer != null)
         && (renderedFirstFrame || !hasOutputSurface())) {
       // Ready. If we were joining then we've now joined, so clear the joining deadline.
@@ -269,7 +266,7 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
 
   @Override
   protected void onDisabled() {
-    format = null;
+    inputFormat = null;
     waitingForKeys = false;
     clearReportedVideoSize();
     clearRenderedFirstFrame();
@@ -361,32 +358,15 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
   @CallSuper
   @SuppressWarnings("unchecked")
   protected void onInputFormatChanged(FormatHolder formatHolder) throws ExoPlaybackException {
-    Format oldFormat = format;
-    format = formatHolder.format;
-    pendingFormat = format;
-
-    boolean drmInitDataChanged =
-        !Util.areEqual(format.drmInitData, oldFormat == null ? null : oldFormat.drmInitData);
-    if (drmInitDataChanged) {
-      if (format.drmInitData != null) {
-        if (formatHolder.includesDrmSession) {
-          setSourceDrmSession((DrmSession<ExoMediaCrypto>) formatHolder.drmSession);
-        } else {
-          if (drmSessionManager == null) {
-            throw ExoPlaybackException.createForRenderer(
-                new IllegalStateException("Media requires a DrmSessionManager"), getIndex());
-          }
-          DrmSession<ExoMediaCrypto> session =
-              drmSessionManager.acquireSession(Looper.myLooper(), format.drmInitData);
-          if (sourceDrmSession != null) {
-            sourceDrmSession.releaseReference();
-          }
-          sourceDrmSession = session;
-        }
-      } else {
-        setSourceDrmSession(null);
-      }
+    waitingForFirstSampleInFormat = true;
+    Format newFormat = Assertions.checkNotNull(formatHolder.format);
+    if (formatHolder.includesDrmSession) {
+      setSourceDrmSession((DrmSession<ExoMediaCrypto>) formatHolder.drmSession);
+    } else {
+      sourceDrmSession =
+          getUpdatedSourceDrmSession(inputFormat, newFormat, drmSessionManager, sourceDrmSession);
     }
+    inputFormat = newFormat;
 
     if (sourceDrmSession != decoderDrmSession) {
       if (decoderReceivedBuffers) {
@@ -399,7 +379,7 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
       }
     }
 
-    eventDispatcher.inputFormatChanged(format);
+    eventDispatcher.inputFormatChanged(inputFormat);
   }
 
   /**
@@ -661,7 +641,7 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
 
     try {
       long decoderInitializingTimestamp = SystemClock.elapsedRealtime();
-      decoder = createDecoder(format, mediaCrypto);
+      decoder = createDecoder(inputFormat, mediaCrypto);
       long decoderInitializedTimestamp = SystemClock.elapsedRealtime();
       onDecoderInitialized(
           decoder.getName(),
@@ -697,6 +677,7 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
     }
 
     int result;
+    FormatHolder formatHolder = getFormatHolder();
     if (waitingForKeys) {
       // We've already read an encrypted sample into buffer, and are waiting for keys.
       result = C.RESULT_BUFFER_READ;
@@ -722,12 +703,12 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
     if (waitingForKeys) {
       return false;
     }
-    if (pendingFormat != null) {
-      formatQueue.add(inputBuffer.timeUs, pendingFormat);
-      pendingFormat = null;
+    if (waitingForFirstSampleInFormat) {
+      formatQueue.add(inputBuffer.timeUs, inputFormat);
+      waitingForFirstSampleInFormat = false;
     }
     inputBuffer.flip();
-    inputBuffer.colorInfo = format.colorInfo;
+    inputBuffer.colorInfo = inputFormat.colorInfo;
     onQueueInputBuffer(inputBuffer);
     decoder.queueInputBuffer(inputBuffer);
     buffersInCodecCount++;

@@ -39,9 +39,9 @@ public class DefaultHttpDataSourceTest {
   public void open_withSpecifiedRequestParameters_usesCorrectParameters() throws IOException {
 
     /*
-     * This test will set HTTP request parameters in the HttpDataSourceFactory (default),
-     * in the DefaultHttpDataSource instance and in the DataSpec instance according to the table
-     * below. Values wrapped in '*' are the ones that should be set in the connection request.
+     * This test will set HTTP default request parameters (1) in the DefaultHttpDataSource, (2) via
+     * DefaultHttpDataSource.setRequestProperty() and (3) in the DataSpec instance according to the
+     * table below. Values wrapped in '*' are the ones that should be set in the connection request.
      *
      * +-----------------------+---+-----+-----+-----+-----+-----+
      * |                       |            Header Key           |

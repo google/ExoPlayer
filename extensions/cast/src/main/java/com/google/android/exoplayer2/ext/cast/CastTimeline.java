@@ -114,6 +114,7 @@ import java.util.Arrays;
     long durationUs = durationsUs[windowIndex];
     boolean isDynamic = durationUs == C.TIME_UNSET;
     return window.set(
+        /* uid= */ ids[windowIndex],
         /* tag= */ ids[windowIndex],
         /* manifest= */ null,
         /* presentationStartTimeMs= */ C.TIME_UNSET,

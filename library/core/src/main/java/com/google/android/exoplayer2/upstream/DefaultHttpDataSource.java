@@ -52,6 +52,10 @@ import java.util.zip.GZIPInputStream;
  * HTTP to HTTPS or vice versa). Cross-protocol redirects can be enabled by using the {@link
  * #DefaultHttpDataSource(String, Predicate, int, int, boolean, RequestProperties)} constructor and
  * passing {@code true} as the second last argument.
+ *
+ * <p>Note: HTTP request headers will be set using all parameters passed via (in order of decreasing
+ * priority) the {@code dataSpec}, {@link #setRequestProperty} and the default parameters used to
+ * construct the instance.
  */
 public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSource {
 
@@ -265,10 +269,6 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
 
   /**
    * Opens the source to read the specified data.
-   *
-   * <p>Note: HTTP request headers will be set using parameters passed via (in order of decreasing
-   * priority) the {@code dataSpec}, {@link #setRequestProperty} and the default parameters used to
-   * construct the instance.
    */
   @Override
   public long open(DataSpec dataSpec) throws HttpDataSourceException {
@@ -379,13 +379,6 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
         transferEnded();
       }
     }
-  }
-
-  /** Creates an {@link HttpURLConnection} that is connected with the {@code url}. */
-  @VisibleForTesting
-  /* package */
-  HttpURLConnection openConnection(URL url) throws IOException {
-    return (HttpURLConnection) url.openConnection();
   }
 
   /**
@@ -566,6 +559,12 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       connection.connect();
     }
     return connection;
+  }
+
+  /** Creates an {@link HttpURLConnection} that is connected with the {@code url}. */
+  @VisibleForTesting
+  /* package */ HttpURLConnection openConnection(URL url) throws IOException {
+    return (HttpURLConnection) url.openConnection();
   }
 
   /**

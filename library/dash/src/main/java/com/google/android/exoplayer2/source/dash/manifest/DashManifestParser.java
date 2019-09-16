@@ -237,15 +237,15 @@ public class DashManifestParser extends DefaultHandler
           seenFirstBaseUrl = true;
         }
       } else if (XmlPullParserUtil.isStartTag(xpp, "AdaptationSet")) {
-        adaptationSets.add(parseAdaptationSet(xpp, baseUrl, segmentBase));
+        adaptationSets.add(parseAdaptationSet(xpp, baseUrl, segmentBase, durationMs));
       } else if (XmlPullParserUtil.isStartTag(xpp, "EventStream")) {
         eventStreams.add(parseEventStream(xpp));
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentBase")) {
         segmentBase = parseSegmentBase(xpp, null);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentList")) {
-        segmentBase = parseSegmentList(xpp, null);
+        segmentBase = parseSegmentList(xpp, null, durationMs);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentTemplate")) {
-        segmentBase = parseSegmentTemplate(xpp, null, Collections.emptyList());
+        segmentBase = parseSegmentTemplate(xpp, null, Collections.emptyList(), durationMs);
       } else {
         maybeSkipTag(xpp);
       }
@@ -262,7 +262,7 @@ public class DashManifestParser extends DefaultHandler
   // AdaptationSet parsing.
 
   protected AdaptationSet parseAdaptationSet(
-      XmlPullParser xpp, String baseUrl, @Nullable SegmentBase segmentBase)
+      XmlPullParser xpp, String baseUrl, @Nullable SegmentBase segmentBase, long periodDurationMs)
       throws XmlPullParserException, IOException {
     int id = parseInt(xpp, "id", AdaptationSet.ID_UNSET);
     int contentType = parseContentType(xpp);
@@ -328,17 +328,19 @@ public class DashManifestParser extends DefaultHandler
                 roleDescriptors,
                 accessibilityDescriptors,
                 supplementalProperties,
-                segmentBase);
+                segmentBase,
+                periodDurationMs);
         contentType = checkContentTypeConsistency(contentType,
             getContentType(representationInfo.format));
         representationInfos.add(representationInfo);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentBase")) {
         segmentBase = parseSegmentBase(xpp, (SingleSegmentBase) segmentBase);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentList")) {
-        segmentBase = parseSegmentList(xpp, (SegmentList) segmentBase);
+        segmentBase = parseSegmentList(xpp, (SegmentList) segmentBase, periodDurationMs);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentTemplate")) {
         segmentBase =
-            parseSegmentTemplate(xpp, (SegmentTemplate) segmentBase, supplementalProperties);
+            parseSegmentTemplate(
+                xpp, (SegmentTemplate) segmentBase, supplementalProperties, periodDurationMs);
       } else if (XmlPullParserUtil.isStartTag(xpp, "InbandEventStream")) {
         inbandEventStreams.add(parseDescriptor(xpp, "InbandEventStream"));
       } else if (XmlPullParserUtil.isStartTag(xpp)) {
@@ -492,7 +494,8 @@ public class DashManifestParser extends DefaultHandler
       List<Descriptor> adaptationSetRoleDescriptors,
       List<Descriptor> adaptationSetAccessibilityDescriptors,
       List<Descriptor> adaptationSetSupplementalProperties,
-      @Nullable SegmentBase segmentBase)
+      @Nullable SegmentBase segmentBase,
+      long periodDurationMs)
       throws XmlPullParserException, IOException {
     String id = xpp.getAttributeValue(null, "id");
     int bandwidth = parseInt(xpp, "bandwidth", Format.NO_VALUE);
@@ -522,11 +525,14 @@ public class DashManifestParser extends DefaultHandler
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentBase")) {
         segmentBase = parseSegmentBase(xpp, (SingleSegmentBase) segmentBase);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentList")) {
-        segmentBase = parseSegmentList(xpp, (SegmentList) segmentBase);
+        segmentBase = parseSegmentList(xpp, (SegmentList) segmentBase, periodDurationMs);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentTemplate")) {
         segmentBase =
             parseSegmentTemplate(
-                xpp, (SegmentTemplate) segmentBase, adaptationSetSupplementalProperties);
+                xpp,
+                (SegmentTemplate) segmentBase,
+                adaptationSetSupplementalProperties,
+                periodDurationMs);
       } else if (XmlPullParserUtil.isStartTag(xpp, "ContentProtection")) {
         Pair<String, SchemeData> contentProtection = parseContentProtection(xpp);
         if (contentProtection.first != null) {
@@ -717,7 +723,8 @@ public class DashManifestParser extends DefaultHandler
         indexLength);
   }
 
-  protected SegmentList parseSegmentList(XmlPullParser xpp, @Nullable SegmentList parent)
+  protected SegmentList parseSegmentList(
+      XmlPullParser xpp, @Nullable SegmentList parent, long periodDurationMs)
       throws XmlPullParserException, IOException {
 
     long timescale = parseLong(xpp, "timescale", parent != null ? parent.timescale : 1);
@@ -735,7 +742,7 @@ public class DashManifestParser extends DefaultHandler
       if (XmlPullParserUtil.isStartTag(xpp, "Initialization")) {
         initialization = parseInitialization(xpp);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentTimeline")) {
-        timeline = parseSegmentTimeline(xpp);
+        timeline = parseSegmentTimeline(xpp, timescale, periodDurationMs);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentURL")) {
         if (segments == null) {
           segments = new ArrayList<>();
@@ -771,7 +778,8 @@ public class DashManifestParser extends DefaultHandler
   protected SegmentTemplate parseSegmentTemplate(
       XmlPullParser xpp,
       @Nullable SegmentTemplate parent,
-      List<Descriptor> adaptationSetSupplementalProperties)
+      List<Descriptor> adaptationSetSupplementalProperties,
+      long periodDurationMs)
       throws XmlPullParserException, IOException {
     long timescale = parseLong(xpp, "timescale", parent != null ? parent.timescale : 1);
     long presentationTimeOffset = parseLong(xpp, "presentationTimeOffset",
@@ -794,7 +802,7 @@ public class DashManifestParser extends DefaultHandler
       if (XmlPullParserUtil.isStartTag(xpp, "Initialization")) {
         initialization = parseInitialization(xpp);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentTimeline")) {
-        timeline = parseSegmentTimeline(xpp);
+        timeline = parseSegmentTimeline(xpp, timescale, periodDurationMs);
       } else {
         maybeSkipTag(xpp);
       }
@@ -989,29 +997,79 @@ public class DashManifestParser extends DefaultHandler
     return new EventMessage(schemeIdUri, value, durationMs, id, messageData);
   }
 
-  protected List<SegmentTimelineElement> parseSegmentTimeline(XmlPullParser xpp)
+  protected List<SegmentTimelineElement> parseSegmentTimeline(
+      XmlPullParser xpp, long timescale, long periodDurationMs)
       throws XmlPullParserException, IOException {
     List<SegmentTimelineElement> segmentTimeline = new ArrayList<>();
-    long elapsedTime = 0;
+    long startTime = 0;
+    long elementDuration = C.TIME_UNSET;
+    int elementRepeatCount = 0;
+    boolean havePreviousTimelineElement = false;
     do {
       xpp.next();
       if (XmlPullParserUtil.isStartTag(xpp, "S")) {
-        elapsedTime = parseLong(xpp, "t", elapsedTime);
-        long duration = parseLong(xpp, "d", C.TIME_UNSET);
-        int count = 1 + parseInt(xpp, "r", 0);
-        for (int i = 0; i < count; i++) {
-          segmentTimeline.add(buildSegmentTimelineElement(elapsedTime, duration));
-          elapsedTime += duration;
+        long newStartTime = parseLong(xpp, "t", C.TIME_UNSET);
+        if (havePreviousTimelineElement) {
+          startTime =
+              addSegmentTimelineElementsToList(
+                  segmentTimeline,
+                  startTime,
+                  elementDuration,
+                  elementRepeatCount,
+                  /* endTime= */ newStartTime);
         }
+        if (newStartTime != C.TIME_UNSET) {
+          startTime = newStartTime;
+        }
+        elementDuration = parseLong(xpp, "d", C.TIME_UNSET);
+        elementRepeatCount = parseInt(xpp, "r", 0);
+        havePreviousTimelineElement = true;
       } else {
         maybeSkipTag(xpp);
       }
     } while (!XmlPullParserUtil.isEndTag(xpp, "SegmentTimeline"));
+    if (havePreviousTimelineElement) {
+      long periodDuration = Util.scaleLargeTimestamp(periodDurationMs, timescale, 1000);
+      addSegmentTimelineElementsToList(
+          segmentTimeline,
+          startTime,
+          elementDuration,
+          elementRepeatCount,
+          /* endTime= */ periodDuration);
+    }
     return segmentTimeline;
   }
 
-  protected SegmentTimelineElement buildSegmentTimelineElement(long elapsedTime, long duration) {
-    return new SegmentTimelineElement(elapsedTime, duration);
+  /**
+   * Adds timeline elements for one S tag to the segment timeline.
+   *
+   * @param startTime Start time of the first timeline element.
+   * @param elementDuration Duration of one timeline element.
+   * @param elementRepeatCount Number of timeline elements minus one. May be negative to indicate
+   *     that the count is determined by the total duration and the element duration.
+   * @param endTime End time of the last timeline element for this S tag, or {@link C#TIME_UNSET} if
+   *     unknown. Only needed if {@code repeatCount} is negative.
+   * @return Calculated next start time.
+   */
+  private long addSegmentTimelineElementsToList(
+      List<SegmentTimelineElement> segmentTimeline,
+      long startTime,
+      long elementDuration,
+      int elementRepeatCount,
+      long endTime) {
+    int count =
+        elementRepeatCount >= 0
+            ? 1 + elementRepeatCount
+            : (int) Util.ceilDivide(endTime - startTime, elementDuration);
+    for (int i = 0; i < count; i++) {
+      segmentTimeline.add(buildSegmentTimelineElement(startTime, elementDuration));
+      startTime += elementDuration;
+    }
+    return startTime;
+  }
+
+  protected SegmentTimelineElement buildSegmentTimelineElement(long startTime, long duration) {
+    return new SegmentTimelineElement(startTime, duration);
   }
 
   @Nullable

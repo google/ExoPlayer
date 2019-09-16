@@ -1162,7 +1162,16 @@ import java.util.List;
         System.arraycopy(opusMagic, 0, initializationData, 0, opusMagic.length);
         parent.setPosition(childPosition + Atom.HEADER_SIZE);
         parent.readBytes(initializationData, opusMagic.length, childAtomBodySize);
-      } else if (childAtomSize == Atom.TYPE_dfLa || childAtomType == Atom.TYPE_alac) {
+      } else if (childAtomType == Atom.TYPE_dfLa) {
+        int childAtomBodySize = childAtomSize - Atom.FULL_HEADER_SIZE;
+        initializationData = new byte[4 + childAtomBodySize];
+        initializationData[0] = 0x66; // f
+        initializationData[1] = 0x4C; // L
+        initializationData[2] = 0x61; // a
+        initializationData[3] = 0x43; // C
+        parent.setPosition(childPosition + Atom.FULL_HEADER_SIZE);
+        parent.readBytes(initializationData, /* offset= */ 4, childAtomBodySize);
+      } else if (childAtomType == Atom.TYPE_alac) {
         int childAtomBodySize = childAtomSize - Atom.FULL_HEADER_SIZE;
         initializationData = new byte[childAtomBodySize];
         parent.setPosition(childPosition + Atom.FULL_HEADER_SIZE);

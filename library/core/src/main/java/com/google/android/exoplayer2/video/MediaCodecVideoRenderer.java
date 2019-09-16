@@ -21,6 +21,7 @@ import android.content.Context;
 import android.graphics.Point;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo.CodecCapabilities;
+import android.media.MediaCodecInfo.CodecProfileLevel;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.os.Bundle;
@@ -319,7 +320,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (!MimeTypes.isVideo(mimeType)) {
       return FORMAT_UNSUPPORTED_TYPE;
     }
-    DrmInitData drmInitData = format.drmInitData;
+    @Nullable DrmInitData drmInitData = format.drmInitData;
     // Assume encrypted content requires secure decoders.
     boolean requiresSecureDecryption = drmInitData != null;
     List<MediaCodecInfo> decoderInfos =
@@ -341,10 +342,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       return FORMAT_UNSUPPORTED_SUBTYPE;
     }
     boolean supportsFormatDrm =
-        format.drmInitData == null
+        drmInitData == null
             || FrameworkMediaCrypto.class.equals(format.exoMediaCryptoType)
             || (format.exoMediaCryptoType == null
-                && supportsFormatDrm(drmSessionManager, format.drmInitData));
+                && supportsFormatDrm(drmSessionManager, drmInitData));
     if (!supportsFormatDrm) {
       return FORMAT_UNSUPPORTED_DRM;
     }
@@ -393,15 +394,17 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
             format.sampleMimeType, requiresSecureDecoder, requiresTunnelingDecoder);
     decoderInfos = MediaCodecUtil.getDecoderInfosSortedByFormatSupport(decoderInfos, format);
     if (MimeTypes.VIDEO_DOLBY_VISION.equals(format.sampleMimeType)) {
-      // Fallback to primary decoders for H.265/HEVC or H.264/AVC for the relevant DV profiles.
+      // Fall back to H.264/AVC or H.265/HEVC for the relevant DV profiles.
+      @Nullable
       Pair<Integer, Integer> codecProfileAndLevel = MediaCodecUtil.getCodecProfileAndLevel(format);
       if (codecProfileAndLevel != null) {
         int profile = codecProfileAndLevel.first;
-        if (profile == 4 || profile == 8) {
+        if (profile == CodecProfileLevel.DolbyVisionProfileDvheDtr
+            || profile == CodecProfileLevel.DolbyVisionProfileDvheSt) {
           decoderInfos.addAll(
               mediaCodecSelector.getDecoderInfos(
                   MimeTypes.VIDEO_H265, requiresSecureDecoder, requiresTunnelingDecoder));
-        } else if (profile == 9) {
+        } else if (profile == CodecProfileLevel.DolbyVisionProfileDvavSe) {
           decoderInfos.addAll(
               mediaCodecSelector.getDecoderInfos(
                   MimeTypes.VIDEO_H264, requiresSecureDecoder, requiresTunnelingDecoder));
@@ -797,10 +800,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
 
     long elapsedRealtimeNowUs = SystemClock.elapsedRealtime() * 1000;
+    long elapsedSinceLastRenderUs = elapsedRealtimeNowUs - lastRenderTimeUs;
     boolean isStarted = getState() == STATE_STARTED;
-    if (!renderedFirstFrame
-        || (isStarted
-            && shouldForceRenderOutputBuffer(earlyUs, elapsedRealtimeNowUs - lastRenderTimeUs))) {
+    // Don't force output until we joined and always render first frame if not joining.
+    boolean forceRenderOutputBuffer =
+        joiningDeadlineMs == C.TIME_UNSET
+            && (!renderedFirstFrame
+                || (isStarted && shouldForceRenderOutputBuffer(earlyUs, elapsedSinceLastRenderUs)));
+    if (forceRenderOutputBuffer) {
       long releaseTimeNs = System.nanoTime();
       notifyFrameMetadataListener(presentationTimeUs, releaseTimeNs, format);
       if (Util.SDK_INT >= 21) {
@@ -829,11 +836,17 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         bufferPresentationTimeUs, unadjustedFrameReleaseTimeNs);
     earlyUs = (adjustedReleaseTimeNs - systemTimeNs) / 1000;
 
+    boolean treatDroppedBuffersAsSkipped = joiningDeadlineMs != C.TIME_UNSET;
     if (shouldDropBuffersToKeyframe(earlyUs, elapsedRealtimeUs, isLastBuffer)
-        && maybeDropBuffersToKeyframe(codec, bufferIndex, presentationTimeUs, positionUs)) {
+        && maybeDropBuffersToKeyframe(
+            codec, bufferIndex, presentationTimeUs, positionUs, treatDroppedBuffersAsSkipped)) {
       return false;
     } else if (shouldDropOutputBuffer(earlyUs, elapsedRealtimeUs, isLastBuffer)) {
-      dropOutputBuffer(codec, bufferIndex, presentationTimeUs);
+      if (treatDroppedBuffersAsSkipped) {
+        skipOutputBuffer(codec, bufferIndex, presentationTimeUs);
+      } else {
+        dropOutputBuffer(codec, bufferIndex, presentationTimeUs);
+      }
       return true;
     }
 
@@ -985,6 +998,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * @return Returns whether to force rendering an output buffer.
    */
   protected boolean shouldForceRenderOutputBuffer(long earlyUs, long elapsedSinceLastRenderUs) {
+    // Force render late buffers every 100ms to avoid frozen video effect.
     return isBufferLate(earlyUs) && elapsedSinceLastRenderUs > 100000;
   }
 
@@ -1025,11 +1039,18 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * @param index The index of the output buffer to drop.
    * @param presentationTimeUs The presentation time of the output buffer, in microseconds.
    * @param positionUs The current playback position, in microseconds.
+   * @param treatDroppedBuffersAsSkipped Whether dropped buffers should be treated as intentionally
+   *     skipped.
    * @return Whether any buffers were dropped.
    * @throws ExoPlaybackException If an error occurs flushing the codec.
    */
-  protected boolean maybeDropBuffersToKeyframe(MediaCodec codec, int index, long presentationTimeUs,
-      long positionUs) throws ExoPlaybackException {
+  protected boolean maybeDropBuffersToKeyframe(
+      MediaCodec codec,
+      int index,
+      long presentationTimeUs,
+      long positionUs,
+      boolean treatDroppedBuffersAsSkipped)
+      throws ExoPlaybackException {
     int droppedSourceBufferCount = skipSource(positionUs);
     if (droppedSourceBufferCount == 0) {
       return false;
@@ -1037,7 +1058,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     decoderCounters.droppedToKeyframeCount++;
     // We dropped some buffers to catch up, so update the decoder counters and flush the codec,
     // which releases all pending buffers buffers including the current output buffer.
-    updateDroppedBufferCounters(buffersInCodecCount + droppedSourceBufferCount);
+    int totalDroppedBufferCount = buffersInCodecCount + droppedSourceBufferCount;
+    if (treatDroppedBuffersAsSkipped) {
+      decoderCounters.skippedOutputBufferCount += totalDroppedBufferCount;
+    } else {
+      updateDroppedBufferCounters(totalDroppedBufferCount);
+    }
     flushOrReinitializeCodec();
     return true;
   }

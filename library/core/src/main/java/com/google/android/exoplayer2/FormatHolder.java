@@ -33,4 +33,11 @@ public final class FormatHolder {
 
   /** The held {@link Format}. */
   @Nullable public Format format;
+
+  /** Clears the holder. */
+  public void clear() {
+    includesDrmSession = false;
+    drmSession = null;
+    format = null;
+  }
 }

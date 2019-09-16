@@ -1216,6 +1216,7 @@ public final class DashMediaSource extends BaseMediaSource {
               && manifest.minUpdatePeriodMs != C.TIME_UNSET
               && manifest.durationMs == C.TIME_UNSET;
       return window.set(
+          Window.SINGLE_WINDOW_UID,
           windowTag,
           manifest,
           presentationStartTimeMs,
