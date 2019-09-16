@@ -410,7 +410,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
   @Override
   @Nullable
   public DrmSession<T> acquirePlaceholderSession(Looper playbackLooper) {
-    if (!allowPlaceholderSessions) {
+    if (!allowPlaceholderSessions || mediaDrm.getExoMediaCryptoType() == null) {
       return null;
     }
     maybeCreateMediaDrmHandler(playbackLooper);
