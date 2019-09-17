@@ -3,21 +3,24 @@
 ### 2.10.5 ###
 
 * Track selection
-  * Fix audio selection issue where languages are compared by bitrate
-    ([#6335](https://github.com/google/ExoPlayer/issues/6335)).
   * Add `allowAudioMixedChannelCountAdaptiveness` parameter to
     `DefaultTrackSelector` to allow adaptive selections of audio tracks with
     different channel counts.
+  * Improve text selection logic to always prefer the better language matches
+    over other selection parameters.
+  * Fix audio selection issue where languages are compared by bitrate
+    ([#6335](https://github.com/google/ExoPlayer/issues/6335)).
 * Performance
   * Increase maximum video buffer size from 13MB to 32MB. The previous default
     was too small for high quality streams.
   * Reset `DefaultBandwidthMeter` to initial values on network change.
   * Bypass sniffing in `ProgressiveMediaPeriod` in case a single extractor is
     provided ([#6325](https://github.com/google/ExoPlayer/issues/6325)).
+* Metadata
+  * Support EMSG V1 boxes in FMP4.
+  * Support unwrapping of nested metadata (e.g. ID3 and SCTE-35 in EMSG).
 * Add `HttpDataSource.getResponseCode` to provide the status code associated
   with the most recent HTTP response.
-* Improve text selection logic to always prefer the better language matches
-  over other selection parameters.
 * OkHttp extension: Upgrade OkHttp to fix HTTP2 socket timeout issue
   ([#4078](https://github.com/google/ExoPlayer/issues/4078)).
 * RTMP extension: Upgrade LibRtmp-Client-for-Android to fix RTMP playback issues
