@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">Hiçbirini tekrarlama</string>
   <string name="exo_controls_repeat_one_description">Birini tekrarla</string>
   <string name="exo_controls_repeat_all_description">Tümünü tekrarla</string>
-  <string name="exo_controls_shuffle_on_description">Karıştır</string>
+  <string name="exo_controls_shuffle_on_description">Karıştırma açık</string>
+  <string name="exo_controls_shuffle_off_description">Karıştırma kapalı</string>
   <string name="exo_controls_fullscreen_description">Tam ekran modu</string>
   <string name="exo_controls_vr_description">VR modu</string>
   <string name="exo_download_description">İndir</string>

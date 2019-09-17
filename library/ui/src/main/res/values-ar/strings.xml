@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">عدم التكرار</string>
   <string name="exo_controls_repeat_one_description">تكرار مقطع صوتي واحد</string>
   <string name="exo_controls_repeat_all_description">تكرار الكل</string>
-  <string name="exo_controls_shuffle_on_description">ترتيب عشوائي</string>
+  <string name="exo_controls_shuffle_on_description">تفعيل الترتيب العشوائي</string>
+  <string name="exo_controls_shuffle_off_description">إيقاف الترتيب العشوائي</string>
   <string name="exo_controls_fullscreen_description">وضع ملء الشاشة</string>
   <string name="exo_controls_vr_description">وضع VR</string>
   <string name="exo_download_description">تنزيل</string>

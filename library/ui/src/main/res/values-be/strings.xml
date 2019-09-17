@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">Не паўтараць нічога</string>
   <string name="exo_controls_repeat_one_description">Паўтарыць адзін элемент</string>
   <string name="exo_controls_repeat_all_description">Паўтарыць усе</string>
-  <string name="exo_controls_shuffle_on_description">Перамяшаць</string>
+  <string name="exo_controls_shuffle_on_description">Перамешванне ўключана</string>
+  <string name="exo_controls_shuffle_off_description">Перамешванне выключана</string>
   <string name="exo_controls_fullscreen_description">Поўнаэкранны рэжым</string>
   <string name="exo_controls_vr_description">VR-рэжым</string>
   <string name="exo_download_description">Спампаваць</string>

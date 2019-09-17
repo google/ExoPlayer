@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">Walang uulitin</string>
   <string name="exo_controls_repeat_one_description">Mag-ulit ng isa</string>
   <string name="exo_controls_repeat_all_description">Ulitin lahat</string>
-  <string name="exo_controls_shuffle_on_description">I-shuffle</string>
+  <string name="exo_controls_shuffle_on_description">Naka-on ang pag-shuffle</string>
+  <string name="exo_controls_shuffle_off_description">Naka-off ang pag-shuffle</string>
   <string name="exo_controls_fullscreen_description">Fullscreen mode</string>
   <string name="exo_controls_vr_description">VR mode</string>
   <string name="exo_download_description">I-download</string>

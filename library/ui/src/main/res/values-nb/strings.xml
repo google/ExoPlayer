@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">Ikke gjenta noen</string>
   <string name="exo_controls_repeat_one_description">Gjenta én</string>
   <string name="exo_controls_repeat_all_description">Gjenta alle</string>
-  <string name="exo_controls_shuffle_on_description">Tilfeldig rekkefølge</string>
+  <string name="exo_controls_shuffle_on_description">Tilfeldig rekkefølge er på</string>
+  <string name="exo_controls_shuffle_off_description">Tilfeldig rekkefølge er av</string>
   <string name="exo_controls_fullscreen_description">Fullskjermmodus</string>
   <string name="exo_controls_vr_description">VR-modus</string>
   <string name="exo_download_description">Last ned</string>

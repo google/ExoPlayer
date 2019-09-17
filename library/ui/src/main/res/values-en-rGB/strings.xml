@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">Repeat none</string>
   <string name="exo_controls_repeat_one_description">Repeat one</string>
   <string name="exo_controls_repeat_all_description">Repeat all</string>
-  <string name="exo_controls_shuffle_on_description">Shuffle</string>
+  <string name="exo_controls_shuffle_on_description">Shuffle on</string>
+  <string name="exo_controls_shuffle_off_description">Shuffle off</string>
   <string name="exo_controls_fullscreen_description">Full-screen mode</string>
   <string name="exo_controls_vr_description">VR mode</string>
   <string name="exo_download_description">Download</string>

@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">אל תחזור על אף פריט</string>
   <string name="exo_controls_repeat_one_description">חזור על פריט אחד</string>
   <string name="exo_controls_repeat_all_description">חזור על הכול</string>
-  <string name="exo_controls_shuffle_on_description">ערבוב</string>
+  <string name="exo_controls_shuffle_on_description">ההשמעה האקראית מופעלת</string>
+  <string name="exo_controls_shuffle_off_description">ההשמעה האקראית מושבתת</string>
   <string name="exo_controls_fullscreen_description">מצב מסך מלא</string>
   <string name="exo_controls_vr_description">מצב VR</string>
   <string name="exo_download_description">הורדה</string>

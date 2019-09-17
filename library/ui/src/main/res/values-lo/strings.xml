@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">ບໍ່ຫຼິ້ນຊ້ຳ</string>
   <string name="exo_controls_repeat_one_description">ຫຼິ້ນຊໍ້າ</string>
   <string name="exo_controls_repeat_all_description">ຫຼິ້ນຊ້ຳທັງໝົດ</string>
-  <string name="exo_controls_shuffle_on_description">ຫຼີ້ນແບບສຸ່ມ</string>
+  <string name="exo_controls_shuffle_on_description">ເປີດການສຸ່ມເພງແລ້ວ</string>
+  <string name="exo_controls_shuffle_off_description">ປິດການສຸ່ມເພງແລ້ວ</string>
   <string name="exo_controls_fullscreen_description">ໂໝດເຕັມຈໍ</string>
   <string name="exo_controls_vr_description">ໂໝດ VR</string>
   <string name="exo_download_description">ດາວໂຫລດ</string>

@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">Ne rien lire en boucle</string>
   <string name="exo_controls_repeat_one_description">Lire un titre en boucle</string>
   <string name="exo_controls_repeat_all_description">Tout lire en boucle</string>
-  <string name="exo_controls_shuffle_on_description">Aléatoire</string>
+  <string name="exo_controls_shuffle_on_description">Lecture aléatoire activée</string>
+  <string name="exo_controls_shuffle_off_description">Lecture aléatoire désactivée</string>
   <string name="exo_controls_fullscreen_description">Mode plein écran</string>
   <string name="exo_controls_vr_description">Mode RV</string>
   <string name="exo_download_description">Télécharger</string>

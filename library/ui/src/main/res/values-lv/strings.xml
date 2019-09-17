@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">Neatkārtot nevienu</string>
   <string name="exo_controls_repeat_one_description">Atkārtot vienu</string>
   <string name="exo_controls_repeat_all_description">Atkārtot visu</string>
-  <string name="exo_controls_shuffle_on_description">Atskaņot jauktā secībā</string>
+  <string name="exo_controls_shuffle_on_description">Atsk. jauktā secībā ieslēgta</string>
+  <string name="exo_controls_shuffle_off_description">Atsk. jauktā secībā izslēgta</string>
   <string name="exo_controls_fullscreen_description">Pilnekrāna režīms</string>
   <string name="exo_controls_vr_description">VR režīms</string>
   <string name="exo_download_description">Lejupielādēt</string>

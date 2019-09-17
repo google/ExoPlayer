@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">Без повтаряне</string>
   <string name="exo_controls_repeat_one_description">Повтаряне на един елемент</string>
   <string name="exo_controls_repeat_all_description">Повтаряне на всички</string>
-  <string name="exo_controls_shuffle_on_description">Разбъркване</string>
+  <string name="exo_controls_shuffle_on_description">Разбъркването е включено</string>
+  <string name="exo_controls_shuffle_off_description">Разбъркването е изключено</string>
   <string name="exo_controls_fullscreen_description">Режим на цял екран</string>
   <string name="exo_controls_vr_description">режим за VR</string>
   <string name="exo_download_description">Изтегляне</string>
