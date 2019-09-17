@@ -277,9 +277,16 @@ public final class TsExtractor implements Extractor {
       return RESULT_END_OF_INPUT;
     }
 
-    int endOfPacket = findEndOfFirstTsPacketInBuffer();
+    int searchStart = tsPacketBuffer.getPosition();
+    int position = tsPacketBuffer.getPosition();
+    int endOfPacket = position + TS_PACKET_SIZE;
+//    int endOfPacket = findEndOfFirstTsPacketInBuffer();
     int limit = tsPacketBuffer.limit();
     if (endOfPacket > limit) {
+      bytesSinceLastSync += position - searchStart;
+      if (mode == MODE_HLS && bytesSinceLastSync > TS_PACKET_SIZE * 2) {
+        throw new ParserException("Cannot find sync byte. Most likely not a Transport Stream.");
+      }
       return RESULT_CONTINUE;
     }
 
