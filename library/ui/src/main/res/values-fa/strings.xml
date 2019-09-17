@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">تکرار هیچ‌کدام</string>
   <string name="exo_controls_repeat_one_description">یکبار تکرار</string>
   <string name="exo_controls_repeat_all_description">تکرار همه</string>
-  <string name="exo_controls_shuffle_on_description">درهم</string>
+  <string name="exo_controls_shuffle_on_description">پخش درهم روشن</string>
+  <string name="exo_controls_shuffle_off_description">پخش درهم خاموش</string>
   <string name="exo_controls_fullscreen_description">حالت تمام‌صفحه</string>
   <string name="exo_controls_vr_description">حالت واقعیت مجازی</string>
   <string name="exo_download_description">بارگیری</string>

@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">Keinen wiederholen</string>
   <string name="exo_controls_repeat_one_description">Einen wiederholen</string>
   <string name="exo_controls_repeat_all_description">Alle wiederholen</string>
-  <string name="exo_controls_shuffle_on_description">Zufallsmix</string>
+  <string name="exo_controls_shuffle_on_description">Zufallsmix an</string>
+  <string name="exo_controls_shuffle_off_description">Zufallsmix aus</string>
   <string name="exo_controls_fullscreen_description">Vollbildmodus</string>
   <string name="exo_controls_vr_description">VR-Modus</string>
   <string name="exo_download_description">Herunterladen</string>

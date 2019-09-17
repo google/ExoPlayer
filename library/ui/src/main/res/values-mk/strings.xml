@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">Не повторувај ниту една</string>
   <string name="exo_controls_repeat_one_description">Повтори една</string>
   <string name="exo_controls_repeat_all_description">Повтори ги сите</string>
-  <string name="exo_controls_shuffle_on_description">Измешај</string>
+  <string name="exo_controls_shuffle_on_description">Мешањето е вклучено</string>
+  <string name="exo_controls_shuffle_off_description">Мешањето е исклучено</string>
   <string name="exo_controls_fullscreen_description">Режим на цел екран</string>
   <string name="exo_controls_vr_description">Режим на VR</string>
   <string name="exo_download_description">Преземи</string>

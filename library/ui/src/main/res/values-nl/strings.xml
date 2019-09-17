@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">Niets herhalen</string>
   <string name="exo_controls_repeat_one_description">Eén herhalen</string>
   <string name="exo_controls_repeat_all_description">Alles herhalen</string>
-  <string name="exo_controls_shuffle_on_description">Shuffle</string>
+  <string name="exo_controls_shuffle_on_description">Shuffle aan</string>
+  <string name="exo_controls_shuffle_off_description">Shuffle uit</string>
   <string name="exo_controls_fullscreen_description">Modus \'Volledig scherm\'</string>
   <string name="exo_controls_vr_description">VR-modus</string>
   <string name="exo_download_description">Downloaden</string>

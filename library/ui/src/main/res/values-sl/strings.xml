@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">Brez ponavljanja</string>
   <string name="exo_controls_repeat_one_description">Ponavljanje ene</string>
   <string name="exo_controls_repeat_all_description">Ponavljanje vseh</string>
-  <string name="exo_controls_shuffle_on_description">Naključno predvajanje</string>
+  <string name="exo_controls_shuffle_on_description">Naklj. predvajanje vklopljeno</string>
+  <string name="exo_controls_shuffle_off_description">Naklj. predvajanje izklopljeno</string>
   <string name="exo_controls_fullscreen_description">Celozaslonski način</string>
   <string name="exo_controls_vr_description">Način VR</string>
   <string name="exo_download_description">Prenos</string>

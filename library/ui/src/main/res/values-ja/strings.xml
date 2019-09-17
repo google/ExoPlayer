@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">リピートなし</string>
   <string name="exo_controls_repeat_one_description">1 曲をリピート</string>
   <string name="exo_controls_repeat_all_description">全曲をリピート</string>
-  <string name="exo_controls_shuffle_on_description">シャッフル</string>
+  <string name="exo_controls_shuffle_on_description">シャッフル ON</string>
+  <string name="exo_controls_shuffle_off_description">シャッフル OFF</string>
   <string name="exo_controls_fullscreen_description">全画面モード</string>
   <string name="exo_controls_vr_description">VR モード</string>
   <string name="exo_download_description">ダウンロード</string>

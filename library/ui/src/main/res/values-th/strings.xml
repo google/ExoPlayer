@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">ไม่เล่นซ้ำ</string>
   <string name="exo_controls_repeat_one_description">เล่นซ้ำเพลงเดียว</string>
   <string name="exo_controls_repeat_all_description">เล่นซ้ำทั้งหมด</string>
-  <string name="exo_controls_shuffle_on_description">สุ่ม</string>
+  <string name="exo_controls_shuffle_on_description">เปิดการสุ่มเพลงอยู่</string>
+  <string name="exo_controls_shuffle_off_description">ปิดการสุ่มเพลงอยู่</string>
   <string name="exo_controls_fullscreen_description">โหมดเต็มหน้าจอ</string>
   <string name="exo_controls_vr_description">โหมด VR</string>
   <string name="exo_download_description">ดาวน์โหลด</string>

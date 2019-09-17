@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">કોઈ રિપીટ કરતા નહીં</string>
   <string name="exo_controls_repeat_one_description">એક રિપીટ કરો</string>
   <string name="exo_controls_repeat_all_description">બધાને રિપીટ કરો</string>
-  <string name="exo_controls_shuffle_on_description">શફલ કરો</string>
+  <string name="exo_controls_shuffle_on_description">શફલ ચાલુ છે</string>
+  <string name="exo_controls_shuffle_off_description">શફલ બંધ છે</string>
   <string name="exo_controls_fullscreen_description">પૂર્ણસ્ક્રીન મોડ</string>
   <string name="exo_controls_vr_description">VR મોડ</string>
   <string name="exo_download_description">ડાઉનલોડ કરો</string>

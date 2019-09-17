@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">Neopakovať</string>
   <string name="exo_controls_repeat_one_description">Opakovať jednu</string>
   <string name="exo_controls_repeat_all_description">Opakovať všetko</string>
-  <string name="exo_controls_shuffle_on_description">Náhodne prehrávať</string>
+  <string name="exo_controls_shuffle_on_description">Náhodné prehrávanie je zapnuté</string>
+  <string name="exo_controls_shuffle_off_description">Náhodné prehrávanie je vypnuté</string>
   <string name="exo_controls_fullscreen_description">Režim celej obrazovky</string>
   <string name="exo_controls_vr_description">režim VR</string>
   <string name="exo_download_description">Stiahnuť</string>
