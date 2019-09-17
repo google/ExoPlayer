@@ -21,13 +21,6 @@
   * Support unwrapping of nested metadata (e.g. ID3 and SCTE-35 in EMSG).
 * Add `HttpDataSource.getResponseCode` to provide the status code associated
   with the most recent HTTP response.
-* OkHttp extension: Upgrade OkHttp to fix HTTP2 socket timeout issue
-  ([#4078](https://github.com/google/ExoPlayer/issues/4078)).
-* RTMP extension: Upgrade LibRtmp-Client-for-Android to fix RTMP playback issues
-  ([#4200](https://github.com/google/ExoPlayer/issues/4200),
-  [#4249](https://github.com/google/ExoPlayer/issues/4249),
-  [#4319](https://github.com/google/ExoPlayer/issues/4319),
-  [#4337](https://github.com/google/ExoPlayer/issues/4337)).
 * Fix initialization data handling for FLAC in MP4
   ([#6396](https://github.com/google/ExoPlayer/issues/6396),
   [#6397](https://github.com/google/ExoPlayer/issues/6397)).
@@ -35,6 +28,15 @@
   ([#6398](https://github.com/google/ExoPlayer/issues/6398)).
 * Fix `PlayerNotificationManager` to show play icon rather than pause icon when
   playback is ended ([#6324](https://github.com/google/ExoPlayer/issues/6324)).
+* OkHttp extension: Upgrade OkHttp to fix HTTP2 socket timeout issue
+  ([#4078](https://github.com/google/ExoPlayer/issues/4078)).
+* RTMP extension: Upgrade LibRtmp-Client-for-Android to fix RTMP playback issues
+  ([#4200](https://github.com/google/ExoPlayer/issues/4200),
+  [#4249](https://github.com/google/ExoPlayer/issues/4249),
+  [#4319](https://github.com/google/ExoPlayer/issues/4319),
+  [#4337](https://github.com/google/ExoPlayer/issues/4337)).
+* IMA extension: Fix crash in `ImaAdsLoader.onTimelineChanged`
+  ([#5831](https://github.com/google/ExoPlayer/issues/5831)).
 
 ### 2.10.4 ###
 
