@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">Nu repetați niciunul</string>
   <string name="exo_controls_repeat_one_description">Repetați unul</string>
   <string name="exo_controls_repeat_all_description">Repetați-le pe toate</string>
-  <string name="exo_controls_shuffle_on_description">Redați aleatoriu</string>
+  <string name="exo_controls_shuffle_on_description">Redare aleatorie activată</string>
+  <string name="exo_controls_shuffle_off_description">Redare aleatorie dezactivată</string>
   <string name="exo_controls_fullscreen_description">Modul Ecran complet</string>
   <string name="exo_controls_vr_description">Mod RV</string>
   <string name="exo_download_description">Descărcați</string>

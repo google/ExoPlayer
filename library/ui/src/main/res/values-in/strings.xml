@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">Jangan ulangi</string>
   <string name="exo_controls_repeat_one_description">Ulangi 1</string>
   <string name="exo_controls_repeat_all_description">Ulangi semua</string>
-  <string name="exo_controls_shuffle_on_description">Acak</string>
+  <string name="exo_controls_shuffle_on_description">Acak aktif</string>
+  <string name="exo_controls_shuffle_off_description">Acak tidak aktif</string>
   <string name="exo_controls_fullscreen_description">Mode layar penuh</string>
   <string name="exo_controls_vr_description">Mode VR</string>
   <string name="exo_download_description">Download</string>

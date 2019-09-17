@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">Herhaal niks</string>
   <string name="exo_controls_repeat_one_description">Herhaal een</string>
   <string name="exo_controls_repeat_all_description">Herhaal alles</string>
-  <string name="exo_controls_shuffle_on_description">Skommel</string>
+  <string name="exo_controls_shuffle_on_description">Skommel is aan</string>
+  <string name="exo_controls_shuffle_off_description">Skommel is af</string>
   <string name="exo_controls_fullscreen_description">Volskermmodus</string>
   <string name="exo_controls_vr_description">VR-modus</string>
   <string name="exo_download_description">Aflaai</string>

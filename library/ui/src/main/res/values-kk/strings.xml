@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">Ешқайсысын қайталамау</string>
   <string name="exo_controls_repeat_one_description">Біреуін қайталау</string>
   <string name="exo_controls_repeat_all_description">Барлығын қайталау</string>
-  <string name="exo_controls_shuffle_on_description">Араластыру</string>
+  <string name="exo_controls_shuffle_on_description">Араластыру режимі қосулы.</string>
+  <string name="exo_controls_shuffle_off_description">Араластыру режимі өшірулі.</string>
   <string name="exo_controls_fullscreen_description">Толық экран режимі</string>
   <string name="exo_controls_vr_description">VR режимі</string>
   <string name="exo_download_description">Жүктеп алу</string>

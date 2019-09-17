@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">ምንም አትድገም</string>
   <string name="exo_controls_repeat_one_description">አንድ ድገም</string>
   <string name="exo_controls_repeat_all_description">ሁሉንም ድገም</string>
-  <string name="exo_controls_shuffle_on_description">በውዝ</string>
+  <string name="exo_controls_shuffle_on_description">መበወዝ በርቷል</string>
+  <string name="exo_controls_shuffle_off_description">መበወዝ ጠፍቷል</string>
   <string name="exo_controls_fullscreen_description">የሙሉ ማያ ሁነታ</string>
   <string name="exo_controls_vr_description">የቪአር ሁነታ</string>
   <string name="exo_download_description">አውርድ</string>

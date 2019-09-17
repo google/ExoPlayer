@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">Ez errepikatu</string>
   <string name="exo_controls_repeat_one_description">Errepikatu bat</string>
   <string name="exo_controls_repeat_all_description">Errepikatu guztiak</string>
-  <string name="exo_controls_shuffle_on_description">Erreproduzitu ausaz</string>
+  <string name="exo_controls_shuffle_on_description">Ausazko erreprodukzioa aktibatuta</string>
+  <string name="exo_controls_shuffle_off_description">Ausazko erreprodukzioa desaktibatuta</string>
   <string name="exo_controls_fullscreen_description">Pantaila osoko modua</string>
   <string name="exo_controls_vr_description">EB modua</string>
   <string name="exo_download_description">Deskargak</string>

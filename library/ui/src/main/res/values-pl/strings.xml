@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">Nie powtarzaj</string>
   <string name="exo_controls_repeat_one_description">Powtórz jeden</string>
   <string name="exo_controls_repeat_all_description">Powtórz wszystkie</string>
-  <string name="exo_controls_shuffle_on_description">Odtwarzanie losowe</string>
+  <string name="exo_controls_shuffle_on_description">Włącz odtwarzanie losowe</string>
+  <string name="exo_controls_shuffle_off_description">Wyłącz odtwarzanie losowe</string>
   <string name="exo_controls_fullscreen_description">Tryb pełnoekranowy</string>
   <string name="exo_controls_vr_description">Tryb VR</string>
   <string name="exo_download_description">Pobierz</string>

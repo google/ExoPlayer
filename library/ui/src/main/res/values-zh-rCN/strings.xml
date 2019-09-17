@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">不重复播放</string>
   <string name="exo_controls_repeat_one_description">重复播放一项</string>
   <string name="exo_controls_repeat_all_description">全部重复播放</string>
-  <string name="exo_controls_shuffle_on_description">随机播放</string>
+  <string name="exo_controls_shuffle_on_description">随机播放功能已开启</string>
+  <string name="exo_controls_shuffle_off_description">随机播放功能已关闭</string>
   <string name="exo_controls_fullscreen_description">全屏模式</string>
   <string name="exo_controls_vr_description">VR 模式</string>
   <string name="exo_download_description">下载</string>
