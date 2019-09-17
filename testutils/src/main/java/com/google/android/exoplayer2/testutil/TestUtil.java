@@ -26,6 +26,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.database.DatabaseProvider;
 import com.google.android.exoplayer2.database.DefaultDatabaseProvider;
 import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
@@ -397,5 +398,62 @@ public class TestUtil {
       length += position;
     }
     return new DefaultExtractorInput(dataSource, position, length);
+  }
+
+  /**
+   * Checks whether the timelines are the same (does not compare {@link Timeline.Window#uid} and
+   * {@link Timeline.Period#uid}).
+   *
+   * @param firstTimeline The first {@link Timeline}.
+   * @param secondTimeline The second {@link Timeline} to compare with.
+   * @return {@code true} if both timelines are the same.
+   */
+  public static boolean areTimelinesSame(Timeline firstTimeline, Timeline secondTimeline) {
+    if (firstTimeline == secondTimeline) {
+      return true;
+    }
+    if (secondTimeline.getWindowCount() != firstTimeline.getWindowCount()
+        || secondTimeline.getPeriodCount() != firstTimeline.getPeriodCount()) {
+      return false;
+    }
+    Timeline.Window firstWindow = new Timeline.Window();
+    Timeline.Period firstPeriod = new Timeline.Period();
+    Timeline.Window secondWindow = new Timeline.Window();
+    Timeline.Period secondPeriod = new Timeline.Period();
+    for (int i = 0; i < firstTimeline.getWindowCount(); i++) {
+      if (!areWindowsSame(
+          firstTimeline.getWindow(i, firstWindow), secondTimeline.getWindow(i, secondWindow))) {
+        return false;
+      }
+    }
+    for (int i = 0; i < firstTimeline.getPeriodCount(); i++) {
+      if (!firstTimeline
+          .getPeriod(i, firstPeriod, /* setIds= */ false)
+          .equals(secondTimeline.getPeriod(i, secondPeriod, /* setIds= */ false))) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Checks whether the windows are the same. This comparison does not compare the uid.
+   *
+   * @param first The first {@link Timeline.Window}.
+   * @param second The second {@link Timeline.Window}.
+   * @return true if both windows are the same.
+   */
+  private static boolean areWindowsSame(Timeline.Window first, Timeline.Window second) {
+    return Util.areEqual(first.tag, second.tag)
+        && Util.areEqual(first.manifest, second.manifest)
+        && first.presentationStartTimeMs == second.presentationStartTimeMs
+        && first.windowStartTimeMs == second.windowStartTimeMs
+        && first.isSeekable == second.isSeekable
+        && first.isDynamic == second.isDynamic
+        && first.defaultPositionUs == second.defaultPositionUs
+        && first.durationUs == second.durationUs
+        && first.firstPeriodIndex == second.firstPeriodIndex
+        && first.lastPeriodIndex == second.lastPeriodIndex
+        && first.positionInFirstPeriodUs == second.positionInFirstPeriodUs;
   }
 }

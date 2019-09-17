@@ -53,6 +53,7 @@ import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SeekParameters;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
@@ -2008,6 +2009,42 @@ public final class Util {
       default: // Future mobile network types.
         return C.NETWORK_TYPE_CELLULAR_UNKNOWN;
     }
+  }
+
+  /**
+   * Checks whether the timelines are the same.
+   *
+   * @param firstTimeline The first {@link Timeline}.
+   * @param secondTimeline The second {@link Timeline} to compare with.
+   * @return {@code true} if the both timelines are the same.
+   */
+  public static boolean areTimelinesSame(Timeline firstTimeline, Timeline secondTimeline) {
+    if (firstTimeline == secondTimeline) {
+      return true;
+    }
+    if (secondTimeline.getWindowCount() != firstTimeline.getWindowCount()
+        || secondTimeline.getPeriodCount() != firstTimeline.getPeriodCount()) {
+      return false;
+    }
+    Timeline.Window firstWindow = new Timeline.Window();
+    Timeline.Period firstPeriod = new Timeline.Period();
+    Timeline.Window secondWindow = new Timeline.Window();
+    Timeline.Period secondPeriod = new Timeline.Period();
+    for (int i = 0; i < firstTimeline.getWindowCount(); i++) {
+      if (!firstTimeline
+          .getWindow(i, firstWindow)
+          .equals(secondTimeline.getWindow(i, secondWindow))) {
+        return false;
+      }
+    }
+    for (int i = 0; i < firstTimeline.getPeriodCount(); i++) {
+      if (!firstTimeline
+          .getPeriod(i, firstPeriod, /* setIds= */ true)
+          .equals(secondTimeline.getPeriod(i, secondPeriod, /* setIds= */ true))) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private static HashMap<String, String> createIso3ToIso2Map() {
