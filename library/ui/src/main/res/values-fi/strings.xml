@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">Ei uudelleentoistoa</string>
   <string name="exo_controls_repeat_one_description">Toista yksi uudelleen</string>
   <string name="exo_controls_repeat_all_description">Toista kaikki uudelleen</string>
-  <string name="exo_controls_shuffle_on_description">Satunnaistoisto</string>
+  <string name="exo_controls_shuffle_on_description">Satunnaistoisto käytössä</string>
+  <string name="exo_controls_shuffle_off_description">Satunnaistoisto ei käytössä</string>
   <string name="exo_controls_fullscreen_description">Koko näytön tila</string>
   <string name="exo_controls_vr_description">VR-tila</string>
   <string name="exo_download_description">Lataa</string>

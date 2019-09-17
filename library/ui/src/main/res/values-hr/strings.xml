@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">Bez ponavljanja</string>
   <string name="exo_controls_repeat_one_description">Ponovi jedno</string>
   <string name="exo_controls_repeat_all_description">Ponovi sve</string>
-  <string name="exo_controls_shuffle_on_description">Reproduciraj nasumično</string>
+  <string name="exo_controls_shuffle_on_description">Nasumična reproduk. uključena</string>
+  <string name="exo_controls_shuffle_off_description">Nasumična reproduk. isključena</string>
   <string name="exo_controls_fullscreen_description">Prikaz na cijelom zaslonu</string>
   <string name="exo_controls_vr_description">VR način</string>
   <string name="exo_download_description">Preuzmi</string>

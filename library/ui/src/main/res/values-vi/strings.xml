@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">Không lặp lại</string>
   <string name="exo_controls_repeat_one_description">Lặp lại một</string>
   <string name="exo_controls_repeat_all_description">Lặp lại tất cả</string>
-  <string name="exo_controls_shuffle_on_description">Phát ngẫu nhiên</string>
+  <string name="exo_controls_shuffle_on_description">Chế độ trộn bài đang bật</string>
+  <string name="exo_controls_shuffle_off_description">Chế độ trộn bài đang tắt</string>
   <string name="exo_controls_fullscreen_description">Chế độ toàn màn hình</string>
   <string name="exo_controls_vr_description">Chế độ thực tế ảo</string>
   <string name="exo_download_description">Tải xuống</string>

@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">කිසිවක් පුනරාවර්තනය නොකරන්න</string>
   <string name="exo_controls_repeat_one_description">එකක් පුනරාවර්තනය කරන්න</string>
   <string name="exo_controls_repeat_all_description">සියල්ල පුනරාවර්තනය කරන්න</string>
-  <string name="exo_controls_shuffle_on_description">කලවම් කරන්න</string>
+  <string name="exo_controls_shuffle_on_description">කලවම් කිරීම ක්‍රියාත්මකයි</string>
+  <string name="exo_controls_shuffle_off_description">කලවම් කිරීම ක්‍රියා විරහිතයි</string>
   <string name="exo_controls_fullscreen_description">සම්පූර්ණ තිර ප්‍රකාරය</string>
   <string name="exo_controls_vr_description">VR ප්‍රකාරය</string>
   <string name="exo_download_description">බාගන්න</string>

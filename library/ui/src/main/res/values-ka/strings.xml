@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">არცერთის გამეორება</string>
   <string name="exo_controls_repeat_one_description">ერთის გამეორება</string>
   <string name="exo_controls_repeat_all_description">ყველას გამეორება</string>
-  <string name="exo_controls_shuffle_on_description">არეულად დაკვრა</string>
+  <string name="exo_controls_shuffle_on_description">არეულად დაკვრა ჩართულია</string>
+  <string name="exo_controls_shuffle_off_description">არეულად დაკვრა გამორთულია</string>
   <string name="exo_controls_fullscreen_description">სრულეკრანიანი რეჟიმი</string>
   <string name="exo_controls_vr_description">VR რეჟიმი</string>
   <string name="exo_download_description">ჩამოტვირთვა</string>

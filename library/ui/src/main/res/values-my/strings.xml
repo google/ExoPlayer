@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">မည်သည်ကိုမျှ ပြန်မကျော့ရန်</string>
   <string name="exo_controls_repeat_one_description">တစ်ခုကို ပြန်ကျော့ရန်</string>
   <string name="exo_controls_repeat_all_description">အားလုံး ပြန်ကျော့ရန်</string>
-  <string name="exo_controls_shuffle_on_description">ရောသမမွှေ</string>
+  <string name="exo_controls_shuffle_on_description">ရောသမမွှေကို ဖွင့်ထားသည်</string>
+  <string name="exo_controls_shuffle_off_description">ရောသမမွှေကို ပိတ်ထားသည်</string>
   <string name="exo_controls_fullscreen_description">မျက်နှာပြင်အပြည့် မုဒ်</string>
   <string name="exo_controls_vr_description">VR မုဒ်</string>
   <string name="exo_download_description">ဒေါင်းလုဒ် လုပ်ရန်</string>

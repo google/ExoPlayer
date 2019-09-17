@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">Καμία επανάληψη</string>
   <string name="exo_controls_repeat_one_description">Επανάληψη ενός κομματιού</string>
   <string name="exo_controls_repeat_all_description">Επανάληψη όλων</string>
-  <string name="exo_controls_shuffle_on_description">Τυχαία αναπαραγωγή</string>
+  <string name="exo_controls_shuffle_on_description">Τυχαία αναπαραγωγή: Ενεργή</string>
+  <string name="exo_controls_shuffle_off_description">Τυχαία αναπαραγωγή: Ανενεργή</string>
   <string name="exo_controls_fullscreen_description">Λειτουργία πλήρους οθόνης</string>
   <string name="exo_controls_vr_description">Λειτουργία VR mode</string>
   <string name="exo_download_description">Λήψη</string>

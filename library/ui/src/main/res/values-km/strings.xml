@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">មិន​លេង​ឡើងវិញ</string>
   <string name="exo_controls_repeat_one_description">លេង​ឡើង​វិញ​ម្ដង</string>
   <string name="exo_controls_repeat_all_description">លេង​ឡើងវិញ​ទាំងអស់</string>
-  <string name="exo_controls_shuffle_on_description">ច្របល់</string>
+  <string name="exo_controls_shuffle_on_description">បើក​ការ​ច្របល់</string>
+  <string name="exo_controls_shuffle_off_description">បិទ​ការ​ច្របល់</string>
   <string name="exo_controls_fullscreen_description">មុខងារពេញ​អេក្រង់</string>
   <string name="exo_controls_vr_description">មុខងារ VR</string>
   <string name="exo_download_description">ទាញយក</string>

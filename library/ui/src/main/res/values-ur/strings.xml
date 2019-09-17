@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">کسی کو نہ دہرائیں</string>
   <string name="exo_controls_repeat_one_description">ایک کو دہرائیں</string>
   <string name="exo_controls_repeat_all_description">سبھی کو دہرائیں</string>
-  <string name="exo_controls_shuffle_on_description">شفل کریں</string>
+  <string name="exo_controls_shuffle_on_description">شفل آن</string>
+  <string name="exo_controls_shuffle_off_description">شفل آف</string>
   <string name="exo_controls_fullscreen_description">پوری اسکرین والی وضع</string>
   <string name="exo_controls_vr_description">VR موڈ</string>
   <string name="exo_download_description">ڈاؤن لوڈ کریں</string>

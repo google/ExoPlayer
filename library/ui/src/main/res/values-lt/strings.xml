@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">Nekartoti nieko</string>
   <string name="exo_controls_repeat_one_description">Kartoti vieną</string>
   <string name="exo_controls_repeat_all_description">Kartoti viską</string>
-  <string name="exo_controls_shuffle_on_description">Maišyti</string>
+  <string name="exo_controls_shuffle_on_description">Maišymas įjungtas</string>
+  <string name="exo_controls_shuffle_off_description">Maišymas išjungtas</string>
   <string name="exo_controls_fullscreen_description">Viso ekrano režimas</string>
   <string name="exo_controls_vr_description">VR režimas</string>
   <string name="exo_download_description">Atsisiųsti</string>
