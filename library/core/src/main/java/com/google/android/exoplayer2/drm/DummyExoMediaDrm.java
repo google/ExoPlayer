@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.drm;
 import android.media.MediaDrmException;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import com.google.android.exoplayer2.util.Util;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -110,7 +111,7 @@ public final class DummyExoMediaDrm<T extends ExoMediaCrypto> implements ExoMedi
 
   @Override
   public byte[] getPropertyByteArray(String propertyName) {
-    return new byte[0];
+    return Util.EMPTY_BYTE_ARRAY;
   }
 
   @Override
