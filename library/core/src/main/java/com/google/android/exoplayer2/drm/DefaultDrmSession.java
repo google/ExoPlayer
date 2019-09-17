@@ -566,8 +566,6 @@ public class DefaultDrmSession<T extends ExoMediaCrypto> implements DrmSession<T
           > loadErrorHandlingPolicy.getMinimumLoadableRetryCount(C.DATA_TYPE_DRM)) {
         return false;
       }
-      Message retryMsg = Message.obtain(originalMsg);
-
       IOException ioException =
           e instanceof IOException ? (IOException) e : new UnexpectedDrmSessionException(e);
       long retryDelayMs =
@@ -576,7 +574,11 @@ public class DefaultDrmSession<T extends ExoMediaCrypto> implements DrmSession<T
               /* loadDurationMs= */ SystemClock.elapsedRealtime() - requestTask.startTimeMs,
               ioException,
               requestTask.errorCount);
-      sendMessageDelayed(retryMsg, retryDelayMs);
+      if (retryDelayMs == C.TIME_UNSET) {
+        // The error is fatal.
+        return false;
+      }
+      sendMessageDelayed(Message.obtain(originalMsg), retryDelayMs);
       return true;
     }
   }
