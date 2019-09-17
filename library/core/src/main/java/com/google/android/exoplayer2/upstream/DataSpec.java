@@ -71,7 +71,7 @@ public final class DataSpec {
    * setting this flag may also enable more concurrent access to the data (e.g. reading one fragment
    * whilst writing another).
    */
-  public static final int FLAG_ALLOW_CACHE_FRAGMENTATION = 1 << 4; // 16
+  public static final int FLAG_ALLOW_CACHE_FRAGMENTATION = 1 << 3; // 8
 
   /**
    * The set of HTTP methods that are supported by ExoPlayer {@link HttpDataSource}s. One of {@link
