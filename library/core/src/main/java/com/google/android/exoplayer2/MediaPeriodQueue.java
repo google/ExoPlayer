@@ -19,7 +19,6 @@ import android.util.Pair;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Player.RepeatMode;
 import com.google.android.exoplayer2.source.MediaPeriod;
-import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
@@ -134,7 +133,7 @@ import com.google.android.exoplayer2.util.Assertions;
    * @param rendererCapabilities The renderer capabilities.
    * @param trackSelector The track selector.
    * @param allocator The allocator.
-   * @param mediaSource The media source that produced the media period.
+   * @param playlist The playlist.
    * @param info Information used to identify this media period in its timeline period.
    * @param emptyTrackSelectorResult A {@link TrackSelectorResult} with empty selections for each
    *     renderer.
@@ -143,7 +142,7 @@ import com.google.android.exoplayer2.util.Assertions;
       RendererCapabilities[] rendererCapabilities,
       TrackSelector trackSelector,
       Allocator allocator,
-      MediaSource mediaSource,
+      Playlist playlist,
       MediaPeriodInfo info,
       TrackSelectorResult emptyTrackSelectorResult) {
     long rendererPositionOffsetUs =
@@ -158,7 +157,7 @@ import com.google.android.exoplayer2.util.Assertions;
             rendererPositionOffsetUs,
             trackSelector,
             allocator,
-            mediaSource,
+            playlist,
             info,
             emptyTrackSelectorResult);
     if (loading != null) {

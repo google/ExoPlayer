@@ -49,7 +49,6 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryExcep
 import com.google.android.exoplayer2.offline.DownloadHelper;
 import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
-import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
@@ -79,6 +78,7 @@ import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /** An activity that plays media using {@link SimpleExoPlayer}. */
@@ -141,7 +141,7 @@ public class PlayerActivity extends AppCompatActivity
 
   private DataSource.Factory dataSourceFactory;
   private SimpleExoPlayer player;
-  private MediaSource mediaSource;
+  private List<MediaSource> mediaSources;
   private DefaultTrackSelector trackSelector;
   private DefaultTrackSelector.Parameters trackSelectorParameters;
   private DebugTextViewHelper debugViewHelper;
@@ -343,8 +343,8 @@ public class PlayerActivity extends AppCompatActivity
       Intent intent = getIntent();
 
       releaseMediaDrms();
-      mediaSource = createTopLevelMediaSource(intent);
-      if (mediaSource == null) {
+      mediaSources = createTopLevelMediaSources(intent);
+      if (mediaSources.isEmpty()) {
         return;
       }
 
@@ -388,12 +388,12 @@ public class PlayerActivity extends AppCompatActivity
     if (haveStartPosition) {
       player.seekTo(startWindow, startPosition);
     }
-    player.prepare(mediaSource, !haveStartPosition, false);
+    player.setMediaItems(mediaSources, /* resetPosition= */ !haveStartPosition);
+    player.prepare();
     updateButtonVisibility();
   }
 
-  @Nullable
-  private MediaSource createTopLevelMediaSource(Intent intent) {
+  private List<MediaSource> createTopLevelMediaSources(Intent intent) {
     String action = intent.getAction();
     boolean actionIsListView = ACTION_VIEW_LIST.equals(action);
     if (!actionIsListView && !ACTION_VIEW.equals(action)) {
@@ -421,34 +421,30 @@ public class PlayerActivity extends AppCompatActivity
       }
     }
 
-    MediaSource[] mediaSources = new MediaSource[samples.length];
-    for (int i = 0; i < samples.length; i++) {
-      mediaSources[i] = createLeafMediaSource(samples[i]);
+    List<MediaSource> mediaSources = new ArrayList<>();
+    for (UriSample sample : samples) {
+      mediaSources.add(createLeafMediaSource(sample));
     }
-    MediaSource mediaSource =
-        mediaSources.length == 1 ? mediaSources[0] : new ConcatenatingMediaSource(mediaSources);
-
-    if (seenAdsTagUri) {
+    if (seenAdsTagUri && mediaSources.size() == 1) {
       Uri adTagUri = samples[0].adTagUri;
-      if (actionIsListView) {
-        showToast(R.string.unsupported_ads_in_concatenation);
-      } else {
-        if (!adTagUri.equals(loadedAdTagUri)) {
-          releaseAdsLoader();
-          loadedAdTagUri = adTagUri;
-        }
-        MediaSource adsMediaSource = createAdsMediaSource(mediaSource, adTagUri);
-        if (adsMediaSource != null) {
-          mediaSource = adsMediaSource;
-        } else {
-          showToast(R.string.ima_not_loaded);
-        }
+      if (!adTagUri.equals(loadedAdTagUri)) {
+        releaseAdsLoader();
+        loadedAdTagUri = adTagUri;
       }
+      MediaSource adsMediaSource = createAdsMediaSource(mediaSources.get(0), adTagUri);
+      if (adsMediaSource != null) {
+        mediaSources.set(0, adsMediaSource);
+      } else {
+        showToast(R.string.ima_not_loaded);
+      }
+    } else if (seenAdsTagUri && mediaSources.size() > 1) {
+      showToast(R.string.unsupported_ads_in_concatenation);
+      releaseAdsLoader();
     } else {
       releaseAdsLoader();
     }
 
-    return mediaSource;
+    return mediaSources;
   }
 
   private MediaSource createLeafMediaSource(UriSample parameters) {
@@ -548,7 +544,7 @@ public class PlayerActivity extends AppCompatActivity
       debugViewHelper = null;
       player.release();
       player = null;
-      mediaSource = null;
+      mediaSources = null;
       trackSelector = null;
     }
     if (adsLoader != null) {
