@@ -2,26 +2,20 @@
 
 ### 2.10.5 ###
 
-* Add `allowAudioMixedChannelCountAdaptiveness` parameter to
-  `DefaultTrackSelector` to allow adaptive selections of audio tracks with
-  different channel counts
-  ([#6257](https://github.com/google/ExoPlayer/issues/6257)).
-* Reset `DefaultBandwidthMeter` to initial values on network change.
-* Increase maximum buffer size for video in `DefaultLoadControl` to ensure high
-  quality video can be loaded up to the full default buffer duration.
-* Bypass sniffing in `ProgressiveMediaPeriod` in case a single extractor is
-  provided ([#6325](https://github.com/google/ExoPlayer/issues/6325)).
+* Track selection
+  * Fix audio selection issue where languages are compared by bitrate
+    ([#6335](https://github.com/google/ExoPlayer/issues/6335)).
+  * Add `allowAudioMixedChannelCountAdaptiveness` parameter to
+    `DefaultTrackSelector` to allow adaptive selections of audio tracks with
+    different channel counts.
+* Performance
+  * Increase maximum video buffer size from 13MB to 32MB. The previous default
+    was too small for high quality streams.
+  * Reset `DefaultBandwidthMeter` to initial values on network change.
+  * Bypass sniffing in `ProgressiveMediaPeriod` in case a single extractor is
+    provided ([#6325](https://github.com/google/ExoPlayer/issues/6325)).
 * Add `HttpDataSource.getResponseCode` to provide the status code associated
   with the most recent HTTP response.
-* Fix initialization data handling for FLAC in MP4
-  ([#6396](https://github.com/google/ExoPlayer/issues/6396),
-  [#6397](https://github.com/google/ExoPlayer/issues/6397)).
-* Fix audio selection issue where languages are compared by bit rate
-  ([#6335](https://github.com/google/ExoPlayer/issues/6335)).
-* Fix decoder selection for E-AC3 JOC streams
-  ([#6398](https://github.com/google/ExoPlayer/issues/6398)).
-* Fix `PlayerNotificationManager` to show play icon rather than pause icon when
-  playback is ended ([#6324](https://github.com/google/ExoPlayer/issues/6324)).
 * OkHttp extension: Upgrade OkHttp to fix HTTP2 socket timeout issue
   ([#4078](https://github.com/google/ExoPlayer/issues/4078)).
 * RTMP extension: Upgrade LibRtmp-Client-for-Android to fix RTMP playback issues
@@ -29,6 +23,13 @@
   [#4249](https://github.com/google/ExoPlayer/issues/4249),
   [#4319](https://github.com/google/ExoPlayer/issues/4319),
   [#4337](https://github.com/google/ExoPlayer/issues/4337)).
+* Fix initialization data handling for FLAC in MP4
+  ([#6396](https://github.com/google/ExoPlayer/issues/6396),
+  [#6397](https://github.com/google/ExoPlayer/issues/6397)).
+* Fix decoder selection for E-AC3 JOC streams
+  ([#6398](https://github.com/google/ExoPlayer/issues/6398)).
+* Fix `PlayerNotificationManager` to show play icon rather than pause icon when
+  playback is ended ([#6324](https://github.com/google/ExoPlayer/issues/6324)).
 
 ### 2.10.4 ###
 
