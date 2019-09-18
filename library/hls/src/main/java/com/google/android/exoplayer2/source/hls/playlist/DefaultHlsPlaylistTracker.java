@@ -491,8 +491,8 @@ public final class DefaultHlsPlaylistTracker
 
     public void loadPlaylist() {
       blacklistUntilMs = 0;
-      if (loadPending || mediaPlaylistLoader.isLoading()) {
-        // Load already pending or in progress. Do nothing.
+      if (loadPending || mediaPlaylistLoader.isLoading() || mediaPlaylistLoader.hasFatalError()) {
+        // Load already pending, in progress, or a fatal error has been encountered. Do nothing.
         return;
       }
       long currentTimeMs = SystemClock.elapsedRealtime();

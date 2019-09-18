@@ -337,7 +337,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   @Override
   public boolean continueLoading(long playbackPositionUs) {
-    if (loadingFinished || pendingDeferredRetry || (prepared && enabledTrackCount == 0)) {
+    if (loadingFinished
+        || loader.hasFatalError()
+        || pendingDeferredRetry
+        || (prepared && enabledTrackCount == 0)) {
       return false;
     }
     boolean continuedLoading = loadCondition.open();
@@ -422,6 +425,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     if (loader.isLoading()) {
       loader.cancelLoading();
     } else {
+      loader.clearFatalError();
       for (SampleQueue sampleQueue : sampleQueues) {
         sampleQueue.reset();
       }

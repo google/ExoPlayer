@@ -746,6 +746,9 @@ public final class SsMediaSource extends BaseMediaSource
   }
 
   private void startLoadingManifest() {
+    if (manifestLoader.hasFatalError()) {
+      return;
+    }
     ParsingLoadable<SsManifest> loadable = new ParsingLoadable<>(manifestDataSource,
         manifestUri, C.DATA_TYPE_MANIFEST, manifestParser);
     long elapsedRealtimeMs =
