@@ -222,6 +222,8 @@
     `ExtractorsFactory` instances must now be passed via the
     `ProgressiveMediaSource.Factory` constructor, and `setExtractorsFactory` is
     deprecated.
+  * Make the default minimum buffer size equal the maximum buffer size for video
+    playbacks ([#2083](https://github.com/google/ExoPlayer/issues/2083)).
   * Move `PriorityTaskManager` from `DefaultLoadControl` to `SimpleExoPlayer`.
   * Add new `ExoPlaybackException` types for remote exceptions and out-of-memory
     errors.
@@ -297,7 +299,7 @@
     ([#5547](https://github.com/google/ExoPlayer/issues/5547)).
 * DRM:
   * Fix black flicker when keys rotate in DRM protected content
-  ([#3561](https://github.com/google/ExoPlayer/issues/3561)).
+    ([#3561](https://github.com/google/ExoPlayer/issues/3561)).
   * Work around lack of LA_URL attribute in PlayReady key request init data.
 * CEA-608: Improved conformance to the specification
   ([#3860](https://github.com/google/ExoPlayer/issues/3860)).
@@ -327,8 +329,6 @@
     order when in shuffle mode.
   * Allow handling of custom commands via `registerCustomCommandReceiver`.
   * Add ability to include an extras `Bundle` when reporting a custom error.
-* LoadControl: Set minimum buffer for playbacks with video equal to maximum
-  buffer ([#2083](https://github.com/google/ExoPlayer/issues/2083)).
 * Log warnings when extension native libraries can't be used, to help with
   diagnosing playback failures
   ([#5788](https://github.com/google/ExoPlayer/issues/5788)).
