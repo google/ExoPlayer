@@ -443,6 +443,7 @@ import java.util.Set;
     if (loader.isLoading()) {
       loader.cancelLoading();
     } else {
+      loader.clearFatalError();
       resetSampleQueues();
     }
     return true;
@@ -595,7 +596,7 @@ import java.util.Set;
 
   @Override
   public boolean continueLoading(long positionUs) {
-    if (loadingFinished || loader.isLoading()) {
+    if (loadingFinished || loader.isLoading() || loader.hasFatalError()) {
       return false;
     }
 
