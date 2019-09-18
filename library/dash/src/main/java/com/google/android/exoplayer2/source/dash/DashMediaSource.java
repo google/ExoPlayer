@@ -1037,6 +1037,9 @@ public final class DashMediaSource extends BaseMediaSource {
 
   private void startLoadingManifest() {
     handler.removeCallbacks(refreshManifestRunnable);
+    if (loader.hasFatalError()) {
+      return;
+    }
     if (loader.isLoading()) {
       manifestLoadPending = true;
       return;
