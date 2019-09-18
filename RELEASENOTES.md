@@ -2,7 +2,6 @@
 
 ### dev-v2 (not yet released) ###
 
-* Fix bug causing the retry of loading tasks that resulted in fatal errors.
 * DASH: Support negative @r values in segment timelines
   ([#1787](https://github.com/google/ExoPlayer/issues/1787)).
 * Add `allowedCapturePolicy` field to `AudioAttributes` wrapper to allow to
