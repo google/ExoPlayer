@@ -425,6 +425,7 @@ import java.util.Map;
     if (loader.isLoading()) {
       loader.cancelLoading();
     } else {
+      loader.clearFatalError();
       resetSampleQueues();
     }
     return true;
@@ -572,7 +573,7 @@ import java.util.Map;
 
   @Override
   public boolean continueLoading(long positionUs) {
-    if (loadingFinished || loader.isLoading()) {
+    if (loadingFinished || loader.isLoading() || loader.hasFatalError()) {
       return false;
     }
 
