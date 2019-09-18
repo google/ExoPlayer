@@ -48,6 +48,22 @@ import java.util.UUID;
 @TargetApi(23)
 public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto> {
 
+  /**
+   * {@link ExoMediaDrm.Provider} that returns a new {@link FrameworkMediaDrm} for the requested
+   * UUID. Returns a {@link DummyExoMediaDrm} if the protection scheme identified by the given UUID
+   * is not supported by the device.
+   *
+   * <p>This provider should be used to make ExoPlayer handle {@link ExoMediaDrm} resources.
+   */
+  public static final Provider<FrameworkMediaCrypto> DEFAULT_PROVIDER =
+      uuid -> {
+        try {
+          return newInstance(uuid);
+        } catch (UnsupportedDrmException e) {
+          return new DummyExoMediaDrm<>();
+        }
+      };
+
   private static final String CENC_SCHEME_MIME_TYPE = "cenc";
   private static final String MOCK_LA_URL_VALUE = "https://x";
   private static final String MOCK_LA_URL = "<LA_URL>" + MOCK_LA_URL_VALUE + "</LA_URL>";
@@ -56,9 +72,11 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
 
   private final UUID uuid;
   private final MediaDrm mediaDrm;
+  private int referenceCount;
 
   /**
-   * Creates an instance for the specified scheme UUID.
+   * Creates an instance with an {@link #acquire() acquired reference} for the specified scheme
+   * UUID.
    *
    * @param uuid The scheme uuid.
    * @return The created instance.
@@ -79,6 +97,8 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
     Assertions.checkArgument(!C.COMMON_PSSH_UUID.equals(uuid), "Use C.CLEARKEY_UUID instead");
     this.uuid = uuid;
     this.mediaDrm = new MediaDrm(adjustUuid(uuid));
+    // Creators of an instance automatically acquire ownership of the created instance.
+    referenceCount = 1;
     if (C.WIDEVINE_UUID.equals(uuid) && needsForceWidevineL3Workaround()) {
       forceWidevineL3(mediaDrm);
     }
@@ -186,8 +206,16 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
   }
 
   @Override
-  public void release() {
-    mediaDrm.release();
+  public synchronized void acquire() {
+    Assertions.checkState(referenceCount > 0);
+    referenceCount++;
+  }
+
+  @Override
+  public synchronized void release() {
+    if (--referenceCount == 0) {
+      mediaDrm.release();
+    }
   }
 
   @Override

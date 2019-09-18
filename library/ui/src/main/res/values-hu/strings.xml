@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">Nincs ismétlés</string>
   <string name="exo_controls_repeat_one_description">Egy szám ismétlése</string>
   <string name="exo_controls_repeat_all_description">Összes szám ismétlése</string>
-  <string name="exo_controls_shuffle_on_description">Keverés</string>
+  <string name="exo_controls_shuffle_on_description">Keverés bekapcsolva</string>
+  <string name="exo_controls_shuffle_off_description">Keverés kikapcsolva</string>
   <string name="exo_controls_fullscreen_description">Teljes képernyős mód</string>
   <string name="exo_controls_vr_description">VR-mód</string>
   <string name="exo_download_description">Letöltés</string>

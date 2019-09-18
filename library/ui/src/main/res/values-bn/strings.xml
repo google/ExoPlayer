@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">কোনও আইটেম আবার চালাবেন না</string>
   <string name="exo_controls_repeat_one_description">একটি আইটেম আবার চালান</string>
   <string name="exo_controls_repeat_all_description">সবগুলি আইটেম আবার চালান</string>
-  <string name="exo_controls_shuffle_on_description">শাফেল করুন</string>
+  <string name="exo_controls_shuffle_on_description">শাফেল মোড চালু করা হয়েছে</string>
+  <string name="exo_controls_shuffle_off_description">শাফেল মোড বন্ধ করা হয়েছে</string>
   <string name="exo_controls_fullscreen_description">পূর্ণ স্ক্রিন মোড</string>
   <string name="exo_controls_vr_description">ভিআর মোড</string>
   <string name="exo_download_description">ডাউনলোড করুন</string>

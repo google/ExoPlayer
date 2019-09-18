@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">Ära korda ühtegi</string>
   <string name="exo_controls_repeat_one_description">Korda ühte</string>
   <string name="exo_controls_repeat_all_description">Korda kõiki</string>
-  <string name="exo_controls_shuffle_on_description">Esita juhuslikus järjekorras</string>
+  <string name="exo_controls_shuffle_on_description">Lülita juh. järj. esit. sisse</string>
+  <string name="exo_controls_shuffle_off_description">Lülita juh. järj. esit. välja</string>
   <string name="exo_controls_fullscreen_description">Täisekraani režiim</string>
   <string name="exo_controls_vr_description">VR-režiim</string>
   <string name="exo_download_description">Allalaadimine</string>

@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">Non repetir</string>
   <string name="exo_controls_repeat_one_description">Repetir unha pista</string>
   <string name="exo_controls_repeat_all_description">Repetir todas as pistas</string>
-  <string name="exo_controls_shuffle_on_description">Reprodución aleatoria</string>
+  <string name="exo_controls_shuffle_on_description">Reprodución aleatoria activada</string>
+  <string name="exo_controls_shuffle_off_description">Reprodución aleat. desactivada</string>
   <string name="exo_controls_fullscreen_description">Modo de pantalla completa</string>
   <string name="exo_controls_vr_description">Modo RV</string>
   <string name="exo_download_description">Descargar</string>

@@ -72,6 +72,11 @@
 * Fix decoder selection for E-AC3 JOC streams
   ([#6398](https://github.com/google/ExoPlayer/issues/6398)).
 * Fix Dolby Vision fallback to AVC and HEVC.
+* Add `Player.isPlaying` and `EventListener.onIsPlayingChanged` to check whether
+  the playback position is advancing. This helps to determine if playback is
+  suppressed due to audio focus loss. Also add
+  `Player.getPlaybackSuppressedReason` to determine the reason of the
+  suppression ([#6203](https://github.com/google/ExoPlayer/issues/6203)).
 
 ### 2.10.4 ###
 

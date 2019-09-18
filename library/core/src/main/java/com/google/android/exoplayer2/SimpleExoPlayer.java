@@ -1078,10 +1078,17 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  @Player.State
+  @State
   public int getPlaybackState() {
     verifyApplicationThread();
     return player.getPlaybackState();
+  }
+
+  @Override
+  @PlaybackSuppressionReason
+  public int getPlaybackSuppressionReason() {
+    verifyApplicationThread();
+    return player.getPlaybackSuppressionReason();
   }
 
   @Override
@@ -1407,9 +1414,13 @@ public class SimpleExoPlayer extends BasePlayer
 
   private void updatePlayWhenReady(
       boolean playWhenReady, @AudioFocusManager.PlayerCommand int playerCommand) {
+    int playbackSuppressionReason =
+        playerCommand == AudioFocusManager.PLAYER_COMMAND_PLAY_WHEN_READY
+            ? Player.PLAYBACK_SUPPRESSION_REASON_NONE
+            : Player.PLAYBACK_SUPPRESSION_REASON_AUDIO_FOCUS_LOSS;
     player.setPlayWhenReady(
         playWhenReady && playerCommand != AudioFocusManager.PLAYER_COMMAND_DO_NOT_PLAY,
-        playerCommand != AudioFocusManager.PLAYER_COMMAND_PLAY_WHEN_READY);
+        playbackSuppressionReason);
   }
 
   private void verifyApplicationThread() {

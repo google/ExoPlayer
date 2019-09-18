@@ -323,9 +323,15 @@ public final class CastPlayer extends BasePlayer {
   }
 
   @Override
-  @Player.State
+  @State
   public int getPlaybackState() {
     return playbackState;
+  }
+
+  @Override
+  @PlaybackSuppressionReason
+  public int getPlaybackSuppressionReason() {
+    return Player.PLAYBACK_SUPPRESSION_REASON_NONE;
   }
 
   @Override
@@ -538,6 +544,7 @@ public final class CastPlayer extends BasePlayer {
       return;
     }
 
+    boolean wasPlaying = playbackState == Player.STATE_READY && playWhenReady;
     int playbackState = fetchPlaybackState(remoteMediaClient);
     boolean playWhenReady = !remoteMediaClient.isPaused();
     if (this.playbackState != playbackState
@@ -547,6 +554,11 @@ public final class CastPlayer extends BasePlayer {
       notificationsBatch.add(
           new ListenerNotificationTask(
               listener -> listener.onPlayerStateChanged(this.playWhenReady, this.playbackState)));
+    }
+    boolean isPlaying = playbackState == Player.STATE_READY && playWhenReady;
+    if (wasPlaying != isPlaying) {
+      notificationsBatch.add(
+          new ListenerNotificationTask(listener -> listener.onIsPlayingChanged(isPlaying)));
     }
     @RepeatMode int repeatMode = fetchRepeatMode(remoteMediaClient);
     if (this.repeatMode != repeatMode) {

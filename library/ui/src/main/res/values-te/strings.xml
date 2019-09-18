@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">దేన్నీ పునరావృతం చేయకండి</string>
   <string name="exo_controls_repeat_one_description">ఒకదాన్ని పునరావృతం చేయండి</string>
   <string name="exo_controls_repeat_all_description">అన్నింటినీ పునరావృతం చేయండి</string>
-  <string name="exo_controls_shuffle_on_description">షఫుల్ చేయండి</string>
+  <string name="exo_controls_shuffle_on_description">షఫుల్‌ను ఆన్ చేస్తుంది</string>
+  <string name="exo_controls_shuffle_off_description">షఫుల్‌ను ఆఫ్ చేస్తుంది</string>
   <string name="exo_controls_fullscreen_description">పూర్తి స్క్రీన్ మోడ్</string>
   <string name="exo_controls_vr_description">వర్చువల్ రియాలిటీ మోడ్</string>
   <string name="exo_download_description">డౌన్‌లోడ్ చేయి</string>
