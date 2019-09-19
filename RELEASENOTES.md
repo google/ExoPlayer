@@ -57,6 +57,8 @@
   suppressed due to audio focus loss. Also add
   `Player.getPlaybackSuppressedReason` to determine the reason of the
   suppression ([#6203](https://github.com/google/ExoPlayer/issues/6203)).
+* Add top-level playlist API
+  ([#6161](https://github.com/google/ExoPlayer/issues/6161)).
 
 ### 2.10.5 ###
 
