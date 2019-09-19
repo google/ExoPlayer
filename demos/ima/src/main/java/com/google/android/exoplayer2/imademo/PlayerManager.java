@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.imademo;
 
 import android.content.Context;
 import android.net.Uri;
+import com.google.ads.interactivemedia.v3.api.AdEvent;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.C.ContentType;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -32,6 +33,7 @@ import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.util.EventLogger;
 import com.google.android.exoplayer2.util.Util;
 
 /** Manages the {@link ExoPlayer}, the IMA plugin and all video playback. */
@@ -42,18 +44,33 @@ import com.google.android.exoplayer2.util.Util;
 
   private SimpleExoPlayer player;
   private long contentPosition;
+  private long continueWatchingPosition;
+  private String adTag;
 
-  public PlayerManager(Context context) {
-    String adTag = context.getString(R.string.ad_tag_url);
-    adsLoader = new ImaAdsLoader(context, Uri.parse(adTag));
+  public PlayerManager(Context context, String adTag, long contentPosition,
+      long continueWatchingPosition,
+      AdEvent.AdEventListener adEventListener) {
+    this.adTag = adTag;
+    this.contentPosition = contentPosition;
+    this.continueWatchingPosition = continueWatchingPosition;
+
+    adsLoader = new ImaAdsLoader.Builder(context)
+        .setContinueWatchingPositionMs(continueWatchingPosition)
+        .setAdEventListener(adEventListener)
+        .buildForAdTag(Uri.parse(adTag));
     dataSourceFactory =
         new DefaultDataSourceFactory(
             context, Util.getUserAgent(context, context.getString(R.string.application_name)));
   }
 
+  public ImaAdsLoader getAdsLoader() {
+    return adsLoader;
+  }
+
   public void init(Context context, PlayerView playerView) {
     // Create a player instance.
     player = ExoPlayerFactory.newSimpleInstance(context);
+    player.addAnalyticsListener(new EventLogger(null));
     adsLoader.setPlayer(player);
     playerView.setPlayer(player);
 
@@ -68,13 +85,24 @@ import com.google.android.exoplayer2.util.Util;
 
     // Prepare the player with the source.
     player.seekTo(contentPosition);
-    player.prepare(mediaSourceWithAds);
+    player.prepare(mediaSourceWithAds, false, false);
     player.setPlayWhenReady(true);
+  }
+
+  public void pause() {
+    if (player != null) {
+      player.setPlayWhenReady(false);
+    }
+  }
+
+  public void resume() {
+    if (player != null) {
+      player.setPlayWhenReady(true);
+    }
   }
 
   public void reset() {
     if (player != null) {
-      contentPosition = player.getContentPosition();
       player.release();
       player = null;
       adsLoader.setPlayer(null);

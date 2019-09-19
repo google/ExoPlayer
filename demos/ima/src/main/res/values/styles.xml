@@ -15,9 +15,15 @@
 -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
+  <!--
   <style name="PlayerTheme" parent="android:Theme.Holo">
     <item name="android:windowNoTitle">true</item>
     <item name="android:windowBackground">@android:color/black</item>
+  </style>
+  -->
+
+  <style name="PlayerTheme">
+    <item name="android:windowNoTitle">true</item>
   </style>
 
 </resources>
