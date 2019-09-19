@@ -132,6 +132,11 @@ import java.util.Set;
         mediaSourceByUid.put(holder.uid, holder);
         if (isPrepared) {
           prepareChildSource(holder);
+          if (mediaSourceByMediaPeriod.isEmpty()) {
+            enabledMediaSourceHolders.add(holder);
+          } else {
+            disableChildSource(holder);
+          }
         }
       }
     }
@@ -267,6 +272,7 @@ import java.util.Set;
     for (int i = 0; i < mediaSourceHolders.size(); i++) {
       MediaSourceHolder mediaSourceHolder = mediaSourceHolders.get(i);
       prepareChildSource(mediaSourceHolder);
+      enabledMediaSourceHolders.add(mediaSourceHolder);
     }
     isPrepared = true;
   }
@@ -357,12 +363,16 @@ import java.util.Set;
     while (iterator.hasNext()) {
       MediaSourceHolder holder = iterator.next();
       if (holder.activeMediaPeriodIds.isEmpty()) {
-        @Nullable MediaSourceAndListener disabledChild = childSources.get(holder);
-        if (disabledChild != null) {
-          disabledChild.mediaSource.disable(disabledChild.caller);
-        }
+        disableChildSource(holder);
         iterator.remove();
       }
+    }
+  }
+
+  private void disableChildSource(MediaSourceHolder holder) {
+    @Nullable MediaSourceAndListener disabledChild = childSources.get(holder);
+    if (disabledChild != null) {
+      disabledChild.mediaSource.disable(disabledChild.caller);
     }
   }
 
