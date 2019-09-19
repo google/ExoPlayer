@@ -1101,7 +1101,7 @@ public final class ImaAdsLoader
         int adPosition = adPodInfo.getAdPosition();
         int adCount = adPodInfo.getTotalAds();
         adGroupIndex = getAdGroupIndex(adPlaybackState, (long) adPodInfo.getTimeOffset());
-        if (adGroupIndex == -1) {
+        if (adGroupIndex == C.INDEX_UNSET) {
           if (DEBUG) {
             Log.d(TAG, "Loaded ad " + adPosition + " of " + adCount
                 + " at " + adPodInfo.getTimeOffset() + ", discard");
@@ -1388,7 +1388,7 @@ public final class ImaAdsLoader
 
   private static int getAdGroupIndex(AdPlaybackState adPlaybackState, long adPodTimeOffsetSeconds) {
     if (adPlaybackState.adGroupTimesUs.length == 0) {
-      return -1;
+      return C.INDEX_UNSET;
     }
     if (adPodTimeOffsetSeconds == -1 && adPlaybackState.adGroupTimesUs[adPlaybackState.adGroupCount - 1] == C.TIME_END_OF_SOURCE) {
       return adPlaybackState.adGroupTimesUs.length - 1;
@@ -1400,7 +1400,7 @@ public final class ImaAdsLoader
         return i;
       }
     }
-    return -1;
+    return C.INDEX_UNSET;
   }
 
   private static boolean isAdGroupLoadError(AdError adError) {
