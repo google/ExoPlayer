@@ -1,6 +1,6 @@
 # Release notes #
 
-### 2.10.5 (TODO: add date) ###
+### 2.10.5 (2019-09-20) ###
 
 * Add `Player.isPlaying` and `EventListener.onIsPlayingChanged` to check whether
   the playback position is advancing. This helps to determine if playback is
