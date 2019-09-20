@@ -187,12 +187,12 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private final SparseBooleanArray rendererDisabledFlags;
 
     /**
-     * @deprecated Initial viewport constraints will not be set based on the primary display when
-     *     using this constructor. Use {@link #ParametersBuilder(Context)} instead.
+     * @deprecated {@link Context} constraints will not be set using this constructor. Use {@link
+     *     #ParametersBuilder(Context)} instead.
      */
     @Deprecated
     public ParametersBuilder() {
-      this(Parameters.DEFAULT_WITHOUT_VIEWPORT);
+      this(Parameters.DEFAULT_WITHOUT_CONTEXT);
     }
 
     /**
@@ -747,18 +747,35 @@ public class DefaultTrackSelector extends MappingTrackSelector {
    */
   public static final class Parameters extends TrackSelectionParameters {
 
-    /** An instance with default values, except without any viewport constraints. */
-    public static final Parameters DEFAULT_WITHOUT_VIEWPORT = new Parameters();
+    /**
+     * An instance with default values, except those obtained from the {@link Context}.
+     *
+     * <p>If possible, use {@link #getDefaults(Context)} instead.
+     *
+     * <p>This instance will not have the following settings:
+     *
+     * <ul>
+     *   <li>{@link ParametersBuilder#setViewportSizeToPhysicalDisplaySize(Context, boolean)
+     *       Viewport constraints} configured for the primary display.
+     * </ul>
+     */
+    public static final Parameters DEFAULT_WITHOUT_CONTEXT = new Parameters();
 
     /**
-     * @deprecated This instance does not have viewport constraints configured for the primary
-     *     display. Use {@link #getDefaults(Context)} instead.
+     * @deprecated This instance does not have {@link Context} constraints configured. Use {@link
+     *     #getDefaults(Context)} instead.
      */
-    @Deprecated public static final Parameters DEFAULT = DEFAULT_WITHOUT_VIEWPORT;
+    @Deprecated public static final Parameters DEFAULT_WITHOUT_VIEWPORT = DEFAULT_WITHOUT_CONTEXT;
+
+    /**
+     * @deprecated This instance does not have {@link Context} constraints configured. Use {@link
+     *     #getDefaults(Context)} instead.
+     */
+    @Deprecated public static final Parameters DEFAULT = DEFAULT_WITHOUT_CONTEXT;
 
     /** Returns an instance configured with default values. */
     public static Parameters getDefaults(Context context) {
-      return DEFAULT_WITHOUT_VIEWPORT
+      return DEFAULT_WITHOUT_CONTEXT
           .buildUpon()
           .setViewportSizeToPhysicalDisplaySize(context, /* viewportOrientationMayChange= */ true)
           .build();
@@ -1429,7 +1446,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   /** @deprecated Use {@link #DefaultTrackSelector(Context, TrackSelection.Factory)}. */
   @Deprecated
   public DefaultTrackSelector(TrackSelection.Factory trackSelectionFactory) {
-    this(Parameters.DEFAULT_WITHOUT_VIEWPORT, trackSelectionFactory);
+    this(Parameters.DEFAULT_WITHOUT_CONTEXT, trackSelectionFactory);
   }
 
   /** @param context Any {@link Context}. */
