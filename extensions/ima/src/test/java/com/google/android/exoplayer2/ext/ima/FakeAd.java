@@ -29,6 +29,10 @@ import java.util.Set;
   private final AdPodInfo adPodInfo;
 
   public FakeAd(boolean skippable, int podIndex, int totalAds, int adPosition) {
+    this(skippable, podIndex, totalAds, adPosition, 0);
+  }
+
+  public FakeAd(boolean skippable, int podIndex, int totalAds, int adPosition, double timeOffset) {
     this.skippable = skippable;
     adPodInfo =
         new AdPodInfo() {
@@ -59,9 +63,14 @@ import java.util.Set;
 
           @Override
           public double getTimeOffset() {
-            throw new UnsupportedOperationException();
+            return timeOffset;
           }
         };
+  }
+
+  public FakeAd withTimeOffset(double timeOffset) {
+    return new FakeAd(skippable, adPodInfo.getPodIndex(), adPodInfo.getTotalAds(),
+        adPodInfo.getAdPosition(), timeOffset);
   }
 
   @Override
