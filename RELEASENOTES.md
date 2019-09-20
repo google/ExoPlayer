@@ -2,6 +2,8 @@
 
 ### dev-v2 (not yet released) ###
 
+* Fix transitions between packed audio and non-packed audio segments in HLS
+  ([#6444](https://github.com/google/ExoPlayer/issues/6444)).
 * DASH: Support negative @r values in segment timelines
   ([#1787](https://github.com/google/ExoPlayer/issues/1787)).
 * Add `allowedCapturePolicy` field to `AudioAttributes` wrapper to allow to
