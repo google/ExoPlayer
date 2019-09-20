@@ -89,7 +89,7 @@ public final class DownloadHelper {
    *
    * <p>If possible, use {@link #getDefaultTrackSelectorParameters(Context)} instead.
    *
-   * @see DefaultTrackSelector.Parameters#DEFAULT_WITHOUT_CONTEXT
+   * @see Parameters#DEFAULT_WITHOUT_CONTEXT
    */
   public static final Parameters DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_CONTEXT =
       Parameters.DEFAULT_WITHOUT_CONTEXT.buildUpon().setForceHighestSupportedBitrate(true).build();

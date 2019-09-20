@@ -43,6 +43,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import org.checkerframework.checker.initialization.qual.UnderInitialization;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
@@ -191,8 +192,12 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      *     #ParametersBuilder(Context)} instead.
      */
     @Deprecated
+    @SuppressWarnings({"deprecation"})
     public ParametersBuilder() {
-      this(Parameters.DEFAULT_WITHOUT_CONTEXT);
+      super();
+      setInitialValuesWithoutContext();
+      selectionOverrides = new SparseArray<>();
+      rendererDisabledFlags = new SparseBooleanArray();
     }
 
     /**
@@ -200,8 +205,13 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      *
      * @param context Any context.
      */
+
     public ParametersBuilder(Context context) {
-      this(Parameters.getDefaults(context));
+      super(context);
+      setInitialValuesWithoutContext();
+      selectionOverrides = new SparseArray<>();
+      rendererDisabledFlags = new SparseBooleanArray();
+      setViewportSizeToPhysicalDisplaySize(context, /* viewportOrientationMayChange= */ true);
     }
 
     /**
@@ -739,6 +749,32 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           rendererDisabledFlags);
     }
 
+    private void setInitialValuesWithoutContext(@UnderInitialization ParametersBuilder this) {
+      // Video
+      maxVideoWidth = Integer.MAX_VALUE;
+      maxVideoHeight = Integer.MAX_VALUE;
+      maxVideoFrameRate = Integer.MAX_VALUE;
+      maxVideoBitrate = Integer.MAX_VALUE;
+      exceedVideoConstraintsIfNecessary = true;
+      allowVideoMixedMimeTypeAdaptiveness = false;
+      allowVideoNonSeamlessAdaptiveness = true;
+      viewportWidth = Integer.MAX_VALUE;
+      viewportHeight = Integer.MAX_VALUE;
+      viewportOrientationMayChange = true;
+      // Audio
+      maxAudioChannelCount = Integer.MAX_VALUE;
+      maxAudioBitrate = Integer.MAX_VALUE;
+      exceedAudioConstraintsIfNecessary = true;
+      allowAudioMixedMimeTypeAdaptiveness = false;
+      allowAudioMixedSampleRateAdaptiveness = false;
+      allowAudioMixedChannelCountAdaptiveness = false;
+      // General
+      forceLowestBitrate = false;
+      forceHighestSupportedBitrate = false;
+      exceedRendererCapabilitiesIfNecessary = true;
+      tunnelingAudioSessionId = C.AUDIO_SESSION_ID_UNSET;
+    }
+
     private static SparseArray<Map<TrackGroupArray, SelectionOverride>> cloneSelectionOverrides(
         SparseArray<Map<TrackGroupArray, SelectionOverride>> selectionOverrides) {
       SparseArray<Map<TrackGroupArray, SelectionOverride>> clone = new SparseArray<>();
@@ -771,7 +807,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      *       {@link android.view.accessibility.CaptioningManager}.
      * </ul>
      */
-    public static final Parameters DEFAULT_WITHOUT_CONTEXT = new Parameters();
+    @SuppressWarnings("deprecation")
+    public static final Parameters DEFAULT_WITHOUT_CONTEXT = new ParametersBuilder().build();
 
     /**
      * @deprecated This instance does not have {@link Context} constraints configured. Use {@link
@@ -783,15 +820,13 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * @deprecated This instance does not have {@link Context} constraints configured. Use {@link
      *     #getDefaults(Context)} instead.
      */
-    @Deprecated public static final Parameters DEFAULT = DEFAULT_WITHOUT_CONTEXT;
+    @SuppressWarnings("deprecation")
+    @Deprecated
+    public static final Parameters DEFAULT = DEFAULT_WITHOUT_CONTEXT;
 
     /** Returns an instance configured with default values. */
     public static Parameters getDefaults(Context context) {
-      return DEFAULT_WITHOUT_CONTEXT
-          .buildUpon()
-          .setViewportSizeToPhysicalDisplaySize(context, /* viewportOrientationMayChange= */ true)
-          .setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettings(context)
-          .build();
+      return new ParametersBuilder(context).build();
     }
 
     // Video
@@ -930,41 +965,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     // Overrides
     private final SparseArray<Map<TrackGroupArray, SelectionOverride>> selectionOverrides;
     private final SparseBooleanArray rendererDisabledFlags;
-
-    private Parameters() {
-      this(
-          // Video
-          /* maxVideoWidth= */ Integer.MAX_VALUE,
-          /* maxVideoHeight= */ Integer.MAX_VALUE,
-          /* maxVideoFrameRate= */ Integer.MAX_VALUE,
-          /* maxVideoBitrate= */ Integer.MAX_VALUE,
-          /* exceedVideoConstraintsIfNecessary= */ true,
-          /* allowVideoMixedMimeTypeAdaptiveness= */ false,
-          /* allowVideoNonSeamlessAdaptiveness= */ true,
-          /* viewportWidth= */ Integer.MAX_VALUE,
-          /* viewportHeight= */ Integer.MAX_VALUE,
-          /* viewportOrientationMayChange= */ true,
-          // Audio
-          TrackSelectionParameters.DEFAULT_WITHOUT_CONTEXT.preferredAudioLanguage,
-          /* maxAudioChannelCount= */ Integer.MAX_VALUE,
-          /* maxAudioBitrate= */ Integer.MAX_VALUE,
-          /* exceedAudioConstraintsIfNecessary= */ true,
-          /* allowAudioMixedMimeTypeAdaptiveness= */ false,
-          /* allowAudioMixedSampleRateAdaptiveness= */ false,
-          /* allowAudioMixedChannelCountAdaptiveness= */ false,
-          // Text
-          TrackSelectionParameters.DEFAULT_WITHOUT_CONTEXT.preferredTextLanguage,
-          TrackSelectionParameters.DEFAULT_WITHOUT_CONTEXT.preferredTextRoleFlags,
-          TrackSelectionParameters.DEFAULT_WITHOUT_CONTEXT.selectUndeterminedTextLanguage,
-          TrackSelectionParameters.DEFAULT_WITHOUT_CONTEXT.disabledTextTrackSelectionFlags,
-          // General
-          /* forceLowestBitrate= */ false,
-          /* forceHighestSupportedBitrate= */ false,
-          /* exceedRendererCapabilitiesIfNecessary= */ true,
-          /* tunnelingAudioSessionId= */ C.AUDIO_SESSION_ID_UNSET,
-          new SparseArray<>(),
-          new SparseBooleanArray());
-    }
 
     /* package */ Parameters(
         // Video
@@ -1458,6 +1458,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
   /** @deprecated Use {@link #DefaultTrackSelector(Context, TrackSelection.Factory)}. */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public DefaultTrackSelector(TrackSelection.Factory trackSelectionFactory) {
     this(Parameters.DEFAULT_WITHOUT_CONTEXT, trackSelectionFactory);
   }

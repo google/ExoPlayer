@@ -46,8 +46,10 @@ public class TrackSelectionParameters implements Parcelable {
      *
      * @param context Any context.
      */
+    @SuppressWarnings({"deprecation", "initialization:method.invocation.invalid"})
     public Builder(Context context) {
-      this(TrackSelectionParameters.getDefaults(context));
+      this();
+      setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettings(context);
     }
 
     /**
@@ -56,7 +58,11 @@ public class TrackSelectionParameters implements Parcelable {
      */
     @Deprecated
     public Builder() {
-      this(DEFAULT_WITHOUT_CONTEXT);
+      preferredAudioLanguage = null;
+      preferredTextLanguage = null;
+      preferredTextRoleFlags = 0;
+      selectUndeterminedTextLanguage = false;
+      disabledTextTrackSelectionFlags = 0;
     }
 
     /**
@@ -191,21 +197,18 @@ public class TrackSelectionParameters implements Parcelable {
    *       {@link CaptioningManager}.
    * </ul>
    */
-  public static final TrackSelectionParameters DEFAULT_WITHOUT_CONTEXT =
-      new TrackSelectionParameters();
+  @SuppressWarnings("deprecation")
+  public static final TrackSelectionParameters DEFAULT_WITHOUT_CONTEXT = new Builder().build();
 
   /**
    * @deprecated This instance is not configured using {@link Context} constraints. Use {@link
    *     #getDefaults(Context)} instead.
    */
-  @Deprecated public static final TrackSelectionParameters DEFAULT = new TrackSelectionParameters();
+  @Deprecated public static final TrackSelectionParameters DEFAULT = DEFAULT_WITHOUT_CONTEXT;
 
   /** Returns an instance configured with default values. */
   public static TrackSelectionParameters getDefaults(Context context) {
-    return DEFAULT_WITHOUT_CONTEXT
-        .buildUpon()
-        .setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettings(context)
-        .build();
+    return new Builder(context).build();
   }
 
   /**
@@ -238,16 +241,6 @@ public class TrackSelectionParameters implements Parcelable {
    * C.SelectionFlags}. The default value is {@code 0} (i.e. no flags).
    */
   @C.SelectionFlags public final int disabledTextTrackSelectionFlags;
-
-  /* package */ TrackSelectionParameters() {
-    this(
-        /* preferredAudioLanguage= */ null,
-        // Text
-        /* preferredTextLanguage= */ null,
-        /* preferredTextRoleFlags= */ 0,
-        /* selectUndeterminedTextLanguage= */ false,
-        /* disabledTextTrackSelectionFlags= */ 0);
-  }
 
   /* package */ TrackSelectionParameters(
       @Nullable String preferredAudioLanguage,
