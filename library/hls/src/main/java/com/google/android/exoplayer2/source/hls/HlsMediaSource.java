@@ -357,6 +357,7 @@ public final class HlsMediaSource extends BaseMediaSource
   @Override
   protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
     this.mediaTransferListener = mediaTransferListener;
+    drmSessionManager.prepare();
     EventDispatcher eventDispatcher = createEventDispatcher(/* mediaPeriodId= */ null);
     playlistTracker.start(manifestUri, eventDispatcher, /* listener= */ this);
   }
@@ -391,6 +392,7 @@ public final class HlsMediaSource extends BaseMediaSource
   @Override
   protected void releaseSourceInternal() {
     playlistTracker.stop();
+    drmSessionManager.release();
   }
 
   @Override

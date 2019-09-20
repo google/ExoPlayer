@@ -657,6 +657,7 @@ public final class DashMediaSource extends BaseMediaSource {
   @Override
   protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
     this.mediaTransferListener = mediaTransferListener;
+    drmSessionManager.prepare();
     if (sideloadedManifest) {
       processManifest(false);
     } else {
@@ -726,6 +727,7 @@ public final class DashMediaSource extends BaseMediaSource {
     expiredManifestPublishTimeUs = C.TIME_UNSET;
     firstPeriodId = 0;
     periodsById.clear();
+    drmSessionManager.release();
   }
 
   // PlayerEmsgCallback callbacks.
