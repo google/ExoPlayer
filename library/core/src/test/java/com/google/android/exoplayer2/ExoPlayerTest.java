@@ -3097,6 +3097,37 @@ public final class ExoPlayerTest {
   }
 
   @Test
+  public void testMultipleModificationWithRecursiveListenerInvocations() throws Exception {
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    MediaSource mediaSource = new FakeMediaSource(timeline);
+    Timeline secondTimeline = new FakeTimeline(/* windowCount= */ 2);
+    MediaSource secondMediaSource = new FakeMediaSource(secondTimeline);
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("testMultipleModificationWithRecursiveListenerInvocations")
+            .waitForTimelineChanged(timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
+            .clearMediaItems()
+            .setMediaItems(secondMediaSource)
+            .build();
+    ExoPlayerTestRunner exoPlayerTestRunner =
+        new Builder()
+            .setMediaSources(mediaSource)
+            .setActionSchedule(actionSchedule)
+            .build(context)
+            .start()
+            .blockUntilActionScheduleFinished(TIMEOUT_MS)
+            .blockUntilEnded(TIMEOUT_MS);
+
+    exoPlayerTestRunner.assertTimelinesSame(
+        dummyTimeline, timeline, Timeline.EMPTY, dummyTimeline, secondTimeline);
+    exoPlayerTestRunner.assertTimelineChangeReasonsEqual(
+        Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
+        Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE,
+        Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
+        Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
+        Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
+  }
+
+  @Test
   public void testPrepareWhenAlreadyPreparedIsANoop() throws Exception {
     Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
     ActionSchedule actionSchedule =

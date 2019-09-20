@@ -308,13 +308,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
           /* fromIndex= */ 0, /* toIndexExclusive= */ mediaSourceHolders.size());
     }
     List<Playlist.MediaSourceHolder> holders = addMediaSourceHolders(/* index= */ 0, mediaItems);
-    maskTimeline();
+    Timeline timeline = maskTimeline();
     internalPlayer.setMediaItems(
         holders, startWindowIndex, C.msToUs(startPositionMs), shuffleOrder);
     notifyListeners(
-        listener ->
-            listener.onTimelineChanged(
-                playbackInfo.timeline, TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED));
+        listener -> listener.onTimelineChanged(timeline, TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED));
   }
 
   @Override
@@ -337,12 +335,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
     Assertions.checkArgument(index >= 0);
     pendingOperationAcks++;
     List<Playlist.MediaSourceHolder> holders = addMediaSourceHolders(index, mediaSources);
-    maskTimeline();
+    Timeline timeline = maskTimeline();
     internalPlayer.addMediaItems(index, holders, shuffleOrder);
     notifyListeners(
-        listener ->
-            listener.onTimelineChanged(
-                playbackInfo.timeline, TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED));
+        listener -> listener.onTimelineChanged(timeline, TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED));
   }
 
   @Override
@@ -374,12 +370,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
     pendingOperationAcks++;
     newFromIndex = Math.min(newFromIndex, mediaSourceHolders.size() - (toIndex - fromIndex));
     Playlist.moveMediaSourceHolders(mediaSourceHolders, fromIndex, toIndex, newFromIndex);
-    maskTimeline();
+    Timeline timeline = maskTimeline();
     internalPlayer.moveMediaItems(fromIndex, toIndex, newFromIndex, shuffleOrder);
     notifyListeners(
-        listener ->
-            listener.onTimelineChanged(
-                playbackInfo.timeline, TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED));
+        listener -> listener.onTimelineChanged(timeline, TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED));
   }
 
   @Override
@@ -394,12 +388,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
   public void setShuffleOrder(ShuffleOrder shuffleOrder) {
     pendingOperationAcks++;
     this.shuffleOrder = shuffleOrder;
-    maskTimeline();
+    Timeline timeline = maskTimeline();
     internalPlayer.setShuffleOrder(shuffleOrder);
     notifyListeners(
-        listener ->
-            listener.onTimelineChanged(
-                playbackInfo.timeline, TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED));
+        listener -> listener.onTimelineChanged(timeline, TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED));
   }
 
   @Override
@@ -879,12 +871,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
     pendingOperationAcks++;
     List<Playlist.MediaSourceHolder> mediaSourceHolders =
         removeMediaSourceHolders(fromIndex, /* toIndexExclusive= */ toIndex);
-    maskTimeline();
+    Timeline timeline = maskTimeline();
     internalPlayer.removeMediaItems(fromIndex, toIndex, shuffleOrder);
     notifyListeners(
-        listener ->
-            listener.onTimelineChanged(
-                playbackInfo.timeline, TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED));
+        listener -> listener.onTimelineChanged(timeline, TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED));
     return mediaSourceHolders;
   }
 
@@ -898,12 +888,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
     return removed;
   }
 
-  private void maskTimeline() {
+  private Timeline maskTimeline() {
     playbackInfo =
         playbackInfo.copyWithTimeline(
             mediaSourceHolders.isEmpty()
                 ? Timeline.EMPTY
                 : new Playlist.PlaylistTimeline(mediaSourceHolders, shuffleOrder));
+    return playbackInfo.timeline;
   }
 
   private void notifyListeners(ListenerInvocation listenerInvocation) {
