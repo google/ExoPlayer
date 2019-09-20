@@ -1,6 +1,6 @@
 # Release notes #
 
-### 2.10.5 ###
+### 2.10.5 (TODO: add date) ###
 
 * Add `Player.isPlaying` and `EventListener.onIsPlayingChanged` to check whether
   the playback position is advancing. This helps to determine if playback is
@@ -43,7 +43,7 @@
 * IMA extension: Fix crash in `ImaAdsLoader.onTimelineChanged`
   ([#5831](https://github.com/google/ExoPlayer/issues/5831)).
 
-### 2.10.4 ###
+### 2.10.4 (2019-07-26) ###
 
 * Offline: Add `Scheduler` implementation that uses `WorkManager`.
 * Add ability to specify a description when creating notification channels via
@@ -74,7 +74,7 @@
   after manual selection changes for other renderers
   ([#6256](https://github.com/google/ExoPlayer/issues/6256)).
 
-### 2.10.3 ###
+### 2.10.3 (2019-07-09) ###
 
 * Display last frame when seeking to end of stream
   ([#2568](https://github.com/google/ExoPlayer/issues/2568)).
@@ -93,7 +93,7 @@
 * MediaSession extension: Fix `MediaSessionConnector.play()` not resuming
   playback ([#6093](https://github.com/google/ExoPlayer/issues/6093)).
 
-### 2.10.2 ###
+### 2.10.2 (2019-06-03) ###
 
 * Add `ResolvingDataSource` for just-in-time resolution of `DataSpec`s
   ([#5779](https://github.com/google/ExoPlayer/issues/5779)).
@@ -143,7 +143,7 @@
 * Fix bug in `CastPlayer.getCurrentWindowIndex()`
   ([#5955](https://github.com/google/ExoPlayer/issues/5955)).
 
-### 2.10.1 ###
+### 2.10.1 (2019-05-16) ###
 
 * Offline: Add option to remove all downloads.
 * HLS: Fix `NullPointerException` when using HLS chunkless preparation
@@ -155,7 +155,7 @@
 * Add a workaround for a decoder failure on ZTE Axon7 mini devices when playing
   48kHz audio ([#5821](https://github.com/google/ExoPlayer/issues/5821)).
 
-### 2.10.0 ###
+### 2.10.0 (2019-04-15) ###
 
 * Core library:
   * Improve decoder re-use between playbacks
@@ -279,7 +279,7 @@
   diagnosing playback failures
   ([#5788](https://github.com/google/ExoPlayer/issues/5788)).
 
-### 2.9.6 ###
+### 2.9.6 (2019-02-19) ###
 
 * Remove `player` and `isTopLevelSource` parameters from `MediaSource.prepare`.
 * IMA extension:
@@ -302,7 +302,7 @@
   may cause problems for some devices and/or non-interlaced content
   ([#5003](https://github.com/google/ExoPlayer/issues/5003)).
 
-### 2.9.5 ###
+### 2.9.5 (2019-01-31) ###
 
 * HLS: Parse `CHANNELS` attribute from `EXT-X-MEDIA` tag.
 * ConcatenatingMediaSource:
@@ -319,7 +319,7 @@
 * MP3: Wider fix for issue where streams would play twice on some Samsung
   devices ([#4519](https://github.com/google/ExoPlayer/issues/4519)).
 
-### 2.9.4 ###
+### 2.9.4 (2019-01-15) ###
 
 * IMA extension: Clear ads loader listeners on release
   ([#4114](https://github.com/google/ExoPlayer/issues/4114)).
@@ -348,7 +348,7 @@
 * Fix issue where uneven track durations in MP4 streams can cause OOM problems
   ([#3670](https://github.com/google/ExoPlayer/issues/3670)).
 
-### 2.9.3 ###
+### 2.9.3 (2018-12-20) ###
 
 * Captions: Support PNG subtitles in SMPTE-TT
   ([#1583](https://github.com/google/ExoPlayer/issues/1583)).
@@ -367,7 +367,7 @@
 * Workaround for MiTV (dangal) issue when swapping output surface
   ([#5169](https://github.com/google/ExoPlayer/issues/5169)).
 
-### 2.9.2 ###
+### 2.9.2 (2018-11-28) ###
 
 * HLS:
   * Fix issue causing unnecessary media playlist requests when playing live
@@ -394,7 +394,7 @@
   ([#5162](https://github.com/google/ExoPlayer/issues/5162)).
 * Fix UUID passed to `MediaCrypto` when using `C.CLEARKEY_UUID` before API 27.
 
-### 2.9.1 ###
+### 2.9.1 (2018-11-01) ###
 
 * Add convenience methods `Player.next`, `Player.previous`, `Player.hasNext`
   and `Player.hasPrevious`
@@ -446,7 +446,7 @@
 * Swap recommended order for google() and jcenter() in gradle config
   ([#4997](https://github.com/google/ExoPlayer/issues/4997)).
 
-### 2.9.0 ###
+### 2.9.0 (2018-09-06) ###
 
 * Turn on Java 8 compiler support for the ExoPlayer library. Apps may need to
   add `compileOptions { targetCompatibility JavaVersion.VERSION_1_8 }` to their
@@ -608,13 +608,13 @@
 * Cronet extension: Now distributed via jCenter.
 * FFmpeg extension: Support mu-law and A-law PCM.
 
-### 2.8.4 ###
+### 2.8.4 (2018-08-17) ###
 
 * IMA extension: Improve handling of consecutive empty ad groups
   ([#4030](https://github.com/google/ExoPlayer/issues/4030)),
   ([#4280](https://github.com/google/ExoPlayer/issues/4280)).
 
-### 2.8.3 ###
+### 2.8.3 (2018-07-23) ###
 
 * IMA extension:
   * Fix behavior when creating/releasing the player then releasing
@@ -657,7 +657,7 @@
   ([#4611](https://github.com/google/ExoPlayer/issues/4611)).
 * Improved compatibility with FireOS devices.
 
-### 2.8.2 ###
+### 2.8.2 (2018-06-06) ###
 
 * IMA extension: Don't advertise support for video/mpeg ad media, as we don't
   have an extractor for this
@@ -684,7 +684,7 @@
 * Allow apps to register custom MIME types
   ([#4264](https://github.com/google/ExoPlayer/issues/4264)).
 
-### 2.8.1 ###
+### 2.8.1 (2018-05-22) ###
 
 * HLS:
   * Fix playback of livestreams with EXT-X-PROGRAM-DATE-TIME tags
@@ -717,7 +717,7 @@
     * Support TTML font size using % correctly (as percentage of document cell
       resolution).
 
-### 2.8.0 ###
+### 2.8.0 (2018-05-03) ###
 
 * Downloading:
   * Add `DownloadService`, `DownloadManager` and related classes
@@ -831,12 +831,12 @@
   `BaseRenderer.onStreamChanged`.
 * Added dependencies on checkerframework annotations for static code analysis.
 
-### 2.7.3 ###
+### 2.7.3 (2018-04-04) ###
 
 * Fix ProGuard configuration for Cast, IMA and OkHttp extensions.
 * Update OkHttp extension to depend on OkHttp 3.10.0.
 
-### 2.7.2 ###
+### 2.7.2 (2018-03-29) ###
 
 * Gradle: Upgrade Gradle version from 4.1 to 4.4 so it can work with Android
   Studio 3.1 ([#3708](https://github.com/google/ExoPlayer/issues/3708)).
@@ -850,7 +850,7 @@
 * MediaSession extension: Omit fast forward and rewind actions when media is not
   seekable ([#4001](https://github.com/google/ExoPlayer/issues/4001)).
 
-### 2.7.1 ###
+### 2.7.1 (2018-03-09) ###
 
 * Gradle: Replaced 'compile' (deprecated) with 'implementation' and
   'api'. This may lead to build breakage for applications upgrading from
@@ -870,7 +870,7 @@
 * Video: Force rendering a frame periodically in `MediaCodecVideoRenderer` and
   `LibvpxVideoRenderer`, even if it is late.
 
-### 2.7.0 ###
+### 2.7.0 (2018-02-19) ###
 
 * Player interface:
   * Add optional parameter to `stop` to reset the player when stopping.
@@ -996,7 +996,7 @@
   ([#3340](https://github.com/google/ExoPlayer/issues/3340)).
 * Demo app: Add ability to download not DRM protected content.
 
-### 2.6.1 ###
+### 2.6.1 (2017-12-15) ###
 
 * Add factories to `ExtractorMediaSource`, `HlsMediaSource`, `SsMediaSource`,
   `DashMediaSource` and `SingleSampleMediaSource`.
@@ -1040,7 +1040,7 @@
 * Prevent period transitions when seeking to the end of a period when paused
   ([#2439](https://github.com/google/ExoPlayer/issues/2439)).
 
-### 2.6.0 ###
+### 2.6.0 (2017-11-03) ###
 
 * Removed "r" prefix from versions. This release is "2.6.0", not "r2.6.0".
 * New `Player.DefaultEventListener` abstract class can be extended to avoid
@@ -1110,7 +1110,7 @@
 * Unit tests moved to Robolectric.
 * Misc bugfixes.
 
-### r2.5.4 ###
+### r2.5.4 (2017-10-19) ###
 
 * Remove unnecessary media playlist fetches during playback of live HLS streams.
 * Add the ability to inject a HLS playlist parser through `HlsMediaSource`.
@@ -1128,7 +1128,7 @@
   `FrameworkMediaCrypto` and by making `DefaultDashChunkSource.getNextChunk`
   non-final.
 
-### r2.5.3 ###
+### r2.5.3 (2017-09-20) ###
 
 * IMA extension: Support skipping of skippable ads on AndroidTV and other
   non-touch devices ([#3258](https://github.com/google/ExoPlayer/issues/3258)).
@@ -1143,7 +1143,7 @@
 * Caching: Force use of BouncyCastle on JellyBean to fix decryption issue
   ([#2755](https://github.com/google/ExoPlayer/issues/2755)).
 
-### r2.5.2 ###
+### r2.5.2 (2017-09-11) ###
 
 * IMA extension: Fix issue where ad playback could end prematurely for some
   content types ([#3180](https://github.com/google/ExoPlayer/issues/3180)).
@@ -1169,14 +1169,14 @@
 * Workaround for SimpleExoPlayerView's surface not being hidden properly
   ([#3160](https://github.com/google/ExoPlayer/issues/3160)).
 
-### r2.5.1 ###
+### r2.5.1 (2017-08-08) ###
 
 * Fix an issue that could cause the reported playback position to stop advancing
   in some cases.
 * Fix an issue where a Surface could be released whilst still in use by the
   player.
 
-### r2.5.0 ###
+### r2.5.0 (2017-08-07) ###
 
 * IMA extension: Wraps the Google Interactive Media Ads (IMA) SDK to provide an
   easy and seamless way of incorporating display ads into ExoPlayer playbacks.
@@ -1230,7 +1230,7 @@
   media playbacks ([#2900](https://github.com/google/ExoPlayer/issues/2900)).
 * Misc bugfixes.
 
-### r2.4.4 ###
+### r2.4.4 (2017-07-19) ###
 
 * HLS/MPEG-TS: Some initial optimizations of MPEG-TS extractor performance
   ([#3040](https://github.com/google/ExoPlayer/issues/3040)).
@@ -1241,7 +1241,7 @@
 * Video: Fix video dimension reporting on some devices
   ([#3007](https://github.com/google/ExoPlayer/issues/3007)).
 
-### r2.4.3 ###
+### r2.4.3 (2017-06-30) ###
 
 * Audio: Workaround custom audio decoders misreporting their maximum supported
   channel counts ([#2940](https://github.com/google/ExoPlayer/issues/2940)).
@@ -1259,7 +1259,7 @@
   ([#2977](https://github.com/google/ExoPlayer/pull/2977)).
 * Misc bugfixes.
 
-### r2.4.2 ###
+### r2.4.2 (2017-06-06) ###
 
 * Stability: Work around Nexus 10 reboot when playing certain content
   ([#2806](https://github.com/google/ExoPlayer/issues/2806)).
@@ -1273,7 +1273,7 @@
   ([#2871](https://github.com/google/ExoPlayer/issues/2871)).
 * Misc bugfixes.
 
-### r2.4.1 ###
+### r2.4.1 (2017-05-23) ###
 
 * Stability: Avoid OutOfMemoryError in extractors when parsing malformed media
   ([#2780](https://github.com/google/ExoPlayer/issues/2780)).
@@ -1296,7 +1296,7 @@
   ([#2824](https://github.com/google/ExoPlayer/issues/2824)).
 * Misc bugfixes.
 
-### r2.4.0 ###
+### r2.4.0 (2017-04-25) ###
 
 * New modular library structure. You can read more about depending on individual
   library modules
@@ -1329,7 +1329,7 @@
 * FLAC extension: Enabled 64 bit targets.
 * Misc bugfixes.
 
-### r2.3.1 ###
+### r2.3.1 (2017-03-23) ###
 
 * Fix NPE enabling WebVTT subtitles in DASH streams
   ([#2596](https://github.com/google/ExoPlayer/issues/2596)).
@@ -1338,7 +1338,7 @@
 * Minor fix for CEA-708 decoder
   ([#2595](https://github.com/google/ExoPlayer/issues/2595)).
 
-### r2.3.0 ###
+### r2.3.0 (2017-03-16) ###
 
 * GVR extension: Wraps the Google VR Audio SDK to provide spatial audio
   rendering. You can read more about the GVR extension
@@ -1385,7 +1385,7 @@
   ([#2427](https://github.com/google/ExoPlayer/issues/2427)).
 * Misc bugfixes.
 
-### r2.2.0 ###
+### r2.2.0 (2017-01-30) ###
 
 * Demo app: Automatic recovery from BehindLiveWindowException, plus improved
   handling of pausing and resuming live streams
@@ -1448,7 +1448,7 @@
   [#2264](https://github.com/google/ExoPlayer/issues/2264) and
   [#2290](https://github.com/google/ExoPlayer/issues/2290).
 
-### r2.1.1 ###
+### r2.1.1 (2016-12-20) ###
 
 * Fix some subtitle types (e.g. WebVTT) being displayed out of sync
   ([#2208](https://github.com/google/ExoPlayer/issues/2208)).
@@ -1458,7 +1458,7 @@
 * Fix issue where playbacks could get stuck in the initial buffering state if
   over 1MB of data needs to be read to initialize the playback.
 
-### r2.1.0 ###
+### r2.1.0 (2016-12-14) ###
 
 * HLS: Support for seeking in live streams
   ([#87](https://github.com/google/ExoPlayer/issues/87)).
@@ -1512,12 +1512,12 @@
   ([#2145](https://github.com/google/ExoPlayer/issues/2145)).
 * Misc bugfixes.
 
-### r2.0.4 ###
+### r2.0.4 (2016-10-20) ###
 
 * Fix crash on Jellybean devices when using playback controls
   ([#1965](https://github.com/google/ExoPlayer/issues/1965)).
 
-### r2.0.3 ###
+### r2.0.3 (2016-10-17) ###
 
 * Fixed NullPointerException in ExtractorMediaSource
   ([#1914](https://github.com/google/ExoPlayer/issues/1914)).
@@ -1534,7 +1534,7 @@
 * Improvements to Cronet network stack extension.
 * Misc bug fixes.
 
-### r2.0.2 ###
+### r2.0.2 (2016-10-06) ###
 
 * Fixes for MergingMediaSource and sideloaded subtitles.
   ([#1882](https://github.com/google/ExoPlayer/issues/1882),
@@ -1545,7 +1545,7 @@
 * Initial support for fragmented MP4 in HLS.
 * Misc bug fixes and minor features.
 
-### r2.0.1 ###
+### r2.0.1 (2016-09-30) ###
 
 * Fix playback of short duration content
   ([#1837](https://github.com/google/ExoPlayer/issues/1837)).
@@ -1554,7 +1554,7 @@
 * Fix live stream buffering (out of memory) issue
   ([#1825](https://github.com/google/ExoPlayer/issues/1825)).
 
-### r2.0.0 ###
+### r2.0.0 (2016-09-14) ###
 
 ExoPlayer 2.x is a major iteration of the library. It includes significant API
 and architectural changes, new features and many bug fixes. You can read about
