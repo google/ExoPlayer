@@ -127,7 +127,7 @@ import java.util.Set;
   private Format downstreamTrackFormat;
   private boolean released;
 
-  // Tracks are complicated in HLS. See documentation of buildTracks for details.
+  // Tracks are complicated in HLS. See documentation of buildTracksFromSampleStreams for details.
   // Indexed by track (as exposed by this source).
   private TrackGroupArray trackGroups;
   private Set<TrackGroup> optionalTrackGroups;
@@ -815,42 +815,15 @@ import java.util.Set;
     int trackCount = sampleQueues.length;
 
     // Audio and video tracks are handled manually to ignore ids.
-    if (type == C.TRACK_TYPE_AUDIO) {
-      if (audioSampleQueueIndex != C.INDEX_UNSET) {
-        if (audioSampleQueueMappingDone) {
-          return sampleQueueTrackIds[audioSampleQueueIndex] == id
-              ? sampleQueues[audioSampleQueueIndex]
-              : createDummyTrackOutput(id, type);
-        }
-        audioSampleQueueMappingDone = true;
-        sampleQueueTrackIds[audioSampleQueueIndex] = id;
-        return sampleQueues[audioSampleQueueIndex];
-      } else if (tracksEnded) {
-        return createDummyTrackOutput(id, type);
-      }
-    } else if (type == C.TRACK_TYPE_VIDEO) {
-      if (videoSampleQueueIndex != C.INDEX_UNSET) {
-        if (videoSampleQueueMappingDone) {
-          return sampleQueueTrackIds[videoSampleQueueIndex] == id
-              ? sampleQueues[videoSampleQueueIndex]
-              : createDummyTrackOutput(id, type);
-        }
-        videoSampleQueueMappingDone = true;
-        sampleQueueTrackIds[videoSampleQueueIndex] = id;
-        return sampleQueues[videoSampleQueueIndex];
-      } else if (tracksEnded) {
-        return createDummyTrackOutput(id, type);
-      }
-    } else /* sparse track */ {
-      for (int i = 0; i < trackCount; i++) {
-        if (sampleQueueTrackIds[i] == id) {
-          return sampleQueues[i];
-        }
-      }
-      if (tracksEnded) {
-        return createDummyTrackOutput(id, type);
-      }
+    @Nullable TrackOutput mappedTrack = maybeMapAndGetSampleQueue(id, type);
+    if (mappedTrack != null) {
+      return mappedTrack;
     }
+    if (tracksEnded) {
+      return createDummyTrackOutput(id, type);
+    }
+
+    // The relevant SampleQueue hasn't been constructed yet - so construct it:
     SampleQueue trackOutput = new FormatAdjustingSampleQueue(allocator, overridingDrmInitData);
     trackOutput.setSampleOffsetUs(sampleOffsetUs);
     trackOutput.sourceId(chunkUid);
@@ -879,6 +852,31 @@ import java.util.Set;
     }
     sampleQueuesEnabledStates = Arrays.copyOf(sampleQueuesEnabledStates, trackCount + 1);
     return trackOutput;
+  }
+
+  @Nullable
+  private TrackOutput maybeMapAndGetSampleQueue(int id, int type) {
+    int sampleQueueIndex;
+    boolean sampleQueueMappingDone;
+    if (type == C.TRACK_TYPE_AUDIO && audioSampleQueueIndex != C.INDEX_UNSET) {
+      sampleQueueIndex = audioSampleQueueIndex;
+      sampleQueueMappingDone = audioSampleQueueMappingDone;
+      audioSampleQueueMappingDone = true;
+    } else if (type == C.TRACK_TYPE_VIDEO && videoSampleQueueIndex != C.INDEX_UNSET) {
+      sampleQueueIndex = videoSampleQueueIndex;
+      sampleQueueMappingDone = videoSampleQueueMappingDone;
+      videoSampleQueueMappingDone = true;
+    } else {
+      return null;
+    }
+
+    if (sampleQueueMappingDone) {
+      return sampleQueueTrackIds[sampleQueueIndex] == id
+          ? sampleQueues[sampleQueueIndex]
+          : createDummyTrackOutput(id, type);
+    } else {
+      return sampleQueues[sampleQueueIndex];
+    }
   }
 
   @Override
