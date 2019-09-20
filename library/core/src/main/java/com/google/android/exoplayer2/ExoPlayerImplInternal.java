@@ -690,7 +690,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
     long operationStartTimeMs = clock.uptimeMillis();
     updatePeriods();
 
-    MediaPeriodHolder playingPeriodHolder = queue.getPlayingPeriod();
+    if (playbackInfo.playbackState == Player.STATE_IDLE
+        || playbackInfo.playbackState == Player.STATE_ENDED) {
+      // Remove all messages. Prepare (in case of IDLE) or seek (in case of ENDED) will resume.
+      handler.removeMessages(MSG_DO_SOME_WORK);
+      return;
+    }
+
+    @Nullable MediaPeriodHolder playingPeriodHolder = queue.getPlayingPeriod();
     if (playingPeriodHolder == null) {
       // We're still waiting until the playing period is available.
       scheduleNextWork(operationStartTimeMs, ACTIVE_INTERVAL_MS);
@@ -870,7 +877,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
       throws ExoPlaybackException {
     stopRenderers();
     rebuffering = false;
-    setState(Player.STATE_BUFFERING);
+    if (playbackInfo.playbackState != Player.STATE_IDLE && !playbackInfo.timeline.isEmpty()) {
+      setState(Player.STATE_BUFFERING);
+    }
 
     // Clear the timeline, but keep the requested period if it is already prepared.
     MediaPeriodHolder oldPlayingPeriodHolder = queue.getPlayingPeriod();
@@ -1511,7 +1520,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   private void handleSourceInfoRefreshEndedPlayback() {
-    setState(Player.STATE_ENDED);
+    if (playbackInfo.playbackState != Player.STATE_IDLE) {
+      setState(Player.STATE_ENDED);
+    }
     // Reset, but retain the playlist so that it can still be used should a seek occur.
     resetInternal(
         /* resetRenderers= */ false,
