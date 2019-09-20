@@ -475,6 +475,13 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     // Text
 
     @Override
+    public ParametersBuilder setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettings(
+        Context context) {
+      super.setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettings(context);
+      return this;
+    }
+
+    @Override
     public ParametersBuilder setPreferredTextLanguage(@Nullable String preferredTextLanguage) {
       super.setPreferredTextLanguage(preferredTextLanguage);
       return this;
@@ -499,6 +506,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       super.setDisabledTextTrackSelectionFlags(disabledTextTrackSelectionFlags);
       return this;
     }
+
     // General
 
     /**
@@ -757,6 +765,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * <ul>
      *   <li>{@link ParametersBuilder#setViewportSizeToPhysicalDisplaySize(Context, boolean)
      *       Viewport constraints} configured for the primary display.
+     *   <li>{@link
+     *       ParametersBuilder#setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettings(Context)
+     *       Preferred text language and role flags} configured to the accessibility settings of
+     *       {@link android.view.accessibility.CaptioningManager}.
      * </ul>
      */
     public static final Parameters DEFAULT_WITHOUT_CONTEXT = new Parameters();
@@ -778,6 +790,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       return DEFAULT_WITHOUT_CONTEXT
           .buildUpon()
           .setViewportSizeToPhysicalDisplaySize(context, /* viewportOrientationMayChange= */ true)
+          .setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettings(context)
           .build();
     }
 
@@ -932,7 +945,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           /* viewportHeight= */ Integer.MAX_VALUE,
           /* viewportOrientationMayChange= */ true,
           // Audio
-          TrackSelectionParameters.DEFAULT.preferredAudioLanguage,
+          TrackSelectionParameters.DEFAULT_WITHOUT_CONTEXT.preferredAudioLanguage,
           /* maxAudioChannelCount= */ Integer.MAX_VALUE,
           /* maxAudioBitrate= */ Integer.MAX_VALUE,
           /* exceedAudioConstraintsIfNecessary= */ true,
@@ -940,10 +953,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           /* allowAudioMixedSampleRateAdaptiveness= */ false,
           /* allowAudioMixedChannelCountAdaptiveness= */ false,
           // Text
-          TrackSelectionParameters.DEFAULT.preferredTextLanguage,
-          TrackSelectionParameters.DEFAULT.preferredTextRoleFlags,
-          TrackSelectionParameters.DEFAULT.selectUndeterminedTextLanguage,
-          TrackSelectionParameters.DEFAULT.disabledTextTrackSelectionFlags,
+          TrackSelectionParameters.DEFAULT_WITHOUT_CONTEXT.preferredTextLanguage,
+          TrackSelectionParameters.DEFAULT_WITHOUT_CONTEXT.preferredTextRoleFlags,
+          TrackSelectionParameters.DEFAULT_WITHOUT_CONTEXT.selectUndeterminedTextLanguage,
+          TrackSelectionParameters.DEFAULT_WITHOUT_CONTEXT.disabledTextTrackSelectionFlags,
           // General
           /* forceLowestBitrate= */ false,
           /* forceHighestSupportedBitrate= */ false,

@@ -460,6 +460,20 @@ public final class Util {
   }
 
   /**
+   * Returns the language tag for a {@link Locale}.
+   *
+   * <p>For API levels &ge; 21, this tag is IETF BCP 47 compliant. Use {@link
+   * #normalizeLanguageCode(String)} to retrieve a normalized IETF BCP 47 language tag for all API
+   * levels if needed.
+   *
+   * @param locale A {@link Locale}.
+   * @return The language tag.
+   */
+  public static String getLocaleLanguageTag(Locale locale) {
+    return SDK_INT >= 21 ? getLocaleLanguageTagV21(locale) : locale.toString();
+  }
+
+  /**
    * Returns a normalized IETF BCP 47 language tag for {@code language}.
    *
    * @param language A case-insensitive language code supported by {@link
@@ -1963,7 +1977,7 @@ public final class Util {
     Configuration config = Resources.getSystem().getConfiguration();
     return SDK_INT >= 24
         ? getSystemLocalesV24(config)
-        : SDK_INT >= 21 ? getSystemLocaleV21(config) : new String[] {config.locale.toString()};
+        : new String[] {getLocaleLanguageTag(config.locale)};
   }
 
   @TargetApi(24)
@@ -1972,8 +1986,8 @@ public final class Util {
   }
 
   @TargetApi(21)
-  private static String[] getSystemLocaleV21(Configuration config) {
-    return new String[] {config.locale.toLanguageTag()};
+  private static String getLocaleLanguageTagV21(Locale locale) {
+    return locale.toLanguageTag();
   }
 
   @TargetApi(21)

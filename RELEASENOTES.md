@@ -36,6 +36,11 @@
 * Set `compileSdkVersion` to 29 to use Android Q APIs.
 * Add `enable` and `disable` methods to `MediaSource` to improve resource
   management in playlists.
+* Text selection logic:
+  * Allow to set preferred role flags using
+    `DefaultTrackSelector.ParametersBuilder.setPreferredTextRoleFlags`.
+  * Default text language and role flags to accessibility captioning settings
+    ([#5749](https://github.com/google/ExoPlayer/issues/5749)).
 * Remove `AnalyticsCollector.Factory`. Instances can be created directly and
   the `Player` set later using `AnalyticsCollector.setPlayer`.
 * Replace `ExoPlayerFactory` by `SimpleExoPlayer.Builder` and
