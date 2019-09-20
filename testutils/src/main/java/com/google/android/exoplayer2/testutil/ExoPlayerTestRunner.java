@@ -400,12 +400,23 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
 
   /**
    * Starts the test runner on its own thread. This will trigger the creation of the player, the
-   * listener registration, the start of the action schedule, and the preparation of the player
-   * with the provided media source.
+   * listener registration, the start of the action schedule, the initial set of media items and the
+   * preparation of the player.
    *
    * @return This test runner.
    */
   public ExoPlayerTestRunner start() {
+    return start(/* doPrepare= */ true);
+  }
+
+  /**
+   * Starts the test runner on its own thread. This will trigger the creation of the player, the
+   * listener registration, the start of the action schedule and the initial set of media items.
+   *
+   * @param doPrepare Whether the player should be prepared.
+   * @return This test runner.
+   */
+  public ExoPlayerTestRunner start(boolean doPrepare) {
     handler.post(
         () -> {
           try {
@@ -424,7 +435,9 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
               actionSchedule.start(player, trackSelector, null, handler, ExoPlayerTestRunner.this);
             }
             player.setMediaItems(mediaSources, /* resetPosition= */ false);
-            player.prepare();
+            if (doPrepare) {
+              player.prepare();
+            }
           } catch (Exception e) {
             handleException(e);
           }

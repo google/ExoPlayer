@@ -192,6 +192,27 @@ public abstract class Action {
     }
   }
 
+  /** Calls {@link SimpleExoPlayer#addMediaItems(List)}. */
+  public static final class AddMediaItems extends Action {
+
+    private final MediaSource[] mediaSources;
+
+    /**
+     * @param tag A tag to use for logging.
+     * @param mediaSources The media sources to be added to the playlist.
+     */
+    public AddMediaItems(String tag, MediaSource... mediaSources) {
+      super(tag, /* description= */ "AddMediaItems");
+      this.mediaSources = mediaSources;
+    }
+
+    @Override
+    protected void doActionImpl(
+        SimpleExoPlayer player, DefaultTrackSelector trackSelector, Surface surface) {
+      player.addMediaItems(Arrays.asList(mediaSources));
+    }
+  }
+
   /** Calls {@link SimpleExoPlayer#setMediaItems(List, boolean)}. */
   public static final class SetMediaItemsResetPosition extends Action {
 

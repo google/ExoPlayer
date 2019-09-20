@@ -341,12 +341,22 @@ public final class ActionSchedule {
     /**
      * Schedules a set media items action to be executed.
      *
+     * @param mediaSources The media sources to add.
      * @return The builder, for convenience.
      */
-    public Builder setMediaItems(MediaSource... sources) {
+    public Builder setMediaItems(MediaSource... mediaSources) {
       return apply(
           new Action.SetMediaItems(
-              tag, /* windowIndex */ C.INDEX_UNSET, /* positionUs */ C.TIME_UNSET, sources));
+              tag, /* windowIndex= */ C.INDEX_UNSET, /* positionMs= */ C.TIME_UNSET, mediaSources));
+    }
+    /**
+     * Schedules a add media items action to be executed.
+     *
+     * @param mediaSources The media sources to add.
+     * @return The builder, for convenience.
+     */
+    public Builder addMediaItems(MediaSource... mediaSources) {
+      return apply(new Action.AddMediaItems(tag, mediaSources));
     }
 
     /**
@@ -595,9 +605,7 @@ public final class ActionSchedule {
     }
   }
 
-  /**
-   * Wraps an {@link Action}, allowing a delay and a next {@link Action} to be specified.
-   */
+  /** Wraps an {@link Action}, allowing a delay and a next {@link Action} to be specified. */
   /* package */ static final class ActionNode implements Runnable {
 
     private final Action action;
