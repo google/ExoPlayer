@@ -26,6 +26,8 @@
   * Support unwrapping of nested metadata (e.g. ID3 and SCTE-35 in EMSG).
 * Add `HttpDataSource.getResponseCode` to provide the status code associated
   with the most recent HTTP response.
+* Fix transitions between packed audio and non-packed audio segments in HLS
+  ([#6444](https://github.com/google/ExoPlayer/issues/6444)).
 * Fix issue where a request would be retried after encountering an error, even
   though the `LoadErrorHandlingPolicy` classified the error as fatal.
 * Fix initialization data handling for FLAC in MP4
