@@ -67,7 +67,7 @@
 * Add top-level playlist API
   ([#6161](https://github.com/google/ExoPlayer/issues/6161)).
 
-### 2.10.5 (TODO: add date) ###
+### 2.10.5 (2019-09-20) ###
 
 * Track selection
   * Add `allowAudioMixedChannelCountAdaptiveness` parameter to
