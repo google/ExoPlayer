@@ -252,6 +252,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
   @Override
   protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
     transferListener = mediaTransferListener;
+    drmSessionManager.prepare();
     notifySourceInfoRefreshed(timelineDurationUs, timelineIsSeekable);
   }
 
@@ -286,7 +287,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
 
   @Override
   protected void releaseSourceInternal() {
-    // Do nothing.
+    drmSessionManager.release();
   }
 
   // ProgressiveMediaPeriod.Listener implementation.
