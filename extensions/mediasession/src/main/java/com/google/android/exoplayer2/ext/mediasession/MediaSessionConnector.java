@@ -737,7 +737,6 @@ public final class MediaSessionConnector {
         queueNavigator != null
             ? queueNavigator.getActiveQueueItemId(player)
             : MediaSessionCompat.QueueItem.UNKNOWN_ID;
-    extras.putFloat(EXTRAS_PITCH, player.getPlaybackParameters().pitch);
     PlaybackParameters playbackParameters = player.getPlaybackParameters();
     extras.putFloat(EXTRAS_SPEED, playbackParameters.speed);
     extras.putFloat(EXTRAS_PITCH, playbackParameters.pitch);
