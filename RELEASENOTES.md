@@ -59,16 +59,16 @@
   ([#6267](https://github.com/google/ExoPlayer/issues/6267)).
 * Add `uid` to `Timeline.Window` to uniquely identify window instances.
 * Fix Dolby Vision fallback to AVC and HEVC.
-* Add `Player.isPlaying` and `EventListener.onIsPlayingChanged` to check whether
-  the playback position is advancing. This helps to determine if playback is
-  suppressed due to audio focus loss. Also add
-  `Player.getPlaybackSuppressedReason` to determine the reason of the
-  suppression ([#6203](https://github.com/google/ExoPlayer/issues/6203)).
 * Add top-level playlist API
   ([#6161](https://github.com/google/ExoPlayer/issues/6161)).
 
 ### 2.10.5 (2019-09-20) ###
 
+* Add `Player.isPlaying` and `EventListener.onIsPlayingChanged` to check whether
+  the playback position is advancing. This helps to determine if playback is
+  suppressed due to audio focus loss. Also add
+  `Player.getPlaybackSuppressedReason` to determine the reason of the
+  suppression ([#6203](https://github.com/google/ExoPlayer/issues/6203)).
 * Track selection
   * Add `allowAudioMixedChannelCountAdaptiveness` parameter to
     `DefaultTrackSelector` to allow adaptive selections of audio tracks with
