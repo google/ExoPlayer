@@ -68,6 +68,13 @@ public final class DefaultAudioSinkTest {
   }
 
   @Test
+  public void handlesSpecializedAudioProcessorArray() {
+    defaultAudioSink =
+        new DefaultAudioSink(
+            AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES, new TeeAudioProcessor[0]);
+  }
+
+  @Test
   public void handlesBufferAfterReset() throws Exception {
     configureDefaultAudioSink(CHANNEL_COUNT_STEREO);
     defaultAudioSink.handleBuffer(createDefaultSilenceBuffer(), /* presentationTimeUs= */ 0);

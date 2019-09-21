@@ -359,7 +359,7 @@ public final class CacheUtil {
     }
   }
 
-  /*package*/ static boolean isCausedByPositionOutOfRange(IOException e) {
+  /* package */ static boolean isCausedByPositionOutOfRange(IOException e) {
     Throwable cause = e;
     while (cause != null) {
       if (cause instanceof DataSourceException) {

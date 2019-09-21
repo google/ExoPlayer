@@ -67,6 +67,25 @@ public class DefaultLoadControl implements LoadControl {
   /** The default for whether the back buffer is retained from the previous keyframe. */
   public static final boolean DEFAULT_RETAIN_BACK_BUFFER_FROM_KEYFRAME = false;
 
+  /** A default size in bytes for a video buffer. */
+  public static final int DEFAULT_VIDEO_BUFFER_SIZE = 500 * C.DEFAULT_BUFFER_SEGMENT_SIZE;
+
+  /** A default size in bytes for an audio buffer. */
+  public static final int DEFAULT_AUDIO_BUFFER_SIZE = 54 * C.DEFAULT_BUFFER_SEGMENT_SIZE;
+
+  /** A default size in bytes for a text buffer. */
+  public static final int DEFAULT_TEXT_BUFFER_SIZE = 2 * C.DEFAULT_BUFFER_SEGMENT_SIZE;
+
+  /** A default size in bytes for a metadata buffer. */
+  public static final int DEFAULT_METADATA_BUFFER_SIZE = 2 * C.DEFAULT_BUFFER_SEGMENT_SIZE;
+
+  /** A default size in bytes for a camera motion buffer. */
+  public static final int DEFAULT_CAMERA_MOTION_BUFFER_SIZE = 2 * C.DEFAULT_BUFFER_SEGMENT_SIZE;
+
+  /** A default size in bytes for a muxed buffer (e.g. containing video, audio and text). */
+  public static final int DEFAULT_MUXED_BUFFER_SIZE =
+      DEFAULT_VIDEO_BUFFER_SIZE + DEFAULT_AUDIO_BUFFER_SIZE + DEFAULT_TEXT_BUFFER_SIZE;
+
   /** Builder for {@link DefaultLoadControl}. */
   public static final class Builder {
 
@@ -404,7 +423,7 @@ public class DefaultLoadControl implements LoadControl {
     int targetBufferSize = 0;
     for (int i = 0; i < renderers.length; i++) {
       if (trackSelectionArray.get(i) != null) {
-        targetBufferSize += Util.getDefaultBufferSize(renderers[i].getTrackType());
+        targetBufferSize += getDefaultBufferSize(renderers[i].getTrackType());
       }
     }
     return targetBufferSize;
@@ -415,6 +434,27 @@ public class DefaultLoadControl implements LoadControl {
     isBuffering = false;
     if (resetAllocator) {
       allocator.reset();
+    }
+  }
+
+  private static int getDefaultBufferSize(int trackType) {
+    switch (trackType) {
+      case C.TRACK_TYPE_DEFAULT:
+        return DEFAULT_MUXED_BUFFER_SIZE;
+      case C.TRACK_TYPE_AUDIO:
+        return DEFAULT_AUDIO_BUFFER_SIZE;
+      case C.TRACK_TYPE_VIDEO:
+        return DEFAULT_VIDEO_BUFFER_SIZE;
+      case C.TRACK_TYPE_TEXT:
+        return DEFAULT_TEXT_BUFFER_SIZE;
+      case C.TRACK_TYPE_METADATA:
+        return DEFAULT_METADATA_BUFFER_SIZE;
+      case C.TRACK_TYPE_CAMERA_MOTION:
+        return DEFAULT_CAMERA_MOTION_BUFFER_SIZE;
+      case C.TRACK_TYPE_NONE:
+        return 0;
+      default:
+        throw new IllegalArgumentException();
     }
   }
 

@@ -168,6 +168,10 @@ public final class Format implements Parcelable {
 
   // Video.
 
+  /**
+   * @deprecated Use {@link #createVideoContainerFormat(String, String, String, String, String,
+   *     Metadata, int, int, int, float, List, int, int)} instead.
+   */
   @Deprecated
   public static Format createVideoContainerFormat(
       @Nullable String id,
@@ -186,6 +190,7 @@ public final class Format implements Parcelable {
         containerMimeType,
         sampleMimeType,
         codecs,
+        /* metadata= */ null,
         bitrate,
         width,
         height,
@@ -201,6 +206,7 @@ public final class Format implements Parcelable {
       @Nullable String containerMimeType,
       String sampleMimeType,
       String codecs,
+      @Nullable Metadata metadata,
       int bitrate,
       int width,
       int height,
@@ -215,7 +221,7 @@ public final class Format implements Parcelable {
         roleFlags,
         bitrate,
         codecs,
-        /* metadata= */ null,
+        metadata,
         containerMimeType,
         sampleMimeType,
         /* maxInputSize= */ NO_VALUE,
@@ -345,6 +351,10 @@ public final class Format implements Parcelable {
 
   // Audio.
 
+  /**
+   * @deprecated Use {@link #createAudioContainerFormat(String, String, String, String, String,
+   *     Metadata, int, int, int, List, int, int, String)} instead.
+   */
   @Deprecated
   public static Format createAudioContainerFormat(
       @Nullable String id,
@@ -363,6 +373,7 @@ public final class Format implements Parcelable {
         containerMimeType,
         sampleMimeType,
         codecs,
+        /* metadata= */ null,
         bitrate,
         channelCount,
         sampleRate,
@@ -378,6 +389,7 @@ public final class Format implements Parcelable {
       @Nullable String containerMimeType,
       @Nullable String sampleMimeType,
       @Nullable String codecs,
+      @Nullable Metadata metadata,
       int bitrate,
       int channelCount,
       int sampleRate,
@@ -392,7 +404,7 @@ public final class Format implements Parcelable {
         roleFlags,
         bitrate,
         codecs,
-        /* metadata= */ null,
+        metadata,
         containerMimeType,
         sampleMimeType,
         /* maxInputSize= */ NO_VALUE,

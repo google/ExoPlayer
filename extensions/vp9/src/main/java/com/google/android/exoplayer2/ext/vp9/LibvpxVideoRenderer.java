@@ -844,7 +844,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
       pendingFormat = null;
     }
     inputBuffer.flip();
-    inputBuffer.colorInfo = formatHolder.format.colorInfo;
+    inputBuffer.colorInfo = format.colorInfo;
     onQueueInputBuffer(inputBuffer);
     decoder.queueInputBuffer(inputBuffer);
     buffersInCodecCount++;

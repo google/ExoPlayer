@@ -21,7 +21,7 @@
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
   <uses-sdk/>
 
-  <application android:debuggable="true"
+  <application
       android:allowBackup="false"
       tools:ignore="MissingApplicationIcon,HardcodedDebugMode">
     <uses-library android:name="android.test.runner"/>

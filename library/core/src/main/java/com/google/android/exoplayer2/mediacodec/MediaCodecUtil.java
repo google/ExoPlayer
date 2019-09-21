@@ -146,8 +146,8 @@ public final class MediaCodecUtil {
    *     unless secure decryption really is required.
    * @param tunneling Whether the decoder is required to support tunneling. Always pass false unless
    *     tunneling really is required.
-   * @return A list of all {@link MediaCodecInfo}s for the given mime type, in the order given by
-   *     {@link MediaCodecList}.
+   * @return An unmodifiable list of all {@link MediaCodecInfo}s for the given mime type, in the
+   *     order given by {@link MediaCodecList}.
    * @throws DecoderQueryException If there was an error querying the available decoders.
    */
   public static synchronized List<MediaCodecInfo> getDecoderInfos(

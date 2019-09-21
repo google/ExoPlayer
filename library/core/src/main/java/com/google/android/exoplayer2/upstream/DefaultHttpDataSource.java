@@ -82,6 +82,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   private @Nullable HttpURLConnection connection;
   private @Nullable InputStream inputStream;
   private boolean opened;
+  private int responseCode;
 
   private long bytesToSkip;
   private long bytesToRead;
@@ -253,6 +254,11 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   }
 
   @Override
+  public int getResponseCode() {
+    return connection == null || responseCode <= 0 ? -1 : responseCode;
+  }
+
+  @Override
   public Map<String, List<String>> getResponseHeaders() {
     return connection == null ? Collections.emptyMap() : connection.getHeaderFields();
   }
@@ -288,7 +294,6 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
           dataSpec, HttpDataSourceException.TYPE_OPEN);
     }
 
-    int responseCode;
     String responseMessage;
     try {
       responseCode = connection.getResponseCode();

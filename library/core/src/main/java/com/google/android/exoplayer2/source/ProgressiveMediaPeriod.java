@@ -325,7 +325,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   @Override
   public boolean continueLoading(long playbackPositionUs) {
-    if (loadingFinished || pendingDeferredRetry || (prepared && enabledTrackCount == 0)) {
+    if (loadingFinished
+        || loader.hasFatalError()
+        || pendingDeferredRetry
+        || (prepared && enabledTrackCount == 0)) {
       return false;
     }
     boolean continuedLoading = loadCondition.open();
@@ -410,6 +413,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     if (loader.isLoading()) {
       loader.cancelLoading();
     } else {
+      loader.clearFatalError();
       for (SampleQueue sampleQueue : sampleQueues) {
         sampleQueue.reset();
       }
@@ -1042,21 +1046,28 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       if (extractor != null) {
         return extractor;
       }
-      for (Extractor extractor : extractors) {
-        try {
-          if (extractor.sniff(input)) {
-            this.extractor = extractor;
-            break;
+      if (extractors.length == 1) {
+        this.extractor = extractors[0];
+      } else {
+        for (Extractor extractor : extractors) {
+          try {
+            if (extractor.sniff(input)) {
+              this.extractor = extractor;
+              break;
+            }
+          } catch (EOFException e) {
+            // Do nothing.
+          } finally {
+            input.resetPeekPosition();
           }
-        } catch (EOFException e) {
-          // Do nothing.
-        } finally {
-          input.resetPeekPosition();
         }
-      }
-      if (extractor == null) {
-        throw new UnrecognizedInputFormatException("None of the available extractors ("
-            + Util.getCommaDelimitedSimpleClassNames(extractors) + ") could read the stream.", uri);
+        if (extractor == null) {
+          throw new UnrecognizedInputFormatException(
+              "None of the available extractors ("
+                  + Util.getCommaDelimitedSimpleClassNames(extractors)
+                  + ") could read the stream.",
+              uri);
+        }
       }
       extractor.init(output);
       return extractor;
