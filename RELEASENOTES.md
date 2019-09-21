@@ -13,7 +13,7 @@
 * Bypass sniffing in `ProgressiveMediaPeriod` in case a single extractor is
   provided ([#6325](https://github.com/google/ExoPlayer/issues/6325)).
 * Surface information provided by methods `isHardwareAccelerated`,
-  `isSoftwareOnly` and `isVendor` added in Android Q in `MediaCodecInfo` class
+  `isSoftwareOnly` and `isVendor` added in Android 10 in `MediaCodecInfo` class
   ([#5839](https://github.com/google/ExoPlayer/issues/5839)).
 * Update `DefaultTrackSelector` to apply a viewport constraint for the default
   display by default.
@@ -33,7 +33,7 @@
   `SourceInfoRefreshListener` anymore. Instead make it accessible through
   `Player.getCurrentManifest()` and `Timeline.Window.manifest`. Also rename
   `SourceInfoRefreshListener` to `MediaSourceCaller`.
-* Set `compileSdkVersion` to 29 to use Android Q APIs.
+* Set `compileSdkVersion` to 29 to use Android 10 APIs.
 * Add `enable` and `disable` methods to `MediaSource` to improve resource
   management in playlists.
 * Text selection logic:
@@ -59,6 +59,8 @@
 * Fix Dolby Vision fallback to AVC and HEVC.
 * Add top-level playlist API
   ([#6161](https://github.com/google/ExoPlayer/issues/6161)).
+* Add demo app to show how to use the Android 10 `SurfaceControl` API with
+  ExoPlayer ([#677](https://github.com/google/ExoPlayer/issues/677)).
 
 ### 2.10.5 (2019-09-20) ###
 
