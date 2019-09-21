@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -164,25 +164,33 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.Builder.html#setDisabledTextTrackSelectionFlags-int-">setDisabledTextTrackSelectionFlags</a></span>(int&nbsp;disabledTextTrackSelectionFlags)</code>
-<div class="block">See <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html#disabledTextTrackSelectionFlags"><code>TrackSelectionParameters.disabledTextTrackSelectionFlags</code></a>.</div>
+<div class="block">Sets a bitmask of selection flags that are disabled for text track selections.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.Builder.html#setPreferredAudioLanguage-java.lang.String-">setPreferredAudioLanguage</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;preferredAudioLanguage)</code>
-<div class="block">See <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html#preferredAudioLanguage"><code>TrackSelectionParameters.preferredAudioLanguage</code></a>.</div>
+<div class="block">Sets the preferred language for audio and forced text tracks.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.Builder.html#setPreferredTextLanguage-java.lang.String-">setPreferredTextLanguage</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;preferredTextLanguage)</code>
-<div class="block">See <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html#preferredTextLanguage"><code>TrackSelectionParameters.preferredTextLanguage</code></a>.</div>
+<div class="block">Sets the preferred language for text tracks.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.Builder.html#setPreferredTextRoleFlags-int-">setPreferredTextRoleFlags</a></span>(int&nbsp;preferredTextRoleFlags)</code>
+<div class="block">Sets the preferred <code>C.RoleFlags</code> for text tracks.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.Builder.html#setSelectUndeterminedTextLanguage-boolean-">setSelectUndeterminedTextLanguage</a></span>(boolean&nbsp;selectUndeterminedTextLanguage)</code>
-<div class="block">See <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html#selectUndeterminedTextLanguage"><code>TrackSelectionParameters.selectUndeterminedTextLanguage</code></a>.</div>
+<div class="block">Sets whether a text track with undetermined language should be selected if no track with
+ <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.Builder.html#setPreferredTextLanguage-java.lang.String-"><code>setPreferredTextLanguage(String)</code></a> is available, or if the preferred language is
+ unset.</div>
 </td>
 </tr>
 </table>
@@ -233,10 +241,11 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <h4>setPreferredAudioLanguage</h4>
 <pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setPreferredAudioLanguage(@Nullable
                                                                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;preferredAudioLanguage)</pre>
-<div class="block">See <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html#preferredAudioLanguage"><code>TrackSelectionParameters.preferredAudioLanguage</code></a>.</div>
+<div class="block">Sets the preferred language for audio and forced text tracks.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>preferredAudioLanguage</code> - Preferred audio language as an IETF BCP 47 conformant tag.</dd>
+<dd><code>preferredAudioLanguage</code> - Preferred audio language as an IETF BCP 47 conformant tag, or
+     <code>null</code> to select the default track, or the first track if there's no default.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
 </dl>
@@ -250,10 +259,28 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <h4>setPreferredTextLanguage</h4>
 <pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setPreferredTextLanguage(@Nullable
                                                                  <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;preferredTextLanguage)</pre>
-<div class="block">See <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html#preferredTextLanguage"><code>TrackSelectionParameters.preferredTextLanguage</code></a>.</div>
+<div class="block">Sets the preferred language for text tracks.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>preferredTextLanguage</code> - Preferred text language as an IETF BCP 47 conformant tag.</dd>
+<dd><code>preferredTextLanguage</code> - Preferred text language as an IETF BCP 47 conformant tag, or
+     <code>null</code> to select the default track if there is one, or no track otherwise.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a name="setPreferredTextRoleFlags-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPreferredTextRoleFlags</h4>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setPreferredTextRoleFlags(<a href="../../../../../com/google/android/exoplayer2/C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@C.RoleFlags</a>
+                                                                  int&nbsp;preferredTextRoleFlags)</pre>
+<div class="block">Sets the preferred <code>C.RoleFlags</code> for text tracks.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>preferredTextRoleFlags</code> - Preferred text role flags.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
 </dl>
@@ -266,8 +293,13 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>setSelectUndeterminedTextLanguage</h4>
 <pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setSelectUndeterminedTextLanguage(boolean&nbsp;selectUndeterminedTextLanguage)</pre>
-<div class="block">See <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html#selectUndeterminedTextLanguage"><code>TrackSelectionParameters.selectUndeterminedTextLanguage</code></a>.</div>
+<div class="block">Sets whether a text track with undetermined language should be selected if no track with
+ <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.Builder.html#setPreferredTextLanguage-java.lang.String-"><code>setPreferredTextLanguage(String)</code></a> is available, or if the preferred language is
+ unset.</div>
 <dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>selectUndeterminedTextLanguage</code> - Whether a text track with undetermined language should
+     be selected if no preferred language track is available.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
 </dl>
@@ -281,8 +313,11 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <h4>setDisabledTextTrackSelectionFlags</h4>
 <pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setDisabledTextTrackSelectionFlags(<a href="../../../../../com/google/android/exoplayer2/C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@C.SelectionFlags</a>
                                                                            int&nbsp;disabledTextTrackSelectionFlags)</pre>
-<div class="block">See <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html#disabledTextTrackSelectionFlags"><code>TrackSelectionParameters.disabledTextTrackSelectionFlags</code></a>.</div>
+<div class="block">Sets a bitmask of selection flags that are disabled for text track selections.</div>
 <dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>disabledTextTrackSelectionFlags</code> - A bitmask of <code>C.SelectionFlags</code> that are
+     disabled for text track selections.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
 </dl>

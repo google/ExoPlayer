@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":42,"i2":42,"i3":42,"i4":10,"i5":9,"i6":9,"i7":10,"i8":42,"i9":42,"i10":42,"i11":9,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":42,"i21":42,"i22":42,"i23":9};
+var methods = {"i0":10,"i1":42,"i2":42,"i3":42,"i4":10,"i5":9,"i6":10,"i7":42,"i8":42,"i9":42,"i10":9,"i11":9,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":42,"i21":42,"i22":42};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -261,6 +261,12 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Map
 <div class="block">A track selection override.</div>
 </td>
 </tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected static class&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.TextTrackScore.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.TextTrackScore</a></span></code>
+<div class="block">Represents how well a text track matches the selection <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a>.</div>
+</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a name="nested.classes.inherited.from.class.com.google.android.exoplayer2.trackselection.MappingTrackSelector">
@@ -356,25 +362,20 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Map
 </td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code>protected static boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#formatHasNoLanguage-com.google.android.exoplayer2.Format-">formatHasNoLanguage</a></span>(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code>
-<div class="block">Equivalent to <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#stringDefinesNoLanguage-java.lang.String-"><code>stringDefinesNoLanguage(format.language)</code></a>.</div>
-</td>
-</tr>
-<tr id="i6" class="altColor">
 <td class="colFirst"><code>protected static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#getFormatLanguageScore-com.google.android.exoplayer2.Format-java.lang.String-">getFormatLanguageScore</a></span>(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
-                      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#getFormatLanguageScore-com.google.android.exoplayer2.Format-java.lang.String-boolean-">getFormatLanguageScore</a></span>(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+                      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language,
+                      boolean&nbsp;allowUndeterminedFormatLanguage)</code>
 <div class="block">Returns a score for how well a language specified in a <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> matches a given language.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#getParameters--">getParameters</a></span>()</code>
 <div class="block">Gets the current selection parameters.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#getRendererDisabled-int-">getRendererDisabled</a></span>(int&nbsp;rendererIndex)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
@@ -382,7 +383,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Map
 </div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.SelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.SelectionOverride</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#getSelectionOverride-int-com.google.android.exoplayer2.source.TrackGroupArray-">getSelectionOverride</a></span>(int&nbsp;rendererIndex,
                     <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;groups)</code>
@@ -391,7 +392,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Map
 </div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#hasSelectionOverride-int-com.google.android.exoplayer2.source.TrackGroupArray-">hasSelectionOverride</a></span>(int&nbsp;rendererIndex,
                     <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;groups)</code>
@@ -400,7 +401,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Map
 </div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>protected static boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#isSupported-int-boolean-">isSupported</a></span>(int&nbsp;formatSupport,
            boolean&nbsp;allowExceedsCapabilities)</code>
@@ -408,6 +409,12 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Map
  <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#supportsFormat-com.google.android.exoplayer2.Format-"><code>RendererCapabilities.supportsFormat(Format)</code></a>, returning true if the result is
  <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_HANDLED"><code>RendererCapabilities.FORMAT_HANDLED</code></a> or if <code>allowExceedsCapabilities</code> is set
  and the result is <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_EXCEEDS_CAPABILITIES"><code>RendererCapabilities.FORMAT_EXCEEDS_CAPABILITIES</code></a>.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code>protected static <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#normalizeUndeterminedLanguageToNull-java.lang.String-">normalizeUndeterminedLanguageToNull</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language)</code>
+<div class="block">Normalizes the input string to null if it does not define a language, or returns it otherwise.</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
@@ -442,7 +449,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Map
 </td>
 </tr>
 <tr id="i15" class="rowColor">
-<td class="colFirst"><code>protected <a href="https://developer.android.com/reference/android/util/Pair.html" target="_top" title="class or interface in android.util">Pair</a>&lt;<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelection.Definition</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Integer.html" target="_top" title="class or interface in java.lang">Integer</a>&gt;</code></td>
+<td class="colFirst"><code>protected <a href="https://developer.android.com/reference/android/util/Pair.html" target="_top" title="class or interface in android.util">Pair</a>&lt;<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelection.Definition</a>,<a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.TextTrackScore.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.TextTrackScore</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#selectTextTrack-com.google.android.exoplayer2.source.TrackGroupArray-int:A:A-com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters-java.lang.String-">selectTextTrack</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;groups,
                int[][]&nbsp;formatSupport,
                <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;params,
@@ -508,12 +515,6 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Map
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
 <div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.ParametersBuilder.html#setTunnelingAudioSessionId-int-"><code>DefaultTrackSelector.ParametersBuilder.setTunnelingAudioSessionId(int)</code></a>.</span></div>
 </div>
-</td>
-</tr>
-<tr id="i23" class="rowColor">
-<td class="colFirst"><code>protected static boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#stringDefinesNoLanguage-java.lang.String-">stringDefinesNoLanguage</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language)</code>
-<div class="block">Returns whether the given string does not define a language.</div>
 </td>
 </tr>
 </table>
@@ -893,12 +894,12 @@ protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pai
 <li class="blockList">
 <h4>selectTextTrack</h4>
 <pre>@Nullable
-protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pair.html" target="_top" title="class or interface in android.util">Pair</a>&lt;<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelection.Definition</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Integer.html" target="_top" title="class or interface in java.lang">Integer</a>&gt;&nbsp;selectTextTrack(<a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;groups,
-                                                                            int[][]&nbsp;formatSupport,
-                                                                            <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;params,
-                                                                            @Nullable
-                                                                            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;selectedAudioLanguage)
-                                                                     throws <a href="../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pair.html" target="_top" title="class or interface in android.util">Pair</a>&lt;<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelection.Definition</a>,<a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.TextTrackScore.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.TextTrackScore</a>&gt;&nbsp;selectTextTrack(<a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;groups,
+                                                                                                        int[][]&nbsp;formatSupport,
+                                                                                                        <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;params,
+                                                                                                        @Nullable
+                                                                                                        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;selectedAudioLanguage)
+                                                                                                 throws <a href="../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
 <div class="block">Called by <code>#selectAllTracks(MappedTrackInfo, int[][][], int[], Parameters)</code> to create a
  <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>TrackSelection</code></a> for a text renderer.</div>
 <dl>
@@ -908,10 +909,10 @@ protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pai
      track, indexed by track group index and track index (in that order).</dd>
 <dd><code>params</code> - The selector's current constraint parameters.</dd>
 <dd><code>selectedAudioLanguage</code> - The language of the selected audio track. May be null if the
-     selected audio track declares no language or no audio track was selected.</dd>
+     selected text track declares no language or no text track was selected.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelection.Definition</code></a> and corresponding track score, or null if no
-     selection was made.</dd>
+<dd>The <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelection.Definition</code></a> and corresponding <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.TextTrackScore.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.TextTrackScore</code></a>, or null
+     if no selection was made.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></code> - If an error occurs while selecting the tracks.</dd>
 </dl>
@@ -969,34 +970,25 @@ protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselect
 </dl>
 </li>
 </ul>
-<a name="formatHasNoLanguage-com.google.android.exoplayer2.Format-">
+<a name="normalizeUndeterminedLanguageToNull-java.lang.String-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>formatHasNoLanguage</h4>
-<pre>protected static&nbsp;boolean&nbsp;formatHasNoLanguage(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
-<div class="block">Equivalent to <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#stringDefinesNoLanguage-java.lang.String-"><code>stringDefinesNoLanguage(format.language)</code></a>.</div>
-</li>
-</ul>
-<a name="stringDefinesNoLanguage-java.lang.String-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>stringDefinesNoLanguage</h4>
-<pre>protected static&nbsp;boolean&nbsp;stringDefinesNoLanguage(@Nullable
-                                                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language)</pre>
-<div class="block">Returns whether the given string does not define a language.</div>
+<h4>normalizeUndeterminedLanguageToNull</h4>
+<pre>@Nullable
+protected static&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;normalizeUndeterminedLanguageToNull(@Nullable
+                                                                      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language)</pre>
+<div class="block">Normalizes the input string to null if it does not define a language, or returns it otherwise.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>language</code> - The string.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>Whether the given string does not define a language.</dd>
+<dd>The string, optionally normalized to null if it does not define a language.</dd>
 </dl>
 </li>
 </ul>
-<a name="getFormatLanguageScore-com.google.android.exoplayer2.Format-java.lang.String-">
+<a name="getFormatLanguageScore-com.google.android.exoplayer2.Format-java.lang.String-boolean-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -1004,16 +996,20 @@ protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselect
 <h4>getFormatLanguageScore</h4>
 <pre>protected static&nbsp;int&nbsp;getFormatLanguageScore(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                                             @Nullable
-                                            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language)</pre>
+                                            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language,
+                                            boolean&nbsp;allowUndeterminedFormatLanguage)</pre>
 <div class="block">Returns a score for how well a language specified in a <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> matches a given language.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>format</code> - The <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</dd>
 <dd><code>language</code> - The language, or null.</dd>
+<dd><code>allowUndeterminedFormatLanguage</code> - Whether matches with an empty or undetermined format
+     language tag are allowed.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>A score of 3 if the languages match fully, a score of 2 if the languages match partly,
-     a score of 1 if the languages don't match but belong to the same main language, and a score
-     of 0 if the languages don't match at all.</dd>
+<dd>A score of 4 if the languages match fully, a score of 3 if the languages match partly,
+     a score of 2 if the languages don't match but belong to the same main language, a score of
+     1 if the format language is undetermined and such a match is allowed, and a score of 0 if
+     the languages don't match at all.</dd>
 </dl>
 </li>
 </ul>

@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6};
+var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -220,19 +220,25 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/DataSourc
 </td>
 </tr>
 <tr id="i3" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#getResponseCode--">getResponseCode</a></span>()</code>
+<div class="block">When the source is open, returns the HTTP response status code associated with the last <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>open(com.google.android.exoplayer2.upstream.DataSpec)</code></a> call.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#getResponseHeaders--">getResponseHeaders</a></span>()</code>
 <div class="block">When the source is open, returns the response headers associated with the last <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>DataSource.open(com.google.android.exoplayer2.upstream.DataSpec)</code></a>
  call.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-">open</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code>
 <div class="block">Opens the source to read the specified data.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#read-byte:A-int-int-">read</a></span>(byte[]&nbsp;buffer,
     int&nbsp;offset,
@@ -241,7 +247,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/DataSourc
  index <code>offset</code>.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#setRequestProperty-java.lang.String-java.lang.String-">setRequestProperty</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;name,
                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;value)</code>
@@ -411,6 +417,16 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/DataSourc
 <h4>clearAllRequestProperties</h4>
 <pre>void&nbsp;clearAllRequestProperties()</pre>
 <div class="block">Clears all request headers that were set by <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#setRequestProperty-java.lang.String-java.lang.String-"><code>setRequestProperty(String, String)</code></a>.</div>
+</li>
+</ul>
+<a name="getResponseCode--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getResponseCode</h4>
+<pre>int&nbsp;getResponseCode()</pre>
+<div class="block">When the source is open, returns the HTTP response status code associated with the last <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>open(com.google.android.exoplayer2.upstream.DataSpec)</code></a> call. Otherwise, returns a negative value.</div>
 </li>
 </ul>
 <a name="getResponseHeaders--">

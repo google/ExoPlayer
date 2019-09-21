@@ -155,22 +155,34 @@ implements <a href="../../../../com/google/android/exoplayer2/LoadControl.html" 
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DEFAULT_AUDIO_BUFFER_SIZE">DEFAULT_AUDIO_BUFFER_SIZE</a></span></code>
+<div class="block">A default size in bytes for an audio buffer.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DEFAULT_BACK_BUFFER_DURATION_MS">DEFAULT_BACK_BUFFER_DURATION_MS</a></span></code>
 <div class="block">The default back buffer duration in milliseconds.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS">DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS</a></span></code>
 <div class="block">The default duration of media that must be buffered for playback to resume after a rebuffer, in
  milliseconds.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DEFAULT_BUFFER_FOR_PLAYBACK_MS">DEFAULT_BUFFER_FOR_PLAYBACK_MS</a></span></code>
 <div class="block">The default duration of media that must be buffered for playback to start or resume following a
  user action such as a seek, in milliseconds.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DEFAULT_CAMERA_MOTION_BUFFER_SIZE">DEFAULT_CAMERA_MOTION_BUFFER_SIZE</a></span></code>
+<div class="block">A default size in bytes for a camera motion buffer.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -181,9 +193,21 @@ implements <a href="../../../../com/google/android/exoplayer2/LoadControl.html" 
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DEFAULT_METADATA_BUFFER_SIZE">DEFAULT_METADATA_BUFFER_SIZE</a></span></code>
+<div class="block">A default size in bytes for a metadata buffer.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DEFAULT_MIN_BUFFER_MS">DEFAULT_MIN_BUFFER_MS</a></span></code>
 <div class="block">The default minimum duration of media that the player will attempt to ensure is buffered at all
  times, in milliseconds.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DEFAULT_MUXED_BUFFER_SIZE">DEFAULT_MUXED_BUFFER_SIZE</a></span></code>
+<div class="block">A default size in bytes for a muxed buffer (e.g.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -202,6 +226,18 @@ implements <a href="../../../../com/google/android/exoplayer2/LoadControl.html" 
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DEFAULT_TARGET_BUFFER_BYTES">DEFAULT_TARGET_BUFFER_BYTES</a></span></code>
 <div class="block">The default target buffer size in bytes.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DEFAULT_TEXT_BUFFER_SIZE">DEFAULT_TEXT_BUFFER_SIZE</a></span></code>
+<div class="block">A default size in bytes for a text buffer.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DEFAULT_VIDEO_BUFFER_SIZE">DEFAULT_VIDEO_BUFFER_SIZE</a></span></code>
+<div class="block">A default size in bytes for a video buffer.</div>
 </td>
 </tr>
 </table>
@@ -473,7 +509,7 @@ implements <a href="../../../../com/google/android/exoplayer2/LoadControl.html" 
 <a name="DEFAULT_RETAIN_BACK_BUFFER_FROM_KEYFRAME">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>DEFAULT_RETAIN_BACK_BUFFER_FROM_KEYFRAME</h4>
 <pre>public static final&nbsp;boolean DEFAULT_RETAIN_BACK_BUFFER_FROM_KEYFRAME</pre>
@@ -481,6 +517,90 @@ implements <a href="../../../../com/google/android/exoplayer2/LoadControl.html" 
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_RETAIN_BACK_BUFFER_FROM_KEYFRAME">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="DEFAULT_VIDEO_BUFFER_SIZE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DEFAULT_VIDEO_BUFFER_SIZE</h4>
+<pre>public static final&nbsp;int DEFAULT_VIDEO_BUFFER_SIZE</pre>
+<div class="block">A default size in bytes for a video buffer.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_VIDEO_BUFFER_SIZE">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="DEFAULT_AUDIO_BUFFER_SIZE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DEFAULT_AUDIO_BUFFER_SIZE</h4>
+<pre>public static final&nbsp;int DEFAULT_AUDIO_BUFFER_SIZE</pre>
+<div class="block">A default size in bytes for an audio buffer.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_AUDIO_BUFFER_SIZE">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="DEFAULT_TEXT_BUFFER_SIZE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DEFAULT_TEXT_BUFFER_SIZE</h4>
+<pre>public static final&nbsp;int DEFAULT_TEXT_BUFFER_SIZE</pre>
+<div class="block">A default size in bytes for a text buffer.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_TEXT_BUFFER_SIZE">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="DEFAULT_METADATA_BUFFER_SIZE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DEFAULT_METADATA_BUFFER_SIZE</h4>
+<pre>public static final&nbsp;int DEFAULT_METADATA_BUFFER_SIZE</pre>
+<div class="block">A default size in bytes for a metadata buffer.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_METADATA_BUFFER_SIZE">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="DEFAULT_CAMERA_MOTION_BUFFER_SIZE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DEFAULT_CAMERA_MOTION_BUFFER_SIZE</h4>
+<pre>public static final&nbsp;int DEFAULT_CAMERA_MOTION_BUFFER_SIZE</pre>
+<div class="block">A default size in bytes for a camera motion buffer.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_CAMERA_MOTION_BUFFER_SIZE">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="DEFAULT_MUXED_BUFFER_SIZE">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DEFAULT_MUXED_BUFFER_SIZE</h4>
+<pre>public static final&nbsp;int DEFAULT_MUXED_BUFFER_SIZE</pre>
+<div class="block">A default size in bytes for a muxed buffer (e.g. containing video, audio and text).</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_MUXED_BUFFER_SIZE">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>

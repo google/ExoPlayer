@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -304,25 +304,31 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDa
 </td>
 </tr>
 <tr id="i7" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#getResponseCode--">getResponseCode</a></span>()</code>
+<div class="block">When the source is open, returns the HTTP response status code associated with the last <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>HttpDataSource.open(com.google.android.exoplayer2.upstream.DataSpec)</code></a> call.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#getResponseHeaders--">getResponseHeaders</a></span>()</code>
 <div class="block">When the source is open, returns the response headers associated with the last <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>DataSource.open(com.google.android.exoplayer2.upstream.DataSpec)</code></a>
  call.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#getUri--">getUri</a></span>()</code>
 <div class="block">When the source is open, returns the <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a> from which data is being read.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-">open</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code>
 <div class="block">Opens the source to read the specified data.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#read-byte:A-int-int-">read</a></span>(byte[]&nbsp;buffer,
     int&nbsp;offset,
@@ -331,7 +337,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDa
  index <code>offset</code>.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#setRequestProperty-java.lang.String-java.lang.String-">setRequestProperty</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;name,
                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;value)</code>
@@ -607,6 +613,21 @@ public&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.htm
 <dd><code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#getUri--">getUri</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a> from which data is being read, or null if the source is not open.</dd>
+</dl>
+</li>
+</ul>
+<a name="getResponseCode--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getResponseCode</h4>
+<pre>public&nbsp;int&nbsp;getResponseCode()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#getResponseCode--">HttpDataSource</a></code></span></div>
+<div class="block">When the source is open, returns the HTTP response status code associated with the last <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>HttpDataSource.open(com.google.android.exoplayer2.upstream.DataSpec)</code></a> call. Otherwise, returns a negative value.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#getResponseCode--">getResponseCode</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></code></dd>
 </dl>
 </li>
 </ul>

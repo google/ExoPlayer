@@ -193,6 +193,12 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html#preferredTextRoleFlags">preferredTextRoleFlags</a></span></code>
+<div class="block">The preferred <code>C.RoleFlags</code> for text tracks.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html#selectUndeterminedTextLanguage">selectUndeterminedTextLanguage</a></span></code>
 <div class="block">Whether a text track with undetermined language should be selected if no track with <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html#preferredTextLanguage"><code>preferredTextLanguage</code></a> is available, or if <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html#preferredTextLanguage"><code>preferredTextLanguage</code></a> is unset.</div>
@@ -298,6 +304,18 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> preferredTextLanguage</pre>
 <div class="block">The preferred language for text tracks as an ISO 639-2/T tag. <code>null</code> selects the default
  track if there is one, or no track otherwise. The default value is <code>null</code>.</div>
+</li>
+</ul>
+<a name="preferredTextRoleFlags">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>preferredTextRoleFlags</h4>
+<pre><a href="../../../../../com/google/android/exoplayer2/C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@C.RoleFlags</a>
+public final&nbsp;int preferredTextRoleFlags</pre>
+<div class="block">The preferred <code>C.RoleFlags</code> for text tracks. <code>0</code> selects the default track if there
+ is one, or no track otherwise. The default value is <code>0</code>.</div>
 </li>
 </ul>
 <a name="selectUndeterminedTextLanguage">

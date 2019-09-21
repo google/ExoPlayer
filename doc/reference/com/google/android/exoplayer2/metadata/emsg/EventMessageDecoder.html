@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10};
+var methods = {"i0":10,"i1":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -113,11 +113,7 @@ var activeTableTab = "activeTableTab";
 <pre>public final class <span class="typeNameLabel">EventMessageDecoder</span>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>
 implements <a href="../../../../../../com/google/android/exoplayer2/metadata/MetadataDecoder.html" title="interface in com.google.android.exoplayer2.metadata">MetadataDecoder</a></pre>
-<div class="block">Decodes Event Message (emsg) atoms, as defined in ISO/IEC 23009-1:2014, Section 5.10.3.3.
-
- <p>Atom data should be provided to the decoder without the full atom header (i.e. starting from
- the first byte of the scheme_id_uri field). It is expected that the presentation_time_delta field
- should be 0, having already been accounted for by adjusting the sample timestamp.</div>
+<div class="block">Decodes data encoded by <a href="../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessageEncoder.html" title="class in com.google.android.exoplayer2.metadata.emsg"><code>EventMessageEncoder</code></a>.</div>
 </li>
 </ul>
 </div>
@@ -158,6 +154,10 @@ implements <a href="../../../../../../com/google/android/exoplayer2/metadata/Met
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessageDecoder.html#decode-com.google.android.exoplayer2.metadata.MetadataInputBuffer-">decode</a></span>(<a href="../../../../../../com/google/android/exoplayer2/metadata/MetadataInputBuffer.html" title="class in com.google.android.exoplayer2.metadata">MetadataInputBuffer</a>&nbsp;inputBuffer)</code>
 <div class="block">Decodes a <a href="../../../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata"><code>Metadata</code></a> element from the provided input buffer.</div>
 </td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg">EventMessage</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessageDecoder.html#decode-com.google.android.exoplayer2.util.ParsableByteArray-">decode</a></span>(<a href="../../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;emsgData)</code>&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -201,10 +201,11 @@ implements <a href="../../../../../../com/google/android/exoplayer2/metadata/Met
 <a name="decode-com.google.android.exoplayer2.metadata.MetadataInputBuffer-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>decode</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;decode(<a href="../../../../../../com/google/android/exoplayer2/metadata/MetadataInputBuffer.html" title="class in com.google.android.exoplayer2.metadata">MetadataInputBuffer</a>&nbsp;inputBuffer)</pre>
+<pre>@Nullable
+public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;decode(<a href="../../../../../../com/google/android/exoplayer2/metadata/MetadataInputBuffer.html" title="class in com.google.android.exoplayer2.metadata">MetadataInputBuffer</a>&nbsp;inputBuffer)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/metadata/MetadataDecoder.html#decode-com.google.android.exoplayer2.metadata.MetadataInputBuffer-">MetadataDecoder</a></code></span></div>
 <div class="block">Decodes a <a href="../../../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata"><code>Metadata</code></a> element from the provided input buffer.</div>
 <dl>
@@ -215,6 +216,16 @@ implements <a href="../../../../../../com/google/android/exoplayer2/metadata/Met
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The decoded metadata object, or null if the metadata could not be decoded.</dd>
 </dl>
+</li>
+</ul>
+<a name="decode-com.google.android.exoplayer2.util.ParsableByteArray-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>decode</h4>
+<pre>@Nullable
+public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg">EventMessage</a>&nbsp;decode(<a href="../../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;emsgData)</pre>
 </li>
 </ul>
 </li>

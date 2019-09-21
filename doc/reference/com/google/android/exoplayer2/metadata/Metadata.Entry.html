@@ -16,6 +16,12 @@
     catch(err) {
     }
 //-->
+var methods = {"i0":18,"i1":18};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],16:["t5","Default Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
 </script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
@@ -68,13 +74,13 @@
 <li>Nested&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
-<li>Method</li>
+<li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
-<li>Method</li>
+<li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
 <a name="skip.navbar.top">
@@ -149,12 +155,69 @@ extends <a href="https://developer.android.com/reference/android/os/Parcelable.h
 <!--   -->
 </a>
 <h3>Method Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>default byte[]</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/metadata/Metadata.Entry.html#getWrappedMetadataBytes--">getWrappedMetadataBytes</a></span>()</code>
+<div class="block">Returns the bytes of the wrapped metadata in this Entry, or null if it doesn't contain
+ wrapped metadata.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>default <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/metadata/Metadata.Entry.html#getWrappedMetadataFormat--">getWrappedMetadataFormat</a></span>()</code>
+<div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> that can be used to decode the wrapped metadata in <a href="../../../../../com/google/android/exoplayer2/metadata/Metadata.Entry.html#getWrappedMetadataBytes--"><code>getWrappedMetadataBytes()</code></a>, or null if this Entry doesn't contain wrapped metadata.</div>
+</td>
+</tr>
+</table>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.android.os.Parcelable">
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;android.os.<a href="https://developer.android.com/reference/android/os/Parcelable.html" target="_top" title="class or interface in android.os">Parcelable</a></h3>
 <code><a href="https://developer.android.com/reference/android/os/Parcelable.html?is-external=true#describeContents--" title="class or interface in android.os">describeContents</a>, <a href="https://developer.android.com/reference/android/os/Parcelable.html?is-external=true#writeToParcel-android.os.Parcel-int-" title="class or interface in android.os">writeToParcel</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="getWrappedMetadataFormat--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getWrappedMetadataFormat</h4>
+<pre>@Nullable
+default&nbsp;<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;getWrappedMetadataFormat()</pre>
+<div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> that can be used to decode the wrapped metadata in <a href="../../../../../com/google/android/exoplayer2/metadata/Metadata.Entry.html#getWrappedMetadataBytes--"><code>getWrappedMetadataBytes()</code></a>, or null if this Entry doesn't contain wrapped metadata.</div>
+</li>
+</ul>
+<a name="getWrappedMetadataBytes--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getWrappedMetadataBytes</h4>
+<pre>@Nullable
+default&nbsp;byte[]&nbsp;getWrappedMetadataBytes()</pre>
+<div class="block">Returns the bytes of the wrapped metadata in this Entry, or null if it doesn't contain
+ wrapped metadata.</div>
+</li>
 </ul>
 </li>
 </ul>
@@ -211,13 +274,13 @@ extends <a href="https://developer.android.com/reference/android/os/Parcelable.h
 <li>Nested&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
-<li>Method</li>
+<li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
-<li>Method</li>
+<li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
 <a name="skip.navbar.bottom">

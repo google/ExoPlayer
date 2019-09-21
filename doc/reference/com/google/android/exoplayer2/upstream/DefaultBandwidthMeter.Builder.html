@@ -158,17 +158,11 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html#experimental_resetOnNetworkTypeChange-boolean-">experimental_resetOnNetworkTypeChange</a></span>(boolean&nbsp;resetOnNetworkTypeChange)</code>
-<div class="block">Sets whether to reset if the network type changes.</div>
-</td>
-</tr>
-<tr id="i2" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html#setClock-com.google.android.exoplayer2.util.Clock-">setClock</a></span>(<a href="../../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</code>
 <div class="block">Sets the clock used to estimate bandwidth from data transfers.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html#setInitialBitrateEstimate-int-long-">setInitialBitrateEstimate</a></span>(int&nbsp;networkType,
                          long&nbsp;initialBitrateEstimate)</code>
@@ -176,17 +170,23 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
  estimate is unavailable and the current network connection is of the specified type.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html#setInitialBitrateEstimate-long-">setInitialBitrateEstimate</a></span>(long&nbsp;initialBitrateEstimate)</code>
 <div class="block">Sets the initial bitrate estimate in bits per second that should be assumed when a bandwidth
  estimate is unavailable.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html#setInitialBitrateEstimate-java.lang.String-">setInitialBitrateEstimate</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;countryCode)</code>
 <div class="block">Sets the initial bitrate estimates to the default values of the specified country.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter.Builder</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html#setResetOnNetworkTypeChange-boolean-">setResetOnNetworkTypeChange</a></span>(boolean&nbsp;resetOnNetworkTypeChange)</code>
+<div class="block">Sets whether to reset if the network type changes.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
@@ -327,16 +327,14 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </dl>
 </li>
 </ul>
-<a name="experimental_resetOnNetworkTypeChange-boolean-">
+<a name="setResetOnNetworkTypeChange-boolean-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>experimental_resetOnNetworkTypeChange</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter.Builder</a>&nbsp;experimental_resetOnNetworkTypeChange(boolean&nbsp;resetOnNetworkTypeChange)</pre>
-<div class="block">Sets whether to reset if the network type changes.
-
- <p>This method is experimental, and will be renamed or removed in a future release.</div>
+<h4>setResetOnNetworkTypeChange</h4>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter.Builder</a>&nbsp;setResetOnNetworkTypeChange(boolean&nbsp;resetOnNetworkTypeChange)</pre>
+<div class="block">Sets whether to reset if the network type changes. The default value is <code>true</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>resetOnNetworkTypeChange</code> - Whether to reset if the network type changes.</dd>
