@@ -131,6 +131,15 @@ public final class MediaSessionConnector {
   /** The default rewind increment, in milliseconds. */
   public static final int DEFAULT_REWIND_MS = 5000;
 
+  /**
+   * The name of the {@link PlaybackStateCompat} float extra with the value of {@link
+   * PlaybackParameters#speed}.
+   */
+  public static final String EXTRAS_SPEED = "EXO_SPEED";
+  /**
+   * The name of the {@link PlaybackStateCompat} float extra with the value of {@link
+   * PlaybackParameters#pitch}.
+   */
   public static final String EXTRAS_PITCH = "EXO_PITCH";
 
   private static final long BASE_PLAYBACK_ACTIONS =
@@ -684,7 +693,13 @@ public final class MediaSessionConnector {
   public final void invalidateMediaSessionPlaybackState() {
     PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder();
     if (player == null) {
-      builder.setActions(buildPrepareActions()).setState(PlaybackStateCompat.STATE_NONE, 0, 0, 0);
+      builder
+          .setActions(buildPrepareActions())
+          .setState(
+              PlaybackStateCompat.STATE_NONE,
+              /* position= */ 0,
+              /* playbackSpeed= */ 0,
+              /* updateTime= */ SystemClock.elapsedRealtime());
       mediaSession.setPlaybackState(builder.build());
       return;
     }
@@ -699,15 +714,13 @@ public final class MediaSessionConnector {
     }
     customActionMap = Collections.unmodifiableMap(currentActions);
 
-    int playbackState = player.getPlaybackState();
     Bundle extras = new Bundle();
-    ExoPlaybackException playbackError =
-        playbackState == Player.STATE_IDLE ? player.getPlaybackError() : null;
+    @Nullable ExoPlaybackException playbackError = player.getPlaybackError();
     boolean reportError = playbackError != null || customError != null;
     int sessionPlaybackState =
         reportError
             ? PlaybackStateCompat.STATE_ERROR
-            : mapPlaybackState(player.getPlaybackState(), player.getPlayWhenReady());
+            : getMediaSessionPlaybackState(player.getPlaybackState(), player.getPlayWhenReady());
     if (customError != null) {
       builder.setErrorMessage(customError.first, customError.second);
       if (customErrorExtras != null) {
@@ -721,7 +734,10 @@ public final class MediaSessionConnector {
         queueNavigator != null
             ? queueNavigator.getActiveQueueItemId(player)
             : MediaSessionCompat.QueueItem.UNKNOWN_ID;
-    extras.putFloat(EXTRAS_PITCH, player.getPlaybackParameters().pitch);
+    PlaybackParameters playbackParameters = player.getPlaybackParameters();
+    extras.putFloat(EXTRAS_SPEED, playbackParameters.speed);
+    extras.putFloat(EXTRAS_PITCH, playbackParameters.pitch);
+    float sessionPlaybackSpeed = player.isPlaying() ? playbackParameters.speed : 0f;
     builder
         .setActions(buildPrepareActions() | buildPlaybackActions(player))
         .setActiveQueueItemId(activeQueueItemId)
@@ -729,8 +745,8 @@ public final class MediaSessionConnector {
         .setState(
             sessionPlaybackState,
             player.getCurrentPosition(),
-            player.getPlaybackParameters().speed,
-            SystemClock.elapsedRealtime())
+            sessionPlaybackSpeed,
+            /* updateTime= */ SystemClock.elapsedRealtime())
         .setExtras(extras);
     mediaSession.setPlaybackState(builder.build());
   }
@@ -823,19 +839,6 @@ public final class MediaSessionConnector {
     return actions;
   }
 
-  private int mapPlaybackState(int exoPlayerPlaybackState, boolean playWhenReady) {
-    switch (exoPlayerPlaybackState) {
-      case Player.STATE_BUFFERING:
-        return PlaybackStateCompat.STATE_BUFFERING;
-      case Player.STATE_READY:
-        return playWhenReady ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED;
-      case Player.STATE_ENDED:
-        return PlaybackStateCompat.STATE_STOPPED;
-      default:
-        return PlaybackStateCompat.STATE_NONE;
-    }
-  }
-
   private boolean canDispatchPlaybackAction(long action) {
     return player != null && (enabledPlaybackActions & action) != 0;
   }
@@ -888,6 +891,20 @@ public final class MediaSessionConnector {
     controlDispatcher.dispatchSeekTo(player, windowIndex, positionMs);
   }
 
+  private static int getMediaSessionPlaybackState(
+      int exoPlayerPlaybackState, boolean playWhenReady) {
+    switch (exoPlayerPlaybackState) {
+      case Player.STATE_BUFFERING:
+        return PlaybackStateCompat.STATE_BUFFERING;
+      case Player.STATE_READY:
+        return playWhenReady ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED;
+      case Player.STATE_ENDED:
+        return PlaybackStateCompat.STATE_STOPPED;
+      default:
+        return PlaybackStateCompat.STATE_NONE;
+    }
+  }
+
   /**
    * Provides a default {@link MediaMetadataCompat} with properties and extras taken from the {@link
    * MediaDescriptionCompat} of the {@link MediaSessionCompat.QueueItem} of the active queue item.
@@ -921,7 +938,9 @@ public final class MediaSessionConnector {
       }
       builder.putLong(
           MediaMetadataCompat.METADATA_KEY_DURATION,
-          player.getDuration() == C.TIME_UNSET ? -1 : player.getDuration());
+          player.isCurrentWindowDynamic() || player.getDuration() == C.TIME_UNSET
+              ? -1
+              : player.getDuration());
       long activeQueueItemId = mediaController.getPlaybackState().getActiveQueueItemId();
       if (activeQueueItemId != MediaSessionCompat.QueueItem.UNKNOWN_ID) {
         List<MediaSessionCompat.QueueItem> queue = mediaController.getQueue();
@@ -1017,6 +1036,11 @@ public final class MediaSessionConnector {
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+      invalidateMediaSessionPlaybackState();
+    }
+
+    @Override
+    public void onIsPlayingChanged(boolean isPlaying) {
       invalidateMediaSessionPlaybackState();
     }
 

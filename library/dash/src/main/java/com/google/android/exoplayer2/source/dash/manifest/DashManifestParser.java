@@ -600,6 +600,7 @@ public class DashManifestParser extends DefaultHandler
             containerMimeType,
             sampleMimeType,
             codecs,
+            /* metadata= */ null,
             bitrate,
             width,
             height,
@@ -614,6 +615,7 @@ public class DashManifestParser extends DefaultHandler
             containerMimeType,
             sampleMimeType,
             codecs,
+            /* metadata= */ null,
             bitrate,
             audioChannels,
             audioSamplingRate,
@@ -906,7 +908,7 @@ public class DashManifestParser extends DefaultHandler
     long id = parseLong(xpp, "id", 0);
     long duration = parseLong(xpp, "duration", C.TIME_UNSET);
     long presentationTime = parseLong(xpp, "presentationTime", 0);
-    long durationMs = Util.scaleLargeTimestamp(duration, 1000, timescale);
+    long durationMs = Util.scaleLargeTimestamp(duration, C.MILLIS_PER_SECOND, timescale);
     long presentationTimesUs = Util.scaleLargeTimestamp(presentationTime, C.MICROS_PER_SECOND,
         timescale);
     String messageData = parseString(xpp, "messageData", null);

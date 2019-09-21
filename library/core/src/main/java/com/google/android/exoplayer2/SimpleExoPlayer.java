@@ -878,8 +878,15 @@ public class SimpleExoPlayer extends BasePlayer
     return player.getPlaybackState();
   }
 
+  @PlaybackSuppressionReason
+  public int getPlaybackSuppressionReason() {
+    verifyApplicationThread();
+    return player.getPlaybackSuppressionReason();
+  }
+
   @Override
-  public @Nullable ExoPlaybackException getPlaybackError() {
+  @Nullable
+  public ExoPlaybackException getPlaybackError() {
     verifyApplicationThread();
     return player.getPlaybackError();
   }
@@ -1221,9 +1228,13 @@ public class SimpleExoPlayer extends BasePlayer
 
   private void updatePlayWhenReady(
       boolean playWhenReady, @AudioFocusManager.PlayerCommand int playerCommand) {
+    int playbackSuppressionReason =
+        playerCommand == AudioFocusManager.PLAYER_COMMAND_PLAY_WHEN_READY
+            ? Player.PLAYBACK_SUPPRESSION_REASON_NONE
+            : Player.PLAYBACK_SUPPRESSION_REASON_AUDIO_FOCUS_LOSS;
     player.setPlayWhenReady(
         playWhenReady && playerCommand != AudioFocusManager.PLAYER_COMMAND_DO_NOT_PLAY,
-        playerCommand != AudioFocusManager.PLAYER_COMMAND_PLAY_WHEN_READY);
+        playbackSuppressionReason);
   }
 
   private void verifyApplicationThread() {

@@ -51,11 +51,6 @@
     <item name="android:contentDescription">@string/exo_controls_pause_description</item>
   </style>
 
-  <style name="ExoMediaButton.Shuffle">
-    <item name="android:src">@drawable/exo_controls_shuffle</item>
-    <item name="android:contentDescription">@string/exo_controls_shuffle_description</item>
-  </style>
-
   <style name="ExoMediaButton.VR">
     <item name="android:src">@drawable/exo_icon_vr</item>
     <item name="android:contentDescription">@string/exo_controls_vr_description</item>

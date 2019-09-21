@@ -143,8 +143,10 @@ public final class DefaultTrackSelectorTest {
             /* exceedAudioConstraintsIfNecessary= */ false,
             /* allowAudioMixedMimeTypeAdaptiveness= */ true,
             /* allowAudioMixedSampleRateAdaptiveness= */ false,
+            /* allowAudioMixedChannelCountAdaptiveness= */ true,
             // Text
             /* preferredTextLanguage= */ "de",
+            /* preferredTextRoleFlags= */ C.ROLE_FLAG_CAPTION,
             /* selectUndeterminedTextLanguage= */ true,
             /* disabledTextTrackSelectionFlags= */ 8,
             // General
@@ -718,37 +720,38 @@ public final class DefaultTrackSelectorTest {
   }
 
   /**
-   * Tests that track selector will select audio tracks with higher bit-rate when other factors are
-   * the same, and tracks are within renderer's capabilities.
+   * Tests that track selector will select audio tracks with higher bit rate when other factors are
+   * the same, and tracks are within renderer's capabilities, and have the same language.
    */
   @Test
-  public void testSelectTracksWithinCapabilitiesSelectHigherBitrate() throws Exception {
+  public void selectAudioTracks_withinCapabilities_andSameLanguage_selectsHigherBitrate()
+      throws Exception {
     Format lowerBitrateFormat =
         Format.createAudioSampleFormat(
             "audioFormat",
             MimeTypes.AUDIO_AAC,
-            null,
-            15000,
-            Format.NO_VALUE,
-            2,
-            44100,
-            null,
-            null,
-            0,
-            null);
+            /* codecs= */ null,
+            /* bitrate= */ 15000,
+            /* maxInputSize= */ Format.NO_VALUE,
+            /* channelCount= */ 2,
+            /* sampleRate= */ 44100,
+            /* initializationData= */ null,
+            /* drmInitData= */ null,
+            /* selectionFlags= */ 0,
+            /* language= */ "hi");
     Format higherBitrateFormat =
         Format.createAudioSampleFormat(
             "audioFormat",
             MimeTypes.AUDIO_AAC,
-            null,
-            30000,
-            Format.NO_VALUE,
-            2,
-            44100,
-            null,
-            null,
-            0,
-            null);
+            /* codecs= */ null,
+            /* bitrate= */ 30000,
+            /* maxInputSize= */ Format.NO_VALUE,
+            /* channelCount= */ 2,
+            /* sampleRate= */ 44100,
+            /* initializationData= */ null,
+            /* drmInitData= */ null,
+            /* selectionFlags= */ 0,
+            /* language= */ "hi");
     TrackGroupArray trackGroups = wrapFormats(lowerBitrateFormat, higherBitrateFormat);
 
     TrackSelectorResult result =
@@ -761,13 +764,57 @@ public final class DefaultTrackSelectorTest {
   }
 
   /**
+   * Tests that track selector will select the first audio track even if other tracks with a
+   * different language have higher bit rates, all other factors are the same, and tracks are within
+   * renderer's capabilities.
+   */
+  @Test
+  public void selectAudioTracks_withinCapabilities_andDifferentLanguage_selectsFirstTrack()
+      throws Exception {
+    Format firstLanguageFormat =
+        Format.createAudioSampleFormat(
+            "audioFormat",
+            MimeTypes.AUDIO_AAC,
+            /* codecs= */ null,
+            /* bitrate= */ 15000,
+            /* maxInputSize= */ Format.NO_VALUE,
+            /* channelCount= */ 2,
+            /* sampleRate= */ 44100,
+            /* initializationData= */ null,
+            /* drmInitData= */ null,
+            /* selectionFlags= */ 0,
+            /* language= */ "hi");
+    Format higherBitrateFormat =
+        Format.createAudioSampleFormat(
+            "audioFormat",
+            MimeTypes.AUDIO_AAC,
+            /* codecs= */ null,
+            /* bitrate= */ 30000,
+            /* maxInputSize= */ Format.NO_VALUE,
+            /* channelCount= */ 2,
+            /* sampleRate= */ 44100,
+            /* initializationData= */ null,
+            /* drmInitData= */ null,
+            /* selectionFlags= */ 0,
+            /* language= */ "te");
+    TrackGroupArray trackGroups = wrapFormats(firstLanguageFormat, higherBitrateFormat);
+
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES},
+            trackGroups,
+            periodId,
+            TIMELINE);
+    assertFixedSelection(result.selections.get(0), trackGroups, firstLanguageFormat);
+  }
+
+  /**
    * Tests that track selector will prefer audio tracks with higher channel count over tracks with
    * higher sample rate when other factors are the same, and tracks are within renderer's
    * capabilities.
    */
   @Test
-  public void testSelectTracksPreferHigherNumChannelBeforeSampleRate()
-      throws Exception {
+  public void testSelectTracksPreferHigherNumChannelBeforeSampleRate() throws Exception {
     Format higherChannelLowerSampleRateFormat =
         Format.createAudioSampleFormat(
             "audioFormat",
@@ -1002,12 +1049,12 @@ public final class DefaultTrackSelectorTest {
     result = trackSelector.selectTracks(textRendererCapabilities, trackGroups, periodId, TIMELINE);
     assertNoSelection(result.selections.get(0));
 
-    // There is a preferred language, so the first language-matching track flagged as default should
-    // be selected.
+    // There is a preferred language, so a language-matching track flagged as default should
+    // be selected, and the one without forced flag should be preferred.
     trackSelector.setParameters(
         Parameters.DEFAULT.buildUpon().setPreferredTextLanguage("eng").build());
     result = trackSelector.selectTracks(textRendererCapabilities, trackGroups, periodId, TIMELINE);
-    assertFixedSelection(result.selections.get(0), trackGroups, forcedDefault);
+    assertFixedSelection(result.selections.get(0), trackGroups, defaultOnly);
 
     // Same as above, but the default flag is disabled. If multiple tracks match the preferred
     // language, those not flagged as forced are preferred, as they likely include the contents of

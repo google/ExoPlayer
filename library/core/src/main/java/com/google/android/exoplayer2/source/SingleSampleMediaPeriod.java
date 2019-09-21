@@ -141,7 +141,7 @@ import java.util.Arrays;
 
   @Override
   public boolean continueLoading(long positionUs) {
-    if (loadingFinished || loader.isLoading()) {
+    if (loadingFinished || loader.isLoading() || loader.hasFatalError()) {
       return false;
     }
     DataSource dataSource = dataSourceFactory.createDataSource();
