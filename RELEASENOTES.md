@@ -7,6 +7,8 @@
   `httpRequestHeaders`.
 * DASH: Support negative @r values in segment timelines
   ([#1787](https://github.com/google/ExoPlayer/issues/1787)).
+* Remove `DefaultDrmSessionManager` factory methods that leak `ExoMediaDrm`
+  instances ([#4721](https://github.com/google/ExoPlayer/issues/4721)).
 * Add `allowedCapturePolicy` field to `AudioAttributes` wrapper to allow to
   opt-out of audio recording.
 * Add `DataSpec.httpRequestHeaders` to set HTTP request headers when connecting
