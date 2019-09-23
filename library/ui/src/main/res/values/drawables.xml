@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <drawable name="exo_controls_play">@drawable/exo_icon_play</drawable>
+  <drawable name="exo_controls_pause">@drawable/exo_icon_pause</drawable>
+  <drawable name="exo_controls_next">@drawable/exo_icon_next</drawable>
+  <drawable name="exo_controls_previous">@drawable/exo_icon_previous</drawable>
+  <drawable name="exo_controls_fastforward">@drawable/exo_icon_fastforward</drawable>
+  <drawable name="exo_controls_rewind">@drawable/exo_icon_rewind</drawable>
+  <drawable name="exo_notification_play">@drawable/exo_icon_play</drawable>
+  <drawable name="exo_notification_pause">@drawable/exo_icon_pause</drawable>
+  <drawable name="exo_notification_next">@drawable/exo_icon_next</drawable>
+  <drawable name="exo_notification_previous">@drawable/exo_icon_previous</drawable>
+  <drawable name="exo_notification_fastforward">@drawable/exo_icon_fastforward</drawable>
+  <drawable name="exo_notification_rewind">@drawable/exo_icon_rewind</drawable>
+  <drawable name="exo_notification_stop">@drawable/exo_icon_stop</drawable>
+</resources>

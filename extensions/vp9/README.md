@@ -1,20 +1,24 @@
-# ExoPlayer VP9 Extension #
+# ExoPlayer VP9 extension #
 
-## Description ##
+The VP9 extension provides `LibvpxVideoRenderer`, which uses libvpx (the VPx
+decoding library) to decode VP9 video.
 
-The VP9 Extension is a [TrackRenderer][] implementation that helps you bundle libvpx (the VP9 decoding library) into your app and use it along with ExoPlayer to play VP9 video on Android devices.
+## License note ##
 
-[TrackRenderer]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer/TrackRenderer.html
+Please note that whilst the code in this repository is licensed under
+[Apache 2.0][], using this extension also requires building and including one or
+more external libraries as described below. These are licensed separately.
 
-## Build Instructions (Android Studio and Eclipse) ##
+[Apache 2.0]: https://github.com/google/ExoPlayer/blob/release-v2/LICENSE
 
-Building the VP9 Extension involves building libvpx and JNI bindings using the Android NDK and linking it into your app. The following steps will tell you how to do that using Android Studio or Eclipse.
+## Build instructions ##
 
-* Checkout ExoPlayer along with Extensions
+To use this extension you need to clone the ExoPlayer repository and depend on
+its modules locally. Instructions for doing this can be found in ExoPlayer's
+[top level README][].
 
-```
-git clone https://github.com/google/ExoPlayer.git
-```
+In addition, it's necessary to build the extension's native components as
+follows:
 
 * Set the following environment variables:
 
@@ -24,114 +28,95 @@ EXOPLAYER_ROOT="$(pwd)"
 VP9_EXT_PATH="${EXOPLAYER_ROOT}/extensions/vp9/src/main"
 ```
 
-* Download the [Android NDK][] and set its location in an environment variable:
+* Download the [Android NDK][] and set its location in an environment variable.
+  The build configuration has been tested with Android NDK r19c.
 
 ```
 NDK_PATH="<path to Android NDK>"
 ```
 
-* Fetch libvpx and libyuv
+* Fetch libvpx:
 
 ```
 cd "${VP9_EXT_PATH}/jni" && \
-git clone https://chromium.googlesource.com/webm/libvpx libvpx && \
-git clone https://chromium.googlesource.com/libyuv/libyuv libyuv
+git clone https://chromium.googlesource.com/webm/libvpx libvpx
 ```
 
-* Run a script that generates necessary configuration files for libvpx
+* Checkout the appropriate branch of libvpx (the scripts and makefiles bundled
+  in this repo are known to work only at specific versions of the library - we
+  will update this periodically as newer versions of libvpx are released):
+
+```
+cd "${VP9_EXT_PATH}/jni/libvpx" && \
+git checkout tags/v1.8.0 -b v1.8.0
+```
+
+* Run a script that generates necessary configuration files for libvpx:
 
 ```
 cd ${VP9_EXT_PATH}/jni && \
-./generate_libvpx_android_configs.sh "${NDK_PATH}"
+./generate_libvpx_android_configs.sh
 ```
 
-### Android Studio ###
-
-For Android Studio, we build the native libraries from the command line and then Gradle will pick it up when building your app using Android Studio.
-
-* Build the JNI native libraries
+* Build the JNI native libraries from the command line:
 
 ```
 cd "${VP9_EXT_PATH}"/jni && \
 ${NDK_PATH}/ndk-build APP_ABI=all -j4
 ```
 
-* In your project, you can add a dependency to the VP9 Extension by using a the following rule
-
-```
-// in settings.gradle
-include ':..:ExoPlayer:library'
-include ':..:ExoPlayer:vp9-extension'
-
-// in build.gradle
-dependencies {
-    compile project(':..:ExoPlayer:library')
-    compile project(':..:ExoPlayer:vp9-extension')
-}
-```
-
-* Now, when you build your app, the VP9 extension will be built and the native libraries will be packaged along with the APK.
-
-### Eclipse ###
-
-* The following steps assume that you have installed Eclipse and configured it with the [Android SDK][] and [Android NDK ][]:
-  * Navigate to File->Import->General->Existing Projects into Workspace
-  * Select the root directory of the repository
-  * Import the following projects:
-    * ExoPlayerLib
-    * ExoPlayerExt-VP9
-    * If you are able to build ExoPlayerExt-VP9 project, then you're all set.
-    * (Optional) To speed up the NDK build:
-      * Right click on ExoPlayerExt-VP9 in the Project Explorer pane and choose Properties
-      * Click on C/C++ Build
-      * Uncheck `Use default build command`
-      * In `Build Command` enter: `ndk-build -j4` (adjust 4 to a reasonable number depending on the number of cores in your computer)
-      * Click Apply
-
-You can now create your own Android App project and add ExoPlayerLib along with ExoPlayerExt-VP9 as a dependencies to use ExoPlayer along with the VP9 Extension.
-
-
+[top level README]: https://github.com/google/ExoPlayer/blob/release-v2/README.md
 [Android NDK]: https://developer.android.com/tools/sdk/ndk/index.html
-<!---
-Work around to point to two different links for the same text.
--->
-[Android NDK ]: http://tools.android.com/recent/usingthendkplugin
-[Android SDK]: http://developer.android.com/sdk/installing/index.html?pkg=tools
 
-## Building for various Architectures ##
-
-### Android Studio ###
-
-The manual invocation of `ndk-build` will build the library for all architectures and the correct one will be picked up from the APK based on the device its running on.
-
-### Eclipse  ###
-
-libvpx is optimized for various architectures (like neon, x86, etc.). The `generate_libvpx_android_configs.sh` script generates Android configurations for the following architectures:
-
-* armeabi (the default - does not include neon optimizations)
-* armeabi-v7a (choose this to enable neon optimizations)
-* mips
-* x86
-* arm64-v8a
-* mips64
-* x86_64
-* all (will result in a larger binary but will cover all architectures)
-
-You can build for a specific architecture in two ways:
-
-* Method 1 (edit `Application.mk`)
-  * Edit `${VP9_EXT_PATH}/jni/Application.mk` and add the following line `APP_ABI := <arch>` (where `<arch>` is one of the above 7 architectures)
-* Method 2 (pass NDK build flag)
-  * Right click on ExoPlayerExt-VP9 in the Project Explorer pane and choose Properties
-  * Click on C/C++ Build
-  * Uncheck `Use default build command`
-  * In `Build Command` enter: `ndk-build APP_ABI=<arch>` (where `<arch>` is one of the above 7 architectures)
-  * Click Apply
-
-## Other Things to Note ##
+## Notes ##
 
 * Every time there is a change to the libvpx checkout:
-  * Android config scripts should be re-generated by running `generate_libvpx_android_configs.sh`
+  * Android config scripts should be re-generated by running
+    `generate_libvpx_android_configs.sh`
   * Clean and re-build the project.
-* If you want to use your own version of libvpx or libyuv, place it in `${VP9_EXT_PATH}/jni/libvpx` or `${VP9_EXT_PATH}/jni/libyuv` respectively.
+* If you want to use your own version of libvpx, place it in
+  `${VP9_EXT_PATH}/jni/libvpx`. Please note that
+  `generate_libvpx_android_configs.sh` and the makefiles may need to be modified
+  to work with arbitrary versions of libvpx.
 
+## Using the extension ##
+
+Once you've followed the instructions above to check out, build and depend on
+the extension, the next step is to tell ExoPlayer to use `LibvpxVideoRenderer`.
+How you do this depends on which player API you're using:
+
+* If you're passing a `DefaultRenderersFactory` to
+  `ExoPlayerFactory.newSimpleInstance`, you can enable using the extension by
+  setting the `extensionRendererMode` parameter of the `DefaultRenderersFactory`
+  constructor to `EXTENSION_RENDERER_MODE_ON`. This will use
+  `LibvpxVideoRenderer` for playback if `MediaCodecVideoRenderer` doesn't
+  support decoding the input VP9 stream. Pass `EXTENSION_RENDERER_MODE_PREFER`
+  to give `LibvpxVideoRenderer` priority over `MediaCodecVideoRenderer`.
+* If you've subclassed `DefaultRenderersFactory`, add a `LibvpxVideoRenderer`
+  to the output list in `buildVideoRenderers`. ExoPlayer will use the first
+  `Renderer` in the list that supports the input media format.
+* If you've implemented your own `RenderersFactory`, return a
+  `LibvpxVideoRenderer` instance from `createRenderers`. ExoPlayer will use the
+  first `Renderer` in the returned array that supports the input media format.
+* If you're using `ExoPlayerFactory.newInstance`, pass a `LibvpxVideoRenderer`
+  in the array of `Renderer`s. ExoPlayer will use the first `Renderer` in the
+  list that supports the input media format.
+
+Note: These instructions assume you're using `DefaultTrackSelector`. If you have
+a custom track selector the choice of `Renderer` is up to your implementation,
+so you need to make sure you are passing an `LibvpxVideoRenderer` to the
+player, then implement your own logic to use the renderer for a given track.
+
+`LibvpxVideoRenderer` can optionally output to a `VpxVideoSurfaceView` when not
+being used via `SimpleExoPlayer`, in which case color space conversion will be
+performed using a GL shader. To enable this mode, send the renderer a message of
+type `LibvpxVideoRenderer.MSG_SET_OUTPUT_BUFFER_RENDERER` with the
+`VpxVideoSurfaceView` as its object, instead of sending `MSG_SET_SURFACE` with a
+`Surface`.
+
+## Links ##
+
+* [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.vp9.*`
+  belong to this module.
+
+[Javadoc]: https://exoplayer.dev/doc/reference/index.html
