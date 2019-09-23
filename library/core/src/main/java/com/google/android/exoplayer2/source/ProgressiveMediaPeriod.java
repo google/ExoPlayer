@@ -55,6 +55,9 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /** A {@link MediaPeriod} that extracts data using an {@link Extractor}. */
@@ -85,6 +88,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    * sample timestamp seen when buffering completes.
    */
   private static final long DEFAULT_LAST_SAMPLE_DURATION_US = 10000;
+
+  private static final Map<String, String> ICY_METADATA_HEADERS = createIcyMetadataHeaders();
 
   private static final Format ICY_FORMAT =
       Format.createSampleFormat("icy", MimeTypes.APPLICATION_ICY, Format.OFFSET_SAMPLE_RELATIVE);
@@ -1025,9 +1030,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           position,
           C.LENGTH_UNSET,
           customCacheKey,
-          DataSpec.FLAG_ALLOW_ICY_METADATA
-              | DataSpec.FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN
-              | DataSpec.FLAG_ALLOW_CACHE_FRAGMENTATION);
+          DataSpec.FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN | DataSpec.FLAG_ALLOW_CACHE_FRAGMENTATION,
+          ICY_METADATA_HEADERS);
     }
 
     private void setLoadPosition(long position, long timeUs) {
@@ -1153,5 +1157,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     public int hashCode() {
       return 31 * id + (isIcyTrack ? 1 : 0);
     }
+  }
+
+  private static Map<String, String> createIcyMetadataHeaders() {
+    Map<String, String> headers = new HashMap<>();
+    headers.put(
+        IcyHeaders.REQUEST_HEADER_ENABLE_METADATA_NAME,
+        IcyHeaders.REQUEST_HEADER_ENABLE_METADATA_VALUE);
+    return Collections.unmodifiableMap(headers);
   }
 }

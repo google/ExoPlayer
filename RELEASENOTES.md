@@ -2,6 +2,9 @@
 
 ### dev-v2 (not yet released) ###
 
+* Remove the `DataSpec.FLAG_ALLOW_ICY_METADATA` flag. Instead, set the header
+  `IcyHeaders.REQUEST_HEADER_ENABLE_METADATA_NAME` in the `DataSpec`
+  `httpRequestHeaders`.
 * DASH: Support negative @r values in segment timelines
   ([#1787](https://github.com/google/ExoPlayer/issues/1787)).
 * Add `allowedCapturePolicy` field to `AudioAttributes` wrapper to allow to
