@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
+import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.drm.MediaDrmCallback;
 import com.google.android.exoplayer2.drm.UnsupportedDrmException;
@@ -266,7 +267,13 @@ public final class DashTestRunner {
         MediaDrmCallback drmCallback = new HttpMediaDrmCallback(widevineLicenseUrl,
             new DefaultHttpDataSourceFactory(userAgent));
         DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager =
-            DefaultDrmSessionManager.newWidevineInstance(drmCallback, null);
+            new DefaultDrmSessionManager<>(
+                C.WIDEVINE_UUID,
+                FrameworkMediaDrm.newInstance(C.WIDEVINE_UUID),
+                drmCallback,
+                /* optionalKeyRequestParameters= */ null,
+                /* multiSession= */ false,
+                DefaultDrmSessionManager.INITIAL_DRM_REQUEST_RETRY_COUNT);
         if (!useL1Widevine) {
           drmSessionManager.setPropertyString(
               SECURITY_LEVEL_PROPERTY, WIDEVINE_SECURITY_LEVEL_3);
