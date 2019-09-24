@@ -266,17 +266,17 @@ public final class DashTestRunner {
       try {
         MediaDrmCallback drmCallback = new HttpMediaDrmCallback(widevineLicenseUrl,
             new DefaultHttpDataSourceFactory(userAgent));
+        FrameworkMediaDrm frameworkMediaDrm = FrameworkMediaDrm.newInstance(WIDEVINE_UUID);
         DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager =
             new DefaultDrmSessionManager<>(
                 C.WIDEVINE_UUID,
-                FrameworkMediaDrm.newInstance(C.WIDEVINE_UUID),
+                frameworkMediaDrm,
                 drmCallback,
                 /* optionalKeyRequestParameters= */ null,
                 /* multiSession= */ false,
                 DefaultDrmSessionManager.INITIAL_DRM_REQUEST_RETRY_COUNT);
         if (!useL1Widevine) {
-          drmSessionManager.setPropertyString(
-              SECURITY_LEVEL_PROPERTY, WIDEVINE_SECURITY_LEVEL_3);
+          frameworkMediaDrm.setPropertyString(SECURITY_LEVEL_PROPERTY, WIDEVINE_SECURITY_LEVEL_3);
         }
         if (offlineLicenseKeySetId != null) {
           drmSessionManager.setMode(DefaultDrmSessionManager.MODE_PLAYBACK,
