@@ -234,54 +234,6 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
   }
 
   /**
-   * Provides access to {@link ExoMediaDrm#getPropertyString(String)}.
-   *
-   * <p>This method may be called when the manager is in any state.
-   *
-   * @param key The key to request.
-   * @return The retrieved property.
-   */
-  public final String getPropertyString(String key) {
-    return mediaDrm.getPropertyString(key);
-  }
-
-  /**
-   * Provides access to {@link ExoMediaDrm#setPropertyString(String, String)}.
-   *
-   * <p>This method may be called when the manager is in any state.
-   *
-   * @param key The property to write.
-   * @param value The value to write.
-   */
-  public final void setPropertyString(String key, String value) {
-    mediaDrm.setPropertyString(key, value);
-  }
-
-  /**
-   * Provides access to {@link ExoMediaDrm#getPropertyByteArray(String)}.
-   *
-   * <p>This method may be called when the manager is in any state.
-   *
-   * @param key The key to request.
-   * @return The retrieved property.
-   */
-  public final byte[] getPropertyByteArray(String key) {
-    return mediaDrm.getPropertyByteArray(key);
-  }
-
-  /**
-   * Provides access to {@link ExoMediaDrm#setPropertyByteArray(String, byte[])}.
-   *
-   * <p>This method may be called when the manager is in any state.
-   *
-   * @param key The property to write.
-   * @param value The value to write.
-   */
-  public final void setPropertyByteArray(String key, byte[] value) {
-    mediaDrm.setPropertyByteArray(key, value);
-  }
-
-  /**
    * Sets the mode, which determines the role of sessions acquired from the instance. This must be
    * called before {@link #acquireSession(Looper, DrmInitData)} or {@link
    * #acquirePlaceholderSession(Looper)} is called.

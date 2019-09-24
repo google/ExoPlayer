@@ -153,34 +153,6 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
   }
 
   /**
-   * @see DefaultDrmSessionManager#getPropertyByteArray
-   */
-  public synchronized byte[] getPropertyByteArray(String key) {
-    return drmSessionManager.getPropertyByteArray(key);
-  }
-
-  /**
-   * @see DefaultDrmSessionManager#setPropertyByteArray
-   */
-  public synchronized void setPropertyByteArray(String key, byte[] value) {
-    drmSessionManager.setPropertyByteArray(key, value);
-  }
-
-  /**
-   * @see DefaultDrmSessionManager#getPropertyString
-   */
-  public synchronized String getPropertyString(String key) {
-    return drmSessionManager.getPropertyString(key);
-  }
-
-  /**
-   * @see DefaultDrmSessionManager#setPropertyString
-   */
-  public synchronized void setPropertyString(String key, String value) {
-    drmSessionManager.setPropertyString(key, value);
-  }
-
-  /**
    * Downloads an offline license.
    *
    * @param drmInitData The {@link DrmInitData} for the content whose license is to be downloaded.
