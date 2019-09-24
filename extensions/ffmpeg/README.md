@@ -25,8 +25,7 @@ follows:
 
 ```
 cd "<path to exoplayer checkout>"
-EXOPLAYER_ROOT="$(pwd)"
-FFMPEG_EXT_PATH="${EXOPLAYER_ROOT}/extensions/ffmpeg/src/main"
+FFMPEG_EXT_PATH="$(pwd)/extensions/ffmpeg/src/main/jni"
 ```
 
 * Download the [Android NDK][] and set its location in an environment variable.
@@ -69,7 +68,7 @@ COMMON_OPTIONS="\
     --enable-decoder=opus \
     --enable-decoder=flac \
     " && \
-cd "${FFMPEG_EXT_PATH}/jni" && \
+cd "${FFMPEG_EXT_PATH}" && \
 (git -C ffmpeg pull || git clone git://source.ffmpeg.org/ffmpeg ffmpeg) && \
 cd ffmpeg && git checkout release/4.0 && \
 ./configure \
@@ -112,7 +111,7 @@ make clean
   built in the previous step. For example:
 
 ```
-cd "${FFMPEG_EXT_PATH}"/jni && \
+cd "${FFMPEG_EXT_PATH}" && \
 ${NDK_PATH}/ndk-build APP_ABI="armeabi-v7a arm64-v8a x86" -j4
 ```
 
