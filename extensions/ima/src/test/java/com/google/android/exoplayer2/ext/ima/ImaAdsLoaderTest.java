@@ -49,6 +49,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+import java.util.stream.Stream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,13 +62,19 @@ import org.mockito.MockitoAnnotations;
 @RunWith(AndroidJUnit4.class)
 public class ImaAdsLoaderTest {
 
-  private static final long CONTENT_DURATION_US = 10 * C.MICROS_PER_SECOND;
+  private static final long CONTENT_DURATION_US = 125 * C.MICROS_PER_SECOND;
   private static final Timeline CONTENT_TIMELINE =
       new SinglePeriodTimeline(CONTENT_DURATION_US, /* isSeekable= */ true, /* isDynamic= */ false);
   private static final Uri TEST_URI = Uri.EMPTY;
   private static final long TEST_AD_DURATION_US = 5 * C.MICROS_PER_SECOND;
   private static final long[][] PREROLL_ADS_DURATIONS_US = new long[][] {{TEST_AD_DURATION_US}};
   private static final Float[] PREROLL_CUE_POINTS_SECONDS = new Float[] {0f};
+  private static final Float[] PREROLL_MIDROLL_POSTROLL_CUE_POINTS_SECONDS = new Float[]{0f, 10f, 20f, 30f, -1f};
+  private static final long[] PREROLL_MIDROLL_POSTROLL_AD_GROUP_TIMES_US = getCuePointsUS(PREROLL_MIDROLL_POSTROLL_CUE_POINTS_SECONDS);
+  private static final Float[] MIDROLL_POSTROLL_CUE_POINTS_SECONDS = new Float[]{10f, 20f, 30f, -1f};
+  private static final long[] MIDROLL_POSTROLL_AD_GROUP_TIMES_US = getCuePointsUS(MIDROLL_POSTROLL_CUE_POINTS_SECONDS);
+  private static final Float[] POSTROLL_CUE_POINTS_SECONDS = new Float[]{-1f};
+  private static final long[] POSTROLL_AD_GROUP_TIMES_US = getCuePointsUS(POSTROLL_CUE_POINTS_SECONDS);
   private static final FakeAd UNSKIPPABLE_AD =
       new FakeAd(/* skippable= */ false, /* podIndex= */ 0, /* totalAds= */ 1, /* adPosition= */ 1);
 
@@ -221,6 +228,154 @@ public class ImaAdsLoaderTest {
                 .withAdResumePositionUs(/* adResumePositionUs= */ 0));
   }
 
+  private void setupPlayback_disablePrecedingAd(Float[] cuePointsSeconds, long playingContentPosition,
+      AdPlaybackState expectedAdPlaybackState) {
+    setupPlayback(CONTENT_TIMELINE, null, cuePointsSeconds, false);
+    fakeExoPlayer.setPlayingContentPosition(playingContentPosition);
+    imaAdsLoader.start(adsLoaderListener, adViewProvider);
+
+    assertThat(adsLoaderListener.adPlaybackState).isEqualTo(expectedAdPlaybackState);
+  }
+
+  private void testPlayAd_disablePrecedingAd(long playingContentPosition, AdPlaybackState expectedAdPlaybackState) {
+    imaAdsLoader.playAd();
+    fakeExoPlayer.setPlayingAdPosition(
+        /* adGroupIndex= */ 0,
+        /* adIndexInAdGroup= */ 0,
+        /* position= */ 0,
+        /* contentPosition= */ 0);
+    fakeExoPlayer.setState(Player.STATE_READY, true);
+
+    // Play the content.
+    fakeExoPlayer.setPlayingContentPosition(playingContentPosition);
+    imaAdsLoader.stopAd();
+
+    assertThat(adsLoaderListener.adPlaybackState).isEqualTo(expectedAdPlaybackState);
+  }
+
+  @Test
+  public void testPlayback_disablePrecedingAd_withPrerollMidrollPostroll_playFromStart() {
+    setupPlayback_disablePrecedingAd(PREROLL_MIDROLL_POSTROLL_CUE_POINTS_SECONDS, 0,
+        new AdPlaybackState(PREROLL_MIDROLL_POSTROLL_AD_GROUP_TIMES_US)
+          .withContentDurationUs(CONTENT_DURATION_US));
+
+    imaAdsLoader.onAdEvent(getAdEvent(AdEventType.LOADED, UNSKIPPABLE_AD));
+    imaAdsLoader.loadAd(TEST_URI.toString());
+    imaAdsLoader.onAdEvent(getAdEvent(AdEventType.CONTENT_PAUSE_REQUESTED, UNSKIPPABLE_AD));
+
+    testPlayAd_disablePrecedingAd(0, new AdPlaybackState(PREROLL_MIDROLL_POSTROLL_AD_GROUP_TIMES_US)
+        .withContentDurationUs(CONTENT_DURATION_US)
+        .withAdCount(0, 1)
+        .withAdUri(0, 0, TEST_URI)
+        .withPlayedAd(0, 0));
+  }
+
+  @Test
+  public void testPlayback_disablePrecedingAd_withPrerollMidrollPostroll_playFromMiddleOfPrerollMidroll() {
+    setupPlayback_disablePrecedingAd(PREROLL_MIDROLL_POSTROLL_CUE_POINTS_SECONDS, 5000,
+        new AdPlaybackState(PREROLL_MIDROLL_POSTROLL_AD_GROUP_TIMES_US)
+            .withContentDurationUs(CONTENT_DURATION_US)
+            .withSkippedAdGroup(0));
+
+    FakeAd midrollAd = new FakeAd(/* skippable= */ false, /* podIndex= */ 1, /* totalAds= */ 1, /* adPosition= */ 1);
+    imaAdsLoader.onAdEvent(getAdEvent(AdEventType.LOADED, midrollAd));
+    imaAdsLoader.loadAd(TEST_URI.toString());
+    imaAdsLoader.onAdEvent(getAdEvent(AdEventType.CONTENT_PAUSE_REQUESTED, midrollAd));
+
+    testPlayAd_disablePrecedingAd(10000,
+        new AdPlaybackState(PREROLL_MIDROLL_POSTROLL_AD_GROUP_TIMES_US)
+            .withContentDurationUs(CONTENT_DURATION_US)
+            .withSkippedAdGroup(0)
+            .withAdCount(1, 1)
+            .withAdUri(1, 0, TEST_URI)
+            .withPlayedAd(1, 0));
+  }
+
+  @Test
+  public void testPlayback_disablePrecedingAd_withPrerollMidrollPostroll_playFromFirstMidroll() {
+    setupPlayback_disablePrecedingAd(PREROLL_MIDROLL_POSTROLL_CUE_POINTS_SECONDS, 10000,
+        new AdPlaybackState(PREROLL_MIDROLL_POSTROLL_AD_GROUP_TIMES_US)
+            .withContentDurationUs(CONTENT_DURATION_US)
+            .withSkippedAdGroup(0)
+            .withSkippedAdGroup(1));
+
+    // IMA sdk will return podIndex=1 for the second midroll when previous midroll cue point is skipped
+    FakeAd midrollAd = new FakeAd(/* skippable= */ false, /* podIndex= */ 1, /* totalAds= */ 1, /* adPosition= */ 1);
+    imaAdsLoader.onAdEvent(getAdEvent(AdEventType.LOADED, midrollAd));
+    imaAdsLoader.loadAd(TEST_URI.toString());
+    imaAdsLoader.onAdEvent(getAdEvent(AdEventType.CONTENT_PAUSE_REQUESTED, midrollAd));
+
+    testPlayAd_disablePrecedingAd(20000,
+        new AdPlaybackState(PREROLL_MIDROLL_POSTROLL_AD_GROUP_TIMES_US)
+            .withContentDurationUs(CONTENT_DURATION_US)
+            .withSkippedAdGroup(0)
+            .withSkippedAdGroup(1)
+            .withAdCount(2, 1)
+            .withAdUri(2, 0, TEST_URI)
+            .withPlayedAd(2, 0));
+  }
+
+  @Test
+  public void testPlayback_disablePrecedingAd_withPrerollMidrollPostroll_playAfterFirstMidroll() {
+    setupPlayback_disablePrecedingAd(PREROLL_MIDROLL_POSTROLL_CUE_POINTS_SECONDS, 15000,
+        new AdPlaybackState(PREROLL_MIDROLL_POSTROLL_AD_GROUP_TIMES_US)
+            .withContentDurationUs(CONTENT_DURATION_US)
+            .withSkippedAdGroup(0)
+            .withSkippedAdGroup(1));
+
+    FakeAd midrollAd = new FakeAd(/* skippable= */ false, /* podIndex= */ 1, /* totalAds= */ 1, /* adPosition= */ 1);
+    imaAdsLoader.onAdEvent(getAdEvent(AdEventType.LOADED, midrollAd));
+    imaAdsLoader.loadAd(TEST_URI.toString());
+    imaAdsLoader.onAdEvent(getAdEvent(AdEventType.CONTENT_PAUSE_REQUESTED, midrollAd));
+
+    testPlayAd_disablePrecedingAd(20000,
+        new AdPlaybackState(PREROLL_MIDROLL_POSTROLL_AD_GROUP_TIMES_US)
+            .withContentDurationUs(CONTENT_DURATION_US)
+            .withSkippedAdGroup(0)
+            .withSkippedAdGroup(1)
+            .withAdCount(2, 1)
+            .withAdUri(2, 0, TEST_URI)
+            .withPlayedAd(2, 0));
+  }
+
+  @Test
+  public void testPlayback_disablePrecedingAd_withMidrollPostroll_playFromStart() {
+    setupPlayback_disablePrecedingAd(MIDROLL_POSTROLL_CUE_POINTS_SECONDS, 0,
+        new AdPlaybackState(MIDROLL_POSTROLL_AD_GROUP_TIMES_US)
+            .withContentDurationUs(CONTENT_DURATION_US));
+
+    FakeAd midrollAd = new FakeAd(/* skippable= */ false, /* podIndex= */ 1, /* totalAds= */ 1, /* adPosition= */ 1);
+    imaAdsLoader.onAdEvent(getAdEvent(AdEventType.LOADED, midrollAd));
+    imaAdsLoader.loadAd(TEST_URI.toString());
+    imaAdsLoader.onAdEvent(getAdEvent(AdEventType.CONTENT_PAUSE_REQUESTED, midrollAd));
+
+    testPlayAd_disablePrecedingAd(10000,
+        new AdPlaybackState(MIDROLL_POSTROLL_AD_GROUP_TIMES_US)
+            .withContentDurationUs(CONTENT_DURATION_US)
+            .withAdCount(0, 1)
+            .withAdUri(0, 0, TEST_URI)
+            .withPlayedAd(0, 0));
+  }
+
+  @Test
+  public void testPlayback_disablePrecedingAd_withPostroll() {
+    setupPlayback_disablePrecedingAd(POSTROLL_CUE_POINTS_SECONDS, 5000,
+        new AdPlaybackState(POSTROLL_AD_GROUP_TIMES_US)
+            .withContentDurationUs(CONTENT_DURATION_US));
+
+    FakeAd postrollAd = new FakeAd(/* skippable= */ false, /* podIndex= */ -1, /* totalAds= */ 1, /* adPosition= */ 1);
+    imaAdsLoader.onAdEvent(getAdEvent(AdEventType.LOADED, postrollAd));
+    imaAdsLoader.loadAd(TEST_URI.toString());
+    imaAdsLoader.onAdEvent(getAdEvent(AdEventType.CONTENT_PAUSE_REQUESTED, postrollAd));
+
+    testPlayAd_disablePrecedingAd(C.usToMs(CONTENT_DURATION_US),
+        new AdPlaybackState(POSTROLL_AD_GROUP_TIMES_US)
+            .withContentDurationUs(CONTENT_DURATION_US)
+            .withAdCount(0, 1)
+            .withAdUri(0, 0, TEST_URI)
+            .withPlayedAd(0, 0));
+  }
+
   @Test
   public void testStop_unregistersAllVideoControlOverlays() {
     setupPlayback(CONTENT_TIMELINE, PREROLL_ADS_DURATIONS_US, PREROLL_CUE_POINTS_SECONDS);
@@ -234,6 +389,10 @@ public class ImaAdsLoaderTest {
   }
 
   private void setupPlayback(Timeline contentTimeline, long[][] adDurationsUs, Float[] cuePoints) {
+    setupPlayback(contentTimeline, adDurationsUs, cuePoints, true);
+  }
+
+  private void setupPlayback(Timeline contentTimeline, long[][] adDurationsUs, Float[] cuePoints, boolean enablePrecedingAd) {
     fakeExoPlayer = new FakePlayer();
     adsLoaderListener = new TestAdsLoaderListener(fakeExoPlayer, contentTimeline, adDurationsUs);
     when(adsManager.getAdCuePoints()).thenReturn(Arrays.asList(cuePoints));
@@ -241,8 +400,16 @@ public class ImaAdsLoaderTest {
         new ImaAdsLoader.Builder(ApplicationProvider.getApplicationContext())
             .setImaFactory(testImaFactory)
             .setImaSdkSettings(imaSdkSettings)
+            .setEnablePrecedingAd(enablePrecedingAd)
             .buildForAdTag(TEST_URI);
     imaAdsLoader.setPlayer(fakeExoPlayer);
+  }
+
+  private static long[] getCuePointsUS(Float[] cuePointsSeconds) {
+    return Stream.of(cuePointsSeconds)
+        .mapToLong(seconds -> seconds == -1 ? C.TIME_END_OF_SOURCE
+            : (long) (C.MICROS_PER_SECOND * seconds))
+        .toArray();
   }
 
   private static AdEvent getAdEvent(AdEventType adEventType, @Nullable Ad ad) {
@@ -283,11 +450,23 @@ public class ImaAdsLoaderTest {
 
     @Override
     public void onAdPlaybackState(AdPlaybackState adPlaybackState) {
-      adPlaybackState = adPlaybackState.withAdDurationsUs(adDurationsUs);
+      if (adDurationsUs != null) {
+        adPlaybackState = adPlaybackState.withAdDurationsUs(adDurationsUs);
+      }
       this.adPlaybackState = adPlaybackState;
+      if (isAllAdPlayed(adPlaybackState)) {
+        return;
+      }
       fakeExoPlayer.updateTimeline(
           new SinglePeriodAdTimeline(contentTimeline, adPlaybackState),
           Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
+    }
+
+    private boolean isAllAdPlayed(AdPlaybackState adPlaybackState) {
+      if (adPlaybackState.adGroupCount == 0) {
+        return true;
+      }
+      return !adPlaybackState.adGroups[adPlaybackState.adGroupCount - 1].hasUnplayedAds();
     }
 
     @Override
