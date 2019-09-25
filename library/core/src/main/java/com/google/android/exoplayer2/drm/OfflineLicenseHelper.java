@@ -201,6 +201,7 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
   public synchronized Pair<Long, Long> getLicenseDurationRemainingSec(byte[] offlineLicenseKeySetId)
       throws DrmSessionException {
     Assertions.checkNotNull(offlineLicenseKeySetId);
+    drmSessionManager.prepare();
     DrmSession<T> drmSession =
         openBlockingKeyRequest(
             DefaultDrmSessionManager.MODE_QUERY, offlineLicenseKeySetId, DUMMY_DRM_INIT_DATA);
@@ -208,6 +209,7 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
     Pair<Long, Long> licenseDurationRemainingSec =
         WidevineUtil.getLicenseDurationRemainingSec(drmSession);
     drmSession.releaseReference();
+    drmSessionManager.release();
     if (error != null) {
       if (error.getCause() instanceof KeysExpiredException) {
         return Pair.create(0L, 0L);
@@ -227,11 +229,13 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
   private byte[] blockingKeyRequest(
       @Mode int licenseMode, @Nullable byte[] offlineLicenseKeySetId, DrmInitData drmInitData)
       throws DrmSessionException {
+    drmSessionManager.prepare();
     DrmSession<T> drmSession = openBlockingKeyRequest(licenseMode, offlineLicenseKeySetId,
         drmInitData);
     DrmSessionException error = drmSession.getError();
     byte[] keySetId = drmSession.getOfflineLicenseKeySetId();
     drmSession.releaseReference();
+    drmSessionManager.release();
     if (error != null) {
       throw error;
     }

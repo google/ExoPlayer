@@ -87,7 +87,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
   private static final String TAG = "DefaultDrmSessionMgr";
 
   private final UUID uuid;
-  private final ExoMediaDrm<T> mediaDrm;
+  private final ExoMediaDrm.Provider<T> exoMediaDrmProvider;
   private final MediaDrmCallback callback;
   @Nullable private final HashMap<String, String> optionalKeyRequestParameters;
   private final EventDispatcher<DefaultDrmSessionEventListener> eventDispatcher;
@@ -98,6 +98,8 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
   private final List<DefaultDrmSession<T>> sessions;
   private final List<DefaultDrmSession<T>> provisioningSessions;
 
+  private int prepareCallsCount;
+  @Nullable private ExoMediaDrm<T> exoMediaDrm;
   @Nullable private DefaultDrmSession<T> placeholderDrmSession;
   @Nullable private Looper playbackLooper;
   private int mode;
@@ -107,19 +109,19 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
 
   /**
    * @param uuid The UUID of the drm scheme.
-   * @param mediaDrm An underlying {@link ExoMediaDrm} for use by the manager.
+   * @param exoMediaDrm An underlying {@link ExoMediaDrm} for use by the manager.
    * @param callback Performs key and provisioning requests.
    * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
    *     to {@link ExoMediaDrm#getKeyRequest(byte[], List, int, HashMap)}. May be null.
    */
   public DefaultDrmSessionManager(
       UUID uuid,
-      ExoMediaDrm<T> mediaDrm,
+      ExoMediaDrm<T> exoMediaDrm,
       MediaDrmCallback callback,
       @Nullable HashMap<String, String> optionalKeyRequestParameters) {
     this(
         uuid,
-        mediaDrm,
+        exoMediaDrm,
         callback,
         optionalKeyRequestParameters,
         /* multiSession= */ false,
@@ -128,7 +130,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
 
   /**
    * @param uuid The UUID of the drm scheme.
-   * @param mediaDrm An underlying {@link ExoMediaDrm} for use by the manager.
+   * @param exoMediaDrm An underlying {@link ExoMediaDrm} for use by the manager.
    * @param callback Performs key and provisioning requests.
    * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
    *     to {@link ExoMediaDrm#getKeyRequest(byte[], List, int, HashMap)}. May be null.
@@ -137,13 +139,13 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
    */
   public DefaultDrmSessionManager(
       UUID uuid,
-      ExoMediaDrm<T> mediaDrm,
+      ExoMediaDrm<T> exoMediaDrm,
       MediaDrmCallback callback,
       @Nullable HashMap<String, String> optionalKeyRequestParameters,
       boolean multiSession) {
     this(
         uuid,
-        mediaDrm,
+        exoMediaDrm,
         callback,
         optionalKeyRequestParameters,
         multiSession,
@@ -152,7 +154,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
 
   /**
    * @param uuid The UUID of the drm scheme.
-   * @param mediaDrm An underlying {@link ExoMediaDrm} for use by the manager.
+   * @param exoMediaDrm An underlying {@link ExoMediaDrm} for use by the manager.
    * @param callback Performs key and provisioning requests.
    * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
    *     to {@link ExoMediaDrm#getKeyRequest(byte[], List, int, HashMap)}. May be null.
@@ -163,14 +165,14 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
    */
   public DefaultDrmSessionManager(
       UUID uuid,
-      ExoMediaDrm<T> mediaDrm,
+      ExoMediaDrm<T> exoMediaDrm,
       MediaDrmCallback callback,
       @Nullable HashMap<String, String> optionalKeyRequestParameters,
       boolean multiSession,
       int initialDrmRequestRetryCount) {
     this(
         uuid,
-        mediaDrm,
+        new ExoMediaDrm.AppManagedProvider<>(exoMediaDrm),
         callback,
         optionalKeyRequestParameters,
         multiSession,
@@ -180,38 +182,26 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
 
   private DefaultDrmSessionManager(
       UUID uuid,
-      ExoMediaDrm<T> mediaDrm,
+      ExoMediaDrm.Provider<T> exoMediaDrmProvider,
       MediaDrmCallback callback,
       @Nullable HashMap<String, String> optionalKeyRequestParameters,
       boolean multiSession,
       boolean allowPlaceholderSessions,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
     Assertions.checkNotNull(uuid);
-    Assertions.checkNotNull(mediaDrm);
     Assertions.checkArgument(!C.COMMON_PSSH_UUID.equals(uuid), "Use C.CLEARKEY_UUID instead");
     this.uuid = uuid;
-    this.mediaDrm = mediaDrm;
+    this.exoMediaDrmProvider = exoMediaDrmProvider;
     this.callback = callback;
     this.optionalKeyRequestParameters = optionalKeyRequestParameters;
     this.eventDispatcher = new EventDispatcher<>();
     this.multiSession = multiSession;
-    boolean canAcquirePlaceholderSessions =
-        !FrameworkMediaCrypto.class.equals(mediaDrm.getExoMediaCryptoType())
-            || !FrameworkMediaCrypto.WORKAROUND_DEVICE_NEEDS_KEYS_TO_CONFIGURE_CODEC;
     // TODO: Allow customization once this class has a Builder.
-    this.allowPlaceholderSessions = canAcquirePlaceholderSessions && allowPlaceholderSessions;
+    this.allowPlaceholderSessions = allowPlaceholderSessions;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     mode = MODE_PLAYBACK;
     sessions = new ArrayList<>();
     provisioningSessions = new ArrayList<>();
-    if (multiSession && C.WIDEVINE_UUID.equals(uuid) && Util.SDK_INT >= 19) {
-      // TODO: Enabling session sharing probably doesn't do anything useful here. It would only be
-      // useful if DefaultDrmSession instances were aware of one another's state, which is not
-      // implemented. Or if custom renderers are being used that allow playback to proceed before
-      // keys, which seems unlikely to be true in practice.
-      mediaDrm.setPropertyString("sessionSharing", "enable");
-    }
-    mediaDrm.setOnEventListener(new MediaDrmEventListener());
   }
 
   /**
@@ -269,6 +259,30 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
   // DrmSessionManager implementation.
 
   @Override
+  public final void prepare() {
+    if (prepareCallsCount++ == 0) {
+      Assertions.checkState(exoMediaDrm == null);
+      exoMediaDrm = exoMediaDrmProvider.acquireExoMediaDrm(uuid);
+      if (multiSession && C.WIDEVINE_UUID.equals(uuid) && Util.SDK_INT >= 19) {
+        // TODO: Enabling session sharing probably doesn't do anything useful here. It would only be
+        // useful if DefaultDrmSession instances were aware of one another's state, which is not
+        // implemented. Or if custom renderers are being used that allow playback to proceed before
+        // keys, which seems unlikely to be true in practice.
+        exoMediaDrm.setPropertyString("sessionSharing", "enable");
+      }
+      exoMediaDrm.setOnEventListener(new MediaDrmEventListener());
+    }
+  }
+
+  @Override
+  public final void release() {
+    if (--prepareCallsCount == 0) {
+      Assertions.checkNotNull(exoMediaDrm).release();
+      exoMediaDrm = null;
+    }
+  }
+
+  @Override
   public boolean canAcquireSession(DrmInitData drmInitData) {
     if (offlineLicenseKeySetId != null) {
       // An offline license can be restored so a session can always be acquired.
@@ -304,7 +318,13 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
   @Nullable
   public DrmSession<T> acquirePlaceholderSession(Looper playbackLooper) {
     assertExpectedPlaybackLooper(playbackLooper);
-    if (!allowPlaceholderSessions || mediaDrm.getExoMediaCryptoType() == null) {
+    Assertions.checkNotNull(exoMediaDrm);
+    boolean avoidPlaceholderDrmSessions =
+        FrameworkMediaCrypto.class.equals(exoMediaDrm.getExoMediaCryptoType())
+            && FrameworkMediaCrypto.WORKAROUND_DEVICE_NEEDS_KEYS_TO_CONFIGURE_CODEC;
+    if (avoidPlaceholderDrmSessions
+        || !allowPlaceholderSessions
+        || exoMediaDrm.getExoMediaCryptoType() == null) {
       return null;
     }
     maybeCreateMediaDrmHandler(playbackLooper);
@@ -359,7 +379,9 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
   @Override
   @Nullable
   public Class<T> getExoMediaCryptoType(DrmInitData drmInitData) {
-    return canAcquireSession(drmInitData) ? mediaDrm.getExoMediaCryptoType() : null;
+    return canAcquireSession(drmInitData)
+        ? Assertions.checkNotNull(exoMediaDrm).getExoMediaCryptoType()
+        : null;
   }
 
   // ProvisioningManager implementation.
@@ -408,9 +430,10 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
 
   private DefaultDrmSession<T> createNewDefaultSession(
       @Nullable List<SchemeData> schemeDatas, boolean isPlaceholderSession) {
+    Assertions.checkNotNull(exoMediaDrm);
     return new DefaultDrmSession<>(
         uuid,
-        mediaDrm,
+        exoMediaDrm,
         /* provisioningManager= */ this,
         /* releaseCallback= */ this::onSessionReleased,
         schemeDatas,
