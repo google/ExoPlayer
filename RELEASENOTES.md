@@ -1,5 +1,11 @@
 # Release notes #
 
+### 2.10.6 ###
+
+* Add `Player.onPlaybackSuppressionReasonChanged` to allow listeners to
+  detect playbacks suppressions (e.g. audio focus loss) directly
+  ([#6203](https://github.com/google/ExoPlayer/issues/6203)).
+
 ### 2.10.5 (2019-09-20) ###
 
 * Add `Player.isPlaying` and `EventListener.onIsPlayingChanged` to check whether
