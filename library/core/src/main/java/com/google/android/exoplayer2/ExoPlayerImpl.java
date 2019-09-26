@@ -260,16 +260,20 @@ import java.util.concurrent.CopyOnWriteArrayList;
       internalPlayer.setPlayWhenReady(internalPlayWhenReady);
     }
     boolean playWhenReadyChanged = this.playWhenReady != playWhenReady;
+    boolean suppressionReasonChanged = this.playbackSuppressionReason != playbackSuppressionReason;
     this.playWhenReady = playWhenReady;
     this.playbackSuppressionReason = playbackSuppressionReason;
     boolean isPlaying = isPlaying();
     boolean isPlayingChanged = oldIsPlaying != isPlaying;
-    if (playWhenReadyChanged || isPlayingChanged) {
+    if (playWhenReadyChanged || suppressionReasonChanged || isPlayingChanged) {
       int playbackState = playbackInfo.playbackState;
       notifyListeners(
           listener -> {
             if (playWhenReadyChanged) {
               listener.onPlayerStateChanged(playWhenReady, playbackState);
+            }
+            if (suppressionReasonChanged) {
+              listener.onPlaybackSuppressionReasonChanged(playbackSuppressionReason);
             }
             if (isPlayingChanged) {
               listener.onIsPlayingChanged(isPlaying);
