@@ -102,6 +102,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
   private int prepareCallsCount;
   @Nullable private ExoMediaDrm<T> exoMediaDrm;
   @Nullable private DefaultDrmSession<T> placeholderDrmSession;
+  @Nullable private DefaultDrmSession<T> noMultiSessionDrmSession;
   @Nullable private Looper playbackLooper;
   private int mode;
   @Nullable private byte[] offlineLicenseKeySetId;
@@ -357,9 +358,9 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
       }
     }
 
-    DefaultDrmSession<T> session;
+    @Nullable DefaultDrmSession<T> session;
     if (!multiSession) {
-      session = sessions.isEmpty() ? null : sessions.get(0);
+      session = noMultiSessionDrmSession;
     } else {
       // Only use an existing session if it has matching init data.
       session = null;
@@ -374,6 +375,9 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
     if (session == null) {
       // Create a new session.
       session = createNewDefaultSession(schemeDatas, /* isPlaceholderSession= */ false);
+      if (!multiSession) {
+        noMultiSessionDrmSession = session;
+      }
       sessions.add(session);
     }
     session.acquireReference();
@@ -461,6 +465,9 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
     sessions.remove(drmSession);
     if (placeholderDrmSession == drmSession) {
       placeholderDrmSession = null;
+    }
+    if (noMultiSessionDrmSession == drmSession) {
+      noMultiSessionDrmSession = null;
     }
     if (provisioningSessions.size() > 1 && provisioningSessions.get(0) == drmSession) {
       // Other sessions were waiting for the released session to complete a provision operation.
