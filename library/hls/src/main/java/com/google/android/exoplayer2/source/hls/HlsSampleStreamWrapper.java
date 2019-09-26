@@ -829,8 +829,6 @@ import java.util.Set;
           sampleQueueTrackIds[sampleQueueIndex] = id;
           return sampleQueues[sampleQueueIndex];
         }
-      } else if (tracksEnded) {
-        return createDummyTrackOutput(id, type);
       }
     } else /* sparse track */ {
       for (int i = 0; i < trackCount; i++) {
@@ -838,9 +836,9 @@ import java.util.Set;
           return sampleQueues[i];
         }
       }
-      if (tracksEnded) {
-        return createDummyTrackOutput(id, type);
-      }
+    }
+    if (tracksEnded) {
+      return createDummyTrackOutput(id, type);
     }
     SampleQueue trackOutput = new FormatAdjustingSampleQueue(allocator, overridingDrmInitData);
     trackOutput.setSampleOffsetUs(sampleOffsetUs);
