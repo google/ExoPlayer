@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
+import com.google.android.exoplayer2.Player.PlaybackSuppressionReason;
 import com.google.android.exoplayer2.Player.TimelineChangeReason;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioAttributes;
@@ -131,6 +132,23 @@ public interface AnalyticsListener {
    */
   default void onPlayerStateChanged(
       EventTime eventTime, boolean playWhenReady, @Player.State int playbackState) {}
+
+  /**
+   * Called when playback suppression reason changed.
+   *
+   * @param eventTime The event time.
+   * @param playbackSuppressionReason The new {@link PlaybackSuppressionReason}.
+   */
+  default void onPlaybackSuppressionReasonChanged(
+      EventTime eventTime, @PlaybackSuppressionReason int playbackSuppressionReason) {}
+
+  /**
+   * Called when the player starts or stops playing.
+   *
+   * @param eventTime The event time.
+   * @param isPlaying Whether the player is playing.
+   */
+  default void onIsPlayingChanged(EventTime eventTime, boolean isPlaying) {}
 
   /**
    * Called when the timeline changed.
