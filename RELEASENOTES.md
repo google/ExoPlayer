@@ -66,6 +66,9 @@
   ([#6161](https://github.com/google/ExoPlayer/issues/6161)).
 * Add demo app to show how to use the Android 10 `SurfaceControl` API with
   ExoPlayer ([#677](https://github.com/google/ExoPlayer/issues/677)).
+* Add `Player.onPlaybackSuppressionReasonChanged` to allow listeners to
+  detect playbacks suppressions (e.g. audio focus loss) directly
+  ([#6203](https://github.com/google/ExoPlayer/issues/6203)).
 
 ### 2.10.5 (2019-09-20) ###
 

@@ -393,6 +393,14 @@ public interface Player {
     default void onPlayerStateChanged(boolean playWhenReady, @State int playbackState) {}
 
     /**
+     * Called when the value returned from {@link #getPlaybackSuppressionReason()} changes.
+     *
+     * @param playbackSuppressionReason The current {@link PlaybackSuppressionReason}.
+     */
+    default void onPlaybackSuppressionReasonChanged(
+        @PlaybackSuppressionReason int playbackSuppressionReason) {}
+
+    /**
      * Called when the value of {@link #isPlaying()} changes.
      *
      * @param isPlaying Whether the player is playing.
