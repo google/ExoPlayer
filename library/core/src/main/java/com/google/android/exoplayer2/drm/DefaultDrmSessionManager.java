@@ -93,6 +93,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
   private final EventDispatcher<DefaultDrmSessionEventListener> eventDispatcher;
   private final boolean multiSession;
   private final boolean allowPlaceholderSessions;
+  @Flags private final int flags;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
 
   private final List<DefaultDrmSession<T>> sessions;
@@ -177,6 +178,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
         optionalKeyRequestParameters,
         multiSession,
         /* allowPlaceholderSessions= */ false,
+        /* flags= */ 0,
         new DefaultLoadErrorHandlingPolicy(initialDrmRequestRetryCount));
   }
 
@@ -187,6 +189,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
       @Nullable HashMap<String, String> optionalKeyRequestParameters,
       boolean multiSession,
       boolean allowPlaceholderSessions,
+      @Flags int flags,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
     Assertions.checkNotNull(uuid);
     Assertions.checkArgument(!C.COMMON_PSSH_UUID.equals(uuid), "Use C.CLEARKEY_UUID instead");
@@ -198,6 +201,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
     this.multiSession = multiSession;
     // TODO: Allow customization once this class has a Builder.
     this.allowPlaceholderSessions = allowPlaceholderSessions;
+    this.flags = flags;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     mode = MODE_PLAYBACK;
     sessions = new ArrayList<>();
@@ -374,6 +378,12 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
     }
     session.acquireReference();
     return session;
+  }
+
+  @Override
+  @Flags
+  public final int getFlags() {
+    return flags;
   }
 
   @Override
