@@ -13,27 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.ext.vp9;
+package com.google.android.exoplayer2.video;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
 import androidx.annotation.Nullable;
 
-/**
- * A GLSurfaceView extension that scales itself to the given aspect ratio.
- */
-public class VpxVideoSurfaceView extends GLSurfaceView implements VpxOutputBufferRenderer {
+/** A GLSurfaceView extension that scales itself to the given aspect ratio. */
+public class VideoDecoderSurfaceView extends GLSurfaceView
+    implements VideoDecoderOutputBufferRenderer {
 
-  private final VpxRenderer renderer;
+  private final VideoDecoderRenderer renderer;
 
-  public VpxVideoSurfaceView(Context context) {
+  public VideoDecoderSurfaceView(Context context) {
     this(context, /* attrs= */ null);
   }
 
-  public VpxVideoSurfaceView(Context context, @Nullable AttributeSet attrs) {
+  public VideoDecoderSurfaceView(Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
-    renderer = new VpxRenderer();
+    renderer = new VideoDecoderRenderer();
     setPreserveEGLContextOnPause(true);
     setEGLContextClientVersion(2);
     setRenderer(renderer);
@@ -41,7 +40,7 @@ public class VpxVideoSurfaceView extends GLSurfaceView implements VpxOutputBuffe
   }
 
   @Override
-  public void setOutputBuffer(VpxOutputBuffer outputBuffer) {
+  public void setOutputBuffer(VideoDecoderOutputBuffer outputBuffer) {
     renderer.setFrame(outputBuffer);
     requestRender();
   }

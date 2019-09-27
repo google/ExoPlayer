@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.ext.vp9;
+package com.google.android.exoplayer2.video;
 
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
@@ -24,10 +24,10 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 /**
- * GLSurfaceView.Renderer implementation that can render YUV Frames returned by libvpx after
- * decoding. It does the YUV to RGB color conversion in the Fragment Shader.
+ * GLSurfaceView.Renderer implementation that can render YUV Frames returned by a video decoder
+ * after decoding. It does the YUV to RGB color conversion in the Fragment Shader.
  */
-/* package */ class VpxRenderer implements GLSurfaceView.Renderer {
+/* package */ class VideoDecoderRenderer implements GLSurfaceView.Renderer {
 
   private static final float[] kColorConversion601 = {
     1.164f, 1.164f, 1.164f,
@@ -74,7 +74,7 @@ import javax.microedition.khronos.opengles.GL10;
   private static final FloatBuffer TEXTURE_VERTICES =
       GlUtil.createBuffer(new float[] {-1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, -1.0f});
   private final int[] yuvTextures = new int[3];
-  private final AtomicReference<VpxOutputBuffer> pendingOutputBufferReference;
+  private final AtomicReference<VideoDecoderOutputBuffer> pendingOutputBufferReference;
 
   // Kept in a field rather than a local variable so that it doesn't get garbage collected before
   // glDrawArrays uses it.
@@ -86,9 +86,9 @@ import javax.microedition.khronos.opengles.GL10;
   private int previousWidth;
   private int previousStride;
 
-  private VpxOutputBuffer renderedOutputBuffer; // Accessed only from the GL thread.
+  private VideoDecoderOutputBuffer renderedOutputBuffer; // Accessed only from the GL thread.
 
-  public VpxRenderer() {
+  public VideoDecoderRenderer() {
     previousWidth = -1;
     previousStride = -1;
     pendingOutputBufferReference = new AtomicReference<>();
@@ -96,12 +96,13 @@ import javax.microedition.khronos.opengles.GL10;
 
   /**
    * Set a frame to be rendered. This should be followed by a call to
-   * VpxVideoSurfaceView.requestRender() to actually render the frame.
+   * VideoDecoderSurfaceView.requestRender() to actually render the frame.
    *
    * @param outputBuffer OutputBuffer containing the YUV Frame to be rendered
    */
-  public void setFrame(VpxOutputBuffer outputBuffer) {
-    VpxOutputBuffer oldPendingOutputBuffer = pendingOutputBufferReference.getAndSet(outputBuffer);
+  public void setFrame(VideoDecoderOutputBuffer outputBuffer) {
+    VideoDecoderOutputBuffer oldPendingOutputBuffer =
+        pendingOutputBufferReference.getAndSet(outputBuffer);
     if (oldPendingOutputBuffer != null) {
       // The old pending output buffer will never be used for rendering, so release it now.
       oldPendingOutputBuffer.release();
@@ -132,7 +133,7 @@ import javax.microedition.khronos.opengles.GL10;
 
   @Override
   public void onDrawFrame(GL10 unused) {
-    VpxOutputBuffer pendingOutputBuffer = pendingOutputBufferReference.getAndSet(null);
+    VideoDecoderOutputBuffer pendingOutputBuffer = pendingOutputBufferReference.getAndSet(null);
     if (pendingOutputBuffer == null && renderedOutputBuffer == null) {
       // There is no output buffer to render at the moment.
       return;
@@ -143,17 +144,17 @@ import javax.microedition.khronos.opengles.GL10;
       }
       renderedOutputBuffer = pendingOutputBuffer;
     }
-    VpxOutputBuffer outputBuffer = renderedOutputBuffer;
+    VideoDecoderOutputBuffer outputBuffer = renderedOutputBuffer;
     // Set color matrix. Assume BT709 if the color space is unknown.
     float[] colorConversion = kColorConversion709;
     switch (outputBuffer.colorspace) {
-      case VpxOutputBuffer.COLORSPACE_BT601:
+      case VideoDecoderOutputBuffer.COLORSPACE_BT601:
         colorConversion = kColorConversion601;
         break;
-      case VpxOutputBuffer.COLORSPACE_BT2020:
+      case VideoDecoderOutputBuffer.COLORSPACE_BT2020:
         colorConversion = kColorConversion2020;
         break;
-      case VpxOutputBuffer.COLORSPACE_BT709:
+      case VideoDecoderOutputBuffer.COLORSPACE_BT709:
       default:
         break; // Do nothing
     }
