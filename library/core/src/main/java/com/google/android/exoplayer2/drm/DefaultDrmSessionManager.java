@@ -39,12 +39,155 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /** A {@link DrmSessionManager} that supports playbacks using {@link ExoMediaDrm}. */
 @TargetApi(18)
 public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
     implements DrmSessionManager<T>, ProvisioningManager<T> {
+
+  /**
+   * Builder for {@link DefaultDrmSessionManager} instances.
+   *
+   * <p>See {@link #Builder} for the list of default values.
+   */
+  public static final class Builder {
+
+    private final HashMap<String, String> keyRequestParameters;
+    private UUID uuid;
+    private ExoMediaDrm.Provider<ExoMediaCrypto> exoMediaDrmProvider;
+    private boolean multiSession;
+    private boolean allowPlaceholderSessions;
+    @Flags private int flags;
+    private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
+
+    /**
+     * Creates a builder with default values.
+     *
+     * <ul>
+     *   <li>{@link #setKeyRequestParameters keyRequestParameters}: An empty map.
+     *   <li>{@link #setUuidAndExoMediaDrmProvider UUID}: {@link C#WIDEVINE_UUID}.
+     *   <li>{@link #setUuidAndExoMediaDrmProvider ExoMediaDrm.Provider}: {@link
+     *       FrameworkMediaDrm#DEFAULT_PROVIDER}.
+     *   <li>{@link #setMultiSession multiSession}: Not allowed by default.
+     *   <li>{@link #setAllowPlaceholderSessions allowPlaceholderSession}: Not allowed by default.
+     *   <li>{@link #setPlayClearSamplesWithoutKeys playClearSamplesWithoutKeys}: Not allowed by
+     *       default.
+     *   <li>{@link #setLoadErrorHandlingPolicy LoadErrorHandlingPolicy}: {@link
+     *       DefaultLoadErrorHandlingPolicy}.
+     * </ul>
+     */
+    @SuppressWarnings("unchecked")
+    public Builder() {
+      keyRequestParameters = new HashMap<>();
+      uuid = C.WIDEVINE_UUID;
+      exoMediaDrmProvider = (ExoMediaDrm.Provider) FrameworkMediaDrm.DEFAULT_PROVIDER;
+      multiSession = false;
+      allowPlaceholderSessions = false;
+      flags = 0;
+      loadErrorHandlingPolicy = new DefaultLoadErrorHandlingPolicy();
+    }
+
+    /**
+     * Sets the parameters to pass to {@link ExoMediaDrm#getKeyRequest(byte[], List, int, HashMap)}.
+     *
+     * @param keyRequestParameters A map with parameters.
+     * @return This builder.
+     */
+    public Builder setKeyRequestParameters(Map<String, String> keyRequestParameters) {
+      this.keyRequestParameters.clear();
+      this.keyRequestParameters.putAll(Assertions.checkNotNull(keyRequestParameters));
+      return this;
+    }
+
+    /**
+     * Sets the UUID of the DRM scheme and the {@link ExoMediaDrm.Provider} to use.
+     *
+     * @param uuid The UUID of the DRM scheme.
+     * @param exoMediaDrmProvider The {@link ExoMediaDrm.Provider}.
+     * @return This builder.
+     */
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public Builder setUuidAndExoMediaDrmProvider(
+        UUID uuid, ExoMediaDrm.Provider exoMediaDrmProvider) {
+      this.uuid = Assertions.checkNotNull(uuid);
+      this.exoMediaDrmProvider = Assertions.checkNotNull(exoMediaDrmProvider);
+      return this;
+    }
+
+    /**
+     * Sets whether this session manager is allowed to acquire multiple simultaneous sessions.
+     *
+     * <p>Users should pass false when a single key request will obtain all keys required to decrypt
+     * the associated content. {@code multiSession} is required when content uses key rotation.
+     *
+     * @param multiSession Whether this session manager is allowed to acquire multiple simultaneous
+     *     sessions.
+     * @return This builder.
+     */
+    public Builder setMultiSession(boolean multiSession) {
+      this.multiSession = multiSession;
+      return this;
+    }
+
+    /**
+     * Sets whether this session manager is allowed to acquire placeholder sessions.
+     *
+     * <p>Placeholder sessions allow the use of secure renderers to play clear content.
+     *
+     * @param allowPlaceholderSessions Whether this session manager is allowed to acquire
+     *     placeholder sessions.
+     * @return This builder.
+     */
+    public Builder setAllowPlaceholderSessions(boolean allowPlaceholderSessions) {
+      this.allowPlaceholderSessions = allowPlaceholderSessions;
+      return this;
+    }
+
+    /**
+     * Sets whether clear samples should be played when keys are not available. Keys are considered
+     * unavailable when the load request is taking place, or when the key request has failed.
+     *
+     * <p>This option does not affect placeholder sessions.
+     *
+     * @param playClearSamplesWithoutKeys Whether clear samples should be played when keys are not
+     *     available.
+     * @return This builder.
+     */
+    public Builder setPlayClearSamplesWithoutKeys(boolean playClearSamplesWithoutKeys) {
+      if (playClearSamplesWithoutKeys) {
+        this.flags |= FLAG_PLAY_CLEAR_SAMPLES_WITHOUT_KEYS;
+      } else {
+        this.flags &= ~FLAG_PLAY_CLEAR_SAMPLES_WITHOUT_KEYS;
+      }
+      return this;
+    }
+
+    /**
+     * Sets the {@link LoadErrorHandlingPolicy} for key and provisioning requests.
+     *
+     * @param loadErrorHandlingPolicy A {@link LoadErrorHandlingPolicy}.
+     * @return This builder.
+     */
+    public Builder setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
+      this.loadErrorHandlingPolicy = Assertions.checkNotNull(loadErrorHandlingPolicy);
+      return this;
+    }
+
+    /** Builds a {@link DefaultDrmSessionManager} instance. */
+    public DefaultDrmSessionManager<ExoMediaCrypto> build(MediaDrmCallback mediaDrmCallback) {
+      return new DefaultDrmSessionManager<>(
+          uuid,
+          exoMediaDrmProvider,
+          mediaDrmCallback,
+          keyRequestParameters,
+          multiSession,
+          allowPlaceholderSessions,
+          flags,
+          loadErrorHandlingPolicy);
+    }
+  }
 
   /**
    * Signals that the {@link DrmInitData} passed to {@link #acquireSession} does not contain does
@@ -200,7 +343,6 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
     this.optionalKeyRequestParameters = optionalKeyRequestParameters;
     this.eventDispatcher = new EventDispatcher<>();
     this.multiSession = multiSession;
-    // TODO: Allow customization once this class has a Builder.
     this.allowPlaceholderSessions = allowPlaceholderSessions;
     this.flags = flags;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
