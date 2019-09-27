@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.video.VideoDecoderSurfaceView;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -122,7 +123,7 @@ public class VpxPlaybackTest {
       player
           .createMessage(videoRenderer)
           .setType(LibvpxVideoRenderer.MSG_SET_OUTPUT_BUFFER_RENDERER)
-          .setPayload(new VpxVideoSurfaceView(context))
+          .setPayload(new VideoDecoderSurfaceView(context))
           .send();
       player.prepare(mediaSource);
       player.setPlayWhenReady(true);

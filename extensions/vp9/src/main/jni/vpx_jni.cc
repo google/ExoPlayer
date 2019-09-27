@@ -38,27 +38,27 @@
 #define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, LOG_TAG, \
                                              __VA_ARGS__))
 
-#define DECODER_FUNC(RETURN_TYPE, NAME, ...) \
-  extern "C" { \
-  JNIEXPORT RETURN_TYPE \
-    Java_com_google_android_exoplayer2_ext_vp9_VpxDecoder_ ## NAME \
-      (JNIEnv* env, jobject thiz, ##__VA_ARGS__);\
-  } \
-  JNIEXPORT RETURN_TYPE \
-    Java_com_google_android_exoplayer2_ext_vp9_VpxDecoder_ ## NAME \
-      (JNIEnv* env, jobject thiz, ##__VA_ARGS__)\
+#define DECODER_FUNC(RETURN_TYPE, NAME, ...)                        \
+  extern "C" {                                                      \
+  JNIEXPORT RETURN_TYPE                                             \
+      Java_com_google_android_exoplayer2_ext_vp9_VpxDecoder_##NAME( \
+          JNIEnv* env, jobject thiz, ##__VA_ARGS__);                \
+  }                                                                 \
+  JNIEXPORT RETURN_TYPE                                             \
+      Java_com_google_android_exoplayer2_ext_vp9_VpxDecoder_##NAME( \
+          JNIEnv* env, jobject thiz, ##__VA_ARGS__)
 
-#define LIBRARY_FUNC(RETURN_TYPE, NAME, ...) \
-  extern "C" { \
-  JNIEXPORT RETURN_TYPE \
-    Java_com_google_android_exoplayer2_ext_vp9_VpxLibrary_ ## NAME \
-      (JNIEnv* env, jobject thiz, ##__VA_ARGS__);\
-  } \
-  JNIEXPORT RETURN_TYPE \
-    Java_com_google_android_exoplayer2_ext_vp9_VpxLibrary_ ## NAME \
-      (JNIEnv* env, jobject thiz, ##__VA_ARGS__)\
+#define LIBRARY_FUNC(RETURN_TYPE, NAME, ...)                        \
+  extern "C" {                                                      \
+  JNIEXPORT RETURN_TYPE                                             \
+      Java_com_google_android_exoplayer2_ext_vp9_VpxLibrary_##NAME( \
+          JNIEnv* env, jobject thiz, ##__VA_ARGS__);                \
+  }                                                                 \
+  JNIEXPORT RETURN_TYPE                                             \
+      Java_com_google_android_exoplayer2_ext_vp9_VpxLibrary_##NAME( \
+          JNIEnv* env, jobject thiz, ##__VA_ARGS__)
 
-// JNI references for VpxOutputBuffer class.
+// JNI references for VideoDecoderOutputBuffer class.
 static jmethodID initForYuvFrame;
 static jmethodID initForPrivateFrame;
 static jfieldID dataField;
@@ -477,7 +477,7 @@ DECODER_FUNC(jlong, vpxInit, jboolean disableLoopFilter,
 
   // Populate JNI References.
   const jclass outputBufferClass = env->FindClass(
-      "com/google/android/exoplayer2/ext/vp9/VpxOutputBuffer");
+      "com/google/android/exoplayer2/video/VideoDecoderOutputBuffer");
   initForYuvFrame = env->GetMethodID(outputBufferClass, "initForYuvFrame",
                                      "(IIIII)Z");
   initForPrivateFrame =

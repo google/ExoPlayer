@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.video.SimpleDecoderVideoRenderer;
 import com.google.android.exoplayer2.video.VideoDecoderException;
 import com.google.android.exoplayer2.video.VideoDecoderInputBuffer;
 import com.google.android.exoplayer2.video.VideoDecoderOutputBuffer;
+import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 
@@ -48,8 +49,8 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
  *   <li>Message with type {@link C#MSG_SET_SURFACE} to set the output surface. The message payload
  *       should be the target {@link Surface}, or null.
  *   <li>Message with type {@link #MSG_SET_OUTPUT_BUFFER_RENDERER} to set the output buffer
- *       renderer. The message payload should be the target {@link VpxOutputBufferRenderer}, or
- *       null.
+ *       renderer. The message payload should be the target {@link
+ *       VideoDecoderOutputBufferRenderer}, or null.
  * </ul>
  */
 public class LibvpxVideoRenderer extends SimpleDecoderVideoRenderer {
@@ -57,7 +58,7 @@ public class LibvpxVideoRenderer extends SimpleDecoderVideoRenderer {
   /**
    * The type of a message that can be passed to an instance of this class via {@link
    * ExoPlayer#createMessage(Target)}. The message payload should be the target {@link
-   * VpxOutputBufferRenderer}, or null.
+   * VideoDecoderOutputBufferRenderer}, or null.
    */
   public static final int MSG_SET_OUTPUT_BUFFER_RENDERER = C.MSG_CUSTOM_BASE;
 
@@ -79,11 +80,11 @@ public class LibvpxVideoRenderer extends SimpleDecoderVideoRenderer {
   private final int threads;
 
   private Surface surface;
-  private VpxOutputBufferRenderer outputBufferRenderer;
+  private VideoDecoderOutputBufferRenderer outputBufferRenderer;
   @C.VideoOutputMode private int outputMode;
 
   private VpxDecoder decoder;
-  private VpxOutputBuffer outputBuffer;
+  private VideoDecoderOutputBuffer outputBuffer;
 
   private VideoFrameMetadataListener frameMetadataListener;
 
@@ -298,7 +299,7 @@ public class LibvpxVideoRenderer extends SimpleDecoderVideoRenderer {
     if (messageType == C.MSG_SET_SURFACE) {
       setOutput((Surface) message, null);
     } else if (messageType == MSG_SET_OUTPUT_BUFFER_RENDERER) {
-      setOutput(null, (VpxOutputBufferRenderer) message);
+      setOutput(null, (VideoDecoderOutputBufferRenderer) message);
     } else if (messageType == C.MSG_SET_VIDEO_FRAME_METADATA_LISTENER) {
       frameMetadataListener = (VideoFrameMetadataListener) message;
     } else {
@@ -309,7 +310,7 @@ public class LibvpxVideoRenderer extends SimpleDecoderVideoRenderer {
   // Internal methods.
 
   private void setOutput(
-      @Nullable Surface surface, @Nullable VpxOutputBufferRenderer outputBufferRenderer) {
+      @Nullable Surface surface, @Nullable VideoDecoderOutputBufferRenderer outputBufferRenderer) {
     // At most one output may be non-null. Both may be null if the output is being cleared.
     Assertions.checkState(surface == null || outputBufferRenderer == null);
     if (this.surface != surface || this.outputBufferRenderer != outputBufferRenderer) {
