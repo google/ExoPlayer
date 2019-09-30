@@ -163,7 +163,7 @@ public final class Id3Decoder implements MetadataDecoder {
 
     int id = data.readUnsignedInt24();
     if (id != ID3_TAG) {
-      Log.w(TAG, "Unexpected first three bytes of ID3 tag header: " + id);
+      Log.w(TAG, "Unexpected first three bytes of ID3 tag header: 0x" + String.format("%06X", id));
       return null;
     }
 
