@@ -1216,10 +1216,6 @@ public final class DashMediaSource extends BaseMediaSource {
       Assertions.checkIndex(windowIndex, 0, 1);
       long windowDefaultStartPositionUs = getAdjustedWindowDefaultStartPositionUs(
           defaultPositionProjectionUs);
-      boolean isDynamic =
-          manifest.dynamic
-              && manifest.minUpdatePeriodMs != C.TIME_UNSET
-              && manifest.durationMs == C.TIME_UNSET;
       return window.set(
           Window.SINGLE_WINDOW_UID,
           windowTag,
@@ -1227,7 +1223,8 @@ public final class DashMediaSource extends BaseMediaSource {
           presentationStartTimeMs,
           windowStartTimeMs,
           /* isSeekable= */ true,
-          isDynamic,
+          /* isDynamic= */ isMovingLiveWindow(manifest),
+          /* isLive= */ manifest.dynamic,
           windowDefaultStartPositionUs,
           windowDurationUs,
           /* firstPeriodIndex= */ 0,
@@ -1247,7 +1244,7 @@ public final class DashMediaSource extends BaseMediaSource {
 
     private long getAdjustedWindowDefaultStartPositionUs(long defaultPositionProjectionUs) {
       long windowDefaultStartPositionUs = this.windowDefaultStartPositionUs;
-      if (!manifest.dynamic) {
+      if (!isMovingLiveWindow(manifest)) {
         return windowDefaultStartPositionUs;
       }
       if (defaultPositionProjectionUs > 0) {
@@ -1291,6 +1288,12 @@ public final class DashMediaSource extends BaseMediaSource {
     public Object getUidOfPeriod(int periodIndex) {
       Assertions.checkIndex(periodIndex, 0, getPeriodCount());
       return firstPeriodId + periodIndex;
+    }
+
+    private static boolean isMovingLiveWindow(DashManifest manifest) {
+      return manifest.dynamic
+          && manifest.minUpdatePeriodMs != C.TIME_UNSET
+          && manifest.durationMs == C.TIME_UNSET;
     }
   }
 

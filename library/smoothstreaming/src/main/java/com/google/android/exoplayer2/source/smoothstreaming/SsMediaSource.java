@@ -696,7 +696,8 @@ public final class SsMediaSource extends BaseMediaSource
               /* windowPositionInPeriodUs= */ 0,
               /* windowDefaultStartPositionUs= */ 0,
               /* isSeekable= */ true,
-              manifest.isLive,
+              /* isDynamic= */ manifest.isLive,
+              /* isLive= */ manifest.isLive,
               manifest,
               tag);
     } else if (manifest.isLive) {
@@ -719,6 +720,7 @@ public final class SsMediaSource extends BaseMediaSource
               defaultStartPositionUs,
               /* isSeekable= */ true,
               /* isDynamic= */ true,
+              /* isLive= */ true,
               manifest,
               tag);
     } else {
@@ -732,6 +734,7 @@ public final class SsMediaSource extends BaseMediaSource
               /* windowDefaultStartPositionUs= */ 0,
               /* isSeekable= */ true,
               /* isDynamic= */ false,
+              /* isLive= */ false,
               manifest,
               tag);
     }

@@ -68,7 +68,8 @@ public final class SilenceMediaSource extends BaseMediaSource {
   @Override
   protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
     refreshSourceInfo(
-        new SinglePeriodTimeline(durationUs, /* isSeekable= */ true, /* isDynamic= */ false));
+        new SinglePeriodTimeline(
+            durationUs, /* isSeekable= */ true, /* isDynamic= */ false, /* isLive= */ false));
   }
 
   @Override

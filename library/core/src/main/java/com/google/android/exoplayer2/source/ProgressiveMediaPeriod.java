@@ -74,13 +74,14 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   interface Listener {
 
     /**
-     * Called when the duration or ability to seek within the period changes.
+     * Called when the duration, the ability to seek within the period, or the categorization as
+     * live stream changes.
      *
      * @param durationUs The duration of the period, or {@link C#TIME_UNSET}.
      * @param isSeekable Whether the period is seekable.
+     * @param isLive Whether the period is live.
      */
-    void onSourceInfoRefreshed(long durationUs, boolean isSeekable);
-
+    void onSourceInfoRefreshed(long durationUs, boolean isSeekable, boolean isLive);
   }
 
   /**
@@ -129,6 +130,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   private int enabledTrackCount;
   private long durationUs;
   private long length;
+  private boolean isLive;
 
   private long lastSeekPositionUs;
   private long pendingResetPositionUs;
@@ -551,7 +553,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       long largestQueuedTimestampUs = getLargestQueuedTimestampUs();
       durationUs = largestQueuedTimestampUs == Long.MIN_VALUE ? 0
           : largestQueuedTimestampUs + DEFAULT_LAST_SAMPLE_DURATION_US;
-      listener.onSourceInfoRefreshed(durationUs, isSeekable);
+      listener.onSourceInfoRefreshed(durationUs, isSeekable, isLive);
     }
     eventDispatcher.loadCompleted(
         loadable.dataSpec,
@@ -740,14 +742,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       }
       trackArray[i] = new TrackGroup(trackFormat);
     }
-    dataType =
-        length == C.LENGTH_UNSET && seekMap.getDurationUs() == C.TIME_UNSET
-            ? C.DATA_TYPE_MEDIA_PROGRESSIVE_LIVE
-            : C.DATA_TYPE_MEDIA;
+    isLive = length == C.LENGTH_UNSET && seekMap.getDurationUs() == C.TIME_UNSET;
+    dataType = isLive ? C.DATA_TYPE_MEDIA_PROGRESSIVE_LIVE : C.DATA_TYPE_MEDIA;
     preparedState =
         new PreparedState(seekMap, new TrackGroupArray(trackArray), trackIsAudioVideoFlags);
     prepared = true;
-    listener.onSourceInfoRefreshed(durationUs, seekMap.isSeekable());
+    listener.onSourceInfoRefreshed(durationUs, seekMap.isSeekable(), isLive);
     Assertions.checkNotNull(callback).onPrepared(this);
   }
 

@@ -80,6 +80,9 @@
     and move it to the core library.
   * Move `LibvpxVideoRenderer.MSG_SET_OUTPUT_BUFFER_RENDERER` to
     `C.MSG_SET_OUTPUT_BUFFER_RENDERER`.
+* Add `Timeline.Window.isLive` to indicate that a window is a live stream
+  ([#2668](https://github.com/google/ExoPlayer/issues/2668) and
+  [#5973](https://github.com/google/ExoPlayer/issues/5973)).
 
 ### 2.10.5 (2019-09-20) ###
 
