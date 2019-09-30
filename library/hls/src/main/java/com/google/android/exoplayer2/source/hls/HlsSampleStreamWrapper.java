@@ -52,8 +52,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Loads {@link HlsMediaChunk}s obtained from a {@link HlsChunkSource}, and provides
@@ -786,24 +788,14 @@ import java.util.Map;
 
   @Override
   public TrackOutput track(int id, int type) {
-    int trackCount = sampleQueues.length;
-
     if (MAPPABLE_TYPES.contains(type)) {
       // Track types in MAPPABLE_TYPES are handled manually to ignore IDs.
-      int sampleQueueIndex = sampleQueueIndicesByType.get(type, C.INDEX_UNSET);
-      if (sampleQueueIndex != C.INDEX_UNSET) {
-        if (sampleQueueMappingDoneByType.contains(type)) {
-          return sampleQueueTrackIds[sampleQueueIndex] == id
-              ? sampleQueues[sampleQueueIndex]
-              : createDummyTrackOutput(id, type);
-        } else {
-          sampleQueueMappingDoneByType.add(type);
-          sampleQueueTrackIds[sampleQueueIndex] = id;
-          return sampleQueues[sampleQueueIndex];
-        }
+      @Nullable TrackOutput mappedTrackOutput = getMappedTrackOutput(id, type);
+      if (mappedTrackOutput != null) {
+        return mappedTrackOutput;
       }
     } else /* sparse track */ {
-      for (int i = 0; i < trackCount; i++) {
+      for (int i = 0; i < sampleQueues.length; i++) {
         if (sampleQueueTrackIds[i] == id) {
           return sampleQueues[i];
         }
@@ -812,6 +804,7 @@ import java.util.Map;
     if (tracksEnded) {
       return createDummyTrackOutput(id, type);
     }
+    int trackCount = sampleQueues.length;
     SampleQueue trackOutput = new PrivTimestampStrippingSampleQueue(allocator);
     trackOutput.setSampleOffsetUs(sampleOffsetUs);
     trackOutput.sourceId(chunkUid);
@@ -832,6 +825,37 @@ import java.util.Map;
     }
     sampleQueuesEnabledStates = Arrays.copyOf(sampleQueuesEnabledStates, trackCount + 1);
     return trackOutput;
+  }
+
+  /**
+   * Returns the {@link TrackOutput} for the provided {@code type} and {@code id}, or null if none
+   * has been created yet.
+   *
+   * <p>If a {@link SampleQueue} for {@code type} has been created and is mapped, but it has a
+   * different ID, then return a {@link DummyTrackOutput} that does nothing.
+   *
+   * <p>If a {@link SampleQueue} for {@code type} has been created but is not mapped, then map it to
+   * this {@code id} and return it. This situation can happen after a call to {@link #init} with
+   * {@code reusingExtractor=false}.
+   *
+   * @param id The ID of the track.
+   * @param type The type of the track, must be one of {@link #MAPPABLE_TYPES}.
+   * @return The the mapped {@link TrackOutput}, or null if it's not been created yet.
+   */
+  @Nullable
+  private TrackOutput getMappedTrackOutput(int id, int type) {
+    Assertions.checkArgument(MAPPABLE_TYPES.contains(type));
+    int sampleQueueIndex = sampleQueueIndicesByType.get(type, C.INDEX_UNSET);
+    if (sampleQueueIndex == C.INDEX_UNSET) {
+      return null;
+    }
+
+    if (sampleQueueMappingDoneByType.add(type)) {
+      sampleQueueTrackIds[sampleQueueIndex] = id;
+    }
+    return sampleQueueTrackIds[sampleQueueIndex] == id
+        ? sampleQueues[sampleQueueIndex]
+        : createDummyTrackOutput(id, type);
   }
 
   @Override
