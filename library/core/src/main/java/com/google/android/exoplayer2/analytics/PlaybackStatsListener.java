@@ -81,6 +81,7 @@ public final class PlaybackStatsListener
   @Nullable private String activeAdPlayback;
   private boolean playWhenReady;
   @Player.State private int playbackState;
+  private boolean isSuppressed;
   private float playbackSpeed;
 
   /**
@@ -205,7 +206,7 @@ public final class PlaybackStatsListener
             eventTime.currentPlaybackPositionMs,
             eventTime.totalBufferedDurationMs);
     Assertions.checkNotNull(playbackStatsTrackers.get(contentSession))
-        .onSuspended(contentEventTime, /* belongsToPlayback= */ true);
+        .onInterruptedByAd(contentEventTime);
   }
 
   @Override
@@ -222,7 +223,7 @@ public final class PlaybackStatsListener
       tracker.onPlayerStateChanged(
           eventTime, /* playWhenReady= */ true, Player.STATE_ENDED, /* belongsToPlayback= */ false);
     }
-    tracker.onSuspended(eventTime, /* belongsToPlayback= */ false);
+    tracker.onFinished(eventTime);
     PlaybackStats playbackStats = tracker.build(/* isFinal= */ true);
     finishedPlaybackStats = PlaybackStats.merge(finishedPlaybackStats, playbackStats);
     if (callback != null) {
@@ -243,6 +244,19 @@ public final class PlaybackStatsListener
       playbackStatsTrackers
           .get(session)
           .onPlayerStateChanged(eventTime, playWhenReady, playbackState, belongsToPlayback);
+    }
+  }
+
+  @Override
+  public void onPlaybackSuppressionReasonChanged(
+      EventTime eventTime, int playbackSuppressionReason) {
+    isSuppressed = playbackSuppressionReason != Player.PLAYBACK_SUPPRESSION_REASON_NONE;
+    sessionManager.updateSessions(eventTime);
+    for (String session : playbackStatsTrackers.keySet()) {
+      boolean belongsToPlayback = sessionManager.belongsToSession(eventTime, session);
+      playbackStatsTrackers
+          .get(session)
+          .onIsSuppressedChanged(eventTime, isSuppressed, belongsToPlayback);
     }
   }
 
@@ -456,9 +470,11 @@ public final class PlaybackStatsListener
     private long currentPlaybackStateStartTimeMs;
     private boolean isSeeking;
     private boolean isForeground;
-    private boolean isSuspended;
+    private boolean isInterruptedByAd;
+    private boolean isFinished;
     private boolean playWhenReady;
     @Player.State private int playerPlaybackState;
+    private boolean isSuppressed;
     private boolean hasFatalError;
     private boolean startedLoading;
     private long lastRebufferStartTimeMs;
@@ -515,8 +531,22 @@ public final class PlaybackStatsListener
         hasFatalError = false;
       }
       if (playbackState == Player.STATE_IDLE || playbackState == Player.STATE_ENDED) {
-        isSuspended = false;
+        isInterruptedByAd = false;
       }
+      maybeUpdatePlaybackState(eventTime, belongsToPlayback);
+    }
+
+    /**
+     * Notifies the tracker of a change to the playback suppression (e.g. due to audio focus loss),
+     * including all updates while the playback is not in the foreground.
+     *
+     * @param eventTime The {@link EventTime}.
+     * @param isSuppressed Whether playback is suppressed.
+     * @param belongsToPlayback Whether the {@code eventTime} belongs to the current playback.
+     */
+    public void onIsSuppressedChanged(
+        EventTime eventTime, boolean isSuppressed, boolean belongsToPlayback) {
+      this.isSuppressed = isSuppressed;
       maybeUpdatePlaybackState(eventTime, belongsToPlayback);
     }
 
@@ -526,7 +556,7 @@ public final class PlaybackStatsListener
      * @param eventTime The {@link EventTime}.
      */
     public void onPositionDiscontinuity(EventTime eventTime) {
-      isSuspended = false;
+      isInterruptedByAd = false;
       maybeUpdatePlaybackState(eventTime, /* belongsToPlayback= */ true);
     }
 
@@ -561,7 +591,7 @@ public final class PlaybackStatsListener
         fatalErrorHistory.add(Pair.create(eventTime, error));
       }
       hasFatalError = true;
-      isSuspended = false;
+      isInterruptedByAd = false;
       isSeeking = false;
       maybeUpdatePlaybackState(eventTime, /* belongsToPlayback= */ true);
     }
@@ -587,16 +617,24 @@ public final class PlaybackStatsListener
     }
 
     /**
-     * Notifies the tracker that the current playback has been suspended, e.g. for ad playback or
-     * permanently.
+     * Notifies the tracker that the current playback has been interrupted for ad playback.
      *
      * @param eventTime The {@link EventTime}.
-     * @param belongsToPlayback Whether the {@code eventTime} belongs to the current playback.
      */
-    public void onSuspended(EventTime eventTime, boolean belongsToPlayback) {
-      isSuspended = true;
+    public void onInterruptedByAd(EventTime eventTime) {
+      isInterruptedByAd = true;
       isSeeking = false;
-      maybeUpdatePlaybackState(eventTime, belongsToPlayback);
+      maybeUpdatePlaybackState(eventTime, /* belongsToPlayback= */ true);
+    }
+
+    /**
+     * Notifies the tracker that the current playback has finished.
+     *
+     * @param eventTime The {@link EventTime}. Not guaranteed to belong to the current playback.
+     */
+    public void onFinished(EventTime eventTime) {
+      isFinished = true;
+      maybeUpdatePlaybackState(eventTime, /* belongsToPlayback= */ false);
     }
 
     /**
@@ -809,8 +847,9 @@ public final class PlaybackStatsListener
         rebufferCount++;
         lastRebufferStartTimeMs = eventTime.realtimeMs;
       }
-      if (newPlaybackState == PlaybackStats.PLAYBACK_STATE_PAUSED_BUFFERING
-          && currentPlaybackState == PlaybackStats.PLAYBACK_STATE_BUFFERING) {
+      if (isRebufferingState(currentPlaybackState)
+          && currentPlaybackState != PlaybackStats.PLAYBACK_STATE_PAUSED_BUFFERING
+          && newPlaybackState == PlaybackStats.PLAYBACK_STATE_PAUSED_BUFFERING) {
         pauseBufferCount++;
       }
 
@@ -829,11 +868,11 @@ public final class PlaybackStatsListener
     }
 
     private @PlaybackState int resolveNewPlaybackState() {
-      if (isSuspended) {
+      if (isFinished) {
         // Keep VIDEO_STATE_ENDED if playback naturally ended (or progressed to next item).
         return currentPlaybackState == PlaybackStats.PLAYBACK_STATE_ENDED
             ? PlaybackStats.PLAYBACK_STATE_ENDED
-            : PlaybackStats.PLAYBACK_STATE_SUSPENDED;
+            : PlaybackStats.PLAYBACK_STATE_ABANDONED;
       } else if (isSeeking) {
         // Seeking takes precedence over errors such that we report a seek while in error state.
         return PlaybackStats.PLAYBACK_STATE_SEEKING;
@@ -844,26 +883,34 @@ public final class PlaybackStatsListener
         return startedLoading
             ? PlaybackStats.PLAYBACK_STATE_JOINING_BACKGROUND
             : PlaybackStats.PLAYBACK_STATE_NOT_STARTED;
+      } else if (isInterruptedByAd) {
+        return PlaybackStats.PLAYBACK_STATE_INTERRUPTED_BY_AD;
       } else if (playerPlaybackState == Player.STATE_ENDED) {
         return PlaybackStats.PLAYBACK_STATE_ENDED;
       } else if (playerPlaybackState == Player.STATE_BUFFERING) {
         if (currentPlaybackState == PlaybackStats.PLAYBACK_STATE_NOT_STARTED
             || currentPlaybackState == PlaybackStats.PLAYBACK_STATE_JOINING_BACKGROUND
             || currentPlaybackState == PlaybackStats.PLAYBACK_STATE_JOINING_FOREGROUND
-            || currentPlaybackState == PlaybackStats.PLAYBACK_STATE_SUSPENDED) {
+            || currentPlaybackState == PlaybackStats.PLAYBACK_STATE_INTERRUPTED_BY_AD) {
           return PlaybackStats.PLAYBACK_STATE_JOINING_FOREGROUND;
         }
         if (currentPlaybackState == PlaybackStats.PLAYBACK_STATE_SEEKING
             || currentPlaybackState == PlaybackStats.PLAYBACK_STATE_SEEK_BUFFERING) {
           return PlaybackStats.PLAYBACK_STATE_SEEK_BUFFERING;
         }
-        return playWhenReady
-            ? PlaybackStats.PLAYBACK_STATE_BUFFERING
-            : PlaybackStats.PLAYBACK_STATE_PAUSED_BUFFERING;
+        if (!playWhenReady) {
+          return PlaybackStats.PLAYBACK_STATE_PAUSED_BUFFERING;
+        }
+        return isSuppressed
+            ? PlaybackStats.PLAYBACK_STATE_SUPPRESSED_BUFFERING
+            : PlaybackStats.PLAYBACK_STATE_BUFFERING;
       } else if (playerPlaybackState == Player.STATE_READY) {
-        return playWhenReady
-            ? PlaybackStats.PLAYBACK_STATE_PLAYING
-            : PlaybackStats.PLAYBACK_STATE_PAUSED;
+        if (!playWhenReady) {
+          return PlaybackStats.PLAYBACK_STATE_PAUSED;
+        }
+        return isSuppressed
+            ? PlaybackStats.PLAYBACK_STATE_SUPPRESSED
+            : PlaybackStats.PLAYBACK_STATE_PLAYING;
       } else if (playerPlaybackState == Player.STATE_IDLE
           && currentPlaybackState != PlaybackStats.PLAYBACK_STATE_NOT_STARTED) {
         // This case only applies for calls to player.stop(). All other IDLE cases are handled by
@@ -974,7 +1021,8 @@ public final class PlaybackStatsListener
 
     private static boolean isReadyState(@PlaybackState int state) {
       return state == PlaybackStats.PLAYBACK_STATE_PLAYING
-          || state == PlaybackStats.PLAYBACK_STATE_PAUSED;
+          || state == PlaybackStats.PLAYBACK_STATE_PAUSED
+          || state == PlaybackStats.PLAYBACK_STATE_SUPPRESSED;
     }
 
     private static boolean isPausedState(@PlaybackState int state) {
@@ -984,21 +1032,23 @@ public final class PlaybackStatsListener
 
     private static boolean isRebufferingState(@PlaybackState int state) {
       return state == PlaybackStats.PLAYBACK_STATE_BUFFERING
-          || state == PlaybackStats.PLAYBACK_STATE_PAUSED_BUFFERING;
+          || state == PlaybackStats.PLAYBACK_STATE_PAUSED_BUFFERING
+          || state == PlaybackStats.PLAYBACK_STATE_SUPPRESSED_BUFFERING;
     }
 
     private static boolean isInvalidJoinTransition(
         @PlaybackState int oldState, @PlaybackState int newState) {
       if (oldState != PlaybackStats.PLAYBACK_STATE_JOINING_BACKGROUND
           && oldState != PlaybackStats.PLAYBACK_STATE_JOINING_FOREGROUND
-          && oldState != PlaybackStats.PLAYBACK_STATE_SUSPENDED) {
+          && oldState != PlaybackStats.PLAYBACK_STATE_INTERRUPTED_BY_AD) {
         return false;
       }
       return newState != PlaybackStats.PLAYBACK_STATE_JOINING_BACKGROUND
           && newState != PlaybackStats.PLAYBACK_STATE_JOINING_FOREGROUND
-          && newState != PlaybackStats.PLAYBACK_STATE_SUSPENDED
+          && newState != PlaybackStats.PLAYBACK_STATE_INTERRUPTED_BY_AD
           && newState != PlaybackStats.PLAYBACK_STATE_PLAYING
           && newState != PlaybackStats.PLAYBACK_STATE_PAUSED
+          && newState != PlaybackStats.PLAYBACK_STATE_SUPPRESSED
           && newState != PlaybackStats.PLAYBACK_STATE_ENDED;
     }
   }
