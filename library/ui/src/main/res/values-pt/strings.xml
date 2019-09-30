@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">Não repetir</string>
   <string name="exo_controls_repeat_one_description">Repetir uma</string>
   <string name="exo_controls_repeat_all_description">Repetir tudo</string>
-  <string name="exo_controls_shuffle_on_description">Aleatório</string>
+  <string name="exo_controls_shuffle_on_description">Ordem aleatória ativada</string>
+  <string name="exo_controls_shuffle_off_description">Ordem aleatória desativada</string>
   <string name="exo_controls_fullscreen_description">Modo de tela cheia</string>
   <string name="exo_controls_vr_description">Modo RV</string>
   <string name="exo_download_description">Fazer o download</string>

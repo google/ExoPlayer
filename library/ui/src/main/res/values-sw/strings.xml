@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">Usirudie yoyote</string>
   <string name="exo_controls_repeat_one_description">Rudia moja</string>
   <string name="exo_controls_repeat_all_description">Rudia zote</string>
-  <string name="exo_controls_shuffle_on_description">Changanya</string>
+  <string name="exo_controls_shuffle_on_description">Hali ya kuchanganya imewashwa</string>
+  <string name="exo_controls_shuffle_off_description">Hali ya kuchanganya imezimwa</string>
   <string name="exo_controls_fullscreen_description">Hali ya skrini nzima</string>
   <string name="exo_controls_vr_description">Hali ya Uhalisia Pepe</string>
   <string name="exo_download_description">Pakua</string>

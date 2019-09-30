@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">Endurtaka ekkert</string>
   <string name="exo_controls_repeat_one_description">Endurtaka eitt</string>
   <string name="exo_controls_repeat_all_description">Endurtaka allt</string>
-  <string name="exo_controls_shuffle_on_description">Stokka</string>
+  <string name="exo_controls_shuffle_on_description">Kveikt á stokkun</string>
+  <string name="exo_controls_shuffle_off_description">Slökkt á stokkun</string>
   <string name="exo_controls_fullscreen_description">Allur skjárinn</string>
   <string name="exo_controls_vr_description">sýndarveruleikastilling</string>
   <string name="exo_download_description">Sækja</string>

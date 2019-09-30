@@ -158,12 +158,12 @@ public final class Loader implements LoaderErrorThrower {
   /** Retries the load using the default delay and resets the error count. */
   public static final LoadErrorAction RETRY_RESET_ERROR_COUNT =
       createRetryAction(/* resetErrorCount= */ true, C.TIME_UNSET);
-  /** Discards the failed loading task and ignores any errors that have occurred. */
+  /** Discards the failed {@link Loadable} and ignores any errors that have occurred. */
   public static final LoadErrorAction DONT_RETRY =
       new LoadErrorAction(ACTION_TYPE_DONT_RETRY, C.TIME_UNSET);
   /**
-   * Discards the failed load. The next call to {@link #maybeThrowError()} will throw the last load
-   * error.
+   * Discards the failed {@link Loadable}. The next call to {@link #maybeThrowError()} will throw
+   * the last load error.
    */
   public static final LoadErrorAction DONT_RETRY_FATAL =
       new LoadErrorAction(ACTION_TYPE_DONT_RETRY_FATAL, C.TIME_UNSET);
@@ -211,6 +211,19 @@ public final class Loader implements LoaderErrorThrower {
     return new LoadErrorAction(
         resetErrorCount ? ACTION_TYPE_RETRY_AND_RESET_ERROR_COUNT : ACTION_TYPE_RETRY,
         retryDelayMillis);
+  }
+
+  /**
+   * Whether the last call to {@link #startLoading} resulted in a fatal error. Calling {@link
+   * #maybeThrowError()} will throw the fatal error.
+   */
+  public boolean hasFatalError() {
+    return fatalError != null;
+  }
+
+  /** Clears any stored fatal error. */
+  public void clearFatalError() {
+    fatalError = null;
   }
 
   /**

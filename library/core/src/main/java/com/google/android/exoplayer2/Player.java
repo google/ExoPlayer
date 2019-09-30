@@ -356,7 +356,8 @@ public interface Player {
      * {@link #onPositionDiscontinuity(int)}.
      *
      * @param timeline The latest timeline. Never null, but may be empty.
-     * @param manifest The latest manifest. May be null.
+     * @param manifest The latest manifest in case the timeline has a single window only. Always
+     *     null if the timeline has more than a single window.
      * @param reason The {@link TimelineChangeReason} responsible for this timeline change.
      * @deprecated Use {@link #onTimelineChanged(Timeline, int)} instead. The manifest can be
      *     accessed by using {@link #getCurrentManifest()} or {@code timeline.getWindow(windowIndex,
@@ -391,6 +392,13 @@ public interface Player {
      * @param playbackState The new {@link State playback state}.
      */
     default void onPlayerStateChanged(boolean playWhenReady, @State int playbackState) {}
+
+    /**
+     * Called when the value of {@link #isPlaying()} changes.
+     *
+     * @param isPlaying Whether the player is playing.
+     */
+    default void onIsPlayingChanged(boolean isPlaying) {}
 
     /**
      * Called when the value of {@link #getRepeatMode()} changes.
@@ -510,6 +518,20 @@ public interface Player {
   int STATE_ENDED = 4;
 
   /**
+   * Reason why playback is suppressed even if {@link #getPlaybackState()} is {@link #STATE_READY}
+   * and {@link #getPlayWhenReady()} is {@code true}. One of {@link
+   * #PLAYBACK_SUPPRESSION_REASON_NONE} or {@link #PLAYBACK_SUPPRESSION_REASON_AUDIO_FOCUS_LOSS}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({PLAYBACK_SUPPRESSION_REASON_NONE, PLAYBACK_SUPPRESSION_REASON_AUDIO_FOCUS_LOSS})
+  @interface PlaybackSuppressionReason {}
+  /** Playback is not suppressed. */
+  int PLAYBACK_SUPPRESSION_REASON_NONE = 0;
+  /** Playback is suppressed because audio focus is lost or can't be acquired. */
+  int PLAYBACK_SUPPRESSION_REASON_AUDIO_FOCUS_LOSS = 1;
+
+  /**
    * Repeat modes for playback. One of {@link #REPEAT_MODE_OFF}, {@link #REPEAT_MODE_ONE} or {@link
    * #REPEAT_MODE_ALL}.
    */
@@ -563,29 +585,17 @@ public interface Player {
   int DISCONTINUITY_REASON_INTERNAL = 4;
 
   /**
-   * Reasons for timeline changes. One of {@link #TIMELINE_CHANGE_REASON_PREPARED}, {@link
-   * #TIMELINE_CHANGE_REASON_RESET} or {@link #TIMELINE_CHANGE_REASON_DYNAMIC}.
+   * Reasons for timeline changes. One of {@link #TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED} or {@link
+   * #TIMELINE_CHANGE_REASON_SOURCE_UPDATE}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({
-    TIMELINE_CHANGE_REASON_PREPARED,
-    TIMELINE_CHANGE_REASON_RESET,
-    TIMELINE_CHANGE_REASON_DYNAMIC
-  })
+  @IntDef({TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED, TIMELINE_CHANGE_REASON_SOURCE_UPDATE})
   @interface TimelineChangeReason {}
-  /**
-   * Timeline and manifest changed as a result of a player initialization with new media.
-   */
-  int TIMELINE_CHANGE_REASON_PREPARED = 0;
-  /**
-   * Timeline and manifest changed as a result of a player reset.
-   */
-  int TIMELINE_CHANGE_REASON_RESET = 1;
-  /**
-   * Timeline or manifest changed as a result of an dynamic update introduced by the played media.
-   */
-  int TIMELINE_CHANGE_REASON_DYNAMIC = 2;
+  /** Timeline changed as a result of a change of the playlist items or the order of the items. */
+  int TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED = 0;
+  /** Timeline changed as a result of a dynamic update introduced by the played media. */
+  int TIMELINE_CHANGE_REASON_SOURCE_UPDATE = 1;
 
   /** Returns the component of this player for audio output, or null if audio is not supported. */
   @Nullable
@@ -636,10 +646,40 @@ public interface Player {
   int getPlaybackState();
 
   /**
+   * Returns reason why playback is suppressed even if {@link #getPlaybackState()} is {@link
+   * #STATE_READY} and {@link #getPlayWhenReady()} is {@code true}.
+   *
+   * <p>Note that {@link #PLAYBACK_SUPPRESSION_REASON_NONE} indicates that playback is not
+   * suppressed.
+   *
+   * @return The current {@link PlaybackSuppressionReason}.
+   */
+  @PlaybackSuppressionReason
+  int getPlaybackSuppressionReason();
+
+  /**
+   * Returns whether the player is playing, i.e. {@link #getContentPosition()} is advancing.
+   *
+   * <p>If {@code false}, then at least one of the following is true:
+   *
+   * <ul>
+   *   <li>The {@link #getPlaybackState() playback state} is not {@link #STATE_READY ready}.
+   *   <li>There is no {@link #getPlayWhenReady() intention to play}.
+   *   <li>Playback is {@link #getPlaybackSuppressionReason() suppressed for other reasons}.
+   * </ul>
+   *
+   * @return Whether the player is playing.
+   */
+  boolean isPlaying();
+
+  /**
    * Returns the error that caused playback to fail. This is the same error that will have been
    * reported via {@link Player.EventListener#onPlayerError(ExoPlaybackException)} at the time of
    * failure. It can be queried using this method until {@code stop(true)} is called or the player
    * is re-prepared.
+   *
+   * <p>Note that this method will always return {@code null} if {@link #getPlaybackState()} is not
+   * {@link #STATE_IDLE}.
    *
    * @return The error, or {@code null}.
    */

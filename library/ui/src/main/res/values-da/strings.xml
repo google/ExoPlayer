@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">Gentag ingen</string>
   <string name="exo_controls_repeat_one_description">Gentag én</string>
   <string name="exo_controls_repeat_all_description">Gentag alle</string>
-  <string name="exo_controls_shuffle_on_description">Bland</string>
+  <string name="exo_controls_shuffle_on_description">Bland er slået til</string>
+  <string name="exo_controls_shuffle_off_description">Bland er slået fra</string>
   <string name="exo_controls_fullscreen_description">Fuld skærm</string>
   <string name="exo_controls_vr_description">VR-tilstand</string>
   <string name="exo_download_description">Download</string>

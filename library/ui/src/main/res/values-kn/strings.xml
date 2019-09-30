@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">ಯಾವುದನ್ನೂ ಪುನರಾವರ್ತಿಸಬೇಡಿ</string>
   <string name="exo_controls_repeat_one_description">ಒಂದನ್ನು ಪುನರಾವರ್ತಿಸಿ</string>
   <string name="exo_controls_repeat_all_description">ಎಲ್ಲವನ್ನು ಪುನರಾವರ್ತಿಸಿ</string>
-  <string name="exo_controls_shuffle_on_description">ಶಫಲ್‌</string>
+  <string name="exo_controls_shuffle_on_description">ಶಫಲ್ ಆನ್ ಆಗಿದೆ</string>
+  <string name="exo_controls_shuffle_off_description">ಶಫಲ್ ಆಫ್ ಆಗಿದೆ</string>
   <string name="exo_controls_fullscreen_description">ಪೂರ್ಣ ಪರದೆ ಮೋಡ್</string>
   <string name="exo_controls_vr_description">VR ಮೋಡ್</string>
   <string name="exo_download_description">ಡೌನ್‌ಲೋಡ್‌</string>

@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">रीपीट करू नका</string>
   <string name="exo_controls_repeat_one_description">एक रीपीट करा</string>
   <string name="exo_controls_repeat_all_description">सर्व रीपीट करा</string>
-  <string name="exo_controls_shuffle_on_description">शफल करा</string>
+  <string name="exo_controls_shuffle_on_description">शफल करा सुरू करा</string>
+  <string name="exo_controls_shuffle_off_description">शफल करा बंद करा</string>
   <string name="exo_controls_fullscreen_description">फुल स्क्रीन मोड</string>
   <string name="exo_controls_vr_description">VR मोड</string>
   <string name="exo_download_description">डाउनलोड करा</string>

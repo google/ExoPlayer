@@ -79,6 +79,21 @@ public interface DrmSessionManager<T extends ExoMediaCrypto> {
   int FLAG_PLAY_CLEAR_SAMPLES_WITHOUT_KEYS = 1;
 
   /**
+   * Acquires any required resources.
+   *
+   * <p>{@link #release()} must be called to ensure the acquired resources are released. After
+   * releasing, an instance may be re-prepared.
+   */
+  default void prepare() {
+    // Do nothing.
+  }
+
+  /** Releases any acquired resources. */
+  default void release() {
+    // Do nothing.
+  }
+
+  /**
    * Returns whether the manager is capable of acquiring a session for the given
    * {@link DrmInitData}.
    *

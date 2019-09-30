@@ -53,6 +53,7 @@ import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SeekParameters;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
@@ -466,6 +467,20 @@ public final class Util {
    */
   public static void writeBoolean(Parcel parcel, boolean value) {
     parcel.writeInt(value ? 1 : 0);
+  }
+
+  /**
+   * Returns the language tag for a {@link Locale}.
+   *
+   * <p>For API levels &ge; 21, this tag is IETF BCP 47 compliant. Use {@link
+   * #normalizeLanguageCode(String)} to retrieve a normalized IETF BCP 47 language tag for all API
+   * levels if needed.
+   *
+   * @param locale A {@link Locale}.
+   * @return The language tag.
+   */
+  public static String getLocaleLanguageTag(Locale locale) {
+    return SDK_INT >= 21 ? getLocaleLanguageTagV21(locale) : locale.toString();
   }
 
   /**
@@ -1972,7 +1987,7 @@ public final class Util {
     Configuration config = Resources.getSystem().getConfiguration();
     return SDK_INT >= 24
         ? getSystemLocalesV24(config)
-        : SDK_INT >= 21 ? getSystemLocaleV21(config) : new String[] {config.locale.toString()};
+        : new String[] {getLocaleLanguageTag(config.locale)};
   }
 
   @TargetApi(24)
@@ -1981,8 +1996,8 @@ public final class Util {
   }
 
   @TargetApi(21)
-  private static String[] getSystemLocaleV21(Configuration config) {
-    return new String[] {config.locale.toLanguageTag()};
+  private static String getLocaleLanguageTagV21(Locale locale) {
+    return locale.toLanguageTag();
   }
 
   @TargetApi(21)
@@ -2018,6 +2033,42 @@ public final class Util {
       default: // Future mobile network types.
         return C.NETWORK_TYPE_CELLULAR_UNKNOWN;
     }
+  }
+
+  /**
+   * Checks whether the timelines are the same.
+   *
+   * @param firstTimeline The first {@link Timeline}.
+   * @param secondTimeline The second {@link Timeline} to compare with.
+   * @return {@code true} if the both timelines are the same.
+   */
+  public static boolean areTimelinesSame(Timeline firstTimeline, Timeline secondTimeline) {
+    if (firstTimeline == secondTimeline) {
+      return true;
+    }
+    if (secondTimeline.getWindowCount() != firstTimeline.getWindowCount()
+        || secondTimeline.getPeriodCount() != firstTimeline.getPeriodCount()) {
+      return false;
+    }
+    Timeline.Window firstWindow = new Timeline.Window();
+    Timeline.Period firstPeriod = new Timeline.Period();
+    Timeline.Window secondWindow = new Timeline.Window();
+    Timeline.Period secondPeriod = new Timeline.Period();
+    for (int i = 0; i < firstTimeline.getWindowCount(); i++) {
+      if (!firstTimeline
+          .getWindow(i, firstWindow)
+          .equals(secondTimeline.getWindow(i, secondWindow))) {
+        return false;
+      }
+    }
+    for (int i = 0; i < firstTimeline.getPeriodCount(); i++) {
+      if (!firstTimeline
+          .getPeriod(i, firstPeriod, /* setIds= */ true)
+          .equals(secondTimeline.getPeriod(i, secondPeriod, /* setIds= */ true))) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private static HashMap<String, String> createIso3ToIso2Map() {

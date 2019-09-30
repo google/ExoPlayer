@@ -106,7 +106,6 @@ public final class CastPlayer extends BasePlayer {
   private int pendingSeekCount;
   private int pendingSeekWindowIndex;
   private long pendingSeekPositionMs;
-  private boolean waitingForInitialTimeline;
 
   /**
    * @param castContext The context from which the cast session is obtained.
@@ -168,7 +167,6 @@ public final class CastPlayer extends BasePlayer {
       MediaQueueItem[] items, int startIndex, long positionMs, @RepeatMode int repeatMode) {
     if (remoteMediaClient != null) {
       positionMs = positionMs != C.TIME_UNSET ? positionMs : 0;
-      waitingForInitialTimeline = true;
       return remoteMediaClient.queueLoad(items, startIndex, getCastRepeatMode(repeatMode),
           positionMs, null);
     }
@@ -323,9 +321,15 @@ public final class CastPlayer extends BasePlayer {
   }
 
   @Override
-  @Player.State
+  @State
   public int getPlaybackState() {
     return playbackState;
+  }
+
+  @Override
+  @PlaybackSuppressionReason
+  public int getPlaybackSuppressionReason() {
+    return Player.PLAYBACK_SUPPRESSION_REASON_NONE;
   }
 
   @Override
@@ -538,6 +542,7 @@ public final class CastPlayer extends BasePlayer {
       return;
     }
 
+    boolean wasPlaying = playbackState == Player.STATE_READY && playWhenReady;
     int playbackState = fetchPlaybackState(remoteMediaClient);
     boolean playWhenReady = !remoteMediaClient.isPaused();
     if (this.playbackState != playbackState
@@ -547,6 +552,11 @@ public final class CastPlayer extends BasePlayer {
       notificationsBatch.add(
           new ListenerNotificationTask(
               listener -> listener.onPlayerStateChanged(this.playWhenReady, this.playbackState)));
+    }
+    boolean isPlaying = playbackState == Player.STATE_READY && playWhenReady;
+    if (wasPlaying != isPlaying) {
+      notificationsBatch.add(
+          new ListenerNotificationTask(listener -> listener.onIsPlayingChanged(isPlaying)));
     }
     @RepeatMode int repeatMode = fetchRepeatMode(remoteMediaClient);
     if (this.repeatMode != repeatMode) {
@@ -582,12 +592,13 @@ public final class CastPlayer extends BasePlayer {
 
   private void maybeUpdateTimelineAndNotify() {
     if (updateTimeline()) {
-      @Player.TimelineChangeReason int reason = waitingForInitialTimeline
-          ? Player.TIMELINE_CHANGE_REASON_PREPARED : Player.TIMELINE_CHANGE_REASON_DYNAMIC;
-      waitingForInitialTimeline = false;
+      // TODO: Differentiate TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED and
+      //     TIMELINE_CHANGE_REASON_SOURCE_UPDATE [see internal: b/65152553].
       notificationsBatch.add(
           new ListenerNotificationTask(
-              listener -> listener.onTimelineChanged(currentTimeline, reason)));
+              listener ->
+                  listener.onTimelineChanged(
+                      currentTimeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)));
     }
   }
 

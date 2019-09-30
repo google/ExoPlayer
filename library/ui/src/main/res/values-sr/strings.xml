@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">Не понављај ниједну</string>
   <string name="exo_controls_repeat_one_description">Понови једну</string>
   <string name="exo_controls_repeat_all_description">Понови све</string>
-  <string name="exo_controls_shuffle_on_description">Пусти насумично</string>
+  <string name="exo_controls_shuffle_on_description">Насумично пуштање је укључено</string>
+  <string name="exo_controls_shuffle_off_description">Насумично пуштање је искључено</string>
   <string name="exo_controls_fullscreen_description">Режим целог екрана</string>
   <string name="exo_controls_vr_description">ВР режим</string>
   <string name="exo_download_description">Преузми</string>

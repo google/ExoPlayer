@@ -392,6 +392,10 @@ import java.util.concurrent.atomic.AtomicInteger;
             id3Timestamp != C.TIME_UNSET
                 ? timestampAdjuster.adjustTsTimestamp(id3Timestamp)
                 : startTimeUs);
+      } else {
+        // In case the container format changes mid-stream to non-packed-audio, we need to reset
+        // the timestamp offset.
+        output.setSampleOffsetUs(/* sampleOffsetUs= */ 0L);
       }
       output.init(uid, shouldSpliceIn, /* reusingExtractor= */ false);
       extractor.init(output);

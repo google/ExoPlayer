@@ -83,17 +83,32 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  */
 public final class DownloadHelper {
 
-  /** Default track selection parameters for downloading, but without any viewport constraints. */
-  public static final Parameters DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_VIEWPORT =
-      Parameters.DEFAULT_WITHOUT_VIEWPORT.buildUpon().setForceHighestSupportedBitrate(true).build();
+  /**
+   * Default track selection parameters for downloading, but without any {@link Context}
+   * constraints.
+   *
+   * <p>If possible, use {@link #getDefaultTrackSelectorParameters(Context)} instead.
+   *
+   * @see Parameters#DEFAULT_WITHOUT_CONTEXT
+   */
+  public static final Parameters DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_CONTEXT =
+      Parameters.DEFAULT_WITHOUT_CONTEXT.buildUpon().setForceHighestSupportedBitrate(true).build();
 
   /**
-   * @deprecated This instance does not have viewport constraints configured for the primary
-   *     display. Use {@link #getDefaultTrackSelectorParameters(Context)} instead.
+   * @deprecated This instance does not have {@link Context} constraints. Use {@link
+   *     #getDefaultTrackSelectorParameters(Context)} instead.
+   */
+  @Deprecated
+  public static final Parameters DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_VIEWPORT =
+      DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_CONTEXT;
+
+  /**
+   * @deprecated This instance does not have {@link Context} constraints. Use {@link
+   *     #getDefaultTrackSelectorParameters(Context)} instead.
    */
   @Deprecated
   public static final DefaultTrackSelector.Parameters DEFAULT_TRACK_SELECTOR_PARAMETERS =
-      DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_VIEWPORT;
+      DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_CONTEXT;
 
   /** Returns the default parameters used for track selection for downloading. */
   public static DefaultTrackSelector.Parameters getDefaultTrackSelectorParameters(Context context) {
@@ -606,7 +621,7 @@ public final class DownloadHelper {
     assertPreparedWithMedia();
     for (int periodIndex = 0; periodIndex < mappedTrackInfos.length; periodIndex++) {
       DefaultTrackSelector.ParametersBuilder parametersBuilder =
-          DEFAULT_TRACK_SELECTOR_PARAMETERS.buildUpon();
+          DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_CONTEXT.buildUpon();
       MappedTrackInfo mappedTrackInfo = mappedTrackInfos[periodIndex];
       int rendererCount = mappedTrackInfo.getRendererCount();
       for (int rendererIndex = 0; rendererIndex < rendererCount; rendererIndex++) {
@@ -636,7 +651,7 @@ public final class DownloadHelper {
     assertPreparedWithMedia();
     for (int periodIndex = 0; periodIndex < mappedTrackInfos.length; periodIndex++) {
       DefaultTrackSelector.ParametersBuilder parametersBuilder =
-          DEFAULT_TRACK_SELECTOR_PARAMETERS.buildUpon();
+          DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_CONTEXT.buildUpon();
       MappedTrackInfo mappedTrackInfo = mappedTrackInfos[periodIndex];
       int rendererCount = mappedTrackInfo.getRendererCount();
       for (int rendererIndex = 0; rendererIndex < rendererCount; rendererIndex++) {

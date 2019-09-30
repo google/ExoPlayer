@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">किसी को न दोहराएं</string>
   <string name="exo_controls_repeat_one_description">एक को दोहराएं</string>
   <string name="exo_controls_repeat_all_description">सभी को दोहराएं</string>
-  <string name="exo_controls_shuffle_on_description">शफ़ल करें</string>
+  <string name="exo_controls_shuffle_on_description">शफ़ल करना चालू है</string>
+  <string name="exo_controls_shuffle_off_description">शफ़ल करना बंद है</string>
   <string name="exo_controls_fullscreen_description">फ़ुलस्क्रीन मोड</string>
   <string name="exo_controls_vr_description">VR मोड</string>
   <string name="exo_download_description">डाउनलोड करें</string>

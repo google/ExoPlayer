@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">ਕਿਸੇ ਨੂੰ ਨਾ ਦੁਹਰਾਓ</string>
   <string name="exo_controls_repeat_one_description">ਇੱਕ ਵਾਰ ਦੁਹਰਾਓ</string>
   <string name="exo_controls_repeat_all_description">ਸਾਰਿਆਂ ਨੂੰ ਦੁਹਰਾਓ</string>
-  <string name="exo_controls_shuffle_on_description">ਬੇਤਰਤੀਬ ਕਰੋ</string>
+  <string name="exo_controls_shuffle_on_description">\'ਬੇਤਰਤੀਬ ਕਰੋ\' ਮੋਡ ਚਾਲੂ ਹੈ</string>
+  <string name="exo_controls_shuffle_off_description">\'ਬੇਤਰਤੀਬ ਕਰੋ\' ਮੋਡ ਬੰਦ ਹੈ</string>
   <string name="exo_controls_fullscreen_description">ਪੂਰੀ-ਸਕ੍ਰੀਨ ਮੋਡ</string>
   <string name="exo_controls_vr_description">VR ਮੋਡ</string>
   <string name="exo_download_description">ਡਾਊਨਲੋਡ ਕਰੋ</string>

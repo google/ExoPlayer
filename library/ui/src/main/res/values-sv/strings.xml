@@ -25,6 +25,7 @@
   <string name="exo_controls_repeat_one_description">Upprepa en</string>
   <string name="exo_controls_repeat_all_description">Upprepa alla</string>
   <string name="exo_controls_shuffle_on_description">Blanda spår</string>
+  <string name="exo_controls_shuffle_off_description">Blanda inte spår</string>
   <string name="exo_controls_fullscreen_description">Helskärmsläge</string>
   <string name="exo_controls_vr_description">VR-läge</string>
   <string name="exo_download_description">Ladda ned</string>

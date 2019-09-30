@@ -552,6 +552,7 @@ public final class SsMediaSource extends BaseMediaSource
   @Override
   protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
     this.mediaTransferListener = mediaTransferListener;
+    drmSessionManager.prepare();
     if (sideloadedManifest) {
       manifestLoaderErrorThrower = new LoaderErrorThrower.Dummy();
       processManifest();
@@ -606,6 +607,7 @@ public final class SsMediaSource extends BaseMediaSource
       manifestRefreshHandler.removeCallbacksAndMessages(null);
       manifestRefreshHandler = null;
     }
+    drmSessionManager.release();
   }
 
   // Loader.Callback implementation
@@ -746,6 +748,9 @@ public final class SsMediaSource extends BaseMediaSource
   }
 
   private void startLoadingManifest() {
+    if (manifestLoader.hasFatalError()) {
+      return;
+    }
     ParsingLoadable<SsManifest> loadable = new ParsingLoadable<>(manifestDataSource,
         manifestUri, C.DATA_TYPE_MANIFEST, manifestParser);
     long elapsedRealtimeMs =

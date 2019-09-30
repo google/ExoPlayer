@@ -132,11 +132,8 @@ public class AnalyticsCollector
     }
   }
 
-  /**
-   * Resets the analytics collector for a new media source. Should be called before the player is
-   * prepared with a new media source.
-   */
-  public final void resetForNewMediaSource() {
+  /** Resets the analytics collector for a new playlist. */
+  public final void resetForNewPlaylist() {
     // Copying the list is needed because onMediaPeriodReleased will modify the list.
     List<MediaPeriodInfo> mediaPeriodInfos =
         new ArrayList<>(mediaPeriodQueueTracker.mediaPeriodInfoQueue);
@@ -786,9 +783,13 @@ public class AnalyticsCollector
 
     /** Updates the queue with a newly created media period. */
     public void onMediaPeriodCreated(int windowIndex, MediaPeriodId mediaPeriodId) {
-      boolean isInTimeline = timeline.getIndexOfPeriod(mediaPeriodId.periodUid) != C.INDEX_UNSET;
+      int periodIndex = timeline.getIndexOfPeriod(mediaPeriodId.periodUid);
+      boolean isInTimeline = periodIndex != C.INDEX_UNSET;
       MediaPeriodInfo mediaPeriodInfo =
-          new MediaPeriodInfo(mediaPeriodId, isInTimeline ? timeline : Timeline.EMPTY, windowIndex);
+          new MediaPeriodInfo(
+              mediaPeriodId,
+              isInTimeline ? timeline : Timeline.EMPTY,
+              isInTimeline ? timeline.getPeriod(periodIndex, period).windowIndex : windowIndex);
       mediaPeriodInfoQueue.add(mediaPeriodInfo);
       mediaPeriodIdToInfo.put(mediaPeriodId, mediaPeriodInfo);
       lastPlayingMediaPeriod = mediaPeriodInfoQueue.get(0);
@@ -804,7 +805,7 @@ public class AnalyticsCollector
     public boolean onMediaPeriodReleased(MediaPeriodId mediaPeriodId) {
       MediaPeriodInfo mediaPeriodInfo = mediaPeriodIdToInfo.remove(mediaPeriodId);
       if (mediaPeriodInfo == null) {
-        // The media period has already been removed from the queue in resetForNewMediaSource().
+        // The media period has already been removed from the queue in resetForNewPlaylist().
         return false;
       }
       mediaPeriodInfoQueue.remove(mediaPeriodInfo);

@@ -24,7 +24,8 @@
   <string name="exo_controls_repeat_off_description">ഒന്നും ആവർത്തിക്കരുത്</string>
   <string name="exo_controls_repeat_one_description">ഒരെണ്ണം ആവർത്തിക്കുക</string>
   <string name="exo_controls_repeat_all_description">എല്ലാം ആവർത്തിക്കുക</string>
-  <string name="exo_controls_shuffle_on_description">ഇടകലര്‍ത്തുക</string>
+  <string name="exo_controls_shuffle_on_description">ഇടകലർത്തൽ ഓണാക്കുക</string>
+  <string name="exo_controls_shuffle_off_description">ഇടകലർത്തൽ ഓഫാക്കുക</string>
   <string name="exo_controls_fullscreen_description">പൂർണ്ണ സ്‌ക്രീൻ മോഡ്</string>
   <string name="exo_controls_vr_description">VR മോഡ്</string>
   <string name="exo_download_description">ഡൗൺലോഡ്</string>
