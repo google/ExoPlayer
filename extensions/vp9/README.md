@@ -107,12 +107,11 @@ a custom track selector the choice of `Renderer` is up to your implementation,
 so you need to make sure you are passing an `LibvpxVideoRenderer` to the
 player, then implement your own logic to use the renderer for a given track.
 
-`LibvpxVideoRenderer` can optionally output to a `VpxVideoSurfaceView` when not
-being used via `SimpleExoPlayer`, in which case color space conversion will be
-performed using a GL shader. To enable this mode, send the renderer a message of
-type `LibvpxVideoRenderer.MSG_SET_OUTPUT_BUFFER_RENDERER` with the
-`VpxVideoSurfaceView` as its object, instead of sending `MSG_SET_SURFACE` with a
-`Surface`.
+`LibvpxVideoRenderer` can optionally output to a `VideoDecoderSurfaceView` when
+not being used via `SimpleExoPlayer`, in which case color space conversion will
+be performed using a GL shader. To enable this mode, send the renderer a message
+of type `C.MSG_SET_OUTPUT_BUFFER_RENDERER` with the `VideoDecoderSurfaceView` as
+its object, instead of sending `MSG_SET_SURFACE` with a `Surface`.
 
 ## Links ##
 
