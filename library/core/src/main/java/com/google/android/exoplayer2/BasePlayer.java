@@ -128,6 +128,12 @@ public abstract class BasePlayer implements Player {
   }
 
   @Override
+  public final boolean isCurrentWindowLive() {
+    Timeline timeline = getCurrentTimeline();
+    return !timeline.isEmpty() && timeline.getWindow(getCurrentWindowIndex(), window).isLive;
+  }
+
+  @Override
   public final boolean isCurrentWindowSeekable() {
     Timeline timeline = getCurrentTimeline();
     return !timeline.isEmpty() && timeline.getWindow(getCurrentWindowIndex(), window).isSeekable;
