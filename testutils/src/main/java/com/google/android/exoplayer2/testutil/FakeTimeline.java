@@ -189,6 +189,7 @@ public final class FakeTimeline extends Timeline {
         /* windowStartTimeMs= */ C.TIME_UNSET,
         windowDefinition.isSeekable,
         windowDefinition.isDynamic,
+        /* isLive= */ windowDefinition.isDynamic,
         /* defaultPositionUs= */ 0,
         windowDefinition.durationUs,
         periodOffsets[windowIndex],

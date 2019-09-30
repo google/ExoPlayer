@@ -44,7 +44,8 @@ public final class MediaPeriodQueueTest {
   private static final long SECOND_AD_START_TIME_US = 20 * C.MICROS_PER_SECOND;
 
   private static final Timeline CONTENT_TIMELINE =
-      new SinglePeriodTimeline(CONTENT_DURATION_US, /* isSeekable= */ true, /* isDynamic= */ false);
+      new SinglePeriodTimeline(
+          CONTENT_DURATION_US, /* isSeekable= */ true, /* isDynamic= */ false, /* isLive= */ false);
   private static final Uri AD_URI = Uri.EMPTY;
 
   private MediaPeriodQueue mediaPeriodQueue;

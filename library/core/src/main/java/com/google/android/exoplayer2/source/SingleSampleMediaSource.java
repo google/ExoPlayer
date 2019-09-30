@@ -291,7 +291,12 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
     dataSpec = new DataSpec(uri, DataSpec.FLAG_ALLOW_GZIP);
     timeline =
         new SinglePeriodTimeline(
-            durationUs, /* isSeekable= */ true, /* isDynamic= */ false, /* manifest= */ null, tag);
+            durationUs,
+            /* isSeekable= */ true,
+            /* isDynamic= */ false,
+            /* isLive= */ false,
+            /* manifest= */ null,
+            tag);
   }
 
   // MediaSource implementation.

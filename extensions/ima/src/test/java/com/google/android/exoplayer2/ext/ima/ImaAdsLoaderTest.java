@@ -63,7 +63,8 @@ public class ImaAdsLoaderTest {
 
   private static final long CONTENT_DURATION_US = 10 * C.MICROS_PER_SECOND;
   private static final Timeline CONTENT_TIMELINE =
-      new SinglePeriodTimeline(CONTENT_DURATION_US, /* isSeekable= */ true, /* isDynamic= */ false);
+      new SinglePeriodTimeline(
+          CONTENT_DURATION_US, /* isSeekable= */ true, /* isDynamic= */ false, /* isLive= */ false);
   private static final Uri TEST_URI = Uri.EMPTY;
   private static final long TEST_AD_DURATION_US = 5 * C.MICROS_PER_SECOND;
   private static final long[][] PREROLL_ADS_DURATIONS_US = new long[][] {{TEST_AD_DURATION_US}};
