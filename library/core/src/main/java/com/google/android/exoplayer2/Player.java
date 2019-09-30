@@ -962,6 +962,13 @@ public interface Player {
   boolean isCurrentWindowDynamic();
 
   /**
+   * Returns whether the current window is live, or {@code false} if the {@link Timeline} is empty.
+   *
+   * @see Timeline.Window#isLive
+   */
+  boolean isCurrentWindowLive();
+
+  /**
    * Returns whether the current window is seekable, or {@code false} if the {@link Timeline} is
    * empty.
    *
