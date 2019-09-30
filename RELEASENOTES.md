@@ -75,6 +75,11 @@
 * Add `Player.onPlaybackSuppressionReasonChanged` to allow listeners to
   detect playbacks suppressions (e.g. audio focus loss) directly
   ([#6203](https://github.com/google/ExoPlayer/issues/6203)).
+* VP9 extension:
+  * Rename `VpxVideoSurfaceView` to `VideoDecoderSurfaceView`
+    and move it to the core library.
+  * Move `LibvpxVideoRenderer.MSG_SET_OUTPUT_BUFFER_RENDERER` to
+    `C.MSG_SET_OUTPUT_BUFFER_RENDERER`.
 
 ### 2.10.5 (2019-09-20) ###
 

@@ -48,19 +48,12 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
  * <ul>
  *   <li>Message with type {@link C#MSG_SET_SURFACE} to set the output surface. The message payload
  *       should be the target {@link Surface}, or null.
- *   <li>Message with type {@link #MSG_SET_OUTPUT_BUFFER_RENDERER} to set the output buffer
+ *   <li>Message with type {@link C#MSG_SET_OUTPUT_BUFFER_RENDERER} to set the output buffer
  *       renderer. The message payload should be the target {@link
  *       VideoDecoderOutputBufferRenderer}, or null.
  * </ul>
  */
 public class LibvpxVideoRenderer extends SimpleDecoderVideoRenderer {
-
-  /**
-   * The type of a message that can be passed to an instance of this class via {@link
-   * ExoPlayer#createMessage(Target)}. The message payload should be the target {@link
-   * VideoDecoderOutputBufferRenderer}, or null.
-   */
-  public static final int MSG_SET_OUTPUT_BUFFER_RENDERER = C.MSG_CUSTOM_BASE;
 
   /** The number of input buffers. */
   private final int numInputBuffers;
@@ -298,7 +291,7 @@ public class LibvpxVideoRenderer extends SimpleDecoderVideoRenderer {
   public void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException {
     if (messageType == C.MSG_SET_SURFACE) {
       setOutput((Surface) message, null);
-    } else if (messageType == MSG_SET_OUTPUT_BUFFER_RENDERER) {
+    } else if (messageType == C.MSG_SET_OUTPUT_BUFFER_RENDERER) {
       setOutput(null, (VideoDecoderOutputBufferRenderer) message);
     } else if (messageType == C.MSG_SET_VIDEO_FRAME_METADATA_LISTENER) {
       frameMetadataListener = (VideoFrameMetadataListener) message;
