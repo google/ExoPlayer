@@ -210,7 +210,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   @Override
   public synchronized void sendMessage(PlayerMessage message) {
-    if (released) {
+    if (released || !internalPlaybackThread.isAlive()) {
       Log.w(TAG, "Ignoring messages sent after release.");
       message.markAsProcessed(/* isDelivered= */ false);
       return;
@@ -219,6 +219,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   public synchronized void setForegroundMode(boolean foregroundMode) {
+    if (released || !internalPlaybackThread.isAlive()) {
+      return;
+    }
     if (foregroundMode) {
       handler.obtainMessage(MSG_SET_FOREGROUND_MODE, /* foregroundMode */ 1, 0).sendToTarget();
     } else {
@@ -227,7 +230,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
           .obtainMessage(MSG_SET_FOREGROUND_MODE, /* foregroundMode */ 0, 0, processedFlag)
           .sendToTarget();
       boolean wasInterrupted = false;
-      while (!processedFlag.get() && !released) {
+      while (!processedFlag.get()) {
         try {
           wait();
         } catch (InterruptedException e) {
@@ -242,7 +245,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   public synchronized void release() {
-    if (released) {
+    if (released || !internalPlaybackThread.isAlive()) {
       return;
     }
     handler.sendEmptyMessage(MSG_RELEASE);
@@ -991,6 +994,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   private void sendMessageToTargetThread(final PlayerMessage message) {
     Handler handler = message.getHandler();
+    if (!handler.getLooper().getThread().isAlive()) {
+      Log.w("TAG", "Trying to send message on a dead thread.");
+      message.markAsProcessed(/* isDelivered= */ false);
+      return;
+    }
     handler.post(
         () -> {
           try {
