@@ -323,6 +323,7 @@ public class SimpleExoPlayer extends BasePlayer
   private final AnalyticsCollector analyticsCollector;
 
   private final AudioFocusManager audioFocusManager;
+  private final WakeLockManager wakeLockManager;
 
   @Nullable private Format videoFormat;
   @Nullable private Format audioFormat;
@@ -453,6 +454,7 @@ public class SimpleExoPlayer extends BasePlayer
       ((DefaultDrmSessionManager) drmSessionManager).addListener(eventHandler, analyticsCollector);
     }
     audioFocusManager = new AudioFocusManager(context, componentListener);
+    wakeLockManager = new WakeLockManager(context);
   }
 
   @Override
@@ -1226,6 +1228,7 @@ public class SimpleExoPlayer extends BasePlayer
   public void release() {
     verifyApplicationThread();
     audioFocusManager.handleStop();
+    wakeLockManager.setStayAwake(false);
     player.release();
     removeSurfaceCallbacks();
     if (surface != null) {
@@ -1346,6 +1349,22 @@ public class SimpleExoPlayer extends BasePlayer
   public long getContentBufferedPosition() {
     verifyApplicationThread();
     return player.getContentBufferedPosition();
+  }
+
+  /**
+   * Sets whether to enable the acquiring and releasing of a {@link
+   * android.os.PowerManager.WakeLock}.
+   *
+   * <p>By default, automatic wake lock handling is not enabled. Enabling this on will acquire the
+   * WakeLock if necessary. Disabling this will release the WakeLock if it is held.
+   *
+   * @param handleWakeLock True if the player should handle a {@link
+   *     android.os.PowerManager.WakeLock}, false otherwise. This is for use with a foreground
+   *     {@link android.app.Service}, for allowing audio playback with the screen off. Please note
+   *     that enabling this requires the {@link android.Manifest.permission#WAKE_LOCK} permission.
+   */
+  public void setHandleWakeLock(boolean handleWakeLock) {
+    wakeLockManager.setEnabled(handleWakeLock);
   }
 
   // Internal methods.
@@ -1665,6 +1684,20 @@ public class SimpleExoPlayer extends BasePlayer
           priorityTaskManager.remove(C.PRIORITY_PLAYBACK);
           isPriorityTaskManagerRegistered = false;
         }
+      }
+    }
+
+    @Override
+    public void onPlayerStateChanged(boolean playWhenReady, @State int playbackState) {
+      switch (playbackState) {
+        case Player.STATE_READY:
+        case Player.STATE_BUFFERING:
+          wakeLockManager.setStayAwake(playWhenReady);
+          break;
+        case Player.STATE_ENDED:
+        case Player.STATE_IDLE:
+          wakeLockManager.setStayAwake(false);
+          break;
       }
     }
   }

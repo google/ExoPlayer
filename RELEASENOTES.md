@@ -72,6 +72,10 @@
   ([#6161](https://github.com/google/ExoPlayer/issues/6161)).
 * Add demo app to show how to use the Android 10 `SurfaceControl` API with
   ExoPlayer ([#677](https://github.com/google/ExoPlayer/issues/677)).
+* Add automatic `WakeLock` handling to `SimpleExoPlayer` through calling
+  `setEnableWakeLock`, which requires the
+  `android.Manifest.permission#WAKE_LOCK` permission
+  ([#5846](https://github.com/google/ExoPlayer/issues/5846)).
 * Add `Player.onPlaybackSuppressionReasonChanged` to allow listeners to
   detect playbacks suppressions (e.g. audio focus loss) directly
   ([#6203](https://github.com/google/ExoPlayer/issues/6203)).
