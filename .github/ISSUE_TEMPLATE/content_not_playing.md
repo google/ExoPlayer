@@ -51,8 +51,3 @@ log snippet is NOT sufficient. Please attach the captured bug report as a file.
 If you don't wish to post it publicly, please submit the issue, then email the
 bug report to dev.exoplayer@gmail.com using a subject in the format
 "Issue #1234", where "#1234" should be replaced with your issue number.
-
-<!-- DO NOT DELETE
-validate_template=true
-template_path=.github/ISSUE_TEMPLATE/content_not_playing.md
--->
