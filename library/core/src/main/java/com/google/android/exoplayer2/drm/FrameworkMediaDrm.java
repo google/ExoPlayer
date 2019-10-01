@@ -48,6 +48,8 @@ import java.util.UUID;
 @TargetApi(23)
 public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto> {
 
+  private static final String TAG = "FrameworkMediaDrm";
+
   /**
    * {@link ExoMediaDrm.Provider} that returns a new {@link FrameworkMediaDrm} for the requested
    * UUID. Returns a {@link DummyExoMediaDrm} if the protection scheme identified by the given UUID
@@ -60,6 +62,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
         try {
           return newInstance(uuid);
         } catch (UnsupportedDrmException e) {
+          Log.e(TAG, "Failed to instantiate a FrameworkMediaDrm for uuid: " + uuid + ".");
           return new DummyExoMediaDrm<>();
         }
       };
@@ -68,7 +71,6 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
   private static final String MOCK_LA_URL_VALUE = "https://x";
   private static final String MOCK_LA_URL = "<LA_URL>" + MOCK_LA_URL_VALUE + "</LA_URL>";
   private static final int UTF_16_BYTES_PER_CHARACTER = 2;
-  private static final String TAG = "FrameworkMediaDrm";
 
   private final UUID uuid;
   private final MediaDrm mediaDrm;
