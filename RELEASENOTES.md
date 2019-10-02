@@ -5,6 +5,8 @@
 * Add `Player.onPlaybackSuppressionReasonChanged` to allow listeners to
   detect playbacks suppressions (e.g. audio focus loss) directly
   ([#6203](https://github.com/google/ExoPlayer/issues/6203)).
+* Expose the raw ICY metadata through `IcyInfo`
+  ([#6476](https://github.com/google/ExoPlayer/issues/6476)).
 
 ### 2.10.5 (2019-09-20) ###
 
