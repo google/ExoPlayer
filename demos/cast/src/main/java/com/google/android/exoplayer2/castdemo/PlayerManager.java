@@ -29,10 +29,9 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
+import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
-import com.google.android.exoplayer2.drm.UnsupportedDrmException;
 import com.google.android.exoplayer2.ext.cast.CastPlayer;
 import com.google.android.exoplayer2.ext.cast.DefaultMediaItemConverter;
 import com.google.android.exoplayer2.ext.cast.MediaItem;
@@ -54,7 +53,6 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.gms.cast.MediaQueueItem;
 import com.google.android.gms.cast.framework.CastContext;
 import java.util.ArrayList;
-import java.util.IdentityHashMap;
 import java.util.Map;
 
 /** Manages players and an internal media queue for the demo app. */
@@ -87,7 +85,6 @@ import java.util.Map;
   private final Listener listener;
   private final ConcatenatingMediaSource concatenatingMediaSource;
   private final MediaItemConverter mediaItemConverter;
-  private final IdentityHashMap<MediaSource, FrameworkMediaDrm> mediaDrms;
 
   private TrackGroupArray lastSeenTrackGroupArray;
   private int currentItemIndex;
@@ -115,7 +112,6 @@ import java.util.Map;
     currentItemIndex = C.INDEX_UNSET;
     concatenatingMediaSource = new ConcatenatingMediaSource();
     mediaItemConverter = new DefaultMediaItemConverter();
-    mediaDrms = new IdentityHashMap<>();
 
     trackSelector = new DefaultTrackSelector(context);
     exoPlayer = new SimpleExoPlayer.Builder(context).setTrackSelector(trackSelector).build();
@@ -185,8 +181,7 @@ import java.util.Map;
     if (itemIndex == -1) {
       return false;
     }
-    MediaSource removedMediaSource = concatenatingMediaSource.removeMediaSource(itemIndex);
-    releaseMediaDrmOfMediaSource(removedMediaSource);
+    concatenatingMediaSource.removeMediaSource(itemIndex);
     if (currentPlayer == castPlayer) {
       if (castPlayer.getPlaybackState() != Player.STATE_IDLE) {
         Timeline castTimeline = castPlayer.getCurrentTimeline();
@@ -262,9 +257,6 @@ import java.util.Map;
     currentItemIndex = C.INDEX_UNSET;
     mediaQueue.clear();
     concatenatingMediaSource.clear();
-    for (FrameworkMediaDrm mediaDrm : mediaDrms.values()) {
-      mediaDrm.release();
-    }
     castPlayer.setSessionAvailabilityListener(null);
     castPlayer.release();
     localPlayerView.setPlayer(null);
@@ -413,8 +405,7 @@ import java.util.Map;
       throw new IllegalArgumentException("mimeType is required");
     }
 
-    FrameworkMediaDrm mediaDrm = null;
-    DrmSessionManager<FrameworkMediaCrypto> drmSessionManager =
+    DrmSessionManager<ExoMediaCrypto> drmSessionManager =
         DrmSessionManager.getDummyDrmSessionManager();
     MediaItem.DrmConfiguration drmConfiguration = item.drmConfiguration;
     if (drmConfiguration != null) {
@@ -425,18 +416,12 @@ import java.util.Map;
       for (Map.Entry<String, String> requestHeader : drmConfiguration.requestHeaders.entrySet()) {
         drmCallback.setKeyRequestProperty(requestHeader.getKey(), requestHeader.getValue());
       }
-      try {
-        mediaDrm = FrameworkMediaDrm.newInstance(drmConfiguration.uuid);
-        drmSessionManager =
-            new DefaultDrmSessionManager<>(
-                drmConfiguration.uuid,
-                mediaDrm,
-                drmCallback,
-                /* optionalKeyRequestParameters= */ null,
-                /* multiSession= */ true);
-      } catch (UnsupportedDrmException e) {
-        // Do nothing. The track selector will avoid selecting the DRM protected tracks.
-      }
+      drmSessionManager =
+          new DefaultDrmSessionManager.Builder()
+              .setMultiSession(/* multiSession= */ true)
+              .setUuidAndExoMediaDrmProvider(
+                  drmConfiguration.uuid, FrameworkMediaDrm.DEFAULT_PROVIDER)
+              .build(drmCallback);
     }
 
     MediaSource createdMediaSource;
@@ -468,16 +453,6 @@ import java.util.Map;
       default:
         throw new IllegalArgumentException("mimeType is unsupported: " + mimeType);
     }
-    if (mediaDrm != null) {
-      mediaDrms.put(createdMediaSource, mediaDrm);
-    }
     return createdMediaSource;
-  }
-
-  private void releaseMediaDrmOfMediaSource(MediaSource mediaSource) {
-    FrameworkMediaDrm mediaDrmToRelease = mediaDrms.remove(mediaSource);
-    if (mediaDrmToRelease != null) {
-      mediaDrmToRelease.release();
-    }
   }
 }
