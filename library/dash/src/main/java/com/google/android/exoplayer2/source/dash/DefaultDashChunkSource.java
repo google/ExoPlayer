@@ -700,6 +700,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
         // There's a gap between the old index and the new one which means we've slipped behind the
         // live window and can't proceed.
         throw new BehindLiveWindowException();
+      } else if (oldIndex.getFirstSegmentNum() >= newIndexFirstSegmentNum) {
+        // The new index contains the old one, continue process the next segment
       } else {
         // The new index overlaps with the old one.
         newSegmentNumShift +=
