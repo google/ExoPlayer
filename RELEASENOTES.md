@@ -87,6 +87,8 @@
 * Add `Timeline.Window.isLive` to indicate that a window is a live stream
   ([#2668](https://github.com/google/ExoPlayer/issues/2668) and
   [#5973](https://github.com/google/ExoPlayer/issues/5973)).
+* Expose the raw ICY metadata through `IcyInfo`
+  ([#6476](https://github.com/google/ExoPlayer/issues/6476)).
 
 ### 2.10.5 (2019-09-20) ###
 
