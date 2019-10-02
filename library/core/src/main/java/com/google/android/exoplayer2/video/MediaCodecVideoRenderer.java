@@ -802,9 +802,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     long elapsedRealtimeNowUs = SystemClock.elapsedRealtime() * 1000;
     long elapsedSinceLastRenderUs = elapsedRealtimeNowUs - lastRenderTimeUs;
     boolean isStarted = getState() == STATE_STARTED;
-    // Don't force output until we joined and always render first frame if not joining.
+    // Don't force output until we joined and the position reached the current stream.
     boolean forceRenderOutputBuffer =
         joiningDeadlineMs == C.TIME_UNSET
+            && positionUs >= outputStreamOffsetUs
             && (!renderedFirstFrame
                 || (isStarted && shouldForceRenderOutputBuffer(earlyUs, elapsedSinceLastRenderUs)));
     if (forceRenderOutputBuffer) {
@@ -956,6 +957,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           pendingOutputStreamSwitchTimesUs,
           /* destPos= */ 0,
           pendingOutputStreamOffsetCount);
+      clearRenderedFirstFrame();
     }
   }
 
