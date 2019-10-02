@@ -211,6 +211,11 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
     return mediaPeriod.continueLoading(positionUs);
   }
 
+  @Override
+  public boolean isLoading() {
+    return mediaPeriod.isLoading();
+  }
+
   // MediaPeriod.Callback implementation.
 
   @Override

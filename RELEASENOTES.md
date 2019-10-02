@@ -91,6 +91,7 @@
   ([#6476](https://github.com/google/ExoPlayer/issues/6476)).
 * Fail more explicitly when local-file Uris contain invalid parts (e.g.
   fragment) ([#6470](https://github.com/google/ExoPlayer/issues/6470)).
+* Add `MediaPeriod.isLoading` to improve `Player.isLoading` state.
 
 ### 2.10.5 (2019-09-20) ###
 

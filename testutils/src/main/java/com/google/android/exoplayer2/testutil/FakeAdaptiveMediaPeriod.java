@@ -139,6 +139,11 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
   }
 
   @Override
+  public boolean isLoading() {
+    return sequenceableLoader.isLoading();
+  }
+
+  @Override
   protected SampleStream createSampleStream(TrackSelection trackSelection) {
     FakeChunkSource chunkSource =
         chunkSourceFactory.createChunkSource(trackSelection, durationUs, transferListener);

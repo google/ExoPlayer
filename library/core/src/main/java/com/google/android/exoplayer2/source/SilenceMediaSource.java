@@ -173,6 +173,11 @@ public final class SilenceMediaSource extends BaseMediaSource {
     }
 
     @Override
+    public boolean isLoading() {
+      return false;
+    }
+
+    @Override
     public void reevaluateBuffer(long positionUs) {}
 
     private long constrainSeekPosition(long positionUs) {

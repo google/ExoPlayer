@@ -664,6 +664,11 @@ import java.util.Set;
   }
 
   @Override
+  public boolean isLoading() {
+    return loader.isLoading();
+  }
+
+  @Override
   public void reevaluateBuffer(long positionUs) {
     // Do nothing.
   }

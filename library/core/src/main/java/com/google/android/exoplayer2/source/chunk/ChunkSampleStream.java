@@ -578,6 +578,11 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   }
 
   @Override
+  public boolean isLoading() {
+    return loader.isLoading();
+  }
+
+  @Override
   public long getNextLoadPositionUs() {
     if (isPendingReset()) {
       return pendingResetPositionUs;
