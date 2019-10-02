@@ -24,11 +24,11 @@ import org.junit.runner.RunWith;
 
 /** Test for {@link IcyInfo}. */
 @RunWith(AndroidJUnit4.class)
-public final class IcyStreamInfoTest {
+public final class IcyInfoTest {
 
   @Test
   public void parcelEquals() {
-    IcyInfo streamInfo = new IcyInfo("name", "url");
+    IcyInfo streamInfo = new IcyInfo("StreamName='name';StreamUrl='url'", "name", "url");
     // Write to parcel.
     Parcel parcel = Parcel.obtain();
     streamInfo.writeToParcel(parcel, 0);
