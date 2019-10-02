@@ -78,18 +78,11 @@ public class MetadataRendererTest {
             /* id= */ 0,
             "Test data".getBytes(UTF_8));
 
-    List<Metadata> metadata = runRenderer(EMSG_FORMAT, eventMessageEncoder.encode(emsg));
+    List<Metadata> metadata = runRenderer(eventMessageEncoder.encode(emsg));
 
     assertThat(metadata).hasSize(1);
     assertThat(metadata.get(0).length()).isEqualTo(1);
     assertThat(metadata.get(0).get(0)).isEqualTo(emsg);
-  }
-
-  @Test
-  public void decodeMetadata_skipsMalformed() throws Exception {
-    List<Metadata> metadata = runRenderer(EMSG_FORMAT, "not valid emsg bytes".getBytes(UTF_8));
-
-    assertThat(metadata).isEmpty();
   }
 
   @Test
@@ -102,7 +95,7 @@ public class MetadataRendererTest {
             /* id= */ 0,
             encodeTxxxId3Frame("Test description", "Test value"));
 
-    List<Metadata> metadata = runRenderer(EMSG_FORMAT, eventMessageEncoder.encode(emsg));
+    List<Metadata> metadata = runRenderer(eventMessageEncoder.encode(emsg));
 
     assertThat(metadata).hasSize(1);
     assertThat(metadata.get(0).length()).isEqualTo(1);
@@ -122,7 +115,7 @@ public class MetadataRendererTest {
             /* id= */ 0,
             SCTE35_TIME_SIGNAL_BYTES);
 
-    List<Metadata> metadata = runRenderer(EMSG_FORMAT, eventMessageEncoder.encode(emsg));
+    List<Metadata> metadata = runRenderer(eventMessageEncoder.encode(emsg));
 
     assertThat(metadata).hasSize(1);
     assertThat(metadata.get(0).length()).isEqualTo(1);
@@ -139,18 +132,17 @@ public class MetadataRendererTest {
             /* id= */ 0,
             "Not a real ID3 tag".getBytes(ISO_8859_1));
 
-    List<Metadata> metadata = runRenderer(EMSG_FORMAT, eventMessageEncoder.encode(emsg));
+    List<Metadata> metadata = runRenderer(eventMessageEncoder.encode(emsg));
 
     assertThat(metadata).isEmpty();
   }
 
-  private static List<Metadata> runRenderer(Format format, byte[] input)
-      throws ExoPlaybackException {
+  private static List<Metadata> runRenderer(byte[] input) throws ExoPlaybackException {
     List<Metadata> metadata = new ArrayList<>();
     MetadataRenderer renderer = new MetadataRenderer(metadata::add, /* outputLooper= */ null);
     renderer.replaceStream(
-        new Format[] {format},
-        new FakeSampleStream(format, /* eventDispatcher= */ null, input),
+        new Format[] {EMSG_FORMAT},
+        new FakeSampleStream(EMSG_FORMAT, /* eventDispatcher= */ null, input),
         /* offsetUs= */ 0L);
     renderer.render(/* positionUs= */ 0, /* elapsedRealtimeUs= */ 0); // Read the format
     renderer.render(/* positionUs= */ 0, /* elapsedRealtimeUs= */ 0); // Read the data
