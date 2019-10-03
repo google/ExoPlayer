@@ -203,16 +203,20 @@ DECODER_FUNC(jlong, flacGetNextFrameFirstSampleIndex, jlong jContext) {
 DECODER_FUNC(jobject, flacGetSeekPoints, jlong jContext, jlong timeUs) {
   Context *context = reinterpret_cast<Context *>(jContext);
   int64_t *result = context->parser->getSeekPositions(timeUs);
-  jclass seekPointClass = env->FindClass("com/google/android/exoplayer2/extractor/SeekPoint");
-  jclass seekPointsClass = env->FindClass("com/google/android/exoplayer2/extractor/SeekMap$SeekPoints");
-  jmethodID cidSeekPoint = env->GetMethodID(seekPointClass, "<init>", "(JJ)V");
-  jmethodID cidSeekPoints = env->GetMethodID(seekPointsClass, "<init>", "(Lcom/google/android/exoplayer2/extractor/SeekPoint;Lcom/google/android/exoplayer2/extractor/SeekPoint;)V");
-  jobject jSeekPointFirst = env->NewObject(seekPointClass, cidSeekPoint, (jlong) result[0], (jlong) result[1]);
-  jobject jSeekPointSecond = env->NewObject(seekPointClass, cidSeekPoint, (jlong) result[2], (jlong) result[3]);
-  jobject jSeekPoints = env->NewObject(seekPointsClass, cidSeekPoints, jSeekPointFirst, jSeekPointSecond);
-  env->DeleteLocalRef(jSeekPointFirst);
-  env->DeleteLocalRef(jSeekPointSecond);
-  return jSeekPoints;
+  if (result != NULL) {
+    jclass seekPointClass = env->FindClass("com/google/android/exoplayer2/extractor/SeekPoint");
+    jclass seekPointsClass = env->FindClass("com/google/android/exoplayer2/extractor/SeekMap$SeekPoints");
+    jmethodID cidSeekPoint = env->GetMethodID(seekPointClass, "<init>", "(JJ)V");
+    jmethodID cidSeekPoints = env->GetMethodID(seekPointsClass, "<init>", "(Lcom/google/android/exoplayer2/extractor/SeekPoint;Lcom/google/android/exoplayer2/extractor/SeekPoint;)V");
+    jobject jSeekPointFirst = env->NewObject(seekPointClass, cidSeekPoint, (jlong) result[0], (jlong) result[1]);
+    jobject jSeekPointSecond = env->NewObject(seekPointClass, cidSeekPoint, (jlong) result[2], (jlong) result[3]);
+    jobject jSeekPoints = env->NewObject(seekPointsClass, cidSeekPoints, jSeekPointFirst, jSeekPointSecond);
+    env->DeleteLocalRef(jSeekPointFirst);
+    env->DeleteLocalRef(jSeekPointSecond);
+    return jSeekPoints;
+  } else {
+    return NULL;
+  }
 }
 
 DECODER_FUNC(jstring, flacGetStateString, jlong jContext) {
