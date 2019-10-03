@@ -37,6 +37,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -483,7 +484,8 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
     maybeCreateMediaDrmHandler(playbackLooper);
     if (placeholderDrmSession == null) {
       DefaultDrmSession<T> placeholderDrmSession =
-          createNewDefaultSession(/* schemeDatas= */ null, /* isPlaceholderSession= */ true);
+          createNewDefaultSession(
+              /* schemeDatas= */ Collections.emptyList(), /* isPlaceholderSession= */ true);
       sessions.add(placeholderDrmSession);
       this.placeholderDrmSession = placeholderDrmSession;
     }
