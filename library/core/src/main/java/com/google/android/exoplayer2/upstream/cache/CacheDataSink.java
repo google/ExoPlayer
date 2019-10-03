@@ -53,7 +53,6 @@ public final class CacheDataSink implements DataSink {
   private long dataSpecFragmentSize;
   private File file;
   private OutputStream outputStream;
-  private FileOutputStream underlyingFileOutputStream;
   private long outputStreamBytesWritten;
   private long dataSpecBytesWritten;
   private ReusableBufferedOutputStream bufferedOutputStream;
@@ -171,7 +170,7 @@ public final class CacheDataSink implements DataSink {
     file =
         cache.startFile(
             dataSpec.key, dataSpec.absoluteStreamPosition + dataSpecBytesWritten, length);
-    underlyingFileOutputStream = new FileOutputStream(file);
+    FileOutputStream underlyingFileOutputStream = new FileOutputStream(file);
     if (bufferSize > 0) {
       if (bufferedOutputStream == null) {
         bufferedOutputStream = new ReusableBufferedOutputStream(underlyingFileOutputStream,
