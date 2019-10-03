@@ -36,7 +36,6 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.util.Clock;
@@ -413,8 +412,14 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
         () -> {
           try {
             player =
-                new TestSimpleExoPlayer(
-                    context, renderersFactory, trackSelector, loadControl, bandwidthMeter, clock);
+                new SimpleExoPlayer.Builder(context, renderersFactory)
+                    .setTrackSelector(trackSelector)
+                    .setLoadControl(loadControl)
+                    .setBandwidthMeter(bandwidthMeter)
+                    .setAnalyticsCollector(new AnalyticsCollector(clock))
+                    .setClock(clock)
+                    .setLooper(Looper.myLooper())
+                    .build();
             player.addListener(ExoPlayerTestRunner.this);
             if (eventListener != null) {
               player.addListener(eventListener);
@@ -613,28 +618,5 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
   @Override
   public void onActionScheduleFinished() {
     actionScheduleFinishedCountDownLatch.countDown();
-  }
-
-  /** SimpleExoPlayer implementation using a custom Clock. */
-  private static final class TestSimpleExoPlayer extends SimpleExoPlayer {
-
-    public TestSimpleExoPlayer(
-        Context context,
-        RenderersFactory renderersFactory,
-        TrackSelector trackSelector,
-        LoadControl loadControl,
-        BandwidthMeter bandwidthMeter,
-        Clock clock) {
-      super(
-          context,
-          renderersFactory,
-          trackSelector,
-          loadControl,
-          /* drmSessionManager= */ null,
-          bandwidthMeter,
-          new AnalyticsCollector(clock),
-          clock,
-          Looper.myLooper());
-    }
   }
 }
