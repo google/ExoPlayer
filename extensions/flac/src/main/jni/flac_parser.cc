@@ -439,10 +439,10 @@ size_t FLACParser::readBuffer(void *output, size_t output_size) {
 }
 
 int64_t* FLACParser::getSeekPositions(int64_t timeUs) {
-  int64_t *result = new int64_t[4];
   if (!mSeekTable) {
     return NULL;
   }
+  int64_t *result = new int64_t[4];
 
   int64_t sample = (timeUs * getSampleRate()) / 1000000LL;
   if (sample >= getTotalSamples()) {
