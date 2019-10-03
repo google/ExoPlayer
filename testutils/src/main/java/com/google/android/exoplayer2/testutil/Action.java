@@ -15,9 +15,11 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import android.content.Intent;
 import android.os.Handler;
 import android.view.Surface;
 import androidx.annotation.Nullable;
+import androidx.test.core.app.ApplicationProvider;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -208,6 +210,26 @@ public abstract class Action {
       player.setPlayWhenReady(playWhenReady);
     }
 
+  }
+
+  /** Broadcasts an {@link Intent}. */
+  public static final class SendBroadcast extends Action {
+    private final Intent intent;
+
+    /**
+     * @param tag A tag to use for logging.
+     * @param intent The {@link Intent} to broadcast.
+     */
+    public SendBroadcast(String tag, Intent intent) {
+      super(tag, "SendBroadcast: " + intent.getAction());
+      this.intent = intent;
+    }
+
+    @Override
+    protected void doActionImpl(
+        SimpleExoPlayer player, DefaultTrackSelector trackSelector, Surface surface) {
+      ApplicationProvider.getApplicationContext().sendBroadcast(intent);
+    }
   }
 
   /**

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import android.content.Intent;
 import android.os.Looper;
 import android.view.Surface;
 import androidx.annotation.Nullable;
@@ -32,6 +33,7 @@ import com.google.android.exoplayer2.testutil.Action.ExecuteRunnable;
 import com.google.android.exoplayer2.testutil.Action.PlayUntilPosition;
 import com.google.android.exoplayer2.testutil.Action.PrepareSource;
 import com.google.android.exoplayer2.testutil.Action.Seek;
+import com.google.android.exoplayer2.testutil.Action.SendBroadcast;
 import com.google.android.exoplayer2.testutil.Action.SendMessages;
 import com.google.android.exoplayer2.testutil.Action.SetPlayWhenReady;
 import com.google.android.exoplayer2.testutil.Action.SetPlaybackParameters;
@@ -374,6 +376,16 @@ public final class ActionSchedule {
     public Builder sendMessage(
         Target target, int windowIndex, long positionMs, boolean deleteAfterDelivery) {
       return apply(new SendMessages(tag, target, windowIndex, positionMs, deleteAfterDelivery));
+    }
+
+    /**
+     * Schedules broadcasting an {@link Intent}.
+     *
+     * @param intent An intent to broadcast.
+     * @return The builder, for convenience.
+     */
+    public Builder sendBroadcast(Intent intent) {
+      return apply(new SendBroadcast(tag, intent));
     }
 
     /**
