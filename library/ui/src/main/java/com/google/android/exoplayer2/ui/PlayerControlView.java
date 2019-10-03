@@ -945,7 +945,7 @@ public class PlayerControlView extends FrameLayout {
     // Cancel any pending updates and schedule a new one if necessary.
     removeCallbacks(updateProgressAction);
     int playbackState = player == null ? Player.STATE_IDLE : player.getPlaybackState();
-    if (player.isPlaying()) {
+    if (player != null && player.isPlaying()) {
       long mediaTimeDelayMs =
           timeBar != null ? timeBar.getPreferredUpdateDelay() : MAX_UPDATE_INTERVAL_MS;
 
