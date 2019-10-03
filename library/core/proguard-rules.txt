@@ -58,16 +58,6 @@
   <init>(com.google.android.exoplayer2.upstream.DataSource$Factory);
 }
 
--dontnote com.google.android.exoplayer2.extractor.SeekPoint
--keepclasseswithmembers class com.google.android.exoplayer2.extractor.SeekPoint {
-  <init>(long, long);
-}
-
--dontnote com.google.android.exoplayer2.extractor.SeekMap$SeekPoints
--keepclasseswithmembers class com.google.android.exoplayer2.extractor.SeekMap$SeekPoints {
-  <init>(com.google.android.exoplayer2.extractor.SeekPoint, com.google.android.exoplayer2.extractor.SeekPoint);
-}
-
 # Don't warn about checkerframework and Kotlin annotations
 -dontwarn org.checkerframework.**
 -dontwarn kotlin.annotations.jvm.**

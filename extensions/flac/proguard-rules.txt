@@ -15,3 +15,13 @@
 -keep class com.google.android.exoplayer2.metadata.flac.PictureFrame {
     *;
 }
+
+-dontnote com.google.android.exoplayer2.extractor.SeekPoint
+-keepclasseswithmembers class com.google.android.exoplayer2.extractor.SeekPoint {
+  <init>(long, long);
+}
+
+-dontnote com.google.android.exoplayer2.extractor.SeekMap$SeekPoints
+-keepclasseswithmembers class com.google.android.exoplayer2.extractor.SeekMap$SeekPoints {
+  <init>(com.google.android.exoplayer2.extractor.SeekPoint, com.google.android.exoplayer2.extractor.SeekPoint);
+}

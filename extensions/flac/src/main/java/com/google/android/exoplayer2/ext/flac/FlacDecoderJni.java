@@ -221,10 +221,10 @@ import java.nio.ByteBuffer;
    * stream.
    *
    * @param timeUs A seek position in microseconds.
-   * @return The corresponding SeekPoints in the flac seek table or
-   * {@link com.google.android.exoplayer2.extractor.SeekPoint#position} set -1 if the stream doesn't
+   * @return The corresponding SeekPoints in the flac seek table or null if the stream doesn't
    * have a seek table.
    */
+  @Nullable
   public SeekMap.SeekPoints getSeekPoints(long timeUs) {
     return flacGetSeekPoints(nativeDecoderContext, timeUs);
   }
