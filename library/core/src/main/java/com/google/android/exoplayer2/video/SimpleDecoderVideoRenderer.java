@@ -86,6 +86,10 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
       decoder;
   private VideoDecoderInputBuffer inputBuffer;
   private VideoDecoderOutputBuffer outputBuffer;
+  @Nullable private Surface surface;
+  @Nullable private VideoDecoderOutputBufferRenderer outputBufferRenderer;
+  @C.VideoOutputMode private int outputMode;
+
   @Nullable private DrmSession<ExoMediaCrypto> decoderDrmSession;
   @Nullable private DrmSession<ExoMediaCrypto> sourceDrmSession;
 
@@ -147,6 +151,7 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
     flagsOnlyBuffer = DecoderInputBuffer.newFlagsOnlyInstance();
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     decoderReinitializationState = REINITIALIZATION_STATE_NONE;
+    outputMode = C.VIDEO_OUTPUT_MODE_NONE;
   }
 
   // BaseRenderer implementation.
@@ -210,7 +215,7 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
     }
     if (inputFormat != null
         && (isSourceReady() || outputBuffer != null)
-        && (renderedFirstFrame || !hasOutputSurface())) {
+        && (renderedFirstFrame || !hasOutput())) {
       // Ready. If we were joining then we've now joined, so clear the joining deadline.
       joiningDeadlineMs = C.TIME_UNSET;
       return true;
@@ -226,6 +231,8 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
       return false;
     }
   }
+
+  // Protected methods.
 
   @Override
   protected void onEnabled(boolean joining) throws ExoPlaybackException {
@@ -316,7 +323,7 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
       inputBuffer = null;
       if (outputBuffer != null) {
         outputBuffer.release();
-        clearOutputBuffer();
+        outputBuffer = null;
       }
       decoder.flush();
       decoderReceivedBuffers = false;
@@ -327,7 +334,7 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
   @CallSuper
   protected void releaseDecoder() {
     inputBuffer = null;
-    clearOutputBuffer();
+    outputBuffer = null;
     decoderReinitializationState = REINITIALIZATION_STATE_NONE;
     decoderReceivedBuffers = false;
     buffersInCodecCount = 0;
@@ -337,16 +344,6 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
       decoderCounters.decoderReleaseCount++;
     }
     setDecoderDrmSession(null);
-  }
-
-  private void setSourceDrmSession(@Nullable DrmSession<ExoMediaCrypto> session) {
-    DrmSession.replaceSessionReferences(sourceDrmSession, session);
-    sourceDrmSession = session;
-  }
-
-  private void setDecoderDrmSession(@Nullable DrmSession<ExoMediaCrypto> session) {
-    DrmSession.replaceSessionReferences(decoderDrmSession, session);
-    decoderDrmSession = session;
   }
 
   /**
@@ -528,94 +525,124 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
           throws VideoDecoderException;
 
   /**
-   * Dequeues output buffer.
-   *
-   * @return Dequeued video decoder output buffer, or null if an output buffer isn't available.
-   * @throws VideoDecoderException If an error occurs while dequeuing the output buffer.
-   */
-  @Nullable
-  protected abstract VideoDecoderOutputBuffer dequeueOutputBuffer() throws VideoDecoderException;
-
-  /** Clears output buffer. */
-  protected void clearOutputBuffer() {
-    outputBuffer = null;
-  }
-
-  /**
    * Renders the specified output buffer.
    *
    * <p>The implementation of this method takes ownership of the output buffer and is responsible
    * for calling {@link VideoDecoderOutputBuffer#release()} either immediately or in the future.
    *
+   * @param outputBuffer {@link VideoDecoderOutputBuffer} to render.
    * @param presentationTimeUs Presentation time in microseconds.
-   * @param outputFormat Output format.
+   * @param outputFormat Output {@link Format}.
+   * @throws VideoDecoderException If an error occurs when rendering the output buffer.
    */
-  // TODO: The output buffer is not being passed to this method currently. Due to the need of
-  // decoder-specific output buffer type, the reference to the output buffer is being kept in the
-  // subclass. Once the common output buffer is established, this method can be updated to receive
-  // the output buffer as an argument. See [Internal: b/139174707].
-  protected abstract void renderOutputBuffer(long presentationTimeUs, Format outputFormat)
-      throws VideoDecoderException;
-
-  /**
-   * Returns whether the renderer has output surface.
-   *
-   * @return Whether the renderer has output surface.
-   */
-  protected abstract boolean hasOutputSurface();
-
-  /** Called when the output surface is changed. */
-  protected final void onOutputSurfaceChanged() {
-    // If we know the video size, report it again immediately.
-    maybeRenotifyVideoSizeChanged();
-    // We haven't rendered to the new output yet.
-    clearRenderedFirstFrame();
-    if (getState() == STATE_STARTED) {
-      setJoiningDeadlineMs();
+  protected void renderOutputBuffer(
+      VideoDecoderOutputBuffer outputBuffer, long presentationTimeUs, Format outputFormat)
+      throws VideoDecoderException {
+    lastRenderTimeUs = C.msToUs(SystemClock.elapsedRealtime() * 1000);
+    int bufferMode = outputBuffer.mode;
+    boolean renderSurface = bufferMode == C.VIDEO_OUTPUT_MODE_SURFACE_YUV && surface != null;
+    boolean renderYuv = bufferMode == C.VIDEO_OUTPUT_MODE_YUV && outputBufferRenderer != null;
+    if (!renderYuv && !renderSurface) {
+      dropOutputBuffer(outputBuffer);
+    } else {
+      maybeNotifyVideoSizeChanged(outputBuffer.width, outputBuffer.height);
+      if (renderYuv) {
+        outputBufferRenderer.setOutputBuffer(outputBuffer);
+      } else {
+        renderOutputBufferToSurface(outputBuffer, surface);
+      }
+      consecutiveDroppedFrameCount = 0;
+      decoderCounters.renderedOutputBufferCount++;
+      maybeNotifyRenderedFirstFrame();
     }
   }
 
-  /** Called when the output surface is removed. */
-  protected final void onOutputSurfaceRemoved() {
-    clearReportedVideoSize();
-    clearRenderedFirstFrame();
-  }
+  /**
+   * Renders the specified output buffer to the passed surface.
+   *
+   * <p>The implementation of this method takes ownership of the output buffer and is responsible
+   * for calling {@link VideoDecoderOutputBuffer#release()} either immediately or in the future.
+   *
+   * @param outputBuffer {@link VideoDecoderOutputBuffer} to render.
+   * @param surface Output {@link Surface}.
+   * @throws VideoDecoderException If an error occurs when rendering the output buffer.
+   */
+  protected abstract void renderOutputBufferToSurface(
+      VideoDecoderOutputBuffer outputBuffer, Surface surface) throws VideoDecoderException;
 
   /**
-   * Called when the output surface is set again to the same non-null value.
+   * Sets output surface.
    *
-   * @param surface Output surface.
+   * @param surface Surface.
    */
-  protected final void onOutputSurfaceReset(Surface surface) {
-    // The output is unchanged and non-null. If we know the video size and/or have already
-    // rendered to the output, report these again immediately.
-    maybeRenotifyVideoSizeChanged();
-    maybeRenotifyRenderedFirstFrame(surface);
-  }
-
-  /**
-   * Notifies event dispatcher if video size changed.
-   *
-   * @param width New video width.
-   * @param height New video height.
-   */
-  protected final void maybeNotifyVideoSizeChanged(int width, int height) {
-    if (reportedWidth != width || reportedHeight != height) {
-      reportedWidth = width;
-      reportedHeight = height;
-      eventDispatcher.videoSizeChanged(
-          width, height, /* unappliedRotationDegrees= */ 0, /* pixelWidthHeightRatio= */ 1);
+  protected final void setOutputSurface(@Nullable Surface surface) {
+    if (this.surface != surface) {
+      // The output has changed.
+      this.surface = surface;
+      if (surface != null) {
+        outputMode = C.VIDEO_OUTPUT_MODE_SURFACE_YUV;
+        if (decoder != null) {
+          setDecoderOutputMode(outputMode);
+        }
+        onOutputChanged();
+      } else {
+        // The output has been removed. We leave the outputMode of the underlying decoder unchanged
+        // in anticipation that a subsequent output will likely be of the same type.
+        outputMode = C.VIDEO_OUTPUT_MODE_NONE;
+        onOutputRemoved();
+      }
+    } else if (surface != null) {
+      // The output is unchanged and non-null.
+      onOutputReset();
     }
   }
 
-  /** Called after rendering a frame. */
-  protected final void onFrameRendered(Surface surface) {
-    consecutiveDroppedFrameCount = 0;
-    decoderCounters.renderedOutputBufferCount++;
-    maybeNotifyRenderedFirstFrame(surface);
+  /**
+   * Sets output buffer renderer.
+   *
+   * @param outputBufferRenderer Output buffer renderer.
+   */
+  protected final void setOutputBufferRenderer(
+      @Nullable VideoDecoderOutputBufferRenderer outputBufferRenderer) {
+    if (this.outputBufferRenderer != outputBufferRenderer) {
+      // The output has changed.
+      this.outputBufferRenderer = outputBufferRenderer;
+      if (outputBufferRenderer != null) {
+        outputMode = C.VIDEO_OUTPUT_MODE_YUV;
+        if (decoder != null) {
+          setDecoderOutputMode(outputMode);
+        }
+        onOutputChanged();
+      } else {
+        // The output has been removed. We leave the outputMode of the underlying decoder unchanged
+        // in anticipation that a subsequent output will likely be of the same type.
+        outputMode = C.VIDEO_OUTPUT_MODE_NONE;
+        onOutputRemoved();
+      }
+    } else if (outputBufferRenderer != null) {
+      // The output is unchanged and non-null.
+      onOutputReset();
+    }
   }
+
+  /**
+   * Sets output mode of the decoder.
+   *
+   * @param outputMode Output mode.
+   */
+  protected abstract void setDecoderOutputMode(@C.VideoOutputMode int outputMode);
 
   // Internal methods.
+
+  private void setSourceDrmSession(@Nullable DrmSession<ExoMediaCrypto> session) {
+    DrmSession.replaceSessionReferences(sourceDrmSession, session);
+    sourceDrmSession = session;
+  }
+
+  private void setDecoderDrmSession(@Nullable DrmSession<ExoMediaCrypto> session) {
+    DrmSession.replaceSessionReferences(decoderDrmSession, session);
+    decoderDrmSession = session;
+  }
 
   private void maybeInitDecoder() throws ExoPlaybackException {
     if (decoder != null) {
@@ -642,6 +669,7 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
     try {
       long decoderInitializingTimestamp = SystemClock.elapsedRealtime();
       decoder = createDecoder(inputFormat, mediaCrypto);
+      setDecoderOutputMode(outputMode);
       long decoderInitializedTimestamp = SystemClock.elapsedRealtime();
       onDecoderInitialized(
           decoder.getName(),
@@ -731,7 +759,7 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
   private boolean drainOutputBuffer(long positionUs, long elapsedRealtimeUs)
       throws ExoPlaybackException, VideoDecoderException {
     if (outputBuffer == null) {
-      outputBuffer = dequeueOutputBuffer();
+      outputBuffer = decoder.dequeueOutputBuffer();
       if (outputBuffer == null) {
         return false;
       }
@@ -746,7 +774,7 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
         maybeInitDecoder();
       } else {
         outputBuffer.release();
-        clearOutputBuffer();
+        outputBuffer = null;
         outputStreamEnded = true;
       }
       return false;
@@ -755,7 +783,7 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
     boolean processedOutputBuffer = processOutputBuffer(positionUs, elapsedRealtimeUs);
     if (processedOutputBuffer) {
       onProcessedOutputBuffer(outputBuffer.timeUs);
-      clearOutputBuffer();
+      outputBuffer = null;
     }
     return processedOutputBuffer;
   }
@@ -777,7 +805,7 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
     }
 
     long earlyUs = outputBuffer.timeUs - positionUs;
-    if (!hasOutputSurface()) {
+    if (!hasOutput()) {
       // Skip frames in sync with playback, so we'll be at the right frame if the mode changes.
       if (isBufferLate(earlyUs)) {
         skipOutputBuffer(outputBuffer);
@@ -797,8 +825,7 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
     if (!renderedFirstFrame
         || (isStarted
             && shouldForceRenderOutputBuffer(earlyUs, elapsedRealtimeNowUs - lastRenderTimeUs))) {
-      lastRenderTimeUs = SystemClock.elapsedRealtime() * 1000;
-      renderOutputBuffer(presentationTimeUs, outputFormat);
+      renderOutputBuffer(outputBuffer, presentationTimeUs, outputFormat);
       return true;
     }
 
@@ -815,12 +842,37 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
     }
 
     if (earlyUs < 30000) {
-      lastRenderTimeUs = SystemClock.elapsedRealtime() * 1000;
-      renderOutputBuffer(presentationTimeUs, outputFormat);
+      renderOutputBuffer(outputBuffer, presentationTimeUs, outputFormat);
       return true;
     }
 
     return false;
+  }
+
+  private boolean hasOutput() {
+    return outputMode != C.VIDEO_OUTPUT_MODE_NONE;
+  }
+
+  private void onOutputChanged() {
+    // If we know the video size, report it again immediately.
+    maybeRenotifyVideoSizeChanged();
+    // We haven't rendered to the new output yet.
+    clearRenderedFirstFrame();
+    if (getState() == STATE_STARTED) {
+      setJoiningDeadlineMs();
+    }
+  }
+
+  private void onOutputRemoved() {
+    clearReportedVideoSize();
+    clearRenderedFirstFrame();
+  }
+
+  private void onOutputReset() {
+    // The output is unchanged and non-null. If we know the video size and/or have already
+    // rendered to the output, report these again immediately.
+    maybeRenotifyVideoSizeChanged();
+    maybeRenotifyRenderedFirstFrame();
   }
 
   private boolean shouldWaitForKeys(boolean bufferEncrypted) throws ExoPlaybackException {
@@ -845,14 +897,14 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
     renderedFirstFrame = false;
   }
 
-  private void maybeNotifyRenderedFirstFrame(Surface surface) {
+  private void maybeNotifyRenderedFirstFrame() {
     if (!renderedFirstFrame) {
       renderedFirstFrame = true;
       eventDispatcher.renderedFirstFrame(surface);
     }
   }
 
-  private void maybeRenotifyRenderedFirstFrame(Surface surface) {
+  private void maybeRenotifyRenderedFirstFrame() {
     if (renderedFirstFrame) {
       eventDispatcher.renderedFirstFrame(surface);
     }
@@ -861,6 +913,15 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
   private void clearReportedVideoSize() {
     reportedWidth = Format.NO_VALUE;
     reportedHeight = Format.NO_VALUE;
+  }
+
+  private void maybeNotifyVideoSizeChanged(int width, int height) {
+    if (reportedWidth != width || reportedHeight != height) {
+      reportedWidth = width;
+      reportedHeight = height;
+      eventDispatcher.videoSizeChanged(
+          width, height, /* unappliedRotationDegrees= */ 0, /* pixelWidthHeightRatio= */ 1);
+    }
   }
 
   private void maybeRenotifyVideoSizeChanged() {
