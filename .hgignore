@@ -12,13 +12,14 @@ libs
 obj
 lint.xml
 
-# IntelliJ IDEA
+# IntelliJ IDEA & Android Studio
 .idea
 *.iml
 *.ipr
 *.iws
 classes
 gen-external-apklibs
+*.li
 
 # Eclipse
 .project
