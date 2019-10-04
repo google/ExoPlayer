@@ -276,10 +276,10 @@ public final class FlacExtractor implements Extractor {
       FlacStreamMetadata streamMetadata,
       long streamLength,
       ExtractorOutput output) {
-    boolean hasSeekTable = decoderJni.getSeekPosition(/* timeUs= */ 0) != -1;
+    boolean haveSeekTable = decoderJni.getSeekPoints(/* timeUs= */ 0) != null;
     FlacBinarySearchSeeker binarySearchSeeker = null;
     SeekMap seekMap;
-    if (hasSeekTable) {
+    if (haveSeekTable) {
       seekMap = new FlacSeekMap(streamMetadata.durationUs(), decoderJni);
     } else if (streamLength != C.LENGTH_UNSET) {
       long firstFramePosition = decoderJni.getDecodePosition();
@@ -341,8 +341,8 @@ public final class FlacExtractor implements Extractor {
 
     @Override
     public SeekPoints getSeekPoints(long timeUs) {
-      // TODO: Access the seek table via JNI to return two seek points when appropriate.
-      return new SeekPoints(new SeekPoint(timeUs, decoderJni.getSeekPosition(timeUs)));
+      @Nullable SeekPoints seekPoints = decoderJni.getSeekPoints(timeUs);
+      return seekPoints == null ? new SeekPoints(SeekPoint.START) : seekPoints;
     }
 
     @Override

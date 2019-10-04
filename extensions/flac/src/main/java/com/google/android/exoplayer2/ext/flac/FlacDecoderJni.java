@@ -19,6 +19,8 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
+import com.google.android.exoplayer2.extractor.SeekMap;
+import com.google.android.exoplayer2.extractor.SeekPoint;
 import com.google.android.exoplayer2.util.FlacStreamMetadata;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -216,15 +218,25 @@ import java.nio.ByteBuffer;
   }
 
   /**
-   * Maps a seek position in microseconds to a corresponding position (byte offset) in the flac
+   * Maps a seek position in microseconds to the corresponding {@link SeekMap.SeekPoints} in the
    * stream.
    *
    * @param timeUs A seek position in microseconds.
-   * @return The corresponding position (byte offset) in the flac stream or -1 if the stream doesn't
-   * have a seek table.
+   * @return The corresponding {@link SeekMap.SeekPoints} obtained from the seek table, or {@code
+   *     null} if the stream doesn't have a seek table.
    */
-  public long getSeekPosition(long timeUs) {
-    return flacGetSeekPosition(nativeDecoderContext, timeUs);
+  @Nullable
+  public SeekMap.SeekPoints getSeekPoints(long timeUs) {
+    long[] seekPoints = new long[4];
+    if (!flacGetSeekPoints(nativeDecoderContext, timeUs, seekPoints)) {
+      return null;
+    }
+    SeekPoint firstSeekPoint = new SeekPoint(seekPoints[0], seekPoints[1]);
+    SeekPoint secondSeekPoint =
+        seekPoints[2] == seekPoints[0]
+            ? firstSeekPoint
+            : new SeekPoint(seekPoints[2], seekPoints[3]);
+    return new SeekMap.SeekPoints(firstSeekPoint, secondSeekPoint);
   }
 
   public String getStateString() {
@@ -283,7 +295,7 @@ import java.nio.ByteBuffer;
 
   private native long flacGetNextFrameFirstSampleIndex(long context);
 
-  private native long flacGetSeekPosition(long context, long timeUs);
+  private native boolean flacGetSeekPoints(long context, long timeUs, long[] outSeekPoints);
 
   private native String flacGetStateString(long context);
 
