@@ -889,26 +889,27 @@ public final class MediaSessionConnector {
 
   private void rewind(Player player) {
     if (player.isCurrentWindowSeekable() && rewindMs > 0) {
-      seekTo(player, player.getCurrentPosition() - rewindMs);
+      seekToOffset(player, /* offsetMs= */ -rewindMs);
     }
   }
 
   private void fastForward(Player player) {
     if (player.isCurrentWindowSeekable() && fastForwardMs > 0) {
-      seekTo(player, player.getCurrentPosition() + fastForwardMs);
+      seekToOffset(player, /* offsetMs= */ fastForwardMs);
     }
   }
 
-  private void seekTo(Player player, long positionMs) {
-    seekTo(player, player.getCurrentWindowIndex(), positionMs);
-  }
-
-  private void seekTo(Player player, int windowIndex, long positionMs) {
+  private void seekToOffset(Player player, long offsetMs) {
+    long positionMs = player.getCurrentPosition() + offsetMs;
     long durationMs = player.getDuration();
     if (durationMs != C.TIME_UNSET) {
       positionMs = Math.min(positionMs, durationMs);
     }
     positionMs = Math.max(positionMs, 0);
+    seekTo(player, player.getCurrentWindowIndex(), positionMs);
+  }
+
+  private void seekTo(Player player, int windowIndex, long positionMs) {
     controlDispatcher.dispatchSeekTo(player, windowIndex, positionMs);
   }
 
@@ -1119,7 +1120,7 @@ public final class MediaSessionConnector {
             playbackPreparer.onPrepare(/* playWhenReady= */ true);
           }
         } else if (player.getPlaybackState() == Player.STATE_ENDED) {
-          controlDispatcher.dispatchSeekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
+          seekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
         }
         controlDispatcher.dispatchSetPlayWhenReady(
             Assertions.checkNotNull(player), /* playWhenReady= */ true);
@@ -1136,7 +1137,7 @@ public final class MediaSessionConnector {
     @Override
     public void onSeekTo(long positionMs) {
       if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_SEEK_TO)) {
-        seekTo(player, positionMs);
+        seekTo(player, player.getCurrentWindowIndex(), positionMs);
       }
     }
 
