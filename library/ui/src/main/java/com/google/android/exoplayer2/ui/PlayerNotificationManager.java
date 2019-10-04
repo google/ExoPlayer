@@ -1209,7 +1209,7 @@ public class PlayerNotificationManager {
             || (window.isDynamic && !window.isSeekable))) {
       seekTo(player, previousWindowIndex, C.TIME_UNSET);
     } else {
-      seekTo(player, 0);
+      seekTo(player, windowIndex, /* positionMs= */ 0);
     }
   }
 
@@ -1229,26 +1229,27 @@ public class PlayerNotificationManager {
 
   private void rewind(Player player) {
     if (player.isCurrentWindowSeekable() && rewindMs > 0) {
-      seekTo(player, Math.max(player.getCurrentPosition() - rewindMs, 0));
+      seekToOffset(player, /* offsetMs= */ -rewindMs);
     }
   }
 
   private void fastForward(Player player) {
     if (player.isCurrentWindowSeekable() && fastForwardMs > 0) {
-      seekTo(player, player.getCurrentPosition() + fastForwardMs);
+      seekToOffset(player, /* offsetMs= */ fastForwardMs);
     }
   }
 
-  private void seekTo(Player player, long positionMs) {
+  private void seekToOffset(Player player, long offsetMs) {
+    long positionMs = player.getCurrentPosition() + offsetMs;
+    long durationMs = player.getDuration();
+    if (durationMs != C.TIME_UNSET) {
+      positionMs = Math.min(positionMs, durationMs);
+    }
+    positionMs = Math.max(positionMs, 0);
     seekTo(player, player.getCurrentWindowIndex(), positionMs);
   }
 
   private void seekTo(Player player, int windowIndex, long positionMs) {
-    long duration = player.getDuration();
-    if (duration != C.TIME_UNSET) {
-      positionMs = Math.min(positionMs, duration);
-    }
-    positionMs = Math.max(positionMs, 0);
     controlDispatcher.dispatchSeekTo(player, windowIndex, positionMs);
   }
 
@@ -1369,7 +1370,7 @@ public class PlayerNotificationManager {
             playbackPreparer.preparePlayback();
           }
         } else if (player.getPlaybackState() == Player.STATE_ENDED) {
-          controlDispatcher.dispatchSeekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
+          seekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
         }
         controlDispatcher.dispatchSetPlayWhenReady(player, /* playWhenReady= */ true);
       } else if (ACTION_PAUSE.equals(action)) {
