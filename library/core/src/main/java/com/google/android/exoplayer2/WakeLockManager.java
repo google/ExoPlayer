@@ -28,7 +28,7 @@ import com.google.android.exoplayer2.util.Log;
  * <p>The handling of wake locks requires the {@link android.Manifest.permission#WAKE_LOCK}
  * permission.
  */
-public final class WakeLockManager {
+/* package */ final class WakeLockManager {
 
   private static final String TAG = "WakeLockManager";
   private static final String WAKE_LOCK_TAG = "ExoPlayer:WakeLockManager";
