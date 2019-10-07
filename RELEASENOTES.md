@@ -5,7 +5,9 @@
 * Add `Player.onPlaybackSuppressionReasonChanged` to allow listeners to
   detect playbacks suppressions (e.g. audio focus loss) directly
   ([#6203](https://github.com/google/ExoPlayer/issues/6203)).
-* Expose the raw ICY metadata through `IcyInfo`
+* DASH: Support `Label` elements
+  ([#6297](https://github.com/google/ExoPlayer/issues/6297)).
+* Metadata: Expose the raw ICY metadata through `IcyInfo`
   ([#6476](https://github.com/google/ExoPlayer/issues/6476)).
 * UI
   * Setting `app:played_color` on `PlayerView` and `PlayerControlView` no longer
