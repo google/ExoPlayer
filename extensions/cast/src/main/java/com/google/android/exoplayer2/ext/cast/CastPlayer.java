@@ -771,8 +771,26 @@ public final class CastPlayer extends BasePlayer {
     }
   }
 
-  private final class StatusListener implements RemoteMediaClient.Listener,
-      SessionManagerListener<CastSession>, RemoteMediaClient.ProgressListener {
+  private void flushNotifications() {
+    boolean recursiveNotification = !ongoingNotificationsTasks.isEmpty();
+    ongoingNotificationsTasks.addAll(notificationsBatch);
+    notificationsBatch.clear();
+    if (recursiveNotification) {
+      // This will be handled once the current notification task is finished.
+      return;
+    }
+    while (!ongoingNotificationsTasks.isEmpty()) {
+      ongoingNotificationsTasks.peekFirst().execute();
+      ongoingNotificationsTasks.removeFirst();
+    }
+  }
+
+  // Internal classes.
+
+  private final class StatusListener
+      implements RemoteMediaClient.Listener,
+          SessionManagerListener<CastSession>,
+          RemoteMediaClient.ProgressListener {
 
     // RemoteMediaClient.ProgressListener implementation.
 
@@ -855,24 +873,6 @@ public final class CastPlayer extends BasePlayer {
     }
 
   }
-
-  // Internal methods.
-
-  private void flushNotifications() {
-    boolean recursiveNotification = !ongoingNotificationsTasks.isEmpty();
-    ongoingNotificationsTasks.addAll(notificationsBatch);
-    notificationsBatch.clear();
-    if (recursiveNotification) {
-      // This will be handled once the current notification task is finished.
-      return;
-    }
-    while (!ongoingNotificationsTasks.isEmpty()) {
-      ongoingNotificationsTasks.peekFirst().execute();
-      ongoingNotificationsTasks.removeFirst();
-    }
-  }
-
-  // Internal classes.
 
   private final class SeekResultCallback implements ResultCallback<MediaChannelResult> {
 
