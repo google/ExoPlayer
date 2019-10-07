@@ -50,12 +50,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * {@link Player} implementation that communicates with a Cast receiver app.
  *
  * <p>The behavior of this class depends on the underlying Cast session, which is obtained from the
- * Cast context passed to {@link #CastPlayer}. To keep track of the session, {@link
+ * Cast context passed to {@link #@}. To keep track of the session, {@link
  * #isCastSessionAvailable()} can be queried and {@link SessionAvailabilityListener} can be
  * implemented and attached to the player.
  *
@@ -133,7 +134,7 @@ public final class CastPlayer extends BasePlayer {
     currentTrackSelection = EMPTY_TRACK_SELECTION_ARRAY;
     pendingSeekWindowIndex = C.INDEX_UNSET;
     pendingSeekPositionMs = C.TIME_UNSET;
-    updateInternalState();
+    maybeUpdateInternalState();
   }
 
   // Media Queue manipulation methods.
@@ -323,7 +324,7 @@ public final class CastPlayer extends BasePlayer {
   }
 
   @Override
-  @State
+  @Player.State
   public int getPlaybackState() {
     return playbackState;
   }
@@ -345,11 +346,19 @@ public final class CastPlayer extends BasePlayer {
     if (remoteMediaClient == null) {
       return;
     }
-    if (playWhenReady) {
-      remoteMediaClient.play();
-    } else {
-      remoteMediaClient.pause();
-    }
+    // We send the message to the receiver app and update the local state, which will cause the
+    // operation to be perceived as synchronous by the user.
+    PendingResult<MediaChannelResult> pendingResult =
+        playWhenReady ? remoteMediaClient.play() : remoteMediaClient.pause();
+    pendingResult.setResultCallback(
+        mediaChannelResult -> {
+          if (remoteMediaClient != null) {
+            maybeUpdatePlayerStateAndNotify();
+            flushNotifications();
+          }
+        });
+    maybeSetPlayerStateAndNotify(playWhenReady, playbackState);
+    flushNotifications();
   }
 
   @Override
@@ -538,23 +547,14 @@ public final class CastPlayer extends BasePlayer {
 
   // Internal methods.
 
-  private void updateInternalState() {
+  private void maybeUpdateInternalState() {
     if (remoteMediaClient == null) {
       // There is no session. We leave the state of the player as it is now.
       return;
     }
 
     boolean wasPlaying = playbackState == Player.STATE_READY && playWhenReady;
-    int playbackState = fetchPlaybackState(remoteMediaClient);
-    boolean playWhenReady = !remoteMediaClient.isPaused();
-    if (this.playbackState != playbackState
-        || this.playWhenReady != playWhenReady) {
-      this.playbackState = playbackState;
-      this.playWhenReady = playWhenReady;
-      notificationsBatch.add(
-          new ListenerNotificationTask(
-              listener -> listener.onPlayerStateChanged(this.playWhenReady, this.playbackState)));
-    }
+    maybeUpdatePlayerStateAndNotify();
     boolean isPlaying = playbackState == Player.STATE_READY && playWhenReady;
     if (wasPlaying != isPlaying) {
       notificationsBatch.add(
@@ -590,6 +590,12 @@ public final class CastPlayer extends BasePlayer {
               listener -> listener.onTracksChanged(currentTrackGroups, currentTrackSelection)));
     }
     flushNotifications();
+  }
+
+  @RequiresNonNull("remoteMediaClient")
+  private void maybeUpdatePlayerStateAndNotify() {
+    maybeSetPlayerStateAndNotify(
+        !remoteMediaClient.isPaused(), fetchPlaybackState(remoteMediaClient));
   }
 
   private void maybeUpdateTimelineAndNotify() {
@@ -668,6 +674,17 @@ public final class CastPlayer extends BasePlayer {
     return false;
   }
 
+  private void maybeSetPlayerStateAndNotify(
+      boolean playWhenReady, @Player.State int playbackState) {
+    if (this.playWhenReady != playWhenReady || this.playbackState != playbackState) {
+      this.playWhenReady = playWhenReady;
+      this.playbackState = playbackState;
+      notificationsBatch.add(
+          new ListenerNotificationTask(
+              listener -> listener.onPlayerStateChanged(playWhenReady, playbackState)));
+    }
+  }
+
   private void setRemoteMediaClient(@Nullable RemoteMediaClient remoteMediaClient) {
     if (this.remoteMediaClient == remoteMediaClient) {
       // Do nothing.
@@ -684,7 +701,7 @@ public final class CastPlayer extends BasePlayer {
       }
       remoteMediaClient.addListener(statusListener);
       remoteMediaClient.addProgressListener(statusListener, PROGRESS_REPORT_PERIOD_MS);
-      updateInternalState();
+      maybeUpdateInternalState();
     } else {
       if (sessionAvailabilityListener != null) {
         sessionAvailabilityListener.onCastSessionUnavailable();
@@ -803,7 +820,7 @@ public final class CastPlayer extends BasePlayer {
 
     @Override
     public void onStatusUpdated() {
-      updateInternalState();
+      maybeUpdateInternalState();
     }
 
     @Override
@@ -908,5 +925,4 @@ public final class CastPlayer extends BasePlayer {
       }
     }
   }
-
 }
