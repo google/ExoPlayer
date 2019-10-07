@@ -44,6 +44,7 @@ public class DashManifestParserTest {
   private static final String SAMPLE_MPD_UNKNOWN_MIME_TYPE = "sample_mpd_unknown_mime_type";
   private static final String SAMPLE_MPD_SEGMENT_TEMPLATE = "sample_mpd_segment_template";
   private static final String SAMPLE_MPD_EVENT_STREAM = "sample_mpd_event_stream";
+  private static final String SAMPLE_MPD_LABELS = "sample_mpd_labels";
 
   private static final String NEXT_TAG_NAME = "Next";
   private static final String NEXT_TAG = "<" + NEXT_TAG_NAME + "/>";
@@ -177,6 +178,21 @@ public class DashManifestParserTest {
   }
 
   @Test
+  public void parseMediaPresentationDescription_labels() throws IOException {
+    DashManifestParser parser = new DashManifestParser();
+    DashManifest manifest =
+        parser.parse(
+            Uri.parse("https://example.com/test.mpd"),
+            TestUtil.getInputStream(
+                ApplicationProvider.getApplicationContext(), SAMPLE_MPD_LABELS));
+
+    List<AdaptationSet> adaptationSets = manifest.getPeriod(0).adaptationSets;
+
+    assertThat(adaptationSets.get(0).representations.get(0).format.label).isEqualTo("audio label");
+    assertThat(adaptationSets.get(1).representations.get(0).format.label).isEqualTo("video label");
+  }
+
+  @Test
   public void parseSegmentTimeline_repeatCount() throws Exception {
     DashManifestParser parser = new DashManifestParser();
     XmlPullParser xpp = XmlPullParserFactory.newInstance().newPullParser();
@@ -248,6 +264,30 @@ public class DashManifestParserTest {
             new SegmentTimelineElement(/* startTime= */ 384000, /* duration= */ 48000),
             new SegmentTimelineElement(/* startTime= */ 432000, /* duration= */ 48000))
         .inOrder();
+    assertNextTag(xpp);
+  }
+
+  @Test
+  public void parseLabel() throws Exception {
+    DashManifestParser parser = new DashManifestParser();
+    XmlPullParser xpp = XmlPullParserFactory.newInstance().newPullParser();
+    xpp.setInput(new StringReader("<Label>test label</Label>" + NEXT_TAG));
+    xpp.next();
+
+    String label = parser.parseLabel(xpp);
+    assertThat(label).isEqualTo("test label");
+    assertNextTag(xpp);
+  }
+
+  @Test
+  public void parseLabel_noText() throws Exception {
+    DashManifestParser parser = new DashManifestParser();
+    XmlPullParser xpp = XmlPullParserFactory.newInstance().newPullParser();
+    xpp.setInput(new StringReader("<Label/>" + NEXT_TAG));
+    xpp.next();
+
+    String label = parser.parseLabel(xpp);
+    assertThat(label).isEqualTo("");
     assertNextTag(xpp);
   }
 
