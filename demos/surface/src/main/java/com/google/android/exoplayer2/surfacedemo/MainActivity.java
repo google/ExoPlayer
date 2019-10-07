@@ -223,8 +223,7 @@ public final class MainActivity extends Activity {
       throw new IllegalStateException();
     }
     player = new SimpleExoPlayer.Builder(getApplicationContext()).build();
-    player.setMediaItem(mediaSource);
-    player.prepare();
+    player.prepare(mediaSource);
     player.setPlayWhenReady(true);
     player.setRepeatMode(Player.REPEAT_MODE_ALL);
 
