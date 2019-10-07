@@ -19,7 +19,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceControl;
 import android.view.SurfaceHolder;
@@ -33,10 +32,9 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
+import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
-import com.google.android.exoplayer2.drm.UnsupportedDrmException;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
@@ -45,6 +43,7 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.util.UUID;
 
@@ -69,7 +68,6 @@ public final class MainActivity extends Activity {
   @Nullable private SurfaceView currentOutputView;
 
   private static SimpleExoPlayer player;
-  private static FrameworkMediaDrm mediaDrm;
   private static SurfaceControl surfaceControl;
   private static Surface videoSurface;
 
@@ -172,10 +170,6 @@ public final class MainActivity extends Activity {
         player.release();
         player = null;
       }
-      if (mediaDrm != null) {
-        mediaDrm.release();
-        mediaDrm = null;
-      }
     }
   }
 
@@ -184,24 +178,20 @@ public final class MainActivity extends Activity {
     String action = intent.getAction();
     Uri uri = ACTION_VIEW.equals(action) ? intent.getData() : Uri.parse(DEFAULT_MEDIA_URI);
     String userAgent = Util.getUserAgent(this, getString(R.string.application_name));
-    DrmSessionManager<FrameworkMediaCrypto> drmSessionManager =
-        DrmSessionManager.getDummyDrmSessionManager();
+    DrmSessionManager<ExoMediaCrypto> drmSessionManager;
     if (intent.hasExtra(DRM_SCHEME_EXTRA)) {
-      String drmLicenseUrl = intent.getStringExtra(DRM_LICENSE_URL_EXTRA);
-      try {
-        UUID drmSchemeUuid = Util.getDrmUuid(intent.getStringExtra(DRM_SCHEME_EXTRA));
-        HttpDataSource.Factory licenseDataSourceFactory =
-            new DefaultHttpDataSourceFactory(userAgent);
-        HttpMediaDrmCallback drmCallback =
-            new HttpMediaDrmCallback(drmLicenseUrl, licenseDataSourceFactory);
-        mediaDrm = FrameworkMediaDrm.newInstance(drmSchemeUuid);
-        drmSessionManager =
-            new DefaultDrmSessionManager<>(
-                drmSchemeUuid, mediaDrm, drmCallback, /* optionalKeyRequestParameters= */ null);
-      } catch (UnsupportedDrmException e) {
-        Log.e(TAG, "Unsupported DRM scheme", e);
-        return;
-      }
+      String drmScheme = Assertions.checkNotNull(intent.getStringExtra(DRM_SCHEME_EXTRA));
+      String drmLicenseUrl = Assertions.checkNotNull(intent.getStringExtra(DRM_LICENSE_URL_EXTRA));
+      UUID drmSchemeUuid = Assertions.checkNotNull(Util.getDrmUuid(drmScheme));
+      HttpDataSource.Factory licenseDataSourceFactory = new DefaultHttpDataSourceFactory(userAgent);
+      HttpMediaDrmCallback drmCallback =
+          new HttpMediaDrmCallback(drmLicenseUrl, licenseDataSourceFactory);
+      drmSessionManager =
+          new DefaultDrmSessionManager.Builder()
+              .setUuidAndExoMediaDrmProvider(drmSchemeUuid, FrameworkMediaDrm.DEFAULT_PROVIDER)
+              .build(drmCallback);
+    } else {
+      drmSessionManager = DrmSessionManager.getDummyDrmSessionManager();
     }
 
     DataSource.Factory dataSourceFactory =
