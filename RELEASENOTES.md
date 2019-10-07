@@ -7,6 +7,14 @@
   ([#6203](https://github.com/google/ExoPlayer/issues/6203)).
 * Expose the raw ICY metadata through `IcyInfo`
   ([#6476](https://github.com/google/ExoPlayer/issues/6476)).
+* UI
+  * Setting `app:played_color` on `PlayerView` and `PlayerControlView` no longer
+    adjusts the colors of the scrubber handle , buffered and unplayed parts of
+    the time bar. These can be set separately using `app:scrubber_color`,
+    `app:buffered_color` and `app_unplayed_color` respectively.
+  * Setting `app:ad_marker_color` on `PlayerView` and `PlayerControlView` no
+    longer adjusts the color of played ad markers. The color of played ad
+    markers can be set separately using `app:played_ad_marker_color`.
 
 ### 2.10.5 (2019-09-20) ###
 
