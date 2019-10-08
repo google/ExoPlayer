@@ -40,32 +40,36 @@ import org.xmlpull.v1.XmlPullParserFactory;
 @RunWith(AndroidJUnit4.class)
 public class DashManifestParserTest {
 
-  private static final String SAMPLE_MPD_1 = "sample_mpd_1";
-  private static final String SAMPLE_MPD_2_UNKNOWN_MIME_TYPE = "sample_mpd_2_unknown_mime_type";
-  private static final String SAMPLE_MPD_3_SEGMENT_TEMPLATE = "sample_mpd_3_segment_template";
-  private static final String SAMPLE_MPD_4_EVENT_STREAM = "sample_mpd_4_event_stream";
+  private static final String SAMPLE_MPD = "sample_mpd";
+  private static final String SAMPLE_MPD_UNKNOWN_MIME_TYPE = "sample_mpd_unknown_mime_type";
+  private static final String SAMPLE_MPD_SEGMENT_TEMPLATE = "sample_mpd_segment_template";
+  private static final String SAMPLE_MPD_EVENT_STREAM = "sample_mpd_event_stream";
+  private static final String SAMPLE_MPD_LABELS = "sample_mpd_labels";
+
+  private static final String NEXT_TAG_NAME = "Next";
+  private static final String NEXT_TAG = "<" + NEXT_TAG_NAME + "/>";
 
   /** Simple test to ensure the sample manifests parse without any exceptions being thrown. */
   @Test
-  public void testParseMediaPresentationDescription() throws IOException {
+  public void parseMediaPresentationDescription() throws IOException {
     DashManifestParser parser = new DashManifestParser();
     parser.parse(
         Uri.parse("https://example.com/test.mpd"),
-        TestUtil.getInputStream(ApplicationProvider.getApplicationContext(), SAMPLE_MPD_1));
+        TestUtil.getInputStream(ApplicationProvider.getApplicationContext(), SAMPLE_MPD));
     parser.parse(
         Uri.parse("https://example.com/test.mpd"),
         TestUtil.getInputStream(
-            ApplicationProvider.getApplicationContext(), SAMPLE_MPD_2_UNKNOWN_MIME_TYPE));
+            ApplicationProvider.getApplicationContext(), SAMPLE_MPD_UNKNOWN_MIME_TYPE));
   }
 
   @Test
-  public void testParseMediaPresentationDescriptionWithSegmentTemplate() throws IOException {
+  public void parseMediaPresentationDescription_segmentTemplate() throws IOException {
     DashManifestParser parser = new DashManifestParser();
     DashManifest mpd =
         parser.parse(
             Uri.parse("https://example.com/test.mpd"),
             TestUtil.getInputStream(
-                ApplicationProvider.getApplicationContext(), SAMPLE_MPD_3_SEGMENT_TEMPLATE));
+                ApplicationProvider.getApplicationContext(), SAMPLE_MPD_SEGMENT_TEMPLATE));
 
     assertThat(mpd.getPeriodCount()).isEqualTo(1);
 
@@ -91,13 +95,13 @@ public class DashManifestParserTest {
   }
 
   @Test
-  public void testParseMediaPresentationDescriptionCanParseEventStream() throws IOException {
+  public void parseMediaPresentationDescription_eventStream() throws IOException {
     DashManifestParser parser = new DashManifestParser();
     DashManifest mpd =
         parser.parse(
             Uri.parse("https://example.com/test.mpd"),
             TestUtil.getInputStream(
-                ApplicationProvider.getApplicationContext(), SAMPLE_MPD_4_EVENT_STREAM));
+                ApplicationProvider.getApplicationContext(), SAMPLE_MPD_EVENT_STREAM));
 
     Period period = mpd.getPeriod(0);
     assertThat(period.eventStreams).hasSize(3);
@@ -161,12 +165,12 @@ public class DashManifestParserTest {
   }
 
   @Test
-  public void testParseMediaPresentationDescriptionCanParseProgramInformation() throws IOException {
+  public void parseMediaPresentationDescription_programInformation() throws IOException {
     DashManifestParser parser = new DashManifestParser();
     DashManifest mpd =
         parser.parse(
             Uri.parse("Https://example.com/test.mpd"),
-            TestUtil.getInputStream(ApplicationProvider.getApplicationContext(), SAMPLE_MPD_1));
+            TestUtil.getInputStream(ApplicationProvider.getApplicationContext(), SAMPLE_MPD));
     ProgramInformation expectedProgramInformation =
         new ProgramInformation(
             "MediaTitle", "MediaSource", "MediaCopyright", "www.example.com", "enUs");
@@ -174,7 +178,121 @@ public class DashManifestParserTest {
   }
 
   @Test
-  public void testParseCea608AccessibilityChannel() {
+  public void parseMediaPresentationDescription_labels() throws IOException {
+    DashManifestParser parser = new DashManifestParser();
+    DashManifest manifest =
+        parser.parse(
+            Uri.parse("https://example.com/test.mpd"),
+            TestUtil.getInputStream(
+                ApplicationProvider.getApplicationContext(), SAMPLE_MPD_LABELS));
+
+    List<AdaptationSet> adaptationSets = manifest.getPeriod(0).adaptationSets;
+
+    assertThat(adaptationSets.get(0).representations.get(0).format.label).isEqualTo("audio label");
+    assertThat(adaptationSets.get(1).representations.get(0).format.label).isEqualTo("video label");
+  }
+
+  @Test
+  public void parseSegmentTimeline_repeatCount() throws Exception {
+    DashManifestParser parser = new DashManifestParser();
+    XmlPullParser xpp = XmlPullParserFactory.newInstance().newPullParser();
+    xpp.setInput(
+        new StringReader(
+            "<SegmentTimeline><S d=\"96000\" r=\"2\"/><S d=\"48000\" r=\"0\"/></SegmentTimeline>"
+                + NEXT_TAG));
+    xpp.next();
+
+    List<SegmentTimelineElement> elements =
+        parser.parseSegmentTimeline(xpp, /* timescale= */ 48000, /* periodDurationMs= */ 10000);
+
+    assertThat(elements)
+        .containsExactly(
+            new SegmentTimelineElement(/* startTime= */ 0, /* duration= */ 96000),
+            new SegmentTimelineElement(/* startTime= */ 96000, /* duration= */ 96000),
+            new SegmentTimelineElement(/* startTime= */ 192000, /* duration= */ 96000),
+            new SegmentTimelineElement(/* startTime= */ 288000, /* duration= */ 48000))
+        .inOrder();
+    assertNextTag(xpp);
+  }
+
+  @Test
+  public void parseSegmentTimeline_singleUndefinedRepeatCount() throws Exception {
+    DashManifestParser parser = new DashManifestParser();
+    XmlPullParser xpp = XmlPullParserFactory.newInstance().newPullParser();
+    xpp.setInput(
+        new StringReader(
+            "<SegmentTimeline><S d=\"96000\" r=\"-1\"/></SegmentTimeline>" + NEXT_TAG));
+    xpp.next();
+
+    List<SegmentTimelineElement> elements =
+        parser.parseSegmentTimeline(xpp, /* timescale= */ 48000, /* periodDurationMs= */ 10000);
+
+    assertThat(elements)
+        .containsExactly(
+            new SegmentTimelineElement(/* startTime= */ 0, /* duration= */ 96000),
+            new SegmentTimelineElement(/* startTime= */ 96000, /* duration= */ 96000),
+            new SegmentTimelineElement(/* startTime= */ 192000, /* duration= */ 96000),
+            new SegmentTimelineElement(/* startTime= */ 288000, /* duration= */ 96000),
+            new SegmentTimelineElement(/* startTime= */ 384000, /* duration= */ 96000))
+        .inOrder();
+    assertNextTag(xpp);
+  }
+
+  @Test
+  public void parseSegmentTimeline_timeOffsetsAndUndefinedRepeatCount() throws Exception {
+    DashManifestParser parser = new DashManifestParser();
+    XmlPullParser xpp = XmlPullParserFactory.newInstance().newPullParser();
+    xpp.setInput(
+        new StringReader(
+            "<SegmentTimeline><S t=\"0\" "
+                + "d=\"96000\" r=\"-1\"/><S t=\"192000\" d=\"48000\" r=\"-1\"/>"
+                + "</SegmentTimeline>"
+                + NEXT_TAG));
+    xpp.next();
+
+    List<SegmentTimelineElement> elements =
+        parser.parseSegmentTimeline(xpp, /* timescale= */ 48000, /* periodDurationMs= */ 10000);
+
+    assertThat(elements)
+        .containsExactly(
+            new SegmentTimelineElement(/* startTime= */ 0, /* duration= */ 96000),
+            new SegmentTimelineElement(/* startTime= */ 96000, /* duration= */ 96000),
+            new SegmentTimelineElement(/* startTime= */ 192000, /* duration= */ 48000),
+            new SegmentTimelineElement(/* startTime= */ 240000, /* duration= */ 48000),
+            new SegmentTimelineElement(/* startTime= */ 288000, /* duration= */ 48000),
+            new SegmentTimelineElement(/* startTime= */ 336000, /* duration= */ 48000),
+            new SegmentTimelineElement(/* startTime= */ 384000, /* duration= */ 48000),
+            new SegmentTimelineElement(/* startTime= */ 432000, /* duration= */ 48000))
+        .inOrder();
+    assertNextTag(xpp);
+  }
+
+  @Test
+  public void parseLabel() throws Exception {
+    DashManifestParser parser = new DashManifestParser();
+    XmlPullParser xpp = XmlPullParserFactory.newInstance().newPullParser();
+    xpp.setInput(new StringReader("<Label>test label</Label>" + NEXT_TAG));
+    xpp.next();
+
+    String label = parser.parseLabel(xpp);
+    assertThat(label).isEqualTo("test label");
+    assertNextTag(xpp);
+  }
+
+  @Test
+  public void parseLabel_noText() throws Exception {
+    DashManifestParser parser = new DashManifestParser();
+    XmlPullParser xpp = XmlPullParserFactory.newInstance().newPullParser();
+    xpp.setInput(new StringReader("<Label/>" + NEXT_TAG));
+    xpp.next();
+
+    String label = parser.parseLabel(xpp);
+    assertThat(label).isEqualTo("");
+    assertNextTag(xpp);
+  }
+
+  @Test
+  public void parseCea608AccessibilityChannel() {
     assertThat(
             DashManifestParser.parseCea608AccessibilityChannel(
                 buildCea608AccessibilityDescriptors("CC1=eng")))
@@ -215,7 +333,7 @@ public class DashManifestParserTest {
   }
 
   @Test
-  public void testParseCea708AccessibilityChannel() {
+  public void parseCea708AccessibilityChannel() {
     assertThat(
             DashManifestParser.parseCea708AccessibilityChannel(
                 buildCea708AccessibilityDescriptors("1=lang:eng")))
@@ -259,79 +377,17 @@ public class DashManifestParserTest {
         .isEqualTo(Format.NO_VALUE);
   }
 
-  @Test
-  public void parseSegmentTimeline_withRepeatCount() throws Exception {
-    DashManifestParser parser = new DashManifestParser();
-    XmlPullParser xpp = XmlPullParserFactory.newInstance().newPullParser();
-    xpp.setInput(
-        new StringReader(
-            "<SegmentTimeline><S d=\"96000\" r=\"2\"/><S d=\"48000\" r=\"0\"/></SegmentTimeline>"));
-    xpp.next();
-
-    List<SegmentTimelineElement> elements =
-        parser.parseSegmentTimeline(xpp, /* timescale= */ 48000, /* periodDurationMs= */ 10000);
-
-    assertThat(elements)
-        .containsExactly(
-            new SegmentTimelineElement(/* startTime= */ 0, /* duration= */ 96000),
-            new SegmentTimelineElement(/* startTime= */ 96000, /* duration= */ 96000),
-            new SegmentTimelineElement(/* startTime= */ 192000, /* duration= */ 96000),
-            new SegmentTimelineElement(/* startTime= */ 288000, /* duration= */ 48000))
-        .inOrder();
-  }
-
-  @Test
-  public void parseSegmentTimeline_withSingleUndefinedRepeatCount() throws Exception {
-    DashManifestParser parser = new DashManifestParser();
-    XmlPullParser xpp = XmlPullParserFactory.newInstance().newPullParser();
-    xpp.setInput(new StringReader("<SegmentTimeline><S d=\"96000\" r=\"-1\"/></SegmentTimeline>"));
-    xpp.next();
-
-    List<SegmentTimelineElement> elements =
-        parser.parseSegmentTimeline(xpp, /* timescale= */ 48000, /* periodDurationMs= */ 10000);
-
-    assertThat(elements)
-        .containsExactly(
-            new SegmentTimelineElement(/* startTime= */ 0, /* duration= */ 96000),
-            new SegmentTimelineElement(/* startTime= */ 96000, /* duration= */ 96000),
-            new SegmentTimelineElement(/* startTime= */ 192000, /* duration= */ 96000),
-            new SegmentTimelineElement(/* startTime= */ 288000, /* duration= */ 96000),
-            new SegmentTimelineElement(/* startTime= */ 384000, /* duration= */ 96000))
-        .inOrder();
-  }
-
-  @Test
-  public void parseSegmentTimeline_withTimeOffsetsAndUndefinedRepeatCount() throws Exception {
-    DashManifestParser parser = new DashManifestParser();
-    XmlPullParser xpp = XmlPullParserFactory.newInstance().newPullParser();
-    xpp.setInput(
-        new StringReader(
-            "<SegmentTimeline><S t=\"0\" "
-                + "d=\"96000\" r=\"-1\"/><S t=\"192000\" d=\"48000\" r=\"-1\"/>"
-                + "</SegmentTimeline>"));
-    xpp.next();
-
-    List<SegmentTimelineElement> elements =
-        parser.parseSegmentTimeline(xpp, /* timescale= */ 48000, /* periodDurationMs= */ 10000);
-
-    assertThat(elements)
-        .containsExactly(
-            new SegmentTimelineElement(/* startTime= */ 0, /* duration= */ 96000),
-            new SegmentTimelineElement(/* startTime= */ 96000, /* duration= */ 96000),
-            new SegmentTimelineElement(/* startTime= */ 192000, /* duration= */ 48000),
-            new SegmentTimelineElement(/* startTime= */ 240000, /* duration= */ 48000),
-            new SegmentTimelineElement(/* startTime= */ 288000, /* duration= */ 48000),
-            new SegmentTimelineElement(/* startTime= */ 336000, /* duration= */ 48000),
-            new SegmentTimelineElement(/* startTime= */ 384000, /* duration= */ 48000),
-            new SegmentTimelineElement(/* startTime= */ 432000, /* duration= */ 48000))
-        .inOrder();
-  }
-
   private static List<Descriptor> buildCea608AccessibilityDescriptors(String value) {
     return Collections.singletonList(new Descriptor("urn:scte:dash:cc:cea-608:2015", value, null));
   }
 
   private static List<Descriptor> buildCea708AccessibilityDescriptors(String value) {
     return Collections.singletonList(new Descriptor("urn:scte:dash:cc:cea-708:2015", value, null));
+  }
+
+  private static void assertNextTag(XmlPullParser xpp) throws Exception {
+    xpp.next();
+    assertThat(xpp.getEventType()).isEqualTo(XmlPullParser.START_TAG);
+    assertThat(xpp.getName()).isEqualTo(NEXT_TAG_NAME);
   }
 }

@@ -38,8 +38,10 @@ public final class PlaybackStats {
    * #PLAYBACK_STATE_JOINING_FOREGROUND}, {@link #PLAYBACK_STATE_JOINING_BACKGROUND}, {@link
    * #PLAYBACK_STATE_PLAYING}, {@link #PLAYBACK_STATE_PAUSED}, {@link #PLAYBACK_STATE_SEEKING},
    * {@link #PLAYBACK_STATE_BUFFERING}, {@link #PLAYBACK_STATE_PAUSED_BUFFERING}, {@link
-   * #PLAYBACK_STATE_SEEK_BUFFERING}, {@link #PLAYBACK_STATE_ENDED}, {@link
-   * #PLAYBACK_STATE_STOPPED}, {@link #PLAYBACK_STATE_FAILED} or {@link #PLAYBACK_STATE_SUSPENDED}.
+   * #PLAYBACK_STATE_SEEK_BUFFERING}, {@link #PLAYBACK_STATE_SUPPRESSED}, {@link
+   * #PLAYBACK_STATE_SUPPRESSED_BUFFERING}, {@link #PLAYBACK_STATE_ENDED}, {@link
+   * #PLAYBACK_STATE_STOPPED}, {@link #PLAYBACK_STATE_FAILED}, {@link
+   * #PLAYBACK_STATE_INTERRUPTED_BY_AD} or {@link #PLAYBACK_STATE_ABANDONED}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -54,10 +56,13 @@ public final class PlaybackStats {
     PLAYBACK_STATE_BUFFERING,
     PLAYBACK_STATE_PAUSED_BUFFERING,
     PLAYBACK_STATE_SEEK_BUFFERING,
+    PLAYBACK_STATE_SUPPRESSED,
+    PLAYBACK_STATE_SUPPRESSED_BUFFERING,
     PLAYBACK_STATE_ENDED,
     PLAYBACK_STATE_STOPPED,
     PLAYBACK_STATE_FAILED,
-    PLAYBACK_STATE_SUSPENDED
+    PLAYBACK_STATE_INTERRUPTED_BY_AD,
+    PLAYBACK_STATE_ABANDONED
   })
   @interface PlaybackState {}
   /** Playback has not started (initial state). */
@@ -72,22 +77,28 @@ public final class PlaybackStats {
   public static final int PLAYBACK_STATE_PAUSED = 4;
   /** Playback is handling a seek. */
   public static final int PLAYBACK_STATE_SEEKING = 5;
-  /** Playback is buffering to restart playback. */
+  /** Playback is buffering to resume active playback. */
   public static final int PLAYBACK_STATE_BUFFERING = 6;
   /** Playback is buffering while paused. */
   public static final int PLAYBACK_STATE_PAUSED_BUFFERING = 7;
   /** Playback is buffering after a seek. */
   public static final int PLAYBACK_STATE_SEEK_BUFFERING = 8;
+  /** Playback is suppressed (e.g. due to audio focus loss). */
+  public static final int PLAYBACK_STATE_SUPPRESSED = 9;
+  /** Playback is suppressed (e.g. due to audio focus loss) while buffering to resume a playback. */
+  public static final int PLAYBACK_STATE_SUPPRESSED_BUFFERING = 10;
   /** Playback has reached the end of the media. */
-  public static final int PLAYBACK_STATE_ENDED = 9;
-  /** Playback is stopped and can be resumed. */
-  public static final int PLAYBACK_STATE_STOPPED = 10;
+  public static final int PLAYBACK_STATE_ENDED = 11;
+  /** Playback is stopped and can be restarted. */
+  public static final int PLAYBACK_STATE_STOPPED = 12;
   /** Playback is stopped due a fatal error and can be retried. */
-  public static final int PLAYBACK_STATE_FAILED = 11;
-  /** Playback is suspended, e.g. because the user left or it is interrupted by another playback. */
-  public static final int PLAYBACK_STATE_SUSPENDED = 12;
+  public static final int PLAYBACK_STATE_FAILED = 13;
+  /** Playback is interrupted by an ad. */
+  public static final int PLAYBACK_STATE_INTERRUPTED_BY_AD = 14;
+  /** Playback is abandoned before reaching the end of the media. */
+  public static final int PLAYBACK_STATE_ABANDONED = 15;
   /** Total number of playback states. */
-  /* package */ static final int PLAYBACK_STATE_COUNT = 13;
+  /* package */ static final int PLAYBACK_STATE_COUNT = 16;
 
   /** Empty playback stats. */
   public static final PlaybackStats EMPTY = merge(/* nothing */ );

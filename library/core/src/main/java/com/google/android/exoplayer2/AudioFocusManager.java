@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.audio;
+package com.google.android.exoplayer2;
 
 import android.content.Context;
 import android.media.AudioFocusRequest;
@@ -22,9 +22,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
-import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
@@ -35,7 +33,7 @@ import java.lang.annotation.RetentionPolicy;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Manages requesting and responding to changes in audio focus. */
-public final class AudioFocusManager {
+/* package */ final class AudioFocusManager {
 
   /** Interface to allow AudioFocusManager to give commands to a player. */
   public interface PlayerControl {

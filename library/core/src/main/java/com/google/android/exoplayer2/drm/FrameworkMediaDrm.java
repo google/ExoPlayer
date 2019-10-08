@@ -25,6 +25,7 @@ import android.media.NotProvisionedException;
 import android.media.UnsupportedSchemeException;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.extractor.mp4.PsshAtomUtil;
@@ -42,11 +43,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * An {@link ExoMediaDrm} implementation that wraps the framework {@link MediaDrm}.
- */
+/** An {@link ExoMediaDrm} implementation that wraps the framework {@link MediaDrm}. */
 @TargetApi(23)
+@RequiresApi(18)
 public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto> {
+
+  private static final String TAG = "FrameworkMediaDrm";
 
   /**
    * {@link ExoMediaDrm.Provider} that returns a new {@link FrameworkMediaDrm} for the requested
@@ -60,6 +62,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
         try {
           return newInstance(uuid);
         } catch (UnsupportedDrmException e) {
+          Log.e(TAG, "Failed to instantiate a FrameworkMediaDrm for uuid: " + uuid + ".");
           return new DummyExoMediaDrm<>();
         }
       };
@@ -68,7 +71,6 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
   private static final String MOCK_LA_URL_VALUE = "https://x";
   private static final String MOCK_LA_URL = "<LA_URL>" + MOCK_LA_URL_VALUE + "</LA_URL>";
   private static final int UTF_16_BYTES_PER_CHARACTER = 2;
-  private static final String TAG = "FrameworkMediaDrm";
 
   private final UUID uuid;
   private final MediaDrm mediaDrm;

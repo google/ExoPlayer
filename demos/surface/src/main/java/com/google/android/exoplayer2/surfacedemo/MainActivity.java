@@ -19,7 +19,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceControl;
 import android.view.SurfaceHolder;
@@ -33,10 +32,9 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
+import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
-import com.google.android.exoplayer2.drm.UnsupportedDrmException;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
@@ -45,13 +43,13 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.util.UUID;
 
 /** Activity that demonstrates use of {@link SurfaceControl} with ExoPlayer. */
 public final class MainActivity extends Activity {
 
-  private static final String TAG = "MainActivity";
   private static final String DEFAULT_MEDIA_URI =
       "https://storage.googleapis.com/exoplayer-test-media-1/mkv/android-screens-lavf-56.36.100-aac-avc-main-1280x720.mkv";
   private static final String SURFACE_CONTROL_NAME = "surfacedemo";
@@ -63,18 +61,17 @@ public final class MainActivity extends Activity {
   private static final String OWNER_EXTRA = "owner";
 
   private boolean isOwner;
-  private PlayerControlView playerControlView;
-  private SurfaceView fullScreenView;
-  private SurfaceView nonFullScreenView;
+  @Nullable private PlayerControlView playerControlView;
+  @Nullable private SurfaceView fullScreenView;
+  @Nullable private SurfaceView nonFullScreenView;
   @Nullable private SurfaceView currentOutputView;
 
-  private static SimpleExoPlayer player;
-  private static FrameworkMediaDrm mediaDrm;
-  private static SurfaceControl surfaceControl;
-  private static Surface videoSurface;
+  @Nullable private static SimpleExoPlayer player;
+  @Nullable private static SurfaceControl surfaceControl;
+  @Nullable private static Surface videoSurface;
 
   @Override
-  protected void onCreate(Bundle savedInstanceState) {
+  protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.main_activity);
     playerControlView = findViewById(R.id.player_control_view);
@@ -82,7 +79,7 @@ public final class MainActivity extends Activity {
     fullScreenView.setOnClickListener(
         v -> {
           setCurrentOutputView(nonFullScreenView);
-          fullScreenView.setVisibility(View.GONE);
+          Assertions.checkNotNull(fullScreenView).setVisibility(View.GONE);
         });
     attachSurfaceListener(fullScreenView);
     isOwner = getIntent().getBooleanExtra(OWNER_EXTRA, /* defaultValue= */ true);
@@ -93,7 +90,7 @@ public final class MainActivity extends Activity {
         Button button = new Button(/* context= */ this);
         view = button;
         button.setText(getString(R.string.no_output_label));
-        button.setOnClickListener(v -> reparent(null));
+        button.setOnClickListener(v -> reparent(/* surfaceView= */ null));
       } else if (i == 1) {
         Button button = new Button(/* context= */ this);
         view = button;
@@ -101,18 +98,17 @@ public final class MainActivity extends Activity {
         button.setOnClickListener(
             v -> {
               setCurrentOutputView(fullScreenView);
-              fullScreenView.setVisibility(View.VISIBLE);
+              Assertions.checkNotNull(fullScreenView).setVisibility(View.VISIBLE);
             });
       } else if (i == 2) {
         Button button = new Button(/* context= */ this);
         view = button;
         button.setText(getString(R.string.new_activity_label));
         button.setOnClickListener(
-            v -> {
-              startActivity(
-                  new Intent(MainActivity.this, MainActivity.class)
-                      .putExtra(OWNER_EXTRA, /* value= */ false));
-            });
+            v ->
+                startActivity(
+                    new Intent(MainActivity.this, MainActivity.class)
+                        .putExtra(OWNER_EXTRA, /* value= */ false)));
       } else {
         SurfaceView surfaceView = new SurfaceView(this);
         view = surfaceView;
@@ -149,6 +145,8 @@ public final class MainActivity extends Activity {
     }
 
     setCurrentOutputView(nonFullScreenView);
+
+    PlayerControlView playerControlView = Assertions.checkNotNull(this.playerControlView);
     playerControlView.setPlayer(player);
     playerControlView.show();
   }
@@ -156,7 +154,8 @@ public final class MainActivity extends Activity {
   @Override
   public void onPause() {
     super.onPause();
-    playerControlView.setPlayer(null);
+
+    Assertions.checkNotNull(playerControlView).setPlayer(null);
   }
 
   @Override
@@ -166,15 +165,14 @@ public final class MainActivity extends Activity {
       if (surfaceControl != null) {
         surfaceControl.release();
         surfaceControl = null;
+      }
+      if (videoSurface != null) {
         videoSurface.release();
+        videoSurface = null;
       }
       if (player != null) {
         player.release();
         player = null;
-      }
-      if (mediaDrm != null) {
-        mediaDrm.release();
-        mediaDrm = null;
       }
     }
   }
@@ -182,26 +180,25 @@ public final class MainActivity extends Activity {
   private void initializePlayer() {
     Intent intent = getIntent();
     String action = intent.getAction();
-    Uri uri = ACTION_VIEW.equals(action) ? intent.getData() : Uri.parse(DEFAULT_MEDIA_URI);
+    Uri uri =
+        ACTION_VIEW.equals(action)
+            ? Assertions.checkNotNull(intent.getData())
+            : Uri.parse(DEFAULT_MEDIA_URI);
     String userAgent = Util.getUserAgent(this, getString(R.string.application_name));
-    DrmSessionManager<FrameworkMediaCrypto> drmSessionManager =
-        DrmSessionManager.getDummyDrmSessionManager();
+    DrmSessionManager<ExoMediaCrypto> drmSessionManager;
     if (intent.hasExtra(DRM_SCHEME_EXTRA)) {
-      String drmLicenseUrl = intent.getStringExtra(DRM_LICENSE_URL_EXTRA);
-      try {
-        UUID drmSchemeUuid = Util.getDrmUuid(intent.getStringExtra(DRM_SCHEME_EXTRA));
-        HttpDataSource.Factory licenseDataSourceFactory =
-            new DefaultHttpDataSourceFactory(userAgent);
-        HttpMediaDrmCallback drmCallback =
-            new HttpMediaDrmCallback(drmLicenseUrl, licenseDataSourceFactory);
-        mediaDrm = FrameworkMediaDrm.newInstance(drmSchemeUuid);
-        drmSessionManager =
-            new DefaultDrmSessionManager<>(
-                drmSchemeUuid, mediaDrm, drmCallback, /* optionalKeyRequestParameters= */ null);
-      } catch (UnsupportedDrmException e) {
-        Log.e(TAG, "Unsupported DRM scheme", e);
-        return;
-      }
+      String drmScheme = Assertions.checkNotNull(intent.getStringExtra(DRM_SCHEME_EXTRA));
+      String drmLicenseUrl = Assertions.checkNotNull(intent.getStringExtra(DRM_LICENSE_URL_EXTRA));
+      UUID drmSchemeUuid = Assertions.checkNotNull(Util.getDrmUuid(drmScheme));
+      HttpDataSource.Factory licenseDataSourceFactory = new DefaultHttpDataSourceFactory(userAgent);
+      HttpMediaDrmCallback drmCallback =
+          new HttpMediaDrmCallback(drmLicenseUrl, licenseDataSourceFactory);
+      drmSessionManager =
+          new DefaultDrmSessionManager.Builder()
+              .setUuidAndExoMediaDrmProvider(drmSchemeUuid, FrameworkMediaDrm.DEFAULT_PROVIDER)
+              .build(drmCallback);
+    } else {
+      drmSessionManager = DrmSessionManager.getDummyDrmSessionManager();
     }
 
     DataSource.Factory dataSourceFactory =
@@ -222,9 +219,8 @@ public final class MainActivity extends Activity {
     } else {
       throw new IllegalStateException();
     }
-    player = new SimpleExoPlayer.Builder(getApplicationContext()).build();
-    player.setMediaItem(mediaSource);
-    player.prepare();
+    SimpleExoPlayer player = new SimpleExoPlayer.Builder(getApplicationContext()).build();
+    player.prepare(mediaSource);
     player.setPlayWhenReady(true);
     player.setRepeatMode(Player.REPEAT_MODE_ALL);
 
@@ -235,6 +231,7 @@ public final class MainActivity extends Activity {
             .build();
     videoSurface = new Surface(surfaceControl);
     player.setVideoSurface(videoSurface);
+    MainActivity.player = player;
   }
 
   private void setCurrentOutputView(@Nullable SurfaceView surfaceView) {
@@ -265,7 +262,8 @@ public final class MainActivity extends Activity {
             });
   }
 
-  private void reparent(@Nullable SurfaceView surfaceView) {
+  private static void reparent(@Nullable SurfaceView surfaceView) {
+    SurfaceControl surfaceControl = Assertions.checkNotNull(MainActivity.surfaceControl);
     if (surfaceView == null) {
       new SurfaceControl.Transaction()
           .reparent(surfaceControl, /* newParent= */ null)

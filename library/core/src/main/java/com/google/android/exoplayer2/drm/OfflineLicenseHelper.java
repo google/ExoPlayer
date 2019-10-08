@@ -153,34 +153,6 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
   }
 
   /**
-   * @see DefaultDrmSessionManager#getPropertyByteArray
-   */
-  public synchronized byte[] getPropertyByteArray(String key) {
-    return drmSessionManager.getPropertyByteArray(key);
-  }
-
-  /**
-   * @see DefaultDrmSessionManager#setPropertyByteArray
-   */
-  public synchronized void setPropertyByteArray(String key, byte[] value) {
-    drmSessionManager.setPropertyByteArray(key, value);
-  }
-
-  /**
-   * @see DefaultDrmSessionManager#getPropertyString
-   */
-  public synchronized String getPropertyString(String key) {
-    return drmSessionManager.getPropertyString(key);
-  }
-
-  /**
-   * @see DefaultDrmSessionManager#setPropertyString
-   */
-  public synchronized void setPropertyString(String key, String value) {
-    drmSessionManager.setPropertyString(key, value);
-  }
-
-  /**
    * Downloads an offline license.
    *
    * @param drmInitData The {@link DrmInitData} for the content whose license is to be downloaded.
@@ -229,6 +201,7 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
   public synchronized Pair<Long, Long> getLicenseDurationRemainingSec(byte[] offlineLicenseKeySetId)
       throws DrmSessionException {
     Assertions.checkNotNull(offlineLicenseKeySetId);
+    drmSessionManager.prepare();
     DrmSession<T> drmSession =
         openBlockingKeyRequest(
             DefaultDrmSessionManager.MODE_QUERY, offlineLicenseKeySetId, DUMMY_DRM_INIT_DATA);
@@ -236,6 +209,7 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
     Pair<Long, Long> licenseDurationRemainingSec =
         WidevineUtil.getLicenseDurationRemainingSec(drmSession);
     drmSession.releaseReference();
+    drmSessionManager.release();
     if (error != null) {
       if (error.getCause() instanceof KeysExpiredException) {
         return Pair.create(0L, 0L);
@@ -255,11 +229,13 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
   private byte[] blockingKeyRequest(
       @Mode int licenseMode, @Nullable byte[] offlineLicenseKeySetId, DrmInitData drmInitData)
       throws DrmSessionException {
+    drmSessionManager.prepare();
     DrmSession<T> drmSession = openBlockingKeyRequest(licenseMode, offlineLicenseKeySetId,
         drmInitData);
     DrmSessionException error = drmSession.getError();
     byte[] keySetId = drmSession.getOfflineLicenseKeySetId();
     drmSession.releaseReference();
+    drmSessionManager.release();
     if (error != null) {
       throw error;
     }

@@ -28,13 +28,13 @@ import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.video.SimpleDecoderVideoRenderer;
 import com.google.android.exoplayer2.video.VideoDecoderException;
 import com.google.android.exoplayer2.video.VideoDecoderInputBuffer;
 import com.google.android.exoplayer2.video.VideoDecoderOutputBuffer;
+import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 
@@ -47,19 +47,12 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
  * <ul>
  *   <li>Message with type {@link C#MSG_SET_SURFACE} to set the output surface. The message payload
  *       should be the target {@link Surface}, or null.
- *   <li>Message with type {@link #MSG_SET_OUTPUT_BUFFER_RENDERER} to set the output buffer
- *       renderer. The message payload should be the target {@link VpxOutputBufferRenderer}, or
- *       null.
+ *   <li>Message with type {@link C#MSG_SET_OUTPUT_BUFFER_RENDERER} to set the output buffer
+ *       renderer. The message payload should be the target {@link
+ *       VideoDecoderOutputBufferRenderer}, or null.
  * </ul>
  */
 public class LibvpxVideoRenderer extends SimpleDecoderVideoRenderer {
-
-  /**
-   * The type of a message that can be passed to an instance of this class via {@link
-   * ExoPlayer#createMessage(Target)}. The message payload should be the target {@link
-   * VpxOutputBufferRenderer}, or null.
-   */
-  public static final int MSG_SET_OUTPUT_BUFFER_RENDERER = C.MSG_CUSTOM_BASE;
 
   /** The number of input buffers. */
   private final int numInputBuffers;
@@ -78,13 +71,7 @@ public class LibvpxVideoRenderer extends SimpleDecoderVideoRenderer {
   private final boolean disableLoopFilter;
   private final int threads;
 
-  private Surface surface;
-  private VpxOutputBufferRenderer outputBufferRenderer;
-  @C.VideoOutputMode private int outputMode;
-
   private VpxDecoder decoder;
-  private VpxOutputBuffer outputBuffer;
-
   private VideoFrameMetadataListener frameMetadataListener;
 
   /**
@@ -203,7 +190,6 @@ public class LibvpxVideoRenderer extends SimpleDecoderVideoRenderer {
     this.threads = threads;
     this.numInputBuffers = numInputBuffers;
     this.numOutputBuffers = numOutputBuffers;
-    outputMode = C.VIDEO_OUTPUT_MODE_NONE;
   }
 
   @Override
@@ -242,53 +228,37 @@ public class LibvpxVideoRenderer extends SimpleDecoderVideoRenderer {
             disableLoopFilter,
             enableRowMultiThreadMode,
             threads);
-    decoder.setOutputMode(outputMode);
     TraceUtil.endSection();
     return decoder;
   }
 
   @Override
-  @Nullable
-  protected VideoDecoderOutputBuffer dequeueOutputBuffer() throws VpxDecoderException {
-    outputBuffer = decoder.dequeueOutputBuffer();
-    return outputBuffer;
-  }
-
-  @Override
-  protected void renderOutputBuffer(long presentationTimeUs, Format outputFormat)
-      throws VpxDecoderException {
+  protected void renderOutputBuffer(
+      VideoDecoderOutputBuffer outputBuffer, long presentationTimeUs, Format outputFormat)
+      throws VideoDecoderException {
     if (frameMetadataListener != null) {
       frameMetadataListener.onVideoFrameAboutToBeRendered(
           presentationTimeUs, System.nanoTime(), outputFormat);
     }
+    super.renderOutputBuffer(outputBuffer, presentationTimeUs, outputFormat);
+  }
 
-    int bufferMode = outputBuffer.mode;
-    boolean renderSurface = bufferMode == C.VIDEO_OUTPUT_MODE_SURFACE_YUV && surface != null;
-    boolean renderYuv = bufferMode == C.VIDEO_OUTPUT_MODE_YUV && outputBufferRenderer != null;
-    if (!renderYuv && !renderSurface) {
-      dropOutputBuffer(outputBuffer);
-    } else {
-      maybeNotifyVideoSizeChanged(outputBuffer.width, outputBuffer.height);
-      if (renderYuv) {
-        outputBufferRenderer.setOutputBuffer(outputBuffer);
-        // The renderer will release the buffer.
-      } else { // renderSurface
-        decoder.renderToSurface(outputBuffer, surface);
-        outputBuffer.release();
-      }
-      onFrameRendered(surface);
+  @Override
+  protected void renderOutputBufferToSurface(VideoDecoderOutputBuffer outputBuffer, Surface surface)
+      throws VpxDecoderException {
+    if (decoder == null) {
+      throw new VpxDecoderException(
+          "Failed to render output buffer to surface: decoder is not initialized.");
     }
+    decoder.renderToSurface(outputBuffer, surface);
+    outputBuffer.release();
   }
 
   @Override
-  protected void clearOutputBuffer() {
-    super.clearOutputBuffer();
-    outputBuffer = null;
-  }
-
-  @Override
-  protected boolean hasOutputSurface() {
-    return outputMode != C.VIDEO_OUTPUT_MODE_NONE;
+  protected void setDecoderOutputMode(@C.VideoOutputMode int outputMode) {
+    if (decoder != null) {
+      decoder.setOutputMode(outputMode);
+    }
   }
 
   // PlayerMessage.Target implementation.
@@ -296,44 +266,13 @@ public class LibvpxVideoRenderer extends SimpleDecoderVideoRenderer {
   @Override
   public void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException {
     if (messageType == C.MSG_SET_SURFACE) {
-      setOutput((Surface) message, null);
-    } else if (messageType == MSG_SET_OUTPUT_BUFFER_RENDERER) {
-      setOutput(null, (VpxOutputBufferRenderer) message);
+      setOutputSurface((Surface) message);
+    } else if (messageType == C.MSG_SET_OUTPUT_BUFFER_RENDERER) {
+      setOutputBufferRenderer((VideoDecoderOutputBufferRenderer) message);
     } else if (messageType == C.MSG_SET_VIDEO_FRAME_METADATA_LISTENER) {
       frameMetadataListener = (VideoFrameMetadataListener) message;
     } else {
       super.handleMessage(messageType, message);
-    }
-  }
-
-  // Internal methods.
-
-  private void setOutput(
-      @Nullable Surface surface, @Nullable VpxOutputBufferRenderer outputBufferRenderer) {
-    // At most one output may be non-null. Both may be null if the output is being cleared.
-    Assertions.checkState(surface == null || outputBufferRenderer == null);
-    if (this.surface != surface || this.outputBufferRenderer != outputBufferRenderer) {
-      // The output has changed.
-      this.surface = surface;
-      this.outputBufferRenderer = outputBufferRenderer;
-      if (surface != null) {
-        outputMode = C.VIDEO_OUTPUT_MODE_SURFACE_YUV;
-      } else {
-        outputMode =
-            outputBufferRenderer != null ? C.VIDEO_OUTPUT_MODE_YUV : C.VIDEO_OUTPUT_MODE_NONE;
-      }
-      if (hasOutputSurface()) {
-        if (decoder != null) {
-          decoder.setOutputMode(outputMode);
-        }
-        onOutputSurfaceChanged();
-      } else {
-        // The output has been removed. We leave the outputMode of the underlying decoder unchanged
-        // in anticipation that a subsequent output will likely be of the same type.
-        onOutputSurfaceRemoved();
-      }
-    } else if (hasOutputSurface()) {
-      onOutputSurfaceReset(surface);
     }
   }
 }

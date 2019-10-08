@@ -30,6 +30,7 @@ import java.util.ArrayList;
   private final Timeline.Period period;
   private final Timeline timeline;
 
+  private boolean prepared;
   @Player.State private int state;
   private boolean playWhenReady;
   private long position;
@@ -46,17 +47,13 @@ import java.util.ArrayList;
     timeline = Timeline.EMPTY;
   }
 
-  /**
-   * Sets the timeline on this fake player, which notifies listeners with the changed timeline and
-   * the given timeline change reason.
-   *
-   * @param timeline The new timeline.
-   * @param timelineChangeReason The reason for the timeline change.
-   */
-  public void updateTimeline(Timeline timeline, @TimelineChangeReason int timelineChangeReason) {
+  /** Sets the timeline on this fake player, which notifies listeners with the changed timeline. */
+  public void updateTimeline(Timeline timeline) {
     for (Player.EventListener listener : listeners) {
-      listener.onTimelineChanged(timeline, timelineChangeReason);
+      listener.onTimelineChanged(
+          timeline, prepared ? TIMELINE_CHANGE_REASON_DYNAMIC : TIMELINE_CHANGE_REASON_PREPARED);
     }
+    prepared = true;
   }
 
   /**

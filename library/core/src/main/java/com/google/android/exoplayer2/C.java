@@ -27,6 +27,8 @@ import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.SimpleDecoderVideoRenderer;
+import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
 import java.lang.annotation.Documented;
@@ -822,6 +824,13 @@ public final class C {
    * instance, or null.
    */
   public static final int MSG_SET_CAMERA_MOTION_LISTENER = 7;
+
+  /**
+   * The type of a message that can be passed to a {@link SimpleDecoderVideoRenderer} via {@link
+   * ExoPlayer#createMessage(Target)}. The message payload should be the target {@link
+   * VideoDecoderOutputBufferRenderer}, or null.
+   */
+  public static final int MSG_SET_OUTPUT_BUFFER_RENDERER = 8;
 
   /**
    * Applications or extensions may define custom {@code MSG_*} constants that can be passed to

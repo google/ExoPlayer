@@ -360,9 +360,6 @@ public final class PlayerEmsgHandler implements Handler.Callback {
         }
         long eventTimeUs = inputBuffer.timeUs;
         Metadata metadata = decoder.decode(inputBuffer);
-        if (metadata == null) {
-          continue;
-        }
         EventMessage eventMessage = (EventMessage) metadata.get(0);
         if (isPlayerEmsgEvent(eventMessage.schemeIdUri, eventMessage.value)) {
           parsePlayerEmsgEvent(eventTimeUs, eventMessage);

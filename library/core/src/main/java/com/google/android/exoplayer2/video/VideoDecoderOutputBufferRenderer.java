@@ -13,18 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.ext.vp9;
+package com.google.android.exoplayer2.video;
 
-/**
- * Renders the {@link VpxOutputBuffer}.
- */
-public interface VpxOutputBufferRenderer {
+/** Renders the {@link VideoDecoderOutputBuffer}. */
+public interface VideoDecoderOutputBufferRenderer {
 
   /**
    * Sets the output buffer to be rendered. The renderer is responsible for releasing the buffer.
    *
    * @param outputBuffer The output buffer to be rendered.
    */
-  void setOutputBuffer(VpxOutputBuffer outputBuffer);
-
+  void setOutputBuffer(VideoDecoderOutputBuffer outputBuffer);
 }

@@ -121,6 +121,7 @@ import java.util.Arrays;
         /* windowStartTimeMs= */ C.TIME_UNSET,
         /* isSeekable= */ !isDynamic,
         isDynamic,
+        /* isLive= */ isDynamic,
         defaultPositionsUs[windowIndex],
         durationUs,
         /* firstPeriodIndex= */ windowIndex,

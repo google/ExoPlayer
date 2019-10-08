@@ -382,8 +382,6 @@ public class PlayerNotificationManager {
   private int visibility;
   @Priority private int priority;
   private boolean useChronometer;
-  private boolean wasPlayWhenReady;
-  private int lastPlaybackState;
 
   /**
    * @deprecated Use {@link #createWithNotificationChannel(Context, String, int, int, int,
@@ -663,8 +661,6 @@ public class PlayerNotificationManager {
     }
     this.player = player;
     if (player != null) {
-      wasPlayWhenReady = player.getPlayWhenReady();
-      lastPlaybackState = player.getPlaybackState();
       player.addListener(playerListener);
       startOrUpdateNotification();
     }
@@ -1070,10 +1066,9 @@ public class PlayerNotificationManager {
     // Changing "showWhen" causes notification flicker if SDK_INT < 21.
     if (Util.SDK_INT >= 21
         && useChronometer
+        && player.isPlaying()
         && !player.isPlayingAd()
-        && !player.isCurrentWindowDynamic()
-        && player.getPlayWhenReady()
-        && player.getPlaybackState() == Player.STATE_READY) {
+        && !player.isCurrentWindowDynamic()) {
       builder
           .setWhen(System.currentTimeMillis() - player.getContentPosition())
           .setShowWhen(true)
@@ -1138,7 +1133,7 @@ public class PlayerNotificationManager {
       stringActions.add(ACTION_REWIND);
     }
     if (usePlayPauseActions) {
-      if (isPlaying(player)) {
+      if (shouldShowPauseButton(player)) {
         stringActions.add(ACTION_PAUSE);
       } else {
         stringActions.add(ACTION_PLAY);
@@ -1182,10 +1177,10 @@ public class PlayerNotificationManager {
     if (skipPreviousActionIndex != -1) {
       actionIndices[actionCounter++] = skipPreviousActionIndex;
     }
-    boolean isPlaying = isPlaying(player);
-    if (pauseActionIndex != -1 && isPlaying) {
+    boolean shouldShowPauseButton = shouldShowPauseButton(player);
+    if (pauseActionIndex != -1 && shouldShowPauseButton) {
       actionIndices[actionCounter++] = pauseActionIndex;
-    } else if (playActionIndex != -1 && !isPlaying) {
+    } else if (playActionIndex != -1 && !shouldShowPauseButton) {
       actionIndices[actionCounter++] = playActionIndex;
     }
     if (skipNextActionIndex != -1) {
@@ -1214,7 +1209,7 @@ public class PlayerNotificationManager {
             || (window.isDynamic && !window.isSeekable))) {
       seekTo(player, previousWindowIndex, C.TIME_UNSET);
     } else {
-      seekTo(player, 0);
+      seekTo(player, windowIndex, /* positionMs= */ 0);
     }
   }
 
@@ -1234,30 +1229,31 @@ public class PlayerNotificationManager {
 
   private void rewind(Player player) {
     if (player.isCurrentWindowSeekable() && rewindMs > 0) {
-      seekTo(player, Math.max(player.getCurrentPosition() - rewindMs, 0));
+      seekToOffset(player, /* offsetMs= */ -rewindMs);
     }
   }
 
   private void fastForward(Player player) {
     if (player.isCurrentWindowSeekable() && fastForwardMs > 0) {
-      seekTo(player, player.getCurrentPosition() + fastForwardMs);
+      seekToOffset(player, /* offsetMs= */ fastForwardMs);
     }
   }
 
-  private void seekTo(Player player, long positionMs) {
+  private void seekToOffset(Player player, long offsetMs) {
+    long positionMs = player.getCurrentPosition() + offsetMs;
+    long durationMs = player.getDuration();
+    if (durationMs != C.TIME_UNSET) {
+      positionMs = Math.min(positionMs, durationMs);
+    }
+    positionMs = Math.max(positionMs, 0);
     seekTo(player, player.getCurrentWindowIndex(), positionMs);
   }
 
   private void seekTo(Player player, int windowIndex, long positionMs) {
-    long duration = player.getDuration();
-    if (duration != C.TIME_UNSET) {
-      positionMs = Math.min(positionMs, duration);
-    }
-    positionMs = Math.max(positionMs, 0);
     controlDispatcher.dispatchSeekTo(player, windowIndex, positionMs);
   }
 
-  private boolean isPlaying(Player player) {
+  private boolean shouldShowPauseButton(Player player) {
     return player.getPlaybackState() != Player.STATE_ENDED
         && player.getPlaybackState() != Player.STATE_IDLE
         && player.getPlayWhenReady();
@@ -1328,11 +1324,12 @@ public class PlayerNotificationManager {
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
-      if (wasPlayWhenReady != playWhenReady || lastPlaybackState != playbackState) {
-        startOrUpdateNotification();
-        wasPlayWhenReady = playWhenReady;
-        lastPlaybackState = playbackState;
-      }
+      startOrUpdateNotification();
+    }
+
+    @Override
+    public void onIsPlayingChanged(boolean isPlaying) {
+      startOrUpdateNotification();
     }
 
     @Override
@@ -1373,7 +1370,7 @@ public class PlayerNotificationManager {
             playbackPreparer.preparePlayback();
           }
         } else if (player.getPlaybackState() == Player.STATE_ENDED) {
-          controlDispatcher.dispatchSeekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
+          seekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
         }
         controlDispatcher.dispatchSetPlayWhenReady(player, /* playWhenReady= */ true);
       } else if (ACTION_PAUSE.equals(action)) {

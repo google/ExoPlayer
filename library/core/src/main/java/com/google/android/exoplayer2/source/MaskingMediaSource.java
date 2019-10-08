@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.source;
 
 import android.util.Pair;
 import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Window;
@@ -62,7 +61,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
   }
 
   /** Returns the {@link Timeline}. */
-  public synchronized Timeline getTimeline() {
+  public Timeline getTimeline() {
     return timeline;
   }
 
@@ -130,7 +129,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
   }
 
   @Override
-  protected synchronized void onChildSourceInfoRefreshed(
+  protected void onChildSourceInfoRefreshed(
       Void id, MediaSource mediaSource, Timeline newTimeline) {
     if (isPrepared) {
       timeline = timeline.cloneWithUpdatedTimeline(newTimeline);
@@ -294,8 +293,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
   }
 
   /** Dummy placeholder timeline with one dynamic window with a period of indeterminate duration. */
-  @VisibleForTesting
-  public static final class DummyTimeline extends Timeline {
+  private static final class DummyTimeline extends Timeline {
 
     @Nullable private final Object tag;
 
@@ -319,6 +317,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
           /* isSeekable= */ false,
           // Dynamic window to indicate pending timeline updates.
           /* isDynamic= */ true,
+          /* isLive= */ false,
           /* defaultPositionUs= */ 0,
           /* durationUs= */ C.TIME_UNSET,
           /* firstPeriodIndex= */ 0,
@@ -334,8 +333,8 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
     @Override
     public Period getPeriod(int periodIndex, Period period, boolean setIds) {
       return period.set(
-          /* id= */ setIds ? 0 : null,
-          /* uid= */ setIds ? MaskingTimeline.DUMMY_EXTERNAL_PERIOD_UID : null,
+          /* id= */ 0,
+          /* uid= */ MaskingTimeline.DUMMY_EXTERNAL_PERIOD_UID,
           /* windowIndex= */ 0,
           /* durationUs = */ C.TIME_UNSET,
           /* positionInWindowUs= */ 0);

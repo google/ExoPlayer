@@ -439,6 +439,7 @@ public final class HlsMediaSource extends BaseMediaSource
               windowDefaultStartPositionUs,
               /* isSeekable= */ true,
               /* isDynamic= */ !playlist.hasEndTag,
+              /* isLive= */ true,
               manifest,
               tag);
     } else /* not live */ {
@@ -455,6 +456,7 @@ public final class HlsMediaSource extends BaseMediaSource
               windowDefaultStartPositionUs,
               /* isSeekable= */ true,
               /* isDynamic= */ false,
+              /* isLive= */ false,
               manifest,
               tag);
     }

@@ -19,7 +19,6 @@ import android.util.Pair;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.Util;
 
 /**
  * A flexible representation of the structure of media. A timeline is able to represent the
@@ -67,8 +66,9 @@ import com.google.android.exoplayer2.util.Util;
  * duration is unknown, since it's continually extending as more content is broadcast. If content
  * only remains available for a limited period of time then the window may start at a non-zero
  * position, defining the region of content that can still be played. The window will have {@link
- * Window#isDynamic} set to true if the stream is still live. Its default position is typically near
- * to the live edge (indicated by the black dot in the figure above).
+ * Window#isLive} set to true to indicate it's a live stream and {@link Window#isDynamic} set to
+ * true as long as we expect changes to the live window. Its default position is typically near to
+ * the live edge (indicated by the black dot in the figure above).
  *
  * <h3>Live stream with indefinite availability</h3>
  *
@@ -159,8 +159,13 @@ public abstract class Timeline {
     public boolean isDynamic;
 
     /**
-     * The index of the first period that belongs to this window.
+     * Whether the media in this window is live. For informational purposes only.
+     *
+     * <p>Check {@link #isDynamic} to know whether this window may still change.
      */
+    public boolean isLive;
+
+    /** The index of the first period that belongs to this window. */
     public int firstPeriodIndex;
 
     /**
@@ -201,6 +206,7 @@ public abstract class Timeline {
         long windowStartTimeMs,
         boolean isSeekable,
         boolean isDynamic,
+        boolean isLive,
         long defaultPositionUs,
         long durationUs,
         int firstPeriodIndex,
@@ -213,6 +219,7 @@ public abstract class Timeline {
       this.windowStartTimeMs = windowStartTimeMs;
       this.isSeekable = isSeekable;
       this.isDynamic = isDynamic;
+      this.isLive = isLive;
       this.defaultPositionUs = defaultPositionUs;
       this.durationUs = durationUs;
       this.firstPeriodIndex = firstPeriodIndex;
@@ -271,46 +278,6 @@ public abstract class Timeline {
       return positionInFirstPeriodUs;
     }
 
-    @Override
-    public boolean equals(@Nullable Object obj) {
-      if (this == obj) {
-        return true;
-      }
-      if (obj == null || !getClass().equals(obj.getClass())) {
-        return false;
-      }
-      Window that = (Window) obj;
-      return Util.areEqual(uid, that.uid)
-          && Util.areEqual(tag, that.tag)
-          && Util.areEqual(manifest, that.manifest)
-          && presentationStartTimeMs == that.presentationStartTimeMs
-          && windowStartTimeMs == that.windowStartTimeMs
-          && isSeekable == that.isSeekable
-          && isDynamic == that.isDynamic
-          && defaultPositionUs == that.defaultPositionUs
-          && durationUs == that.durationUs
-          && firstPeriodIndex == that.firstPeriodIndex
-          && lastPeriodIndex == that.lastPeriodIndex
-          && positionInFirstPeriodUs == that.positionInFirstPeriodUs;
-    }
-
-    @Override
-    public int hashCode() {
-      int result = 7;
-      result = 31 * result + uid.hashCode();
-      result = 31 * result + (tag == null ? 0 : tag.hashCode());
-      result = 31 * result + (manifest == null ? 0 : manifest.hashCode());
-      result = 31 * result + (int) (presentationStartTimeMs ^ (presentationStartTimeMs >>> 32));
-      result = 31 * result + (int) (windowStartTimeMs ^ (windowStartTimeMs >>> 32));
-      result = 31 * result + (isSeekable ? 1 : 0);
-      result = 31 * result + (isDynamic ? 1 : 0);
-      result = 31 * result + (int) (defaultPositionUs ^ (defaultPositionUs >>> 32));
-      result = 31 * result + (int) (durationUs ^ (durationUs >>> 32));
-      result = 31 * result + firstPeriodIndex;
-      result = 31 * result + lastPeriodIndex;
-      result = 31 * result + (int) (positionInFirstPeriodUs ^ (positionInFirstPeriodUs >>> 32));
-      return result;
-    }
   }
 
   /**
@@ -567,34 +534,6 @@ public abstract class Timeline {
       return adPlaybackState.adResumePositionUs;
     }
 
-    @Override
-    public boolean equals(@Nullable Object obj) {
-      if (this == obj) {
-        return true;
-      }
-      if (obj == null || !getClass().equals(obj.getClass())) {
-        return false;
-      }
-      Period that = (Period) obj;
-      return Util.areEqual(id, that.id)
-          && Util.areEqual(uid, that.uid)
-          && windowIndex == that.windowIndex
-          && durationUs == that.durationUs
-          && positionInWindowUs == that.positionInWindowUs
-          && Util.areEqual(adPlaybackState, that.adPlaybackState);
-    }
-
-    @Override
-    public int hashCode() {
-      int result = 7;
-      result = 31 * result + (id == null ? 0 : id.hashCode());
-      result = 31 * result + (uid == null ? 0 : uid.hashCode());
-      result = 31 * result + windowIndex;
-      result = 31 * result + (int) (durationUs ^ (durationUs >>> 32));
-      result = 31 * result + (int) (positionInWindowUs ^ (positionInWindowUs >>> 32));
-      result = 31 * result + (adPlaybackState == null ? 0 : adPlaybackState.hashCode());
-      return result;
-    }
   }
 
   /** An empty timeline. */

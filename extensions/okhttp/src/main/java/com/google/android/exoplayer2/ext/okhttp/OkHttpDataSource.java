@@ -21,7 +21,6 @@ import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
-import com.google.android.exoplayer2.metadata.icy.IcyHeaders;
 import com.google.android.exoplayer2.upstream.BaseDataSource;
 import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -361,11 +360,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     if (!dataSpec.isFlagSet(DataSpec.FLAG_ALLOW_GZIP)) {
       builder.addHeader("Accept-Encoding", "identity");
     }
-    if (dataSpec.isFlagSet(DataSpec.FLAG_ALLOW_ICY_METADATA)) {
-      builder.addHeader(
-          IcyHeaders.REQUEST_HEADER_ENABLE_METADATA_NAME,
-          IcyHeaders.REQUEST_HEADER_ENABLE_METADATA_VALUE);
-    }
+
     RequestBody requestBody = null;
     if (dataSpec.httpBody != null) {
       requestBody = RequestBody.create(null, dataSpec.httpBody);

@@ -28,7 +28,6 @@ import com.google.android.exoplayer2.source.LoopingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MergingMediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
-import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.source.SingleSampleMediaSource;
 import com.google.android.exoplayer2.text.TextRenderer;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
@@ -40,7 +39,6 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
-import java.util.List;
 
 /**
  * An extensible media player that plays {@link MediaSource}s. Instances can be obtained from {@link
@@ -141,7 +139,7 @@ public interface ExoPlayer extends Player {
     private LoadControl loadControl;
     private BandwidthMeter bandwidthMeter;
     private Looper looper;
-    @Nullable private AnalyticsCollector analyticsCollector;
+    private AnalyticsCollector analyticsCollector;
     private boolean useLazyPreparation;
     private boolean buildCalled;
 
@@ -172,7 +170,7 @@ public interface ExoPlayer extends Player {
           new DefaultLoadControl(),
           DefaultBandwidthMeter.getSingletonInstance(context),
           Util.getLooper(),
-          /* analyticsCollector= */ null,
+          new AnalyticsCollector(Clock.DEFAULT),
           /* useLazyPreparation= */ true,
           Clock.DEFAULT);
     }
@@ -199,7 +197,7 @@ public interface ExoPlayer extends Player {
         LoadControl loadControl,
         BandwidthMeter bandwidthMeter,
         Looper looper,
-        @Nullable AnalyticsCollector analyticsCollector,
+        AnalyticsCollector analyticsCollector,
         boolean useLazyPreparation,
         Clock clock) {
       Assertions.checkArgument(renderers.length > 0);
@@ -320,156 +318,38 @@ public interface ExoPlayer extends Player {
       Assertions.checkState(!buildCalled);
       buildCalled = true;
       return new ExoPlayerImpl(
-          renderers,
-          trackSelector,
-          loadControl,
-          bandwidthMeter,
-          analyticsCollector,
-          useLazyPreparation,
-          clock,
-          looper);
+          renderers, trackSelector, loadControl, bandwidthMeter, clock, looper);
     }
   }
 
   /** Returns the {@link Looper} associated with the playback thread. */
   Looper getPlaybackLooper();
 
-  /** @deprecated Use {@link #prepare()} instead. */
-  @Deprecated
+  /**
+   * Retries a failed or stopped playback. Does nothing if the player has been reset, or if playback
+   * has not failed or been stopped.
+   */
   void retry();
 
-  /** @deprecated Use {@link #setMediaItem(MediaSource)} and {@link #prepare()} instead. */
-  @Deprecated
+  /**
+   * Prepares the player to play the provided {@link MediaSource}. Equivalent to {@code
+   * prepare(mediaSource, true, true)}.
+   */
   void prepare(MediaSource mediaSource);
 
-  /** @deprecated Use {@link #setMediaItems(List, int, long)} and {@link #prepare()} instead. */
-  @Deprecated
-  void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState);
-
-  /** Prepares the player. */
-  void prepare();
-
   /**
-   * Clears the playlist and adds the specified {@link MediaSource MediaSources}.
+   * Prepares the player to play the provided {@link MediaSource}, optionally resetting the playback
+   * position the default position in the first {@link Timeline.Window}.
    *
-   * @param mediaItems The new {@link MediaSource MediaSources}.
-   */
-  void setMediaItems(List<MediaSource> mediaItems);
-
-  /**
-   * Clears the playlist and adds the specified {@link MediaSource MediaSources}.
-   *
-   * @param mediaItems The new {@link MediaSource MediaSources}.
+   * @param mediaSource The {@link MediaSource} to play.
    * @param resetPosition Whether the playback position should be reset to the default position in
    *     the first {@link Timeline.Window}. If false, playback will start from the position defined
    *     by {@link #getCurrentWindowIndex()} and {@link #getCurrentPosition()}.
+   * @param resetState Whether the timeline, manifest, tracks and track selections should be reset.
+   *     Should be true unless the player is being prepared to play the same media as it was playing
+   *     previously (e.g. if playback failed and is being retried).
    */
-  void setMediaItems(List<MediaSource> mediaItems, boolean resetPosition);
-
-  /**
-   * Clears the playlist and adds the specified {@link MediaSource MediaSources}.
-   *
-   * @param mediaItems The new {@link MediaSource MediaSources}.
-   * @param startWindowIndex The window index to start playback from. If {@link C#INDEX_UNSET} is
-   *     passed, the current position is not reset.
-   * @param startPositionMs The position in milliseconds to start playback from. If {@link
-   *     C#TIME_UNSET} is passed, the default position of the given window is used. In any case, if
-   *     {@code startWindowIndex} is set to {@link C#INDEX_UNSET}, this parameter is ignored and the
-   *     position is not reset at all.
-   */
-  void setMediaItems(List<MediaSource> mediaItems, int startWindowIndex, long startPositionMs);
-
-  /**
-   * Clears the playlist and adds the specified {@link MediaSource}.
-   *
-   * @param mediaItem The new {@link MediaSource}.
-   */
-  void setMediaItem(MediaSource mediaItem);
-
-  /**
-   * Clears the playlist and adds the specified {@link MediaSource}.
-   *
-   * @param mediaItem The new {@link MediaSource}.
-   * @param startPositionMs The position in milliseconds to start playback from.
-   */
-  void setMediaItem(MediaSource mediaItem, long startPositionMs);
-
-  /**
-   * Adds a media item to the end of the playlist.
-   *
-   * @param mediaSource The {@link MediaSource} to add.
-   */
-  void addMediaItem(MediaSource mediaSource);
-
-  /**
-   * Adds a media item at the given index of the playlist.
-   *
-   * @param index The index at which to add the item.
-   * @param mediaSource The {@link MediaSource} to add.
-   */
-  void addMediaItem(int index, MediaSource mediaSource);
-
-  /**
-   * Adds a list of media items to the end of the playlist.
-   *
-   * @param mediaSources The {@link MediaSource MediaSources} to add.
-   */
-  void addMediaItems(List<MediaSource> mediaSources);
-
-  /**
-   * Adds a list of media items at the given index of the playlist.
-   *
-   * @param index The index at which to add the media items.
-   * @param mediaSources The {@link MediaSource MediaSources} to add.
-   */
-  void addMediaItems(int index, List<MediaSource> mediaSources);
-
-  /**
-   * Moves the media item at the current index to the new index.
-   *
-   * @param currentIndex The current index of the media item to move.
-   * @param newIndex The new index of the media item. If the new index is larger than the size of
-   *     the playlist the item is moved to the end of the playlist.
-   */
-  void moveMediaItem(int currentIndex, int newIndex);
-
-  /**
-   * Moves the media item range to the new index.
-   *
-   * @param fromIndex The start of the range to move.
-   * @param toIndex The first item not to be included in the range (exclusive).
-   * @param newIndex The new index of the first media item of the range. If the new index is larger
-   *     than the size of the remaining playlist after removing the range, the range is moved to the
-   *     end of the playlist.
-   */
-  void moveMediaItems(int fromIndex, int toIndex, int newIndex);
-
-  /**
-   * Removes the media item at the given index of the playlist.
-   *
-   * @param index The index at which to remove the media item.
-   * @return The removed {@link MediaSource} or null if no item exists at the given index.
-   */
-  @Nullable
-  MediaSource removeMediaItem(int index);
-
-  /**
-   * Removes a range of media items from the playlist.
-   *
-   * @param fromIndex The index at which to start removing media items.
-   * @param toIndex The index of the first item to be kept (exclusive).
-   */
-  void removeMediaItems(int fromIndex, int toIndex);
-
-  /** Clears the playlist. */
-  void clearMediaItems();
-
-  /**
-   * Sets the shuffle order.
-   *
-   * @param shuffleOrder The shuffle order.
-   */
-  void setShuffleOrder(ShuffleOrder shuffleOrder);
+  void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState);
 
   /**
    * Creates a message that can be sent to a {@link PlayerMessage.Target}. By default, the message

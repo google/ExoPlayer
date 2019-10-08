@@ -303,13 +303,17 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private static final int ADAPTATION_WORKAROUND_MODE_ALWAYS = 2;
 
   /**
-   * H.264/AVC buffer to queue when using the adaptation workaround (see
-   * {@link #codecAdaptationWorkaroundMode(String)}. Consists of three NAL units with start codes:
-   * Baseline sequence/picture parameter sets and a 32 * 32 pixel IDR slice. This stream can be
-   * queued to force a resolution change when adapting to a new format.
+   * H.264/AVC buffer to queue when using the adaptation workaround (see {@link
+   * #codecAdaptationWorkaroundMode(String)}. Consists of three NAL units with start codes: Baseline
+   * sequence/picture parameter sets and a 32 * 32 pixel IDR slice. This stream can be queued to
+   * force a resolution change when adapting to a new format.
    */
-  private static final byte[] ADAPTATION_WORKAROUND_BUFFER = Util.getBytesFromHexString(
-      "0000016742C00BDA259000000168CE0F13200000016588840DCE7118A0002FBF1C31C3275D78");
+  private static final byte[] ADAPTATION_WORKAROUND_BUFFER =
+      new byte[] {
+        0, 0, 1, 103, 66, -64, 11, -38, 37, -112, 0, 0, 1, 104, -50, 15, 19, 32, 0, 0, 1, 101, -120,
+        -124, 13, -50, 113, 24, -96, 0, 47, -65, 28, 49, -61, 39, 93, 120
+      };
+
   private static final int ADAPTATION_WORKAROUND_SLICE_WIDTH_HEIGHT = 32;
 
   private final MediaCodecSelector mediaCodecSelector;

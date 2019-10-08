@@ -23,9 +23,11 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.Player.PlaybackSuppressionReason;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
+import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.LoadEventInfo;
@@ -99,6 +101,20 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
+  public void onPlaybackSuppressionReasonChanged(
+      EventTime eventTime, @PlaybackSuppressionReason int playbackSuppressionReason) {
+    logd(
+        eventTime,
+        "playbackSuppressionReason",
+        getPlaybackSuppressionReasonString(playbackSuppressionReason));
+  }
+
+  @Override
+  public void onIsPlayingChanged(EventTime eventTime, boolean isPlaying) {
+    logd(eventTime, "isPlaying", Boolean.toString(isPlaying));
+  }
+
+  @Override
   public void onRepeatModeChanged(EventTime eventTime, @Player.RepeatMode int repeatMode) {
     logd(eventTime, "repeatMode", getRepeatModeString(repeatMode));
   }
@@ -134,7 +150,7 @@ public class EventLogger implements AnalyticsListener {
     int periodCount = eventTime.timeline.getPeriodCount();
     int windowCount = eventTime.timeline.getWindowCount();
     logd(
-        "timelineChanged ["
+        "timeline ["
             + getEventTimeString(eventTime)
             + ", periodCount="
             + periodCount
@@ -178,10 +194,10 @@ public class EventLogger implements AnalyticsListener {
     MappedTrackInfo mappedTrackInfo =
         trackSelector != null ? trackSelector.getCurrentMappedTrackInfo() : null;
     if (mappedTrackInfo == null) {
-      logd(eventTime, "tracksChanged", "[]");
+      logd(eventTime, "tracks", "[]");
       return;
     }
-    logd("tracksChanged [" + getEventTimeString(eventTime) + ", ");
+    logd("tracks [" + getEventTimeString(eventTime) + ", ");
     // Log tracks associated to renderers.
     int rendererCount = mappedTrackInfo.getRendererCount();
     for (int rendererIndex = 0; rendererIndex < rendererCount; rendererIndex++) {
@@ -279,6 +295,25 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
+  public void onAudioAttributesChanged(EventTime eventTime, AudioAttributes audioAttributes) {
+    logd(
+        eventTime,
+        "audioAttributes",
+        audioAttributes.contentType
+            + ","
+            + audioAttributes.flags
+            + ","
+            + audioAttributes.usage
+            + ","
+            + audioAttributes.allowedCapturePolicy);
+  }
+
+  @Override
+  public void onVolumeChanged(EventTime eventTime, float volume) {
+    logd(eventTime, "volume", Float.toString(volume));
+  }
+
+  @Override
   public void onDecoderInitialized(
       EventTime eventTime, int trackType, String decoderName, long initializationDurationMs) {
     logd(eventTime, "decoderInitialized", getTrackTypeString(trackType) + ", " + decoderName);
@@ -288,7 +323,7 @@ public class EventLogger implements AnalyticsListener {
   public void onDecoderInputFormatChanged(EventTime eventTime, int trackType, Format format) {
     logd(
         eventTime,
-        "decoderInputFormatChanged",
+        "decoderInputFormat",
         getTrackTypeString(trackType) + ", " + Format.toLogString(format));
   }
 
@@ -319,7 +354,7 @@ public class EventLogger implements AnalyticsListener {
       int height,
       int unappliedRotationDegrees,
       float pixelWidthHeightRatio) {
-    logd(eventTime, "videoSizeChanged", width + ", " + height);
+    logd(eventTime, "videoSize", width + ", " + height);
   }
 
   @Override
@@ -378,7 +413,7 @@ public class EventLogger implements AnalyticsListener {
 
   @Override
   public void onSurfaceSizeChanged(EventTime eventTime, int width, int height) {
-    logd(eventTime, "surfaceSizeChanged", width + ", " + height);
+    logd(eventTime, "surfaceSize", width + ", " + height);
   }
 
   @Override
@@ -388,7 +423,7 @@ public class EventLogger implements AnalyticsListener {
 
   @Override
   public void onDownstreamFormatChanged(EventTime eventTime, MediaLoadData mediaLoadData) {
-    logd(eventTime, "downstreamFormatChanged", Format.toLogString(mediaLoadData.trackFormat));
+    logd(eventTime, "downstreamFormat", Format.toLogString(mediaLoadData.trackFormat));
   }
 
   @Override
@@ -594,10 +629,12 @@ public class EventLogger implements AnalyticsListener {
 
   private static String getTimelineChangeReasonString(@Player.TimelineChangeReason int reason) {
     switch (reason) {
-      case Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE:
-        return "SOURCE_UPDATE";
-      case Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED:
-        return "PLAYLIST_CHANGED";
+      case Player.TIMELINE_CHANGE_REASON_PREPARED:
+        return "PREPARED";
+      case Player.TIMELINE_CHANGE_REASON_RESET:
+        return "RESET";
+      case Player.TIMELINE_CHANGE_REASON_DYNAMIC:
+        return "DYNAMIC";
       default:
         return "?";
     }
@@ -621,6 +658,18 @@ public class EventLogger implements AnalyticsListener {
         return "video";
       default:
         return trackType >= C.TRACK_TYPE_CUSTOM_BASE ? "custom (" + trackType + ")" : "?";
+    }
+  }
+
+  private static String getPlaybackSuppressionReasonString(
+      @PlaybackSuppressionReason int playbackSuppressionReason) {
+    switch (playbackSuppressionReason) {
+      case Player.PLAYBACK_SUPPRESSION_REASON_NONE:
+        return "NONE";
+      case Player.PLAYBACK_SUPPRESSION_REASON_AUDIO_FOCUS_LOSS:
+        return "AUDIO_FOCUS_LOSS";
+      default:
+        return "?";
     }
   }
 }

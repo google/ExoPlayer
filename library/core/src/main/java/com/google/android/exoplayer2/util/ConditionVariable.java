@@ -76,4 +76,8 @@ public final class ConditionVariable {
     return isOpen;
   }
 
+  /** Returns whether the condition is opened. */
+  public synchronized boolean isOpen() {
+    return isOpen;
+  }
 }

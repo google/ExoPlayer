@@ -17,6 +17,7 @@
 #include <android/log.h>
 #include <jni.h>
 
+#include <array>
 #include <cstdlib>
 #include <cstring>
 
@@ -46,7 +47,6 @@ class JavaDataSource : public DataSource {
     if (mid == NULL) {
       jclass cls = env->GetObjectClass(flacDecoderJni);
       mid = env->GetMethodID(cls, "read", "(Ljava/nio/ByteBuffer;)I");
-      env->DeleteLocalRef(cls);
     }
   }
 
@@ -57,7 +57,6 @@ class JavaDataSource : public DataSource {
       // Exception is thrown in Java when returning from the native call.
       result = -1;
     }
-    env->DeleteLocalRef(byteBuffer);
     return result;
   }
 
@@ -200,9 +199,15 @@ DECODER_FUNC(jlong, flacGetNextFrameFirstSampleIndex, jlong jContext) {
   return context->parser->getNextFrameFirstSampleIndex();
 }
 
-DECODER_FUNC(jlong, flacGetSeekPosition, jlong jContext, jlong timeUs) {
+DECODER_FUNC(jboolean, flacGetSeekPoints, jlong jContext, jlong timeUs,
+             jlongArray outSeekPoints) {
   Context *context = reinterpret_cast<Context *>(jContext);
-  return context->parser->getSeekPosition(timeUs);
+  std::array<int64_t, 4> result;
+  bool success = context->parser->getSeekPositions(timeUs, result);
+  if (success) {
+    env->SetLongArrayRegion(outSeekPoints, 0, result.size(), result.data());
+  }
+  return success;
 }
 
 DECODER_FUNC(jstring, flacGetStateString, jlong jContext) {

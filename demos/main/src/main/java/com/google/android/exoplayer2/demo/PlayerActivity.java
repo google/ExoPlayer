@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.demo;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.MediaDrm;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Pair;
@@ -40,15 +41,16 @@ import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.demo.Sample.UriSample;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
+import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
-import com.google.android.exoplayer2.drm.UnsupportedDrmException;
+import com.google.android.exoplayer2.drm.MediaDrmCallback;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.DecoderInitializationException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.offline.DownloadHelper;
 import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
+import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
@@ -77,9 +79,6 @@ import java.lang.reflect.Constructor;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 /** An activity that plays media using {@link SimpleExoPlayer}. */
 public class PlayerActivity extends AppCompatActivity
@@ -131,8 +130,6 @@ public class PlayerActivity extends AppCompatActivity
     DEFAULT_COOKIE_MANAGER.setCookiePolicy(CookiePolicy.ACCEPT_ORIGINAL_SERVER);
   }
 
-  private final ArrayList<FrameworkMediaDrm> mediaDrms;
-
   private PlayerView playerView;
   private LinearLayout debugRootView;
   private Button selectTracksButton;
@@ -141,7 +138,7 @@ public class PlayerActivity extends AppCompatActivity
 
   private DataSource.Factory dataSourceFactory;
   private SimpleExoPlayer player;
-  private List<MediaSource> mediaSources;
+  private MediaSource mediaSource;
   private DefaultTrackSelector trackSelector;
   private DefaultTrackSelector.Parameters trackSelectorParameters;
   private DebugTextViewHelper debugViewHelper;
@@ -155,10 +152,6 @@ public class PlayerActivity extends AppCompatActivity
 
   private AdsLoader adsLoader;
   private Uri loadedAdTagUri;
-
-  public PlayerActivity() {
-    mediaDrms = new ArrayList<>();
-  }
 
   // Activity lifecycle
 
@@ -342,9 +335,8 @@ public class PlayerActivity extends AppCompatActivity
     if (player == null) {
       Intent intent = getIntent();
 
-      releaseMediaDrms();
-      mediaSources = createTopLevelMediaSources(intent);
-      if (mediaSources.isEmpty()) {
+      mediaSource = createTopLevelMediaSource(intent);
+      if (mediaSource == null) {
         return;
       }
 
@@ -388,12 +380,12 @@ public class PlayerActivity extends AppCompatActivity
     if (haveStartPosition) {
       player.seekTo(startWindow, startPosition);
     }
-    player.setMediaItems(mediaSources, /* resetPosition= */ !haveStartPosition);
-    player.prepare();
+    player.prepare(mediaSource, !haveStartPosition, false);
     updateButtonVisibility();
   }
 
-  private List<MediaSource> createTopLevelMediaSources(Intent intent) {
+  @Nullable
+  private MediaSource createTopLevelMediaSource(Intent intent) {
     String action = intent.getAction();
     boolean actionIsListView = ACTION_VIEW_LIST.equals(action);
     if (!actionIsListView && !ACTION_VIEW.equals(action)) {
@@ -421,65 +413,60 @@ public class PlayerActivity extends AppCompatActivity
       }
     }
 
-    List<MediaSource> mediaSources = new ArrayList<>();
-    for (UriSample sample : samples) {
-      mediaSources.add(createLeafMediaSource(sample));
+    MediaSource[] mediaSources = new MediaSource[samples.length];
+    for (int i = 0; i < samples.length; i++) {
+      mediaSources[i] = createLeafMediaSource(samples[i]);
     }
-    if (seenAdsTagUri && mediaSources.size() == 1) {
+    MediaSource mediaSource =
+        mediaSources.length == 1 ? mediaSources[0] : new ConcatenatingMediaSource(mediaSources);
+
+    if (seenAdsTagUri) {
       Uri adTagUri = samples[0].adTagUri;
-      if (!adTagUri.equals(loadedAdTagUri)) {
-        releaseAdsLoader();
-        loadedAdTagUri = adTagUri;
-      }
-      MediaSource adsMediaSource = createAdsMediaSource(mediaSources.get(0), adTagUri);
-      if (adsMediaSource != null) {
-        mediaSources.set(0, adsMediaSource);
+      if (actionIsListView) {
+        showToast(R.string.unsupported_ads_in_concatenation);
       } else {
-        showToast(R.string.ima_not_loaded);
+        if (!adTagUri.equals(loadedAdTagUri)) {
+          releaseAdsLoader();
+          loadedAdTagUri = adTagUri;
+        }
+        MediaSource adsMediaSource = createAdsMediaSource(mediaSource, adTagUri);
+        if (adsMediaSource != null) {
+          mediaSource = adsMediaSource;
+        } else {
+          showToast(R.string.ima_not_loaded);
+        }
       }
-    } else if (seenAdsTagUri && mediaSources.size() > 1) {
-      showToast(R.string.unsupported_ads_in_concatenation);
-      releaseAdsLoader();
     } else {
       releaseAdsLoader();
     }
 
-    return mediaSources;
+    return mediaSource;
   }
 
   private MediaSource createLeafMediaSource(UriSample parameters) {
-    DrmSessionManager<FrameworkMediaCrypto> drmSessionManager = null;
     Sample.DrmInfo drmInfo = parameters.drmInfo;
-    if (drmInfo != null) {
-      int errorStringId = R.string.error_drm_unknown;
-      if (Util.SDK_INT < 18) {
-        errorStringId = R.string.error_drm_not_supported;
-      } else {
-        try {
-          if (drmInfo.drmScheme == null) {
-            errorStringId = R.string.error_drm_unsupported_scheme;
-          } else {
-            drmSessionManager =
-                buildDrmSessionManagerV18(
-                    drmInfo.drmScheme,
-                    drmInfo.drmLicenseUrl,
-                    drmInfo.drmKeyRequestProperties,
-                    drmInfo.drmMultiSession);
-          }
-        } catch (UnsupportedDrmException e) {
-          errorStringId =
-              e.reason == UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME
-                  ? R.string.error_drm_unsupported_scheme
-                  : R.string.error_drm_unknown;
-        }
-      }
-      if (drmSessionManager == null) {
-        showToast(errorStringId);
-        finish();
-        return null;
-      }
-    } else {
+    int errorStringId = R.string.error_drm_unknown;
+    DrmSessionManager<ExoMediaCrypto> drmSessionManager = null;
+    if (drmInfo == null) {
       drmSessionManager = DrmSessionManager.getDummyDrmSessionManager();
+    } else if (Util.SDK_INT < 18) {
+      errorStringId = R.string.error_drm_unsupported_before_api_18;
+    } else if (!MediaDrm.isCryptoSchemeSupported(drmInfo.drmScheme)) {
+      errorStringId = R.string.error_drm_unsupported_scheme;
+    } else {
+      MediaDrmCallback mediaDrmCallback =
+          createMediaDrmCallback(drmInfo.drmLicenseUrl, drmInfo.drmKeyRequestProperties);
+      drmSessionManager =
+          new DefaultDrmSessionManager.Builder()
+              .setUuidAndExoMediaDrmProvider(drmInfo.drmScheme, FrameworkMediaDrm.DEFAULT_PROVIDER)
+              .setMultiSession(drmInfo.drmMultiSession)
+              .build(mediaDrmCallback);
+    }
+
+    if (drmSessionManager == null) {
+      showToast(errorStringId);
+      finish();
+      return null;
     }
 
     DownloadRequest downloadRequest =
@@ -493,7 +480,7 @@ public class PlayerActivity extends AppCompatActivity
   }
 
   private MediaSource createLeafMediaSource(
-      Uri uri, String extension, DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
+      Uri uri, String extension, DrmSessionManager<ExoMediaCrypto> drmSessionManager) {
     @ContentType int type = Util.inferContentType(uri, extension);
     switch (type) {
       case C.TYPE_DASH:
@@ -517,9 +504,8 @@ public class PlayerActivity extends AppCompatActivity
     }
   }
 
-  private DefaultDrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManagerV18(
-      UUID uuid, String licenseUrl, String[] keyRequestPropertiesArray, boolean multiSession)
-      throws UnsupportedDrmException {
+  private HttpMediaDrmCallback createMediaDrmCallback(
+      String licenseUrl, String[] keyRequestPropertiesArray) {
     HttpDataSource.Factory licenseDataSourceFactory =
         ((DemoApplication) getApplication()).buildHttpDataSourceFactory();
     HttpMediaDrmCallback drmCallback =
@@ -530,10 +516,7 @@ public class PlayerActivity extends AppCompatActivity
             keyRequestPropertiesArray[i + 1]);
       }
     }
-
-    FrameworkMediaDrm mediaDrm = FrameworkMediaDrm.newInstance(uuid);
-    mediaDrms.add(mediaDrm);
-    return new DefaultDrmSessionManager<>(uuid, mediaDrm, drmCallback, null, multiSession);
+    return drmCallback;
   }
 
   private void releasePlayer() {
@@ -544,20 +527,12 @@ public class PlayerActivity extends AppCompatActivity
       debugViewHelper = null;
       player.release();
       player = null;
-      mediaSources = null;
+      mediaSource = null;
       trackSelector = null;
     }
     if (adsLoader != null) {
       adsLoader.setPlayer(null);
     }
-    releaseMediaDrms();
-  }
-
-  private void releaseMediaDrms() {
-    for (FrameworkMediaDrm mediaDrm : mediaDrms) {
-      mediaDrm.release();
-    }
-    mediaDrms.clear();
   }
 
   private void releaseAdsLoader() {

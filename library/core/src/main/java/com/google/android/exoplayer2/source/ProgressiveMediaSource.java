@@ -220,6 +220,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
 
   private long timelineDurationUs;
   private boolean timelineIsSeekable;
+  private boolean timelineIsLive;
   @Nullable private TransferListener transferListener;
 
   // TODO: Make private when ExtractorMediaSource is deleted.
@@ -253,7 +254,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
   protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
     transferListener = mediaTransferListener;
     drmSessionManager.prepare();
-    notifySourceInfoRefreshed(timelineDurationUs, timelineIsSeekable);
+    notifySourceInfoRefreshed(timelineDurationUs, timelineIsSeekable, timelineIsLive);
   }
 
   @Override
@@ -293,27 +294,32 @@ public final class ProgressiveMediaSource extends BaseMediaSource
   // ProgressiveMediaPeriod.Listener implementation.
 
   @Override
-  public void onSourceInfoRefreshed(long durationUs, boolean isSeekable) {
+  public void onSourceInfoRefreshed(long durationUs, boolean isSeekable, boolean isLive) {
     // If we already have the duration from a previous source info refresh, use it.
     durationUs = durationUs == C.TIME_UNSET ? timelineDurationUs : durationUs;
-    if (timelineDurationUs == durationUs && timelineIsSeekable == isSeekable) {
+    if (timelineDurationUs == durationUs
+        && timelineIsSeekable == isSeekable
+        && timelineIsLive == isLive) {
       // Suppress no-op source info changes.
       return;
     }
-    notifySourceInfoRefreshed(durationUs, isSeekable);
+    notifySourceInfoRefreshed(durationUs, isSeekable, isLive);
   }
 
   // Internal methods.
 
-  private void notifySourceInfoRefreshed(long durationUs, boolean isSeekable) {
+  private void notifySourceInfoRefreshed(long durationUs, boolean isSeekable, boolean isLive) {
     timelineDurationUs = durationUs;
     timelineIsSeekable = isSeekable;
-    // TODO: Make timeline dynamic until its duration is known. This is non-trivial. See b/69703223.
+    timelineIsLive = isLive;
+    // TODO: Split up isDynamic into multiple fields to indicate which values may change. Then
+    // indicate that the duration may change until it's known. See [internal: b/69703223].
     refreshSourceInfo(
         new SinglePeriodTimeline(
             timelineDurationUs,
             timelineIsSeekable,
             /* isDynamic= */ false,
+            /* isLive= */ timelineIsLive,
             /* manifest= */ null,
             tag));
   }

@@ -356,8 +356,7 @@ public interface Player {
      * {@link #onPositionDiscontinuity(int)}.
      *
      * @param timeline The latest timeline. Never null, but may be empty.
-     * @param manifest The latest manifest in case the timeline has a single window only. Always
-     *     null if the timeline has more than a single window.
+     * @param manifest The latest manifest. May be null.
      * @param reason The {@link TimelineChangeReason} responsible for this timeline change.
      * @deprecated Use {@link #onTimelineChanged(Timeline, int)} instead. The manifest can be
      *     accessed by using {@link #getCurrentManifest()} or {@code timeline.getWindow(windowIndex,
@@ -392,6 +391,14 @@ public interface Player {
      * @param playbackState The new {@link State playback state}.
      */
     default void onPlayerStateChanged(boolean playWhenReady, @State int playbackState) {}
+
+    /**
+     * Called when the value returned from {@link #getPlaybackSuppressionReason()} changes.
+     *
+     * @param playbackSuppressionReason The current {@link PlaybackSuppressionReason}.
+     */
+    default void onPlaybackSuppressionReasonChanged(
+        @PlaybackSuppressionReason int playbackSuppressionReason) {}
 
     /**
      * Called when the value of {@link #isPlaying()} changes.
@@ -585,17 +592,25 @@ public interface Player {
   int DISCONTINUITY_REASON_INTERNAL = 4;
 
   /**
-   * Reasons for timeline changes. One of {@link #TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED} or {@link
-   * #TIMELINE_CHANGE_REASON_SOURCE_UPDATE}.
+   * Reasons for timeline changes. One of {@link #TIMELINE_CHANGE_REASON_PREPARED}, {@link
+   * #TIMELINE_CHANGE_REASON_RESET} or {@link #TIMELINE_CHANGE_REASON_DYNAMIC}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED, TIMELINE_CHANGE_REASON_SOURCE_UPDATE})
+  @IntDef({
+    TIMELINE_CHANGE_REASON_PREPARED,
+    TIMELINE_CHANGE_REASON_RESET,
+    TIMELINE_CHANGE_REASON_DYNAMIC
+  })
   @interface TimelineChangeReason {}
-  /** Timeline changed as a result of a change of the playlist items or the order of the items. */
-  int TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED = 0;
-  /** Timeline changed as a result of a dynamic update introduced by the played media. */
-  int TIMELINE_CHANGE_REASON_SOURCE_UPDATE = 1;
+  /** Timeline and manifest changed as a result of a player initialization with new media. */
+  int TIMELINE_CHANGE_REASON_PREPARED = 0;
+  /** Timeline and manifest changed as a result of a player reset. */
+  int TIMELINE_CHANGE_REASON_RESET = 1;
+  /**
+   * Timeline or manifest changed as a result of an dynamic update introduced by the played media.
+   */
+  int TIMELINE_CHANGE_REASON_DYNAMIC = 2;
 
   /** Returns the component of this player for audio output, or null if audio is not supported. */
   @Nullable
@@ -945,6 +960,13 @@ public interface Player {
    * @see Timeline.Window#isDynamic
    */
   boolean isCurrentWindowDynamic();
+
+  /**
+   * Returns whether the current window is live, or {@code false} if the {@link Timeline} is empty.
+   *
+   * @see Timeline.Window#isLive
+   */
+  boolean isCurrentWindowLive();
 
   /**
    * Returns whether the current window is seekable, or {@code false} if the {@link Timeline} is

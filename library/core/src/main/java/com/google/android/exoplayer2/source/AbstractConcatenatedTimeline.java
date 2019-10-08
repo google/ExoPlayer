@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2;
+package com.google.android.exoplayer2.source;
 
 import android.util.Pair;
-import com.google.android.exoplayer2.source.ShuffleOrder;
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.Assertions;
 
 /** Abstract base class for the concatenation of one or more {@link Timeline}s. */
-public abstract class AbstractConcatenatedTimeline extends Timeline {
+/* package */ abstract class AbstractConcatenatedTimeline extends Timeline {
 
   private final int childCount;
   private final ShuffleOrder shuffleOrder;
@@ -74,8 +76,8 @@ public abstract class AbstractConcatenatedTimeline extends Timeline {
   }
 
   @Override
-  public int getNextWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode,
-      boolean shuffleModeEnabled) {
+  public int getNextWindowIndex(
+      int windowIndex, @Player.RepeatMode int repeatMode, boolean shuffleModeEnabled) {
     if (isAtomic) {
       // Adapt repeat and shuffle mode to atomic concatenation.
       repeatMode = repeatMode == Player.REPEAT_MODE_ONE ? Player.REPEAT_MODE_ALL : repeatMode;
@@ -84,10 +86,12 @@ public abstract class AbstractConcatenatedTimeline extends Timeline {
     // Find next window within current child.
     int childIndex = getChildIndexByWindowIndex(windowIndex);
     int firstWindowIndexInChild = getFirstWindowIndexByChildIndex(childIndex);
-    int nextWindowIndexInChild = getTimelineByChildIndex(childIndex).getNextWindowIndex(
-        windowIndex - firstWindowIndexInChild,
-        repeatMode == Player.REPEAT_MODE_ALL ? Player.REPEAT_MODE_OFF : repeatMode,
-        shuffleModeEnabled);
+    int nextWindowIndexInChild =
+        getTimelineByChildIndex(childIndex)
+            .getNextWindowIndex(
+                windowIndex - firstWindowIndexInChild,
+                repeatMode == Player.REPEAT_MODE_ALL ? Player.REPEAT_MODE_OFF : repeatMode,
+                shuffleModeEnabled);
     if (nextWindowIndexInChild != C.INDEX_UNSET) {
       return firstWindowIndexInChild + nextWindowIndexInChild;
     }
@@ -108,8 +112,8 @@ public abstract class AbstractConcatenatedTimeline extends Timeline {
   }
 
   @Override
-  public int getPreviousWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode,
-      boolean shuffleModeEnabled) {
+  public int getPreviousWindowIndex(
+      int windowIndex, @Player.RepeatMode int repeatMode, boolean shuffleModeEnabled) {
     if (isAtomic) {
       // Adapt repeat and shuffle mode to atomic concatenation.
       repeatMode = repeatMode == Player.REPEAT_MODE_ONE ? Player.REPEAT_MODE_ALL : repeatMode;
@@ -118,10 +122,12 @@ public abstract class AbstractConcatenatedTimeline extends Timeline {
     // Find previous window within current child.
     int childIndex = getChildIndexByWindowIndex(windowIndex);
     int firstWindowIndexInChild = getFirstWindowIndexByChildIndex(childIndex);
-    int previousWindowIndexInChild = getTimelineByChildIndex(childIndex).getPreviousWindowIndex(
-        windowIndex - firstWindowIndexInChild,
-        repeatMode == Player.REPEAT_MODE_ALL ? Player.REPEAT_MODE_OFF : repeatMode,
-        shuffleModeEnabled);
+    int previousWindowIndexInChild =
+        getTimelineByChildIndex(childIndex)
+            .getPreviousWindowIndex(
+                windowIndex - firstWindowIndexInChild,
+                repeatMode == Player.REPEAT_MODE_ALL ? Player.REPEAT_MODE_OFF : repeatMode,
+                shuffleModeEnabled);
     if (previousWindowIndexInChild != C.INDEX_UNSET) {
       return firstWindowIndexInChild + previousWindowIndexInChild;
     }
@@ -219,8 +225,8 @@ public abstract class AbstractConcatenatedTimeline extends Timeline {
     int childIndex = getChildIndexByPeriodIndex(periodIndex);
     int firstWindowIndexInChild = getFirstWindowIndexByChildIndex(childIndex);
     int firstPeriodIndexInChild = getFirstPeriodIndexByChildIndex(childIndex);
-    getTimelineByChildIndex(childIndex).getPeriod(periodIndex - firstPeriodIndexInChild, period,
-        setIds);
+    getTimelineByChildIndex(childIndex)
+        .getPeriod(periodIndex - firstPeriodIndexInChild, period, setIds);
     period.windowIndex += firstWindowIndexInChild;
     if (setIds) {
       period.uid =
@@ -242,7 +248,8 @@ public abstract class AbstractConcatenatedTimeline extends Timeline {
       return C.INDEX_UNSET;
     }
     int periodIndexInChild = getTimelineByChildIndex(childIndex).getIndexOfPeriod(periodUid);
-    return periodIndexInChild == C.INDEX_UNSET ? C.INDEX_UNSET
+    return periodIndexInChild == C.INDEX_UNSET
+        ? C.INDEX_UNSET
         : getFirstPeriodIndexByChildIndex(childIndex) + periodIndexInChild;
   }
 
@@ -307,13 +314,14 @@ public abstract class AbstractConcatenatedTimeline extends Timeline {
   protected abstract Object getChildUidByChildIndex(int childIndex);
 
   private int getNextChildIndex(int childIndex, boolean shuffleModeEnabled) {
-    return shuffleModeEnabled ? shuffleOrder.getNextIndex(childIndex)
+    return shuffleModeEnabled
+        ? shuffleOrder.getNextIndex(childIndex)
         : childIndex < childCount - 1 ? childIndex + 1 : C.INDEX_UNSET;
   }
 
   private int getPreviousChildIndex(int childIndex, boolean shuffleModeEnabled) {
-    return shuffleModeEnabled ? shuffleOrder.getPreviousIndex(childIndex)
+    return shuffleModeEnabled
+        ? shuffleOrder.getPreviousIndex(childIndex)
         : childIndex > 0 ? childIndex - 1 : C.INDEX_UNSET;
   }
-
 }

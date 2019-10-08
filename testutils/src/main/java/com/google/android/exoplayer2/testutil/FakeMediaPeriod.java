@@ -217,6 +217,11 @@ public class FakeMediaPeriod implements MediaPeriod {
     return false;
   }
 
+  @Override
+  public boolean isLoading() {
+    return false;
+  }
+
   protected SampleStream createSampleStream(TrackSelection selection) {
     return new FakeSampleStream(
         selection.getSelectedFormat(), eventDispatcher, /* shouldOutputSample= */ true);

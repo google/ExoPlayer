@@ -12,13 +12,14 @@ libs
 obj
 lint.xml
 
-# IntelliJ IDEA
+# IntelliJ IDEA & Android Studio
 .idea
 *.iml
 *.ipr
 *.iws
 classes
 gen-external-apklibs
+*.li
 
 # Eclipse
 .project
@@ -75,7 +76,3 @@ extensions/cronet/jniLibs/*
 !extensions/cronet/jniLibs/README.md
 extensions/cronet/libs/*
 !extensions/cronet/libs/README.md
-
-# Cast receiver
-cast_receiver_app/external-js
-cast_receiver_app/bazel-cast_receiver_app
