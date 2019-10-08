@@ -97,8 +97,9 @@ public class VideoDecoderOutputBuffer extends OutputBuffer {
       int size = supplementalData.limit();
       if (this.supplementalData == null || this.supplementalData.capacity() < size) {
         this.supplementalData = ByteBuffer.allocate(size);
+      } else {
+        this.supplementalData.clear();
       }
-      this.supplementalData.position(0);
       this.supplementalData.put(supplementalData);
       this.supplementalData.flip();
       supplementalData.position(0);
