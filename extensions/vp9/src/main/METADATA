@@ -1,9 +1,0 @@
-# Format: google3/devtools/metadata/metadata.proto (go/google3metadata)
-
-tricorder: {
-  options: {
-    builder: {
-      config: "android"
-    }
-  }
-}
