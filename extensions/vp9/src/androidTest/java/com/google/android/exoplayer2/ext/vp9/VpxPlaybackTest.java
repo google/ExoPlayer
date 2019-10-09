@@ -124,7 +124,7 @@ public class VpxPlaybackTest {
       player
           .createMessage(videoRenderer)
           .setType(C.MSG_SET_OUTPUT_BUFFER_RENDERER)
-          .setPayload(new VideoDecoderSurfaceView(context))
+          .setPayload(new VideoDecoderSurfaceView(context).getOutputBufferRenderer())
           .send();
       player.prepare(mediaSource);
       player.setPlayWhenReady(true);

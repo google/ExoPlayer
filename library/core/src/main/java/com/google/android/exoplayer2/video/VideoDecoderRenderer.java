@@ -28,7 +28,8 @@ import javax.microedition.khronos.opengles.GL10;
  * GLSurfaceView.Renderer implementation that can render YUV Frames returned by a video decoder
  * after decoding. It does the YUV to RGB color conversion in the Fragment Shader.
  */
-/* package */ class VideoDecoderRenderer implements GLSurfaceView.Renderer {
+/* package */ class VideoDecoderRenderer
+    implements GLSurfaceView.Renderer, VideoDecoderOutputBufferRenderer {
 
   private static final float[] kColorConversion601 = {
     1.164f, 1.164f, 1.164f,
@@ -82,6 +83,7 @@ import javax.microedition.khronos.opengles.GL10;
 
   private static final FloatBuffer TEXTURE_VERTICES =
       GlUtil.createBuffer(new float[] {-1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, -1.0f});
+  private final GLSurfaceView surfaceView;
   private final int[] yuvTextures = new int[3];
   private final AtomicReference<VideoDecoderOutputBuffer> pendingOutputBufferReference;
 
@@ -98,7 +100,8 @@ import javax.microedition.khronos.opengles.GL10;
 
   private VideoDecoderOutputBuffer renderedOutputBuffer; // Accessed only from the GL thread.
 
-  public VideoDecoderRenderer() {
+  public VideoDecoderRenderer(GLSurfaceView surfaceView) {
+    this.surfaceView = surfaceView;
     pendingOutputBufferReference = new AtomicReference<>();
     textureCoords = new FloatBuffer[3];
     texLocations = new int[3];
@@ -106,21 +109,6 @@ import javax.microedition.khronos.opengles.GL10;
     previousStrides = new int[3];
     for (int i = 0; i < 3; i++) {
       previousWidths[i] = previousStrides[i] = -1;
-    }
-  }
-
-  /**
-   * Set a frame to be rendered. This should be followed by a call to
-   * VideoDecoderSurfaceView.requestRender() to actually render the frame.
-   *
-   * @param outputBuffer OutputBuffer containing the YUV Frame to be rendered
-   */
-  public void setFrame(VideoDecoderOutputBuffer outputBuffer) {
-    VideoDecoderOutputBuffer oldPendingOutputBuffer =
-        pendingOutputBufferReference.getAndSet(outputBuffer);
-    if (oldPendingOutputBuffer != null) {
-      // The old pending output buffer will never be used for rendering, so release it now.
-      oldPendingOutputBuffer.release();
     }
   }
 
@@ -221,6 +209,17 @@ import javax.microedition.khronos.opengles.GL10;
     GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
     GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
     GlUtil.checkGlError();
+  }
+
+  @Override
+  public void setOutputBuffer(VideoDecoderOutputBuffer outputBuffer) {
+    VideoDecoderOutputBuffer oldPendingOutputBuffer =
+        pendingOutputBufferReference.getAndSet(outputBuffer);
+    if (oldPendingOutputBuffer != null) {
+      // The old pending output buffer will never be used for rendering, so release it now.
+      oldPendingOutputBuffer.release();
+    }
+    surfaceView.requestRender();
   }
 
   private void setupTextures() {

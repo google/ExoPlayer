@@ -79,23 +79,26 @@ a custom track selector the choice of `Renderer` is up to your implementation.
 You need to make sure you are passing a `Libgav1VideoRenderer` to the player and
 then you need to implement your own logic to use the renderer for a given track.
 
+## Rendering options ##
+
 There are two possibilities for rendering the output `Libgav1VideoRenderer`
 gets from the libgav1 decoder:
 
-* Native rendering with `ANativeWindow`
-* OpenGL rendering.
+* GL rendering using GL shader for color space conversion
+  * If you are using `SimpleExoPlayer` with `PlayerView`, enable this option by
+    setting `surface_type` of `PlayerView` to be `video_decoder_surface_view`.
+  * Otherwise, enable this option by sending `Libgav1VideoRenderer` a message
+    of type `C.MSG_SET_OUTPUT_BUFFER_RENDERER` with an instance of
+    `VideoDecoderOutputBufferRenderer` as its object.
 
-`SimpleExoPlayer` uses `ANativeWindow` rendering. To enable this mode send the
-renderer a message of type `C.MSG_SET_SURFACE` with a `Surface` as its object.
-`Libgav1VideoRenderer` can also output to a `VideoDecoderSurfaceView` when
-not being used via `SimpleExoPlayer`, in which case color space conversion will
-be performed using a GL shader. To enable this mode, send the renderer a message
-of type `C.MSG_SET_OUTPUT_BUFFER_RENDERER` with the `VideoDecoderSurfaceView` as
-its object.
+* Native rendering using `ANativeWindow`
+  * If you are using `SimpleExoPlayer` with `PlayerView`, this option is enabled
+    by default.
+  * Otherwise, enable this option by sending `Libgav1VideoRenderer` a message of
+    type `C.MSG_SET_SURFACE` with an instance of `SurfaceView` as its object.
 
 Note: Although the default option uses `ANativeWindow`, based on our testing the
-GL rendering mode has better performance, so should be preferred by apps that
-can use `VideoDecoderSurfaceView`.
+GL rendering mode has better performance, so should be preferred
 
 ## Links ##
 

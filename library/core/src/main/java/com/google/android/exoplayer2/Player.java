@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoListener;
 import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
@@ -280,6 +281,13 @@ public interface Player {
      * @param textureView The texture view to clear.
      */
     void clearVideoTextureView(TextureView textureView);
+
+    /**
+     * Sets the output buffer renderer.
+     *
+     * @param outputBufferRenderer The output buffer renderer.
+     */
+    void setOutputBufferRenderer(VideoDecoderOutputBufferRenderer outputBufferRenderer);
   }
 
   /** The text component of a {@link Player}. */
