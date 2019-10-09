@@ -1433,9 +1433,9 @@ public class SimpleExoPlayer extends BasePlayer
   private void updatePlayWhenReady(
       boolean playWhenReady, @AudioFocusManager.PlayerCommand int playerCommand) {
     int playbackSuppressionReason =
-        playerCommand == AudioFocusManager.PLAYER_COMMAND_PLAY_WHEN_READY
-            ? Player.PLAYBACK_SUPPRESSION_REASON_NONE
-            : Player.PLAYBACK_SUPPRESSION_REASON_AUDIO_FOCUS_LOSS;
+        playWhenReady && playerCommand != AudioFocusManager.PLAYER_COMMAND_PLAY_WHEN_READY
+            ? Player.PLAYBACK_SUPPRESSION_REASON_AUDIO_FOCUS_LOSS
+            : Player.PLAYBACK_SUPPRESSION_REASON_NONE;
     player.setPlayWhenReady(
         playWhenReady && playerCommand != AudioFocusManager.PLAYER_COMMAND_DO_NOT_PLAY,
         playbackSuppressionReason);
