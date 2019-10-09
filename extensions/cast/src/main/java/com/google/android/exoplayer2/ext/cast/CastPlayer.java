@@ -440,9 +440,23 @@ public final class CastPlayer extends BasePlayer {
 
   @Override
   public void setRepeatMode(@RepeatMode int repeatMode) {
-    if (remoteMediaClient != null) {
-      remoteMediaClient.queueSetRepeatMode(getCastRepeatMode(repeatMode), null);
+    if (remoteMediaClient == null) {
+      return;
     }
+    // We update the local state and send the message to the receiver app, which will cause the
+    // operation to be perceived as synchronous by the user. When the operation reports a result,
+    // the local state will be updated to reflect the state reported by the Cast SDK.
+    setRepeatModeAndNotifyIfChanged(repeatMode);
+    flushNotifications();
+    remoteMediaClient
+        .queueSetRepeatMode(getCastRepeatMode(repeatMode), /* jsonObject= */ null)
+        .setResultCallback(
+            mediaChannelResult -> {
+              if (remoteMediaClient != null) {
+                updateRepeatModeAndNotifyIfChanged();
+                flushNotifications();
+              }
+            });
   }
 
   @Override
@@ -553,7 +567,6 @@ public final class CastPlayer extends BasePlayer {
       // There is no session. We leave the state of the player as it is now.
       return;
     }
-
     boolean wasPlaying = playbackState == Player.STATE_READY && playWhenReady;
     updatePlayerStateAndNotifyIfChanged();
     boolean isPlaying = playbackState == Player.STATE_READY && playWhenReady;
@@ -561,12 +574,7 @@ public final class CastPlayer extends BasePlayer {
       notificationsBatch.add(
           new ListenerNotificationTask(listener -> listener.onIsPlayingChanged(isPlaying)));
     }
-    @RepeatMode int repeatMode = fetchRepeatMode(remoteMediaClient);
-    if (this.repeatMode != repeatMode) {
-      this.repeatMode = repeatMode;
-      notificationsBatch.add(
-          new ListenerNotificationTask(listener -> listener.onRepeatModeChanged(this.repeatMode)));
-    }
+    updateRepeatModeAndNotifyIfChanged();
     updateTimelineAndNotifyIfChanged();
 
     int currentWindowIndex = C.INDEX_UNSET;
@@ -597,6 +605,11 @@ public final class CastPlayer extends BasePlayer {
   private void updatePlayerStateAndNotifyIfChanged() {
     setPlayerStateAndNotifyIfChanged(
         !remoteMediaClient.isPaused(), fetchPlaybackState(remoteMediaClient));
+  }
+
+  @RequiresNonNull("remoteMediaClient")
+  private void updateRepeatModeAndNotifyIfChanged() {
+    setRepeatModeAndNotifyIfChanged(fetchRepeatMode(remoteMediaClient));
   }
 
   private void updateTimelineAndNotifyIfChanged() {
@@ -671,6 +684,14 @@ public final class CastPlayer extends BasePlayer {
       return true;
     }
     return false;
+  }
+
+  private void setRepeatModeAndNotifyIfChanged(@Player.RepeatMode int repeatMode) {
+    if (this.repeatMode != repeatMode) {
+      this.repeatMode = repeatMode;
+      notificationsBatch.add(
+          new ListenerNotificationTask(listener -> listener.onRepeatModeChanged(repeatMode)));
+    }
   }
 
   private void setPlayerStateAndNotifyIfChanged(
