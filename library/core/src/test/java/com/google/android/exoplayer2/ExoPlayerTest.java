@@ -64,6 +64,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -2765,6 +2766,34 @@ public final class ExoPlayerTest {
             new PlaybackParameters(1.3f),
             PlaybackParameters.DEFAULT)
         .inOrder();
+  }
+
+  @Test
+  public void simplePlaybackHasNoPlaybackSuppression() throws Exception {
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("simplePlaybackHasNoPlaybackSuppression")
+            .play()
+            .waitForPlaybackState(Player.STATE_READY)
+            .pause()
+            .play()
+            .build();
+    AtomicBoolean seenPlaybackSuppression = new AtomicBoolean();
+    EventListener listener =
+        new EventListener() {
+          @Override
+          public void onPlaybackSuppressionReasonChanged(
+              @Player.PlaybackSuppressionReason int playbackSuppressionReason) {
+            seenPlaybackSuppression.set(true);
+          }
+        };
+    new ExoPlayerTestRunner.Builder()
+        .setActionSchedule(actionSchedule)
+        .setEventListener(listener)
+        .build(context)
+        .start()
+        .blockUntilEnded(TIMEOUT_MS);
+
+    assertThat(seenPlaybackSuppression.get()).isFalse();
   }
 
   // Internal methods.
