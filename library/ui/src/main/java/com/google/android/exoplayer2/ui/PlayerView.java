@@ -64,6 +64,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.VideoDecoderSurfaceView;
 import com.google.android.exoplayer2.video.VideoListener;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -276,6 +277,7 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
   private static final int SURFACE_TYPE_SURFACE_VIEW = 1;
   private static final int SURFACE_TYPE_TEXTURE_VIEW = 2;
   private static final int SURFACE_TYPE_MONO360_VIEW = 3;
+  private static final int SURFACE_TYPE_VIDEO_GL_SURFACE_VIEW = 4;
   // LINT.ThenChange(../../../../../../res/values/attrs.xml)
 
   @Nullable private final AspectRatioFrameLayout contentFrame;
@@ -411,6 +413,9 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
           sphericalSurfaceView.setSingleTapListener(componentListener);
           surfaceView = sphericalSurfaceView;
           break;
+        case SURFACE_TYPE_VIDEO_GL_SURFACE_VIEW:
+          surfaceView = new VideoDecoderSurfaceView(context);
+          break;
         default:
           surfaceView = new SurfaceView(context);
           break;
@@ -539,6 +544,8 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
           oldVideoComponent.clearVideoTextureView((TextureView) surfaceView);
         } else if (surfaceView instanceof SphericalSurfaceView) {
           ((SphericalSurfaceView) surfaceView).setVideoComponent(null);
+        } else if (surfaceView instanceof VideoDecoderSurfaceView) {
+          oldVideoComponent.setOutputBufferRenderer(null);
         } else if (surfaceView instanceof SurfaceView) {
           oldVideoComponent.clearVideoSurfaceView((SurfaceView) surfaceView);
         }
@@ -565,6 +572,9 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
           newVideoComponent.setVideoTextureView((TextureView) surfaceView);
         } else if (surfaceView instanceof SphericalSurfaceView) {
           ((SphericalSurfaceView) surfaceView).setVideoComponent(newVideoComponent);
+        } else if (surfaceView instanceof VideoDecoderSurfaceView) {
+          newVideoComponent.setOutputBufferRenderer(
+              ((VideoDecoderSurfaceView) surfaceView).getOutputBufferRenderer());
         } else if (surfaceView instanceof SurfaceView) {
           newVideoComponent.setVideoSurfaceView((SurfaceView) surfaceView);
         }
@@ -736,8 +746,8 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
    * buffering spinner is not displayed by default.
    *
    * @param showBuffering The mode that defines when the buffering spinner is displayed. One of
-   *     {@link #SHOW_BUFFERING_NEVER}, {@link #SHOW_BUFFERING_WHEN_PLAYING} and
-   *     {@link #SHOW_BUFFERING_ALWAYS}.
+   *     {@link #SHOW_BUFFERING_NEVER}, {@link #SHOW_BUFFERING_WHEN_PLAYING} and {@link
+   *     #SHOW_BUFFERING_ALWAYS}.
    */
   public void setShowBuffering(@ShowBuffering int showBuffering) {
     if (this.showBuffering != showBuffering) {

@@ -30,6 +30,7 @@
     <enum name="surface_view" value="1"/>
     <enum name="texture_view" value="2"/>
     <enum name="spherical_view" value="3"/>
+    <enum name="video_decoder_surface_view" value="4"/>
   </attr>
 
   <!-- Must be kept in sync with RepeatModeUtil -->

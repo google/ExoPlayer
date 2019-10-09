@@ -107,11 +107,26 @@ a custom track selector the choice of `Renderer` is up to your implementation,
 so you need to make sure you are passing an `LibvpxVideoRenderer` to the
 player, then implement your own logic to use the renderer for a given track.
 
-`LibvpxVideoRenderer` can optionally output to a `VideoDecoderSurfaceView` when
-not being used via `SimpleExoPlayer`, in which case color space conversion will
-be performed using a GL shader. To enable this mode, send the renderer a message
-of type `C.MSG_SET_OUTPUT_BUFFER_RENDERER` with the `VideoDecoderSurfaceView` as
-its object, instead of sending `MSG_SET_SURFACE` with a `Surface`.
+## Rendering options ##
+
+There are two possibilities for rendering the output `LibvpxVideoRenderer`
+gets from the libvpx decoder:
+
+* GL rendering using GL shader for color space conversion
+  * If you are using `SimpleExoPlayer` with `PlayerView`, enable this option by
+    setting `surface_type` of `PlayerView` to be `video_decoder_surface_view`.
+  * Otherwise, enable this option by sending `LibvpxVideoRenderer` a message of
+    type `C.MSG_SET_OUTPUT_BUFFER_RENDERER` with an instance of
+    `VideoDecoderOutputBufferRenderer` as its object.
+
+* Native rendering using `ANativeWindow`
+  * If you are using `SimpleExoPlayer` with `PlayerView`, this option is enabled
+    by default.
+  * Otherwise, enable this option by sending `LibvpxVideoRenderer` a message of
+    type `C.MSG_SET_SURFACE` with an instance of `SurfaceView` as its object.
+
+Note: Although the default option uses `ANativeWindow`, based on our testing the
+GL rendering mode has better performance, so should be preferred.
 
 ## Links ##
 
