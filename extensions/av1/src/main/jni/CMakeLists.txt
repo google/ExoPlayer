@@ -11,6 +11,7 @@ project(libgav1JNI C CXX)
 # armeabi-v7a build. This flag enables it.
 if(${ANDROID_ABI} MATCHES "armeabi-v7a")
     add_compile_options("-mfpu=neon")
+    add_compile_options("-fPIC")
 endif()
 
 set(libgav1_jni_root "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -20,6 +21,14 @@ set(libgav1_jni_output_directory
 
 set(libgav1_root "${libgav1_jni_root}/libgav1")
 set(libgav1_build "${libgav1_jni_build}/libgav1")
+
+set(cpu_features_root "${libgav1_jni_root}/cpu_features")
+set(cpu_features_build "${libgav1_jni_build}/cpu_features")
+
+# Build cpu_features library.
+add_subdirectory("${cpu_features_root}"
+                 "${cpu_features_build}"
+                 EXCLUDE_FROM_ALL)
 
 # Build libgav1.
 add_subdirectory("${libgav1_root}"
@@ -34,14 +43,10 @@ add_library(gav1JNI
 # Locate NDK log library.
 find_library(android_log_lib log)
 
-# Build cpufeatures library.
-include(AndroidNdkModules)
-android_ndk_import_module_cpufeatures()
-
 # Link libgav1JNI against used libraries.
 target_link_libraries(gav1JNI
                       PRIVATE android
-                      PRIVATE cpufeatures
+                      PRIVATE cpu_features
                       PRIVATE libgav1_static
                       PRIVATE ${android_log_lib})
 

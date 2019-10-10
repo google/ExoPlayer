@@ -17,10 +17,14 @@
 #include <android/log.h>
 #include <android/native_window.h>
 #include <android/native_window_jni.h>
-#ifdef __ARM_NEON
+
+#include "cpu_features_macros.h"  // NOLINT
+#ifdef CPU_FEATURES_ARCH_ARM
+#include "cpuinfo_arm.h"  // NOLINT
+#endif                    // CPU_FEATURES_ARCH_ARM
+#ifdef CPU_FEATURES_COMPILED_ANY_ARM_NEON
 #include <arm_neon.h>
-#endif  // __ARM_NEON
-#include <cpu-features.h>
+#endif  // CPU_FEATURES_COMPILED_ANY_ARM_NEON
 #include <jni.h>
 
 #include <cstring>
@@ -380,7 +384,7 @@ void Convert10BitFrameTo8BitDataBuffer(
   }
 }
 
-#ifdef __ARM_NEON
+#ifdef CPU_FEATURES_COMPILED_ANY_ARM_NEON
 void Convert10BitFrameTo8BitDataBufferNeon(
     const libgav1::DecoderBuffer* decoder_buffer, jbyte* data) {
   uint32x2_t lcg_value = vdup_n_u32(random());
@@ -477,7 +481,7 @@ void Convert10BitFrameTo8BitDataBufferNeon(
     }
   }
 }
-#endif  // __ARM_NEON
+#endif  // CPU_FEATURES_COMPILED_ANY_ARM_NEON
 
 }  // namespace
 
@@ -487,18 +491,20 @@ DECODER_FUNC(jlong, gav1Init, jint threads) {
     return kStatusError;
   }
 
-#ifdef __arm__
+#ifdef CPU_FEATURES_ARCH_ARM
   // Libgav1 requires NEON with arm ABIs.
-#ifdef __ARM_NEON
-  if (!(android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_NEON)) {
+#ifdef CPU_FEATURES_COMPILED_ANY_ARM_NEON
+  const cpu_features::ArmFeatures arm_features =
+      cpu_features::GetArmInfo().features;
+  if (!arm_features.neon) {
     context->jni_status_code = kJniStatusNeonNotSupported;
     return reinterpret_cast<jlong>(context);
   }
 #else
   context->jni_status_code = kJniStatusNeonNotSupported;
   return reinterpret_cast<jlong>(context);
-#endif  // __ARM_NEON
-#endif  // __arm__
+#endif  // CPU_FEATURES_COMPILED_ANY_ARM_NEON
+#endif  // CPU_FEATURES_ARCH_ARM
 
   libgav1::DecoderSettings settings;
   settings.threads = threads;
@@ -590,11 +596,11 @@ DECODER_FUNC(jint, gav1GetFrame, jlong jContext, jobject jOutputBuffer,
         CopyFrameToDataBuffer(decoder_buffer, data);
         break;
       case 10:
-#ifdef __ARM_NEON
+#ifdef CPU_FEATURES_COMPILED_ANY_ARM_NEON
         Convert10BitFrameTo8BitDataBufferNeon(decoder_buffer, data);
 #else
         Convert10BitFrameTo8BitDataBuffer(decoder_buffer, data);
-#endif  // __ARM_NEON
+#endif  // CPU_FEATURES_COMPILED_ANY_ARM_NEON
         break;
       default:
         context->jni_status_code = kJniStatusBitDepth12NotSupportedWithYuv;
