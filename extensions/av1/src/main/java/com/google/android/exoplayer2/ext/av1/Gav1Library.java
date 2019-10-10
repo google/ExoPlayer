@@ -29,17 +29,6 @@ public final class Gav1Library {
 
   private Gav1Library() {}
 
-  /**
-   * Override the names of the Gav1 native libraries. If an application wishes to call this method,
-   * it must do so before calling any other method defined by this class, and before instantiating a
-   * {@link Libgav1VideoRenderer} instance.
-   *
-   * @param libraries The names of the Gav1 native libraries.
-   */
-  public static void setLibraries(String... libraries) {
-    LOADER.setLibraries(libraries);
-  }
-
   /** Returns whether the underlying library is available, loading it if necessary. */
   public static boolean isAvailable() {
     return LOADER.isAvailable();
