@@ -39,7 +39,7 @@ import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 
 /**
- * Decodes and renders video using the native libgav1 decoder.
+ * Decodes and renders video using libgav1 decoder.
  *
  * <p>This renderer accepts the following messages sent via {@link ExoPlayer#createMessage(Target)}
  * on the playback thread:
