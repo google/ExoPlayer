@@ -105,6 +105,8 @@
 * Fail more explicitly when local-file Uris contain invalid parts (e.g.
   fragment) ([#6470](https://github.com/google/ExoPlayer/issues/6470)).
 * Add `MediaPeriod.isLoading` to improve `Player.isLoading` state.
+* Add support for ID3-in-EMSG in HLS streams
+  ([spec](https://aomediacodec.github.io/av1-id3/)).
 
 ### 2.10.5 (2019-09-20) ###
 

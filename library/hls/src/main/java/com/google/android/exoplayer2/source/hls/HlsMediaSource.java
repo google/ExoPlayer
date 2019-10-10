@@ -70,6 +70,7 @@ public final class HlsMediaSource extends BaseMediaSource
     private DrmSessionManager<?> drmSessionManager;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
     private boolean allowChunklessPreparation;
+    @HlsMetadataType private int metadataType;
     private boolean useSessionKeys;
     private boolean isCreateCalled;
     @Nullable private Object tag;
@@ -99,6 +100,7 @@ public final class HlsMediaSource extends BaseMediaSource
       drmSessionManager = DrmSessionManager.getDummyDrmSessionManager();
       loadErrorHandlingPolicy = new DefaultLoadErrorHandlingPolicy();
       compositeSequenceableLoaderFactory = new DefaultCompositeSequenceableLoaderFactory();
+      metadataType = HlsMetadataType.ID3;
     }
 
     /**
@@ -243,6 +245,31 @@ public final class HlsMediaSource extends BaseMediaSource
     }
 
     /**
+     * Sets the type of metadata to extract from the HLS source (defaults to {@link
+     * HlsMetadataType#ID3}).
+     *
+     * <p>HLS supports in-band ID3 in both TS and fMP4 streams, but in the fMP4 case the data is
+     * wrapped in an EMSG box [<a href="https://aomediacodec.github.io/av1-id3/">spec</a>].
+     *
+     * <p>If this is set to {@link HlsMetadataType#ID3} then raw ID3 metadata of will be extracted
+     * from TS sources. From fMP4 streams EMSGs containing metadata of this type (in the variant
+     * stream only) will be unwrapped to expose the inner data. All other in-band metadata will be
+     * dropped.
+     *
+     * <p>If this is set to {@link HlsMetadataType#EMSG} then all EMSG data from the fMP4 variant
+     * stream will be extracted. No metadata will be extracted from TS streams, since they don't
+     * support EMSG.
+     *
+     * @param metadataType The type of metadata to extract.
+     * @return This factory, for convenience.
+     */
+    public Factory setMetadataType(@HlsMetadataType int metadataType) {
+      Assertions.checkState(!isCreateCalled);
+      this.metadataType = metadataType;
+      return this;
+    }
+
+    /**
      * Sets whether to use #EXT-X-SESSION-KEY tags provided in the master playlist. If enabled, it's
      * assumed that any single session key declared in the master playlist can be used to obtain all
      * of the keys required for playback. For media where this is not true, this option should not
@@ -294,6 +321,7 @@ public final class HlsMediaSource extends BaseMediaSource
           playlistTrackerFactory.createTracker(
               hlsDataSourceFactory, loadErrorHandlingPolicy, playlistParserFactory),
           allowChunklessPreparation,
+          metadataType,
           useSessionKeys,
           tag);
     }
@@ -319,6 +347,7 @@ public final class HlsMediaSource extends BaseMediaSource
   private final DrmSessionManager<?> drmSessionManager;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final boolean allowChunklessPreparation;
+  private final @HlsMetadataType int metadataType;
   private final boolean useSessionKeys;
   private final HlsPlaylistTracker playlistTracker;
   @Nullable private final Object tag;
@@ -334,6 +363,7 @@ public final class HlsMediaSource extends BaseMediaSource
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       HlsPlaylistTracker playlistTracker,
       boolean allowChunklessPreparation,
+      @HlsMetadataType int metadataType,
       boolean useSessionKeys,
       @Nullable Object tag) {
     this.manifestUri = manifestUri;
@@ -344,6 +374,7 @@ public final class HlsMediaSource extends BaseMediaSource
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     this.playlistTracker = playlistTracker;
     this.allowChunklessPreparation = allowChunklessPreparation;
+    this.metadataType = metadataType;
     this.useSessionKeys = useSessionKeys;
     this.tag = tag;
   }
@@ -381,6 +412,7 @@ public final class HlsMediaSource extends BaseMediaSource
         allocator,
         compositeSequenceableLoaderFactory,
         allowChunklessPreparation,
+        metadataType,
         useSessionKeys);
   }
 
