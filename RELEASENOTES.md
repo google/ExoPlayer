@@ -7,6 +7,8 @@
   ([#6203](https://github.com/google/ExoPlayer/issues/6203)).
 * DASH: Support `Label` elements
   ([#6297](https://github.com/google/ExoPlayer/issues/6297)).
+* HLS: Add support for ID3 in EMSG when using FMP4 streams
+  ([spec](https://aomediacodec.github.io/av1-id3/)).
 * Metadata: Expose the raw ICY metadata through `IcyInfo`
   ([#6476](https://github.com/google/ExoPlayer/issues/6476)).
 * UI

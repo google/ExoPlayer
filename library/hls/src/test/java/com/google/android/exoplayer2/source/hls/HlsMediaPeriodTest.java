@@ -91,6 +91,7 @@ public final class HlsMediaPeriodTest {
               mock(Allocator.class),
               mock(CompositeSequenceableLoaderFactory.class),
               /* allowChunklessPreparation =*/ true,
+              HlsMetadataType.ID3,
               /* useSessionKeys= */ false);
         };
 
