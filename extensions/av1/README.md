@@ -17,7 +17,8 @@ To use this extension you need to clone the ExoPlayer repository and depend on
 its modules locally. Instructions for doing this can be found in ExoPlayer's
 [top level README][].
 
-In addition, it's necessary to fetch libgav1 and its dependencies as follows:
+In addition, it's necessary to fetch cpu_features library and libgav1 with its
+dependencies as follows:
 
 * Set the following environment variables:
 
@@ -25,6 +26,13 @@ In addition, it's necessary to fetch libgav1 and its dependencies as follows:
 cd "<path to exoplayer checkout>"
 EXOPLAYER_ROOT="$(pwd)"
 AV1_EXT_PATH="${EXOPLAYER_ROOT}/extensions/av1/src/main"
+```
+
+* Fetch cpu_features library:
+
+```
+cd "${AV1_EXT_PATH}/jni" && \
+git clone https://github.com/google/cpu_features
 ```
 
 * Fetch libgav1:
