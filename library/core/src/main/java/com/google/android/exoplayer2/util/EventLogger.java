@@ -489,8 +489,8 @@ public class EventLogger implements AnalyticsListener {
         windowPeriodString += ", ad=" + eventTime.mediaPeriodId.adIndexInAdGroup;
       }
     }
-    return getTimeString(eventTime.realtimeMs - startTimeMs)
-        + ", "
+    return "eventDuration= " + getTimeString(eventTime.realtimeMs - startTimeMs)
+        + ", playbackPosition="
         + getTimeString(eventTime.currentPlaybackPositionMs)
         + ", "
         + windowPeriodString;
