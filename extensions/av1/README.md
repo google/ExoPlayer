@@ -41,15 +41,17 @@ cd "${AV1_EXT_PATH}/jni/libgav1" && \
 git clone https://github.com/abseil/abseil-cpp.git third_party/abseil-cpp
 ```
 
-libgav1 and [JNI wrapper library][] are built using [CMake][] set-up with
-[Ninja][]. After following the instructions above to fetch libgav1, gradle will
-build the extension automatically when run on the command line or via Android
-Studio.
+* [Install CMake][].
+
+Having followed these steps, gradle will build the extension automatically when
+run on the command line or via Android Studio, using [CMake][] and [Ninja][]
+to configure and build libgav1 and the extension's [JNI wrapper library][].
 
 [top level README]: https://github.com/google/ExoPlayer/blob/release-v2/README.md
-[JNI wrapper library]: https://github.com/google/ExoPlayer/blob/release-v2/extensions/av1/src/main/jni/gav1_jni.cc
+[Install CMake]: https://developer.android.com/studio/projects/install-ndk
 [CMake]: https://cmake.org/
 [Ninja]: https://ninja-build.org
+[JNI wrapper library]: https://github.com/google/ExoPlayer/blob/dev-v2/extensions/av1/src/main/jni/gav1_jni.cc
 
 ## Using the extension ##
 
