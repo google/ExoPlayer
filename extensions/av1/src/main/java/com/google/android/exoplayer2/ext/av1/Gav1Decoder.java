@@ -165,9 +165,9 @@ import java.nio.ByteBuffer;
   }
 
   /**
-   * Initializes libgav1 decoder.
+   * Initializes a libgav1 decoder.
    *
-   * @param threads Number of threads used by libgav1 decoder.
+   * @param threads Number of threads to be used by a libgav1 decoder.
    * @return The address of the decoder context or {@link #GAV1_ERROR} if there was an error.
    */
   private native long gav1Init(int threads);
