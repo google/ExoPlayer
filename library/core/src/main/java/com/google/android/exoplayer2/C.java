@@ -521,6 +521,7 @@ public final class C {
   /** Indicates that a buffer should be decoded but not rendered. */
   public static final int BUFFER_FLAG_DECODE_ONLY = 1 << 31; // 0x80000000
 
+  // LINT.IfChange
   /**
    * Video decoder output modes. Possible modes are {@link #VIDEO_OUTPUT_MODE_NONE}, {@link
    * #VIDEO_OUTPUT_MODE_YUV} and {@link #VIDEO_OUTPUT_MODE_SURFACE_YUV}.
@@ -535,6 +536,10 @@ public final class C {
   public static final int VIDEO_OUTPUT_MODE_YUV = 0;
   /** Video decoder output mode that renders 4:2:0 YUV planes directly to a surface. */
   public static final int VIDEO_OUTPUT_MODE_SURFACE_YUV = 1;
+  // LINT.ThenChange(
+  //     ../../../../../../../../../extensions/av1/src/main/jni/gav1_jni.cc,
+  //     ../../../../../../../../../extensions/vp9/src/main/jni/vpx_jni.cc
+  // )
 
   /**
    * Video scaling modes for {@link MediaCodec}-based {@link Renderer}s. One of {@link
