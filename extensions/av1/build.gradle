@@ -54,15 +54,10 @@ android {
     }
 }
 
-// Check that the Android NDK, CMake and libgav1 are present, to avoid gradle
-// sync failures if the tools aren't installed or libgav1 is missing. To use
-// the extension it is necessary to install the NDK and CMake from the SDK
-// Manager and fetch libgav1 following the steps in README.
-def ndkDirectory = project.android.ndkDirectory
-def sdkDirectory = project.android.sdkDirectory
-if (ndkDirectory != null && !ndkDirectory.toString().isEmpty()
-        && new File(sdkDirectory.toString() + '/cmake').exists()
-        && project.file('src/main/jni/libgav1').exists()) {
+// Configure the native build only if libgav1 is present, to avoid gradle sync
+// failures if libgav1 hasn't been checked out according to the README and CMake
+// isn't installed.
+if (project.file('src/main/jni/libgav1').exists()) {
     android.externalNativeBuild.cmake.path = 'src/main/jni/CMakeLists.txt'
     android.externalNativeBuild.cmake.version = '3.7.1+'
 }
