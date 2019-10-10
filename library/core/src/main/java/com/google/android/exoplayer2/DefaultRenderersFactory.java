@@ -365,6 +365,33 @@ public class DefaultRenderersFactory implements RenderersFactory {
       // The extension is present, but instantiation failed.
       throw new RuntimeException("Error instantiating VP9 extension", e);
     }
+
+    try {
+      // Full class names used for constructor args so the LINT rule triggers if any of them move.
+      // LINT.IfChange
+      Class<?> clazz = Class.forName("com.google.android.exoplayer2.ext.av1.Libgav1VideoRenderer");
+      Constructor<?> constructor =
+          clazz.getConstructor(
+              long.class,
+              android.os.Handler.class,
+              com.google.android.exoplayer2.video.VideoRendererEventListener.class,
+              int.class);
+      // LINT.ThenChange(../../../../../../../proguard-rules.txt)
+      Renderer renderer =
+          (Renderer)
+              constructor.newInstance(
+                  allowedVideoJoiningTimeMs,
+                  eventHandler,
+                  eventListener,
+                  MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY);
+      out.add(extensionRendererIndex++, renderer);
+      Log.i(TAG, "Loaded Libgav1VideoRenderer.");
+    } catch (ClassNotFoundException e) {
+      // Expected if the app was built without the extension.
+    } catch (Exception e) {
+      // The extension is present, but instantiation failed.
+      throw new RuntimeException("Error instantiating AV1 extension", e);
+    }
   }
 
   /**
