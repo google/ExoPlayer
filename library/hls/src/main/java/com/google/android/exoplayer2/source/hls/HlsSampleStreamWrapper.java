@@ -118,8 +118,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final HlsChunkSource.HlsChunkHolder nextChunkHolder;
   private final ArrayList<HlsMediaChunk> mediaChunks;
   private final List<HlsMediaChunk> readOnlyMediaChunks;
-  private final Runnable maybeFinishPrepareRunnable;
-  private final Runnable onTracksEndedRunnable;
   private final Handler handler;
   private final ArrayList<HlsSampleStream> hlsSampleStreams;
   private final Map<String, DrmInitData> overridingDrmInitData;
@@ -211,8 +209,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     mediaChunks = new ArrayList<>();
     readOnlyMediaChunks = Collections.unmodifiableList(mediaChunks);
     hlsSampleStreams = new ArrayList<>();
-    maybeFinishPrepareRunnable = this::maybeFinishPrepare;
-    onTracksEndedRunnable = this::onTracksEnded;
     handler = new Handler();
     lastSeekPositionUs = positionUs;
     pendingResetPositionUs = positionUs;
@@ -923,7 +919,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   public void endTracks() {
     tracksEnded = true;
-    handler.post(onTracksEndedRunnable);
+    handler.post(this::onTracksEnded);
   }
 
   @Override
@@ -935,7 +931,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public void onUpstreamFormatChanged(Format format) {
-    handler.post(maybeFinishPrepareRunnable);
+    handler.post(this::maybeFinishPrepare);
   }
 
   // Called by the loading thread.
