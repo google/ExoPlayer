@@ -43,6 +43,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 import java.util.Formatter;
 import java.util.Locale;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * A view for controlling {@link Player} instances.
@@ -231,6 +232,7 @@ public class PlayerControlView extends FrameLayout {
   private static final int MAX_UPDATE_INTERVAL_MS = 1000;
 
   private final ComponentListener componentListener;
+  private final CopyOnWriteArrayList<VisibilityListener> visibilityListeners;
   private final View previousButton;
   private final View nextButton;
   private final View playButton;
@@ -265,7 +267,6 @@ public class PlayerControlView extends FrameLayout {
 
   @Nullable private Player player;
   private com.google.android.exoplayer2.ControlDispatcher controlDispatcher;
-  @Nullable private VisibilityListener visibilityListener;
   @Nullable private ProgressUpdateListener progressUpdateListener;
   @Nullable private PlaybackPreparer playbackPreparer;
 
@@ -335,6 +336,7 @@ public class PlayerControlView extends FrameLayout {
         a.recycle();
       }
     }
+    visibilityListeners = new CopyOnWriteArrayList<>();
     period = new Timeline.Period();
     window = new Timeline.Window();
     formatBuilder = new StringBuilder();
@@ -510,13 +512,21 @@ public class PlayerControlView extends FrameLayout {
   }
 
   /**
-   * Sets the {@link VisibilityListener}.
+   * Adds a {@link VisibilityListener}.
    *
-   * @param listener The listener to be notified about visibility changes, or null to remove the
-   *     current listener.
+   * @param listener The listener to be notified about visibility changes.
    */
-  public void setVisibilityListener(@Nullable VisibilityListener listener) {
-    this.visibilityListener = listener;
+  public void addVisibilityListener(VisibilityListener listener) {
+    visibilityListeners.add(listener);
+  }
+
+  /**
+   * Removes a {@link VisibilityListener}.
+   *
+   * @param listener The listener to be removed.
+   */
+  public void removeVisibilityListener(VisibilityListener listener) {
+    visibilityListeners.remove(listener);
   }
 
   /**
@@ -697,7 +707,7 @@ public class PlayerControlView extends FrameLayout {
   public void show() {
     if (!isVisible()) {
       setVisibility(VISIBLE);
-      if (visibilityListener != null) {
+      for (VisibilityListener visibilityListener : visibilityListeners) {
         visibilityListener.onVisibilityChange(getVisibility());
       }
       updateAll();
@@ -711,7 +721,7 @@ public class PlayerControlView extends FrameLayout {
   public void hide() {
     if (isVisible()) {
       setVisibility(GONE);
-      if (visibilityListener != null) {
+      for (VisibilityListener visibilityListener : visibilityListeners) {
         visibilityListener.onVisibilityChange(getVisibility());
       }
       removeCallbacks(updateProgressAction);
