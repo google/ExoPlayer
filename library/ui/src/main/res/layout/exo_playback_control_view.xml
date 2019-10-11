@@ -31,30 +31,39 @@
     android:orientation="horizontal">
 
     <ImageButton android:id="@id/exo_prev"
+      android:contentDescription="@string/exo_controls_previous_description"
       style="@style/ExoMediaButton.Previous"/>
 
     <ImageButton android:id="@id/exo_rew"
+      android:contentDescription="@string/exo_controls_rewind_description"
       style="@style/ExoMediaButton.Rewind"/>
 
+    <!-- TODO: Add contentDescription -->
     <ImageButton android:id="@id/exo_shuffle"
       style="@style/ExoMediaButton"/>
 
+    <!-- TODO: Add contentDescription -->
     <ImageButton android:id="@id/exo_repeat_toggle"
       style="@style/ExoMediaButton"/>
 
     <ImageButton android:id="@id/exo_play"
+      android:contentDescription="@string/exo_controls_play_description"
       style="@style/ExoMediaButton.Play"/>
 
     <ImageButton android:id="@id/exo_pause"
+      android:contentDescription="@string/exo_controls_pause_description"
       style="@style/ExoMediaButton.Pause"/>
 
     <ImageButton android:id="@id/exo_ffwd"
+      android:contentDescription="@string/exo_controls_fastforward_description"
       style="@style/ExoMediaButton.FastForward"/>
 
     <ImageButton android:id="@id/exo_next"
+      android:contentDescription="@string/exo_controls_next_description"
       style="@style/ExoMediaButton.Next"/>
 
     <ImageButton android:id="@id/exo_vr"
+      android:contentDescription="@string/exo_controls_vr_description"
       style="@style/ExoMediaButton.VR"/>
 
   </LinearLayout>
