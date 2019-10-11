@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.PlayerMessage;
 import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.testutil.Action.ClearVideoSurface;
 import com.google.android.exoplayer2.testutil.Action.ExecuteRunnable;
@@ -35,6 +36,7 @@ import com.google.android.exoplayer2.testutil.Action.PrepareSource;
 import com.google.android.exoplayer2.testutil.Action.Seek;
 import com.google.android.exoplayer2.testutil.Action.SendBroadcast;
 import com.google.android.exoplayer2.testutil.Action.SendMessages;
+import com.google.android.exoplayer2.testutil.Action.SetAudioAttributes;
 import com.google.android.exoplayer2.testutil.Action.SetPlayWhenReady;
 import com.google.android.exoplayer2.testutil.Action.SetPlaybackParameters;
 import com.google.android.exoplayer2.testutil.Action.SetRendererDisabled;
@@ -133,7 +135,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules an action to be executed.
+     * Schedules an action.
      *
      * @param action The action to schedule.
      * @return The builder, for convenience.
@@ -143,7 +145,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules an action to be executed repeatedly.
+     * Schedules an action repeatedly.
      *
      * @param action The action to schedule.
      * @param intervalMs The interval between each repetition in milliseconds.
@@ -154,7 +156,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a seek action to be executed.
+     * Schedules a seek action.
      *
      * @param positionMs The seek position.
      * @return The builder, for convenience.
@@ -164,7 +166,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a seek action to be executed.
+     * Schedules a seek action.
      *
      * @param windowIndex The window to seek to.
      * @param positionMs The seek position.
@@ -175,7 +177,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a seek action to be executed and waits until playback resumes after the seek.
+     * Schedules a seek action and waits until playback resumes after the seek.
      *
      * @param positionMs The seek position.
      * @return The builder, for convenience.
@@ -196,7 +198,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a playback parameters setting action to be executed.
+     * Schedules a playback parameters setting action.
      *
      * @param playbackParameters The playback parameters to set.
      * @return The builder, for convenience.
@@ -207,7 +209,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a stop action to be executed.
+     * Schedules a stop action.
      *
      * @return The builder, for convenience.
      */
@@ -216,7 +218,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a stop action to be executed.
+     * Schedules a stop action.
      *
      * @param reset Whether the player should be reset.
      * @return The builder, for convenience.
@@ -226,7 +228,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a play action to be executed.
+     * Schedules a play action.
      *
      * @return The builder, for convenience.
      */
@@ -235,8 +237,8 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a play action to be executed, waits until the player reaches the specified
-     * position, and pauses the player again.
+     * Schedules a play action, waits until the player reaches the specified position, and pauses
+     * the player again.
      *
      * @param windowIndex The window index at which the player should be paused again.
      * @param positionMs The position in that window at which the player should be paused again.
@@ -247,8 +249,8 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a play action to be executed, waits until the player reaches the start of the
-     * specified window, and pauses the player again.
+     * Schedules a play action, waits until the player reaches the start of the specified window,
+     * and pauses the player again.
      *
      * @param windowIndex The window index at which the player should be paused again.
      * @return The builder, for convenience.
@@ -258,7 +260,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a pause action to be executed.
+     * Schedules a pause action.
      *
      * @return The builder, for convenience.
      */
@@ -267,7 +269,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a renderer enable action to be executed.
+     * Schedules a renderer enable action.
      *
      * @return The builder, for convenience.
      */
@@ -276,7 +278,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a renderer disable action to be executed.
+     * Schedules a renderer disable action.
      *
      * @return The builder, for convenience.
      */
@@ -285,7 +287,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a clear video surface action to be executed.
+     * Schedules a clear video surface action.
      *
      * @return The builder, for convenience.
      */
@@ -294,7 +296,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a set video surface action to be executed.
+     * Schedules a set video surface action.
      *
      * @return The builder, for convenience.
      */
@@ -303,7 +305,16 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a new source preparation action to be executed.
+     * Schedules application of audio attributes.
+     *
+     * @return The builder, for convenience.
+     */
+    public Builder setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus) {
+      return apply(new SetAudioAttributes(tag, audioAttributes, handleAudioFocus));
+    }
+
+    /**
+     * Schedules a new source preparation action.
      *
      * @return The builder, for convenience.
      */
@@ -312,7 +323,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a new source preparation action to be executed.
+     * Schedules a new source preparation action.
      *
      * @see com.google.android.exoplayer2.ExoPlayer#prepare(MediaSource, boolean, boolean)
      * @return The builder, for convenience.
@@ -323,7 +334,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a repeat mode setting action to be executed.
+     * Schedules a repeat mode setting action.
      *
      * @return The builder, for convenience.
      */
@@ -332,7 +343,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a shuffle setting action to be executed.
+     * Schedules a shuffle setting action.
      *
      * @return The builder, for convenience.
      */
@@ -438,7 +449,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a {@link Runnable} to be executed.
+     * Schedules a {@link Runnable}.
      *
      * @return The builder, for convenience.
      */
@@ -560,8 +571,8 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules {@link #action} to be executed after {@link #delayMs}. The {@link #next} node will
-     * be scheduled immediately after {@link #action} is executed.
+     * Schedules {@link #action} after {@link #delayMs}. The {@link #next} node will be scheduled
+     * immediately after {@link #action} is executed.
      *
      * @param player The player to which actions should be applied.
      * @param trackSelector The track selector to which actions should be applied.
