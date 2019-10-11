@@ -17,9 +17,11 @@ package com.google.android.exoplayer2;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
+import static org.robolectric.Shadows.shadowOf;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.view.Surface;
 import androidx.annotation.Nullable;
@@ -29,6 +31,7 @@ import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.Player.EventListener;
 import com.google.android.exoplayer2.Timeline.Window;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
+import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.source.ClippingMediaSource;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -55,7 +58,6 @@ import com.google.android.exoplayer2.testutil.FakeTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.TransferListener;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -72,6 +74,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.LooperMode;
+import org.robolectric.shadows.ShadowAudioManager;
 
 /** Unit test for {@link ExoPlayer}. */
 @RunWith(AndroidJUnit4.class)
@@ -2796,6 +2799,39 @@ public final class ExoPlayerTest {
     assertThat(seenPlaybackSuppression.get()).isFalse();
   }
 
+  @Test
+  public void audioFocusDenied() throws Exception {
+    ShadowAudioManager shadowAudioManager = shadowOf(context.getSystemService(AudioManager.class));
+    shadowAudioManager.setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_FAILED);
+
+    PlayerStateGrabber playerStateGrabber = new PlayerStateGrabber();
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("audioFocusDenied")
+            .setAudioAttributes(AudioAttributes.DEFAULT, /* handleAudioFocus= */ true)
+            .play()
+            .waitForPlaybackState(Player.STATE_READY)
+            .executeRunnable(playerStateGrabber)
+            .build();
+    AtomicBoolean seenPlaybackSuppression = new AtomicBoolean();
+    EventListener listener =
+        new EventListener() {
+          @Override
+          public void onPlaybackSuppressionReasonChanged(
+              @Player.PlaybackSuppressionReason int playbackSuppressionReason) {
+            seenPlaybackSuppression.set(true);
+          }
+        };
+    new ExoPlayerTestRunner.Builder()
+        .setActionSchedule(actionSchedule)
+        .setEventListener(listener)
+        .build(context)
+        .start()
+        .blockUntilActionScheduleFinished(TIMEOUT_MS);
+
+    assertThat(playerStateGrabber.playWhenReady).isFalse();
+    assertThat(seenPlaybackSuppression.get()).isFalse();
+  }
+
   // Internal methods.
 
   private static ActionSchedule.Builder addSurfaceSwitch(ActionSchedule.Builder builder) {
@@ -2841,38 +2877,17 @@ public final class ExoPlayerTest {
     }
   }
 
-  /**
-   * Provides a wrapper for a {@link Runnable} which does collect playback states and window counts.
-   * Can be used with {@link ActionSchedule.Builder#executeRunnable(Runnable)} to verify that a
-   * playback state did not change and hence no observable callback is called.
-   *
-   * <p>This is specifically useful in cases when the test may end before a given state arrives or
-   * when an action of the action schedule might execute before a callback is called.
-   */
-  public static class PlaybackStateCollector extends PlayerRunnable {
+  private static final class PlayerStateGrabber extends PlayerRunnable {
 
-    private final int[] playbackStates;
-    private final int[] timelineWindowCount;
-    private final int index;
-
-    /**
-     * Creates the collector.
-     *
-     * @param index The index to populate.
-     * @param playbackStates An array of playback states to populate.
-     * @param timelineWindowCount An array of window counts to populate.
-     */
-    public PlaybackStateCollector(int index, int[] playbackStates, int[] timelineWindowCount) {
-      Assertions.checkArgument(playbackStates.length > index && timelineWindowCount.length > index);
-      this.playbackStates = playbackStates;
-      this.timelineWindowCount = timelineWindowCount;
-      this.index = index;
-    }
+    public boolean playWhenReady;
+    @Player.State public int playbackState;
+    @Nullable public Timeline timeline;
 
     @Override
     public void run(SimpleExoPlayer player) {
-      playbackStates[index] = player.getPlaybackState();
-      timelineWindowCount[index] = player.getCurrentTimeline().getWindowCount();
+      playWhenReady = player.getPlayWhenReady();
+      playbackState = player.getPlaybackState();
+      timeline = player.getCurrentTimeline();
     }
   }
 }
