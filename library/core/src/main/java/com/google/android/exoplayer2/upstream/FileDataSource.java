@@ -30,9 +30,7 @@ import java.io.RandomAccessFile;
 /** A {@link DataSource} for reading local files. */
 public final class FileDataSource extends BaseDataSource {
 
-  /**
-   * Thrown when IOException is encountered during local file read operation.
-   */
+  /** Thrown when a {@link FileDataSource} encounters an error reading a file. */
   public static class FileDataSourceException extends IOException {
 
     public FileDataSourceException(IOException cause) {
@@ -41,6 +39,32 @@ public final class FileDataSource extends BaseDataSource {
 
     public FileDataSourceException(String message, IOException cause) {
       super(message, cause);
+    }
+  }
+
+  /** {@link DataSource.Factory} for {@link FileDataSource} instances. */
+  public static final class Factory implements DataSource.Factory {
+
+    @Nullable private TransferListener listener;
+
+    /**
+     * Sets a {@link TransferListener} for {@link FileDataSource} instances created by this factory.
+     *
+     * @param listener The {@link TransferListener}.
+     * @return This factory.
+     */
+    public Factory setListener(@Nullable TransferListener listener) {
+      this.listener = listener;
+      return this;
+    }
+
+    @Override
+    public FileDataSource createDataSource() {
+      FileDataSource dataSource = new FileDataSource();
+      if (listener != null) {
+        dataSource.addTransferListener(listener);
+      }
+      return dataSource;
     }
   }
 
