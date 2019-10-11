@@ -32,6 +32,8 @@
     ([#1787](https://github.com/google/ExoPlayer/issues/1787)).
   * Support `Label` elements
     ([#6297](https://github.com/google/ExoPlayer/issues/6297)).
+  * Support legacy audio channel configuration
+    ([#6523](https://github.com/google/ExoPlayer/issues/6523)).
 * Add `allowedCapturePolicy` field to `AudioAttributes` wrapper to allow to
   opt-out of audio recording.
 * Add `DataSpec.httpRequestHeaders` to set HTTP request headers when connecting
