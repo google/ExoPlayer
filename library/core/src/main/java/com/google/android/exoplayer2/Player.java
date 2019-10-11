@@ -729,7 +729,7 @@ public interface Player {
   /**
    * Sets the {@link RepeatMode} to be used for playback.
    *
-   * @param repeatMode A repeat mode.
+   * @param repeatMode The repeat mode.
    */
   void setRepeatMode(@RepeatMode int repeatMode);
 
