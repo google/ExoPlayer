@@ -113,6 +113,7 @@
 * Add support for ID3-in-EMSG in HLS streams
   ([spec](https://aomediacodec.github.io/av1-id3/)).
 * Make show and hide player controls accessible for TalkBack in `PlayerView`.
+* Pass the codec output `MediaFormat` to `VideoFrameMetadataListener`.
 
 ### 2.10.5 (2019-09-20) ###
 

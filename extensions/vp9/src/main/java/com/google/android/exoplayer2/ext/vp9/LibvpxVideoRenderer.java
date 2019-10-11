@@ -238,7 +238,7 @@ public class LibvpxVideoRenderer extends SimpleDecoderVideoRenderer {
       throws VideoDecoderException {
     if (frameMetadataListener != null) {
       frameMetadataListener.onVideoFrameAboutToBeRendered(
-          presentationTimeUs, System.nanoTime(), outputFormat);
+          presentationTimeUs, System.nanoTime(), outputFormat, /* mediaFormat= */ null);
     }
     super.renderOutputBuffer(outputBuffer, presentationTimeUs, outputFormat);
   }
