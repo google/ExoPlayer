@@ -294,6 +294,7 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
 
   private Player player;
   private boolean useController;
+  @Nullable private PlayerControlView.VisibilityListener controllerVisibilityListener;
   private boolean useArtwork;
   @Nullable private Drawable defaultArtwork;
   private @ShowBuffering int showBuffering;
@@ -483,6 +484,10 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
     this.controllerHideDuringAds = controllerHideDuringAds;
     this.useController = useController && controller != null;
     hideController();
+    updateContentDescription();
+    if (controller != null) {
+      controller.addVisibilityListener(/* listener= */ componentListener);
+    }
   }
 
   /**
@@ -687,8 +692,9 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
       controller.setPlayer(player);
     } else if (controller != null) {
       controller.hide();
-      controller.setPlayer(null);
+      controller.setPlayer(/* player= */ null);
     }
+    updateContentDescription();
   }
 
   /**
@@ -880,6 +886,7 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
   public void setControllerHideOnTouch(boolean controllerHideOnTouch) {
     Assertions.checkState(controller != null);
     this.controllerHideOnTouch = controllerHideOnTouch;
+    updateContentDescription();
   }
 
   /**
@@ -921,7 +928,16 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
   public void setControllerVisibilityListener(
       @Nullable PlayerControlView.VisibilityListener listener) {
     Assertions.checkState(controller != null);
-    controller.setVisibilityListener(listener);
+    if (this.controllerVisibilityListener == listener) {
+      return;
+    }
+    if (this.controllerVisibilityListener != null) {
+      controller.removeVisibilityListener(this.controllerVisibilityListener);
+    }
+    this.controllerVisibilityListener = listener;
+    if (listener != null) {
+      controller.addVisibilityListener(listener);
+    }
   }
 
   /**
@@ -1359,6 +1375,20 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
     }
   }
 
+  private void updateContentDescription() {
+    if (controller == null || !useController) {
+      setContentDescription(/* contentDescription= */ null);
+    } else if (controller.getVisibility() == View.VISIBLE) {
+      setContentDescription(
+          /* contentDescription= */ controllerHideOnTouch
+              ? getResources().getString(R.string.exo_controls_hide)
+              : null);
+    } else {
+      setContentDescription(
+          /* contentDescription= */ getResources().getString(R.string.exo_controls_show));
+    }
+  }
+
   @TargetApi(23)
   private static void configureEditModeLogoV23(Resources resources, ImageView logo) {
     logo.setImageDrawable(resources.getDrawable(R.drawable.exo_edit_mode_logo, null));
@@ -1418,7 +1448,8 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
           TextOutput,
           VideoListener,
           OnLayoutChangeListener,
-          SingleTapListener {
+          SingleTapListener,
+          PlayerControlView.VisibilityListener {
 
     // TextOutput implementation
 
@@ -1512,6 +1543,13 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
       return toggleControllerVisibility();
+    }
+
+    // PlayerControlView.VisibilityListener implementation
+
+    @Override
+    public void onVisibilityChange(int visibility) {
+      updateContentDescription();
     }
   }
 }
