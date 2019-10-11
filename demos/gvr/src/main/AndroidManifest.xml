@@ -64,7 +64,7 @@
         android:theme="@style/VrActivityTheme">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
-        <category android:name="com.google.intent.category.CARDBOARD"/> <!-- copybara:strip(development-only) -->
+        <category android:name="com.google.intent.category.CARDBOARD"/>
         <category android:name="com.google.intent.category.DAYDREAM"/>
       </intent-filter>
     </activity>
