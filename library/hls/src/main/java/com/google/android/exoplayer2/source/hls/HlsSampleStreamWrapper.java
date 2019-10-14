@@ -65,7 +65,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * Loads {@link HlsMediaChunk}s obtained from a {@link HlsChunkSource}, and provides
@@ -127,20 +129,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private int[] sampleQueueTrackIds;
   private Set<Integer> sampleQueueMappingDoneByType;
   private SparseIntArray sampleQueueIndicesByType;
-  private TrackOutput emsgUnwrappingTrackOutput;
+  @MonotonicNonNull private TrackOutput emsgUnwrappingTrackOutput;
   private int primarySampleQueueType;
   private int primarySampleQueueIndex;
   private boolean sampleQueuesBuilt;
   private boolean prepared;
   private int enabledTrackGroupCount;
-  private Format upstreamTrackFormat;
-  private Format downstreamTrackFormat;
+  @MonotonicNonNull private Format upstreamTrackFormat;
+  @Nullable private Format downstreamTrackFormat;
   private boolean released;
 
   // Tracks are complicated in HLS. See documentation of buildTracksFromSampleStreams for details.
   // Indexed by track (as exposed by this source).
-  private TrackGroupArray trackGroups;
-  private Set<TrackGroup> optionalTrackGroups;
+  @MonotonicNonNull private TrackGroupArray trackGroups;
+  @MonotonicNonNull private Set<TrackGroup> optionalTrackGroups;
   // Indexed by track group.
   private int[] trackGroupToSampleQueueIndex;
   private int primaryTrackGroupIndex;
@@ -294,15 +296,21 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @return Whether this wrapper requires the parent {@link HlsMediaPeriod} to perform a seek as
    *     part of the track selection.
    */
-  public boolean selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
-      SampleStream[] streams, boolean[] streamResetFlags, long positionUs, boolean forceReset) {
+  public boolean selectTracks(
+      TrackSelection[] selections,
+      boolean[] mayRetainStreamFlags,
+      @NullableType SampleStream[] streams,
+      boolean[] streamResetFlags,
+      long positionUs,
+      boolean forceReset) {
     Assertions.checkState(prepared);
     int oldEnabledTrackGroupCount = enabledTrackGroupCount;
     // Deselect old tracks.
     for (int i = 0; i < selections.length; i++) {
-      if (streams[i] != null && (selections[i] == null || !mayRetainStreamFlags[i])) {
+      HlsSampleStream stream = (HlsSampleStream) streams[i];
+      if (stream != null && (selections[i] == null || !mayRetainStreamFlags[i])) {
         enabledTrackGroupCount--;
-        ((HlsSampleStream) streams[i]).unbindSampleQueue();
+        stream.unbindSampleQueue();
         streams[i] = null;
       }
     }
@@ -536,7 +544,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         sampleQueueReaders[sampleQueueIndex].read(
             formatHolder, buffer, requireFormat, loadingFinished, lastSeekPositionUs);
     if (result == C.RESULT_FORMAT_READ) {
-      Format format = formatHolder.format;
+      Format format = Assertions.checkNotNull(formatHolder.format);
       if (sampleQueueIndex == primarySampleQueueIndex) {
         // Fill in primary sample format with information from the track format.
         int chunkUid = sampleQueues[sampleQueueIndex].peekSourceId();
@@ -945,7 +953,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   // Internal methods.
 
-  private void updateSampleStreams(SampleStream[] streams) {
+  private void updateSampleStreams(@NullableType SampleStream[] streams) {
     hlsSampleStreams.clear();
     for (SampleStream stream : streams) {
       if (stream != null) {
@@ -998,6 +1006,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
+  @RequiresNonNull("trackGroups")
   private void mapSampleQueuesToMatchTrackGroups() {
     int trackGroupCount = trackGroups.length;
     trackGroupToSampleQueueIndex = new int[trackGroupCount];
@@ -1195,7 +1204,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @return The derived track format.
    */
   private static Format deriveFormat(
-      Format playlistFormat, Format sampleFormat, boolean propagateBitrate) {
+      @Nullable Format playlistFormat, Format sampleFormat, boolean propagateBitrate) {
     if (playlistFormat == null) {
       return sampleFormat;
     }
@@ -1383,7 +1392,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         int size,
         int offset,
         @Nullable CryptoData cryptoData) {
-      Assertions.checkState(format != null);
+      Assertions.checkNotNull(format);
       ParsableByteArray sample = getSampleAndTrimBuffer(size, offset);
       ParsableByteArray sampleForDelegate;
       if (Util.areEqual(format.sampleMimeType, delegateFormat.sampleMimeType)) {

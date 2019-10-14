@@ -1472,7 +1472,8 @@ public final class Format implements Parcelable {
         exoMediaCryptoType);
   }
 
-  public Format copyWithExoMediaCryptoType(Class<? extends ExoMediaCrypto> exoMediaCryptoType) {
+  public Format copyWithExoMediaCryptoType(
+      @Nullable Class<? extends ExoMediaCrypto> exoMediaCryptoType) {
     return new Format(
         id,
         label,
