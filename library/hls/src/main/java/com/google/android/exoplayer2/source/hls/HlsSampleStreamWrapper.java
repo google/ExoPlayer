@@ -905,11 +905,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     trackOutput.setUpstreamFormatChangeListener(this);
     sampleQueueTrackIds = Arrays.copyOf(sampleQueueTrackIds, trackCount + 1);
     sampleQueueTrackIds[trackCount] = id;
-    sampleQueues = Arrays.copyOf(sampleQueues, trackCount + 1);
-    sampleQueues[trackCount] = trackOutput;
-    sampleQueueReaders = Arrays.copyOf(sampleQueueReaders, trackCount + 1);
-    sampleQueueReaders[trackCount] =
-        new DecryptableSampleQueueReader(sampleQueues[trackCount], drmSessionManager);
+    sampleQueues = Util.nullSafeArrayAppend(sampleQueues, trackOutput);
+    sampleQueueReaders =
+        Util.nullSafeArrayAppend(
+            sampleQueueReaders,
+            new DecryptableSampleQueueReader(sampleQueues[trackCount], drmSessionManager));
     sampleQueueIsAudioVideoFlags = Arrays.copyOf(sampleQueueIsAudioVideoFlags, trackCount + 1);
     sampleQueueIsAudioVideoFlags[trackCount] =
         type == C.TRACK_TYPE_AUDIO || type == C.TRACK_TYPE_VIDEO;

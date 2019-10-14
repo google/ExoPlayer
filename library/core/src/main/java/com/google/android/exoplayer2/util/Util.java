@@ -336,7 +336,20 @@ public final class Util {
   }
 
   /**
-   * Concatenates two non-null type arrays.
+   * Creates a new array containing {@code original} with {@code newElement} appended.
+   *
+   * @param original The input array.
+   * @param newElement The element to append.
+   * @return The new array.
+   */
+  public static <T> T[] nullSafeArrayAppend(T[] original, T newElement) {
+    @NullableType T[] result = Arrays.copyOf(original, original.length + 1);
+    result[original.length] = newElement;
+    return castNonNullTypeArray(result);
+  }
+
+  /**
+   * Creates a new array containing the concatenation of two non-null type arrays.
    *
    * @param first The first array.
    * @param second The second array.
