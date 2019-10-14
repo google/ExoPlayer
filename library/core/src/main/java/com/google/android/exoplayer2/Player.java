@@ -535,7 +535,8 @@ public interface Player {
   /**
    * Reason why playback is suppressed even if {@link #getPlaybackState()} is {@link #STATE_READY}
    * and {@link #getPlayWhenReady()} is {@code true}. One of {@link
-   * #PLAYBACK_SUPPRESSION_REASON_NONE} or {@link #PLAYBACK_SUPPRESSION_REASON_AUDIO_FOCUS_LOSS}.
+   * #PLAYBACK_SUPPRESSION_REASON_NONE} or {@link
+   * #PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
