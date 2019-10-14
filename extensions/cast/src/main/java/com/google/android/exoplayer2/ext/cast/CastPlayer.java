@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.BasePlayer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
@@ -66,6 +67,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * <p>Methods should be called on the application's main thread.
  */
 public final class CastPlayer extends BasePlayer {
+
+  static {
+    ExoPlayerLibraryInfo.registerModule("goog.exo.cast");
+  }
 
   private static final String TAG = "CastPlayer";
 
