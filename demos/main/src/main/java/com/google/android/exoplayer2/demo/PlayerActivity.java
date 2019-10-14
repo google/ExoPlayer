@@ -107,6 +107,7 @@ public class PlayerActivity extends AppCompatActivity
 
   public static final String URI_EXTRA = "uri";
   public static final String EXTENSION_EXTRA = "extension";
+  public static final String IS_LIVE_EXTRA = "is_live";
 
   public static final String DRM_SCHEME_EXTRA = "drm_scheme";
   public static final String DRM_LICENSE_URL_EXTRA = "drm_license_url";

@@ -23,6 +23,7 @@ import static com.google.android.exoplayer2.demo.PlayerActivity.DRM_MULTI_SESSIO
 import static com.google.android.exoplayer2.demo.PlayerActivity.DRM_SCHEME_EXTRA;
 import static com.google.android.exoplayer2.demo.PlayerActivity.DRM_SCHEME_UUID_EXTRA;
 import static com.google.android.exoplayer2.demo.PlayerActivity.EXTENSION_EXTRA;
+import static com.google.android.exoplayer2.demo.PlayerActivity.IS_LIVE_EXTRA;
 import static com.google.android.exoplayer2.demo.PlayerActivity.URI_EXTRA;
 
 import android.content.Intent;
@@ -40,32 +41,38 @@ import java.util.UUID;
     public static UriSample createFromIntent(Uri uri, Intent intent, String extrasKeySuffix) {
       String extension = intent.getStringExtra(EXTENSION_EXTRA + extrasKeySuffix);
       String adsTagUriString = intent.getStringExtra(AD_TAG_URI_EXTRA + extrasKeySuffix);
+      boolean isLive =
+          intent.getBooleanExtra(IS_LIVE_EXTRA + extrasKeySuffix, /* defaultValue= */ false);
       Uri adTagUri = adsTagUriString != null ? Uri.parse(adsTagUriString) : null;
       return new UriSample(
           /* name= */ null,
-          DrmInfo.createFromIntent(intent, extrasKeySuffix),
           uri,
           extension,
+          isLive,
+          DrmInfo.createFromIntent(intent, extrasKeySuffix),
           adTagUri,
           /* sphericalStereoMode= */ null);
     }
 
     public final Uri uri;
     public final String extension;
+    public final boolean isLive;
     public final DrmInfo drmInfo;
     public final Uri adTagUri;
-    public final String sphericalStereoMode;
+    @Nullable public final String sphericalStereoMode;
 
     public UriSample(
         String name,
-        DrmInfo drmInfo,
         Uri uri,
         String extension,
+        boolean isLive,
+        DrmInfo drmInfo,
         Uri adTagUri,
-        String sphericalStereoMode) {
+        @Nullable String sphericalStereoMode) {
       super(name);
       this.uri = uri;
       this.extension = extension;
+      this.isLive = isLive;
       this.drmInfo = drmInfo;
       this.adTagUri = adTagUri;
       this.sphericalStereoMode = sphericalStereoMode;
@@ -74,12 +81,14 @@ import java.util.UUID;
     @Override
     public void addToIntent(Intent intent) {
       intent.setAction(PlayerActivity.ACTION_VIEW).setData(uri);
+      intent.putExtra(PlayerActivity.IS_LIVE_EXTRA, isLive);
       intent.putExtra(PlayerActivity.SPHERICAL_STEREO_MODE_EXTRA, sphericalStereoMode);
       addPlayerConfigToIntent(intent, /* extrasKeySuffix= */ "");
     }
 
     public void addToPlaylistIntent(Intent intent, String extrasKeySuffix) {
       intent.putExtra(PlayerActivity.URI_EXTRA + extrasKeySuffix, uri.toString());
+      intent.putExtra(PlayerActivity.IS_LIVE_EXTRA + extrasKeySuffix, isLive);
       addPlayerConfigToIntent(intent, extrasKeySuffix);
     }
 

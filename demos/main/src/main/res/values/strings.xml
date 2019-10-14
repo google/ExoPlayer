@@ -63,6 +63,8 @@
 
   <string name="download_scheme_unsupported">This demo app only supports downloading http streams</string>
 
+  <string name="download_live_unsupported">This demo app does not support downloading live content</string>
+
   <string name="download_ads_unsupported">IMA does not support offline ads</string>
 
   <string name="prefer_extension_decoders">Prefer extension decoders</string>
