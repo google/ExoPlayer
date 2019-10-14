@@ -267,7 +267,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     ArrayList<DrmInitData> sessionKeyDrmInitData = new ArrayList<>();
     ArrayList<String> tags = new ArrayList<>();
     Format muxedAudioFormat = null;
-    List<Format> muxedCaptionFormats = new ArrayList<>();
+    List<Format> muxedCaptionFormats = null;
     boolean noClosedCaptions = false;
     boolean hasIndependentSegmentsTag = false;
 
@@ -494,6 +494,9 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             mimeType = MimeTypes.APPLICATION_CEA708;
             accessibilityChannel = Integer.parseInt(instreamId.substring(7));
           }
+          if (muxedCaptionFormats == null) {
+            muxedCaptionFormats = new ArrayList<>();
+          }
           muxedCaptionFormats.add(
               Format.createTextContainerFormat(
                   /* id= */ formatId,
@@ -515,7 +518,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     }
 
     if (noClosedCaptions) {
-      muxedCaptionFormats.clear();
+      muxedCaptionFormats = Collections.emptyList();
     }
 
     return new HlsMasterPlaylist(

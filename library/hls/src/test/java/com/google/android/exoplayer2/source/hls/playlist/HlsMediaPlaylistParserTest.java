@@ -456,7 +456,7 @@ public class HlsMediaPlaylistParserTest {
             /* subtitles= */ Collections.emptyList(),
             /* closedCaptions= */ Collections.emptyList(),
             /* muxedAudioFormat= */ null,
-            /* muxedCaptionFormats= */ Collections.emptyList(),
+            /* muxedCaptionFormats= */ null,
             /* hasIndependentSegments= */ true,
             /* variableDefinitions= */ Collections.emptyMap(),
             /* sessionKeyDrmInitData= */ Collections.emptyList());
