@@ -200,7 +200,7 @@ public class HlsMasterPlaylistParserTest {
 
     List<HlsMasterPlaylist.Variant> variants = masterPlaylist.variants;
     assertThat(variants).hasSize(5);
-    assertThat(masterPlaylist.muxedCaptionFormats).isEmpty();
+    assertThat(masterPlaylist.muxedCaptionFormats).isNull();
 
     assertThat(variants.get(0).format.bitrate).isEqualTo(1280000);
     assertThat(variants.get(0).format.codecs).isEqualTo("mp4a.40.2,avc1.66.30");
