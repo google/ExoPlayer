@@ -177,8 +177,7 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
   @Nullable public final Format muxedAudioFormat;
   /**
    * The format of the closed captions declared by the playlist. May be empty if the playlist
-   * explicitly declares no captions are available, or null if the playlist does not declare any
-   * captions information.
+   * doesn't declare any caption information or explicitly declares no captions are available.
    */
   public final List<Format> muxedCaptionFormats;
   /** Contains variable definitions, as defined by the #EXT-X-DEFINE tag. */
@@ -223,8 +222,7 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
     this.subtitles = Collections.unmodifiableList(subtitles);
     this.closedCaptions = Collections.unmodifiableList(closedCaptions);
     this.muxedAudioFormat = muxedAudioFormat;
-    this.muxedCaptionFormats = muxedCaptionFormats != null
-        ? Collections.unmodifiableList(muxedCaptionFormats) : null;
+    this.muxedCaptionFormats = Collections.unmodifiableList(muxedCaptionFormats);
     this.variableDefinitions = Collections.unmodifiableMap(variableDefinitions);
     this.sessionKeyDrmInitData = Collections.unmodifiableList(sessionKeyDrmInitData);
   }
@@ -266,7 +264,7 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
         /* subtitles= */ Collections.emptyList(),
         /* closedCaptions= */ Collections.emptyList(),
         /* muxedAudioFormat= */ null,
-        /* muxedCaptionFormats= */ null,
+        /* muxedCaptionFormats= */ Collections.emptyList(),
         /* hasIndependentSegments= */ false,
         /* variableDefinitions= */ Collections.emptyMap(),
         /* sessionKeyDrmInitData= */ Collections.emptyList());

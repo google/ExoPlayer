@@ -635,10 +635,8 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
                       /* isPrimaryTrackInVariant= */ false)));
         }
         List<Format> ccFormats = masterPlaylist.muxedCaptionFormats;
-        if (ccFormats != null) {
-          for (int i = 0; i < ccFormats.size(); i++) {
-            muxedTrackGroups.add(new TrackGroup(ccFormats.get(i)));
-          }
+        for (int i = 0; i < ccFormats.size(); i++) {
+          muxedTrackGroups.add(new TrackGroup(ccFormats.get(i)));
         }
       } else if (variantsContainAudioCodecs) {
         // Variants only contain audio.
