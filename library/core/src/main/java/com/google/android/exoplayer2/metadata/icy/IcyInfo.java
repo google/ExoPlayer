@@ -33,7 +33,7 @@ public final class IcyInfo implements Metadata.Entry {
   @Nullable public final String url;
 
   /**
-   * Construct a new IcyInfo from the source metadata string, and optionally a StreamTitle &
+   * Construct a new IcyInfo from the source metadata string, and optionally a StreamTitle and
    * StreamUrl that have been extracted.
    *
    * @param rawMetadata See {@link #rawMetadata}.
