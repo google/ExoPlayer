@@ -34,7 +34,6 @@ import com.google.android.exoplayer2.ui.spherical.GlViewGroup;
 import com.google.android.exoplayer2.ui.spherical.PointerRenderer;
 import com.google.android.exoplayer2.ui.spherical.SceneRenderer;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.Util;
 import com.google.vr.ndk.base.DaydreamApi;
 import com.google.vr.sdk.base.AndroidCompat;
 import com.google.vr.sdk.base.Eye;
@@ -48,10 +47,7 @@ import com.google.vr.sdk.controller.Orientation;
 import javax.microedition.khronos.egl.EGLConfig;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/**
- * Base activity for VR 360 video playback. Before starting the video playback a player needs to be
- * set using {@link #setPlayer(Player)}.
- */
+/** Base activity for VR 360 video playback. */
 public abstract class GvrPlayerActivity extends GvrActivity {
 
   private static final int EXIT_FROM_VR_REQUEST_CODE = 42;
@@ -63,6 +59,7 @@ public abstract class GvrPlayerActivity extends GvrActivity {
   private @MonotonicNonNull SceneRenderer sceneRenderer;
   private @MonotonicNonNull PlayerControlView playerControlView;
 
+  @CallSuper
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -103,78 +100,12 @@ public abstract class GvrPlayerActivity extends GvrActivity {
     // using Daydream's exit transition.
     gvrView.setOnCloseButtonListener(this::finish);
 
-    ControllerManager.EventListener listener =
-        new ControllerManager.EventListener() {
-          @Override
-          public void onApiStatusChanged(int status) {
-            // Do nothing.
-          }
-
-          @Override
-          public void onRecentered() {
-            // TODO: If in cardboard mode call gvrView.recenterHeadTracker().
-            runOnUiThread(() -> Util.castNonNull(playerControlView).show());
-          }
-        };
-    controllerManager = new ControllerManager(this, listener);
+    controllerManager =
+        new ControllerManager(/* context= */ this, new ControllerManagerEventListener());
     Controller controller = controllerManager.getController();
     ControllerEventListener controllerEventListener =
         new ControllerEventListener(controller, pointerRenderer, glViewGroup);
     controller.setEventListener(controllerEventListener);
-  }
-
-  /**
-   * Sets the {@link Player} to use.
-   *
-   * @param newPlayer The {@link Player} to use, or {@code null} to detach the current player.
-   */
-  protected void setPlayer(@Nullable Player newPlayer) {
-    Assertions.checkNotNull(sceneRenderer);
-    if (player == newPlayer) {
-      return;
-    }
-    if (player != null) {
-      Player.VideoComponent videoComponent = player.getVideoComponent();
-      if (videoComponent != null) {
-        if (surface != null) {
-          videoComponent.clearVideoSurface(surface);
-        }
-        videoComponent.clearVideoFrameMetadataListener(sceneRenderer);
-        videoComponent.clearCameraMotionListener(sceneRenderer);
-      }
-    }
-    player = newPlayer;
-    if (player != null) {
-      Player.VideoComponent videoComponent = player.getVideoComponent();
-      if (videoComponent != null) {
-        videoComponent.setVideoFrameMetadataListener(sceneRenderer);
-        videoComponent.setCameraMotionListener(sceneRenderer);
-        videoComponent.setVideoSurface(surface);
-      }
-    }
-    Assertions.checkNotNull(playerControlView).setPlayer(player);
-  }
-
-  /**
-   * Sets the default stereo mode. If the played video doesn't contain a stereo mode the default one
-   * is used.
-   *
-   * @param stereoMode A {@link C.StereoMode} value.
-   */
-  protected void setDefaultStereoMode(@C.StereoMode int stereoMode) {
-    Assertions.checkNotNull(sceneRenderer).setDefaultStereoMode(stereoMode);
-  }
-
-  /**
-   * Returns the render target scale passed to {@link GvrView#setRenderTargetScale(float)}. Since
-   * videos typically have fewer pixels per degree than the phone displays, the target can normally
-   * be lower than 1 to reduce the amount of work required to render the scene. The default value is
-   * 0.5.
-   *
-   * @return The render target scale passed to {@link GvrView#setRenderTargetScale(float)}.
-   */
-  protected float getRenderTargetScale() {
-    return 0.5f;
   }
 
   @CallSuper
@@ -185,23 +116,61 @@ public abstract class GvrPlayerActivity extends GvrActivity {
     }
   }
 
+  @CallSuper
   @Override
   protected void onResume() {
     super.onResume();
-    Util.castNonNull(controllerManager).start();
+    player = createPlayer();
+    Player.VideoComponent videoComponent = player.getVideoComponent();
+    if (videoComponent != null) {
+      videoComponent.setVideoFrameMetadataListener(Assertions.checkNotNull(sceneRenderer));
+      videoComponent.setCameraMotionListener(sceneRenderer);
+      videoComponent.setVideoSurface(surface);
+    }
+    Assertions.checkNotNull(playerControlView).setPlayer(player);
+    Assertions.checkNotNull(controllerManager).start();
   }
 
+  @CallSuper
   @Override
   protected void onPause() {
-    Util.castNonNull(controllerManager).stop();
+    Assertions.checkNotNull(controllerManager).stop();
+    Assertions.checkNotNull(playerControlView).setPlayer(null);
+    Assertions.checkNotNull(player).release();
+    player = null;
     super.onPause();
   }
 
+  @CallSuper
   @Override
   protected void onDestroy() {
-    setPlayer(null);
     releaseSurface(surfaceTexture, surface);
     super.onDestroy();
+  }
+
+  /**
+   * Called by {@link #onCreate(Bundle)} to get the render target scale value that will be passed to
+   * {@link GvrView#setRenderTargetScale(float)}. Since videos typically have fewer pixels per
+   * degree than the phone displays, the target can normally be lower than 1 to reduce the amount of
+   * work required to render the scene. The default value is 0.5.
+   *
+   * @return The render target scale value that will be passed to {@link
+   *     GvrView#setRenderTargetScale(float)}.
+   */
+  protected float getRenderTargetScale() {
+    return 0.5f;
+  }
+
+  /** Called by {@link #onResume()} to create a player instance for this activity to use. */
+  protected abstract Player createPlayer();
+
+  /**
+   * Sets the stereo mode that will be used for video content that does not specify its own mode.
+   *
+   * @param stereoMode The default {@link C.StereoMode}.
+   */
+  protected void setDefaultStereoMode(@C.StereoMode int stereoMode) {
+    Assertions.checkNotNull(sceneRenderer).setDefaultStereoMode(stereoMode);
   }
 
   /** Tries to exit gracefully from VR using a VR transition dialog. */
@@ -211,7 +180,7 @@ public abstract class GvrPlayerActivity extends GvrActivity {
     if (daydreamApi != null) {
       // Use Daydream's exit transition to avoid disorienting the user. This will cause
       // onActivityResult to be called.
-      daydreamApi.exitFromVr(/* activity= */ this, EXIT_FROM_VR_REQUEST_CODE, /* intent= */ null);
+      daydreamApi.exitFromVr(/* activity= */ this, EXIT_FROM_VR_REQUEST_CODE, /* data= */ null);
       daydreamApi.close();
     } else {
       finish();
@@ -354,6 +323,20 @@ public abstract class GvrPlayerActivity extends GvrActivity {
       if (action == MotionEvent.ACTION_DOWN && !clickedOnView) {
         togglePlayerControlVisibility();
       }
+    }
+  }
+
+  private final class ControllerManagerEventListener implements ControllerManager.EventListener {
+
+    @Override
+    public void onApiStatusChanged(int status) {
+      // Do nothing.
+    }
+
+    @Override
+    public void onRecentered() {
+      // TODO: If in cardboard mode call gvrView.recenterHeadTracker().
+      runOnUiThread(() -> Assertions.checkNotNull(playerControlView).show());
     }
   }
 }
