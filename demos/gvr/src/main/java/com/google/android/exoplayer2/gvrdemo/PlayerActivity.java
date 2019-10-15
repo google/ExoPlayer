@@ -24,7 +24,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.C.ContentType;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.ext.gvr.GvrPlayerActivity;
@@ -44,7 +43,7 @@ import com.google.android.exoplayer2.util.EventLogger;
 import com.google.android.exoplayer2.util.Util;
 
 /** An activity that plays media using {@link SimpleExoPlayer}. */
-public class PlayerActivity extends GvrPlayerActivity implements PlaybackPreparer {
+public class PlayerActivity extends GvrPlayerActivity {
 
   public static final String EXTENSION_EXTRA = "extension";
 
@@ -106,18 +105,6 @@ public class PlayerActivity extends GvrPlayerActivity implements PlaybackPrepare
     if (Util.SDK_INT <= 23) {
       releasePlayer();
     }
-  }
-
-  @Override
-  public void onDestroy() {
-    super.onDestroy();
-  }
-
-  // PlaybackControlView.PlaybackPreparer implementation
-
-  @Override
-  public void preparePlayback() {
-    initializePlayer();
   }
 
   // Internal methods
