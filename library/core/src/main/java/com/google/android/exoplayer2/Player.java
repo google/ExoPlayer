@@ -533,9 +533,8 @@ public interface Player {
   int STATE_ENDED = 4;
 
   /**
-   * Reason why playback is suppressed even if {@link #getPlaybackState()} is {@link #STATE_READY}
-   * and {@link #getPlayWhenReady()} is {@code true}. One of {@link
-   * #PLAYBACK_SUPPRESSION_REASON_NONE} or {@link
+   * Reason why playback is suppressed even though {@link #getPlayWhenReady()} is {@code true}. One
+   * of {@link #PLAYBACK_SUPPRESSION_REASON_NONE} or {@link
    * #PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS}.
    */
   @Documented
