@@ -21,14 +21,14 @@ for more information).
 In addition, it's necessary to build the extension's native components as
 follows:
 
-* Set the following environment variables:
+* Set the following shell variable:
 
 ```
 cd "<path to exoplayer checkout>"
 FFMPEG_EXT_PATH="$(pwd)/extensions/ffmpeg/src/main/jni"
 ```
 
-* Download the [Android NDK][] and set its location in an environment variable.
+* Download the [Android NDK][] and set its location in a shell variable.
   Only versions up to NDK 15c are supported currently.
 
 ```
@@ -41,70 +41,21 @@ NDK_PATH="<path to Android NDK>"
 HOST_PLATFORM="linux-x86_64"
 ```
 
-* Fetch and build FFmpeg. The configuration flags determine which formats will
-  be supported. See the [Supported formats][] page for more details of the
-  available flags.
-
-For example, to fetch and build FFmpeg release 4.0 for armeabi-v7a,
-  arm64-v8a and x86 on Linux x86_64:
+* Configure the formats supported by adapting the following variable if needed
+  and by setting it. See the [Supported formats][] page for more details of the
+  formats.
 
 ```
-COMMON_OPTIONS="\
-    --target-os=android \
-    --disable-static \
-    --enable-shared \
-    --disable-doc \
-    --disable-programs \
-    --disable-everything \
-    --disable-avdevice \
-    --disable-avformat \
-    --disable-swscale \
-    --disable-postproc \
-    --disable-avfilter \
-    --disable-symver \
-    --disable-swresample \
-    --enable-avresample \
-    --enable-decoder=vorbis \
-    --enable-decoder=opus \
-    --enable-decoder=flac \
-    " && \
+ENABLED_DECODERS=(vorbis opus flac)
+```
+
+* Fetch and build FFmpeg. For example, executing script `build_ffmpeg.sh` will
+  fetch and build FFmpeg release 4.0 for armeabi-v7a, arm64-v8a and x86:
+
+```
 cd "${FFMPEG_EXT_PATH}" && \
-(git -C ffmpeg pull || git clone git://source.ffmpeg.org/ffmpeg ffmpeg) && \
-cd ffmpeg && git checkout release/4.0 && \
-./configure \
-    --libdir=android-libs/armeabi-v7a \
-    --arch=arm \
-    --cpu=armv7-a \
-    --cross-prefix="${NDK_PATH}/toolchains/arm-linux-androideabi-4.9/prebuilt/${HOST_PLATFORM}/bin/arm-linux-androideabi-" \
-    --sysroot="${NDK_PATH}/platforms/android-9/arch-arm/" \
-    --extra-cflags="-march=armv7-a -mfloat-abi=softfp" \
-    --extra-ldflags="-Wl,--fix-cortex-a8" \
-    --extra-ldexeflags=-pie \
-    ${COMMON_OPTIONS} \
-    && \
-make -j4 && make install-libs && \
-make clean && ./configure \
-    --libdir=android-libs/arm64-v8a \
-    --arch=aarch64 \
-    --cpu=armv8-a \
-    --cross-prefix="${NDK_PATH}/toolchains/aarch64-linux-android-4.9/prebuilt/${HOST_PLATFORM}/bin/aarch64-linux-android-" \
-    --sysroot="${NDK_PATH}/platforms/android-21/arch-arm64/" \
-    --extra-ldexeflags=-pie \
-    ${COMMON_OPTIONS} \
-    && \
-make -j4 && make install-libs && \
-make clean && ./configure \
-    --libdir=android-libs/x86 \
-    --arch=x86 \
-    --cpu=i686 \
-    --cross-prefix="${NDK_PATH}/toolchains/x86-4.9/prebuilt/${HOST_PLATFORM}/bin/i686-linux-android-" \
-    --sysroot="${NDK_PATH}/platforms/android-9/arch-x86/" \
-    --extra-ldexeflags=-pie \
-    --disable-asm \
-    ${COMMON_OPTIONS} \
-    && \
-make -j4 && make install-libs && \
-make clean
+./build_ffmpeg.sh \
+  "${FFMPEG_EXT_PATH}" "${NDK_PATH}" "${HOST_PLATFORM}" "${ENABLED_DECODERS[@]}"
 ```
 
 * Build the JNI native libraries, setting `APP_ABI` to include the architectures
