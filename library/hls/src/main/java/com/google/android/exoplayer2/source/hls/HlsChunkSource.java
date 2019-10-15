@@ -43,10 +43,10 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/**
- * Source of Hls (possibly adaptive) chunks.
- */
+/** Source of Hls (possibly adaptive) chunks. */
 /* package */ class HlsChunkSource {
 
   /**
@@ -99,8 +99,8 @@ import java.util.List;
 
   private boolean isTimestampMaster;
   private byte[] scratchSpace;
-  private IOException fatalError;
-  private Uri expectedPlaylistUrl;
+  @Nullable private IOException fatalError;
+  @Nullable private Uri expectedPlaylistUrl;
   private boolean independentSegments;
 
   // Note: The track group in the selection is typically *not* equal to trackGroup. This is due to
@@ -135,7 +135,7 @@ import java.util.List;
       HlsDataSourceFactory dataSourceFactory,
       @Nullable TransferListener mediaTransferListener,
       TimestampAdjusterProvider timestampAdjusterProvider,
-      @Nullable List<Format> muxedCaptionFormats) {
+      List<Format> muxedCaptionFormats) {
     this.extractorFactory = extractorFactory;
     this.playlistTracker = playlistTracker;
     this.playlistUrls = playlistUrls;
@@ -143,6 +143,7 @@ import java.util.List;
     this.timestampAdjusterProvider = timestampAdjusterProvider;
     this.muxedCaptionFormats = muxedCaptionFormats;
     keyCache = new FullSegmentEncryptionKeyCache();
+    scratchSpace = Util.EMPTY_BYTE_ARRAY;
     liveEdgeInPeriodTimeUs = C.TIME_UNSET;
     mediaDataSource = dataSourceFactory.createDataSource(C.DATA_TYPE_MEDIA);
     if (mediaTransferListener != null) {
@@ -270,6 +271,8 @@ import java.util.List;
     }
     HlsMediaPlaylist mediaPlaylist =
         playlistTracker.getPlaylistSnapshot(selectedPlaylistUrl, /* isForPlayback= */ true);
+    // playlistTracker snapshot is valid (checked by if() above), so mediaPlaylist must be non-null.
+    Assertions.checkNotNull(mediaPlaylist);
     independentSegments = mediaPlaylist.hasIndependentSegments;
 
     updateLiveEdgeTimeUs(mediaPlaylist);
@@ -285,8 +288,11 @@ import java.util.List;
         // behind the live window.
         selectedTrackIndex = oldTrackIndex;
         selectedPlaylistUrl = playlistUrls[selectedTrackIndex];
-        mediaPlaylist =
-            playlistTracker.getPlaylistSnapshot(selectedPlaylistUrl, /* isForPlayback= */ true);
+      mediaPlaylist =
+          playlistTracker.getPlaylistSnapshot(selectedPlaylistUrl, /* isForPlayback= */ true);
+      // playlistTracker snapshot is valid (checked by if() above), so mediaPlaylist must be
+      // non-null.
+      Assertions.checkNotNull(mediaPlaylist);
         startOfPlaylistInPeriodUs =
             mediaPlaylist.startTimeUs - playlistTracker.getInitialStartTimeUs();
         chunkMediaSequence = previous.getNextChunkIndex();
@@ -361,7 +367,8 @@ import java.util.List;
     if (chunk instanceof EncryptionKeyChunk) {
       EncryptionKeyChunk encryptionKeyChunk = (EncryptionKeyChunk) chunk;
       scratchSpace = encryptionKeyChunk.getDataHolder();
-      keyCache.put(encryptionKeyChunk.dataSpec.uri, encryptionKeyChunk.getResult());
+      keyCache.put(
+          encryptionKeyChunk.dataSpec.uri, Assertions.checkNotNull(encryptionKeyChunk.getResult()));
     }
   }
 
@@ -427,6 +434,8 @@ import java.util.List;
       }
       HlsMediaPlaylist playlist =
           playlistTracker.getPlaylistSnapshot(playlistUrl, /* isForPlayback= */ false);
+      // Playlist snapshot is valid (checked by if() above) so playlist must be non-null.
+      Assertions.checkNotNull(playlist);
       long startOfPlaylistInPeriodUs =
           playlist.startTimeUs - playlistTracker.getInitialStartTimeUs();
       boolean switchingTrack = trackIndex != oldTrackIndex;
@@ -504,11 +513,13 @@ import java.util.List;
     if (keyUri == null) {
       return null;
     }
-    if (keyCache.containsUri(keyUri)) {
-      // The key is present in the key cache. We re-insert it to prevent it from being evicted by
+
+    byte[] encryptionKey = keyCache.remove(keyUri);
+    if (encryptionKey != null) {
+      // The key was present in the key cache. We re-insert it to prevent it from being evicted by
       // the following key addition. Note that removal of the key is necessary to affect the
       // eviction order.
-      keyCache.put(keyUri, keyCache.remove(keyUri));
+      keyCache.put(keyUri, encryptionKey);
       return null;
     }
     DataSpec dataSpec = new DataSpec(keyUri, 0, C.LENGTH_UNSET, null, DataSpec.FLAG_ALLOW_GZIP);
@@ -576,6 +587,7 @@ import java.util.List;
     }
 
     @Override
+    @Nullable
     public Object getSelectionData() {
       return null;
     }
@@ -584,14 +596,14 @@ import java.util.List;
 
   private static final class EncryptionKeyChunk extends DataChunk {
 
-    private byte[] result;
+    private byte @MonotonicNonNull [] result;
 
     public EncryptionKeyChunk(
         DataSource dataSource,
         DataSpec dataSpec,
         Format trackFormat,
         int trackSelectionReason,
-        Object trackSelectionData,
+        @Nullable Object trackSelectionData,
         byte[] scratchSpace) {
       super(dataSource, dataSpec, C.DATA_TYPE_DRM, trackFormat, trackSelectionReason,
           trackSelectionData, scratchSpace);
@@ -602,6 +614,8 @@ import java.util.List;
       result = Arrays.copyOf(data, limit);
     }
 
+    /** Return the result of this chunk, or null if loading is not complete. */
+    @Nullable
     public byte[] getResult() {
       return result;
     }
@@ -670,7 +684,7 @@ import java.util.List;
               /* loadFactor= */ 1,
               /* accessOrder= */ false) {
             @Override
-            protected boolean removeEldestEntry(Entry<Uri, byte[]> eldest) {
+            protected boolean removeEldestEntry(Map.Entry<Uri, byte[]> eldest) {
               return size() > KEY_CACHE_SIZE;
             }
           };
