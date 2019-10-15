@@ -39,9 +39,14 @@ import java.util.Arrays;
      * The default start position of the item in microseconds, or {@link C#TIME_UNSET} if unknown.
      */
     public final long defaultPositionUs;
+    /** Whether the item is live content, or {@code false} if unknown. */
+    public final boolean isLive;
 
     private ItemData() {
-      this(/* durationUs= */ C.TIME_UNSET, /* defaultPositionUs */ C.TIME_UNSET);
+      this(
+          /* durationUs= */ C.TIME_UNSET, /* defaultPositionUs */
+          C.TIME_UNSET,
+          /* isLive= */ false);
     }
 
     /**
@@ -49,26 +54,29 @@ import java.util.Arrays;
      *
      * @param durationUs See {@link #durationsUs}.
      * @param defaultPositionUs See {@link #defaultPositionUs}.
+     * @param isLive See {@link #isLive}.
      */
-    public ItemData(long durationUs, long defaultPositionUs) {
+    public ItemData(long durationUs, long defaultPositionUs, boolean isLive) {
       this.durationUs = durationUs;
       this.defaultPositionUs = defaultPositionUs;
+      this.isLive = isLive;
     }
 
-    /** Returns an instance with the given {@link #durationsUs}. */
-    public ItemData copyWithDurationUs(long durationUs) {
-      if (durationUs == this.durationUs) {
+    /**
+     * Returns a copy of this instance with the given values.
+     *
+     * @param durationUs The duration in microseconds, or {@link C#TIME_UNSET} if unknown.
+     * @param defaultPositionUs The default start position in microseconds, or {@link C#TIME_UNSET}
+     *     if unknown.
+     * @param isLive Whether the item is live, or {@code false} if unknown.
+     */
+    public ItemData copyWithNewValues(long durationUs, long defaultPositionUs, boolean isLive) {
+      if (durationUs == this.durationUs
+          && defaultPositionUs == this.defaultPositionUs
+          && isLive == this.isLive) {
         return this;
       }
-      return new ItemData(durationUs, defaultPositionUs);
-    }
-
-    /** Returns an instance with the given {@link #defaultPositionsUs}. */
-    public ItemData copyWithDefaultPositionUs(long defaultPositionUs) {
-      if (defaultPositionUs == this.defaultPositionUs) {
-        return this;
-      }
-      return new ItemData(durationUs, defaultPositionUs);
+      return new ItemData(durationUs, defaultPositionUs, isLive);
     }
   }
 
@@ -80,6 +88,7 @@ import java.util.Arrays;
   private final int[] ids;
   private final long[] durationsUs;
   private final long[] defaultPositionsUs;
+  private final boolean[] isLive;
 
   /**
    * Creates a Cast timeline from the given data.
@@ -93,12 +102,14 @@ import java.util.Arrays;
     ids = Arrays.copyOf(itemIds, itemCount);
     durationsUs = new long[itemCount];
     defaultPositionsUs = new long[itemCount];
+    isLive = new boolean[itemCount];
     for (int i = 0; i < ids.length; i++) {
       int id = ids[i];
       idsToIndex.put(id, i);
       ItemData data = itemIdToData.get(id, ItemData.EMPTY);
       durationsUs[i] = data.durationUs;
-      defaultPositionsUs[i] = data.defaultPositionUs;
+      defaultPositionsUs[i] = data.defaultPositionUs == C.TIME_UNSET ? 0 : data.defaultPositionUs;
+      isLive[i] = data.isLive;
     }
   }
 
@@ -121,7 +132,7 @@ import java.util.Arrays;
         /* windowStartTimeMs= */ C.TIME_UNSET,
         /* isSeekable= */ !isDynamic,
         isDynamic,
-        /* isLive= */ isDynamic,
+        isLive[windowIndex],
         defaultPositionsUs[windowIndex],
         durationUs,
         /* firstPeriodIndex= */ windowIndex,
@@ -162,7 +173,8 @@ import java.util.Arrays;
     CastTimeline that = (CastTimeline) other;
     return Arrays.equals(ids, that.ids)
         && Arrays.equals(durationsUs, that.durationsUs)
-        && Arrays.equals(defaultPositionsUs, that.defaultPositionsUs);
+        && Arrays.equals(defaultPositionsUs, that.defaultPositionsUs)
+        && Arrays.equals(isLive, that.isLive);
   }
 
   @Override
@@ -170,6 +182,7 @@ import java.util.Arrays;
     int result = Arrays.hashCode(ids);
     result = 31 * result + Arrays.hashCode(durationsUs);
     result = 31 * result + Arrays.hashCode(defaultPositionsUs);
+    result = 31 * result + Arrays.hashCode(isLive);
     return result;
   }
 
