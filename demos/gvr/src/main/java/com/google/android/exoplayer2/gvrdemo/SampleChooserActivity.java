@@ -44,47 +44,6 @@ public class SampleChooserActivity extends Activity {
             "Iceland (360 top-bottom stereo ts)",
             "https://storage.googleapis.com/exoplayer-test-media-1/360/iceland0.ts",
             SPHERICAL_STEREO_MODE_TOP_BOTTOM),
-        new Sample(
-            "Camera motion metadata test",
-            "https://storage.googleapis.com/exoplayer-test-media-internal-"
-                + "63834241aced7884c2544af1a3452e01/vr180/synthetic_with_camm.mp4",
-            SPHERICAL_STEREO_MODE_TOP_BOTTOM),
-        new Sample(
-            "actual_camera_cat",
-            "https://storage.googleapis.com/exoplayer-test-media-internal-"
-                + "63834241aced7884c2544af1a3452e01/vr180/actual_camera_cat.mp4",
-            SPHERICAL_STEREO_MODE_TOP_BOTTOM),
-        new Sample(
-            "johnny_stitched",
-            "https://storage.googleapis.com/exoplayer-test-media-internal-"
-                + "63834241aced7884c2544af1a3452e01/vr180/johnny_stitched.mp4",
-            SPHERICAL_STEREO_MODE_TOP_BOTTOM),
-        new Sample(
-            "lenovo_birds.vr",
-            "https://storage.googleapis.com/exoplayer-test-media-internal-"
-                + "63834241aced7884c2544af1a3452e01/vr180/lenovo_birds.vr.mp4",
-            SPHERICAL_STEREO_MODE_TOP_BOTTOM),
-        new Sample(
-            "mono_v1_sample",
-            "https://storage.googleapis.com/exoplayer-test-media-internal-"
-                + "63834241aced7884c2544af1a3452e01/vr180/mono_v1_sample.mp4",
-            SPHERICAL_STEREO_MODE_MONO),
-        new Sample(
-            "not_vr180_actually_shot_with_moto_mod",
-            "https://storage.googleapis.com/exoplayer-test-media-internal-"
-                + "63834241aced7884c2544af1a3452e01/vr180/"
-                + "not_vr180_actually_shot_with_moto_mod.mp4",
-            SPHERICAL_STEREO_MODE_TOP_BOTTOM),
-        new Sample(
-            "stereo_v1_sample",
-            "https://storage.googleapis.com/exoplayer-test-media-internal-"
-                + "63834241aced7884c2544af1a3452e01/vr180/stereo_v1_sample.mp4",
-            SPHERICAL_STEREO_MODE_TOP_BOTTOM),
-        new Sample(
-            "yi_giraffes.vr",
-            "https://storage.googleapis.com/exoplayer-test-media-internal-"
-                + "63834241aced7884c2544af1a3452e01/vr180/yi_giraffes.vr.mp4",
-            SPHERICAL_STEREO_MODE_TOP_BOTTOM),
       };
 
   @Override
