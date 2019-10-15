@@ -13,6 +13,8 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<resources>
-  <style name="VrTheme" parent="android:Theme.Material"/>
-</resources>
+<com.google.android.exoplayer2.ui.PlayerControlView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/controller"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"/>

@@ -55,7 +55,7 @@ public final class SphericalSurfaceView extends GLSurfaceView {
 
   // Arbitrary vertical field of view.
   private static final int FIELD_OF_VIEW_DEGREES = 90;
-  private static final float Z_NEAR = .1f;
+  private static final float Z_NEAR = 0.1f;
   private static final float Z_FAR = 100;
 
   // TODO Calculate this depending on surface size and field of view.
@@ -84,7 +84,7 @@ public final class SphericalSurfaceView extends GLSurfaceView {
     // Configure sensors and touch.
     sensorManager =
         (SensorManager) Assertions.checkNotNull(context.getSystemService(Context.SENSOR_SERVICE));
-    Sensor orientationSensor = null;
+    @Nullable Sensor orientationSensor = null;
     if (Util.SDK_INT >= 18) {
       // TYPE_GAME_ROTATION_VECTOR is the easiest sensor since it handles all the complex math for
       // fusion. It's used instead of TYPE_ROTATION_VECTOR since the latter uses the magnetometer on
