@@ -43,7 +43,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Source of Hls (possibly adaptive) chunks.
@@ -505,7 +504,7 @@ import java.util.Map;
     if (keyUri == null) {
       return null;
     }
-    if (keyCache.containsKey(keyUri)) {
+    if (keyCache.containsUri(keyUri)) {
       // The key is present in the key cache. We re-insert it to prevent it from being evicted by
       // the following key addition. Note that removal of the key is necessary to affect the
       // eviction order.
@@ -660,29 +659,63 @@ import java.util.Map;
    * addition, once the cache's size exceeds {@link #KEY_CACHE_SIZE}, the oldest item (according to
    * insertion order) is removed.
    */
-  private static final class FullSegmentEncryptionKeyCache extends LinkedHashMap<Uri, byte[]> {
+  private static final class FullSegmentEncryptionKeyCache {
+
+    private final LinkedHashMap<Uri, byte[]> backingMap;
 
     public FullSegmentEncryptionKeyCache() {
-      super(
-          /* initialCapacity= */ KEY_CACHE_SIZE * 2, /* loadFactor= */ 1, /* accessOrder= */ false);
+      backingMap =
+          new LinkedHashMap<Uri, byte[]>(
+              /* initialCapacity= */ KEY_CACHE_SIZE + 1,
+              /* loadFactor= */ 1,
+              /* accessOrder= */ false) {
+            @Override
+            protected boolean removeEldestEntry(Entry<Uri, byte[]> eldest) {
+              return size() > KEY_CACHE_SIZE;
+            }
+          };
     }
 
-    @Override
-    public byte[] get(Object keyUri) {
-      if (keyUri == null) {
+    /**
+     * Returns the {@code encryptionKey} cached against this {@code uri}, or null if {@code uri} is
+     * null or not present in the cache.
+     */
+    @Nullable
+    public byte[] get(@Nullable Uri uri) {
+      if (uri == null) {
         return null;
       }
-      return super.get(keyUri);
+      return backingMap.get(uri);
     }
 
-    @Override
-    public byte[] put(Uri keyUri, byte[] key) {
-      return super.put(keyUri, Assertions.checkNotNull(key));
+    /**
+     * Inserts an entry into the cache.
+     *
+     * @throws NullPointerException if {@code uri} or {@code encryptionKey} are null.
+     */
+    @Nullable
+    public byte[] put(Uri uri, byte[] encryptionKey) {
+      return backingMap.put(Assertions.checkNotNull(uri), Assertions.checkNotNull(encryptionKey));
     }
 
-    @Override
-    protected boolean removeEldestEntry(Map.Entry<Uri, byte[]> entry) {
-      return size() > KEY_CACHE_SIZE;
+    /**
+     * Returns true if {@code uri} is present in the cache.
+     *
+     * @throws NullPointerException if {@code uri} is null.
+     */
+    public boolean containsUri(Uri uri) {
+      return backingMap.containsKey(Assertions.checkNotNull(uri));
+    }
+
+    /**
+     * Removes {@code uri} from the cache. If {@code uri} was present in the cahce, this returns the
+     * corresponding {@code encryptionKey}, otherwise null.
+     *
+     * @throws NullPointerException if {@code uri} is null.
+     */
+    @Nullable
+    public byte[] remove(Uri uri) {
+      return backingMap.remove(Assertions.checkNotNull(uri));
     }
   }
 }
