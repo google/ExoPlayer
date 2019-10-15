@@ -1562,7 +1562,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           // https://github.com/google/ExoPlayer/issues/4419,
           // https://github.com/google/ExoPlayer/issues/4460,
           // https://github.com/google/ExoPlayer/issues/4468,
-          // https://github.com/google/ExoPlayer/issues/5312.
+          // https://github.com/google/ExoPlayer/issues/5312,
+          // https://github.com/google/ExoPlayer/issues/6503.
           switch (Util.DEVICE) {
             case "1601":
             case "1713":
@@ -1629,6 +1630,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
             case "JGZ":
             case "K50a40":
             case "kate":
+            case "l5460":
             case "le_x6":
             case "LS-5017":
             case "M5c":
@@ -1698,6 +1700,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           switch (Util.MODEL) {
             case "AFTA":
             case "AFTN":
+            case "JSN-L21":
               deviceNeedsSetOutputSurfaceWorkaround = true;
               break;
             default:
