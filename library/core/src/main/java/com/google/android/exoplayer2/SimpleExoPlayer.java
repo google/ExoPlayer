@@ -322,6 +322,7 @@ public class SimpleExoPlayer extends BasePlayer
   private final BandwidthMeter bandwidthMeter;
   private final AnalyticsCollector analyticsCollector;
 
+  private final AudioBecomingNoisyManager audioBecomingNoisyManager;
   private final AudioFocusManager audioFocusManager;
   private final WakeLockManager wakeLockManager;
 
@@ -453,6 +454,7 @@ public class SimpleExoPlayer extends BasePlayer
     if (drmSessionManager instanceof DefaultDrmSessionManager) {
       ((DefaultDrmSessionManager) drmSessionManager).addListener(eventHandler, analyticsCollector);
     }
+    audioBecomingNoisyManager = new AudioBecomingNoisyManager(context, componentListener);
     audioFocusManager = new AudioFocusManager(context, componentListener);
     wakeLockManager = new WakeLockManager(context);
   }
@@ -763,6 +765,18 @@ public class SimpleExoPlayer extends BasePlayer
   public void removeAnalyticsListener(AnalyticsListener listener) {
     verifyApplicationThread();
     analyticsCollector.removeListener(listener);
+  }
+
+  /**
+   * Sets whether the player should pause automatically when audio is rerouted from a headset to
+   * device speakers. See the <a
+   * href="https://developer.android.com/guide/topics/media-apps/volume-and-earphones#becoming-noisy">audio
+   * becoming noisy</a> documentation for more information.
+   *
+   * @param handleAudioBecomingNoisy True if the player should handle audio becoming noisy.
+   */
+  public void setHandleAudioBecomingNoisy(boolean handleAudioBecomingNoisy) {
+    audioBecomingNoisyManager.setEnabled(handleAudioBecomingNoisy);
   }
 
   /**
@@ -1476,6 +1490,7 @@ public class SimpleExoPlayer extends BasePlayer
           SurfaceHolder.Callback,
           TextureView.SurfaceTextureListener,
           AudioFocusManager.PlayerControl,
+          AudioBecomingNoisyManager.EventListener,
           Player.EventListener {
 
     // VideoRendererEventListener implementation
@@ -1685,6 +1700,13 @@ public class SimpleExoPlayer extends BasePlayer
     @Override
     public void executePlayerCommand(@AudioFocusManager.PlayerCommand int playerCommand) {
       updatePlayWhenReady(getPlayWhenReady(), playerCommand);
+    }
+
+    // AudioBecomingNoisyManager.EventListener implementation.
+
+    @Override
+    public void onAudioBecomingNoisy() {
+      setPlayWhenReady(false);
     }
 
     // Player.EventListener implementation.
