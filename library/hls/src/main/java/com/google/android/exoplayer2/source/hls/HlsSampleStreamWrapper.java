@@ -66,6 +66,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
@@ -233,7 +234,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    */
   public void prepareWithMasterPlaylistInfo(
       TrackGroup[] trackGroups, int primaryTrackGroupIndex, int... optionalTrackGroupsIndices) {
-    prepared = true;
     this.trackGroups = createTrackGroupArrayWithDrmInfo(trackGroups);
     optionalTrackGroups = new HashSet<>();
     for (int optionalTrackGroupIndex : optionalTrackGroupsIndices) {
@@ -241,6 +241,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
     this.primaryTrackGroupIndex = primaryTrackGroupIndex;
     handler.post(callback::onPrepared);
+    setIsPrepared();
   }
 
   public void maybeThrowPrepareError() throws IOException {
@@ -251,6 +252,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   public TrackGroupArray getTrackGroups() {
+    assertIsPrepared();
     return trackGroups;
   }
 
@@ -259,6 +261,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   public int bindSampleQueueToSampleStream(int trackGroupIndex) {
+    assertIsPrepared();
+
     int sampleQueueIndex = trackGroupToSampleQueueIndex[trackGroupIndex];
     if (sampleQueueIndex == C.INDEX_UNSET) {
       return optionalTrackGroups.contains(trackGroups.get(trackGroupIndex))
@@ -274,6 +278,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   public void unbindSampleQueue(int trackGroupIndex) {
+    assertIsPrepared();
     int sampleQueueIndex = trackGroupToSampleQueueIndex[trackGroupIndex];
     Assertions.checkState(sampleQueuesEnabledStates[sampleQueueIndex]);
     sampleQueuesEnabledStates[sampleQueueIndex] = false;
@@ -303,7 +308,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       boolean[] streamResetFlags,
       long positionUs,
       boolean forceReset) {
-    Assertions.checkState(prepared);
+    assertIsPrepared();
     int oldEnabledTrackGroupCount = enabledTrackGroupCount;
     // Deselect old tracks.
     for (int i = 0; i < selections.length; i++) {
@@ -1001,7 +1006,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     } else {
       // Tracks are created using media segment information.
       buildTracksFromSampleStreams();
-      prepared = true;
+      setIsPrepared();
       callback.onPrepared();
     }
   }
@@ -1171,6 +1176,18 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       }
     }
     return true;
+  }
+
+  @RequiresNonNull({"trackGroups", "optionalTrackGroups"})
+  private void setIsPrepared() {
+    prepared = true;
+  }
+
+  @EnsuresNonNull({"trackGroups", "optionalTrackGroups"})
+  private void assertIsPrepared() {
+    Assertions.checkState(prepared);
+    Assertions.checkNotNull(trackGroups);
+    Assertions.checkNotNull(optionalTrackGroups);
   }
 
   /**
