@@ -735,7 +735,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
       Uri[] playlistUrls,
       Format[] playlistFormats,
       Format muxedAudioFormat,
-      List<Format> muxedCaptionFormats,
+      @Nullable List<Format> muxedCaptionFormats,
       Map<String, DrmInitData> overridingDrmInitData,
       long positionUs) {
     HlsChunkSource defaultChunkSource =
