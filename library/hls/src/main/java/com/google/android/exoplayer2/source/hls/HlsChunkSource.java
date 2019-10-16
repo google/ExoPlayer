@@ -94,7 +94,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final Format[] playlistFormats;
   private final HlsPlaylistTracker playlistTracker;
   private final TrackGroup trackGroup;
-  private final List<Format> muxedCaptionFormats;
+  @Nullable private final List<Format> muxedCaptionFormats;
   private final FullSegmentEncryptionKeyCache keyCache;
 
   private boolean isTimestampMaster;
@@ -135,7 +135,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       HlsDataSourceFactory dataSourceFactory,
       @Nullable TransferListener mediaTransferListener,
       TimestampAdjusterProvider timestampAdjusterProvider,
-      List<Format> muxedCaptionFormats) {
+      @Nullable List<Format> muxedCaptionFormats) {
     this.extractorFactory = extractorFactory;
     this.playlistTracker = playlistTracker;
     this.playlistUrls = playlistUrls;
