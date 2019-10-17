@@ -433,18 +433,13 @@ public final class MediaCodecInfo {
   @TargetApi(21)
   public Point alignVideoSizeV21(int width, int height) {
     if (capabilities == null) {
-      logNoSupport("align.caps");
       return null;
     }
     VideoCapabilities videoCapabilities = capabilities.getVideoCapabilities();
     if (videoCapabilities == null) {
-      logNoSupport("align.vCaps");
       return null;
     }
-    int widthAlignment = videoCapabilities.getWidthAlignment();
-    int heightAlignment = videoCapabilities.getHeightAlignment();
-    return new Point(Util.ceilDivide(width, widthAlignment) * widthAlignment,
-        Util.ceilDivide(height, heightAlignment) * heightAlignment);
+    return alignVideoSizeV21(videoCapabilities, width, height);
   }
 
   /**
@@ -575,6 +570,11 @@ public final class MediaCodecInfo {
   @TargetApi(21)
   private static boolean areSizeAndRateSupportedV21(VideoCapabilities capabilities, int width,
       int height, double frameRate) {
+    // Don't ever fail due to alignment. See: https://github.com/google/ExoPlayer/issues/6551.
+    Point alignedSize = alignVideoSizeV21(capabilities, width, height);
+    width = alignedSize.x;
+    height = alignedSize.y;
+
     if (frameRate == Format.NO_VALUE || frameRate <= 0) {
       return capabilities.isSizeSupported(width, height);
     } else {
@@ -584,6 +584,15 @@ public final class MediaCodecInfo {
       double floorFrameRate = Math.floor(frameRate);
       return capabilities.areSizeAndRateSupported(width, height, floorFrameRate);
     }
+  }
+
+  @TargetApi(21)
+  private static Point alignVideoSizeV21(VideoCapabilities capabilities, int width, int height) {
+    int widthAlignment = capabilities.getWidthAlignment();
+    int heightAlignment = capabilities.getHeightAlignment();
+    return new Point(
+        Util.ceilDivide(width, widthAlignment) * widthAlignment,
+        Util.ceilDivide(height, heightAlignment) * heightAlignment);
   }
 
   @TargetApi(23)
