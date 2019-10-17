@@ -216,7 +216,12 @@ public class DownloadTracker {
     @Override
     public void onPrepareError(DownloadHelper helper, IOException e) {
       Toast.makeText(context, R.string.download_start_error, Toast.LENGTH_LONG).show();
-      Log.e(TAG, "Failed to start download", e);
+      Log.e(
+          TAG,
+          e instanceof DownloadHelper.LiveContentUnsupportedException
+              ? "Downloading live content unsupported"
+              : "Failed to start download",
+          e);
     }
 
     // DialogInterface.OnClickListener implementation.

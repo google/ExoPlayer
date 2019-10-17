@@ -137,6 +137,9 @@ public final class DownloadHelper {
     void onPrepareError(DownloadHelper helper, IOException e);
   }
 
+  /** Thrown at an attempt to download live content. */
+  public static class LiveContentUnsupportedException extends IOException {}
+
   @Nullable
   private static final Constructor<? extends MediaSourceFactory> DASH_FACTORY_CONSTRUCTOR =
       getConstructor("com.google.android.exoplayer2.source.dash.DashMediaSource$Factory");
@@ -997,6 +1000,14 @@ public final class DownloadHelper {
     public void onSourceInfoRefreshed(MediaSource source, Timeline timeline) {
       if (this.timeline != null) {
         // Ignore dynamic updates.
+        return;
+      }
+      if (timeline.getWindow(/* windowIndex= */ 0, new Timeline.Window()).isLive) {
+        downloadHelperHandler
+            .obtainMessage(
+                DOWNLOAD_HELPER_CALLBACK_MESSAGE_FAILED,
+                /* obj= */ new LiveContentUnsupportedException())
+            .sendToTarget();
         return;
       }
       this.timeline = timeline;
