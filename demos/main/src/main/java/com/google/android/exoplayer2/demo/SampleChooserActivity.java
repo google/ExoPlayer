@@ -68,6 +68,7 @@ public class SampleChooserActivity extends AppCompatActivity
   private SampleAdapter sampleAdapter;
   private MenuItem preferExtensionDecodersMenuItem;
   private MenuItem randomAbrMenuItem;
+  private MenuItem tunnelingMenuItem;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -125,6 +126,7 @@ public class SampleChooserActivity extends AppCompatActivity
     preferExtensionDecodersMenuItem = menu.findItem(R.id.prefer_extension_decoders);
     preferExtensionDecodersMenuItem.setVisible(useExtensionRenderers);
     randomAbrMenuItem = menu.findItem(R.id.random_abr);
+    tunnelingMenuItem = menu.findItem(R.id.tunneling);
     return true;
   }
 
@@ -173,6 +175,7 @@ public class SampleChooserActivity extends AppCompatActivity
             ? PlayerActivity.ABR_ALGORITHM_RANDOM
             : PlayerActivity.ABR_ALGORITHM_DEFAULT;
     intent.putExtra(PlayerActivity.ABR_ALGORITHM_EXTRA, abrAlgorithm);
+    intent.putExtra(PlayerActivity.TUNNELING, isNonNullAndChecked(tunnelingMenuItem));
     sample.addToIntent(intent);
     startActivity(intent);
     return true;
