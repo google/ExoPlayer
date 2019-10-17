@@ -440,7 +440,9 @@ public final class HlsMediaSource extends BaseMediaSource
             ? windowStartTimeMs
             : C.TIME_UNSET;
     long windowDefaultStartPositionUs = playlist.startOffsetUs;
-    HlsManifest manifest = new HlsManifest(playlistTracker.getMasterPlaylist(), playlist);
+    // masterPlaylist is non-null because the first playlist has been fetched by now.
+    HlsManifest manifest =
+        new HlsManifest(Assertions.checkNotNull(playlistTracker.getMasterPlaylist()), playlist);
     if (playlistTracker.isLive()) {
       long offsetFromInitialStartTimeUs =
           playlist.startTimeUs - playlistTracker.getInitialStartTimeUs();
