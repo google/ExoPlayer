@@ -21,8 +21,10 @@ import android.graphics.SurfaceTexture;
 import android.opengl.Matrix;
 import android.os.Bundle;
 import android.view.ContextThemeWrapper;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.Surface;
+import android.view.View;
 import androidx.annotation.BinderThread;
 import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
@@ -30,9 +32,9 @@ import androidx.annotation.UiThread;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.ui.PlayerControlView;
-import com.google.android.exoplayer2.ui.spherical.GlViewGroup;
 import com.google.android.exoplayer2.ui.spherical.PointerRenderer;
 import com.google.android.exoplayer2.ui.spherical.SceneRenderer;
+import com.google.android.exoplayer2.ui.spherical.ViewRenderer;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.vr.ndk.base.DaydreamApi;
 import com.google.vr.sdk.base.AndroidCompat;
@@ -71,18 +73,18 @@ public abstract class GvrPlayerActivity extends GvrActivity {
     // If a custom theme isn't specified, the Context's theme is used. For VR Activities, this is
     // the old Android default theme rather than a modern theme. Override this with a custom theme.
     Context theme = new ContextThemeWrapper(this, R.style.ExoVrTheme);
-    GlViewGroup glViewGroup = new GlViewGroup(theme, R.layout.exo_vr_ui);
+    View viewGroup = LayoutInflater.from(theme).inflate(R.layout.exo_vr_ui, /* root= */ null);
 
-    playerControlView = Assertions.checkNotNull(glViewGroup.findViewById(R.id.controller));
+    ViewRenderer viewRenderer = new ViewRenderer(/* context= */ this, gvrView, viewGroup);
+
+    playerControlView = Assertions.checkNotNull(viewGroup.findViewById(R.id.controller));
     playerControlView.setShowVrButton(true);
     playerControlView.setVrButtonListener(v -> exit());
 
     sceneRenderer = new SceneRenderer();
     PointerRenderer pointerRenderer = new PointerRenderer();
-    Renderer renderer = new Renderer(sceneRenderer, pointerRenderer, glViewGroup);
+    Renderer renderer = new Renderer(sceneRenderer, pointerRenderer, viewRenderer);
 
-    // Attach glViewGroup to gvrView in order to properly handle UI events.
-    gvrView.addView(glViewGroup);
     // Standard GvrView configuration
     gvrView.setEGLConfigChooser(
         8, 8, 8, 8, // RGBA bits.
@@ -104,7 +106,7 @@ public abstract class GvrPlayerActivity extends GvrActivity {
         new ControllerManager(/* context= */ this, new ControllerManagerEventListener());
     Controller controller = controllerManager.getController();
     ControllerEventListener controllerEventListener =
-        new ControllerEventListener(controller, pointerRenderer, glViewGroup);
+        new ControllerEventListener(controller, pointerRenderer, viewRenderer);
     controller.setEventListener(controllerEventListener);
   }
 
@@ -231,14 +233,14 @@ public abstract class GvrPlayerActivity extends GvrActivity {
 
     private final SceneRenderer sceneRenderer;
     private final PointerRenderer pointerRenderer;
-    private final GlViewGroup glViewGroup;
+    private final ViewRenderer viewRenderer;
     private final float[] viewProjectionMatrix;
 
     public Renderer(
-        SceneRenderer sceneRenderer, PointerRenderer pointerRenderer, GlViewGroup glViewGroup) {
+        SceneRenderer sceneRenderer, PointerRenderer pointerRenderer, ViewRenderer viewRenderer) {
       this.sceneRenderer = sceneRenderer;
       this.pointerRenderer = pointerRenderer;
-      this.glViewGroup = glViewGroup;
+      this.viewRenderer = viewRenderer;
       viewProjectionMatrix = new float[16];
     }
 
@@ -250,8 +252,8 @@ public abstract class GvrPlayerActivity extends GvrActivity {
       Matrix.multiplyMM(
           viewProjectionMatrix, 0, eye.getPerspective(Z_NEAR, Z_FAR), 0, eye.getEyeView(), 0);
       sceneRenderer.drawFrame(viewProjectionMatrix, eye.getType() == Eye.Type.RIGHT);
-      if (glViewGroup.isVisible()) {
-        glViewGroup.getRenderer().draw(viewProjectionMatrix);
+      if (viewRenderer.isVisible()) {
+        viewRenderer.draw(viewProjectionMatrix);
         pointerRenderer.draw(viewProjectionMatrix);
       }
     }
@@ -262,7 +264,7 @@ public abstract class GvrPlayerActivity extends GvrActivity {
     @Override
     public void onSurfaceCreated(EGLConfig config) {
       onSurfaceTextureAvailable(sceneRenderer.init());
-      glViewGroup.getRenderer().init();
+      viewRenderer.init();
       pointerRenderer.init();
     }
 
@@ -271,7 +273,7 @@ public abstract class GvrPlayerActivity extends GvrActivity {
 
     @Override
     public void onRendererShutdown() {
-      glViewGroup.getRenderer().shutdown();
+      viewRenderer.shutdown();
       pointerRenderer.shutdown();
       sceneRenderer.shutdown();
     }
@@ -281,16 +283,16 @@ public abstract class GvrPlayerActivity extends GvrActivity {
 
     private final Controller controller;
     private final PointerRenderer pointerRenderer;
-    private final GlViewGroup glViewGroup;
+    private final ViewRenderer viewRenderer;
     private final float[] controllerOrientationMatrix;
     private boolean clickButtonDown;
     private boolean appButtonDown;
 
     public ControllerEventListener(
-        Controller controller, PointerRenderer pointerRenderer, GlViewGroup glViewGroup) {
+        Controller controller, PointerRenderer pointerRenderer, ViewRenderer viewRenderer) {
       this.controller = controller;
       this.pointerRenderer = pointerRenderer;
-      this.glViewGroup = glViewGroup;
+      this.viewRenderer = viewRenderer;
       controllerOrientationMatrix = new float[16];
     }
 
@@ -319,7 +321,7 @@ public abstract class GvrPlayerActivity extends GvrActivity {
     }
 
     private void dispatchClick(int action, float yaw, float pitch) {
-      boolean clickedOnView = glViewGroup.simulateClick(action, yaw, pitch);
+      boolean clickedOnView = viewRenderer.simulateClick(action, yaw, pitch);
       if (action == MotionEvent.ACTION_DOWN && !clickedOnView) {
         togglePlayerControlVisibility();
       }
