@@ -228,6 +228,33 @@ public interface MediaSource {
    */
   void removeEventListener(MediaSourceEventListener eventListener);
 
+  /**
+   * Returns the initial dummy timeline that is returned immediately when the real timeline is not
+   * yet known, or null to let the player create an initial timeline.
+   *
+   * <p>The initial timeline must use the same uids for windows and periods that the real timeline
+   * will use. It also must provide windows which are marked as dynamic to indicate that the window
+   * is expected to change when the real timeline arrives.
+   *
+   * <p>Any media source which has multiple windows should typically provide such an initial
+   * timeline to make sure the player reports the correct number of windows immediately.
+   */
+  @Nullable
+  default Timeline getInitialTimeline() {
+    return null;
+  }
+
+  /**
+   * Returns true if the media source is guaranteed to never have zero or more than one window.
+   *
+   * <p>The default implementation returns {@code true}.
+   *
+   * @return true if the source has exactly one window.
+   */
+  default boolean isSingleWindow() {
+    return true;
+  }
+
   /** Returns the tag set on the media source, or null if none was set. */
   @Nullable
   default Object getTag() {
