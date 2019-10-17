@@ -19,6 +19,7 @@ import android.os.Handler;
 import android.os.Message;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.AbstractConcatenatedTimeline;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource.MediaSourceHolder;
@@ -137,6 +138,23 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSo
     this.isAtomic = isAtomic;
     this.useLazyPreparation = useLazyPreparation;
     addMediaSources(Arrays.asList(mediaSources));
+  }
+
+  @Override
+  public synchronized Timeline getInitialTimeline() {
+    ShuffleOrder shuffleOrder =
+        this.shuffleOrder.getLength() != mediaSourcesPublic.size()
+            ? this.shuffleOrder
+                .cloneAndClear()
+                .cloneAndInsert(
+                    /* insertionIndex= */ 0, /* insertionCount= */ mediaSourcesPublic.size())
+            : this.shuffleOrder;
+    return new ConcatenatedTimeline(mediaSourcesPublic, shuffleOrder, isAtomic);
+  }
+
+  @Override
+  public boolean isSingleWindow() {
+    return false;
   }
 
   /**
