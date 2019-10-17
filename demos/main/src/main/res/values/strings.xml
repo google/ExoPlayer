@@ -71,4 +71,6 @@
 
   <string name="random_abr">Enable random ABR</string>
 
+  <string name="tunneling">Request multimedia tunneling</string>
+
 </resources>

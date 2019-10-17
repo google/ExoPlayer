@@ -114,6 +114,7 @@ public class PlayerActivity extends AppCompatActivity
   public static final String DRM_KEY_REQUEST_PROPERTIES_EXTRA = "drm_key_request_properties";
   public static final String DRM_MULTI_SESSION_EXTRA = "drm_multi_session";
   public static final String PREFER_EXTENSION_DECODERS_EXTRA = "prefer_extension_decoders";
+  public static final String TUNNELING = "tunneling";
   public static final String AD_TAG_URI_EXTRA = "ad_tag_uri";
   // For backwards compatibility only.
   public static final String DRM_SCHEME_UUID_EXTRA = "drm_scheme_uuid";
@@ -201,7 +202,13 @@ public class PlayerActivity extends AppCompatActivity
       startWindow = savedInstanceState.getInt(KEY_WINDOW);
       startPosition = savedInstanceState.getLong(KEY_POSITION);
     } else {
-      trackSelectorParameters = DefaultTrackSelector.Parameters.getDefaults(/* context= */ this);
+      DefaultTrackSelector.ParametersBuilder builder =
+          new DefaultTrackSelector.ParametersBuilder(/* context= */ this);
+      boolean tunneling = intent.getBooleanExtra(TUNNELING, false);
+      if (tunneling) {
+        builder.setTunnelingAudioSessionId(C.generateAudioSessionIdV21(/* context= */ this));
+      }
+      trackSelectorParameters = builder.build();
       clearStartPosition();
     }
   }
