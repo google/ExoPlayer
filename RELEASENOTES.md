@@ -93,6 +93,11 @@
   fragment) ([#6470](https://github.com/google/ExoPlayer/issues/6470)).
 * Add `MediaPeriod.isLoading` to improve `Player.isLoading` state.
 * Make show and hide player controls accessible for TalkBack in `PlayerView`.
+* Add workaround to avoid truncating MP3 live streams with ICY metadata and
+  introductions that have a seeking header
+  ([#6537](https://github.com/google/ExoPlayer/issues/6537),
+  [#6315](https://github.com/google/ExoPlayer/issues/6315) and
+  [#5658](https://github.com/google/ExoPlayer/issues/5658)).
 * Pass the codec output `MediaFormat` to `VideoFrameMetadataListener`.
 
 ### 2.10.6 (2019-10-17) ###
