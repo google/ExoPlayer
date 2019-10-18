@@ -127,6 +127,9 @@ public class SampleChooserActivity extends AppCompatActivity
     preferExtensionDecodersMenuItem.setVisible(useExtensionRenderers);
     randomAbrMenuItem = menu.findItem(R.id.random_abr);
     tunnelingMenuItem = menu.findItem(R.id.tunneling);
+    if (Util.SDK_INT < 21) {
+      tunnelingMenuItem.setEnabled(false);
+    }
     return true;
   }
 
