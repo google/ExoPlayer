@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":9,"i3":9,"i4":9,"i5":9,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -172,19 +172,19 @@ implements <a href="../../../../../com/google/android/exoplayer2/ui/TimeBar.html
    <li><b><code>scrubber_color</code></b> - Color for the scrubber handle.
        <ul>
          <li>Corresponding method: <a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#setScrubberColor-int-"><code>setScrubberColor(int)</code></a>
-         <li>Default: see <a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#getDefaultScrubberColor-int-"><code>getDefaultScrubberColor(int)</code></a>
+         <li>Default: <a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#DEFAULT_SCRUBBER_COLOR"><code>DEFAULT_SCRUBBER_COLOR</code></a>
        </ul>
    <li><b><code>buffered_color</code></b> - Color for the portion of the time bar after the current
        played position up to the current buffered position.
        <ul>
          <li>Corresponding method: <a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#setBufferedColor-int-"><code>setBufferedColor(int)</code></a>
-         <li>Default: see <a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#getDefaultBufferedColor-int-"><code>getDefaultBufferedColor(int)</code></a>
+         <li>Default: <a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#DEFAULT_BUFFERED_COLOR"><code>DEFAULT_BUFFERED_COLOR</code></a>
        </ul>
    <li><b><code>unplayed_color</code></b> - Color for the portion of the time bar after the current
        buffered position.
        <ul>
          <li>Corresponding method: <a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#setUnplayedColor-int-"><code>setUnplayedColor(int)</code></a>
-         <li>Default: see <a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#getDefaultUnplayedColor-int-"><code>getDefaultUnplayedColor(int)</code></a>
+         <li>Default: <a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#DEFAULT_UNPLAYED_COLOR"><code>DEFAULT_UNPLAYED_COLOR</code></a>
        </ul>
    <li><b><code>ad_marker_color</code></b> - Color for unplayed ad markers.
        <ul>
@@ -194,7 +194,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/ui/TimeBar.html
    <li><b><code>played_ad_marker_color</code></b> - Color for played ad markers.
        <ul>
          <li>Corresponding method: <a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#setPlayedAdMarkerColor-int-"><code>setPlayedAdMarkerColor(int)</code></a>
-         <li>Default: see <a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#getDefaultPlayedAdMarkerColor-int-"><code>getDefaultPlayedAdMarkerColor(int)</code></a>
+         <li>Default: <a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#DEFAULT_PLAYED_AD_MARKER_COLOR"><code>DEFAULT_PLAYED_AD_MARKER_COLOR</code></a>
        </ul>
  </ul></div>
 </li>
@@ -257,32 +257,56 @@ implements <a href="../../../../../com/google/android/exoplayer2/ui/TimeBar.html
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#DEFAULT_BUFFERED_COLOR">DEFAULT_BUFFERED_COLOR</a></span></code>
+<div class="block">Default color for the buffered portion of the time bar.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#DEFAULT_PLAYED_AD_MARKER_COLOR">DEFAULT_PLAYED_AD_MARKER_COLOR</a></span></code>
+<div class="block">Default color for played ad markers.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#DEFAULT_PLAYED_COLOR">DEFAULT_PLAYED_COLOR</a></span></code>
 <div class="block">Default color for the played portion of the time bar.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#DEFAULT_SCRUBBER_COLOR">DEFAULT_SCRUBBER_COLOR</a></span></code>
+<div class="block">Default color for the scrubber handle.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#DEFAULT_SCRUBBER_DISABLED_SIZE_DP">DEFAULT_SCRUBBER_DISABLED_SIZE_DP</a></span></code>
 <div class="block">Default diameter for the scrubber when disabled, in dp.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#DEFAULT_SCRUBBER_DRAGGED_SIZE_DP">DEFAULT_SCRUBBER_DRAGGED_SIZE_DP</a></span></code>
 <div class="block">Default diameter for the scrubber when dragged, in dp.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#DEFAULT_SCRUBBER_ENABLED_SIZE_DP">DEFAULT_SCRUBBER_ENABLED_SIZE_DP</a></span></code>
 <div class="block">Default diameter for the scrubber when enabled, in dp.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#DEFAULT_TOUCH_TARGET_HEIGHT_DP">DEFAULT_TOUCH_TARGET_HEIGHT_DP</a></span></code>
 <div class="block">Default height for the touch target, in dp.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#DEFAULT_UNPLAYED_COLOR">DEFAULT_UNPLAYED_COLOR</a></span></code>
+<div class="block">Default color for the played portion of the time bar.</div>
 </td>
 </tr>
 </table>
@@ -334,7 +358,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/ui/TimeBar.html
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
@@ -350,56 +374,40 @@ implements <a href="../../../../../com/google/android/exoplayer2/ui/TimeBar.html
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#drawableStateChanged--">drawableStateChanged</a></span>()</code>&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#getDefaultBufferedColor-int-">getDefaultBufferedColor</a></span>(int&nbsp;playedColor)</code>&nbsp;</td>
-</tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#getDefaultPlayedAdMarkerColor-int-">getDefaultPlayedAdMarkerColor</a></span>(int&nbsp;adMarkerColor)</code>&nbsp;</td>
-</tr>
-<tr id="i4" class="altColor">
-<td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#getDefaultScrubberColor-int-">getDefaultScrubberColor</a></span>(int&nbsp;playedColor)</code>&nbsp;</td>
-</tr>
-<tr id="i5" class="rowColor">
-<td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#getDefaultUnplayedColor-int-">getDefaultUnplayedColor</a></span>(int&nbsp;playedColor)</code>&nbsp;</td>
-</tr>
-<tr id="i6" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#getPreferredUpdateDelay--">getPreferredUpdateDelay</a></span>()</code>
 <div class="block">Returns the preferred delay in milliseconds of media time after which the time bar position
  should be updated.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#jumpDrawablesToCurrentState--">jumpDrawablesToCurrentState</a></span>()</code>&nbsp;</td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#onDraw-android.graphics.Canvas-">onDraw</a></span>(<a href="https://developer.android.com/reference/android/graphics/Canvas.html" target="_top" title="class or interface in android.graphics">Canvas</a>&nbsp;canvas)</code>&nbsp;</td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#onFocusChanged-boolean-int-android.graphics.Rect-">onFocusChanged</a></span>(boolean&nbsp;gainFocus,
               int&nbsp;direction,
               <a href="https://developer.android.com/reference/android/graphics/Rect.html" target="_top" title="class or interface in android.graphics">Rect</a>&nbsp;previouslyFocusedRect)</code>&nbsp;</td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#onInitializeAccessibilityEvent-android.view.accessibility.AccessibilityEvent-">onInitializeAccessibilityEvent</a></span>(<a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityEvent.html" target="_top" title="class or interface in android.view.accessibility">AccessibilityEvent</a>&nbsp;event)</code>&nbsp;</td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#onInitializeAccessibilityNodeInfo-android.view.accessibility.AccessibilityNodeInfo-">onInitializeAccessibilityNodeInfo</a></span>(<a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo.html" target="_top" title="class or interface in android.view.accessibility">AccessibilityNodeInfo</a>&nbsp;info)</code>&nbsp;</td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#onKeyDown-int-android.view.KeyEvent-">onKeyDown</a></span>(int&nbsp;keyCode,
          <a href="https://developer.android.com/reference/android/view/KeyEvent.html" target="_top" title="class or interface in android.view">KeyEvent</a>&nbsp;event)</code>&nbsp;</td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#onLayout-boolean-int-int-int-int-">onLayout</a></span>(boolean&nbsp;changed,
         int&nbsp;left,
@@ -407,31 +415,31 @@ implements <a href="../../../../../com/google/android/exoplayer2/ui/TimeBar.html
         int&nbsp;right,
         int&nbsp;bottom)</code>&nbsp;</td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#onMeasure-int-int-">onMeasure</a></span>(int&nbsp;widthMeasureSpec,
          int&nbsp;heightMeasureSpec)</code>&nbsp;</td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#onRtlPropertiesChanged-int-">onRtlPropertiesChanged</a></span>(int&nbsp;layoutDirection)</code>&nbsp;</td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#onTouchEvent-android.view.MotionEvent-">onTouchEvent</a></span>(<a href="https://developer.android.com/reference/android/view/MotionEvent.html" target="_top" title="class or interface in android.view">MotionEvent</a>&nbsp;event)</code>&nbsp;</td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#performAccessibilityAction-int-android.os.Bundle-">performAccessibilityAction</a></span>(int&nbsp;action,
                           <a href="https://developer.android.com/reference/android/os/Bundle.html" target="_top" title="class or interface in android.os">Bundle</a>&nbsp;args)</code>&nbsp;</td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#removeListener-com.google.android.exoplayer2.ui.TimeBar.OnScrubListener-">removeListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/ui/TimeBar.OnScrubListener.html" title="interface in com.google.android.exoplayer2.ui">TimeBar.OnScrubListener</a>&nbsp;listener)</code>
 <div class="block">Removes a listener for scrubbing events.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#setAdGroupTimesMs-long:A-boolean:A-int-">setAdGroupTimesMs</a></span>(long[]&nbsp;adGroupTimesMs,
                  boolean[]&nbsp;playedAdGroups,
@@ -439,73 +447,73 @@ implements <a href="../../../../../com/google/android/exoplayer2/ui/TimeBar.html
 <div class="block">Sets the times of ad groups and whether each ad group has been played.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#setAdMarkerColor-int-">setAdMarkerColor</a></span>(int&nbsp;adMarkerColor)</code>
 <div class="block">Sets the color for unplayed ad markers.</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#setBufferedColor-int-">setBufferedColor</a></span>(int&nbsp;bufferedColor)</code>
 <div class="block">Sets the color for the portion of the time bar after the current played position up to the
  current buffered position.</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#setBufferedPosition-long-">setBufferedPosition</a></span>(long&nbsp;bufferedPosition)</code>
 <div class="block">Sets the buffered position.</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#setDuration-long-">setDuration</a></span>(long&nbsp;duration)</code>
 <div class="block">Sets the duration.</div>
 </td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#setEnabled-boolean-">setEnabled</a></span>(boolean&nbsp;enabled)</code>&nbsp;</td>
 </tr>
-<tr id="i25" class="rowColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#setKeyCountIncrement-int-">setKeyCountIncrement</a></span>(int&nbsp;count)</code>
 <div class="block">Sets the position increment for key presses and accessibility actions, as a number of
  increments that divide the duration of the media.</div>
 </td>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#setKeyTimeIncrement-long-">setKeyTimeIncrement</a></span>(long&nbsp;time)</code>
 <div class="block">Sets the position increment for key presses and accessibility actions, in milliseconds.</div>
 </td>
 </tr>
-<tr id="i27" class="rowColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#setPlayedAdMarkerColor-int-">setPlayedAdMarkerColor</a></span>(int&nbsp;playedAdMarkerColor)</code>
 <div class="block">Sets the color for played ad markers.</div>
 </td>
 </tr>
-<tr id="i28" class="altColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#setPlayedColor-int-">setPlayedColor</a></span>(int&nbsp;playedColor)</code>
 <div class="block">Sets the color for the portion of the time bar representing media before the playback position.</div>
 </td>
 </tr>
-<tr id="i29" class="rowColor">
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#setPosition-long-">setPosition</a></span>(long&nbsp;position)</code>
 <div class="block">Sets the current position.</div>
 </td>
 </tr>
-<tr id="i30" class="altColor">
+<tr id="i26" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#setScrubberColor-int-">setScrubberColor</a></span>(int&nbsp;scrubberColor)</code>
 <div class="block">Sets the color for the scrubber handle.</div>
 </td>
 </tr>
-<tr id="i31" class="rowColor">
+<tr id="i27" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DefaultTimeBar.html#setUnplayedColor-int-">setUnplayedColor</a></span>(int&nbsp;unplayedColor)</code>
 <div class="block">Sets the color for the portion of the time bar after the current played position.</div>
@@ -638,10 +646,52 @@ implements <a href="../../../../../com/google/android/exoplayer2/ui/TimeBar.html
 </dl>
 </li>
 </ul>
+<a name="DEFAULT_UNPLAYED_COLOR">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DEFAULT_UNPLAYED_COLOR</h4>
+<pre>public static final&nbsp;int DEFAULT_UNPLAYED_COLOR</pre>
+<div class="block">Default color for the played portion of the time bar.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.ui.DefaultTimeBar.DEFAULT_UNPLAYED_COLOR">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="DEFAULT_BUFFERED_COLOR">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DEFAULT_BUFFERED_COLOR</h4>
+<pre>public static final&nbsp;int DEFAULT_BUFFERED_COLOR</pre>
+<div class="block">Default color for the buffered portion of the time bar.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.ui.DefaultTimeBar.DEFAULT_BUFFERED_COLOR">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="DEFAULT_SCRUBBER_COLOR">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DEFAULT_SCRUBBER_COLOR</h4>
+<pre>public static final&nbsp;int DEFAULT_SCRUBBER_COLOR</pre>
+<div class="block">Default color for the scrubber handle.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.ui.DefaultTimeBar.DEFAULT_SCRUBBER_COLOR">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
 <a name="DEFAULT_AD_MARKER_COLOR">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>DEFAULT_AD_MARKER_COLOR</h4>
 <pre>public static final&nbsp;int DEFAULT_AD_MARKER_COLOR</pre>
@@ -649,6 +699,20 @@ implements <a href="../../../../../com/google/android/exoplayer2/ui/TimeBar.html
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.ui.DefaultTimeBar.DEFAULT_AD_MARKER_COLOR">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="DEFAULT_PLAYED_AD_MARKER_COLOR">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DEFAULT_PLAYED_AD_MARKER_COLOR</h4>
+<pre>public static final&nbsp;int DEFAULT_PLAYED_AD_MARKER_COLOR</pre>
+<div class="block">Default color for played ad markers.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.ui.DefaultTimeBar.DEFAULT_PLAYED_AD_MARKER_COLOR">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
@@ -1145,7 +1209,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/ui/TimeBar.html
 <a name="performAccessibilityAction-int-android.os.Bundle-">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>performAccessibilityAction</h4>
 <pre>public&nbsp;boolean&nbsp;performAccessibilityAction(int&nbsp;action,
@@ -1155,42 +1219,6 @@ implements <a href="../../../../../com/google/android/exoplayer2/ui/TimeBar.html
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/view/View.html?is-external=true#performAccessibilityAction-int-android.os.Bundle-" title="class or interface in android.view">performAccessibilityAction</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/view/View.html" target="_top" title="class or interface in android.view">View</a></code></dd>
 </dl>
-</li>
-</ul>
-<a name="getDefaultScrubberColor-int-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getDefaultScrubberColor</h4>
-<pre>public static&nbsp;int&nbsp;getDefaultScrubberColor(int&nbsp;playedColor)</pre>
-</li>
-</ul>
-<a name="getDefaultUnplayedColor-int-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getDefaultUnplayedColor</h4>
-<pre>public static&nbsp;int&nbsp;getDefaultUnplayedColor(int&nbsp;playedColor)</pre>
-</li>
-</ul>
-<a name="getDefaultBufferedColor-int-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getDefaultBufferedColor</h4>
-<pre>public static&nbsp;int&nbsp;getDefaultBufferedColor(int&nbsp;playedColor)</pre>
-</li>
-</ul>
-<a name="getDefaultPlayedAdMarkerColor-int-">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>getDefaultPlayedAdMarkerColor</h4>
-<pre>public static&nbsp;int&nbsp;getDefaultPlayedAdMarkerColor(int&nbsp;adMarkerColor)</pre>
 </li>
 </ul>
 </li>

@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":18,"i1":18,"i2":18,"i3":18,"i4":18,"i5":18,"i6":18,"i7":18,"i8":18,"i9":18,"i10":18,"i11":18,"i12":18,"i13":18,"i14":18,"i15":18,"i16":18,"i17":18,"i18":18,"i19":18,"i20":18,"i21":18,"i22":18,"i23":18,"i24":18,"i25":18,"i26":18,"i27":18,"i28":18,"i29":18,"i30":18,"i31":18,"i32":18,"i33":18,"i34":18,"i35":18,"i36":18,"i37":18,"i38":18,"i39":18};
+var methods = {"i0":18,"i1":18,"i2":18,"i3":18,"i4":18,"i5":18,"i6":18,"i7":18,"i8":18,"i9":18,"i10":18,"i11":18,"i12":18,"i13":18,"i14":18,"i15":18,"i16":18,"i17":18,"i18":18,"i19":18,"i20":18,"i21":18,"i22":18,"i23":18,"i24":18,"i25":18,"i26":18,"i27":18,"i28":18,"i29":18,"i30":18,"i31":18,"i32":18,"i33":18,"i34":18,"i35":18,"i36":18,"i37":18,"i38":18,"i39":18,"i40":18,"i41":18};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -267,13 +267,20 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i16" class="altColor">
 <td class="colFirst"><code>default void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html#onIsPlayingChanged-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-boolean-">onIsPlayingChanged</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
+                  boolean&nbsp;isPlaying)</code>
+<div class="block">Called when the player starts or stops playing.</div>
+</td>
+</tr>
+<tr id="i17" class="rowColor">
+<td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html#onLoadCanceled-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-com.google.android.exoplayer2.source.MediaSourceEventListener.LoadEventInfo-com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData-">onLoadCanceled</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
               <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.LoadEventInfo</a>&nbsp;loadEventInfo,
               <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.MediaLoadData</a>&nbsp;mediaLoadData)</code>
 <div class="block">Called when a media source canceled loading data.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html#onLoadCompleted-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-com.google.android.exoplayer2.source.MediaSourceEventListener.LoadEventInfo-com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData-">onLoadCompleted</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.LoadEventInfo</a>&nbsp;loadEventInfo,
@@ -281,7 +288,7 @@ var activeTableTab = "activeTableTab";
 <div class="block">Called when a media source completed loading data.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html#onLoadError-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-com.google.android.exoplayer2.source.MediaSourceEventListener.LoadEventInfo-com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData-java.io.IOException-boolean-">onLoadError</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
            <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.LoadEventInfo</a>&nbsp;loadEventInfo,
@@ -291,14 +298,14 @@ var activeTableTab = "activeTableTab";
 <div class="block">Called when a media source loading error occurred.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html#onLoadingChanged-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-boolean-">onLoadingChanged</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                 boolean&nbsp;isLoading)</code>
 <div class="block">Called when the player starts or stops loading data from a source.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html#onLoadStarted-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-com.google.android.exoplayer2.source.MediaSourceEventListener.LoadEventInfo-com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData-">onLoadStarted</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
              <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.LoadEventInfo</a>&nbsp;loadEventInfo,
@@ -306,40 +313,47 @@ var activeTableTab = "activeTableTab";
 <div class="block">Called when a media source started loading data.</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html#onMediaPeriodCreated-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-">onMediaPeriodCreated</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code>
 <div class="block">Called when a media source created a media period.</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html#onMediaPeriodReleased-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-">onMediaPeriodReleased</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code>
 <div class="block">Called when a media source released a media period.</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html#onMetadata-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-com.google.android.exoplayer2.metadata.Metadata-">onMetadata</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
           <a href="../../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata)</code>
 <div class="block">Called when there is <a href="../../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata"><code>Metadata</code></a> associated with the current playback time.</div>
 </td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html#onPlaybackParametersChanged-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-com.google.android.exoplayer2.PlaybackParameters-">onPlaybackParametersChanged</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                            <a href="../../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</code>
 <div class="block">Called when the playback parameters changed.</div>
 </td>
 </tr>
-<tr id="i25" class="rowColor">
+<tr id="i26" class="altColor">
+<td class="colFirst"><code>default void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html#onPlaybackSuppressionReasonChanged-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-int-">onPlaybackSuppressionReasonChanged</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
+                                  int&nbsp;playbackSuppressionReason)</code>
+<div class="block">Called when playback suppression reason changed.</div>
+</td>
+</tr>
+<tr id="i27" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html#onPlayerError-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-com.google.android.exoplayer2.ExoPlaybackException-">onPlayerError</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
              <a href="../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;error)</code>
 <div class="block">Called when a fatal player error occurred.</div>
 </td>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i28" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html#onPlayerStateChanged-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-boolean-int-">onPlayerStateChanged</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                     boolean&nbsp;playWhenReady,
@@ -347,20 +361,20 @@ var activeTableTab = "activeTableTab";
 <div class="block">Called when the player state changed.</div>
 </td>
 </tr>
-<tr id="i27" class="rowColor">
+<tr id="i29" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html#onPositionDiscontinuity-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-int-">onPositionDiscontinuity</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                        int&nbsp;reason)</code>
 <div class="block">Called when a position discontinuity occurred.</div>
 </td>
 </tr>
-<tr id="i28" class="altColor">
+<tr id="i30" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html#onReadingStarted-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-">onReadingStarted</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code>
 <div class="block">Called when the player started reading a media period.</div>
 </td>
 </tr>
-<tr id="i29" class="rowColor">
+<tr id="i31" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html#onRenderedFirstFrame-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-android.view.Surface-">onRenderedFirstFrame</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                     <a href="https://developer.android.com/reference/android/view/Surface.html" target="_top" title="class or interface in android.view">Surface</a>&nbsp;surface)</code>
@@ -368,33 +382,33 @@ var activeTableTab = "activeTableTab";
  is rendered for the first time since the renderer was reset.</div>
 </td>
 </tr>
-<tr id="i30" class="altColor">
+<tr id="i32" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html#onRepeatModeChanged-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-int-">onRepeatModeChanged</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                    int&nbsp;repeatMode)</code>
 <div class="block">Called when the repeat mode changed.</div>
 </td>
 </tr>
-<tr id="i31" class="rowColor">
+<tr id="i33" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html#onSeekProcessed-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-">onSeekProcessed</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code>
 <div class="block">Called when a seek operation was processed.</div>
 </td>
 </tr>
-<tr id="i32" class="altColor">
+<tr id="i34" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html#onSeekStarted-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-">onSeekStarted</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code>
 <div class="block">Called when a seek operation started.</div>
 </td>
 </tr>
-<tr id="i33" class="rowColor">
+<tr id="i35" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html#onShuffleModeChanged-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-boolean-">onShuffleModeChanged</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                     boolean&nbsp;shuffleModeEnabled)</code>
 <div class="block">Called when the shuffle mode changed.</div>
 </td>
 </tr>
-<tr id="i34" class="altColor">
+<tr id="i36" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html#onSurfaceSizeChanged-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-int-int-">onSurfaceSizeChanged</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                     int&nbsp;width,
@@ -402,14 +416,14 @@ var activeTableTab = "activeTableTab";
 <div class="block">Called when the output surface size changed.</div>
 </td>
 </tr>
-<tr id="i35" class="rowColor">
+<tr id="i37" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html#onTimelineChanged-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-int-">onTimelineChanged</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                  int&nbsp;reason)</code>
 <div class="block">Called when the timeline changed.</div>
 </td>
 </tr>
-<tr id="i36" class="altColor">
+<tr id="i38" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html#onTracksChanged-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-com.google.android.exoplayer2.source.TrackGroupArray-com.google.android.exoplayer2.trackselection.TrackSelectionArray-">onTracksChanged</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;trackGroups,
@@ -417,7 +431,7 @@ var activeTableTab = "activeTableTab";
 <div class="block">Called when the available or selected tracks for the renderers changed.</div>
 </td>
 </tr>
-<tr id="i37" class="rowColor">
+<tr id="i39" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html#onUpstreamDiscarded-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData-">onUpstreamDiscarded</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                    <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.MediaLoadData</a>&nbsp;mediaLoadData)</code>
@@ -425,7 +439,7 @@ var activeTableTab = "activeTableTab";
  re-buffered in a different format.</div>
 </td>
 </tr>
-<tr id="i38" class="altColor">
+<tr id="i40" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html#onVideoSizeChanged-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-int-int-int-float-">onVideoSizeChanged</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                   int&nbsp;width,
@@ -436,7 +450,7 @@ var activeTableTab = "activeTableTab";
  there's a change in the size or pixel aspect ratio of the video being rendered.</div>
 </td>
 </tr>
-<tr id="i39" class="rowColor">
+<tr id="i41" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html#onVolumeChanged-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-float-">onVolumeChanged</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                float&nbsp;volume)</code>
@@ -473,6 +487,39 @@ var activeTableTab = "activeTableTab";
 <dd><code>eventTime</code> - The event time.</dd>
 <dd><code>playWhenReady</code> - Whether the playback will proceed when ready.</dd>
 <dd><code>playbackState</code> - One of the <a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a>.STATE constants.</dd>
+</dl>
+</li>
+</ul>
+<a name="onPlaybackSuppressionReasonChanged-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onPlaybackSuppressionReasonChanged</h4>
+<pre>default&nbsp;void&nbsp;onPlaybackSuppressionReasonChanged(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
+                                                <a href="../../../../../com/google/android/exoplayer2/Player.PlaybackSuppressionReason.html" title="annotation in com.google.android.exoplayer2">@Player.PlaybackSuppressionReason</a>
+                                                int&nbsp;playbackSuppressionReason)</pre>
+<div class="block">Called when playback suppression reason changed.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>eventTime</code> - The event time.</dd>
+<dd><code>playbackSuppressionReason</code> - The new <a href="../../../../../com/google/android/exoplayer2/Player.PlaybackSuppressionReason.html" title="annotation in com.google.android.exoplayer2"><code>Player.PlaybackSuppressionReason</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a name="onIsPlayingChanged-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onIsPlayingChanged</h4>
+<pre>default&nbsp;void&nbsp;onIsPlayingChanged(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
+                                boolean&nbsp;isPlaying)</pre>
+<div class="block">Called when the player starts or stops playing.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>eventTime</code> - The event time.</dd>
+<dd><code>isPlaying</code> - Whether the player is playing.</dd>
 </dl>
 </li>
 </ul>

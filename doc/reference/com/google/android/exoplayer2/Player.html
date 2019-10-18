@@ -178,8 +178,7 @@ var activeTableTab = "activeTableTab";
 <tr class="rowColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.PlaybackSuppressionReason.html" title="annotation in com.google.android.exoplayer2">Player.PlaybackSuppressionReason</a></span></code>
-<div class="block">Reason why playback is suppressed even if <a href="../../../../com/google/android/exoplayer2/Player.html#getPlaybackState--"><code>getPlaybackState()</code></a> is <a href="../../../../com/google/android/exoplayer2/Player.html#STATE_READY"><code>STATE_READY</code></a>
- and <a href="../../../../com/google/android/exoplayer2/Player.html#getPlayWhenReady--"><code>getPlayWhenReady()</code></a> is <code>true</code>.</div>
+<div class="block">Reason why playback is suppressed even though <a href="../../../../com/google/android/exoplayer2/Player.html#getPlayWhenReady--"><code>getPlayWhenReady()</code></a> is <code>true</code>.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -254,14 +253,14 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.html#PLAYBACK_SUPPRESSION_REASON_AUDIO_FOCUS_LOSS">PLAYBACK_SUPPRESSION_REASON_AUDIO_FOCUS_LOSS</a></span></code>
-<div class="block">Playback is suppressed because audio focus is lost or can't be acquired.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.html#PLAYBACK_SUPPRESSION_REASON_NONE">PLAYBACK_SUPPRESSION_REASON_NONE</a></span></code>
+<div class="block">Playback is not suppressed.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.html#PLAYBACK_SUPPRESSION_REASON_NONE">PLAYBACK_SUPPRESSION_REASON_NONE</a></span></code>
-<div class="block">Playback is not suppressed.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.html#PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS">PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS</a></span></code>
+<div class="block">Playback is suppressed due to transient audio focus loss.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -494,7 +493,7 @@ var activeTableTab = "activeTableTab";
 <tr id="i24" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.html#getPlaybackSuppressionReason--">getPlaybackSuppressionReason</a></span>()</code>
-<div class="block">Returns reason why playback is suppressed even if <a href="../../../../com/google/android/exoplayer2/Player.html#getPlaybackState--"><code>getPlaybackState()</code></a> is <a href="../../../../com/google/android/exoplayer2/Player.html#STATE_READY"><code>STATE_READY</code></a> and <a href="../../../../com/google/android/exoplayer2/Player.html#getPlayWhenReady--"><code>getPlayWhenReady()</code></a> is <code>true</code>.</div>
+<div class="block">Returns the reason why playback is suppressed even though <a href="../../../../com/google/android/exoplayer2/Player.html#getPlayWhenReady--"><code>getPlayWhenReady()</code></a> is <code>true</code>, or <a href="../../../../com/google/android/exoplayer2/Player.html#PLAYBACK_SUPPRESSION_REASON_NONE"><code>PLAYBACK_SUPPRESSION_REASON_NONE</code></a> if playback is not suppressed.</div>
 </td>
 </tr>
 <tr id="i25" class="rowColor">
@@ -772,17 +771,17 @@ var activeTableTab = "activeTableTab";
 </dl>
 </li>
 </ul>
-<a name="PLAYBACK_SUPPRESSION_REASON_AUDIO_FOCUS_LOSS">
+<a name="PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>PLAYBACK_SUPPRESSION_REASON_AUDIO_FOCUS_LOSS</h4>
-<pre>static final&nbsp;int PLAYBACK_SUPPRESSION_REASON_AUDIO_FOCUS_LOSS</pre>
-<div class="block">Playback is suppressed because audio focus is lost or can't be acquired.</div>
+<h4>PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS</h4>
+<pre>static final&nbsp;int PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS</pre>
+<div class="block">Playback is suppressed due to transient audio focus loss.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.Player.PLAYBACK_SUPPRESSION_REASON_AUDIO_FOCUS_LOSS">Constant Field Values</a></dd>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.Player.PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
@@ -1057,13 +1056,10 @@ var activeTableTab = "activeTableTab";
 <h4>getPlaybackSuppressionReason</h4>
 <pre><a href="../../../../com/google/android/exoplayer2/Player.PlaybackSuppressionReason.html" title="annotation in com.google.android.exoplayer2">@Player.PlaybackSuppressionReason</a>
 int&nbsp;getPlaybackSuppressionReason()</pre>
-<div class="block">Returns reason why playback is suppressed even if <a href="../../../../com/google/android/exoplayer2/Player.html#getPlaybackState--"><code>getPlaybackState()</code></a> is <a href="../../../../com/google/android/exoplayer2/Player.html#STATE_READY"><code>STATE_READY</code></a> and <a href="../../../../com/google/android/exoplayer2/Player.html#getPlayWhenReady--"><code>getPlayWhenReady()</code></a> is <code>true</code>.
-
- <p>Note that <a href="../../../../com/google/android/exoplayer2/Player.html#PLAYBACK_SUPPRESSION_REASON_NONE"><code>PLAYBACK_SUPPRESSION_REASON_NONE</code></a> indicates that playback is not
- suppressed.</div>
+<div class="block">Returns the reason why playback is suppressed even though <a href="../../../../com/google/android/exoplayer2/Player.html#getPlayWhenReady--"><code>getPlayWhenReady()</code></a> is <code>true</code>, or <a href="../../../../com/google/android/exoplayer2/Player.html#PLAYBACK_SUPPRESSION_REASON_NONE"><code>PLAYBACK_SUPPRESSION_REASON_NONE</code></a> if playback is not suppressed.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The current <a href="../../../../com/google/android/exoplayer2/Player.PlaybackSuppressionReason.html" title="annotation in com.google.android.exoplayer2"><code>Player.PlaybackSuppressionReason</code></a>.</dd>
+<dd>The current <a href="../../../../com/google/android/exoplayer2/Player.PlaybackSuppressionReason.html" title="annotation in com.google.android.exoplayer2"><code>playback suppression reason</code></a>.</dd>
 </dl>
 </li>
 </ul>

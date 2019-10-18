@@ -153,14 +153,20 @@ implements <a href="../../../../../../com/google/android/exoplayer2/metadata/Met
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/metadata/icy/IcyInfo.html#title">title</a></span></code>
-<div class="block">The stream title if present, or <code>null</code>.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/metadata/icy/IcyInfo.html#rawMetadata">rawMetadata</a></span></code>
+<div class="block">The complete metadata string used to construct this IcyInfo.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/metadata/icy/IcyInfo.html#url">url</a></span></code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/metadata/icy/IcyInfo.html#title">title</a></span></code>
 <div class="block">The stream title if present, or <code>null</code>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/metadata/icy/IcyInfo.html#url">url</a></span></code>
+<div class="block">The stream URL if present, or <code>null</code>.</div>
 </td>
 </tr>
 </table>
@@ -185,8 +191,12 @@ implements <a href="../../../../../../com/google/android/exoplayer2/metadata/Met
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/metadata/icy/IcyInfo.html#IcyInfo-java.lang.String-java.lang.String-">IcyInfo</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;title,
-       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;url)</code>&nbsp;</td>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/metadata/icy/IcyInfo.html#IcyInfo-java.lang.String-java.lang.String-java.lang.String-">IcyInfo</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;rawMetadata,
+       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;title,
+       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;url)</code>
+<div class="block">Construct a new IcyInfo from the source metadata string, and optionally a StreamTitle and
+ StreamUrl that have been extracted.</div>
+</td>
 </tr>
 </table>
 </li>
@@ -253,6 +263,16 @@ implements <a href="../../../../../../com/google/android/exoplayer2/metadata/Met
 <!--   -->
 </a>
 <h3>Field Detail</h3>
+<a name="rawMetadata">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>rawMetadata</h4>
+<pre>public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> rawMetadata</pre>
+<div class="block">The complete metadata string used to construct this IcyInfo.</div>
+</li>
+</ul>
 <a name="title">
 <!--   -->
 </a>
@@ -272,7 +292,7 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <h4>url</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> url</pre>
-<div class="block">The stream title if present, or <code>null</code>.</div>
+<div class="block">The stream URL if present, or <code>null</code>.</div>
 </li>
 </ul>
 <a name="CREATOR">
@@ -292,18 +312,22 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="IcyInfo-java.lang.String-java.lang.String-">
+<a name="IcyInfo-java.lang.String-java.lang.String-java.lang.String-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>IcyInfo</h4>
-<pre>public&nbsp;IcyInfo(@Nullable
+<pre>public&nbsp;IcyInfo(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;rawMetadata,
+               @Nullable
                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;title,
                @Nullable
                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;url)</pre>
+<div class="block">Construct a new IcyInfo from the source metadata string, and optionally a StreamTitle and
+ StreamUrl that have been extracted.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>rawMetadata</code> - See <a href="../../../../../../com/google/android/exoplayer2/metadata/icy/IcyInfo.html#rawMetadata"><code>rawMetadata</code></a>.</dd>
 <dd><code>title</code> - See <a href="../../../../../../com/google/android/exoplayer2/metadata/icy/IcyInfo.html#title"><code>title</code></a>.</dd>
 <dd><code>url</code> - See <a href="../../../../../../com/google/android/exoplayer2/metadata/icy/IcyInfo.html#url"><code>url</code></a>.</dd>
 </dl>

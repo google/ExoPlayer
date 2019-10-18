@@ -1651,7 +1651,7 @@
 <dd>
 <div class="block">Returns a new <a href="com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html" title="class in com.google.android.exoplayer2.ext.ima"><code>ImaAdsLoader</code></a> for the specified ad tag.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#buildFormat-java.lang.String-java.lang.String-java.lang.String-int-int-float-int-int-int-java.lang.String-java.util.List-java.util.List-java.lang.String-java.util.List-">buildFormat(String, String, String, int, int, float, int, int, int, String, List&lt;Descriptor&gt;, List&lt;Descriptor&gt;, String, List&lt;Descriptor&gt;)</a></span> - Method in class com.google.android.exoplayer2.source.dash.manifest.<a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifestParser</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#buildFormat-java.lang.String-java.lang.String-int-int-float-int-int-int-java.lang.String-java.util.List-java.util.List-java.lang.String-java.util.List-">buildFormat(String, String, int, int, float, int, int, int, String, List&lt;Descriptor&gt;, List&lt;Descriptor&gt;, String, List&lt;Descriptor&gt;)</a></span> - Method in class com.google.android.exoplayer2.source.dash.manifest.<a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifestParser</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#buildMediaPresentationDescription-long-long-long-boolean-long-long-long-long-com.google.android.exoplayer2.source.dash.manifest.ProgramInformation-com.google.android.exoplayer2.source.dash.manifest.UtcTimingElement-android.net.Uri-java.util.List-">buildMediaPresentationDescription(long, long, long, boolean, long, long, long, long, ProgramInformation, UtcTimingElement, Uri, List&lt;Period&gt;)</a></span> - Method in class com.google.android.exoplayer2.source.dash.manifest.<a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifestParser</a></dt>
 <dd>&nbsp;</dd>
@@ -1708,7 +1708,7 @@
 <dd>
 <div class="block">Builds an <a href="https://developer.android.com/reference/android/content/Intent.html" target="_top" title="class or interface in android.content"><code>Intent</code></a> for removing the download with the <code>id</code>.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#buildRepresentation-com.google.android.exoplayer2.source.dash.manifest.DashManifestParser.RepresentationInfo-java.lang.String-java.util.ArrayList-java.util.ArrayList-">buildRepresentation(DashManifestParser.RepresentationInfo, String, ArrayList&lt;DrmInitData.SchemeData&gt;, ArrayList&lt;Descriptor&gt;)</a></span> - Method in class com.google.android.exoplayer2.source.dash.manifest.<a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifestParser</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#buildRepresentation-com.google.android.exoplayer2.source.dash.manifest.DashManifestParser.RepresentationInfo-java.lang.String-java.lang.String-java.util.ArrayList-java.util.ArrayList-">buildRepresentation(DashManifestParser.RepresentationInfo, String, String, ArrayList&lt;DrmInitData.SchemeData&gt;, ArrayList&lt;Descriptor&gt;)</a></span> - Method in class com.google.android.exoplayer2.source.dash.manifest.<a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifestParser</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.StreamElement.html#buildRequestUri-int-int-">buildRequestUri(int, int)</a></span> - Method in class com.google.android.exoplayer2.source.smoothstreaming.manifest.<a href="com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.StreamElement.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest.StreamElement</a></dt>
 <dd>
@@ -3444,6 +3444,8 @@
 <dd>
 <div class="block">Returns a copy with the specified ID.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/Format.html#copyWithLabel-java.lang.String-">copyWithLabel(String)</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/Format.html#copyWithManifestFormatInfo-com.google.android.exoplayer2.Format-">copyWithManifestFormatInfo(Format)</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/Format.html#copyWithMaxInputSize-int-">copyWithMaxInputSize(int)</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></dt>
@@ -4872,6 +4874,10 @@
 <dd>
 <div class="block">Default buffer size to be used while caching.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html#DEFAULT_BUFFERED_COLOR">DEFAULT_BUFFERED_COLOR</a></span> - Static variable in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html" title="class in com.google.android.exoplayer2.ui">DefaultTimeBar</a></dt>
+<dd>
+<div class="block">Default color for the buffered portion of the time bar.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE">DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE</a></span> - Static variable in class com.google.android.exoplayer2.trackselection.<a href="com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection">AdaptiveTrackSelection</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/upstream/cache/CacheUtil.html#DEFAULT_CACHE_KEY_FACTORY">DEFAULT_CACHE_KEY_FACTORY</a></span> - Static variable in class com.google.android.exoplayer2.upstream.cache.<a href="com/google/android/exoplayer2/upstream/cache/CacheUtil.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheUtil</a></dt>
@@ -5039,6 +5045,10 @@
 <dd>
 <div class="block">The default playback actions.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html#DEFAULT_PLAYED_AD_MARKER_COLOR">DEFAULT_PLAYED_AD_MARKER_COLOR</a></span> - Static variable in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html" title="class in com.google.android.exoplayer2.ui">DefaultTimeBar</a></dt>
+<dd>
+<div class="block">Default color for played ad markers.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html#DEFAULT_PLAYED_COLOR">DEFAULT_PLAYED_COLOR</a></span> - Static variable in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html" title="class in com.google.android.exoplayer2.ui">DefaultTimeBar</a></dt>
 <dd>
 <div class="block">Default color for the played portion of the time bar.</div>
@@ -5091,6 +5101,10 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/PlayerNotificationManager.html#DEFAULT_REWIND_MS">DEFAULT_REWIND_MS</a></span> - Static variable in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/PlayerNotificationManager.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager</a></dt>
 <dd>
 <div class="block">The default rewind increment, in milliseconds.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html#DEFAULT_SCRUBBER_COLOR">DEFAULT_SCRUBBER_COLOR</a></span> - Static variable in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html" title="class in com.google.android.exoplayer2.ui">DefaultTimeBar</a></dt>
+<dd>
+<div class="block">Default color for the scrubber handle.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html#DEFAULT_SCRUBBER_DISABLED_SIZE_DP">DEFAULT_SCRUBBER_DISABLED_SIZE_DP</a></span> - Static variable in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html" title="class in com.google.android.exoplayer2.ui">DefaultTimeBar</a></dt>
 <dd>
@@ -5153,6 +5167,10 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/offline/DownloadHelper.html#DEFAULT_TRACK_SELECTOR_PARAMETERS">DEFAULT_TRACK_SELECTOR_PARAMETERS</a></span> - Static variable in class com.google.android.exoplayer2.offline.<a href="com/google/android/exoplayer2/offline/DownloadHelper.html" title="class in com.google.android.exoplayer2.offline">DownloadHelper</a></dt>
 <dd>
 <div class="block">The default parameters used for track selection for downloading.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html#DEFAULT_UNPLAYED_COLOR">DEFAULT_UNPLAYED_COLOR</a></span> - Static variable in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html" title="class in com.google.android.exoplayer2.ui">DefaultTimeBar</a></dt>
+<dd>
+<div class="block">Default color for the played portion of the time bar.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/DefaultLoadControl.html#DEFAULT_VIDEO_BUFFER_SIZE">DEFAULT_VIDEO_BUFFER_SIZE</a></span> - Static variable in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/DefaultLoadControl.html" title="class in com.google.android.exoplayer2">DefaultLoadControl</a></dt>
 <dd>
@@ -5867,6 +5885,10 @@
 <dd>
 <div class="block">Bitmask of selection flags that are disabled for text track selections.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/mp3/Mp3Extractor.html#disableSeeking--">disableSeeking()</a></span> - Method in class com.google.android.exoplayer2.extractor.mp3.<a href="com/google/android/exoplayer2/extractor/mp3/Mp3Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp3">Mp3Extractor</a></dt>
+<dd>
+<div class="block">Disables the extractor from being able to seek through the media.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/audio/AudioSink.html#disableTunneling--">disableTunneling()</a></span> - Method in interface com.google.android.exoplayer2.audio.<a href="com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a></dt>
 <dd>
 <div class="block">Disables tunneling.</div>
@@ -6556,6 +6578,8 @@
 <div class="block">An empty <a href="com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/EmptySampleStream.html#EmptySampleStream--">EmptySampleStream()</a></span> - Constructor for class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/EmptySampleStream.html" title="class in com.google.android.exoplayer2.source">EmptySampleStream</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/HlsMetadataType.html#EMSG">EMSG</a></span> - Static variable in annotation type com.google.android.exoplayer2.source.hls.<a href="com/google/android/exoplayer2/source/hls/HlsMetadataType.html" title="annotation in com.google.android.exoplayer2.source.hls">HlsMetadataType</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/BaseRenderer.html#enable-com.google.android.exoplayer2.RendererConfiguration-com.google.android.exoplayer2.Format:A-com.google.android.exoplayer2.source.SampleStream-long-boolean-long-">enable(RendererConfiguration, Format[], SampleStream, long, boolean, long)</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/BaseRenderer.html" title="class in com.google.android.exoplayer2">BaseRenderer</a></dt>
 <dd>&nbsp;</dd>
@@ -7367,9 +7391,7 @@
 <div class="block">A factory that produces <a href="com/google/android/exoplayer2/upstream/DummyDataSource.html" title="class in com.google.android.exoplayer2.upstream"><code>DummyDataSource</code></a>.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/upstream/ResolvingDataSource.Factory.html#Factory-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.upstream.ResolvingDataSource.Resolver-">Factory(DataSource.Factory, ResolvingDataSource.Resolver)</a></span> - Constructor for class com.google.android.exoplayer2.upstream.<a href="com/google/android/exoplayer2/upstream/ResolvingDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream">ResolvingDataSource.Factory</a></dt>
-<dd>
-<div class="block">Creates factory for <a href="com/google/android/exoplayer2/upstream/ResolvingDataSource.html" title="class in com.google.android.exoplayer2.upstream"><code>ResolvingDataSource</code></a> instances.</div>
-</dd>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/audio/DefaultAudioSink.html#failOnSpuriousAudioTimestamp">failOnSpuriousAudioTimestamp</a></span> - Static variable in class com.google.android.exoplayer2.audio.<a href="com/google/android/exoplayer2/audio/DefaultAudioSink.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink</a></dt>
 <dd>
 <div class="block">Whether to throw an <a href="com/google/android/exoplayer2/audio/DefaultAudioSink.InvalidAudioTrackTimestampException.html" title="class in com.google.android.exoplayer2.audio"><code>DefaultAudioSink.InvalidAudioTrackTimestampException</code></a> when a spurious timestamp is
@@ -8797,10 +8819,6 @@
 <dd>
 <div class="block">Returns the default artwork to display.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html#getDefaultBufferedColor-int-">getDefaultBufferedColor(int)</a></span> - Static method in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html" title="class in com.google.android.exoplayer2.ui">DefaultTimeBar</a></dt>
-<dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html#getDefaultPlayedAdMarkerColor-int-">getDefaultPlayedAdMarkerColor(int)</a></span> - Static method in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html" title="class in com.google.android.exoplayer2.ui">DefaultTimeBar</a></dt>
-<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/Timeline.Window.html#getDefaultPositionMs--">getDefaultPositionMs()</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a></dt>
 <dd>
 <div class="block">Returns the default position relative to the start of the window at which to begin playback,
@@ -8818,10 +8836,6 @@
 <div class="block">Gets the default request properties used by all <a href="com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a>s created by the
  factory.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html#getDefaultScrubberColor-int-">getDefaultScrubberColor(int)</a></span> - Static method in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html" title="class in com.google.android.exoplayer2.ui">DefaultTimeBar</a></dt>
-<dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html#getDefaultUnplayedColor-int-">getDefaultUnplayedColor(int)</a></span> - Static method in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html" title="class in com.google.android.exoplayer2.ui">DefaultTimeBar</a></dt>
-<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/drm/ExoMediaDrm.ProvisionRequest.html#getDefaultUrl--">getDefaultUrl()</a></span> - Method in class com.google.android.exoplayer2.drm.<a href="com/google/android/exoplayer2/drm/ExoMediaDrm.ProvisionRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.ProvisionRequest</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/PlayerMessage.html#getDeleteAfterDelivery--">getDeleteAfterDelivery()</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a></dt>
@@ -9764,7 +9778,7 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/Player.html#getPlaybackSuppressionReason--">getPlaybackSuppressionReason()</a></span> - Method in interface com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></dt>
 <dd>
-<div class="block">Returns reason why playback is suppressed even if <a href="com/google/android/exoplayer2/Player.html#getPlaybackState--"><code>Player.getPlaybackState()</code></a> is <a href="com/google/android/exoplayer2/Player.html#STATE_READY"><code>Player.STATE_READY</code></a> and <a href="com/google/android/exoplayer2/Player.html#getPlayWhenReady--"><code>Player.getPlayWhenReady()</code></a> is <code>true</code>.</div>
+<div class="block">Returns the reason why playback is suppressed even though <a href="com/google/android/exoplayer2/Player.html#getPlayWhenReady--"><code>Player.getPlayWhenReady()</code></a> is <code>true</code>, or <a href="com/google/android/exoplayer2/Player.html#PLAYBACK_SUPPRESSION_REASON_NONE"><code>Player.PLAYBACK_SUPPRESSION_REASON_NONE</code></a> if playback is not suppressed.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/SimpleExoPlayer.html#getPlaybackSuppressionReason--">getPlaybackSuppressionReason()</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a></dt>
 <dd>&nbsp;</dd>
@@ -11278,7 +11292,7 @@
 <dd>
 <div class="block">A <a href="com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a> that loads an HLS stream.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/HlsMediaPeriod.html#HlsMediaPeriod-com.google.android.exoplayer2.source.hls.HlsExtractorFactory-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker-com.google.android.exoplayer2.source.hls.HlsDataSourceFactory-com.google.android.exoplayer2.upstream.TransferListener-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-com.google.android.exoplayer2.upstream.Allocator-com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory-boolean-boolean-">HlsMediaPeriod(HlsExtractorFactory, HlsPlaylistTracker, HlsDataSourceFactory, TransferListener, LoadErrorHandlingPolicy, MediaSourceEventListener.EventDispatcher, Allocator, CompositeSequenceableLoaderFactory, boolean, boolean)</a></span> - Constructor for class com.google.android.exoplayer2.source.hls.<a href="com/google/android/exoplayer2/source/hls/HlsMediaPeriod.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaPeriod</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/HlsMediaPeriod.html#HlsMediaPeriod-com.google.android.exoplayer2.source.hls.HlsExtractorFactory-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker-com.google.android.exoplayer2.source.hls.HlsDataSourceFactory-com.google.android.exoplayer2.upstream.TransferListener-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-com.google.android.exoplayer2.upstream.Allocator-com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory-boolean-int-boolean-">HlsMediaPeriod(HlsExtractorFactory, HlsPlaylistTracker, HlsDataSourceFactory, TransferListener, LoadErrorHandlingPolicy, MediaSourceEventListener.EventDispatcher, Allocator, CompositeSequenceableLoaderFactory, boolean, int, boolean)</a></span> - Constructor for class com.google.android.exoplayer2.source.hls.<a href="com/google/android/exoplayer2/source/hls/HlsMediaPeriod.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaPeriod</a></dt>
 <dd>
 <div class="block">Creates an HLS media period.</div>
 </dd>
@@ -11303,6 +11317,10 @@
 <dt><a href="com/google/android/exoplayer2/source/hls/HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls"><span class="typeNameLink">HlsMediaSource.Factory</span></a> - Class in <a href="com/google/android/exoplayer2/source/hls/package-summary.html">com.google.android.exoplayer2.source.hls</a></dt>
 <dd>
 <div class="block">Factory for <a href="com/google/android/exoplayer2/source/hls/HlsMediaSource.html" title="class in com.google.android.exoplayer2.source.hls"><code>HlsMediaSource</code></a>s.</div>
+</dd>
+<dt><a href="com/google/android/exoplayer2/source/hls/HlsMetadataType.html" title="annotation in com.google.android.exoplayer2.source.hls"><span class="typeNameLink">HlsMetadataType</span></a> - Annotation Type in <a href="com/google/android/exoplayer2/source/hls/package-summary.html">com.google.android.exoplayer2.source.hls</a></dt>
+<dd>
+<div class="block">The types of metadata that can be extracted from HLS streams.</div>
 </dd>
 <dt><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><span class="typeNameLink">HlsPlaylist</span></a> - Class in <a href="com/google/android/exoplayer2/source/hls/playlist/package-summary.html">com.google.android.exoplayer2.source.hls.playlist</a></dt>
 <dd>
@@ -11452,8 +11470,11 @@
 <dd>
 <div class="block">ICY in-stream information.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/icy/IcyInfo.html#IcyInfo-java.lang.String-java.lang.String-">IcyInfo(String, String)</a></span> - Constructor for class com.google.android.exoplayer2.metadata.icy.<a href="com/google/android/exoplayer2/metadata/icy/IcyInfo.html" title="class in com.google.android.exoplayer2.metadata.icy">IcyInfo</a></dt>
-<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/icy/IcyInfo.html#IcyInfo-java.lang.String-java.lang.String-java.lang.String-">IcyInfo(String, String, String)</a></span> - Constructor for class com.google.android.exoplayer2.metadata.icy.<a href="com/google/android/exoplayer2/metadata/icy/IcyInfo.html" title="class in com.google.android.exoplayer2.metadata.icy">IcyInfo</a></dt>
+<dd>
+<div class="block">Construct a new IcyInfo from the source metadata string, and optionally a StreamTitle and
+ StreamUrl that have been extracted.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/mp4/Track.html#id">id</a></span> - Variable in class com.google.android.exoplayer2.extractor.mp4.<a href="com/google/android/exoplayer2/extractor/mp4/Track.html" title="class in com.google.android.exoplayer2.extractor.mp4">Track</a></dt>
 <dd>
 <div class="block">The track identifier.</div>
@@ -11515,6 +11536,8 @@
 <dd>
 <div class="block">An identifier for the period.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/HlsMetadataType.html#ID3">ID3</a></span> - Static variable in annotation type com.google.android.exoplayer2.source.hls.<a href="com/google/android/exoplayer2/source/hls/HlsMetadataType.html" title="annotation in com.google.android.exoplayer2.source.hls">HlsMetadataType</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/id3/Id3Decoder.html#ID3_HEADER_LENGTH">ID3_HEADER_LENGTH</a></span> - Static variable in class com.google.android.exoplayer2.metadata.id3.<a href="com/google/android/exoplayer2/metadata/id3/Id3Decoder.html" title="class in com.google.android.exoplayer2.metadata.id3">Id3Decoder</a></dt>
 <dd>
 <div class="block">Length of an ID3 tag header.</div>
@@ -14893,6 +14916,12 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html#onInputFormatChanged-com.google.android.exoplayer2.Format-">onInputFormatChanged(Format)</a></span> - Method in class com.google.android.exoplayer2.video.<a href="com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html" title="class in com.google.android.exoplayer2.video">MediaCodecVideoRenderer</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/analytics/AnalyticsCollector.html#onIsPlayingChanged-boolean-">onIsPlayingChanged(boolean)</a></span> - Method in class com.google.android.exoplayer2.analytics.<a href="com/google/android/exoplayer2/analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/analytics/AnalyticsListener.html#onIsPlayingChanged-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-boolean-">onIsPlayingChanged(AnalyticsListener.EventTime, boolean)</a></span> - Method in interface com.google.android.exoplayer2.analytics.<a href="com/google/android/exoplayer2/analytics/AnalyticsListener.html" title="interface in com.google.android.exoplayer2.analytics">AnalyticsListener</a></dt>
+<dd>
+<div class="block">Called when the player starts or stops playing.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/Player.EventListener.html#onIsPlayingChanged-boolean-">onIsPlayingChanged(boolean)</a></span> - Method in interface com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a></dt>
 <dd>
 <div class="block">Called when the value of <a href="com/google/android/exoplayer2/Player.html#isPlaying--"><code>Player.isPlaying()</code></a> changes.</div>
@@ -15128,6 +15157,16 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/trackselection/TrackSelection.html#onPlaybackSpeed-float-">onPlaybackSpeed(float)</a></span> - Method in interface com.google.android.exoplayer2.trackselection.<a href="com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a></dt>
 <dd>
 <div class="block">Called to notify the selection of the current playback speed.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/analytics/AnalyticsCollector.html#onPlaybackSuppressionReasonChanged-int-">onPlaybackSuppressionReasonChanged(int)</a></span> - Method in class com.google.android.exoplayer2.analytics.<a href="com/google/android/exoplayer2/analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/analytics/AnalyticsListener.html#onPlaybackSuppressionReasonChanged-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-int-">onPlaybackSuppressionReasonChanged(AnalyticsListener.EventTime, int)</a></span> - Method in interface com.google.android.exoplayer2.analytics.<a href="com/google/android/exoplayer2/analytics/AnalyticsListener.html" title="interface in com.google.android.exoplayer2.analytics">AnalyticsListener</a></dt>
+<dd>
+<div class="block">Called when playback suppression reason changed.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/Player.EventListener.html#onPlaybackSuppressionReasonChanged-int-">onPlaybackSuppressionReasonChanged(int)</a></span> - Method in interface com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a></dt>
+<dd>
+<div class="block">Called when the value returned from <a href="com/google/android/exoplayer2/Player.html#getPlaybackSuppressionReason--"><code>Player.getPlaybackSuppressionReason()</code></a> changes.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/analytics/AnalyticsCollector.html#onPlayerError-com.google.android.exoplayer2.ExoPlaybackException-">onPlayerError(ExoPlaybackException)</a></span> - Method in class com.google.android.exoplayer2.analytics.<a href="com/google/android/exoplayer2/analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector</a></dt>
 <dd>&nbsp;</dd>
@@ -16116,8 +16155,10 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseAudioChannelConfiguration-org.xmlpull.v1.XmlPullParser-">parseAudioChannelConfiguration(XmlPullParser)</a></span> - Method in class com.google.android.exoplayer2.source.dash.manifest.<a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifestParser</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseBaseUrl-org.xmlpull.v1.XmlPullParser-java.lang.String-">parseBaseUrl(XmlPullParser, String)</a></span> - Static method in class com.google.android.exoplayer2.source.dash.manifest.<a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifestParser</a></dt>
-<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseBaseUrl-org.xmlpull.v1.XmlPullParser-java.lang.String-">parseBaseUrl(XmlPullParser, String)</a></span> - Method in class com.google.android.exoplayer2.source.dash.manifest.<a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifestParser</a></dt>
+<dd>
+<div class="block">Parses a BaseURL element.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseCea608AccessibilityChannel-java.util.List-">parseCea608AccessibilityChannel(List&lt;Descriptor&gt;)</a></span> - Static method in class com.google.android.exoplayer2.source.dash.manifest.<a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifestParser</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseCea708AccessibilityChannel-java.util.List-">parseCea708AccessibilityChannel(List&lt;Descriptor&gt;)</a></span> - Static method in class com.google.android.exoplayer2.source.dash.manifest.<a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifestParser</a></dt>
@@ -16148,7 +16189,8 @@
 <dd>
 <div class="block">Parses the number of channels from the value attribute of an AudioElementConfiguration with
  schemeIdUri "tag:dolby.com,2014:dash:audio_channel_configuration:2011", as defined by table E.5
- in ETSI TS 102 366.</div>
+ in ETSI TS 102 366, or the legacy schemeIdUri
+ "urn:dolby:dash:audio_channel_configuration:2011".</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/audio/DtsUtil.html#parseDtsAudioSampleCount-byte:A-">parseDtsAudioSampleCount(byte[])</a></span> - Static method in class com.google.android.exoplayer2.audio.<a href="com/google/android/exoplayer2/audio/DtsUtil.html" title="class in com.google.android.exoplayer2.audio">DtsUtil</a></dt>
 <dd>
@@ -16195,6 +16237,10 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseInt-org.xmlpull.v1.XmlPullParser-java.lang.String-int-">parseInt(XmlPullParser, String, int)</a></span> - Static method in class com.google.android.exoplayer2.source.dash.manifest.<a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifestParser</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseLabel-org.xmlpull.v1.XmlPullParser-">parseLabel(XmlPullParser)</a></span> - Method in class com.google.android.exoplayer2.source.dash.manifest.<a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifestParser</a></dt>
+<dd>
+<div class="block">Parses a Label element.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseLastSegmentNumberSupplementalProperty-java.util.List-">parseLastSegmentNumberSupplementalProperty(List&lt;Descriptor&gt;)</a></span> - Static method in class com.google.android.exoplayer2.source.dash.manifest.<a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifestParser</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseLong-org.xmlpull.v1.XmlPullParser-java.lang.String-long-">parseLong(XmlPullParser, String, long)</a></span> - Static method in class com.google.android.exoplayer2.source.dash.manifest.<a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifestParser</a></dt>
@@ -16216,7 +16262,7 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseRangedUrl-org.xmlpull.v1.XmlPullParser-java.lang.String-java.lang.String-">parseRangedUrl(XmlPullParser, String, String)</a></span> - Method in class com.google.android.exoplayer2.source.dash.manifest.<a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifestParser</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseRepresentation-org.xmlpull.v1.XmlPullParser-java.lang.String-java.lang.String-java.lang.String-java.lang.String-int-int-float-int-int-java.lang.String-java.util.List-java.util.List-java.util.List-com.google.android.exoplayer2.source.dash.manifest.SegmentBase-">parseRepresentation(XmlPullParser, String, String, String, String, int, int, float, int, int, String, List&lt;Descriptor&gt;, List&lt;Descriptor&gt;, List&lt;Descriptor&gt;, SegmentBase)</a></span> - Method in class com.google.android.exoplayer2.source.dash.manifest.<a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifestParser</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseRepresentation-org.xmlpull.v1.XmlPullParser-java.lang.String-java.lang.String-java.lang.String-int-int-float-int-int-java.lang.String-java.util.List-java.util.List-java.util.List-com.google.android.exoplayer2.source.dash.manifest.SegmentBase-">parseRepresentation(XmlPullParser, String, String, String, int, int, float, int, int, String, List&lt;Descriptor&gt;, List&lt;Descriptor&gt;, List&lt;Descriptor&gt;, SegmentBase)</a></span> - Method in class com.google.android.exoplayer2.source.dash.manifest.<a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifestParser</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/google/android/exoplayer2/ParserException.html" title="class in com.google.android.exoplayer2"><span class="typeNameLink">ParserException</span></a> - Exception in <a href="com/google/android/exoplayer2/package-summary.html">com.google.android.exoplayer2</a></dt>
 <dd>
@@ -16256,6 +16302,8 @@
  7.3.2.1.1.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseString-org.xmlpull.v1.XmlPullParser-java.lang.String-java.lang.String-">parseString(XmlPullParser, String, String)</a></span> - Static method in class com.google.android.exoplayer2.source.dash.manifest.<a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifestParser</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseText-org.xmlpull.v1.XmlPullParser-java.lang.String-">parseText(XmlPullParser, String)</a></span> - Static method in class com.google.android.exoplayer2.source.dash.manifest.<a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifestParser</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/text/ssa/SsaDecoder.html#parseTimecodeUs-java.lang.String-">parseTimecodeUs(String)</a></span> - Static method in class com.google.android.exoplayer2.text.ssa.<a href="com/google/android/exoplayer2/text/ssa/SsaDecoder.html" title="class in com.google.android.exoplayer2.text.ssa">SsaDecoder</a></dt>
 <dd>
@@ -16472,13 +16520,13 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html#playAd--">playAd()</a></span> - Method in class com.google.android.exoplayer2.ext.ima.<a href="com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/Player.html#PLAYBACK_SUPPRESSION_REASON_AUDIO_FOCUS_LOSS">PLAYBACK_SUPPRESSION_REASON_AUDIO_FOCUS_LOSS</a></span> - Static variable in interface com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></dt>
-<dd>
-<div class="block">Playback is suppressed because audio focus is lost or can't be acquired.</div>
-</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/Player.html#PLAYBACK_SUPPRESSION_REASON_NONE">PLAYBACK_SUPPRESSION_REASON_NONE</a></span> - Static variable in interface com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></dt>
 <dd>
 <div class="block">Playback is not suppressed.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/Player.html#PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS">PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS</a></span> - Static variable in interface com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></dt>
+<dd>
+<div class="block">Playback is suppressed due to transient audio focus loss.</div>
 </dd>
 <dt><a href="com/google/android/exoplayer2/ui/PlaybackControlView.html" title="class in com.google.android.exoplayer2.ui"><span class="typeNameLink">PlaybackControlView</span></a> - Class in <a href="com/google/android/exoplayer2/ui/package-summary.html">com.google.android.exoplayer2.ui</a></dt>
 <dd>
@@ -16563,8 +16611,7 @@
 </dd>
 <dt><a href="com/google/android/exoplayer2/Player.PlaybackSuppressionReason.html" title="annotation in com.google.android.exoplayer2"><span class="typeNameLink">Player.PlaybackSuppressionReason</span></a> - Annotation Type in <a href="com/google/android/exoplayer2/package-summary.html">com.google.android.exoplayer2</a></dt>
 <dd>
-<div class="block">Reason why playback is suppressed even if <a href="com/google/android/exoplayer2/Player.html#getPlaybackState--"><code>Player.getPlaybackState()</code></a> is <a href="com/google/android/exoplayer2/Player.html#STATE_READY"><code>Player.STATE_READY</code></a>
- and <a href="com/google/android/exoplayer2/Player.html#getPlayWhenReady--"><code>Player.getPlayWhenReady()</code></a> is <code>true</code>.</div>
+<div class="block">Reason why playback is suppressed even though <a href="com/google/android/exoplayer2/Player.html#getPlayWhenReady--"><code>Player.getPlayWhenReady()</code></a> is <code>true</code>.</div>
 </dd>
 <dt><a href="com/google/android/exoplayer2/Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2"><span class="typeNameLink">Player.RepeatMode</span></a> - Annotation Type in <a href="com/google/android/exoplayer2/package-summary.html">com.google.android.exoplayer2</a></dt>
 <dd>
@@ -17252,6 +17299,10 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/rawcc/RawCcExtractor.html#RawCcExtractor-com.google.android.exoplayer2.Format-">RawCcExtractor(Format)</a></span> - Constructor for class com.google.android.exoplayer2.extractor.rawcc.<a href="com/google/android/exoplayer2/extractor/rawcc/RawCcExtractor.html" title="class in com.google.android.exoplayer2.extractor.rawcc">RawCcExtractor</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/icy/IcyInfo.html#rawMetadata">rawMetadata</a></span> - Variable in class com.google.android.exoplayer2.metadata.icy.<a href="com/google/android/exoplayer2/metadata/icy/IcyInfo.html" title="class in com.google.android.exoplayer2.metadata.icy">IcyInfo</a></dt>
+<dd>
+<div class="block">The complete metadata string used to construct this IcyInfo.</div>
+</dd>
 <dt><a href="com/google/android/exoplayer2/upstream/RawResourceDataSource.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">RawResourceDataSource</span></a> - Class in <a href="com/google/android/exoplayer2/upstream/package-summary.html">com.google.android.exoplayer2.upstream</a></dt>
 <dd>
 <div class="block">A <a href="com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> for reading a raw resource inside the APK.</div>
@@ -20294,6 +20345,10 @@
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/SimpleExoPlayer.html#addMetadataOutput-com.google.android.exoplayer2.metadata.MetadataOutput-"><code>SimpleExoPlayer.addMetadataOutput(MetadataOutput)</code></a>.</span></div>
 </div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/HlsMediaSource.Factory.html#setMetadataType-int-">setMetadataType(int)</a></span> - Method in class com.google.android.exoplayer2.source.hls.<a href="com/google/android/exoplayer2/source/hls/HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a></dt>
+<dd>
+<div class="block">Sets the type of metadata to extract from the HLS source (defaults to <a href="com/google/android/exoplayer2/source/hls/HlsMetadataType.html#ID3"><code>HlsMetadataType.ID3</code></a>).</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html#setMimeType-java.lang.String-">setMimeType(String)</a></span> - Method in class com.google.android.exoplayer2.ext.cast.<a href="com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem.Builder</a></dt>
 <dd>
@@ -23625,7 +23680,7 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/icy/IcyInfo.html#url">url</a></span> - Variable in class com.google.android.exoplayer2.metadata.icy.<a href="com/google/android/exoplayer2/metadata/icy/IcyInfo.html" title="class in com.google.android.exoplayer2.metadata.icy">IcyInfo</a></dt>
 <dd>
-<div class="block">The stream title if present, or <code>null</code>.</div>
+<div class="block">The stream URL if present, or <code>null</code>.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/id3/UrlLinkFrame.html#url">url</a></span> - Variable in class com.google.android.exoplayer2.metadata.id3.<a href="com/google/android/exoplayer2/metadata/id3/UrlLinkFrame.html" title="class in com.google.android.exoplayer2.metadata.id3">UrlLinkFrame</a></dt>
 <dd>&nbsp;</dd>

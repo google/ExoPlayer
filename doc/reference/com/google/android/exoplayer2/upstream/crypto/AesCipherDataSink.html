@@ -250,10 +250,11 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>secretKey</code> - The key data.</dd>
 <dd><code>wrappedDataSink</code> - The wrapped <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSink</code></a>.</dd>
-<dd><code>scratch</code> - Scratch space. Data is decrypted into this array before being written to the
+<dd><code>scratch</code> - Scratch space. Data is encrypted into this array before being written to the
      wrapped <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSink</code></a>. It should be of appropriate size for the expected writes. If a
      write is larger than the size of this array the write will still succeed, but multiple
-     cipher calls will be required to complete the operation.</dd>
+     cipher calls will be required to complete the operation. If <code>null</code> then encryption
+     will overwrite the input <code>data</code>.</dd>
 </dl>
 </li>
 </ul>

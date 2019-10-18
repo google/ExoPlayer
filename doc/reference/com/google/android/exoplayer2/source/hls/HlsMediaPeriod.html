@@ -147,7 +147,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaPeriod.html#HlsMediaPeriod-com.google.android.exoplayer2.source.hls.HlsExtractorFactory-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker-com.google.android.exoplayer2.source.hls.HlsDataSourceFactory-com.google.android.exoplayer2.upstream.TransferListener-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-com.google.android.exoplayer2.upstream.Allocator-com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory-boolean-boolean-">HlsMediaPeriod</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsExtractorFactory.html" title="interface in com.google.android.exoplayer2.source.hls">HlsExtractorFactory</a>&nbsp;extractorFactory,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaPeriod.html#HlsMediaPeriod-com.google.android.exoplayer2.source.hls.HlsExtractorFactory-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker-com.google.android.exoplayer2.source.hls.HlsDataSourceFactory-com.google.android.exoplayer2.upstream.TransferListener-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-com.google.android.exoplayer2.upstream.Allocator-com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory-boolean-int-boolean-">HlsMediaPeriod</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsExtractorFactory.html" title="interface in com.google.android.exoplayer2.source.hls">HlsExtractorFactory</a>&nbsp;extractorFactory,
               <a href="../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a>&nbsp;playlistTracker,
               <a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsDataSourceFactory.html" title="interface in com.google.android.exoplayer2.source.hls">HlsDataSourceFactory</a>&nbsp;dataSourceFactory,
               <a href="../../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;mediaTransferListener,
@@ -156,6 +156,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
               <a href="../../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator,
               <a href="../../../../../../com/google/android/exoplayer2/source/CompositeSequenceableLoaderFactory.html" title="interface in com.google.android.exoplayer2.source">CompositeSequenceableLoaderFactory</a>&nbsp;compositeSequenceableLoaderFactory,
               boolean&nbsp;allowChunklessPreparation,
+              int&nbsp;metadataType,
               boolean&nbsp;useSessionKeys)</code>
 <div class="block">Creates an HLS media period.</div>
 </td>
@@ -321,7 +322,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="HlsMediaPeriod-com.google.android.exoplayer2.source.hls.HlsExtractorFactory-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker-com.google.android.exoplayer2.source.hls.HlsDataSourceFactory-com.google.android.exoplayer2.upstream.TransferListener-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-com.google.android.exoplayer2.upstream.Allocator-com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory-boolean-boolean-">
+<a name="HlsMediaPeriod-com.google.android.exoplayer2.source.hls.HlsExtractorFactory-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker-com.google.android.exoplayer2.source.hls.HlsDataSourceFactory-com.google.android.exoplayer2.upstream.TransferListener-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-com.google.android.exoplayer2.upstream.Allocator-com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory-boolean-int-boolean-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -337,6 +338,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
                       <a href="../../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator,
                       <a href="../../../../../../com/google/android/exoplayer2/source/CompositeSequenceableLoaderFactory.html" title="interface in com.google.android.exoplayer2.source">CompositeSequenceableLoaderFactory</a>&nbsp;compositeSequenceableLoaderFactory,
                       boolean&nbsp;allowChunklessPreparation,
+                      int&nbsp;metadataType,
                       boolean&nbsp;useSessionKeys)</pre>
 <div class="block">Creates an HLS media period.</div>
 <dl>
