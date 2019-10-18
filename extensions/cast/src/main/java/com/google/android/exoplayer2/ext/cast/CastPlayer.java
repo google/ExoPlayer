@@ -57,9 +57,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * {@link Player} implementation that communicates with a Cast receiver app.
  *
  * <p>The behavior of this class depends on the underlying Cast session, which is obtained from the
- * Cast context passed to {@link #@}. To keep track of the session, {@link
- * #isCastSessionAvailable()} can be queried and {@link SessionAvailabilityListener} can be
- * implemented and attached to the player.
+ * injected {@link CastContext}. To keep track of the session, {@link #isCastSessionAvailable()} can
+ * be queried and {@link SessionAvailabilityListener} can be implemented and attached to the player.
  *
  * <p>If no session is available, the player state will remain unchanged and calls to methods that
  * alter it will be ignored. Querying the player state is possible even when no session is
