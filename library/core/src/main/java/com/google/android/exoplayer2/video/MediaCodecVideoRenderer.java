@@ -1718,11 +1718,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     return surface;
   }
 
-  /** Returns true if the first frame has been rendered (playback has not necessarily begun). */
-  protected final boolean haveRenderedFirstFrame() {
-    return renderedFirstFrame;
-  }
-
   protected static final class CodecMaxValues {
 
     public final int width;
