@@ -196,11 +196,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   /** The url of the playlist from which this chunk was obtained. */
   public final Uri playlistUrl;
 
-  // These should be final, but can't be due to
-  // https://github.com/typetools/checker-framework/issues/2215
-  @MonotonicNonNull private DataSource initDataSource;
-  @MonotonicNonNull private DataSpec initDataSpec;
-  @MonotonicNonNull private Extractor previousExtractor;
+  @Nullable private final DataSource initDataSource;
+  @Nullable private final DataSpec initDataSpec;
+  @Nullable private final Extractor previousExtractor;
 
   private final boolean isMasterTimestampSource;
   private final boolean hasGapTag;
@@ -260,12 +258,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         chunkMediaSequence);
     this.mediaSegmentEncrypted = mediaSegmentEncrypted;
     this.discontinuitySequenceNumber = discontinuitySequenceNumber;
-    // Workaround for https://github.com/typetools/checker-framework/issues/2215
-    if (initDataSpec != null) {
-      this.initDataSpec = initDataSpec;
-      this.initDataSource = Assertions.checkNotNull(initDataSource);
-      initDataLoadRequired = true;
-    }
+    this.initDataSpec = initDataSpec;
+    this.initDataSource = initDataSource;
+    this.initDataLoadRequired = initDataSpec != null;
     this.initSegmentEncrypted = initSegmentEncrypted;
     this.playlistUrl = playlistUrl;
     this.isMasterTimestampSource = isMasterTimestampSource;
@@ -274,10 +269,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     this.extractorFactory = extractorFactory;
     this.muxedCaptionFormats = muxedCaptionFormats;
     this.drmInitData = drmInitData;
-    // Workaround for https://github.com/typetools/checker-framework/issues/2215
-    if (previousExtractor != null) {
-      this.previousExtractor = previousExtractor;
-    }
+    this.previousExtractor = previousExtractor;
     this.id3Decoder = id3Decoder;
     this.scratchId3Data = scratchId3Data;
     this.shouldSpliceIn = shouldSpliceIn;
