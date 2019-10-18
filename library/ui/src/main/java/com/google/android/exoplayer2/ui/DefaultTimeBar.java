@@ -98,19 +98,19 @@ import java.util.concurrent.CopyOnWriteArraySet;
  *   <li><b>{@code scrubber_color}</b> - Color for the scrubber handle.
  *       <ul>
  *         <li>Corresponding method: {@link #setScrubberColor(int)}
- *         <li>Default: see {@link #getDefaultScrubberColor(int)}
+ *         <li>Default: {@link #DEFAULT_SCRUBBER_COLOR}
  *       </ul>
  *   <li><b>{@code buffered_color}</b> - Color for the portion of the time bar after the current
  *       played position up to the current buffered position.
  *       <ul>
  *         <li>Corresponding method: {@link #setBufferedColor(int)}
- *         <li>Default: see {@link #getDefaultBufferedColor(int)}
+ *         <li>Default: {@link #DEFAULT_BUFFERED_COLOR}
  *       </ul>
  *   <li><b>{@code unplayed_color}</b> - Color for the portion of the time bar after the current
  *       buffered position.
  *       <ul>
  *         <li>Corresponding method: {@link #setUnplayedColor(int)}
- *         <li>Default: see {@link #getDefaultUnplayedColor(int)}
+ *         <li>Default: {@link #DEFAULT_UNPLAYED_COLOR}
  *       </ul>
  *   <li><b>{@code ad_marker_color}</b> - Color for unplayed ad markers.
  *       <ul>
@@ -120,7 +120,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
  *   <li><b>{@code played_ad_marker_color}</b> - Color for played ad markers.
  *       <ul>
  *         <li>Corresponding method: {@link #setPlayedAdMarkerColor(int)}
- *         <li>Default: see {@link #getDefaultPlayedAdMarkerColor(int)}
+ *         <li>Default: {@link #DEFAULT_PLAYED_AD_MARKER_COLOR}
  *       </ul>
  * </ul>
  */
@@ -154,10 +154,16 @@ public class DefaultTimeBar extends View implements TimeBar {
    * Default color for the played portion of the time bar.
    */
   public static final int DEFAULT_PLAYED_COLOR = 0xFFFFFFFF;
-  /**
-   * Default color for ad markers.
-   */
+  /** Default color for the played portion of the time bar. */
+  public static final int DEFAULT_UNPLAYED_COLOR = 0x33FFFFFF;
+  /** Default color for the buffered portion of the time bar. */
+  public static final int DEFAULT_BUFFERED_COLOR = 0xCCFFFFFF;
+  /** Default color for the scrubber handle. */
+  public static final int DEFAULT_SCRUBBER_COLOR = 0xFFFFFFFF;
+  /** Default color for ad markers. */
   public static final int DEFAULT_AD_MARKER_COLOR = 0xB2FFFF00;
+  /** Default color for played ad markers. */
+  public static final int DEFAULT_PLAYED_AD_MARKER_COLOR = 0x33FFFF00;
 
   /**
    * The threshold in dps above the bar at which touch events trigger fine scrub mode.
@@ -289,16 +295,17 @@ public class DefaultTimeBar extends View implements TimeBar {
         scrubberDraggedSize = a.getDimensionPixelSize(
             R.styleable.DefaultTimeBar_scrubber_dragged_size, defaultScrubberDraggedSize);
         int playedColor = a.getInt(R.styleable.DefaultTimeBar_played_color, DEFAULT_PLAYED_COLOR);
-        int scrubberColor = a.getInt(R.styleable.DefaultTimeBar_scrubber_color,
-            getDefaultScrubberColor(playedColor));
-        int bufferedColor = a.getInt(R.styleable.DefaultTimeBar_buffered_color,
-            getDefaultBufferedColor(playedColor));
-        int unplayedColor = a.getInt(R.styleable.DefaultTimeBar_unplayed_color,
-            getDefaultUnplayedColor(playedColor));
+        int scrubberColor =
+            a.getInt(R.styleable.DefaultTimeBar_scrubber_color, DEFAULT_SCRUBBER_COLOR);
+        int bufferedColor =
+            a.getInt(R.styleable.DefaultTimeBar_buffered_color, DEFAULT_BUFFERED_COLOR);
+        int unplayedColor =
+            a.getInt(R.styleable.DefaultTimeBar_unplayed_color, DEFAULT_UNPLAYED_COLOR);
         int adMarkerColor = a.getInt(R.styleable.DefaultTimeBar_ad_marker_color,
             DEFAULT_AD_MARKER_COLOR);
-        int playedAdMarkerColor = a.getInt(R.styleable.DefaultTimeBar_played_ad_marker_color,
-            getDefaultPlayedAdMarkerColor(adMarkerColor));
+        int playedAdMarkerColor =
+            a.getInt(
+                R.styleable.DefaultTimeBar_played_ad_marker_color, DEFAULT_PLAYED_AD_MARKER_COLOR);
         playedPaint.setColor(playedColor);
         scrubberPaint.setColor(scrubberColor);
         bufferedPaint.setColor(bufferedColor);
@@ -316,10 +323,11 @@ public class DefaultTimeBar extends View implements TimeBar {
       scrubberDisabledSize = defaultScrubberDisabledSize;
       scrubberDraggedSize = defaultScrubberDraggedSize;
       playedPaint.setColor(DEFAULT_PLAYED_COLOR);
-      scrubberPaint.setColor(getDefaultScrubberColor(DEFAULT_PLAYED_COLOR));
-      bufferedPaint.setColor(getDefaultBufferedColor(DEFAULT_PLAYED_COLOR));
-      unplayedPaint.setColor(getDefaultUnplayedColor(DEFAULT_PLAYED_COLOR));
+      scrubberPaint.setColor(DEFAULT_SCRUBBER_COLOR);
+      bufferedPaint.setColor(DEFAULT_BUFFERED_COLOR);
+      unplayedPaint.setColor(DEFAULT_UNPLAYED_COLOR);
       adMarkerPaint.setColor(DEFAULT_AD_MARKER_COLOR);
+      playedAdMarkerPaint.setColor(DEFAULT_PLAYED_AD_MARKER_COLOR);
       scrubberDrawable = null;
     }
     formatBuilder = new StringBuilder();
@@ -854,22 +862,6 @@ public class DefaultTimeBar extends View implements TimeBar {
 
   private static boolean setDrawableLayoutDirection(Drawable drawable, int layoutDirection) {
     return Util.SDK_INT >= 23 && drawable.setLayoutDirection(layoutDirection);
-  }
-
-  public static int getDefaultScrubberColor(int playedColor) {
-    return 0xFF000000 | playedColor;
-  }
-
-  public static int getDefaultUnplayedColor(int playedColor) {
-    return 0x33000000 | (playedColor & 0x00FFFFFF);
-  }
-
-  public static int getDefaultBufferedColor(int playedColor) {
-    return 0xCC000000 | (playedColor & 0x00FFFFFF);
-  }
-
-  public static int getDefaultPlayedAdMarkerColor(int adMarkerColor) {
-    return 0x33000000 | (adMarkerColor & 0x00FFFFFF);
   }
 
   private static int dpToPx(float density, int dps) {

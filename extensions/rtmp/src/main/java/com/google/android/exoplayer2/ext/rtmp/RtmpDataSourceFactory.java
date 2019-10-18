@@ -37,7 +37,7 @@ public final class RtmpDataSourceFactory implements DataSource.Factory {
   }
 
   @Override
-  public DataSource createDataSource() {
+  public RtmpDataSource createDataSource() {
     RtmpDataSource dataSource = new RtmpDataSource();
     if (listener != null) {
       dataSource.addTransferListener(listener);

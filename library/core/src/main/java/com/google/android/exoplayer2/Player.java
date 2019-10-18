@@ -366,6 +366,14 @@ public interface Player {
     default void onPlayerStateChanged(boolean playWhenReady, int playbackState) {}
 
     /**
+     * Called when the value returned from {@link #getPlaybackSuppressionReason()} changes.
+     *
+     * @param playbackSuppressionReason The current {@link PlaybackSuppressionReason}.
+     */
+    default void onPlaybackSuppressionReasonChanged(
+        @PlaybackSuppressionReason int playbackSuppressionReason) {}
+
+    /**
      * Called when the value of {@link #isPlaying()} changes.
      *
      * @param isPlaying Whether the player is playing.
@@ -470,18 +478,21 @@ public interface Player {
   int STATE_ENDED = 4;
 
   /**
-   * Reason why playback is suppressed even if {@link #getPlaybackState()} is {@link #STATE_READY}
-   * and {@link #getPlayWhenReady()} is {@code true}. One of {@link
-   * #PLAYBACK_SUPPRESSION_REASON_NONE} or {@link #PLAYBACK_SUPPRESSION_REASON_AUDIO_FOCUS_LOSS}.
+   * Reason why playback is suppressed even though {@link #getPlayWhenReady()} is {@code true}. One
+   * of {@link #PLAYBACK_SUPPRESSION_REASON_NONE} or {@link
+   * #PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({PLAYBACK_SUPPRESSION_REASON_NONE, PLAYBACK_SUPPRESSION_REASON_AUDIO_FOCUS_LOSS})
+  @IntDef({
+    PLAYBACK_SUPPRESSION_REASON_NONE,
+    PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS
+  })
   @interface PlaybackSuppressionReason {}
   /** Playback is not suppressed. */
   int PLAYBACK_SUPPRESSION_REASON_NONE = 0;
-  /** Playback is suppressed because audio focus is lost or can't be acquired. */
-  int PLAYBACK_SUPPRESSION_REASON_AUDIO_FOCUS_LOSS = 1;
+  /** Playback is suppressed due to transient audio focus loss. */
+  int PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS = 1;
 
   /**
    * Repeat modes for playback. One of {@link #REPEAT_MODE_OFF}, {@link #REPEAT_MODE_ONE} or {@link
@@ -609,13 +620,10 @@ public interface Player {
   int getPlaybackState();
 
   /**
-   * Returns reason why playback is suppressed even if {@link #getPlaybackState()} is {@link
-   * #STATE_READY} and {@link #getPlayWhenReady()} is {@code true}.
+   * Returns the reason why playback is suppressed even though {@link #getPlayWhenReady()} is {@code
+   * true}, or {@link #PLAYBACK_SUPPRESSION_REASON_NONE} if playback is not suppressed.
    *
-   * <p>Note that {@link #PLAYBACK_SUPPRESSION_REASON_NONE} indicates that playback is not
-   * suppressed.
-   *
-   * @return The current {@link PlaybackSuppressionReason}.
+   * @return The current {@link PlaybackSuppressionReason playback suppression reason}.
    */
   @PlaybackSuppressionReason
   int getPlaybackSuppressionReason();
