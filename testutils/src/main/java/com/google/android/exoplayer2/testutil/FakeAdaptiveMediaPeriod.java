@@ -61,6 +61,7 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
     this.transferListener = transferListener;
     this.durationUs = durationUs;
     this.sampleStreams = newSampleStreamArray(0);
+    this.sequenceableLoader = new CompositeSequenceableLoader(new SequenceableLoader[0]);
   }
 
   @Override
