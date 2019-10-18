@@ -28,8 +28,8 @@ import com.google.android.exoplayer2.extractor.GaplessInfoHolder;
 import com.google.android.exoplayer2.extractor.Id3Peeker;
 import com.google.android.exoplayer2.extractor.MpegAudioHeader;
 import com.google.android.exoplayer2.extractor.PositionHolder;
-import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.extractor.mp3.Seeker.UnseekableSeeker;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
 import com.google.android.exoplayer2.metadata.id3.Id3Decoder.FramePredicate;
@@ -113,7 +113,8 @@ public final class Mp3Extractor implements Extractor {
   private int synchronizedHeaderData;
 
   private Metadata metadata;
-  private Seeker seeker;
+  @Nullable private Seeker seeker;
+  private boolean disableSeeking;
   private long basisTimeUs;
   private long samplesRead;
   private long firstSamplePosition;
@@ -187,14 +188,19 @@ public final class Mp3Extractor implements Extractor {
       // takes priority as it can provide greater precision.
       Seeker seekFrameSeeker = maybeReadSeekFrame(input);
       Seeker metadataSeeker = maybeHandleSeekMetadata(metadata, input.getPosition());
-      if (metadataSeeker != null) {
-        seeker = metadataSeeker;
-      } else if (seekFrameSeeker != null) {
-        seeker = seekFrameSeeker;
-      }
-      if (seeker == null
-          || (!seeker.isSeekable() && (flags & FLAG_ENABLE_CONSTANT_BITRATE_SEEKING) != 0)) {
-        seeker = getConstantBitrateSeeker(input);
+
+      if (disableSeeking) {
+        seeker = new UnseekableSeeker();
+      } else {
+        if (metadataSeeker != null) {
+          seeker = metadataSeeker;
+        } else if (seekFrameSeeker != null) {
+          seeker = seekFrameSeeker;
+        }
+        if (seeker == null
+            || (!seeker.isSeekable() && (flags & FLAG_ENABLE_CONSTANT_BITRATE_SEEKING) != 0)) {
+          seeker = getConstantBitrateSeeker(input);
+        }
       }
       extractorOutput.seekMap(seeker);
       trackOutput.format(
@@ -223,6 +229,15 @@ public final class Mp3Extractor implements Extractor {
       }
     }
     return readSample(input);
+  }
+
+  /**
+   * Disables the extractor from being able to seek through the media.
+   *
+   * <p>Please note that this needs to be called before {@link #read}.
+   */
+  public void disableSeeking() {
+    disableSeeking = true;
   }
 
   // Internal methods.
@@ -463,26 +478,5 @@ public final class Mp3Extractor implements Extractor {
     return null;
   }
 
-  /**
-   * {@link SeekMap} that provides the end position of audio data and also allows mapping from
-   * position (byte offset) back to time, which can be used to work out the new sample basis
-   * timestamp after seeking and resynchronization.
-   */
-  /* package */ interface Seeker extends SeekMap {
-
-    /**
-     * Maps a position (byte offset) to a corresponding sample timestamp.
-     *
-     * @param position A seek position (byte offset) relative to the start of the stream.
-     * @return The corresponding timestamp of the next sample to be read, in microseconds.
-     */
-    long getTimeUs(long position);
-
-    /**
-     * Returns the position (byte offset) in the stream that is immediately after audio data, or
-     * {@link C#POSITION_UNSET} if not known.
-     */
-    long getDataEndPosition();
-  }
 
 }
