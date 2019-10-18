@@ -145,7 +145,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @MonotonicNonNull private TrackGroupArray trackGroups;
   @MonotonicNonNull private Set<TrackGroup> optionalTrackGroups;
   // Indexed by track group.
-  private int[] trackGroupToSampleQueueIndex;
+  private int @MonotonicNonNull [] trackGroupToSampleQueueIndex;
   private int primaryTrackGroupIndex;
   private boolean haveAudioVideoSampleQueues;
   private boolean[] sampleQueuesEnabledStates;
@@ -262,6 +262,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   public int bindSampleQueueToSampleStream(int trackGroupIndex) {
     assertIsPrepared();
+    Assertions.checkNotNull(trackGroupToSampleQueueIndex);
 
     int sampleQueueIndex = trackGroupToSampleQueueIndex[trackGroupIndex];
     if (sampleQueueIndex == C.INDEX_UNSET) {
@@ -279,6 +280,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   public void unbindSampleQueue(int trackGroupIndex) {
     assertIsPrepared();
+    Assertions.checkNotNull(trackGroupToSampleQueueIndex);
     int sampleQueueIndex = trackGroupToSampleQueueIndex[trackGroupIndex];
     Assertions.checkState(sampleQueuesEnabledStates[sampleQueueIndex]);
     sampleQueuesEnabledStates[sampleQueueIndex] = false;
@@ -351,6 +353,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         }
         // If there's still a chance of avoiding a seek, try and seek within the sample queue.
         if (sampleQueuesBuilt && !seekRequired) {
+          // Must be non-null if sampleQueuesBuilt == true.
+          Assertions.checkNotNull(trackGroupToSampleQueueIndex);
           SampleQueue sampleQueue = sampleQueues[trackGroupToSampleQueueIndex[trackGroupIndex]];
           sampleQueue.rewind();
           // A seek can be avoided if we're able to advance to the current playback position in the
@@ -560,7 +564,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         Format trackFormat =
             chunkIndex < mediaChunks.size()
                 ? mediaChunks.get(chunkIndex).trackFormat
-                : upstreamTrackFormat;
+                : Assertions.checkNotNull(upstreamTrackFormat);
         format = format.copyWithManifestFormatInfo(trackFormat);
       }
       formatHolder.format = format;
@@ -985,6 +989,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     pendingResetUpstreamFormats = false;
   }
 
+  @RequiresNonNull("trackGroupToSampleQueueIndex")
   private void onTracksEnded() {
     sampleQueuesBuilt = true;
     maybeFinishPrepare();
@@ -1012,6 +1017,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   @RequiresNonNull("trackGroups")
+  @EnsuresNonNull("trackGroupToSampleQueueIndex")
   private void mapSampleQueuesToMatchTrackGroups() {
     int trackGroupCount = trackGroups.length;
     trackGroupToSampleQueueIndex = new int[trackGroupCount];
@@ -1060,6 +1066,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    *       unchanged.
    * </ul>
    */
+  @EnsuresNonNull({"trackGroups", "optionalTrackGroups", "trackGroupToSampleQueueIndex"})
   private void buildTracksFromSampleStreams() {
     // Iterate through the extractor tracks to discover the "primary" track type, and the index
     // of the single track of this type.
