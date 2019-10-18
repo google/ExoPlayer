@@ -1,6 +1,6 @@
 # Release notes #
 
-### 2.10.6 (2019-10-17) ###
+### 2.10.6 (2019-10-18) ###
 
 * Add `Player.onPlaybackSuppressionReasonChanged` to allow listeners to
   detect playbacks suppressions (e.g. transient audio focus loss) directly
@@ -12,6 +12,10 @@
     ([#6523](https://github.com/google/ExoPlayer/issues/6523)).
 * HLS: Add support for ID3 in EMSG when using FMP4 streams
   ([spec](https://aomediacodec.github.io/av1-id3/)).
+* MP3: Add workaround to avoid prematurely ending playback of some SHOUTcast
+  live streams ([#6537](https://github.com/google/ExoPlayer/issues/6537),
+  [#6315](https://github.com/google/ExoPlayer/issues/6315) and
+  [#5658](https://github.com/google/ExoPlayer/issues/5658)).
 * Metadata: Expose the raw ICY metadata through `IcyInfo`
   ([#6476](https://github.com/google/ExoPlayer/issues/6476)).
 * UI:

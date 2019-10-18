@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.SeekMap.SeekPoints;
 import com.google.android.exoplayer2.extractor.SeekMap.Unseekable;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.extractor.mp3.Mp3Extractor;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.icy.IcyHeaders;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
@@ -949,6 +950,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           }
           input = new DefaultExtractorInput(extractorDataSource, position, length);
           Extractor extractor = extractorHolder.selectExtractor(input, extractorOutput, uri);
+
+          // MP3 live streams commonly have seekable metadata, despite being unseekable.
+          if (icyHeaders != null && extractor instanceof Mp3Extractor) {
+            ((Mp3Extractor) extractor).disableSeeking();
+          }
+
           if (pendingExtractorSeek) {
             extractor.seek(position, seekTimeUs);
             pendingExtractorSeek = false;
