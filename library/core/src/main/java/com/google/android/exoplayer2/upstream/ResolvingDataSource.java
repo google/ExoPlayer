@@ -64,9 +64,7 @@ public final class ResolvingDataSource implements DataSource {
     private final Resolver resolver;
 
     /**
-     * Creates factory for {@link ResolvingDataSource} instances.
-     *
-     * @param upstreamFactory The wrapped {@link DataSource.Factory} handling the resolved {@link
+     * @param upstreamFactory The wrapped {@link DataSource.Factory} for handling resolved {@link
      *     DataSpec DataSpecs}.
      * @param resolver The {@link Resolver} to resolve the {@link DataSpec DataSpecs}.
      */
@@ -76,7 +74,7 @@ public final class ResolvingDataSource implements DataSource {
     }
 
     @Override
-    public DataSource createDataSource() {
+    public ResolvingDataSource createDataSource() {
       return new ResolvingDataSource(upstreamFactory.createDataSource(), resolver);
     }
   }

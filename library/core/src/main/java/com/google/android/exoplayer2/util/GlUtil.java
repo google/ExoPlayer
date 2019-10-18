@@ -42,7 +42,7 @@ public final class GlUtil {
     int lastError = GLES20.GL_NO_ERROR;
     int error;
     while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
-      Log.e(TAG, "glError " + gluErrorString(lastError));
+      Log.e(TAG, "glError " + gluErrorString(error));
       lastError = error;
     }
     if (ExoPlayerLibraryInfo.GL_ASSERTIONS_ENABLED && lastError != GLES20.GL_NO_ERROR) {

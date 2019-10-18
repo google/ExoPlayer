@@ -313,7 +313,6 @@ public class DashManifestParser extends DefaultHandler
             parseRepresentation(
                 xpp,
                 baseUrl,
-                label,
                 mimeType,
                 codecs,
                 width,
@@ -338,6 +337,8 @@ public class DashManifestParser extends DefaultHandler
             parseSegmentTemplate(xpp, (SegmentTemplate) segmentBase, supplementalProperties);
       } else if (XmlPullParserUtil.isStartTag(xpp, "InbandEventStream")) {
         inbandEventStreams.add(parseDescriptor(xpp, "InbandEventStream"));
+      } else if (XmlPullParserUtil.isStartTag(xpp, "Label")) {
+        label = parseLabel(xpp);
       } else if (XmlPullParserUtil.isStartTag(xpp)) {
         parseAdaptationSetChild(xpp);
       }
@@ -348,7 +349,11 @@ public class DashManifestParser extends DefaultHandler
     for (int i = 0; i < representationInfos.size(); i++) {
       representations.add(
           buildRepresentation(
-              representationInfos.get(i), drmSchemeType, drmSchemeDatas, inbandEventStreams));
+              representationInfos.get(i),
+              label,
+              drmSchemeType,
+              drmSchemeDatas,
+              inbandEventStreams));
     }
 
     return buildAdaptationSet(id, contentType, representations, accessibilityDescriptors,
@@ -484,7 +489,6 @@ public class DashManifestParser extends DefaultHandler
   protected RepresentationInfo parseRepresentation(
       XmlPullParser xpp,
       String baseUrl,
-      String label,
       String adaptationSetMimeType,
       String adaptationSetCodecs,
       int adaptationSetWidth,
@@ -551,7 +555,6 @@ public class DashManifestParser extends DefaultHandler
     Format format =
         buildFormat(
             id,
-            label,
             mimeType,
             width,
             height,
@@ -572,7 +575,6 @@ public class DashManifestParser extends DefaultHandler
 
   protected Format buildFormat(
       String id,
-      String label,
       String containerMimeType,
       int width,
       int height,
@@ -596,7 +598,7 @@ public class DashManifestParser extends DefaultHandler
       if (MimeTypes.isVideo(sampleMimeType)) {
         return Format.createVideoContainerFormat(
             id,
-            label,
+            /* label= */ null,
             containerMimeType,
             sampleMimeType,
             codecs,
@@ -611,7 +613,7 @@ public class DashManifestParser extends DefaultHandler
       } else if (MimeTypes.isAudio(sampleMimeType)) {
         return Format.createAudioContainerFormat(
             id,
-            label,
+            /* label= */ null,
             containerMimeType,
             sampleMimeType,
             codecs,
@@ -634,7 +636,7 @@ public class DashManifestParser extends DefaultHandler
         }
         return Format.createTextContainerFormat(
             id,
-            label,
+            /* label= */ null,
             containerMimeType,
             sampleMimeType,
             codecs,
@@ -647,7 +649,7 @@ public class DashManifestParser extends DefaultHandler
     }
     return Format.createContainerFormat(
         id,
-        label,
+        /* label= */ null,
         containerMimeType,
         sampleMimeType,
         codecs,
@@ -659,10 +661,14 @@ public class DashManifestParser extends DefaultHandler
 
   protected Representation buildRepresentation(
       RepresentationInfo representationInfo,
+      String label,
       String extraDrmSchemeType,
       ArrayList<SchemeData> extraDrmSchemeDatas,
       ArrayList<Descriptor> extraInbandEventStreams) {
     Format format = representationInfo.format;
+    if (label != null) {
+      format = format.copyWithLabel(label);
+    }
     String drmSchemeType = representationInfo.drmSchemeType != null
         ? representationInfo.drmSchemeType : extraDrmSchemeType;
     ArrayList<SchemeData> drmSchemeDatas = representationInfo.drmSchemeDatas;
@@ -1076,15 +1082,44 @@ public class DashManifestParser extends DefaultHandler
     return new ProgramInformation(title, source, copyright, moreInformationURL, lang);
   }
 
+  /**
+   * Parses a Label element.
+   *
+   * @param xpp The parser from which to read.
+   * @throws XmlPullParserException If an error occurs parsing the element.
+   * @throws IOException If an error occurs reading the element.
+   * @return The parsed label.
+   */
+  protected String parseLabel(XmlPullParser xpp) throws XmlPullParserException, IOException {
+    return parseText(xpp, "Label");
+  }
+
+  /**
+   * Parses a BaseURL element.
+   *
+   * @param xpp The parser from which to read.
+   * @param parentBaseUrl A base URL for resolving the parsed URL.
+   * @throws XmlPullParserException If an error occurs parsing the element.
+   * @throws IOException If an error occurs reading the element.
+   * @return The parsed and resolved URL.
+   */
+  protected String parseBaseUrl(XmlPullParser xpp, String parentBaseUrl)
+      throws XmlPullParserException, IOException {
+    return UriUtil.resolve(parentBaseUrl, parseText(xpp, "BaseURL"));
+  }
+
   // AudioChannelConfiguration parsing.
 
   protected int parseAudioChannelConfiguration(XmlPullParser xpp)
       throws XmlPullParserException, IOException {
     String schemeIdUri = parseString(xpp, "schemeIdUri", null);
-    int audioChannels = "urn:mpeg:dash:23003:3:audio_channel_configuration:2011".equals(schemeIdUri)
-        ? parseInt(xpp, "value", Format.NO_VALUE)
-        : ("tag:dolby.com,2014:dash:audio_channel_configuration:2011".equals(schemeIdUri)
-        ? parseDolbyChannelConfiguration(xpp) : Format.NO_VALUE);
+    int audioChannels =
+        "urn:mpeg:dash:23003:3:audio_channel_configuration:2011".equals(schemeIdUri)
+            ? parseInt(xpp, "value", Format.NO_VALUE)
+            : ("tag:dolby.com,2014:dash:audio_channel_configuration:2011".equals(schemeIdUri)
+                    || "urn:dolby:dash:audio_channel_configuration:2011".equals(schemeIdUri)
+                ? parseDolbyChannelConfiguration(xpp)
+                : Format.NO_VALUE);
     do {
       xpp.next();
     } while (!XmlPullParserUtil.isEndTag(xpp, "AudioChannelConfiguration"));
@@ -1427,10 +1462,18 @@ public class DashManifestParser extends DefaultHandler
     }
   }
 
-  protected static String parseBaseUrl(XmlPullParser xpp, String parentBaseUrl)
+  protected static String parseText(XmlPullParser xpp, String label)
       throws XmlPullParserException, IOException {
-    xpp.next();
-    return UriUtil.resolve(parentBaseUrl, xpp.getText());
+    String text = "";
+    do {
+      xpp.next();
+      if (xpp.getEventType() == XmlPullParser.TEXT) {
+        text = xpp.getText();
+      } else {
+        maybeSkipTag(xpp);
+      }
+    } while (!XmlPullParserUtil.isEndTag(xpp, label));
+    return text;
   }
 
   protected static int parseInt(XmlPullParser xpp, String name, int defaultValue) {
@@ -1451,7 +1494,8 @@ public class DashManifestParser extends DefaultHandler
   /**
    * Parses the number of channels from the value attribute of an AudioElementConfiguration with
    * schemeIdUri "tag:dolby.com,2014:dash:audio_channel_configuration:2011", as defined by table E.5
-   * in ETSI TS 102 366.
+   * in ETSI TS 102 366, or the legacy schemeIdUri
+   * "urn:dolby:dash:audio_channel_configuration:2011".
    *
    * @param xpp The parser from which to read.
    * @return The parsed number of channels, or {@link Format#NO_VALUE} if the channel count could
