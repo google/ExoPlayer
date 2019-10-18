@@ -97,7 +97,7 @@ public class VideoDecoderOutputBuffer extends OutputBuffer {
       long timeUs, @C.VideoOutputMode int mode, @Nullable ByteBuffer supplementalData) {
     this.timeUs = timeUs;
     this.mode = mode;
-    if (supplementalData != null) {
+    if (supplementalData != null && supplementalData.hasRemaining()) {
       addFlag(C.BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA);
       int size = supplementalData.limit();
       if (this.supplementalData == null || this.supplementalData.capacity() < size) {
