@@ -41,9 +41,7 @@ import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Source of Hls (possibly adaptive) chunks. */
@@ -142,7 +140,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.playlistFormats = playlistFormats;
     this.timestampAdjusterProvider = timestampAdjusterProvider;
     this.muxedCaptionFormats = muxedCaptionFormats;
-    keyCache = new FullSegmentEncryptionKeyCache();
+    keyCache = new FullSegmentEncryptionKeyCache(KEY_CACHE_SIZE);
     scratchSpace = Util.EMPTY_BYTE_ARRAY;
     liveEdgeInPeriodTimeUs = C.TIME_UNSET;
     mediaDataSource = dataSourceFactory.createDataSource(C.DATA_TYPE_MEDIA);
@@ -665,71 +663,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       Segment segment = playlist.segments.get((int) getCurrentIndex());
       long segmentStartTimeInPeriodUs = startOfPlaylistInPeriodUs + segment.relativeStartTimeUs;
       return segmentStartTimeInPeriodUs + segment.durationUs;
-    }
-  }
-
-  /**
-   * LRU cache that holds up to {@link #KEY_CACHE_SIZE} full-segment-encryption keys. Which each
-   * addition, once the cache's size exceeds {@link #KEY_CACHE_SIZE}, the oldest item (according to
-   * insertion order) is removed.
-   */
-  private static final class FullSegmentEncryptionKeyCache {
-
-    private final LinkedHashMap<Uri, byte[]> backingMap;
-
-    public FullSegmentEncryptionKeyCache() {
-      backingMap =
-          new LinkedHashMap<Uri, byte[]>(
-              /* initialCapacity= */ KEY_CACHE_SIZE + 1,
-              /* loadFactor= */ 1,
-              /* accessOrder= */ false) {
-            @Override
-            protected boolean removeEldestEntry(Map.Entry<Uri, byte[]> eldest) {
-              return size() > KEY_CACHE_SIZE;
-            }
-          };
-    }
-
-    /**
-     * Returns the {@code encryptionKey} cached against this {@code uri}, or null if {@code uri} is
-     * null or not present in the cache.
-     */
-    @Nullable
-    public byte[] get(@Nullable Uri uri) {
-      if (uri == null) {
-        return null;
-      }
-      return backingMap.get(uri);
-    }
-
-    /**
-     * Inserts an entry into the cache.
-     *
-     * @throws NullPointerException if {@code uri} or {@code encryptionKey} are null.
-     */
-    @Nullable
-    public byte[] put(Uri uri, byte[] encryptionKey) {
-      return backingMap.put(Assertions.checkNotNull(uri), Assertions.checkNotNull(encryptionKey));
-    }
-
-    /**
-     * Returns true if {@code uri} is present in the cache.
-     *
-     * @throws NullPointerException if {@code uri} is null.
-     */
-    public boolean containsUri(Uri uri) {
-      return backingMap.containsKey(Assertions.checkNotNull(uri));
-    }
-
-    /**
-     * Removes {@code uri} from the cache. If {@code uri} was present in the cahce, this returns the
-     * corresponding {@code encryptionKey}, otherwise null.
-     *
-     * @throws NullPointerException if {@code uri} is null.
-     */
-    @Nullable
-    public byte[] remove(Uri uri) {
-      return backingMap.remove(Assertions.checkNotNull(uri));
     }
   }
 }
