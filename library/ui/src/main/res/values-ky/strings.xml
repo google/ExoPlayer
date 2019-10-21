@@ -14,6 +14,8 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_show">Ойноткучту башкаруу элементтерин көрсөтүү</string>
+  <string name="exo_controls_hide">Ойноткучту башкаруу элементтерин жашыруу</string>
   <string name="exo_controls_previous_description">Мурунку трек</string>
   <string name="exo_controls_next_description">Кийинки трек</string>
   <string name="exo_controls_pause_description">Тындыруу</string>
@@ -43,7 +45,7 @@
   <string name="exo_track_resolution">%1$d × %2$d</string>
   <string name="exo_track_mono">Моно</string>
   <string name="exo_track_stereo">Стерео</string>
-  <string name="exo_track_surround">Көлөмдүү добуш</string>
+  <string name="exo_track_surround">Көлөмдүү үн</string>
   <string name="exo_track_surround_5_point_1">5.1 көлөмдүү добуш</string>
   <string name="exo_track_surround_7_point_1">7.1 көлөмдүү добуш</string>
   <string name="exo_track_role_alternate">Альтернативдүү трек</string>

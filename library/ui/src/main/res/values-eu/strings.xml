@@ -14,6 +14,8 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_show">Erakutsi erreproduzigailua kontrolatzeko aukerak</string>
+  <string name="exo_controls_hide">Ezkutatu erreproduzigailua kontrolatzeko aukerak</string>
   <string name="exo_controls_previous_description">Aurreko pista</string>
   <string name="exo_controls_next_description">Hurrengo pista</string>
   <string name="exo_controls_pause_description">Pausatu</string>
