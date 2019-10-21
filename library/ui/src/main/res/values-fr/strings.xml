@@ -14,6 +14,8 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_show">Afficher les commandes du lecteur</string>
+  <string name="exo_controls_hide">Masquer les commandes du lecteur</string>
   <string name="exo_controls_previous_description">Titre précédent</string>
   <string name="exo_controls_next_description">Titre suivant</string>
   <string name="exo_controls_pause_description">Pause</string>

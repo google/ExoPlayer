@@ -14,6 +14,8 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_show">Bonisa izilawuli zesidlali</string>
+  <string name="exo_controls_hide">Fihla izilawuli zesidlali</string>
   <string name="exo_controls_previous_description">Ithrekhi yangaphambilini</string>
   <string name="exo_controls_next_description">Ithrekhi elandelayo</string>
   <string name="exo_controls_pause_description">Phumula</string>

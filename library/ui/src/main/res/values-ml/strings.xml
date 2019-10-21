@@ -14,6 +14,8 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_show">പ്ലേയർ നിയന്ത്രണങ്ങൾ കാണിക്കുക</string>
+  <string name="exo_controls_hide">പ്ലേയർ നിയന്ത്രണങ്ങൾ മറയ്ക്കുക</string>
   <string name="exo_controls_previous_description">മുമ്പത്തെ ട്രാക്ക്</string>
   <string name="exo_controls_next_description">അടുത്ത ട്രാക്ക്</string>
   <string name="exo_controls_pause_description">തൽക്കാലം നിർത്തുക</string>
