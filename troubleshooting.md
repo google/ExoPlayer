@@ -4,6 +4,8 @@ redirect_from:
   - /faqs.html
 ---
 
+* [Fixing "Cleartext HTTP traffic not permitted" errors][]
+* [Fixing "SSLHandshakeException" and "CertPathValidatorException" errors][]
 * [Why are some media files not seekable?][]
 * [Why do some MPEG-TS files fail to play?][]
 * [Why do some MP4/FMP4 files play incorrectly?][]
@@ -16,6 +18,29 @@ redirect_from:
 * [How do I keep audio playing when my app is backgrounded?][]
 
 ---
+
+#### Fixing "Cleartext HTTP traffic not permitted" errors ####
+
+This error will occur if your app requests cleartext traffic (e.g. `http://`
+rather than `https://`) when its Network Security Configuration does not permit
+it. If your app targets Android 9 (API level 28) or later, cleartext traffic is
+disabled by the default configuration.
+
+If your app needs to work with cleartext traffic (e.g. to stream media over
+`http://`) then you need to use a Network Security Configuration that permits
+it. Please see Android's
+[network security documentation](https://developer.android.com/training/articles/security-config.html)
+for details. To enable all cleartext traffic, you can simply add
+`android:usesCleartextTraffic="true"` to the `application` element of your app's
+`AndroidManifest.xml`.
+
+#### Fixing "SSLHandshakeException" and "CertPathValidatorException" errors ####
+
+`SSLHandshakeException` and `CertPathValidatorException` both indicate a problem
+with the server's SSL certificate. These errors are not ExoPlayer specific.
+Please see
+[Android's SSL documentation](https://developer.android.com/training/articles/security-ssl#CommonProblems)
+for more details.
 
 #### Why are some media files not seekable? ####
 
@@ -166,6 +191,8 @@ audio when your app is in the background:
 It's important that you stop the service and release the locks as soon as audio
 is no longer being played.
 
+[Fixing "Cleartext HTTP traffic not permitted" errors]: #fixing-cleartext-http-traffic-not-permitted-errors
+[Fixing "SSLHandshakeException" and "CertPathValidatorException" errors]: #fixing-sslhandshakeexception-and-certpathvalidatorexception-errors
 [What formats does ExoPlayer support?]: #what-formats-does-exoplayer-support
 [Why are some media files not seekable?]: #why-are-some-media-files-not-seekable
 [Why do some MPEG-TS files fail to play?]: #why-do-some-mpeg-ts-files-fail-to-play
