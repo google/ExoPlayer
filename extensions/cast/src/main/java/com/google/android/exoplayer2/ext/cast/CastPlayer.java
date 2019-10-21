@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.ext.cast;
 
 import android.os.Looper;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.BasePlayer;
 import com.google.android.exoplayer2.C;
@@ -99,6 +98,7 @@ public final class CastPlayer extends BasePlayer {
   @Nullable private SessionAvailabilityListener sessionAvailabilityListener;
 
   // Internal state.
+  private final StateHolder<Boolean> playWhenReady;
   @Nullable private RemoteMediaClient remoteMediaClient;
   private CastTimeline currentTimeline;
   private TrackGroupArray currentTrackGroups;
@@ -106,7 +106,6 @@ public final class CastPlayer extends BasePlayer {
   @Player.State private int playbackState;
   private int repeatMode;
   private int currentWindowIndex;
-  private boolean playWhenReady;
   private long lastReportedPositionMs;
   private int pendingSeekCount;
   private int pendingSeekWindowIndex;
@@ -131,6 +130,7 @@ public final class CastPlayer extends BasePlayer {
     CastSession session = sessionManager.getCurrentCastSession();
     remoteMediaClient = session != null ? session.getRemoteMediaClient() : null;
 
+    playWhenReady = new StateHolder<>(false);
     playbackState = STATE_IDLE;
     repeatMode = REPEAT_MODE_OFF;
     currentTimeline = CastTimeline.EMPTY_CAST_TIMELINE;
@@ -357,18 +357,22 @@ public final class CastPlayer extends BasePlayer {
     flushNotifications();
     PendingResult<MediaChannelResult> pendingResult =
         playWhenReady ? remoteMediaClient.play() : remoteMediaClient.pause();
-    pendingResult.setResultCallback(
-        mediaChannelResult -> {
-          if (remoteMediaClient != null) {
-            updatePlayerStateAndNotifyIfChanged();
-            flushNotifications();
+    this.playWhenReady.pendingResultCallback =
+        new ResultCallback<MediaChannelResult>() {
+          @Override
+          public void onResult(MediaChannelResult mediaChannelResult) {
+            if (remoteMediaClient != null) {
+              updatePlayerStateAndNotifyIfChanged(this);
+              flushNotifications();
+            }
           }
-        });
+        };
+    pendingResult.setResultCallback(this.playWhenReady.pendingResultCallback);
   }
 
   @Override
   public boolean getPlayWhenReady() {
-    return playWhenReady;
+    return playWhenReady.value;
   }
 
   @Override
@@ -571,9 +575,9 @@ public final class CastPlayer extends BasePlayer {
       // There is no session. We leave the state of the player as it is now.
       return;
     }
-    boolean wasPlaying = playbackState == Player.STATE_READY && playWhenReady;
-    updatePlayerStateAndNotifyIfChanged();
-    boolean isPlaying = playbackState == Player.STATE_READY && playWhenReady;
+    boolean wasPlaying = playbackState == Player.STATE_READY && playWhenReady.value;
+    updatePlayerStateAndNotifyIfChanged(/* resultCallback= */ null);
+    boolean isPlaying = playbackState == Player.STATE_READY && playWhenReady.value;
     if (wasPlaying != isPlaying) {
       notificationsBatch.add(
           new ListenerNotificationTask(listener -> listener.onIsPlayingChanged(isPlaying)));
@@ -605,10 +609,22 @@ public final class CastPlayer extends BasePlayer {
     flushNotifications();
   }
 
+  /**
+   * Updates {@link #playWhenReady} and {@link #playbackState} to match the Cast {@code
+   * remoteMediaClient} state, and notifies listeners of any state changes.
+   *
+   * <p>This method will only update values whose {@link StateHolder#pendingResultCallback} matches
+   * the given {@code resultCallback}.
+   */
   @RequiresNonNull("remoteMediaClient")
-  private void updatePlayerStateAndNotifyIfChanged() {
-    setPlayerStateAndNotifyIfChanged(
-        !remoteMediaClient.isPaused(), fetchPlaybackState(remoteMediaClient));
+  private void updatePlayerStateAndNotifyIfChanged(ResultCallback<?> resultCallback) {
+    boolean newPlayWhenReadyValue = playWhenReady.value;
+    if (playWhenReady.acceptsUpdate(resultCallback)) {
+      newPlayWhenReadyValue = !remoteMediaClient.isPaused();
+      playWhenReady.clearPendingResultCallback();
+    }
+    // We do not mask the playback state, so try setting it regardless of the playWhenReady masking.
+    setPlayerStateAndNotifyIfChanged(newPlayWhenReadyValue, fetchPlaybackState(remoteMediaClient));
   }
 
   @RequiresNonNull("remoteMediaClient")
@@ -700,8 +716,8 @@ public final class CastPlayer extends BasePlayer {
 
   private void setPlayerStateAndNotifyIfChanged(
       boolean playWhenReady, @Player.State int playbackState) {
-    if (this.playWhenReady != playWhenReady || this.playbackState != playbackState) {
-      this.playWhenReady = playWhenReady;
+    if (this.playWhenReady.value != playWhenReady || this.playbackState != playbackState) {
+      this.playWhenReady.value = playWhenReady;
       this.playbackState = playbackState;
       notificationsBatch.add(
           new ListenerNotificationTask(
@@ -918,7 +934,7 @@ public final class CastPlayer extends BasePlayer {
   private final class SeekResultCallback implements ResultCallback<MediaChannelResult> {
 
     @Override
-    public void onResult(@NonNull MediaChannelResult result) {
+    public void onResult(MediaChannelResult result) {
       int statusCode = result.getStatus().getStatusCode();
       if (statusCode != CastStatusCodes.SUCCESS && statusCode != CastStatusCodes.REPLACED) {
         Log.e(TAG, "Seek failed. Error code " + statusCode + ": "
@@ -930,6 +946,37 @@ public final class CastPlayer extends BasePlayer {
         notificationsBatch.add(new ListenerNotificationTask(EventListener::onSeekProcessed));
         flushNotifications();
       }
+    }
+  }
+
+  /** Holds the value and the masking status of a specific part of the {@link CastPlayer} state. */
+  private static final class StateHolder<T> {
+
+    /** The user-facing value of a specific part of the {@link CastPlayer} state. */
+    public T value;
+
+    /**
+     * If {@link #value} is being masked, holds the result callback for the operation that triggered
+     * the masking. Or null if {@link #value} is not being masked.
+     */
+    @Nullable public ResultCallback<MediaChannelResult> pendingResultCallback;
+
+    public StateHolder(T initialValue) {
+      value = initialValue;
+    }
+
+    public void clearPendingResultCallback() {
+      pendingResultCallback = null;
+    }
+
+    /**
+     * Returns whether {@link #value} is being masked by the operation associated to the given
+     * result callback.
+     *
+     * @param resultCallback A result callback.
+     */
+    public boolean acceptsUpdate(ResultCallback<?> resultCallback) {
+      return pendingResultCallback == resultCallback;
     }
   }
 
