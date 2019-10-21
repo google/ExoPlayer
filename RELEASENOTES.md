@@ -40,7 +40,6 @@
   even if they are listed lower in the `MediaCodecList`.
 * Add a workaround for broken raw audio decoding on Oppo R9
   ([#5782](https://github.com/google/ExoPlayer/issues/5782)).
-* Add VR player demo.
 * Wrap decoder exceptions in a new `DecoderException` class and report as
   renderer error.
 * Do not pass the manifest to callbacks of `Player.EventListener` and
@@ -99,6 +98,7 @@
   [#6315](https://github.com/google/ExoPlayer/issues/6315) and
   [#5658](https://github.com/google/ExoPlayer/issues/5658)).
 * Pass the codec output `MediaFormat` to `VideoFrameMetadataListener`.
+* Deprecate the GVR extension.
 
 ### 2.10.6 (2019-10-17) ###
 

@@ -28,7 +28,11 @@ import java.nio.ByteOrder;
 /**
  * An {@link AudioProcessor} that uses {@code GvrAudioSurround} to provide binaural rendering of
  * surround sound and ambisonic soundfields.
+ *
+ * @deprecated If you still need this component, please contact us by filing an issue on our <a
+ *     href="https://github.com/google/ExoPlayer/issues">issue tracker</a>.
  */
+@Deprecated
 public final class GvrAudioProcessor implements AudioProcessor {
 
   static {
