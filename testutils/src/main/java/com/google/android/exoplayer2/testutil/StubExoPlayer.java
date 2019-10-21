@@ -25,10 +25,8 @@ import com.google.android.exoplayer2.PlayerMessage;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import java.util.List;
 
 /**
  * An abstract {@link ExoPlayer} implementation that throws {@link UnsupportedOperationException}
@@ -99,88 +97,12 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
-  public void prepare() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public void prepare(MediaSource mediaSource) {
     throw new UnsupportedOperationException();
   }
 
   @Override
   public void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void setMediaItems(List<MediaSource> mediaItems, boolean resetPosition) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void setMediaItems(List<MediaSource> mediaItems) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void setMediaItems(
-      List<MediaSource> mediaItems, int startWindowIndex, long startPositionMs) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void setMediaItem(MediaSource mediaItem, long startPositionMs) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void setMediaItem(MediaSource mediaItem) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void addMediaItem(MediaSource mediaSource) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void addMediaItem(int index, MediaSource mediaSource) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void addMediaItems(List<MediaSource> mediaSources) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void addMediaItems(int index, List<MediaSource> mediaSources) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void moveMediaItem(int currentIndex, int newIndex) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void moveMediaItems(int fromIndex, int toIndex, int newIndex) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public MediaSource removeMediaItem(int index) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void removeMediaItems(int fromIndex, int toIndex) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void clearMediaItems() {
     throw new UnsupportedOperationException();
   }
 
@@ -201,11 +123,6 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
 
   @Override
   public int getRepeatMode() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void setShuffleOrder(ShuffleOrder shuffleOrder) {
     throw new UnsupportedOperationException();
   }
 
