@@ -296,7 +296,6 @@ public final class ExoPlayerFactory {
         drmSessionManager,
         bandwidthMeter,
         analyticsCollector,
-        /* useLazyPreparation= */ true,
         Clock.DEFAULT,
         looper);
   }
@@ -345,13 +344,6 @@ public final class ExoPlayerFactory {
       BandwidthMeter bandwidthMeter,
       Looper looper) {
     return new ExoPlayerImpl(
-        renderers,
-        trackSelector,
-        loadControl,
-        bandwidthMeter,
-        /* analyticsCollector= */ null,
-        /* useLazyPreparation= */ true,
-        Clock.DEFAULT,
-        looper);
+        renderers, trackSelector, loadControl, bandwidthMeter, Clock.DEFAULT, looper);
   }
 }

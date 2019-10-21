@@ -29,10 +29,10 @@ import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.testutil.Action.ClearVideoSurface;
 import com.google.android.exoplayer2.testutil.Action.ExecuteRunnable;
 import com.google.android.exoplayer2.testutil.Action.PlayUntilPosition;
+import com.google.android.exoplayer2.testutil.Action.PrepareSource;
 import com.google.android.exoplayer2.testutil.Action.Seek;
 import com.google.android.exoplayer2.testutil.Action.SendBroadcast;
 import com.google.android.exoplayer2.testutil.Action.SendMessages;
@@ -42,7 +42,6 @@ import com.google.android.exoplayer2.testutil.Action.SetPlaybackParameters;
 import com.google.android.exoplayer2.testutil.Action.SetRendererDisabled;
 import com.google.android.exoplayer2.testutil.Action.SetRepeatMode;
 import com.google.android.exoplayer2.testutil.Action.SetShuffleModeEnabled;
-import com.google.android.exoplayer2.testutil.Action.SetShuffleOrder;
 import com.google.android.exoplayer2.testutil.Action.SetVideoSurface;
 import com.google.android.exoplayer2.testutil.Action.Stop;
 import com.google.android.exoplayer2.testutil.Action.ThrowPlaybackException;
@@ -174,19 +173,7 @@ public final class ActionSchedule {
      * @return The builder, for convenience.
      */
     public Builder seek(int windowIndex, long positionMs) {
-      return apply(new Seek(tag, windowIndex, positionMs, /* catchIllegalSeekException= */ false));
-    }
-
-    /**
-     * Schedules a seek action to be executed.
-     *
-     * @param windowIndex The window to seek to.
-     * @param positionMs The seek position.
-     * @param catchIllegalSeekException Whether an illegal seek position should be caught or not.
-     * @return The builder, for convenience.
-     */
-    public Builder seek(int windowIndex, long positionMs, boolean catchIllegalSeekException) {
-      return apply(new Seek(tag, windowIndex, positionMs, catchIllegalSeekException));
+      return apply(new Seek(tag, windowIndex, positionMs));
     }
 
     /**
@@ -327,99 +314,23 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a set media items action to be executed.
+     * Schedules a new source preparation action.
      *
-     * @param windowIndex The window index to start playback from or {@link C#INDEX_UNSET} if the
-     *     playback position should not be reset.
-     * @param positionMs The position in milliseconds from where playback should start. If {@link
-     *     C#TIME_UNSET} is passed the default position is used. In any case, if {@code windowIndex}
-     *     is set to {@link C#INDEX_UNSET} the position is not reset at all and this parameter is
-     *     ignored.
      * @return The builder, for convenience.
      */
-    public Builder setMediaItems(int windowIndex, long positionMs, MediaSource... sources) {
-      return apply(new Action.SetMediaItems(tag, windowIndex, positionMs, sources));
+    public Builder prepareSource(MediaSource mediaSource) {
+      return apply(new PrepareSource(tag, mediaSource));
     }
 
     /**
-     * Schedules a set media items action to be executed.
+     * Schedules a new source preparation action.
      *
-     * @param resetPosition Whether the playback position should be reset.
+     * @see com.google.android.exoplayer2.ExoPlayer#prepare(MediaSource, boolean, boolean)
      * @return The builder, for convenience.
      */
-    public Builder setMediaItems(boolean resetPosition, MediaSource... sources) {
-      return apply(new Action.SetMediaItemsResetPosition(tag, resetPosition, sources));
-    }
-
-    /**
-     * Schedules a set media items action to be executed.
-     *
-     * @param mediaSources The media sources to add.
-     * @return The builder, for convenience.
-     */
-    public Builder setMediaItems(MediaSource... mediaSources) {
-      return apply(
-          new Action.SetMediaItems(
-              tag, /* windowIndex= */ C.INDEX_UNSET, /* positionMs= */ C.TIME_UNSET, mediaSources));
-    }
-    /**
-     * Schedules a add media items action to be executed.
-     *
-     * @param mediaSources The media sources to add.
-     * @return The builder, for convenience.
-     */
-    public Builder addMediaItems(MediaSource... mediaSources) {
-      return apply(new Action.AddMediaItems(tag, mediaSources));
-    }
-
-    /**
-     * Schedules a move media item action to be executed.
-     *
-     * @param currentIndex The current index of the item to move.
-     * @param newIndex The index after the item has been moved.
-     * @return The builder, for convenience.
-     */
-    public Builder moveMediaItem(int currentIndex, int newIndex) {
-      return apply(new Action.MoveMediaItem(tag, currentIndex, newIndex));
-    }
-
-    /**
-     * Schedules a remove media item action to be executed.
-     *
-     * @param index The index of the media item to be removed.
-     * @return The builder, for convenience.
-     */
-    public Builder removeMediaItem(int index) {
-      return apply(new Action.RemoveMediaItem(tag, index));
-    }
-
-    /**
-     * Schedules a remove media items action to be executed.
-     *
-     * @param fromIndex The start of the range of media items to be removed.
-     * @param toIndex The end of the range of media items to be removed (exclusive).
-     * @return The builder, for convenience.
-     */
-    public Builder removeMediaItems(int fromIndex, int toIndex) {
-      return apply(new Action.RemoveMediaItems(tag, fromIndex, toIndex));
-    }
-
-    /**
-     * Schedules a prepare action to be executed.
-     *
-     * @return The builder, for convenience.
-     */
-    public Builder prepare() {
-      return apply(new Action.Prepare(tag));
-    }
-
-    /**
-     * Schedules a clear media items action to be created.
-     *
-     * @return The builder. for convenience,
-     */
-    public Builder clearMediaItems() {
-      return apply(new Action.ClearMediaItems(tag));
+    public Builder prepareSource(
+        MediaSource mediaSource, boolean resetPosition, boolean resetState) {
+      return apply(new PrepareSource(tag, mediaSource, resetPosition, resetState));
     }
 
     /**
@@ -432,17 +343,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a set shuffle order action to be executed.
-     *
-     * @param shuffleOrder The shuffle order.
-     * @return The builder, for convenience.
-     */
-    public Builder setShuffleOrder(ShuffleOrder shuffleOrder) {
-      return apply(new SetShuffleOrder(tag, shuffleOrder));
-    }
-
-    /**
-     * Schedules a shuffle setting action to be executed.
+     * Schedules a shuffle setting action.
      *
      * @return The builder, for convenience.
      */
@@ -504,19 +405,18 @@ public final class ActionSchedule {
      * @return The builder, for convenience.
      */
     public Builder waitForTimelineChanged() {
-      return apply(new WaitForTimelineChanged(tag));
+      return apply(new WaitForTimelineChanged(tag, /* expectedTimeline= */ null));
     }
 
     /**
      * Schedules a delay until the timeline changed to a specified expected timeline.
      *
-     * @param expectedTimeline The expected timeline.
-     * @param expectedReason The expected reason of the timeline change.
+     * @param expectedTimeline The expected timeline to wait for. If null, wait for any timeline
+     *     change.
      * @return The builder, for convenience.
      */
-    public Builder waitForTimelineChanged(
-        Timeline expectedTimeline, @Player.TimelineChangeReason int expectedReason) {
-      return apply(new WaitForTimelineChanged(tag, expectedTimeline, expectedReason));
+    public Builder waitForTimelineChanged(Timeline expectedTimeline) {
+      return apply(new WaitForTimelineChanged(tag, expectedTimeline));
     }
 
     /**

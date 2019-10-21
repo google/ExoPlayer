@@ -111,6 +111,7 @@ public final class CastPlayer extends BasePlayer {
   private int pendingSeekCount;
   private int pendingSeekWindowIndex;
   private long pendingSeekPositionMs;
+  private boolean waitingForInitialTimeline;
 
   /**
    * @param castContext The context from which the cast session is obtained.
@@ -172,6 +173,7 @@ public final class CastPlayer extends BasePlayer {
       MediaQueueItem[] items, int startIndex, long positionMs, @RepeatMode int repeatMode) {
     if (remoteMediaClient != null) {
       positionMs = positionMs != C.TIME_UNSET ? positionMs : 0;
+      waitingForInitialTimeline = true;
       return remoteMediaClient.queueLoad(items, startIndex, getCastRepeatMode(repeatMode),
           positionMs, null);
     }
@@ -616,13 +618,15 @@ public final class CastPlayer extends BasePlayer {
 
   private void updateTimelineAndNotifyIfChanged() {
     if (updateTimeline()) {
-      // TODO: Differentiate TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED and
-      //     TIMELINE_CHANGE_REASON_SOURCE_UPDATE [see internal: b/65152553].
+      @Player.TimelineChangeReason
+      int reason =
+          waitingForInitialTimeline
+              ? Player.TIMELINE_CHANGE_REASON_PREPARED
+              : Player.TIMELINE_CHANGE_REASON_DYNAMIC;
+      waitingForInitialTimeline = false;
       notificationsBatch.add(
           new ListenerNotificationTask(
-              listener ->
-                  listener.onTimelineChanged(
-                      currentTimeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)));
+              listener -> listener.onTimelineChanged(currentTimeline, reason)));
     }
   }
 

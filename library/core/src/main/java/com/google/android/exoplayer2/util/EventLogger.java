@@ -630,10 +630,12 @@ public class EventLogger implements AnalyticsListener {
 
   private static String getTimelineChangeReasonString(@Player.TimelineChangeReason int reason) {
     switch (reason) {
-      case Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE:
-        return "SOURCE_UPDATE";
-      case Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED:
-        return "PLAYLIST_CHANGED";
+      case Player.TIMELINE_CHANGE_REASON_PREPARED:
+        return "PREPARED";
+      case Player.TIMELINE_CHANGE_REASON_RESET:
+        return "RESET";
+      case Player.TIMELINE_CHANGE_REASON_DYNAMIC:
+        return "DYNAMIC";
       default:
         return "?";
     }
