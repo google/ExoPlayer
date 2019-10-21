@@ -37,7 +37,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Renders a GL Scene. */
-public final class SceneRenderer implements VideoFrameMetadataListener, CameraMotionListener {
+/* package */ final class SceneRenderer
+    implements VideoFrameMetadataListener, CameraMotionListener {
 
   private final AtomicBoolean frameAvailable;
   private final AtomicBoolean resetRotationAtNextFrame;
