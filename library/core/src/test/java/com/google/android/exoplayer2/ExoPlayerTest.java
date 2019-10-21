@@ -1577,6 +1577,34 @@ public final class ExoPlayerTest {
   }
 
   @Test
+  public void testSendMessagesFromStartPositionOnlyOnce() throws Exception {
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    AtomicInteger counter = new AtomicInteger();
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("testSendMessagesFromStartPositionOnlyOnce")
+            .pause()
+            .sendMessage(
+                (messageType, payload) -> {
+                  counter.getAndIncrement();
+                },
+                /* windowIndex= */ 0,
+                /* positionMs= */ 2000,
+                /* deleteAfterDelivery= */ false)
+            .seek(/* positionMs= */ 2000)
+            .delay(/* delayMs= */ 2000)
+            .play()
+            .build();
+    new Builder()
+        .setTimeline(timeline)
+        .setActionSchedule(actionSchedule)
+        .build(context)
+        .start()
+        .blockUntilActionScheduleFinished(TIMEOUT_MS)
+        .blockUntilEnded(TIMEOUT_MS);
+    assertThat(counter.get()).isEqualTo(1);
+  }
+
+  @Test
   public void testMultipleSendMessagesAtSameTime() throws Exception {
     Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
     PositionGrabbingMessageTarget target1 = new PositionGrabbingMessageTarget();

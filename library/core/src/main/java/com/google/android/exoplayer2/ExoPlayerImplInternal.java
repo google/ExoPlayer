@@ -122,6 +122,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private SeekPosition pendingInitialSeekPosition;
   private long rendererPositionUs;
   private int nextPendingMessageIndex;
+  private boolean deliverPendingMessageAtStartPositionRequired;
 
   public ExoPlayerImplInternal(
       Renderer[] renderers,
@@ -171,6 +172,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         new HandlerThread("ExoPlayerImplInternal:Handler", Process.THREAD_PRIORITY_AUDIO);
     internalPlaybackThread.start();
     handler = clock.createHandler(internalPlaybackThread.getLooper(), this);
+    deliverPendingMessageAtStartPositionRequired = true;
   }
 
   public void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState) {
@@ -487,12 +489,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     long newPositionUs =
         seekToPeriodPosition(periodId, playbackInfo.positionUs, /* forceDisableRenderers= */ true);
     if (newPositionUs != playbackInfo.positionUs) {
-      playbackInfo =
-          playbackInfo.copyWithNewPosition(
-              periodId,
-              newPositionUs,
-              playbackInfo.contentPositionUs,
-              getTotalBufferedDurationUs());
+      playbackInfo = copyWithNewPosition(periodId, newPositionUs, playbackInfo.contentPositionUs);
       if (sendDiscontinuity) {
         playbackInfoUpdate.setPositionDiscontinuity(Player.DISCONTINUITY_REASON_INTERNAL);
       }
@@ -531,11 +528,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
       // renderers are flushed. Only report the discontinuity externally if the position changed.
       if (discontinuityPositionUs != playbackInfo.positionUs) {
         playbackInfo =
-            playbackInfo.copyWithNewPosition(
-                playbackInfo.periodId,
-                discontinuityPositionUs,
-                playbackInfo.contentPositionUs,
-                getTotalBufferedDurationUs());
+            copyWithNewPosition(
+                playbackInfo.periodId, discontinuityPositionUs, playbackInfo.contentPositionUs);
         playbackInfoUpdate.setPositionDiscontinuity(Player.DISCONTINUITY_REASON_INTERNAL);
       }
     } else {
@@ -722,9 +716,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         periodPositionUs = newPeriodPositionUs;
       }
     } finally {
-      playbackInfo =
-          playbackInfo.copyWithNewPosition(
-              periodId, periodPositionUs, contentPositionUs, getTotalBufferedDurationUs());
+      playbackInfo = copyWithNewPosition(periodId, periodPositionUs, contentPositionUs);
       if (seekPositionAdjusted) {
         playbackInfoUpdate.setPositionDiscontinuity(Player.DISCONTINUITY_REASON_SEEK_ADJUSTMENT);
       }
@@ -1062,10 +1054,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
       return;
     }
     // If this is the first call from the start position, include oldPeriodPositionUs in potential
-    // trigger positions.
-    if (playbackInfo.startPositionUs == oldPeriodPositionUs) {
+    // trigger positions, but make sure we deliver it only once.
+    if (playbackInfo.startPositionUs == oldPeriodPositionUs
+        && deliverPendingMessageAtStartPositionRequired) {
       oldPeriodPositionUs--;
     }
+    deliverPendingMessageAtStartPositionRequired = false;
+
     // Correct next index if necessary (e.g. after seeking, timeline changes, or new messages)
     int currentPeriodIndex =
         playbackInfo.timeline.getIndexOfPeriod(playbackInfo.periodId.periodUid);
@@ -1164,11 +1159,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
       if (playbackInfo.playbackState != Player.STATE_ENDED
           && periodPositionUs != playbackInfo.positionUs) {
         playbackInfo =
-            playbackInfo.copyWithNewPosition(
-                playbackInfo.periodId,
-                periodPositionUs,
-                playbackInfo.contentPositionUs,
-                getTotalBufferedDurationUs());
+            copyWithNewPosition(
+                playbackInfo.periodId, periodPositionUs, playbackInfo.contentPositionUs);
         playbackInfoUpdate.setPositionDiscontinuity(Player.DISCONTINUITY_REASON_INTERNAL);
         resetRendererPosition(periodPositionUs);
       }
@@ -1371,9 +1363,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       // Actually do the seek.
       long newPositionUs = newPeriodId.isAd() ? 0 : newContentPositionUs;
       long seekedToPositionUs = seekToPeriodPosition(newPeriodId, newPositionUs);
-      playbackInfo =
-          playbackInfo.copyWithNewPosition(
-              newPeriodId, seekedToPositionUs, newContentPositionUs, getTotalBufferedDurationUs());
+      playbackInfo = copyWithNewPosition(newPeriodId, seekedToPositionUs, newContentPositionUs);
     }
     handleLoadingMediaPeriodChanged(/* loadingTrackSelectionChanged= */ false);
   }
@@ -1649,11 +1639,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
       MediaPeriodHolder newPlayingPeriodHolder = queue.advancePlayingPeriod();
       updatePlayingPeriodRenderers(oldPlayingPeriodHolder);
       playbackInfo =
-          playbackInfo.copyWithNewPosition(
+          copyWithNewPosition(
               newPlayingPeriodHolder.info.id,
               newPlayingPeriodHolder.info.startPositionUs,
-              newPlayingPeriodHolder.info.contentPositionUs,
-              getTotalBufferedDurationUs());
+              newPlayingPeriodHolder.info.contentPositionUs);
       int discontinuityReason =
           oldPlayingPeriodHolder.info.isLastInTimelinePeriod
               ? Player.DISCONTINUITY_REASON_PERIOD_TRANSITION
@@ -1787,6 +1776,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
     if (isLoading != playbackInfo.isLoading) {
       playbackInfo = playbackInfo.copyWithIsLoading(isLoading);
     }
+  }
+
+  private PlaybackInfo copyWithNewPosition(
+      MediaPeriodId mediaPeriodId, long positionUs, long contentPositionUs) {
+    deliverPendingMessageAtStartPositionRequired = true;
+    return playbackInfo.copyWithNewPosition(
+        mediaPeriodId, positionUs, contentPositionUs, getTotalBufferedDurationUs());
   }
 
   @SuppressWarnings("ParameterNotNullable")
