@@ -360,19 +360,18 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         streamResetFlags[i] = true;
         if (trackGroupToSampleQueueIndex != null) {
           ((HlsSampleStream) streams[i]).bindSampleQueue();
-        }
-        // If there's still a chance of avoiding a seek, try and seek within the sample queue.
-        if (sampleQueuesBuilt && !seekRequired) {
-          // Must be non-null if sampleQueuesBuilt == true.
-          Assertions.checkNotNull(trackGroupToSampleQueueIndex);
-          SampleQueue sampleQueue = sampleQueues[trackGroupToSampleQueueIndex[trackGroupIndex]];
-          sampleQueue.rewind();
-          // A seek can be avoided if we're able to advance to the current playback position in the
-          // sample queue, or if we haven't read anything from the queue since the previous seek
-          // (this case is common for sparse tracks such as metadata tracks). In all other cases a
-          // seek is required.
-          seekRequired = sampleQueue.advanceTo(positionUs, true, true) == SampleQueue.ADVANCE_FAILED
-              && sampleQueue.getReadIndex() != 0;
+          // If there's still a chance of avoiding a seek, try and seek within the sample queue.
+          if (!seekRequired) {
+            SampleQueue sampleQueue = sampleQueues[trackGroupToSampleQueueIndex[trackGroupIndex]];
+            sampleQueue.rewind();
+            // A seek can be avoided if we're able to advance to the current playback position in
+            // the sample queue, or if we haven't read anything from the queue since the previous
+            // seek (this case is common for sparse tracks such as metadata tracks). In all other
+            // cases a seek is required.
+            seekRequired =
+                sampleQueue.advanceTo(positionUs, true, true) == SampleQueue.ADVANCE_FAILED
+                    && sampleQueue.getReadIndex() != 0;
+          }
         }
       }
     }
@@ -999,7 +998,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     pendingResetUpstreamFormats = false;
   }
 
-  @RequiresNonNull("trackGroupToSampleQueueIndex")
   private void onTracksEnded() {
     sampleQueuesBuilt = true;
     maybeFinishPrepare();
