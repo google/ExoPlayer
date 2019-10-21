@@ -40,13 +40,14 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
-import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Before;
 import org.junit.Test;
@@ -412,21 +413,21 @@ public class DownloadHelperTest {
 
   private static void prepareDownloadHelper(DownloadHelper downloadHelper) throws Exception {
     AtomicReference<Exception> prepareException = new AtomicReference<>(null);
-    ConditionVariable preparedCondition = new ConditionVariable();
+    CountDownLatch preparedLatch = new CountDownLatch(1);
     downloadHelper.prepare(
         new Callback() {
           @Override
           public void onPrepared(DownloadHelper helper) {
-            preparedCondition.open();
+            preparedLatch.countDown();
           }
 
           @Override
           public void onPrepareError(DownloadHelper helper, IOException e) {
             prepareException.set(e);
-            preparedCondition.open();
+            preparedLatch.countDown();
           }
         });
-    while (!preparedCondition.block(0)) {
+    while (!preparedLatch.await(0, TimeUnit.MILLISECONDS)) {
       shadowMainLooper().idleFor(shadowMainLooper().getNextScheduledTaskTime());
     }
     if (prepareException.get() != null) {
