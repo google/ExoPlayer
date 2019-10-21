@@ -121,6 +121,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final HlsChunkSource.HlsChunkHolder nextChunkHolder;
   private final ArrayList<HlsMediaChunk> mediaChunks;
   private final List<HlsMediaChunk> readOnlyMediaChunks;
+  // Using runnables rather than in-line method references to avoid repeated allocations.
+  private final Runnable maybeFinishPrepareRunnable;
+  private final Runnable onTracksEndedRunnable;
   private final Handler handler;
   private final ArrayList<HlsSampleStream> hlsSampleStreams;
   private final Map<String, DrmInitData> overridingDrmInitData;
@@ -212,6 +215,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     mediaChunks = new ArrayList<>();
     readOnlyMediaChunks = Collections.unmodifiableList(mediaChunks);
     hlsSampleStreams = new ArrayList<>();
+    // Suppressions are needed because `this` is not initialized here.
+    @SuppressWarnings("nullness:methodref.receiver.bound.invalid")
+    Runnable maybeFinishPrepareRunnable = this::maybeFinishPrepare;
+    this.maybeFinishPrepareRunnable = maybeFinishPrepareRunnable;
+    @SuppressWarnings("nullness:methodref.receiver.bound.invalid")
+    Runnable onTracksEndedRunnable = this::onTracksEnded;
+    this.onTracksEndedRunnable = onTracksEndedRunnable;
     handler = new Handler();
     lastSeekPositionUs = positionUs;
     pendingResetPositionUs = positionUs;
@@ -936,7 +946,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Override
   public void endTracks() {
     tracksEnded = true;
-    handler.post(this::onTracksEnded);
+    handler.post(onTracksEndedRunnable);
   }
 
   @Override
@@ -948,7 +958,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   public void onUpstreamFormatChanged(Format format) {
-    handler.post(this::maybeFinishPrepare);
+    handler.post(maybeFinishPrepareRunnable);
   }
 
   // Called by the loading thread.
