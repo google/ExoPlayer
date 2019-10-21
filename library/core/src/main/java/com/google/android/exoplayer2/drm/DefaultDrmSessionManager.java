@@ -417,13 +417,6 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
     if (prepareCallsCount++ == 0) {
       Assertions.checkState(exoMediaDrm == null);
       exoMediaDrm = exoMediaDrmProvider.acquireExoMediaDrm(uuid);
-      if (multiSession && C.WIDEVINE_UUID.equals(uuid) && Util.SDK_INT >= 19) {
-        // TODO: Enabling session sharing probably doesn't do anything useful here. It would only be
-        // useful if DefaultDrmSession instances were aware of one another's state, which is not
-        // implemented. Or if custom renderers are being used that allow playback to proceed before
-        // keys, which seems unlikely to be true in practice.
-        exoMediaDrm.setPropertyString("sessionSharing", "enable");
-      }
       exoMediaDrm.setOnEventListener(new MediaDrmEventListener());
     }
   }
