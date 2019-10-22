@@ -1273,11 +1273,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   /**
    * Called when the output format of the {@link MediaCodec} changes.
-   * <p>
-   * The default implementation is a no-op.
+   *
+   * <p>The default implementation is a no-op.
    *
    * @param codec The {@link MediaCodec} instance.
-   * @param outputFormat The new output format.
+   * @param outputFormat The new output MediaFormat.
    * @throws ExoPlaybackException Thrown if an error occurs handling the new output format.
    */
   protected void onOutputFormatChanged(MediaCodec codec, MediaFormat outputFormat)
@@ -1570,22 +1570,21 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     return false;
   }
 
-  /**
-   * Processes a new output format.
-   */
+  /** Processes a new output {@link MediaFormat}. */
   private void processOutputFormat() throws ExoPlaybackException {
-    MediaFormat format = codec.getOutputFormat();
+    MediaFormat mediaFormat = codec.getOutputFormat();
     if (codecAdaptationWorkaroundMode != ADAPTATION_WORKAROUND_MODE_NEVER
-        && format.getInteger(MediaFormat.KEY_WIDTH) == ADAPTATION_WORKAROUND_SLICE_WIDTH_HEIGHT
-        && format.getInteger(MediaFormat.KEY_HEIGHT) == ADAPTATION_WORKAROUND_SLICE_WIDTH_HEIGHT) {
+        && mediaFormat.getInteger(MediaFormat.KEY_WIDTH) == ADAPTATION_WORKAROUND_SLICE_WIDTH_HEIGHT
+        && mediaFormat.getInteger(MediaFormat.KEY_HEIGHT)
+            == ADAPTATION_WORKAROUND_SLICE_WIDTH_HEIGHT) {
       // We assume this format changed event was caused by the adaptation workaround.
       shouldSkipAdaptationWorkaroundOutputBuffer = true;
       return;
     }
     if (codecNeedsMonoChannelCountWorkaround) {
-      format.setInteger(MediaFormat.KEY_CHANNEL_COUNT, 1);
+      mediaFormat.setInteger(MediaFormat.KEY_CHANNEL_COUNT, 1);
     }
-    onOutputFormatChanged(codec, format);
+    onOutputFormatChanged(codec, mediaFormat);
   }
 
   /**
