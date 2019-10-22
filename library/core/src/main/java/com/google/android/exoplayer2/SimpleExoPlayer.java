@@ -454,7 +454,8 @@ public class SimpleExoPlayer extends BasePlayer
     if (drmSessionManager instanceof DefaultDrmSessionManager) {
       ((DefaultDrmSessionManager) drmSessionManager).addListener(eventHandler, analyticsCollector);
     }
-    audioBecomingNoisyManager = new AudioBecomingNoisyManager(context, componentListener);
+    audioBecomingNoisyManager =
+        new AudioBecomingNoisyManager(context, eventHandler, componentListener);
     audioFocusManager = new AudioFocusManager(context, componentListener);
     wakeLockManager = new WakeLockManager(context);
   }

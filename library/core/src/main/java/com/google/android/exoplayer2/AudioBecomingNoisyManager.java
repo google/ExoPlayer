@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
+import android.os.Handler;
 
 /* package */ final class AudioBecomingNoisyManager {
 
@@ -31,9 +32,9 @@ import android.media.AudioManager;
     void onAudioBecomingNoisy();
   }
 
-  public AudioBecomingNoisyManager(Context context, EventListener listener) {
+  public AudioBecomingNoisyManager(Context context, Handler eventHandler, EventListener listener) {
     this.context = context.getApplicationContext();
-    this.receiver = new AudioBecomingNoisyReceiver(listener);
+    this.receiver = new AudioBecomingNoisyReceiver(eventHandler, listener);
   }
 
   /**
@@ -56,15 +57,17 @@ import android.media.AudioManager;
 
   private static final class AudioBecomingNoisyReceiver extends BroadcastReceiver {
     private final EventListener listener;
+    private final Handler eventHandler;
 
-    public AudioBecomingNoisyReceiver(EventListener listener) {
+    public AudioBecomingNoisyReceiver(Handler eventHandler, EventListener listener) {
+      this.eventHandler = eventHandler;
       this.listener = listener;
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
       if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(intent.getAction())) {
-        listener.onAudioBecomingNoisy();
+        eventHandler.post(listener::onAudioBecomingNoisy);
       }
     }
   }
