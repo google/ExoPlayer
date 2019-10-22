@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.text.webvtt;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.fail;
 
 import android.graphics.Typeface;
@@ -26,6 +27,7 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
+import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TestUtil;
@@ -65,7 +67,7 @@ public class WebvttDecoderTest {
   }
 
   @Test
-  public void testDecodeTypical() throws IOException, SubtitleDecoderException {
+  public void testDecodeTypical() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(TYPICAL_FILE);
 
     // Test event count.
@@ -87,7 +89,7 @@ public class WebvttDecoderTest {
   }
 
   @Test
-  public void testDecodeWithBom() throws IOException, SubtitleDecoderException {
+  public void testDecodeWithBom() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_BOM);
 
     // Test event count.
@@ -109,7 +111,7 @@ public class WebvttDecoderTest {
   }
 
   @Test
-  public void testDecodeTypicalWithBadTimestamps() throws IOException, SubtitleDecoderException {
+  public void testDecodeTypicalWithBadTimestamps() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(TYPICAL_WITH_BAD_TIMESTAMPS);
 
     // Test event count.
@@ -131,7 +133,7 @@ public class WebvttDecoderTest {
   }
 
   @Test
-  public void testDecodeTypicalWithIds() throws IOException, SubtitleDecoderException {
+  public void testDecodeTypicalWithIds() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(TYPICAL_WITH_IDS_FILE);
 
     // Test event count.
@@ -153,7 +155,7 @@ public class WebvttDecoderTest {
   }
 
   @Test
-  public void testDecodeTypicalWithComments() throws IOException, SubtitleDecoderException {
+  public void testDecodeTypicalWithComments() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(TYPICAL_WITH_COMMENTS_FILE);
 
     // test event count
@@ -175,7 +177,7 @@ public class WebvttDecoderTest {
   }
 
   @Test
-  public void testDecodeWithTags() throws IOException, SubtitleDecoderException {
+  public void testDecodeWithTags() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_TAGS_FILE);
 
     // Test event count.
@@ -209,7 +211,7 @@ public class WebvttDecoderTest {
   }
 
   @Test
-  public void testDecodeWithPositioning() throws IOException, SubtitleDecoderException {
+  public void testDecodeWithPositioning() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_POSITIONING_FILE);
     // Test event count.
     assertThat(subtitle.getEventTimeCount()).isEqualTo(12);
@@ -295,7 +297,7 @@ public class WebvttDecoderTest {
   }
 
   @Test
-  public void testDecodeWithBadCueHeader() throws IOException, SubtitleDecoderException {
+  public void testDecodeWithBadCueHeader() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_BAD_CUE_HEADER_FILE);
 
     // Test event count.
@@ -317,7 +319,7 @@ public class WebvttDecoderTest {
   }
 
   @Test
-  public void testWebvttWithCssStyle() throws IOException, SubtitleDecoderException {
+  public void testWebvttWithCssStyle() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_CSS_STYLES);
 
     // Test event count.
@@ -352,7 +354,7 @@ public class WebvttDecoderTest {
   }
 
   @Test
-  public void testWithComplexCssSelectors() throws IOException, SubtitleDecoderException {
+  public void testWithComplexCssSelectors() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_CSS_COMPLEX_SELECTORS);
     Spanned text = getUniqueSpanTextAt(subtitle, /* timeUs= */ 0);
     assertThat(text.getSpans(/* start= */ 30, text.length(), ForegroundColorSpan.class))
@@ -425,26 +427,30 @@ public class WebvttDecoderTest {
       long startTimeUs,
       int endTimeUs,
       String text,
-      Alignment textAlignment,
+      @Nullable Alignment textAlignment,
       float line,
       int lineType,
       int lineAnchor,
       float position,
       int positionAnchor,
       float size) {
-    assertThat(subtitle.getEventTime(eventTimeIndex)).isEqualTo(startTimeUs);
-    assertThat(subtitle.getEventTime(eventTimeIndex + 1)).isEqualTo(endTimeUs);
+    assertWithMessage("startTimeUs")
+        .that(subtitle.getEventTime(eventTimeIndex))
+        .isEqualTo(startTimeUs);
+    assertWithMessage("endTimeUs")
+        .that(subtitle.getEventTime(eventTimeIndex + 1))
+        .isEqualTo(endTimeUs);
     List<Cue> cues = subtitle.getCues(subtitle.getEventTime(eventTimeIndex));
     assertThat(cues).hasSize(1);
     // Assert cue properties.
     Cue cue = cues.get(0);
-    assertThat(cue.text.toString()).isEqualTo(text);
-    assertThat(cue.textAlignment).isEqualTo(textAlignment);
-    assertThat(cue.line).isEqualTo(line);
-    assertThat(cue.lineType).isEqualTo(lineType);
-    assertThat(cue.lineAnchor).isEqualTo(lineAnchor);
-    assertThat(cue.position).isEqualTo(position);
-    assertThat(cue.positionAnchor).isEqualTo(positionAnchor);
-    assertThat(cue.size).isEqualTo(size);
+    assertWithMessage("cue.text").that(cue.text.toString()).isEqualTo(text);
+    assertWithMessage("cue.textAlignment").that(cue.textAlignment).isEqualTo(textAlignment);
+    assertWithMessage("cue.line").that(cue.line).isEqualTo(line);
+    assertWithMessage("cue.lineType").that(cue.lineType).isEqualTo(lineType);
+    assertWithMessage("cue.lineAnchor").that(cue.lineAnchor).isEqualTo(lineAnchor);
+    assertWithMessage("cue.position").that(cue.position).isEqualTo(position);
+    assertWithMessage("cue.positionAnchor").that(cue.positionAnchor).isEqualTo(positionAnchor);
+    assertWithMessage("cue.size").that(cue.size).isEqualTo(size);
   }
 }
