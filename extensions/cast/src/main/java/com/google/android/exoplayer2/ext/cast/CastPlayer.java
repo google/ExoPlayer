@@ -99,12 +99,12 @@ public final class CastPlayer extends BasePlayer {
 
   // Internal state.
   private final StateHolder<Boolean> playWhenReady;
+  private final StateHolder<Integer> repeatMode;
   @Nullable private RemoteMediaClient remoteMediaClient;
   private CastTimeline currentTimeline;
   private TrackGroupArray currentTrackGroups;
   private TrackSelectionArray currentTrackSelection;
   @Player.State private int playbackState;
-  private int repeatMode;
   private int currentWindowIndex;
   private long lastReportedPositionMs;
   private int pendingSeekCount;
@@ -131,8 +131,8 @@ public final class CastPlayer extends BasePlayer {
     remoteMediaClient = session != null ? session.getRemoteMediaClient() : null;
 
     playWhenReady = new StateHolder<>(false);
+    repeatMode = new StateHolder<>(REPEAT_MODE_OFF);
     playbackState = STATE_IDLE;
-    repeatMode = REPEAT_MODE_OFF;
     currentTimeline = CastTimeline.EMPTY_CAST_TIMELINE;
     currentTrackGroups = TrackGroupArray.EMPTY;
     currentTrackSelection = EMPTY_TRACK_SELECTION_ARRAY;
@@ -456,20 +456,24 @@ public final class CastPlayer extends BasePlayer {
     // the local state will be updated to reflect the state reported by the Cast SDK.
     setRepeatModeAndNotifyIfChanged(repeatMode);
     flushNotifications();
-    remoteMediaClient
-        .queueSetRepeatMode(getCastRepeatMode(repeatMode), /* jsonObject= */ null)
-        .setResultCallback(
-            mediaChannelResult -> {
-              if (remoteMediaClient != null) {
-                updateRepeatModeAndNotifyIfChanged();
-                flushNotifications();
-              }
-            });
+    PendingResult<MediaChannelResult> pendingResult =
+        remoteMediaClient.queueSetRepeatMode(getCastRepeatMode(repeatMode), /* jsonObject= */ null);
+    this.repeatMode.pendingResultCallback =
+        new ResultCallback<MediaChannelResult>() {
+          @Override
+          public void onResult(MediaChannelResult mediaChannelResult) {
+            if (remoteMediaClient != null) {
+              updateRepeatModeAndNotifyIfChanged(this);
+              flushNotifications();
+            }
+          }
+        };
+    pendingResult.setResultCallback(this.repeatMode.pendingResultCallback);
   }
 
   @Override
   @RepeatMode public int getRepeatMode() {
-    return repeatMode;
+    return repeatMode.value;
   }
 
   @Override
@@ -582,7 +586,7 @@ public final class CastPlayer extends BasePlayer {
       notificationsBatch.add(
           new ListenerNotificationTask(listener -> listener.onIsPlayingChanged(isPlaying)));
     }
-    updateRepeatModeAndNotifyIfChanged();
+    updateRepeatModeAndNotifyIfChanged(/* resultCallback= */ null);
     updateTimelineAndNotifyIfChanged();
 
     int currentWindowIndex = C.INDEX_UNSET;
@@ -617,7 +621,7 @@ public final class CastPlayer extends BasePlayer {
    * the given {@code resultCallback}.
    */
   @RequiresNonNull("remoteMediaClient")
-  private void updatePlayerStateAndNotifyIfChanged(ResultCallback<?> resultCallback) {
+  private void updatePlayerStateAndNotifyIfChanged(@Nullable ResultCallback<?> resultCallback) {
     boolean newPlayWhenReadyValue = playWhenReady.value;
     if (playWhenReady.acceptsUpdate(resultCallback)) {
       newPlayWhenReadyValue = !remoteMediaClient.isPaused();
@@ -628,8 +632,11 @@ public final class CastPlayer extends BasePlayer {
   }
 
   @RequiresNonNull("remoteMediaClient")
-  private void updateRepeatModeAndNotifyIfChanged() {
-    setRepeatModeAndNotifyIfChanged(fetchRepeatMode(remoteMediaClient));
+  private void updateRepeatModeAndNotifyIfChanged(@Nullable ResultCallback<?> resultCallback) {
+    if (repeatMode.acceptsUpdate(resultCallback)) {
+      setRepeatModeAndNotifyIfChanged(fetchRepeatMode(remoteMediaClient));
+      repeatMode.clearPendingResultCallback();
+    }
   }
 
   private void updateTimelineAndNotifyIfChanged() {
@@ -707,8 +714,8 @@ public final class CastPlayer extends BasePlayer {
   }
 
   private void setRepeatModeAndNotifyIfChanged(@Player.RepeatMode int repeatMode) {
-    if (this.repeatMode != repeatMode) {
-      this.repeatMode = repeatMode;
+    if (this.repeatMode.value != repeatMode) {
+      this.repeatMode.value = repeatMode;
       notificationsBatch.add(
           new ListenerNotificationTask(listener -> listener.onRepeatModeChanged(repeatMode)));
     }
@@ -970,12 +977,17 @@ public final class CastPlayer extends BasePlayer {
     }
 
     /**
-     * Returns whether {@link #value} is being masked by the operation associated to the given
-     * result callback.
+     * Returns whether this state holder accepts updates coming from the given result callback.
      *
-     * @param resultCallback A result callback.
+     * <p>A null {@code resultCallback} means that the update is a regular receiver state update, in
+     * which case the update will only be accepted if {@link #value} is not being masked. If {@link
+     * #value} is being masked, the update will only be accepted if {@code resultCallback} is the
+     * same as the {@link #pendingResultCallback}.
+     *
+     * @param resultCallback A result callback. May be null if the update comes from a regular
+     *     receiver status update.
      */
-    public boolean acceptsUpdate(ResultCallback<?> resultCallback) {
+    public boolean acceptsUpdate(@Nullable ResultCallback<?> resultCallback) {
       return pendingResultCallback == resultCallback;
     }
   }
