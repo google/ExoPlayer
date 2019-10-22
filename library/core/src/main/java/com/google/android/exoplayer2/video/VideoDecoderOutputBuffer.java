@@ -108,6 +108,8 @@ public class VideoDecoderOutputBuffer extends OutputBuffer {
       this.supplementalData.put(supplementalData);
       this.supplementalData.flip();
       supplementalData.position(0);
+    } else {
+      this.supplementalData = null;
     }
   }
 

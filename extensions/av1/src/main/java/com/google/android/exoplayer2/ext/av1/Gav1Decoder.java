@@ -101,10 +101,7 @@ import java.nio.ByteBuffer;
 
     boolean decodeOnly = inputBuffer.isDecodeOnly();
     if (!decodeOnly) {
-      @Nullable
-      ByteBuffer supplementalData =
-          inputBuffer.hasSupplementalData() ? inputBuffer.supplementalData : null;
-      outputBuffer.init(inputBuffer.timeUs, outputMode, supplementalData);
+      outputBuffer.init(inputBuffer.timeUs, outputMode, /* supplementalData= */ null);
     }
     // We need to dequeue the decoded frame from the decoder even when the input data is
     // decode-only.
