@@ -308,7 +308,8 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
     @Override
     public void onVideoSizeChanged(
         int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
-      getCallback().onVideoSizeChanged(LeanbackPlayerAdapter.this, width, height);
+      int playbackwidth = (int)((float)width * pixelWidthHeightRatio);
+      getCallback().onVideoSizeChanged(LeanbackPlayerAdapter.this, playbackwidth, height);
     }
 
     @Override
