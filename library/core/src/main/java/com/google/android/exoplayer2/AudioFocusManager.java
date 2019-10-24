@@ -18,6 +18,7 @@ package com.google.android.exoplayer2;
 import android.content.Context;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
+import android.os.Handler;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -114,13 +115,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * Constructs an AudioFocusManager to automatically handle audio focus for a player.
    *
    * @param context The current context.
+   * @param eventHandler A {@link Handler} to for the thread on which the player is used.
    * @param playerControl A {@link PlayerControl} to handle commands from this instance.
    */
-  public AudioFocusManager(Context context, PlayerControl playerControl) {
+  public AudioFocusManager(Context context, Handler eventHandler, PlayerControl playerControl) {
     this.audioManager =
         (AudioManager) context.getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
     this.playerControl = playerControl;
-    this.focusListener = new AudioFocusListener();
+    this.focusListener = new AudioFocusListener(eventHandler);
     this.audioFocusState = AUDIO_FOCUS_STATE_NO_FOCUS;
   }
 
@@ -380,65 +382,75 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
+  private void handleAudioFocusChange(int focusChange) {
+    // Convert the platform focus change to internal state.
+    switch (focusChange) {
+      case AudioManager.AUDIOFOCUS_LOSS:
+        audioFocusState = AUDIO_FOCUS_STATE_LOST_FOCUS;
+        break;
+      case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+        audioFocusState = AUDIO_FOCUS_STATE_LOSS_TRANSIENT;
+        break;
+      case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+        if (willPauseWhenDucked()) {
+          audioFocusState = AUDIO_FOCUS_STATE_LOSS_TRANSIENT;
+        } else {
+          audioFocusState = AUDIO_FOCUS_STATE_LOSS_TRANSIENT_DUCK;
+        }
+        break;
+      case AudioManager.AUDIOFOCUS_GAIN:
+        audioFocusState = AUDIO_FOCUS_STATE_HAVE_FOCUS;
+        break;
+      default:
+        Log.w(TAG, "Unknown focus change type: " + focusChange);
+        // Early return.
+        return;
+    }
+
+    // Handle the internal state (change).
+    switch (audioFocusState) {
+      case AUDIO_FOCUS_STATE_NO_FOCUS:
+        // Focus was not requested; nothing to do.
+        break;
+      case AUDIO_FOCUS_STATE_LOST_FOCUS:
+        playerControl.executePlayerCommand(PLAYER_COMMAND_DO_NOT_PLAY);
+        abandonAudioFocus(/* forceAbandon= */ true);
+        break;
+      case AUDIO_FOCUS_STATE_LOSS_TRANSIENT:
+        playerControl.executePlayerCommand(PLAYER_COMMAND_WAIT_FOR_CALLBACK);
+        break;
+      case AUDIO_FOCUS_STATE_LOSS_TRANSIENT_DUCK:
+        // Volume will be adjusted by the code below.
+        break;
+      case AUDIO_FOCUS_STATE_HAVE_FOCUS:
+        playerControl.executePlayerCommand(PLAYER_COMMAND_PLAY_WHEN_READY);
+        break;
+      default:
+        throw new IllegalStateException("Unknown audio focus state: " + audioFocusState);
+    }
+
+    float volumeMultiplier =
+        (audioFocusState == AUDIO_FOCUS_STATE_LOSS_TRANSIENT_DUCK)
+            ? AudioFocusManager.VOLUME_MULTIPLIER_DUCK
+            : AudioFocusManager.VOLUME_MULTIPLIER_DEFAULT;
+    if (AudioFocusManager.this.volumeMultiplier != volumeMultiplier) {
+      AudioFocusManager.this.volumeMultiplier = volumeMultiplier;
+      playerControl.setVolumeMultiplier(volumeMultiplier);
+    }
+  }
+
   // Internal audio focus listener.
 
   private class AudioFocusListener implements AudioManager.OnAudioFocusChangeListener {
+    private final Handler eventHandler;
+
+    public AudioFocusListener(Handler eventHandler) {
+      this.eventHandler = eventHandler;
+    }
+
     @Override
     public void onAudioFocusChange(int focusChange) {
-      // Convert the platform focus change to internal state.
-      switch (focusChange) {
-        case AudioManager.AUDIOFOCUS_LOSS:
-          audioFocusState = AUDIO_FOCUS_STATE_LOST_FOCUS;
-          break;
-        case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
-          audioFocusState = AUDIO_FOCUS_STATE_LOSS_TRANSIENT;
-          break;
-        case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-          if (willPauseWhenDucked()) {
-            audioFocusState = AUDIO_FOCUS_STATE_LOSS_TRANSIENT;
-          } else {
-            audioFocusState = AUDIO_FOCUS_STATE_LOSS_TRANSIENT_DUCK;
-          }
-          break;
-        case AudioManager.AUDIOFOCUS_GAIN:
-          audioFocusState = AUDIO_FOCUS_STATE_HAVE_FOCUS;
-          break;
-        default:
-          Log.w(TAG, "Unknown focus change type: " + focusChange);
-          // Early return.
-          return;
-      }
-
-      // Handle the internal state (change).
-      switch (audioFocusState) {
-        case AUDIO_FOCUS_STATE_NO_FOCUS:
-          // Focus was not requested; nothing to do.
-          break;
-        case AUDIO_FOCUS_STATE_LOST_FOCUS:
-          playerControl.executePlayerCommand(PLAYER_COMMAND_DO_NOT_PLAY);
-          abandonAudioFocus(/* forceAbandon= */ true);
-          break;
-        case AUDIO_FOCUS_STATE_LOSS_TRANSIENT:
-          playerControl.executePlayerCommand(PLAYER_COMMAND_WAIT_FOR_CALLBACK);
-          break;
-        case AUDIO_FOCUS_STATE_LOSS_TRANSIENT_DUCK:
-          // Volume will be adjusted by the code below.
-          break;
-        case AUDIO_FOCUS_STATE_HAVE_FOCUS:
-          playerControl.executePlayerCommand(PLAYER_COMMAND_PLAY_WHEN_READY);
-          break;
-        default:
-          throw new IllegalStateException("Unknown audio focus state: " + audioFocusState);
-      }
-
-      float volumeMultiplier =
-          (audioFocusState == AUDIO_FOCUS_STATE_LOSS_TRANSIENT_DUCK)
-              ? AudioFocusManager.VOLUME_MULTIPLIER_DUCK
-              : AudioFocusManager.VOLUME_MULTIPLIER_DEFAULT;
-      if (AudioFocusManager.this.volumeMultiplier != volumeMultiplier) {
-        AudioFocusManager.this.volumeMultiplier = volumeMultiplier;
-        playerControl.setVolumeMultiplier(volumeMultiplier);
-      }
+      eventHandler.post(() -> handleAudioFocusChange(focusChange));
     }
   }
 }

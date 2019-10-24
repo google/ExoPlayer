@@ -25,6 +25,8 @@ import static org.robolectric.annotation.Config.TARGET_SDK;
 import android.content.Context;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
+import android.os.Handler;
+import android.os.Looper;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.audio.AudioAttributes;
@@ -54,7 +56,10 @@ public class AudioFocusManagerTest {
 
     testPlayerControl = new TestPlayerControl();
     audioFocusManager =
-        new AudioFocusManager(ApplicationProvider.getApplicationContext(), testPlayerControl);
+        new AudioFocusManager(
+            ApplicationProvider.getApplicationContext(),
+            new Handler(Looper.myLooper()),
+            testPlayerControl);
   }
 
   @Test
