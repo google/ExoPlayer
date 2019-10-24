@@ -777,6 +777,7 @@ public class SimpleExoPlayer extends BasePlayer
    * @param handleAudioBecomingNoisy True if the player should handle audio becoming noisy.
    */
   public void setHandleAudioBecomingNoisy(boolean handleAudioBecomingNoisy) {
+    verifyApplicationThread();
     audioBecomingNoisyManager.setEnabled(handleAudioBecomingNoisy);
   }
 
