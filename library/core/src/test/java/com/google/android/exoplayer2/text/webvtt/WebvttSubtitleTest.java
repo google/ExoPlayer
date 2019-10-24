@@ -39,31 +39,64 @@ public class WebvttSubtitleTest {
   private static final WebvttSubtitle emptySubtitle = new WebvttSubtitle(Collections.emptyList());
 
   private static final WebvttSubtitle simpleSubtitle;
+
   static {
     ArrayList<WebvttCue> simpleSubtitleCues = new ArrayList<>();
-    WebvttCue firstCue = new WebvttCue(1000000, 2000000, FIRST_SUBTITLE_STRING);
+    WebvttCue firstCue =
+        new WebvttCue.Builder()
+            .setStartTime(1000000)
+            .setEndTime(2000000)
+            .setText(FIRST_SUBTITLE_STRING)
+            .build();
     simpleSubtitleCues.add(firstCue);
-    WebvttCue secondCue = new WebvttCue(3000000, 4000000, SECOND_SUBTITLE_STRING);
+    WebvttCue secondCue =
+        new WebvttCue.Builder()
+            .setStartTime(3000000)
+            .setEndTime(4000000)
+            .setText(SECOND_SUBTITLE_STRING)
+            .build();
     simpleSubtitleCues.add(secondCue);
     simpleSubtitle = new WebvttSubtitle(simpleSubtitleCues);
   }
 
   private static final WebvttSubtitle overlappingSubtitle;
+
   static {
     ArrayList<WebvttCue> overlappingSubtitleCues = new ArrayList<>();
-    WebvttCue firstCue = new WebvttCue(1000000, 3000000, FIRST_SUBTITLE_STRING);
+    WebvttCue firstCue =
+        new WebvttCue.Builder()
+            .setStartTime(1000000)
+            .setEndTime(3000000)
+            .setText(FIRST_SUBTITLE_STRING)
+            .build();
     overlappingSubtitleCues.add(firstCue);
-    WebvttCue secondCue = new WebvttCue(2000000, 4000000, SECOND_SUBTITLE_STRING);
+    WebvttCue secondCue =
+        new WebvttCue.Builder()
+            .setStartTime(2000000)
+            .setEndTime(4000000)
+            .setText(SECOND_SUBTITLE_STRING)
+            .build();
     overlappingSubtitleCues.add(secondCue);
     overlappingSubtitle = new WebvttSubtitle(overlappingSubtitleCues);
   }
 
   private static final WebvttSubtitle nestedSubtitle;
+
   static {
     ArrayList<WebvttCue> nestedSubtitleCues = new ArrayList<>();
-    WebvttCue firstCue = new WebvttCue(1000000, 4000000, FIRST_SUBTITLE_STRING);
+    WebvttCue firstCue =
+        new WebvttCue.Builder()
+            .setStartTime(1000000)
+            .setEndTime(4000000)
+            .setText(FIRST_SUBTITLE_STRING)
+            .build();
     nestedSubtitleCues.add(firstCue);
-    WebvttCue secondCue = new WebvttCue(2000000, 3000000, SECOND_SUBTITLE_STRING);
+    WebvttCue secondCue =
+        new WebvttCue.Builder()
+            .setStartTime(2000000)
+            .setEndTime(3000000)
+            .setText(SECOND_SUBTITLE_STRING)
+            .build();
     nestedSubtitleCues.add(secondCue);
     nestedSubtitle = new WebvttSubtitle(nestedSubtitleCues);
   }

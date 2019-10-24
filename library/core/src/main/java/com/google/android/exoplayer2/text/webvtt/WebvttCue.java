@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.text.webvtt;
 
 import android.text.Layout.Alignment;
-import android.text.SpannableStringBuilder;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.util.Log;
 
@@ -28,18 +27,17 @@ public final class WebvttCue extends Cue {
   public final long startTime;
   public final long endTime;
 
-  public WebvttCue(CharSequence text) {
-    this(0, 0, text);
-  }
-
-  public WebvttCue(long startTime, long endTime, CharSequence text) {
-    this(startTime, endTime, text, null, Cue.DIMEN_UNSET, Cue.TYPE_UNSET, Cue.TYPE_UNSET,
-        Cue.DIMEN_UNSET, Cue.TYPE_UNSET, Cue.DIMEN_UNSET);
-  }
-
-  public WebvttCue(long startTime, long endTime, CharSequence text, Alignment textAlignment,
-      float line, @Cue.LineType int lineType, @Cue.AnchorType int lineAnchor, float position,
-      @Cue.AnchorType int positionAnchor, float width) {
+  private WebvttCue(
+      long startTime,
+      long endTime,
+      CharSequence text,
+      Alignment textAlignment,
+      float line,
+      @Cue.LineType int lineType,
+      @Cue.AnchorType int lineAnchor,
+      float position,
+      @Cue.AnchorType int positionAnchor,
+      float width) {
     super(text, textAlignment, line, lineType, lineAnchor, position, positionAnchor, width);
     this.startTime = startTime;
     this.endTime = endTime;
@@ -65,7 +63,7 @@ public final class WebvttCue extends Cue {
 
     private long startTime;
     private long endTime;
-    private SpannableStringBuilder text;
+    private CharSequence text;
     private Alignment textAlignment;
     private float line;
     private int lineType;
@@ -113,8 +111,8 @@ public final class WebvttCue extends Cue {
       return this;
     }
 
-    public Builder setText(SpannableStringBuilder aText) {
-      text = aText;
+    public Builder setText(CharSequence text) {
+      this.text = text;
       return this;
     }
 

@@ -102,7 +102,7 @@ import java.util.List;
     }
     if (normalCueTextBuilder != null) {
       // there were multiple normal cues, so create a new cue with all of the text
-      list.add(new WebvttCue(normalCueTextBuilder));
+      list.add(new WebvttCue.Builder().setText(normalCueTextBuilder).build());
     } else if (firstNormalCue != null) {
       // there was only a single normal cue, so just add it to the list
       list.add(firstNormalCue);
