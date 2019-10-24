@@ -405,7 +405,7 @@ public class WebvttDecoderTest {
   }
 
   private static void assertCue(
-      WebvttSubtitle subtitle, int eventTimeIndex, long startTimeUs, int endTimeUs, String text) {
+      WebvttSubtitle subtitle, int eventTimeIndex, long startTimeUs, long endTimeUs, String text) {
     assertCue(
         subtitle,
         eventTimeIndex,
@@ -425,14 +425,14 @@ public class WebvttDecoderTest {
       WebvttSubtitle subtitle,
       int eventTimeIndex,
       long startTimeUs,
-      int endTimeUs,
+      long endTimeUs,
       String text,
       @Nullable Alignment textAlignment,
       float line,
-      int lineType,
-      int lineAnchor,
+      @Cue.LineType int lineType,
+      @Cue.AnchorType int lineAnchor,
       float position,
-      int positionAnchor,
+      @Cue.AnchorType int positionAnchor,
       float size) {
     assertWithMessage("startTimeUs")
         .that(subtitle.getEventTime(eventTimeIndex))
