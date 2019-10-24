@@ -85,6 +85,8 @@
     `VideoDecoderOutputBufferRenderer`, instead of `VideoDecoderSurfaceView`.
 * Add automatic audio becoming noisy handling to `SimpleExoPlayer`,
   available through `SimpleExoPlayer.setHandleAudioBecomingNoisy`.
+* Post `AudioFocusManager.onAudioFocusChange` events to eventHandler, avoiding
+  multithreaded access to the player or audio focus manager.
 * Add `Timeline.Window.isLive` to indicate that a window is a live stream
   ([#2668](https://github.com/google/ExoPlayer/issues/2668) and
   [#5973](https://github.com/google/ExoPlayer/issues/5973)).

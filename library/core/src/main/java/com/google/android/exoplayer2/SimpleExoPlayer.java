@@ -456,7 +456,7 @@ public class SimpleExoPlayer extends BasePlayer
     }
     audioBecomingNoisyManager =
         new AudioBecomingNoisyManager(context, eventHandler, componentListener);
-    audioFocusManager = new AudioFocusManager(context, componentListener);
+    audioFocusManager = new AudioFocusManager(context, eventHandler, componentListener);
     wakeLockManager = new WakeLockManager(context);
   }
 
