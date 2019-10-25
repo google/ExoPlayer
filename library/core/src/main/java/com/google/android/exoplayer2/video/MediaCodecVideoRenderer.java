@@ -721,19 +721,25 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @Override
-  protected void onOutputFormatChanged(MediaCodec codec, MediaFormat outputFormat) {
-    currentMediaFormat = outputFormat;
-    boolean hasCrop = outputFormat.containsKey(KEY_CROP_RIGHT)
-        && outputFormat.containsKey(KEY_CROP_LEFT) && outputFormat.containsKey(KEY_CROP_BOTTOM)
-        && outputFormat.containsKey(KEY_CROP_TOP);
+  protected void onOutputFormatChanged(MediaCodec codec, MediaFormat outputMediaFormat) {
+    currentMediaFormat = outputMediaFormat;
+    boolean hasCrop =
+        outputMediaFormat.containsKey(KEY_CROP_RIGHT)
+            && outputMediaFormat.containsKey(KEY_CROP_LEFT)
+            && outputMediaFormat.containsKey(KEY_CROP_BOTTOM)
+            && outputMediaFormat.containsKey(KEY_CROP_TOP);
     int width =
         hasCrop
-            ? outputFormat.getInteger(KEY_CROP_RIGHT) - outputFormat.getInteger(KEY_CROP_LEFT) + 1
-            : outputFormat.getInteger(MediaFormat.KEY_WIDTH);
+            ? outputMediaFormat.getInteger(KEY_CROP_RIGHT)
+                - outputMediaFormat.getInteger(KEY_CROP_LEFT)
+                + 1
+            : outputMediaFormat.getInteger(MediaFormat.KEY_WIDTH);
     int height =
         hasCrop
-            ? outputFormat.getInteger(KEY_CROP_BOTTOM) - outputFormat.getInteger(KEY_CROP_TOP) + 1
-            : outputFormat.getInteger(MediaFormat.KEY_HEIGHT);
+            ? outputMediaFormat.getInteger(KEY_CROP_BOTTOM)
+                - outputMediaFormat.getInteger(KEY_CROP_TOP)
+                + 1
+            : outputMediaFormat.getInteger(MediaFormat.KEY_HEIGHT);
     processOutputFormat(codec, width, height);
   }
 
@@ -905,7 +911,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       // On API level 20 and below the decoder does not apply the rotation.
       currentUnappliedRotationDegrees = pendingRotationDegrees;
     }
-    // Must be applied each time the output format changes.
+    // Must be applied each time the output MediaFormat changes.
     codec.setVideoScalingMode(scalingMode);
   }
 
@@ -1242,7 +1248,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   /**
    * Returns the framework {@link MediaFormat} that should be used to configure the decoder.
    *
-   * @param format The format of media.
+   * @param format The {@link Format} of media.
    * @param codecMimeType The MIME type handled by the codec.
    * @param codecMaxValues Codec max values that should be used when configuring the decoder.
    * @param codecOperatingRate The codec operating rate, or {@link #CODEC_OPERATING_RATE_UNSET} if
@@ -1307,7 +1313,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * that will allow possible adaptation to other compatible formats in {@code streamFormats}.
    *
    * @param codecInfo Information about the {@link MediaCodec} being configured.
-   * @param format The format for which the codec is being configured.
+   * @param format The {@link Format} for which the codec is being configured.
    * @param streamFormats The possible stream formats.
    * @return Suitable {@link CodecMaxValues}.
    */
@@ -1373,7 +1379,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * aspect ratio, but whose sizes are unknown.
    *
    * @param codecInfo Information about the {@link MediaCodec} being configured.
-   * @param format The format for which the codec is being configured.
+   * @param format The {@link Format} for which the codec is being configured.
    * @return The maximum video size to use, or null if the size of {@code format} should be used.
    */
   private static Point getCodecMaxSize(MediaCodecInfo codecInfo, Format format) {
@@ -1413,7 +1419,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   /**
-   * Returns a maximum input buffer size for a given codec and format.
+   * Returns a maximum input buffer size for a given {@link MediaCodec} and {@link Format}.
    *
    * @param codecInfo Information about the {@link MediaCodec} being configured.
    * @param format The format.
