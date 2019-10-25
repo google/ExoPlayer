@@ -125,11 +125,6 @@ public final class CastPlayer extends BasePlayer {
     notificationsBatch = new ArrayList<>();
     ongoingNotificationsTasks = new ArrayDeque<>();
 
-    SessionManager sessionManager = castContext.getSessionManager();
-    sessionManager.addSessionManagerListener(statusListener, CastSession.class);
-    CastSession session = sessionManager.getCurrentCastSession();
-    remoteMediaClient = session != null ? session.getRemoteMediaClient() : null;
-
     playWhenReady = new StateHolder<>(false);
     repeatMode = new StateHolder<>(REPEAT_MODE_OFF);
     playbackState = STATE_IDLE;
@@ -138,6 +133,11 @@ public final class CastPlayer extends BasePlayer {
     currentTrackSelection = EMPTY_TRACK_SELECTION_ARRAY;
     pendingSeekWindowIndex = C.INDEX_UNSET;
     pendingSeekPositionMs = C.TIME_UNSET;
+
+    SessionManager sessionManager = castContext.getSessionManager();
+    sessionManager.addSessionManagerListener(statusListener, CastSession.class);
+    CastSession session = sessionManager.getCurrentCastSession();
+    setRemoteMediaClient(session != null ? session.getRemoteMediaClient() : null);
     updateInternalStateAndNotifyIfChanged();
   }
 
