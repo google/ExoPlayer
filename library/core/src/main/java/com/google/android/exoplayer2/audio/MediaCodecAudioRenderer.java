@@ -474,22 +474,22 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
-  protected void onOutputFormatChanged(MediaCodec codec, MediaFormat outputFormat)
+  protected void onOutputFormatChanged(MediaCodec codec, MediaFormat outputMediaFormat)
       throws ExoPlaybackException {
     @C.Encoding int encoding;
-    MediaFormat format;
+    MediaFormat mediaFormat;
     if (passthroughMediaFormat != null) {
-      format = passthroughMediaFormat;
+      mediaFormat = passthroughMediaFormat;
       encoding =
           getPassthroughEncoding(
-              format.getInteger(MediaFormat.KEY_CHANNEL_COUNT),
-              format.getString(MediaFormat.KEY_MIME));
+              mediaFormat.getInteger(MediaFormat.KEY_CHANNEL_COUNT),
+              mediaFormat.getString(MediaFormat.KEY_MIME));
     } else {
-      format = outputFormat;
+      mediaFormat = outputMediaFormat;
       encoding = pcmEncoding;
     }
-    int channelCount = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
-    int sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
+    int channelCount = mediaFormat.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
+    int sampleRate = mediaFormat.getInteger(MediaFormat.KEY_SAMPLE_RATE);
     int[] channelMap;
     if (codecNeedsDiscardChannelsWorkaround && channelCount == 6 && this.channelCount < 6) {
       channelMap = new int[this.channelCount];
@@ -769,7 +769,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    * will allow possible adaptation to other compatible formats in {@code streamFormats}.
    *
    * @param codecInfo A {@link MediaCodecInfo} describing the decoder.
-   * @param format The format for which the codec is being configured.
+   * @param format The {@link Format} for which the codec is being configured.
    * @param streamFormats The possible stream formats.
    * @return A suitable maximum input size.
    */
@@ -791,10 +791,10 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   /**
-   * Returns a maximum input buffer size for a given format.
+   * Returns a maximum input buffer size for a given {@link Format}.
    *
    * @param codecInfo A {@link MediaCodecInfo} describing the decoder.
-   * @param format The format.
+   * @param format The {@link Format}.
    * @return A maximum input buffer size in bytes, or {@link Format#NO_VALUE} if a maximum could not
    *     be determined.
    */
@@ -833,12 +833,12 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    * Returns the framework {@link MediaFormat} that can be used to configure a {@link MediaCodec}
    * for decoding the given {@link Format} for playback.
    *
-   * @param format The format of the media.
+   * @param format The {@link Format} of the media.
    * @param codecMimeType The MIME type handled by the codec.
    * @param codecMaxInputSize The maximum input size supported by the codec.
    * @param codecOperatingRate The codec operating rate, or {@link #CODEC_OPERATING_RATE_UNSET} if
    *     no codec operating rate should be set.
-   * @return The framework media format.
+   * @return The framework {@link MediaFormat}.
    */
   @SuppressLint("InlinedApi")
   protected MediaFormat getMediaFormat(
