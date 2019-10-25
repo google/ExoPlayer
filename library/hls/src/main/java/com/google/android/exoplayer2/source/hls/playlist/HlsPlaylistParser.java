@@ -273,7 +273,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
 
     String line;
     while (iterator.hasNext()) {
-      line = iterator.next();
+      line = Assertions.checkNotNull(iterator.next());
 
       if (line.startsWith(TAG_PREFIX)) {
         // We expose all tags through the playlist.
@@ -340,7 +340,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             parseOptionalStringAttr(line, REGEX_CLOSED_CAPTIONS, variableDefinitions);
         line =
             replaceVariableReferences(
-                iterator.next(), variableDefinitions); // #EXT-X-STREAM-INF's URI.
+                Assertions.checkNotNull(iterator.next()),
+                variableDefinitions); // #EXT-X-STREAM-INF's URI.
         Uri uri = UriUtil.resolveToUri(baseUri, line);
         Format format =
             Format.createVideoContainerFormat(
@@ -381,7 +382,9 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         Assertions.checkState(variant.format.metadata == null);
         HlsTrackMetadataEntry hlsMetadataEntry =
             new HlsTrackMetadataEntry(
-                /* groupId= */ null, /* name= */ null, urlToVariantInfos.get(variant.url));
+                /* groupId= */ null,
+                /* name= */ null,
+                Assertions.checkNotNull(urlToVariantInfos.get(variant.url)));
         deduplicatedVariants.add(
             variant.copyWithFormat(
                 variant.format.copyWithMetadata(new Metadata(hlsMetadataEntry))));
@@ -536,6 +539,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         sessionKeyDrmInitData);
   }
 
+  @Nullable
   private static Variant getVariantWithAudioGroup(ArrayList<Variant> variants, String groupId) {
     for (int i = 0; i < variants.size(); i++) {
       Variant variant = variants.get(i);
@@ -546,6 +550,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     return null;
   }
 
+  @Nullable
   private static Variant getVariantWithVideoGroup(ArrayList<Variant> variants, String groupId) {
     for (int i = 0; i < variants.size(); i++) {
       Variant variant = variants.get(i);
@@ -591,7 +596,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
 
     String line;
     while (iterator.hasNext()) {
-      line = iterator.next();
+      line = Assertions.checkNotNull(iterator.next());
 
       if (line.startsWith(TAG_PREFIX)) {
         // We expose all tags through the playlist.
@@ -931,7 +936,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     private final BufferedReader reader;
     private final Queue<String> extraLines;
 
-    private String next;
+    @Nullable private String next;
 
     public LineIterator(Queue<String> extraLines, BufferedReader reader) {
       this.extraLines = extraLines;
@@ -955,6 +960,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       return false;
     }
 
+    @Nullable
     public String next() throws IOException {
       String result = null;
       if (hasNext()) {
