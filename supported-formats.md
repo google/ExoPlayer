@@ -92,13 +92,11 @@ for an example command line to `configure`.
 ExoPlayer supports standalone subtitle files in a variety of formats. Subtitle
 files can be side-loaded as described on the [Media source page][].
 
-| Container format      | Supported    | Mime type |
-|-----------------------|:------------:|:----------|
-| WebVTT                | YES          | `MimeTypes.TEXT_VTT` |
-| TTML                  | YES          | `MimeTypes.APPLICATION_TTML` |
-| SMPTE-TT              | YES          | `MimeTypes.APPLICATION_TTML` |
-| SubRip                | YES          | `MimeTypes.APPLICATION_SUBRIP` |
-| SubStationAlpha (SSA) | YES          | `MimeTypes.TEXT_SSA` |
-| ASS                   | YES          | `MimeTypes.TEXT_SSA` |
+| Container format              | Supported        | MIME type |
+|-------------------------------|:------------:|:----------|
+| WebVTT                        | YES          | MimeTypes.TEXT_VTT |
+| TTML / SMPTE-TT               | YES          | MimeTypes.APPLICATION_TTML |
+| SubRip                        | YES          | MimeTypes.APPLICATION_SUBRIP |
+| Sub Station Alpha (SSA / ASS) | YES          | MimeTypes.TEXT_SSA |
 
 [Media source page]: {{ site.baseurl }}/media-sources.html#side-loading-a-subtitle-file
