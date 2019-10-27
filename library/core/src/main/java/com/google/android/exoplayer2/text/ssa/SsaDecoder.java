@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.text.ssa;
 
 import android.text.TextUtils;
+import android.util.Pair;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.text.Cue;
@@ -40,6 +41,9 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
 
   private static final Pattern SSA_TIMECODE_PATTERN = Pattern.compile(
       "(?:(\\d+):)?(\\d+):(\\d+)(?::|\\.)(\\d+)");
+  private static final Pattern SSA_POSITION_PATTERN = Pattern.compile(
+      "\\\\pos\\((\\d+(\\.\\d+)?),\\s*(\\d+(\\.\\d+)?)");
+
   private static final String FORMAT_LINE_PREFIX = "Format: ";
   private static final String DIALOGUE_LINE_PREFIX = "Dialogue: ";
 
@@ -49,6 +53,9 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
   private int formatStartIndex;
   private int formatEndIndex;
   private int formatTextIndex;
+
+  private int playResX;
+  private int playResY;
 
   public SsaDecoder() {
     this(/* initializationData= */ null);
@@ -98,6 +105,12 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
   private void parseHeader(ParsableByteArray data) {
     String currentLine;
     while ((currentLine = data.readLine()) != null) {
+      if (currentLine.startsWith("PlayResX:")) {
+        playResX = Integer.valueOf(currentLine.substring(9).trim());
+      }
+      if (currentLine.startsWith("PlayResY:")) {
+        playResY = Integer.valueOf(currentLine.substring(9).trim());
+      }
       // TODO: Parse useful data from the header.
       if (currentLine.startsWith("[Events]")) {
         // We've reached the event body.
@@ -196,11 +209,30 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
       }
     }
 
+    // Parse \pos{x,y} attribute
+    Pair<Float, Float> position = parsePosition(lineValues[formatTextIndex]);
+
     String text = lineValues[formatTextIndex]
         .replaceAll("\\{.*?\\}", "")
         .replaceAll("\\\\N", "\n")
         .replaceAll("\\\\n", "\n");
-    cues.add(new Cue(text));
+
+    Cue cue;
+    if (position != null && playResX != 0 && playResY != 0) {
+      cue = new Cue(
+          text,
+          /* textAlignment */ null,
+          1 - position.second / playResY,
+          Cue.LINE_TYPE_FRACTION,
+          Cue.ANCHOR_TYPE_START,
+          position.first / playResX,
+          Cue.ANCHOR_TYPE_MIDDLE,
+          Cue.DIMEN_UNSET);
+    } else {
+      cue = new Cue(text);
+    }
+
+    cues.add(cue);
     cueTimesUs.add(startTimeUs);
     if (endTimeUs != C.TIME_UNSET) {
       cues.add(Cue.EMPTY);
@@ -224,6 +256,23 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
     timestampUs += Long.parseLong(matcher.group(3)) * C.MICROS_PER_SECOND;
     timestampUs += Long.parseLong(matcher.group(4)) * 10000; // 100ths of a second.
     return timestampUs;
+  }
+
+  /**
+   * Parses an SSA position attribute.
+   *
+   * @param line The string to parse.
+   * @return The parsed position in a pair (x,y).
+   */
+  @Nullable
+  public static Pair<Float, Float> parsePosition(String line) {
+    Matcher matcher = SSA_POSITION_PATTERN.matcher(line);
+    if (!matcher.find()) {
+      return null;
+    }
+    float x = Float.parseFloat(matcher.group(1));
+    float y = Float.parseFloat(matcher.group(3));
+    return new Pair<>(x, y);
   }
 
 }
