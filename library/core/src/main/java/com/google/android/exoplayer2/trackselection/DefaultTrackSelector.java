@@ -1526,7 +1526,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     setParameters(buildUponParameters().setRendererDisabled(rendererIndex, disabled));
   }
 
-  /** @deprecated Use {@link Parameters#getRendererDisabled(int)}. * */
+  /** @deprecated Use {@link Parameters#getRendererDisabled(int)}. */
   @Deprecated
   public final boolean getRendererDisabled(int rendererIndex) {
     return getParameters().getRendererDisabled(rendererIndex);
@@ -1542,7 +1542,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     setParameters(buildUponParameters().setSelectionOverride(rendererIndex, groups, override));
   }
 
-  /** @deprecated Use {@link Parameters#hasSelectionOverride(int, TrackGroupArray)}. * */
+  /** @deprecated Use {@link Parameters#hasSelectionOverride(int, TrackGroupArray)}. */
   @Deprecated
   public final boolean hasSelectionOverride(int rendererIndex, TrackGroupArray groups) {
     return getParameters().hasSelectionOverride(rendererIndex, groups);

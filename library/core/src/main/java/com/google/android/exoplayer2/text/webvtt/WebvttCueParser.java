@@ -88,11 +88,11 @@ public final class WebvttCueParser {
    *
    * @param webvttData Parsable WebVTT file data.
    * @param builder Builder for WebVTT Cues.
-   * @param styles List of styles defined by the CSS style blocks preceeding the cues.
+   * @param styles List of styles defined by the CSS style blocks preceding the cues.
    * @return Whether a valid Cue was found.
    */
-  public boolean parseCue(ParsableByteArray webvttData, WebvttCue.Builder builder,
-      List<WebvttCssStyle> styles) {
+  public boolean parseCue(
+      ParsableByteArray webvttData, WebvttCue.Builder builder, List<WebvttCssStyle> styles) {
     String firstLine = webvttData.readLine();
     if (firstLine == null) {
       return false;
@@ -152,11 +152,11 @@ public final class WebvttCueParser {
    *
    * @param id Id of the cue, {@code null} if it is not present.
    * @param markup The markup text to be parsed.
-   * @param styles List of styles defined by the CSS style blocks preceeding the cues.
+   * @param styles List of styles defined by the CSS style blocks preceding the cues.
    * @param builder Output builder.
    */
-  /* package */ static void parseCueText(String id, String markup, WebvttCue.Builder builder,
-      List<WebvttCssStyle> styles) {
+  /* package */ static void parseCueText(
+      String id, String markup, WebvttCue.Builder builder, List<WebvttCssStyle> styles) {
     SpannableStringBuilder spannedText = new SpannableStringBuilder();
     ArrayDeque<StartTag> startTagStack = new ArrayDeque<>();
     List<StyleMatch> scratchStyleMatches = new ArrayList<>();
