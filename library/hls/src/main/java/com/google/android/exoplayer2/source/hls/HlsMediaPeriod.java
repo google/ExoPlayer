@@ -48,7 +48,6 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -56,6 +55,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A {@link MediaPeriod} that loads an HLS stream.
@@ -80,7 +80,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
 
   @Nullable private Callback callback;
   private int pendingPrepareCount;
-  private TrackGroupArray trackGroups;
+  private @MonotonicNonNull TrackGroupArray trackGroups;
   private HlsSampleStreamWrapper[] sampleStreamWrappers;
   private HlsSampleStreamWrapper[] enabledSampleStreamWrappers;
   // Maps sample stream wrappers to variant/rendition index by matching array positions.
@@ -167,7 +167,8 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
 
   @Override
   public TrackGroupArray getTrackGroups() {
-    return trackGroups;
+    // trackGroups will only be null if period hasn't been prepared or has been released.
+    return Assertions.checkNotNull(trackGroups);
   }
 
   // TODO: When the master playlist does not de-duplicate variants by URL and allows Renditions with
@@ -282,8 +283,8 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
     streamWrapperIndices.clear();
     // Select tracks for each child, copying the resulting streams back into a new streams array.
     SampleStream[] newStreams = new SampleStream[selections.length];
-    SampleStream[] childStreams = new SampleStream[selections.length];
-    TrackSelection[] childSelections = new TrackSelection[selections.length];
+    @NullableType SampleStream[] childStreams = new SampleStream[selections.length];
+    @NullableType TrackSelection[] childSelections = new TrackSelection[selections.length];
     int newEnabledSampleStreamWrapperCount = 0;
     HlsSampleStreamWrapper[] newEnabledSampleStreamWrappers =
         new HlsSampleStreamWrapper[sampleStreamWrappers.length];
@@ -297,15 +298,16 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
           childStreams, streamResetFlags, positionUs, forceReset);
       boolean wrapperEnabled = false;
       for (int j = 0; j < selections.length; j++) {
+        SampleStream childStream = childStreams[j];
         if (selectionChildIndices[j] == i) {
           // Assert that the child provided a stream for the selection.
-          Assertions.checkState(childStreams[j] != null);
-          newStreams[j] = childStreams[j];
+          Assertions.checkNotNull(childStream);
+          newStreams[j] = childStream;
           wrapperEnabled = true;
-          streamWrapperIndices.put(childStreams[j], i);
+          streamWrapperIndices.put(childStream, i);
         } else if (streamChildIndices[j] == i) {
           // Assert that the child cleared any previous stream.
-          Assertions.checkState(childStreams[j] == null);
+          Assertions.checkState(childStream == null);
         }
       }
       if (wrapperEnabled) {
@@ -329,8 +331,8 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
     // Copy the new streams back into the streams array.
     System.arraycopy(newStreams, 0, streams, 0, newStreams.length);
     // Update the local state.
-    enabledSampleStreamWrappers = Arrays.copyOf(newEnabledSampleStreamWrappers,
-        newEnabledSampleStreamWrapperCount);
+    enabledSampleStreamWrappers =
+        Util.nullSafeArrayCopy(newEnabledSampleStreamWrappers, newEnabledSampleStreamWrapperCount);
     compositeSequenceableLoader =
         compositeSequenceableLoaderFactory.createCompositeSequenceableLoader(
             enabledSampleStreamWrappers);
@@ -713,7 +715,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
       HlsSampleStreamWrapper sampleStreamWrapper =
           buildSampleStreamWrapper(
               C.TRACK_TYPE_AUDIO,
-              scratchPlaylistUrls.toArray(new Uri[0]),
+              scratchPlaylistUrls.toArray(Util.castNonNullTypeArray(new Uri[0])),
               scratchPlaylistFormats.toArray(new Format[0]),
               /* muxedAudioFormat= */ null,
               /* muxedCaptionFormats= */ Collections.emptyList(),
@@ -734,7 +736,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
       int trackType,
       Uri[] playlistUrls,
       Format[] playlistFormats,
-      Format muxedAudioFormat,
+      @Nullable Format muxedAudioFormat,
       @Nullable List<Format> muxedCaptionFormats,
       Map<String, DrmInitData> overridingDrmInitData,
       long positionUs) {
@@ -808,7 +810,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   }
 
   private static Format deriveAudioFormat(
-      Format variantFormat, Format mediaTagFormat, boolean isPrimaryTrackInVariant) {
+      Format variantFormat, @Nullable Format mediaTagFormat, boolean isPrimaryTrackInVariant) {
     String codecs;
     Metadata metadata;
     int channelCount = Format.NO_VALUE;

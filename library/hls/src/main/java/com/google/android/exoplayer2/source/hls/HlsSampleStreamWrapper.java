@@ -111,7 +111,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final Callback callback;
   private final HlsChunkSource chunkSource;
   private final Allocator allocator;
-  private final Format muxedAudioFormat;
+  @Nullable private final Format muxedAudioFormat;
   private final DrmSessionManager<?> drmSessionManager;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final Loader loader;
@@ -186,7 +186,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       Map<String, DrmInitData> overridingDrmInitData,
       Allocator allocator,
       long positionUs,
-      Format muxedAudioFormat,
+      @Nullable Format muxedAudioFormat,
       DrmSessionManager<?> drmSessionManager,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       EventDispatcher eventDispatcher,
@@ -311,7 +311,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    *     part of the track selection.
    */
   public boolean selectTracks(
-      TrackSelection[] selections,
+      @NullableType TrackSelection[] selections,
       boolean[] mayRetainStreamFlags,
       @NullableType SampleStream[] streams,
       boolean[] streamResetFlags,
