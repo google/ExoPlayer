@@ -55,7 +55,7 @@ import android.os.Handler;
     }
   }
 
-  private static final class AudioBecomingNoisyReceiver extends BroadcastReceiver {
+  private final class AudioBecomingNoisyReceiver extends BroadcastReceiver implements Runnable {
     private final EventListener listener;
     private final Handler eventHandler;
 
@@ -67,7 +67,14 @@ import android.os.Handler;
     @Override
     public void onReceive(Context context, Intent intent) {
       if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(intent.getAction())) {
-        eventHandler.post(listener::onAudioBecomingNoisy);
+        eventHandler.post(this);
+      }
+    }
+
+    @Override
+    public void run() {
+      if (receiverRegistered) {
+        listener.onAudioBecomingNoisy();
       }
     }
   }

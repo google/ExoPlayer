@@ -1265,6 +1265,7 @@ public class SimpleExoPlayer extends BasePlayer
   @Override
   public void release() {
     verifyApplicationThread();
+    audioBecomingNoisyManager.setEnabled(false);
     audioFocusManager.handleStop();
     wakeLockManager.setStayAwake(false);
     player.release();
