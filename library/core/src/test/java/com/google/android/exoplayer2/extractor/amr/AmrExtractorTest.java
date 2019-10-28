@@ -22,7 +22,6 @@ import static com.google.android.exoplayer2.extractor.amr.AmrExtractor.frameSize
 import static com.google.common.truth.Truth.assertThat;
 import static junit.framework.Assert.fail;
 
-import androidx.annotation.NonNull;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -235,7 +234,6 @@ public final class AmrExtractorTest {
     return result;
   }
 
-  @NonNull
   private static AmrExtractor setupAmrExtractorWithOutput() {
     AmrExtractor amrExtractor = new AmrExtractor();
     FakeExtractorOutput output = new FakeExtractorOutput();
@@ -243,12 +241,10 @@ public final class AmrExtractorTest {
     return amrExtractor;
   }
 
-  @NonNull
   private static FakeExtractorInput fakeExtractorInputWithData(byte[] data) {
     return new FakeExtractorInput.Builder().setData(data).build();
   }
 
-  @NonNull
   private static ExtractorAsserts.ExtractorFactory createAmrExtractorFactory(boolean withSeeking) {
     return () -> {
       if (!withSeeking) {

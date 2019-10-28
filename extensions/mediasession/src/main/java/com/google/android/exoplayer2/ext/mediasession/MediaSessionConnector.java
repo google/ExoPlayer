@@ -31,7 +31,6 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Pair;
 import androidx.annotation.LongDef;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
@@ -1225,7 +1224,7 @@ public final class MediaSessionConnector {
     }
 
     @Override
-    public void onCustomAction(@NonNull String action, @Nullable Bundle extras) {
+    public void onCustomAction(String action, @Nullable Bundle extras) {
       if (player != null && customActionMap.containsKey(action)) {
         customActionMap.get(action).onCustomAction(player, controlDispatcher, action, extras);
         invalidateMediaSessionPlaybackState();

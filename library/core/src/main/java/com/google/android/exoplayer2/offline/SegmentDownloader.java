@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.offline;
 
 import android.net.Uri;
 import android.util.Pair;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -57,7 +56,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
     }
 
     @Override
-    public int compareTo(@NonNull Segment other) {
+    public int compareTo(Segment other) {
       return Util.compareLong(startTimeUs, other.startTimeUs);
     }
   }

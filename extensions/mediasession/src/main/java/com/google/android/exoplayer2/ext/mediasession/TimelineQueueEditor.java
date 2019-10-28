@@ -20,7 +20,6 @@ import android.os.ResultReceiver;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
@@ -129,10 +128,10 @@ public final class TimelineQueueEditor
    * @param sourceFactory The {@link MediaSourceFactory} to build media sources.
    */
   public TimelineQueueEditor(
-      @NonNull MediaControllerCompat mediaController,
-      @NonNull ConcatenatingMediaSource queueMediaSource,
-      @NonNull QueueDataAdapter queueDataAdapter,
-      @NonNull MediaSourceFactory sourceFactory) {
+      MediaControllerCompat mediaController,
+      ConcatenatingMediaSource queueMediaSource,
+      QueueDataAdapter queueDataAdapter,
+      MediaSourceFactory sourceFactory) {
     this(mediaController, queueMediaSource, queueDataAdapter, sourceFactory,
         new MediaIdEqualityChecker());
   }
@@ -147,11 +146,11 @@ public final class TimelineQueueEditor
    * @param equalityChecker The {@link MediaDescriptionEqualityChecker} to match queue items.
    */
   public TimelineQueueEditor(
-      @NonNull MediaControllerCompat mediaController,
-      @NonNull ConcatenatingMediaSource queueMediaSource,
-      @NonNull QueueDataAdapter queueDataAdapter,
-      @NonNull MediaSourceFactory sourceFactory,
-      @NonNull MediaDescriptionEqualityChecker equalityChecker) {
+      MediaControllerCompat mediaController,
+      ConcatenatingMediaSource queueMediaSource,
+      QueueDataAdapter queueDataAdapter,
+      MediaSourceFactory sourceFactory,
+      MediaDescriptionEqualityChecker equalityChecker) {
     this.mediaController = mediaController;
     this.queueMediaSource = queueMediaSource;
     this.queueDataAdapter = queueDataAdapter;
