@@ -22,7 +22,6 @@ import android.os.Message;
 import android.os.Process;
 import android.os.SystemClock;
 import android.util.Pair;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.DefaultMediaClock.PlaybackParameterListener;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
@@ -1964,7 +1963,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
 
     @Override
-    public int compareTo(@NonNull PendingMessageInfo other) {
+    public int compareTo(PendingMessageInfo other) {
       if ((resolvedPeriodUid == null) != (other.resolvedPeriodUid == null)) {
         // PendingMessageInfos with a resolved period position are always smaller.
         return resolvedPeriodUid != null ? -1 : 1;
