@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.metadata.Metadata;
@@ -195,7 +196,8 @@ public final class PlayerEmsgHandler implements Handler.Callback {
 
   /** Returns a {@link TrackOutput} that emsg messages could be written to. */
   public PlayerTrackEmsgHandler newPlayerTrackEmsgHandler() {
-    return new PlayerTrackEmsgHandler(new SampleQueue(allocator));
+    return new PlayerTrackEmsgHandler(
+        new SampleQueue(allocator, DrmSessionManager.getDummyDrmSessionManager()));
   }
 
   /** Release this emsg handler. It should not be reused after this call. */
@@ -376,7 +378,6 @@ public final class PlayerEmsgHandler implements Handler.Callback {
               formatHolder,
               buffer,
               /* formatRequired= */ false,
-              /* allowOnlyClearBuffers= */ false,
               /* loadingFinished= */ false,
               /* decodeOnlyUntilUs= */ 0);
       if (result == C.RESULT_BUFFER_READ) {

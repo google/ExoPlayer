@@ -29,16 +29,24 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.drm.DrmInitData;
+import com.google.android.exoplayer2.drm.DrmSession;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import java.io.IOException;
 import java.util.Arrays;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 
 /** Test for {@link SampleQueue}. */
 @RunWith(AndroidJUnit4.class)
@@ -50,6 +58,13 @@ public final class SampleQueueTest {
   private static final Format FORMAT_2 = Format.createSampleFormat("2", "mimeType", 0);
   private static final Format FORMAT_1_COPY = Format.createSampleFormat("1", "mimeType", 0);
   private static final Format FORMAT_SPLICED = Format.createSampleFormat("spliced", "mimeType", 0);
+  private static final Format FORMAT_ENCRYPTED =
+      Format.createSampleFormat(
+          /* id= */ "encrypted",
+          "mimeType",
+          /* codecs= */ null,
+          /* bitrate= */ Format.NO_VALUE,
+          new DrmInitData());
   private static final byte[] DATA = TestUtil.buildTestData(ALLOCATION_SIZE * 10);
 
   /*
@@ -91,18 +106,45 @@ public final class SampleQueueTest {
   private static final Format[] SAMPLE_FORMATS =
       new Format[] {FORMAT_1, FORMAT_1, FORMAT_1, FORMAT_1, FORMAT_2, FORMAT_2, FORMAT_2, FORMAT_2};
   private static final int DATA_SECOND_KEYFRAME_INDEX = 4;
+
+  private static final int[] ENCRYPTED_SAMPLES_FLAGS =
+      new int[] {
+        C.BUFFER_FLAG_KEY_FRAME, C.BUFFER_FLAG_ENCRYPTED, 0, C.BUFFER_FLAG_ENCRYPTED,
+      };
+  private static final long[] ENCRYPTED_SAMPLE_TIMESTAMPS = new long[] {0, 1000, 2000, 3000};
+  private static final Format[] ENCRYPTED_SAMPLES_FORMATS =
+      new Format[] {FORMAT_ENCRYPTED, FORMAT_ENCRYPTED, FORMAT_1, FORMAT_ENCRYPTED};
+  /** Encrypted samples require the encryption preamble. */
+  private static final int[] ENCRYPTED_SAMPLES_SIZES = new int[] {1, 3, 1, 3};
+
+  private static final int[] ENCRYPTED_SAMPLES_OFFSETS = new int[] {7, 4, 3, 0};
+  private static final byte[] ENCRYPTED_SAMPLES_DATA = new byte[8];
+
+  static {
+    Arrays.fill(ENCRYPTED_SAMPLES_DATA, (byte) 1);
+  }
+
   private static final TrackOutput.CryptoData DUMMY_CRYPTO_DATA =
       new TrackOutput.CryptoData(C.CRYPTO_MODE_AES_CTR, new byte[16], 0, 0);
 
   private Allocator allocator;
+  private DrmSessionManager<ExoMediaCrypto> mockDrmSessionManager;
+  private DrmSession<ExoMediaCrypto> mockDrmSession;
   private SampleQueue sampleQueue;
   private FormatHolder formatHolder;
   private DecoderInputBuffer inputBuffer;
 
   @Before
+  @SuppressWarnings("unchecked")
   public void setUp() throws Exception {
     allocator = new DefaultAllocator(false, ALLOCATION_SIZE);
-    sampleQueue = new SampleQueue(allocator);
+    mockDrmSessionManager =
+        (DrmSessionManager<ExoMediaCrypto>) Mockito.mock(DrmSessionManager.class);
+    mockDrmSession = (DrmSession<ExoMediaCrypto>) Mockito.mock(DrmSession.class);
+    Mockito.when(
+            mockDrmSessionManager.acquireSession(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(mockDrmSession);
+    sampleQueue = new SampleQueue(allocator, mockDrmSessionManager);
     formatHolder = new FormatHolder();
     inputBuffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
   }
@@ -153,9 +195,9 @@ public final class SampleQueueTest {
     sampleQueue.sampleMetadata(1000, C.BUFFER_FLAG_KEY_FRAME, ALLOCATION_SIZE, 0, null);
 
     assertReadFormat(false, FORMAT_1);
-    assertReadSample(0, true, DATA, 0, ALLOCATION_SIZE);
+    assertReadSample(0, true, /* isEncrypted= */ false, DATA, 0, ALLOCATION_SIZE);
     // Assert the second sample is read without a format change.
-    assertReadSample(1000, true, DATA, 0, ALLOCATION_SIZE);
+    assertReadSample(1000, true, /* isEncrypted= */ false, DATA, 0, ALLOCATION_SIZE);
 
     // The same applies if the queue is empty when the formats are written.
     sampleQueue.format(FORMAT_2);
@@ -164,7 +206,7 @@ public final class SampleQueueTest {
     sampleQueue.sampleMetadata(2000, C.BUFFER_FLAG_KEY_FRAME, ALLOCATION_SIZE, 0, null);
 
     // Assert the third sample is read without a format change.
-    assertReadSample(2000, true, DATA, 0, ALLOCATION_SIZE);
+    assertReadSample(2000, true, /* isEncrypted= */ false, DATA, 0, ALLOCATION_SIZE);
   }
 
   @Test
@@ -187,7 +229,7 @@ public final class SampleQueueTest {
     // If formatRequired, should read the format rather than the sample.
     assertReadFormat(true, FORMAT_1);
     // Otherwise should read the sample.
-    assertReadSample(1000, true, DATA, 0, ALLOCATION_SIZE);
+    assertReadSample(1000, true, /* isEncrypted= */ false, DATA, 0, ALLOCATION_SIZE);
     // Allocation should still be held.
     assertAllocationCount(1);
     sampleQueue.discardToRead();
@@ -204,7 +246,7 @@ public final class SampleQueueTest {
     // If formatRequired, should read the format rather than the sample.
     assertReadFormat(true, FORMAT_1);
     // Read the sample.
-    assertReadSample(2000, false, DATA, 0, ALLOCATION_SIZE - 1);
+    assertReadSample(2000, false, /* isEncrypted= */ false, DATA, 0, ALLOCATION_SIZE - 1);
     // Allocation should still be held.
     assertAllocationCount(1);
     sampleQueue.discardToRead();
@@ -218,7 +260,7 @@ public final class SampleQueueTest {
     // If formatRequired, should read the format rather than the sample.
     assertReadFormat(true, FORMAT_1);
     // Read the sample.
-    assertReadSample(3000, false, DATA, ALLOCATION_SIZE - 1, 1);
+    assertReadSample(3000, false, /* isEncrypted= */ false, DATA, ALLOCATION_SIZE - 1, 1);
     // Allocation should still be held.
     assertAllocationCount(1);
     sampleQueue.discardToRead();
@@ -263,6 +305,137 @@ public final class SampleQueueTest {
     assertThat(sampleQueue.getFirstIndex()).isEqualTo(0);
     assertThat(sampleQueue.getReadIndex()).isEqualTo(0);
     assertReadTestData();
+  }
+
+  @Test
+  public void testReadEncryptedSectionsWaitsForKeys() {
+    Mockito.when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED);
+    writeEncryptedTestData();
+
+    assertReadFormat(/* formatRequired= */ false, FORMAT_ENCRYPTED);
+    assertReadNothing(/* formatRequired= */ false);
+    Mockito.when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
+    assertReadEncryptedSample(/* sampleIndex= */ 0);
+  }
+
+  @Test
+  public void testReadEncryptedSectionsPopulatesDrmSession() {
+    Mockito.when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
+    writeEncryptedTestData();
+
+    int result =
+        sampleQueue.read(
+            formatHolder,
+            inputBuffer,
+            /* formatRequired= */ false,
+            /* loadingFinished= */ false,
+            /* decodeOnlyUntilUs= */ 0);
+    assertThat(result).isEqualTo(RESULT_FORMAT_READ);
+    assertThat(formatHolder.drmSession).isSameInstanceAs(mockDrmSession);
+    assertReadEncryptedSample(/* sampleIndex= */ 0);
+    assertReadEncryptedSample(/* sampleIndex= */ 1);
+    formatHolder.clear();
+    assertThat(formatHolder.drmSession).isNull();
+    result =
+        sampleQueue.read(
+            formatHolder,
+            inputBuffer,
+            /* formatRequired= */ false,
+            /* loadingFinished= */ false,
+            /* decodeOnlyUntilUs= */ 0);
+    assertThat(result).isEqualTo(RESULT_FORMAT_READ);
+    assertThat(formatHolder.drmSession).isNull();
+    assertReadEncryptedSample(/* sampleIndex= */ 2);
+    result =
+        sampleQueue.read(
+            formatHolder,
+            inputBuffer,
+            /* formatRequired= */ false,
+            /* loadingFinished= */ false,
+            /* decodeOnlyUntilUs= */ 0);
+    assertThat(result).isEqualTo(RESULT_FORMAT_READ);
+    assertThat(formatHolder.drmSession).isSameInstanceAs(mockDrmSession);
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  public void testAllowPlaceholderSessionPopulatesDrmSession() {
+    Mockito.when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
+    DrmSession<ExoMediaCrypto> mockPlaceholderDrmSession =
+        (DrmSession<ExoMediaCrypto>) Mockito.mock(DrmSession.class);
+    Mockito.when(mockPlaceholderDrmSession.getState())
+        .thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
+    Mockito.when(mockDrmSessionManager.acquirePlaceholderSession(ArgumentMatchers.any()))
+        .thenReturn(mockPlaceholderDrmSession);
+    writeEncryptedTestData();
+
+    int result =
+        sampleQueue.read(
+            formatHolder,
+            inputBuffer,
+            /* formatRequired= */ false,
+            /* loadingFinished= */ false,
+            /* decodeOnlyUntilUs= */ 0);
+    assertThat(result).isEqualTo(RESULT_FORMAT_READ);
+    assertThat(formatHolder.drmSession).isSameInstanceAs(mockDrmSession);
+    assertReadEncryptedSample(/* sampleIndex= */ 0);
+    assertReadEncryptedSample(/* sampleIndex= */ 1);
+    formatHolder.clear();
+    assertThat(formatHolder.drmSession).isNull();
+    result =
+        sampleQueue.read(
+            formatHolder,
+            inputBuffer,
+            /* formatRequired= */ false,
+            /* loadingFinished= */ false,
+            /* decodeOnlyUntilUs= */ 0);
+    assertThat(result).isEqualTo(RESULT_FORMAT_READ);
+    assertThat(formatHolder.drmSession).isSameInstanceAs(mockPlaceholderDrmSession);
+    assertReadEncryptedSample(/* sampleIndex= */ 2);
+    result =
+        sampleQueue.read(
+            formatHolder,
+            inputBuffer,
+            /* formatRequired= */ false,
+            /* loadingFinished= */ false,
+            /* decodeOnlyUntilUs= */ 0);
+    assertThat(result).isEqualTo(RESULT_FORMAT_READ);
+    assertThat(formatHolder.drmSession).isSameInstanceAs(mockDrmSession);
+  }
+
+  @Test
+  public void testReadWithErrorSessionReadsNothingAndThrows() throws IOException {
+    Mockito.when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED);
+    writeEncryptedTestData();
+
+    assertReadFormat(/* formatRequired= */ false, FORMAT_ENCRYPTED);
+    assertReadNothing(/* formatRequired= */ false);
+    sampleQueue.maybeThrowError();
+    Mockito.when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_ERROR);
+    Mockito.when(mockDrmSession.getError())
+        .thenReturn(new DrmSession.DrmSessionException(new Exception()));
+    assertReadNothing(/* formatRequired= */ false);
+    try {
+      sampleQueue.maybeThrowError();
+      Assert.fail();
+    } catch (IOException e) {
+      // Expected.
+    }
+    Mockito.when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
+    assertReadEncryptedSample(/* sampleIndex= */ 0);
+  }
+
+  @Test
+  public void testAllowPlayClearSamplesWithoutKeysReadsClearSamples() {
+    Mockito.when(mockDrmSessionManager.getFlags())
+        .thenReturn(DrmSessionManager.FLAG_PLAY_CLEAR_SAMPLES_WITHOUT_KEYS);
+    // We recreate the queue to ensure the mock DRM session manager flags are taken into account.
+    sampleQueue = new SampleQueue(allocator, mockDrmSessionManager);
+    Mockito.when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED);
+    writeEncryptedTestData();
+
+    assertReadFormat(/* formatRequired= */ false, FORMAT_ENCRYPTED);
+    assertReadEncryptedSample(/* sampleIndex= */ 0);
   }
 
   @Test
@@ -313,7 +486,7 @@ public final class SampleQueueTest {
 
     sampleQueue.sampleMetadata(0, C.BUFFER_FLAG_KEY_FRAME, ALLOCATION_SIZE, 0, null);
     // Once the metadata has been written, check the sample can be read as expected.
-    assertReadSample(0, true, DATA, 0, ALLOCATION_SIZE);
+    assertReadSample(0, true, /* isEncrypted= */ false, DATA, 0, ALLOCATION_SIZE);
     assertNoSamplesToRead(FORMAT_1);
     assertAllocationCount(1);
     sampleQueue.discardToRead();
@@ -541,50 +714,7 @@ public final class SampleQueueTest {
     // Discarding everything from upstream without reading should unset the largest timestamp.
     assertThat(sampleQueue.getLargestQueuedTimestampUs()).isEqualTo(MIN_VALUE);
   }
-
-  @Test
-  public void testAllowOnlyClearBuffers() {
-    int[] flags =
-        new int[] {
-          C.BUFFER_FLAG_KEY_FRAME,
-          C.BUFFER_FLAG_ENCRYPTED,
-          0,
-          0,
-          0,
-          C.BUFFER_FLAG_KEY_FRAME | C.BUFFER_FLAG_ENCRYPTED,
-          0,
-          0
-        };
-    int[] sampleSizes = new int[flags.length];
-    Arrays.fill(sampleSizes, /* val= */ 1);
-
-    // Two encryption preamble bytes per encrypted sample in the sample queue.
-    byte[] sampleData = new byte[flags.length + 2 + 2];
-    Arrays.fill(sampleData, /* val= */ (byte) 1);
-
-    writeTestData(
-        sampleData, sampleSizes, new int[flags.length], SAMPLE_TIMESTAMPS, SAMPLE_FORMATS, flags);
-    assertReadFormat(/* formatRequired= */ false, FORMAT_1);
-    assertResult(RESULT_BUFFER_READ, /* allowOnlyClearBuffers= */ true);
-    assertResult(RESULT_NOTHING_READ, /* allowOnlyClearBuffers= */ true);
-
-    assertResult(RESULT_BUFFER_READ, /* allowOnlyClearBuffers= */ false);
-
-    assertResult(RESULT_BUFFER_READ, /* allowOnlyClearBuffers= */ true);
-    assertResult(RESULT_BUFFER_READ, /* allowOnlyClearBuffers= */ true);
-    assertResult(RESULT_FORMAT_READ, /* allowOnlyClearBuffers= */ true);
-    assertResult(RESULT_BUFFER_READ, /* allowOnlyClearBuffers= */ true);
-    assertResult(RESULT_NOTHING_READ, /* allowOnlyClearBuffers= */ true);
-
-    assertResult(RESULT_BUFFER_READ, /* allowOnlyClearBuffers= */ false);
-
-    assertResult(RESULT_BUFFER_READ, /* allowOnlyClearBuffers= */ true);
-    assertResult(RESULT_BUFFER_READ, /* allowOnlyClearBuffers= */ true);
-    assertResult(RESULT_NOTHING_READ, /* allowOnlyClearBuffers= */ true);
-
-    assertResult(RESULT_NOTHING_READ, /* allowOnlyClearBuffers= */ false);
-  }
-
+  
   @Test
   public void testLargestQueuedTimestampWithRead() {
     writeTestData();
@@ -612,7 +742,7 @@ public final class SampleQueueTest {
     writeSample(DATA, spliceSampleTimeUs, FORMAT_SPLICED, C.BUFFER_FLAG_KEY_FRAME);
     assertReadTestData(null, 0, 4);
     assertReadFormat(false, FORMAT_SPLICED);
-    assertReadSample(spliceSampleTimeUs, true, DATA, 0, DATA.length);
+    assertReadSample(spliceSampleTimeUs, true, /* isEncrypted= */ false, DATA, 0, DATA.length);
     assertReadEndOfStream(false);
   }
 
@@ -634,7 +764,7 @@ public final class SampleQueueTest {
     spliceSampleTimeUs = SAMPLE_TIMESTAMPS[3] + 1;
     writeSample(DATA, spliceSampleTimeUs, FORMAT_SPLICED, C.BUFFER_FLAG_KEY_FRAME);
     assertReadFormat(false, FORMAT_SPLICED);
-    assertReadSample(spliceSampleTimeUs, true, DATA, 0, DATA.length);
+    assertReadSample(spliceSampleTimeUs, true, /* isEncrypted= */ false, DATA, 0, DATA.length);
     assertReadEndOfStream(false);
   }
 
@@ -649,7 +779,8 @@ public final class SampleQueueTest {
     writeSample(DATA, spliceSampleTimeUs, FORMAT_SPLICED, C.BUFFER_FLAG_KEY_FRAME);
     assertReadTestData(null, 0, 4, sampleOffsetUs);
     assertReadFormat(false, FORMAT_SPLICED.copyWithSubsampleOffsetUs(sampleOffsetUs));
-    assertReadSample(spliceSampleTimeUs + sampleOffsetUs, true, DATA, 0, DATA.length);
+    assertReadSample(
+        spliceSampleTimeUs + sampleOffsetUs, true, /* isEncrypted= */ false, DATA, 0, DATA.length);
     assertReadEndOfStream(false);
   }
 
@@ -661,6 +792,16 @@ public final class SampleQueueTest {
   private void writeTestData() {
     writeTestData(
         DATA, SAMPLE_SIZES, SAMPLE_OFFSETS, SAMPLE_TIMESTAMPS, SAMPLE_FORMATS, SAMPLE_FLAGS);
+  }
+
+  private void writeEncryptedTestData() {
+    writeTestData(
+        ENCRYPTED_SAMPLES_DATA,
+        ENCRYPTED_SAMPLES_SIZES,
+        ENCRYPTED_SAMPLES_OFFSETS,
+        ENCRYPTED_SAMPLE_TIMESTAMPS,
+        ENCRYPTED_SAMPLES_FORMATS,
+        ENCRYPTED_SAMPLES_FLAGS);
   }
 
   /**
@@ -755,6 +896,7 @@ public final class SampleQueueTest {
       assertReadSample(
           SAMPLE_TIMESTAMPS[i] + sampleOffsetUs,
           (SAMPLE_FLAGS[i] & C.BUFFER_FLAG_KEY_FRAME) != 0,
+          /* isEncrypted= */ false,
           DATA,
           DATA.length - SAMPLE_OFFSETS[i] - SAMPLE_SIZES[i],
           SAMPLE_SIZES[i]);
@@ -801,7 +943,6 @@ public final class SampleQueueTest {
             formatHolder,
             inputBuffer,
             formatRequired,
-            /* allowOnlyClearBuffers= */ false,
             /* loadingFinished= */ false,
             /* decodeOnlyUntilUs= */ 0);
     assertThat(result).isEqualTo(RESULT_NOTHING_READ);
@@ -825,7 +966,6 @@ public final class SampleQueueTest {
             formatHolder,
             inputBuffer,
             formatRequired,
-            /* allowOnlyClearBuffers= */ false,
             /* loadingFinished= */ true,
             /* decodeOnlyUntilUs= */ 0);
     assertThat(result).isEqualTo(RESULT_BUFFER_READ);
@@ -852,7 +992,6 @@ public final class SampleQueueTest {
             formatHolder,
             inputBuffer,
             formatRequired,
-            /* allowOnlyClearBuffers= */ false,
             /* loadingFinished= */ false,
             /* decodeOnlyUntilUs= */ 0);
     assertThat(result).isEqualTo(RESULT_FORMAT_READ);
@@ -863,25 +1002,44 @@ public final class SampleQueueTest {
     assertInputBufferHasNoDefaultFlagsSet();
   }
 
+  private void assertReadEncryptedSample(int sampleIndex) {
+    byte[] sampleData = new byte[ENCRYPTED_SAMPLES_SIZES[sampleIndex]];
+    Arrays.fill(sampleData, (byte) 1);
+    boolean isKeyFrame = (ENCRYPTED_SAMPLES_FLAGS[sampleIndex] & C.BUFFER_FLAG_KEY_FRAME) != 0;
+    boolean isEncrypted = (ENCRYPTED_SAMPLES_FLAGS[sampleIndex] & C.BUFFER_FLAG_ENCRYPTED) != 0;
+    assertReadSample(
+        ENCRYPTED_SAMPLE_TIMESTAMPS[sampleIndex],
+        isKeyFrame,
+        isEncrypted,
+        sampleData,
+        /* offset= */ 0,
+        ENCRYPTED_SAMPLES_SIZES[sampleIndex] - (isEncrypted ? 2 : 0));
+  }
+
   /**
    * Asserts {@link SampleQueue#read} returns {@link C#RESULT_BUFFER_READ} and that the buffer is
    * filled with the specified sample data.
    *
    * @param timeUs The expected buffer timestamp.
    * @param isKeyframe The expected keyframe flag.
+   * @param isEncrypted The expected encrypted flag.
    * @param sampleData An array containing the expected sample data.
    * @param offset The offset in {@code sampleData} of the expected sample data.
    * @param length The length of the expected sample data.
    */
   private void assertReadSample(
-      long timeUs, boolean isKeyframe, byte[] sampleData, int offset, int length) {
+      long timeUs,
+      boolean isKeyframe,
+      boolean isEncrypted,
+      byte[] sampleData,
+      int offset,
+      int length) {
     clearFormatHolderAndInputBuffer();
     int result =
         sampleQueue.read(
             formatHolder,
             inputBuffer,
             /* formatRequired= */ false,
-            /* allowOnlyClearBuffers= */ false,
             /* loadingFinished= */ false,
             /* decodeOnlyUntilUs= */ 0);
     assertThat(result).isEqualTo(RESULT_BUFFER_READ);
@@ -891,7 +1049,7 @@ public final class SampleQueueTest {
     assertThat(inputBuffer.timeUs).isEqualTo(timeUs);
     assertThat(inputBuffer.isKeyFrame()).isEqualTo(isKeyframe);
     assertThat(inputBuffer.isDecodeOnly()).isFalse();
-    assertThat(inputBuffer.isEncrypted()).isFalse();
+    assertThat(inputBuffer.isEncrypted()).isEqualTo(isEncrypted);
     inputBuffer.flip();
     assertThat(inputBuffer.data.limit()).isEqualTo(length);
     byte[] readData = new byte[length];
@@ -905,7 +1063,6 @@ public final class SampleQueueTest {
         sampleQueue.read(
             formatHolder,
             inputBuffer,
-            /* formatRequired= */ false,
             allowOnlyClearBuffers,
             /* loadingFinished= */ false,
             /* decodeOnlyUntilUs= */ 0);

@@ -36,7 +36,6 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.emsg.EventMessage;
 import com.google.android.exoplayer2.metadata.emsg.EventMessageDecoder;
 import com.google.android.exoplayer2.metadata.id3.PrivFrame;
-import com.google.android.exoplayer2.source.DecryptableSampleQueueReader;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.SampleQueue;
 import com.google.android.exoplayer2.source.SampleQueue.UpstreamFormatChangedListener;
@@ -129,7 +128,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final Map<String, DrmInitData> overridingDrmInitData;
 
   private SampleQueue[] sampleQueues;
-  private DecryptableSampleQueueReader[] sampleQueueReaders;
   private int[] sampleQueueTrackIds;
   private Set<Integer> sampleQueueMappingDoneByType;
   private SparseIntArray sampleQueueIndicesByType;
@@ -209,7 +207,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     sampleQueueMappingDoneByType = new HashSet<>(MAPPABLE_TYPES.size());
     sampleQueueIndicesByType = new SparseIntArray(MAPPABLE_TYPES.size());
     sampleQueues = new SampleQueue[0];
-    sampleQueueReaders = new DecryptableSampleQueueReader[0];
     sampleQueueIsAudioVideoFlags = new boolean[0];
     sampleQueuesEnabledStates = new boolean[0];
     mediaChunks = new ArrayList<>();
@@ -490,10 +487,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       // Discard as much as we can synchronously. We only do this if we're prepared, since otherwise
       // sampleQueues may still be being modified by the loading thread.
       for (SampleQueue sampleQueue : sampleQueues) {
-        sampleQueue.discardToEnd();
-      }
-      for (DecryptableSampleQueueReader reader : sampleQueueReaders) {
-        reader.release();
+        sampleQueue.preRelease();
       }
     }
     loader.release(this);
@@ -504,9 +498,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   public void onLoaderReleased() {
-    resetSampleQueues();
-    for (DecryptableSampleQueueReader reader : sampleQueueReaders) {
-      reader.release();
+    for (SampleQueue sampleQueue : sampleQueues) {
+      sampleQueue.release();
     }
   }
 
@@ -521,12 +514,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   // SampleStream implementation.
 
   public boolean isReady(int sampleQueueIndex) {
-    return !isPendingReset() && sampleQueueReaders[sampleQueueIndex].isReady(loadingFinished);
+    return !isPendingReset() && sampleQueues[sampleQueueIndex].isReady(loadingFinished);
   }
 
   public void maybeThrowError(int sampleQueueIndex) throws IOException {
     maybeThrowError();
-    sampleQueueReaders[sampleQueueIndex].maybeThrowError();
+    sampleQueues[sampleQueueIndex].maybeThrowError();
   }
 
   public void maybeThrowError() throws IOException {
@@ -559,7 +552,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     int result =
-        sampleQueueReaders[sampleQueueIndex].read(
+        sampleQueues[sampleQueueIndex].read(
             formatHolder, buffer, requireFormat, loadingFinished, lastSeekPositionUs);
     if (result == C.RESULT_FORMAT_READ) {
       Format format = Assertions.checkNotNull(formatHolder.format);
@@ -917,17 +910,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private SampleQueue createSampleQueue(int id, int type) {
     int trackCount = sampleQueues.length;
 
-    SampleQueue trackOutput = new FormatAdjustingSampleQueue(allocator, overridingDrmInitData);
+    SampleQueue trackOutput =
+        new FormatAdjustingSampleQueue(allocator, drmSessionManager, overridingDrmInitData);
     trackOutput.setSampleOffsetUs(sampleOffsetUs);
     trackOutput.sourceId(chunkUid);
     trackOutput.setUpstreamFormatChangeListener(this);
     sampleQueueTrackIds = Arrays.copyOf(sampleQueueTrackIds, trackCount + 1);
     sampleQueueTrackIds[trackCount] = id;
     sampleQueues = Util.nullSafeArrayAppend(sampleQueues, trackOutput);
-    sampleQueueReaders =
-        Util.nullSafeArrayAppend(
-            sampleQueueReaders,
-            new DecryptableSampleQueueReader(sampleQueues[trackCount], drmSessionManager));
     sampleQueueIsAudioVideoFlags = Arrays.copyOf(sampleQueueIsAudioVideoFlags, trackCount + 1);
     sampleQueueIsAudioVideoFlags[trackCount] =
         type == C.TRACK_TYPE_AUDIO || type == C.TRACK_TYPE_VIDEO;
@@ -1295,8 +1285,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     private final Map<String, DrmInitData> overridingDrmInitData;
 
     public FormatAdjustingSampleQueue(
-        Allocator allocator, Map<String, DrmInitData> overridingDrmInitData) {
-      super(allocator);
+        Allocator allocator,
+        DrmSessionManager<?> drmSessionManager,
+        Map<String, DrmInitData> overridingDrmInitData) {
+      super(allocator, drmSessionManager);
       this.overridingDrmInitData = overridingDrmInitData;
     }
 
