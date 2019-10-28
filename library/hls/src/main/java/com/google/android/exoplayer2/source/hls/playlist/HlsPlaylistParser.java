@@ -48,10 +48,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.PolyNull;
 
 /**
@@ -273,7 +275,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
 
     String line;
     while (iterator.hasNext()) {
-      line = Assertions.checkNotNull(iterator.next());
+      line = iterator.next();
 
       if (line.startsWith(TAG_PREFIX)) {
         // We expose all tags through the playlist.
@@ -338,10 +340,12 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             parseOptionalStringAttr(line, REGEX_SUBTITLES, variableDefinitions);
         String closedCaptionsGroupId =
             parseOptionalStringAttr(line, REGEX_CLOSED_CAPTIONS, variableDefinitions);
+        if (!iterator.hasNext()) {
+          throw new ParserException("#EXT-X-STREAM-INF tag must be followed by another line");
+        }
         line =
             replaceVariableReferences(
-                Assertions.checkNotNull(iterator.next()),
-                variableDefinitions); // #EXT-X-STREAM-INF's URI.
+                iterator.next(), variableDefinitions); // #EXT-X-STREAM-INF's URI.
         Uri uri = UriUtil.resolveToUri(baseUri, line);
         Format format =
             Format.createVideoContainerFormat(
@@ -596,7 +600,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
 
     String line;
     while (iterator.hasNext()) {
-      line = Assertions.checkNotNull(iterator.next());
+      line = iterator.next();
 
       if (line.startsWith(TAG_PREFIX)) {
         // We expose all tags through the playlist.
@@ -943,12 +947,13 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       this.reader = reader;
     }
 
+    @EnsuresNonNullIf(expression = "next", result = true)
     public boolean hasNext() throws IOException {
       if (next != null) {
         return true;
       }
       if (!extraLines.isEmpty()) {
-        next = extraLines.poll();
+        next = Assertions.checkNotNull(extraLines.poll());
         return true;
       }
       while ((next = reader.readLine()) != null) {
@@ -960,14 +965,15 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       return false;
     }
 
-    @Nullable
+    /** Return the next line, or throw {@link NoSuchElementException} if none. */
     public String next() throws IOException {
-      String result = null;
       if (hasNext()) {
-        result = next;
+        String result = next;
         next = null;
+        return result;
+      } else {
+        throw new NoSuchElementException();
       }
-      return result;
     }
 
   }
