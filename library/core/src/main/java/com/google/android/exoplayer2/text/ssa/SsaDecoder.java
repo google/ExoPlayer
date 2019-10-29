@@ -24,7 +24,6 @@ import com.google.android.exoplayer2.text.SimpleSubtitleDecoder;
 import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
-import com.google.android.exoplayer2.util.LongArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
@@ -82,19 +81,15 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
 
   @Override
   protected Subtitle decode(byte[] bytes, int length, boolean reset) {
-    ArrayList<Cue> cues = new ArrayList<>();
-    LongArray cueTimesUs = new LongArray();
+    ArrayList<List<Cue>> cues = new ArrayList<>();
+    List<Long> cueTimesUs = new ArrayList<>();
 
     ParsableByteArray data = new ParsableByteArray(bytes, length);
     if (!haveInitializationData) {
       parseHeader(data);
     }
     parseEventBody(data, cues, cueTimesUs);
-
-    Cue[] cuesArray = new Cue[cues.size()];
-    cues.toArray(cuesArray);
-    long[] cueTimesUsArray = cueTimesUs.toArray();
-    return new SsaSubtitle(cuesArray, cueTimesUsArray);
+    return new SsaSubtitle(cues, cueTimesUs);
   }
 
   /**
@@ -126,7 +121,7 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
    * @param cues A list to which parsed cues will be added.
    * @param cueTimesUs An array to which parsed cue timestamps will be added.
    */
-  private void parseEventBody(ParsableByteArray data, List<Cue> cues, LongArray cueTimesUs) {
+  private void parseEventBody(ParsableByteArray data, List<List<Cue>> cues, List<Long> cueTimesUs) {
     String currentLine;
     while ((currentLine = data.readLine()) != null) {
       if (!haveInitializationData && currentLine.startsWith(FORMAT_LINE_PREFIX)) {
@@ -180,7 +175,7 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
    * @param cues A list to which parsed cues will be added.
    * @param cueTimesUs An array to which parsed cue timestamps will be added.
    */
-  private void parseDialogueLine(String dialogueLine, List<Cue> cues, LongArray cueTimesUs) {
+  private void parseDialogueLine(String dialogueLine, List<List<Cue>> cues, List<Long> cueTimesUs) {
     if (formatKeyCount == 0) {
       Log.w(TAG, "Skipping dialogue line before complete format: " + dialogueLine);
       return;
@@ -222,7 +217,7 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
       cue = new Cue(
           text,
           /* textAlignment */ null,
-          1 - position.second / playResY,
+          position.second / playResY,
           Cue.LINE_TYPE_FRACTION,
           Cue.ANCHOR_TYPE_START,
           position.first / playResX,
@@ -232,12 +227,44 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
       cue = new Cue(text);
     }
 
-    cues.add(cue);
-    cueTimesUs.add(startTimeUs);
-    if (endTimeUs != C.TIME_UNSET) {
-      cues.add(Cue.EMPTY);
-      cueTimesUs.add(endTimeUs);
+    int startTimeIndex = insertToCueTimes(cueTimesUs, startTimeUs);
+
+    List<Cue> startCueList = new ArrayList<>();
+    if (startTimeIndex != 0) {
+      startCueList.addAll(cues.get(startTimeIndex - 1));
     }
+    cues.add(startTimeIndex, startCueList);
+
+    if (endTimeUs != C.TIME_UNSET) {
+      int endTimeIndex = insertToCueTimes(cueTimesUs, endTimeUs);
+      List<Cue> endList = new ArrayList<>(cues.get(endTimeIndex - 1));
+      cues.add(endTimeIndex, endList);
+
+      int i = startTimeIndex;
+      do {
+        cues.get(i).add(cue);
+        i++;
+      } while (i != endTimeIndex);
+    }
+  }
+
+  /**
+   * Insert the given cue time into the given array keeping the array sorted.
+   *
+   * @param cueTimes The array with sorted cue times
+   * @param timeUs The cue time to be inserted
+   * @return The index where the cue time was inserted
+   */
+  private static int insertToCueTimes(List<Long> cueTimes, long timeUs) {
+    for (int i = cueTimes.size() - 1; i >= 0; i--) {
+      if (cueTimes.get(i) <= timeUs) {
+        cueTimes.add(i + 1, timeUs);
+        return i + 1;
+      }
+    }
+
+    cueTimes.add(0, timeUs);
+    return 0;
   }
 
   /**
@@ -246,7 +273,7 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
    * @param timeString The string to parse.
    * @return The parsed timestamp in microseconds.
    */
-  public static long parseTimecodeUs(String timeString) {
+  private static long parseTimecodeUs(String timeString) {
     Matcher matcher = SSA_TIMECODE_PATTERN.matcher(timeString);
     if (!matcher.matches()) {
       return C.TIME_UNSET;
@@ -258,21 +285,15 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
     return timestampUs;
   }
 
-  /**
-   * Parses an SSA position attribute.
-   *
-   * @param line The string to parse.
-   * @return The parsed position in a pair (x,y).
-   */
   @Nullable
-  public static Pair<Float, Float> parsePosition(String line) {
+  public static Pair<Float, Float> parsePosition(String line){
     Matcher matcher = SSA_POSITION_PATTERN.matcher(line);
-    if (!matcher.find()) {
+    if(!matcher.find()){
       return null;
     }
     float x = Float.parseFloat(matcher.group(1));
     float y = Float.parseFloat(matcher.group(3));
-    return new Pair<>(x, y);
+    return new Pair<>(x,y);
   }
 
 }
