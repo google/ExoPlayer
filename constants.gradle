@@ -27,6 +27,7 @@ project.ext {
     jsr305Version = '3.0.2'
     kotlinAnnotationsVersion = '1.3.31'
     androidxAnnotationVersion = '1.1.0'
+    androidxAppCompatVersion = '1.1.0'
     androidxCollectionVersion = '1.1.0'
     androidxMediaVersion = '1.0.1'
     androidxTestVersion = '1.1.0'
