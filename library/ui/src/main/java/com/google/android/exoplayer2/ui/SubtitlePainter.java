@@ -304,9 +304,19 @@ import com.google.android.exoplayer2.util.Util;
     int textRight;
     if (cuePosition != Cue.DIMEN_UNSET) {
       int anchorPosition = Math.round(parentWidth * cuePosition) + parentLeft;
-      textLeft = cuePositionAnchor == Cue.ANCHOR_TYPE_END ? anchorPosition - textWidth
-          : cuePositionAnchor == Cue.ANCHOR_TYPE_MIDDLE ? (anchorPosition * 2 - textWidth) / 2
-              : anchorPosition;
+      switch (cuePositionAnchor) {
+        case Cue.ANCHOR_TYPE_END:
+          textLeft = anchorPosition - textWidth;
+          break;
+        case Cue.ANCHOR_TYPE_MIDDLE:
+          textLeft = (anchorPosition * 2 - textWidth) / 2;
+          break;
+        case Cue.ANCHOR_TYPE_START:
+        case Cue.TYPE_UNSET:
+        default:
+          textLeft = anchorPosition;
+      }
+
       textLeft = Math.max(textLeft, parentLeft);
       textRight = Math.min(textLeft + textWidth, parentRight);
     } else {
