@@ -355,7 +355,7 @@ public final class PlayerEmsgHandler implements Handler.Callback {
     // Internal methods.
 
     private void parseAndDiscardSamples() {
-      while (sampleQueue.hasNextSample()) {
+      while (sampleQueue.isReady(/* loadingFinished= */ false)) {
         MetadataInputBuffer inputBuffer = dequeueSample();
         if (inputBuffer == null) {
           continue;

@@ -203,11 +203,6 @@ public class SampleQueue implements TrackOutput {
     }
   }
 
-  /** Returns whether a sample is available to be read. */
-  public boolean hasNextSample() {
-    return metadataQueue.hasNextSample();
-  }
-
   /**
    * Returns the absolute index of the first sample.
    */
