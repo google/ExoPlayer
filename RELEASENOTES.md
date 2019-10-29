@@ -2,6 +2,8 @@
 
 ### dev-v2 (not yet released) ###
 
+* MediaSession extension: Update shuffle and repeat modes when playback state
+  is invalidated ([#6582](https://github.com/google/ExoPlayer/issues/6582)).
 * AV1 extension: Uses libgav1 to decode AV1 videos. Android 10 includes an AV1
   decoder, but the older versions of Android require this extension for playback
   of AV1 streams ([#3353](https://github.com/google/ExoPlayer/issues/3353)).
