@@ -523,7 +523,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     boolean[] trackIsAudioVideoFlags = getPreparedState().trackIsAudioVideoFlags;
     if (!pendingDeferredRetry
         || !trackIsAudioVideoFlags[track]
-        || sampleQueues[track].hasNextSample()) {
+        || sampleQueues[track].isReady(/* loadingFinished= */ false)) {
       return;
     }
     pendingResetPositionUs = 0;
