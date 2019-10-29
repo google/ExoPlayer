@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.source;
 
 import android.os.Looper;
-import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -35,9 +34,6 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
 import java.io.IOException;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 
 /** A queue of media samples. */
@@ -56,27 +52,6 @@ public class SampleQueue implements TrackOutput {
     void onUpstreamFormatChanged(Format format);
 
   }
-
-  /** Values returned by {@link #peekNext()}. */
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @IntDef(
-      value = {
-        PEEK_RESULT_NOTHING,
-        PEEK_RESULT_FORMAT,
-        PEEK_RESULT_BUFFER_CLEAR,
-        PEEK_RESULT_BUFFER_ENCRYPTED
-      })
-  /* package */ @interface PeekResult {}
-
-  /** Nothing is available for reading. */
-  /* package */ static final int PEEK_RESULT_NOTHING = 0;
-  /** A format change is available for reading */
-  /* package */ static final int PEEK_RESULT_FORMAT = 1;
-  /** A clear buffer is available for reading. */
-  /* package */ static final int PEEK_RESULT_BUFFER_CLEAR = 2;
-  /** An encrypted buffer is available for reading. */
-  /* package */ static final int PEEK_RESULT_BUFFER_ENCRYPTED = 3;
 
   public static final int ADVANCE_FAILED = -1;
 
@@ -480,15 +455,15 @@ public class SampleQueue implements TrackOutput {
    *     queue is empty.
    */
   public boolean isReady(boolean loadingFinished) {
-    @SampleQueue.PeekResult int nextInQueue = metadataQueue.peekNext(downstreamFormat);
+    @SampleMetadataQueue.PeekResult int nextInQueue = metadataQueue.peekNext(downstreamFormat);
     switch (nextInQueue) {
-      case SampleQueue.PEEK_RESULT_NOTHING:
+      case SampleMetadataQueue.PEEK_RESULT_NOTHING:
         return loadingFinished;
-      case SampleQueue.PEEK_RESULT_FORMAT:
+      case SampleMetadataQueue.PEEK_RESULT_FORMAT:
         return true;
-      case SampleQueue.PEEK_RESULT_BUFFER_CLEAR:
+      case SampleMetadataQueue.PEEK_RESULT_BUFFER_CLEAR:
         return currentSession == null || playClearSamplesWithoutKeys;
-      case SampleQueue.PEEK_RESULT_BUFFER_ENCRYPTED:
+      case SampleMetadataQueue.PEEK_RESULT_BUFFER_ENCRYPTED:
         return drmSessionManager == DrmSessionManager.DUMMY
             || Assertions.checkNotNull(currentSession).getState()
                 == DrmSession.STATE_OPENED_WITH_KEYS;

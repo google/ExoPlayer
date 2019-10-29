@@ -15,14 +15,17 @@
  */
 package com.google.android.exoplayer2.source;
 
+import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.extractor.TrackOutput.CryptoData;
-import com.google.android.exoplayer2.source.SampleQueue.PeekResult;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * A queue of metadata describing the contents of a media buffer.
@@ -39,6 +42,27 @@ import com.google.android.exoplayer2.util.Util;
     public CryptoData cryptoData;
 
   }
+
+  /** Values returned by {@link #peekNext} ()}. */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef(
+      value = {
+        PEEK_RESULT_NOTHING,
+        PEEK_RESULT_FORMAT,
+        PEEK_RESULT_BUFFER_CLEAR,
+        PEEK_RESULT_BUFFER_ENCRYPTED
+      })
+  public @interface PeekResult {}
+
+  /** Nothing is available for reading. */
+  public static final int PEEK_RESULT_NOTHING = 0;
+  /** A format change is available for reading */
+  public static final int PEEK_RESULT_FORMAT = 1;
+  /** A clear buffer is available for reading. */
+  public static final int PEEK_RESULT_BUFFER_CLEAR = 2;
+  /** An encrypted buffer is available for reading. */
+  public static final int PEEK_RESULT_BUFFER_ENCRYPTED = 3;
 
   private static final int SAMPLE_CAPACITY_INCREMENT = 1000;
 
@@ -226,15 +250,15 @@ import com.google.android.exoplayer2.util.Util;
   @PeekResult
   public synchronized int peekNext(Format downstreamFormat) {
     if (readPosition == length) {
-      return SampleQueue.PEEK_RESULT_NOTHING;
+      return PEEK_RESULT_NOTHING;
     }
     int relativeReadIndex = getRelativeIndex(readPosition);
     if (formats[relativeReadIndex] != downstreamFormat) {
-      return SampleQueue.PEEK_RESULT_FORMAT;
+      return PEEK_RESULT_FORMAT;
     } else {
       return (flags[relativeReadIndex] & C.BUFFER_FLAG_ENCRYPTED) != 0
-          ? SampleQueue.PEEK_RESULT_BUFFER_ENCRYPTED
-          : SampleQueue.PEEK_RESULT_BUFFER_CLEAR;
+          ? PEEK_RESULT_BUFFER_ENCRYPTED
+          : PEEK_RESULT_BUFFER_CLEAR;
     }
   }
 
