@@ -101,10 +101,10 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
     String currentLine;
     while ((currentLine = data.readLine()) != null) {
       if (currentLine.startsWith("PlayResX:")) {
-        playResX = Integer.valueOf(currentLine.substring(9).trim());
+        playResX = Integer.valueOf(currentLine.substring("PlayResX:".length()).trim());
       }
       if (currentLine.startsWith("PlayResY:")) {
-        playResY = Integer.valueOf(currentLine.substring(9).trim());
+        playResY = Integer.valueOf(currentLine.substring("PlayResY:".length()).trim());
       }
       // TODO: Parse useful data from the header.
       if (currentLine.startsWith("[Events]")) {
