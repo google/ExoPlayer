@@ -15,14 +15,22 @@
  */
 package com.google.android.exoplayer2.text.webvtt;
 
+import static java.lang.annotation.RetentionPolicy.SOURCE;
+
 import android.text.Layout.Alignment;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.util.Log;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
 
 /**
  * A representation of a WebVTT cue.
  */
 public final class WebvttCue extends Cue {
+
+  private static final float DEFAULT_POSITION = 0.5f;
 
   public final long startTime;
   public final long endTime;
@@ -50,26 +58,73 @@ public final class WebvttCue extends Cue {
    * @return Whether this cue should be placed in the default position.
    */
   public boolean isNormalCue() {
-    return (line == DIMEN_UNSET && position == DIMEN_UNSET);
+    return (line == DIMEN_UNSET && position == DEFAULT_POSITION);
   }
 
-  /**
-   * Builder for WebVTT cues.
-   */
+  /** Builder for WebVTT cues. */
   @SuppressWarnings("hiding")
   public static class Builder {
+
+    /**
+     * Valid values for {@link #setTextAlignment(int)}.
+     *
+     * <p>We use a custom list (and not {@link Alignment} directly) in order to include both {@code
+     * START}/{@code LEFT} and {@code END}/{@code RIGHT}. The distinction is important for {@link
+     * #derivePosition(int)}.
+     *
+     * <p>These correspond to the valid values for the 'align' cue setting in the <a
+     * href="https://www.w3.org/TR/webvtt1/#webvtt-cue-text-alignment">WebVTT spec</a>.
+     */
+    @Documented
+    @Retention(SOURCE)
+    @IntDef({
+      TextAlignment.START,
+      TextAlignment.CENTER,
+      TextAlignment.END,
+      TextAlignment.LEFT,
+      TextAlignment.RIGHT
+    })
+    public @interface TextAlignment {
+      /**
+       * See WebVTT's <a
+       * href="https://www.w3.org/TR/webvtt1/#webvtt-cue-start-alignment">align:start</a>.
+       */
+      int START = 1;
+      /**
+       * See WebVTT's <a
+       * href="https://www.w3.org/TR/webvtt1/#webvtt-cue-center-alignment">align:center</a>.
+       */
+      int CENTER = 2;
+      /**
+       * See WebVTT's <a
+       * href="https://www.w3.org/TR/webvtt1/#webvtt-cue-end-alignment">align:end</a>.
+       */
+      int END = 3;
+      /**
+       * See WebVTT's <a
+       * href="https://www.w3.org/TR/webvtt1/#webvtt-cue-left-alignment">align:left</a>.
+       */
+      int LEFT = 4;
+      /**
+       * See WebVTT's <a
+       * href="https://www.w3.org/TR/webvtt1/#webvtt-cue-right-alignment">align:right</a>.
+       */
+      int RIGHT = 5;
+    }
 
     private static final String TAG = "WebvttCueBuilder";
 
     private long startTime;
     private long endTime;
-    private CharSequence text;
-    private Alignment textAlignment;
+    @Nullable private CharSequence text;
+    @TextAlignment private int textAlignment;
     private float line;
-    private int lineType;
-    private int lineAnchor;
+    // Equivalent to WebVTT's snap-to-lines flag:
+    // https://www.w3.org/TR/webvtt1/#webvtt-cue-snap-to-lines-flag
+    @LineType private int lineType;
+    @AnchorType private int lineAnchor;
     private float position;
-    private int positionAnchor;
+    @AnchorType private int positionAnchor;
     private float width;
 
     // Initialization methods
@@ -82,23 +137,43 @@ public final class WebvttCue extends Cue {
       startTime = 0;
       endTime = 0;
       text = null;
-      textAlignment = null;
+      // Default: https://www.w3.org/TR/webvtt1/#webvtt-cue-text-alignment
+      textAlignment = TextAlignment.CENTER;
       line = Cue.DIMEN_UNSET;
-      lineType = Cue.TYPE_UNSET;
-      lineAnchor = Cue.TYPE_UNSET;
+      // Defaults to NUMBER (true): https://www.w3.org/TR/webvtt1/#webvtt-cue-snap-to-lines-flag
+      lineType = Cue.LINE_TYPE_NUMBER;
+      // Default: https://www.w3.org/TR/webvtt1/#webvtt-cue-line-alignment
+      lineAnchor = Cue.ANCHOR_TYPE_START;
       position = Cue.DIMEN_UNSET;
       positionAnchor = Cue.TYPE_UNSET;
-      width = Cue.DIMEN_UNSET;
+      // Default: https://www.w3.org/TR/webvtt1/#webvtt-cue-size
+      width = 1.0f;
     }
 
     // Construction methods.
 
     public WebvttCue build() {
-      if (position != Cue.DIMEN_UNSET && positionAnchor == Cue.TYPE_UNSET) {
-        derivePositionAnchorFromAlignment();
+      line = computeLine(line, lineType);
+
+      if (position == Cue.DIMEN_UNSET) {
+        position = derivePosition(textAlignment);
       }
-      return new WebvttCue(startTime, endTime, text, textAlignment, line, lineType, lineAnchor,
-          position, positionAnchor, width);
+
+      if (positionAnchor == Cue.TYPE_UNSET) {
+        positionAnchor = derivePositionAnchor(textAlignment);
+      }
+
+      return new WebvttCue(
+          startTime,
+          endTime,
+          text,
+          convertTextAlignment(textAlignment),
+          line,
+          lineType,
+          lineAnchor,
+          position,
+          positionAnchor,
+          width);
     }
 
     public Builder setStartTime(long time) {
@@ -116,7 +191,7 @@ public final class WebvttCue extends Cue {
       return this;
     }
 
-    public Builder setTextAlignment(Alignment textAlignment) {
+    public Builder setTextAlignment(@TextAlignment int textAlignment) {
       this.textAlignment = textAlignment;
       return this;
     }
@@ -126,12 +201,12 @@ public final class WebvttCue extends Cue {
       return this;
     }
 
-    public Builder setLineType(int lineType) {
+    public Builder setLineType(@LineType int lineType) {
       this.lineType = lineType;
       return this;
     }
 
-    public Builder setLineAnchor(int lineAnchor) {
+    public Builder setLineAnchor(@AnchorType int lineAnchor) {
       this.lineAnchor = lineAnchor;
       return this;
     }
@@ -141,7 +216,7 @@ public final class WebvttCue extends Cue {
       return this;
     }
 
-    public Builder setPositionAnchor(int positionAnchor) {
+    public Builder setPositionAnchor(@AnchorType int positionAnchor) {
       this.positionAnchor = positionAnchor;
       return this;
     }
@@ -151,29 +226,69 @@ public final class WebvttCue extends Cue {
       return this;
     }
 
-    private Builder derivePositionAnchorFromAlignment() {
-      if (textAlignment == null) {
-        positionAnchor = Cue.TYPE_UNSET;
+    // https://www.w3.org/TR/webvtt1/#webvtt-cue-line
+    private static float computeLine(float line, @LineType int lineType) {
+      if (line != Cue.DIMEN_UNSET
+          && lineType == Cue.LINE_TYPE_FRACTION
+          && (line < 0.0f || line > 1.0f)) {
+        return 1.0f; // Step 1
+      } else if (line != Cue.DIMEN_UNSET) {
+        // Step 2: Do nothing, line is already correct.
+        return line;
+      } else if (lineType == Cue.LINE_TYPE_FRACTION) {
+        return 1.0f; // Step 3
       } else {
-        switch (textAlignment) {
-          case ALIGN_NORMAL:
-            positionAnchor = Cue.ANCHOR_TYPE_START;
-            break;
-          case ALIGN_CENTER:
-            positionAnchor = Cue.ANCHOR_TYPE_MIDDLE;
-            break;
-          case ALIGN_OPPOSITE:
-            positionAnchor = Cue.ANCHOR_TYPE_END;
-            break;
-          default:
-            Log.w(TAG, "Unrecognized alignment: " + textAlignment);
-            positionAnchor = Cue.ANCHOR_TYPE_START;
-            break;
-        }
+        // Steps 4 - 10 (stacking multiple simultaneous cues) are handled by WebvttSubtitle#getCues
+        // and WebvttCue#isNormalCue.
+        return DIMEN_UNSET;
       }
-      return this;
     }
 
-  }
+    // https://www.w3.org/TR/webvtt1/#webvtt-cue-position
+    private static float derivePosition(@TextAlignment int textAlignment) {
+      switch (textAlignment) {
+        case TextAlignment.LEFT:
+          return 0.0f;
+        case TextAlignment.RIGHT:
+          return 1.0f;
+        case TextAlignment.START:
+        case TextAlignment.CENTER:
+        case TextAlignment.END:
+        default:
+          return DEFAULT_POSITION;
+      }
+    }
 
+    // https://www.w3.org/TR/webvtt1/#webvtt-cue-position-alignment
+    @AnchorType
+    private static int derivePositionAnchor(@TextAlignment int textAlignment) {
+      switch (textAlignment) {
+        case TextAlignment.LEFT:
+        case TextAlignment.START:
+          return Cue.ANCHOR_TYPE_START;
+        case TextAlignment.RIGHT:
+        case TextAlignment.END:
+          return Cue.ANCHOR_TYPE_END;
+        case TextAlignment.CENTER:
+        default:
+          return Cue.ANCHOR_TYPE_MIDDLE;
+      }
+    }
+
+    private static Alignment convertTextAlignment(@TextAlignment int textAlignment) {
+      switch (textAlignment) {
+        case TextAlignment.START:
+        case TextAlignment.LEFT:
+          return Alignment.ALIGN_NORMAL;
+        case TextAlignment.CENTER:
+          return Alignment.ALIGN_CENTER;
+        case TextAlignment.END:
+        case TextAlignment.RIGHT:
+          return Alignment.ALIGN_OPPOSITE;
+        default:
+          Log.w(TAG, "Unknown textAlignment: " + textAlignment);
+          return null;
+      }
+    }
+  }
 }

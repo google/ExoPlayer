@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.text.webvtt;
 
 import android.graphics.Typeface;
-import android.text.Layout.Alignment;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -87,7 +86,7 @@ public final class WebvttCueParser {
    * Parses the next valid WebVTT cue in a parsable array, including timestamps, settings and text.
    *
    * @param webvttData Parsable WebVTT file data.
-   * @param builder Builder for WebVTT Cues.
+   * @param builder Builder for WebVTT Cues (output parameter).
    * @param styles List of styles defined by the CSS style blocks preceding the cues.
    * @return Whether a valid Cue was found.
    */
@@ -252,14 +251,11 @@ public final class WebvttCueParser {
 
   // Internal methods
 
-  private static void parseLineAttribute(String s, WebvttCue.Builder builder)
-      throws NumberFormatException {
+  private static void parseLineAttribute(String s, WebvttCue.Builder builder) {
     int commaIndex = s.indexOf(',');
     if (commaIndex != -1) {
       builder.setLineAnchor(parsePositionAnchor(s.substring(commaIndex + 1)));
       s = s.substring(0, commaIndex);
-    } else {
-      builder.setLineAnchor(Cue.TYPE_UNSET);
     }
     if (s.endsWith("%")) {
       builder.setLine(WebvttParserUtil.parsePercentage(s)).setLineType(Cue.LINE_TYPE_FRACTION);
@@ -274,18 +270,16 @@ public final class WebvttCueParser {
     }
   }
 
-  private static void parsePositionAttribute(String s, WebvttCue.Builder builder)
-      throws NumberFormatException {
+  private static void parsePositionAttribute(String s, WebvttCue.Builder builder) {
     int commaIndex = s.indexOf(',');
     if (commaIndex != -1) {
       builder.setPositionAnchor(parsePositionAnchor(s.substring(commaIndex + 1)));
       s = s.substring(0, commaIndex);
-    } else {
-      builder.setPositionAnchor(Cue.TYPE_UNSET);
     }
     builder.setPosition(WebvttParserUtil.parsePercentage(s));
   }
 
+  @Cue.AnchorType
   private static int parsePositionAnchor(String s) {
     switch (s) {
       case "start":
@@ -301,20 +295,24 @@ public final class WebvttCueParser {
     }
   }
 
-  private static Alignment parseTextAlignment(String s) {
+  @WebvttCue.Builder.TextAlignment
+  private static int parseTextAlignment(String s) {
     switch (s) {
       case "start":
+        return WebvttCue.Builder.TextAlignment.START;
       case "left":
-        return Alignment.ALIGN_NORMAL;
+        return WebvttCue.Builder.TextAlignment.LEFT;
       case "center":
       case "middle":
-        return Alignment.ALIGN_CENTER;
+        return WebvttCue.Builder.TextAlignment.CENTER;
       case "end":
+        return WebvttCue.Builder.TextAlignment.END;
       case "right":
-        return Alignment.ALIGN_OPPOSITE;
+        return WebvttCue.Builder.TextAlignment.RIGHT;
       default:
         Log.w(TAG, "Invalid alignment value: " + s);
-        return null;
+        // Default value: https://www.w3.org/TR/webvtt1/#webvtt-cue-text-alignment
+        return WebvttCue.Builder.TextAlignment.CENTER;
     }
   }
 

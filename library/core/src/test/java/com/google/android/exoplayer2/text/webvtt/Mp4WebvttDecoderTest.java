@@ -87,7 +87,8 @@ public final class Mp4WebvttDecoderTest {
   public void testSingleCueSample() throws SubtitleDecoderException {
     Mp4WebvttDecoder decoder = new Mp4WebvttDecoder();
     Subtitle result = decoder.decode(SINGLE_CUE_SAMPLE, SINGLE_CUE_SAMPLE.length, false);
-    Cue expectedCue = new Cue("Hello World"); // Line feed must be trimmed by the decoder
+    // Line feed must be trimmed by the decoder
+    Cue expectedCue = new WebvttCue.Builder().setText("Hello World").build();
     assertMp4WebvttSubtitleEquals(result, expectedCue);
   }
 
@@ -95,8 +96,8 @@ public final class Mp4WebvttDecoderTest {
   public void testTwoCuesSample() throws SubtitleDecoderException {
     Mp4WebvttDecoder decoder = new Mp4WebvttDecoder();
     Subtitle result = decoder.decode(DOUBLE_CUE_SAMPLE, DOUBLE_CUE_SAMPLE.length, false);
-    Cue firstExpectedCue = new Cue("Hello World");
-    Cue secondExpectedCue = new Cue("Bye Bye");
+    Cue firstExpectedCue = new WebvttCue.Builder().setText("Hello World").build();
+    Cue secondExpectedCue = new WebvttCue.Builder().setText("Bye Bye").build();
     assertMp4WebvttSubtitleEquals(result, firstExpectedCue, secondExpectedCue);
   }
 
@@ -104,7 +105,9 @@ public final class Mp4WebvttDecoderTest {
   public void testNoCueSample() throws SubtitleDecoderException {
     Mp4WebvttDecoder decoder = new Mp4WebvttDecoder();
     Subtitle result = decoder.decode(NO_CUE_SAMPLE, NO_CUE_SAMPLE.length, false);
-    assertMp4WebvttSubtitleEquals(result);
+    assertThat(result.getEventTimeCount()).isEqualTo(1);
+    assertThat(result.getEventTime(0)).isEqualTo(0);
+    assertThat(result.getCues(0)).isEmpty();
   }
 
   // Negative tests.
