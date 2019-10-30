@@ -434,11 +434,32 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     } else if (codecInfo.isSeamlessAdaptationSupported(
         oldFormat, newFormat, /* isNewFormatComplete= */ true)) {
       return KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION;
-    } else if (areCodecConfigurationCompatible(oldFormat, newFormat)) {
+    } else if (canKeepCodecWithFlush(oldFormat, newFormat)) {
       return KEEP_CODEC_RESULT_YES_WITH_FLUSH;
     } else {
       return KEEP_CODEC_RESULT_NO;
     }
+  }
+
+  /**
+   * Returns whether the codec can be flushed and reused when switching to a new format. Reuse is
+   * generally possible when the codec would be configured in an identical way after the format
+   * change (excluding {@link MediaFormat#KEY_MAX_INPUT_SIZE} and configuration that does not come
+   * from the {@link Format}).
+   *
+   * @param oldFormat The first format.
+   * @param newFormat The second format.
+   * @return Whether the codec can be flushed and reused when switching to a new format.
+   */
+  protected boolean canKeepCodecWithFlush(Format oldFormat, Format newFormat) {
+    // Flush and reuse the codec if the audio format and initialization data matches. For Opus, we
+    // don't flush and reuse the codec because the decoder may discard samples after flushing, which
+    // would result in audio being dropped just after a stream change (see [Internal: b/143450854]).
+    return Util.areEqual(oldFormat.sampleMimeType, newFormat.sampleMimeType)
+        && oldFormat.channelCount == newFormat.channelCount
+        && oldFormat.sampleRate == newFormat.sampleRate
+        && oldFormat.initializationDataEquals(newFormat)
+        && !MimeTypes.AUDIO_OPUS.equals(oldFormat.sampleMimeType);
   }
 
   @Override
@@ -816,24 +837,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       }
     }
     return format.maxInputSize;
-  }
-
-  /**
-   * Returns whether two {@link Format}s will cause the same codec to be configured in an identical
-   * way, excluding {@link MediaFormat#KEY_MAX_INPUT_SIZE} and configuration that does not come from
-   * the {@link Format}.
-   *
-   * @param oldFormat The first format.
-   * @param newFormat The second format.
-   * @return Whether the two formats will cause a codec to be configured in an identical way,
-   *     excluding {@link MediaFormat#KEY_MAX_INPUT_SIZE} and configuration that does not come from
-   *     the {@link Format}.
-   */
-  protected boolean areCodecConfigurationCompatible(Format oldFormat, Format newFormat) {
-    return Util.areEqual(oldFormat.sampleMimeType, newFormat.sampleMimeType)
-        && oldFormat.channelCount == newFormat.channelCount
-        && oldFormat.sampleRate == newFormat.sampleRate
-        && oldFormat.initializationDataEquals(newFormat);
   }
 
   /**
