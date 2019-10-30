@@ -224,8 +224,8 @@ public class WebvttDecoderTest {
         "This is the first subtitle.",
         Alignment.ALIGN_NORMAL,
         /* line= */ Cue.DIMEN_UNSET,
-        /* lineType= */ Cue.TYPE_UNSET,
-        /* lineAnchor= */ Cue.TYPE_UNSET,
+        /* lineType= */ Cue.LINE_TYPE_NUMBER,
+        /* lineAnchor= */ Cue.ANCHOR_TYPE_START,
         /* position= */ 0.1f,
         /* positionAnchor= */ Cue.ANCHOR_TYPE_START,
         /* size= */ 0.35f);
@@ -237,10 +237,10 @@ public class WebvttDecoderTest {
         "This is the second subtitle.",
         Alignment.ALIGN_OPPOSITE,
         /* line= */ Cue.DIMEN_UNSET,
-        /* lineType= */ Cue.TYPE_UNSET,
-        /* lineAnchor= */ Cue.TYPE_UNSET,
-        /* position= */ Cue.DIMEN_UNSET,
-        /* positionAnchor= */ Cue.TYPE_UNSET,
+        /* lineType= */ Cue.LINE_TYPE_NUMBER,
+        /* lineAnchor= */ Cue.ANCHOR_TYPE_START,
+        /* position= */ 0.5f,
+        /* positionAnchor= */ Cue.ANCHOR_TYPE_END,
         /* size= */ 0.35f);
     assertCue(
         subtitle,
@@ -252,8 +252,8 @@ public class WebvttDecoderTest {
         /* line= */ 0.45f,
         /* lineType= */ Cue.LINE_TYPE_FRACTION,
         /* lineAnchor= */ Cue.ANCHOR_TYPE_END,
-        /* position= */ Cue.DIMEN_UNSET,
-        /* positionAnchor= */ Cue.TYPE_UNSET,
+        /* position= */ 0.5f,
+        /* positionAnchor= */ Cue.ANCHOR_TYPE_MIDDLE,
         /* size= */ 0.35f);
     assertCue(
         subtitle,
@@ -262,12 +262,12 @@ public class WebvttDecoderTest {
         /* endTimeUs= */ 7000000,
         "This is the fourth subtitle.",
         Alignment.ALIGN_CENTER,
-        /* line= */ -11f,
+        /* line= */ -11.0f,
         /* lineType= */ Cue.LINE_TYPE_NUMBER,
-        /* lineAnchor= */ Cue.TYPE_UNSET,
-        /* position= */ Cue.DIMEN_UNSET,
-        /* positionAnchor= */ Cue.TYPE_UNSET,
-        /* size= */ Cue.DIMEN_UNSET);
+        /* lineAnchor= */ Cue.ANCHOR_TYPE_START,
+        /* position= */ 0.5f,
+        /* positionAnchor= */ Cue.ANCHOR_TYPE_MIDDLE,
+        /* size= */ 1.0f);
     assertCue(
         subtitle,
         /* eventTimeIndex= */ 8,
@@ -276,11 +276,11 @@ public class WebvttDecoderTest {
         "This is the fifth subtitle.",
         Alignment.ALIGN_OPPOSITE,
         /* line= */ Cue.DIMEN_UNSET,
-        /* lineType= */ Cue.TYPE_UNSET,
-        /* lineAnchor= */ Cue.TYPE_UNSET,
-        /* position= */ 0.1f,
+        /* lineType= */ Cue.LINE_TYPE_NUMBER,
+        /* lineAnchor= */ Cue.ANCHOR_TYPE_START,
+        /* position= */ 1.0f,
         /* positionAnchor= */ Cue.ANCHOR_TYPE_END,
-        /* size= */ 0.1f);
+        /* size= */ 1.0f);
     assertCue(
         subtitle,
         /* eventTimeIndex= */ 10,
@@ -291,8 +291,8 @@ public class WebvttDecoderTest {
         /* line= */ 0.45f,
         /* lineType= */ Cue.LINE_TYPE_FRACTION,
         /* lineAnchor= */ Cue.ANCHOR_TYPE_END,
-        /* position= */ Cue.DIMEN_UNSET,
-        /* positionAnchor= */ Cue.TYPE_UNSET,
+        /* position= */ 0.5f,
+        /* positionAnchor= */ Cue.ANCHOR_TYPE_MIDDLE,
         /* size= */ 0.35f);
   }
 
@@ -412,13 +412,13 @@ public class WebvttDecoderTest {
         startTimeUs,
         endTimeUs,
         text,
-        /* textAlignment= */ null,
+        /* textAlignment= */ Alignment.ALIGN_CENTER,
         /* line= */ Cue.DIMEN_UNSET,
-        /* lineType= */ Cue.TYPE_UNSET,
-        /* lineAnchor= */ Cue.TYPE_UNSET,
-        /* position= */ Cue.DIMEN_UNSET,
-        /* positionAnchor= */ Cue.TYPE_UNSET,
-        /* size= */ Cue.DIMEN_UNSET);
+        /* lineType= */ Cue.LINE_TYPE_NUMBER,
+        /* lineAnchor= */ Cue.ANCHOR_TYPE_START,
+        /* position= */ 0.5f,
+        /* positionAnchor= */ Cue.ANCHOR_TYPE_MIDDLE,
+        /* size= */ 1.0f);
   }
 
   private static void assertCue(

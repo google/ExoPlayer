@@ -83,6 +83,9 @@ import java.util.List;
           list = new ArrayList<>();
         }
         WebvttCue cue = cues.get(i);
+        // TODO(ibaker): Replace this with a closer implementation of the WebVTT spec (keeping
+        // individual cues, but tweaking their `line` value):
+        // https://www.w3.org/TR/webvtt1/#cue-computed-line
         if (cue.isNormalCue()) {
           // we want to merge all of the normal cues into a single cue to ensure they are drawn
           // correctly (i.e. don't overlap) and to emulate roll-up, but only if there are multiple
