@@ -163,6 +163,8 @@ public final class WebvttCue extends Cue {
         positionAnchor = derivePositionAnchor(textAlignment);
       }
 
+      width = Math.min(width, deriveMaxSize(positionAnchor, position));
+
       return new WebvttCue(
           startTime,
           endTime,
@@ -288,6 +290,25 @@ public final class WebvttCue extends Cue {
         default:
           Log.w(TAG, "Unknown textAlignment: " + textAlignment);
           return null;
+      }
+    }
+
+    // Step 2 here: https://www.w3.org/TR/webvtt1/#processing-cue-settings
+    private static float deriveMaxSize(@AnchorType int positionAnchor, float position) {
+      switch (positionAnchor) {
+        case Cue.ANCHOR_TYPE_START:
+          return 1.0f - position;
+        case Cue.ANCHOR_TYPE_END:
+          return position;
+        case Cue.ANCHOR_TYPE_MIDDLE:
+          if (position <= 0.5f) {
+            return position * 2;
+          } else {
+            return (1.0f - position) * 2;
+          }
+        case Cue.TYPE_UNSET:
+        default:
+          throw new IllegalStateException(String.valueOf(positionAnchor));
       }
     }
   }
