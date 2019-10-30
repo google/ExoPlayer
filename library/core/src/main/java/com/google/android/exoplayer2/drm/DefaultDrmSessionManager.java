@@ -59,7 +59,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
     private UUID uuid;
     private ExoMediaDrm.Provider<ExoMediaCrypto> exoMediaDrmProvider;
     private boolean multiSession;
-    private boolean allowPlaceholderSessions;
+    private boolean preferSecureDecoders;
     @Flags private int flags;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
 
@@ -72,7 +72,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
      *   <li>{@link #setUuidAndExoMediaDrmProvider ExoMediaDrm.Provider}: {@link
      *       FrameworkMediaDrm#DEFAULT_PROVIDER}.
      *   <li>{@link #setMultiSession multiSession}: Not allowed by default.
-     *   <li>{@link #setAllowPlaceholderSessions allowPlaceholderSession}: Not allowed by default.
+     *   <li>{@link #setPreferSecureDecoders preferSecureDecoders}: Not allowed by default.
      *   <li>{@link #setPlayClearSamplesWithoutKeys playClearSamplesWithoutKeys}: Not allowed by
      *       default.
      *   <li>{@link #setLoadErrorHandlingPolicy LoadErrorHandlingPolicy}: {@link
@@ -85,7 +85,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
       uuid = C.WIDEVINE_UUID;
       exoMediaDrmProvider = (ExoMediaDrm.Provider) FrameworkMediaDrm.DEFAULT_PROVIDER;
       multiSession = false;
-      allowPlaceholderSessions = false;
+      preferSecureDecoders = false;
       flags = 0;
       loadErrorHandlingPolicy = new DefaultLoadErrorHandlingPolicy();
     }
@@ -133,16 +133,14 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
     }
 
     /**
-     * Sets whether this session manager is allowed to acquire placeholder sessions.
+     * Sets whether this session manager should hint the use of secure decoders for clear content.
      *
-     * <p>Placeholder sessions allow the use of secure renderers to play clear content.
-     *
-     * @param allowPlaceholderSessions Whether this session manager is allowed to acquire
-     *     placeholder sessions.
+     * @param preferSecureDecoders Whether this session manager should hint the use of secure
+     *     decoders for clear content.
      * @return This builder.
      */
-    public Builder setAllowPlaceholderSessions(boolean allowPlaceholderSessions) {
-      this.allowPlaceholderSessions = allowPlaceholderSessions;
+    public Builder setPreferSecureDecoders(boolean preferSecureDecoders) {
+      this.preferSecureDecoders = preferSecureDecoders;
       return this;
     }
 
@@ -184,7 +182,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
           mediaDrmCallback,
           keyRequestParameters,
           multiSession,
-          allowPlaceholderSessions,
+          preferSecureDecoders,
           flags,
           loadErrorHandlingPolicy);
     }
@@ -236,7 +234,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
   @Nullable private final HashMap<String, String> optionalKeyRequestParameters;
   private final EventDispatcher<DefaultDrmSessionEventListener> eventDispatcher;
   private final boolean multiSession;
-  private final boolean allowPlaceholderSessions;
+  private final boolean preferSecureDecoders;
   @Flags private final int flags;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
 
@@ -328,7 +326,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
         callback,
         optionalKeyRequestParameters,
         multiSession,
-        /* allowPlaceholderSessions= */ false,
+        /* preferSecureDecoders= */ false,
         /* flags= */ 0,
         new DefaultLoadErrorHandlingPolicy(initialDrmRequestRetryCount));
   }
@@ -339,7 +337,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
       MediaDrmCallback callback,
       @Nullable HashMap<String, String> optionalKeyRequestParameters,
       boolean multiSession,
-      boolean allowPlaceholderSessions,
+      boolean preferSecureDecoders,
       @Flags int flags,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
     Assertions.checkNotNull(uuid);
@@ -350,7 +348,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
     this.optionalKeyRequestParameters = optionalKeyRequestParameters;
     this.eventDispatcher = new EventDispatcher<>();
     this.multiSession = multiSession;
-    this.allowPlaceholderSessions = allowPlaceholderSessions;
+    this.preferSecureDecoders = preferSecureDecoders;
     this.flags = flags;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     mode = MODE_PLAYBACK;
@@ -470,7 +468,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
         FrameworkMediaCrypto.class.equals(exoMediaDrm.getExoMediaCryptoType())
             && FrameworkMediaCrypto.WORKAROUND_DEVICE_NEEDS_KEYS_TO_CONFIGURE_CODEC;
     if (avoidPlaceholderDrmSessions
-        || !allowPlaceholderSessions
+        || !preferSecureDecoders
         || exoMediaDrm.getExoMediaCryptoType() == null) {
       return null;
     }
