@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer2.text.ssa;
 
+import android.graphics.PointF;
 import android.text.TextUtils;
-import android.util.Pair;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.text.Cue;
@@ -205,7 +205,7 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
     }
 
     // Parse \pos{x,y} attribute
-    Pair<Float, Float> position = parsePosition(lineValues[formatTextIndex]);
+    PointF position = parsePosition(lineValues[formatTextIndex]);
 
     String text = lineValues[formatTextIndex]
         .replaceAll("\\{.*?\\}", "")
@@ -217,10 +217,10 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
       cue = new Cue(
           text,
           /* textAlignment */ null,
-          position.second / playResY,
+          position.y / playResY,
           Cue.LINE_TYPE_FRACTION,
           Cue.ANCHOR_TYPE_START,
-          position.first / playResX,
+          position.x / playResX,
           Cue.ANCHOR_TYPE_MIDDLE,
           Cue.DIMEN_UNSET);
     } else {
@@ -286,14 +286,14 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
   }
 
   @Nullable
-  public static Pair<Float, Float> parsePosition(String line){
+  public static PointF parsePosition(String line){
     Matcher matcher = SSA_POSITION_PATTERN.matcher(line);
     if(!matcher.find()){
       return null;
     }
     float x = Float.parseFloat(matcher.group(1));
     float y = Float.parseFloat(matcher.group(3));
-    return new Pair<>(x,y);
+    return new PointF(x, y);
   }
 
 }
