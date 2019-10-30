@@ -103,6 +103,8 @@
   [#5658](https://github.com/google/ExoPlayer/issues/5658)).
 * Pass the codec output `MediaFormat` to `VideoFrameMetadataListener`.
 * Deprecate the GVR extension.
+* Fix the start of audio getting truncated when transitioning to a new
+  item in a playlist of opus streams.
 
 ### 2.10.6 (2019-10-17) ###
 
