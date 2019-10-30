@@ -384,13 +384,13 @@ public final class MediaCodecInfo {
 
   /**
    * Whether the decoder supports video with a given width, height and frame rate.
-   * <p>
-   * Must not be called if the device SDK version is less than 21.
+   *
+   * <p>Must not be called if the device SDK version is less than 21.
    *
    * @param width Width in pixels.
    * @param height Height in pixels.
-   * @param frameRate Optional frame rate in frames per second. Ignored if set to
-   *     {@link Format#NO_VALUE} or any value less than or equal to 0.
+   * @param frameRate Optional frame rate in frames per second. Ignored if set to {@link
+   *     Format#NO_VALUE} or any value less than or equal to 0.
    * @return Whether the decoder supports video with the given width, height and frame rate.
    */
   @TargetApi(21)
