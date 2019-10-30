@@ -61,8 +61,8 @@ import java.util.List;
   @Override
   public List<Cue> getCues(long timeUs) {
     int index = Util.binarySearchFloor(cueTimesUs, timeUs, true, false);
-    if (index == -1 || cues.get(index).isEmpty()) {
-      // timeUs is earlier than the start of the first cue, or we have an empty cue.
+    if (index == -1) {
+      // timeUs is earlier than the start of the first cue.
       return Collections.emptyList();
     } else {
       return cues.get(index);
