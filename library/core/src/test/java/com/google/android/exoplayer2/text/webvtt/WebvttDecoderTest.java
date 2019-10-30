@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.text.webvtt;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.fail;
 
 import android.graphics.Typeface;
@@ -33,8 +32,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.SubtitleDecoderException;
+import com.google.common.truth.Expect;
 import java.io.IOException;
 import java.util.List;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -53,6 +54,8 @@ public class WebvttDecoderTest {
   private static final String WITH_CSS_COMPLEX_SELECTORS = "webvtt/with_css_complex_selectors";
   private static final String WITH_BOM = "webvtt/with_bom";
   private static final String EMPTY_FILE = "webvtt/empty";
+
+  @Rule public final Expect expect = Expect.create();
 
   @Test
   public void testDecodeEmpty() throws IOException {
@@ -404,7 +407,7 @@ public class WebvttDecoderTest {
     return (Spanned) sub.getCues(timeUs).get(0).text;
   }
 
-  private static void assertCue(
+  private void assertCue(
       WebvttSubtitle subtitle, int eventTimeIndex, long startTimeUs, long endTimeUs, String text) {
     assertCue(
         subtitle,
@@ -421,7 +424,7 @@ public class WebvttDecoderTest {
         /* size= */ 1.0f);
   }
 
-  private static void assertCue(
+  private void assertCue(
       WebvttSubtitle subtitle,
       int eventTimeIndex,
       long startTimeUs,
@@ -434,23 +437,27 @@ public class WebvttDecoderTest {
       float position,
       @Cue.AnchorType int positionAnchor,
       float size) {
-    assertWithMessage("startTimeUs")
+    expect
+        .withMessage("startTimeUs")
         .that(subtitle.getEventTime(eventTimeIndex))
         .isEqualTo(startTimeUs);
-    assertWithMessage("endTimeUs")
+    expect
+        .withMessage("endTimeUs")
         .that(subtitle.getEventTime(eventTimeIndex + 1))
         .isEqualTo(endTimeUs);
     List<Cue> cues = subtitle.getCues(subtitle.getEventTime(eventTimeIndex));
     assertThat(cues).hasSize(1);
     // Assert cue properties.
     Cue cue = cues.get(0);
-    assertWithMessage("cue.text").that(cue.text.toString()).isEqualTo(text);
-    assertWithMessage("cue.textAlignment").that(cue.textAlignment).isEqualTo(textAlignment);
-    assertWithMessage("cue.line").that(cue.line).isEqualTo(line);
-    assertWithMessage("cue.lineType").that(cue.lineType).isEqualTo(lineType);
-    assertWithMessage("cue.lineAnchor").that(cue.lineAnchor).isEqualTo(lineAnchor);
-    assertWithMessage("cue.position").that(cue.position).isEqualTo(position);
-    assertWithMessage("cue.positionAnchor").that(cue.positionAnchor).isEqualTo(positionAnchor);
-    assertWithMessage("cue.size").that(cue.size).isEqualTo(size);
+    expect.withMessage("cue.text").that(cue.text.toString()).isEqualTo(text);
+    expect.withMessage("cue.textAlignment").that(cue.textAlignment).isEqualTo(textAlignment);
+    expect.withMessage("cue.line").that(cue.line).isEqualTo(line);
+    expect.withMessage("cue.lineType").that(cue.lineType).isEqualTo(lineType);
+    expect.withMessage("cue.lineAnchor").that(cue.lineAnchor).isEqualTo(lineAnchor);
+    expect.withMessage("cue.position").that(cue.position).isEqualTo(position);
+    expect.withMessage("cue.positionAnchor").that(cue.positionAnchor).isEqualTo(positionAnchor);
+    expect.withMessage("cue.size").that(cue.size).isEqualTo(size);
+
+    assertThat(expect.hasFailures()).isFalse();
   }
 }
