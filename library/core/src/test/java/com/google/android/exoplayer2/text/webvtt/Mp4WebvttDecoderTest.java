@@ -22,7 +22,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.text.SubtitleDecoderException;
+import com.google.common.truth.Expect;
 import java.util.List;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -81,6 +83,8 @@ public final class Mp4WebvttDecoderTest {
       0x76, 0x74, 0x74
   };
 
+  @Rule public final Expect expect = Expect.create();
+
   // Positive tests.
 
   @Test
@@ -132,28 +136,33 @@ public final class Mp4WebvttDecoderTest {
    * @param subtitle The {@link Subtitle} to check.
    * @param expectedCues The expected {@link Cue}s.
    */
-  private static void assertMp4WebvttSubtitleEquals(Subtitle subtitle, Cue... expectedCues) {
+  private void assertMp4WebvttSubtitleEquals(Subtitle subtitle, Cue... expectedCues) {
     assertThat(subtitle.getEventTimeCount()).isEqualTo(1);
     assertThat(subtitle.getEventTime(0)).isEqualTo(0);
     List<Cue> subtitleCues = subtitle.getCues(0);
     assertThat(subtitleCues).hasSize(expectedCues.length);
     for (int i = 0; i < subtitleCues.size(); i++) {
-      assertCueEquals(expectedCues[i], subtitleCues.get(i));
+      assertCuesEqual(expectedCues[i], subtitleCues.get(i));
     }
   }
 
-  /**
-   * Asserts that two cues are equal.
-   */
-  private static void assertCueEquals(Cue expected, Cue actual) {
-    assertThat(actual.line).isEqualTo(expected.line);
-    assertThat(actual.lineAnchor).isEqualTo(expected.lineAnchor);
-    assertThat(actual.lineType).isEqualTo(expected.lineType);
-    assertThat(actual.position).isEqualTo(expected.position);
-    assertThat(actual.positionAnchor).isEqualTo(expected.positionAnchor);
-    assertThat(actual.size).isEqualTo(expected.size);
-    assertThat(actual.text.toString()).isEqualTo(expected.text.toString());
-    assertThat(actual.textAlignment).isEqualTo(expected.textAlignment);
-  }
+  /** Asserts that two cues are equal. */
+  private void assertCuesEqual(Cue expected, Cue actual) {
+    expect.withMessage("Cue.line").that(actual.line).isEqualTo(expected.line);
+    expect.withMessage("Cue.lineAnchor").that(actual.lineAnchor).isEqualTo(expected.lineAnchor);
+    expect.withMessage("Cue.lineType").that(actual.lineType).isEqualTo(expected.lineType);
+    expect.withMessage("Cue.position").that(actual.position).isEqualTo(expected.position);
+    expect
+        .withMessage("Cue.positionAnchor")
+        .that(actual.positionAnchor)
+        .isEqualTo(expected.positionAnchor);
+    expect.withMessage("Cue.size").that(actual.size).isEqualTo(expected.size);
+    expect.withMessage("Cue.text").that(actual.text.toString()).isEqualTo(expected.text.toString());
+    expect
+        .withMessage("Cue.textAlignment")
+        .that(actual.textAlignment)
+        .isEqualTo(expected.textAlignment);
 
+    assertThat(expect.hasFailures()).isFalse();
+  }
 }
