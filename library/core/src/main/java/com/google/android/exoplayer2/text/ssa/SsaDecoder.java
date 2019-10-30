@@ -53,8 +53,8 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
   private int formatEndIndex;
   private int formatTextIndex;
 
-  private int playResX;
-  private int playResY;
+  private int playResX = C.LENGTH_UNSET;
+  private int playResY = C.LENGTH_UNSET;
 
   public SsaDecoder() {
     this(/* initializationData= */ null);
@@ -212,7 +212,7 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
         .replaceAll("\\\\n", "\n");
 
     Cue cue;
-    if (position != null && playResX != 0 && playResY != 0) {
+    if (position != null && playResX != C.LENGTH_UNSET && playResY != C.LENGTH_UNSET) {
       cue = new Cue(
           text,
           /* textAlignment */ null,
