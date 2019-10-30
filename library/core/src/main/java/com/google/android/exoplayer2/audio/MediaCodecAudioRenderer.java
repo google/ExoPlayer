@@ -350,7 +350,12 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   protected List<MediaCodecInfo> getDecoderInfos(
       MediaCodecSelector mediaCodecSelector, Format format, boolean requiresSecureDecoder)
       throws DecoderQueryException {
-    if (allowPassthrough(format.channelCount, format.sampleMimeType)) {
+    @Nullable String mimeType = format.sampleMimeType;
+    if (mimeType == null) {
+      return Collections.emptyList();
+    }
+    if (allowPassthrough(format.channelCount, mimeType)) {
+      @Nullable
       MediaCodecInfo passthroughDecoderInfo = mediaCodecSelector.getPassthroughDecoderInfo();
       if (passthroughDecoderInfo != null) {
         return Collections.singletonList(passthroughDecoderInfo);
@@ -358,9 +363,9 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     }
     List<MediaCodecInfo> decoderInfos =
         mediaCodecSelector.getDecoderInfos(
-            format.sampleMimeType, requiresSecureDecoder, /* requiresTunnelingDecoder= */ false);
+            mimeType, requiresSecureDecoder, /* requiresTunnelingDecoder= */ false);
     decoderInfos = MediaCodecUtil.getDecoderInfosSortedByFormatSupport(decoderInfos, format);
-    if (MimeTypes.AUDIO_E_AC3_JOC.equals(format.sampleMimeType)) {
+    if (MimeTypes.AUDIO_E_AC3_JOC.equals(mimeType)) {
       // E-AC3 decoders can decode JOC streams, but in 2-D rather than 3-D.
       List<MediaCodecInfo> decoderInfosWithEac3 = new ArrayList<>(decoderInfos);
       decoderInfosWithEac3.addAll(
