@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 
 /**
  * A utility class for querying the available codecs.
@@ -122,6 +123,7 @@ public final class MediaCodecUtil {
    */
   @Nullable
   public static MediaCodecInfo getPassthroughDecoderInfo() throws DecoderQueryException {
+    @Nullable
     MediaCodecInfo decoderInfo =
         getDecoderInfo(MimeTypes.AUDIO_RAW, /* secure= */ false, /* tunneling= */ false);
     return decoderInfo == null ? null : MediaCodecInfo.newPassthroughInstance(decoderInfo.name);
@@ -161,7 +163,7 @@ public final class MediaCodecUtil {
   public static synchronized List<MediaCodecInfo> getDecoderInfos(
       String mimeType, boolean secure, boolean tunneling) throws DecoderQueryException {
     CodecKey key = new CodecKey(mimeType, secure, tunneling);
-    List<MediaCodecInfo> cachedDecoderInfos = decoderInfosCache.get(key);
+    @Nullable List<MediaCodecInfo> cachedDecoderInfos = decoderInfosCache.get(key);
     if (cachedDecoderInfos != null) {
       return cachedDecoderInfos;
     }
@@ -214,6 +216,7 @@ public final class MediaCodecUtil {
   public static int maxH264DecodableFrameSize() throws DecoderQueryException {
     if (maxH264DecodableFrameSize == -1) {
       int result = 0;
+      @Nullable
       MediaCodecInfo decoderInfo =
           getDecoderInfo(MimeTypes.VIDEO_H264, /* secure= */ false, /* tunneling= */ false);
       if (decoderInfo != null) {
@@ -287,6 +290,7 @@ public final class MediaCodecUtil {
       for (int i = 0; i < numberOfCodecs; i++) {
         android.media.MediaCodecInfo codecInfo = mediaCodecList.getCodecInfoAt(i);
         String name = codecInfo.getName();
+        @Nullable
         String codecMimeType = getCodecMimeType(codecInfo, name, secureDecodersExplicit, mimeType);
         if (codecMimeType == null) {
           continue;
@@ -652,6 +656,7 @@ public final class MediaCodecUtil {
         && ("OMX.Exynos.AVC.Decoder".equals(name) || "OMX.Exynos.AVC.Decoder.secure".equals(name));
   }
 
+  @Nullable
   private static Pair<Integer, Integer> getDolbyVisionProfileAndLevel(
       String codec, String[] parts) {
     if (parts.length < 3) {
@@ -665,14 +670,14 @@ public final class MediaCodecUtil {
       Log.w(TAG, "Ignoring malformed Dolby Vision codec string: " + codec);
       return null;
     }
-    String profileString = matcher.group(1);
-    Integer profile = DOLBY_VISION_STRING_TO_PROFILE.get(profileString);
+    @Nullable String profileString = matcher.group(1);
+    @Nullable Integer profile = DOLBY_VISION_STRING_TO_PROFILE.get(profileString);
     if (profile == null) {
       Log.w(TAG, "Unknown Dolby Vision profile string: " + profileString);
       return null;
     }
     String levelString = parts[2];
-    Integer level = DOLBY_VISION_STRING_TO_LEVEL.get(levelString);
+    @Nullable Integer level = DOLBY_VISION_STRING_TO_LEVEL.get(levelString);
     if (level == null) {
       Log.w(TAG, "Unknown Dolby Vision level string: " + levelString);
       return null;
@@ -680,6 +685,7 @@ public final class MediaCodecUtil {
     return new Pair<>(profile, level);
   }
 
+  @Nullable
   private static Pair<Integer, Integer> getHevcProfileAndLevel(String codec, String[] parts) {
     if (parts.length < 4) {
       // The codec has fewer parts than required by the HEVC codec string format.
@@ -692,7 +698,7 @@ public final class MediaCodecUtil {
       Log.w(TAG, "Ignoring malformed HEVC codec string: " + codec);
       return null;
     }
-    String profileString = matcher.group(1);
+    @Nullable String profileString = matcher.group(1);
     int profile;
     if ("1".equals(profileString)) {
       profile = CodecProfileLevel.HEVCProfileMain;
@@ -702,8 +708,8 @@ public final class MediaCodecUtil {
       Log.w(TAG, "Unknown HEVC profile string: " + profileString);
       return null;
     }
-    String levelString = parts[3];
-    Integer level = HEVC_CODEC_STRING_TO_PROFILE_LEVEL.get(levelString);
+    @Nullable String levelString = parts[3];
+    @Nullable Integer level = HEVC_CODEC_STRING_TO_PROFILE_LEVEL.get(levelString);
     if (level == null) {
       Log.w(TAG, "Unknown HEVC level string: " + levelString);
       return null;
@@ -711,6 +717,7 @@ public final class MediaCodecUtil {
     return new Pair<>(profile, level);
   }
 
+  @Nullable
   private static Pair<Integer, Integer> getAvcProfileAndLevel(String codec, String[] parts) {
     if (parts.length < 2) {
       // The codec has fewer parts than required by the AVC codec string format.
@@ -751,6 +758,7 @@ public final class MediaCodecUtil {
     return new Pair<>(profile, level);
   }
 
+  @Nullable
   private static Pair<Integer, Integer> getVp9ProfileAndLevel(String codec, String[] parts) {
     if (parts.length < 3) {
       Log.w(TAG, "Ignoring malformed VP9 codec string: " + codec);
@@ -779,6 +787,7 @@ public final class MediaCodecUtil {
     return new Pair<>(profile, level);
   }
 
+  @Nullable
   private static Pair<Integer, Integer> getAv1ProfileAndLevel(
       String codec, String[] parts, @Nullable ColorInfo colorInfo) {
     if (parts.length < 4) {
@@ -874,7 +883,7 @@ public final class MediaCodecUtil {
     try {
       // Get the object type indication, which is a hexadecimal value (see RFC 6381/ISO 14496-1).
       int objectTypeIndication = Integer.parseInt(parts[1], 16);
-      String mimeType = MimeTypes.getMimeTypeFromMp4ObjectType(objectTypeIndication);
+      @Nullable String mimeType = MimeTypes.getMimeTypeFromMp4ObjectType(objectTypeIndication);
       if (MimeTypes.AUDIO_AAC.equals(mimeType)) {
         // For MPEG-4 audio this is followed by an audio object type indication as a decimal number.
         int audioObjectTypeIndication = Integer.parseInt(parts[2]);
@@ -932,7 +941,7 @@ public final class MediaCodecUtil {
 
     private final int codecKind;
 
-    private android.media.MediaCodecInfo[] mediaCodecInfos;
+    @Nullable private android.media.MediaCodecInfo[] mediaCodecInfos;
 
     public MediaCodecListCompatV21(boolean includeSecure, boolean includeTunneling) {
       codecKind =
@@ -970,6 +979,7 @@ public final class MediaCodecUtil {
       return capabilities.isFeatureRequired(feature);
     }
 
+    @EnsuresNonNull({"mediaCodecInfos"})
     private void ensureMediaCodecInfosInitialized() {
       if (mediaCodecInfos == null) {
         mediaCodecInfos = new MediaCodecList(codecKind).getCodecInfos();
@@ -1028,7 +1038,7 @@ public final class MediaCodecUtil {
     public int hashCode() {
       final int prime = 31;
       int result = 1;
-      result = prime * result + ((mimeType == null) ? 0 : mimeType.hashCode());
+      result = prime * result + mimeType.hashCode();
       result = prime * result + (secure ? 1231 : 1237);
       result = prime * result + (tunneling ? 1231 : 1237);
       return result;

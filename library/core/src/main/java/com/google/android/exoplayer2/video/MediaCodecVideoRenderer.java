@@ -389,11 +389,15 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       boolean requiresSecureDecoder,
       boolean requiresTunnelingDecoder)
       throws DecoderQueryException {
+    @Nullable String mimeType = format.sampleMimeType;
+    if (mimeType == null) {
+      return Collections.emptyList();
+    }
     List<MediaCodecInfo> decoderInfos =
         mediaCodecSelector.getDecoderInfos(
-            format.sampleMimeType, requiresSecureDecoder, requiresTunnelingDecoder);
+            mimeType, requiresSecureDecoder, requiresTunnelingDecoder);
     decoderInfos = MediaCodecUtil.getDecoderInfosSortedByFormatSupport(decoderInfos, format);
-    if (MimeTypes.VIDEO_DOLBY_VISION.equals(format.sampleMimeType)) {
+    if (MimeTypes.VIDEO_DOLBY_VISION.equals(mimeType)) {
       // Fall back to H.264/AVC or H.265/HEVC for the relevant DV profiles.
       @Nullable
       Pair<Integer, Integer> codecProfileAndLevel = MediaCodecUtil.getCodecProfileAndLevel(format);
