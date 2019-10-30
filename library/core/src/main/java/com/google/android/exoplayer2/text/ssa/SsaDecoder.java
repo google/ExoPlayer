@@ -204,7 +204,6 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
       }
     }
 
-    // Parse \pos{x,y} attribute
     PointF position = parsePosition(lineValues[formatTextIndex]);
 
     String text = lineValues[formatTextIndex]
@@ -285,10 +284,17 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
     return timestampUs;
   }
 
+  /**
+   * Parses the position of an SSA dialogue line.
+   * The attribute is expected to be in this form: "\pos{x,y}".
+   *
+   * @param line The string to parse.
+   * @return The parsed position.
+   */
   @Nullable
-  public static PointF parsePosition(String line){
+  private static PointF parsePosition(String line) {
     Matcher matcher = SSA_POSITION_PATTERN.matcher(line);
-    if(!matcher.find()){
+    if (!matcher.find()) {
       return null;
     }
     float x = Float.parseFloat(matcher.group(1));
