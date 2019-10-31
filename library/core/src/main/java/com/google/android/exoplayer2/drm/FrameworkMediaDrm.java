@@ -78,7 +78,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
 
   /**
    * Creates an instance with an {@link #acquire() acquired reference} for the specified scheme
-   * UUID.
+   * UUID. {@link #release()} must be called when the instance is no longer required.
    *
    * @param uuid The scheme uuid.
    * @return The created instance.
