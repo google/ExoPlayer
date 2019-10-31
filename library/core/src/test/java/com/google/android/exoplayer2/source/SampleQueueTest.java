@@ -22,6 +22,7 @@ import static com.google.android.exoplayer2.source.SampleQueue.ADVANCE_FAILED;
 import static com.google.common.truth.Truth.assertThat;
 import static java.lang.Long.MIN_VALUE;
 import static java.util.Arrays.copyOfRange;
+import static org.mockito.Mockito.when;
 
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -141,8 +142,7 @@ public final class SampleQueueTest {
     mockDrmSessionManager =
         (DrmSessionManager<ExoMediaCrypto>) Mockito.mock(DrmSessionManager.class);
     mockDrmSession = (DrmSession<ExoMediaCrypto>) Mockito.mock(DrmSession.class);
-    Mockito.when(
-            mockDrmSessionManager.acquireSession(ArgumentMatchers.any(), ArgumentMatchers.any()))
+    when(mockDrmSessionManager.acquireSession(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(mockDrmSession);
     sampleQueue = new SampleQueue(allocator, mockDrmSessionManager);
     formatHolder = new FormatHolder();
@@ -308,20 +308,52 @@ public final class SampleQueueTest {
   }
 
   @Test
+  public void testEmptyQueueReturnsLoadingFinished() {
+    sampleQueue.sampleData(new ParsableByteArray(DATA), DATA.length);
+    assertThat(sampleQueue.isReady(/* loadingFinished= */ false)).isFalse();
+    assertThat(sampleQueue.isReady(/* loadingFinished= */ true)).isTrue();
+  }
+
+  @Test
+  public void testIsReadyWithUpstreamFormatOnlyReturnsTrue() {
+    sampleQueue.format(FORMAT_ENCRYPTED);
+    assertThat(sampleQueue.isReady(/* loadingFinished= */ false)).isTrue();
+  }
+
+  @Test
+  public void testIsReadyReturnsTrueForValidDrmSession() {
+    writeTestDataWithEncryptedSections();
+    assertReadFormat(/* formatRequired= */ false, FORMAT_ENCRYPTED);
+    assertThat(sampleQueue.isReady(/* loadingFinished= */ false)).isFalse();
+    when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
+    assertThat(sampleQueue.isReady(/* loadingFinished= */ false)).isTrue();
+  }
+
+  @Test
+  public void testIsReadyReturnsTrueForClearSampleAndPlayClearSamplesWithoutKeysIsTrue() {
+    when(mockDrmSessionManager.getFlags())
+        .thenReturn(DrmSessionManager.FLAG_PLAY_CLEAR_SAMPLES_WITHOUT_KEYS);
+    // We recreate the queue to ensure the mock DRM session manager flags are taken into account.
+    sampleQueue = new SampleQueue(allocator, mockDrmSessionManager);
+    writeTestDataWithEncryptedSections();
+    assertThat(sampleQueue.isReady(/* loadingFinished= */ false)).isTrue();
+  }
+
+  @Test
   public void testReadEncryptedSectionsWaitsForKeys() {
-    Mockito.when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED);
-    writeEncryptedTestData();
+    when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED);
+    writeTestDataWithEncryptedSections();
 
     assertReadFormat(/* formatRequired= */ false, FORMAT_ENCRYPTED);
     assertReadNothing(/* formatRequired= */ false);
-    Mockito.when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
+    when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
     assertReadEncryptedSample(/* sampleIndex= */ 0);
   }
 
   @Test
   public void testReadEncryptedSectionsPopulatesDrmSession() {
-    Mockito.when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
-    writeEncryptedTestData();
+    when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
+    writeTestDataWithEncryptedSections();
 
     int result =
         sampleQueue.read(
@@ -360,14 +392,13 @@ public final class SampleQueueTest {
   @Test
   @SuppressWarnings("unchecked")
   public void testAllowPlaceholderSessionPopulatesDrmSession() {
-    Mockito.when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
+    when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
     DrmSession<ExoMediaCrypto> mockPlaceholderDrmSession =
         (DrmSession<ExoMediaCrypto>) Mockito.mock(DrmSession.class);
-    Mockito.when(mockPlaceholderDrmSession.getState())
-        .thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
-    Mockito.when(mockDrmSessionManager.acquirePlaceholderSession(ArgumentMatchers.any()))
+    when(mockPlaceholderDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
+    when(mockDrmSessionManager.acquirePlaceholderSession(ArgumentMatchers.any()))
         .thenReturn(mockPlaceholderDrmSession);
-    writeEncryptedTestData();
+    writeTestDataWithEncryptedSections();
 
     int result =
         sampleQueue.read(
@@ -405,15 +436,14 @@ public final class SampleQueueTest {
 
   @Test
   public void testReadWithErrorSessionReadsNothingAndThrows() throws IOException {
-    Mockito.when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED);
-    writeEncryptedTestData();
+    when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED);
+    writeTestDataWithEncryptedSections();
 
     assertReadFormat(/* formatRequired= */ false, FORMAT_ENCRYPTED);
     assertReadNothing(/* formatRequired= */ false);
     sampleQueue.maybeThrowError();
-    Mockito.when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_ERROR);
-    Mockito.when(mockDrmSession.getError())
-        .thenReturn(new DrmSession.DrmSessionException(new Exception()));
+    when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_ERROR);
+    when(mockDrmSession.getError()).thenReturn(new DrmSession.DrmSessionException(new Exception()));
     assertReadNothing(/* formatRequired= */ false);
     try {
       sampleQueue.maybeThrowError();
@@ -421,18 +451,18 @@ public final class SampleQueueTest {
     } catch (IOException e) {
       // Expected.
     }
-    Mockito.when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
+    when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
     assertReadEncryptedSample(/* sampleIndex= */ 0);
   }
 
   @Test
   public void testAllowPlayClearSamplesWithoutKeysReadsClearSamples() {
-    Mockito.when(mockDrmSessionManager.getFlags())
+    when(mockDrmSessionManager.getFlags())
         .thenReturn(DrmSessionManager.FLAG_PLAY_CLEAR_SAMPLES_WITHOUT_KEYS);
     // We recreate the queue to ensure the mock DRM session manager flags are taken into account.
     sampleQueue = new SampleQueue(allocator, mockDrmSessionManager);
-    Mockito.when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED);
-    writeEncryptedTestData();
+    when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED);
+    writeTestDataWithEncryptedSections();
 
     assertReadFormat(/* formatRequired= */ false, FORMAT_ENCRYPTED);
     assertReadEncryptedSample(/* sampleIndex= */ 0);
@@ -794,7 +824,7 @@ public final class SampleQueueTest {
         DATA, SAMPLE_SIZES, SAMPLE_OFFSETS, SAMPLE_TIMESTAMPS, SAMPLE_FORMATS, SAMPLE_FLAGS);
   }
 
-  private void writeEncryptedTestData() {
+  private void writeTestDataWithEncryptedSections() {
     writeTestData(
         ENCRYPTED_SAMPLES_DATA,
         ENCRYPTED_SAMPLES_SIZES,
