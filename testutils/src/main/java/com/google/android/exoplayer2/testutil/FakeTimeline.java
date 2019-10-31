@@ -40,6 +40,7 @@ public final class FakeTimeline extends Timeline {
     public final Object id;
     public final boolean isSeekable;
     public final boolean isDynamic;
+    public final boolean isLive;
     public final long durationUs;
     public final AdPlaybackState adPlaybackState;
 
@@ -99,10 +100,41 @@ public final class FakeTimeline extends Timeline {
         boolean isDynamic,
         long durationUs,
         AdPlaybackState adPlaybackState) {
+      this(
+          periodCount,
+          id,
+          isSeekable,
+          isDynamic,
+          /* isLive= */ isDynamic,
+          durationUs,
+          adPlaybackState);
+    }
+
+    /**
+     * Creates a window definition with ad groups.
+     *
+     * @param periodCount The number of periods in the window. Each period get an equal slice of the
+     *     total window duration.
+     * @param id The UID of the window.
+     * @param isSeekable Whether the window is seekable.
+     * @param isDynamic Whether the window is dynamic.
+     * @param isLive Whether the window is live.
+     * @param durationUs The duration of the window in microseconds.
+     * @param adPlaybackState The ad playback state.
+     */
+    public TimelineWindowDefinition(
+        int periodCount,
+        Object id,
+        boolean isSeekable,
+        boolean isDynamic,
+        boolean isLive,
+        long durationUs,
+        AdPlaybackState adPlaybackState) {
       this.periodCount = periodCount;
       this.id = id;
       this.isSeekable = isSeekable;
       this.isDynamic = isDynamic;
+      this.isLive = isLive;
       this.durationUs = durationUs;
       this.adPlaybackState = adPlaybackState;
     }
@@ -189,7 +221,7 @@ public final class FakeTimeline extends Timeline {
         /* windowStartTimeMs= */ C.TIME_UNSET,
         windowDefinition.isSeekable,
         windowDefinition.isDynamic,
-        /* isLive= */ windowDefinition.isDynamic,
+        windowDefinition.isLive,
         /* defaultPositionUs= */ 0,
         windowDefinition.durationUs,
         periodOffsets[windowIndex],
