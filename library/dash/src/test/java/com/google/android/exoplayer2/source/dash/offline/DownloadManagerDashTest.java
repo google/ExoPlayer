@@ -62,7 +62,7 @@ import org.robolectric.shadows.ShadowLog;
 @LooperMode(LooperMode.Mode.PAUSED)
 public class DownloadManagerDashTest {
 
-  private static final int ASSERT_TRUE_TIMEOUT_MS = 1000;
+  private static final int ASSERT_TRUE_TIMEOUT_MS = 5000;
 
   private SimpleCache cache;
   private File tempFolder;
