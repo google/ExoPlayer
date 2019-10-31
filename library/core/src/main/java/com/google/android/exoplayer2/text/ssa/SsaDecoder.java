@@ -38,8 +38,8 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
 
   private static final String TAG = "SsaDecoder";
 
-  private static final Pattern SSA_TIMECODE_PATTERN = Pattern.compile(
-      "(?:(\\d+):)?(\\d+):(\\d+)(?::|\\.)(\\d+)");
+  private static final Pattern SSA_TIMECODE_PATTERN =
+      Pattern.compile("(?:(\\d+):)?(\\d+):(\\d+)[:.](\\d+)");
   private static final String FORMAT_LINE_PREFIX = "Format: ";
   private static final String DIALOGUE_LINE_PREFIX = "Dialogue: ";
 
@@ -196,10 +196,11 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
       }
     }
 
-    String text = lineValues[formatTextIndex]
-        .replaceAll("\\{.*?\\}", "")
-        .replaceAll("\\\\N", "\n")
-        .replaceAll("\\\\n", "\n");
+    String text =
+        lineValues[formatTextIndex]
+            .replaceAll("\\{.*?}", "")
+            .replaceAll("\\\\N", "\n")
+            .replaceAll("\\\\n", "\n");
     cues.add(new Cue(text));
     cueTimesUs.add(startTimeUs);
     if (endTimeUs != C.TIME_UNSET) {

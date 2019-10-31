@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
  */
 public final class WebvttParserUtil {
 
-  private static final Pattern COMMENT = Pattern.compile("^NOTE((\u0020|\u0009).*)?$");
+  private static final Pattern COMMENT = Pattern.compile("^NOTE([ \t].*)?$");
   private static final String WEBVTT_HEADER = "WEBVTT";
 
   private WebvttParserUtil() {}
