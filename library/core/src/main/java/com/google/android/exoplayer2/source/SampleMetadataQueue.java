@@ -15,17 +15,19 @@
  */
 package com.google.android.exoplayer2.source;
 
-import androidx.annotation.IntDef;
+import android.os.Looper;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.drm.DrmInitData;
+import com.google.android.exoplayer2.drm.DrmSession;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.TrackOutput.CryptoData;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import java.io.IOException;
 
 /**
  * A queue of metadata describing the contents of a media buffer.
@@ -43,28 +45,13 @@ import java.lang.annotation.RetentionPolicy;
 
   }
 
-  /** Values returned by {@link #peekNext} ()}. */
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @IntDef(
-      value = {
-        PEEK_RESULT_NOTHING,
-        PEEK_RESULT_FORMAT,
-        PEEK_RESULT_BUFFER_CLEAR,
-        PEEK_RESULT_BUFFER_ENCRYPTED
-      })
-  public @interface PeekResult {}
-
-  /** Nothing is available for reading. */
-  public static final int PEEK_RESULT_NOTHING = 0;
-  /** A format change is available for reading */
-  public static final int PEEK_RESULT_FORMAT = 1;
-  /** A clear buffer is available for reading. */
-  public static final int PEEK_RESULT_BUFFER_CLEAR = 2;
-  /** An encrypted buffer is available for reading. */
-  public static final int PEEK_RESULT_BUFFER_ENCRYPTED = 3;
-
   private static final int SAMPLE_CAPACITY_INCREMENT = 1000;
+
+  private final DrmSessionManager<?> drmSessionManager;
+  private final boolean playClearSamplesWithoutKeys;
+
+  @Nullable private Format downstreamFormat;
+  @Nullable private DrmSession<?> currentDrmSession;
 
   private int capacity;
   private int[] sourceIds;
@@ -89,7 +76,11 @@ import java.lang.annotation.RetentionPolicy;
   private Format upstreamCommittedFormat;
   private int upstreamSourceId;
 
-  public SampleMetadataQueue() {
+  public SampleMetadataQueue(DrmSessionManager<?> drmSessionManager) {
+    this.drmSessionManager = drmSessionManager;
+    playClearSamplesWithoutKeys =
+        (drmSessionManager.getFlags() & DrmSessionManager.FLAG_PLAY_CLEAR_SAMPLES_WITHOUT_KEYS)
+            != 0;
     capacity = SAMPLE_CAPACITY_INCREMENT;
     sourceIds = new int[capacity];
     offsets = new long[capacity];
@@ -103,6 +94,8 @@ import java.lang.annotation.RetentionPolicy;
     upstreamFormatRequired = true;
     upstreamKeyframeRequired = true;
   }
+
+  // Called by the consuming thread, but only when there is no loading thread.
 
   /**
    * Clears all sample metadata from the queue.
@@ -163,8 +156,29 @@ import java.lang.annotation.RetentionPolicy;
   // Called by the consuming thread.
 
   /**
-   * Returns the current absolute start index.
+   * Throws an error that's preventing data from being read. Does nothing if no such error exists.
+   *
+   * @throws IOException The underlying error.
    */
+  public void maybeThrowError() throws IOException {
+    // TODO: Avoid throwing if the DRM error is not preventing a read operation.
+    if (currentDrmSession != null && currentDrmSession.getState() == DrmSession.STATE_ERROR) {
+      throw Assertions.checkNotNull(currentDrmSession.getError());
+    }
+  }
+
+  /** Releases any owned {@link DrmSession} references. */
+  public void releaseDrmSessionReferences() {
+    if (currentDrmSession != null) {
+      currentDrmSession.releaseReference();
+      currentDrmSession = null;
+      // Clear downstream format to avoid violating the assumption that downstreamFormat.drmInitData
+      // != null implies currentSession != null
+      downstreamFormat = null;
+    }
+  }
+
+  /** Returns the current absolute start index. */
   public int getFirstIndex() {
     return absoluteFirstIndex;
   }
@@ -182,16 +196,9 @@ import java.lang.annotation.RetentionPolicy;
    *
    * @return The source id.
    */
-  public int peekSourceId() {
+  public synchronized int peekSourceId() {
     int relativeReadIndex = getRelativeIndex(readPosition);
     return hasNextSample() ? sourceIds[relativeReadIndex] : upstreamSourceId;
-  }
-
-  /**
-   * Returns whether a sample is available to be read.
-   */
-  public synchronized boolean hasNextSample() {
-    return readPosition != length;
   }
 
   /**
@@ -242,23 +249,39 @@ import java.lang.annotation.RetentionPolicy;
   }
 
   /**
-   * Returns a {@link PeekResult} depending on what a following call to {@link #read
-   * read(formatHolder, decoderInputBuffer, formatRequired= false, allowOnlyClearBuffers= false,
-   * loadingFinished= false, decodeOnlyUntilUs= 0)} would result in.
+   * Returns whether there is data available for reading.
+   *
+   * <p>Note: If the stream has ended then a buffer with the end of stream flag can always be read
+   * from {@link #read}. Hence an ended stream is always ready.
+   *
+   * @param loadingFinished Whether no more samples will be written to the sample queue. When true,
+   *     this method returns true if the sample queue is empty, because an empty sample queue means
+   *     the end of stream has been reached. When false, this method returns false if the sample
+   *     queue is empty.
    */
-  @SuppressWarnings("ReferenceEquality")
-  @PeekResult
-  public synchronized int peekNext(Format downstreamFormat) {
-    if (readPosition == length) {
-      return PEEK_RESULT_NOTHING;
+  public boolean isReady(boolean loadingFinished) {
+    if (!hasNextSample()) {
+      return loadingFinished
+          || isLastSampleQueued
+          || (upstreamFormat != null && upstreamFormat != downstreamFormat);
     }
     int relativeReadIndex = getRelativeIndex(readPosition);
     if (formats[relativeReadIndex] != downstreamFormat) {
-      return PEEK_RESULT_FORMAT;
+      // A format can be read.
+      return true;
+    } else if (Assertions.checkNotNull(downstreamFormat).drmInitData == null) {
+      // A sample from a clear section can be read.
+      return true;
+    } else if (drmSessionManager == DrmSessionManager.DUMMY
+        || Assertions.checkNotNull(currentDrmSession).getState()
+            == DrmSession.STATE_OPENED_WITH_KEYS) {
+      // TODO: Remove DUMMY DrmSessionManager check once renderers are migrated [Internal ref:
+      // b/122519809].
+      return true;
     } else {
-      return (flags[relativeReadIndex] & C.BUFFER_FLAG_ENCRYPTED) != 0
-          ? PEEK_RESULT_BUFFER_ENCRYPTED
-          : PEEK_RESULT_BUFFER_CLEAR;
+      // A clear sample in an encrypted section may be read if playClearSamplesWithoutKeys is true.
+      return (flags[relativeReadIndex] & C.BUFFER_FLAG_ENCRYPTED) == 0
+          && playClearSamplesWithoutKeys;
     }
   }
 
@@ -278,11 +301,7 @@ import java.lang.annotation.RetentionPolicy;
    * @param formatRequired Whether the caller requires that the format of the stream be read even if
    *     it's not changing. A sample will never be read if set to true, however it is still possible
    *     for the end of stream or nothing to be read.
-   * @param allowOnlyClearBuffers If set to true, this method will not return encrypted buffers,
-   *     returning {@link C#RESULT_NOTHING_READ} (without advancing the read position) instead.
    * @param loadingFinished True if an empty queue should be considered the end of the stream.
-   * @param downstreamFormat The current downstream {@link Format}. If the format of the next sample
-   *     is different to the current downstream format then a format will be read.
    * @param extrasHolder The holder into which extra sample information should be written.
    * @return The result, which can be {@link C#RESULT_NOTHING_READ}, {@link C#RESULT_FORMAT_READ} or
    *     {@link C#RESULT_BUFFER_READ}.
@@ -292,16 +311,14 @@ import java.lang.annotation.RetentionPolicy;
       FormatHolder formatHolder,
       DecoderInputBuffer buffer,
       boolean formatRequired,
-      boolean allowOnlyClearBuffers,
       boolean loadingFinished,
-      Format downstreamFormat,
       SampleExtrasHolder extrasHolder) {
     if (!hasNextSample()) {
       if (loadingFinished || isLastSampleQueued) {
         buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
         return C.RESULT_BUFFER_READ;
       } else if (upstreamFormat != null && (formatRequired || upstreamFormat != downstreamFormat)) {
-        formatHolder.format = upstreamFormat;
+        onFormatResult(Assertions.checkNotNull(upstreamFormat), formatHolder);
         return C.RESULT_FORMAT_READ;
       } else {
         return C.RESULT_NOTHING_READ;
@@ -310,11 +327,23 @@ import java.lang.annotation.RetentionPolicy;
 
     int relativeReadIndex = getRelativeIndex(readPosition);
     if (formatRequired || formats[relativeReadIndex] != downstreamFormat) {
-      formatHolder.format = formats[relativeReadIndex];
+      onFormatResult(formats[relativeReadIndex], formatHolder);
       return C.RESULT_FORMAT_READ;
     }
 
-    if (allowOnlyClearBuffers && (flags[relativeReadIndex] & C.BUFFER_FLAG_ENCRYPTED) != 0) {
+    // It's likely that the media source creation has not yet been migrated and the renderer can
+    // acquire the session for the sample.
+    // TODO: Remove once renderers are migrated [Internal ref: b/122519809].
+    boolean skipDrmChecks = drmSessionManager == DrmSessionManager.DUMMY;
+    boolean isNextSampleEncrypted = (flags[relativeReadIndex] & C.BUFFER_FLAG_ENCRYPTED) != 0;
+
+    boolean mayReadSample =
+        skipDrmChecks
+            || Util.castNonNull(downstreamFormat).drmInitData == null
+            || (playClearSamplesWithoutKeys && !isNextSampleEncrypted)
+            || Assertions.checkNotNull(currentDrmSession).getState()
+                == DrmSession.STATE_OPENED_WITH_KEYS;
+    if (!mayReadSample) {
       return C.RESULT_NOTHING_READ;
     }
 
@@ -557,9 +586,54 @@ import java.lang.annotation.RetentionPolicy;
 
   // Internal methods.
 
+  private boolean hasNextSample() {
+    return readPosition != length;
+  }
+
   /**
-   * Finds the sample in the specified range that's before or at the specified time. If
-   * {@code keyframe} is {@code true} then the sample is additionally required to be a keyframe.
+   * Sets the downstream format, performs DRM resource management, and populates the {@code
+   * outputFormatHolder}.
+   *
+   * @param newFormat The new downstream format.
+   * @param outputFormatHolder The output {@link FormatHolder}.
+   */
+  private void onFormatResult(Format newFormat, FormatHolder outputFormatHolder) {
+    outputFormatHolder.format = newFormat;
+    boolean isFirstFormat = downstreamFormat == null;
+    DrmInitData oldDrmInitData = isFirstFormat ? null : downstreamFormat.drmInitData;
+    downstreamFormat = newFormat;
+    if (drmSessionManager == DrmSessionManager.DUMMY) {
+      // Avoid attempting to acquire a session using the dummy DRM session manager. It's likely that
+      // the media source creation has not yet been migrated and the renderer can acquire the
+      // session for the read DRM init data.
+      // TODO: Remove once renderers are migrated [Internal ref: b/122519809].
+      return;
+    }
+    DrmInitData newDrmInitData = newFormat.drmInitData;
+    outputFormatHolder.includesDrmSession = true;
+    outputFormatHolder.drmSession = currentDrmSession;
+    if (!isFirstFormat && Util.areEqual(oldDrmInitData, newDrmInitData)) {
+      // Nothing to do.
+      return;
+    }
+    // Ensure we acquire the new session before releasing the previous one in case the same session
+    // is being used for both DrmInitData.
+    DrmSession<?> previousSession = currentDrmSession;
+    Looper playbackLooper = Assertions.checkNotNull(Looper.myLooper());
+    currentDrmSession =
+        newDrmInitData != null
+            ? drmSessionManager.acquireSession(playbackLooper, newDrmInitData)
+            : drmSessionManager.acquirePlaceholderSession(playbackLooper);
+    outputFormatHolder.drmSession = currentDrmSession;
+
+    if (previousSession != null) {
+      previousSession.releaseReference();
+    }
+  }
+
+  /**
+   * Finds the sample in the specified range that's before or at the specified time. If {@code
+   * keyframe} is {@code true} then the sample is additionally required to be a keyframe.
    *
    * @param relativeStartIndex The relative index from which to start searching.
    * @param length The length of the range being searched.
