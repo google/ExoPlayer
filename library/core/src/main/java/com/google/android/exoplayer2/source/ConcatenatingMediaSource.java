@@ -139,6 +139,23 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSo
     addMediaSources(Arrays.asList(mediaSources));
   }
 
+  @Override
+  public synchronized Timeline getInitialTimeline() {
+    ShuffleOrder shuffleOrder =
+        this.shuffleOrder.getLength() != mediaSourcesPublic.size()
+            ? this.shuffleOrder
+                .cloneAndClear()
+                .cloneAndInsert(
+                    /* insertionIndex= */ 0, /* insertionCount= */ mediaSourcesPublic.size())
+            : this.shuffleOrder;
+    return new ConcatenatedTimeline(mediaSourcesPublic, shuffleOrder, isAtomic);
+  }
+
+  @Override
+  public boolean isSingleWindow() {
+    return false;
+  }
+
   /**
    * Appends a {@link MediaSource} to the playlist.
    *
