@@ -108,6 +108,50 @@ public final class ParsableBitArrayTest {
   }
 
   @Test
+  public void testReadBitsToLong0Bits() {
+    byte[] testData = TestUtil.createByteArray(0x3C);
+    ParsableBitArray testArray = new ParsableBitArray(testData);
+
+    long result = testArray.readBitsToLong(0);
+
+    assertThat(result).isEqualTo(0);
+  }
+
+  @Test
+  public void testReadBitsToLongByteAligned() {
+    byte[] testData = TestUtil.createByteArray(0x3C, 0xD2, 0x5F, 0x01, 0xFF, 0x14, 0x60);
+    ParsableBitArray testArray = new ParsableBitArray(testData);
+    testArray.readBits(8);
+
+    long result = testArray.readBitsToLong(45);
+
+    assertThat(result).isEqualTo(0xD25F01FF14L << 5 | 0x60 >> 3);
+    assertThat(testArray.getPosition()).isEqualTo(53);
+  }
+
+  @Test
+  public void testReadBitsToLongNonByteAligned() {
+    byte[] testData = TestUtil.createByteArray(0x3C, 0xD2, 0x5F, 0x01, 0xFF, 0x14, 0x60);
+    ParsableBitArray testArray = new ParsableBitArray(testData);
+    testArray.readBits(3);
+
+    long result = testArray.readBitsToLong(53);
+
+    assertThat(result).isEqualTo((0x3CL & 0b11111) << 48 | 0xD25F01FF1460L);
+    assertThat(testArray.getPosition()).isEqualTo(56);
+  }
+
+  @Test
+  public void testReadBitsToLongNegativeValue() {
+    byte[] testData = TestUtil.createByteArray(0xF0, 0, 0, 0, 0, 0, 0, 0);
+    ParsableBitArray testArray = new ParsableBitArray(testData);
+
+    long result = testArray.readBitsToLong(64);
+
+    assertThat(result).isEqualTo(0xF000000000000000L);
+  }
+
+  @Test
   public void testReadBitsToByteArray() {
     byte[] testData = TestUtil.createByteArray(0x3C, 0xD2, 0x5F, 0x01, 0xFF, 0x14, 0x60, 0x99);
     ParsableBitArray testArray = new ParsableBitArray(testData);

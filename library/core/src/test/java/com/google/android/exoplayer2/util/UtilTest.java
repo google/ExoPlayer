@@ -218,6 +218,24 @@ public class UtilTest {
   }
 
   @Test
+  public void testToUnsignedLongPositiveValue() {
+    int x = 0x05D67F23;
+
+    long result = Util.toUnsignedLong(x);
+
+    assertThat(result).isEqualTo(0x05D67F23L);
+  }
+
+  @Test
+  public void testToUnsignedLongNegativeValue() {
+    int x = 0xF5D67F23;
+
+    long result = Util.toUnsignedLong(x);
+
+    assertThat(result).isEqualTo(0xF5D67F23L);
+  }
+
+  @Test
   public void testGetCodecsOfType() {
     assertThat(getCodecsOfType(null, C.TRACK_TYPE_VIDEO)).isNull();
     assertThat(getCodecsOfType("avc1.64001e,vp9.63.1", C.TRACK_TYPE_AUDIO)).isNull();
