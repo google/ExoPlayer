@@ -170,6 +170,7 @@ public final class PlaybackStatsListener
     PlaybackStatsTracker tracker = new PlaybackStatsTracker(keepHistory, eventTime);
     tracker.onPlayerStateChanged(
         eventTime, playWhenReady, playbackState, /* belongsToPlayback= */ true);
+    tracker.onIsSuppressedChanged(eventTime, isSuppressed, /* belongsToPlayback= */ true);
     tracker.onPlaybackSpeedChanged(eventTime, playbackSpeed);
     playbackStatsTrackers.put(session, tracker);
     sessionStartEventTimes.put(session, eventTime);
