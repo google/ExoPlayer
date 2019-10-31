@@ -105,6 +105,7 @@
 * Deprecate the GVR extension.
 * Fix the start of audio getting truncated when transitioning to a new
   item in a playlist of opus streams.
+* Fix detection of Dolby Atmos in HLS to match the HLS authoring specification.
 
 ### 2.10.6 (2019-10-17) ###
 
