@@ -34,7 +34,6 @@ public class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
   /** The default input buffer size. */
   private static final int DEFAULT_INPUT_BUFFER_SIZE = 960 * 6;
 
-  @Nullable private OpusDecoder decoder;
   private int channelCount;
   private int sampleRate;
 
@@ -103,7 +102,7 @@ public class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
       throws OpusDecoderException {
     int initialInputBufferSize =
         format.maxInputSize != Format.NO_VALUE ? format.maxInputSize : DEFAULT_INPUT_BUFFER_SIZE;
-    decoder =
+    OpusDecoder decoder =
         new OpusDecoder(
             NUM_BUFFERS,
             NUM_BUFFERS,
