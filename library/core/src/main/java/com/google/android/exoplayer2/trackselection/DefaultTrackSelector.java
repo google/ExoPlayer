@@ -820,7 +820,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * @deprecated This instance does not have {@link Context} constraints configured. Use {@link
      *     #getDefaults(Context)} instead.
      */
-    @SuppressWarnings("deprecation")
     @Deprecated
     public static final Parameters DEFAULT = DEFAULT_WITHOUT_CONTEXT;
 
@@ -1458,7 +1457,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
   /** @deprecated Use {@link #DefaultTrackSelector(Context, TrackSelection.Factory)}. */
   @Deprecated
-  @SuppressWarnings("deprecation")
   public DefaultTrackSelector(TrackSelection.Factory trackSelectionFactory) {
     this(Parameters.DEFAULT_WITHOUT_CONTEXT, trackSelectionFactory);
   }

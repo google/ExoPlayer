@@ -89,7 +89,6 @@ import javax.microedition.khronos.opengles.GL10;
 
   // Kept in field rather than a local variable in order not to get garbage collected before
   // glDrawArrays uses it.
-  @SuppressWarnings("FieldCanBeLocal")
   private FloatBuffer[] textureCoords;
 
   private int program;
