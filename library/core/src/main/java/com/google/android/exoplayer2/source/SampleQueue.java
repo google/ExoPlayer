@@ -15,13 +15,11 @@
  */
 package com.google.android.exoplayer2.source;
 
-import android.os.Looper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
-import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
@@ -29,9 +27,7 @@ import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.source.SampleMetadataQueue.SampleExtrasHolder;
 import com.google.android.exoplayer2.upstream.Allocation;
 import com.google.android.exoplayer2.upstream.Allocator;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableByteArray;
-import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -58,22 +54,15 @@ public class SampleQueue implements TrackOutput {
   private static final int INITIAL_SCRATCH_SIZE = 32;
 
   private final Allocator allocator;
-  private final DrmSessionManager<?> drmSessionManager;
-  private final boolean playClearSamplesWithoutKeys;
   private final int allocationLength;
   private final SampleMetadataQueue metadataQueue;
   private final SampleExtrasHolder extrasHolder;
   private final ParsableByteArray scratch;
-  private final FormatHolder scratchFormatHolder;
 
   // References into the linked list of allocations.
   private AllocationNode firstAllocationNode;
   private AllocationNode readAllocationNode;
   private AllocationNode writeAllocationNode;
-
-  // Accessed only by the consuming thread.
-  private Format downstreamFormat;
-  @Nullable private DrmSession<?> currentSession;
 
   // Accessed only by the loading thread (or the consuming thread when there is no loading thread).
   private boolean pendingFormatAdjustment;
@@ -88,19 +77,14 @@ public class SampleQueue implements TrackOutput {
    *
    * @param allocator An {@link Allocator} from which allocations for sample data can be obtained.
    * @param drmSessionManager The {@link DrmSessionManager} to obtain {@link DrmSession DrmSessions}
-   *     from.
+   *     from. The created instance does not take ownership of this {@link DrmSessionManager}.
    */
   public SampleQueue(Allocator allocator, DrmSessionManager<?> drmSessionManager) {
     this.allocator = allocator;
-    this.drmSessionManager = drmSessionManager;
-    playClearSamplesWithoutKeys =
-        (drmSessionManager.getFlags() & DrmSessionManager.FLAG_PLAY_CLEAR_SAMPLES_WITHOUT_KEYS)
-            != 0;
     allocationLength = allocator.getIndividualAllocationLength();
-    metadataQueue = new SampleMetadataQueue();
+    metadataQueue = new SampleMetadataQueue(drmSessionManager);
     extrasHolder = new SampleExtrasHolder();
     scratch = new ParsableByteArray(INITIAL_SCRATCH_SIZE);
-    scratchFormatHolder = new FormatHolder();
     firstAllocationNode = new AllocationNode(0, allocationLength);
     readAllocationNode = firstAllocationNode;
     writeAllocationNode = firstAllocationNode;
@@ -116,7 +100,7 @@ public class SampleQueue implements TrackOutput {
   }
 
   /**
-   * Resets the output and releases any held DRM resources.
+   * Resets the output.
    *
    * @param resetUpstreamFormat Whether the upstream format should be cleared. If set to false,
    *     samples queued after the reset (and before a subsequent call to {@link #format(Format)})
@@ -197,10 +181,7 @@ public class SampleQueue implements TrackOutput {
    * @throws IOException The underlying error.
    */
   public void maybeThrowError() throws IOException {
-    // TODO: Avoid throwing if the DRM error is not preventing a read operation.
-    if (currentSession != null && currentSession.getState() == DrmSession.STATE_ERROR) {
-      throw Assertions.checkNotNull(currentSession.getError());
-    }
+    metadataQueue.maybeThrowError();
   }
 
   /**
@@ -291,16 +272,16 @@ public class SampleQueue implements TrackOutput {
     discardDownstreamTo(metadataQueue.discardToRead());
   }
 
-  /** Calls {@link #discardToEnd()} and releases any held DRM resources. */
+  /** Calls {@link #discardToEnd()} and releases any owned {@link DrmSession} references. */
   public void preRelease() {
     discardToEnd();
-    releaseDrmResources();
+    metadataQueue.releaseDrmSessionReferences();
   }
 
-  /** Calls {@link #reset()} and releases any held DRM resources. */
+  /** Calls {@link #reset()} and releases any owned {@link DrmSession} references. */
   public void release() {
     reset();
-    releaseDrmResources();
+    metadataQueue.releaseDrmSessionReferences();
   }
 
   /**
@@ -360,7 +341,7 @@ public class SampleQueue implements TrackOutput {
    *       {@link DrmSessionManager#FLAG_PLAY_CLEAR_SAMPLES_WITHOUT_KEYS}.
    * </ul>
    *
-   * @param outputFormatHolder A {@link FormatHolder} to populate in the case of reading a format.
+   * @param formatHolder A {@link FormatHolder} to populate in the case of reading a format.
    * @param buffer A {@link DecoderInputBuffer} to populate in the case of reading a sample or the
    *     end of the stream. If the end of the stream has been reached, the {@link
    *     C#BUFFER_FLAG_END_OF_STREAM} flag will be set on the buffer. If a {@link
@@ -377,65 +358,22 @@ public class SampleQueue implements TrackOutput {
    */
   @SuppressWarnings("ReferenceEquality")
   public int read(
-      FormatHolder outputFormatHolder,
+      FormatHolder formatHolder,
       DecoderInputBuffer buffer,
       boolean formatRequired,
       boolean loadingFinished,
       long decodeOnlyUntilUs) {
-
-    boolean readFlagFormatRequired = false;
-    boolean readFlagAllowOnlyClearBuffers = false;
-    boolean onlyPropagateFormatChanges = false;
-
-    if (downstreamFormat == null || formatRequired) {
-      readFlagFormatRequired = true;
-    } else if (drmSessionManager != DrmSessionManager.DUMMY
-        && downstreamFormat.drmInitData != null
-        && Assertions.checkNotNull(currentSession).getState()
-            != DrmSession.STATE_OPENED_WITH_KEYS) {
-      if (playClearSamplesWithoutKeys) {
-        // Content is encrypted and keys are not available, but clear samples are ok for reading.
-        readFlagAllowOnlyClearBuffers = true;
-      } else {
-        // We must not read any samples, but we may still read a format or the end of stream.
-        // However, because the formatRequired argument is false, we should not propagate a read
-        // format unless it is different than the current format.
-        onlyPropagateFormatChanges = true;
-        readFlagFormatRequired = true;
+    int result =
+        metadataQueue.read(formatHolder, buffer, formatRequired, loadingFinished, extrasHolder);
+    if (result == C.RESULT_BUFFER_READ && !buffer.isEndOfStream()) {
+      if (buffer.timeUs < decodeOnlyUntilUs) {
+        buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
+      }
+      if (!buffer.isFlagsOnly()) {
+        readToBuffer(buffer, extrasHolder);
       }
     }
-
-    int result =
-        metadataQueue.read(
-            scratchFormatHolder,
-            buffer,
-            readFlagFormatRequired,
-            readFlagAllowOnlyClearBuffers,
-            loadingFinished,
-            downstreamFormat,
-            extrasHolder);
-    switch (result) {
-      case C.RESULT_FORMAT_READ:
-        if (onlyPropagateFormatChanges && downstreamFormat == scratchFormatHolder.format) {
-          return C.RESULT_NOTHING_READ;
-        }
-        onFormat(Assertions.checkNotNull(scratchFormatHolder.format), outputFormatHolder);
-        return C.RESULT_FORMAT_READ;
-      case C.RESULT_BUFFER_READ:
-        if (!buffer.isEndOfStream()) {
-          if (buffer.timeUs < decodeOnlyUntilUs) {
-            buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
-          }
-          if (!buffer.isFlagsOnly()) {
-            readToBuffer(buffer, extrasHolder);
-          }
-        }
-        return C.RESULT_BUFFER_READ;
-      case C.RESULT_NOTHING_READ:
-        return C.RESULT_NOTHING_READ;
-      default:
-        throw new IllegalStateException();
-    }
+    return result;
   }
 
   /**
@@ -450,21 +388,7 @@ public class SampleQueue implements TrackOutput {
    *     queue is empty.
    */
   public boolean isReady(boolean loadingFinished) {
-    @SampleMetadataQueue.PeekResult int nextInQueue = metadataQueue.peekNext(downstreamFormat);
-    switch (nextInQueue) {
-      case SampleMetadataQueue.PEEK_RESULT_NOTHING:
-        return loadingFinished;
-      case SampleMetadataQueue.PEEK_RESULT_FORMAT:
-        return true;
-      case SampleMetadataQueue.PEEK_RESULT_BUFFER_CLEAR:
-        return currentSession == null || playClearSamplesWithoutKeys;
-      case SampleMetadataQueue.PEEK_RESULT_BUFFER_ENCRYPTED:
-        return drmSessionManager == DrmSessionManager.DUMMY
-            || Assertions.checkNotNull(currentSession).getState()
-                == DrmSession.STATE_OPENED_WITH_KEYS;
-      default:
-        throw new IllegalStateException();
-    }
+    return metadataQueue.isReady(loadingFinished);
   }
 
   /**
@@ -809,54 +733,6 @@ public class SampleQueue implements TrackOutput {
       format = format.copyWithSubsampleOffsetUs(format.subsampleOffsetUs + sampleOffsetUs);
     }
     return format;
-  }
-
-  /** Releases any held DRM resources. */
-  private void releaseDrmResources() {
-    if (currentSession != null) {
-      currentSession.releaseReference();
-      currentSession = null;
-    }
-  }
-
-  /**
-   * Updates the current format and manages any necessary DRM resources.
-   *
-   * @param format The format read from upstream.
-   * @param outputFormatHolder The output {@link FormatHolder}.
-   */
-  private void onFormat(Format format, FormatHolder outputFormatHolder) {
-    outputFormatHolder.format = format;
-    boolean isFirstFormat = downstreamFormat == null;
-    DrmInitData oldDrmInitData = isFirstFormat ? null : downstreamFormat.drmInitData;
-    downstreamFormat = format;
-    if (drmSessionManager == DrmSessionManager.DUMMY) {
-      // Avoid attempting to acquire a session using the dummy DRM session manager. It's likely that
-      // the media source creation has not yet been migrated and the renderer can acquire the
-      // session for the read DRM init data.
-      // TODO: Remove once renderers are migrated [Internal ref: b/122519809].
-      return;
-    }
-    outputFormatHolder.includesDrmSession = true;
-    outputFormatHolder.drmSession = currentSession;
-    if (!isFirstFormat && Util.areEqual(oldDrmInitData, format.drmInitData)) {
-      // Nothing to do.
-      return;
-    }
-    // Ensure we acquire the new session before releasing the previous one in case the same session
-    // can be used for both DrmInitData.
-    DrmSession<?> previousSession = currentSession;
-    DrmInitData drmInitData = downstreamFormat.drmInitData;
-    Looper playbackLooper = Assertions.checkNotNull(Looper.myLooper());
-    currentSession =
-        drmInitData != null
-            ? drmSessionManager.acquireSession(playbackLooper, drmInitData)
-            : drmSessionManager.acquirePlaceholderSession(playbackLooper);
-    outputFormatHolder.drmSession = currentSession;
-
-    if (previousSession != null) {
-      previousSession.releaseReference();
-    }
   }
 
   /** A node in a linked list of {@link Allocation}s held by the output. */
