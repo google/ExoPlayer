@@ -478,7 +478,6 @@ public interface Player {
   abstract class DefaultEventListener implements EventListener {
 
     @Override
-    @SuppressWarnings("deprecation")
     public void onTimelineChanged(Timeline timeline, @TimelineChangeReason int reason) {
       Object manifest = null;
       if (timeline.getWindowCount() == 1) {
