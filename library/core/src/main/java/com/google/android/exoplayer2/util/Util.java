@@ -146,7 +146,7 @@ public final class Util {
    * Converts the entirety of an {@link InputStream} to a byte array.
    *
    * @param inputStream the {@link InputStream} to be read. The input stream is not closed by this
-   *    method.
+   *     method.
    * @return a byte array containing all of the inputStream's bytes.
    * @throws IOException if an error occurs reading from the stream.
    */
@@ -366,7 +366,6 @@ public final class Util {
         /* length= */ second.length);
     return concatenation;
   }
-
   /**
    * Creates a {@link Handler} with the specified {@link Handler.Callback} on the current {@link
    * Looper} thread. The method accepts partially initialized objects as callback under the
@@ -1190,6 +1189,17 @@ public final class Util {
       result |= string.charAt(i);
     }
     return result;
+  }
+
+  /**
+   * Converts an integer to a long by unsigned conversion.
+   *
+   * <p>This method is equivalent to {@link Integer#toUnsignedLong(int)} for API 26+.
+   */
+  public static long toUnsignedLong(int x) {
+    // x is implicitly casted to a long before the bit operation is executed but this does not
+    // impact the method correctness.
+    return x & 0xFFFFFFFFL;
   }
 
   /**
