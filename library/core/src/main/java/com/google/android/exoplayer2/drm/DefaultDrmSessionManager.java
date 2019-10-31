@@ -71,10 +71,9 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
      *   <li>{@link #setUuidAndExoMediaDrmProvider UUID}: {@link C#WIDEVINE_UUID}.
      *   <li>{@link #setUuidAndExoMediaDrmProvider ExoMediaDrm.Provider}: {@link
      *       FrameworkMediaDrm#DEFAULT_PROVIDER}.
-     *   <li>{@link #setMultiSession multiSession}: Not allowed by default.
-     *   <li>{@link #setPreferSecureDecoders preferSecureDecoders}: Not allowed by default.
-     *   <li>{@link #setPlayClearSamplesWithoutKeys playClearSamplesWithoutKeys}: Not allowed by
-     *       default.
+     *   <li>{@link #setMultiSession multiSession}: {@code false}.
+     *   <li>{@link #setPreferSecureDecoders preferSecureDecoders}: {@code false}.
+     *   <li>{@link #setPlayClearSamplesWithoutKeys playClearSamplesWithoutKeys}: {@code false}.
      *   <li>{@link #setLoadErrorHandlingPolicy LoadErrorHandlingPolicy}: {@link
      *       DefaultLoadErrorHandlingPolicy}.
      * </ul>
@@ -84,9 +83,6 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
       keyRequestParameters = new HashMap<>();
       uuid = C.WIDEVINE_UUID;
       exoMediaDrmProvider = (ExoMediaDrm.Provider) FrameworkMediaDrm.DEFAULT_PROVIDER;
-      multiSession = false;
-      preferSecureDecoders = false;
-      flags = 0;
       loadErrorHandlingPolicy = new DefaultLoadErrorHandlingPolicy();
     }
 
@@ -145,13 +141,11 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
     }
 
     /**
-     * Sets whether clear samples should be played when keys are not available. Keys are considered
-     * unavailable when the load request is taking place, or when the key request has failed.
+     * Sets whether clear samples within protected content should be played when keys for the
+     * encrypted part of the content have yet to be loaded.
      *
-     * <p>This option does not affect placeholder sessions.
-     *
-     * @param playClearSamplesWithoutKeys Whether clear samples should be played when keys are not
-     *     available.
+     * @param playClearSamplesWithoutKeys Whether clear samples within protected content should be
+     *     played when keys for the encrypted part of the content have yet to be loaded.
      * @return This builder.
      */
     public Builder setPlayClearSamplesWithoutKeys(boolean playClearSamplesWithoutKeys) {
@@ -489,7 +483,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
     assertExpectedPlaybackLooper(playbackLooper);
     maybeCreateMediaDrmHandler(playbackLooper);
 
-    List<SchemeData> schemeDatas = null;
+    @Nullable List<SchemeData> schemeDatas = null;
     if (offlineLicenseKeySetId == null) {
       schemeDatas = getSchemeDatas(drmInitData, uuid, false);
       if (schemeDatas.isEmpty()) {
