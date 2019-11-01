@@ -20,27 +20,28 @@ import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
 import androidx.annotation.Nullable;
 
-/** A GLSurfaceView extension that scales itself to the given aspect ratio. */
-public class VideoDecoderSurfaceView extends GLSurfaceView {
+/**
+ * GLSurfaceView for rendering video output. To render video in this view, call {@link
+ * #getVideoDecoderOutputBufferRenderer()} to get a {@link VideoDecoderOutputBufferRenderer} that
+ * will render video decoder output buffers in this view.
+ *
+ * <p>This view is intended for use only with extension renderers. For other use cases a {@link
+ * android.view.SurfaceView} or {@link android.view.TextureView} should be used instead.
+ */
+public class VideoDecoderGLSurfaceView extends GLSurfaceView {
 
   private final VideoDecoderRenderer renderer;
 
-  /**
-   * Creates VideoDecoderSurfaceView.
-   *
-   * @param context A {@link Context}.
-   */
-  public VideoDecoderSurfaceView(Context context) {
+  /** @param context A {@link Context}. */
+  public VideoDecoderGLSurfaceView(Context context) {
     this(context, /* attrs= */ null);
   }
 
   /**
-   * Creates VideoDecoderSurfaceView.
-   *
    * @param context A {@link Context}.
    * @param attrs Custom attributes.
    */
-  public VideoDecoderSurfaceView(Context context, @Nullable AttributeSet attrs) {
+  public VideoDecoderGLSurfaceView(Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
     renderer = new VideoDecoderRenderer(this);
     setPreserveEGLContextOnPause(true);
@@ -49,12 +50,8 @@ public class VideoDecoderSurfaceView extends GLSurfaceView {
     setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
   }
 
-  /**
-   * Returns the output buffer renderer used.
-   *
-   * @return {@link VideoDecoderOutputBuffer}.
-   */
-  public VideoDecoderOutputBufferRenderer getOutputBufferRenderer() {
+  /** Returns the {@link VideoDecoderOutputBufferRenderer} that will render frames in this view. */
+  public VideoDecoderOutputBufferRenderer getVideoDecoderOutputBufferRenderer() {
     return renderer;
   }
 }

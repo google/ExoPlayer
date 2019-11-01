@@ -610,15 +610,16 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public void setOutputBufferRenderer(VideoDecoderOutputBufferRenderer outputBufferRenderer) {
+  public void setVideoDecoderOutputBufferRenderer(
+      @Nullable VideoDecoderOutputBufferRenderer videoDecoderOutputBufferRenderer) {
     verifyApplicationThread();
     setVideoSurface(null);
     for (Renderer renderer : renderers) {
       if (renderer.getTrackType() == C.TRACK_TYPE_VIDEO) {
         player
             .createMessage(renderer)
-            .setType(C.MSG_SET_OUTPUT_BUFFER_RENDERER)
-            .setPayload(outputBufferRenderer)
+            .setType(C.MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER)
+            .setPayload(videoDecoderOutputBufferRenderer)
             .send();
       }
     }
