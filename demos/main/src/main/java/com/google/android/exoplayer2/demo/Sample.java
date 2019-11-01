@@ -24,6 +24,9 @@ import static com.google.android.exoplayer2.demo.PlayerActivity.DRM_SCHEME_EXTRA
 import static com.google.android.exoplayer2.demo.PlayerActivity.DRM_SCHEME_UUID_EXTRA;
 import static com.google.android.exoplayer2.demo.PlayerActivity.EXTENSION_EXTRA;
 import static com.google.android.exoplayer2.demo.PlayerActivity.IS_LIVE_EXTRA;
+import static com.google.android.exoplayer2.demo.PlayerActivity.SUBTITLE_LANGUAGE_EXTRA;
+import static com.google.android.exoplayer2.demo.PlayerActivity.SUBTITLE_MIME_TYPE_EXTRA;
+import static com.google.android.exoplayer2.demo.PlayerActivity.SUBTITLE_URI_EXTRA;
 import static com.google.android.exoplayer2.demo.PlayerActivity.URI_EXTRA;
 
 import android.content.Intent;
@@ -51,7 +54,8 @@ import java.util.UUID;
           isLive,
           DrmInfo.createFromIntent(intent, extrasKeySuffix),
           adTagUri,
-          /* sphericalStereoMode= */ null);
+          /* sphericalStereoMode= */ null,
+          SubtitleInfo.createFromIntent(intent, extrasKeySuffix));
     }
 
     public final Uri uri;
@@ -60,6 +64,7 @@ import java.util.UUID;
     public final DrmInfo drmInfo;
     public final Uri adTagUri;
     @Nullable public final String sphericalStereoMode;
+    @Nullable SubtitleInfo subtitleInfo;
 
     public UriSample(
         String name,
@@ -68,7 +73,8 @@ import java.util.UUID;
         boolean isLive,
         DrmInfo drmInfo,
         Uri adTagUri,
-        @Nullable String sphericalStereoMode) {
+        @Nullable String sphericalStereoMode,
+        @Nullable SubtitleInfo subtitleInfo) {
       super(name);
       this.uri = uri;
       this.extension = extension;
@@ -76,6 +82,7 @@ import java.util.UUID;
       this.drmInfo = drmInfo;
       this.adTagUri = adTagUri;
       this.sphericalStereoMode = sphericalStereoMode;
+      this.subtitleInfo = subtitleInfo;
     }
 
     @Override
@@ -99,6 +106,9 @@ import java.util.UUID;
               AD_TAG_URI_EXTRA + extrasKeySuffix, adTagUri != null ? adTagUri.toString() : null);
       if (drmInfo != null) {
         drmInfo.addToIntent(intent, extrasKeySuffix);
+      }
+      if (subtitleInfo != null) {
+        subtitleInfo.addToIntent(intent, extrasKeySuffix);
       }
     }
   }
@@ -164,6 +174,36 @@ import java.util.UUID;
       intent.putExtra(DRM_LICENSE_URL_EXTRA + extrasKeySuffix, drmLicenseUrl);
       intent.putExtra(DRM_KEY_REQUEST_PROPERTIES_EXTRA + extrasKeySuffix, drmKeyRequestProperties);
       intent.putExtra(DRM_MULTI_SESSION_EXTRA + extrasKeySuffix, drmMultiSession);
+    }
+  }
+
+  public static final class SubtitleInfo {
+
+    @Nullable
+    public static SubtitleInfo createFromIntent(Intent intent, String extrasKeySuffix) {
+      if (!intent.hasExtra(SUBTITLE_URI_EXTRA + extrasKeySuffix)) {
+        return null;
+      }
+      return new SubtitleInfo(
+          Uri.parse(intent.getStringExtra(SUBTITLE_URI_EXTRA + extrasKeySuffix)),
+          intent.getStringExtra(SUBTITLE_MIME_TYPE_EXTRA + extrasKeySuffix),
+          intent.getStringExtra(SUBTITLE_LANGUAGE_EXTRA + extrasKeySuffix));
+    }
+
+    public final Uri uri;
+    public final String mimeType;
+    @Nullable public final String language;
+
+    public SubtitleInfo(Uri uri, String mimeType, @Nullable String language) {
+      this.uri = Assertions.checkNotNull(uri);
+      this.mimeType = Assertions.checkNotNull(mimeType);
+      this.language = language;
+    }
+
+    public void addToIntent(Intent intent, String extrasKeySuffix) {
+      intent.putExtra(SUBTITLE_URI_EXTRA + extrasKeySuffix, uri.toString());
+      intent.putExtra(SUBTITLE_MIME_TYPE_EXTRA + extrasKeySuffix, mimeType);
+      intent.putExtra(SUBTITLE_LANGUAGE_EXTRA + extrasKeySuffix, language);
     }
   }
 
