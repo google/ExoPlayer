@@ -178,7 +178,7 @@ public class SampleChooserActivity extends AppCompatActivity
             ? PlayerActivity.ABR_ALGORITHM_RANDOM
             : PlayerActivity.ABR_ALGORITHM_DEFAULT;
     intent.putExtra(PlayerActivity.ABR_ALGORITHM_EXTRA, abrAlgorithm);
-    intent.putExtra(PlayerActivity.TUNNELING, isNonNullAndChecked(tunnelingMenuItem));
+    intent.putExtra(PlayerActivity.TUNNELING_EXTRA, isNonNullAndChecked(tunnelingMenuItem));
     sample.addToIntent(intent);
     startActivity(intent);
     return true;
@@ -311,6 +311,10 @@ public class SampleChooserActivity extends AppCompatActivity
       ArrayList<UriSample> playlistSamples = null;
       String adTagUri = null;
       String sphericalStereoMode = null;
+      List<Sample.SubtitleInfo> subtitleInfos = new ArrayList<>();
+      Uri subtitleUri = null;
+      String subtitleMimeType = null;
+      String subtitleLanguage = null;
 
       reader.beginObject();
       while (reader.hasNext()) {
@@ -352,7 +356,7 @@ public class SampleChooserActivity extends AppCompatActivity
             playlistSamples = new ArrayList<>();
             reader.beginArray();
             while (reader.hasNext()) {
-              playlistSamples.add((UriSample) readEntry(reader, true));
+              playlistSamples.add((UriSample) readEntry(reader, /* insidePlaylist= */ true));
             }
             reader.endArray();
             break;
@@ -363,6 +367,15 @@ public class SampleChooserActivity extends AppCompatActivity
             Assertions.checkState(
                 !insidePlaylist, "Invalid attribute on nested item: spherical_stereo_mode");
             sphericalStereoMode = reader.nextString();
+            break;
+          case "subtitle_uri":
+            subtitleUri = Uri.parse(reader.nextString());
+            break;
+          case "subtitle_mime_type":
+            subtitleMimeType = reader.nextString();
+            break;
+          case "subtitle_language":
+            subtitleLanguage = reader.nextString();
             break;
           default:
             throw new ParserException("Unsupported attribute name: " + name);
@@ -377,6 +390,14 @@ public class SampleChooserActivity extends AppCompatActivity
                   drmLicenseUrl,
                   drmKeyRequestProperties,
                   drmMultiSession);
+      Sample.SubtitleInfo subtitleInfo =
+          subtitleUri == null
+              ? null
+              : new Sample.SubtitleInfo(
+                  subtitleUri,
+                  Assertions.checkNotNull(
+                      subtitleMimeType, "subtitle_mime_type is required if subtitle_uri is set."),
+                  subtitleLanguage);
       if (playlistSamples != null) {
         UriSample[] playlistSamplesArray = playlistSamples.toArray(new UriSample[0]);
         return new PlaylistSample(sampleName, playlistSamplesArray);
@@ -388,7 +409,8 @@ public class SampleChooserActivity extends AppCompatActivity
             isLive,
             drmInfo,
             adTagUri != null ? Uri.parse(adTagUri) : null,
-            sphericalStereoMode);
+            sphericalStereoMode,
+            subtitleInfo);
       }
     }
 

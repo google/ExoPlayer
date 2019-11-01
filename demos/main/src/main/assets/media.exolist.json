@@ -582,5 +582,17 @@
         "spherical_stereo_mode": "top_bottom"
       }
     ]
+  },
+  {
+    "name": "Subtitles",
+    "samples": [
+      {
+        "name": "TTML",
+        "uri": "https://html5demos.com/assets/dizzy.mp4",
+        "subtitle_uri": "https://storage.googleapis.com/exoplayer-test-media-1/ttml/netflix_ttml_sample.xml",
+        "subtitle_mime_type": "application/ttml+xml",
+        "subtitle_language": "en"
+      }
+    ]
   }
 ]

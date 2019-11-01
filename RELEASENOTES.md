@@ -113,6 +113,8 @@
 * Update the ffmpeg extension to release 4.2. It is necessary to rebuild the
   native part of the extension after this change, following the instructions in
   the extension's readme.
+* Add support for subtitle files to the demo app
+  ([#5523](https://github.com/google/ExoPlayer/issues/5523)).
 
 ### 2.10.6 (2019-10-17) ###
 
