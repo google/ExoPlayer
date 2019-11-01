@@ -78,17 +78,17 @@ import java.util.List;
       List<byte[]> initializationData = Collections.singletonList(metadata);
       setupData.format =
           Format.createAudioSampleFormat(
-              null,
+              /* id= */ null,
               MimeTypes.AUDIO_FLAC,
-              null,
-              Format.NO_VALUE,
-              streamMetadata.bitRate(),
+              /* codecs= */ null,
+              /* bitrate= */ Format.NO_VALUE,
+              /* maxInputSize= */ streamMetadata.bitRate(),
               streamMetadata.channels,
               streamMetadata.sampleRate,
               initializationData,
-              null,
-              0,
-              null);
+              /* drmInitData= */ null,
+              /* selectionFlags= */ 0,
+              /* language= */ null);
     } else if ((data[0] & 0x7F) == SEEKTABLE_PACKET_TYPE) {
       flacOggSeeker = new FlacOggSeeker();
       flacOggSeeker.parseSeekTable(packet);
