@@ -700,6 +700,9 @@ public final class MediaSessionConnector {
               /* position= */ 0,
               /* playbackSpeed= */ 0,
               /* updateTime= */ SystemClock.elapsedRealtime());
+
+      mediaSession.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_NONE);
+      mediaSession.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_NONE);
       mediaSession.setPlaybackState(builder.build());
       return;
     }

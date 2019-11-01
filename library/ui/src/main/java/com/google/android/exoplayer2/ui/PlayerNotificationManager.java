@@ -1348,7 +1348,12 @@ public class PlayerNotificationManager {
     }
 
     @Override
-    public void onRepeatModeChanged(int repeatMode) {
+    public void onRepeatModeChanged(@Player.RepeatMode int repeatMode) {
+      startOrUpdateNotification();
+    }
+
+    @Override
+    public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
       startOrUpdateNotification();
     }
   }
