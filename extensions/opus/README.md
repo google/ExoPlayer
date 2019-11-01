@@ -28,7 +28,8 @@ EXOPLAYER_ROOT="$(pwd)"
 OPUS_EXT_PATH="${EXOPLAYER_ROOT}/extensions/opus/src/main"
 ```
 
-* Download the [Android NDK][] and set its location in an environment variable:
+* Download the [Android NDK][] and set its location in an environment variable.
+  This build configuration has been tested on NDK r20.
 
 ```
 NDK_PATH="<path to Android NDK>"

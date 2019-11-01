@@ -107,6 +107,12 @@
 * Fix the start of audio getting truncated when transitioning to a new
   item in a playlist of opus streams.
 * Fix detection of Dolby Atmos in HLS to match the HLS authoring specification.
+* Fix FLAC extension build
+  ([#6601](https://github.com/google/ExoPlayer/issues/6601).
+* Update the ffmpeg, flac and opus extension build instructions to use NDK r20.
+* Update the ffmpeg extension to release 4.2. It is necessary to rebuild the
+  native part of the extension after this change, following the instructions in
+  the extension's readme.
 
 ### 2.10.6 (2019-10-17) ###
 
