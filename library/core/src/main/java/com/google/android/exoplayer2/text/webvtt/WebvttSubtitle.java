@@ -23,7 +23,6 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -73,15 +72,12 @@ import java.util.List;
 
   @Override
   public List<Cue> getCues(long timeUs) {
-    ArrayList<Cue> list = null;
+    List<Cue> list = new ArrayList<>();
     WebvttCue firstNormalCue = null;
     SpannableStringBuilder normalCueTextBuilder = null;
 
     for (int i = 0; i < numCues; i++) {
       if ((cueTimesUs[i * 2] <= timeUs) && (timeUs < cueTimesUs[i * 2 + 1])) {
-        if (list == null) {
-          list = new ArrayList<>();
-        }
         WebvttCue cue = cues.get(i);
         // TODO(ibaker): Replace this with a closer implementation of the WebVTT spec (keeping
         // individual cues, but tweaking their `line` value):
@@ -94,9 +90,12 @@ import java.util.List;
             firstNormalCue = cue;
           } else if (normalCueTextBuilder == null) {
             normalCueTextBuilder = new SpannableStringBuilder();
-            normalCueTextBuilder.append(firstNormalCue.text).append("\n").append(cue.text);
+            normalCueTextBuilder
+                .append(Assertions.checkNotNull(firstNormalCue.text))
+                .append("\n")
+                .append(Assertions.checkNotNull(cue.text));
           } else {
-            normalCueTextBuilder.append("\n").append(cue.text);
+            normalCueTextBuilder.append("\n").append(Assertions.checkNotNull(cue.text));
           }
         } else {
           list.add(cue);
@@ -110,12 +109,7 @@ import java.util.List;
       // there was only a single normal cue, so just add it to the list
       list.add(firstNormalCue);
     }
-
-    if (list != null) {
-      return list;
-    } else {
-      return Collections.emptyList();
-    }
+    return list;
   }
 
 }
