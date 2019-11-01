@@ -29,7 +29,7 @@ FFMPEG_EXT_PATH="$(pwd)/extensions/ffmpeg/src/main/jni"
 ```
 
 * Download the [Android NDK][] and set its location in a shell variable.
-  Only versions up to NDK 15c are supported currently.
+  This build configuration has been tested on NDK r20.
 
 ```
 NDK_PATH="<path to Android NDK>"
@@ -50,7 +50,7 @@ ENABLED_DECODERS=(vorbis opus flac)
 ```
 
 * Fetch and build FFmpeg. For example, executing script `build_ffmpeg.sh` will
-  fetch and build FFmpeg release 4.0 for armeabi-v7a, arm64-v8a and x86:
+  fetch and build FFmpeg release 4.2 for armeabi-v7a, arm64-v8a and x86:
 
 ```
 cd "${FFMPEG_EXT_PATH}" && \

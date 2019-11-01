@@ -32,9 +32,10 @@ COMMON_OPTIONS="
     --disable-postproc
     --disable-avfilter
     --disable-symver
-    --disable-swresample
     --enable-avresample
+    --enable-swresample
     "
+TOOLCHAIN_PREFIX="${NDK_PATH}/toolchains/llvm/prebuilt/${HOST_PLATFORM}/bin"
 for decoder in "${ENABLED_DECODERS[@]}"
 do
     COMMON_OPTIONS="${COMMON_OPTIONS} --enable-decoder=${decoder}"
@@ -42,13 +43,14 @@ done
 cd "${FFMPEG_EXT_PATH}"
 (git -C ffmpeg pull || git clone git://source.ffmpeg.org/ffmpeg ffmpeg)
 cd ffmpeg
-git checkout release/4.0
+git checkout release/4.2
 ./configure \
     --libdir=android-libs/armeabi-v7a \
     --arch=arm \
     --cpu=armv7-a \
-    --cross-prefix="${NDK_PATH}/toolchains/arm-linux-androideabi-4.9/prebuilt/${HOST_PLATFORM}/bin/arm-linux-androideabi-" \
-    --sysroot="${NDK_PATH}/platforms/android-9/arch-arm/" \
+    --cross-prefix="${TOOLCHAIN_PREFIX}/armv7a-linux-androideabi16-" \
+    --nm="${TOOLCHAIN_PREFIX}/arm-linux-androideabi-nm" \
+    --strip="${TOOLCHAIN_PREFIX}/arm-linux-androideabi-strip" \
     --extra-cflags="-march=armv7-a -mfloat-abi=softfp" \
     --extra-ldflags="-Wl,--fix-cortex-a8" \
     --extra-ldexeflags=-pie \
@@ -60,8 +62,9 @@ make clean
     --libdir=android-libs/arm64-v8a \
     --arch=aarch64 \
     --cpu=armv8-a \
-    --cross-prefix="${NDK_PATH}/toolchains/aarch64-linux-android-4.9/prebuilt/${HOST_PLATFORM}/bin/aarch64-linux-android-" \
-    --sysroot="${NDK_PATH}/platforms/android-21/arch-arm64/" \
+    --cross-prefix="${TOOLCHAIN_PREFIX}/aarch64-linux-android21-" \
+    --nm="${TOOLCHAIN_PREFIX}/aarch64-linux-android-nm" \
+    --strip="${TOOLCHAIN_PREFIX}/aarch64-linux-android-strip" \
     --extra-ldexeflags=-pie \
     ${COMMON_OPTIONS}
 make -j4
@@ -71,8 +74,9 @@ make clean
     --libdir=android-libs/x86 \
     --arch=x86 \
     --cpu=i686 \
-    --cross-prefix="${NDK_PATH}/toolchains/x86-4.9/prebuilt/${HOST_PLATFORM}/bin/i686-linux-android-" \
-    --sysroot="${NDK_PATH}/platforms/android-9/arch-x86/" \
+    --cross-prefix="${TOOLCHAIN_PREFIX}/i686-linux-android16-" \
+    --nm="${TOOLCHAIN_PREFIX}/i686-linux-android-nm" \
+    --strip="${TOOLCHAIN_PREFIX}/i686-linux-android-strip" \
     --extra-ldexeflags=-pie \
     --disable-asm \
     ${COMMON_OPTIONS}
