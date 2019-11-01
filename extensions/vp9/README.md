@@ -114,9 +114,10 @@ gets from the libvpx decoder:
 
 * GL rendering using GL shader for color space conversion
   * If you are using `SimpleExoPlayer` with `PlayerView`, enable this option by
-    setting `surface_type` of `PlayerView` to be `video_decoder_surface_view`.
+    setting `surface_type` of `PlayerView` to be
+    `video_decoder_gl_surface_view`.
   * Otherwise, enable this option by sending `LibvpxVideoRenderer` a message of
-    type `C.MSG_SET_OUTPUT_BUFFER_RENDERER` with an instance of
+    type `C.MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER` with an instance of
     `VideoDecoderOutputBufferRenderer` as its object.
 
 * Native rendering using `ANativeWindow`

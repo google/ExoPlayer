@@ -51,7 +51,7 @@ import javax.microedition.khronos.opengles.GL10;
  * apply the touch and sensor rotations in the correct order or the user's touch manipulations won't
  * match what they expect.
  */
-public final class SphericalSurfaceView extends GLSurfaceView {
+public final class SphericalGLSurfaceView extends GLSurfaceView {
 
   // Arbitrary vertical field of view.
   private static final int FIELD_OF_VIEW_DEGREES = 90;
@@ -73,11 +73,11 @@ public final class SphericalSurfaceView extends GLSurfaceView {
   @Nullable private Surface surface;
   @Nullable private Player.VideoComponent videoComponent;
 
-  public SphericalSurfaceView(Context context) {
+  public SphericalGLSurfaceView(Context context) {
     this(context, null);
   }
 
-  public SphericalSurfaceView(Context context, @Nullable AttributeSet attributeSet) {
+  public SphericalGLSurfaceView(Context context, @Nullable AttributeSet attributeSet) {
     super(context, attributeSet);
     mainHandler = new Handler(Looper.getMainLooper());
 

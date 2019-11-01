@@ -47,8 +47,8 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
  * <ul>
  *   <li>Message with type {@link C#MSG_SET_SURFACE} to set the output surface. The message payload
  *       should be the target {@link Surface}, or null.
- *   <li>Message with type {@link C#MSG_SET_OUTPUT_BUFFER_RENDERER} to set the output buffer
- *       renderer. The message payload should be the target {@link
+ *   <li>Message with type {@link C#MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER} to set the output
+ *       buffer renderer. The message payload should be the target {@link
  *       VideoDecoderOutputBufferRenderer}, or null.
  * </ul>
  */
@@ -186,7 +186,7 @@ public class Libgav1VideoRenderer extends SimpleDecoderVideoRenderer {
   public void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException {
     if (messageType == C.MSG_SET_SURFACE) {
       setOutputSurface((Surface) message);
-    } else if (messageType == C.MSG_SET_OUTPUT_BUFFER_RENDERER) {
+    } else if (messageType == C.MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER) {
       setOutputBufferRenderer((VideoDecoderOutputBufferRenderer) message);
     } else {
       super.handleMessage(messageType, message);

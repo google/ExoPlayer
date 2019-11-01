@@ -85,6 +85,7 @@
     `C.MSG_SET_OUTPUT_BUFFER_RENDERER`.
   * Use `VideoDecoderRenderer` as an implementation of
     `VideoDecoderOutputBufferRenderer`, instead of `VideoDecoderSurfaceView`.
+* Rename `spherical_view` surface type to `spherical_gl_surface_view`.
 * Add automatic audio becoming noisy handling to `SimpleExoPlayer`,
   available through `SimpleExoPlayer.setHandleAudioBecomingNoisy`.
 * Post `AudioFocusManager.onAudioFocusChange` events to eventHandler, avoiding
