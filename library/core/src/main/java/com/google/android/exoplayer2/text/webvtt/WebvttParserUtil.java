@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.text.webvtt;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
@@ -98,6 +99,7 @@ public final class WebvttParserUtil {
    *     reached without a cue header being found. In the case that a cue header is found, groups 1,
    *     2 and 3 of the returned matcher contain the start time, end time and settings list.
    */
+  @Nullable
   public static Matcher findNextCueHeader(ParsableByteArray input) {
     String line;
     while ((line = input.readLine()) != null) {
