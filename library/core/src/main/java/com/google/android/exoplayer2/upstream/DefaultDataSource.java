@@ -113,7 +113,6 @@ public final class DefaultDataSource implements DataSource {
         context,
         new DefaultHttpDataSource(
             userAgent,
-            /* contentTypePredicate= */ null,
             connectTimeoutMillis,
             readTimeoutMillis,
             allowCrossProtocolRedirects,
