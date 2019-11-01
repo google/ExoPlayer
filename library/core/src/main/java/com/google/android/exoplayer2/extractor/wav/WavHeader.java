@@ -23,7 +23,7 @@ import com.google.android.exoplayer2.util.Util;
 /** Header for a WAV file. */
 /* package */ final class WavHeader implements SeekMap {
 
-  /** Number of audio chanels. */
+  /** Number of audio channels. */
   private final int numChannels;
   /** Sample rate in Hertz. */
   private final int sampleRateHz;
