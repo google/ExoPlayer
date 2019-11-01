@@ -21,6 +21,7 @@ import android.text.Layout.Alignment;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.Cue;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -39,7 +40,7 @@ public final class WebvttCue extends Cue {
       long startTime,
       long endTime,
       CharSequence text,
-      Alignment textAlignment,
+      @Nullable Alignment textAlignment,
       float line,
       @Cue.LineType int lineType,
       @Cue.AnchorType int lineAnchor,
@@ -129,6 +130,9 @@ public final class WebvttCue extends Cue {
 
     // Initialization methods
 
+    // Calling reset() is forbidden because `this` isn't initialized. This can be safely
+    // suppressed because reset() only assigns fields, it doesn't read any.
+    @SuppressWarnings("nullness:method.invocation.invalid")
     public Builder() {
       reset();
     }
@@ -168,7 +172,7 @@ public final class WebvttCue extends Cue {
       return new WebvttCue(
           startTime,
           endTime,
-          text,
+          Assertions.checkNotNull(text),
           convertTextAlignment(textAlignment),
           line,
           lineType,
@@ -277,6 +281,7 @@ public final class WebvttCue extends Cue {
       }
     }
 
+    @Nullable
     private static Alignment convertTextAlignment(@TextAlignment int textAlignment) {
       switch (textAlignment) {
         case TextAlignment.START:
