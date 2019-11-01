@@ -278,6 +278,7 @@ public final class ExoPlayerFactory {
    *     be passed to {@link SimpleExoPlayer.Builder} and should instead be injected into the {@link
    *     MediaSource} factories.
    */
+  @SuppressWarnings("deprecation")
   @Deprecated
   public static SimpleExoPlayer newSimpleInstance(
       Context context,

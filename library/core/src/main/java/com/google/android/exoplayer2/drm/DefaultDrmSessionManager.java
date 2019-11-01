@@ -253,6 +253,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
    *     to {@link ExoMediaDrm#getKeyRequest(byte[], List, int, HashMap)}. May be null.
    * @deprecated Use {@link Builder} instead.
    */
+  @SuppressWarnings("deprecation")
   @Deprecated
   public DefaultDrmSessionManager(
       UUID uuid,

@@ -49,8 +49,8 @@ import java.util.zip.GZIPInputStream;
  *
  * <p>By default this implementation will not follow cross-protocol redirects (i.e. redirects from
  * HTTP to HTTPS or vice versa). Cross-protocol redirects can be enabled by using the {@link
- * #DefaultHttpDataSource(String, Predicate, int, int, boolean, RequestProperties)} constructor and
- * passing {@code true} as the second last argument.
+ * #DefaultHttpDataSource(String, int, int, boolean, RequestProperties)} constructor and passing
+ * {@code true} for the {@code allowCrossProtocolRedirects} argument.
  *
  * <p>Note: HTTP request headers will be set using all parameters passed via (in order of decreasing
  * priority) the {@code dataSpec}, {@link #setRequestProperty} and the default parameters used to
@@ -171,6 +171,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    * @deprecated Use {@link #DefaultHttpDataSource(String, int, int)} and {@link
    *     #setContentTypePredicate(Predicate)}.
    */
+  @SuppressWarnings("deprecation")
   @Deprecated
   public DefaultHttpDataSource(
       String userAgent,
