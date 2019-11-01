@@ -436,7 +436,7 @@ public class PlayerActivity extends AppCompatActivity
             Format.createTextSampleFormat(
                 /* id= */ null,
                 subtitleInfo.mimeType,
-                /* selectionFlags= */ 0,
+                C.SELECTION_FLAG_DEFAULT,
                 subtitleInfo.language);
         MediaSource subtitleMediaSource =
             new SingleSampleMediaSource.Factory(dataSourceFactory)
