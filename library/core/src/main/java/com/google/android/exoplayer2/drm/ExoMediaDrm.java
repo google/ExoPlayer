@@ -21,6 +21,7 @@ import android.media.MediaDrm;
 import android.media.MediaDrmException;
 import android.media.NotProvisionedException;
 import android.os.Handler;
+import android.os.PersistableBundle;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import java.util.HashMap;
@@ -286,6 +287,14 @@ public interface ExoMediaDrm<T extends ExoMediaCrypto> {
    * @see MediaDrm#restoreKeys(byte[], byte[])
    */
   void restoreKeys(byte[] sessionId, byte[] keySetId);
+
+  /**
+   * Returns drm metrics. May be null if unavailable.
+   *
+   * @see MediaDrm#getMetrics()
+   */
+  @Nullable
+  PersistableBundle getMetrics();
 
   /**
    * @see MediaDrm#getPropertyString(String)
