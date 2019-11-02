@@ -23,6 +23,7 @@ import android.media.MediaDrm;
 import android.media.MediaDrmException;
 import android.media.NotProvisionedException;
 import android.media.UnsupportedSchemeException;
+import android.os.PersistableBundle;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -223,6 +224,16 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
   @Override
   public void restoreKeys(byte[] sessionId, byte[] keySetId) {
     mediaDrm.restoreKeys(sessionId, keySetId);
+  }
+
+  @Override
+  @Nullable
+  @TargetApi(28)
+  public PersistableBundle getMetrics() {
+    if (Util.SDK_INT < 28) {
+      return null;
+    }
+    return mediaDrm.getMetrics();
   }
 
   @Override

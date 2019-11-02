@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.drm;
 
 import android.media.MediaDrmException;
+import android.os.PersistableBundle;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.util.Util;
@@ -102,6 +103,12 @@ public final class DummyExoMediaDrm<T extends ExoMediaCrypto> implements ExoMedi
   public void restoreKeys(byte[] sessionId, byte[] keySetId) {
     // Should not be invoked. No session should exist.
     throw new IllegalStateException();
+  }
+
+  @Override
+  @Nullable
+  public PersistableBundle getMetrics() {
+    return null;
   }
 
   @Override
