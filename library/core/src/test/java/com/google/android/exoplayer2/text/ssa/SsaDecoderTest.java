@@ -32,6 +32,7 @@ public final class SsaDecoderTest {
 
   private static final String EMPTY = "ssa/empty";
   private static final String TYPICAL = "ssa/typical";
+  private static final String OVERLAP = "ssa/overlap";
   private static final String TYPICAL_HEADER_ONLY = "ssa/typical_header";
   private static final String TYPICAL_DIALOGUE_ONLY = "ssa/typical_dialogue";
   private static final String TYPICAL_FORMAT_ONLY = "ssa/typical_format";
@@ -58,6 +59,37 @@ public final class SsaDecoderTest {
     assertTypicalCue1(subtitle, 0);
     assertTypicalCue2(subtitle, 2);
     assertTypicalCue3(subtitle, 4);
+  }
+
+  @Test
+  public void testDecodeOverlap() throws IOException {
+    SsaDecoder decoder = new SsaDecoder();
+    byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), OVERLAP);
+    Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
+
+    assertThat(subtitle.getEventTime(0)).isEqualTo(1000000);
+    assertThat(subtitle.getEventTime(1)).isEqualTo(2000000);
+    assertThat(subtitle.getEventTime(2)).isEqualTo(4230000);
+    assertThat(subtitle.getEventTime(3)).isEqualTo(5230000);
+    assertThat(subtitle.getEventTime(4)).isEqualTo(6000000);
+    assertThat(subtitle.getEventTime(5)).isEqualTo(8440000);
+    assertThat(subtitle.getEventTime(6)).isEqualTo(9440000);
+    assertThat(subtitle.getEventTime(7)).isEqualTo(10720000);
+    assertThat(subtitle.getEventTime(8)).isEqualTo(13220000);
+    assertThat(subtitle.getEventTime(9)).isEqualTo(14220000);
+    assertThat(subtitle.getEventTime(10)).isEqualTo(15650000);
+
+    assertThat(subtitle.getCues(1000010).size()).isEqualTo(1);
+    assertThat(subtitle.getCues(2000010).size()).isEqualTo(2);
+    assertThat(subtitle.getCues(4230010).size()).isEqualTo(1);
+    assertThat(subtitle.getCues(5230010).size()).isEqualTo(0);
+    assertThat(subtitle.getCues(6000010).size()).isEqualTo(1);
+    assertThat(subtitle.getCues(8440010).size()).isEqualTo(2);
+    assertThat(subtitle.getCues(9440010).size()).isEqualTo(0);
+    assertThat(subtitle.getCues(10720010).size()).isEqualTo(1);
+    assertThat(subtitle.getCues(13220010).size()).isEqualTo(2);
+    assertThat(subtitle.getCues(14220010).size()).isEqualTo(1);
+    assertThat(subtitle.getCues(15650010).size()).isEqualTo(0);
   }
 
   @Test
@@ -107,10 +139,16 @@ public final class SsaDecoderTest {
 
     assertThat(subtitle.getEventTime(1)).isEqualTo(2340000);
     assertThat(subtitle.getCues(subtitle.getEventTime(1)).get(0).text.toString())
+        .isEqualTo("This is the first subtitle.");
+    assertThat(subtitle.getCues(subtitle.getEventTime(1)).get(1).text.toString())
         .isEqualTo("This is the second subtitle \nwith a newline \nand another.");
 
     assertThat(subtitle.getEventTime(2)).isEqualTo(4560000);
-    assertThat(subtitle.getCues(subtitle.getEventTime(2)).get(0).text.toString())
+    assertThat(subtitle.getCues(subtitle.getEventTime(1)).get(0).text.toString())
+        .isEqualTo("This is the first subtitle.");
+    assertThat(subtitle.getCues(subtitle.getEventTime(1)).get(1).text.toString())
+        .isEqualTo("This is the second subtitle \nwith a newline \nand another.");
+    assertThat(subtitle.getCues(subtitle.getEventTime(2)).get(2).text.toString())
         .isEqualTo("This is the third subtitle, with a comma.");
   }
 
