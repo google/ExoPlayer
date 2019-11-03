@@ -226,44 +226,68 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
       cue = new Cue(text);
     }
 
-    int startTimeIndex = insertToCueTimes(cueTimesUs, startTimeUs);
+    int startTimeIndex = 0;
+    boolean startTimeFound = false;
+    // Search the insertion index for startTimeUs in cueTimesUs
+    for (int i = cueTimesUs.size() - 1; i >= 0; i--) {
+      if (cueTimesUs.get(i) == startTimeUs) {
+        startTimeIndex = i;
+        startTimeFound = true;
+        break;
+      }
 
-    List<Cue> startCueList = new ArrayList<>();
-    if (startTimeIndex != 0) {
-      startCueList.addAll(cues.get(startTimeIndex - 1));
-    }
-    cues.add(startTimeIndex, startCueList);
-
-    if (endTimeUs != C.TIME_UNSET) {
-      int endTimeIndex = insertToCueTimes(cueTimesUs, endTimeUs);
-      List<Cue> endList = new ArrayList<>(cues.get(endTimeIndex - 1));
-      cues.add(endTimeIndex, endList);
-
-      int i = startTimeIndex;
-      do {
-        cues.get(i).add(cue);
-        i++;
-      } while (i != endTimeIndex);
-    }
-  }
-
-  /**
-   * Insert the given cue time into the given array keeping the array sorted.
-   *
-   * @param cueTimes The array with sorted cue times
-   * @param timeUs The cue time to be inserted
-   * @return The index where the cue time was inserted
-   */
-  private static int insertToCueTimes(List<Long> cueTimes, long timeUs) {
-    for (int i = cueTimes.size() - 1; i >= 0; i--) {
-      if (cueTimes.get(i) <= timeUs) {
-        cueTimes.add(i + 1, timeUs);
-        return i + 1;
+      if (cueTimesUs.get(i) < startTimeUs) {
+        startTimeIndex = i + 1;
+        break;
       }
     }
 
-    cueTimes.add(0, timeUs);
-    return 0;
+    if (startTimeIndex == 0) {
+      // Handle first cue
+      cueTimesUs.add(startTimeIndex, startTimeUs);
+      cues.add(startTimeIndex, new ArrayList<>());
+    } else {
+      if (!startTimeFound) {
+        // Add the startTimeUs only if it wasn't found in cueTimesUs
+        cueTimesUs.add(startTimeIndex, startTimeUs);
+        // Copy over cues from left
+        List<Cue> startCueList = new ArrayList<>(cues.get(startTimeIndex - 1));
+        cues.add(startTimeIndex, startCueList);
+      }
+    }
+
+    int endTimeIndex = 0;
+    if (endTimeUs != C.TIME_UNSET) {
+      boolean endTimeFound = false;
+
+      // Search the insertion index for endTimeUs in cueTimesUs
+      for (int i = cueTimesUs.size() - 1; i >= 0; i--) {
+        if (cueTimesUs.get(i) == endTimeUs) {
+          endTimeIndex = i;
+          endTimeFound = true;
+          break;
+        }
+
+        if (cueTimesUs.get(i) < endTimeUs) {
+          endTimeIndex = i + 1;
+          break;
+        }
+      }
+
+      if (!endTimeFound) {
+        // Add the endTimeUs only if it wasn't found in cueTimesUs
+        cueTimesUs.add(endTimeIndex, endTimeUs);
+        // Copy over cues from left
+        cues.add(endTimeIndex, new ArrayList<>(cues.get(endTimeIndex - 1)));
+      }
+    }
+
+    // Iterate on cues from startTimeIndex until endTimeIndex, add the current cue
+    int i = startTimeIndex;
+    do {
+      cues.get(i).add(cue);
+      i++;
+    } while (i < endTimeIndex);
   }
 
   /**
