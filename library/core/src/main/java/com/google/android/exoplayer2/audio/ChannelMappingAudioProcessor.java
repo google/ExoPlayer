@@ -25,7 +25,10 @@ import java.util.Arrays;
  * An {@link AudioProcessor} that applies a mapping from input channels onto specified output
  * channels. This can be used to reorder, duplicate or discard channels.
  */
-/* package */ final class ChannelMappingAudioProcessor extends BaseAudioProcessor {
+/* package */
+// the constructor does not initialize fields: pendingOutputChannels, outputChannels
+@SuppressWarnings("nullness:initialization.fields.uninitialized")
+final class ChannelMappingAudioProcessor extends BaseAudioProcessor {
 
   @Nullable private int[] pendingOutputChannels;
 
