@@ -326,6 +326,8 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
         new DefaultLoadErrorHandlingPolicy(initialDrmRequestRetryCount));
   }
 
+  // the constructor does not initialize fields: offlineLicenseKeySetId
+  @SuppressWarnings("nullness:initialization.fields.uninitialized")
   private DefaultDrmSessionManager(
       UUID uuid,
       ExoMediaDrm.Provider<T> exoMediaDrmProvider,

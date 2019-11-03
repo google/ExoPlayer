@@ -609,13 +609,18 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
 
     @Nullable private long[][] allocationCheckpoints;
 
-    /* package */ DefaultBandwidthProvider(
+    /* package */
+    // the constructor does not initialize fields: allocationCheckpoints
+    @SuppressWarnings("nullness:initialization.fields.uninitialized")
+    DefaultBandwidthProvider(
         BandwidthMeter bandwidthMeter, float bandwidthFraction, long reservedBandwidth) {
       this.bandwidthMeter = bandwidthMeter;
       this.bandwidthFraction = bandwidthFraction;
       this.reservedBandwidth = reservedBandwidth;
     }
 
+    // unboxing a possibly-null reference allocationCheckpoints[nextIndex][0]
+    @SuppressWarnings("nullness:unboxing.of.nullable")
     @Override
     public long getAllocatedBandwidth() {
       long totalBandwidth = (long) (bandwidthMeter.getBitrateEstimate() * bandwidthFraction);

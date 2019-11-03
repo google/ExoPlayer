@@ -383,6 +383,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     @Nullable private byte[] sampleData;
 
+    // the constructor does not initialize fields: sampleData
+    @SuppressWarnings("nullness:initialization.fields.uninitialized")
     public SourceLoadable(DataSpec dataSpec, DataSource dataSource) {
       this.dataSpec = dataSpec;
       this.dataSource = new StatsDataSource(dataSource);
