@@ -44,8 +44,6 @@ dependencies {
     api 'com.google.truth:truth:' + truthVersion
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     implementation project(modulePrefix + 'library-core')
-    implementation 'com.google.auto.value:auto-value-annotations:' + autoValueVersion
-    annotationProcessor 'com.google.auto.value:auto-value:' + autoValueVersion
     testImplementation project(modulePrefix + 'testutils')
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }

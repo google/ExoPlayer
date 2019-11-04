@@ -65,18 +65,14 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:' + androidxTestVersion
     androidTestImplementation 'androidx.test.ext:junit:' + androidxTestVersion
     androidTestImplementation 'com.google.truth:truth:' + truthVersion
-    androidTestImplementation 'com.google.auto.value:auto-value-annotations:' + autoValueVersion
     androidTestImplementation 'com.linkedin.dexmaker:dexmaker:' + dexmakerVersion
     androidTestImplementation 'com.linkedin.dexmaker:dexmaker-mockito:' + dexmakerVersion
     androidTestImplementation 'org.mockito:mockito-core:' + mockitoVersion
-    androidTestAnnotationProcessor 'com.google.auto.value:auto-value:' + autoValueVersion
     testImplementation 'androidx.test:core:' + androidxTestVersion
     testImplementation 'androidx.test.ext:junit:' + androidxTestVersion
     testImplementation 'com.google.truth:truth:' + truthVersion
     testImplementation 'org.mockito:mockito-core:' + mockitoVersion
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
-    testImplementation 'com.google.auto.value:auto-value-annotations:' + autoValueVersion
-    testAnnotationProcessor 'com.google.auto.value:auto-value:' + autoValueVersion
 }
 
 ext {
