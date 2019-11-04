@@ -13,14 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.testutil;
+package com.google.android.exoplayer2.playbacktests.gts;
 
 import com.google.android.exoplayer2.util.Log;
 
-/**
- * Implementation of {@link MetricsLogger} that prints the metrics to logcat.
- */
-public final class LogcatMetricsLogger implements MetricsLogger {
+/** Implementation of {@link MetricsLogger} that prints the metrics to logcat. */
+/* package */ final class LogcatMetricsLogger implements MetricsLogger {
 
   private final String tag;
 
@@ -30,11 +28,6 @@ public final class LogcatMetricsLogger implements MetricsLogger {
 
   @Override
   public void logMetric(String key, int value) {
-    Log.d(tag, key + ": " + value);
-  }
-
-  @Override
-  public void logMetric(String key, double value) {
     Log.d(tag, key + ": " + value);
   }
 

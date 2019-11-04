@@ -24,7 +24,6 @@ import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ogg.VorbisReader.VorbisSetup;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput.SimulatedIOException;
-import com.google.android.exoplayer2.testutil.OggTestData;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
 import org.junit.Test;

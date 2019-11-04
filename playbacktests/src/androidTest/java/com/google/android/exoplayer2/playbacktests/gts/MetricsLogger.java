@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.testutil;
+package com.google.android.exoplayer2.playbacktests.gts;
 
-/**
- * Metric Logging interface for ExoPlayer playback tests.
- */
-public interface MetricsLogger {
+/** Metric logging interface for playback tests. */
+/* package */ interface MetricsLogger {
 
   String KEY_FRAMES_DROPPED_COUNT = "frames_dropped_count";
   String KEY_FRAMES_RENDERED_COUNT = "frames_rendered_count";
@@ -34,14 +32,6 @@ public interface MetricsLogger {
    * @param value The value of the metric to be logged.
    */
   void logMetric(String key, int value);
-
-  /**
-   * Logs a double metric provided from a test.
-   *
-   * @param key The key of the metric to be logged.
-   * @param value The value of the metric to be logged.
-   */
-  void logMetric(String key, double value);
 
   /**
    * Logs a string metric provided from a test.

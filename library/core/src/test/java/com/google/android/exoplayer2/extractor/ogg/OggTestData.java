@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.testutil;
+package com.google.android.exoplayer2.extractor.ogg;
+
+import com.google.android.exoplayer2.testutil.FakeExtractorInput;
+import com.google.android.exoplayer2.testutil.TestUtil;
 
 /** Provides ogg/vorbis test data in bytes for unit tests. */
-public final class OggTestData {
+/* package */ final class OggTestData {
 
   public static FakeExtractorInput createInput(byte[] data, boolean simulateUnknownLength) {
     return new FakeExtractorInput.Builder()
