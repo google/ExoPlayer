@@ -68,8 +68,7 @@ import java.util.List;
   }
 
   @Override
-  protected boolean readHeaders(ParsableByteArray packet, long position, SetupData setupData)
-      throws IOException, InterruptedException {
+  protected boolean readHeaders(ParsableByteArray packet, long position, SetupData setupData) {
     byte[] data = packet.data;
     if (streamMetadata == null) {
       streamMetadata = new FlacStreamMetadata(data, 17);
