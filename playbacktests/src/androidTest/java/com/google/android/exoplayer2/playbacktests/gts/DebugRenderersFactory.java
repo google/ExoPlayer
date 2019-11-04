@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.testutil;
+package com.google.android.exoplayer2.playbacktests.gts;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -41,7 +41,7 @@ import java.util.ArrayList;
  * video buffer timestamp assertions, and modifies the default value for {@link
  * #setAllowedVideoJoiningTimeMs(long)} to be {@code 0}.
  */
-public class DebugRenderersFactory extends DefaultRenderersFactory {
+/* package */ final class DebugRenderersFactory extends DefaultRenderersFactory {
 
   public DebugRenderersFactory(Context context) {
     super(context);
