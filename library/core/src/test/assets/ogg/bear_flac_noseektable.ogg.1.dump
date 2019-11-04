@@ -5,11 +5,11 @@ seekMap:
 numberOfTracks = 1
 track 0:
   format:
-    bitrate = -1
+    bitrate = 768000
     id = null
     containerMimeType = null
     sampleMimeType = audio/flac
-    maxInputSize = 768000
+    maxInputSize = -1
     width = -1
     height = -1
     frameRate = -1.0
