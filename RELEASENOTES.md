@@ -2,8 +2,6 @@
 
 ### dev-v2 (not yet released) ###
 
-* MediaSession extension: Update shuffle and repeat modes when playback state
-  is invalidated ([#6582](https://github.com/google/ExoPlayer/issues/6582)).
 * AV1 extension: Uses libgav1 to decode AV1 videos. Android 10 includes an AV1
   decoder, but the older versions of Android require this extension for playback
   of AV1 streams ([#3353](https://github.com/google/ExoPlayer/issues/3353)).
@@ -97,16 +95,10 @@
   fragment) ([#6470](https://github.com/google/ExoPlayer/issues/6470)).
 * Add `MediaPeriod.isLoading` to improve `Player.isLoading` state.
 * Make show and hide player controls accessible for TalkBack in `PlayerView`.
-* Add workaround to avoid truncating MP3 live streams with ICY metadata and
-  introductions that have a seeking header
-  ([#6537](https://github.com/google/ExoPlayer/issues/6537),
-  [#6315](https://github.com/google/ExoPlayer/issues/6315) and
-  [#5658](https://github.com/google/ExoPlayer/issues/5658)).
 * Pass the codec output `MediaFormat` to `VideoFrameMetadataListener`.
 * Deprecate the GVR extension.
 * Fix the start of audio getting truncated when transitioning to a new
   item in a playlist of opus streams.
-* Fix detection of Dolby Atmos in HLS to match the HLS authoring specification.
 * Fix FLAC extension build
   ([#6601](https://github.com/google/ExoPlayer/issues/6601).
 * Update the ffmpeg, flac and opus extension build instructions to use NDK r20.
@@ -115,6 +107,14 @@
   the extension's readme.
 * Add support for subtitle files to the demo app
   ([#5523](https://github.com/google/ExoPlayer/issues/5523)).
+
+### 2.10.7 (2019-11-12) ###
+
+* HLS: Fix detection of Dolby Atmos to match the HLS authoring specification.
+* MediaSession extension: Update shuffle and repeat modes when playback state
+  is invalidated ([#6582](https://github.com/google/ExoPlayer/issues/6582)).
+* Fix the start of audio getting truncated when transitioning to a new
+  item in a playlist of opus streams.
 
 ### 2.10.6 (2019-10-17) ###
 
@@ -128,6 +128,10 @@
     ([#6523](https://github.com/google/ExoPlayer/issues/6523)).
 * HLS: Add support for ID3 in EMSG when using FMP4 streams
   ([spec](https://aomediacodec.github.io/av1-id3/)).
+* MP3: Add workaround to avoid prematurely ending playback of some SHOUTcast
+  live streams ([#6537](https://github.com/google/ExoPlayer/issues/6537),
+  [#6315](https://github.com/google/ExoPlayer/issues/6315) and
+  [#5658](https://github.com/google/ExoPlayer/issues/5658)).
 * Metadata: Expose the raw ICY metadata through `IcyInfo`
   ([#6476](https://github.com/google/ExoPlayer/issues/6476)).
 * UI:
