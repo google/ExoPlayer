@@ -39,8 +39,8 @@ android {
 
 dependencies {
     api 'org.mockito:mockito-core:' + mockitoVersion
-    api 'androidx.test:core:' + androidxTestVersion
-    api 'androidx.test.ext:junit:' + androidxTestVersion
+    api 'androidx.test:core:' + androidxTestCoreVersion
+    api 'androidx.test.ext:junit:' + androidxTestJUnitVersion
     api 'com.google.truth:truth:' + truthVersion
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     implementation project(modulePrefix + 'library-core')
