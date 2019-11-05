@@ -1,6 +1,6 @@
 # Release notes #
 
-### 2.10.7 ###
+### 2.10.7 (2019-11-12) ###
 
 * HLS: Fix detection of Dolby Atmos to match the HLS authoring specification.
 * MediaSession extension: Update shuffle and repeat modes when playback state
