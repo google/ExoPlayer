@@ -23,7 +23,6 @@ import android.os.Message;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.drm.DefaultDrmSession.ProvisioningManager;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.OnEventListener;
@@ -45,8 +44,7 @@ import java.util.UUID;
 
 /** A {@link DrmSessionManager} that supports playbacks using {@link ExoMediaDrm}. */
 @TargetApi(18)
-public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
-    implements DrmSessionManager<T>, ProvisioningManager<T> {
+public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSessionManager<T> {
 
   /**
    * Builder for {@link DefaultDrmSessionManager} instances.
@@ -230,6 +228,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
   private final boolean multiSession;
   private final boolean preferSecureDecoders;
   @Flags private final int flags;
+  private final ProvisioningManagerImpl provisioningManagerImpl;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
 
   private final List<DefaultDrmSession<T>> sessions;
@@ -348,6 +347,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
     this.preferSecureDecoders = preferSecureDecoders;
     this.flags = flags;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
+    provisioningManagerImpl = new ProvisioningManagerImpl();
     mode = MODE_PLAYBACK;
     sessions = new ArrayList<>();
     provisioningSessions = new ArrayList<>();
@@ -536,37 +536,6 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
         : null;
   }
 
-  // ProvisioningManager implementation.
-
-  @Override
-  public void provisionRequired(DefaultDrmSession<T> session) {
-    if (provisioningSessions.contains(session)) {
-      // The session has already requested provisioning.
-      return;
-    }
-    provisioningSessions.add(session);
-    if (provisioningSessions.size() == 1) {
-      // This is the first session requesting provisioning, so have it perform the operation.
-      session.provision();
-    }
-  }
-
-  @Override
-  public void onProvisionCompleted() {
-    for (DefaultDrmSession<T> session : provisioningSessions) {
-      session.onProvisionCompleted();
-    }
-    provisioningSessions.clear();
-  }
-
-  @Override
-  public void onProvisionError(Exception error) {
-    for (DefaultDrmSession<T> session : provisioningSessions) {
-      session.onProvisionError(error);
-    }
-    provisioningSessions.clear();
-  }
-
   // Internal methods.
 
   private void assertExpectedPlaybackLooper(Looper playbackLooper) {
@@ -586,7 +555,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
     return new DefaultDrmSession<>(
         uuid,
         exoMediaDrm,
-        /* provisioningManager= */ this,
+        /* provisioningManager= */ provisioningManagerImpl,
         /* releaseCallback= */ this::onSessionReleased,
         schemeDatas,
         mode,
@@ -661,6 +630,37 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto>
           return;
         }
       }
+    }
+  }
+
+  private class ProvisioningManagerImpl implements DefaultDrmSession.ProvisioningManager<T> {
+    @Override
+    public void provisionRequired(DefaultDrmSession<T> session) {
+      if (provisioningSessions.contains(session)) {
+        // The session has already requested provisioning.
+        return;
+      }
+      provisioningSessions.add(session);
+      if (provisioningSessions.size() == 1) {
+        // This is the first session requesting provisioning, so have it perform the operation.
+        session.provision();
+      }
+    }
+
+    @Override
+    public void onProvisionCompleted() {
+      for (DefaultDrmSession<T> session : provisioningSessions) {
+        session.onProvisionCompleted();
+      }
+      provisioningSessions.clear();
+    }
+
+    @Override
+    public void onProvisionError(Exception error) {
+      for (DefaultDrmSession<T> session : provisioningSessions) {
+        session.onProvisionError(error);
+      }
+      provisioningSessions.clear();
     }
   }
 
