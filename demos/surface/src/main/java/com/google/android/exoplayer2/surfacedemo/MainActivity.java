@@ -124,10 +124,10 @@ public final class MainActivity extends Activity {
       }
       gridLayout.addView(view);
       GridLayout.LayoutParams layoutParams = new GridLayout.LayoutParams();
-      layoutParams.width = 400;
-      layoutParams.height = 400;
-      layoutParams.columnSpec = GridLayout.spec(i % 3);
-      layoutParams.rowSpec = GridLayout.spec(i / 3);
+      layoutParams.width = 0;
+      layoutParams.height = 0;
+      layoutParams.columnSpec = GridLayout.spec(i % 3, 1f);
+      layoutParams.rowSpec = GridLayout.spec(i / 3, 1f);
       layoutParams.bottomMargin = 10;
       layoutParams.leftMargin = 10;
       layoutParams.topMargin = 10;

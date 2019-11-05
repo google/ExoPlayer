@@ -20,24 +20,32 @@
   android:layout_height="match_parent"
   android:keepScreenOn="true">
 
-  <GridLayout
+  <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/grid_layout"
-    android:columnCount="3" />
+    android:orientation="vertical">
+
+    <GridLayout
+      android:id="@+id/grid_layout"
+      android:layout_width="match_parent"
+      android:layout_height="0dp"
+      android:layout_weight="1"
+      android:columnCount="3"/>
+
+    <com.google.android.exoplayer2.ui.PlayerControlView
+      android:id="@+id/player_control_view"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_gravity="bottom"
+      app:show_timeout="0"/>
+
+  </LinearLayout>
 
   <SurfaceView
+    android:id="@+id/full_screen_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/full_screen_view"
-    android:visibility="gone" />
-
-  <com.google.android.exoplayer2.ui.PlayerControlView
-    android:id="@+id/player_control_view"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_gravity="bottom"
-    app:show_timeout="0" />
+    android:visibility="gone"/>
 
 </FrameLayout>
 
