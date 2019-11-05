@@ -15,12 +15,14 @@
  */
 package com.google.android.exoplayer2.drm;
 
+import android.annotation.TargetApi;
 import android.media.MediaDrm;
 import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Pair;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager.Mode;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
@@ -30,9 +32,9 @@ import com.google.android.exoplayer2.util.Assertions;
 import java.util.HashMap;
 import java.util.UUID;
 
-/**
- * Helper class to download, renew and release offline licenses.
- */
+/** Helper class to download, renew and release offline licenses. */
+@TargetApi(18)
+@RequiresApi(18)
 public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
 
   private static final DrmInitData DUMMY_DRM_INIT_DATA = new DrmInitData();

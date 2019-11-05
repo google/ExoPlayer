@@ -50,6 +50,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.gms.cast.MediaQueueItem;
 import com.google.android.gms.cast.framework.CastContext;
 import java.util.ArrayList;
@@ -408,7 +409,7 @@ import java.util.Map;
     DrmSessionManager<ExoMediaCrypto> drmSessionManager =
         DrmSessionManager.getDummyDrmSessionManager();
     MediaItem.DrmConfiguration drmConfiguration = item.drmConfiguration;
-    if (drmConfiguration != null) {
+    if (drmConfiguration != null && Util.SDK_INT >= 18) {
       String licenseServerUrl =
           drmConfiguration.licenseUri != null ? drmConfiguration.licenseUri.toString() : "";
       HttpMediaDrmCallback drmCallback =
