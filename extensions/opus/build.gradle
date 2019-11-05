@@ -42,8 +42,8 @@ dependencies {
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     testImplementation project(modulePrefix + 'testutils')
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
-    androidTestImplementation 'androidx.test:runner:' + androidxTestVersion
-    androidTestImplementation 'androidx.test.ext:junit:' + androidxTestVersion
+    androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion
+    androidTestImplementation 'androidx.test.ext:junit:' + androidxTestJUnitVersion
 }
 
 ext {

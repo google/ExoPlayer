@@ -30,7 +30,10 @@ project.ext {
     androidxAppCompatVersion = '1.1.0'
     androidxCollectionVersion = '1.1.0'
     androidxMediaVersion = '1.0.1'
-    androidxTestVersion = '1.1.0'
+    androidxTestCoreVersion = '1.2.0'
+    androidxTestJUnitVersion = '1.1.1'
+    androidxTestRunnerVersion = '1.2.0'
+    androidxTestRulesVersion = '1.2.0'
     truthVersion = '0.44'
     modulePrefix = ':'
     if (gradle.ext.has('exoplayerModulePrefix')) {
