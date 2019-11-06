@@ -112,7 +112,7 @@ public class DownloadServiceDashTest {
     dummyMainThread.runTestOnMainThread(
         () -> {
           DefaultDownloadIndex downloadIndex =
-              new DefaultDownloadIndex(TestUtil.getTestDatabaseProvider());
+              new DefaultDownloadIndex(TestUtil.getInMemoryDatabaseProvider());
           final DownloadManager dashDownloadManager =
               new DownloadManager(
                   ApplicationProvider.getApplicationContext(),

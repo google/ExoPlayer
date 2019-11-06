@@ -97,7 +97,7 @@ public class DownloadManagerDashTest {
 
     fakeStreamKey1 = new StreamKey(0, 0, 0);
     fakeStreamKey2 = new StreamKey(0, 1, 0);
-    downloadIndex = new DefaultDownloadIndex(TestUtil.getTestDatabaseProvider());
+    downloadIndex = new DefaultDownloadIndex(TestUtil.getInMemoryDatabaseProvider());
     createDownloadManager();
   }
 

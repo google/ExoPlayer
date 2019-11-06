@@ -334,7 +334,7 @@ public class CachedContentIndexTest {
   }
 
   private CachedContentIndex newInstance() {
-    return new CachedContentIndex(TestUtil.getTestDatabaseProvider());
+    return new CachedContentIndex(TestUtil.getInMemoryDatabaseProvider());
   }
 
   private CachedContentIndex newLegacyInstance() {

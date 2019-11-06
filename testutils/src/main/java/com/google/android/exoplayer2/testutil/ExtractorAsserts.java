@@ -46,6 +46,29 @@ public final class ExtractorAsserts {
   private static final String UNKNOWN_LENGTH_EXTENSION = ".unklen" + DUMP_EXTENSION;
 
   /**
+   * Asserts that {@link Extractor#sniff(ExtractorInput)} returns the {@code expectedResult} for a
+   * given {@code input}, retrying repeatedly when {@link SimulatedIOException} is thrown.
+   *
+   * @param extractor The extractor to test.
+   * @param input The extractor input.
+   * @param expectedResult The expected return value.
+   * @throws IOException If reading from the input fails.
+   * @throws InterruptedException If interrupted while reading from the input.
+   */
+  public static void assertSniff(
+      Extractor extractor, FakeExtractorInput input, boolean expectedResult)
+      throws IOException, InterruptedException {
+    while (true) {
+      try {
+        assertThat(extractor.sniff(input)).isEqualTo(expectedResult);
+        return;
+      } catch (SimulatedIOException e) {
+        // Ignore.
+      }
+    }
+  }
+
+  /**
    * Asserts that an extractor behaves correctly given valid input data. Can only be used from
    * Robolectric tests.
    *
@@ -164,7 +187,7 @@ public final class ExtractorAsserts {
         .setSimulatePartialReads(simulatePartialReads).build();
 
     if (sniffFirst) {
-      assertThat(TestUtil.sniffTestData(extractor, input)).isTrue();
+      assertSniff(extractor, input, /* expectedResult= */ true);
       input.resetPeekPosition();
     }
 

@@ -322,7 +322,7 @@ public class SimpleCacheTest {
   @Test
   public void testExceptionDuringEvictionByLeastRecentlyUsedCacheEvictorNotHang() throws Exception {
     CachedContentIndex contentIndex =
-        Mockito.spy(new CachedContentIndex(TestUtil.getTestDatabaseProvider()));
+        Mockito.spy(new CachedContentIndex(TestUtil.getInMemoryDatabaseProvider()));
     SimpleCache simpleCache =
         new SimpleCache(
             cacheDir, new LeastRecentlyUsedCacheEvictor(20), contentIndex, /* fileIndex= */ null);

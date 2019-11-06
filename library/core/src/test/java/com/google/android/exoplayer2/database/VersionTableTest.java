@@ -38,7 +38,7 @@ public class VersionTableTest {
 
   @Before
   public void setUp() {
-    databaseProvider = TestUtil.getTestDatabaseProvider();
+    databaseProvider = TestUtil.getInMemoryDatabaseProvider();
     database = databaseProvider.getWritableDatabase();
   }
 

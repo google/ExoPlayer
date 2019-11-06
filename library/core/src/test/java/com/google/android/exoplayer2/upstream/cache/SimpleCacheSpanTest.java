@@ -51,7 +51,7 @@ public class SimpleCacheSpanTest {
   public void setUp() throws Exception {
     cacheDir =
         Util.createTempDirectory(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
-    index = new CachedContentIndex(TestUtil.getTestDatabaseProvider());
+    index = new CachedContentIndex(TestUtil.getInMemoryDatabaseProvider());
   }
 
   @After
