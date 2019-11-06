@@ -1140,6 +1140,7 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
+  @SuppressWarnings("deprecation")
   public void retry() {
     verifyApplicationThread();
     if (mediaSource != null
@@ -1149,23 +1150,38 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
+  @Deprecated
+  @SuppressWarnings("deprecation")
   public void prepare(MediaSource mediaSource) {
     prepare(mediaSource, /* resetPosition= */ true, /* resetState= */ true);
   }
 
   @Override
+  @Deprecated
   public void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState) {
     verifyApplicationThread();
-    if (this.mediaSource != null) {
-      this.mediaSource.removeEventListener(analyticsCollector);
-      analyticsCollector.resetForNewMediaSource();
-    }
-    this.mediaSource = mediaSource;
-    mediaSource.addEventListener(eventHandler, analyticsCollector);
-    @AudioFocusManager.PlayerCommand
-    int playerCommand = audioFocusManager.handlePrepare(getPlayWhenReady());
-    updatePlayWhenReady(getPlayWhenReady(), playerCommand);
-    player.prepare(mediaSource, resetPosition, resetState);
+    setMediaItem(mediaSource);
+    prepareInternal(resetPosition, resetState);
+  }
+
+  @Override
+  public void prepare() {
+    verifyApplicationThread();
+    prepareInternal(/* resetPosition= */ false, /* resetState= */ true);
+  }
+
+  @Override
+  public void setMediaItem(MediaSource mediaItem, long startPositionMs) {
+    verifyApplicationThread();
+    setMediaItemInternal(mediaItem);
+    player.setMediaItem(mediaItem, startPositionMs);
+  }
+
+  @Override
+  public void setMediaItem(MediaSource mediaItem) {
+    verifyApplicationThread();
+    setMediaItemInternal(mediaItem);
+    player.setMediaItem(mediaItem);
   }
 
   @Override
@@ -1409,6 +1425,23 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   // Internal methods.
+
+  private void prepareInternal(boolean resetPosition, boolean resetState) {
+    Assertions.checkNotNull(mediaSource);
+    @AudioFocusManager.PlayerCommand
+    int playerCommand = audioFocusManager.handlePrepare(getPlayWhenReady());
+    updatePlayWhenReady(getPlayWhenReady(), playerCommand);
+    player.prepareInternal(resetPosition, resetState);
+  }
+
+  private void setMediaItemInternal(MediaSource mediaItem) {
+    if (mediaSource != null) {
+      mediaSource.removeEventListener(analyticsCollector);
+      analyticsCollector.resetForNewMediaSource();
+    }
+    mediaSource = mediaItem;
+    mediaSource.addEventListener(eventHandler, analyticsCollector);
+  }
 
   private void removeSurfaceCallbacks() {
     if (textureView != null) {
