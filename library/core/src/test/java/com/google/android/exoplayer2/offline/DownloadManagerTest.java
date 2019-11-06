@@ -81,7 +81,7 @@ public class DownloadManagerTest {
     uri2 = Uri.parse("http://abc.com/media2");
     uri3 = Uri.parse("http://abc.com/media3");
     dummyMainThread = new DummyMainThread();
-    downloadIndex = new DefaultDownloadIndex(TestUtil.getTestDatabaseProvider());
+    downloadIndex = new DefaultDownloadIndex(TestUtil.getInMemoryDatabaseProvider());
     downloaderFactory = new FakeDownloaderFactory();
     setUpDownloadManager(100);
   }

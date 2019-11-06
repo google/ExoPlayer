@@ -467,6 +467,7 @@ public final class ActionSchedule {
       return apply(new ThrowPlaybackException(tag, exception));
     }
 
+    /** Builds the schedule. */
     public ActionSchedule build() {
       CallbackAction callbackAction = new CallbackAction(tag);
       apply(callbackAction);

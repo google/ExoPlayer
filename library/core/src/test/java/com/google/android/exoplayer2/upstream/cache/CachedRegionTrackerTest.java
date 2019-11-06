@@ -66,7 +66,7 @@ public final class CachedRegionTrackerTest {
     tracker = new CachedRegionTracker(cache, CACHE_KEY, CHUNK_INDEX);
     cacheDir =
         Util.createTempDirectory(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
-    index = new CachedContentIndex(TestUtil.getTestDatabaseProvider());
+    index = new CachedContentIndex(TestUtil.getInMemoryDatabaseProvider());
   }
 
   @After
