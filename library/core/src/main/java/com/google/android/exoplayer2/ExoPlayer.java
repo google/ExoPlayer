@@ -331,25 +331,50 @@ public interface ExoPlayer extends Player {
    */
   void retry();
 
-  /**
-   * Prepares the player to play the provided {@link MediaSource}. Equivalent to {@code
-   * prepare(mediaSource, true, true)}.
-   */
-  void prepare(MediaSource mediaSource);
+  /** Prepares the player. */
+  void prepare();
 
   /**
-   * Prepares the player to play the provided {@link MediaSource}, optionally resetting the playback
-   * position the default position in the first {@link Timeline.Window}.
-   *
-   * @param mediaSource The {@link MediaSource} to play.
-   * @param resetPosition Whether the playback position should be reset to the default position in
-   *     the first {@link Timeline.Window}. If false, playback will start from the position defined
-   *     by {@link #getCurrentWindowIndex()} and {@link #getCurrentPosition()}.
-   * @param resetState Whether the timeline, manifest, tracks and track selections should be reset.
-   *     Should be true unless the player is being prepared to play the same media as it was playing
-   *     previously (e.g. if playback failed and is being retried).
+   * @deprecated Use {@code setMediaItem(mediaSource, C.TIME_UNSET)} and {@link #prepare()} instead.
    */
+  @Deprecated
+  void prepare(MediaSource mediaSource);
+
+  /** @deprecated Use {@link #setMediaItem(MediaSource, long)} and {@link #prepare()} instead. */
+  @Deprecated
   void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState);
+
+  /**
+   * Sets the specified {@link MediaSource}.
+   *
+   * <p>Note: This is an intermediate implementation towards a larger change. Until then {@link
+   * #prepare()} has to be called immediately after calling this method.
+   *
+   * @param mediaItem The new {@link MediaSource}.
+   */
+  void setMediaItem(MediaSource mediaItem);
+
+  /**
+   * Sets the specified {@link MediaSource}.
+   *
+   * <p>Note: This is an intermediate implementation towards a larger change. Until then {@link
+   * #prepare()} has to be called immediately after calling this method.
+   *
+   * <p>This intermediate implementation calls {@code stop(true)} before seeking to avoid seeking in
+   * a media item that has been set previously. It is equivalent with calling
+   *
+   * <pre><code>
+   *   if (!getCurrentTimeline().isEmpty()) {
+   *     player.stop(true);
+   *   }
+   *   player.seekTo(0, startPositionMs);
+   *   player.setMediaItem(mediaItem);
+   * </code></pre>
+   *
+   * @param mediaItem The new {@link MediaSource}.
+   * @param startPositionMs The position in milliseconds to start playback from.
+   */
+  void setMediaItem(MediaSource mediaItem, long startPositionMs);
 
   /**
    * Creates a message that can be sent to a {@link PlayerMessage.Target}. By default, the message
