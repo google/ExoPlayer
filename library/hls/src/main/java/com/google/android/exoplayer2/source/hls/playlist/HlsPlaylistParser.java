@@ -445,7 +445,15 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                   ? Util.getCodecsOfType(variant.format.codecs, C.TRACK_TYPE_AUDIO)
                   : null;
           sampleMimeType = codecs != null ? MimeTypes.getMediaMimeType(codecs) : null;
-          int channelCount = parseChannelsAttribute(line, variableDefinitions);
+          String channelsString =
+              parseOptionalStringAttr(line, REGEX_CHANNELS, variableDefinitions);
+          int channelCount = Format.NO_VALUE;
+          if (channelsString != null) {
+            channelCount = Integer.parseInt(Util.splitAtFirst(channelsString, "/")[0]);
+            if (MimeTypes.AUDIO_E_AC3.equals(sampleMimeType) && channelsString.endsWith("/JOC")) {
+              sampleMimeType = MimeTypes.AUDIO_E_AC3_JOC;
+            }
+          }
           format =
               Format.createAudioContainerFormat(
                   /* id= */ formatId,
@@ -817,13 +825,6 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       roleFlags |= C.ROLE_FLAG_EASY_TO_READ;
     }
     return roleFlags;
-  }
-
-  private static int parseChannelsAttribute(String line, Map<String, String> variableDefinitions) {
-    String channelsString = parseOptionalStringAttr(line, REGEX_CHANNELS, variableDefinitions);
-    return channelsString != null
-        ? Integer.parseInt(Util.splitAtFirst(channelsString, "/")[0])
-        : Format.NO_VALUE;
   }
 
   @Nullable
