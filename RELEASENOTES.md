@@ -1,6 +1,14 @@
 # Release notes #
 
-### 2.10.6 (2019-10-18) ###
+### 2.10.7 (2019-11-12) ###
+
+* HLS: Fix detection of Dolby Atmos to match the HLS authoring specification.
+* MediaSession extension: Update shuffle and repeat modes when playback state
+  is invalidated ([#6582](https://github.com/google/ExoPlayer/issues/6582)).
+* Fix the start of audio getting truncated when transitioning to a new
+  item in a playlist of opus streams.
+
+### 2.10.6 (2019-10-17) ###
 
 * Add `Player.onPlaybackSuppressionReasonChanged` to allow listeners to
   detect playbacks suppressions (e.g. transient audio focus loss) directly

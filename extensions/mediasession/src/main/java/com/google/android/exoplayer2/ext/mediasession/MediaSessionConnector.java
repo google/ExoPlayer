@@ -700,6 +700,9 @@ public final class MediaSessionConnector {
               /* position= */ 0,
               /* playbackSpeed= */ 0,
               /* updateTime= */ SystemClock.elapsedRealtime());
+
+      mediaSession.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_NONE);
+      mediaSession.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_NONE);
       mediaSession.setPlaybackState(builder.build());
       return;
     }
@@ -748,6 +751,18 @@ public final class MediaSessionConnector {
             sessionPlaybackSpeed,
             /* updateTime= */ SystemClock.elapsedRealtime())
         .setExtras(extras);
+
+    @Player.RepeatMode int repeatMode = player.getRepeatMode();
+    mediaSession.setRepeatMode(
+        repeatMode == Player.REPEAT_MODE_ONE
+            ? PlaybackStateCompat.REPEAT_MODE_ONE
+            : repeatMode == Player.REPEAT_MODE_ALL
+                ? PlaybackStateCompat.REPEAT_MODE_ALL
+                : PlaybackStateCompat.REPEAT_MODE_NONE);
+    mediaSession.setShuffleMode(
+        player.getShuffleModeEnabled()
+            ? PlaybackStateCompat.SHUFFLE_MODE_ALL
+            : PlaybackStateCompat.SHUFFLE_MODE_NONE);
     mediaSession.setPlaybackState(builder.build());
   }
 
@@ -1047,21 +1062,11 @@ public final class MediaSessionConnector {
 
     @Override
     public void onRepeatModeChanged(@Player.RepeatMode int repeatMode) {
-      mediaSession.setRepeatMode(
-          repeatMode == Player.REPEAT_MODE_ONE
-              ? PlaybackStateCompat.REPEAT_MODE_ONE
-              : repeatMode == Player.REPEAT_MODE_ALL
-                  ? PlaybackStateCompat.REPEAT_MODE_ALL
-                  : PlaybackStateCompat.REPEAT_MODE_NONE);
       invalidateMediaSessionPlaybackState();
     }
 
     @Override
     public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
-      mediaSession.setShuffleMode(
-          shuffleModeEnabled
-              ? PlaybackStateCompat.SHUFFLE_MODE_ALL
-              : PlaybackStateCompat.SHUFFLE_MODE_NONE);
       invalidateMediaSessionPlaybackState();
       invalidateMediaSessionQueue();
     }
