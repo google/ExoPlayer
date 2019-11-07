@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import java.io.IOException;
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /** Unit test for {@link FlacBinarySearchSeeker}. */
@@ -41,6 +42,7 @@ public final class FlacBinarySearchSeekerTest {
     }
   }
 
+  @Test
   public void testGetSeekMap_returnsSeekMapWithCorrectDuration()
       throws IOException, FlacDecoderException, InterruptedException {
     byte[] data =
@@ -63,6 +65,7 @@ public final class FlacBinarySearchSeekerTest {
     assertThat(seekMap.isSeekable()).isTrue();
   }
 
+  @Test
   public void testSetSeekTargetUs_returnsSeekPending()
       throws IOException, FlacDecoderException, InterruptedException {
     byte[] data =
