@@ -1024,10 +1024,12 @@ public final class Util {
    * @return The scaled timestamp.
    */
   public static long scaleLargeTimestamp(long timestamp, long multiplier, long divisor) {
-    if (divisor >= multiplier && (divisor % multiplier) == 0) {
+    if (multiplier == 0 && divisor == 0) {
+      return timestamp;
+    } else if (divisor >= multiplier && multiplier != 0 && (divisor % multiplier) == 0) {
       long divisionFactor = divisor / multiplier;
       return timestamp / divisionFactor;
-    } else if (divisor < multiplier && (multiplier % divisor) == 0) {
+    } else if (divisor < multiplier && divisor != 0 && (multiplier % divisor) == 0) {
       long multiplicationFactor = multiplier / divisor;
       return timestamp * multiplicationFactor;
     } else {
