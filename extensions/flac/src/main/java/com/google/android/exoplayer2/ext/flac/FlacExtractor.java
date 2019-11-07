@@ -72,11 +72,8 @@ public final class FlacExtractor implements Extractor {
    */
   public static final int FLAG_DISABLE_ID3_METADATA = 1;
 
-  /**
-   * FLAC signature: first 4 is the signature word, second 4 is the sizeof STREAMINFO. 0x22 is the
-   * mandatory STREAMINFO.
-   */
-  private static final byte[] FLAC_SIGNATURE = {'f', 'L', 'a', 'C', 0, 0, 0, 0x22};
+  /** FLAC stream marker */
+  private static final byte[] FLAC_STREAM_MARKER = {'f', 'L', 'a', 'C'};
 
   private final ParsableByteArray outputBuffer;
   private final Id3Peeker id3Peeker;
@@ -126,7 +123,7 @@ public final class FlacExtractor implements Extractor {
     if (input.getPosition() == 0) {
       id3Metadata = peekId3Data(input);
     }
-    return peekFlacSignature(input);
+    return peekFlacStreamMarker(input);
   }
 
   @Override
@@ -255,15 +252,15 @@ public final class FlacExtractor implements Extractor {
   }
 
   /**
-   * Peeks from the beginning of the input to see if {@link #FLAC_SIGNATURE} is present.
+   * Peeks from the beginning of the input to see if {@link #FLAC_STREAM_MARKER} is present.
    *
-   * @return Whether the input begins with {@link #FLAC_SIGNATURE}.
+   * @return Whether the input begins with {@link #FLAC_STREAM_MARKER}.
    */
-  private static boolean peekFlacSignature(ExtractorInput input)
+  private static boolean peekFlacStreamMarker(ExtractorInput input)
       throws IOException, InterruptedException {
-    byte[] header = new byte[FLAC_SIGNATURE.length];
-    input.peekFully(header, /* offset= */ 0, FLAC_SIGNATURE.length);
-    return Arrays.equals(header, FLAC_SIGNATURE);
+    byte[] header = new byte[FLAC_STREAM_MARKER.length];
+    input.peekFully(header, /* offset= */ 0, FLAC_STREAM_MARKER.length);
+    return Arrays.equals(header, FLAC_STREAM_MARKER);
   }
 
   /**
