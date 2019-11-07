@@ -2,9 +2,13 @@
 
 ### dev-v2 (not yet released) ###
 
+### 2.11.0 (not yet released) ###
+
 * AV1 extension: Uses libgav1 to decode AV1 videos. Android 10 includes an AV1
   decoder, but the older versions of Android require this extension for playback
-  of AV1 streams ([#3353](https://github.com/google/ExoPlayer/issues/3353)).
+  of AV1 streams ([#3353](https://github.com/google/ExoPlayer/issues/3353)). You
+  can read more about playing AV1 videos with ExoPlayer
+  [here](https://medium.com/google-exoplayer/playing-av1-videos-with-exoplayer-a7cb19bedef9).
 * DRM:
   * Inject `DrmSessionManager` into the `MediaSources` instead of `Renderers`
     ([#5619](https://github.com/google/ExoPlayer/issues/5619)).
@@ -68,8 +72,6 @@
   ([#6267](https://github.com/google/ExoPlayer/issues/6267)).
 * Add `uid` to `Timeline.Window` to uniquely identify window instances.
 * Fix Dolby Vision fallback to AVC and HEVC.
-* Add top-level playlist API
-  ([#6161](https://github.com/google/ExoPlayer/issues/6161)).
 * Add demo app to show how to use the Android 10 `SurfaceControl` API with
   ExoPlayer ([#677](https://github.com/google/ExoPlayer/issues/677)).
 * Add automatic `WakeLock` handling to `SimpleExoPlayer` through calling
