@@ -239,7 +239,11 @@ public class DefaultTimeBar extends View implements TimeBar {
   }
 
   // Suppress warnings due to usage of View methods in the constructor.
-  @SuppressWarnings("nullness:method.invocation.invalid")
+  // the constructor does not initialize fields: adGroupTimesMs, playedAdGroups
+  @SuppressWarnings({
+    "nullness:method.invocation.invalid",
+    "nullness:initialization.fields.uninitialized"
+  })
   public DefaultTimeBar(
       Context context,
       @Nullable AttributeSet attrs,
