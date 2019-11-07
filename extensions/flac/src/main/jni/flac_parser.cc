@@ -456,6 +456,9 @@ bool FLACParser::getSeekPositions(int64_t timeUs,
 
   for (unsigned i = length; i != 0; i--) {
     int64_t sampleNumber = points[i - 1].sample_number;
+    if (sampleNumber == -1) {  // placeholder
+      continue;
+    }
     if (sampleNumber <= targetSampleNumber) {
       result[0] = (sampleNumber * 1000000LL) / sampleRate;
       result[1] = firstFrameOffset + points[i - 1].stream_offset;

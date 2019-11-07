@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /** Seeking tests for {@link FlacExtractor} when the FLAC stream does not have a SEEKTABLE. */
@@ -76,6 +77,7 @@ public final class FlacExtractorSeekTest {
     positionHolder = new PositionHolder();
   }
 
+  @Test
   public void testFlacExtractorReads_nonSeekTableFile_returnSeekableSeekMap()
       throws IOException, InterruptedException {
     FlacExtractor extractor = new FlacExtractor();
@@ -87,6 +89,7 @@ public final class FlacExtractorSeekTest {
     assertThat(seekMap.isSeekable()).isTrue();
   }
 
+  @Test
   public void testHandlePendingSeek_handlesSeekingToPositionInFile_extractsCorrectFrame()
       throws IOException, InterruptedException {
     FlacExtractor extractor = new FlacExtractor();
@@ -103,6 +106,7 @@ public final class FlacExtractorSeekTest {
         trackOutput, targetSeekTimeUs, extractedFrameIndex);
   }
 
+  @Test
   public void testHandlePendingSeek_handlesSeekToEoF_extractsLastFrame()
       throws IOException, InterruptedException {
     FlacExtractor extractor = new FlacExtractor();
@@ -120,6 +124,7 @@ public final class FlacExtractorSeekTest {
         trackOutput, targetSeekTimeUs, extractedFrameIndex);
   }
 
+  @Test
   public void testHandlePendingSeek_handlesSeekingBackward_extractsCorrectFrame()
       throws IOException, InterruptedException {
     FlacExtractor extractor = new FlacExtractor();
@@ -139,6 +144,7 @@ public final class FlacExtractorSeekTest {
         trackOutput, targetSeekTimeUs, extractedFrameIndex);
   }
 
+  @Test
   public void testHandlePendingSeek_handlesSeekingForward_extractsCorrectFrame()
       throws IOException, InterruptedException {
     FlacExtractor extractor = new FlacExtractor();
@@ -158,6 +164,7 @@ public final class FlacExtractorSeekTest {
         trackOutput, targetSeekTimeUs, extractedFrameIndex);
   }
 
+  @Test
   public void testHandlePendingSeek_handlesRandomSeeks_extractsCorrectFrame()
       throws IOException, InterruptedException {
     FlacExtractor extractor = new FlacExtractor();
