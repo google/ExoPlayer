@@ -198,7 +198,7 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
 
     String text =
         lineValues[formatTextIndex]
-            .replaceAll("\\{.*?}", "")
+            .replaceAll("\\{.*?\\}", "") // Warning that \\} can be replaced with } is bogus.
             .replaceAll("\\\\N", "\n")
             .replaceAll("\\\\n", "\n");
     cues.add(new Cue(text));
