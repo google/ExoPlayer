@@ -1,5 +1,10 @@
 # Release notes #
 
+### 2.10.8 (2019-11-18) ###
+
+* Handle new signaling for E-AC3 JOC audio in DASH
+  ([#6636](https://github.com/google/ExoPlayer/issues/6636)).
+
 ### 2.10.7 (2019-11-12) ###
 
 * HLS: Fix detection of Dolby Atmos to match the HLS authoring specification.
