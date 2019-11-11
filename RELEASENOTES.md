@@ -109,6 +109,8 @@
   the extension's readme.
 * Add support for subtitle files to the demo app
   ([#5523](https://github.com/google/ExoPlayer/issues/5523)).
+* Handle new signaling for E-AC3 JOC audio in DASH
+  ([#6636](https://github.com/google/ExoPlayer/issues/6636)).
 
 ### 2.10.7 (2019-11-12) ###
 
