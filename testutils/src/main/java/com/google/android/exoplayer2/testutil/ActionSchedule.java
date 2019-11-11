@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.testutil;
 
-import android.content.Intent;
 import android.os.Looper;
 import android.view.Surface;
 import androidx.annotation.Nullable;
@@ -34,7 +33,6 @@ import com.google.android.exoplayer2.testutil.Action.ExecuteRunnable;
 import com.google.android.exoplayer2.testutil.Action.PlayUntilPosition;
 import com.google.android.exoplayer2.testutil.Action.PrepareSource;
 import com.google.android.exoplayer2.testutil.Action.Seek;
-import com.google.android.exoplayer2.testutil.Action.SendBroadcast;
 import com.google.android.exoplayer2.testutil.Action.SendMessages;
 import com.google.android.exoplayer2.testutil.Action.SetAudioAttributes;
 import com.google.android.exoplayer2.testutil.Action.SetPlayWhenReady;
@@ -46,6 +44,7 @@ import com.google.android.exoplayer2.testutil.Action.SetVideoSurface;
 import com.google.android.exoplayer2.testutil.Action.Stop;
 import com.google.android.exoplayer2.testutil.Action.ThrowPlaybackException;
 import com.google.android.exoplayer2.testutil.Action.WaitForIsLoading;
+import com.google.android.exoplayer2.testutil.Action.WaitForPlayWhenReady;
 import com.google.android.exoplayer2.testutil.Action.WaitForPlaybackState;
 import com.google.android.exoplayer2.testutil.Action.WaitForPositionDiscontinuity;
 import com.google.android.exoplayer2.testutil.Action.WaitForSeekProcessed;
@@ -390,16 +389,6 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules broadcasting an {@link Intent}.
-     *
-     * @param intent An intent to broadcast.
-     * @return The builder, for convenience.
-     */
-    public Builder sendBroadcast(Intent intent) {
-      return apply(new SendBroadcast(tag, intent));
-    }
-
-    /**
      * Schedules a delay until any timeline change.
      *
      * @return The builder, for convenience.
@@ -426,6 +415,16 @@ public final class ActionSchedule {
      */
     public Builder waitForPositionDiscontinuity() {
       return apply(new WaitForPositionDiscontinuity(tag));
+    }
+
+    /**
+     * Schedules a delay until playWhenReady has the specified value.
+     *
+     * @param targetPlayWhenReady The target playWhenReady value.
+     * @return The builder, for convenience.
+     */
+    public Builder waitForPlayWhenReady(boolean targetPlayWhenReady) {
+      return apply(new WaitForPlayWhenReady(tag, targetPlayWhenReady));
     }
 
     /**

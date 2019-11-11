@@ -15,11 +15,9 @@
  */
 package com.google.android.exoplayer2.testutil;
 
-import android.content.Intent;
 import android.os.Handler;
 import android.view.Surface;
 import androidx.annotation.Nullable;
-import androidx.test.core.app.ApplicationProvider;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -211,26 +209,6 @@ public abstract class Action {
       player.setPlayWhenReady(playWhenReady);
     }
 
-  }
-
-  /** Broadcasts an {@link Intent}. */
-  public static final class SendBroadcast extends Action {
-    private final Intent intent;
-
-    /**
-     * @param tag A tag to use for logging.
-     * @param intent The {@link Intent} to broadcast.
-     */
-    public SendBroadcast(String tag, Intent intent) {
-      super(tag, "SendBroadcast: " + intent.getAction());
-      this.intent = intent;
-    }
-
-    @Override
-    protected void doActionImpl(
-        SimpleExoPlayer player, DefaultTrackSelector trackSelector, Surface surface) {
-      ApplicationProvider.getApplicationContext().sendBroadcast(intent);
-    }
   }
 
   /**
@@ -651,6 +629,57 @@ public abstract class Action {
   }
 
   /**
+   * Waits for a specified playWhenReady value, returning either immediately or after a call to
+   * {@link Player.EventListener#onPlayerStateChanged(boolean, int)}.
+   */
+  public static final class WaitForPlayWhenReady extends Action {
+
+    private final boolean targetPlayWhenReady;
+
+    /**
+     * @param tag A tag to use for logging.
+     * @param playWhenReady The playWhenReady value to wait for.
+     */
+    public WaitForPlayWhenReady(String tag, boolean playWhenReady) {
+      super(tag, "WaitForPlayWhenReady");
+      targetPlayWhenReady = playWhenReady;
+    }
+
+    @Override
+    protected void doActionAndScheduleNextImpl(
+        SimpleExoPlayer player,
+        DefaultTrackSelector trackSelector,
+        Surface surface,
+        HandlerWrapper handler,
+        ActionNode nextAction) {
+      if (nextAction == null) {
+        return;
+      }
+      if (targetPlayWhenReady == player.getPlayWhenReady()) {
+        nextAction.schedule(player, trackSelector, surface, handler);
+      } else {
+        player.addListener(
+            new Player.EventListener() {
+              @Override
+              public void onPlayerStateChanged(
+                  boolean playWhenReady, @Player.State int playbackState) {
+                if (targetPlayWhenReady == playWhenReady) {
+                  player.removeListener(this);
+                  nextAction.schedule(player, trackSelector, surface, handler);
+                }
+              }
+            });
+      }
+    }
+
+    @Override
+    protected void doActionImpl(
+        SimpleExoPlayer player, DefaultTrackSelector trackSelector, Surface surface) {
+      // Not triggered.
+    }
+  }
+
+  /**
    * Waits for a specified playback state, returning either immediately or after a call to {@link
    * Player.EventListener#onPlayerStateChanged(boolean, int)}.
    */
@@ -658,7 +687,10 @@ public abstract class Action {
 
     private final int targetPlaybackState;
 
-    /** @param tag A tag to use for logging. */
+    /**
+     * @param tag A tag to use for logging.
+     * @param targetPlaybackState The playback state to wait for.
+     */
     public WaitForPlaybackState(String tag, int targetPlaybackState) {
       super(tag, "WaitForPlaybackState");
       this.targetPlaybackState = targetPlaybackState;

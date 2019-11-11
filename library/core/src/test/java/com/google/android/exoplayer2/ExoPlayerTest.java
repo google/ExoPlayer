@@ -21,9 +21,11 @@ import static org.junit.Assert.fail;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.SurfaceTexture;
 import android.media.AudioManager;
 import android.net.Uri;
+import android.os.Looper;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
@@ -3014,6 +3016,69 @@ public final class ExoPlayerTest {
     assertThat(positionMs[0]).isAtLeast(5000L);
   }
 
+  @Test
+  public void becomingNoisyIgnoredIfBecomingNoisyHandlingIsDisabled() throws Exception {
+    CountDownLatch becomingNoisyHandlingDisabled = new CountDownLatch(1);
+    CountDownLatch becomingNoisyDelivered = new CountDownLatch(1);
+    PlayerStateGrabber playerStateGrabber = new PlayerStateGrabber();
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("becomingNoisyIgnoredIfBecomingNoisyHandlingIsDisabled")
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    player.setHandleAudioBecomingNoisy(false);
+                    becomingNoisyHandlingDisabled.countDown();
+
+                    // Wait for the broadcast to be delivered from the main thread.
+                    try {
+                      becomingNoisyDelivered.await();
+                    } catch (InterruptedException e) {
+                      throw new IllegalStateException(e);
+                    }
+                  }
+                })
+            .delay(1) // Handle pending messages on the playback thread.
+            .executeRunnable(playerStateGrabber)
+            .build();
+
+    ExoPlayerTestRunner testRunner =
+        new ExoPlayerTestRunner.Builder().setActionSchedule(actionSchedule).build(context).start();
+    becomingNoisyHandlingDisabled.await();
+    deliverBroadcast(new Intent(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
+    becomingNoisyDelivered.countDown();
+
+    testRunner.blockUntilActionScheduleFinished(TIMEOUT_MS).blockUntilEnded(TIMEOUT_MS);
+    assertThat(playerStateGrabber.playWhenReady).isTrue();
+  }
+
+  @Test
+  public void pausesWhenBecomingNoisyIfBecomingNoisyHandlingIsEnabled() throws Exception {
+    CountDownLatch becomingNoisyHandlingEnabled = new CountDownLatch(1);
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("pausesWhenBecomingNoisyIfBecomingNoisyHandlingIsEnabled")
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    player.setHandleAudioBecomingNoisy(true);
+                    becomingNoisyHandlingEnabled.countDown();
+                  }
+                })
+            .waitForPlayWhenReady(false) // Becoming noisy should set playWhenReady = false
+            .play()
+            .build();
+
+    ExoPlayerTestRunner testRunner =
+        new ExoPlayerTestRunner.Builder().setActionSchedule(actionSchedule).build(context).start();
+    becomingNoisyHandlingEnabled.await();
+    deliverBroadcast(new Intent(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
+
+    // If the player fails to handle becoming noisy, blockUntilActionScheduleFinished will time out
+    // and throw, causing the test to fail.
+    testRunner.blockUntilActionScheduleFinished(TIMEOUT_MS).blockUntilEnded(TIMEOUT_MS);
+  }
+
   // Internal methods.
 
   private static ActionSchedule.Builder addSurfaceSwitch(ActionSchedule.Builder builder) {
@@ -3034,6 +3099,11 @@ public final class ExoPlayerTest {
                 player.setVideoSurface(surface2);
               }
             });
+  }
+
+  private static void deliverBroadcast(Intent intent) {
+    ApplicationProvider.getApplicationContext().sendBroadcast(intent);
+    shadowOf(Looper.getMainLooper()).idle();
   }
 
   // Internal classes.
