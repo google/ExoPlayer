@@ -1417,8 +1417,10 @@ public class DashManifestParser extends DefaultHandler
     for (int i = 0; i < supplementalProperties.size(); i++) {
       Descriptor descriptor = supplementalProperties.get(i);
       String schemeIdUri = descriptor.schemeIdUri;
-      if ("tag:dolby.com,2014:dash:DolbyDigitalPlusExtensionType:2014".equals(schemeIdUri)
-          && "ec+3".equals(descriptor.value)) {
+      if (("tag:dolby.com,2018:dash:EC3_ExtensionComplexityIndex:2018".equals(schemeIdUri)
+              && "JOC".equals(descriptor.value))
+          || ("tag:dolby.com,2014:dash:DolbyDigitalPlusExtensionType:2014".equals(schemeIdUri)
+              && "ec+3".equals(descriptor.value))) {
         return MimeTypes.AUDIO_E_AC3_JOC;
       }
     }
