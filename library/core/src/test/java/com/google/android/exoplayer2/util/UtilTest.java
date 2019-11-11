@@ -267,30 +267,6 @@ public class UtilTest {
   }
 
   @Test
-  public void testCrc32() {
-    byte[] bytes = {0x5F, 0x78, 0x04, 0x7B, 0x5F};
-    int start = 1;
-    int end = 4;
-    int initialValue = 0xFFFFFFFF;
-
-    int result = Util.crc32(bytes, start, end, initialValue);
-
-    assertThat(result).isEqualTo(0x67ce9747);
-  }
-
-  @Test
-  public void testCrc8() {
-    byte[] bytes = {0x5F, 0x78, 0x04, 0x7B, 0x5F};
-    int start = 1;
-    int end = 4;
-    int initialValue = 0;
-
-    int result = Util.crc8(bytes, start, end, initialValue);
-
-    assertThat(result).isEqualTo(0x4);
-  }
-
-  @Test
   public void testInflate() {
     byte[] testData = TestUtil.buildTestData(/*arbitrary test data size*/ 256 * 1024);
     byte[] compressedData = new byte[testData.length * 2];
