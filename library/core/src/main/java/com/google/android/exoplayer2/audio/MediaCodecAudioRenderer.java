@@ -541,7 +541,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @C.Encoding
   protected int getPassthroughEncoding(int channelCount, String mimeType) {
     if (MimeTypes.AUDIO_E_AC3_JOC.equals(mimeType)) {
-      if (audioSink.supportsOutput(channelCount, C.ENCODING_E_AC3_JOC)) {
+      // E-AC3 JOC is object-based so the output channel count is arbitrary.
+      if (audioSink.supportsOutput(/* channelCount= */ Format.NO_VALUE, C.ENCODING_E_AC3_JOC)) {
         return MimeTypes.getEncoding(MimeTypes.AUDIO_E_AC3_JOC);
       }
       // E-AC3 receivers can decode JOC streams, but in 2-D rather than 3-D, so try to fall back.
