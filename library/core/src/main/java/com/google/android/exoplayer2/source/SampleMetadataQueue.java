@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.TrackOutput.CryptoData;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
@@ -623,7 +624,8 @@ import java.io.IOException;
     currentDrmSession =
         newDrmInitData != null
             ? drmSessionManager.acquireSession(playbackLooper, newDrmInitData)
-            : drmSessionManager.acquirePlaceholderSession(playbackLooper);
+            : drmSessionManager.acquirePlaceholderSession(
+                playbackLooper, MimeTypes.getTrackType(newFormat.sampleMimeType));
     outputFormatHolder.drmSession = currentDrmSession;
 
     if (previousSession != null) {

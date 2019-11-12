@@ -396,7 +396,8 @@ public final class SampleQueueTest {
     DrmSession<ExoMediaCrypto> mockPlaceholderDrmSession =
         (DrmSession<ExoMediaCrypto>) Mockito.mock(DrmSession.class);
     when(mockPlaceholderDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
-    when(mockDrmSessionManager.acquirePlaceholderSession(ArgumentMatchers.any()))
+    when(mockDrmSessionManager.acquirePlaceholderSession(
+            ArgumentMatchers.any(), ArgumentMatchers.anyInt()))
         .thenReturn(mockPlaceholderDrmSession);
     writeTestDataWithEncryptedSections();
 
