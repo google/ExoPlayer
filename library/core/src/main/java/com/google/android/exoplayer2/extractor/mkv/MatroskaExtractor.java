@@ -236,14 +236,21 @@ public class MatroskaExtractor implements Extractor {
   private static final int FOURCC_COMPRESSION_VC1 = 0x31435657;
 
   /**
-   * A template for the prefix that must be added to each subrip sample. The 12 byte end timecode
-   * starting at {@link #SUBRIP_PREFIX_END_TIMECODE_OFFSET} is set to a dummy value, and must be
-   * replaced with the duration of the subtitle.
-   * <p>
-   * Equivalent to the UTF-8 string: "1\n00:00:00,000 --> 00:00:00,000\n".
+   * A template for the prefix that must be added to each subrip sample.
+   *
+   * <p>The display time of each subtitle is passed as {@code timeUs} to {@link
+   * TrackOutput#sampleMetadata}. The start and end timecodes in this template are relative to
+   * {@code timeUs}. Hence the start timecode is always zero. The 12 byte end timecode starting at
+   * {@link #SUBRIP_PREFIX_END_TIMECODE_OFFSET} is set to a dummy value, and must be replaced with
+   * the duration of the subtitle.
+   *
+   * <p>Equivalent to the UTF-8 string: "1\n00:00:00,000 --> 00:00:00,000\n".
    */
-  private static final byte[] SUBRIP_PREFIX = new byte[] {49, 10, 48, 48, 58, 48, 48, 58, 48, 48,
-      44, 48, 48, 48, 32, 45, 45, 62, 32, 48, 48, 58, 48, 48, 58, 48, 48, 44, 48, 48, 48, 10};
+  private static final byte[] SUBRIP_PREFIX =
+      new byte[] {
+        49, 10, 48, 48, 58, 48, 48, 58, 48, 48, 44, 48, 48, 48, 32, 45, 45, 62, 32, 48, 48, 58, 48,
+        48, 58, 48, 48, 44, 48, 48, 48, 10
+      };
   /**
    * The byte offset of the end timecode in {@link #SUBRIP_PREFIX}.
    */
@@ -272,14 +279,21 @@ public class MatroskaExtractor implements Extractor {
   private static final byte[] SSA_DIALOGUE_FORMAT = Util.getUtf8Bytes("Format: Start, End, "
       + "ReadOrder, Layer, Style, Name, MarginL, MarginR, MarginV, Effect, Text");
   /**
-   * A template for the prefix that must be added to each SSA sample. The 10 byte end timecode
-   * starting at {@link #SSA_PREFIX_END_TIMECODE_OFFSET} is set to a dummy value, and must be
-   * replaced with the duration of the subtitle.
-   * <p>
-   * Equivalent to the UTF-8 string: "Dialogue: 0:00:00:00,0:00:00:00,".
+   * A template for the prefix that must be added to each SSA sample.
+   *
+   * <p>The display time of each subtitle is passed as {@code timeUs} to {@link
+   * TrackOutput#sampleMetadata}. The start and end timecodes in this template are relative to
+   * {@code timeUs}. Hence the start timecode is always zero. The 12 byte end timecode starting at
+   * {@link #SUBRIP_PREFIX_END_TIMECODE_OFFSET} is set to a dummy value, and must be replaced with
+   * the duration of the subtitle.
+   *
+   * <p>Equivalent to the UTF-8 string: "Dialogue: 0:00:00:00,0:00:00:00,".
    */
-  private static final byte[] SSA_PREFIX = new byte[] {68, 105, 97, 108, 111, 103, 117, 101, 58, 32,
-      48, 58, 48, 48, 58, 48, 48, 58, 48, 48, 44, 48, 58, 48, 48, 58, 48, 48, 58, 48, 48, 44};
+  private static final byte[] SSA_PREFIX =
+      new byte[] {
+        68, 105, 97, 108, 111, 103, 117, 101, 58, 32, 48, 58, 48, 48, 58, 48, 48, 58, 48, 48, 44,
+        48, 58, 48, 48, 58, 48, 48, 58, 48, 48, 44
+      };
   /**
    * The byte offset of the end timecode in {@link #SSA_PREFIX}.
    */
@@ -1468,16 +1482,32 @@ public class MatroskaExtractor implements Extractor {
 
   private void commitSubtitleSample(Track track, String timecodeFormat, int endTimecodeOffset,
       long lastTimecodeValueScalingFactor, byte[] emptyTimecode) {
-    setSampleDuration(subtitleSample.data, blockDurationUs, timecodeFormat, endTimecodeOffset,
-        lastTimecodeValueScalingFactor, emptyTimecode);
+    setSubtitleSampleDuration(
+        subtitleSample.data,
+        blockDurationUs,
+        timecodeFormat,
+        endTimecodeOffset,
+        lastTimecodeValueScalingFactor,
+        emptyTimecode);
     // Note: If we ever want to support DRM protected subtitles then we'll need to output the
     // appropriate encryption data here.
     track.output.sampleData(subtitleSample, subtitleSample.limit());
     sampleBytesWritten += subtitleSample.limit();
   }
 
-  private static void setSampleDuration(byte[] subripSampleData, long durationUs,
-      String timecodeFormat, int endTimecodeOffset, long lastTimecodeValueScalingFactor,
+  /**
+   * Formats {@code durationUs} using {@code timecodeFormat}, and sets it as the end timecode in
+   * {@code subtitleSampleData}.
+   *
+   * <p>See documentation on {@link #SSA_DIALOGUE_FORMAT} and {@link #SUBRIP_PREFIX} for why we use
+   * the duration as the end timecode.
+   */
+  private static void setSubtitleSampleDuration(
+      byte[] subtitleSampleData,
+      long durationUs,
+      String timecodeFormat,
+      int endTimecodeOffset,
+      long lastTimecodeValueScalingFactor,
       byte[] emptyTimecode) {
     byte[] timeCodeData;
     if (durationUs == C.TIME_UNSET) {
@@ -1493,7 +1523,8 @@ public class MatroskaExtractor implements Extractor {
       timeCodeData = Util.getUtf8Bytes(String.format(Locale.US, timecodeFormat, hours, minutes,
           seconds, lastValue));
     }
-    System.arraycopy(timeCodeData, 0, subripSampleData, endTimecodeOffset, emptyTimecode.length);
+    Assertions.checkState(timeCodeData.length == emptyTimecode.length);
+    System.arraycopy(timeCodeData, 0, subtitleSampleData, endTimecodeOffset, timeCodeData.length);
   }
 
   /**
