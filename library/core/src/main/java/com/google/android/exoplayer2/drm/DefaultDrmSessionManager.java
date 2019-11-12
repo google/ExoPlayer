@@ -458,12 +458,15 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
 
   @Override
   @Nullable
-  public DrmSession<T> acquirePlaceholderSession(Looper playbackLooper) {
+  public DrmSession<T> acquirePlaceholderSession(Looper playbackLooper, int trackType) {
     assertExpectedPlaybackLooper(playbackLooper);
     Assertions.checkNotNull(exoMediaDrm);
     boolean avoidPlaceholderDrmSessions =
         FrameworkMediaCrypto.class.equals(exoMediaDrm.getExoMediaCryptoType())
             && FrameworkMediaCrypto.WORKAROUND_DEVICE_NEEDS_KEYS_TO_CONFIGURE_CODEC;
+    // Avoid attaching a session to sparse formats.
+    avoidPlaceholderDrmSessions |=
+        trackType != C.TRACK_TYPE_VIDEO && trackType != C.TRACK_TYPE_AUDIO;
     if (avoidPlaceholderDrmSessions
         || !preferSecureDecoders
         || exoMediaDrm.getExoMediaCryptoType() == null) {
