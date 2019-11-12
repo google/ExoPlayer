@@ -111,6 +111,9 @@
   ([#5523](https://github.com/google/ExoPlayer/issues/5523)).
 * Handle new signaling for E-AC3 JOC audio in DASH
   ([#6636](https://github.com/google/ExoPlayer/issues/6636)).
+* Require an end time or duration for SubRip (SRT) and SubStation Alpha
+  (SSA/ASS) subtitles. This applies to both sidecar files & subtitles
+  [embedded in Matroska streams](https://matroska.org/technical/specs/subtitles/index.html).
 
 ### 2.10.7 (2019-11-12) ###
 
