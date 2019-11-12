@@ -2169,6 +2169,70 @@ public final class ExoPlayerTest {
   }
 
   @Test
+  public void testInvalidSeekFallsBackToSubsequentPeriodOfTheRemovedPeriod() throws Exception {
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    CountDownLatch sourceReleasedCountDownLatch = new CountDownLatch(/* count= */ 1);
+    MediaSource mediaSourceToRemove =
+        new FakeMediaSource(timeline) {
+          @Override
+          protected void releaseSourceInternal() {
+            super.releaseSourceInternal();
+            sourceReleasedCountDownLatch.countDown();
+          }
+        };
+    ConcatenatingMediaSource mediaSource =
+        new ConcatenatingMediaSource(mediaSourceToRemove, new FakeMediaSource(timeline));
+    final int[] windowCount = {C.INDEX_UNSET};
+    final long[] position = {C.TIME_UNSET};
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("testInvalidSeekFallsBackToSubsequentPeriodOfTheRemovedPeriod")
+            .pause()
+            .waitForTimelineChanged()
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    mediaSource.removeMediaSource(/* index= */ 0);
+                    try {
+                      // Wait until the source to be removed is released on the playback thread. So
+                      // the timeline in EPII has one window only, but the update here in EPI is
+                      // stuck until we finished our executable here. So when seeking below, we will
+                      // seek in the timeline which still has two windows in EPI, but when the seek
+                      // arrives in EPII the actual timeline has one window only. Hence it tries to
+                      // find the subsequent period of the removed period and finds it.
+                      sourceReleasedCountDownLatch.await();
+                    } catch (InterruptedException e) {
+                      throw new IllegalStateException(e);
+                    }
+                    player.seekTo(/* windowIndex= */ 0, /* positionMs= */ 1000L);
+                  }
+                })
+            .waitForSeekProcessed()
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    windowCount[0] = player.getCurrentTimeline().getWindowCount();
+                    position[0] = player.getCurrentPosition();
+                  }
+                })
+            .play()
+            .build();
+    new ExoPlayerTestRunner.Builder()
+        .setMediaSource(mediaSource)
+        .setActionSchedule(actionSchedule)
+        .build(context)
+        .start()
+        .blockUntilActionScheduleFinished(TIMEOUT_MS)
+        .blockUntilEnded(TIMEOUT_MS);
+
+    // Expect the first window to be the current.
+    assertThat(windowCount[0]).isEqualTo(1);
+    // Expect the position to be in the default position.
+    assertThat(position[0]).isEqualTo(0L);
+  }
+
+  @Test
   public void testRecursivePlayerChangesReportConsistentValuesForAllListeners() throws Exception {
     // We add two listeners to the player. The first stops the player as soon as it's ready and both
     // record the state change events they receive.
@@ -2992,7 +3056,7 @@ public final class ExoPlayerTest {
                 new PlayerRunnable() {
                   @Override
                   public void run(SimpleExoPlayer player) {
-                    player.setMediaItem(mediaSource, /* positionMs= */ 5000);
+                    player.setMediaItem(mediaSource, /* startPositionMs= */ 5000);
                     player.prepare();
                   }
                 })
