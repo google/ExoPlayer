@@ -36,7 +36,6 @@ public final class SsaDecoderTest {
   private static final String TYPICAL_DIALOGUE_ONLY = "ssa/typical_dialogue";
   private static final String TYPICAL_FORMAT_ONLY = "ssa/typical_format";
   private static final String INVALID_TIMECODES = "ssa/invalid_timecodes";
-  private static final String NO_END_TIMECODES = "ssa/no_end_timecodes";
 
   @Test
   public void testDecodeEmpty() throws IOException {
@@ -90,28 +89,6 @@ public final class SsaDecoderTest {
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(2);
     assertTypicalCue3(subtitle, 0);
-  }
-
-  @Test
-  public void testDecodeNoEndTimecodes() throws IOException {
-    SsaDecoder decoder = new SsaDecoder();
-    byte[] bytes =
-        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), NO_END_TIMECODES);
-    Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
-
-    assertThat(subtitle.getEventTimeCount()).isEqualTo(3);
-
-    assertThat(subtitle.getEventTime(0)).isEqualTo(0);
-    assertThat(subtitle.getCues(subtitle.getEventTime(0)).get(0).text.toString())
-        .isEqualTo("This is the first subtitle.");
-
-    assertThat(subtitle.getEventTime(1)).isEqualTo(2340000);
-    assertThat(subtitle.getCues(subtitle.getEventTime(1)).get(0).text.toString())
-        .isEqualTo("This is the second subtitle \nwith a newline \nand another.");
-
-    assertThat(subtitle.getEventTime(2)).isEqualTo(4560000);
-    assertThat(subtitle.getCues(subtitle.getEventTime(2)).get(0).text.toString())
-        .isEqualTo("This is the third subtitle, with a comma.");
   }
 
   private static void assertTypicalCue1(Subtitle subtitle, int eventIndex) {
