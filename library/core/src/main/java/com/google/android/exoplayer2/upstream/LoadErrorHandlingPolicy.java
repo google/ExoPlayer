@@ -38,6 +38,30 @@ import java.io.IOException;
  */
 public interface LoadErrorHandlingPolicy {
 
+  /** Holds information about a load task error. */
+  final class LoadErrorInfo {
+
+    /** One of the {@link C C.DATA_TYPE_*} constants indicating the type of data to load. */
+    public final int dataType;
+    /**
+     * The duration in milliseconds of the load from the start of the first load attempt up to the
+     * point at which the error occurred.
+     */
+    public final long loadDurationMs;
+    /** The exception associated to the load error. */
+    public final IOException exception;
+    /** The number of errors this load task has encountered, including this one. */
+    public final int errorCount;
+
+    /** Creates an instance with the given values. */
+    public LoadErrorInfo(int dataType, long loadDurationMs, IOException exception, int errorCount) {
+      this.dataType = dataType;
+      this.loadDurationMs = loadDurationMs;
+      this.exception = exception;
+      this.errorCount = errorCount;
+    }
+  }
+
   /**
    * Returns the number of milliseconds for which a resource associated to a provided load error
    * should be blacklisted, or {@link C#TIME_UNSET} if the resource should not be blacklisted.
@@ -53,6 +77,22 @@ public interface LoadErrorHandlingPolicy {
    */
   long getBlacklistDurationMsFor(
       int dataType, long loadDurationMs, IOException exception, int errorCount);
+
+  /**
+   * Returns the number of milliseconds for which a resource associated to a provided load error
+   * should be blacklisted, or {@link C#TIME_UNSET} if the resource should not be blacklisted.
+   *
+   * @param loadErrorInfo A {@link LoadErrorInfo} holding information about the load error.
+   * @return The blacklist duration in milliseconds, or {@link C#TIME_UNSET} if the resource should
+   *     not be blacklisted.
+   */
+  default long getBlacklistDurationMsFor(LoadErrorInfo loadErrorInfo) {
+    return getBlacklistDurationMsFor(
+        loadErrorInfo.dataType,
+        loadErrorInfo.loadDurationMs,
+        loadErrorInfo.exception,
+        loadErrorInfo.errorCount);
+  }
 
   /**
    * Returns the number of milliseconds to wait before attempting the load again, or {@link
@@ -72,6 +112,26 @@ public interface LoadErrorHandlingPolicy {
    *     C#TIME_UNSET} if the error is fatal and should not be retried.
    */
   long getRetryDelayMsFor(int dataType, long loadDurationMs, IOException exception, int errorCount);
+
+  /**
+   * Returns the number of milliseconds to wait before attempting the load again, or {@link
+   * C#TIME_UNSET} if the error is fatal and should not be retried.
+   *
+   * <p>{@link Loader} clients may ignore the retry delay returned by this method in order to wait
+   * for a specific event before retrying. However, the load is retried if and only if this method
+   * does not return {@link C#TIME_UNSET}.
+   *
+   * @param loadErrorInfo A {@link LoadErrorInfo} holding information about the load error.
+   * @return The number of milliseconds to wait before attempting the load again, or {@link
+   *     C#TIME_UNSET} if the error is fatal and should not be retried.
+   */
+  default long getRetryDelayMsFor(LoadErrorInfo loadErrorInfo) {
+    return getRetryDelayMsFor(
+        loadErrorInfo.dataType,
+        loadErrorInfo.loadDurationMs,
+        loadErrorInfo.exception,
+        loadErrorInfo.errorCount);
+  }
 
   /**
    * Returns the minimum number of times to retry a load in the case of a load error, before
