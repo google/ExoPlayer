@@ -29,7 +29,8 @@ import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource.Factory;
 import com.google.android.exoplayer2.util.Assertions;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.Map;
 import java.util.UUID;
 
 /** Helper class to download, renew and release offline licenses. */
@@ -89,21 +90,21 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
    * @param forceDefaultLicenseUrl Whether to use {@code defaultLicenseUrl} for key requests that
    *     include their own license URL.
    * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
-   *     to {@link MediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap)}. May be null.
+   *     to {@link MediaDrm#getKeyRequest}. May be null.
    * @return A new instance which uses Widevine CDM.
    * @throws UnsupportedDrmException If the Widevine DRM scheme is unsupported or cannot be
    *     instantiated.
-   * @see DefaultDrmSessionManager#DefaultDrmSessionManager(java.util.UUID, ExoMediaDrm,
-   *     MediaDrmCallback, HashMap)
+   * @see DefaultDrmSessionManager.Builder
    */
   public static OfflineLicenseHelper<FrameworkMediaCrypto> newWidevineInstance(
       String defaultLicenseUrl,
       boolean forceDefaultLicenseUrl,
       Factory httpDataSourceFactory,
-      @Nullable HashMap<String, String> optionalKeyRequestParameters)
+      @Nullable Map<String, String> optionalKeyRequestParameters)
       throws UnsupportedDrmException {
-    return new OfflineLicenseHelper<>(C.WIDEVINE_UUID,
-        FrameworkMediaDrm.newInstance(C.WIDEVINE_UUID),
+    return new OfflineLicenseHelper<>(
+        C.WIDEVINE_UUID,
+        FrameworkMediaDrm.DEFAULT_PROVIDER,
         new HttpMediaDrmCallback(defaultLicenseUrl, forceDefaultLicenseUrl, httpDataSourceFactory),
         optionalKeyRequestParameters);
   }
@@ -112,18 +113,18 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
    * Constructs an instance. Call {@link #release()} when the instance is no longer required.
    *
    * @param uuid The UUID of the drm scheme.
-   * @param mediaDrm An underlying {@link ExoMediaDrm} for use by the manager.
+   * @param mediaDrmProvider A {@link ExoMediaDrm.Provider}.
    * @param callback Performs key and provisioning requests.
    * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
-   *     to {@link MediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap)}. May be null.
-   * @see DefaultDrmSessionManager#DefaultDrmSessionManager(java.util.UUID, ExoMediaDrm,
-   *     MediaDrmCallback, HashMap)
+   *     to {@link MediaDrm#getKeyRequest}. May be null.
+   * @see DefaultDrmSessionManager.Builder
    */
+  @SuppressWarnings("unchecked")
   public OfflineLicenseHelper(
       UUID uuid,
-      ExoMediaDrm<T> mediaDrm,
+      ExoMediaDrm.Provider<T> mediaDrmProvider,
       MediaDrmCallback callback,
-      @Nullable HashMap<String, String> optionalKeyRequestParameters) {
+      @Nullable Map<String, String> optionalKeyRequestParameters) {
     handlerThread = new HandlerThread("OfflineLicenseHelper");
     handlerThread.start();
     conditionVariable = new ConditionVariable();
@@ -149,8 +150,15 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
             conditionVariable.open();
           }
         };
+    if (optionalKeyRequestParameters == null) {
+      optionalKeyRequestParameters = Collections.emptyMap();
+    }
     drmSessionManager =
-        new DefaultDrmSessionManager<>(uuid, mediaDrm, callback, optionalKeyRequestParameters);
+        (DefaultDrmSessionManager<T>)
+            new DefaultDrmSessionManager.Builder()
+                .setUuidAndExoMediaDrmProvider(uuid, mediaDrmProvider)
+                .setKeyRequestParameters(optionalKeyRequestParameters)
+                .build(callback);
     drmSessionManager.addListener(new Handler(handlerThread.getLooper()), eventListener);
   }
 

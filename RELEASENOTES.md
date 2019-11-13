@@ -5,6 +5,8 @@
 * Require an end time or duration for SubRip (SRT) and SubStation Alpha
   (SSA/ASS) subtitles. This applies to both sidecar files & subtitles
   [embedded in Matroska streams](https://matroska.org/technical/specs/subtitles/index.html).
+* Use `ExoMediaDrm.Provider` in `OfflineLicenseHelper` to avoid `ExoMediaDrm`
+  leaks ([#4721](https://github.com/google/ExoPlayer/issues/4721)).
 
 ### 2.11.0 (not yet released) ###
 
