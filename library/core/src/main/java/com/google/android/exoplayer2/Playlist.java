@@ -119,7 +119,7 @@ import java.util.Set;
           MediaSourceHolder previousHolder = mediaSourceHolders.get(insertionIndex - 1);
           Timeline previousTimeline = previousHolder.mediaSource.getTimeline();
           holder.reset(
-              /* firstWindowInChildIndex= */ previousHolder.firstWindowIndexInChild
+              /* firstWindowIndexInChild= */ previousHolder.firstWindowIndexInChild
                   + previousTimeline.getWindowCount());
         } else {
           holder.reset(/* firstWindowIndexInChild= */ 0);
