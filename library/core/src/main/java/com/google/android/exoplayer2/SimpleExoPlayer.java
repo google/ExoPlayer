@@ -329,6 +329,7 @@ public class SimpleExoPlayer extends BasePlayer
   @Nullable private Format videoFormat;
   @Nullable private Format audioFormat;
 
+  @Nullable private VideoDecoderOutputBufferRenderer videoDecoderOutputBufferRenderer;
   @Nullable private Surface surface;
   private boolean ownsSurface;
   private @C.VideoScalingMode int videoScalingMode;
@@ -520,7 +521,7 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public void clearVideoSurface(Surface surface) {
+  public void clearVideoSurface(@Nullable Surface surface) {
     verifyApplicationThread();
     if (surface != null && surface == this.surface) {
       setVideoSurface(null);
@@ -537,7 +538,7 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public void setVideoSurfaceHolder(SurfaceHolder surfaceHolder) {
+  public void setVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder) {
     verifyApplicationThread();
     removeSurfaceCallbacks();
     this.surfaceHolder = surfaceHolder;
@@ -559,7 +560,7 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public void clearVideoSurfaceHolder(SurfaceHolder surfaceHolder) {
+  public void clearVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder) {
     verifyApplicationThread();
     if (surfaceHolder != null && surfaceHolder == this.surfaceHolder) {
       setVideoSurfaceHolder(null);
@@ -567,17 +568,17 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public void setVideoSurfaceView(SurfaceView surfaceView) {
+  public void setVideoSurfaceView(@Nullable SurfaceView surfaceView) {
     setVideoSurfaceHolder(surfaceView == null ? null : surfaceView.getHolder());
   }
 
   @Override
-  public void clearVideoSurfaceView(SurfaceView surfaceView) {
+  public void clearVideoSurfaceView(@Nullable SurfaceView surfaceView) {
     clearVideoSurfaceHolder(surfaceView == null ? null : surfaceView.getHolder());
   }
 
   @Override
-  public void setVideoTextureView(TextureView textureView) {
+  public void setVideoTextureView(@Nullable TextureView textureView) {
     verifyApplicationThread();
     removeSurfaceCallbacks();
     this.textureView = textureView;
@@ -602,7 +603,7 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public void clearVideoTextureView(TextureView textureView) {
+  public void clearVideoTextureView(@Nullable TextureView textureView) {
     verifyApplicationThread();
     if (textureView != null && textureView == this.textureView) {
       setVideoTextureView(null);
@@ -614,14 +615,22 @@ public class SimpleExoPlayer extends BasePlayer
       @Nullable VideoDecoderOutputBufferRenderer videoDecoderOutputBufferRenderer) {
     verifyApplicationThread();
     setVideoSurface(null);
-    for (Renderer renderer : renderers) {
-      if (renderer.getTrackType() == C.TRACK_TYPE_VIDEO) {
-        player
-            .createMessage(renderer)
-            .setType(C.MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER)
-            .setPayload(videoDecoderOutputBufferRenderer)
-            .send();
-      }
+    setVideoDecoderOutputBufferRendererInternal(videoDecoderOutputBufferRenderer);
+  }
+
+  @Override
+  public void clearVideoDecoderOutputBufferRenderer() {
+    verifyApplicationThread();
+    setVideoDecoderOutputBufferRendererInternal(/* videoDecoderOutputBufferRenderer= */ null);
+  }
+
+  @Override
+  public void clearVideoDecoderOutputBufferRenderer(
+      @Nullable VideoDecoderOutputBufferRenderer videoDecoderOutputBufferRenderer) {
+    verifyApplicationThread();
+    if (videoDecoderOutputBufferRenderer != null
+        && videoDecoderOutputBufferRenderer == this.videoDecoderOutputBufferRenderer) {
+      setVideoDecoderOutputBufferRendererInternal(/* videoDecoderOutputBufferRenderer= */ null);
     }
   }
 
@@ -1484,6 +1493,20 @@ public class SimpleExoPlayer extends BasePlayer
     }
     this.surface = surface;
     this.ownsSurface = ownsSurface;
+  }
+
+  private void setVideoDecoderOutputBufferRendererInternal(
+      @Nullable VideoDecoderOutputBufferRenderer videoDecoderOutputBufferRenderer) {
+    for (Renderer renderer : renderers) {
+      if (renderer.getTrackType() == C.TRACK_TYPE_VIDEO) {
+        player
+            .createMessage(renderer)
+            .setType(C.MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER)
+            .setPayload(videoDecoderOutputBufferRenderer)
+            .send();
+      }
+    }
+    this.videoDecoderOutputBufferRenderer = videoDecoderOutputBufferRenderer;
   }
 
   private void maybeNotifySurfaceSizeChanged(int width, int height) {
