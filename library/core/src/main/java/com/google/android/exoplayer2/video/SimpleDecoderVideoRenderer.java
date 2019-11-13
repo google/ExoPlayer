@@ -580,6 +580,7 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
       // The output has changed.
       this.surface = surface;
       if (surface != null) {
+        outputBufferRenderer = null;
         outputMode = C.VIDEO_OUTPUT_MODE_SURFACE_YUV;
         if (decoder != null) {
           setDecoderOutputMode(outputMode);
@@ -608,6 +609,7 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
       // The output has changed.
       this.outputBufferRenderer = outputBufferRenderer;
       if (outputBufferRenderer != null) {
+        surface = null;
         outputMode = C.VIDEO_OUTPUT_MODE_YUV;
         if (decoder != null) {
           setDecoderOutputMode(outputMode);
