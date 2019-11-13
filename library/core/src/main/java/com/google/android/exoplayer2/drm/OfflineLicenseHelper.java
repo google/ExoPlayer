@@ -210,7 +210,7 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
     DrmSessionException error = drmSession.getError();
     Pair<Long, Long> licenseDurationRemainingSec =
         WidevineUtil.getLicenseDurationRemainingSec(drmSession);
-    drmSession.releaseReference();
+    drmSession.release();
     drmSessionManager.release();
     if (error != null) {
       if (error.getCause() instanceof KeysExpiredException) {
@@ -236,7 +236,7 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
         drmInitData);
     DrmSessionException error = drmSession.getError();
     byte[] keySetId = drmSession.getOfflineLicenseKeySetId();
-    drmSession.releaseReference();
+    drmSession.release();
     drmSessionManager.release();
     if (error != null) {
       throw error;
