@@ -217,7 +217,7 @@ public interface Player {
      *
      * @param surface The surface to clear.
      */
-    void clearVideoSurface(Surface surface);
+    void clearVideoSurface(@Nullable Surface surface);
 
     /**
      * Sets the {@link Surface} onto which video will be rendered. The caller is responsible for
@@ -240,7 +240,7 @@ public interface Player {
      *
      * @param surfaceHolder The surface holder.
      */
-    void setVideoSurfaceHolder(SurfaceHolder surfaceHolder);
+    void setVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder);
 
     /**
      * Clears the {@link SurfaceHolder} that holds the {@link Surface} onto which video is being
@@ -248,7 +248,7 @@ public interface Player {
      *
      * @param surfaceHolder The surface holder to clear.
      */
-    void clearVideoSurfaceHolder(SurfaceHolder surfaceHolder);
+    void clearVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder);
 
     /**
      * Sets the {@link SurfaceView} onto which video will be rendered. The player will track the
@@ -256,7 +256,7 @@ public interface Player {
      *
      * @param surfaceView The surface view.
      */
-    void setVideoSurfaceView(SurfaceView surfaceView);
+    void setVideoSurfaceView(@Nullable SurfaceView surfaceView);
 
     /**
      * Clears the {@link SurfaceView} onto which video is being rendered if it matches the one
@@ -264,7 +264,7 @@ public interface Player {
      *
      * @param surfaceView The texture view to clear.
      */
-    void clearVideoSurfaceView(SurfaceView surfaceView);
+    void clearVideoSurfaceView(@Nullable SurfaceView surfaceView);
 
     /**
      * Sets the {@link TextureView} onto which video will be rendered. The player will track the
@@ -272,7 +272,7 @@ public interface Player {
      *
      * @param textureView The texture view.
      */
-    void setVideoTextureView(TextureView textureView);
+    void setVideoTextureView(@Nullable TextureView textureView);
 
     /**
      * Clears the {@link TextureView} onto which video is being rendered if it matches the one
@@ -280,7 +280,7 @@ public interface Player {
      *
      * @param textureView The texture view to clear.
      */
-    void clearVideoTextureView(TextureView textureView);
+    void clearVideoTextureView(@Nullable TextureView textureView);
 
     /**
      * Sets the video decoder output buffer renderer. This is intended for use only with extension
@@ -292,6 +292,18 @@ public interface Player {
      *     null} to clear the output buffer renderer.
      */
     void setVideoDecoderOutputBufferRenderer(
+        @Nullable VideoDecoderOutputBufferRenderer videoDecoderOutputBufferRenderer);
+
+    /** Clears the video decoder output buffer renderer. */
+    void clearVideoDecoderOutputBufferRenderer();
+
+    /**
+     * Clears the video decoder output buffer renderer if it matches the one passed. Else does
+     * nothing.
+     *
+     * @param videoDecoderOutputBufferRenderer The video decoder output buffer renderer to clear.
+     */
+    void clearVideoDecoderOutputBufferRenderer(
         @Nullable VideoDecoderOutputBufferRenderer videoDecoderOutputBufferRenderer);
   }
 
