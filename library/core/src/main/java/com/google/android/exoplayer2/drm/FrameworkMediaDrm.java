@@ -55,8 +55,6 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
    * {@link ExoMediaDrm.Provider} that returns a new {@link FrameworkMediaDrm} for the requested
    * UUID. Returns a {@link DummyExoMediaDrm} if the protection scheme identified by the given UUID
    * is not supported by the device.
-   *
-   * <p>This provider should be used to make ExoPlayer handle {@link ExoMediaDrm} resources.
    */
   public static final Provider<FrameworkMediaCrypto> DEFAULT_PROVIDER =
       uuid -> {
@@ -78,8 +76,8 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
   private int referenceCount;
 
   /**
-   * Creates an instance with an {@link #acquire() acquired reference} for the specified scheme
-   * UUID. {@link #release()} must be called when the instance is no longer required.
+   * Creates an instance with an initial reference count of 1. {@link #release()} must be called on
+   * the instance when it's no longer required.
    *
    * @param uuid The scheme uuid.
    * @return The created instance.
