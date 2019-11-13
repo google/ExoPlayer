@@ -480,7 +480,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       sessions.add(placeholderDrmSession);
       this.placeholderDrmSession = placeholderDrmSession;
     }
-    placeholderDrmSession.acquireReference();
+    placeholderDrmSession.acquire();
     return placeholderDrmSession;
   }
 
@@ -521,7 +521,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       }
       sessions.add(session);
     }
-    session.acquireReference();
+    session.acquire();
     return session;
   }
 

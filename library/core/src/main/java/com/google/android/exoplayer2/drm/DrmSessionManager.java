@@ -105,8 +105,9 @@ public interface DrmSessionManager<T extends ExoMediaCrypto> {
   boolean canAcquireSession(DrmInitData drmInitData);
 
   /**
-   * Returns a {@link DrmSession} with an acquired reference that does not execute key requests.
-   * Returns null if placeholder sessions are not supported by this DRM session manager.
+   * Returns a {@link DrmSession} that does not execute key requests, with an incremented reference
+   * count. When the caller no longer needs to use the instance, it must call {@link
+   * DrmSession#release()} to decrement the reference count.
    *
    * <p>Placeholder {@link DrmSession DrmSessions} may be used to configure secure decoders for
    * playback of clear samples, which reduces the costs of transitioning between clear and encrypted
@@ -124,10 +125,9 @@ public interface DrmSessionManager<T extends ExoMediaCrypto> {
   }
 
   /**
-   * Returns a {@link DrmSession} with an acquired reference for the specified {@link DrmInitData}.
-   *
-   * <p>The caller must call {@link DrmSession#releaseReference} to decrement the session's
-   * reference count when the session is no longer required.
+   * Returns a {@link DrmSession} for the specified {@link DrmInitData}, with an incremented
+   * reference count. When the caller no longer needs to use the instance, it must call {@link
+   * DrmSession#release()} to decrement the reference count.
    *
    * @param playbackLooper The looper associated with the media playback thread.
    * @param drmInitData DRM initialization data. All contained {@link SchemeData}s must contain

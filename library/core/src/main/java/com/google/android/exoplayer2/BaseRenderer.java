@@ -321,7 +321,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
               Assertions.checkNotNull(Looper.myLooper()), newFormat.drmInitData);
     }
     if (existingSourceSession != null) {
-      existingSourceSession.releaseReference();
+      existingSourceSession.release();
     }
     return newSourceDrmSession;
   }

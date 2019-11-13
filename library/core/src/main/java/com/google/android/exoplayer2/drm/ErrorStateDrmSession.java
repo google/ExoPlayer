@@ -58,12 +58,12 @@ public final class ErrorStateDrmSession<T extends ExoMediaCrypto> implements Drm
   }
 
   @Override
-  public void acquireReference() {
+  public void acquire() {
     // Do nothing.
   }
 
   @Override
-  public void releaseReference() {
+  public void release() {
     // Do nothing.
   }
 }

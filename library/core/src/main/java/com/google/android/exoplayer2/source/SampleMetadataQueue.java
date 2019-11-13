@@ -171,7 +171,7 @@ import java.io.IOException;
   /** Releases any owned {@link DrmSession} references. */
   public void releaseDrmSessionReferences() {
     if (currentDrmSession != null) {
-      currentDrmSession.releaseReference();
+      currentDrmSession.release();
       currentDrmSession = null;
       // Clear downstream format to avoid violating the assumption that downstreamFormat.drmInitData
       // != null implies currentSession != null
@@ -629,7 +629,7 @@ import java.io.IOException;
     outputFormatHolder.drmSession = currentDrmSession;
 
     if (previousSession != null) {
-      previousSession.releaseReference();
+      previousSession.release();
     }
   }
 

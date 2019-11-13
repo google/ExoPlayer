@@ -251,7 +251,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   @Override
-  public void acquireReference() {
+  public void acquire() {
+    Assertions.checkState(referenceCount >= 0);
     if (++referenceCount == 1) {
       Assertions.checkState(state == STATE_OPENING);
       requestHandlerThread = new HandlerThread("DrmRequestHandler");
@@ -264,7 +265,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   @Override
-  public void releaseReference() {
+  public void release() {
     if (--referenceCount == 0) {
       // Assigning null to various non-null variables for clean-up.
       state = STATE_RELEASED;

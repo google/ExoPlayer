@@ -635,12 +635,12 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
   // Internal methods.
 
   private void setSourceDrmSession(@Nullable DrmSession<ExoMediaCrypto> session) {
-    DrmSession.replaceSessionReferences(sourceDrmSession, session);
+    DrmSession.replaceSession(sourceDrmSession, session);
     sourceDrmSession = session;
   }
 
   private void setDecoderDrmSession(@Nullable DrmSession<ExoMediaCrypto> session) {
-    DrmSession.replaceSessionReferences(decoderDrmSession, session);
+    DrmSession.replaceSession(decoderDrmSession, session);
     decoderDrmSession = session;
   }
 
