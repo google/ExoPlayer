@@ -93,6 +93,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    */
   private static final float INITIAL_FORMAT_MAX_INPUT_SIZE_SCALE_FACTOR = 1.5f;
 
+  /** Magic frame render timestamp that indicates the EOS in tunneling mode. */
+  private static final long TUNNELING_EOS_PRESENTATION_TIME_US = Long.MAX_VALUE;
+
   /** A {@link DecoderException} with additional surface information. */
   public static final class VideoDecoderException extends DecoderException {
 
@@ -604,8 +607,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   @Override
   protected boolean getCodecNeedsEosPropagation() {
-    // In tunneling mode we can't dequeue an end-of-stream buffer, so propagate it in the renderer.
-    return tunneling;
+    // Since API 23, onFrameRenderedListener allows for detection of the renderer EOS.
+    return tunneling && Util.SDK_INT < 23;
   }
 
   @Override
@@ -944,6 +947,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     maybeNotifyVideoSizeChanged();
     maybeNotifyRenderedFirstFrame();
     onProcessedOutputBuffer(presentationTimeUs);
+  }
+
+  /** Called when a output EOS was received in tunneling mode. */
+  private void onProcessedTunneledEndOfStream() {
+    setPendingOutputEndOfStream();
   }
 
   /**
@@ -1754,9 +1762,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         // Stale event.
         return;
       }
-      onProcessedTunneledBuffer(presentationTimeUs);
+      if (presentationTimeUs == TUNNELING_EOS_PRESENTATION_TIME_US) {
+        onProcessedTunneledEndOfStream();
+      } else {
+        onProcessedTunneledBuffer(presentationTimeUs);
+      }
     }
 
   }
-
 }

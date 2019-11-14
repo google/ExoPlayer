@@ -2,6 +2,9 @@
 
 ### dev-v2 (not yet released) ###
 
+* Video tunneling: Fix renderer end-of-stream with `OnFrameRenderedListener`
+  from API 23, tunneled renderer must send a special timestamp on EOS.
+  Previously the EOS was reported when the input stream reached EOS.
 * Require an end time or duration for SubRip (SRT) and SubStation Alpha
   (SSA/ASS) subtitles. This applies to both sidecar files & subtitles
   [embedded in Matroska streams](https://matroska.org/technical/specs/subtitles/index.html).
