@@ -373,6 +373,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private boolean waitingForFirstSyncSample;
   private boolean waitingForFirstSampleInFormat;
   private boolean skipMediaCodecStopOnRelease;
+  private boolean pendingOutputEndOfStream;
 
   protected DecoderCounters decoderCounters;
 
@@ -603,6 +604,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
     inputStreamEnded = false;
     outputStreamEnded = false;
+    pendingOutputEndOfStream = false;
     flushOrReinitializeCodec();
     formatQueue.clear();
   }
@@ -686,6 +688,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   @Override
   public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
+    if (pendingOutputEndOfStream) {
+      pendingOutputEndOfStream = false;
+      processEndOfStream();
+    }
     try {
       if (outputStreamEnded) {
         renderToEndOfStream();
@@ -1691,6 +1697,14 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         renderToEndOfStream();
         break;
     }
+  }
+
+  /**
+   * Notifies the renderer that output end of stream is pending and should be handled on the next
+   * render.
+   */
+  protected final void setPendingOutputEndOfStream() {
+    pendingOutputEndOfStream = true;
   }
 
   private void reinitializeCodec() throws ExoPlaybackException {
