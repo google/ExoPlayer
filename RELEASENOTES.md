@@ -140,8 +140,6 @@
     [Cast demo app](https://github.com/google/ExoPlayer/tree/dev-v2/demos/cast).
 * TestUtils: Publish the `testutils` module to simplify unit testing with
   ExoPlayer ([#6267](https://github.com/google/ExoPlayer/issues/6267)).
-* Downloads: Merge downloads in `SegmentDownloader` to improve overall download
-  speed ([#5978](https://github.com/google/ExoPlayer/issues/5978)).
 
 ### 2.10.7 (2019-11-12) ###
 
