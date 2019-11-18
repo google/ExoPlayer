@@ -62,7 +62,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
   private final Timeline.Period period;
   private final ArrayDeque<Runnable> pendingListenerNotifications;
 
-  @Nullable private MediaSource mediaSource;
+  private MediaSource mediaSource;
   private boolean playWhenReady;
   @PlaybackSuppressionReason private int playbackSuppressionReason;
   @RepeatMode private int repeatMode;
@@ -219,38 +219,34 @@ import java.util.concurrent.CopyOnWriteArrayList;
   }
 
   @Override
-  @Deprecated
   public void prepare(MediaSource mediaSource) {
-    setMediaItem(mediaSource);
-    prepareInternal(/* resetPosition= */ true, /* resetState= */ true);
+    prepare(mediaSource, /* resetPosition= */ true, /* resetState= */ true);
   }
 
   @Override
-  @Deprecated
   public void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState) {
-    setMediaItem(mediaSource);
-    prepareInternal(resetPosition, resetState);
+    this.mediaSource = mediaSource;
+    PlaybackInfo playbackInfo =
+        getResetPlaybackInfo(
+            resetPosition,
+            resetState,
+            /* resetError= */ true,
+            /* playbackState= */ Player.STATE_BUFFERING);
+    // Trigger internal prepare first before updating the playback info and notifying external
+    // listeners to ensure that new operations issued in the listener notifications reach the
+    // player after this prepare. The internal player can't change the playback info immediately
+    // because it uses a callback.
+    hasPendingPrepare = true;
+    pendingOperationAcks++;
+    internalPlayer.prepare(mediaSource, resetPosition, resetState);
+    updatePlaybackInfo(
+        playbackInfo,
+        /* positionDiscontinuity= */ false,
+        /* ignored */ DISCONTINUITY_REASON_INTERNAL,
+        TIMELINE_CHANGE_REASON_RESET,
+        /* seekProcessed= */ false);
   }
 
-  @Override
-  public void prepare() {
-    Assertions.checkNotNull(mediaSource);
-    prepareInternal(/* resetPosition= */ false, /* resetState= */ true);
-  }
-
-  @Override
-  public void setMediaItem(MediaSource mediaItem, long startPositionMs) {
-    if (!getCurrentTimeline().isEmpty()) {
-      stop(/* reset= */ true);
-    }
-    seekTo(/* windowIndex= */ 0, startPositionMs);
-    setMediaItem(mediaItem);
-  }
-
-  @Override
-  public void setMediaItem(MediaSource mediaItem) {
-    mediaSource = mediaItem;
-  }
 
   @Override
   public void setPlayWhenReady(boolean playWhenReady) {
@@ -608,29 +604,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
       default:
         throw new IllegalStateException();
     }
-  }
-
-  /* package */ void prepareInternal(boolean resetPosition, boolean resetState) {
-    Assertions.checkNotNull(mediaSource);
-    PlaybackInfo playbackInfo =
-        getResetPlaybackInfo(
-            resetPosition,
-            resetState,
-            /* resetError= */ true,
-            /* playbackState= */ Player.STATE_BUFFERING);
-    // Trigger internal prepare first before updating the playback info and notifying external
-    // listeners to ensure that new operations issued in the listener notifications reach the
-    // player after this prepare. The internal player can't change the playback info immediately
-    // because it uses a callback.
-    hasPendingPrepare = true;
-    pendingOperationAcks++;
-    internalPlayer.prepare(mediaSource, resetPosition, resetState);
-    updatePlaybackInfo(
-        playbackInfo,
-        /* positionDiscontinuity= */ false,
-        /* ignored */ DISCONTINUITY_REASON_INTERNAL,
-        TIMELINE_CHANGE_REASON_RESET,
-        /* seekProcessed= */ false);
   }
 
   private void handlePlaybackParameters(

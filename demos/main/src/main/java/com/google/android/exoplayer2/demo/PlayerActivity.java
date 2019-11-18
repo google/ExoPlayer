@@ -394,8 +394,7 @@ public class PlayerActivity extends AppCompatActivity
     if (haveStartPosition) {
       player.seekTo(startWindow, startPosition);
     }
-    player.setMediaItem(mediaSource);
-    player.prepare();
+    player.prepare(mediaSource, !haveStartPosition, false);
     updateButtonVisibility();
   }
 
