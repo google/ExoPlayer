@@ -16,6 +16,7 @@
 * Use `ExoMediaDrm.Provider` in `OfflineLicenseHelper` to avoid `ExoMediaDrm`
   leaks ([#4721](https://github.com/google/ExoPlayer/issues/4721)).
 * Fix byte order of HDR10+ static metadata to match CTA-861.3.
+* Make `MediaSourceEventListener.LoadEventInfo` a top-level class.
 
 ### 2.11.0 (not yet released) ###
 

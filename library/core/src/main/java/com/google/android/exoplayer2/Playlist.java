@@ -18,6 +18,7 @@ package com.google.android.exoplayer2;
 import android.os.Handler;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
+import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MaskingMediaPeriod;
 import com.google.android.exoplayer2.source.MaskingMediaSource;
 import com.google.android.exoplayer2.source.MediaPeriod;
