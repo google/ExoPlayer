@@ -107,7 +107,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final ReleaseCallback<T> releaseCallback;
   private final @DefaultDrmSessionManager.Mode int mode;
   private final boolean isPlaceholderSession;
-  @Nullable private final HashMap<String, String> optionalKeyRequestParameters;
+  private final HashMap<String, String> keyRequestParameters;
   private final EventDispatcher<DefaultDrmSessionEventListener> eventDispatcher;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
 
@@ -140,7 +140,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @param isPlaceholderSession Whether this session is not expected to acquire any keys.
    * @param offlineLicenseKeySetId The offline license key set identifier, or null when not using
    *     offline keys.
-   * @param optionalKeyRequestParameters The optional key request parameters.
+   * @param keyRequestParameters Key request parameters.
    * @param callback The media DRM callback.
    * @param playbackLooper The playback looper.
    * @param eventDispatcher The dispatcher for DRM session manager events.
@@ -156,7 +156,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       @DefaultDrmSessionManager.Mode int mode,
       boolean isPlaceholderSession,
       @Nullable byte[] offlineLicenseKeySetId,
-      @Nullable HashMap<String, String> optionalKeyRequestParameters,
+      HashMap<String, String> keyRequestParameters,
       MediaDrmCallback callback,
       Looper playbackLooper,
       EventDispatcher<DefaultDrmSessionEventListener> eventDispatcher,
@@ -177,7 +177,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     } else {
       this.schemeDatas = Collections.unmodifiableList(Assertions.checkNotNull(schemeDatas));
     }
-    this.optionalKeyRequestParameters = optionalKeyRequestParameters;
+    this.keyRequestParameters = keyRequestParameters;
     this.callback = callback;
     this.eventDispatcher = eventDispatcher;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
@@ -417,8 +417,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private void postKeyRequest(byte[] scope, int type, boolean allowRetry) {
     try {
-      currentKeyRequest =
-          mediaDrm.getKeyRequest(scope, schemeDatas, type, optionalKeyRequestParameters);
+      currentKeyRequest = mediaDrm.getKeyRequest(scope, schemeDatas, type, keyRequestParameters);
       Util.castNonNull(requestHandler)
           .post(MSG_KEYS, Assertions.checkNotNull(currentKeyRequest), allowRetry);
     } catch (Exception e) {
