@@ -10,6 +10,7 @@
   [embedded in Matroska streams](https://matroska.org/technical/specs/subtitles/index.html).
 * Use `ExoMediaDrm.Provider` in `OfflineLicenseHelper` to avoid `ExoMediaDrm`
   leaks ([#4721](https://github.com/google/ExoPlayer/issues/4721)).
+* Fix byte order of HDR10+ static metadata to match CTA-861.3.
 
 ### 2.11.0 (not yet released) ###
 
