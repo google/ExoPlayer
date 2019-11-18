@@ -1912,9 +1912,9 @@ public class MatroskaExtractor implements Extractor {
           initializationData = new ArrayList<>(3);
           initializationData.add(codecPrivate);
           initializationData.add(
-              ByteBuffer.allocate(8).order(ByteOrder.nativeOrder()).putLong(codecDelayNs).array());
+              ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(codecDelayNs).array());
           initializationData.add(
-              ByteBuffer.allocate(8).order(ByteOrder.nativeOrder()).putLong(seekPreRollNs).array());
+              ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(seekPreRollNs).array());
           break;
         case CODEC_ID_AAC:
           mimeType = MimeTypes.AUDIO_AAC;
@@ -2116,6 +2116,7 @@ public class MatroskaExtractor implements Extractor {
     }
 
     /** Returns the HDR Static Info as defined in CTA-861.3. */
+    @Nullable
     private byte[] getHdrStaticInfo() {
       // Are all fields present.
       if (primaryRChromaticityX == Format.NO_VALUE || primaryRChromaticityY == Format.NO_VALUE
@@ -2128,7 +2129,7 @@ public class MatroskaExtractor implements Extractor {
       }
 
       byte[] hdrStaticInfoData = new byte[25];
-      ByteBuffer hdrStaticInfo = ByteBuffer.wrap(hdrStaticInfoData);
+      ByteBuffer hdrStaticInfo = ByteBuffer.wrap(hdrStaticInfoData).order(ByteOrder.LITTLE_ENDIAN);
       hdrStaticInfo.put((byte) 0);  // Type.
       hdrStaticInfo.putShort((short) ((primaryRChromaticityX * MAX_CHROMATICITY) + 0.5f));
       hdrStaticInfo.putShort((short) ((primaryRChromaticityY * MAX_CHROMATICITY) + 0.5f));
