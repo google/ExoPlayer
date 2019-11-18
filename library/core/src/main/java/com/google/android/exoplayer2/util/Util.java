@@ -714,10 +714,28 @@ public final class Util {
   }
 
   /**
+   * Returns the index of the first occurrence of {@code value} in {@code array}, or {@link
+   * C#INDEX_UNSET} if {@code value} is not contained in {@code array}.
+   *
+   * @param array The array to search.
+   * @param value The value to search for.
+   * @return The index of the first occurrence of value in {@code array}, or {@link C#INDEX_UNSET}
+   *     if {@code value} is not contained in {@code array}.
+   */
+  public static int linearSearch(int[] array, int value) {
+    for (int i = 0; i < array.length; i++) {
+      if (array[i] == value) {
+        return i;
+      }
+    }
+    return C.INDEX_UNSET;
+  }
+
+  /**
    * Returns the index of the largest element in {@code array} that is less than (or optionally
    * equal to) a specified {@code value}.
-   * <p>
-   * The search is performed using a binary search algorithm, so the array must be sorted. If the
+   *
+   * <p>The search is performed using a binary search algorithm, so the array must be sorted. If the
    * array contains multiple elements equal to {@code value} and {@code inclusive} is true, the
    * index of the first one will be returned.
    *
@@ -731,8 +749,8 @@ public final class Util {
    * @return The index of the largest element in {@code array} that is less than (or optionally
    *     equal to) {@code value}.
    */
-  public static int binarySearchFloor(int[] array, int value, boolean inclusive,
-      boolean stayInBounds) {
+  public static int binarySearchFloor(
+      int[] array, int value, boolean inclusive, boolean stayInBounds) {
     int index = Arrays.binarySearch(array, value);
     if (index < 0) {
       index = -(index + 2);
