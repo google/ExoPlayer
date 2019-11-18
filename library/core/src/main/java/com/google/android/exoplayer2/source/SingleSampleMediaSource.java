@@ -347,7 +347,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
    */
   @Deprecated
   @SuppressWarnings("deprecation")
-  private static final class EventListenerWrapper extends DefaultMediaSourceEventListener {
+  private static final class EventListenerWrapper implements MediaSourceEventListener {
 
     private final EventListener eventListener;
     private final int eventSourceId;

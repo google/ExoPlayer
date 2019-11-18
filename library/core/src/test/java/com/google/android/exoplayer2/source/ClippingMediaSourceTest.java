@@ -555,7 +555,7 @@ public final class ClippingMediaSourceTest {
           () ->
               clippingMediaSource.addEventListener(
                   new Handler(),
-                  new DefaultMediaSourceEventListener() {
+                  new MediaSourceEventListener() {
                     @Override
                     public void onDownstreamFormatChanged(
                         int windowIndex,
