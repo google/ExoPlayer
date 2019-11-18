@@ -68,7 +68,6 @@ public class LibvpxVideoRenderer extends SimpleDecoderVideoRenderer {
   private static final int DEFAULT_INPUT_BUFFER_SIZE = 768 * 1024;
 
   private final boolean enableRowMultiThreadMode;
-  private final boolean disableLoopFilter;
   private final int threads;
 
   private VpxDecoder decoder;
@@ -102,8 +101,7 @@ public class LibvpxVideoRenderer extends SimpleDecoderVideoRenderer {
         eventListener,
         maxDroppedFramesToNotify,
         /* drmSessionManager= */ null,
-        /* playClearSamplesWithoutKeys= */ false,
-        /* disableLoopFilter= */ false);
+        /* playClearSamplesWithoutKeys= */ false);
   }
 
   /**
@@ -121,7 +119,6 @@ public class LibvpxVideoRenderer extends SimpleDecoderVideoRenderer {
    *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
    *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
    *     has obtained the keys necessary to decrypt encrypted regions of the media.
-   * @param disableLoopFilter Disable the libvpx in-loop smoothing filter.
    */
   public LibvpxVideoRenderer(
       long allowedJoiningTimeMs,
@@ -129,8 +126,7 @@ public class LibvpxVideoRenderer extends SimpleDecoderVideoRenderer {
       @Nullable VideoRendererEventListener eventListener,
       int maxDroppedFramesToNotify,
       @Nullable DrmSessionManager<ExoMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys,
-      boolean disableLoopFilter) {
+      boolean playClearSamplesWithoutKeys) {
     this(
         allowedJoiningTimeMs,
         eventHandler,
@@ -138,7 +134,6 @@ public class LibvpxVideoRenderer extends SimpleDecoderVideoRenderer {
         maxDroppedFramesToNotify,
         drmSessionManager,
         playClearSamplesWithoutKeys,
-        disableLoopFilter,
         /* enableRowMultiThreadMode= */ false,
         getRuntime().availableProcessors(),
         /* numInputBuffers= */ 4,
@@ -160,7 +155,6 @@ public class LibvpxVideoRenderer extends SimpleDecoderVideoRenderer {
    *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
    *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
    *     has obtained the keys necessary to decrypt encrypted regions of the media.
-   * @param disableLoopFilter Disable the libvpx in-loop smoothing filter.
    * @param enableRowMultiThreadMode Whether row multi threading decoding is enabled.
    * @param threads Number of threads libvpx will use to decode.
    * @param numInputBuffers Number of input buffers.
@@ -173,7 +167,6 @@ public class LibvpxVideoRenderer extends SimpleDecoderVideoRenderer {
       int maxDroppedFramesToNotify,
       @Nullable DrmSessionManager<ExoMediaCrypto> drmSessionManager,
       boolean playClearSamplesWithoutKeys,
-      boolean disableLoopFilter,
       boolean enableRowMultiThreadMode,
       int threads,
       int numInputBuffers,
@@ -185,7 +178,6 @@ public class LibvpxVideoRenderer extends SimpleDecoderVideoRenderer {
         maxDroppedFramesToNotify,
         drmSessionManager,
         playClearSamplesWithoutKeys);
-    this.disableLoopFilter = disableLoopFilter;
     this.enableRowMultiThreadMode = enableRowMultiThreadMode;
     this.threads = threads;
     this.numInputBuffers = numInputBuffers;
@@ -225,7 +217,6 @@ public class LibvpxVideoRenderer extends SimpleDecoderVideoRenderer {
             numOutputBuffers,
             initialInputBufferSize,
             mediaCrypto,
-            disableLoopFilter,
             enableRowMultiThreadMode,
             threads);
     TraceUtil.endSection();
