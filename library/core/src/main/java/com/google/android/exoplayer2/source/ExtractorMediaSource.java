@@ -365,7 +365,7 @@ public final class ExtractorMediaSource extends CompositeMediaSource<Void> {
   }
 
   @Deprecated
-  private static final class EventListenerWrapper extends DefaultMediaSourceEventListener {
+  private static final class EventListenerWrapper implements MediaSourceEventListener {
 
     private final EventListener eventListener;
 
