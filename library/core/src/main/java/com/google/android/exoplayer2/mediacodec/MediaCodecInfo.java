@@ -405,10 +405,8 @@ public final class MediaCodecInfo {
       return false;
     }
     if (!areSizeAndRateSupportedV21(videoCapabilities, width, height, frameRate)) {
-      // Capabilities are known to be inaccurately reported for vertical resolutions on some devices
-      // (b/31387661). If the video is vertical and the capabilities indicate support if the width
-      // and height are swapped, we assume that the vertical resolution is also supported.
       if (width >= height
+          || !enableRotatedVerticalResolutionWorkaround(name)
           || !areSizeAndRateSupportedV21(videoCapabilities, height, width, frameRate)) {
         logNoSupport("sizeAndRate.support, " + width + "x" + height + "x" + frameRate);
         return false;
@@ -598,5 +596,22 @@ public final class MediaCodecInfo {
   @TargetApi(23)
   private static int getMaxSupportedInstancesV23(CodecCapabilities capabilities) {
     return capabilities.getMaxSupportedInstances();
+  }
+
+  /**
+   * Capabilities are known to be inaccurately reported for vertical resolutions on some devices.
+   * [Internal ref: b/31387661]. When this workaround is enabled, we also check whether the
+   * capabilities indicate support if the width and height are swapped. If they do, we assume that
+   * the vertical resolution is also supported.
+   *
+   * @param name The name of the codec.
+   * @return Whether to enable the workaround.
+   */
+  private static final boolean enableRotatedVerticalResolutionWorkaround(String name) {
+    if ("OMX.MTK.VIDEO.DECODER.HEVC".equals(name) && "mcv5a".equals(Util.DEVICE)) {
+      // See https://github.com/google/ExoPlayer/issues/6612.
+      return false;
+    }
+    return true;
   }
 }
