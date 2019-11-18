@@ -37,6 +37,8 @@ import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.source.chunk.MediaChunk;
+import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import com.google.android.exoplayer2.trackselection.BaseTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters;
@@ -1099,6 +1101,16 @@ public final class DownloadHelper {
     @Override
     public Object getSelectionData() {
       return null;
+    }
+
+    @Override
+    public void updateSelectedTrack(
+        long playbackPositionUs,
+        long bufferedDurationUs,
+        long availableDurationUs,
+        List<? extends MediaChunk> queue,
+        MediaChunkIterator[] mediaChunkIterators) {
+      // Do nothing.
     }
   }
 
