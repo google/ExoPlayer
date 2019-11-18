@@ -15,18 +15,14 @@
  */
 package com.google.android.exoplayer2.extractor.ogg;
 
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.SeekPoint;
 import com.google.android.exoplayer2.util.FlacStreamMetadata;
-import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * {@link StreamReader} to extract Flac data out of Ogg byte stream.
@@ -72,24 +68,8 @@ import java.util.List;
     byte[] data = packet.data;
     if (streamMetadata == null) {
       streamMetadata = new FlacStreamMetadata(data, 17);
-      int maxInputSize =
-          streamMetadata.maxFrameSize == 0 ? Format.NO_VALUE : streamMetadata.maxFrameSize;
       byte[] metadata = Arrays.copyOfRange(data, 9, packet.limit());
-      metadata[4] = (byte) 0x80; // Set the last metadata block flag, ignore the other blocks
-      List<byte[]> initializationData = Collections.singletonList(metadata);
-      setupData.format =
-          Format.createAudioSampleFormat(
-              /* id= */ null,
-              MimeTypes.AUDIO_FLAC,
-              /* codecs= */ null,
-              streamMetadata.bitRate(),
-              maxInputSize,
-              streamMetadata.channels,
-              streamMetadata.sampleRate,
-              initializationData,
-              /* drmInitData= */ null,
-              /* selectionFlags= */ 0,
-              /* language= */ null);
+      setupData.format = streamMetadata.getFormat(metadata);
     } else if ((data[0] & 0x7F) == SEEKTABLE_PACKET_TYPE) {
       flacOggSeeker = new FlacOggSeeker();
       flacOggSeeker.parseSeekTable(packet);
@@ -220,7 +200,7 @@ import java.util.List;
 
     @Override
     public long getDurationUs() {
-      return streamMetadata.durationUs();
+      return streamMetadata.getDurationUs();
     }
 
   }

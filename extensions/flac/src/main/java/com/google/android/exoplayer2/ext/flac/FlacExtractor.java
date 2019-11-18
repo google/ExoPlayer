@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.FlacMetadataReader;
 import com.google.android.exoplayer2.util.FlacStreamMetadata;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -42,7 +43,6 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
@@ -71,9 +71,6 @@ public final class FlacExtractor implements Extractor {
    * required.
    */
   public static final int FLAG_DISABLE_ID3_METADATA = 1;
-
-  /** FLAC stream marker */
-  private static final byte[] FLAC_STREAM_MARKER = {'f', 'L', 'a', 'C'};
 
   private final ParsableByteArray outputBuffer;
   private final Id3Peeker id3Peeker;
@@ -120,10 +117,8 @@ public final class FlacExtractor implements Extractor {
 
   @Override
   public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
-    if (input.getPosition() == 0) {
-      id3Metadata = peekId3Data(input);
-    }
-    return peekFlacStreamMarker(input);
+    id3Metadata = peekId3Data(input);
+    return FlacMetadataReader.checkAndPeekStreamMarker(input);
   }
 
   @Override
@@ -230,7 +225,7 @@ public final class FlacExtractor implements Extractor {
         metadata = streamMetadata.metadata.copyWithAppendedEntriesFrom(metadata);
       }
       outputFormat(streamMetadata, metadata, trackOutput);
-      outputBuffer.reset(streamMetadata.maxDecodedFrameSize());
+      outputBuffer.reset(streamMetadata.getMaxDecodedFrameSize());
       outputFrameHolder = new OutputFrameHolder(ByteBuffer.wrap(outputBuffer.data));
     }
   }
@@ -252,18 +247,6 @@ public final class FlacExtractor implements Extractor {
   }
 
   /**
-   * Peeks from the beginning of the input to see if {@link #FLAC_STREAM_MARKER} is present.
-   *
-   * @return Whether the input begins with {@link #FLAC_STREAM_MARKER}.
-   */
-  private static boolean peekFlacStreamMarker(ExtractorInput input)
-      throws IOException, InterruptedException {
-    byte[] header = new byte[FLAC_STREAM_MARKER.length];
-    input.peekFully(header, /* offset= */ 0, FLAC_STREAM_MARKER.length);
-    return Arrays.equals(header, FLAC_STREAM_MARKER);
-  }
-
-  /**
    * Outputs a {@link SeekMap} and returns a {@link FlacBinarySearchSeeker} if one is required to
    * handle seeks.
    */
@@ -277,14 +260,14 @@ public final class FlacExtractor implements Extractor {
     FlacBinarySearchSeeker binarySearchSeeker = null;
     SeekMap seekMap;
     if (haveSeekTable) {
-      seekMap = new FlacSeekMap(streamMetadata.durationUs(), decoderJni);
+      seekMap = new FlacSeekMap(streamMetadata.getDurationUs(), decoderJni);
     } else if (streamLength != C.LENGTH_UNSET) {
       long firstFramePosition = decoderJni.getDecodePosition();
       binarySearchSeeker =
           new FlacBinarySearchSeeker(streamMetadata, firstFramePosition, streamLength, decoderJni);
       seekMap = binarySearchSeeker.getSeekMap();
     } else {
-      seekMap = new SeekMap.Unseekable(streamMetadata.durationUs());
+      seekMap = new SeekMap.Unseekable(streamMetadata.getDurationUs());
     }
     output.seekMap(seekMap);
     return binarySearchSeeker;
@@ -297,8 +280,8 @@ public final class FlacExtractor implements Extractor {
             /* id= */ null,
             MimeTypes.AUDIO_RAW,
             /* codecs= */ null,
-            streamMetadata.bitRate(),
-            streamMetadata.maxDecodedFrameSize(),
+            streamMetadata.getBitRate(),
+            streamMetadata.getMaxDecodedFrameSize(),
             streamMetadata.channels,
             streamMetadata.sampleRate,
             getPcmEncoding(streamMetadata.bitsPerSample),
