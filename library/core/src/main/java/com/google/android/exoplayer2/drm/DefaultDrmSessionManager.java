@@ -57,7 +57,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     private UUID uuid;
     private ExoMediaDrm.Provider<ExoMediaCrypto> exoMediaDrmProvider;
     private boolean multiSession;
-    private boolean preferSecureDecoders;
+    private int[] useDrmSessionsForClearContentTrackTypes;
     @Flags private int flags;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
 
@@ -70,7 +70,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
      *   <li>{@link #setUuidAndExoMediaDrmProvider ExoMediaDrm.Provider}: {@link
      *       FrameworkMediaDrm#DEFAULT_PROVIDER}.
      *   <li>{@link #setMultiSession multiSession}: {@code false}.
-     *   <li>{@link #setPreferSecureDecoders preferSecureDecoders}: {@code false}.
+     *   <li>{@link #setUseDrmSessionsForClearContent useDrmSessionsForClearContent}: No tracks.
      *   <li>{@link #setPlayClearSamplesWithoutKeys playClearSamplesWithoutKeys}: {@code false}.
      *   <li>{@link #setLoadErrorHandlingPolicy LoadErrorHandlingPolicy}: {@link
      *       DefaultLoadErrorHandlingPolicy}.
@@ -82,6 +82,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       uuid = C.WIDEVINE_UUID;
       exoMediaDrmProvider = (ExoMediaDrm.Provider) FrameworkMediaDrm.DEFAULT_PROVIDER;
       loadErrorHandlingPolicy = new DefaultLoadErrorHandlingPolicy();
+      useDrmSessionsForClearContentTrackTypes = new int[0];
     }
 
     /**
@@ -127,14 +128,27 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     }
 
     /**
-     * Sets whether this session manager should hint the use of secure decoders for clear content.
+     * Sets whether this session manager should attach {@link DrmSession DrmSessions} to the clear
+     * sections of the media content.
      *
-     * @param preferSecureDecoders Whether this session manager should hint the use of secure
-     *     decoders for clear content.
+     * <p>Using {@link DrmSession DrmSessions} for clear content avoids the recreation of decoders
+     * when transitioning between clear and encrypted sections of content.
+     *
+     * @param useDrmSessionsForClearContentTrackTypes The track types ({@link C#TRACK_TYPE_AUDIO}
+     *     and/or {@link C#TRACK_TYPE_VIDEO}) for which to use a {@link DrmSession} regardless of
+     *     whether the content is clear or encrypted.
      * @return This builder.
+     * @throws IllegalArgumentException If {@code useDrmSessionsForClearContentTrackTypes} contains
+     *     track types other than {@link C#TRACK_TYPE_AUDIO} and {@link C#TRACK_TYPE_VIDEO}.
      */
-    public Builder setPreferSecureDecoders(boolean preferSecureDecoders) {
-      this.preferSecureDecoders = preferSecureDecoders;
+    public Builder setUseDrmSessionsForClearContent(
+        int... useDrmSessionsForClearContentTrackTypes) {
+      for (int trackType : useDrmSessionsForClearContentTrackTypes) {
+        Assertions.checkArgument(
+            trackType == C.TRACK_TYPE_VIDEO || trackType == C.TRACK_TYPE_AUDIO);
+      }
+      this.useDrmSessionsForClearContentTrackTypes =
+          useDrmSessionsForClearContentTrackTypes.clone();
       return this;
     }
 
@@ -174,7 +188,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
           mediaDrmCallback,
           keyRequestParameters,
           multiSession,
-          preferSecureDecoders,
+          useDrmSessionsForClearContentTrackTypes,
           flags,
           loadErrorHandlingPolicy);
     }
@@ -226,7 +240,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   @Nullable private final HashMap<String, String> optionalKeyRequestParameters;
   private final EventDispatcher<DefaultDrmSessionEventListener> eventDispatcher;
   private final boolean multiSession;
-  private final boolean preferSecureDecoders;
+  private final int[] useDrmSessionsForClearContentTrackTypes;
   @Flags private final int flags;
   private final ProvisioningManagerImpl provisioningManagerImpl;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
@@ -320,7 +334,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
         callback,
         optionalKeyRequestParameters,
         multiSession,
-        /* preferSecureDecoders= */ false,
+        /* useDrmSessionsForClearContentTrackTypes= */ new int[0],
         /* flags= */ 0,
         new DefaultLoadErrorHandlingPolicy(initialDrmRequestRetryCount));
   }
@@ -333,7 +347,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       MediaDrmCallback callback,
       @Nullable HashMap<String, String> optionalKeyRequestParameters,
       boolean multiSession,
-      boolean preferSecureDecoders,
+      int[] useDrmSessionsForClearContentTrackTypes,
       @Flags int flags,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
     Assertions.checkNotNull(uuid);
@@ -344,7 +358,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     this.optionalKeyRequestParameters = optionalKeyRequestParameters;
     this.eventDispatcher = new EventDispatcher<>();
     this.multiSession = multiSession;
-    this.preferSecureDecoders = preferSecureDecoders;
+    this.useDrmSessionsForClearContentTrackTypes = useDrmSessionsForClearContentTrackTypes;
     this.flags = flags;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     provisioningManagerImpl = new ProvisioningManagerImpl();
@@ -375,7 +389,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   /**
    * Sets the mode, which determines the role of sessions acquired from the instance. This must be
    * called before {@link #acquireSession(Looper, DrmInitData)} or {@link
-   * #acquirePlaceholderSession(Looper)} is called.
+   * #acquirePlaceholderSession} is called.
    *
    * <p>By default, the mode is {@link #MODE_PLAYBACK} and a streaming license is requested when
    * required.
@@ -460,15 +474,13 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   @Nullable
   public DrmSession<T> acquirePlaceholderSession(Looper playbackLooper, int trackType) {
     assertExpectedPlaybackLooper(playbackLooper);
-    Assertions.checkNotNull(exoMediaDrm);
+    ExoMediaDrm<T> exoMediaDrm = Assertions.checkNotNull(this.exoMediaDrm);
     boolean avoidPlaceholderDrmSessions =
         FrameworkMediaCrypto.class.equals(exoMediaDrm.getExoMediaCryptoType())
             && FrameworkMediaCrypto.WORKAROUND_DEVICE_NEEDS_KEYS_TO_CONFIGURE_CODEC;
     // Avoid attaching a session to sparse formats.
-    avoidPlaceholderDrmSessions |=
-        trackType != C.TRACK_TYPE_VIDEO && trackType != C.TRACK_TYPE_AUDIO;
     if (avoidPlaceholderDrmSessions
-        || !preferSecureDecoders
+        || Util.linearSearch(useDrmSessionsForClearContentTrackTypes, trackType) == C.INDEX_UNSET
         || exoMediaDrm.getExoMediaCryptoType() == null) {
       return null;
     }
