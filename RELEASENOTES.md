@@ -1,11 +1,12 @@
 # Release notes #
 
-### 2.10.8 (2019-11-18) ###
+### 2.10.8 (2019-11-19) ###
 
 * E-AC3 JOC
   * Handle new signaling in DASH manifests
     ([#6636](https://github.com/google/ExoPlayer/issues/6636)).
-  * Remove incorrect channel count check when determining output support.
+  * Fix E-AC3 JOC passthrough playback failing to initialize due to incorrect
+    channel count check.
 * FLAC
   * Fix sniffing for some FLAC streams.
   * Fix FLAC `Format.bitrate` values.
