@@ -86,7 +86,10 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     }
 
     /**
-     * Sets the parameters to pass to {@link ExoMediaDrm#getKeyRequest(byte[], List, int, HashMap)}.
+     * Sets the key request parameters to pass as the last argument to {@link
+     * ExoMediaDrm#getKeyRequest(byte[], List, int, HashMap)}.
+     *
+     * <p>Custom data for PlayReady should be set under {@link #PLAYREADY_CUSTOM_DATA_KEY}.
      *
      * @param keyRequestParameters A map with parameters.
      * @return This builder.
@@ -206,7 +209,8 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   }
 
   /**
-   * The key to use when passing CustomData to a PlayReady instance in an optional parameter map.
+   * A key for specifying PlayReady custom data in the key request parameters passed to {@link
+   * Builder#setKeyRequestParameters(Map)}.
    */
   public static final String PLAYREADY_CUSTOM_DATA_KEY = "PRCustomData";
 
@@ -237,7 +241,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   private final UUID uuid;
   private final ExoMediaDrm.Provider<T> exoMediaDrmProvider;
   private final MediaDrmCallback callback;
-  @Nullable private final HashMap<String, String> optionalKeyRequestParameters;
+  private final HashMap<String, String> keyRequestParameters;
   private final EventDispatcher<DefaultDrmSessionEventListener> eventDispatcher;
   private final boolean multiSession;
   private final int[] useDrmSessionsForClearContentTrackTypes;
@@ -262,8 +266,8 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
    * @param uuid The UUID of the drm scheme.
    * @param exoMediaDrm An underlying {@link ExoMediaDrm} for use by the manager.
    * @param callback Performs key and provisioning requests.
-   * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
-   *     to {@link ExoMediaDrm#getKeyRequest(byte[], List, int, HashMap)}. May be null.
+   * @param keyRequestParameters An optional map of parameters to pass as the last argument to
+   *     {@link ExoMediaDrm#getKeyRequest(byte[], List, int, HashMap)}. May be null.
    * @deprecated Use {@link Builder} instead.
    */
   @SuppressWarnings("deprecation")
@@ -272,12 +276,12 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       UUID uuid,
       ExoMediaDrm<T> exoMediaDrm,
       MediaDrmCallback callback,
-      @Nullable HashMap<String, String> optionalKeyRequestParameters) {
+      @Nullable HashMap<String, String> keyRequestParameters) {
     this(
         uuid,
         exoMediaDrm,
         callback,
-        optionalKeyRequestParameters,
+        keyRequestParameters == null ? new HashMap<>() : keyRequestParameters,
         /* multiSession= */ false,
         INITIAL_DRM_REQUEST_RETRY_COUNT);
   }
@@ -286,8 +290,8 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
    * @param uuid The UUID of the drm scheme.
    * @param exoMediaDrm An underlying {@link ExoMediaDrm} for use by the manager.
    * @param callback Performs key and provisioning requests.
-   * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
-   *     to {@link ExoMediaDrm#getKeyRequest(byte[], List, int, HashMap)}. May be null.
+   * @param keyRequestParameters An optional map of parameters to pass as the last argument to
+   *     {@link ExoMediaDrm#getKeyRequest(byte[], List, int, HashMap)}. May be null.
    * @param multiSession A boolean that specify whether multiple key session support is enabled.
    *     Default is false.
    * @deprecated Use {@link Builder} instead.
@@ -297,13 +301,13 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       UUID uuid,
       ExoMediaDrm<T> exoMediaDrm,
       MediaDrmCallback callback,
-      @Nullable HashMap<String, String> optionalKeyRequestParameters,
+      @Nullable HashMap<String, String> keyRequestParameters,
       boolean multiSession) {
     this(
         uuid,
         exoMediaDrm,
         callback,
-        optionalKeyRequestParameters,
+        keyRequestParameters == null ? new HashMap<>() : keyRequestParameters,
         multiSession,
         INITIAL_DRM_REQUEST_RETRY_COUNT);
   }
@@ -312,8 +316,8 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
    * @param uuid The UUID of the drm scheme.
    * @param exoMediaDrm An underlying {@link ExoMediaDrm} for use by the manager.
    * @param callback Performs key and provisioning requests.
-   * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
-   *     to {@link ExoMediaDrm#getKeyRequest(byte[], List, int, HashMap)}. May be null.
+   * @param keyRequestParameters An optional map of parameters to pass as the last argument to
+   *     {@link ExoMediaDrm#getKeyRequest(byte[], List, int, HashMap)}. May be null.
    * @param multiSession A boolean that specify whether multiple key session support is enabled.
    *     Default is false.
    * @param initialDrmRequestRetryCount The number of times to retry for initial provisioning and
@@ -325,14 +329,14 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       UUID uuid,
       ExoMediaDrm<T> exoMediaDrm,
       MediaDrmCallback callback,
-      @Nullable HashMap<String, String> optionalKeyRequestParameters,
+      @Nullable HashMap<String, String> keyRequestParameters,
       boolean multiSession,
       int initialDrmRequestRetryCount) {
     this(
         uuid,
         new ExoMediaDrm.AppManagedProvider<>(exoMediaDrm),
         callback,
-        optionalKeyRequestParameters,
+        keyRequestParameters == null ? new HashMap<>() : keyRequestParameters,
         multiSession,
         /* useDrmSessionsForClearContentTrackTypes= */ new int[0],
         /* flags= */ 0,
@@ -345,7 +349,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       UUID uuid,
       ExoMediaDrm.Provider<T> exoMediaDrmProvider,
       MediaDrmCallback callback,
-      @Nullable HashMap<String, String> optionalKeyRequestParameters,
+      HashMap<String, String> keyRequestParameters,
       boolean multiSession,
       int[] useDrmSessionsForClearContentTrackTypes,
       @Flags int flags,
@@ -355,7 +359,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     this.uuid = uuid;
     this.exoMediaDrmProvider = exoMediaDrmProvider;
     this.callback = callback;
-    this.optionalKeyRequestParameters = optionalKeyRequestParameters;
+    this.keyRequestParameters = keyRequestParameters;
     this.eventDispatcher = new EventDispatcher<>();
     this.multiSession = multiSession;
     this.useDrmSessionsForClearContentTrackTypes = useDrmSessionsForClearContentTrackTypes;
@@ -576,7 +580,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
         mode,
         isPlaceholderSession,
         offlineLicenseKeySetId,
-        optionalKeyRequestParameters,
+        keyRequestParameters,
         callback,
         Assertions.checkNotNull(playbackLooper),
         eventDispatcher,
