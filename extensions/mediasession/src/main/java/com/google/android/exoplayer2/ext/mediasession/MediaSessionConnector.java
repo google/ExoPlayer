@@ -30,6 +30,7 @@ import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Pair;
+import android.view.KeyEvent;
 import androidx.annotation.LongDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -499,6 +500,17 @@ public final class MediaSessionConnector {
   /**
    * Sets the {@link MediaButtonEventHandler}. Pass {@code null} if the media button event should be
    * handled by {@link MediaSessionCompat.Callback#onMediaButtonEvent(Intent)}.
+   *
+   * <p>Please note that prior to API 21 MediaButton events are not delivered to the {@link
+   * MediaSessionCompat}. Instead they are delivered as key events (see <a
+   * href="https://developer.android.com/guide/topics/media-apps/mediabuttons">'Responding to media
+   * buttons'</a>). In an {@link android.app.Activity Activity}, media button events arrive at the
+   * {@link android.app.Activity#dispatchKeyEvent(KeyEvent)} method.
+   *
+   * <p>If you are running the player in a foreground service (prior to API 21), you can create an
+   * intent filter and handle the {@code android.intent.action.MEDIA_BUTTON} action yourself. See <a
+   * href="https://developer.android.com/reference/androidx/media/session/MediaButtonReceiver#service-handling-action_media_button">
+   * Service handling ACTION_MEDIA_BUTTON</a> for more information.
    *
    * @param mediaButtonEventHandler The {@link MediaButtonEventHandler}, or null to let the event be
    *     handled by {@link MediaSessionCompat.Callback#onMediaButtonEvent(Intent)}.
