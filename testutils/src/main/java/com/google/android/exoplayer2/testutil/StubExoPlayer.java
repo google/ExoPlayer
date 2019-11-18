@@ -97,27 +97,12 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
-  public void prepare() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public void prepare(MediaSource mediaSource) {
     throw new UnsupportedOperationException();
   }
 
   @Override
   public void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void setMediaItem(MediaSource mediaItem) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void setMediaItem(MediaSource mediaItem, long startPositionMs) {
     throw new UnsupportedOperationException();
   }
 
