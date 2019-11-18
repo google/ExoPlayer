@@ -35,7 +35,7 @@ import java.util.Map;
  */
 public final class LoopingMediaSource extends CompositeMediaSource<Void> {
 
-  private final MaskingMediaSource maskingMediaSource;
+  private final MediaSource childSource;
   private final int loopCount;
   private final Map<MediaPeriodId, MediaPeriodId> childMediaPeriodIdToMediaPeriodId;
   private final Map<MediaPeriod, MediaPeriodId> mediaPeriodToChildMediaPeriodId;
@@ -58,7 +58,7 @@ public final class LoopingMediaSource extends CompositeMediaSource<Void> {
    */
   public LoopingMediaSource(MediaSource childSource, int loopCount) {
     Assertions.checkArgument(loopCount > 0);
-    this.maskingMediaSource = new MaskingMediaSource(childSource, /* useLazyPreparation= */ false);
+    this.childSource = childSource;
     this.loopCount = loopCount;
     childMediaPeriodIdToMediaPeriodId = new HashMap<>();
     mediaPeriodToChildMediaPeriodId = new HashMap<>();
@@ -67,45 +67,32 @@ public final class LoopingMediaSource extends CompositeMediaSource<Void> {
   @Override
   @Nullable
   public Object getTag() {
-    return maskingMediaSource.getTag();
-  }
-
-  @Nullable
-  @Override
-  public Timeline getInitialTimeline() {
-    return loopCount != Integer.MAX_VALUE
-        ? new LoopingTimeline(maskingMediaSource.getTimeline(), loopCount)
-        : new InfinitelyLoopingTimeline(maskingMediaSource.getTimeline());
-  }
-
-  @Override
-  public boolean isSingleWindow() {
-    return false;
+    return childSource.getTag();
   }
 
   @Override
   protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
     super.prepareSourceInternal(mediaTransferListener);
-    prepareChildSource(/* id= */ null, maskingMediaSource);
+    prepareChildSource(/* id= */ null, childSource);
   }
 
   @Override
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs) {
     if (loopCount == Integer.MAX_VALUE) {
-      return maskingMediaSource.createPeriod(id, allocator, startPositionUs);
+      return childSource.createPeriod(id, allocator, startPositionUs);
     }
     Object childPeriodUid = LoopingTimeline.getChildPeriodUidFromConcatenatedUid(id.periodUid);
     MediaPeriodId childMediaPeriodId = id.copyWithPeriodUid(childPeriodUid);
     childMediaPeriodIdToMediaPeriodId.put(childMediaPeriodId, id);
     MediaPeriod mediaPeriod =
-        maskingMediaSource.createPeriod(childMediaPeriodId, allocator, startPositionUs);
+        childSource.createPeriod(childMediaPeriodId, allocator, startPositionUs);
     mediaPeriodToChildMediaPeriodId.put(mediaPeriod, childMediaPeriodId);
     return mediaPeriod;
   }
 
   @Override
   public void releasePeriod(MediaPeriod mediaPeriod) {
-    maskingMediaSource.releasePeriod(mediaPeriod);
+    childSource.releasePeriod(mediaPeriod);
     MediaPeriodId childMediaPeriodId = mediaPeriodToChildMediaPeriodId.remove(mediaPeriod);
     if (childMediaPeriodId != null) {
       childMediaPeriodIdToMediaPeriodId.remove(childMediaPeriodId);
