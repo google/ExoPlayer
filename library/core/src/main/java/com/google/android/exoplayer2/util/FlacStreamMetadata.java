@@ -17,10 +17,12 @@ package com.google.android.exoplayer2.util;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.flac.PictureFrame;
 import com.google.android.exoplayer2.metadata.flac.VorbisComment;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /** Holder for FLAC metadata. */
@@ -28,14 +30,45 @@ public final class FlacStreamMetadata {
 
   private static final String TAG = "FlacStreamMetadata";
 
-  public final int minBlockSize;
-  public final int maxBlockSize;
+  /** Indicates that a value is not in the corresponding lookup table. */
+  public static final int NOT_IN_LOOKUP_TABLE = -1;
+
+  /** Minimum number of samples per block. */
+  public final int minBlockSizeSamples;
+  /** Maximum number of samples per block. */
+  public final int maxBlockSizeSamples;
+  /** Minimum frame size in bytes, or 0 if the value is unknown. */
   public final int minFrameSize;
+  /** Maximum frame size in bytes, or 0 if the value is unknown. */
   public final int maxFrameSize;
+  /** Sample rate in Hertz. */
   public final int sampleRate;
+  /**
+   * Lookup key corresponding to the stream sample rate, or {@link #NOT_IN_LOOKUP_TABLE} if it is
+   * not in the lookup table.
+   *
+   * <p>This key is used to indicate the sample rate in the frame header for the most common values.
+   *
+   * <p>The sample rate lookup table is described in https://xiph.org/flac/format.html#frame_header.
+   */
+  public final int sampleRateLookupKey;
+  /** Number of audio channels. */
   public final int channels;
+  /** Number of bits per sample. */
   public final int bitsPerSample;
+  /**
+   * Lookup key corresponding to the number of bits per sample of the stream, or {@link
+   * #NOT_IN_LOOKUP_TABLE} if it is not in the lookup table.
+   *
+   * <p>This key is used to indicate the number of bits per sample in the frame header for the most
+   * common values.
+   *
+   * <p>The sample size lookup table is described in https://xiph.org/flac/format.html#frame_header.
+   */
+  public final int bitsPerSampleLookupKey;
+  /** Total number of samples, or 0 if the value is unknown. */
   public final long totalSamples;
+  /** Stream content metadata. */
   @Nullable public final Metadata metadata;
 
   private static final String SEPARATOR = "=";
@@ -44,27 +77,29 @@ public final class FlacStreamMetadata {
    * Parses binary FLAC stream info metadata.
    *
    * @param data An array containing binary FLAC stream info metadata.
-   * @param offset The offset of the stream info metadata in {@code data}.
+   * @param offset The offset of the stream info block in {@code data} (header excluded).
    * @see <a href="https://xiph.org/flac/format.html#metadata_block_streaminfo">FLAC format
    *     METADATA_BLOCK_STREAMINFO</a>
    */
   public FlacStreamMetadata(byte[] data, int offset) {
     ParsableBitArray scratch = new ParsableBitArray(data);
     scratch.setPosition(offset * 8);
-    this.minBlockSize = scratch.readBits(16);
-    this.maxBlockSize = scratch.readBits(16);
+    this.minBlockSizeSamples = scratch.readBits(16);
+    this.maxBlockSizeSamples = scratch.readBits(16);
     this.minFrameSize = scratch.readBits(24);
     this.maxFrameSize = scratch.readBits(24);
     this.sampleRate = scratch.readBits(20);
+    this.sampleRateLookupKey = getSampleRateLookupKey();
     this.channels = scratch.readBits(3) + 1;
     this.bitsPerSample = scratch.readBits(5) + 1;
-    this.totalSamples = ((scratch.readBits(4) & 0xFL) << 32) | (scratch.readBits(32) & 0xFFFFFFFFL);
+    this.bitsPerSampleLookupKey = getBitsPerSampleLookupKey();
+    this.totalSamples = scratch.readBitsToLong(36);
     this.metadata = null;
   }
 
   /**
-   * @param minBlockSize Minimum block size of the FLAC stream.
-   * @param maxBlockSize Maximum block size of the FLAC stream.
+   * @param minBlockSizeSamples Minimum block size of the FLAC stream.
+   * @param maxBlockSizeSamples Maximum block size of the FLAC stream.
    * @param minFrameSize Minimum frame size of the FLAC stream.
    * @param maxFrameSize Maximum frame size of the FLAC stream.
    * @param sampleRate Sample rate of the FLAC stream.
@@ -81,8 +116,8 @@ public final class FlacStreamMetadata {
    *     METADATA_BLOCK_PICTURE</a>
    */
   public FlacStreamMetadata(
-      int minBlockSize,
-      int maxBlockSize,
+      int minBlockSizeSamples,
+      int maxBlockSizeSamples,
       int minFrameSize,
       int maxFrameSize,
       int sampleRate,
@@ -91,30 +126,35 @@ public final class FlacStreamMetadata {
       long totalSamples,
       List<String> vorbisComments,
       List<PictureFrame> pictureFrames) {
-    this.minBlockSize = minBlockSize;
-    this.maxBlockSize = maxBlockSize;
+    this.minBlockSizeSamples = minBlockSizeSamples;
+    this.maxBlockSizeSamples = maxBlockSizeSamples;
     this.minFrameSize = minFrameSize;
     this.maxFrameSize = maxFrameSize;
     this.sampleRate = sampleRate;
+    this.sampleRateLookupKey = getSampleRateLookupKey();
     this.channels = channels;
     this.bitsPerSample = bitsPerSample;
+    this.bitsPerSampleLookupKey = getBitsPerSampleLookupKey();
     this.totalSamples = totalSamples;
-    this.metadata = buildMetadata(vorbisComments, pictureFrames);
+    this.metadata = getMetadata(vorbisComments, pictureFrames);
   }
 
   /** Returns the maximum size for a decoded frame from the FLAC stream. */
-  public int maxDecodedFrameSize() {
-    return maxBlockSize * channels * (bitsPerSample / 8);
+  public int getMaxDecodedFrameSize() {
+    return maxBlockSizeSamples * channels * (bitsPerSample / 8);
   }
 
   /** Returns the bit-rate of the FLAC stream. */
-  public int bitRate() {
+  public int getBitRate() {
     return bitsPerSample * sampleRate * channels;
   }
 
-  /** Returns the duration of the FLAC stream in microseconds. */
-  public long durationUs() {
-    return (totalSamples * 1000000L) / sampleRate;
+  /**
+   * Returns the duration of the FLAC stream in microseconds, or {@link C#TIME_UNSET} if the total
+   * number of samples if unknown.
+   */
+  public long getDurationUs() {
+    return totalSamples == 0 ? C.TIME_UNSET : totalSamples * C.MICROS_PER_SECOND / sampleRate;
   }
 
   /**
@@ -125,7 +165,7 @@ public final class FlacStreamMetadata {
    */
   public long getSampleIndex(long timeUs) {
     long sampleIndex = (timeUs * sampleRate) / C.MICROS_PER_SECOND;
-    return Util.constrainValue(sampleIndex, 0, totalSamples - 1);
+    return Util.constrainValue(sampleIndex, /* min= */ 0, totalSamples - 1);
   }
 
   /** Returns the approximate number of bytes per frame for the current FLAC stream. */
@@ -136,14 +176,91 @@ public final class FlacStreamMetadata {
     } else {
       // Uses the stream's block-size if it's a known fixed block-size stream, otherwise uses the
       // default value for FLAC block-size, which is 4096.
-      long blockSize = (minBlockSize == maxBlockSize && minBlockSize > 0) ? minBlockSize : 4096;
-      approxBytesPerFrame = (blockSize * channels * bitsPerSample) / 8 + 64;
+      long blockSizeSamples =
+          (minBlockSizeSamples == maxBlockSizeSamples && minBlockSizeSamples > 0)
+              ? minBlockSizeSamples
+              : 4096;
+      approxBytesPerFrame = (blockSizeSamples * channels * bitsPerSample) / 8 + 64;
     }
     return approxBytesPerFrame;
   }
 
+  /**
+   * Returns a {@link Format} extracted from the FLAC stream metadata.
+   *
+   * <p>{@code streamMarkerAndInfoBlock} is updated to set the bit corresponding to the stream info
+   * last metadata block flag to true.
+   *
+   * @param streamMarkerAndInfoBlock An array containing the FLAC stream marker followed by the
+   *     stream info block.
+   * @return The extracted {@link Format}.
+   */
+  public Format getFormat(byte[] streamMarkerAndInfoBlock) {
+    // Set the last metadata block flag, ignore the other blocks.
+    streamMarkerAndInfoBlock[4] = (byte) 0x80;
+    int maxInputSize = maxFrameSize > 0 ? maxFrameSize : Format.NO_VALUE;
+    return Format.createAudioSampleFormat(
+        /* id= */ null,
+        MimeTypes.AUDIO_FLAC,
+        /* codecs= */ null,
+        getBitRate(),
+        maxInputSize,
+        channels,
+        sampleRate,
+        Collections.singletonList(streamMarkerAndInfoBlock),
+        /* drmInitData= */ null,
+        /* selectionFlags= */ 0,
+        /* language= */ null);
+  }
+
+  private int getSampleRateLookupKey() {
+    switch (sampleRate) {
+      case 88200:
+        return 1;
+      case 176400:
+        return 2;
+      case 192000:
+        return 3;
+      case 8000:
+        return 4;
+      case 16000:
+        return 5;
+      case 22050:
+        return 6;
+      case 24000:
+        return 7;
+      case 32000:
+        return 8;
+      case 44100:
+        return 9;
+      case 48000:
+        return 10;
+      case 96000:
+        return 11;
+      default:
+        return NOT_IN_LOOKUP_TABLE;
+    }
+  }
+
+  private int getBitsPerSampleLookupKey() {
+    switch (bitsPerSample) {
+      case 8:
+        return 1;
+      case 12:
+        return 2;
+      case 16:
+        return 4;
+      case 20:
+        return 5;
+      case 24:
+        return 6;
+      default:
+        return NOT_IN_LOOKUP_TABLE;
+    }
+  }
+
   @Nullable
-  private static Metadata buildMetadata(
+  private static Metadata getMetadata(
       List<String> vorbisComments, List<PictureFrame> pictureFrames) {
     if (vorbisComments.isEmpty() && pictureFrames.isEmpty()) {
       return null;

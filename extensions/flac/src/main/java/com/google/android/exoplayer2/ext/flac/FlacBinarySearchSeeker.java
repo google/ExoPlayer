@@ -41,7 +41,7 @@ import java.nio.ByteBuffer;
     super(
         new FlacSeekTimestampConverter(streamMetadata),
         new FlacTimestampSeeker(decoderJni),
-        streamMetadata.durationUs(),
+        streamMetadata.getDurationUs(),
         /* floorTimePosition= */ 0,
         /* ceilingTimePosition= */ streamMetadata.totalSamples,
         /* floorBytePosition= */ firstFramePosition,

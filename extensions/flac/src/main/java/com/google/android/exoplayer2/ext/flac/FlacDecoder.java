@@ -72,7 +72,7 @@ import java.util.List;
     int initialInputBufferSize =
         maxInputBufferSize != Format.NO_VALUE ? maxInputBufferSize : streamMetadata.maxFrameSize;
     setInitialInputBufferSize(initialInputBufferSize);
-    maxOutputBufferSize = streamMetadata.maxDecodedFrameSize();
+    maxOutputBufferSize = streamMetadata.getMaxDecodedFrameSize();
   }
 
   @Override
