@@ -512,6 +512,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     return Util.areEqual(oldFormat.sampleMimeType, newFormat.sampleMimeType)
         && oldFormat.channelCount == newFormat.channelCount
         && oldFormat.sampleRate == newFormat.sampleRate
+        && oldFormat.pcmEncoding == newFormat.pcmEncoding
         && oldFormat.initializationDataEquals(newFormat)
         && !MimeTypes.AUDIO_OPUS.equals(oldFormat.sampleMimeType);
   }
