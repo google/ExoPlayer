@@ -25,7 +25,8 @@
 * Fix byte order of HDR10+ static metadata to match CTA-861.3.
 * Reconfigure audio sink when PCM encoding changes
   ([#6601](https://github.com/google/ExoPlayer/issues/6601)).
-* Make `MediaSourceEventListener.LoadEventInfo` a top-level class.
+* Make `MediaSourceEventListener.LoadEventInfo` and
+  `MediaSourceEventListener.MediaLoadData` top-level classes.
 
 ### 2.11.0 (not yet released) ###
 
