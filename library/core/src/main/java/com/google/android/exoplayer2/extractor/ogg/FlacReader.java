@@ -73,6 +73,8 @@ import java.util.List;
     byte[] data = packet.data;
     if (streamMetadata == null) {
       streamMetadata = new FlacStreamMetadata(data, 17);
+      int maxInputSize =
+          streamMetadata.maxFrameSize == 0 ? Format.NO_VALUE : streamMetadata.maxFrameSize;
       byte[] metadata = Arrays.copyOfRange(data, 9, packet.limit());
       metadata[4] = (byte) 0x80; // Set the last metadata block flag, ignore the other blocks
       List<byte[]> initializationData = Collections.singletonList(metadata);
@@ -82,7 +84,7 @@ import java.util.List;
               MimeTypes.AUDIO_FLAC,
               /* codecs= */ null,
               streamMetadata.bitRate(),
-              /* maxInputSize= */ Format.NO_VALUE,
+              maxInputSize,
               streamMetadata.channels,
               streamMetadata.sampleRate,
               initializationData,

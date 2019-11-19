@@ -1433,6 +1433,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
    * @throws IllegalSeekPositionException If the window index of the seek position is outside the
    *     bounds of the timeline.
    */
+  @Nullable
   private Pair<Object, Long> resolveSeekPosition(
       SeekPosition seekPosition, boolean trySubsequentPeriods) {
     Timeline timeline = playbackInfo.timeline;
@@ -1467,11 +1468,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
     if (trySubsequentPeriods) {
       // Try and find a subsequent period from the seek timeline in the internal timeline.
+      @Nullable
       Object periodUid = resolveSubsequentPeriod(periodPosition.first, seekTimeline, timeline);
       if (periodUid != null) {
-        // We found one. Map the SeekPosition onto the corresponding default position.
+        // We found one. Use the default position of the corresponding window.
         return getPeriodPosition(
-            timeline, timeline.getPeriod(periodIndex, period).windowIndex, C.TIME_UNSET);
+            timeline, timeline.getPeriodByUid(periodUid, period).windowIndex, C.TIME_UNSET);
       }
     }
     // We didn't find one. Give up.
