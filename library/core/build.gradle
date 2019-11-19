@@ -35,16 +35,6 @@ android {
         testInstrumentationRunnerArguments clearPackageData: 'true'
     }
 
-    // Workaround to prevent circular dependency on project :testutils.
-    sourceSets {
-        androidTest {
-            java.srcDirs += '../../testutils/src/main/java/'
-        }
-        test {
-            java.srcDirs += '../../testutils/src/main/java/'
-        }
-    }
-
     buildTypes {
         debug {
             testCoverageEnabled = true
@@ -66,11 +56,13 @@ dependencies {
     androidTestImplementation 'com.linkedin.dexmaker:dexmaker:' + dexmakerVersion
     androidTestImplementation 'com.linkedin.dexmaker:dexmaker-mockito:' + dexmakerVersion
     androidTestImplementation 'org.mockito:mockito-core:' + mockitoVersion
+    androidTestImplementation project(modulePrefix + 'testutils')
     testImplementation 'androidx.test:core:' + androidxTestCoreVersion
     testImplementation 'androidx.test.ext:junit:' + androidxTestJUnitVersion
     testImplementation 'com.google.truth:truth:' + truthVersion
     testImplementation 'org.mockito:mockito-core:' + mockitoVersion
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
+    testImplementation project(modulePrefix + 'testutils')
 }
 
 ext {
