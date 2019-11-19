@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9};
+var methods = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -138,7 +138,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>static byte[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/CodecSpecificDataUtil.html#buildAacLcAudioSpecificConfig-int-int-">buildAacLcAudioSpecificConfig</a></span>(int&nbsp;sampleRate,
-                             int&nbsp;numChannels)</code>
+                             int&nbsp;channelCount)</code>
 <div class="block">Builds a simple HE-AAC LC AudioSpecificConfig, as defined in ISO 14496-3 1.6.2.1</div>
 </td>
 </tr>
@@ -161,17 +161,23 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/util/Pair.html" target="_top" title="class or interface in android.util">Pair</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Integer.html" target="_top" title="class or interface in java.lang">Integer</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Integer.html" target="_top" title="class or interface in java.lang">Integer</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/CodecSpecificDataUtil.html#parseAacAudioSpecificConfig-byte:A-">parseAacAudioSpecificConfig</a></span>(byte[]&nbsp;audioSpecificConfig)</code>
-<div class="block">Parses an AudioSpecificConfig, as defined in ISO 14496-3 1.6.2.1</div>
+<div class="block">Parses an AAC AudioSpecificConfig, as defined in ISO 14496-3 1.6.2.1</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/util/Pair.html" target="_top" title="class or interface in android.util">Pair</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Integer.html" target="_top" title="class or interface in java.lang">Integer</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Integer.html" target="_top" title="class or interface in java.lang">Integer</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/CodecSpecificDataUtil.html#parseAacAudioSpecificConfig-com.google.android.exoplayer2.util.ParsableBitArray-boolean-">parseAacAudioSpecificConfig</a></span>(<a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html" title="class in com.google.android.exoplayer2.util">ParsableBitArray</a>&nbsp;bitArray,
                            boolean&nbsp;forceReadToEnd)</code>
-<div class="block">Parses an AudioSpecificConfig, as defined in ISO 14496-3 1.6.2.1</div>
+<div class="block">Parses an AAC AudioSpecificConfig, as defined in ISO 14496-3 1.6.2.1</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/util/Pair.html" target="_top" title="class or interface in android.util">Pair</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Integer.html" target="_top" title="class or interface in java.lang">Integer</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Integer.html" target="_top" title="class or interface in java.lang">Integer</a>&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/CodecSpecificDataUtil.html#parseAlacAudioSpecificConfig-byte:A-">parseAlacAudioSpecificConfig</a></span>(byte[]&nbsp;audioSpecificConfig)</code>
+<div class="block">Parses an ALAC AudioSpecificConfig (i.e.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>static byte[][]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/CodecSpecificDataUtil.html#splitNalUnits-byte:A-">splitNalUnits</a></span>(byte[]&nbsp;data)</code>
 <div class="block">Splits an array of NAL units.</div>
@@ -207,7 +213,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <h4>parseAacAudioSpecificConfig</h4>
 <pre>public static&nbsp;<a href="https://developer.android.com/reference/android/util/Pair.html" target="_top" title="class or interface in android.util">Pair</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Integer.html" target="_top" title="class or interface in java.lang">Integer</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Integer.html" target="_top" title="class or interface in java.lang">Integer</a>&gt;&nbsp;parseAacAudioSpecificConfig(byte[]&nbsp;audioSpecificConfig)
                                                          throws <a href="../../../../../com/google/android/exoplayer2/ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></pre>
-<div class="block">Parses an AudioSpecificConfig, as defined in ISO 14496-3 1.6.2.1</div>
+<div class="block">Parses an AAC AudioSpecificConfig, as defined in ISO 14496-3 1.6.2.1</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>audioSpecificConfig</code> - A byte array containing the AudioSpecificConfig to parse.</dd>
@@ -227,7 +233,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <pre>public static&nbsp;<a href="https://developer.android.com/reference/android/util/Pair.html" target="_top" title="class or interface in android.util">Pair</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Integer.html" target="_top" title="class or interface in java.lang">Integer</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Integer.html" target="_top" title="class or interface in java.lang">Integer</a>&gt;&nbsp;parseAacAudioSpecificConfig(<a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html" title="class in com.google.android.exoplayer2.util">ParsableBitArray</a>&nbsp;bitArray,
                                                                 boolean&nbsp;forceReadToEnd)
                                                          throws <a href="../../../../../com/google/android/exoplayer2/ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></pre>
-<div class="block">Parses an AudioSpecificConfig, as defined in ISO 14496-3 1.6.2.1</div>
+<div class="block">Parses an AAC AudioSpecificConfig, as defined in ISO 14496-3 1.6.2.1</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>bitArray</code> - A <a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html" title="class in com.google.android.exoplayer2.util"><code>ParsableBitArray</code></a> containing the AudioSpecificConfig to parse. The
@@ -248,12 +254,12 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>buildAacLcAudioSpecificConfig</h4>
 <pre>public static&nbsp;byte[]&nbsp;buildAacLcAudioSpecificConfig(int&nbsp;sampleRate,
-                                                   int&nbsp;numChannels)</pre>
+                                                   int&nbsp;channelCount)</pre>
 <div class="block">Builds a simple HE-AAC LC AudioSpecificConfig, as defined in ISO 14496-3 1.6.2.1</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>sampleRate</code> - The sample rate in Hz.</dd>
-<dd><code>numChannels</code> - The number of channels.</dd>
+<dd><code>channelCount</code> - The channel count.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The AudioSpecificConfig.</dd>
 </dl>
@@ -276,6 +282,23 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <dd><code>channelConfig</code> - The channel configuration.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The AudioSpecificConfig.</dd>
+</dl>
+</li>
+</ul>
+<a name="parseAlacAudioSpecificConfig-byte:A-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseAlacAudioSpecificConfig</h4>
+<pre>public static&nbsp;<a href="https://developer.android.com/reference/android/util/Pair.html" target="_top" title="class or interface in android.util">Pair</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Integer.html" target="_top" title="class or interface in java.lang">Integer</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Integer.html" target="_top" title="class or interface in java.lang">Integer</a>&gt;&nbsp;parseAlacAudioSpecificConfig(byte[]&nbsp;audioSpecificConfig)</pre>
+<div class="block">Parses an ALAC AudioSpecificConfig (i.e. an <a
+ href="https://github.com/macosforge/alac/blob/master/ALACMagicCookieDescription.txt">ALACSpecificConfig</a>).</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>audioSpecificConfig</code> - A byte array containing the AudioSpecificConfig to parse.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>A pair consisting of the sample rate in Hz and the channel count.</dd>
 </dl>
 </li>
 </ul>

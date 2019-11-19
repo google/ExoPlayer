@@ -869,12 +869,6 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/audio/DefaultAudioSink.DefaultAudioProcessorChain.html#applyPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-">applyPlaybackParameters(PlaybackParameters)</a></span> - Method in class com.google.android.exoplayer2.audio.<a href="com/google/android/exoplayer2/audio/DefaultAudioSink.DefaultAudioProcessorChain.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.DefaultAudioProcessorChain</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/audio/MediaCodecAudioRenderer.html#areCodecConfigurationCompatible-com.google.android.exoplayer2.Format-com.google.android.exoplayer2.Format-">areCodecConfigurationCompatible(Format, Format)</a></span> - Method in class com.google.android.exoplayer2.audio.<a href="com/google/android/exoplayer2/audio/MediaCodecAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">MediaCodecAudioRenderer</a></dt>
-<dd>
-<div class="block">Returns whether two <a href="com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>s will cause the same codec to be configured in an identical
- way, excluding <a href="https://developer.android.com/reference/android/media/MediaFormat.html?is-external=true#KEY_MAX_INPUT_SIZE" title="class or interface in android.media"><code>MediaFormat.KEY_MAX_INPUT_SIZE</code></a> and configuration that does not come from
- the <a href="com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
-</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/Util.html#areEqual-java.lang.Object-java.lang.Object-">areEqual(Object, Object)</a></span> - Static method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/Util.html" title="class in com.google.android.exoplayer2.util">Util</a></dt>
 <dd>
 <div class="block">Tests two objects for <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang"><code>Object.equals(Object)</code></a> equality, handling the case where one or
@@ -2161,6 +2155,10 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html#canKeepCodec-android.media.MediaCodec-com.google.android.exoplayer2.mediacodec.MediaCodecInfo-com.google.android.exoplayer2.Format-com.google.android.exoplayer2.Format-">canKeepCodec(MediaCodec, MediaCodecInfo, Format, Format)</a></span> - Method in class com.google.android.exoplayer2.video.<a href="com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html" title="class in com.google.android.exoplayer2.video">MediaCodecVideoRenderer</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/audio/MediaCodecAudioRenderer.html#canKeepCodecWithFlush-com.google.android.exoplayer2.Format-com.google.android.exoplayer2.Format-">canKeepCodecWithFlush(Format, Format)</a></span> - Method in class com.google.android.exoplayer2.audio.<a href="com/google/android/exoplayer2/audio/MediaCodecAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">MediaCodecAudioRenderer</a></dt>
+<dd>
+<div class="block">Returns whether the codec can be flushed and reused when switching to a new format.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/ParsableNalUnitBitArray.html#canReadBits-int-">canReadBits(int)</a></span> - Method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/ParsableNalUnitBitArray.html" title="class in com.google.android.exoplayer2.util">ParsableNalUnitBitArray</a></dt>
 <dd>
 <div class="block">Returns whether it's possible to read <code>n</code> bits starting from the current offset.</div>
@@ -16111,11 +16109,11 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/CodecSpecificDataUtil.html#parseAacAudioSpecificConfig-byte:A-">parseAacAudioSpecificConfig(byte[])</a></span> - Static method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/CodecSpecificDataUtil.html" title="class in com.google.android.exoplayer2.util">CodecSpecificDataUtil</a></dt>
 <dd>
-<div class="block">Parses an AudioSpecificConfig, as defined in ISO 14496-3 1.6.2.1</div>
+<div class="block">Parses an AAC AudioSpecificConfig, as defined in ISO 14496-3 1.6.2.1</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/CodecSpecificDataUtil.html#parseAacAudioSpecificConfig-com.google.android.exoplayer2.util.ParsableBitArray-boolean-">parseAacAudioSpecificConfig(ParsableBitArray, boolean)</a></span> - Static method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/CodecSpecificDataUtil.html" title="class in com.google.android.exoplayer2.util">CodecSpecificDataUtil</a></dt>
 <dd>
-<div class="block">Parses an AudioSpecificConfig, as defined in ISO 14496-3 1.6.2.1</div>
+<div class="block">Parses an AAC AudioSpecificConfig, as defined in ISO 14496-3 1.6.2.1</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/audio/Ac3Util.html#parseAc3AnnexFFormat-com.google.android.exoplayer2.util.ParsableByteArray-java.lang.String-java.lang.String-com.google.android.exoplayer2.drm.DrmInitData-">parseAc3AnnexFFormat(ParsableByteArray, String, String, DrmInitData)</a></span> - Static method in class com.google.android.exoplayer2.audio.<a href="com/google/android/exoplayer2/audio/Ac3Util.html" title="class in com.google.android.exoplayer2.audio">Ac3Util</a></dt>
 <dd>
@@ -16152,6 +16150,10 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseAdaptationSetChild-org.xmlpull.v1.XmlPullParser-">parseAdaptationSetChild(XmlPullParser)</a></span> - Method in class com.google.android.exoplayer2.source.dash.manifest.<a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifestParser</a></dt>
 <dd>
 <div class="block">Parses children of AdaptationSet elements not specifically parsed elsewhere.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/CodecSpecificDataUtil.html#parseAlacAudioSpecificConfig-byte:A-">parseAlacAudioSpecificConfig(byte[])</a></span> - Static method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/CodecSpecificDataUtil.html" title="class in com.google.android.exoplayer2.util">CodecSpecificDataUtil</a></dt>
+<dd>
+<div class="block">Parses an ALAC AudioSpecificConfig (i.e.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseAudioChannelConfiguration-org.xmlpull.v1.XmlPullParser-">parseAudioChannelConfiguration(XmlPullParser)</a></span> - Method in class com.google.android.exoplayer2.source.dash.manifest.<a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifestParser</a></dt>
 <dd>&nbsp;</dd>

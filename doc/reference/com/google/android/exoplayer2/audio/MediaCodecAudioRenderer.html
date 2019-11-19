@@ -282,15 +282,6 @@ implements <a href="../../../../../com/google/android/exoplayer2/util/MediaClock
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>protected boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/MediaCodecAudioRenderer.html#areCodecConfigurationCompatible-com.google.android.exoplayer2.Format-com.google.android.exoplayer2.Format-">areCodecConfigurationCompatible</a></span>(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;oldFormat,
-                               <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;newFormat)</code>
-<div class="block">Returns whether two <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>s will cause the same codec to be configured in an identical
- way, excluding <a href="https://developer.android.com/reference/android/media/MediaFormat.html?is-external=true#KEY_MAX_INPUT_SIZE" title="class or interface in android.media"><code>MediaFormat.KEY_MAX_INPUT_SIZE</code></a> and configuration that does not come from
- the <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
-</td>
-</tr>
-<tr id="i2" class="altColor">
 <td class="colFirst"><code>protected int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/MediaCodecAudioRenderer.html#canKeepCodec-android.media.MediaCodec-com.google.android.exoplayer2.mediacodec.MediaCodecInfo-com.google.android.exoplayer2.Format-com.google.android.exoplayer2.Format-">canKeepCodec</a></span>(<a href="https://developer.android.com/reference/android/media/MediaCodec.html" target="_top" title="class or interface in android.media">MediaCodec</a>&nbsp;codec,
             <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&nbsp;codecInfo,
@@ -298,6 +289,13 @@ implements <a href="../../../../../com/google/android/exoplayer2/util/MediaClock
             <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;newFormat)</code>
 <div class="block">Determines whether the existing <a href="https://developer.android.com/reference/android/media/MediaCodec.html" target="_top" title="class or interface in android.media"><code>MediaCodec</code></a> can be kept for a new format, and if it can
  whether it requires reconfiguration.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>protected boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/MediaCodecAudioRenderer.html#canKeepCodecWithFlush-com.google.android.exoplayer2.Format-com.google.android.exoplayer2.Format-">canKeepCodecWithFlush</a></span>(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;oldFormat,
+                     <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;newFormat)</code>
+<div class="block">Returns whether the codec can be flushed and reused when switching to a new format.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
@@ -899,6 +897,27 @@ protected&nbsp;int&nbsp;canKeepCodec(<a href="https://developer.android.com/refe
 </dl>
 </li>
 </ul>
+<a name="canKeepCodecWithFlush-com.google.android.exoplayer2.Format-com.google.android.exoplayer2.Format-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>canKeepCodecWithFlush</h4>
+<pre>protected&nbsp;boolean&nbsp;canKeepCodecWithFlush(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;oldFormat,
+                                        <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;newFormat)</pre>
+<div class="block">Returns whether the codec can be flushed and reused when switching to a new format. Reuse is
+ generally possible when the codec would be configured in an identical way after the format
+ change (excluding <a href="https://developer.android.com/reference/android/media/MediaFormat.html?is-external=true#KEY_MAX_INPUT_SIZE" title="class or interface in android.media"><code>MediaFormat.KEY_MAX_INPUT_SIZE</code></a> and configuration that does not come
+ from the <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>).</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>oldFormat</code> - The first format.</dd>
+<dd><code>newFormat</code> - The second format.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Whether the codec can be flushed and reused when switching to a new format.</dd>
+</dl>
+</li>
+</ul>
 <a name="getMediaClock--">
 <!--   -->
 </a>
@@ -1480,28 +1499,6 @@ protected&nbsp;void&nbsp;onProcessedOutputBuffer(long&nbsp;presentationTimeUs)</
 <dd><code>streamFormats</code> - The possible stream formats.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>A suitable maximum input size.</dd>
-</dl>
-</li>
-</ul>
-<a name="areCodecConfigurationCompatible-com.google.android.exoplayer2.Format-com.google.android.exoplayer2.Format-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>areCodecConfigurationCompatible</h4>
-<pre>protected&nbsp;boolean&nbsp;areCodecConfigurationCompatible(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;oldFormat,
-                                                  <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;newFormat)</pre>
-<div class="block">Returns whether two <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>s will cause the same codec to be configured in an identical
- way, excluding <a href="https://developer.android.com/reference/android/media/MediaFormat.html?is-external=true#KEY_MAX_INPUT_SIZE" title="class or interface in android.media"><code>MediaFormat.KEY_MAX_INPUT_SIZE</code></a> and configuration that does not come from
- the <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>oldFormat</code> - The first format.</dd>
-<dd><code>newFormat</code> - The second format.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>Whether the two formats will cause a codec to be configured in an identical way,
-     excluding <a href="https://developer.android.com/reference/android/media/MediaFormat.html?is-external=true#KEY_MAX_INPUT_SIZE" title="class or interface in android.media"><code>MediaFormat.KEY_MAX_INPUT_SIZE</code></a> and configuration that does not come from
-     the <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</dd>
 </dl>
 </li>
 </ul>
