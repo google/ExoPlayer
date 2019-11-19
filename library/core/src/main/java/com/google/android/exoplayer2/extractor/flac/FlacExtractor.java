@@ -202,8 +202,6 @@ public final class FlacExtractor implements Extractor {
     state = STATE_READ_FRAMES;
   }
 
-  // TODO: consider sending bytes within min frame size directly from the input to the sample queue
-  // to avoid unnecessary copies in scratch.
   private int readFrames(ExtractorInput input) throws IOException, InterruptedException {
     Assertions.checkNotNull(trackOutput);
     Assertions.checkNotNull(flacStreamMetadata);
