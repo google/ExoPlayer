@@ -15,6 +15,13 @@
   [embedded in Matroska streams](https://matroska.org/technical/specs/subtitles/index.html).
 * Use `ExoMediaDrm.Provider` in `OfflineLicenseHelper` to avoid `ExoMediaDrm`
   leaks ([#4721](https://github.com/google/ExoPlayer/issues/4721)).
+* Improve `Format` propagation within the `MediaCodecRenderer` and subclasses.
+  For example, fix handling of pixel aspect ratio changes in playlists where
+  video resolution does not change.
+  ([#6646](https://github.com/google/ExoPlayer/issues/6646)).
+* Rename `MediaCodecRenderer.onOutputFormatChanged` to
+  `MediaCodecRenderer.onOutputMediaFormatChanged`, further
+  clarifying the distinction between `Format` and `MediaFormat`.
 * Fix byte order of HDR10+ static metadata to match CTA-861.3.
 * Reconfigure audio sink when PCM encoding changes
   ([#6601](https://github.com/google/ExoPlayer/issues/6601)).

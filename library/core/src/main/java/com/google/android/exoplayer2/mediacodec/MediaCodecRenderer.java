@@ -565,7 +565,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     return true;
   }
 
-  /**
+  /*
    * Returns whether the codec needs the renderer to propagate the end-of-stream signal directly,
    * rather than by using an end-of-stream buffer queued to the codec.
    */
@@ -574,17 +574,17 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
-   * Polls the pending output format queue for a given buffer timestamp. If a format is present, it
-   * is removed and returned. Otherwise returns {@code null}. Subclasses should only call this
-   * method if they are taking over responsibility for output format propagation (e.g., when using
-   * video tunneling).
+   * Polls the pending output format queue for a given buffer timestamp. If a format is present,
+   * {@link #onOutputFormatChanged(Format)} is called. Subclasses should only call this method if
+   * they are taking over responsibility for output format propagation (e.g., when using video
+   * tunneling).
    */
-  protected final @Nullable Format updateOutputFormatForTime(long presentationTimeUs) {
-    Format format = formatQueue.pollFloor(presentationTimeUs);
+  protected final void updateOutputFormatForTime(long presentationTimeUs) {
+    @Nullable Format format = formatQueue.pollFloor(presentationTimeUs);
     if (format != null) {
       outputFormat = format;
+      onOutputFormatChanged(outputFormat);
     }
-    return format;
   }
 
   protected final MediaCodec getCodec() {
@@ -1305,8 +1305,19 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @param outputMediaFormat The new output {@link MediaFormat}.
    * @throws ExoPlaybackException Thrown if an error occurs handling the new output media format.
    */
-  protected void onOutputFormatChanged(MediaCodec codec, MediaFormat outputMediaFormat)
+  protected void onOutputMediaFormatChanged(MediaCodec codec, MediaFormat outputMediaFormat)
       throws ExoPlaybackException {
+    // Do nothing.
+  }
+
+  /**
+   * Called when the output {@link Format} changes from the format queue.
+   *
+   * <p>The default implementation is a no-op.
+   *
+   * @param outputFormat The new output {@link Format}.
+   */
+  protected void onOutputFormatChanged(Format outputFormat) {
     // Do nothing.
   }
 
@@ -1504,7 +1515,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
       if (outputIndex < 0) {
         if (outputIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED /* (-2) */) {
-          processOutputFormat();
+          processOutputMediaFormat();
           return true;
         } else if (outputIndex == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED /* (-3) */) {
           processOutputBuffersChanged();
@@ -1596,7 +1607,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /** Processes a new output {@link MediaFormat}. */
-  private void processOutputFormat() throws ExoPlaybackException {
+  private void processOutputMediaFormat() throws ExoPlaybackException {
     MediaFormat mediaFormat = codec.getOutputFormat();
     if (codecAdaptationWorkaroundMode != ADAPTATION_WORKAROUND_MODE_NEVER
         && mediaFormat.getInteger(MediaFormat.KEY_WIDTH) == ADAPTATION_WORKAROUND_SLICE_WIDTH_HEIGHT
@@ -1609,7 +1620,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     if (codecNeedsMonoChannelCountWorkaround) {
       mediaFormat.setInteger(MediaFormat.KEY_CHANNEL_COUNT, 1);
     }
-    onOutputFormatChanged(codec, mediaFormat);
+    onOutputMediaFormatChanged(codec, mediaFormat);
   }
 
   /**
