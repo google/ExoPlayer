@@ -109,7 +109,7 @@ public final class FlacStreamMetadata {
 
   /** Returns the bit-rate of the FLAC stream. */
   public int bitRate() {
-    return bitsPerSample * sampleRate;
+    return bitsPerSample * sampleRate * channels;
   }
 
   /** Returns the duration of the FLAC stream in microseconds. */

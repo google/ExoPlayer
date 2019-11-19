@@ -1,6 +1,23 @@
 # Release notes #
 
-### 2.10.7 (2019-11-12) ###
+### 2.10.8 (2019-11-19) ###
+
+* E-AC3 JOC
+  * Handle new signaling in DASH manifests
+    ([#6636](https://github.com/google/ExoPlayer/issues/6636)).
+  * Fix E-AC3 JOC passthrough playback failing to initialize due to incorrect
+    channel count check.
+* FLAC
+  * Fix sniffing for some FLAC streams.
+  * Fix FLAC `Format.bitrate` values.
+* Parse ALAC channel count and sample rate information from a more robust source
+  when contained in MP4
+  ([#6648](https://github.com/google/ExoPlayer/issues/6648)).
+* Fix seeking into multi-period content in the edge case that the period
+  containing the seek position has just been removed
+  ([#6641](https://github.com/google/ExoPlayer/issues/6641)).
+
+### 2.10.7 (2019-11-06) ###
 
 * HLS: Fix detection of Dolby Atmos to match the HLS authoring specification.
 * MediaSession extension: Update shuffle and repeat modes when playback state
