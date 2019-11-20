@@ -4,9 +4,6 @@
 
 * Add Java FLAC extractor
   ([#6406](https://github.com/google/ExoPlayer/issues/6406)).
-  This extractor does not support seeking and live streams, and does not expose
-  vorbis, ID3 and picture data. If `DefaultExtractorsFactory` is used, this
-  extractor is only used if the FLAC extension is not loaded.
 
 ### 2.11.1 (2019-12-20) ###
 
@@ -35,6 +32,32 @@
   ([#6792](https://github.com/google/ExoPlayer/issues/6792)).
 
 ### 2.11.0 (2019-12-11) ###
+  This extractor does not support seeking and live streams. If
+  `DefaultExtractorsFactory` is used, this extractor is only used if the FLAC
+  extension is not loaded.
+* Video tunneling: Fix renderer end-of-stream with `OnFrameRenderedListener`
+  from API 23, tunneled renderer must send a special timestamp on EOS.
+  Previously the EOS was reported when the input stream reached EOS.
+* Require an end time or duration for SubRip (SRT) and SubStation Alpha
+  (SSA/ASS) subtitles. This applies to both sidecar files & subtitles
+  [embedded in Matroska streams](https://matroska.org/technical/specs/subtitles/index.html).
+* Use `ExoMediaDrm.Provider` in `OfflineLicenseHelper` to avoid `ExoMediaDrm`
+  leaks ([#4721](https://github.com/google/ExoPlayer/issues/4721)).
+* Improve `Format` propagation within the `MediaCodecRenderer` and subclasses.
+  For example, fix handling of pixel aspect ratio changes in playlists where
+  video resolution does not change.
+  ([#6646](https://github.com/google/ExoPlayer/issues/6646)).
+* Rename `MediaCodecRenderer.onOutputFormatChanged` to
+  `MediaCodecRenderer.onOutputMediaFormatChanged`, further
+  clarifying the distinction between `Format` and `MediaFormat`.
+* Fix byte order of HDR10+ static metadata to match CTA-861.3.
+* Reconfigure audio sink when PCM encoding changes
+  ([#6601](https://github.com/google/ExoPlayer/issues/6601)).
+* Make `MediaSourceEventListener.LoadEventInfo` and
+  `MediaSourceEventListener.MediaLoadData` top-level classes.
+
+### 2.11.0 (not yet released) ###
+>>>>>>> b18650fdc... Expose metadata in FLAC extractor
 
 * Core library:
   * Replace `ExoPlayerFactory` by `SimpleExoPlayer.Builder` and

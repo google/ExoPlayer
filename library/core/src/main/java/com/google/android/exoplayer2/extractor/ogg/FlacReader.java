@@ -69,7 +69,7 @@ import java.util.Arrays;
     if (streamMetadata == null) {
       streamMetadata = new FlacStreamMetadata(data, 17);
       byte[] metadata = Arrays.copyOfRange(data, 9, packet.limit());
-      setupData.format = streamMetadata.getFormat(metadata);
+      setupData.format = streamMetadata.getFormat(metadata, /* id3Metadata= */ null);
     } else if ((data[0] & 0x7F) == SEEKTABLE_PACKET_TYPE) {
       flacOggSeeker = new FlacOggSeeker();
       flacOggSeeker.parseSeekTable(packet);
