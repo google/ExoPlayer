@@ -426,7 +426,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
    * {@link #releaseInternal()} is complete.
    *
    * @throws {@link InterruptedException} if the current Thread was interrupted while waiting for
-   *     {{@link #releaseInternal()}} to complete.
+   *     {@link #releaseInternal()} to complete.
    */
   private synchronized void waitUntilReleased() throws InterruptedException {
     InterruptedException interruptedException = null;
@@ -454,7 +454,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
    *
    * @param timeoutMs the time in milliseconds to wait for {@link #releaseInternal()} to complete.
    * @throws {@link InterruptedException} if the current Thread was interrupted while waiting for
-   *     {{@link #releaseInternal()}} to complete.
+   *     {@link #releaseInternal()} to complete.
    */
   private synchronized void waitUntilReleased(long timeoutMs) throws InterruptedException {
     long deadlineMs = clock.elapsedRealtime() + timeoutMs;
