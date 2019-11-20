@@ -143,6 +143,8 @@ public interface ExoPlayer extends Player {
     private boolean useLazyPreparation;
     private boolean buildCalled;
 
+    private long releaseTimeoutMs;
+
     /**
      * Creates a builder with a list of {@link Renderer Renderers}.
      *
@@ -209,6 +211,21 @@ public interface ExoPlayer extends Player {
       this.analyticsCollector = analyticsCollector;
       this.useLazyPreparation = useLazyPreparation;
       this.clock = clock;
+    }
+
+    /**
+     * Set a limit on the time a call to {@link ExoPlayer#release()} can spend. If a call to {@link
+     * ExoPlayer#release()} takes more than {@code timeoutMs} milliseconds to complete, the player
+     * will raise an error via {@link Player.EventListener#onPlayerError}.
+     *
+     * <p>This method is experimental, and will be renamed or removed in a future release. It should
+     * only be called before the player is used.
+     *
+     * @param timeoutMs The time limit in milliseconds, or 0 for no limit.
+     */
+    public Builder experimental_setReleaseTimeoutMs(long timeoutMs) {
+      releaseTimeoutMs = timeoutMs;
+      return this;
     }
 
     /**
@@ -317,8 +334,14 @@ public interface ExoPlayer extends Player {
     public ExoPlayer build() {
       Assertions.checkState(!buildCalled);
       buildCalled = true;
-      return new ExoPlayerImpl(
-          renderers, trackSelector, loadControl, bandwidthMeter, clock, looper);
+      ExoPlayerImpl player =
+          new ExoPlayerImpl(renderers, trackSelector, loadControl, bandwidthMeter, clock, looper);
+
+      if (releaseTimeoutMs > 0) {
+        player.experimental_setReleaseTimeoutMs(releaseTimeoutMs);
+      }
+
+      return player;
     }
   }
 
