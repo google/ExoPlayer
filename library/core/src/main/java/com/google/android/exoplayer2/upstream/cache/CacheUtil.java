@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.upstream.cache;
 import android.net.Uri;
 import android.util.Pair;
 import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceException;
@@ -104,6 +105,8 @@ public final class CacheUtil {
    * Caches the data defined by {@code dataSpec}, skipping already cached data. Caching stops early
    * if the end of the input is reached.
    *
+   * <p>This method may be slow and shouldn't normally be called on the main thread.
+   *
    * @param dataSpec Defines the data to be cached.
    * @param cache A {@link Cache} to store the data.
    * @param cacheKeyFactory An optional factory for cache keys.
@@ -113,6 +116,7 @@ public final class CacheUtil {
    * @throws IOException If an error occurs reading from the source.
    * @throws InterruptedException If the thread was interrupted directly or via {@code isCanceled}.
    */
+  @WorkerThread
   public static void cache(
       DataSpec dataSpec,
       Cache cache,
@@ -144,6 +148,8 @@ public final class CacheUtil {
    * PriorityTaskManager#add} to register with the manager before calling this method, and to call
    * {@link PriorityTaskManager#remove} afterwards to unregister.
    *
+   * <p>This method may be slow and shouldn't normally be called on the main thread.
+   *
    * @param dataSpec Defines the data to be cached.
    * @param cache A {@link Cache} to store the data.
    * @param cacheKeyFactory An optional factory for cache keys.
@@ -159,6 +165,7 @@ public final class CacheUtil {
    * @throws IOException If an error occurs reading from the source.
    * @throws InterruptedException If the thread was interrupted directly or via {@code isCanceled}.
    */
+  @WorkerThread
   public static void cache(
       DataSpec dataSpec,
       Cache cache,
@@ -333,10 +340,13 @@ public final class CacheUtil {
   /**
    * Removes all of the data specified by the {@code dataSpec}.
    *
+   * <p>This methods blocks until the operation is complete.
+   *
    * @param dataSpec Defines the data to be removed.
    * @param cache A {@link Cache} to store the data.
    * @param cacheKeyFactory An optional factory for cache keys.
    */
+  @WorkerThread
   public static void remove(
       DataSpec dataSpec, Cache cache, @Nullable CacheKeyFactory cacheKeyFactory) {
     remove(cache, buildCacheKey(dataSpec, cacheKeyFactory));
@@ -345,9 +355,12 @@ public final class CacheUtil {
   /**
    * Removes all of the data specified by the {@code key}.
    *
+   * <p>This methods blocks until the operation is complete.
+   *
    * @param cache A {@link Cache} to store the data.
    * @param key The key whose data should be removed.
    */
+  @WorkerThread
   public static void remove(Cache cache, String key) {
     NavigableSet<CacheSpan> cachedSpans = cache.getCachedSpans(key);
     for (CacheSpan cachedSpan : cachedSpans) {
