@@ -1732,6 +1732,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
     TextTrackScore selectedTextTrackScore = null;
     int selectedTextRendererIndex = C.INDEX_UNSET;
+    int nIgnore = 0;
     for (int i = 0; i < rendererCount; i++) {
       int trackType = mappedTrackInfo.getRendererType(i);
       switch (trackType) {
@@ -1762,7 +1763,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         default:
           definitions[i] =
               selectOtherTrack(
-                  trackType, mappedTrackInfo.getTrackGroups(i), rendererFormatSupports[i], params);
+                  trackType, mappedTrackInfo.getTrackGroups(i), rendererFormatSupports[i], params, nIgnore);
+          nIgnore++;
           break;
       }
     }
@@ -2297,11 +2299,12 @@ public class DefaultTrackSelector extends MappingTrackSelector {
    */
   @Nullable
   protected TrackSelection.Definition selectOtherTrack(
-      int trackType, TrackGroupArray groups, int[][] formatSupport, Parameters params)
+      int trackType, TrackGroupArray groups, int[][] formatSupport, Parameters params, int nIgnore)
       throws ExoPlaybackException {
     TrackGroup selectedGroup = null;
     int selectedTrackIndex = 0;
     int selectedTrackScore = 0;
+    int nAlreadyIgnored = 0;
     for (int groupIndex = 0; groupIndex < groups.length; groupIndex++) {
       TrackGroup trackGroup = groups.get(groupIndex);
       int[] trackFormatSupport = formatSupport[groupIndex];
@@ -2315,9 +2318,16 @@ public class DefaultTrackSelector extends MappingTrackSelector {
             trackScore += WITHIN_RENDERER_CAPABILITIES_BONUS;
           }
           if (trackScore > selectedTrackScore) {
-            selectedGroup = trackGroup;
             selectedTrackIndex = trackIndex;
             selectedTrackScore = trackScore;
+            nAlreadyIgnored = 0;
+          }
+          if(trackScore == selectedTrackScore) {
+            if(nAlreadyIgnored == nIgnore) {
+              selectedGroup = trackGroup;
+              selectedTrackIndex = trackIndex;
+            }
+            nAlreadyIgnored++;
           }
         }
       }

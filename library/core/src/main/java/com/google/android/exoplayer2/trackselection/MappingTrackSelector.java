@@ -31,7 +31,10 @@ import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
@@ -356,15 +359,17 @@ public abstract class MappingTrackSelector extends TrackSelector {
     for (int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
       TrackGroup group = trackGroups.get(groupIndex);
       // Associate the group to a preferred renderer.
-      int rendererIndex = findRenderer(rendererCapabilities, group);
-      // Evaluate the support that the renderer provides for each track in the group.
-      int[] rendererFormatSupport = rendererIndex == rendererCapabilities.length
-          ? new int[group.length] : getFormatSupport(rendererCapabilities[rendererIndex], group);
-      // Stash the results.
-      int rendererTrackGroupCount = rendererTrackGroupCounts[rendererIndex];
-      rendererTrackGroups[rendererIndex][rendererTrackGroupCount] = group;
-      rendererFormatSupports[rendererIndex][rendererTrackGroupCount] = rendererFormatSupport;
-      rendererTrackGroupCounts[rendererIndex]++;
+      List<Integer> rendererIndexes = findAllRenderers(rendererCapabilities, group);
+      for(int rendererIndex: rendererIndexes) {
+        // Evaluate the support that the renderer provides for each track in the group.
+        int[] rendererFormatSupport = rendererIndex == rendererCapabilities.length
+                ? new int[group.length] : getFormatSupport(rendererCapabilities[rendererIndex], group);
+        // Stash the results.
+        int rendererTrackGroupCount = rendererTrackGroupCounts[rendererIndex];
+        rendererTrackGroups[rendererIndex][rendererTrackGroupCount] = group;
+        rendererFormatSupports[rendererIndex][rendererTrackGroupCount] = rendererFormatSupport;
+        rendererTrackGroupCounts[rendererIndex]++;
+      }
     }
 
     // Create a track group array for each renderer, and trim each rendererFormatSupports entry.
@@ -463,6 +468,27 @@ public abstract class MappingTrackSelector extends TrackSelector {
       }
     }
     return bestRendererIndex;
+  }
+
+  private static List<Integer> findAllRenderers(RendererCapabilities[] rendererCapabilities, TrackGroup group)
+          throws ExoPlaybackException {
+    ArrayList<Integer> result = new ArrayList<>();
+    int bestFormatSupportLevel = RendererCapabilities.FORMAT_UNSUPPORTED_TYPE;
+    for (int rendererIndex = 0; rendererIndex < rendererCapabilities.length; rendererIndex++) {
+      RendererCapabilities rendererCapability = rendererCapabilities[rendererIndex];
+      for (int trackIndex = 0; trackIndex < group.length; trackIndex++) {
+        int formatSupportLevel = rendererCapability.supportsFormat(group.getFormat(trackIndex))
+                & RendererCapabilities.FORMAT_SUPPORT_MASK;
+        if (formatSupportLevel > bestFormatSupportLevel) {
+          bestFormatSupportLevel = formatSupportLevel;
+          result.clear();
+        }
+        if (formatSupportLevel == bestFormatSupportLevel) {
+          result.add(rendererIndex);
+        }
+      }
+    }
+    return result;
   }
 
   /**
