@@ -400,7 +400,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       mediaDrm.restoreKeys(sessionId, offlineLicenseKeySetId);
       return true;
     } catch (Exception e) {
-      Log.e(TAG, "Error trying to restore Widevine keys.", e);
+      Log.e(TAG, "Error trying to restore keys.", e);
       onError(e);
     }
     return false;
