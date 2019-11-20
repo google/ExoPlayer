@@ -26,15 +26,13 @@ import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
-import com.google.android.exoplayer2.extractor.Id3Peeker;
+import com.google.android.exoplayer2.extractor.FlacMetadataReader;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.SeekPoint;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.FlacMetadataReader;
 import com.google.android.exoplayer2.util.FlacStreamMetadata;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -73,7 +71,6 @@ public final class FlacExtractor implements Extractor {
   public static final int FLAG_DISABLE_ID3_METADATA = 1;
 
   private final ParsableByteArray outputBuffer;
-  private final Id3Peeker id3Peeker;
   private final boolean id3MetadataDisabled;
 
   @Nullable private FlacDecoderJni decoderJni;
@@ -87,7 +84,7 @@ public final class FlacExtractor implements Extractor {
   @Nullable private Metadata id3Metadata;
   @Nullable private FlacBinarySearchSeeker binarySearchSeeker;
 
-  /** Constructs an instance with flags = 0. */
+  /** Constructs an instance with {@code flags = 0}. */
   public FlacExtractor() {
     this(/* flags= */ 0);
   }
@@ -95,11 +92,11 @@ public final class FlacExtractor implements Extractor {
   /**
    * Constructs an instance.
    *
-   * @param flags Flags that control the extractor's behavior.
+   * @param flags Flags that control the extractor's behavior. Possible flags are described by
+   *     {@link Flags}.
    */
   public FlacExtractor(int flags) {
     outputBuffer = new ParsableByteArray();
-    id3Peeker = new Id3Peeker();
     id3MetadataDisabled = (flags & FLAG_DISABLE_ID3_METADATA) != 0;
   }
 
@@ -117,7 +114,7 @@ public final class FlacExtractor implements Extractor {
 
   @Override
   public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
-    id3Metadata = peekId3Data(input);
+    id3Metadata = FlacMetadataReader.peekId3Metadata(input, /* parseData= */ !id3MetadataDisabled);
     return FlacMetadataReader.checkAndPeekStreamMarker(input);
   }
 
@@ -125,7 +122,7 @@ public final class FlacExtractor implements Extractor {
   public int read(final ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
     if (input.getPosition() == 0 && !id3MetadataDisabled && id3Metadata == null) {
-      id3Metadata = peekId3Data(input);
+      id3Metadata = FlacMetadataReader.peekId3Metadata(input, /* parseData= */ true);
     }
 
     FlacDecoderJni decoderJni = initDecoderJni(input);
@@ -177,19 +174,6 @@ public final class FlacExtractor implements Extractor {
     }
   }
 
-  /**
-   * Peeks ID3 tag data at the beginning of the input.
-   *
-   * @return The first ID3 tag {@link Metadata}, or null if an ID3 tag is not present in the input.
-   */
-  @Nullable
-  private Metadata peekId3Data(ExtractorInput input) throws IOException, InterruptedException {
-    input.resetPeekPosition();
-    Id3Decoder.FramePredicate id3FramePredicate =
-        id3MetadataDisabled ? Id3Decoder.NO_FRAMES_PREDICATE : null;
-    return id3Peeker.peekId3Data(input, id3FramePredicate);
-  }
-
   @EnsuresNonNull({"decoderJni", "extractorOutput", "trackOutput"}) // Ensures initialized.
   @SuppressWarnings({"contracts.postcondition.not.satisfied"})
   private FlacDecoderJni initDecoderJni(ExtractorInput input) {
@@ -220,10 +204,7 @@ public final class FlacExtractor implements Extractor {
       this.streamMetadata = streamMetadata;
       binarySearchSeeker =
           outputSeekMap(decoderJni, streamMetadata, input.getLength(), extractorOutput);
-      Metadata metadata = id3MetadataDisabled ? null : id3Metadata;
-      if (streamMetadata.metadata != null) {
-        metadata = streamMetadata.metadata.copyWithAppendedEntriesFrom(metadata);
-      }
+      Metadata metadata = streamMetadata.getMetadataCopyWithAppendedEntriesFrom(id3Metadata);
       outputFormat(streamMetadata, metadata, trackOutput);
       outputBuffer.reset(streamMetadata.getMaxDecodedFrameSize());
       outputFrameHolder = new OutputFrameHolder(ByteBuffer.wrap(outputBuffer.data));

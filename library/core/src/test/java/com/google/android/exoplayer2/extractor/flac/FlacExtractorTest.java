@@ -30,8 +30,28 @@ public class FlacExtractorTest {
   }
 
   @Test
-  public void testSampleWithId3() throws Exception {
+  public void testSampleWithId3HeaderAndId3Enabled() throws Exception {
     ExtractorAsserts.assertBehavior(FlacExtractor::new, "flac/bear_with_id3.flac");
+  }
+
+  @Test
+  public void testSampleWithId3HeaderAndId3Disabled() throws Exception {
+    // The same file is used for testing the extractor with and without ID3 enabled as the test does
+    // not check the metadata outputted. It only checks that the file is parsed correctly in both
+    // cases.
+    ExtractorAsserts.assertBehavior(
+        () -> new FlacExtractor(FlacExtractor.FLAG_DISABLE_ID3_METADATA),
+        "flac/bear_with_id3.flac");
+  }
+
+  @Test
+  public void testSampleWithVorbisComments() throws Exception {
+    ExtractorAsserts.assertBehavior(FlacExtractor::new, "flac/bear_with_vorbis_comments.flac");
+  }
+
+  @Test
+  public void testSampleWithPicture() throws Exception {
+    ExtractorAsserts.assertBehavior(FlacExtractor::new, "flac/bear_with_picture.flac");
   }
 
   @Test

@@ -18,20 +18,22 @@ package com.google.android.exoplayer2.extractor.flac;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
+import com.google.android.exoplayer2.extractor.FlacFrameReader;
+import com.google.android.exoplayer2.extractor.FlacFrameReader.BlockSizeHolder;
+import com.google.android.exoplayer2.extractor.FlacMetadataReader;
+import com.google.android.exoplayer2.extractor.FlacMetadataReader.FirstFrameMetadata;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.FlacConstants;
-import com.google.android.exoplayer2.util.FlacFrameReader;
-import com.google.android.exoplayer2.util.FlacFrameReader.BlockSizeHolder;
-import com.google.android.exoplayer2.util.FlacMetadataReader;
-import com.google.android.exoplayer2.util.FlacMetadataReader.FirstFrameMetadata;
 import com.google.android.exoplayer2.util.FlacStreamMetadata;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
@@ -41,7 +43,6 @@ import java.lang.annotation.RetentionPolicy;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 // TODO: implement seeking.
-// TODO: expose vorbis and ID3 data.
 // TODO: support live streams.
 /**
  * Extracts data from FLAC container format.
@@ -53,23 +54,40 @@ public final class FlacExtractor implements Extractor {
   /** Factory for {@link FlacExtractor} instances. */
   public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new FlacExtractor()};
 
+  /**
+   * Flags controlling the behavior of the extractor. Possible flag value is {@link
+   * #FLAG_DISABLE_ID3_METADATA}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef(
+      flag = true,
+      value = {FLAG_DISABLE_ID3_METADATA})
+  public @interface Flags {}
+
+  /**
+   * Flag to disable parsing of ID3 metadata. Can be set to save memory if ID3 metadata is not
+   * required.
+   */
+  public static final int FLAG_DISABLE_ID3_METADATA = 1;
+
   /** Parser state. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
-    STATE_READ_ID3_TAG,
+    STATE_READ_ID3_METADATA,
+    STATE_GET_STREAM_MARKER_AND_INFO_BLOCK_BYTES,
     STATE_READ_STREAM_MARKER,
-    STATE_READ_STREAM_INFO_BLOCK,
-    STATE_SKIP_OPTIONAL_METADATA_BLOCKS,
+    STATE_READ_METADATA_BLOCKS,
     STATE_GET_FIRST_FRAME_METADATA,
     STATE_READ_FRAMES
   })
   private @interface State {}
 
-  private static final int STATE_READ_ID3_TAG = 0;
-  private static final int STATE_READ_STREAM_MARKER = 1;
-  private static final int STATE_READ_STREAM_INFO_BLOCK = 2;
-  private static final int STATE_SKIP_OPTIONAL_METADATA_BLOCKS = 3;
+  private static final int STATE_READ_ID3_METADATA = 0;
+  private static final int STATE_GET_STREAM_MARKER_AND_INFO_BLOCK_BYTES = 1;
+  private static final int STATE_READ_STREAM_MARKER = 2;
+  private static final int STATE_READ_METADATA_BLOCKS = 3;
   private static final int STATE_GET_FIRST_FRAME_METADATA = 4;
   private static final int STATE_READ_FRAMES = 5;
 
@@ -81,6 +99,7 @@ public final class FlacExtractor implements Extractor {
 
   private final byte[] streamMarkerAndInfoBlock;
   private final ParsableByteArray scratch;
+  private final boolean id3MetadataDisabled;
 
   private final BlockSizeHolder blockSizeHolder;
 
@@ -88,6 +107,7 @@ public final class FlacExtractor implements Extractor {
   @MonotonicNonNull private TrackOutput trackOutput;
 
   private @State int state;
+  @Nullable private Metadata id3Metadata;
   @MonotonicNonNull private FlacStreamMetadata flacStreamMetadata;
   private int minFrameSize;
   private int frameStartMarker;
@@ -95,16 +115,28 @@ public final class FlacExtractor implements Extractor {
   private int currentFrameBytesWritten;
   private long totalSamplesWritten;
 
+  /** Constructs an instance with {@code flags = 0}. */
   public FlacExtractor() {
+    this(/* flags= */ 0);
+  }
+
+  /**
+   * Constructs an instance.
+   *
+   * @param flags Flags that control the extractor's behavior. Possible flags are described by
+   *     {@link Flags}.
+   */
+  public FlacExtractor(int flags) {
     streamMarkerAndInfoBlock =
         new byte[FlacConstants.STREAM_MARKER_SIZE + FlacConstants.STREAM_INFO_BLOCK_SIZE];
     scratch = new ParsableByteArray(SCRATCH_LENGTH);
     blockSizeHolder = new BlockSizeHolder();
+    id3MetadataDisabled = (flags & FLAG_DISABLE_ID3_METADATA) != 0;
   }
 
   @Override
   public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
-    FlacMetadataReader.peekId3Data(input);
+    FlacMetadataReader.peekId3Metadata(input, /* parseData= */ false);
     return FlacMetadataReader.checkAndPeekStreamMarker(input);
   }
 
@@ -119,17 +151,17 @@ public final class FlacExtractor implements Extractor {
   public int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
     switch (state) {
-      case STATE_READ_ID3_TAG:
-        readId3Tag(input);
+      case STATE_READ_ID3_METADATA:
+        readId3Metadata(input);
+        return Extractor.RESULT_CONTINUE;
+      case STATE_GET_STREAM_MARKER_AND_INFO_BLOCK_BYTES:
+        getStreamMarkerAndInfoBlockBytes(input);
         return Extractor.RESULT_CONTINUE;
       case STATE_READ_STREAM_MARKER:
         readStreamMarker(input);
         return Extractor.RESULT_CONTINUE;
-      case STATE_READ_STREAM_INFO_BLOCK:
-        readStreamInfoBlock(input);
-        return Extractor.RESULT_CONTINUE;
-      case STATE_SKIP_OPTIONAL_METADATA_BLOCKS:
-        skipOptionalMetadataBlocks(input);
+      case STATE_READ_METADATA_BLOCKS:
+        readMetadataBlocks(input);
         return Extractor.RESULT_CONTINUE;
       case STATE_GET_FIRST_FRAME_METADATA:
         getFirstFrameMetadata(input);
@@ -143,7 +175,7 @@ public final class FlacExtractor implements Extractor {
 
   @Override
   public void seek(long position, long timeUs) {
-    state = STATE_READ_ID3_TAG;
+    state = STATE_READ_ID3_METADATA;
     currentFrameBytesWritten = 0;
     totalSamplesWritten = 0;
     scratch.reset();
@@ -156,40 +188,40 @@ public final class FlacExtractor implements Extractor {
 
   // Private methods.
 
-  private void readId3Tag(ExtractorInput input) throws IOException, InterruptedException {
-    FlacMetadataReader.readId3Data(input);
+  private void readId3Metadata(ExtractorInput input) throws IOException, InterruptedException {
+    id3Metadata = FlacMetadataReader.readId3Metadata(input, /* parseData= */ !id3MetadataDisabled);
+    state = STATE_GET_STREAM_MARKER_AND_INFO_BLOCK_BYTES;
+  }
+
+  private void getStreamMarkerAndInfoBlockBytes(ExtractorInput input)
+      throws IOException, InterruptedException {
+    input.peekFully(streamMarkerAndInfoBlock, 0, streamMarkerAndInfoBlock.length);
+    input.resetPeekPosition();
     state = STATE_READ_STREAM_MARKER;
   }
 
   private void readStreamMarker(ExtractorInput input) throws IOException, InterruptedException {
-    FlacMetadataReader.readStreamMarker(
-        input, streamMarkerAndInfoBlock, /* scratchWriteIndex= */ 0);
-    state = STATE_READ_STREAM_INFO_BLOCK;
+    FlacMetadataReader.readStreamMarker(input);
+    state = STATE_READ_METADATA_BLOCKS;
   }
 
-  private void readStreamInfoBlock(ExtractorInput input) throws IOException, InterruptedException {
-    flacStreamMetadata =
-        FlacMetadataReader.readStreamInfoBlock(
-            input,
-            /* scratchData= */ streamMarkerAndInfoBlock,
-            /* scratchWriteIndex= */ FlacConstants.STREAM_MARKER_SIZE);
+  private void readMetadataBlocks(ExtractorInput input) throws IOException, InterruptedException {
+    boolean isLastMetadataBlock = false;
+    FlacMetadataReader.FlacStreamMetadataHolder metadataHolder =
+        new FlacMetadataReader.FlacStreamMetadataHolder(flacStreamMetadata);
+    while (!isLastMetadataBlock) {
+      isLastMetadataBlock = FlacMetadataReader.readMetadataBlock(input, metadataHolder);
+      // Save the current metadata in case an exception occurs.
+      flacStreamMetadata = castNonNull(metadataHolder.flacStreamMetadata);
+    }
+
+    Assertions.checkNotNull(flacStreamMetadata);
     minFrameSize = Math.max(flacStreamMetadata.minFrameSize, FlacConstants.MIN_FRAME_HEADER_SIZE);
-    boolean isLastMetadataBlock =
-        (streamMarkerAndInfoBlock[FlacConstants.STREAM_MARKER_SIZE] >> 7 & 1) == 1;
-    castNonNull(trackOutput).format(flacStreamMetadata.getFormat(streamMarkerAndInfoBlock));
+    castNonNull(trackOutput)
+        .format(flacStreamMetadata.getFormat(streamMarkerAndInfoBlock, id3Metadata));
     castNonNull(extractorOutput)
         .seekMap(new SeekMap.Unseekable(flacStreamMetadata.getDurationUs()));
 
-    if (isLastMetadataBlock) {
-      state = STATE_GET_FIRST_FRAME_METADATA;
-    } else {
-      state = STATE_SKIP_OPTIONAL_METADATA_BLOCKS;
-    }
-  }
-
-  private void skipOptionalMetadataBlocks(ExtractorInput input)
-      throws IOException, InterruptedException {
-    FlacMetadataReader.skipMetadataBlocks(input);
     state = STATE_GET_FIRST_FRAME_METADATA;
   }
 

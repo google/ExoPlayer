@@ -25,13 +25,24 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/** Holder for FLAC metadata. */
+/**
+ * Holder for FLAC metadata.
+ *
+ * @see <a href="https://xiph.org/flac/format.html#metadata_block_streaminfo">FLAC format
+ *     METADATA_BLOCK_STREAMINFO</a>
+ * @see <a href="https://xiph.org/flac/format.html#metadata_block_vorbis_comment">FLAC format
+ *     METADATA_BLOCK_VORBIS_COMMENT</a>
+ * @see <a href="https://xiph.org/flac/format.html#metadata_block_picture">FLAC format
+ *     METADATA_BLOCK_PICTURE</a>
+ */
 public final class FlacStreamMetadata {
 
   private static final String TAG = "FlacStreamMetadata";
 
   /** Indicates that a value is not in the corresponding lookup table. */
   public static final int NOT_IN_LOOKUP_TABLE = -1;
+  /** Separator between the field name of a Vorbis comment and the corresponding value. */
+  private static final String SEPARATOR = "=";
 
   /** Minimum number of samples per block. */
   public final int minBlockSizeSamples;
@@ -68,53 +79,33 @@ public final class FlacStreamMetadata {
   public final int bitsPerSampleLookupKey;
   /** Total number of samples, or 0 if the value is unknown. */
   public final long totalSamples;
-  /** Stream content metadata. */
-  @Nullable public final Metadata metadata;
 
-  private static final String SEPARATOR = "=";
+  /** Content metadata. */
+  private final Metadata metadata;
 
   /**
    * Parses binary FLAC stream info metadata.
    *
-   * @param data An array containing binary FLAC stream info metadata.
+   * @param data An array containing binary FLAC stream info block (with or without header).
    * @param offset The offset of the stream info block in {@code data} (header excluded).
-   * @see <a href="https://xiph.org/flac/format.html#metadata_block_streaminfo">FLAC format
-   *     METADATA_BLOCK_STREAMINFO</a>
    */
   public FlacStreamMetadata(byte[] data, int offset) {
     ParsableBitArray scratch = new ParsableBitArray(data);
     scratch.setPosition(offset * 8);
-    this.minBlockSizeSamples = scratch.readBits(16);
-    this.maxBlockSizeSamples = scratch.readBits(16);
-    this.minFrameSize = scratch.readBits(24);
-    this.maxFrameSize = scratch.readBits(24);
-    this.sampleRate = scratch.readBits(20);
-    this.sampleRateLookupKey = getSampleRateLookupKey();
-    this.channels = scratch.readBits(3) + 1;
-    this.bitsPerSample = scratch.readBits(5) + 1;
-    this.bitsPerSampleLookupKey = getBitsPerSampleLookupKey();
-    this.totalSamples = scratch.readBitsToLong(36);
-    this.metadata = null;
+    minBlockSizeSamples = scratch.readBits(16);
+    maxBlockSizeSamples = scratch.readBits(16);
+    minFrameSize = scratch.readBits(24);
+    maxFrameSize = scratch.readBits(24);
+    sampleRate = scratch.readBits(20);
+    sampleRateLookupKey = getSampleRateLookupKey(sampleRate);
+    channels = scratch.readBits(3) + 1;
+    bitsPerSample = scratch.readBits(5) + 1;
+    bitsPerSampleLookupKey = getBitsPerSampleLookupKey(bitsPerSample);
+    totalSamples = scratch.readBitsToLong(36);
+    metadata = new Metadata();
   }
 
-  /**
-   * @param minBlockSizeSamples Minimum block size of the FLAC stream.
-   * @param maxBlockSizeSamples Maximum block size of the FLAC stream.
-   * @param minFrameSize Minimum frame size of the FLAC stream.
-   * @param maxFrameSize Maximum frame size of the FLAC stream.
-   * @param sampleRate Sample rate of the FLAC stream.
-   * @param channels Number of channels of the FLAC stream.
-   * @param bitsPerSample Number of bits per sample of the FLAC stream.
-   * @param totalSamples Total samples of the FLAC stream.
-   * @param vorbisComments Vorbis comments. Each entry must be in key=value form.
-   * @param pictureFrames Picture frames.
-   * @see <a href="https://xiph.org/flac/format.html#metadata_block_streaminfo">FLAC format
-   *     METADATA_BLOCK_STREAMINFO</a>
-   * @see <a href="https://xiph.org/flac/format.html#metadata_block_vorbis_comment">FLAC format
-   *     METADATA_BLOCK_VORBIS_COMMENT</a>
-   * @see <a href="https://xiph.org/flac/format.html#metadata_block_picture">FLAC format
-   *     METADATA_BLOCK_PICTURE</a>
-   */
+  // Used in native code.
   public FlacStreamMetadata(
       int minBlockSizeSamples,
       int maxBlockSizeSamples,
@@ -124,19 +115,41 @@ public final class FlacStreamMetadata {
       int channels,
       int bitsPerSample,
       long totalSamples,
-      List<String> vorbisComments,
-      List<PictureFrame> pictureFrames) {
+      ArrayList<String> vorbisComments,
+      ArrayList<PictureFrame> pictureFrames) {
+    this(
+        minBlockSizeSamples,
+        maxBlockSizeSamples,
+        minFrameSize,
+        maxFrameSize,
+        sampleRate,
+        channels,
+        bitsPerSample,
+        totalSamples,
+        buildMetadata(vorbisComments, pictureFrames));
+  }
+
+  private FlacStreamMetadata(
+      int minBlockSizeSamples,
+      int maxBlockSizeSamples,
+      int minFrameSize,
+      int maxFrameSize,
+      int sampleRate,
+      int channels,
+      int bitsPerSample,
+      long totalSamples,
+      Metadata metadata) {
     this.minBlockSizeSamples = minBlockSizeSamples;
     this.maxBlockSizeSamples = maxBlockSizeSamples;
     this.minFrameSize = minFrameSize;
     this.maxFrameSize = maxFrameSize;
     this.sampleRate = sampleRate;
-    this.sampleRateLookupKey = getSampleRateLookupKey();
+    this.sampleRateLookupKey = getSampleRateLookupKey(sampleRate);
     this.channels = channels;
     this.bitsPerSample = bitsPerSample;
-    this.bitsPerSampleLookupKey = getBitsPerSampleLookupKey();
+    this.bitsPerSampleLookupKey = getBitsPerSampleLookupKey(bitsPerSample);
     this.totalSamples = totalSamples;
-    this.metadata = getMetadata(vorbisComments, pictureFrames);
+    this.metadata = metadata;
   }
 
   /** Returns the maximum size for a decoded frame from the FLAC stream. */
@@ -193,12 +206,15 @@ public final class FlacStreamMetadata {
    *
    * @param streamMarkerAndInfoBlock An array containing the FLAC stream marker followed by the
    *     stream info block.
+   * @param id3Metadata The ID3 metadata of the stream, or {@code null} if there is no such data.
    * @return The extracted {@link Format}.
    */
-  public Format getFormat(byte[] streamMarkerAndInfoBlock) {
+  public Format getFormat(byte[] streamMarkerAndInfoBlock, @Nullable Metadata id3Metadata) {
     // Set the last metadata block flag, ignore the other blocks.
     streamMarkerAndInfoBlock[4] = (byte) 0x80;
     int maxInputSize = maxFrameSize > 0 ? maxFrameSize : Format.NO_VALUE;
+    Metadata metadataWithId3 = metadata.copyWithAppendedEntriesFrom(id3Metadata);
+
     return Format.createAudioSampleFormat(
         /* id= */ null,
         MimeTypes.AUDIO_FLAC,
@@ -207,13 +223,55 @@ public final class FlacStreamMetadata {
         maxInputSize,
         channels,
         sampleRate,
-        Collections.singletonList(streamMarkerAndInfoBlock),
+        /* pcmEncoding= */ Format.NO_VALUE,
+        /* encoderDelay= */ 0,
+        /* encoderPadding= */ 0,
+        /* initializationData= */ Collections.singletonList(streamMarkerAndInfoBlock),
         /* drmInitData= */ null,
         /* selectionFlags= */ 0,
-        /* language= */ null);
+        /* language= */ null,
+        metadataWithId3);
   }
 
-  private int getSampleRateLookupKey() {
+  /** Returns a copy of the content metadata with entries from {@code other} appended. */
+  public Metadata getMetadataCopyWithAppendedEntriesFrom(@Nullable Metadata other) {
+    return metadata.copyWithAppendedEntriesFrom(other);
+  }
+
+  /** Returns a copy of {@code this} with the given Vorbis comments added to the metadata. */
+  public FlacStreamMetadata copyWithVorbisComments(List<String> vorbisComments) {
+    Metadata appendedMetadata =
+        metadata.copyWithAppendedEntriesFrom(
+            buildMetadata(vorbisComments, Collections.emptyList()));
+    return new FlacStreamMetadata(
+        minBlockSizeSamples,
+        maxBlockSizeSamples,
+        minFrameSize,
+        maxFrameSize,
+        sampleRate,
+        channels,
+        bitsPerSample,
+        totalSamples,
+        appendedMetadata);
+  }
+
+  /** Returns a copy of {@code this} with the given picture frames added to the metadata. */
+  public FlacStreamMetadata copyWithPictureFrames(List<PictureFrame> pictureFrames) {
+    Metadata appendedMetadata =
+        metadata.copyWithAppendedEntriesFrom(buildMetadata(Collections.emptyList(), pictureFrames));
+    return new FlacStreamMetadata(
+        minBlockSizeSamples,
+        maxBlockSizeSamples,
+        minFrameSize,
+        maxFrameSize,
+        sampleRate,
+        channels,
+        bitsPerSample,
+        totalSamples,
+        appendedMetadata);
+  }
+
+  private static int getSampleRateLookupKey(int sampleRate) {
     switch (sampleRate) {
       case 88200:
         return 1;
@@ -242,7 +300,7 @@ public final class FlacStreamMetadata {
     }
   }
 
-  private int getBitsPerSampleLookupKey() {
+  private static int getBitsPerSampleLookupKey(int bitsPerSample) {
     switch (bitsPerSample) {
       case 8:
         return 1;
@@ -259,11 +317,10 @@ public final class FlacStreamMetadata {
     }
   }
 
-  @Nullable
-  private static Metadata getMetadata(
+  private static Metadata buildMetadata(
       List<String> vorbisComments, List<PictureFrame> pictureFrames) {
     if (vorbisComments.isEmpty() && pictureFrames.isEmpty()) {
-      return null;
+      return new Metadata();
     }
 
     ArrayList<Metadata.Entry> metadataEntries = new ArrayList<>();
@@ -271,7 +328,7 @@ public final class FlacStreamMetadata {
       String vorbisComment = vorbisComments.get(i);
       String[] keyAndValue = Util.splitAtFirst(vorbisComment, SEPARATOR);
       if (keyAndValue.length != 2) {
-        Log.w(TAG, "Failed to parse vorbis comment: " + vorbisComment);
+        Log.w(TAG, "Failed to parse Vorbis comment: " + vorbisComment);
       } else {
         VorbisComment entry = new VorbisComment(keyAndValue[0], keyAndValue[1]);
         metadataEntries.add(entry);
@@ -279,6 +336,6 @@ public final class FlacStreamMetadata {
     }
     metadataEntries.addAll(pictureFrames);
 
-    return metadataEntries.isEmpty() ? null : new Metadata(metadataEntries);
+    return metadataEntries.isEmpty() ? new Metadata() : new Metadata(metadataEntries);
   }
 }
