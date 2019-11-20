@@ -78,7 +78,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     try {
       String tableName = getTableName(hexUid);
       SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
-      writableDatabase.beginTransaction();
+      writableDatabase.beginTransactionNonExclusive();
       try {
         VersionTable.removeVersion(
             writableDatabase, VersionTable.FEATURE_CACHE_FILE_METADATA, hexUid);
@@ -116,7 +116,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               readableDatabase, VersionTable.FEATURE_CACHE_FILE_METADATA, hexUid);
       if (version != TABLE_VERSION) {
         SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
-        writableDatabase.beginTransaction();
+        writableDatabase.beginTransactionNonExclusive();
         try {
           VersionTable.setVersion(
               writableDatabase, VersionTable.FEATURE_CACHE_FILE_METADATA, hexUid, TABLE_VERSION);
@@ -214,7 +214,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     Assertions.checkNotNull(tableName);
     try {
       SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
-      writableDatabase.beginTransaction();
+      writableDatabase.beginTransactionNonExclusive();
       try {
         for (String name : names) {
           writableDatabase.delete(tableName, WHERE_NAME_EQUALS, new String[] {name});
