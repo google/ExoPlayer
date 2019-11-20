@@ -797,7 +797,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
                 hexUid);
         if (version != TABLE_VERSION) {
           SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
-          writableDatabase.beginTransaction();
+          writableDatabase.beginTransactionNonExclusive();
           try {
             initializeTable(writableDatabase);
             writableDatabase.setTransactionSuccessful();
@@ -832,7 +832,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     public void storeFully(HashMap<String, CachedContent> content) throws IOException {
       try {
         SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
-        writableDatabase.beginTransaction();
+        writableDatabase.beginTransactionNonExclusive();
         try {
           initializeTable(writableDatabase);
           for (CachedContent cachedContent : content.values()) {
@@ -855,7 +855,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       }
       try {
         SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
-        writableDatabase.beginTransaction();
+        writableDatabase.beginTransactionNonExclusive();
         try {
           for (int i = 0; i < pendingUpdates.size(); i++) {
             CachedContent cachedContent = pendingUpdates.valueAt(i);
@@ -931,7 +931,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       try {
         String tableName = getTableName(hexUid);
         SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
-        writableDatabase.beginTransaction();
+        writableDatabase.beginTransactionNonExclusive();
         try {
           VersionTable.removeVersion(
               writableDatabase, VersionTable.FEATURE_CACHE_CONTENT_METADATA, hexUid);
