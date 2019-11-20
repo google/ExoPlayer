@@ -563,7 +563,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     clearReportedVideoSize();
     clearRenderedFirstFrame();
     frameReleaseTimeHelper.disable();
-    if (tunnelingOnFrameRenderedListener != null && getCodec() != null) {
+    if (tunnelingOnFrameRenderedListener != null) {
       tunnelingOnFrameRenderedListener.destroyHandler(getCodec());
     }
     tunnelingOnFrameRenderedListener = null;
