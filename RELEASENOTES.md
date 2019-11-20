@@ -4,9 +4,9 @@
 
 * Add Java FLAC extractor
   ([#6406](https://github.com/google/ExoPlayer/issues/6406)).
-  This extractor does not support seeking and live streams, and does not expose
-  vorbis, ID3 and picture data. If `DefaultExtractorsFactory` is used, this
-  extractor is only used if the FLAC extension is not loaded.
+  This extractor does not support seeking and live streams. If
+  `DefaultExtractorsFactory` is used, this extractor is only used if the FLAC
+  extension is not loaded.
 * Video tunneling: Fix renderer end-of-stream with `OnFrameRenderedListener`
   from API 23, tunneled renderer must send a special timestamp on EOS.
   Previously the EOS was reported when the input stream reached EOS.

@@ -35,7 +35,18 @@ public final class FlacStreamMetadataTest {
     commentsList.add("Artist=Singer");
 
     Metadata metadata =
-        new FlacStreamMetadata(0, 0, 0, 0, 0, 0, 0, 0, commentsList, new ArrayList<>()).metadata;
+        new FlacStreamMetadata(
+                /* minBlockSizeSamples= */ 0,
+                /* maxBlockSizeSamples= */ 0,
+                /* minFrameSize= */ 0,
+                /* maxFrameSize= */ 0,
+                /* sampleRate= */ 0,
+                /* channels= */ 0,
+                /* bitsPerSample= */ 0,
+                /* totalSamples= */ 0,
+                commentsList,
+                /* pictureFrames= */ new ArrayList<>())
+            .getMetadataCopyWithAppendedEntriesFrom(/* other= */ null);
 
     assertThat(metadata.length()).isEqualTo(2);
     VorbisComment commentFrame = (VorbisComment) metadata.get(0);
@@ -51,9 +62,20 @@ public final class FlacStreamMetadataTest {
     ArrayList<String> commentsList = new ArrayList<>();
 
     Metadata metadata =
-        new FlacStreamMetadata(0, 0, 0, 0, 0, 0, 0, 0, commentsList, new ArrayList<>()).metadata;
+        new FlacStreamMetadata(
+                /* minBlockSizeSamples= */ 0,
+                /* maxBlockSizeSamples= */ 0,
+                /* minFrameSize= */ 0,
+                /* maxFrameSize= */ 0,
+                /* sampleRate= */ 0,
+                /* channels= */ 0,
+                /* bitsPerSample= */ 0,
+                /* totalSamples= */ 0,
+                commentsList,
+                /* pictureFrames= */ new ArrayList<>())
+            .getMetadataCopyWithAppendedEntriesFrom(/* other= */ null);
 
-    assertThat(metadata).isNull();
+    assertThat(metadata.length()).isEqualTo(0);
   }
 
   @Test
@@ -62,7 +84,18 @@ public final class FlacStreamMetadataTest {
     commentsList.add("Title=So=ng");
 
     Metadata metadata =
-        new FlacStreamMetadata(0, 0, 0, 0, 0, 0, 0, 0, commentsList, new ArrayList<>()).metadata;
+        new FlacStreamMetadata(
+                /* minBlockSizeSamples= */ 0,
+                /* maxBlockSizeSamples= */ 0,
+                /* minFrameSize= */ 0,
+                /* maxFrameSize= */ 0,
+                /* sampleRate= */ 0,
+                /* channels= */ 0,
+                /* bitsPerSample= */ 0,
+                /* totalSamples= */ 0,
+                commentsList,
+                /* pictureFrames= */ new ArrayList<>())
+            .getMetadataCopyWithAppendedEntriesFrom(/* other= */ null);
 
     assertThat(metadata.length()).isEqualTo(1);
     VorbisComment commentFrame = (VorbisComment) metadata.get(0);
@@ -77,7 +110,18 @@ public final class FlacStreamMetadataTest {
     commentsList.add("Artist=Singer");
 
     Metadata metadata =
-        new FlacStreamMetadata(0, 0, 0, 0, 0, 0, 0, 0, commentsList, new ArrayList<>()).metadata;
+        new FlacStreamMetadata(
+                /* minBlockSizeSamples= */ 0,
+                /* maxBlockSizeSamples= */ 0,
+                /* minFrameSize= */ 0,
+                /* maxFrameSize= */ 0,
+                /* sampleRate= */ 0,
+                /* channels= */ 0,
+                /* bitsPerSample= */ 0,
+                /* totalSamples= */ 0,
+                commentsList,
+                /* pictureFrames= */ new ArrayList<>())
+            .getMetadataCopyWithAppendedEntriesFrom(/* other= */ null);
 
     assertThat(metadata.length()).isEqualTo(1);
     VorbisComment commentFrame = (VorbisComment) metadata.get(0);
