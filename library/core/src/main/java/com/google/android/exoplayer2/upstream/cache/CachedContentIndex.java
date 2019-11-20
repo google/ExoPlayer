@@ -25,6 +25,7 @@ import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import androidx.annotation.WorkerThread;
 import com.google.android.exoplayer2.database.DatabaseIOException;
 import com.google.android.exoplayer2.database.DatabaseProvider;
 import com.google.android.exoplayer2.database.VersionTable;
@@ -104,10 +105,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   /**
    * Deletes index data for the specified cache.
    *
+   * <p>This method may be slow and shouldn't normally be called on the main thread.
+   *
    * @param databaseProvider Provides the database in which the index is stored.
    * @param uid The cache UID.
    * @throws DatabaseIOException If an error occurs deleting the index data.
    */
+  @WorkerThread
   public static void delete(DatabaseProvider databaseProvider, long uid)
       throws DatabaseIOException {
     DatabaseStorage.delete(databaseProvider, uid);
@@ -174,9 +178,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   /**
    * Loads the index data for the given cache UID.
    *
+   * <p>This method may be slow and shouldn't normally be called on the main thread.
+   *
    * @param uid The UID of the cache whose index is to be loaded.
    * @throws IOException If an error occurs initializing the index data.
    */
+  @WorkerThread
   public void initialize(long uid) throws IOException {
     storage.initialize(uid);
     if (previousStorage != null) {
@@ -199,8 +206,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   /**
    * Stores the index data to index file if there is a change.
    *
+   * <p>This method may be slow and shouldn't normally be called on the main thread.
+   *
    * @throws IOException If an error occurs storing the index data.
    */
+  @WorkerThread
   public void store() throws IOException {
     storage.storeIncremental(keyToContent);
     // Make ids that were removed since the index was last stored eligible for re-use.
