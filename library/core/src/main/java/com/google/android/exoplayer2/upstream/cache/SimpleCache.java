@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.upstream.cache;
 import android.os.ConditionVariable;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.database.DatabaseIOException;
 import com.google.android.exoplayer2.database.DatabaseProvider;
@@ -85,10 +86,13 @@ public final class SimpleCache implements Cache {
   /**
    * Deletes all content belonging to a cache instance.
    *
+   * <p>This method may be slow and shouldn't normally be called on the main thread.
+   *
    * @param cacheDir The cache directory.
    * @param databaseProvider The database in which index data is stored, or {@code null} if the
    *     cache used a legacy index.
    */
+  @WorkerThread
   public static void delete(File cacheDir, @Nullable DatabaseProvider databaseProvider) {
     if (!cacheDir.exists()) {
       return;
@@ -147,6 +151,7 @@ public final class SimpleCache implements Cache {
    * @deprecated Use a constructor that takes a {@link DatabaseProvider} for improved performance.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public SimpleCache(File cacheDir, CacheEvictor evictor, @Nullable byte[] secretKey) {
     this(cacheDir, evictor, secretKey, secretKey != null);
   }
