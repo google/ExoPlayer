@@ -58,7 +58,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     private ExoMediaDrm.Provider<ExoMediaCrypto> exoMediaDrmProvider;
     private boolean multiSession;
     private int[] useDrmSessionsForClearContentTrackTypes;
-    @Flags private int flags;
+    private boolean playClearSamplesWithoutKeys;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
 
     /**
@@ -164,11 +164,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
      * @return This builder.
      */
     public Builder setPlayClearSamplesWithoutKeys(boolean playClearSamplesWithoutKeys) {
-      if (playClearSamplesWithoutKeys) {
-        this.flags |= FLAG_PLAY_CLEAR_SAMPLES_WITHOUT_KEYS;
-      } else {
-        this.flags &= ~FLAG_PLAY_CLEAR_SAMPLES_WITHOUT_KEYS;
-      }
+      this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
       return this;
     }
 
@@ -192,7 +188,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
           keyRequestParameters,
           multiSession,
           useDrmSessionsForClearContentTrackTypes,
-          flags,
+          playClearSamplesWithoutKeys,
           loadErrorHandlingPolicy);
     }
   }
@@ -245,7 +241,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   private final EventDispatcher<DefaultDrmSessionEventListener> eventDispatcher;
   private final boolean multiSession;
   private final int[] useDrmSessionsForClearContentTrackTypes;
-  @Flags private final int flags;
+  private final boolean playClearSamplesWithoutKeys;
   private final ProvisioningManagerImpl provisioningManagerImpl;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
 
@@ -339,7 +335,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
         keyRequestParameters == null ? new HashMap<>() : keyRequestParameters,
         multiSession,
         /* useDrmSessionsForClearContentTrackTypes= */ new int[0],
-        /* flags= */ 0,
+        /* playClearSamplesWithoutKeys= */ false,
         new DefaultLoadErrorHandlingPolicy(initialDrmRequestRetryCount));
   }
 
@@ -352,7 +348,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       HashMap<String, String> keyRequestParameters,
       boolean multiSession,
       int[] useDrmSessionsForClearContentTrackTypes,
-      @Flags int flags,
+      boolean playClearSamplesWithoutKeys,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
     Assertions.checkNotNull(uuid);
     Assertions.checkArgument(!C.COMMON_PSSH_UUID.equals(uuid), "Use C.CLEARKEY_UUID instead");
@@ -363,7 +359,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     this.eventDispatcher = new EventDispatcher<>();
     this.multiSession = multiSession;
     this.useDrmSessionsForClearContentTrackTypes = useDrmSessionsForClearContentTrackTypes;
-    this.flags = flags;
+    this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     provisioningManagerImpl = new ProvisioningManagerImpl();
     mode = MODE_PLAYBACK;
@@ -542,12 +538,6 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   }
 
   @Override
-  @Flags
-  public final int getFlags() {
-    return flags;
-  }
-
-  @Override
   @Nullable
   public Class<T> getExoMediaCryptoType(DrmInitData drmInitData) {
     return canAcquireSession(drmInitData)
@@ -571,6 +561,8 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   private DefaultDrmSession<T> createNewDefaultSession(
       @Nullable List<SchemeData> schemeDatas, boolean isPlaceholderSession) {
     Assertions.checkNotNull(exoMediaDrm);
+    // Placeholder sessions should always play clear samples without keys.
+    boolean playClearSamplesWithoutKeys = this.playClearSamplesWithoutKeys | isPlaceholderSession;
     return new DefaultDrmSession<>(
         uuid,
         exoMediaDrm,
@@ -578,6 +570,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
         /* releaseCallback= */ this::onSessionReleased,
         schemeDatas,
         mode,
+        playClearSamplesWithoutKeys,
         isPlaceholderSession,
         offlineLicenseKeySetId,
         keyRequestParameters,

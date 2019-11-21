@@ -93,6 +93,11 @@ public interface DrmSession<T extends ExoMediaCrypto> {
    */
   @State int getState();
 
+  /** Returns whether this session allows playback of clear samples prior to keys being loaded. */
+  default boolean playClearSamplesWithoutKeys() {
+    return false;
+  }
+
   /**
    * Returns the cause of the error state, or null if {@link #getState()} is not {@link
    * #STATE_ERROR}.

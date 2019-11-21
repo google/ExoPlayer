@@ -49,7 +49,6 @@ import java.io.IOException;
   private static final int SAMPLE_CAPACITY_INCREMENT = 1000;
 
   private final DrmSessionManager<?> drmSessionManager;
-  private final boolean playClearSamplesWithoutKeys;
 
   @Nullable private Format downstreamFormat;
   @Nullable private DrmSession<?> currentDrmSession;
@@ -79,9 +78,6 @@ import java.io.IOException;
 
   public SampleMetadataQueue(DrmSessionManager<?> drmSessionManager) {
     this.drmSessionManager = drmSessionManager;
-    playClearSamplesWithoutKeys =
-        (drmSessionManager.getFlags() & DrmSessionManager.FLAG_PLAY_CLEAR_SAMPLES_WITHOUT_KEYS)
-            != 0;
     capacity = SAMPLE_CAPACITY_INCREMENT;
     sourceIds = new int[capacity];
     offsets = new long[capacity];
@@ -282,7 +278,7 @@ import java.io.IOException;
     } else {
       // A clear sample in an encrypted section may be read if playClearSamplesWithoutKeys is true.
       return (flags[relativeReadIndex] & C.BUFFER_FLAG_ENCRYPTED) == 0
-          && playClearSamplesWithoutKeys;
+          && Assertions.checkNotNull(currentDrmSession).playClearSamplesWithoutKeys();
     }
   }
 
@@ -341,7 +337,8 @@ import java.io.IOException;
     boolean mayReadSample =
         skipDrmChecks
             || Util.castNonNull(downstreamFormat).drmInitData == null
-            || (playClearSamplesWithoutKeys && !isNextSampleEncrypted)
+            || (Assertions.checkNotNull(currentDrmSession).playClearSamplesWithoutKeys()
+                && !isNextSampleEncrypted)
             || Assertions.checkNotNull(currentDrmSession).getState()
                 == DrmSession.STATE_OPENED_WITH_KEYS;
     if (!mayReadSample) {
