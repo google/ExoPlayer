@@ -266,20 +266,8 @@ import java.io.IOException;
     if (formats[relativeReadIndex] != downstreamFormat) {
       // A format can be read.
       return true;
-    } else if (Assertions.checkNotNull(downstreamFormat).drmInitData == null) {
-      // A sample from a clear section can be read.
-      return true;
-    } else if (drmSessionManager == DrmSessionManager.DUMMY
-        || Assertions.checkNotNull(currentDrmSession).getState()
-            == DrmSession.STATE_OPENED_WITH_KEYS) {
-      // TODO: Remove DUMMY DrmSessionManager check once renderers are migrated [Internal ref:
-      // b/122519809].
-      return true;
-    } else {
-      // A clear sample in an encrypted section may be read if playClearSamplesWithoutKeys is true.
-      return (flags[relativeReadIndex] & C.BUFFER_FLAG_ENCRYPTED) == 0
-          && Assertions.checkNotNull(currentDrmSession).playClearSamplesWithoutKeys();
     }
+    return mayReadSample(relativeReadIndex);
   }
 
   /**
@@ -328,20 +316,7 @@ import java.io.IOException;
       return C.RESULT_FORMAT_READ;
     }
 
-    // It's likely that the media source creation has not yet been migrated and the renderer can
-    // acquire the session for the sample.
-    // TODO: Remove once renderers are migrated [Internal ref: b/122519809].
-    boolean skipDrmChecks = drmSessionManager == DrmSessionManager.DUMMY;
-    boolean isNextSampleEncrypted = (flags[relativeReadIndex] & C.BUFFER_FLAG_ENCRYPTED) != 0;
-
-    boolean mayReadSample =
-        skipDrmChecks
-            || Util.castNonNull(downstreamFormat).drmInitData == null
-            || (Assertions.checkNotNull(currentDrmSession).playClearSamplesWithoutKeys()
-                && !isNextSampleEncrypted)
-            || Assertions.checkNotNull(currentDrmSession).getState()
-                == DrmSession.STATE_OPENED_WITH_KEYS;
-    if (!mayReadSample) {
+    if (!mayReadSample(relativeReadIndex)) {
       return C.RESULT_NOTHING_READ;
     }
 
@@ -628,6 +603,25 @@ import java.io.IOException;
     if (previousSession != null) {
       previousSession.release();
     }
+  }
+
+  /**
+   * Returns whether it's possible to read the next sample.
+   *
+   * @param relativeReadIndex The relative read index of the next sample.
+   * @return Whether it's possible to read the next sample.
+   */
+  private boolean mayReadSample(int relativeReadIndex) {
+    if (drmSessionManager == DrmSessionManager.DUMMY) {
+      // TODO: Remove once renderers are migrated [Internal ref: b/122519809].
+      // For protected content it's likely that the DrmSessionManager is still being injected into
+      // the renderers. We assume that the renderers will be able to acquire a DrmSession if needed.
+      return true;
+    }
+    return currentDrmSession == null
+        || currentDrmSession.getState() == DrmSession.STATE_OPENED_WITH_KEYS
+        || ((flags[relativeReadIndex] & C.BUFFER_FLAG_ENCRYPTED) == 0
+            && currentDrmSession.playClearSamplesWithoutKeys());
   }
 
   /**
