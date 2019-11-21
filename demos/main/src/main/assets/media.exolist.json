@@ -451,23 +451,27 @@
       },
       {
         "name": "Clear -> Enc -> Clear -> Enc -> Enc",
-        "drm_scheme": "widevine",
-        "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test",
         "playlist": [
           {
             "uri": "https://html5demos.com/assets/dizzy.mp4"
           },
           {
-            "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears_sd.mpd"
+            "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears_sd.mpd",
+            "drm_scheme": "widevine",
+            "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
           },
           {
             "uri": "https://html5demos.com/assets/dizzy.mp4"
           },
           {
-            "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears_sd.mpd"
+            "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears_sd.mpd",
+            "drm_scheme": "widevine",
+            "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
           },
           {
-            "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears_sd.mpd"
+            "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears_sd.mpd",
+            "drm_scheme": "widevine",
+            "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
           }
         ]
       }
