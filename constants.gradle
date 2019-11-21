@@ -16,7 +16,7 @@ project.ext {
     releaseVersion = '2.11.0'
     releaseVersionCode = 2011000
     minSdkVersion = 16
-    targetSdkVersion = 29
+    targetSdkVersion = 28
     compileSdkVersion = 29
     dexmakerVersion = '2.21.0'
     mockitoVersion = '2.25.0'
