@@ -801,7 +801,10 @@ public class SimpleExoPlayer extends BasePlayer
    * href="https://developer.android.com/guide/topics/media-apps/volume-and-earphones#becoming-noisy">audio
    * becoming noisy</a> documentation for more information.
    *
-   * @param handleAudioBecomingNoisy True if the player should handle audio becoming noisy.
+   * <p>This feature is not enabled by default.
+   *
+   * @param handleAudioBecomingNoisy Whether the player should pause automatically when audio is
+   *     rerouted from a headset to device speakers.
    */
   public void setHandleAudioBecomingNoisy(boolean handleAudioBecomingNoisy) {
     verifyApplicationThread();
@@ -1431,16 +1434,20 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   /**
-   * Sets whether to enable the acquiring and releasing of a {@link
-   * android.os.PowerManager.WakeLock}.
+   * Sets whether the player should use a {@link android.os.PowerManager.WakeLock} to ensure the
+   * device stays awake for playback, even when the screen is off.
    *
-   * <p>By default, automatic wake lock handling is not enabled. Enabling this on will acquire the
-   * WakeLock if necessary. Disabling this will release the WakeLock if it is held.
+   * <p>Enabling this feature requires the {@link android.Manifest.permission#WAKE_LOCK} permission.
+   * It should be used together with a foreground {@link android.app.Service} for use cases where
+   * playback can occur when the screen is off (e.g. background audio playback). It is not useful if
+   * the screen will always be on during playback (e.g. foreground video playback).
    *
-   * @param handleWakeLock True if the player should handle a {@link
-   *     android.os.PowerManager.WakeLock}, false otherwise. This is for use with a foreground
-   *     {@link android.app.Service}, for allowing audio playback with the screen off. Please note
-   *     that enabling this requires the {@link android.Manifest.permission#WAKE_LOCK} permission.
+   * <p>This feature is not enabled by default. If enabled, a WakeLock is held whenever the player
+   * is in the {@link #STATE_READY READY} or {@link #STATE_BUFFERING BUFFERING} states with {@code
+   * playWhenReady = true}.
+   *
+   * @param handleWakeLock Whether the player should use a {@link android.os.PowerManager.WakeLock}
+   *     to ensure the device stays awake for playback, even when the screen is off.
    */
   public void setHandleWakeLock(boolean handleWakeLock) {
     wakeLockManager.setEnabled(handleWakeLock);
