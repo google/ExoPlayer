@@ -331,8 +331,7 @@ public final class SampleQueueTest {
 
   @Test
   public void testIsReadyReturnsTrueForClearSampleAndPlayClearSamplesWithoutKeysIsTrue() {
-    when(mockDrmSessionManager.getFlags())
-        .thenReturn(DrmSessionManager.FLAG_PLAY_CLEAR_SAMPLES_WITHOUT_KEYS);
+    when(mockDrmSession.playClearSamplesWithoutKeys()).thenReturn(true);
     // We recreate the queue to ensure the mock DRM session manager flags are taken into account.
     sampleQueue = new SampleQueue(allocator, mockDrmSessionManager);
     writeTestDataWithEncryptedSections();
@@ -458,8 +457,7 @@ public final class SampleQueueTest {
 
   @Test
   public void testAllowPlayClearSamplesWithoutKeysReadsClearSamples() {
-    when(mockDrmSessionManager.getFlags())
-        .thenReturn(DrmSessionManager.FLAG_PLAY_CLEAR_SAMPLES_WITHOUT_KEYS);
+    when(mockDrmSession.playClearSamplesWithoutKeys()).thenReturn(true);
     // We recreate the queue to ensure the mock DRM session manager flags are taken into account.
     sampleQueue = new SampleQueue(allocator, mockDrmSessionManager);
     when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED);

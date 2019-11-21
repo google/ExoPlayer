@@ -106,6 +106,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final ProvisioningManager<T> provisioningManager;
   private final ReleaseCallback<T> releaseCallback;
   private final @DefaultDrmSessionManager.Mode int mode;
+  private final boolean playClearSamplesWithoutKeys;
   private final boolean isPlaceholderSession;
   private final HashMap<String, String> keyRequestParameters;
   private final EventDispatcher<DefaultDrmSessionEventListener> eventDispatcher;
@@ -154,6 +155,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       ReleaseCallback<T> releaseCallback,
       @Nullable List<SchemeData> schemeDatas,
       @DefaultDrmSessionManager.Mode int mode,
+      boolean playClearSamplesWithoutKeys,
       boolean isPlaceholderSession,
       @Nullable byte[] offlineLicenseKeySetId,
       HashMap<String, String> keyRequestParameters,
@@ -170,6 +172,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     this.releaseCallback = releaseCallback;
     this.mediaDrm = mediaDrm;
     this.mode = mode;
+    this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
     this.isPlaceholderSession = isPlaceholderSession;
     if (offlineLicenseKeySetId != null) {
       this.offlineLicenseKeySetId = offlineLicenseKeySetId;
@@ -226,6 +229,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @DrmSession.State
   public final int getState() {
     return state;
+  }
+
+  @Override
+  public boolean playClearSamplesWithoutKeys() {
+    return playClearSamplesWithoutKeys;
   }
 
   @Override
