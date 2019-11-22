@@ -356,7 +356,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @RequiresNonNull("sessionId")
   private void doLicense(boolean allowRetry) {
     if (isPlaceholderSession) {
-      state = STATE_OPENED_WITH_KEYS;
       return;
     }
     byte[] sessionId = Util.castNonNull(this.sessionId);
