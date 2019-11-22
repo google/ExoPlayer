@@ -86,8 +86,8 @@ public interface DrmSessionManager<T extends ExoMediaCrypto> {
    * DrmSession#release()} to decrement the reference count.
    *
    * <p>Placeholder {@link DrmSession DrmSessions} may be used to configure secure decoders for
-   * playback of clear samples, which reduces the costs of transitioning between clear and encrypted
-   * content periods.
+   * playback of clear content periods. This can reduce the cost of transitioning between clear and
+   * encrypted content periods.
    *
    * @param playbackLooper The looper associated with the media playback thread.
    * @param trackType The type of the track to acquire a placeholder session for. Must be one of the

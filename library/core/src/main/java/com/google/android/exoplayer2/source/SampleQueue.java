@@ -332,13 +332,13 @@ public class SampleQueue implements TrackOutput {
   /**
    * Attempts to read from the queue.
    *
-   * <p>{@link Format Formats} read from the this method may be associated to a {@link DrmSession}
+   * <p>{@link Format Formats} read from this method may be associated to a {@link DrmSession}
    * through {@link FormatHolder#drmSession}, which is populated in two scenarios:
    *
    * <ul>
-   *   <li>The sample has a {@link Format} with a non-null {@link Format#drmInitData}.
-   *   <li>The {@link DrmSessionManager} is configured to use secure decoders for clear samples. See
-   *       {@link DrmSessionManager#FLAG_PLAY_CLEAR_SAMPLES_WITHOUT_KEYS}.
+   *   <li>The {@link Format} has a non-null {@link Format#drmInitData}.
+   *   <li>The {@link DrmSessionManager} provides placeholder sessions for this queue's track type.
+   *       See {@link DrmSessionManager#acquirePlaceholderSession(Looper, int)}.
    * </ul>
    *
    * @param formatHolder A {@link FormatHolder} to populate in the case of reading a format.
