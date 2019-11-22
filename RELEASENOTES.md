@@ -1,17 +1,5 @@
 # Release notes #
 
-### dev-v2 (not yet released) ###
-
-* Video tunneling: Fix renderer end-of-stream with `OnFrameRenderedListener`
-  from API 23, tunneled renderer must send a special timestamp on EOS.
-  Previously the EOS was reported when the input stream reached EOS.
-* Require an end time or duration for SubRip (SRT) and SubStation Alpha
-  (SSA/ASS) subtitles. This applies to both sidecar files & subtitles
-  [embedded in Matroska streams](https://matroska.org/technical/specs/subtitles/index.html).
-* Use `ExoMediaDrm.Provider` in `OfflineLicenseHelper` to avoid `ExoMediaDrm`
-  leaks ([#4721](https://github.com/google/ExoPlayer/issues/4721)).
-* Fix byte order of HDR10+ static metadata to match CTA-861.3.
-
 ### 2.11.0 (not yet released) ###
 
 * Core library:
@@ -68,6 +56,7 @@
     configuration of the audio capture policy.
 * Video:
   * Pass the codec output `MediaFormat` to `VideoFrameMetadataListener`.
+  * Fix byte order of HDR10+ static metadata to match CTA-861.3.
   * Support out-of-band HDR10+ metadata for VP9 in WebM/Matroska.
   * Assume that protected content requires a secure decoder when evaluating
     whether `MediaCodecVideoRenderer` supports a given video format
