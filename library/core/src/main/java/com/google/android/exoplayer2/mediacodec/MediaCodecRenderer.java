@@ -1191,7 +1191,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   private boolean shouldWaitForKeys(boolean bufferEncrypted) throws ExoPlaybackException {
-    if (codecDrmSession == null || (!bufferEncrypted && playClearSamplesWithoutKeys)) {
+    if (codecDrmSession == null
+        || (!bufferEncrypted
+            && (playClearSamplesWithoutKeys || codecDrmSession.playClearSamplesWithoutKeys()))) {
       return false;
     }
     @DrmSession.State int drmSessionState = codecDrmSession.getState();
