@@ -30,15 +30,25 @@
   * Fix issue where player errors are thrown too early at playlist transitions
     ([#5407](https://github.com/google/ExoPlayer/issues/5407)).
 * DRM:
-  * Inject `DrmSessionManager` into the `MediaSources` instead of `Renderers`
+  * Inject `DrmSessionManager` into the `MediaSources` instead of `Renderers`.
+    This allows each `MediaSource` in a `ConcatenatingMediaSource` to use a
+    different `DrmSessionManager`
     ([#5619](https://github.com/google/ExoPlayer/issues/5619)).
-  * Add a `DefaultDrmSessionManager.Builder`.
-  * Add support for the use of secure decoders in clear sections of content
-    ([#4867](https://github.com/google/ExoPlayer/issues/4867)).
+  * Add `DefaultDrmSessionManager.Builder`, and remove
+    `DefaultDrmSessionManager` static factory methods that leaked
+    `ExoMediaDrm` instances
+    ([#4721](https://github.com/google/ExoPlayer/issues/4721)).
+  * Add support for the use of secure decoders when playing clear content
+    ([#4867](https://github.com/google/ExoPlayer/issues/4867)). This can
+    be enabled using `DefaultDrmSessionManager.Builder`'s
+    `setUseDrmSessionsForClearContent` method.
   * Add support for custom `LoadErrorHandlingPolicies` in key and provisioning
-    requests ([#6334](https://github.com/google/ExoPlayer/issues/6334)).
-  * Remove `DefaultDrmSessionManager` factory methods that leak `ExoMediaDrm`
-    instances ([#4721](https://github.com/google/ExoPlayer/issues/4721)).
+    requests ([#6334](https://github.com/google/ExoPlayer/issues/6334)). Custom
+    policies can be passed via `DefaultDrmSessionManager.Builder`'s
+    `setLoadErrorHandlingPolicy` method.
+  * Use `ExoMediaDrm.Provider` in `OfflineLicenseHelper` to avoid leaking
+    `ExoMediaDrm` instances
+    ([#4721](https://github.com/google/ExoPlayer/issues/4721)).
 * Track selection:
   * Update `DefaultTrackSelector` to set a viewport constraint for the default
     display by default.
@@ -57,11 +67,13 @@
 * Video:
   * Pass the codec output `MediaFormat` to `VideoFrameMetadataListener`.
   * Fix byte order of HDR10+ static metadata to match CTA-861.3.
-  * Support out-of-band HDR10+ metadata for VP9 in WebM/Matroska.
+  * Support out-of-band HDR10+ dynamic metadata for VP9 in WebM/Matroska.
   * Assume that protected content requires a secure decoder when evaluating
     whether `MediaCodecVideoRenderer` supports a given video format
     ([#5568](https://github.com/google/ExoPlayer/issues/5568)).
   * Fix Dolby Vision fallback to AVC and HEVC.
+  * Fix early end-of-stream detection when using video tunneling, on API level
+    23 and above.
 * Audio:
   * Fix the start of audio getting truncated when transitioning to a new
     item in a playlist of Opus streams.
