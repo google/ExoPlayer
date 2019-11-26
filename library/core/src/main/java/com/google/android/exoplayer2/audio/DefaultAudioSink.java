@@ -246,7 +246,7 @@ public final class DefaultAudioSink implements AudioSink {
   private final ArrayDeque<PlaybackParametersCheckpoint> playbackParametersCheckpoints;
 
   @Nullable private Listener listener;
-  /** Used to keep the audio session active on pre-V21 builds (see {@link #initialize()}). */
+  /** Used to keep the audio session active on pre-V21 builds (see {@link #initialize(long)}). */
   @Nullable private AudioTrack keepSessionIdAudioTrack;
 
   @Nullable private Configuration pendingConfiguration;
@@ -432,13 +432,12 @@ public final class DefaultAudioSink implements AudioSink {
         shouldConvertHighResIntPcmToFloat
             ? toFloatPcmAvailableAudioProcessors
             : toIntPcmAvailableAudioProcessors;
-    boolean flushAudioProcessors = false;
     if (processingEnabled) {
       trimmingAudioProcessor.setTrimFrameCount(trimStartFrames, trimEndFrames);
       channelMappingAudioProcessor.setChannelMap(outputChannels);
       for (AudioProcessor audioProcessor : availableAudioProcessors) {
         try {
-          flushAudioProcessors |= audioProcessor.configure(sampleRate, channelCount, encoding);
+          audioProcessor.configure(sampleRate, channelCount, encoding);
         } catch (AudioProcessor.UnhandledFormatException e) {
           throw new ConfigurationException(e);
         }
@@ -473,11 +472,7 @@ public final class DefaultAudioSink implements AudioSink {
             processingEnabled,
             canApplyPlaybackParameters,
             availableAudioProcessors);
-    // If we have a pending configuration already, we always drain audio processors as the preceding
-    // configuration may have required it (even if this one doesn't).
-    boolean drainAudioProcessors = flushAudioProcessors || this.pendingConfiguration != null;
-    if (isInitialized()
-        && (!pendingConfiguration.canReuseAudioTrack(configuration) || drainAudioProcessors)) {
+    if (isInitialized()) {
       this.pendingConfiguration = pendingConfiguration;
     } else {
       configuration = pendingConfiguration;

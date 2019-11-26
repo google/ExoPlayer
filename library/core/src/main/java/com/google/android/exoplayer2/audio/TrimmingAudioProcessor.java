@@ -68,7 +68,7 @@ import java.nio.ByteBuffer;
   }
 
   @Override
-  public boolean configure(int sampleRateHz, int channelCount, @C.PcmEncoding int encoding)
+  public void configure(int sampleRateHz, int channelCount, @C.PcmEncoding int encoding)
       throws UnhandledFormatException {
     if (encoding != OUTPUT_ENCODING) {
       throw new UnhandledFormatException(sampleRateHz, channelCount, encoding);
@@ -80,11 +80,9 @@ import java.nio.ByteBuffer;
     endBuffer = new byte[trimEndFrames * bytesPerFrame];
     endBufferSize = 0;
     pendingTrimStartBytes = trimStartFrames * bytesPerFrame;
-    boolean wasActive = isActive;
     isActive = trimStartFrames != 0 || trimEndFrames != 0;
     receivedInputSinceConfigure = false;
     setInputFormat(sampleRateHz, channelCount, encoding);
-    return wasActive != isActive;
   }
 
   @Override
