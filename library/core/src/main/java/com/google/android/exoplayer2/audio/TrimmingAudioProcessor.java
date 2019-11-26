@@ -26,8 +26,7 @@ import java.nio.ByteBuffer;
 
   private int trimStartFrames;
   private int trimEndFrames;
-  private int bytesPerFrame;
-  private boolean receivedInputSinceConfigure;
+  private boolean reconfigurationPending;
 
   private int pendingTrimStartBytes;
   private byte[] endBuffer;
@@ -72,14 +71,7 @@ import java.nio.ByteBuffer;
     if (inputAudioFormat.encoding != OUTPUT_ENCODING) {
       throw new UnhandledAudioFormatException(inputAudioFormat);
     }
-    if (endBufferSize > 0) {
-      trimmedFrameCount += endBufferSize / bytesPerFrame;
-    }
-    bytesPerFrame = inputAudioFormat.bytesPerFrame;
-    endBuffer = new byte[trimEndFrames * bytesPerFrame];
-    endBufferSize = 0;
-    pendingTrimStartBytes = trimStartFrames * bytesPerFrame;
-    receivedInputSinceConfigure = false;
+    reconfigurationPending = true;
     return trimStartFrames != 0 || trimEndFrames != 0 ? inputAudioFormat : AudioFormat.NOT_SET;
   }
 
@@ -92,11 +84,10 @@ import java.nio.ByteBuffer;
     if (remaining == 0) {
       return;
     }
-    receivedInputSinceConfigure = true;
 
     // Trim any pending start bytes from the input buffer.
     int trimBytes = Math.min(remaining, pendingTrimStartBytes);
-    trimmedFrameCount += trimBytes / bytesPerFrame;
+    trimmedFrameCount += trimBytes / inputAudioFormat.bytesPerFrame;
     pendingTrimStartBytes -= trimBytes;
     inputBuffer.position(position + trimBytes);
     if (pendingTrimStartBytes > 0) {
@@ -137,10 +128,8 @@ import java.nio.ByteBuffer;
   public ByteBuffer getOutput() {
     if (super.isEnded() && endBufferSize > 0) {
       // Because audio processors may be drained in the middle of the stream we assume that the
-      // contents of the end buffer need to be output. For gapless transitions, configure will be
-      // always be called, which clears the end buffer as needed. When audio is actually ending we
-      // play the padding data which is incorrect. This behavior can be fixed once we have the
-      // timestamps associated with input buffers.
+      // contents of the end buffer need to be output. For gapless transitions, configure will
+      // always be called, so the end buffer is cleared in onQueueEndOfStream.
       replaceOutputBuffer(endBufferSize).put(endBuffer, 0, endBufferSize).flip();
       endBufferSize = 0;
     }
@@ -153,8 +142,23 @@ import java.nio.ByteBuffer;
   }
 
   @Override
+  protected void onQueueEndOfStream() {
+    if (reconfigurationPending) {
+      // Trim audio in the end buffer.
+      if (endBufferSize > 0) {
+        trimmedFrameCount += endBufferSize / inputAudioFormat.bytesPerFrame;
+      }
+      endBufferSize = 0;
+    }
+  }
+
+  @Override
   protected void onFlush() {
-    if (receivedInputSinceConfigure) {
+    if (reconfigurationPending) {
+      reconfigurationPending = false;
+      endBuffer = new byte[trimEndFrames * inputAudioFormat.bytesPerFrame];
+      pendingTrimStartBytes = trimStartFrames * inputAudioFormat.bytesPerFrame;
+    } else {
       // Audio processors are flushed after initial configuration, so we leave the pending trim
       // start byte count unmodified if the processor was just configured. Otherwise we (possibly
       // incorrectly) assume that this is a seek to a non-zero position. We should instead check the
