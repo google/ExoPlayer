@@ -19,7 +19,6 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 /**
  * An {@link AudioProcessor} that applies a mapping from input channels onto specified output
@@ -48,23 +47,20 @@ final class ChannelMappingAudioProcessor extends BaseAudioProcessor {
   }
 
   @Override
-  public boolean configure(int sampleRateHz, int channelCount, @C.PcmEncoding int encoding)
+  public void configure(int sampleRateHz, int channelCount, @C.PcmEncoding int encoding)
       throws UnhandledFormatException {
-    boolean outputChannelsChanged = !Arrays.equals(pendingOutputChannels, outputChannels);
     outputChannels = pendingOutputChannels;
 
     int[] outputChannels = this.outputChannels;
     if (outputChannels == null) {
       active = false;
-      return outputChannelsChanged;
+      return;
     }
     if (encoding != C.ENCODING_PCM_16BIT) {
       throw new UnhandledFormatException(sampleRateHz, channelCount, encoding);
     }
-    if (!outputChannelsChanged && !setInputFormat(sampleRateHz, channelCount, encoding)) {
-      return false;
-    }
 
+    setInputFormat(sampleRateHz, channelCount, encoding);
     active = channelCount != outputChannels.length;
     for (int i = 0; i < outputChannels.length; i++) {
       int channelIndex = outputChannels[i];
@@ -73,7 +69,6 @@ final class ChannelMappingAudioProcessor extends BaseAudioProcessor {
       }
       active |= (channelIndex != i);
     }
-    return true;
   }
 
   @Override

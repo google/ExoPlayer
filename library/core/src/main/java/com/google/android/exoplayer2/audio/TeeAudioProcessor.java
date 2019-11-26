@@ -64,8 +64,8 @@ public final class TeeAudioProcessor extends BaseAudioProcessor {
   }
 
   @Override
-  public boolean configure(int sampleRateHz, int channelCount, @C.PcmEncoding int encoding) {
-    return setInputFormat(sampleRateHz, channelCount, encoding);
+  public void configure(int sampleRateHz, int channelCount, @C.PcmEncoding int encoding) {
+    setInputFormat(sampleRateHz, channelCount, encoding);
   }
 
   @Override
