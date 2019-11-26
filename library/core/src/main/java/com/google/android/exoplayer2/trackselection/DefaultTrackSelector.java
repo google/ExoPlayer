@@ -646,7 +646,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * @return This builder.
      */
     public final ParametersBuilder setSelectionOverride(
-        int rendererIndex, TrackGroupArray groups, SelectionOverride override) {
+        int rendererIndex, TrackGroupArray groups, @Nullable SelectionOverride override) {
       Map<TrackGroupArray, SelectionOverride> overrides = selectionOverrides.get(rendererIndex);
       if (overrides == null) {
         overrides = new HashMap<>();
