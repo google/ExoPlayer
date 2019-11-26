@@ -29,12 +29,12 @@ import java.nio.ByteBuffer;
   private static final double PCM_32_BIT_INT_TO_PCM_32_BIT_FLOAT_FACTOR = 1.0 / 0x7FFFFFFF;
 
   @Override
-  public boolean configure(int sampleRateHz, int channelCount, @C.PcmEncoding int encoding)
+  public void configure(int sampleRateHz, int channelCount, @C.PcmEncoding int encoding)
       throws UnhandledFormatException {
     if (!Util.isEncodingHighResolutionIntegerPcm(encoding)) {
       throw new UnhandledFormatException(sampleRateHz, channelCount, encoding);
     }
-    return setInputFormat(sampleRateHz, channelCount, encoding);
+    setInputFormat(sampleRateHz, channelCount, encoding);
   }
 
   @Override

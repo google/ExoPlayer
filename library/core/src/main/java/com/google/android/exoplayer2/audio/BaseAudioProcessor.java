@@ -104,18 +104,12 @@ public abstract class BaseAudioProcessor implements AudioProcessor {
     onReset();
   }
 
-  /** Sets the input format of this processor, returning whether the input format has changed. */
-  protected final boolean setInputFormat(
+  /** Sets the input format of this processor. */
+  protected final void setInputFormat(
       int sampleRateHz, int channelCount, @C.PcmEncoding int encoding) {
-    if (sampleRateHz == this.sampleRateHz
-        && channelCount == this.channelCount
-        && encoding == this.encoding) {
-      return false;
-    }
     this.sampleRateHz = sampleRateHz;
     this.channelCount = channelCount;
     this.encoding = encoding;
-    return true;
   }
 
   /**
