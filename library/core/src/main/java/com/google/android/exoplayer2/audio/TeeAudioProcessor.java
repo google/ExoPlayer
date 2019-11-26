@@ -64,8 +64,9 @@ public final class TeeAudioProcessor extends BaseAudioProcessor {
   }
 
   @Override
-  public void configure(int sampleRateHz, int channelCount, @C.PcmEncoding int encoding) {
-    setInputFormat(sampleRateHz, channelCount, encoding);
+  public AudioFormat onConfigure(AudioFormat inputAudioFormat) {
+    // This processor is always active (if passed to the sink) and outputs its input.
+    return inputAudioFormat;
   }
 
   @Override
@@ -81,7 +82,8 @@ public final class TeeAudioProcessor extends BaseAudioProcessor {
   @Override
   protected void onFlush() {
     if (isActive()) {
-      audioBufferSink.flush(sampleRateHz, channelCount, encoding);
+      audioBufferSink.flush(
+          inputAudioFormat.sampleRate, inputAudioFormat.channelCount, inputAudioFormat.encoding);
     }
   }
 
