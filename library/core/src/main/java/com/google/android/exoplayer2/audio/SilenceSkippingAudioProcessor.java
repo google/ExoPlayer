@@ -98,14 +98,14 @@ public final class SilenceSkippingAudioProcessor extends BaseAudioProcessor {
   }
 
   /**
-   * Sets whether to skip silence in the input. Calling this method will discard any data buffered
-   * within the processor, and may update the value returned by {@link #isActive()}.
+   * Sets whether to skip silence in the input. This method may only be called after draining data
+   * through the processor. The value returned by {@link #isActive()} may change, and the processor
+   * must be {@link #flush() flushed} before queueing more data.
    *
    * @param enabled Whether to skip silence in the input.
    */
   public void setEnabled(boolean enabled) {
     this.enabled = enabled;
-    flush();
   }
 
   /**
