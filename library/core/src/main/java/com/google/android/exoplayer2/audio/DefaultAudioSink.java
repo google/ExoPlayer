@@ -27,6 +27,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.audio.AudioProcessor.UnhandledAudioFormatException;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
@@ -435,18 +436,22 @@ public final class DefaultAudioSink implements AudioSink {
     if (processingEnabled) {
       trimmingAudioProcessor.setTrimFrameCount(trimStartFrames, trimEndFrames);
       channelMappingAudioProcessor.setChannelMap(outputChannels);
+      AudioProcessor.AudioFormat inputAudioFormat =
+          new AudioProcessor.AudioFormat(sampleRate, channelCount, encoding);
+      AudioProcessor.AudioFormat outputAudioFormat = inputAudioFormat;
       for (AudioProcessor audioProcessor : availableAudioProcessors) {
         try {
-          audioProcessor.configure(sampleRate, channelCount, encoding);
-        } catch (AudioProcessor.UnhandledFormatException e) {
+          outputAudioFormat = audioProcessor.configure(inputAudioFormat);
+        } catch (UnhandledAudioFormatException e) {
           throw new ConfigurationException(e);
         }
         if (audioProcessor.isActive()) {
-          channelCount = audioProcessor.getOutputChannelCount();
-          sampleRate = audioProcessor.getOutputSampleRateHz();
-          encoding = audioProcessor.getOutputEncoding();
+          inputAudioFormat = outputAudioFormat;
         }
       }
+      sampleRate = outputAudioFormat.sampleRate;
+      channelCount = outputAudioFormat.channelCount;
+      encoding = outputAudioFormat.encoding;
     }
 
     int outputChannelConfig = getChannelConfig(channelCount, isInputPcm);

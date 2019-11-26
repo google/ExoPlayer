@@ -24,19 +24,17 @@ import java.nio.ByteBuffer;
  * An {@link AudioProcessor} that applies a mapping from input channels onto specified output
  * channels. This can be used to reorder, duplicate or discard channels.
  */
-/* package */
 // the constructor does not initialize fields: pendingOutputChannels, outputChannels
 @SuppressWarnings("nullness:initialization.fields.uninitialized")
-final class ChannelMappingAudioProcessor extends BaseAudioProcessor {
+/* package */ final class ChannelMappingAudioProcessor extends BaseAudioProcessor {
 
   @Nullable private int[] pendingOutputChannels;
 
-  private boolean active;
   @Nullable private int[] outputChannels;
 
   /**
-   * Resets the channel mapping. After calling this method, call {@link #configure(int, int, int)}
-   * to start using the new channel map.
+   * Resets the channel mapping. After calling this method, call {@link #configure(AudioFormat)} to
+   * start using the new channel map.
    *
    * @param outputChannels The mapping from input to output channel indices, or {@code null} to
    *     leave the input unchanged.
@@ -47,38 +45,30 @@ final class ChannelMappingAudioProcessor extends BaseAudioProcessor {
   }
 
   @Override
-  public void configure(int sampleRateHz, int channelCount, @C.PcmEncoding int encoding)
-      throws UnhandledFormatException {
+  public AudioFormat onConfigure(AudioFormat inputAudioFormat)
+      throws UnhandledAudioFormatException {
     outputChannels = pendingOutputChannels;
 
     int[] outputChannels = this.outputChannels;
     if (outputChannels == null) {
-      active = false;
-      return;
-    }
-    if (encoding != C.ENCODING_PCM_16BIT) {
-      throw new UnhandledFormatException(sampleRateHz, channelCount, encoding);
+      return AudioFormat.NOT_SET;
     }
 
-    setInputFormat(sampleRateHz, channelCount, encoding);
-    active = channelCount != outputChannels.length;
+    if (inputAudioFormat.encoding != C.ENCODING_PCM_16BIT) {
+      throw new UnhandledAudioFormatException(inputAudioFormat);
+    }
+
+    boolean active = inputAudioFormat.channelCount != outputChannels.length;
     for (int i = 0; i < outputChannels.length; i++) {
       int channelIndex = outputChannels[i];
-      if (channelIndex >= channelCount) {
-        throw new UnhandledFormatException(sampleRateHz, channelCount, encoding);
+      if (channelIndex >= inputAudioFormat.channelCount) {
+        throw new UnhandledAudioFormatException(inputAudioFormat);
       }
       active |= (channelIndex != i);
     }
-  }
-
-  @Override
-  public boolean isActive() {
-    return active;
-  }
-
-  @Override
-  public int getOutputChannelCount() {
-    return outputChannels == null ? channelCount : outputChannels.length;
+    return active
+        ? new AudioFormat(inputAudioFormat.sampleRate, outputChannels.length, C.ENCODING_PCM_16BIT)
+        : AudioFormat.NOT_SET;
   }
 
   @Override
@@ -86,14 +76,14 @@ final class ChannelMappingAudioProcessor extends BaseAudioProcessor {
     int[] outputChannels = Assertions.checkNotNull(this.outputChannels);
     int position = inputBuffer.position();
     int limit = inputBuffer.limit();
-    int frameCount = (limit - position) / (2 * channelCount);
+    int frameCount = (limit - position) / (2 * inputAudioFormat.channelCount);
     int outputSize = frameCount * outputChannels.length * 2;
     ByteBuffer buffer = replaceOutputBuffer(outputSize);
     while (position < limit) {
       for (int channelIndex : outputChannels) {
         buffer.putShort(inputBuffer.getShort(position + 2 * channelIndex));
       }
-      position += channelCount * 2;
+      position += inputAudioFormat.channelCount * 2;
     }
     inputBuffer.position(limit);
     buffer.flip();
@@ -103,7 +93,6 @@ final class ChannelMappingAudioProcessor extends BaseAudioProcessor {
   protected void onReset() {
     outputChannels = null;
     pendingOutputChannels = null;
-    active = false;
   }
 
 }
