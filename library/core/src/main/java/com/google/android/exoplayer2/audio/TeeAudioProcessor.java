@@ -80,7 +80,16 @@ public final class TeeAudioProcessor extends BaseAudioProcessor {
   }
 
   @Override
-  protected void onFlush() {
+  protected void onQueueEndOfStream() {
+    flushSinkIfActive();
+  }
+
+  @Override
+  protected void onReset() {
+    flushSinkIfActive();
+  }
+
+  private void flushSinkIfActive() {
     if (isActive()) {
       audioBufferSink.flush(
           inputAudioFormat.sampleRate, inputAudioFormat.channelCount, inputAudioFormat.encoding);

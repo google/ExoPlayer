@@ -88,8 +88,9 @@ public interface AudioProcessor {
    * the configured output audio format if this instance is active.
    *
    * <p>After calling this method, it is necessary to {@link #flush()} the processor to apply the
-   * new configuration before queueing more data. You can (optionally) first drain output in the
-   * previous configuration by calling {@link #queueEndOfStream()} and {@link #getOutput()}.
+   * new configuration. Before applying the new configuration, it is safe to queue input and get
+   * output in the old input/output formats. Call {@link #queueEndOfStream()} when no more input
+   * will be supplied in the old input format.
    *
    * @param inputAudioFormat The format of audio that will be queued after the next call to {@link
    *     #flush()}.

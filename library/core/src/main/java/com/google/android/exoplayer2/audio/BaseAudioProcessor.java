@@ -26,10 +26,13 @@ import java.nio.ByteOrder;
  */
 public abstract class BaseAudioProcessor implements AudioProcessor {
 
-  /** The configured input audio format. */
+  /** The current input audio format. */
   protected AudioFormat inputAudioFormat;
+  /** The current output audio format. */
+  protected AudioFormat outputAudioFormat;
 
-  private AudioFormat outputAudioFormat;
+  private AudioFormat pendingInputAudioFormat;
+  private AudioFormat pendingOutputAudioFormat;
   private ByteBuffer buffer;
   private ByteBuffer outputBuffer;
   private boolean inputEnded;
@@ -37,6 +40,8 @@ public abstract class BaseAudioProcessor implements AudioProcessor {
   public BaseAudioProcessor() {
     buffer = EMPTY_BUFFER;
     outputBuffer = EMPTY_BUFFER;
+    pendingInputAudioFormat = AudioFormat.NOT_SET;
+    pendingOutputAudioFormat = AudioFormat.NOT_SET;
     inputAudioFormat = AudioFormat.NOT_SET;
     outputAudioFormat = AudioFormat.NOT_SET;
   }
@@ -44,14 +49,14 @@ public abstract class BaseAudioProcessor implements AudioProcessor {
   @Override
   public final AudioFormat configure(AudioFormat inputAudioFormat)
       throws UnhandledAudioFormatException {
-    this.inputAudioFormat = inputAudioFormat;
-    outputAudioFormat = onConfigure(inputAudioFormat);
-    return isActive() ? outputAudioFormat : AudioFormat.NOT_SET;
+    pendingInputAudioFormat = inputAudioFormat;
+    pendingOutputAudioFormat = onConfigure(inputAudioFormat);
+    return isActive() ? pendingOutputAudioFormat : AudioFormat.NOT_SET;
   }
 
   @Override
   public boolean isActive() {
-    return outputAudioFormat != AudioFormat.NOT_SET;
+    return pendingOutputAudioFormat != AudioFormat.NOT_SET;
   }
 
   @Override
@@ -79,6 +84,8 @@ public abstract class BaseAudioProcessor implements AudioProcessor {
   public final void flush() {
     outputBuffer = EMPTY_BUFFER;
     inputEnded = false;
+    inputAudioFormat = pendingInputAudioFormat;
+    outputAudioFormat = pendingOutputAudioFormat;
     onFlush();
   }
 
@@ -86,6 +93,8 @@ public abstract class BaseAudioProcessor implements AudioProcessor {
   public final void reset() {
     flush();
     buffer = EMPTY_BUFFER;
+    pendingInputAudioFormat = AudioFormat.NOT_SET;
+    pendingOutputAudioFormat = AudioFormat.NOT_SET;
     inputAudioFormat = AudioFormat.NOT_SET;
     outputAudioFormat = AudioFormat.NOT_SET;
     onReset();

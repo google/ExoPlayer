@@ -24,12 +24,10 @@ import java.nio.ByteBuffer;
  * An {@link AudioProcessor} that applies a mapping from input channels onto specified output
  * channels. This can be used to reorder, duplicate or discard channels.
  */
-// the constructor does not initialize fields: pendingOutputChannels, outputChannels
 @SuppressWarnings("nullness:initialization.fields.uninitialized")
 /* package */ final class ChannelMappingAudioProcessor extends BaseAudioProcessor {
 
   @Nullable private int[] pendingOutputChannels;
-
   @Nullable private int[] outputChannels;
 
   /**
@@ -47,9 +45,7 @@ import java.nio.ByteBuffer;
   @Override
   public AudioFormat onConfigure(AudioFormat inputAudioFormat)
       throws UnhandledAudioFormatException {
-    outputChannels = pendingOutputChannels;
-
-    int[] outputChannels = this.outputChannels;
+    @Nullable int[] outputChannels = pendingOutputChannels;
     if (outputChannels == null) {
       return AudioFormat.NOT_SET;
     }
@@ -76,17 +72,22 @@ import java.nio.ByteBuffer;
     int[] outputChannels = Assertions.checkNotNull(this.outputChannels);
     int position = inputBuffer.position();
     int limit = inputBuffer.limit();
-    int frameCount = (limit - position) / (2 * inputAudioFormat.channelCount);
-    int outputSize = frameCount * outputChannels.length * 2;
+    int frameCount = (limit - position) / inputAudioFormat.bytesPerFrame;
+    int outputSize = frameCount * outputAudioFormat.bytesPerFrame;
     ByteBuffer buffer = replaceOutputBuffer(outputSize);
     while (position < limit) {
       for (int channelIndex : outputChannels) {
         buffer.putShort(inputBuffer.getShort(position + 2 * channelIndex));
       }
-      position += inputAudioFormat.channelCount * 2;
+      position += inputAudioFormat.bytesPerFrame;
     }
     inputBuffer.position(limit);
     buffer.flip();
+  }
+
+  @Override
+  protected void onFlush() {
+    outputChannels = pendingOutputChannels;
   }
 
   @Override

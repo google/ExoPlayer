@@ -79,6 +79,8 @@
     item in a playlist of Opus streams.
   * Workaround broken raw audio decoding on Oppo R9
     ([#5782](https://github.com/google/ExoPlayer/issues/5782)).
+  * Reconfigure audio sink when PCM encoding changes
+    ([#6601](https://github.com/google/ExoPlayer/issues/6601)).
 * UI:
   * Make showing and hiding player controls accessible to TalkBack in
     `PlayerView`.
@@ -138,6 +140,8 @@
     [Cast demo app](https://github.com/google/ExoPlayer/tree/dev-v2/demos/cast).
 * TestUtils: Publish the `testutils` module to simplify unit testing with
   ExoPlayer ([#6267](https://github.com/google/ExoPlayer/issues/6267)).
+* Downloads: Merge downloads in `SegmentDownloader` to improve overall download
+  speed ([#5978](https://github.com/google/ExoPlayer/issues/5978)).
 
 ### 2.10.8 (2019-11-19) ###
 
