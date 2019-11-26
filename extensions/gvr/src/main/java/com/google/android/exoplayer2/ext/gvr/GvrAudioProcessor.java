@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.ext.gvr;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.vr.sdk.audio.GvrAudioSurround;
@@ -44,8 +43,7 @@ public final class GvrAudioProcessor implements AudioProcessor {
   private static final int OUTPUT_FRAME_SIZE = OUTPUT_CHANNEL_COUNT * 2; // 16-bit stereo output.
   private static final int NO_SURROUND_FORMAT = GvrAudioSurround.SurroundFormat.INVALID;
 
-  private int sampleRateHz;
-  private int channelCount;
+  private AudioFormat inputAudioFormat;
   private int pendingGvrAudioSurroundFormat;
   @Nullable private GvrAudioSurround gvrAudioSurround;
   private ByteBuffer buffer;
@@ -60,8 +58,7 @@ public final class GvrAudioProcessor implements AudioProcessor {
   public GvrAudioProcessor() {
     // Use the identity for the initial orientation.
     w = 1f;
-    sampleRateHz = Format.NO_VALUE;
-    channelCount = Format.NO_VALUE;
+    inputAudioFormat = AudioFormat.NOT_SET;
     buffer = EMPTY_BUFFER;
     pendingGvrAudioSurroundFormat = NO_SURROUND_FORMAT;
   }
@@ -87,15 +84,13 @@ public final class GvrAudioProcessor implements AudioProcessor {
 
   @SuppressWarnings("ReferenceEquality")
   @Override
-  public synchronized void configure(int sampleRateHz, int channelCount, @C.Encoding int encoding)
-      throws UnhandledFormatException {
-    if (encoding != C.ENCODING_PCM_16BIT) {
+  public synchronized AudioFormat configure(AudioFormat inputAudioFormat)
+      throws UnhandledAudioFormatException {
+    if (inputAudioFormat.encoding != C.ENCODING_PCM_16BIT) {
       maybeReleaseGvrAudioSurround();
-      throw new UnhandledFormatException(sampleRateHz, channelCount, encoding);
+      throw new UnhandledAudioFormatException(inputAudioFormat);
     }
-    this.sampleRateHz = sampleRateHz;
-    this.channelCount = channelCount;
-    switch (channelCount) {
+    switch (inputAudioFormat.channelCount) {
       case 1:
         pendingGvrAudioSurroundFormat = GvrAudioSurround.SurroundFormat.SURROUND_MONO;
         break;
@@ -115,32 +110,19 @@ public final class GvrAudioProcessor implements AudioProcessor {
         pendingGvrAudioSurroundFormat = GvrAudioSurround.SurroundFormat.THIRD_ORDER_AMBISONICS;
         break;
       default:
-        throw new UnhandledFormatException(sampleRateHz, channelCount, encoding);
+        throw new UnhandledAudioFormatException(inputAudioFormat);
     }
     if (buffer == EMPTY_BUFFER) {
       buffer = ByteBuffer.allocateDirect(FRAMES_PER_OUTPUT_BUFFER * OUTPUT_FRAME_SIZE)
           .order(ByteOrder.nativeOrder());
     }
+    this.inputAudioFormat = inputAudioFormat;
+    return new AudioFormat(inputAudioFormat.sampleRate, OUTPUT_CHANNEL_COUNT, C.ENCODING_PCM_16BIT);
   }
 
   @Override
   public boolean isActive() {
     return pendingGvrAudioSurroundFormat != NO_SURROUND_FORMAT || gvrAudioSurround != null;
-  }
-
-  @Override
-  public int getOutputChannelCount() {
-    return OUTPUT_CHANNEL_COUNT;
-  }
-
-  @Override
-  public int getOutputEncoding() {
-    return C.ENCODING_PCM_16BIT;
-  }
-
-  @Override
-  public int getOutputSampleRateHz() {
-    return sampleRateHz;
   }
 
   @Override
@@ -181,7 +163,10 @@ public final class GvrAudioProcessor implements AudioProcessor {
       maybeReleaseGvrAudioSurround();
       gvrAudioSurround =
           new GvrAudioSurround(
-              pendingGvrAudioSurroundFormat, sampleRateHz, channelCount, FRAMES_PER_OUTPUT_BUFFER);
+              pendingGvrAudioSurroundFormat,
+              inputAudioFormat.sampleRate,
+              inputAudioFormat.channelCount,
+              FRAMES_PER_OUTPUT_BUFFER);
       gvrAudioSurround.updateNativeOrientation(w, x, y, z);
       pendingGvrAudioSurroundFormat = NO_SURROUND_FORMAT;
     } else if (gvrAudioSurround != null) {
@@ -195,8 +180,7 @@ public final class GvrAudioProcessor implements AudioProcessor {
     maybeReleaseGvrAudioSurround();
     updateOrientation(/* w= */ 1f, /* x= */ 0f, /* y= */ 0f, /* z= */ 0f);
     inputEnded = false;
-    sampleRateHz = Format.NO_VALUE;
-    channelCount = Format.NO_VALUE;
+    inputAudioFormat = AudioFormat.NOT_SET;
     buffer = EMPTY_BUFFER;
     pendingGvrAudioSurroundFormat = NO_SURROUND_FORMAT;
   }
