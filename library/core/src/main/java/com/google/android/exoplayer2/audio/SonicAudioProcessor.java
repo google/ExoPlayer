@@ -92,8 +92,9 @@ public final class SonicAudioProcessor implements AudioProcessor {
   }
 
   /**
-   * Sets the playback speed. Calling this method will discard any data buffered within the
-   * processor, and may update the value returned by {@link #isActive()}.
+   * Sets the playback speed. This method may only be called after draining data through the
+   * processor. The value returned by {@link #isActive()} may change, and the processor must be
+   * {@link #flush() flushed} before queueing more data.
    *
    * @param speed The requested new playback speed.
    * @return The actual new playback speed.
@@ -104,13 +105,13 @@ public final class SonicAudioProcessor implements AudioProcessor {
       this.speed = speed;
       pendingSonicRecreation = true;
     }
-    flush();
     return speed;
   }
 
   /**
-   * Sets the playback pitch. Calling this method will discard any data buffered within the
-   * processor, and may update the value returned by {@link #isActive()}.
+   * Sets the playback pitch. This method may only be called after draining data through the
+   * processor. The value returned by {@link #isActive()} may change, and the processor must be
+   * {@link #flush() flushed} before queueing more data.
    *
    * @param pitch The requested new pitch.
    * @return The actual new pitch.
@@ -121,16 +122,15 @@ public final class SonicAudioProcessor implements AudioProcessor {
       this.pitch = pitch;
       pendingSonicRecreation = true;
     }
-    flush();
     return pitch;
   }
 
   /**
-   * Sets the sample rate for output audio, in hertz. Pass {@link #SAMPLE_RATE_NO_CHANGE} to output
+   * Sets the sample rate for output audio, in Hertz. Pass {@link #SAMPLE_RATE_NO_CHANGE} to output
    * audio at the same sample rate as the input. After calling this method, call {@link
-   * #configure(AudioFormat)} to start using the new sample rate.
+   * #configure(AudioFormat)} to configure the processor with the new sample rate.
    *
-   * @param sampleRateHz The sample rate for output audio, in hertz.
+   * @param sampleRateHz The sample rate for output audio, in Hertz.
    * @see #configure(AudioFormat)
    */
   public void setOutputSampleRateHz(int sampleRateHz) {
