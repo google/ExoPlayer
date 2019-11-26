@@ -24,7 +24,6 @@ import java.nio.ByteBuffer;
 
   @C.PcmEncoding private static final int OUTPUT_ENCODING = C.ENCODING_PCM_16BIT;
 
-  private boolean isActive;
   private int trimStartFrames;
   private int trimEndFrames;
   private int bytesPerFrame;
@@ -42,7 +41,7 @@ import java.nio.ByteBuffer;
 
   /**
    * Sets the number of audio frames to trim from the start and end of audio passed to this
-   * processor. After calling this method, call {@link #configure(int, int, int)} to apply the new
+   * processor. After calling this method, call {@link #configure(AudioFormat)} to apply the new
    * trimming frame counts.
    *
    * @param trimStartFrames The number of audio frames to trim from the start of audio.
@@ -68,26 +67,20 @@ import java.nio.ByteBuffer;
   }
 
   @Override
-  public void configure(int sampleRateHz, int channelCount, @C.PcmEncoding int encoding)
-      throws UnhandledFormatException {
-    if (encoding != OUTPUT_ENCODING) {
-      throw new UnhandledFormatException(sampleRateHz, channelCount, encoding);
+  public AudioFormat onConfigure(AudioFormat inputAudioFormat)
+      throws UnhandledAudioFormatException {
+    if (inputAudioFormat.encoding != OUTPUT_ENCODING) {
+      throw new UnhandledAudioFormatException(inputAudioFormat);
     }
     if (endBufferSize > 0) {
       trimmedFrameCount += endBufferSize / bytesPerFrame;
     }
-    bytesPerFrame = Util.getPcmFrameSize(OUTPUT_ENCODING, channelCount);
+    bytesPerFrame = inputAudioFormat.bytesPerFrame;
     endBuffer = new byte[trimEndFrames * bytesPerFrame];
     endBufferSize = 0;
     pendingTrimStartBytes = trimStartFrames * bytesPerFrame;
-    isActive = trimStartFrames != 0 || trimEndFrames != 0;
     receivedInputSinceConfigure = false;
-    setInputFormat(sampleRateHz, channelCount, encoding);
-  }
-
-  @Override
-  public boolean isActive() {
-    return isActive;
+    return trimStartFrames != 0 || trimEndFrames != 0 ? inputAudioFormat : AudioFormat.NOT_SET;
   }
 
   @Override
@@ -140,7 +133,6 @@ import java.nio.ByteBuffer;
     buffer.flip();
   }
 
-  @SuppressWarnings("ReferenceEquality")
   @Override
   public ByteBuffer getOutput() {
     if (super.isEnded() && endBufferSize > 0) {
@@ -155,7 +147,6 @@ import java.nio.ByteBuffer;
     return super.getOutput();
   }
 
-  @SuppressWarnings("ReferenceEquality")
   @Override
   public boolean isEnded() {
     return super.isEnded() && endBufferSize == 0;
