@@ -43,7 +43,7 @@ public final class GvrAudioProcessor implements AudioProcessor {
   private static final int OUTPUT_FRAME_SIZE = OUTPUT_CHANNEL_COUNT * 2; // 16-bit stereo output.
   private static final int NO_SURROUND_FORMAT = GvrAudioSurround.SurroundFormat.INVALID;
 
-  private AudioFormat inputAudioFormat;
+  private AudioFormat pendingInputAudioFormat;
   private int pendingGvrAudioSurroundFormat;
   @Nullable private GvrAudioSurround gvrAudioSurround;
   private ByteBuffer buffer;
@@ -58,7 +58,7 @@ public final class GvrAudioProcessor implements AudioProcessor {
   public GvrAudioProcessor() {
     // Use the identity for the initial orientation.
     w = 1f;
-    inputAudioFormat = AudioFormat.NOT_SET;
+    pendingInputAudioFormat = AudioFormat.NOT_SET;
     buffer = EMPTY_BUFFER;
     pendingGvrAudioSurroundFormat = NO_SURROUND_FORMAT;
   }
@@ -116,7 +116,7 @@ public final class GvrAudioProcessor implements AudioProcessor {
       buffer = ByteBuffer.allocateDirect(FRAMES_PER_OUTPUT_BUFFER * OUTPUT_FRAME_SIZE)
           .order(ByteOrder.nativeOrder());
     }
-    this.inputAudioFormat = inputAudioFormat;
+    pendingInputAudioFormat = inputAudioFormat;
     return new AudioFormat(inputAudioFormat.sampleRate, OUTPUT_CHANNEL_COUNT, C.ENCODING_PCM_16BIT);
   }
 
@@ -164,8 +164,8 @@ public final class GvrAudioProcessor implements AudioProcessor {
       gvrAudioSurround =
           new GvrAudioSurround(
               pendingGvrAudioSurroundFormat,
-              inputAudioFormat.sampleRate,
-              inputAudioFormat.channelCount,
+              pendingInputAudioFormat.sampleRate,
+              pendingInputAudioFormat.channelCount,
               FRAMES_PER_OUTPUT_BUFFER);
       gvrAudioSurround.updateNativeOrientation(w, x, y, z);
       pendingGvrAudioSurroundFormat = NO_SURROUND_FORMAT;
@@ -180,7 +180,7 @@ public final class GvrAudioProcessor implements AudioProcessor {
     maybeReleaseGvrAudioSurround();
     updateOrientation(/* w= */ 1f, /* x= */ 0f, /* y= */ 0f, /* z= */ 0f);
     inputEnded = false;
-    inputAudioFormat = AudioFormat.NOT_SET;
+    pendingInputAudioFormat = AudioFormat.NOT_SET;
     buffer = EMPTY_BUFFER;
     pendingGvrAudioSurroundFormat = NO_SURROUND_FORMAT;
   }
