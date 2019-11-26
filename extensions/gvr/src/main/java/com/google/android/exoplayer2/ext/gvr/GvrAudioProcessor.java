@@ -87,15 +87,11 @@ public final class GvrAudioProcessor implements AudioProcessor {
 
   @SuppressWarnings("ReferenceEquality")
   @Override
-  public synchronized boolean configure(
-      int sampleRateHz, int channelCount, @C.Encoding int encoding)
+  public synchronized void configure(int sampleRateHz, int channelCount, @C.Encoding int encoding)
       throws UnhandledFormatException {
     if (encoding != C.ENCODING_PCM_16BIT) {
       maybeReleaseGvrAudioSurround();
       throw new UnhandledFormatException(sampleRateHz, channelCount, encoding);
-    }
-    if (this.sampleRateHz == sampleRateHz && this.channelCount == channelCount) {
-      return false;
     }
     this.sampleRateHz = sampleRateHz;
     this.channelCount = channelCount;
@@ -125,7 +121,6 @@ public final class GvrAudioProcessor implements AudioProcessor {
       buffer = ByteBuffer.allocateDirect(FRAMES_PER_OUTPUT_BUFFER * OUTPUT_FRAME_SIZE)
           .order(ByteOrder.nativeOrder());
     }
-    return true;
   }
 
   @Override

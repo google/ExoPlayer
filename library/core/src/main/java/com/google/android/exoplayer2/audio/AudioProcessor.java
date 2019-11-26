@@ -55,18 +55,16 @@ public interface AudioProcessor {
    * <p>If the audio processor is active after configuration, call {@link #getOutputSampleRateHz()},
    * {@link #getOutputChannelCount()} and {@link #getOutputEncoding()} to get its new output format.
    *
-   * <p>If this method returns {@code true}, it is necessary to {@link #flush()} the processor
-   * before queueing more data, but you can (optionally) first drain output in the previous
-   * configuration by calling {@link #queueEndOfStream()} and {@link #getOutput()}. If this method
-   * returns {@code false}, it is safe to queue new input immediately.
+   * <p>After calling this method, it is necessary to {@link #flush()} the processor to apply the
+   * new configuration before queueing more data. You can (optionally) first drain output in the
+   * previous configuration by calling {@link #queueEndOfStream()} and {@link #getOutput()}.
    *
    * @param sampleRateHz The sample rate of input audio in Hz.
    * @param channelCount The number of interleaved channels in input audio.
    * @param encoding The encoding of input audio.
-   * @return Whether the processor must be {@link #flush() flushed} before queueing more input.
    * @throws UnhandledFormatException Thrown if the specified format can't be handled as input.
    */
-  boolean configure(int sampleRateHz, int channelCount, @C.PcmEncoding int encoding)
+  void configure(int sampleRateHz, int channelCount, @C.PcmEncoding int encoding)
       throws UnhandledFormatException;
 
   /** Returns whether the processor is configured and will process input buffers. */
