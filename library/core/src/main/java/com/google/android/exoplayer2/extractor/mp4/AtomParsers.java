@@ -794,7 +794,8 @@ import java.util.List;
             language, out);
       } else if (childAtomType == Atom.TYPE_camm) {
         out.format = Format.createSampleFormat(Integer.toString(trackId),
-            MimeTypes.APPLICATION_CAMERA_MOTION, null, Format.NO_VALUE, null);
+            MimeTypes.APPLICATION_CAMERA_MOTION, null,
+            Format.NO_VALUE, Format.NO_VALUE, null);
       }
       stsd.setPosition(childStartPosition + childAtomSize);
     }
@@ -838,6 +839,7 @@ import java.util.List;
             mimeType,
             /* codecs= */ null,
             /* bitrate= */ Format.NO_VALUE,
+            /* peakBitrate= */ Format.NO_VALUE,
             /* selectionFlags= */ 0,
             language,
             /* accessibilityChannel= */ Format.NO_VALUE,
@@ -971,6 +973,7 @@ import java.util.List;
             mimeType,
             codecs,
             /* bitrate= */ Format.NO_VALUE,
+            /* peakBitrate= */ Format.NO_VALUE,
             /* maxInputSize= */ Format.NO_VALUE,
             width,
             height,
@@ -1150,7 +1153,8 @@ import java.util.List;
             Ac4Util.parseAc4AnnexEFormat(parent, Integer.toString(trackId), language, drmInitData);
       } else if (childAtomType == Atom.TYPE_ddts) {
         out.format = Format.createAudioSampleFormat(Integer.toString(trackId), mimeType, null,
-            Format.NO_VALUE, Format.NO_VALUE, channelCount, sampleRate, null, drmInitData, 0,
+            Format.NO_VALUE, Format.NO_VALUE, Format.NO_VALUE, channelCount,
+            sampleRate, null, drmInitData, 0,
             language);
       } else if (childAtomType == Atom.TYPE_dOps) {
         // Build an Opus Identification Header (defined in RFC-7845) by concatenating the Opus Magic

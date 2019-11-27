@@ -683,6 +683,7 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
                 /* codecs= */ null,
                 /* metadata= */ null,
                 bitrate,
+                Format.NO_VALUE,
                 width,
                 height,
                 /* frameRate= */ Format.NO_VALUE,
@@ -709,6 +710,7 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
                 /* codecs= */ null,
                 /* metadata= */ null,
                 bitrate,
+                /* peakBitrate= */ Format.NO_VALUE,
                 channels,
                 samplingRate,
                 codecSpecificData,
@@ -737,6 +739,7 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
                 sampleMimeType,
                 /* codecs= */ null,
                 bitrate,
+                /* peakBitrate= */ Format.NO_VALUE,
                 /* selectionFlags= */ 0,
                 roleFlags,
                 language);
@@ -749,6 +752,7 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
                 sampleMimeType,
                 /* codecs= */ null,
                 bitrate,
+                /* peakBitrate= */ Format.NO_VALUE,
                 /* selectionFlags= */ 0,
                 /* roleFlags= */ 0,
                 /* language= */ null);

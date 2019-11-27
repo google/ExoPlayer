@@ -1248,6 +1248,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         codecs,
         playlistFormat.metadata,
         bitrate,
+        playlistFormat.peakBitrate,
         playlistFormat.width,
         playlistFormat.height,
         channelCount,

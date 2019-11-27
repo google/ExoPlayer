@@ -2056,6 +2056,7 @@ public class MatroskaExtractor implements Extractor {
                 mimeType,
                 /* codecs= */ null,
                 /* bitrate= */ Format.NO_VALUE,
+                /* peakBitrate= */ Format.NO_VALUE,
                 maxInputSize,
                 width,
                 height,
@@ -2077,7 +2078,8 @@ public class MatroskaExtractor implements Extractor {
         initializationData.add(SSA_DIALOGUE_FORMAT);
         initializationData.add(codecPrivate);
         format = Format.createTextSampleFormat(Integer.toString(trackId), mimeType, null,
-            Format.NO_VALUE, selectionFlags, language, Format.NO_VALUE, drmInitData,
+            Format.NO_VALUE, Format.NO_VALUE, selectionFlags, language,
+            Format.NO_VALUE, drmInitData,
             Format.OFFSET_SAMPLE_RELATIVE, initializationData);
       } else if (MimeTypes.APPLICATION_VOBSUB.equals(mimeType)
           || MimeTypes.APPLICATION_PGS.equals(mimeType)
@@ -2088,6 +2090,7 @@ public class MatroskaExtractor implements Extractor {
                 Integer.toString(trackId),
                 mimeType,
                 null,
+                Format.NO_VALUE,
                 Format.NO_VALUE,
                 selectionFlags,
                 initializationData,

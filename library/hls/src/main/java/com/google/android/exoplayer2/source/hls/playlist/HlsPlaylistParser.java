@@ -304,11 +304,16 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       } else if (line.startsWith(TAG_STREAM_INF)) {
         noClosedCaptions |= line.contains(ATTR_CLOSED_CAPTIONS_NONE);
         int bitrate = parseIntAttr(line, REGEX_BANDWIDTH);
+        final int peakBitrate;
         String averageBandwidthString =
             parseOptionalStringAttr(line, REGEX_AVERAGE_BANDWIDTH, variableDefinitions);
         if (averageBandwidthString != null) {
-          // If available, the average bandwidth attribute is used as the variant's bitrate.
+          // If available, the average bandwidth attribute is used as the variant's bitrate
+          // and bandwidth attribute is used as the variant's peakBitrate
+          peakBitrate = bitrate;
           bitrate = Integer.parseInt(averageBandwidthString);
+        } else {
+          peakBitrate = Format.NO_VALUE;
         }
         String codecs = parseOptionalStringAttr(line, REGEX_CODECS, variableDefinitions);
         String resolutionString =
@@ -356,6 +361,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                 codecs,
                 /* metadata= */ null,
                 bitrate,
+                peakBitrate,
                 width,
                 height,
                 frameRate,
@@ -432,6 +438,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                       codecs,
                       /* metadata= */ null,
                       /* bitrate= */ Format.NO_VALUE,
+                      /* peakBitrate= */ Format.NO_VALUE,
                       width,
                       height,
                       frameRate,
@@ -470,6 +477,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                   codecs,
                   /* metadata= */ null,
                   /* bitrate= */ Format.NO_VALUE,
+                  /* peakBitrate= */ Format.NO_VALUE,
                   channelCount,
                   /* sampleRate= */ Format.NO_VALUE,
                   /* initializationData= */ null,
@@ -492,6 +500,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                       /* sampleMimeType= */ MimeTypes.TEXT_VTT,
                       /* codecs= */ null,
                       /* bitrate= */ Format.NO_VALUE,
+                      /* peakBitrate= */ Format.NO_VALUE,
                       selectionFlags,
                       roleFlags,
                       language)
@@ -520,6 +529,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                   /* sampleMimeType= */ mimeType,
                   /* codecs= */ null,
                   /* bitrate= */ Format.NO_VALUE,
+                  /* peakBitrate= */ Format.NO_VALUE,
                   selectionFlags,
                   roleFlags,
                   language,

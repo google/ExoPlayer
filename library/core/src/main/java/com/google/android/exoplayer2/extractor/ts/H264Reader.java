@@ -197,6 +197,7 @@ public final class H264Reader implements ElementaryStreamReader {
                       spsData.constraintsFlagsAndReservedZero2Bits,
                       spsData.levelIdc),
                   /* bitrate= */ Format.NO_VALUE,
+                  /* peakBitrate= */ Format.NO_VALUE,
                   /* maxInputSize= */ Format.NO_VALUE,
                   spsData.width,
                   spsData.height,

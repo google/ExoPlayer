@@ -91,7 +91,8 @@ import com.google.android.exoplayer2.video.AvcConfig;
       nalUnitLengthFieldLength = avcConfig.nalUnitLengthFieldLength;
       // Construct and output the format.
       Format format = Format.createVideoSampleFormat(null, MimeTypes.VIDEO_H264, null,
-          Format.NO_VALUE, Format.NO_VALUE, avcConfig.width, avcConfig.height, Format.NO_VALUE,
+          Format.NO_VALUE, Format.NO_VALUE, Format.NO_VALUE,
+          avcConfig.width, avcConfig.height, Format.NO_VALUE,
           avcConfig.initializationData, Format.NO_VALUE, avcConfig.pixelWidthAspectRatio, null);
       output.format(format);
       hasOutputFormat = true;

@@ -353,6 +353,7 @@ public final class DefaultTrackSelectorTest {
             /* sampleMimeType= */ MimeTypes.AUDIO_AAC,
             /* codecs= */ "mp4a.40.2",
             /* bitrate= */ 128 * 1024,
+            /* peakBitrate= */ Format.NO_VALUE,
             /* maxInputSize= */ Format.NO_VALUE,
             /* channelCount= */ 2,
             /* sampleRate= */ 44100,
@@ -366,6 +367,7 @@ public final class DefaultTrackSelectorTest {
             /* sampleMimeType= */ MimeTypes.AUDIO_AAC,
             /* codecs= */ "mp4a.40.2",
             /* bitrate= */ 192 * 1024,
+            /* peakBitrate= */ Format.NO_VALUE,
             /* maxInputSize= */ Format.NO_VALUE,
             /* channelCount= */ 2,
             /* sampleRate= */ 44100,
@@ -379,6 +381,7 @@ public final class DefaultTrackSelectorTest {
             /* sampleMimeType= */ MimeTypes.AUDIO_AAC,
             /* codecs= */ "mp4a.40.2",
             /* bitrate= */ 256 * 1024,
+            /* peakBitrate= */ Format.NO_VALUE,
             /* maxInputSize= */ Format.NO_VALUE,
             /* channelCount= */ 2,
             /* sampleRate= */ 44100,
@@ -424,10 +427,10 @@ public final class DefaultTrackSelectorTest {
       throws Exception {
     Format frAudioFormat =
         Format.createAudioSampleFormat("audio", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
-            Format.NO_VALUE, 2, 44100, null, null, 0, "fra");
+            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, "fra");
     Format enAudioFormat =
         Format.createAudioSampleFormat("audio", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
-            Format.NO_VALUE, 2, 44100, null, null, 0, "eng");
+            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, "eng");
     TrackGroupArray trackGroups = wrapFormats(frAudioFormat, enAudioFormat);
 
     trackSelector.setParameters(defaultParameters.buildUpon().setPreferredAudioLanguage("eng"));
@@ -449,10 +452,10 @@ public final class DefaultTrackSelectorTest {
       throws Exception {
     Format frAudioFormat =
         Format.createAudioSampleFormat("audio", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
-            Format.NO_VALUE, 2, 44100, null, null, C.SELECTION_FLAG_DEFAULT, "fra");
+            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, C.SELECTION_FLAG_DEFAULT, "fra");
     Format enAudioFormat =
         Format.createAudioSampleFormat("audio", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
-            Format.NO_VALUE, 2, 44100, null, null, 0, "eng");
+            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, "eng");
     TrackGroupArray trackGroups = wrapFormats(frAudioFormat, enAudioFormat);
 
     trackSelector.setParameters(defaultParameters.buildUpon().setPreferredAudioLanguage("eng"));
@@ -499,7 +502,7 @@ public final class DefaultTrackSelectorTest {
       throws Exception {
     Format audioFormat =
         Format.createAudioSampleFormat("audio", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
-            Format.NO_VALUE, 2, 44100, null, null, 0, null);
+            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, null);
     TrackGroupArray trackGroups = singleTrackGroup(audioFormat);
 
     TrackSelectorResult result =
@@ -521,7 +524,7 @@ public final class DefaultTrackSelectorTest {
       throws Exception {
     Format audioFormat =
         Format.createAudioSampleFormat("audio", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
-            Format.NO_VALUE, 2, 44100, null, null, 0, null);
+            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, null);
     TrackGroupArray trackGroups = singleTrackGroup(audioFormat);
 
     trackSelector.setParameters(
@@ -549,6 +552,7 @@ public final class DefaultTrackSelectorTest {
             null,
             Format.NO_VALUE,
             Format.NO_VALUE,
+            Format.NO_VALUE,
             2,
             44100,
             null,
@@ -557,7 +561,7 @@ public final class DefaultTrackSelectorTest {
             null);
     Format supportedFormat =
         Format.createAudioSampleFormat("supportedFormat", MimeTypes.AUDIO_AAC, null,
-            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, null);
+            Format.NO_VALUE, Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, null);
     TrackGroupArray trackGroups = wrapFormats(exceededWithSelectionFlagFormat, supportedFormat);
 
     Map<String, Integer> mappedCapabilities = new HashMap<>();
@@ -590,6 +594,7 @@ public final class DefaultTrackSelectorTest {
             null,
             Format.NO_VALUE,
             Format.NO_VALUE,
+            Format.NO_VALUE,
             2,
             44100,
             null,
@@ -598,7 +603,7 @@ public final class DefaultTrackSelectorTest {
             "eng");
     Format supportedFrFormat =
         Format.createAudioSampleFormat("supportedFormat", MimeTypes.AUDIO_AAC, null,
-            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, "fra");
+            Format.NO_VALUE, Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, "fra");
     TrackGroupArray trackGroups = wrapFormats(exceededEnFormat, supportedFrFormat);
 
     Map<String, Integer> mappedCapabilities = new HashMap<>();
@@ -632,6 +637,7 @@ public final class DefaultTrackSelectorTest {
             null,
             Format.NO_VALUE,
             Format.NO_VALUE,
+            Format.NO_VALUE,
             2,
             44100,
             null,
@@ -640,7 +646,7 @@ public final class DefaultTrackSelectorTest {
             "eng");
     Format supportedFrFormat =
         Format.createAudioSampleFormat("supportedFormat", MimeTypes.AUDIO_AAC, null,
-            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, "fra");
+            Format.NO_VALUE, Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, "fra");
     TrackGroupArray trackGroups = wrapFormats(exceededDefaultSelectionEnFormat, supportedFrFormat);
 
     Map<String, Integer> mappedCapabilities = new HashMap<>();
@@ -673,6 +679,7 @@ public final class DefaultTrackSelectorTest {
             null,
             Format.NO_VALUE,
             Format.NO_VALUE,
+            Format.NO_VALUE,
             6,
             44100,
             null,
@@ -681,7 +688,7 @@ public final class DefaultTrackSelectorTest {
             null);
     Format lowerChannelFormat =
         Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
-            Format.NO_VALUE, 2, 44100, null, null, 0, null);
+            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, null);
     TrackGroupArray trackGroups = wrapFormats(higherChannelFormat, lowerChannelFormat);
 
     TrackSelectorResult result =
@@ -702,10 +709,10 @@ public final class DefaultTrackSelectorTest {
       throws Exception {
     Format higherSampleRateFormat =
         Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
-            Format.NO_VALUE, 2, 44100, null, null, 0, null);
+            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, null);
     Format lowerSampleRateFormat =
         Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
-            Format.NO_VALUE, 2, 22050, null, null, 0, null);
+            Format.NO_VALUE, Format.NO_VALUE, 2, 22050, null, null, 0, null);
     TrackGroupArray trackGroups = wrapFormats(higherSampleRateFormat, lowerSampleRateFormat);
 
     TrackSelectorResult result =
@@ -730,6 +737,7 @@ public final class DefaultTrackSelectorTest {
             MimeTypes.AUDIO_AAC,
             /* codecs= */ null,
             /* bitrate= */ 15000,
+            /* peakBitrate= */ Format.NO_VALUE,
             /* maxInputSize= */ Format.NO_VALUE,
             /* channelCount= */ 2,
             /* sampleRate= */ 44100,
@@ -743,6 +751,7 @@ public final class DefaultTrackSelectorTest {
             MimeTypes.AUDIO_AAC,
             /* codecs= */ null,
             /* bitrate= */ 30000,
+            /* peakBitrate= */ Format.NO_VALUE,
             /* maxInputSize= */ Format.NO_VALUE,
             /* channelCount= */ 2,
             /* sampleRate= */ 44100,
@@ -775,6 +784,7 @@ public final class DefaultTrackSelectorTest {
             MimeTypes.AUDIO_AAC,
             /* codecs= */ null,
             /* bitrate= */ 15000,
+            /* peakBitrate= */ Format.NO_VALUE,
             /* maxInputSize= */ Format.NO_VALUE,
             /* channelCount= */ 2,
             /* sampleRate= */ 44100,
@@ -788,6 +798,7 @@ public final class DefaultTrackSelectorTest {
             MimeTypes.AUDIO_AAC,
             /* codecs= */ null,
             /* bitrate= */ 30000,
+            /* peakBitrate= */ Format.NO_VALUE,
             /* maxInputSize= */ Format.NO_VALUE,
             /* channelCount= */ 2,
             /* sampleRate= */ 44100,
@@ -820,6 +831,7 @@ public final class DefaultTrackSelectorTest {
             null,
             Format.NO_VALUE,
             Format.NO_VALUE,
+            Format.NO_VALUE,
             6,
             22050,
             null,
@@ -828,7 +840,7 @@ public final class DefaultTrackSelectorTest {
             null);
     Format lowerChannelHigherSampleRateFormat =
         Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
-            Format.NO_VALUE, 2, 44100, null, null, 0, null);
+            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, null);
     TrackGroupArray trackGroups =
         wrapFormats(higherChannelLowerSampleRateFormat, lowerChannelHigherSampleRateFormat);
 
@@ -851,10 +863,10 @@ public final class DefaultTrackSelectorTest {
       throws Exception {
     Format higherSampleRateLowerBitrateFormat =
         Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, 15000,
-            Format.NO_VALUE, 2, 44100, null, null, 0, null);
+            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, null);
     Format lowerSampleRateHigherBitrateFormat =
         Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, 30000,
-            Format.NO_VALUE, 2, 22050, null, null, 0, null);
+            Format.NO_VALUE, Format.NO_VALUE, 2, 22050, null, null, 0, null);
     TrackGroupArray trackGroups =
         wrapFormats(higherSampleRateLowerBitrateFormat, lowerSampleRateHigherBitrateFormat);
 
@@ -881,6 +893,7 @@ public final class DefaultTrackSelectorTest {
             null,
             Format.NO_VALUE,
             Format.NO_VALUE,
+            Format.NO_VALUE,
             6,
             44100,
             null,
@@ -889,7 +902,7 @@ public final class DefaultTrackSelectorTest {
             null);
     Format lowerChannelFormat =
         Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
-            Format.NO_VALUE, 2, 44100, null, null, 0, null);
+            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, null);
     TrackGroupArray trackGroups = wrapFormats(higherChannelFormat, lowerChannelFormat);
 
     TrackSelectorResult result =
@@ -910,10 +923,10 @@ public final class DefaultTrackSelectorTest {
       throws Exception {
     Format lowerSampleRateFormat =
         Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
-            Format.NO_VALUE, 2, 22050, null, null, 0, null);
+            Format.NO_VALUE, Format.NO_VALUE, 2, 22050, null, null, 0, null);
     Format higherSampleRateFormat =
         Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
-            Format.NO_VALUE, 2, 44100, null, null, 0, null);
+            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, null);
     TrackGroupArray trackGroups = wrapFormats(higherSampleRateFormat, lowerSampleRateFormat);
 
     TrackSelectorResult result =
@@ -934,10 +947,10 @@ public final class DefaultTrackSelectorTest {
       throws Exception {
     Format lowerBitrateFormat =
         Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, 15000,
-            Format.NO_VALUE, 2, 44100, null, null, 0, null);
+            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, null);
     Format higherBitrateFormat =
         Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, 30000,
-            Format.NO_VALUE, 2, 44100, null, null, 0, null);
+            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, null);
     TrackGroupArray trackGroups = wrapFormats(lowerBitrateFormat, higherBitrateFormat);
 
     TrackSelectorResult result =
@@ -959,10 +972,10 @@ public final class DefaultTrackSelectorTest {
       throws Exception {
     Format lowerChannelHigherSampleRateFormat =
         Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
-            Format.NO_VALUE, 2, 44100, null, null, 0, null);
+            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, null);
     Format higherChannelLowerSampleRateFormat =
         Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
-            Format.NO_VALUE, 6, 22050, null, null, 0, null);
+            Format.NO_VALUE, Format.NO_VALUE, 6, 22050, null, null, 0, null);
     TrackGroupArray trackGroups =
         wrapFormats(higherChannelLowerSampleRateFormat, lowerChannelHigherSampleRateFormat);
 
@@ -985,10 +998,10 @@ public final class DefaultTrackSelectorTest {
       throws Exception {
     Format higherSampleRateLowerBitrateFormat =
         Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, 15000,
-            Format.NO_VALUE, 2, 44100, null, null, 0, null);
+            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, null);
     Format lowerSampleRateHigherBitrateFormat =
         Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, 30000,
-            Format.NO_VALUE, 2, 22050, null, null, 0, null);
+            Format.NO_VALUE, Format.NO_VALUE, 2, 22050, null, null, 0, null);
     TrackGroupArray trackGroups =
         wrapFormats(higherSampleRateLowerBitrateFormat, lowerSampleRateHigherBitrateFormat);
 
@@ -1638,6 +1651,7 @@ public final class DefaultTrackSelectorTest {
         null,
         Format.NO_VALUE,
         Format.NO_VALUE,
+        Format.NO_VALUE,
         1024,
         768,
         Format.NO_VALUE,
@@ -1733,6 +1747,7 @@ public final class DefaultTrackSelectorTest {
         mimeType,
         /* codecs= */ null,
         bitrate,
+        /* peakBitrate= */ Format.NO_VALUE,
         /* maxInputSize= */ Format.NO_VALUE,
         channelCount,
         sampleRate,
@@ -1754,6 +1769,7 @@ public final class DefaultTrackSelectorTest {
         /* sampleMimeType= */ MimeTypes.TEXT_VTT,
         /* codecs= */ null,
         /* bitrate= */ Format.NO_VALUE,
+        /* peakBitrate= */ Format.NO_VALUE,
         selectionFlags,
         /* roleFlags= */ 0,
         language);

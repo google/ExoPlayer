@@ -209,6 +209,7 @@ public final class Mp3Extractor implements Extractor {
               synchronizedHeader.mimeType,
               /* codecs= */ null,
               /* bitrate= */ Format.NO_VALUE,
+              /* peakBitrate= */ Format.NO_VALUE,
               MpegAudioHeader.MAX_FRAME_SIZE_BYTES,
               synchronizedHeader.channels,
               synchronizedHeader.sampleRate,

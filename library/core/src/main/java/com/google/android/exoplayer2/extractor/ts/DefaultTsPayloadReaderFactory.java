@@ -260,6 +260,7 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
                   mimeType,
                   /* codecs= */ null,
                   /* bitrate= */ Format.NO_VALUE,
+                  /* peakBitrate= */ Format.NO_VALUE,
                   /* selectionFlags= */ 0,
                   language,
                   accessibilityChannel,

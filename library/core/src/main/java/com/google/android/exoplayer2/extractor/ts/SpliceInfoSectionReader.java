@@ -39,7 +39,7 @@ public final class SpliceInfoSectionReader implements SectionPayloadReader {
     idGenerator.generateNewId();
     output = extractorOutput.track(idGenerator.getTrackId(), C.TRACK_TYPE_METADATA);
     output.format(Format.createSampleFormat(idGenerator.getFormatId(), MimeTypes.APPLICATION_SCTE35,
-        null, Format.NO_VALUE, null));
+        null, Format.NO_VALUE, Format.NO_VALUE, null));
   }
 
   @Override

@@ -94,7 +94,8 @@ public final class DtsUtil {
     frameBits.skipBits(10); // MIX, DYNF, TIMEF, AUXF, HDCD, EXT_AUDIO_ID, EXT_AUDIO, ASPF
     channelCount += frameBits.readBits(2) > 0 ? 1 : 0; // LFF
     return Format.createAudioSampleFormat(trackId, MimeTypes.AUDIO_DTS, null, bitrate,
-        Format.NO_VALUE, channelCount, sampleRate, null, drmInitData, 0, language);
+        Format.NO_VALUE, Format.NO_VALUE, channelCount, sampleRate,
+        null, drmInitData, 0, language);
   }
 
   /**

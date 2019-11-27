@@ -58,6 +58,10 @@ public final class Format implements Parcelable {
    * The average bandwidth in bits per second, or {@link #NO_VALUE} if unknown or not applicable.
    */
   public final int bitrate;
+  /**
+   * The peak bandwidth in bits per second, or {@link #NO_VALUE} if unknown or not applicable.
+   */
+  public final int peakBitrate;
   /** Codecs of the format as described in RFC 6381, or null if unknown or not applicable. */
   @Nullable public final String codecs;
   /** Metadata, or null if unknown or not applicable. */
@@ -181,7 +185,7 @@ public final class Format implements Parcelable {
 
   /**
    * @deprecated Use {@link #createVideoContainerFormat(String, String, String, String, String,
-   *     Metadata, int, int, int, float, List, int, int)} instead.
+   *     Metadata, int, int, int, int, float, List, int, int)} instead.
    */
   @Deprecated
   public static Format createVideoContainerFormat(
@@ -190,6 +194,7 @@ public final class Format implements Parcelable {
       @Nullable String sampleMimeType,
       @Nullable String codecs,
       int bitrate,
+      int peakBitrate,
       int width,
       int height,
       float frameRate,
@@ -203,6 +208,7 @@ public final class Format implements Parcelable {
         codecs,
         /* metadata= */ null,
         bitrate,
+        peakBitrate,
         width,
         height,
         frameRate,
@@ -219,6 +225,7 @@ public final class Format implements Parcelable {
       @Nullable String codecs,
       @Nullable Metadata metadata,
       int bitrate,
+      int peakBitrate,
       int width,
       int height,
       float frameRate,
@@ -231,6 +238,7 @@ public final class Format implements Parcelable {
         selectionFlags,
         roleFlags,
         bitrate,
+        peakBitrate,
         codecs,
         metadata,
         containerMimeType,
@@ -262,6 +270,7 @@ public final class Format implements Parcelable {
       @Nullable String sampleMimeType,
       @Nullable String codecs,
       int bitrate,
+      int peakBitrate,
       int maxInputSize,
       int width,
       int height,
@@ -273,6 +282,7 @@ public final class Format implements Parcelable {
         sampleMimeType,
         codecs,
         bitrate,
+        peakBitrate,
         maxInputSize,
         width,
         height,
@@ -288,6 +298,7 @@ public final class Format implements Parcelable {
       @Nullable String sampleMimeType,
       @Nullable String codecs,
       int bitrate,
+      int peakBitrate,
       int maxInputSize,
       int width,
       int height,
@@ -301,6 +312,7 @@ public final class Format implements Parcelable {
         sampleMimeType,
         codecs,
         bitrate,
+        peakBitrate,
         maxInputSize,
         width,
         height,
@@ -319,6 +331,7 @@ public final class Format implements Parcelable {
       @Nullable String sampleMimeType,
       @Nullable String codecs,
       int bitrate,
+      int peakBitrate,
       int maxInputSize,
       int width,
       int height,
@@ -336,6 +349,7 @@ public final class Format implements Parcelable {
         /* selectionFlags= */ 0,
         /* roleFlags= */ 0,
         bitrate,
+        peakBitrate,
         codecs,
         /* metadata= */ null,
         /* containerMimeType= */ null,
@@ -366,7 +380,7 @@ public final class Format implements Parcelable {
 
   /**
    * @deprecated Use {@link #createAudioContainerFormat(String, String, String, String, String,
-   *     Metadata, int, int, int, List, int, int, String)} instead.
+   *     Metadata, int, int, int, int, List, int, int, String)} instead.
    */
   @Deprecated
   public static Format createAudioContainerFormat(
@@ -375,6 +389,7 @@ public final class Format implements Parcelable {
       @Nullable String sampleMimeType,
       @Nullable String codecs,
       int bitrate,
+      int peakBitrate,
       int channelCount,
       int sampleRate,
       @Nullable List<byte[]> initializationData,
@@ -388,6 +403,7 @@ public final class Format implements Parcelable {
         codecs,
         /* metadata= */ null,
         bitrate,
+        peakBitrate,
         channelCount,
         sampleRate,
         initializationData,
@@ -404,6 +420,7 @@ public final class Format implements Parcelable {
       @Nullable String codecs,
       @Nullable Metadata metadata,
       int bitrate,
+      int peakBitrate,
       int channelCount,
       int sampleRate,
       @Nullable List<byte[]> initializationData,
@@ -416,6 +433,7 @@ public final class Format implements Parcelable {
         selectionFlags,
         roleFlags,
         bitrate,
+        peakBitrate,
         codecs,
         metadata,
         containerMimeType,
@@ -447,6 +465,7 @@ public final class Format implements Parcelable {
       @Nullable String sampleMimeType,
       @Nullable String codecs,
       int bitrate,
+      int peakBitrate,
       int maxInputSize,
       int channelCount,
       int sampleRate,
@@ -459,6 +478,7 @@ public final class Format implements Parcelable {
         sampleMimeType,
         codecs,
         bitrate,
+        peakBitrate,
         maxInputSize,
         channelCount,
         sampleRate,
@@ -474,6 +494,7 @@ public final class Format implements Parcelable {
       @Nullable String sampleMimeType,
       @Nullable String codecs,
       int bitrate,
+      int peakBitrate,
       int maxInputSize,
       int channelCount,
       int sampleRate,
@@ -487,6 +508,7 @@ public final class Format implements Parcelable {
         sampleMimeType,
         codecs,
         bitrate,
+        peakBitrate,
         maxInputSize,
         channelCount,
         sampleRate,
@@ -505,6 +527,7 @@ public final class Format implements Parcelable {
       @Nullable String sampleMimeType,
       @Nullable String codecs,
       int bitrate,
+      int peakBitrate,
       int maxInputSize,
       int channelCount,
       int sampleRate,
@@ -522,6 +545,7 @@ public final class Format implements Parcelable {
         selectionFlags,
         /* roleFlags= */ 0,
         bitrate,
+        peakBitrate,
         codecs,
         metadata,
         /* containerMimeType= */ null,
@@ -557,6 +581,7 @@ public final class Format implements Parcelable {
       @Nullable String sampleMimeType,
       @Nullable String codecs,
       int bitrate,
+      int peakBitrate,
       @C.SelectionFlags int selectionFlags,
       @C.RoleFlags int roleFlags,
       @Nullable String language) {
@@ -567,6 +592,7 @@ public final class Format implements Parcelable {
         sampleMimeType,
         codecs,
         bitrate,
+        peakBitrate,
         selectionFlags,
         roleFlags,
         language,
@@ -580,6 +606,7 @@ public final class Format implements Parcelable {
       @Nullable String sampleMimeType,
       @Nullable String codecs,
       int bitrate,
+      int peakBitrate,
       @C.SelectionFlags int selectionFlags,
       @C.RoleFlags int roleFlags,
       @Nullable String language,
@@ -590,6 +617,7 @@ public final class Format implements Parcelable {
         selectionFlags,
         roleFlags,
         bitrate,
+        peakBitrate,
         codecs,
         /* metadata= */ null,
         containerMimeType,
@@ -635,6 +663,7 @@ public final class Format implements Parcelable {
         sampleMimeType,
         /* codecs= */ null,
         /* bitrate= */ NO_VALUE,
+        /* peakBitrate= */ NO_VALUE,
         selectionFlags,
         language,
         NO_VALUE,
@@ -648,6 +677,7 @@ public final class Format implements Parcelable {
       @Nullable String sampleMimeType,
       @Nullable String codecs,
       int bitrate,
+      int peakBitrate,
       @C.SelectionFlags int selectionFlags,
       @Nullable String language,
       int accessibilityChannel,
@@ -657,6 +687,7 @@ public final class Format implements Parcelable {
         sampleMimeType,
         codecs,
         bitrate,
+        peakBitrate,
         selectionFlags,
         language,
         accessibilityChannel,
@@ -670,6 +701,7 @@ public final class Format implements Parcelable {
       @Nullable String sampleMimeType,
       @Nullable String codecs,
       int bitrate,
+      int peakBitrate,
       @C.SelectionFlags int selectionFlags,
       @Nullable String language,
       @Nullable DrmInitData drmInitData,
@@ -679,6 +711,7 @@ public final class Format implements Parcelable {
         sampleMimeType,
         codecs,
         bitrate,
+        peakBitrate,
         selectionFlags,
         language,
         /* accessibilityChannel= */ NO_VALUE,
@@ -692,6 +725,7 @@ public final class Format implements Parcelable {
       @Nullable String sampleMimeType,
       @Nullable String codecs,
       int bitrate,
+      int peakBitrate,
       @C.SelectionFlags int selectionFlags,
       @Nullable String language,
       int accessibilityChannel,
@@ -704,6 +738,7 @@ public final class Format implements Parcelable {
         selectionFlags,
         /* roleFlags= */ 0,
         bitrate,
+        peakBitrate,
         codecs,
         /* metadata= */ null,
         /* containerMimeType= */ null,
@@ -737,6 +772,7 @@ public final class Format implements Parcelable {
       @Nullable String sampleMimeType,
       @Nullable String codecs,
       int bitrate,
+      int peakBitrate,
       @C.SelectionFlags int selectionFlags,
       @Nullable List<byte[]> initializationData,
       @Nullable String language,
@@ -747,6 +783,7 @@ public final class Format implements Parcelable {
         selectionFlags,
         /* roleFlags= */ 0,
         bitrate,
+        peakBitrate,
         codecs,
         /* metadata=*/ null,
         /* containerMimeType= */ null,
@@ -777,7 +814,7 @@ public final class Format implements Parcelable {
 
   /**
    * @deprecated Use {@link #createContainerFormat(String, String, String, String, String, int, int,
-   *     int, String)} instead.
+   *     int, int, String)} instead.
    */
   @Deprecated
   public static Format createContainerFormat(
@@ -786,6 +823,7 @@ public final class Format implements Parcelable {
       @Nullable String sampleMimeType,
       @Nullable String codecs,
       int bitrate,
+      int peakBitrate,
       @C.SelectionFlags int selectionFlags,
       @Nullable String language) {
     return createContainerFormat(
@@ -795,6 +833,7 @@ public final class Format implements Parcelable {
         sampleMimeType,
         codecs,
         bitrate,
+        peakBitrate,
         selectionFlags,
         /* roleFlags= */ 0,
         language);
@@ -807,6 +846,7 @@ public final class Format implements Parcelable {
       @Nullable String sampleMimeType,
       @Nullable String codecs,
       int bitrate,
+      int peakBitrate,
       @C.SelectionFlags int selectionFlags,
       @C.RoleFlags int roleFlags,
       @Nullable String language) {
@@ -816,6 +856,7 @@ public final class Format implements Parcelable {
         selectionFlags,
         roleFlags,
         bitrate,
+        peakBitrate,
         codecs,
         /* metadata= */ null,
         containerMimeType,
@@ -850,6 +891,7 @@ public final class Format implements Parcelable {
         /* selectionFlags= */ 0,
         /* roleFlags= */ 0,
         /* bitrate= */ NO_VALUE,
+        /* peakBitrate= */ NO_VALUE,
         /* codecs= */ null,
         /* metadata= */ null,
         /* containerMimeType= */ null,
@@ -881,6 +923,7 @@ public final class Format implements Parcelable {
       @Nullable String sampleMimeType,
       @Nullable String codecs,
       int bitrate,
+      int peakBitrate,
       @Nullable DrmInitData drmInitData) {
     return new Format(
         id,
@@ -888,6 +931,7 @@ public final class Format implements Parcelable {
         /* selectionFlags= */ 0,
         /* roleFlags= */ 0,
         bitrate,
+        peakBitrate,
         codecs,
         /* metadata= */ null,
         /* containerMimeType= */ null,
@@ -920,6 +964,7 @@ public final class Format implements Parcelable {
       @C.SelectionFlags int selectionFlags,
       @C.RoleFlags int roleFlags,
       int bitrate,
+      int peakBitrate,
       @Nullable String codecs,
       @Nullable Metadata metadata,
       // Container specific.
@@ -955,6 +1000,7 @@ public final class Format implements Parcelable {
     this.selectionFlags = selectionFlags;
     this.roleFlags = roleFlags;
     this.bitrate = bitrate;
+    this.peakBitrate = peakBitrate;
     this.codecs = codecs;
     this.metadata = metadata;
     // Container specific.
@@ -996,6 +1042,7 @@ public final class Format implements Parcelable {
     selectionFlags = in.readInt();
     roleFlags = in.readInt();
     bitrate = in.readInt();
+    peakBitrate = in.readInt();
     codecs = in.readString();
     metadata = in.readParcelable(Metadata.class.getClassLoader());
     // Container specific.
@@ -1040,6 +1087,7 @@ public final class Format implements Parcelable {
         selectionFlags,
         roleFlags,
         bitrate,
+        peakBitrate,
         codecs,
         metadata,
         containerMimeType,
@@ -1073,6 +1121,7 @@ public final class Format implements Parcelable {
         selectionFlags,
         roleFlags,
         bitrate,
+        peakBitrate,
         codecs,
         metadata,
         containerMimeType,
@@ -1106,6 +1155,7 @@ public final class Format implements Parcelable {
         selectionFlags,
         roleFlags,
         bitrate,
+        peakBitrate,
         codecs,
         metadata,
         containerMimeType,
@@ -1139,6 +1189,7 @@ public final class Format implements Parcelable {
       @Nullable String codecs,
       @Nullable Metadata metadata,
       int bitrate,
+      int peakBitrate,
       int width,
       int height,
       int channelCount,
@@ -1155,6 +1206,7 @@ public final class Format implements Parcelable {
         selectionFlags,
         roleFlags,
         bitrate,
+        peakBitrate,
         codecs,
         metadata,
         containerMimeType,
@@ -1203,6 +1255,7 @@ public final class Format implements Parcelable {
 
     // Prefer sample format values, but fill in from manifest if missing.
     int bitrate = this.bitrate == NO_VALUE ? manifestFormat.bitrate : this.bitrate;
+    int peakBitrate = this.peakBitrate == NO_VALUE ? manifestFormat.peakBitrate : this.peakBitrate;
     String codecs = this.codecs;
     if (codecs == null) {
       // The manifest format may be muxed, so filter only codecs of this format's type. If we still
@@ -1235,6 +1288,7 @@ public final class Format implements Parcelable {
         selectionFlags,
         roleFlags,
         bitrate,
+        peakBitrate,
         codecs,
         metadata,
         containerMimeType,
@@ -1268,6 +1322,7 @@ public final class Format implements Parcelable {
         selectionFlags,
         roleFlags,
         bitrate,
+        peakBitrate,
         codecs,
         metadata,
         containerMimeType,
@@ -1301,6 +1356,7 @@ public final class Format implements Parcelable {
         selectionFlags,
         roleFlags,
         bitrate,
+        peakBitrate,
         codecs,
         metadata,
         containerMimeType,
@@ -1347,6 +1403,7 @@ public final class Format implements Parcelable {
         selectionFlags,
         roleFlags,
         bitrate,
+        peakBitrate,
         codecs,
         metadata,
         containerMimeType,
@@ -1380,6 +1437,7 @@ public final class Format implements Parcelable {
         selectionFlags,
         roleFlags,
         bitrate,
+        peakBitrate,
         codecs,
         metadata,
         containerMimeType,
@@ -1413,6 +1471,41 @@ public final class Format implements Parcelable {
         selectionFlags,
         roleFlags,
         bitrate,
+        peakBitrate,
+        codecs,
+        metadata,
+        containerMimeType,
+        sampleMimeType,
+        maxInputSize,
+        initializationData,
+        drmInitData,
+        subsampleOffsetUs,
+        width,
+        height,
+        frameRate,
+        rotationDegrees,
+        pixelWidthHeightRatio,
+        projectionData,
+        stereoMode,
+        colorInfo,
+        channelCount,
+        sampleRate,
+        pcmEncoding,
+        encoderDelay,
+        encoderPadding,
+        language,
+        accessibilityChannel,
+        exoMediaCryptoType);
+  }
+
+  public Format copyWithPeakBitrate(int peakBitrate) {
+    return new Format(
+        id,
+        label,
+        selectionFlags,
+        roleFlags,
+        bitrate,
+        peakBitrate,
         codecs,
         metadata,
         containerMimeType,
@@ -1446,6 +1539,7 @@ public final class Format implements Parcelable {
         selectionFlags,
         roleFlags,
         bitrate,
+        peakBitrate,
         codecs,
         metadata,
         containerMimeType,
@@ -1480,6 +1574,7 @@ public final class Format implements Parcelable {
         selectionFlags,
         roleFlags,
         bitrate,
+        peakBitrate,
         codecs,
         metadata,
         containerMimeType,
@@ -1529,6 +1624,8 @@ public final class Format implements Parcelable {
         + ", "
         + bitrate
         + ", "
+        + peakBitrate
+        + ", "
         + language
         + ", ["
         + width
@@ -1554,6 +1651,7 @@ public final class Format implements Parcelable {
       result = 31 * result + selectionFlags;
       result = 31 * result + roleFlags;
       result = 31 * result + bitrate;
+      result = 31 * result + peakBitrate;
       result = 31 * result + (codecs == null ? 0 : codecs.hashCode());
       result = 31 * result + (metadata == null ? 0 : metadata.hashCode());
       // Container specific.
@@ -1605,6 +1703,7 @@ public final class Format implements Parcelable {
     return selectionFlags == other.selectionFlags
         && roleFlags == other.roleFlags
         && bitrate == other.bitrate
+        && peakBitrate == other.peakBitrate
         && maxInputSize == other.maxInputSize
         && subsampleOffsetUs == other.subsampleOffsetUs
         && width == other.width
@@ -1665,6 +1764,9 @@ public final class Format implements Parcelable {
     if (format.bitrate != Format.NO_VALUE) {
       builder.append(", bitrate=").append(format.bitrate);
     }
+    if (format.peakBitrate != Format.NO_VALUE) {
+      builder.append(", peakBitrate=").append(format.peakBitrate);
+    }
     if (format.codecs != null) {
       builder.append(", codecs=").append(format.codecs);
     }
@@ -1703,6 +1805,7 @@ public final class Format implements Parcelable {
     dest.writeInt(selectionFlags);
     dest.writeInt(roleFlags);
     dest.writeInt(bitrate);
+    dest.writeInt(peakBitrate);
     dest.writeString(codecs);
     dest.writeParcelable(metadata, 0);
     // Container specific.

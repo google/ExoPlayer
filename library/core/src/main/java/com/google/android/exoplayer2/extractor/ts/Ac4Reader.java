@@ -199,6 +199,7 @@ public final class Ac4Reader implements ElementaryStreamReader {
               MimeTypes.AUDIO_AC4,
               /* codecs= */ null,
               /* bitrate= */ Format.NO_VALUE,
+              /* peakBitrate= */ Format.NO_VALUE,
               /* maxInputSize= */ Format.NO_VALUE,
               frameInfo.channelCount,
               frameInfo.sampleRate,

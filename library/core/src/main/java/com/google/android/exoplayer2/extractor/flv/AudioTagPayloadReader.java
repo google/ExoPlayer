@@ -63,7 +63,8 @@ import java.util.Collections;
         int sampleRateIndex = (header >> 2) & 0x03;
         int sampleRate = AUDIO_SAMPLING_RATE_TABLE[sampleRateIndex];
         Format format = Format.createAudioSampleFormat(null, MimeTypes.AUDIO_MPEG, null,
-            Format.NO_VALUE, Format.NO_VALUE, 1, sampleRate, null, null, 0, null);
+            Format.NO_VALUE, Format.NO_VALUE, Format.NO_VALUE, 1, sampleRate,
+            null, null, 0, null);
         output.format(format);
         hasOutputFormat = true;
       } else if (audioFormat == AUDIO_FORMAT_ALAW || audioFormat == AUDIO_FORMAT_ULAW) {
@@ -101,7 +102,8 @@ import java.util.Collections;
         Pair<Integer, Integer> audioParams = CodecSpecificDataUtil.parseAacAudioSpecificConfig(
             audioSpecificConfig);
         Format format = Format.createAudioSampleFormat(null, MimeTypes.AUDIO_AAC, null,
-            Format.NO_VALUE, Format.NO_VALUE, audioParams.second, audioParams.first,
+            Format.NO_VALUE, Format.NO_VALUE, Format.NO_VALUE,
+            audioParams.second, audioParams.first,
             Collections.singletonList(audioSpecificConfig), null, 0, null);
         output.format(format);
         hasOutputFormat = true;

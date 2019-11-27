@@ -38,6 +38,7 @@ public final class RawCcExtractorTest {
                     /* sampleMimeType= */ MimeTypes.APPLICATION_CEA608,
                     /* codecs= */ "cea608",
                     /* bitrate= */ Format.NO_VALUE,
+                    /* peakBitrate= */ Format.NO_VALUE,
                     /* selectionFlags= */ 0,
                     /* roleFlags= */ 0,
                     /* language= */ null,

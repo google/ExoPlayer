@@ -134,7 +134,8 @@ public final class AdtsReader implements ElementaryStreamReader {
       idGenerator.generateNewId();
       id3Output = extractorOutput.track(idGenerator.getTrackId(), C.TRACK_TYPE_METADATA);
       id3Output.format(Format.createSampleFormat(idGenerator.getFormatId(),
-          MimeTypes.APPLICATION_ID3, null, Format.NO_VALUE, null));
+          MimeTypes.APPLICATION_ID3, null,
+          Format.NO_VALUE, Format.NO_VALUE, null));
     } else {
       id3Output = new DummyTrackOutput();
     }
@@ -467,7 +468,8 @@ public final class AdtsReader implements ElementaryStreamReader {
           audioSpecificConfig);
 
       Format format = Format.createAudioSampleFormat(formatId, MimeTypes.AUDIO_AAC, null,
-          Format.NO_VALUE, Format.NO_VALUE, audioParams.second, audioParams.first,
+          Format.NO_VALUE, Format.NO_VALUE, Format.NO_VALUE,
+          audioParams.second, audioParams.first,
           Collections.singletonList(audioSpecificConfig), null, 0, language);
       // In this class a sample is an access unit, but the MediaFormat sample rate specifies the
       // number of PCM audio samples per second.

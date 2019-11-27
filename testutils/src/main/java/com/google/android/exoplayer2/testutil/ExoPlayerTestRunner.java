@@ -60,14 +60,14 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
      * A generic video {@link Format} which can be used to set up media sources and renderers.
      */
     public static final Format VIDEO_FORMAT = Format.createVideoSampleFormat(null,
-        MimeTypes.VIDEO_H264, null, Format.NO_VALUE, Format.NO_VALUE, 1280, 720, Format.NO_VALUE,
+        MimeTypes.VIDEO_H264, null, Format.NO_VALUE, Format.NO_VALUE, Format.NO_VALUE, 1280, 720, Format.NO_VALUE,
         null, null);
 
     /**
      * A generic audio {@link Format} which can be used to set up media sources and renderers.
      */
     public static final Format AUDIO_FORMAT = Format.createAudioSampleFormat(null,
-        MimeTypes.AUDIO_AAC, null, Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, null);
+        MimeTypes.AUDIO_AAC, null, Format.NO_VALUE, Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, null);
 
     private Clock clock;
     private Timeline timeline;

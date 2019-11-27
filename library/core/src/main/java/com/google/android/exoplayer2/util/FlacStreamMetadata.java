@@ -220,6 +220,7 @@ public final class FlacStreamMetadata {
         MimeTypes.AUDIO_FLAC,
         /* codecs= */ null,
         getBitRate(),
+        /* peakBitrate= */ Format.NO_VALUE,
         maxInputSize,
         channels,
         sampleRate,

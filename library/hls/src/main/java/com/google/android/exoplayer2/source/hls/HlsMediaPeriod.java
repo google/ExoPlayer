@@ -665,6 +665,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
                   MimeTypes.APPLICATION_ID3,
                   /* codecs= */ null,
                   /* bitrate= */ Format.NO_VALUE,
+                  /* peakBitrate= */ Format.NO_VALUE,
                   /* drmInitData= */ null));
       muxedTrackGroups.add(id3TrackGroup);
 
@@ -801,6 +802,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
         codecs,
         variantFormat.metadata,
         variantFormat.bitrate,
+        variantFormat.peakBitrate,
         variantFormat.width,
         variantFormat.height,
         variantFormat.frameRate,
@@ -847,6 +849,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
         codecs,
         metadata,
         bitrate,
+        variantFormat.peakBitrate,
         channelCount,
         /* sampleRate= */ Format.NO_VALUE,
         /* initializationData= */ null,

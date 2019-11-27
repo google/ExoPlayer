@@ -69,6 +69,7 @@ public final class FormatTest {
             C.SELECTION_FLAG_DEFAULT,
             C.ROLE_FLAG_MAIN,
             /* bitrate= */ 1024,
+            /* peakBitrate= */ 2048,
             "codec",
             metadata,
             /* containerMimeType= */ MimeTypes.VIDEO_MP4,

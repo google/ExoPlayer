@@ -56,6 +56,7 @@ public final class SeiReader {
               channelMimeType,
               /* codecs= */ null,
               /* bitrate= */ Format.NO_VALUE,
+              /* peakBitrate= */ Format.NO_VALUE,
               channelFormat.selectionFlags,
               channelFormat.language,
               channelFormat.accessibilityChannel,

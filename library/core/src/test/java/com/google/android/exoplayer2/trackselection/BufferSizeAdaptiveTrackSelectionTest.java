@@ -234,6 +234,7 @@ public final class BufferSizeAdaptiveTrackSelectionTest {
         /* sampleMimeType= */ MimeTypes.VIDEO_H264,
         /* codecs= */ null,
         /* bitrate= */ bitrate,
+        /* peakBitrate= */ Format.NO_VALUE,
         /* maxInputSize= */ Format.NO_VALUE,
         /* width= */ width,
         /* height= */ height,

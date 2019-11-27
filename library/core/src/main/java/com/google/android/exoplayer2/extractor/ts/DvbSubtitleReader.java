@@ -66,6 +66,7 @@ public final class DvbSubtitleReader implements ElementaryStreamReader {
               MimeTypes.APPLICATION_DVBSUBS,
               null,
               Format.NO_VALUE,
+              Format.NO_VALUE,
               0,
               Collections.singletonList(subtitleInfo.initializationData),
               subtitleInfo.language,

@@ -109,6 +109,7 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
               /* sampleMimeType= */ null,
               /* codecs= */ null,
               /* bitrate= */ Format.NO_VALUE,
+              /* peakBitrate= */ Format.NO_VALUE,
               /* selectionFlags= */ 0,
               /* roleFlags= */ 0,
               /* language= */ null);

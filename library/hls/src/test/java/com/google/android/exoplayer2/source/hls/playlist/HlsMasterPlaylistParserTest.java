@@ -236,14 +236,17 @@ public class HlsMasterPlaylistParserTest {
   }
 
   @Test
-  public void testMasterPlaylistWithBandwdithAverage() throws IOException {
+  public void testMasterPlaylistWithBandwidthAverage() throws IOException {
     HlsMasterPlaylist masterPlaylist =
         parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_AVG_BANDWIDTH);
 
     List<HlsMasterPlaylist.Variant> variants = masterPlaylist.variants;
 
     assertThat(variants.get(0).format.bitrate).isEqualTo(1280000);
+    assertThat(variants.get(0).format.peakBitrate).isEqualTo(Format.NO_VALUE);
+
     assertThat(variants.get(1).format.bitrate).isEqualTo(1270000);
+    assertThat(variants.get(1).format.peakBitrate).isEqualTo(1280000);
   }
 
   @Test

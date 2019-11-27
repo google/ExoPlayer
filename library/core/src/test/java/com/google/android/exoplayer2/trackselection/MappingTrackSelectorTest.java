@@ -47,10 +47,10 @@ public final class MappingTrackSelectorTest {
   };
   private static final TrackGroup VIDEO_TRACK_GROUP = new TrackGroup(
       Format.createVideoSampleFormat("video", MimeTypes.VIDEO_H264, null, Format.NO_VALUE,
-          Format.NO_VALUE, 1024, 768, Format.NO_VALUE, null, null));
+          Format.NO_VALUE, Format.NO_VALUE, 1024, 768, Format.NO_VALUE, null, null));
   private static final TrackGroup AUDIO_TRACK_GROUP = new TrackGroup(
       Format.createAudioSampleFormat("audio", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
-          Format.NO_VALUE, 2, 44100, null, null, 0, null));
+          Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, null));
   private static final TrackGroupArray TRACK_GROUPS = new TrackGroupArray(
       VIDEO_TRACK_GROUP, AUDIO_TRACK_GROUP);
   private static final Timeline TIMELINE = new FakeTimeline(/* windowCount= */ 1);

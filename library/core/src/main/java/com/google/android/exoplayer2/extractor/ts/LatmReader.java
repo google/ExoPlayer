@@ -199,7 +199,7 @@ public final class LatmReader implements ElementaryStreamReader {
         byte[] initData = new byte[(readBits + 7) / 8];
         data.readBits(initData, 0, readBits);
         Format format = Format.createAudioSampleFormat(formatId, MimeTypes.AUDIO_AAC, null,
-            Format.NO_VALUE, Format.NO_VALUE, channelCount, sampleRateHz,
+            Format.NO_VALUE, Format.NO_VALUE, Format.NO_VALUE, channelCount, sampleRateHz,
             Collections.singletonList(initData), null, 0, language);
         if (!format.equals(this.format)) {
           this.format = format;

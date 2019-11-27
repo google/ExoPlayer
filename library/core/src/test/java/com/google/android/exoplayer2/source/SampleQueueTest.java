@@ -65,6 +65,7 @@ public final class SampleQueueTest {
           "mimeType",
           /* codecs= */ null,
           /* bitrate= */ Format.NO_VALUE,
+          /* peakBitrate= */ Format.NO_VALUE,
           new DrmInitData());
   private static final byte[] DATA = TestUtil.buildTestData(ALLOCATION_SIZE * 10);
 

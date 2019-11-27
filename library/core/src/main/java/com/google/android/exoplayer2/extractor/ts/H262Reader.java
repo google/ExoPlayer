@@ -241,8 +241,9 @@ public final class H262Reader implements ElementaryStreamReader {
     }
 
     Format format = Format.createVideoSampleFormat(formatId, MimeTypes.VIDEO_MPEG2, null,
-        Format.NO_VALUE, Format.NO_VALUE, width, height, Format.NO_VALUE,
-        Collections.singletonList(csdData), Format.NO_VALUE, pixelWidthHeightRatio, null);
+        Format.NO_VALUE, Format.NO_VALUE, Format.NO_VALUE, width, height, Format.NO_VALUE,
+        Collections.singletonList(csdData), Format.NO_VALUE,
+        pixelWidthHeightRatio, null);
 
     long frameDurationUs = 0;
     int frameRateCodeMinusOne = (csdData[7] & 0x0F) - 1;

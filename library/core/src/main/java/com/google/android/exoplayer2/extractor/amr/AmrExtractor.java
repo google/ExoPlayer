@@ -256,6 +256,7 @@ public final class AmrExtractor implements Extractor {
               mimeType,
               /* codecs= */ null,
               /* bitrate= */ Format.NO_VALUE,
+              /* peakBitrate= */ Format.NO_VALUE,
               MAX_FRAME_SIZE_BYTES,
               /* channelCount= */ 1,
               sampleRate,

@@ -55,6 +55,7 @@ import java.util.List;
               channelMimeType,
               /* codecs= */ null,
               /* bitrate= */ Format.NO_VALUE,
+              /* peakBitrate= */ Format.NO_VALUE,
               channelFormat.selectionFlags,
               channelFormat.language,
               channelFormat.accessibilityChannel,

@@ -196,7 +196,8 @@ public final class Ac3Reader implements ElementaryStreamReader {
         || frameInfo.sampleRate != format.sampleRate
         || frameInfo.mimeType != format.sampleMimeType) {
       format = Format.createAudioSampleFormat(trackFormatId, frameInfo.mimeType, null,
-          Format.NO_VALUE, Format.NO_VALUE, frameInfo.channelCount, frameInfo.sampleRate, null,
+          Format.NO_VALUE, Format.NO_VALUE, Format.NO_VALUE,
+          frameInfo.channelCount, frameInfo.sampleRate, null,
           null, 0, language);
       output.format(format);
     }
