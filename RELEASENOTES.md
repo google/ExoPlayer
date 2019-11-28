@@ -10,13 +10,6 @@
 * Require an end time or duration for SubRip (SRT) and SubStation Alpha
   (SSA/ASS) subtitles. This applies to both sidecar files & subtitles
   [embedded in Matroska streams](https://matroska.org/technical/specs/subtitles/index.html).
-* Improve `Format` propagation within the `MediaCodecRenderer` and subclasses.
-  For example, fix handling of pixel aspect ratio changes in playlists where
-  video resolution does not change.
-  ([#6646](https://github.com/google/ExoPlayer/issues/6646)).
-* Rename `MediaCodecRenderer.onOutputFormatChanged` to
-  `MediaCodecRenderer.onOutputMediaFormatChanged`, further
-  clarifying the distinction between `Format` and `MediaFormat`.
 * Reconfigure audio sink when PCM encoding changes
   ([#6601](https://github.com/google/ExoPlayer/issues/6601)).
 * Make `MediaSourceEventListener.LoadEventInfo` and
