@@ -646,6 +646,11 @@ public final class ImaAdsLoader
   public void release() {
     pendingAdRequestContext = null;
     if (adsManager != null) {
+      adsManager.removeAdErrorListener(this);
+      adsManager.removeAdEventListener(this);
+      if (adEventListener != null) {
+        adsManager.removeAdEventListener(adEventListener);
+      }
       adsManager.destroy();
       adsManager = null;
     }

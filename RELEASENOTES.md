@@ -157,6 +157,9 @@
     [Cast demo app](https://github.com/google/ExoPlayer/tree/dev-v2/demos/cast).
 * TestUtils: Publish the `testutils` module to simplify unit testing with
   ExoPlayer ([#6267](https://github.com/google/ExoPlayer/issues/6267)).
+* IMA extension: Remove `AdsManager` listeners on release to avoid leaking an
+  `AdEventListener` provided by the app
+  ([#6687](https://github.com/google/ExoPlayer/issues/6687)).
 
 ### 2.10.8 (2019-11-19) ###
 
