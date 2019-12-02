@@ -1387,7 +1387,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @param outputMediaFormat The new output {@link MediaFormat}.
    * @throws ExoPlaybackException Thrown if an error occurs handling the new output media format.
    */
-  protected void onOutputFormatChanged(MediaCodec codec, MediaFormat outputMediaFormat)
+  protected void onOutputMediaFormatChanged(MediaCodec codec, MediaFormat outputMediaFormat)
       throws ExoPlaybackException {
     // Do nothing.
   }
@@ -1584,7 +1584,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
       if (outputIndex < 0) {
         if (outputIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED /* (-2) */) {
-          processOutputFormat();
+          processOutputMediaFormat();
           return true;
         } else if (outputIndex == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED /* (-3) */) {
           processOutputBuffersChanged();
@@ -1676,7 +1676,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /** Processes a new output {@link MediaFormat}. */
-  private void processOutputFormat() throws ExoPlaybackException {
+  private void processOutputMediaFormat() throws ExoPlaybackException {
     MediaFormat mediaFormat = codecAdapter.getOutputFormat();
     if (codecAdaptationWorkaroundMode != ADAPTATION_WORKAROUND_MODE_NEVER
         && mediaFormat.getInteger(MediaFormat.KEY_WIDTH) == ADAPTATION_WORKAROUND_SLICE_WIDTH_HEIGHT
@@ -1689,7 +1689,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     if (codecNeedsMonoChannelCountWorkaround) {
       mediaFormat.setInteger(MediaFormat.KEY_CHANNEL_COUNT, 1);
     }
-    onOutputFormatChanged(codec, mediaFormat);
+    onOutputMediaFormatChanged(codec, mediaFormat);
   }
 
   /**
