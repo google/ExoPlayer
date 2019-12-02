@@ -233,18 +233,18 @@ public class PlayerControlView extends FrameLayout {
 
   private final ComponentListener componentListener;
   private final CopyOnWriteArrayList<VisibilityListener> visibilityListeners;
-  private final View previousButton;
-  private final View nextButton;
-  private final View playButton;
-  private final View pauseButton;
-  private final View fastForwardButton;
-  private final View rewindButton;
-  private final ImageView repeatToggleButton;
-  private final ImageView shuffleButton;
-  private final View vrButton;
-  private final TextView durationView;
-  private final TextView positionView;
-  private final TimeBar timeBar;
+  @Nullable private final View previousButton;
+  @Nullable private final View nextButton;
+  @Nullable private final View playButton;
+  @Nullable private final View pauseButton;
+  @Nullable private final View fastForwardButton;
+  @Nullable private final View rewindButton;
+  @Nullable private final ImageView repeatToggleButton;
+  @Nullable private final ImageView shuffleButton;
+  @Nullable private final View vrButton;
+  @Nullable private final TextView durationView;
+  @Nullable private final TextView positionView;
+  @Nullable private final TimeBar timeBar;
   private final StringBuilder formatBuilder;
   private final Formatter formatter;
   private final Timeline.Period period;
@@ -299,6 +299,11 @@ public class PlayerControlView extends FrameLayout {
     this(context, attrs, defStyleAttr, attrs);
   }
 
+  @SuppressWarnings({
+    "nullness:argument.type.incompatible",
+    "nullness:method.invocation.invalid",
+    "nullness:methodref.receiver.bound.invalid"
+  })
   public PlayerControlView(
       Context context,
       @Nullable AttributeSet attrs,
@@ -350,7 +355,7 @@ public class PlayerControlView extends FrameLayout {
     updateProgressAction = this::updateProgress;
     hideAction = this::hide;
 
-    LayoutInflater.from(context).inflate(controllerLayoutId, this);
+    LayoutInflater.from(context).inflate(controllerLayoutId, /* root= */ this);
     setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
 
     TimeBar customTimeBar = findViewById(R.id.exo_progress);
@@ -778,6 +783,8 @@ public class PlayerControlView extends FrameLayout {
     if (!isVisible() || !isAttachedToWindow) {
       return;
     }
+
+    @Nullable Player player = this.player;
     boolean enableSeeking = false;
     boolean enablePrevious = false;
     boolean enableRewind = false;
@@ -809,16 +816,20 @@ public class PlayerControlView extends FrameLayout {
     if (!isVisible() || !isAttachedToWindow || repeatToggleButton == null) {
       return;
     }
+
     if (repeatToggleModes == RepeatModeUtil.REPEAT_TOGGLE_MODE_NONE) {
       repeatToggleButton.setVisibility(GONE);
       return;
     }
+
+    @Nullable Player player = this.player;
     if (player == null) {
       setButtonEnabled(false, repeatToggleButton);
       repeatToggleButton.setImageDrawable(repeatOffButtonDrawable);
       repeatToggleButton.setContentDescription(repeatOffButtonContentDescription);
       return;
     }
+
     setButtonEnabled(true, repeatToggleButton);
     switch (player.getRepeatMode()) {
       case Player.REPEAT_MODE_OFF:
@@ -843,6 +854,8 @@ public class PlayerControlView extends FrameLayout {
     if (!isVisible() || !isAttachedToWindow || shuffleButton == null) {
       return;
     }
+
+    @Nullable Player player = this.player;
     if (!showShuffleButton) {
       shuffleButton.setVisibility(GONE);
     } else if (player == null) {
@@ -861,6 +874,7 @@ public class PlayerControlView extends FrameLayout {
   }
 
   private void updateTimeline() {
+    @Nullable Player player = this.player;
     if (player == null) {
       return;
     }
@@ -935,6 +949,7 @@ public class PlayerControlView extends FrameLayout {
       return;
     }
 
+    @Nullable Player player = this.player;
     long position = 0;
     long bufferedPosition = 0;
     if (player != null) {
@@ -985,7 +1000,7 @@ public class PlayerControlView extends FrameLayout {
     }
   }
 
-  private void setButtonEnabled(boolean enabled, View view) {
+  private void setButtonEnabled(boolean enabled, @Nullable View view) {
     if (view == null) {
       return;
     }
@@ -1129,6 +1144,7 @@ public class PlayerControlView extends FrameLayout {
    */
   public boolean dispatchMediaKeyEvent(KeyEvent event) {
     int keyCode = event.getKeyCode();
+    @Nullable Player player = this.player;
     if (player == null || !isHandledMediaKey(keyCode)) {
       return false;
     }
