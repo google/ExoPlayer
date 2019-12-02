@@ -71,8 +71,8 @@ public class LibvpxVideoRenderer extends SimpleDecoderVideoRenderer {
   private final boolean enableRowMultiThreadMode;
   private final int threads;
 
-  private VpxDecoder decoder;
-  private VideoFrameMetadataListener frameMetadataListener;
+  @Nullable private VpxDecoder decoder;
+  @Nullable private VideoFrameMetadataListener frameMetadataListener;
 
   /**
    * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
@@ -257,7 +257,7 @@ public class LibvpxVideoRenderer extends SimpleDecoderVideoRenderer {
     TraceUtil.beginSection("createVpxDecoder");
     int initialInputBufferSize =
         format.maxInputSize != Format.NO_VALUE ? format.maxInputSize : DEFAULT_INPUT_BUFFER_SIZE;
-    decoder =
+    VpxDecoder decoder =
         new VpxDecoder(
             numInputBuffers,
             numOutputBuffers,
@@ -265,6 +265,7 @@ public class LibvpxVideoRenderer extends SimpleDecoderVideoRenderer {
             mediaCrypto,
             enableRowMultiThreadMode,
             threads);
+    this.decoder = decoder;
     TraceUtil.endSection();
     return decoder;
   }
