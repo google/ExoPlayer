@@ -14,6 +14,9 @@
   ([#6601](https://github.com/google/ExoPlayer/issues/6601)).
 * Make `MediaSourceEventListener.LoadEventInfo` and
   `MediaSourceEventListener.MediaLoadData` top-level classes.
+* Rename `MediaCodecRenderer.onOutputFormatChanged` to
+  `MediaCodecRenderer.onOutputMediaFormatChanged`, further
+  clarifying the distinction between `Format` and `MediaFormat`.
 * Downloads: Merge downloads in `SegmentDownloader` to improve overall download
   speed ([#5978](https://github.com/google/ExoPlayer/issues/5978)).
 

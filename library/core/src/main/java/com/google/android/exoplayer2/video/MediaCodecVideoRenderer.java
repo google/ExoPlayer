@@ -773,26 +773,26 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @Override
-  protected void onOutputFormatChanged(MediaCodec codec, MediaFormat outputMediaFormat) {
+  protected void onOutputMediaFormatChanged(MediaCodec codec, MediaFormat outputMediaFormat) {
     currentMediaFormat = outputMediaFormat;
     boolean hasCrop =
         outputMediaFormat.containsKey(KEY_CROP_RIGHT)
             && outputMediaFormat.containsKey(KEY_CROP_LEFT)
             && outputMediaFormat.containsKey(KEY_CROP_BOTTOM)
             && outputMediaFormat.containsKey(KEY_CROP_TOP);
-    int width =
+    int mediaFormatWidth =
         hasCrop
             ? outputMediaFormat.getInteger(KEY_CROP_RIGHT)
                 - outputMediaFormat.getInteger(KEY_CROP_LEFT)
                 + 1
             : outputMediaFormat.getInteger(MediaFormat.KEY_WIDTH);
-    int height =
+    int mediaFormatHeight =
         hasCrop
             ? outputMediaFormat.getInteger(KEY_CROP_BOTTOM)
                 - outputMediaFormat.getInteger(KEY_CROP_TOP)
                 + 1
             : outputMediaFormat.getInteger(MediaFormat.KEY_HEIGHT);
-    processOutputFormat(codec, width, height);
+    processOutputFormat(codec, mediaFormatWidth, mediaFormatHeight);
   }
 
   @Override

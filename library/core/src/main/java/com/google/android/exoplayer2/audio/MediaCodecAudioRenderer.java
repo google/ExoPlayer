@@ -475,10 +475,10 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   protected @KeepCodecResult int canKeepCodec(
       MediaCodec codec, MediaCodecInfo codecInfo, Format oldFormat, Format newFormat) {
     // TODO: We currently rely on recreating the codec when encoder delay or padding is non-zero.
-    // Re-creating the codec is necessary to guarantee that onOutputFormatChanged is called, which
-    // is where encoder delay and padding are propagated to the sink. We should find a better way to
-    // propagate these values, and then allow the codec to be re-used in cases where this would
-    // otherwise be possible.
+    // Re-creating the codec is necessary to guarantee that onOutputMediaFormatChanged is called,
+    // which is where encoder delay and padding are propagated to the sink. We should find a better
+    // way to propagate these values, and then allow the codec to be re-used in cases where this
+    // would otherwise be possible.
     if (getCodecMaxInputSize(codecInfo, newFormat) > codecMaxInputSize
         || oldFormat.encoderDelay != 0
         || oldFormat.encoderPadding != 0
@@ -558,7 +558,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
-  protected void onOutputFormatChanged(MediaCodec codec, MediaFormat outputMediaFormat)
+  protected void onOutputMediaFormatChanged(MediaCodec codec, MediaFormat outputMediaFormat)
       throws ExoPlaybackException {
     @C.Encoding int encoding;
     MediaFormat mediaFormat;
