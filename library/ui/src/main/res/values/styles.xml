@@ -52,7 +52,7 @@
   </style>
 
   <style name="ExoMediaButton.VR">
-    <item name="android:src">@drawable/exo_icon_vr</item>
+    <item name="android:src">@drawable/exo_controls_vr</item>
     <item name="android:contentDescription">@string/exo_controls_vr_description</item>
   </style>
 

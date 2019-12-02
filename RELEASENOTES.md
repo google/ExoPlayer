@@ -102,6 +102,9 @@
   * Make showing and hiding player controls accessible to TalkBack in
     `PlayerView`.
   * Rename `spherical_view` surface type to `spherical_gl_surface_view`.
+  * Make it easier to override the shuffle, repeat, fullscreen, VR and small
+    notification icon assets
+    ([#6709](https://github.com/google/ExoPlayer/issues/6709)).
 * Analytics:
   * Remove `AnalyticsCollector.Factory`. Instances should be created directly,
     and the `Player` should be set by calling `AnalyticsCollector.setPlayer`.
