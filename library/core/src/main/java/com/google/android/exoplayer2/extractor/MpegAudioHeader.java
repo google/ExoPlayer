@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.extractor;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.MimeTypes;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * An MPEG audio frame header.
@@ -195,7 +196,7 @@ public final class MpegAudioHeader {
   /** MPEG audio header version. */
   public int version;
   /** The mime type. */
-  public String mimeType;
+  @Nullable public String mimeType;
   /** Size of the frame associated with this header, in bytes. */
   public int frameSize;
   /** Sample rate in samples per second. */
@@ -223,5 +224,4 @@ public final class MpegAudioHeader {
     this.bitrate = bitrate;
     this.samplesPerFrame = samplesPerFrame;
   }
-
 }
