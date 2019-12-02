@@ -23,10 +23,13 @@ import android.media.MediaCrypto;
 import android.media.MediaCryptoException;
 import android.media.MediaFormat;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import androidx.annotation.CheckResult;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -289,6 +292,51 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     ADAPTATION_WORKAROUND_MODE_ALWAYS
   })
   private @interface AdaptationWorkaroundMode {}
+
+  /**
+   * Abstracts {@link MediaCodec} operations that differ whether a {@link MediaCodec} is used in
+   * synchronous or asynchronous mode.
+   */
+  private interface MediaCodecAdapter {
+
+    /**
+     * Returns the next available input buffer index from the underlying {@link MediaCodec} or
+     * {@link MediaCodec#INFO_TRY_AGAIN_LATER} if no such buffer exists.
+     *
+     * @throws {@link IllegalStateException} if the underling {@link MediaCodec} raised an error.
+     */
+    int dequeueInputBufferIndex();
+
+    /**
+     * Returns the next available output buffer index from the underlying {@link MediaCodec}. If the
+     * next available output is a MediaFormat change, it will return {@link
+     * MediaCodec#INFO_OUTPUT_FORMAT_CHANGED} and you should call {@link #getOutputFormat()} to get
+     * the format. If there is no available output, this method will return {@link
+     * MediaCodec#INFO_TRY_AGAIN_LATER}.
+     *
+     * @throws {@link IllegalStateException} if the underling {@link MediaCodec} raised an error.
+     */
+    int dequeueOutputBufferIndex(MediaCodec.BufferInfo bufferInfo);
+
+    /**
+     * Gets the {@link MediaFormat} that was output from the {@link MediaCodec}.
+     *
+     * <p>Call this method if a previous call to {@link #dequeueOutputBufferIndex} returned {@link
+     * MediaCodec#INFO_OUTPUT_FORMAT_CHANGED}.
+     */
+    MediaFormat getOutputFormat();
+
+    /** Flushes the {@code MediaCodecAdapter}. */
+    void flush();
+
+    /**
+     * Shutdown the {@code MediaCodecAdapter}.
+     *
+     * <p>Note: it does not release the underlying codec.
+     */
+    void shutdown();
+  }
+
   /**
    * The adaptation workaround is never used.
    */
@@ -336,6 +384,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private long renderTimeLimitMs;
   private float rendererOperatingRate;
   @Nullable private MediaCodec codec;
+  @Nullable private MediaCodecAdapter codecAdapter;
   @Nullable private Format codecFormat;
   private float codecOperatingRate;
   @Nullable private ArrayDeque<MediaCodecInfo> availableCodecInfos;
@@ -374,6 +423,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private boolean waitingForFirstSampleInFormat;
   private boolean skipMediaCodecStopOnRelease;
   private boolean pendingOutputEndOfStream;
+
+  private boolean useMediaCodecInAsyncMode;
 
   protected DecoderCounters decoderCounters;
 
@@ -449,6 +500,19 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   public void experimental_setSkipMediaCodecStopOnRelease(boolean enabled) {
     skipMediaCodecStopOnRelease = enabled;
+  }
+
+  /**
+   * Use the underlying {@link MediaCodec} in asynchronous mode to obtain available input and output
+   * buffers.
+   *
+   * <p>This method is experimental, and will be renamed or removed in a future release. It should
+   * only be called before the renderer is used.
+   *
+   * @param enabled enable of disable the feature.
+   */
+  public void experimental_setUseMediaCodecInAsyncMode(boolean enabled) {
+    useMediaCodecInAsyncMode = enabled;
   }
 
   @Override
@@ -664,6 +728,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       }
     } finally {
       codec = null;
+      if (codecAdapter != null) {
+        codecAdapter.shutdown();
+        codecAdapter = null;
+      }
       try {
         if (mediaCrypto != null) {
           mediaCrypto.release();
@@ -763,7 +831,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       return true;
     }
 
-    codec.flush();
+    codecAdapter.flush();
     resetInputBuffer();
     resetOutputBuffer();
     codecHotswapDeadlineMs = C.TIME_UNSET;
@@ -908,10 +976,18 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     if (codecOperatingRate <= assumedMinimumCodecOperatingRate) {
       codecOperatingRate = CODEC_OPERATING_RATE_UNSET;
     }
+
+    MediaCodecAdapter codecAdapter = null;
     try {
       codecInitializingTimestamp = SystemClock.elapsedRealtime();
       TraceUtil.beginSection("createCodec:" + codecName);
       codec = MediaCodec.createByCodecName(codecName);
+      if (useMediaCodecInAsyncMode && Util.SDK_INT >= 21) {
+        codecAdapter = new AsynchronousMediaCodecAdapter(codec);
+      } else {
+        codecAdapter = new SynchronousMediaCodecAdapter(codec, getDequeueOutputBufferTimeoutUs());
+      }
+
       TraceUtil.endSection();
       TraceUtil.beginSection("configureCodec");
       configureCodec(codecInfo, codec, inputFormat, crypto, codecOperatingRate);
@@ -922,6 +998,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       codecInitializedTimestamp = SystemClock.elapsedRealtime();
       getCodecBuffers(codec);
     } catch (Exception e) {
+      if (codecAdapter != null) {
+        codecAdapter.shutdown();
+      }
       if (codec != null) {
         resetCodecBuffers();
         codec.release();
@@ -930,6 +1009,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
 
     this.codec = codec;
+    this.codecAdapter = codecAdapter;
     this.codecInfo = codecInfo;
     this.codecOperatingRate = codecOperatingRate;
     codecFormat = inputFormat;
@@ -1036,7 +1116,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
 
     if (inputIndex < 0) {
-      inputIndex = codec.dequeueInputBuffer(0);
+      inputIndex = codecAdapter.dequeueInputBufferIndex();
       if (inputIndex < 0) {
         return false;
       }
@@ -1489,8 +1569,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       int outputIndex;
       if (codecNeedsEosOutputExceptionWorkaround && codecReceivedEos) {
         try {
-          outputIndex =
-              codec.dequeueOutputBuffer(outputBufferInfo, getDequeueOutputBufferTimeoutUs());
+          outputIndex = codecAdapter.dequeueOutputBufferIndex(outputBufferInfo);
         } catch (IllegalStateException e) {
           processEndOfStream();
           if (outputStreamEnded) {
@@ -1500,8 +1579,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           return false;
         }
       } else {
-        outputIndex =
-            codec.dequeueOutputBuffer(outputBufferInfo, getDequeueOutputBufferTimeoutUs());
+        outputIndex = codecAdapter.dequeueOutputBufferIndex(outputBufferInfo);
       }
 
       if (outputIndex < 0) {
@@ -1599,7 +1677,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   /** Processes a new output {@link MediaFormat}. */
   private void processOutputFormat() throws ExoPlaybackException {
-    MediaFormat mediaFormat = codec.getOutputFormat();
+    MediaFormat mediaFormat = codecAdapter.getOutputFormat();
     if (codecAdaptationWorkaroundMode != ADAPTATION_WORKAROUND_MODE_NEVER
         && mediaFormat.getInteger(MediaFormat.KEY_WIDTH) == ADAPTATION_WORKAROUND_SLICE_WIDTH_HEIGHT
         && mediaFormat.getInteger(MediaFormat.KEY_HEIGHT)
@@ -1944,4 +2022,123 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         && "OMX.MTK.AUDIO.DECODER.MP3".equals(name);
   }
 
+  @RequiresApi(21)
+  private static class AsynchronousMediaCodecAdapter implements MediaCodecAdapter {
+
+    private MediaCodecAsyncCallback mediaCodecAsyncCallback;
+    private final Handler handler;
+    private final MediaCodec codec;
+    @Nullable private IllegalStateException internalException;
+    private boolean flushing;
+
+    public AsynchronousMediaCodecAdapter(MediaCodec codec) {
+      mediaCodecAsyncCallback = new MediaCodecAsyncCallback();
+      handler = new Handler(Looper.myLooper());
+      this.codec = codec;
+      this.codec.setCallback(mediaCodecAsyncCallback);
+    }
+
+    @Override
+    public int dequeueInputBufferIndex() {
+      if (flushing) {
+        return MediaCodec.INFO_TRY_AGAIN_LATER;
+      } else {
+        maybeThrowException();
+        return mediaCodecAsyncCallback.dequeueInputBufferIndex();
+      }
+    }
+
+    @Override
+    public int dequeueOutputBufferIndex(MediaCodec.BufferInfo bufferInfo) {
+      if (flushing) {
+        return MediaCodec.INFO_TRY_AGAIN_LATER;
+      } else {
+        maybeThrowException();
+        return mediaCodecAsyncCallback.dequeueOutputBufferIndex(bufferInfo);
+      }
+    }
+
+    @Override
+    public MediaFormat getOutputFormat() {
+      return mediaCodecAsyncCallback.getOutputFormat();
+    }
+
+    @Override
+    public void flush() {
+      clearPendingFlushState();
+      flushing = true;
+      codec.flush();
+      handler.post(this::onCompleteFlush);
+    }
+
+    @Override
+    public void shutdown() {
+      clearPendingFlushState();
+    }
+
+    private void onCompleteFlush() {
+      flushing = false;
+      mediaCodecAsyncCallback.flush();
+      try {
+        codec.start();
+      } catch (IllegalStateException e) {
+        // Catch IllegalStateException directly so that we don't have to wrap it
+        internalException = e;
+      } catch (Exception e) {
+        internalException = new IllegalStateException(e);
+      }
+    }
+
+    private void maybeThrowException() throws IllegalStateException {
+      maybeThrowInternalException();
+      mediaCodecAsyncCallback.maybeThrowMediaCodecException();
+    }
+
+    private void maybeThrowInternalException() {
+      if (internalException != null) {
+        IllegalStateException e = internalException;
+        internalException = null;
+        throw e;
+      }
+    }
+
+    /** Clear state related to pending flush events. */
+    private void clearPendingFlushState() {
+      handler.removeCallbacksAndMessages(null);
+      internalException = null;
+    }
+  }
+
+  private static class SynchronousMediaCodecAdapter implements MediaCodecAdapter {
+    private final MediaCodec codec;
+    private final long dequeueOutputBufferTimeoutMs;
+
+    public SynchronousMediaCodecAdapter(MediaCodec mediaCodec, long dequeueOutputBufferTimeoutMs) {
+      this.codec = mediaCodec;
+      this.dequeueOutputBufferTimeoutMs = dequeueOutputBufferTimeoutMs;
+    }
+
+    @Override
+    public int dequeueInputBufferIndex() {
+      return codec.dequeueInputBuffer(0);
+    }
+
+    @Override
+    public int dequeueOutputBufferIndex(MediaCodec.BufferInfo bufferInfo) {
+      return codec.dequeueOutputBuffer(bufferInfo, dequeueOutputBufferTimeoutMs);
+    }
+
+    @Override
+    public MediaFormat getOutputFormat() {
+      return codec.getOutputFormat();
+    }
+
+    @Override
+    public void flush() {
+      codec.flush();
+    }
+
+    @Override
+    public void shutdown() {}
+  }
 }
