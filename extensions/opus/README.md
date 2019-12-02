@@ -11,7 +11,7 @@ more external libraries as described below. These are licensed separately.
 
 [Apache 2.0]: https://github.com/google/ExoPlayer/blob/release-v2/LICENSE
 
-## Build instructions ##
+## Build instructions (Linux, macOS) ##
 
 To use this extension you need to clone the ExoPlayer repository and depend on
 its modules locally. Instructions for doing this can be found in ExoPlayer's
@@ -57,6 +57,13 @@ ${NDK_PATH}/ndk-build APP_ABI=all -j4
 
 [top level README]: https://github.com/google/ExoPlayer/blob/release-v2/README.md
 [Android NDK]: https://developer.android.com/tools/sdk/ndk/index.html
+
+## Build instructions (Windows) ##
+
+We do not provide support for building this extension on Windows, however it
+should be possible to follow the Linux instructions in [Windows PowerShell][].
+
+[Windows PowerShell]: https://docs.microsoft.com/en-us/powershell/scripting/getting-started/getting-started-with-windows-powershell
 
 ## Notes ##
 

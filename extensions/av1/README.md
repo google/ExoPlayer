@@ -11,7 +11,7 @@ more external libraries as described below. These are licensed separately.
 
 [Apache 2.0]: https://github.com/google/ExoPlayer/blob/release-v2/LICENSE
 
-## Build instructions ##
+## Build instructions (Linux, macOS) ##
 
 To use this extension you need to clone the ExoPlayer repository and depend on
 its modules locally. Instructions for doing this can be found in ExoPlayer's
@@ -60,6 +60,13 @@ to configure and build libgav1 and the extension's [JNI wrapper library][].
 [CMake]: https://cmake.org/
 [Ninja]: https://ninja-build.org
 [JNI wrapper library]: https://github.com/google/ExoPlayer/blob/release-v2/extensions/av1/src/main/jni/gav1_jni.cc
+
+## Build instructions (Windows) ##
+
+We do not provide support for building this extension on Windows, however it
+should be possible to follow the Linux instructions in [Windows PowerShell][].
+
+[Windows PowerShell]: https://docs.microsoft.com/en-us/powershell/scripting/getting-started/getting-started-with-windows-powershell
 
 ## Using the extension ##
 
