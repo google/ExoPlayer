@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.wav;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.audio.WavUtil;
@@ -39,6 +40,7 @@ import java.io.IOException;
    * @return A new {@code WavHeader} peeked from {@code input}, or null if the input is not a
    *     supported WAV format.
    */
+  @Nullable
   public static WavHeader peek(ExtractorInput input) throws IOException, InterruptedException {
     Assertions.checkNotNull(input);
 
