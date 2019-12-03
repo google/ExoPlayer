@@ -52,6 +52,10 @@ import com.google.android.exoplayer2.testutil.ActionSchedule.PlayerTarget;
 import com.google.android.exoplayer2.testutil.AutoAdvancingFakeClock;
 import com.google.android.exoplayer2.testutil.ExoPlayerTestRunner;
 import com.google.android.exoplayer2.testutil.ExoPlayerTestRunner.Builder;
+import com.google.android.exoplayer2.testutil.FakeAdaptiveDataSet;
+import com.google.android.exoplayer2.testutil.FakeAdaptiveMediaSource;
+import com.google.android.exoplayer2.testutil.FakeChunkSource;
+import com.google.android.exoplayer2.testutil.FakeDataSource;
 import com.google.android.exoplayer2.testutil.FakeMediaClockRenderer;
 import com.google.android.exoplayer2.testutil.FakeMediaPeriod;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
@@ -3141,6 +3145,41 @@ public final class ExoPlayerTest {
     // If the player fails to handle becoming noisy, blockUntilActionScheduleFinished will time out
     // and throw, causing the test to fail.
     testRunner.blockUntilActionScheduleFinished(TIMEOUT_MS).blockUntilEnded(TIMEOUT_MS);
+  }
+
+  @Test
+  public void loadControlNeverWantsToLoadOrPlay_playbackDoesNotGetStuck() throws Exception {
+    LoadControl neverLoadingOrPlayingLoadControl =
+        new DefaultLoadControl() {
+          @Override
+          public boolean shouldContinueLoading(long bufferedDurationUs, float playbackSpeed) {
+            return false;
+          }
+
+          @Override
+          public boolean shouldStartPlayback(
+              long bufferedDurationUs, float playbackSpeed, boolean rebuffering) {
+            return false;
+          }
+        };
+
+    // Use chunked data to ensure the player actually needs to continue loading and playing.
+    FakeAdaptiveDataSet.Factory dataSetFactory =
+        new FakeAdaptiveDataSet.Factory(
+            /* chunkDurationUs= */ 500_000, /* bitratePercentStdDev= */ 10.0);
+    MediaSource chunkedMediaSource =
+        new FakeAdaptiveMediaSource(
+            new FakeTimeline(/* windowCount= */ 1),
+            new TrackGroupArray(new TrackGroup(Builder.VIDEO_FORMAT)),
+            new FakeChunkSource.Factory(dataSetFactory, new FakeDataSource.Factory()));
+
+    new ExoPlayerTestRunner.Builder()
+        .setLoadControl(neverLoadingOrPlayingLoadControl)
+        .setMediaSource(chunkedMediaSource)
+        .build(context)
+        .start()
+        // This throws if playback doesn't finish within timeout.
+        .blockUntilEnded(TIMEOUT_MS);
   }
 
   // Internal methods.

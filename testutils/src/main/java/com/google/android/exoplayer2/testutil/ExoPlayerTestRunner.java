@@ -56,18 +56,34 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
    */
   public static final class Builder {
 
-    /**
-     * A generic video {@link Format} which can be used to set up media sources and renderers.
-     */
-    public static final Format VIDEO_FORMAT = Format.createVideoSampleFormat(null,
-        MimeTypes.VIDEO_H264, null, Format.NO_VALUE, Format.NO_VALUE, 1280, 720, Format.NO_VALUE,
-        null, null);
+    /** A generic video {@link Format} which can be used to set up media sources and renderers. */
+    public static final Format VIDEO_FORMAT =
+        Format.createVideoSampleFormat(
+            /* id= */ null,
+            /* sampleMimeType= */ MimeTypes.VIDEO_H264,
+            /* codecs= */ null,
+            /* bitrate= */ 800_000,
+            /* maxInputSize= */ Format.NO_VALUE,
+            /* width= */ 1280,
+            /* height= */ 720,
+            /* frameRate= */ Format.NO_VALUE,
+            /* initializationData= */ null,
+            /* drmInitData= */ null);
 
-    /**
-     * A generic audio {@link Format} which can be used to set up media sources and renderers.
-     */
-    public static final Format AUDIO_FORMAT = Format.createAudioSampleFormat(null,
-        MimeTypes.AUDIO_AAC, null, Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, null);
+    /** A generic audio {@link Format} which can be used to set up media sources and renderers. */
+    public static final Format AUDIO_FORMAT =
+        Format.createAudioSampleFormat(
+            /* id= */ null,
+            /* sampleMimeType= */ MimeTypes.AUDIO_AAC,
+            /* codecs= */ null,
+            /* bitrate= */ 100_000,
+            /* maxInputSize= */ Format.NO_VALUE,
+            /* channelCount= */ 2,
+            /* sampleRate= */ 44100,
+            /* initializationData=*/ null,
+            /* drmInitData= */ null,
+            /* selectionFlags= */ 0,
+            /* language= */ null);
 
     private Clock clock;
     private Timeline timeline;

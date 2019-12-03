@@ -1817,6 +1817,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
     long bufferedDurationUs =
         getTotalBufferedDurationUs(queue.getLoadingPeriod().getNextLoadPositionUs());
+    if (bufferedDurationUs < 500_000) {
+      // Prevent loading from getting stuck even if LoadControl.shouldContinueLoading returns false
+      // when the buffer is empty or almost empty. We can't compare against 0 to account for small
+      // differences between the renderer position and buffered position in the media at the point
+      // where playback gets stuck.
+      return true;
+    }
     float playbackSpeed = mediaClock.getPlaybackParameters().speed;
     return loadControl.shouldContinueLoading(bufferedDurationUs, playbackSpeed);
   }
