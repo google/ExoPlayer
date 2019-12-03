@@ -126,35 +126,21 @@ import java.util.concurrent.CopyOnWriteArraySet;
  */
 public class DefaultTimeBar extends View implements TimeBar {
 
-  /**
-   * Default height for the time bar, in dp.
-   */
+  /** Default height for the time bar, in dp. */
   public static final int DEFAULT_BAR_HEIGHT_DP = 4;
-  /**
-   * Default height for the touch target, in dp.
-   */
+  /** Default height for the touch target, in dp. */
   public static final int DEFAULT_TOUCH_TARGET_HEIGHT_DP = 26;
-  /**
-   * Default width for ad markers, in dp.
-   */
+  /** Default width for ad markers, in dp. */
   public static final int DEFAULT_AD_MARKER_WIDTH_DP = 4;
-  /**
-   * Default diameter for the scrubber when enabled, in dp.
-   */
+  /** Default diameter for the scrubber when enabled, in dp. */
   public static final int DEFAULT_SCRUBBER_ENABLED_SIZE_DP = 12;
-  /**
-   * Default diameter for the scrubber when disabled, in dp.
-   */
+  /** Default diameter for the scrubber when disabled, in dp. */
   public static final int DEFAULT_SCRUBBER_DISABLED_SIZE_DP = 0;
-  /**
-   * Default diameter for the scrubber when dragged, in dp.
-   */
+  /** Default diameter for the scrubber when dragged, in dp. */
   public static final int DEFAULT_SCRUBBER_DRAGGED_SIZE_DP = 16;
-  /**
-   * Default color for the played portion of the time bar.
-   */
-  public static final int DEFAULT_PLAYED_COLOR = 0xFFFFFFFF;
   /** Default color for the played portion of the time bar. */
+  public static final int DEFAULT_PLAYED_COLOR = 0xFFFFFFFF;
+  /** Default color for the unplayed portion of the time bar. */
   public static final int DEFAULT_UNPLAYED_COLOR = 0x33FFFFFF;
   /** Default color for the buffered portion of the time bar. */
   public static final int DEFAULT_BUFFERED_COLOR = 0xCCFFFFFF;
@@ -165,19 +151,16 @@ public class DefaultTimeBar extends View implements TimeBar {
   /** Default color for played ad markers. */
   public static final int DEFAULT_PLAYED_AD_MARKER_COLOR = 0x33FFFF00;
 
-  /**
-   * The threshold in dps above the bar at which touch events trigger fine scrub mode.
-   */
+  /** The threshold in dps above the bar at which touch events trigger fine scrub mode. */
   private static final int FINE_SCRUB_Y_THRESHOLD_DP = -50;
-  /**
-   * The ratio by which times are reduced in fine scrub mode.
-   */
+  /** The ratio by which times are reduced in fine scrub mode. */
   private static final int FINE_SCRUB_RATIO = 3;
   /**
    * The time after which the scrubbing listener is notified that scrubbing has stopped after
    * performing an incremental scrub using key input.
    */
   private static final long STOP_SCRUBBING_TIMEOUT_MS = 1000;
+
   private static final int DEFAULT_INCREMENT_COUNT = 20;
 
   /**
