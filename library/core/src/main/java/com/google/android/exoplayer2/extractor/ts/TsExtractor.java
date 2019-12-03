@@ -268,8 +268,7 @@ public final class TsExtractor implements Extractor {
       }
 
       if (tsBinarySearchSeeker != null && tsBinarySearchSeeker.isSeeking()) {
-        return tsBinarySearchSeeker.handlePendingSeek(
-            input, seekPosition, /* outputFrameHolder= */ null);
+        return tsBinarySearchSeeker.handlePendingSeek(input, seekPosition);
       }
     }
 
