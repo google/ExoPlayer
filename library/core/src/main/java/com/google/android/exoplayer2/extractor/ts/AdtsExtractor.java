@@ -302,7 +302,7 @@ public final class AdtsExtractor implements Extractor {
     } catch (EOFException e) {
       // We reached the end of the input during a peekFully() or advancePeekPosition() operation.
       // This is OK, it just means the input has an incomplete ADTS frame at the end. Ideally
-      // ExtractorInput would these operations to encounter end-of-input without throwing an
+      // ExtractorInput would allow these operations to encounter end-of-input without throwing an
       // exception [internal: b/145586657].
     }
     input.resetPeekPosition();
