@@ -81,6 +81,8 @@
     ([#5782](https://github.com/google/ExoPlayer/issues/5782)).
   * Reconfigure audio sink when PCM encoding changes
     ([#6601](https://github.com/google/ExoPlayer/issues/6601)).
+  * Allow `AdtsExtractor` to encounter EoF when calculating average frame size
+    ([#6700](https://github.com/google/ExoPlayer/issues/6700)).
 * UI:
   * Make showing and hiding player controls accessible to TalkBack in
     `PlayerView`.
