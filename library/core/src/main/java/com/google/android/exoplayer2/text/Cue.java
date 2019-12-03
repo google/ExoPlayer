@@ -32,7 +32,7 @@ public class Cue {
   /** The empty cue. */
   public static final Cue EMPTY = new Cue("");
 
-  /** An unset position or width. */
+  /** An unset position, width or size. */
   // Note: We deliberately don't use Float.MIN_VALUE because it's positive & very close to zero.
   public static final float DIMEN_UNSET = -Float.MAX_VALUE;
 
