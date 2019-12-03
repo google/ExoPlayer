@@ -304,12 +304,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       } else if (line.startsWith(TAG_STREAM_INF)) {
         noClosedCaptions |= line.contains(ATTR_CLOSED_CAPTIONS_NONE);
         int bitrate = parseIntAttr(line, REGEX_BANDWIDTH);
-        String averageBandwidthString =
-            parseOptionalStringAttr(line, REGEX_AVERAGE_BANDWIDTH, variableDefinitions);
-        if (averageBandwidthString != null) {
-          // If available, the average bandwidth attribute is used as the variant's bitrate.
-          bitrate = Integer.parseInt(averageBandwidthString);
-        }
+        // TODO: Plumb this into Format.
+        int averageBitrate = parseOptionalIntAttr(line, REGEX_AVERAGE_BANDWIDTH, -1);
         String codecs = parseOptionalStringAttr(line, REGEX_CODECS, variableDefinitions);
         String resolutionString =
             parseOptionalStringAttr(line, REGEX_RESOLUTION, variableDefinitions);
@@ -867,6 +863,14 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
 
   private static int parseIntAttr(String line, Pattern pattern) throws ParserException {
     return Integer.parseInt(parseStringAttr(line, pattern, Collections.emptyMap()));
+  }
+
+  private static int parseOptionalIntAttr(String line, Pattern pattern, int defaultValue) {
+    Matcher matcher = pattern.matcher(line);
+    if (matcher.find()) {
+      return Integer.parseInt(matcher.group(1));
+    }
+    return defaultValue;
   }
 
   private static long parseLongAttr(String line, Pattern pattern) throws ParserException {
