@@ -31,16 +31,33 @@ import java.nio.ByteBuffer;
  */
 /* package */ final class FlacBinarySearchSeeker extends BinarySearchSeeker {
 
+  /**
+   * Holds a frame extracted from a stream, together with the time stamp of the frame in
+   * microseconds.
+   */
+  public static final class OutputFrameHolder {
+
+    public final ByteBuffer byteBuffer;
+    public long timeUs;
+
+    /** Constructs an instance, wrapping the given byte buffer. */
+    public OutputFrameHolder(ByteBuffer outputByteBuffer) {
+      this.timeUs = 0;
+      this.byteBuffer = outputByteBuffer;
+    }
+  }
+
   private final FlacDecoderJni decoderJni;
 
   public FlacBinarySearchSeeker(
       FlacStreamMetadata streamMetadata,
       long firstFramePosition,
       long inputLength,
-      FlacDecoderJni decoderJni) {
+      FlacDecoderJni decoderJni,
+      OutputFrameHolder outputFrameHolder) {
     super(
         new FlacSeekTimestampConverter(streamMetadata),
-        new FlacTimestampSeeker(decoderJni),
+        new FlacTimestampSeeker(decoderJni, outputFrameHolder),
         streamMetadata.getDurationUs(),
         /* floorTimePosition= */ 0,
         /* ceilingTimePosition= */ streamMetadata.totalSamples,
@@ -63,14 +80,15 @@ import java.nio.ByteBuffer;
   private static final class FlacTimestampSeeker implements TimestampSeeker {
 
     private final FlacDecoderJni decoderJni;
+    private final OutputFrameHolder outputFrameHolder;
 
-    private FlacTimestampSeeker(FlacDecoderJni decoderJni) {
+    private FlacTimestampSeeker(FlacDecoderJni decoderJni, OutputFrameHolder outputFrameHolder) {
       this.decoderJni = decoderJni;
+      this.outputFrameHolder = outputFrameHolder;
     }
 
     @Override
-    public TimestampSearchResult searchForTimestamp(
-        ExtractorInput input, long targetSampleIndex, OutputFrameHolder outputFrameHolder)
+    public TimestampSearchResult searchForTimestamp(ExtractorInput input, long targetSampleIndex)
         throws IOException, InterruptedException {
       ByteBuffer outputBuffer = outputFrameHolder.byteBuffer;
       long searchPosition = input.getPosition();
