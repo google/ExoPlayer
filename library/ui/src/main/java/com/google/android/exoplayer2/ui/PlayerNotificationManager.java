@@ -25,6 +25,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.support.v4.media.session.MediaSessionCompat;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IntDef;
@@ -52,7 +53,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * A notification manager to start, update and cancel a media style notification reflecting the
@@ -269,14 +269,7 @@ public class PlayerNotificationManager {
      */
     public void onBitmap(final Bitmap bitmap) {
       if (bitmap != null) {
-        mainHandler.post(
-            () -> {
-              if (player != null
-                  && notificationTag == currentNotificationTag
-                  && isNotificationStarted) {
-                startOrUpdateNotification(bitmap);
-              }
-            });
+        postUpdateNotificationBitmap(bitmap, notificationTag);
       }
     }
   }
@@ -302,6 +295,11 @@ public class PlayerNotificationManager {
    * and calls {@link NotificationListener#onNotificationCancelled(int, boolean)}.
    */
   private static final String ACTION_DISMISS = "com.google.android.exoplayer.dismiss";
+
+  // Internal messages.
+
+  private static final int MSG_START_OR_UPDATE_NOTIFICATION = 0;
+  private static final int MSG_UPDATE_NOTIFICATION_BITMAP = 1;
 
   /**
    * Visibility of notification on the lock screen. One of {@link
@@ -598,7 +596,10 @@ public class PlayerNotificationManager {
     controlDispatcher = new DefaultControlDispatcher();
     window = new Timeline.Window();
     instanceId = instanceIdCounter++;
-    mainHandler = new Handler(Looper.getMainLooper());
+    //noinspection Convert2MethodRef
+    mainHandler =
+        Util.createHandler(
+            Looper.getMainLooper(), msg -> PlayerNotificationManager.this.handleMessage(msg));
     notificationManager = NotificationManagerCompat.from(context);
     playerListener = new PlayerListener();
     notificationBroadcastReceiver = new NotificationBroadcastReceiver();
@@ -662,7 +663,7 @@ public class PlayerNotificationManager {
     this.player = player;
     if (player != null) {
       player.addListener(playerListener);
-      startOrUpdateNotification();
+      postStartOrUpdateNotification();
     }
   }
 
@@ -945,26 +946,17 @@ public class PlayerNotificationManager {
 
   /** Forces an update of the notification if already started. */
   public void invalidate() {
-    if (isNotificationStarted && player != null) {
-      startOrUpdateNotification();
+    if (isNotificationStarted) {
+      postStartOrUpdateNotification();
     }
   }
 
-  @Nullable
-  private Notification startOrUpdateNotification() {
-    Assertions.checkNotNull(this.player);
-    return startOrUpdateNotification(/* bitmap= */ null);
-  }
-
-  @RequiresNonNull("player")
-  @Nullable
-  private Notification startOrUpdateNotification(@Nullable Bitmap bitmap) {
-    Player player = this.player;
+  private void startOrUpdateNotification(Player player, @Nullable Bitmap bitmap) {
     boolean ongoing = getOngoing(player);
     builder = createNotification(player, builder, ongoing, bitmap);
     if (builder == null) {
       stopNotification(/* dismissedByUser= */ false);
-      return null;
+      return;
     }
     Notification notification = builder.build();
     notificationManager.notify(notificationId, notification);
@@ -975,16 +967,16 @@ public class PlayerNotificationManager {
         notificationListener.onNotificationStarted(notificationId, notification);
       }
     }
-    NotificationListener listener = notificationListener;
+    @Nullable NotificationListener listener = notificationListener;
     if (listener != null) {
       listener.onNotificationPosted(notificationId, notification, ongoing);
     }
-    return notification;
   }
 
   private void stopNotification(boolean dismissedByUser) {
     if (isNotificationStarted) {
       isNotificationStarted = false;
+      mainHandler.removeMessages(MSG_START_OR_UPDATE_NOTIFICATION);
       notificationManager.cancel(notificationId);
       context.unregisterReceiver(notificationBroadcastReceiver);
       if (notificationListener != null) {
@@ -1261,6 +1253,37 @@ public class PlayerNotificationManager {
         && player.getPlayWhenReady();
   }
 
+  private void postStartOrUpdateNotification() {
+    if (!mainHandler.hasMessages(MSG_START_OR_UPDATE_NOTIFICATION)) {
+      mainHandler.sendEmptyMessage(MSG_START_OR_UPDATE_NOTIFICATION);
+    }
+  }
+
+  private void postUpdateNotificationBitmap(Bitmap bitmap, int notificationTag) {
+    mainHandler
+        .obtainMessage(
+            MSG_UPDATE_NOTIFICATION_BITMAP, notificationTag, C.INDEX_UNSET /* ignored */, bitmap)
+        .sendToTarget();
+  }
+
+  private boolean handleMessage(Message msg) {
+    switch (msg.what) {
+      case MSG_START_OR_UPDATE_NOTIFICATION:
+        if (player != null) {
+          startOrUpdateNotification(player, /* bitmap= */ null);
+        }
+        break;
+      case MSG_UPDATE_NOTIFICATION_BITMAP:
+        if (player != null && isNotificationStarted && currentNotificationTag == msg.arg1) {
+          startOrUpdateNotification(player, (Bitmap) msg.obj);
+        }
+        break;
+      default:
+        return false;
+    }
+    return true;
+  }
+
   private static Map<String, NotificationCompat.Action> createPlaybackActions(
       Context context, int instanceId) {
     Map<String, NotificationCompat.Action> actions = new HashMap<>();
@@ -1326,37 +1349,37 @@ public class PlayerNotificationManager {
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
-      startOrUpdateNotification();
+      postStartOrUpdateNotification();
     }
 
     @Override
     public void onIsPlayingChanged(boolean isPlaying) {
-      startOrUpdateNotification();
+      postStartOrUpdateNotification();
     }
 
     @Override
     public void onTimelineChanged(Timeline timeline, int reason) {
-      startOrUpdateNotification();
+      postStartOrUpdateNotification();
     }
 
     @Override
     public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-      startOrUpdateNotification();
+      postStartOrUpdateNotification();
     }
 
     @Override
     public void onPositionDiscontinuity(int reason) {
-      startOrUpdateNotification();
+      postStartOrUpdateNotification();
     }
 
     @Override
     public void onRepeatModeChanged(@Player.RepeatMode int repeatMode) {
-      startOrUpdateNotification();
+      postStartOrUpdateNotification();
     }
 
     @Override
     public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
-      startOrUpdateNotification();
+      postStartOrUpdateNotification();
     }
   }
 
