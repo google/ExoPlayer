@@ -21,6 +21,7 @@
   speed ([#5978](https://github.com/google/ExoPlayer/issues/5978)).
 * Allow `AdtsExtractor` to encounter EoF when calculating average frame size
   ([#6700](https://github.com/google/ExoPlayer/issues/6700)).
+* Make media session connector dispatch ACTION_SET_CAPTIONING_ENABLED.
 
 ### 2.11.0 (not yet released) ###
 
