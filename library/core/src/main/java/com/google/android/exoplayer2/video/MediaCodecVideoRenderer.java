@@ -1799,7 +1799,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private final class OnFrameRenderedListenerV23 implements MediaCodec.OnFrameRenderedListener {
 
     private OnFrameRenderedListenerV23(MediaCodec codec) {
-      codec.setOnFrameRenderedListener(this, new Handler());
+      codec.setOnFrameRenderedListener(/* listener= */ this, Util.createHandler());
     }
 
     @Override

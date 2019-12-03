@@ -50,6 +50,7 @@ import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -560,7 +561,7 @@ public final class SsMediaSource extends BaseMediaSource
       manifestDataSource = manifestDataSourceFactory.createDataSource();
       manifestLoader = new Loader("Loader:Manifest");
       manifestLoaderErrorThrower = manifestLoader;
-      manifestRefreshHandler = new Handler();
+      manifestRefreshHandler = Util.createHandler();
       startLoadingManifest();
     }
   }

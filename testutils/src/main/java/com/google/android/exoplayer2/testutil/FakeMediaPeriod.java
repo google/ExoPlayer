@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.Collections;
 
@@ -126,7 +127,7 @@ public class FakeMediaPeriod implements MediaPeriod {
         SystemClock.elapsedRealtime());
     prepareCallback = callback;
     if (deferOnPrepared) {
-      playerHandler = new Handler();
+      playerHandler = Util.createHandler();
     } else {
       finishPreparation();
     }

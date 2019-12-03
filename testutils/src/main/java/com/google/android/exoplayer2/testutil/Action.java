@@ -37,6 +37,7 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Paramet
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.Util;
 
 /** Base class for actions to perform during playback tests. */
 public abstract class Action {
@@ -422,7 +423,7 @@ public abstract class Action {
       } else {
         message.setPosition(positionMs);
       }
-      message.setHandler(new Handler());
+      message.setHandler(Util.createHandler());
       message.setDeleteAfterDelivery(deleteAfterDelivery);
       message.send();
     }
@@ -503,7 +504,7 @@ public abstract class Action {
         final Surface surface,
         final HandlerWrapper handler,
         final ActionNode nextAction) {
-      Handler testThreadHandler = new Handler();
+      Handler testThreadHandler = Util.createHandler();
       // Schedule a message on the playback thread to ensure the player is paused immediately.
       player
           .createMessage(

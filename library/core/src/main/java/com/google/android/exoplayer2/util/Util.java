@@ -366,6 +366,17 @@ public final class Util {
         /* length= */ second.length);
     return concatenation;
   }
+
+  /**
+   * Creates a {@link Handler} on the current {@link Looper} thread.
+   *
+   * <p>If the current thread doesn't have a {@link Looper}, the application's main thread {@link
+   * Looper} is used.
+   */
+  public static Handler createHandler() {
+    return createHandler(/* callback= */ null);
+  }
+
   /**
    * Creates a {@link Handler} with the specified {@link Handler.Callback} on the current {@link
    * Looper} thread. The method accepts partially initialized objects as callback under the
@@ -375,10 +386,11 @@ public final class Util {
    * <p>If the current thread doesn't have a {@link Looper}, the application's main thread {@link
    * Looper} is used.
    *
-   * @param callback A {@link Handler.Callback}. May be a partially initialized class.
+   * @param callback A {@link Handler.Callback}. May be a partially initialized class, or null if no
+   *     callback is required.
    * @return A {@link Handler} with the specified callback on the current {@link Looper} thread.
    */
-  public static Handler createHandler(Handler.@UnknownInitialization Callback callback) {
+  public static Handler createHandler(@Nullable Handler.@UnknownInitialization Callback callback) {
     return createHandler(getLooper(), callback);
   }
 
@@ -389,12 +401,13 @@ public final class Util {
    * initialized.
    *
    * @param looper A {@link Looper} to run the callback on.
-   * @param callback A {@link Handler.Callback}. May be a partially initialized class.
+   * @param callback A {@link Handler.Callback}. May be a partially initialized class, or null if no
+   *     callback is required.
    * @return A {@link Handler} with the specified callback on the current {@link Looper} thread.
    */
   @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:return.type.incompatible"})
   public static Handler createHandler(
-      Looper looper, Handler.@UnknownInitialization Callback callback) {
+      Looper looper, @Nullable Handler.@UnknownInitialization Callback callback) {
     return new Handler(looper, callback);
   }
 
@@ -1988,7 +2001,7 @@ public final class Util {
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
     Renderer[] renderers =
         renderersFactory.createRenderers(
-            new Handler(),
+            Util.createHandler(),
             new VideoRendererEventListener() {},
             new AudioRendererEventListener() {},
             (cues) -> {},

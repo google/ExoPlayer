@@ -46,7 +46,7 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
   @CallSuper
   protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
     this.mediaTransferListener = mediaTransferListener;
-    eventHandler = new Handler();
+    eventHandler = Util.createHandler();
   }
 
   @Override
