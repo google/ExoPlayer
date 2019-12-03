@@ -763,7 +763,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @CallSuper
   @Override
   protected void onQueueInputBuffer(DecoderInputBuffer buffer) {
-    buffersInCodecCount++;
+    // In tunneling mode the device may do frame rate conversion, so in general we can't keep track
+    // of the number of buffers in the codec.
+    if (!tunneling) {
+      buffersInCodecCount++;
+    }
     lastInputTimeUs = Math.max(buffer.timeUs, lastInputTimeUs);
     if (Util.SDK_INT < 23 && tunneling) {
       // In tunneled mode before API 23 we don't have a way to know when the buffer is output, so
@@ -1008,7 +1012,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @CallSuper
   @Override
   protected void onProcessedOutputBuffer(long presentationTimeUs) {
-    buffersInCodecCount--;
+    if (!tunneling) {
+      buffersInCodecCount--;
+    }
     while (pendingOutputStreamOffsetCount != 0
         && presentationTimeUs >= pendingOutputStreamSwitchTimesUs[0]) {
       outputStreamOffsetUs = pendingOutputStreamOffsetsUs[0];
