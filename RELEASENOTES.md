@@ -131,6 +131,8 @@
     of the extension after this change, following the instructions in the
     extension's readme.
 * Opus extension: Update to use NDK r20.
+* MediaSession extension: Make media session connector dispatch
+  `ACTION_SET_CAPTIONING_ENABLED`.
 * GVR extension: This extension is now deprecated.
 * Demo apps (TODO: update links to point to r2.11.0 tag):
   * Add [SurfaceControl demo app](https://github.com/google/ExoPlayer/tree/dev-v2/demos/surface)
