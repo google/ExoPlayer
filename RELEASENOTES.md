@@ -126,9 +126,11 @@
     fragment) ([#6470](https://github.com/google/ExoPlayer/issues/6470)).
 * DASH: Support negative @r values in segment timelines
   ([#1787](https://github.com/google/ExoPlayer/issues/1787)).
-* HLS: Fix issue where streams could get stuck in an infinite buffering state
-  after a postroll ad
-  ([#6314](https://github.com/google/ExoPlayer/issues/6314)).
+* HLS:
+  * Use peak bitrate rather than average bitrate for adaptive track selection.
+  * Fix issue where streams could get stuck in an infinite buffering state
+    after a postroll ad
+    ([#6314](https://github.com/google/ExoPlayer/issues/6314)).
 * AV1 extension:
   * New in this release. The AV1 extension allows use of the
     [libgav1 software decoder](https://chromium.googlesource.com/codecs/libgav1/)
