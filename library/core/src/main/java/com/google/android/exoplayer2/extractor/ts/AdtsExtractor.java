@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerat
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import java.io.EOFException;
 import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -218,7 +219,7 @@ public final class AdtsExtractor implements Extractor {
       }
       scratch.skipBytes(3);
       int length = scratch.readSynchSafeInt();
-      firstFramePosition += 10 + length;
+      firstFramePosition += ID3_HEADER_LENGTH + length;
       input.advancePeekPosition(length);
     }
     input.resetPeekPosition();
@@ -266,36 +267,43 @@ public final class AdtsExtractor implements Extractor {
 
     int numValidFrames = 0;
     long totalValidFramesSize = 0;
-    while (input.peekFully(
-        scratch.data, /* offset= */ 0, /* length= */ 2, /* allowEndOfInput= */ true)) {
-      scratch.setPosition(0);
-      int syncBytes = scratch.readUnsignedShort();
-      if (!AdtsReader.isAdtsSyncWord(syncBytes)) {
-        // Invalid sync byte pattern.
-        // Constant bit-rate seeking will probably fail for this stream.
-        numValidFrames = 0;
-        break;
-      } else {
-        // Read the frame size.
-        if (!input.peekFully(
-            scratch.data, /* offset= */ 0, /* length= */ 4, /* allowEndOfInput= */ true)) {
+    try {
+      while (input.peekFully(
+          scratch.data, /* offset= */ 0, /* length= */ 2, /* allowEndOfInput= */ true)) {
+        scratch.setPosition(0);
+        int syncBytes = scratch.readUnsignedShort();
+        if (!AdtsReader.isAdtsSyncWord(syncBytes)) {
+          // Invalid sync byte pattern.
+          // Constant bit-rate seeking will probably fail for this stream.
+          numValidFrames = 0;
           break;
-        }
-        scratchBits.setPosition(14);
-        int currentFrameSize = scratchBits.readBits(13);
-        // Either the stream is malformed OR we're not parsing an ADTS stream.
-        if (currentFrameSize <= 6) {
-          hasCalculatedAverageFrameSize = true;
-          throw new ParserException("Malformed ADTS stream");
-        }
-        totalValidFramesSize += currentFrameSize;
-        if (++numValidFrames == NUM_FRAMES_FOR_AVERAGE_FRAME_SIZE) {
-          break;
-        }
-        if (!input.advancePeekPosition(currentFrameSize - 6, /* allowEndOfInput= */ true)) {
-          break;
+        } else {
+          // Read the frame size.
+          if (!input.peekFully(
+              scratch.data, /* offset= */ 0, /* length= */ 4, /* allowEndOfInput= */ true)) {
+            break;
+          }
+          scratchBits.setPosition(14);
+          int currentFrameSize = scratchBits.readBits(13);
+          // Either the stream is malformed OR we're not parsing an ADTS stream.
+          if (currentFrameSize <= 6) {
+            hasCalculatedAverageFrameSize = true;
+            throw new ParserException("Malformed ADTS stream");
+          }
+          totalValidFramesSize += currentFrameSize;
+          if (++numValidFrames == NUM_FRAMES_FOR_AVERAGE_FRAME_SIZE) {
+            break;
+          }
+          if (!input.advancePeekPosition(currentFrameSize - 6, /* allowEndOfInput= */ true)) {
+            break;
+          }
         }
       }
+    } catch (EOFException e) {
+      // We reached the end of the input during a peekFully() or advancePeekPosition() operation.
+      // This is OK, it just means the input has an incomplete ADTS frame at the end. Ideally
+      // ExtractorInput would these operations to encounter end-of-input without throwing an
+      // exception [internal: b/145586657].
     }
     input.resetPeekPosition();
     if (numValidFrames > 0) {
