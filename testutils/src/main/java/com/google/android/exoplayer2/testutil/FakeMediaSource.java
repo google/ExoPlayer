@@ -37,6 +37,7 @@ import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -97,7 +98,7 @@ public class FakeMediaSource extends BaseMediaSource {
     transferListener = mediaTransferListener;
     preparedSource = true;
     releasedSource = false;
-    sourceInfoRefreshHandler = new Handler();
+    sourceInfoRefreshHandler = Util.createHandler();
     if (timeline != null) {
       finishSourcePreparation();
     }

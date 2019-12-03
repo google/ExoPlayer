@@ -189,7 +189,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
                 .onContinueLoadingRequested(ProgressiveMediaPeriod.this);
           }
         };
-    handler = new Handler();
+    handler = Util.createHandler();
     sampleQueueTrackIds = new TrackId[0];
     sampleQueues = new SampleQueue[0];
     pendingResetPositionUs = C.TIME_UNSET;

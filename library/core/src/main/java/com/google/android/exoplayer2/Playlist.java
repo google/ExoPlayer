@@ -427,7 +427,7 @@ import java.util.Set;
         (source, timeline) -> playlistInfoListener.onPlaylistUpdateRequested();
     MediaSourceEventListener eventListener = new ForwardingEventListener(holder);
     childSources.put(holder, new MediaSourceAndListener(mediaSource, caller, eventListener));
-    mediaSource.addEventListener(new Handler(), eventListener);
+    mediaSource.addEventListener(Util.createHandler(), eventListener);
     mediaSource.prepareSource(caller, mediaTransferListener);
   }
 
