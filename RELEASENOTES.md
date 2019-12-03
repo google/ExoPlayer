@@ -19,6 +19,8 @@
   clarifying the distinction between `Format` and `MediaFormat`.
 * Downloads: Merge downloads in `SegmentDownloader` to improve overall download
   speed ([#5978](https://github.com/google/ExoPlayer/issues/5978)).
+* Allow `AdtsExtractor` to encounter EoF when calculating average frame size
+  ([#6700](https://github.com/google/ExoPlayer/issues/6700)).
 
 ### 2.11.0 (not yet released) ###
 
