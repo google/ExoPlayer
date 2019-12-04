@@ -24,6 +24,7 @@
 * Make media session connector dispatch ACTION_SET_CAPTIONING_ENABLED.
 * Add support for position and overlapping start/end times in SSA/ASS subtitles
   ([#6320](https://github.com/google/ExoPlayer/issues/6320)).
+* Add `play` and `pause` methods to `Player`.
 * Upgrade Truth dependency from 0.44 to 1.0.
 
 ### 2.11.0 (not yet released) ###

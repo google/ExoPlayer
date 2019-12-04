@@ -726,10 +726,18 @@ public interface Player {
   ExoPlaybackException getPlaybackError();
 
   /**
+   * Resumes playback as soon as {@link #getPlaybackState()} == {@link #STATE_READY}. Equivalent to
+   * {@code setPlayWhenReady(true)}.
+   */
+  void play();
+
+  /** Pauses playback. Equivalent to {@code setPlayWhenReady(false)}. */
+  void pause();
+
+  /**
    * Sets whether playback should proceed when {@link #getPlaybackState()} == {@link #STATE_READY}.
-   * <p>
-   * If the player is already in the ready state then this method can be used to pause and resume
-   * playback.
+   *
+   * <p>If the player is already in the ready state then this method pauses and resumes playback.
    *
    * @param playWhenReady Whether playback should proceed when ready.
    */
@@ -857,8 +865,8 @@ public interface Player {
   PlaybackParameters getPlaybackParameters();
 
   /**
-   * Stops playback without resetting the player. Use {@code setPlayWhenReady(false)} rather than
-   * this method if the intention is to pause playback.
+   * Stops playback without resetting the player. Use {@link #pause()} rather than this method if
+   * the intention is to pause playback.
    *
    * <p>Calling this method will cause the playback state to transition to {@link #STATE_IDLE}. The
    * player instance can still be used, and {@link #release()} must still be called on the player if
@@ -869,8 +877,8 @@ public interface Player {
   void stop();
 
   /**
-   * Stops playback and optionally resets the player. Use {@code setPlayWhenReady(false)} rather
-   * than this method if the intention is to pause playback.
+   * Stops playback and optionally resets the player. Use {@link #pause()} rather than this method
+   * if the intention is to pause playback.
    *
    * <p>Calling this method will cause the playback state to transition to {@link #STATE_IDLE}. The
    * player instance can still be used, and {@link #release()} must still be called on the player if
