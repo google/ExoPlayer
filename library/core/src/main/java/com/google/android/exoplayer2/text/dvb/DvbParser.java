@@ -645,7 +645,7 @@ import java.util.List;
           clutMapTable2To8 = buildClutMapTable(4, 8, data);
           break;
         case DATA_TYPE_48_TABLE_DATA:
-          clutMapTable2To8 = buildClutMapTable(16, 8, data);
+          clutMapTable4To8 = buildClutMapTable(16, 8, data);
           break;
         case DATA_TYPE_END_LINE:
           column = horizontalAddress;
