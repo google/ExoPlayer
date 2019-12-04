@@ -155,7 +155,8 @@ public final class Id3Decoder implements MetadataDecoder {
    * @param data A {@link ParsableByteArray} from which the header should be read.
    * @return The parsed header, or null if the ID3 tag is unsupported.
    */
-  private static @Nullable Id3Header decodeHeader(ParsableByteArray data) {
+  @Nullable
+  private static Id3Header decodeHeader(ParsableByteArray data) {
     if (data.bytesLeft() < ID3_HEADER_LENGTH) {
       Log.w(TAG, "Data too short to be an ID3 tag");
       return null;
@@ -269,7 +270,8 @@ public final class Id3Decoder implements MetadataDecoder {
     }
   }
 
-  private static @Nullable Id3Frame decodeFrame(
+  @Nullable
+  private static Id3Frame decodeFrame(
       int majorVersion,
       ParsableByteArray id3Data,
       boolean unsignedIntFrameSizeHack,
@@ -404,8 +406,9 @@ public final class Id3Decoder implements MetadataDecoder {
     }
   }
 
-  private static @Nullable TextInformationFrame decodeTxxxFrame(
-      ParsableByteArray id3Data, int frameSize) throws UnsupportedEncodingException {
+  @Nullable
+  private static TextInformationFrame decodeTxxxFrame(ParsableByteArray id3Data, int frameSize)
+      throws UnsupportedEncodingException {
     if (frameSize < 1) {
       // Frame is malformed.
       return null;
@@ -427,7 +430,8 @@ public final class Id3Decoder implements MetadataDecoder {
     return new TextInformationFrame("TXXX", description, value);
   }
 
-  private static @Nullable TextInformationFrame decodeTextInformationFrame(
+  @Nullable
+  private static TextInformationFrame decodeTextInformationFrame(
       ParsableByteArray id3Data, int frameSize, String id) throws UnsupportedEncodingException {
     if (frameSize < 1) {
       // Frame is malformed.
@@ -446,7 +450,8 @@ public final class Id3Decoder implements MetadataDecoder {
     return new TextInformationFrame(id, null, value);
   }
 
-  private static @Nullable UrlLinkFrame decodeWxxxFrame(ParsableByteArray id3Data, int frameSize)
+  @Nullable
+  private static UrlLinkFrame decodeWxxxFrame(ParsableByteArray id3Data, int frameSize)
       throws UnsupportedEncodingException {
     if (frameSize < 1) {
       // Frame is malformed.
@@ -557,7 +562,8 @@ public final class Id3Decoder implements MetadataDecoder {
     return new ApicFrame(mimeType, description, pictureType, pictureData);
   }
 
-  private static @Nullable CommentFrame decodeCommentFrame(ParsableByteArray id3Data, int frameSize)
+  @Nullable
+  private static CommentFrame decodeCommentFrame(ParsableByteArray id3Data, int frameSize)
       throws UnsupportedEncodingException {
     if (frameSize < 4) {
       // Frame is malformed.
