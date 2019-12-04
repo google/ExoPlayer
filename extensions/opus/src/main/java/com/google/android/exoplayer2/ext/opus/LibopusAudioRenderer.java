@@ -83,6 +83,7 @@ public class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
   }
 
   @Override
+  @FormatSupport
   protected int supportsFormatInternal(
       @Nullable DrmSessionManager<ExoMediaCrypto> drmSessionManager, Format format) {
     boolean drmIsSupported =
