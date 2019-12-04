@@ -184,7 +184,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private boolean exceedRendererCapabilitiesIfNecessary;
     private int tunnelingAudioSessionId;
 
-    private final SparseArray<Map<TrackGroupArray, SelectionOverride>> selectionOverrides;
+    private final SparseArray<Map<TrackGroupArray, @NullableType SelectionOverride>>
+        selectionOverrides;
     private final SparseBooleanArray rendererDisabledFlags;
 
     /**
@@ -646,8 +647,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * @return This builder.
      */
     public final ParametersBuilder setSelectionOverride(
-        int rendererIndex, TrackGroupArray groups, SelectionOverride override) {
-      Map<TrackGroupArray, SelectionOverride> overrides = selectionOverrides.get(rendererIndex);
+        int rendererIndex, TrackGroupArray groups, @Nullable SelectionOverride override) {
+      Map<TrackGroupArray, @NullableType SelectionOverride> overrides =
+          selectionOverrides.get(rendererIndex);
       if (overrides == null) {
         overrides = new HashMap<>();
         selectionOverrides.put(rendererIndex, overrides);
@@ -669,7 +671,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      */
     public final ParametersBuilder clearSelectionOverride(
         int rendererIndex, TrackGroupArray groups) {
-      Map<TrackGroupArray, SelectionOverride> overrides = selectionOverrides.get(rendererIndex);
+      Map<TrackGroupArray, @NullableType SelectionOverride> overrides =
+          selectionOverrides.get(rendererIndex);
       if (overrides == null || !overrides.containsKey(groups)) {
         // Nothing to clear.
         return this;
@@ -688,7 +691,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * @return This builder.
      */
     public final ParametersBuilder clearSelectionOverrides(int rendererIndex) {
-      Map<TrackGroupArray, SelectionOverride> overrides = selectionOverrides.get(rendererIndex);
+      Map<TrackGroupArray, @NullableType SelectionOverride> overrides =
+          selectionOverrides.get(rendererIndex);
       if (overrides == null || overrides.isEmpty()) {
         // Nothing to clear.
         return this;
@@ -775,9 +779,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       tunnelingAudioSessionId = C.AUDIO_SESSION_ID_UNSET;
     }
 
-    private static SparseArray<Map<TrackGroupArray, SelectionOverride>> cloneSelectionOverrides(
-        SparseArray<Map<TrackGroupArray, SelectionOverride>> selectionOverrides) {
-      SparseArray<Map<TrackGroupArray, SelectionOverride>> clone = new SparseArray<>();
+    private static SparseArray<Map<TrackGroupArray, @NullableType SelectionOverride>>
+        cloneSelectionOverrides(
+            SparseArray<Map<TrackGroupArray, @NullableType SelectionOverride>> selectionOverrides) {
+      SparseArray<Map<TrackGroupArray, @NullableType SelectionOverride>> clone =
+          new SparseArray<>();
       for (int i = 0; i < selectionOverrides.size(); i++) {
         clone.put(selectionOverrides.keyAt(i), new HashMap<>(selectionOverrides.valueAt(i)));
       }
@@ -962,7 +968,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     public final int tunnelingAudioSessionId;
 
     // Overrides
-    private final SparseArray<Map<TrackGroupArray, SelectionOverride>> selectionOverrides;
+    private final SparseArray<Map<TrackGroupArray, @NullableType SelectionOverride>>
+        selectionOverrides;
     private final SparseBooleanArray rendererDisabledFlags;
 
     /* package */ Parameters(
@@ -996,7 +1003,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         boolean exceedRendererCapabilitiesIfNecessary,
         int tunnelingAudioSessionId,
         // Overrides
-        SparseArray<Map<TrackGroupArray, SelectionOverride>> selectionOverrides,
+        SparseArray<Map<TrackGroupArray, @NullableType SelectionOverride>> selectionOverrides,
         SparseBooleanArray rendererDisabledFlags) {
       super(
           preferredAudioLanguage,
@@ -1087,7 +1094,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * @return Whether there is an override.
      */
     public final boolean hasSelectionOverride(int rendererIndex, TrackGroupArray groups) {
-      Map<TrackGroupArray, SelectionOverride> overrides = selectionOverrides.get(rendererIndex);
+      Map<TrackGroupArray, @NullableType SelectionOverride> overrides =
+          selectionOverrides.get(rendererIndex);
       return overrides != null && overrides.containsKey(groups);
     }
 
@@ -1100,7 +1108,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      */
     @Nullable
     public final SelectionOverride getSelectionOverride(int rendererIndex, TrackGroupArray groups) {
-      Map<TrackGroupArray, SelectionOverride> overrides = selectionOverrides.get(rendererIndex);
+      Map<TrackGroupArray, @NullableType SelectionOverride> overrides =
+          selectionOverrides.get(rendererIndex);
       return overrides != null ? overrides.get(groups) : null;
     }
 
@@ -1233,17 +1242,20 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
     // Static utility methods.
 
-    private static SparseArray<Map<TrackGroupArray, SelectionOverride>> readSelectionOverrides(
-        Parcel in) {
+    private static SparseArray<Map<TrackGroupArray, @NullableType SelectionOverride>>
+        readSelectionOverrides(Parcel in) {
       int renderersWithOverridesCount = in.readInt();
-      SparseArray<Map<TrackGroupArray, SelectionOverride>> selectionOverrides =
+      SparseArray<Map<TrackGroupArray, @NullableType SelectionOverride>> selectionOverrides =
           new SparseArray<>(renderersWithOverridesCount);
       for (int i = 0; i < renderersWithOverridesCount; i++) {
         int rendererIndex = in.readInt();
         int overrideCount = in.readInt();
-        Map<TrackGroupArray, SelectionOverride> overrides = new HashMap<>(overrideCount);
+        Map<TrackGroupArray, @NullableType SelectionOverride> overrides =
+            new HashMap<>(overrideCount);
         for (int j = 0; j < overrideCount; j++) {
-          TrackGroupArray trackGroups = in.readParcelable(TrackGroupArray.class.getClassLoader());
+          TrackGroupArray trackGroups =
+              Assertions.checkNotNull(in.readParcelable(TrackGroupArray.class.getClassLoader()));
+          @Nullable
           SelectionOverride override = in.readParcelable(SelectionOverride.class.getClassLoader());
           overrides.put(trackGroups, override);
         }
@@ -1253,16 +1265,19 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     private static void writeSelectionOverridesToParcel(
-        Parcel dest, SparseArray<Map<TrackGroupArray, SelectionOverride>> selectionOverrides) {
+        Parcel dest,
+        SparseArray<Map<TrackGroupArray, @NullableType SelectionOverride>> selectionOverrides) {
       int renderersWithOverridesCount = selectionOverrides.size();
       dest.writeInt(renderersWithOverridesCount);
       for (int i = 0; i < renderersWithOverridesCount; i++) {
         int rendererIndex = selectionOverrides.keyAt(i);
-        Map<TrackGroupArray, SelectionOverride> overrides = selectionOverrides.valueAt(i);
+        Map<TrackGroupArray, @NullableType SelectionOverride> overrides =
+            selectionOverrides.valueAt(i);
         int overrideCount = overrides.size();
         dest.writeInt(rendererIndex);
         dest.writeInt(overrideCount);
-        for (Map.Entry<TrackGroupArray, SelectionOverride> override : overrides.entrySet()) {
+        for (Map.Entry<TrackGroupArray, @NullableType SelectionOverride> override :
+            overrides.entrySet()) {
           dest.writeParcelable(override.getKey(), /* parcelableFlags= */ 0);
           dest.writeParcelable(override.getValue(), /* parcelableFlags= */ 0);
         }
@@ -1285,8 +1300,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     private static boolean areSelectionOverridesEqual(
-        SparseArray<Map<TrackGroupArray, SelectionOverride>> first,
-        SparseArray<Map<TrackGroupArray, SelectionOverride>> second) {
+        SparseArray<Map<TrackGroupArray, @NullableType SelectionOverride>> first,
+        SparseArray<Map<TrackGroupArray, @NullableType SelectionOverride>> second) {
       int firstSize = first.size();
       if (second.size() != firstSize) {
         return false;
@@ -1303,13 +1318,14 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     private static boolean areSelectionOverridesEqual(
-        Map<TrackGroupArray, SelectionOverride> first,
-        Map<TrackGroupArray, SelectionOverride> second) {
+        Map<TrackGroupArray, @NullableType SelectionOverride> first,
+        Map<TrackGroupArray, @NullableType SelectionOverride> second) {
       int firstSize = first.size();
       if (second.size() != firstSize) {
         return false;
       }
-      for (Map.Entry<TrackGroupArray, SelectionOverride> firstEntry : first.entrySet()) {
+      for (Map.Entry<TrackGroupArray, @NullableType SelectionOverride> firstEntry :
+          first.entrySet()) {
         TrackGroupArray key = firstEntry.getKey();
         if (!second.containsKey(key) || !Util.areEqual(firstEntry.getValue(), second.get(key))) {
           return false;
@@ -1536,7 +1552,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
    */
   @Deprecated
   public final void setSelectionOverride(
-      int rendererIndex, TrackGroupArray groups, SelectionOverride override) {
+      int rendererIndex, TrackGroupArray groups, @Nullable SelectionOverride override) {
     setParameters(buildUponParameters().setSelectionOverride(rendererIndex, groups, override));
   }
 
