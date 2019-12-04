@@ -28,6 +28,16 @@ public abstract class BasePlayer implements Player {
   }
 
   @Override
+  public final void play() {
+    setPlayWhenReady(true);
+  }
+
+  @Override
+  public final void pause() {
+    setPlayWhenReady(false);
+  }
+
+  @Override
   public final boolean isPlaying() {
     return getPlaybackState() == Player.STATE_READY
         && getPlayWhenReady()
