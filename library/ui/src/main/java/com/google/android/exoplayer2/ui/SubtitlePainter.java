@@ -33,6 +33,7 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.BackgroundColorSpan;
+import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.util.DisplayMetrics;
 import androidx.annotation.Nullable;
@@ -98,6 +99,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   // Derived drawing variables.
   private @MonotonicNonNull StaticLayout textLayout;
+  private @MonotonicNonNull StaticLayout edgeLayout;
   private int textLeft;
   private int textTop;
   private int textPaddingX;
@@ -286,11 +288,32 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       }
     }
 
+    // Remove embedded font color to not destroy edges, otherwise it overrides edge color
+    SpannableStringBuilder cueTextEdge = new SpannableStringBuilder(cueText);
+    if(edgeType == CaptionStyleCompat.EDGE_TYPE_OUTLINE) {
+      int cueLength = cueTextEdge.length();
+      ForegroundColorSpan[] foregroundColorSpans = cueTextEdge
+          .getSpans(0, cueLength, ForegroundColorSpan.class);
+      for (ForegroundColorSpan foregroundColorSpan : foregroundColorSpans) {
+        cueTextEdge.removeSpan(foregroundColorSpan);
+      }
+    }
+
+    // EDGE_TYPE_NONE & EDGE_TYPE_DROP_SHADOW both paint in one pass, they ignore cueTextEdge.
+    // Otherwise we use two painters, and one need to apply the background in the first one only
     if (Color.alpha(backgroundColor) > 0) {
-      SpannableStringBuilder newCueText = new SpannableStringBuilder(cueText);
-      newCueText.setSpan(
-          new BackgroundColorSpan(backgroundColor), 0, newCueText.length(), Spanned.SPAN_PRIORITY);
-      cueText = newCueText;
+      if (edgeType == CaptionStyleCompat.EDGE_TYPE_NONE ||
+          edgeType == CaptionStyleCompat.EDGE_TYPE_DROP_SHADOW) {
+        SpannableStringBuilder newCueText = new SpannableStringBuilder(cueText);
+        newCueText.setSpan(
+            new BackgroundColorSpan(backgroundColor), 0, newCueText.length(), Spanned.SPAN_PRIORITY);
+        cueText = newCueText;
+      } else {
+        SpannableStringBuilder newCueText = new SpannableStringBuilder(cueTextEdge);
+        newCueText.setSpan(
+            new BackgroundColorSpan(backgroundColor), 0, newCueText.length(), Spanned.SPAN_PRIORITY);
+        cueTextEdge = newCueText;
+      }
     }
 
     Alignment textAlignment = cueTextAlignment == null ? Alignment.ALIGN_CENTER : cueTextAlignment;
@@ -366,6 +389,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     // Update the derived drawing variables.
     this.textLayout = new StaticLayout(cueText, textPaint, textWidth, textAlignment, spacingMult,
         spacingAdd, true);
+    this.edgeLayout = new StaticLayout(cueTextEdge, textPaint, textWidth, textAlignment, spacingMult,
+            spacingAdd, true);
     this.textLeft = textLeft;
     this.textTop = textTop;
     this.textPaddingX = textPaddingX;
@@ -425,7 +450,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       textPaint.setStrokeWidth(outlineWidth);
       textPaint.setColor(edgeColor);
       textPaint.setStyle(Style.FILL_AND_STROKE);
-      layout.draw(canvas);
+      edgeLayout.draw(canvas);
     } else if (edgeType == CaptionStyleCompat.EDGE_TYPE_DROP_SHADOW) {
       textPaint.setShadowLayer(shadowRadius, shadowOffset, shadowOffset, edgeColor);
     } else if (edgeType == CaptionStyleCompat.EDGE_TYPE_RAISED
@@ -437,7 +462,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       textPaint.setColor(foregroundColor);
       textPaint.setStyle(Style.FILL);
       textPaint.setShadowLayer(shadowRadius, -offset, -offset, colorUp);
-      layout.draw(canvas);
+      edgeLayout.draw(canvas);
       textPaint.setShadowLayer(shadowRadius, offset, offset, colorDown);
     }
 
