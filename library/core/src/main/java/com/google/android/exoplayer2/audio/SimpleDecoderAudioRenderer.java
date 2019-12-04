@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.PlayerMessage.Target;
+import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener.EventDispatcher;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
@@ -222,26 +223,28 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   }
 
   @Override
+  @Capabilities
   public final int supportsFormat(Format format) {
     if (!MimeTypes.isAudio(format.sampleMimeType)) {
-      return FORMAT_UNSUPPORTED_TYPE;
+      return RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
     }
-    int formatSupport = supportsFormatInternal(drmSessionManager, format);
+    @FormatSupport int formatSupport = supportsFormatInternal(drmSessionManager, format);
     if (formatSupport <= FORMAT_UNSUPPORTED_DRM) {
-      return formatSupport;
+      return RendererCapabilities.create(formatSupport);
     }
+    @TunnelingSupport
     int tunnelingSupport = Util.SDK_INT >= 21 ? TUNNELING_SUPPORTED : TUNNELING_NOT_SUPPORTED;
-    return ADAPTIVE_NOT_SEAMLESS | tunnelingSupport | formatSupport;
+    return RendererCapabilities.create(formatSupport, ADAPTIVE_NOT_SEAMLESS, tunnelingSupport);
   }
 
   /**
-   * Returns the {@link #FORMAT_SUPPORT_MASK} component of the return value for {@link
-   * #supportsFormat(Format)}.
+   * Returns the {@link FormatSupport} for the given {@link Format}.
    *
    * @param drmSessionManager The renderer's {@link DrmSessionManager}.
    * @param format The format, which has an audio {@link Format#sampleMimeType}.
-   * @return The extent to which the renderer supports the format itself.
+   * @return The {@link FormatSupport} for this {@link Format}.
    */
+  @FormatSupport
   protected abstract int supportsFormatInternal(
       @Nullable DrmSessionManager<ExoMediaCrypto> drmSessionManager, Format format);
 

@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlayerMessage.Target;
+import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
@@ -223,10 +224,11 @@ public class LibvpxVideoRenderer extends SimpleDecoderVideoRenderer {
   }
 
   @Override
+  @Capabilities
   protected int supportsFormatInternal(
       @Nullable DrmSessionManager<ExoMediaCrypto> drmSessionManager, Format format) {
     if (!VpxLibrary.isAvailable() || !MimeTypes.VIDEO_VP9.equalsIgnoreCase(format.sampleMimeType)) {
-      return FORMAT_UNSUPPORTED_TYPE;
+      return RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
     }
     boolean drmIsSupported =
         format.drmInitData == null
@@ -234,9 +236,9 @@ public class LibvpxVideoRenderer extends SimpleDecoderVideoRenderer {
             || (format.exoMediaCryptoType == null
                 && supportsFormatDrm(drmSessionManager, format.drmInitData));
     if (!drmIsSupported) {
-      return FORMAT_UNSUPPORTED_DRM;
+      return RendererCapabilities.create(FORMAT_UNSUPPORTED_DRM);
     }
-    return FORMAT_HANDLED | ADAPTIVE_SEAMLESS;
+    return RendererCapabilities.create(FORMAT_HANDLED, ADAPTIVE_SEAMLESS, TUNNELING_NOT_SUPPORTED);
   }
 
   @Override

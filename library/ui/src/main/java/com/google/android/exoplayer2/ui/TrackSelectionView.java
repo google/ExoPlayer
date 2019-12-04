@@ -371,7 +371,8 @@ public class TrackSelectionView extends LinearLayout {
   private boolean shouldEnableAdaptiveSelection(int groupIndex) {
     return allowAdaptiveSelections
         && trackGroups.get(groupIndex).length > 1
-        && mappedTrackInfo.getAdaptiveSupport(rendererIndex, groupIndex, false)
+        && mappedTrackInfo.getAdaptiveSupport(
+                rendererIndex, groupIndex, /* includeCapabilitiesExceededTracks= */ false)
             != RendererCapabilities.ADAPTIVE_NOT_SUPPORTED;
   }
 
