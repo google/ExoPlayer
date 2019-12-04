@@ -615,10 +615,21 @@ public class PlayerActivity extends AppCompatActivity
       }
       MediaSourceFactory adMediaSourceFactory =
           new MediaSourceFactory() {
+
+            private DrmSessionManager<ExoMediaCrypto> drmSessionManager =
+                DrmSessionManager.getDummyDrmSessionManager();
+
+            @Override
+            @SuppressWarnings("unchecked") // Safe upcasting.
+            public MediaSourceFactory setDrmSessionManager(DrmSessionManager<?> drmSessionManager) {
+              this.drmSessionManager = (DrmSessionManager<ExoMediaCrypto>) drmSessionManager;
+              return this;
+            }
+
             @Override
             public MediaSource createMediaSource(Uri uri) {
               return PlayerActivity.this.createLeafMediaSource(
-                  uri, /* extension=*/ null, DrmSessionManager.getDummyDrmSessionManager());
+                  uri, /* extension=*/ null, drmSessionManager);
             }
 
             @Override
