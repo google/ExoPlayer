@@ -263,9 +263,13 @@ public final class DownloadHelper {
         uri,
         /* cacheKey= */ null,
         createMediaSourceInternal(
-            DASH_FACTORY_CONSTRUCTOR, uri, dataSourceFactory, /* streamKeys= */ null),
+            DASH_FACTORY_CONSTRUCTOR,
+            uri,
+            dataSourceFactory,
+            drmSessionManager,
+            /* streamKeys= */ null),
         trackSelectorParameters,
-        Util.getRendererCapabilities(renderersFactory, drmSessionManager));
+        Util.getRendererCapabilities(renderersFactory, /* drmSessionManager= */ null));
   }
 
   /** @deprecated Use {@link #forHls(Context, Uri, Factory, RenderersFactory)} */
@@ -329,9 +333,13 @@ public final class DownloadHelper {
         uri,
         /* cacheKey= */ null,
         createMediaSourceInternal(
-            HLS_FACTORY_CONSTRUCTOR, uri, dataSourceFactory, /* streamKeys= */ null),
+            HLS_FACTORY_CONSTRUCTOR,
+            uri,
+            dataSourceFactory,
+            drmSessionManager,
+            /* streamKeys= */ null),
         trackSelectorParameters,
-        Util.getRendererCapabilities(renderersFactory, drmSessionManager));
+        Util.getRendererCapabilities(renderersFactory, /* drmSessionManager= */ null));
   }
 
   /** @deprecated Use {@link #forSmoothStreaming(Context, Uri, Factory, RenderersFactory)} */
@@ -395,9 +403,24 @@ public final class DownloadHelper {
         uri,
         /* cacheKey= */ null,
         createMediaSourceInternal(
-            SS_FACTORY_CONSTRUCTOR, uri, dataSourceFactory, /* streamKeys= */ null),
+            SS_FACTORY_CONSTRUCTOR,
+            uri,
+            dataSourceFactory,
+            drmSessionManager,
+            /* streamKeys= */ null),
         trackSelectorParameters,
-        Util.getRendererCapabilities(renderersFactory, drmSessionManager));
+        Util.getRendererCapabilities(renderersFactory, /* drmSessionManager= */ null));
+  }
+
+  /**
+   * Equivalent to {@link #createMediaSource(DownloadRequest, Factory, DrmSessionManager)
+   * createMediaSource(downloadRequest, dataSourceFactory,
+   * DrmSessionManager.getDummyDrmSessionManager())}.
+   */
+  public static MediaSource createMediaSource(
+      DownloadRequest downloadRequest, DataSource.Factory dataSourceFactory) {
+    return createMediaSource(
+        downloadRequest, dataSourceFactory, DrmSessionManager.getDummyDrmSessionManager());
   }
 
   /**
@@ -409,7 +432,9 @@ public final class DownloadHelper {
    * @return A MediaSource which only contains the tracks defined in {@code downloadRequest}.
    */
   public static MediaSource createMediaSource(
-      DownloadRequest downloadRequest, DataSource.Factory dataSourceFactory) {
+      DownloadRequest downloadRequest,
+      DataSource.Factory dataSourceFactory,
+      DrmSessionManager<?> drmSessionManager) {
     @Nullable Constructor<? extends MediaSourceFactory> constructor;
     switch (downloadRequest.type) {
       case DownloadRequest.TYPE_DASH:
@@ -428,7 +453,11 @@ public final class DownloadHelper {
         throw new IllegalStateException("Unsupported type: " + downloadRequest.type);
     }
     return createMediaSourceInternal(
-        constructor, downloadRequest.uri, dataSourceFactory, downloadRequest.streamKeys);
+        constructor,
+        downloadRequest.uri,
+        dataSourceFactory,
+        drmSessionManager,
+        downloadRequest.streamKeys);
   }
 
   private final String downloadType;
@@ -888,12 +917,16 @@ public final class DownloadHelper {
       @Nullable Constructor<? extends MediaSourceFactory> constructor,
       Uri uri,
       Factory dataSourceFactory,
+      @Nullable DrmSessionManager<?> drmSessionManager,
       @Nullable List<StreamKey> streamKeys) {
     if (constructor == null) {
       throw new IllegalStateException("Module missing to create media source.");
     }
     try {
       MediaSourceFactory factory = constructor.newInstance(dataSourceFactory);
+      if (drmSessionManager != null) {
+        factory.setDrmSessionManager(drmSessionManager);
+      }
       if (streamKeys != null) {
         factory.setStreamKeys(streamKeys);
       }
