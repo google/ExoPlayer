@@ -1767,7 +1767,7 @@ public final class DefaultTrackSelectorTest {
   private static final class FakeRendererCapabilities implements RendererCapabilities {
 
     private final int trackType;
-    private final int supportValue;
+    @Capabilities private final int supportValue;
 
     /**
      * Returns {@link FakeRendererCapabilities} that advertises adaptive support for all
@@ -1777,19 +1777,21 @@ public final class DefaultTrackSelectorTest {
      * support for.
      */
     FakeRendererCapabilities(int trackType) {
-      this(trackType, FORMAT_HANDLED | ADAPTIVE_SEAMLESS);
+      this(
+          trackType,
+          RendererCapabilities.create(FORMAT_HANDLED, ADAPTIVE_SEAMLESS, TUNNELING_NOT_SUPPORTED));
     }
 
     /**
-     * Returns {@link FakeRendererCapabilities} that advertises support level using given value
-     * for all tracks of the given type.
+     * Returns {@link FakeRendererCapabilities} that advertises support level using given value for
+     * all tracks of the given type.
      *
      * @param trackType the track type of all formats that this renderer capabilities advertises
-     * support for.
-     * @param supportValue the support level value that will be returned for formats with
-     * the given type.
+     *     support for.
+     * @param supportValue the {@link Capabilities} that will be returned for formats with the given
+     *     type.
      */
-    FakeRendererCapabilities(int trackType, int supportValue) {
+    FakeRendererCapabilities(int trackType, @Capabilities int supportValue) {
       this.trackType = trackType;
       this.supportValue = supportValue;
     }
@@ -1800,12 +1802,15 @@ public final class DefaultTrackSelectorTest {
     }
 
     @Override
+    @Capabilities
     public int supportsFormat(Format format) {
       return MimeTypes.getTrackType(format.sampleMimeType) == trackType
-          ? (supportValue) : FORMAT_UNSUPPORTED_TYPE;
+          ? supportValue
+          : RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
     }
 
     @Override
+    @AdaptiveSupport
     public int supportsMixedMimeTypeAdaptation() {
       return ADAPTIVE_SEAMLESS;
     }
@@ -1841,13 +1846,15 @@ public final class DefaultTrackSelectorTest {
     }
 
     @Override
+    @Capabilities
     public int supportsFormat(Format format) {
       return format.id != null && formatToCapability.containsKey(format.id)
           ? formatToCapability.get(format.id)
-          : FORMAT_UNSUPPORTED_TYPE;
+          : RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
     }
 
     @Override
+    @AdaptiveSupport
     public int supportsMixedMimeTypeAdaptation() {
       return ADAPTIVE_SEAMLESS;
     }

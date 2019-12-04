@@ -51,6 +51,7 @@ public class LibflacAudioRenderer extends SimpleDecoderAudioRenderer {
   }
 
   @Override
+  @FormatSupport
   protected int supportsFormatInternal(
       @Nullable DrmSessionManager<ExoMediaCrypto> drmSessionManager, Format format) {
     if (!FlacLibrary.isAvailable()

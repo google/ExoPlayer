@@ -516,11 +516,13 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   @Override
+  @AdaptiveSupport
   public final int supportsMixedMimeTypeAdaptation() {
     return ADAPTIVE_NOT_SEAMLESS;
   }
 
   @Override
+  @Capabilities
   public final int supportsFormat(Format format) throws ExoPlaybackException {
     try {
       return supportsFormat(mediaCodecSelector, drmSessionManager, format);
@@ -530,15 +532,15 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
-   * Returns the extent to which the renderer is capable of supporting a given {@link Format}.
+   * Returns the {@link Capabilities} for the given {@link Format}.
    *
    * @param mediaCodecSelector The decoder selector.
    * @param drmSessionManager The renderer's {@link DrmSessionManager}.
    * @param format The {@link Format}.
-   * @return The extent to which the renderer is capable of supporting the given format. See {@link
-   *     #supportsFormat(Format)} for more detail.
+   * @return The {@link Capabilities} for this {@link Format}.
    * @throws DecoderQueryException If there was an error querying decoders.
    */
+  @Capabilities
   protected abstract int supportsFormat(
       MediaCodecSelector mediaCodecSelector,
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,

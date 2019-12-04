@@ -23,6 +23,8 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
+import com.google.android.exoplayer2.RendererCapabilities.AdaptiveSupport;
+import com.google.android.exoplayer2.RendererCapabilities.Capabilities;
 import com.google.android.exoplayer2.RendererConfiguration;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
@@ -112,8 +114,8 @@ public final class MappingTrackSelectorTest {
     @Override
     protected Pair<RendererConfiguration[], TrackSelection[]> selectTracks(
         MappedTrackInfo mappedTrackInfo,
-        int[][][] rendererFormatSupports,
-        int[] rendererMixedMimeTypeAdaptationSupports)
+        @Capabilities int[][][] rendererFormatSupports,
+        @AdaptiveSupport int[] rendererMixedMimeTypeAdaptationSupports)
         throws ExoPlaybackException {
       int rendererCount = mappedTrackInfo.getRendererCount();
       lastMappedTrackInfo = mappedTrackInfo;
@@ -148,12 +150,15 @@ public final class MappingTrackSelectorTest {
     }
 
     @Override
+    @Capabilities
     public int supportsFormat(Format format) throws ExoPlaybackException {
       return MimeTypes.getTrackType(format.sampleMimeType) == trackType
-          ? (FORMAT_HANDLED | ADAPTIVE_SEAMLESS) : FORMAT_UNSUPPORTED_TYPE;
+          ? RendererCapabilities.create(FORMAT_HANDLED, ADAPTIVE_SEAMLESS, TUNNELING_NOT_SUPPORTED)
+          : RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
     }
 
     @Override
+    @AdaptiveSupport
     public int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
       return ADAPTIVE_SEAMLESS;
     }

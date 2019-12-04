@@ -177,6 +177,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   // RendererCapabilities implementation.
 
   @Override
+  @AdaptiveSupport
   public int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
     return ADAPTIVE_NOT_SUPPORTED;
   }

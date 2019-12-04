@@ -157,6 +157,7 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
   // BaseRenderer implementation.
 
   @Override
+  @Capabilities
   public final int supportsFormat(Format format) {
     return supportsFormatInternal(drmSessionManager, format);
   }
@@ -498,13 +499,14 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
   }
 
   /**
-   * Returns the extent to which the subclass supports a given format.
+   * Returns the {@link Capabilities} for the given {@link Format}.
    *
    * @param drmSessionManager The renderer's {@link DrmSessionManager}.
    * @param format The format, which has a video {@link Format#sampleMimeType}.
-   * @return The extent to which the subclass supports the format itself.
+   * @return The {@link Capabilities} for this {@link Format}.
    * @see RendererCapabilities#supportsFormat(Format)
    */
+  @Capabilities
   protected abstract int supportsFormatInternal(
       @Nullable DrmSessionManager<ExoMediaCrypto> drmSessionManager, Format format);
 
