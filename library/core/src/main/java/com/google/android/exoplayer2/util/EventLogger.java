@@ -25,6 +25,8 @@ import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.PlaybackSuppressionReason;
 import com.google.android.exoplayer2.RendererCapabilities;
+import com.google.android.exoplayer2.RendererCapabilities.AdaptiveSupport;
+import com.google.android.exoplayer2.RendererCapabilities.FormatSupport;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.audio.AudioAttributes;
@@ -210,7 +212,8 @@ public class EventLogger implements AnalyticsListener {
           String adaptiveSupport =
               getAdaptiveSupportString(
                   trackGroup.length,
-                  mappedTrackInfo.getAdaptiveSupport(rendererIndex, groupIndex, false));
+                  mappedTrackInfo.getAdaptiveSupport(
+                      rendererIndex, groupIndex, /* includeCapabilitiesExceededTracks= */ false));
           logd("    Group:" + groupIndex + ", adaptive_supported=" + adaptiveSupport + " [");
           for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
             String status = getTrackStatusString(trackSelection, trackGroup, trackIndex);
@@ -552,7 +555,7 @@ public class EventLogger implements AnalyticsListener {
     }
   }
 
-  private static String getFormatSupportString(int formatSupport) {
+  private static String getFormatSupportString(@FormatSupport int formatSupport) {
     switch (formatSupport) {
       case RendererCapabilities.FORMAT_HANDLED:
         return "YES";
@@ -565,11 +568,12 @@ public class EventLogger implements AnalyticsListener {
       case RendererCapabilities.FORMAT_UNSUPPORTED_TYPE:
         return "NO";
       default:
-        return "?";
+        throw new IllegalStateException();
     }
   }
 
-  private static String getAdaptiveSupportString(int trackCount, int adaptiveSupport) {
+  private static String getAdaptiveSupportString(
+      int trackCount, @AdaptiveSupport int adaptiveSupport) {
     if (trackCount < 2) {
       return "N/A";
     }
@@ -581,7 +585,7 @@ public class EventLogger implements AnalyticsListener {
       case RendererCapabilities.ADAPTIVE_NOT_SUPPORTED:
         return "NO";
       default:
-        return "?";
+        throw new IllegalStateException();
     }
   }
 
