@@ -179,6 +179,13 @@ public final class ExtractorMediaSource extends CompositeMediaSource<Void> {
       return this;
     }
 
+    /** @deprecated Use {@link ProgressiveMediaSource.Factory#setDrmSessionManager} instead. */
+    @Override
+    @Deprecated
+    public Factory setDrmSessionManager(DrmSessionManager<?> drmSessionManager) {
+      throw new UnsupportedOperationException();
+    }
+
     /**
      * Returns a new {@link ExtractorMediaSource} using the current parameters.
      *
