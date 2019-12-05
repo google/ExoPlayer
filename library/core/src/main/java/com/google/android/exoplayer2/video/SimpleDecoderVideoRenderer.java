@@ -198,7 +198,7 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
         while (feedInputBuffer()) {}
         TraceUtil.endSection();
       } catch (VideoDecoderException e) {
-        throw ExoPlaybackException.createForRenderer(e, getIndex());
+        throw createRendererException(e, inputFormat);
       }
       decoderCounters.ensureUpdated();
     }
@@ -681,7 +681,7 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
           decoderInitializedTimestamp - decoderInitializingTimestamp);
       decoderCounters.decoderInitCount++;
     } catch (VideoDecoderException e) {
-      throw ExoPlaybackException.createForRenderer(e, getIndex());
+      throw createRendererException(e, inputFormat);
     }
   }
 
@@ -887,7 +887,7 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
     }
     @DrmSession.State int drmSessionState = decoderDrmSession.getState();
     if (drmSessionState == DrmSession.STATE_ERROR) {
-      throw ExoPlaybackException.createForRenderer(decoderDrmSession.getError(), getIndex());
+      throw createRendererException(decoderDrmSession.getError(), inputFormat);
     }
     return drmSessionState != DrmSession.STATE_OPENED_WITH_KEYS;
   }
