@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source;
 
 import android.util.Pair;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Window;
@@ -314,7 +315,8 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
   }
 
   /** Dummy placeholder timeline with one dynamic window with a period of indeterminate duration. */
-  private static final class DummyTimeline extends Timeline {
+  @VisibleForTesting
+  public static final class DummyTimeline extends Timeline {
 
     @Nullable private final Object tag;
 
