@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source;
 
 import android.os.Looper;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
@@ -49,7 +50,7 @@ public class SampleQueue implements TrackOutput {
 
   public static final int ADVANCE_FAILED = -1;
 
-  private static final int SAMPLE_CAPACITY_INCREMENT = 1000;
+  @VisibleForTesting /* package */ static final int SAMPLE_CAPACITY_INCREMENT = 1000;
 
   private final SampleDataQueue sampleDataQueue;
   private final SampleExtrasHolder extrasHolder;
@@ -652,7 +653,6 @@ public class SampleQueue implements TrackOutput {
       formats = newFormats;
       sourceIds = newSourceIds;
       relativeFirstIndex = 0;
-      length = capacity;
       capacity = newCapacity;
     }
   }

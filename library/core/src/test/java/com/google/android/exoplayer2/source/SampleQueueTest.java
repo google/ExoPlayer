@@ -158,6 +158,34 @@ public final class SampleQueueTest {
   }
 
   @Test
+  public void testCapacityIncreases() {
+    int numberOfSamplesToInput = 3 * SampleQueue.SAMPLE_CAPACITY_INCREMENT + 1;
+    sampleQueue.format(FORMAT_1);
+    sampleQueue.sampleData(
+        new ParsableByteArray(numberOfSamplesToInput), /* length= */ numberOfSamplesToInput);
+    for (int i = 0; i < numberOfSamplesToInput; i++) {
+      sampleQueue.sampleMetadata(
+          /* timeUs= */ i * 1000,
+          /* flags= */ C.BUFFER_FLAG_KEY_FRAME,
+          /* size= */ 1,
+          /* offset= */ numberOfSamplesToInput - i - 1,
+          /* cryptoData= */ null);
+    }
+
+    assertReadFormat(/* formatRequired= */ false, FORMAT_1);
+    for (int i = 0; i < numberOfSamplesToInput; i++) {
+      assertReadSample(
+          /* timeUs= */ i * 1000,
+          /* isKeyFrame= */ true,
+          /* isEncrypted= */ false,
+          /* sampleData= */ new byte[1],
+          /* offset= */ 0,
+          /* length= */ 1);
+    }
+    assertReadNothing(/* formatRequired= */ false);
+  }
+
+  @Test
   public void testResetReleasesAllocations() {
     writeTestData();
     assertAllocationCount(10);
