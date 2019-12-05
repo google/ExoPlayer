@@ -22,6 +22,8 @@
 * Allow `AdtsExtractor` to encounter EoF when calculating average frame size
   ([#6700](https://github.com/google/ExoPlayer/issues/6700)).
 * Make media session connector dispatch ACTION_SET_CAPTIONING_ENABLED.
+* Add support for position and overlapping start/end times in SSA/ASS subtitles
+  ([#6320](https://github.com/google/ExoPlayer/issues/6320)).
 
 ### 2.11.0 (not yet released) ###
 
