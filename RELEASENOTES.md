@@ -83,6 +83,12 @@
     ([#6601](https://github.com/google/ExoPlayer/issues/6601)).
   * Allow `AdtsExtractor` to encounter EoF when calculating average frame size
     ([#6700](https://github.com/google/ExoPlayer/issues/6700)).
+* Text:
+  * Require an end time or duration for SubRip (SRT) and SubStation Alpha
+    (SSA/ASS) subtitles. This applies to both sidecar files & subtitles
+    [embedded in Matroska streams](https://matroska.org/technical/specs/subtitles/index.html).
+  * Reconfigure audio sink when PCM encoding changes
+    ([#6601](https://github.com/google/ExoPlayer/issues/6601)).
 * UI:
   * Make showing and hiding player controls accessible to TalkBack in
     `PlayerView`.
