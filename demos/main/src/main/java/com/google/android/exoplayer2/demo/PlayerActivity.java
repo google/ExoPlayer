@@ -508,7 +508,7 @@ public class PlayerActivity extends AppCompatActivity
   }
 
   private MediaSource createLeafMediaSource(
-      Uri uri, String extension, DrmSessionManager<ExoMediaCrypto> drmSessionManager) {
+      Uri uri, String extension, DrmSessionManager<?> drmSessionManager) {
     @ContentType int type = Util.inferContentType(uri, extension);
     switch (type) {
       case C.TYPE_DASH:
@@ -617,13 +617,12 @@ public class PlayerActivity extends AppCompatActivity
       MediaSourceFactory adMediaSourceFactory =
           new MediaSourceFactory() {
 
-            private DrmSessionManager<ExoMediaCrypto> drmSessionManager =
+            private DrmSessionManager<?> drmSessionManager =
                 DrmSessionManager.getDummyDrmSessionManager();
 
             @Override
-            @SuppressWarnings("unchecked") // Safe upcasting.
             public MediaSourceFactory setDrmSessionManager(DrmSessionManager<?> drmSessionManager) {
-              this.drmSessionManager = (DrmSessionManager<ExoMediaCrypto>) drmSessionManager;
+              this.drmSessionManager = drmSessionManager;
               return this;
             }
 
