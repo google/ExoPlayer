@@ -162,7 +162,8 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
 
   @Override
   public void dump(Dumper dumper) {
-    dumper.startBlock("format")
+    dumper
+        .startBlock("format")
         .add("bitrate", format.bitrate)
         .add("id", format.id)
         .add("containerMimeType", format.containerMimeType)
@@ -181,7 +182,8 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
         .add("subsampleOffsetUs", format.subsampleOffsetUs)
         .add("selectionFlags", format.selectionFlags)
         .add("language", format.language)
-        .add("drmInitData", format.drmInitData != null ? format.drmInitData.hashCode() : "-");
+        .add("drmInitData", format.drmInitData != null ? format.drmInitData.hashCode() : "-")
+        .add("metadata", format.metadata);
 
     dumper.startBlock("initializationData");
     for (int i = 0; i < format.initializationData.size(); i++) {

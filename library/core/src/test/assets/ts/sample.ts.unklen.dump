@@ -24,6 +24,7 @@ track 256:
     selectionFlags = 0
     language = null
     drmInitData = -
+    metadata = null
     initializationData:
       data = length 22, hash CE183139
   total output bytes = 45026
@@ -57,6 +58,7 @@ track 257:
     selectionFlags = 0
     language = und
     drmInitData = -
+    metadata = null
     initializationData:
   total output bytes = 5015
   sample count = 4
@@ -97,6 +99,7 @@ track 8448:
     selectionFlags = 0
     language = null
     drmInitData = -
+    metadata = null
     initializationData:
   total output bytes = 0
   sample count = 0
