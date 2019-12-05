@@ -443,7 +443,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
             if (analyticsListener != null) {
               player.addAnalyticsListener(analyticsListener);
             }
-            player.setPlayWhenReady(true);
+            player.play();
             if (actionSchedule != null) {
               actionSchedule.start(player, trackSelector, null, handler, ExoPlayerTestRunner.this);
             }

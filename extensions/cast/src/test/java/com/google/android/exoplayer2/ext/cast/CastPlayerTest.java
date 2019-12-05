@@ -85,7 +85,7 @@ public class CastPlayerTest {
     when(mockRemoteMediaClient.play()).thenReturn(mockPendingResult);
     assertThat(castPlayer.getPlayWhenReady()).isFalse();
 
-    castPlayer.setPlayWhenReady(true);
+    castPlayer.play();
     verify(mockPendingResult).setResultCallback(setResultCallbackArgumentCaptor.capture());
     assertThat(castPlayer.getPlayWhenReady()).isTrue();
     verify(mockListener).onPlayerStateChanged(true, Player.STATE_IDLE);
@@ -107,7 +107,7 @@ public class CastPlayerTest {
     when(mockRemoteMediaClient.play()).thenReturn(mockPendingResult);
     assertThat(castPlayer.getPlayWhenReady()).isFalse();
 
-    castPlayer.setPlayWhenReady(true);
+    castPlayer.play();
     verify(mockPendingResult).setResultCallback(setResultCallbackArgumentCaptor.capture());
     assertThat(castPlayer.getPlayWhenReady()).isTrue();
     verify(mockListener).onPlayerStateChanged(true, Player.STATE_IDLE);

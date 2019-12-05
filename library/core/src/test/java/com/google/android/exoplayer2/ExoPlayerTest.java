@@ -2298,7 +2298,7 @@ public final class ExoPlayerTest {
           @Override
           public void onTimelineChanged(Timeline timeline, int reason) {
             if (timeline.isEmpty()) {
-              playerReference.get().setPlayWhenReady(/* playWhenReady= */ false);
+              playerReference.get().pause();
             }
           }
 

@@ -87,7 +87,7 @@ public class FlacPlaybackTest {
                   MatroskaExtractor.FACTORY)
               .createMediaSource(uri);
       player.prepare(mediaSource);
-      player.setPlayWhenReady(true);
+      player.play();
       Looper.loop();
     }
 

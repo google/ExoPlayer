@@ -513,7 +513,7 @@ public abstract class Action {
                 ConditionVariable blockPlaybackThreadCondition = new ConditionVariable();
                 testThreadHandler.post(
                     () -> {
-                      player.setPlayWhenReady(/* playWhenReady= */ false);
+                      player.pause();
                       blockPlaybackThreadCondition.open();
                     });
                 try {
@@ -532,7 +532,7 @@ public abstract class Action {
           .setPosition(windowIndex, positionMs)
           .setHandler(testThreadHandler)
           .send();
-      player.setPlayWhenReady(true);
+      player.play();
     }
 
     @Override
