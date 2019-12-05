@@ -783,8 +783,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         decoderCounters.skippedInputBufferCount += skipSource(positionUs);
         // We need to read any format changes despite not having a codec so that drmSession can be
         // updated, and so that we have the most recent format should the codec be initialized. We
-        // may
-        // also reach the end of the stream. Note that readSource will not read a sample into a
+        // may also reach the end of the stream. Note that readSource will not read a sample into a
         // flags-only buffer.
         readToFlagsOnlyBuffer(/* requireFormat= */ false);
       }
