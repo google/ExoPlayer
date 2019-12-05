@@ -333,7 +333,7 @@ public class Cue {
    */
   public Cue(
       CharSequence text,
-      Alignment textAlignment,
+      @Nullable Alignment textAlignment,
       float line,
       @LineType int lineType,
       @AnchorType int lineAnchor,

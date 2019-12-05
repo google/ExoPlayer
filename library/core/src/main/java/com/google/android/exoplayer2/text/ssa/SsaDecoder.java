@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.text.ssa;
 
+import static com.google.android.exoplayer2.util.Util.castNonNull;
+
 import android.text.Layout;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -115,7 +117,7 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
    * @param data A {@link ParsableByteArray} from which the header should be read.
    */
   private void parseHeader(ParsableByteArray data) {
-    String currentLine;
+    @Nullable String currentLine;
     while ((currentLine = data.readLine()) != null) {
       if ("[Script Info]".equalsIgnoreCase(currentLine)) {
         parseScriptInfo(data);
@@ -140,7 +142,7 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
    *     set to the beginning of of the first line after {@code [Script Info]}.
    */
   private void parseScriptInfo(ParsableByteArray data) {
-    String currentLine;
+    @Nullable String currentLine;
     while ((currentLine = data.readLine()) != null
         && (data.bytesLeft() == 0 || data.peekUnsignedByte() != '[')) {
       String[] infoNameAndValue = currentLine.split(":");
@@ -176,9 +178,9 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
    *     at the beginning of of the first line after {@code [V4+ Styles]}.
    */
   private static Map<String, SsaStyle> parseStyles(ParsableByteArray data) {
-    SsaStyle.Format formatInfo = null;
     Map<String, SsaStyle> styles = new LinkedHashMap<>();
-    String currentLine;
+    @Nullable SsaStyle.Format formatInfo = null;
+    @Nullable String currentLine;
     while ((currentLine = data.readLine()) != null
         && (data.bytesLeft() == 0 || data.peekUnsignedByte() != '[')) {
       if (currentLine.startsWith(FORMAT_LINE_PREFIX)) {
@@ -188,7 +190,7 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
           Log.w(TAG, "Skipping 'Style:' line before 'Format:' line: " + currentLine);
           continue;
         }
-        SsaStyle style = SsaStyle.fromStyleLine(currentLine, formatInfo);
+        @Nullable SsaStyle style = SsaStyle.fromStyleLine(currentLine, formatInfo);
         if (style != null) {
           styles.put(style.name, style);
         }
@@ -205,8 +207,9 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
    * @param cueTimesUs A sorted list to which parsed cue timestamps will be added.
    */
   private void parseEventBody(ParsableByteArray data, List<List<Cue>> cues, List<Long> cueTimesUs) {
+    @Nullable
     SsaDialogueFormat format = haveInitializationData ? dialogueFormatFromInitializationData : null;
-    String currentLine;
+    @Nullable String currentLine;
     while ((currentLine = data.readLine()) != null) {
       if (currentLine.startsWith(FORMAT_LINE_PREFIX)) {
         format = SsaDialogueFormat.fromFormatLine(currentLine);
@@ -250,6 +253,7 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
       return;
     }
 
+    @Nullable
     SsaStyle style =
         styles != null && format.styleIndex != C.INDEX_UNSET
             ? styles.get(lineValues[format.styleIndex].trim())
@@ -281,10 +285,11 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
     if (!matcher.matches()) {
       return C.TIME_UNSET;
     }
-    long timestampUs = Long.parseLong(matcher.group(1)) * 60 * 60 * C.MICROS_PER_SECOND;
-    timestampUs += Long.parseLong(matcher.group(2)) * 60 * C.MICROS_PER_SECOND;
-    timestampUs += Long.parseLong(matcher.group(3)) * C.MICROS_PER_SECOND;
-    timestampUs += Long.parseLong(matcher.group(4)) * 10000; // 100ths of a second.
+    long timestampUs =
+        Long.parseLong(castNonNull(matcher.group(1))) * 60 * 60 * C.MICROS_PER_SECOND;
+    timestampUs += Long.parseLong(castNonNull(matcher.group(2))) * 60 * C.MICROS_PER_SECOND;
+    timestampUs += Long.parseLong(castNonNull(matcher.group(3))) * C.MICROS_PER_SECOND;
+    timestampUs += Long.parseLong(castNonNull(matcher.group(4))) * 10000; // 100ths of a second.
     return timestampUs;
   }
 

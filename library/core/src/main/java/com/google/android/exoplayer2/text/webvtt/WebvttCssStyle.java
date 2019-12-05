@@ -220,7 +220,7 @@ public final class WebvttCssStyle {
     return fontFamily;
   }
 
-  public WebvttCssStyle setFontFamily(String fontFamily) {
+  public WebvttCssStyle setFontFamily(@Nullable String fontFamily) {
     this.fontFamily = Util.toLowerInvariant(fontFamily);
     return this;
   }
@@ -264,7 +264,7 @@ public final class WebvttCssStyle {
     return textAlign;
   }
 
-  public WebvttCssStyle setTextAlign(Layout.Alignment textAlign) {
+  public WebvttCssStyle setTextAlign(@Nullable Layout.Alignment textAlign) {
     this.textAlign = textAlign;
     return this;
   }
