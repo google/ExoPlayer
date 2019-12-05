@@ -27,13 +27,6 @@ android {
         targetSdkVersion project.ext.targetSdkVersion
     }
 
-    lintOptions {
-        // Truth depends on JUnit, which depends on java.lang.management, which
-        // is not part of Android. Remove this when JUnit 4.13 or later is used.
-        // See: https://github.com/junit-team/junit4/pull/1187.
-        disable 'InvalidPackage'
-    }
-
     testOptions.unitTests.includeAndroidResources = true
 }
 
