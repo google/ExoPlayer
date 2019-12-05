@@ -221,7 +221,7 @@ public final class MainActivity extends Activity {
     }
     SimpleExoPlayer player = new SimpleExoPlayer.Builder(getApplicationContext()).build();
     player.prepare(mediaSource);
-    player.setPlayWhenReady(true);
+    player.play();
     player.setRepeatMode(Player.REPEAT_MODE_ALL);
 
     surfaceControl =

@@ -131,7 +131,7 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
     trackSelector = buildTrackSelector(host);
     String userAgent = "ExoPlayerPlaybackTests";
     player = buildExoPlayer(host, surface, trackSelector);
-    player.setPlayWhenReady(true);
+    player.play();
     player.addAnalyticsListener(this);
     player.addAnalyticsListener(new EventLogger(trackSelector, tag));
     // Schedule any pending actions.

@@ -1794,7 +1794,7 @@ public class SimpleExoPlayer extends BasePlayer
 
     @Override
     public void onAudioBecomingNoisy() {
-      setPlayWhenReady(false);
+      pause();
     }
 
     // Player.EventListener implementation.
