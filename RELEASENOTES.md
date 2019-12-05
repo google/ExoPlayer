@@ -29,6 +29,7 @@
   * Add `MediaPeriod.isLoading` to improve `Player.isLoading` state.
   * Fix issue where player errors are thrown too early at playlist transitions
     ([#5407](https://github.com/google/ExoPlayer/issues/5407)).
+  * Add `Format` and renderer support flags to renderer `ExoPlaybackException`s.
 * DRM:
   * Inject `DrmSessionManager` into the `MediaSources` instead of `Renderers`.
     This allows each `MediaSource` in a `ConcatenatingMediaSource` to use a

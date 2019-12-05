@@ -165,7 +165,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
       try {
         nextSubtitle = decoder.dequeueOutputBuffer();
       } catch (SubtitleDecoderException e) {
-        throw ExoPlaybackException.createForRenderer(e, getIndex());
+        throw createRendererException(e, streamFormat);
       }
     }
 
@@ -247,7 +247,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
         }
       }
     } catch (SubtitleDecoderException e) {
-      throw ExoPlaybackException.createForRenderer(e, getIndex());
+      throw createRendererException(e, streamFormat);
     }
   }
 

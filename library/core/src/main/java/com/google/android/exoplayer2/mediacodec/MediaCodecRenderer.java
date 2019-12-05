@@ -463,7 +463,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     try {
       return supportsFormat(mediaCodecSelector, drmSessionManager, format);
     } catch (DecoderQueryException e) {
-      throw ExoPlaybackException.createForRenderer(e, getIndex());
+      throw createRendererException(e, format);
     }
   }
 
@@ -538,7 +538,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           try {
             mediaCrypto = new MediaCrypto(sessionMediaCrypto.uuid, sessionMediaCrypto.sessionId);
           } catch (MediaCryptoException e) {
-            throw ExoPlaybackException.createForRenderer(e, getIndex());
+            throw createRendererException(e, inputFormat);
           }
           mediaCryptoRequiresSecureDecoder =
               !sessionMediaCrypto.forceAllowInsecureDecoderComponents
@@ -548,7 +548,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       if (FrameworkMediaCrypto.WORKAROUND_DEVICE_NEEDS_KEYS_TO_CONFIGURE_CODEC) {
         @DrmSession.State int drmSessionState = codecDrmSession.getState();
         if (drmSessionState == DrmSession.STATE_ERROR) {
-          throw ExoPlaybackException.createForRenderer(codecDrmSession.getError(), getIndex());
+          throw createRendererException(codecDrmSession.getError(), inputFormat);
         } else if (drmSessionState != DrmSession.STATE_OPENED_WITH_KEYS) {
           // Wait for keys.
           return;
@@ -559,7 +559,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     try {
       maybeInitCodecWithFallback(mediaCrypto, mediaCryptoRequiresSecureDecoder);
     } catch (DecoderInitializationException e) {
-      throw ExoPlaybackException.createForRenderer(e, getIndex());
+      throw createRendererException(e, inputFormat);
     }
   }
 
@@ -722,8 +722,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       decoderCounters.ensureUpdated();
     } catch (IllegalStateException e) {
       if (isMediaCodecException(e)) {
-        throw ExoPlaybackException.createForRenderer(
-            createDecoderException(e, getCodecInfo()), getIndex());
+        throw createRendererException(e, inputFormat);
       }
       throw e;
     }
@@ -1130,7 +1129,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           resetInputBuffer();
         }
       } catch (CryptoException e) {
-        throw ExoPlaybackException.createForRenderer(e, getIndex());
+        throw createRendererException(e, inputFormat);
       }
       return false;
     }
@@ -1186,7 +1185,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       codecReconfigurationState = RECONFIGURATION_STATE_NONE;
       decoderCounters.inputBufferCount++;
     } catch (CryptoException e) {
-      throw ExoPlaybackException.createForRenderer(e, getIndex());
+      throw createRendererException(e, inputFormat);
     }
     return true;
   }
@@ -1199,7 +1198,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
     @DrmSession.State int drmSessionState = codecDrmSession.getState();
     if (drmSessionState == DrmSession.STATE_ERROR) {
-      throw ExoPlaybackException.createForRenderer(codecDrmSession.getError(), getIndex());
+      throw createRendererException(codecDrmSession.getError(), inputFormat);
     }
     return drmSessionState != DrmSession.STATE_OPENED_WITH_KEYS;
   }
@@ -1744,7 +1743,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     try {
       mediaCrypto.setMediaDrmSession(sessionMediaCrypto.sessionId);
     } catch (MediaCryptoException e) {
-      throw ExoPlaybackException.createForRenderer(e, getIndex());
+      throw createRendererException(e, inputFormat);
     }
     setCodecDrmSession(sourceDrmSession);
     codecDrainState = DRAIN_STATE_NONE;
