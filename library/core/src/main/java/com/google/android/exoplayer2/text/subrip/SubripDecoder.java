@@ -73,8 +73,8 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
     ArrayList<Cue> cues = new ArrayList<>();
     LongArray cueTimesUs = new LongArray();
     ParsableByteArray subripData = new ParsableByteArray(bytes, length);
-    String currentLine;
 
+    @Nullable String currentLine;
     while ((currentLine = subripData.readLine()) != null) {
       if (currentLine.length() == 0) {
         // Skip blank lines.
@@ -119,7 +119,7 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
 
       Spanned text = Html.fromHtml(textBuilder.toString());
 
-      String alignmentTag = null;
+      @Nullable String alignmentTag = null;
       for (int i = 0; i < tags.size(); i++) {
         String tag = tags.get(i);
         if (tag.matches(SUBRIP_ALIGNMENT_TAG)) {
