@@ -304,13 +304,13 @@ public final class Mp4Extractor implements Extractor, SeekMap {
 
     if (shouldParseContainerAtom(atomType)) {
       long endPosition = input.getPosition() + atomSize - atomHeaderBytesRead;
+      if (atomSize != atomHeaderBytesRead && atomType == Atom.TYPE_meta) {
+        maybeSkipRemainingMetaAtomHeaderBytes(input);
+      }
       containerAtoms.push(new ContainerAtom(atomType, endPosition));
       if (atomSize == atomHeaderBytesRead) {
         processAtomEnded(endPosition);
       } else {
-        if (atomType == Atom.TYPE_meta) {
-          maybeSkipRemainingMetaAtomHeaderBytes(input);
-        }
         // Start reading the first child atom.
         enterReadingAtomHeaderState();
       }
