@@ -2014,6 +2014,33 @@ public final class Util {
     return capabilities;
   }
 
+  /**
+   * Returns a string representation of a {@code TRACK_TYPE_*} constant defined in {@link C}.
+   *
+   * @param trackType A {@code TRACK_TYPE_*} constant,
+   * @return A string representation of this constant.
+   */
+  public static String getTrackTypeString(int trackType) {
+    switch (trackType) {
+      case C.TRACK_TYPE_AUDIO:
+        return "audio";
+      case C.TRACK_TYPE_DEFAULT:
+        return "default";
+      case C.TRACK_TYPE_METADATA:
+        return "metadata";
+      case C.TRACK_TYPE_CAMERA_MOTION:
+        return "camera motion";
+      case C.TRACK_TYPE_NONE:
+        return "none";
+      case C.TRACK_TYPE_TEXT:
+        return "text";
+      case C.TRACK_TYPE_VIDEO:
+        return "video";
+      default:
+        return trackType >= C.TRACK_TYPE_CUSTOM_BASE ? "custom (" + trackType + ")" : "?";
+    }
+  }
+
   @Nullable
   private static String getSystemProperty(String name) {
     try {

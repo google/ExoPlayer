@@ -384,7 +384,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       }
       maybeNotifyPlaybackInfoChanged();
     } catch (ExoPlaybackException e) {
-      Log.e(TAG, "Playback error.", e);
+      Log.e(TAG, getExoPlaybackExceptionMessage(e), e);
       stopInternal(
           /* forceResetRenderers= */ true,
           /* resetPositionAndState= */ false,
@@ -416,6 +416,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   // Private methods.
+
+  private String getExoPlaybackExceptionMessage(ExoPlaybackException e) {
+    if (e.type != ExoPlaybackException.TYPE_RENDERER) {
+      return "Playback error.";
+    }
+    return "Renderer error: index="
+        + e.rendererIndex
+        + ", type="
+        + Util.getTrackTypeString(renderers[e.rendererIndex].getTrackType())
+        + ", format="
+        + e.rendererFormat
+        + ", rendererSupport="
+        + RendererCapabilities.getFormatSupportString(e.rendererFormatSupport);
+  }
 
   /**
    * Blocks the current thread until {@link #releaseInternal()} is executed on the playback Thread.
