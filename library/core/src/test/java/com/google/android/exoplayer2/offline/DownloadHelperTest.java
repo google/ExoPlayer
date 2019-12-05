@@ -115,7 +115,7 @@ public class DownloadHelperTest {
             TEST_CACHE_KEY,
             new TestMediaSource(),
             DownloadHelper.DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_VIEWPORT,
-            Util.getRendererCapabilities(renderersFactory, /* drmSessionManager= */ null));
+            Util.getRendererCapabilities(renderersFactory));
   }
 
   @Test

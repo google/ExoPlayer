@@ -54,8 +54,6 @@ import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
-import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.io.ByteArrayOutputStream;
@@ -1979,13 +1977,10 @@ public final class Util {
    * Extract renderer capabilities for the renderers created by the provided renderers factory.
    *
    * @param renderersFactory A {@link RenderersFactory}.
-   * @param drmSessionManager An optional {@link DrmSessionManager} used by the renderers.
    * @return The {@link RendererCapabilities} for each renderer created by the {@code
    *     renderersFactory}.
    */
-  public static RendererCapabilities[] getRendererCapabilities(
-      RenderersFactory renderersFactory,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
+  public static RendererCapabilities[] getRendererCapabilities(RenderersFactory renderersFactory) {
     Renderer[] renderers =
         renderersFactory.createRenderers(
             new Handler(),
@@ -1993,7 +1988,7 @@ public final class Util {
             new AudioRendererEventListener() {},
             (cues) -> {},
             (metadata) -> {},
-            drmSessionManager);
+            /* drmSessionManager= */ null);
     RendererCapabilities[] capabilities = new RendererCapabilities[renderers.length];
     for (int i = 0; i < renderers.length; i++) {
       capabilities[i] = renderers[i].getCapabilities();

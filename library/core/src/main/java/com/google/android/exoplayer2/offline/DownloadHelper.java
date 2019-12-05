@@ -269,7 +269,7 @@ public final class DownloadHelper {
             drmSessionManager,
             /* streamKeys= */ null),
         trackSelectorParameters,
-        Util.getRendererCapabilities(renderersFactory, /* drmSessionManager= */ null));
+        Util.getRendererCapabilities(renderersFactory));
   }
 
   /** @deprecated Use {@link #forHls(Context, Uri, Factory, RenderersFactory)} */
@@ -339,7 +339,7 @@ public final class DownloadHelper {
             drmSessionManager,
             /* streamKeys= */ null),
         trackSelectorParameters,
-        Util.getRendererCapabilities(renderersFactory, /* drmSessionManager= */ null));
+        Util.getRendererCapabilities(renderersFactory));
   }
 
   /** @deprecated Use {@link #forSmoothStreaming(Context, Uri, Factory, RenderersFactory)} */
@@ -409,7 +409,7 @@ public final class DownloadHelper {
             drmSessionManager,
             /* streamKeys= */ null),
         trackSelectorParameters,
-        Util.getRendererCapabilities(renderersFactory, /* drmSessionManager= */ null));
+        Util.getRendererCapabilities(renderersFactory));
   }
 
   /**
