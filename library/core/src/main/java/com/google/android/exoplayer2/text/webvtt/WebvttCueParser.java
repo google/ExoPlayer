@@ -44,9 +44,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Parser for WebVTT cues. (https://w3c.github.io/webvtt/#cues)
- */
+/** Parser for WebVTT cues. (https://w3c.github.io/webvtt/#cues) */
 public final class WebvttCueParser {
 
   public static final Pattern CUE_HEADER_PATTERN = Pattern
@@ -94,7 +92,7 @@ public final class WebvttCueParser {
    */
   public boolean parseCue(
       ParsableByteArray webvttData, WebvttCue.Builder builder, List<WebvttCssStyle> styles) {
-    String firstLine = webvttData.readLine();
+    @Nullable String firstLine = webvttData.readLine();
     if (firstLine == null) {
       return false;
     }
@@ -104,7 +102,7 @@ public final class WebvttCueParser {
       return parseCue(null, cueHeaderMatcher, webvttData, builder, textBuilder, styles);
     }
     // The first line is not the timestamps, but could be the cue id.
-    String secondLine = webvttData.readLine();
+    @Nullable String secondLine = webvttData.readLine();
     if (secondLine == null) {
       return false;
     }

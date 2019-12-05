@@ -26,9 +26,7 @@ import com.google.android.exoplayer2.util.Log;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 
-/**
- * A representation of a WebVTT cue.
- */
+/** A representation of a WebVTT cue. */
 public final class WebvttCue extends Cue {
 
   private static final float DEFAULT_POSITION = 0.5f;

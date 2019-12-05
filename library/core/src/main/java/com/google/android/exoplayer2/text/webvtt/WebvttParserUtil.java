@@ -52,7 +52,7 @@ public final class WebvttParserUtil {
    * @param input The input from which the line should be read.
    */
   public static boolean isWebvttHeaderLine(ParsableByteArray input) {
-    String line = input.readLine();
+    @Nullable String line = input.readLine();
     return line != null && line.startsWith(WEBVTT_HEADER);
   }
 
@@ -101,7 +101,7 @@ public final class WebvttParserUtil {
    */
   @Nullable
   public static Matcher findNextCueHeader(ParsableByteArray input) {
-    String line;
+    @Nullable String line;
     while ((line = input.readLine()) != null) {
       if (COMMENT.matcher(line).matches()) {
         // Skip until the end of the comment block.
