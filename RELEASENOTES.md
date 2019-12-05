@@ -26,6 +26,7 @@
   ([#6320](https://github.com/google/ExoPlayer/issues/6320)).
 * Add `play` and `pause` methods to `Player`.
 * Upgrade Truth dependency from 0.44 to 1.0.
+* Upgrade to JUnit 4.13-rc-2.
 
 ### 2.11.0 (not yet released) ###
 
