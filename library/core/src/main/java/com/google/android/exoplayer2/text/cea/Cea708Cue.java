@@ -25,11 +25,6 @@ import com.google.android.exoplayer2.text.Cue;
 /* package */ final class Cea708Cue extends Cue implements Comparable<Cea708Cue> {
 
   /**
-   * An unset priority.
-   */
-  public static final int PRIORITY_UNSET = -1;
-
-  /**
    * The priority of the cue box.
    */
   public final int priority;
@@ -64,5 +59,4 @@ import com.google.android.exoplayer2.text.Cue;
     }
     return 0;
   }
-
 }

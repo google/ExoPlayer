@@ -80,11 +80,11 @@ public final class TextRenderer extends BaseRenderer implements Callback {
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
   @ReplacementState private int decoderReplacementState;
-  private Format streamFormat;
-  private SubtitleDecoder decoder;
-  private SubtitleInputBuffer nextInputBuffer;
-  private SubtitleOutputBuffer subtitle;
-  private SubtitleOutputBuffer nextSubtitle;
+  @Nullable private Format streamFormat;
+  @Nullable private SubtitleDecoder decoder;
+  @Nullable private SubtitleInputBuffer nextInputBuffer;
+  @Nullable private SubtitleOutputBuffer subtitle;
+  @Nullable private SubtitleOutputBuffer nextSubtitle;
   private int nextSubtitleEventIndex;
 
   /**
@@ -132,7 +132,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
   }
 
   @Override
-  protected void onStreamChanged(Format[] formats, long offsetUs) throws ExoPlaybackException {
+  protected void onStreamChanged(Format[] formats, long offsetUs) {
     streamFormat = formats[0];
     if (decoder != null) {
       decoderReplacementState = REPLACEMENT_STATE_SIGNAL_END_OF_STREAM;
