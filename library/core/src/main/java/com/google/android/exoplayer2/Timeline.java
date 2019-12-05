@@ -905,4 +905,50 @@ public abstract class Timeline {
    * @return The unique id of the period.
    */
   public abstract Object getUidOfPeriod(int periodIndex);
+
+  @Override
+  public boolean equals(@Nullable Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!(obj instanceof Timeline)) {
+      return false;
+    }
+    Timeline other = (Timeline) obj;
+    if (other.getWindowCount() != getWindowCount() || other.getPeriodCount() != getPeriodCount()) {
+      return false;
+    }
+    Timeline.Window window = new Timeline.Window();
+    Timeline.Period period = new Timeline.Period();
+    Timeline.Window otherWindow = new Timeline.Window();
+    Timeline.Period otherPeriod = new Timeline.Period();
+    for (int i = 0; i < getWindowCount(); i++) {
+      if (!getWindow(i, window).equals(other.getWindow(i, otherWindow))) {
+        return false;
+      }
+    }
+    for (int i = 0; i < getPeriodCount(); i++) {
+      if (!getPeriod(i, period, /* setIds= */ true)
+          .equals(other.getPeriod(i, otherPeriod, /* setIds= */ true))) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    Window window = new Window();
+    Period period = new Period();
+    int result = 7;
+    result = 31 * result + getWindowCount();
+    for (int i = 0; i < getWindowCount(); i++) {
+      result = 31 * result + getWindow(i, window).hashCode();
+    }
+    result = 31 * result + getPeriodCount();
+    for (int i = 0; i < getPeriodCount(); i++) {
+      result = 31 * result + getPeriod(i, period, /* setIds= */ true).hashCode();
+    }
+    return result;
+  }
 }

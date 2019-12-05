@@ -141,7 +141,8 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
       pendingSchedule = null;
     }
     DrmSessionManager<FrameworkMediaCrypto> drmSessionManager = buildDrmSessionManager(userAgent);
-    player.prepare(buildSource(host, Util.getUserAgent(host, userAgent), drmSessionManager));
+    player.setMediaItem(buildSource(host, Util.getUserAgent(host, userAgent), drmSessionManager));
+    player.prepare();
   }
 
   @Override
