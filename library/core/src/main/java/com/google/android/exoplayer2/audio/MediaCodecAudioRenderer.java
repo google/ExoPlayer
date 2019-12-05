@@ -90,10 +90,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   private boolean codecNeedsDiscardChannelsWorkaround;
   private boolean codecNeedsEosBufferTimestampWorkaround;
   private android.media.MediaFormat passthroughMediaFormat;
-  private @C.Encoding int pcmEncoding;
-  private int channelCount;
-  private int encoderDelay;
-  private int encoderPadding;
+  @Nullable private Format inputFormat;
   private long currentPositionUs;
   private boolean allowFirstBufferPositionDiscontinuity;
   private boolean allowPositionDiscontinuity;
@@ -551,15 +548,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Override
   protected void onInputFormatChanged(FormatHolder formatHolder) throws ExoPlaybackException {
     super.onInputFormatChanged(formatHolder);
-    Format newFormat = formatHolder.format;
-    eventDispatcher.inputFormatChanged(newFormat);
-    // If the input format is anything other than PCM then we assume that the audio decoder will
-    // output 16-bit PCM.
-    pcmEncoding = MimeTypes.AUDIO_RAW.equals(newFormat.sampleMimeType) ? newFormat.pcmEncoding
-        : C.ENCODING_PCM_16BIT;
-    channelCount = newFormat.channelCount;
-    encoderDelay = newFormat.encoderDelay;
-    encoderPadding = newFormat.encoderPadding;
+    inputFormat = formatHolder.format;
+    eventDispatcher.inputFormatChanged(inputFormat);
   }
 
   @Override
@@ -575,14 +565,14 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
               mediaFormat.getString(MediaFormat.KEY_MIME));
     } else {
       mediaFormat = outputMediaFormat;
-      encoding = pcmEncoding;
+      encoding = getPcmEncoding(inputFormat);
     }
     int channelCount = mediaFormat.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
     int sampleRate = mediaFormat.getInteger(MediaFormat.KEY_SAMPLE_RATE);
     int[] channelMap;
-    if (codecNeedsDiscardChannelsWorkaround && channelCount == 6 && this.channelCount < 6) {
-      channelMap = new int[this.channelCount];
-      for (int i = 0; i < this.channelCount; i++) {
+    if (codecNeedsDiscardChannelsWorkaround && channelCount == 6 && inputFormat.channelCount < 6) {
+      channelMap = new int[inputFormat.channelCount];
+      for (int i = 0; i < inputFormat.channelCount; i++) {
         channelMap[i] = i;
       }
     } else {
@@ -590,10 +580,17 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     }
 
     try {
-      audioSink.configure(encoding, channelCount, sampleRate, 0, channelMap, encoderDelay,
-          encoderPadding);
+      audioSink.configure(
+          encoding,
+          channelCount,
+          sampleRate,
+          0,
+          channelMap,
+          inputFormat.encoderDelay,
+          inputFormat.encoderPadding);
     } catch (AudioSink.ConfigurationException e) {
-      throw ExoPlaybackException.createForRenderer(e, getIndex());
+      // TODO(internal: b/145658993) Use outputFormat instead.
+      throw createRendererException(e, inputFormat);
     }
   }
 
@@ -820,7 +817,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         return true;
       }
     } catch (AudioSink.InitializationException | AudioSink.WriteException e) {
-      throw ExoPlaybackException.createForRenderer(e, getIndex());
+      // TODO(internal: b/145658993) Use outputFormat instead.
+      throw createRendererException(e, inputFormat);
     }
     return false;
   }
@@ -830,7 +828,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     try {
       audioSink.playToEndOfStream();
     } catch (AudioSink.WriteException e) {
-      throw ExoPlaybackException.createForRenderer(e, getIndex());
+      // TODO(internal: b/145658993) Use outputFormat instead.
+      throw createRendererException(e, inputFormat);
     }
   }
 
@@ -990,6 +989,15 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
             || Util.DEVICE.startsWith("gprimelte")
             || Util.DEVICE.startsWith("j2y18lte")
             || Util.DEVICE.startsWith("ms01"));
+  }
+
+  @C.Encoding
+  private static int getPcmEncoding(Format format) {
+    // If the format is anything other than PCM then we assume that the audio decoder will output
+    // 16-bit PCM.
+    return MimeTypes.AUDIO_RAW.equals(format.sampleMimeType)
+        ? format.pcmEncoding
+        : C.ENCODING_PCM_16BIT;
   }
 
   private final class AudioSinkListener implements AudioSink.Listener {

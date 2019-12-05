@@ -263,7 +263,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
       try {
         audioSink.playToEndOfStream();
       } catch (AudioSink.WriteException e) {
-        throw ExoPlaybackException.createForRenderer(e, getIndex());
+        throw createRendererException(e, inputFormat);
       }
       return;
     }
@@ -300,7 +300,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
         TraceUtil.endSection();
       } catch (AudioDecoderException | AudioSink.ConfigurationException
           | AudioSink.InitializationException | AudioSink.WriteException e) {
-        throw ExoPlaybackException.createForRenderer(e, getIndex());
+        throw createRendererException(e, inputFormat);
       }
       decoderCounters.ensureUpdated();
     }
@@ -483,7 +483,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
     }
     @DrmSession.State int drmSessionState = decoderDrmSession.getState();
     if (drmSessionState == DrmSession.STATE_ERROR) {
-      throw ExoPlaybackException.createForRenderer(decoderDrmSession.getError(), getIndex());
+      throw createRendererException(decoderDrmSession.getError(), inputFormat);
     }
     return drmSessionState != DrmSession.STATE_OPENED_WITH_KEYS;
   }
@@ -493,7 +493,8 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
     try {
       audioSink.playToEndOfStream();
     } catch (AudioSink.WriteException e) {
-      throw ExoPlaybackException.createForRenderer(e, getIndex());
+      // TODO(internal: b/145658993) Use outputFormat for the call from drainOutputBuffer.
+      throw createRendererException(e, inputFormat);
     }
   }
 
@@ -644,7 +645,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
           codecInitializedTimestamp - codecInitializingTimestamp);
       decoderCounters.decoderInitCount++;
     } catch (AudioDecoderException e) {
-      throw ExoPlaybackException.createForRenderer(e, getIndex());
+      throw createRendererException(e, inputFormat);
     }
   }
 

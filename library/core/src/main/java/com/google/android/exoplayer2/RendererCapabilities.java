@@ -238,6 +238,29 @@ public interface RendererCapabilities {
   }
 
   /**
+   * Returns string representation of a {@link FormatSupport} flag.
+   *
+   * @param formatSupport A {@link FormatSupport} flag.
+   * @return A string representation of the flag.
+   */
+  static String getFormatSupportString(@FormatSupport int formatSupport) {
+    switch (formatSupport) {
+      case RendererCapabilities.FORMAT_HANDLED:
+        return "YES";
+      case RendererCapabilities.FORMAT_EXCEEDS_CAPABILITIES:
+        return "NO_EXCEEDS_CAPABILITIES";
+      case RendererCapabilities.FORMAT_UNSUPPORTED_DRM:
+        return "NO_UNSUPPORTED_DRM";
+      case RendererCapabilities.FORMAT_UNSUPPORTED_SUBTYPE:
+        return "NO_UNSUPPORTED_TYPE";
+      case RendererCapabilities.FORMAT_UNSUPPORTED_TYPE:
+        return "NO";
+      default:
+        throw new IllegalStateException();
+    }
+  }
+
+  /**
    * Returns the track type that the {@link Renderer} handles. For example, a video renderer will
    * return {@link C#TRACK_TYPE_VIDEO}, an audio renderer will return {@link C#TRACK_TYPE_AUDIO}, a
    * text renderer will return {@link C#TRACK_TYPE_TEXT}, and so on.
