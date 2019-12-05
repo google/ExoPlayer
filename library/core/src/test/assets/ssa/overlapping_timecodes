@@ -1,0 +1,12 @@
+[Script Info]
+Title: SomeTitle
+
+[Events]
+Format: Start, End, Text
+Dialogue: 0:00:01.00,0:00:04.23,First subtitle - end overlaps second
+Dialogue: 0:00:02.00,0:00:05.23,Second subtitle - beginning overlaps first
+Dialogue: 0:00:08.44,0:00:09.44,Fourth subtitle - same timings as fifth
+Dialogue: 0:00:06.00,0:00:08.44,Third subtitle - out of order
+Dialogue: 0:00:08.44,0:00:09.44,Fifth subtitle - same timings as fourth
+Dialogue: 0:00:10.72,0:00:15.65,Sixth subtitle - fully encompasses seventh
+Dialogue: 0:00:13.22,0:00:14.22,Seventh subtitle - nested fully inside sixth

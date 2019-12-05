@@ -20,6 +20,7 @@ project.ext {
     targetSdkVersion = 28 // TODO: Bump once b/143232359 is resolved
     compileSdkVersion = 29
     dexmakerVersion = '2.21.0'
+    guavaVersion = '23.5-android'
     mockitoVersion = '2.25.0'
     robolectricVersion = '4.3'
     autoValueVersion = '1.6'
