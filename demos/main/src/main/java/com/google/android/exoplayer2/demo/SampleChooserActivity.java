@@ -307,6 +307,7 @@ public class SampleChooserActivity extends AppCompatActivity
       String drmScheme = null;
       String drmLicenseUrl = null;
       String[] drmKeyRequestProperties = null;
+      String[] drmSessionForClearTypes = null;
       boolean drmMultiSession = false;
       ArrayList<UriSample> playlistSamples = null;
       String adTagUri = null;
@@ -347,6 +348,15 @@ public class SampleChooserActivity extends AppCompatActivity
             }
             reader.endObject();
             drmKeyRequestProperties = drmKeyRequestPropertiesList.toArray(new String[0]);
+            break;
+          case "drm_session_for_clear_types":
+            ArrayList<String> drmSessionForClearTypesList = new ArrayList<>();
+            reader.beginArray();
+            while (reader.hasNext()) {
+              drmSessionForClearTypesList.add(reader.nextString());
+            }
+            reader.endArray();
+            drmSessionForClearTypes = drmSessionForClearTypesList.toArray(new String[0]);
             break;
           case "drm_multi_session":
             drmMultiSession = reader.nextBoolean();
@@ -389,6 +399,7 @@ public class SampleChooserActivity extends AppCompatActivity
                   Util.getDrmUuid(drmScheme),
                   drmLicenseUrl,
                   drmKeyRequestProperties,
+                  Sample.toTrackTypeArray(drmSessionForClearTypes),
                   drmMultiSession);
       Sample.SubtitleInfo subtitleInfo =
           subtitleUri == null

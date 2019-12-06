@@ -208,6 +208,13 @@
         "uri": "https://storage.googleapis.com/wvmedia/cbcs/h264/tears/tears_aes_cbcs_uhd.mpd",
         "drm_scheme": "widevine",
         "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+      },
+      {
+        "name": "WV: Secure and Clear SD & HD (cenc,MP4,H264)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/widevine/tears_enc_clear_enc.mpd",
+        "drm_scheme": "widevine",
+        "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test",
+        "drm_session_for_clear_types": ["audio", "video"]
       }
     ]
   },

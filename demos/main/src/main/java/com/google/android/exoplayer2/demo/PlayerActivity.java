@@ -115,6 +115,7 @@ public class PlayerActivity extends AppCompatActivity
   public static final String DRM_SCHEME_EXTRA = "drm_scheme";
   public static final String DRM_LICENSE_URL_EXTRA = "drm_license_url";
   public static final String DRM_KEY_REQUEST_PROPERTIES_EXTRA = "drm_key_request_properties";
+  public static final String DRM_SESSION_FOR_CLEAR_TYPES_EXTRA = "drm_session_for_clear_types";
   public static final String DRM_MULTI_SESSION_EXTRA = "drm_multi_session";
   public static final String PREFER_EXTENSION_DECODERS_EXTRA = "prefer_extension_decoders";
   public static final String TUNNELING_EXTRA = "tunneling";
@@ -488,6 +489,7 @@ public class PlayerActivity extends AppCompatActivity
           new DefaultDrmSessionManager.Builder()
               .setUuidAndExoMediaDrmProvider(drmInfo.drmScheme, FrameworkMediaDrm.DEFAULT_PROVIDER)
               .setMultiSession(drmInfo.drmMultiSession)
+              .setUseDrmSessionsForClearContent(drmInfo.drmSessionForClearTypes)
               .build(mediaDrmCallback);
     }
 

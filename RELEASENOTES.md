@@ -29,6 +29,7 @@
 * Add `play` and `pause` methods to `Player`.
 * Upgrade Truth dependency from 0.44 to 1.0.
 * Upgrade to JUnit 4.13-rc-2.
+* Add support for attaching DRM sessions to clear content in the demo app.
 
 ### 2.11.0 (not yet released) ###
 
