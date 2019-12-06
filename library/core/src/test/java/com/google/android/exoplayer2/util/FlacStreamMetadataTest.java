@@ -75,7 +75,7 @@ public final class FlacStreamMetadataTest {
                 /* pictureFrames= */ new ArrayList<>())
             .getMetadataCopyWithAppendedEntriesFrom(/* other= */ null);
 
-    assertThat(metadata.length()).isEqualTo(0);
+    assertThat(metadata).isNull();
   }
 
   @Test

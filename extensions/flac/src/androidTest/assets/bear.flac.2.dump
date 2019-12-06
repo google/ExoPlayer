@@ -24,7 +24,7 @@ track 0:
     selectionFlags = 0
     language = null
     drmInitData = -
-    metadata = entries=[]
+    metadata = null
     initializationData:
   total output bytes = 182208
   sample count = 12

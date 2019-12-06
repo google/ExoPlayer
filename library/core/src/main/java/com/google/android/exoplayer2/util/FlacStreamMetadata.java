@@ -80,8 +80,8 @@ public final class FlacStreamMetadata {
   /** Total number of samples, or 0 if the value is unknown. */
   public final long totalSamples;
 
-  /** Content metadata. */
-  private final Metadata metadata;
+  /** Content metadata, or {@code null} if it is not provided. */
+  @Nullable private final Metadata metadata;
 
   /**
    * Parses binary FLAC stream info metadata.
@@ -102,7 +102,7 @@ public final class FlacStreamMetadata {
     bitsPerSample = scratch.readBits(5) + 1;
     bitsPerSampleLookupKey = getBitsPerSampleLookupKey(bitsPerSample);
     totalSamples = scratch.readBitsToLong(36);
-    metadata = new Metadata();
+    metadata = null;
   }
 
   // Used in native code.
@@ -138,7 +138,7 @@ public final class FlacStreamMetadata {
       int channels,
       int bitsPerSample,
       long totalSamples,
-      Metadata metadata) {
+      @Nullable Metadata metadata) {
     this.minBlockSizeSamples = minBlockSizeSamples;
     this.maxBlockSizeSamples = maxBlockSizeSamples;
     this.minFrameSize = minFrameSize;
@@ -213,7 +213,7 @@ public final class FlacStreamMetadata {
     // Set the last metadata block flag, ignore the other blocks.
     streamMarkerAndInfoBlock[4] = (byte) 0x80;
     int maxInputSize = maxFrameSize > 0 ? maxFrameSize : Format.NO_VALUE;
-    Metadata metadataWithId3 = metadata.copyWithAppendedEntriesFrom(id3Metadata);
+    @Nullable Metadata metadataWithId3 = getMetadataCopyWithAppendedEntriesFrom(id3Metadata);
 
     return Format.createAudioSampleFormat(
         /* id= */ null,
@@ -234,14 +234,16 @@ public final class FlacStreamMetadata {
   }
 
   /** Returns a copy of the content metadata with entries from {@code other} appended. */
+  @Nullable
   public Metadata getMetadataCopyWithAppendedEntriesFrom(@Nullable Metadata other) {
-    return metadata.copyWithAppendedEntriesFrom(other);
+    return metadata == null ? other : metadata.copyWithAppendedEntriesFrom(other);
   }
 
   /** Returns a copy of {@code this} with the given Vorbis comments added to the metadata. */
   public FlacStreamMetadata copyWithVorbisComments(List<String> vorbisComments) {
+    @Nullable
     Metadata appendedMetadata =
-        metadata.copyWithAppendedEntriesFrom(
+        getMetadataCopyWithAppendedEntriesFrom(
             buildMetadata(vorbisComments, Collections.emptyList()));
     return new FlacStreamMetadata(
         minBlockSizeSamples,
@@ -257,8 +259,10 @@ public final class FlacStreamMetadata {
 
   /** Returns a copy of {@code this} with the given picture frames added to the metadata. */
   public FlacStreamMetadata copyWithPictureFrames(List<PictureFrame> pictureFrames) {
+    @Nullable
     Metadata appendedMetadata =
-        metadata.copyWithAppendedEntriesFrom(buildMetadata(Collections.emptyList(), pictureFrames));
+        getMetadataCopyWithAppendedEntriesFrom(
+            buildMetadata(Collections.emptyList(), pictureFrames));
     return new FlacStreamMetadata(
         minBlockSizeSamples,
         maxBlockSizeSamples,
@@ -317,10 +321,11 @@ public final class FlacStreamMetadata {
     }
   }
 
+  @Nullable
   private static Metadata buildMetadata(
       List<String> vorbisComments, List<PictureFrame> pictureFrames) {
     if (vorbisComments.isEmpty() && pictureFrames.isEmpty()) {
-      return new Metadata();
+      return null;
     }
 
     ArrayList<Metadata.Entry> metadataEntries = new ArrayList<>();
@@ -336,6 +341,6 @@ public final class FlacStreamMetadata {
     }
     metadataEntries.addAll(pictureFrames);
 
-    return metadataEntries.isEmpty() ? new Metadata() : new Metadata(metadataEntries);
+    return metadataEntries.isEmpty() ? null : new Metadata(metadataEntries);
   }
 }
