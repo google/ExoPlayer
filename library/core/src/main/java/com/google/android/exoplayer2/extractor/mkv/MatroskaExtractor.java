@@ -367,9 +367,9 @@ public class MatroskaExtractor implements Extractor {
   private int blockState;
   private long blockTimeUs;
   private long blockDurationUs;
-  private int blockLacingSampleIndex;
-  private int blockLacingSampleCount;
-  private int[] blockLacingSampleSizes;
+  private int blockSampleIndex;
+  private int blockSampleCount;
+  private int[] blockSampleSizes;
   private int blockTrackNumber;
   private int blockTrackNumberLength;
   @C.BufferFlags
@@ -1093,9 +1093,9 @@ public class MatroskaExtractor implements Extractor {
           readScratch(input, 3);
           int lacing = (scratch.data[2] & 0x06) >> 1;
           if (lacing == LACING_NONE) {
-            blockLacingSampleCount = 1;
-            blockLacingSampleSizes = ensureArrayCapacity(blockLacingSampleSizes, 1);
-            blockLacingSampleSizes[0] = contentSize - blockTrackNumberLength - 3;
+            blockSampleCount = 1;
+            blockSampleSizes = ensureArrayCapacity(blockSampleSizes, 1);
+            blockSampleSizes[0] = contentSize - blockTrackNumberLength - 3;
           } else {
             if (id != ID_SIMPLE_BLOCK) {
               throw new ParserException("Lacing only supported in SimpleBlocks.");
@@ -1103,33 +1103,32 @@ public class MatroskaExtractor implements Extractor {
 
             // Read the sample count (1 byte).
             readScratch(input, 4);
-            blockLacingSampleCount = (scratch.data[3] & 0xFF) + 1;
-            blockLacingSampleSizes =
-                ensureArrayCapacity(blockLacingSampleSizes, blockLacingSampleCount);
+            blockSampleCount = (scratch.data[3] & 0xFF) + 1;
+            blockSampleSizes = ensureArrayCapacity(blockSampleSizes, blockSampleCount);
             if (lacing == LACING_FIXED_SIZE) {
               int blockLacingSampleSize =
-                  (contentSize - blockTrackNumberLength - 4) / blockLacingSampleCount;
-              Arrays.fill(blockLacingSampleSizes, 0, blockLacingSampleCount, blockLacingSampleSize);
+                  (contentSize - blockTrackNumberLength - 4) / blockSampleCount;
+              Arrays.fill(blockSampleSizes, 0, blockSampleCount, blockLacingSampleSize);
             } else if (lacing == LACING_XIPH) {
               int totalSamplesSize = 0;
               int headerSize = 4;
-              for (int sampleIndex = 0; sampleIndex < blockLacingSampleCount - 1; sampleIndex++) {
-                blockLacingSampleSizes[sampleIndex] = 0;
+              for (int sampleIndex = 0; sampleIndex < blockSampleCount - 1; sampleIndex++) {
+                blockSampleSizes[sampleIndex] = 0;
                 int byteValue;
                 do {
                   readScratch(input, ++headerSize);
                   byteValue = scratch.data[headerSize - 1] & 0xFF;
-                  blockLacingSampleSizes[sampleIndex] += byteValue;
+                  blockSampleSizes[sampleIndex] += byteValue;
                 } while (byteValue == 0xFF);
-                totalSamplesSize += blockLacingSampleSizes[sampleIndex];
+                totalSamplesSize += blockSampleSizes[sampleIndex];
               }
-              blockLacingSampleSizes[blockLacingSampleCount - 1] =
+              blockSampleSizes[blockSampleCount - 1] =
                   contentSize - blockTrackNumberLength - headerSize - totalSamplesSize;
             } else if (lacing == LACING_EBML) {
               int totalSamplesSize = 0;
               int headerSize = 4;
-              for (int sampleIndex = 0; sampleIndex < blockLacingSampleCount - 1; sampleIndex++) {
-                blockLacingSampleSizes[sampleIndex] = 0;
+              for (int sampleIndex = 0; sampleIndex < blockSampleCount - 1; sampleIndex++) {
+                blockSampleSizes[sampleIndex] = 0;
                 readScratch(input, ++headerSize);
                 if (scratch.data[headerSize - 1] == 0) {
                   throw new ParserException("No valid varint length mask found");
@@ -1157,11 +1156,13 @@ public class MatroskaExtractor implements Extractor {
                   throw new ParserException("EBML lacing sample size out of range.");
                 }
                 int intReadValue = (int) readValue;
-                blockLacingSampleSizes[sampleIndex] = sampleIndex == 0
-                    ? intReadValue : blockLacingSampleSizes[sampleIndex - 1] + intReadValue;
-                totalSamplesSize += blockLacingSampleSizes[sampleIndex];
+                blockSampleSizes[sampleIndex] =
+                    sampleIndex == 0
+                        ? intReadValue
+                        : blockSampleSizes[sampleIndex - 1] + intReadValue;
+                totalSamplesSize += blockSampleSizes[sampleIndex];
               }
-              blockLacingSampleSizes[blockLacingSampleCount - 1] =
+              blockSampleSizes[blockSampleCount - 1] =
                   contentSize - blockTrackNumberLength - headerSize - totalSamplesSize;
             } else {
               // Lacing is always in the range 0--3.
@@ -1177,23 +1178,23 @@ public class MatroskaExtractor implements Extractor {
           blockFlags = (isKeyframe ? C.BUFFER_FLAG_KEY_FRAME : 0)
               | (isInvisible ? C.BUFFER_FLAG_DECODE_ONLY : 0);
           blockState = BLOCK_STATE_DATA;
-          blockLacingSampleIndex = 0;
+          blockSampleIndex = 0;
         }
 
         if (id == ID_SIMPLE_BLOCK) {
           // For SimpleBlock, we have metadata for each sample here.
-          while (blockLacingSampleIndex < blockLacingSampleCount) {
-            writeSampleData(input, track, blockLacingSampleSizes[blockLacingSampleIndex]);
-            long sampleTimeUs = blockTimeUs
-                + (blockLacingSampleIndex * track.defaultSampleDurationNs) / 1000;
+          while (blockSampleIndex < blockSampleCount) {
+            writeSampleData(input, track, blockSampleSizes[blockSampleIndex]);
+            long sampleTimeUs =
+                blockTimeUs + (blockSampleIndex * track.defaultSampleDurationNs) / 1000;
             commitSampleToOutput(track, sampleTimeUs);
-            blockLacingSampleIndex++;
+            blockSampleIndex++;
           }
           blockState = BLOCK_STATE_START;
         } else {
           // For Block, we send the metadata at the end of the BlockGroup element since we'll know
           // if the sample is a keyframe or not only at that point.
-          writeSampleData(input, track, blockLacingSampleSizes[0]);
+          writeSampleData(input, track, blockSampleSizes[0]);
         }
 
         break;
