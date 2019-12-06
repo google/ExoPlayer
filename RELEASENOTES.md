@@ -20,6 +20,8 @@
         marked with the `C.ROLE_FLAG_TRICK_PLAY` flag.
     *   Fix assertion failure in `SampleQueue` when playing DASH streams with
         EMSG tracks ([#7273](https://github.com/google/ExoPlayer/issues/7273)).
+*   MP4: Store the Android capture frame rate only in `Format.metadata`.
+    `Format.frameRate` now stores the calculated frame rate.
 *   FMP4: Avoid throwing an exception while parsing default sample values whose
     most significant bits are set
     ([#7207](https://github.com/google/ExoPlayer/issues/7207)).
