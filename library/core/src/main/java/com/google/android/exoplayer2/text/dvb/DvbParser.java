@@ -470,6 +470,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *
    * @return The parsed object data.
    */
+  // incompatible types in argument.
+  @SuppressWarnings("nullness:argument.type.incompatible")
   private static ObjectData parseObjectData(ParsableBitArray data) {
     int objectId = data.readBits(16);
     data.skipBits(4); // Skip object_version_number
