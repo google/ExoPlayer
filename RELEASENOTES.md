@@ -1,6 +1,6 @@
 # Release notes #
 
-### 2.11.0 (not yet released) ###
+### 2.11.0 (2019-12-11) ###
 
 * Core library:
   * Replace `ExoPlayerFactory` by `SimpleExoPlayer.Builder` and
@@ -82,14 +82,14 @@
     ([#5782](https://github.com/google/ExoPlayer/issues/5782)).
   * Reconfigure audio sink when PCM encoding changes
     ([#6601](https://github.com/google/ExoPlayer/issues/6601)).
-  * Allow `AdtsExtractor` to encounter EoF when calculating average frame size
+  * Allow `AdtsExtractor` to encounter EOF when calculating average frame size
     ([#6700](https://github.com/google/ExoPlayer/issues/6700)).
 * Text:
+  * Add support for position and overlapping start/end times in SSA/ASS
+    subtitles ([#6320](https://github.com/google/ExoPlayer/issues/6320)).
   * Require an end time or duration for SubRip (SRT) and SubStation Alpha
     (SSA/ASS) subtitles. This applies to both sidecar files & subtitles
     [embedded in Matroska streams](https://matroska.org/technical/specs/subtitles/index.html).
-  * Reconfigure audio sink when PCM encoding changes
-    ([#6601](https://github.com/google/ExoPlayer/issues/6601)).
 * UI:
   * Make showing and hiding player controls accessible to TalkBack in
     `PlayerView`.
@@ -101,7 +101,7 @@
   * Remove `AnalyticsCollector.Factory`. Instances should be created directly,
     and the `Player` should be set by calling `AnalyticsCollector.setPlayer`.
   * Add `PlaybackStatsListener` to collect `PlaybackStats` for analysis and
-    analytics reporting (TODO: link to developer guide page/blog post).
+    analytics reporting.
 * DataSource
   * Add `DataSpec.httpRequestHeaders` to support setting per-request headers for
     HTTP and HTTPS.
@@ -130,30 +130,27 @@
     `C.MSG_SET_OUTPUT_BUFFER_RENDERER`.
   * Use `VideoDecoderRenderer` as an implementation of
     `VideoDecoderOutputBufferRenderer`, instead of `VideoDecoderSurfaceView`.
-* Flac extension:
-  * Update to use NDK r20.
-  * Fix build
-    ([#6601](https://github.com/google/ExoPlayer/issues/6601).
+* Flac extension: Update to use NDK r20.
+* Opus extension: Update to use NDK r20.
 * FFmpeg extension:
   * Update to use NDK r20.
   * Update to use FFmpeg version 4.2. It is necessary to rebuild the native part
     of the extension after this change, following the instructions in the
     extension's readme.
-* Opus extension: Update to use NDK r20.
-* MediaSession extension: Make media session connector dispatch
-  `ACTION_SET_CAPTIONING_ENABLED`.
+* MediaSession extension: Add `MediaSessionConnector.setCaptionCallback` to
+  support `ACTION_SET_CAPTIONING_ENABLED` events.
 * GVR extension: This extension is now deprecated.
-* Demo apps (TODO: update links to point to r2.11.0 tag):
-  * Add [SurfaceControl demo app](https://github.com/google/ExoPlayer/tree/dev-v2/demos/surface)
+* Demo apps:
+  * Add [SurfaceControl demo app](https://github.com/google/ExoPlayer/tree/r2.11.0/demos/surface)
     to show how to use the Android 10 `SurfaceControl` API with ExoPlayer
     ([#677](https://github.com/google/ExoPlayer/issues/677)).
   * Add support for subtitle files to the
-    [Main demo app](https://github.com/google/ExoPlayer/tree/dev-v2/demos/main)
+    [Main demo app](https://github.com/google/ExoPlayer/tree/r2.11.0/demos/main)
     ([#5523](https://github.com/google/ExoPlayer/issues/5523)).
   * Remove the IMA demo app. IMA functionality is demonstrated by the
-    [main demo app](https://github.com/google/ExoPlayer/tree/dev-v2/demos/main).
+    [main demo app](https://github.com/google/ExoPlayer/tree/r2.11.0/demos/main).
   * Add basic DRM support to the
-    [Cast demo app](https://github.com/google/ExoPlayer/tree/dev-v2/demos/cast).
+    [Cast demo app](https://github.com/google/ExoPlayer/tree/r2.11.0/demos/cast).
 * TestUtils: Publish the `testutils` module to simplify unit testing with
   ExoPlayer ([#6267](https://github.com/google/ExoPlayer/issues/6267)).
 * IMA extension: Remove `AdsManager` listeners on release to avoid leaking an
