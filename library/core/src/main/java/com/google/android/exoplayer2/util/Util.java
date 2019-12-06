@@ -1938,7 +1938,7 @@ public final class Util {
    * @return The physical display size, in pixels.
    */
   public static Point getPhysicalDisplaySize(Context context, Display display) {
-    if (Util.SDK_INT <= 28 && display.getDisplayId() == Display.DEFAULT_DISPLAY && isTv(context)) {
+    if (Util.SDK_INT <= 29 && display.getDisplayId() == Display.DEFAULT_DISPLAY && isTv(context)) {
       // On Android TVs it is common for the UI to be configured for a lower resolution than
       // SurfaceViews can output. Before API 26 the Display object does not provide a way to
       // identify this case, and up to and including API 28 many devices still do not correctly set
