@@ -158,7 +158,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   private boolean tunneling;
   private int tunnelingAudioSessionId;
-  /* package */ OnFrameRenderedListenerV23 tunnelingOnFrameRenderedListener;
+  /* package */ @Nullable OnFrameRenderedListenerV23 tunnelingOnFrameRenderedListener;
 
   private long lastInputTimeUs;
   private long outputStreamOffsetUs;
@@ -563,10 +563,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     clearReportedVideoSize();
     clearRenderedFirstFrame();
     frameReleaseTimeHelper.disable();
-    if (tunnelingOnFrameRenderedListener != null) {
-      tunnelingOnFrameRenderedListener.destroyHandler(getCodec());
-    }
-    tunnelingOnFrameRenderedListener = null;
+    destroyOnFrameRenderListener();
     try {
       super.onDisabled();
     } finally {
@@ -690,10 +687,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
     codec.configure(mediaFormat, surface, crypto, 0);
     if (Util.SDK_INT >= 23 && tunneling) {
-      if (tunnelingOnFrameRenderedListener != null) {
-        tunnelingOnFrameRenderedListener.destroyHandler(codec);
-      }
-      tunnelingOnFrameRenderedListener = new OnFrameRenderedListenerV23(codec);
+      createOnFrameRenderedListener(codec);
     }
   }
 
@@ -1234,10 +1228,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       MediaCodec codec = getCodec();
       // If codec is null then the listener will be instantiated in configureCodec.
       if (codec != null) {
-        if (tunnelingOnFrameRenderedListener != null) {
-          tunnelingOnFrameRenderedListener.destroyHandler(codec);
-        }
-        tunnelingOnFrameRenderedListener = new OnFrameRenderedListenerV23(codec);
+        createOnFrameRenderedListener(codec);
       }
     }
   }
@@ -1796,6 +1787,28 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     return deviceNeedsSetOutputSurfaceWorkaround;
   }
 
+  private void createOnFrameRenderedListener(MediaCodec codec) {
+    OnFrameRenderedListenerV23 oldListener = tunnelingOnFrameRenderedListener;
+    tunnelingOnFrameRenderedListener = new OnFrameRenderedListenerV23(codec);
+    if (oldListener != null) {
+      oldListener.destroyHandler();
+    }
+  }
+
+  private void destroyOnFrameRenderListener() {
+    if (tunnelingOnFrameRenderedListener != null) {
+      tunnelingOnFrameRenderedListener.destroyHandler();
+
+      MediaCodec codec = getCodec();
+      if (codec != null) {
+        tunnelingOnFrameRenderedListener.disable(codec);
+      }
+    }
+    tunnelingOnFrameRenderedListener = null;
+
+
+  }
+
   protected Surface getSurface() {
     return surface;
   }
@@ -1826,14 +1839,22 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
     /**
      * Cleanup any messages pending for this listener before removing references to it
-     *
-     * @param codec optional, if the codec is still around it should be passed here
      */
-    void destroyHandler(@Nullable MediaCodec codec) {
-      if (codec != null) {
-        codec.setOnFrameRenderedListener(null, null);
-      }
+    void destroyHandler() {
       handler.removeCallbacksAndMessages(null);
+    }
+
+    /**
+     * Not required if we are switching one frame render listener for another and may cause
+     * overhead (MediaCodec calls native_enableOnFrameRenderedListener() twice then).  The
+     * stale event logic should prevent issues for a listener switch.
+     *
+     * This still might be a good idea when stopping the codec.
+     *
+     * @param codec codec that is being run down.
+     */
+    private void disable(MediaCodec codec) {
+      codec.setOnFrameRenderedListener(null, null);
     }
 
     @Override
