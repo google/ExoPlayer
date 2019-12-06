@@ -81,7 +81,8 @@ public final class FlacMetadataReader {
       throws IOException, InterruptedException {
     @Nullable
     Id3Decoder.FramePredicate id3FramePredicate = parseData ? null : Id3Decoder.NO_FRAMES_PREDICATE;
-    return new Id3Peeker().peekId3Data(input, id3FramePredicate);
+    @Nullable Metadata id3Metadata = new Id3Peeker().peekId3Data(input, id3FramePredicate);
+    return id3Metadata == null || id3Metadata.length() == 0 ? null : id3Metadata;
   }
 
   /**
