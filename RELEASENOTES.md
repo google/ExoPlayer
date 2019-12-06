@@ -21,6 +21,8 @@
   speed ([#5978](https://github.com/google/ExoPlayer/issues/5978)).
 * Allow `AdtsExtractor` to encounter EoF when calculating average frame size
   ([#6700](https://github.com/google/ExoPlayer/issues/6700)).
+* In MP4 streams, store the Android capture frame rate only in
+  `Format.metadata`. `Format.frameRate` now stores the calculated frame rate.
 * Make media session connector dispatch ACTION_SET_CAPTIONING_ENABLED.
 * Add support for position and overlapping start/end times in SSA/ASS subtitles
   ([#6320](https://github.com/google/ExoPlayer/issues/6320)).
