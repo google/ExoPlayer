@@ -67,8 +67,8 @@ under "IMA sample ad tags" in the demo app's list of samples.
 ### Enabling extension decoders ###
 
 ExoPlayer has a number of extensions that allow use of bundled software
-decoders, including VP9, Opus, FLAC and FFmpeg (audio only). The demo app can
-be built to include and use these extensions as follows:
+decoders, including AV1, VP9, Opus, FLAC and FFmpeg (audio only). The demo app
+can be built to include and use these extensions as follows:
 
 1. Build each of the extensions that you want to include. Note that this is a
    manual process. Refer to the `README.md` file in each extension for
@@ -107,8 +107,11 @@ app. The schema is as follows, where [O] indicates an optional attribute.
         "drm_license_url": "[O] URL of the license server if protected",
         "drm_key_request_properties": "[O] Key request headers if protected",
         "drm_multi_session": "[O] Enables key rotation if protected",
-        "spherical_stereo_mode": "[O] Enables spherical view. Values: mono, top_bottom, left_right",
         "ad_tag_uri": "[O] The URI of an ad tag, if using the IMA extension"
+        "spherical_stereo_mode": "[O] Enables spherical view. Values: mono, top_bottom, left_right",
+        "subtitle_uri": "[O] The URI of a subtitle sidecar file",
+        "subtitle_mime_type": "[O] The MIME type of subtitle_uri (required if subtitle_uri is set)",
+        "subtitle_language": "[O] The BCP47 language code of the subtitle file (ignored if subtitle_uri is not set)",
       },
       ...etc
     ]
@@ -127,18 +130,22 @@ Playlists of samples can be specified using the schema:
     "samples": [
       {
         "name": "Name of playlist sample",
-        "drm_scheme": "[O] Drm scheme if protected. Values: widevine, playready, clearkey",
-        "drm_license_url": "[O] URL of the license server if protected",
-        "drm_key_request_properties": "[O] Key request headers if protected",
-        "drm_multi_session": "[O] Enables key rotation if protected"
         "playlist": [
           {
             "uri": "The URI of the first sample in the playlist",
             "extension": "[O] Sample type hint. Values: mpd, ism, m3u8"
+            "drm_scheme": "[O] Drm scheme if protected. Values: widevine, playready, clearkey",
+            "drm_license_url": "[O] URL of the license server if protected",
+            "drm_key_request_properties": "[O] Key request headers if protected",
+            "drm_multi_session": "[O] Enables key rotation if protected"
           },
           {
             "uri": "The URI of the first sample in the playlist",
             "extension": "[O] Sample type hint. Values: mpd, ism, m3u8"
+            "drm_scheme": "[O] Drm scheme if protected. Values: widevine, playready, clearkey",
+            "drm_license_url": "[O] URL of the license server if protected",
+            "drm_key_request_properties": "[O] Key request headers if protected",
+            "drm_multi_session": "[O] Enables key rotation if protected"
           },
           ...etc
         ]
@@ -199,20 +206,28 @@ adb shell am start -a com.google.android.exoplayer.demo.action.VIEW \
 
 Supported optional extras for a single sample intent are:
 
-* `extension` [String] Sample type hint. Valid values: `mpd`, `ism`, `m3u8`.
-* `prefer_extension_decoders` [Boolean] Whether extension decoders are preferred
-  to platform ones.
-* `abr_algorithm` [String] ABR algorithm for adaptive playbacks. Valid values
-  are `default` and `random`.
-* `drm_scheme` [String] DRM scheme if protected. Valid values are `widevine`,
-  `playready` and `clearkey`. DRM scheme UUIDs are also accepted.
-* `drm_license_url` [String] Url of the license server if protected.
-* `drm_key_request_properties` [String array] Key request headers packed as
-  name1, value1, name2, value2 etc. if protected.
-* `drm_multi_session`: [Boolean] Enables key rotation if protected.
-* `spherical_stereo_mode` [String] Enables spherical view. Values: `mono`,
-  `top_bottom` and `left_right`.
-* `ad_tag_uri` [String] The URI of an ad tag, if using the IMA extension.
+* Sample configuration extras:
+  * `extension` [String] Sample type hint. Valid values: `mpd`, `ism`, `m3u8`.
+  * `prefer_extension_decoders` [Boolean] Whether extension decoders are
+    preferred to platform ones.
+  * `drm_scheme` [String] DRM scheme if protected. Valid values are `widevine`,
+    `playready` and `clearkey`. DRM scheme UUIDs are also accepted.
+  * `drm_license_url` [String] Url of the license server if protected.
+  * `drm_key_request_properties` [String array] Key request headers packed as
+    name1, value1, name2, value2 etc. if protected.
+  * `drm_multi_session`: [Boolean] Enables key rotation if protected.
+  * `ad_tag_uri` [String] The URI of an ad tag, if using the IMA extension.
+  * `spherical_stereo_mode` [String] Enables spherical view. Values: `mono`,
+    `top_bottom` and `left_right`.
+  * `subtitle_uri` [String] The URI of a subtitle sidecar file.
+  * `subtitle_mime_type`: [String] The MIME type of subtitle_uri (required if
+    subtitle_uri is set).
+  * `subtitle_language`: [String] The BCP47 language code of the subtitle file
+    (ignored if subtitle_uri is not set).
+* Player configuration extras:
+  * `abr_algorithm` [String] ABR algorithm for adaptive playbacks. Valid values
+    are `default` and `random`.
+  * `tunneling` [Boolean] Whether to enable multimedia tunneling.
 
 When using `adb shell am start` to fire an intent, an optional string extra can
 be set with `--es` (e.g., `--es extension mpd`). An optional boolean extra can
@@ -220,24 +235,28 @@ be set with `--ez` (e.g., `--ez prefer_extension_decoders TRUE`). An optional
 string array extra can be set with `--esa` (e.g.,
 `--esa drm_key_request_properties name1,value1`).
 
-To play a playlist of samples set the intent's action to
-`com.google.android.exoplayer.demo.action.VIEW_LIST` and use a `uri_list` string
-array extra instead of a data URI. For example:
+To play a playlist of samples, set the intent's action to
+`com.google.android.exoplayer.demo.action.VIEW_LIST`. The sample configuration
+extras remain the same as for `com.google.android.exoplayer.demo.action.VIEW`,
+except for two differences:
 
+* The extras' keys should have an underscore and the 0-based index of the sample
+  as suffix. For example, `extension_0` would hint the sample type for the first
+  sample. `drm_scheme_1` would set the DRM scheme for the second sample.
+* The uri of the sample is passed as an extra with key `uri_<sample-index>`.
+
+Other extras, which are not sample dependant, do not change. For example, you
+can run the following command in the terminal to play a playlist with two items,
+overriding the extension of the second item:
 ~~~
 adb shell am start -a com.google.android.exoplayer.demo.action.VIEW_LIST \
-    --esa uri_list https://a.com/sample1.mp4,https://b.com/sample2.mp4
+    --es uri_0 https://a.com/sample1.mp4 \
+    --es uri_1 https://b.com/sample2.fake_mpd \
+    --es extension_1 mpd
 ~~~
 {: .language-shell}
 
-Supported optional extras for a playlist intent are:
-
-* `extension_list` [String array] Sample type hints. Entries may be empty or one
-  of: mpd, ism, m3u8
-* `prefer_extension_decoders`, `abr_algorithm`, `drm_scheme`, `drm_license_url`,
-  `drm_key_request_properties` and `drm_multi_session`, all as described above
-
 [IMA extension]: {{ site.release_v2 }}/extensions/ima
-[Interactive Media Ads SDK]: https://developers.google.com/interactive-media-ads
+[Interactive Media Ads SDK]: {{ site.google_sdk }}/interactive-media-ads
 [GitHub project]: https://github.com/google/ExoPlayer
 [Supported devices]: {{ site.baseurl }}/supported-devices.html

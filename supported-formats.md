@@ -53,6 +53,7 @@ In addition to Android's platform decoders, ExoPlayer can also make use of
 software decoder extensions. These must be manually built and included in
 projects that wish to make use of them. We currently provide software decoder
 extensions for
+[AV1]({{ site.release_v2 }}/extensions/av1),
 [VP9]({{ site.release_v2 }}/extensions/vp9),
 [Flac]({{ site.release_v2 }}/extensions/flac),
 [Opus]({{ site.release_v2 }}/extensions/opus) and
@@ -92,11 +93,11 @@ for an example command line to `configure`.
 ExoPlayer supports standalone subtitle files in a variety of formats. Subtitle
 files can be side-loaded as described on the [Media source page][].
 
-| Container format              | Supported        | MIME type |
-|-------------------------------|:------------:|:----------|
-| WebVTT                        | YES          | MimeTypes.TEXT_VTT |
-| TTML / SMPTE-TT               | YES          | MimeTypes.APPLICATION_TTML |
-| SubRip                        | YES          | MimeTypes.APPLICATION_SUBRIP |
-| Sub Station Alpha (SSA / ASS) | YES          | MimeTypes.TEXT_SSA |
+| Container format      | Supported        | MIME type |
+|---------------------------|:------------:|:----------|
+| WebVTT                    | YES          | MimeTypes.TEXT_VTT |
+| TTML / SMPTE-TT           | YES          | MimeTypes.APPLICATION_TTML |
+| SubRip                    | YES          | MimeTypes.APPLICATION_SUBRIP |
+| SubStationAlpha (SSA/ASS) | YES          | MimeTypes.TEXT_SSA |
 
 [Media source page]: {{ site.baseurl }}/media-sources.html#side-loading-a-subtitle-file

@@ -30,10 +30,13 @@ abstract methods:
 * `getDownloadManager()`: Returns the `DownloadManager` to be used.
 * `getScheduler()`: Returns an optional `Scheduler`, which can restart the
   service when requirements needed for pending downloads to progress are met.
-  ExoPlayer provides two implementations:
-  * `PlatformScheduler`, which uses [JobScheduler][].
-  * `JobDispatcherScheduler`, which uses
-    [Firebase JobDispatcher][].
+  ExoPlayer provides these implementations:
+  * `PlatformScheduler`, which uses [JobScheduler][] (Minimum API is 21). See
+    the [PlatformScheduler][] javadocs for app permission requirements.
+  * `WorkManagerScheduler`, which uses [WorkManager][].
+  * `JobDispatcherScheduler`, which uses [Firebase JobDispatcher][]
+  (Deprecated). See the [JobDispatcherScheduler][] javadocs for app permission
+  requirements.
 * `getForegroundNotification()`: Returns a notification to be displayed when the
   service is running in the foreground. You can use
   `DownloadNotificationHelper.buildProgressNotification` to create a
@@ -332,6 +335,7 @@ follows these steps:
    ~~~
    DownloadHelper downloadHelper =
        DownloadHelper.forDash(
+           context,
            contentUri,
            dataSourceFactory,
            new DefaultRenderersFactory(context));
@@ -360,6 +364,9 @@ will only attempt to use these tracks during playback. See [`PlayerActivity`][]
 in the demo app for a concrete example.
 
 [JobScheduler]: {{ site.android_sdk }}/android/app/job/JobScheduler
+[PlatformScheduler]: {{ site.exo_sdk }}/scheduler/PlatformScheduler.html
+[JobDispatcherScheduler]: {{ site.exo_sdk }}/ext/jobdispatcher/JobDispatcherScheduler.html
+[WorkManager]: https://developer.android.com/topic/libraries/architecture/workmanager/
 [Firebase JobDispatcher]: https://github.com/firebase/firebase-jobdispatcher-android
 [`DemoDownloadService`]: {{ site.release_v2 }}/demos/main/src/main/java/com/google/android/exoplayer2/demo/DemoDownloadService.java
 [`AndroidManifest.xml`]: {{ site.release_v2 }}/demos/main/src/main/AndroidManifest.xml

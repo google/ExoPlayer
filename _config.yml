@@ -13,6 +13,7 @@ description: An application level media player for Android
 release_v2: https://github.com/google/ExoPlayer/tree/release-v2
 exo_sdk: /doc/reference/com/google/android/exoplayer2
 android_sdk: https://developer.android.com/reference
+google_sdk: https://developers.google.com
 
 
 ## => GitHub Repository (if the site is hosted by GitHub)
@@ -26,7 +27,6 @@ repository_tree: gh-pages
 author:
   type      : "organization"
   name      : "ExoPlayer"
-  email     : "dev.exoplayer@gmail.com"
   github    : "google/ExoPlayer"
   medium    : "google-exoplayer"
 

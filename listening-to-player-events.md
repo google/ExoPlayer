@@ -33,20 +33,21 @@ Changes in player state can be received by implementing
 * `Player.STATE_ENDED`: The player finished playing all media.
 
 In addition to these states, the player has a `playWhenReady` flag to indicate
-the user intention to play. The player is only playing if the state is
-`Player.STATE_READY` and `playWhenReady=true`.
+the user intention to play.
+
+You can check if the player is playing (i.e. the position is advancing) with
+`Player.isPlaying`.
 
 ~~~
 @Override
-public void onPlayerStateChanged(
-      boolean playWhenReady, @Player.State int playbackState) {
-  if (playWhenReady && playbackState == Player.STATE_READY) {
+public void onIsPlayingChanged(boolean isPlaying) {
+  if (isPlaying) {
     // Active playback.
-  } else if (playWhenReady) {
-    // Not playing because playback ended, the player is buffering, stopped or
-    // failed. Check playbackState and player.getPlaybackError for details.
   } else {
-    // Paused by app.
+    // Not playing because playback is paused, ended, suppressed, or the player
+    // is buffering, stopped or failed. Check player.getPlaybackState,
+    // player.getPlayWhenReady, player.getPlaybackError and
+    // player.getPlaybackSuppressionReason for details.
   }
 }
 ~~~
@@ -58,6 +59,8 @@ Errors that cause playback to fail can be received by implementing
 `onPlayerError(ExoPlaybackException error)` in a registered
 `Player.EventListener`. When a failure occurs, this method will be called
 immediately before the playback state transitions to `Player.STATE_IDLE`.
+Failed or stopped playbacks can be retried by calling `ExoPlayer.retry`.
+
 [`ExoPlaybackException`][] has a `type` field, as well as corresponding getter
 methods that return cause exceptions providing more information about the
 failure. The example below shows how to detect when a playback has failed due to
@@ -87,6 +90,25 @@ public void onPlayerError(ExoPlaybackException error) {
 }
 ~~~
 {: .language-java }
+
+### Seeking ###
+
+Calling `Player.seekTo` methods results in a series of callbacks to registered
+`Player.EventListener` instances:
+
+1. `onPositionDiscontinuity` with `reason=DISCONTINUITY_REASON_SEEK`. This is
+   the direct result of calling `Player.seekTo`.
+1. `onPlayerStateChanged` with any immediate state change related to the seek.
+   Note that there might not be any state change, e.g. if the seek can be
+   resolved within the already loaded buffer.
+1. `onSeekProcessed`. This indicates that the player handled the seek and all
+   necessary changes have been made. If the player needs to buffer new data
+   from the seeked to position, the playback state will be
+   `Player.STATE_BUFFERING` at this point.
+
+If you are using an `AnalyticsListener`, there will be an additional event
+`onSeekStarted` just before `onPositionDiscontinuity`, to indicate the playback
+position immediately before the seek started.
 
 ## Additional SimpleExoPlayer listeners ##
 
@@ -136,7 +158,7 @@ An alternative to using Android Studio's logcat tab is to use the console. For
 example:
 
 ~~~
-adb logcat | grep 'EventLogger\|ExoPlayerImpl'
+adb logcat EventLogger:* ExoPlayerImpl:* *:s
 ~~~
 {: .language-shell}
 

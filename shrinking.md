@@ -127,8 +127,8 @@ private class AudioOnlyRenderersFactory implements RenderersFactory {
 And use it when instantiating `SimpleExoPlayer` instances, like:
 
 ~~~
-SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(
-    context, new AudioOnlyRenderersFactory(context), trackSelector);
+SimpleExoPlayer player = new SimpleExoPlayer.Builder(
+    context, new AudioOnlyRenderersFactory(context)).build();
 ~~~
 {: .language-java}
 

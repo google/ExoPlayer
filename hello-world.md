@@ -86,18 +86,19 @@ compileOptions {
 
 ## Creating the player ##
 
-You can create an `ExoPlayer` instance using `ExoPlayerFactory`. The factory
-provides a range of methods for creating `ExoPlayer` instances with varying
-levels of customization. For the vast majority of use cases one of the
-`ExoPlayerFactory.newSimpleInstance` methods should be used. These methods
-return `SimpleExoPlayer`, which extends `ExoPlayer` to add additional high level
-player functionality. The code below is an example of creating a
-`SimpleExoPlayer`.
+You can create an `ExoPlayer` instance using `SimpleExoPlayer.Builder` or
+`ExoPlayer.Builder`. The builders provide a range of customization options for
+creating `ExoPlayer` instances. For the vast majority of use cases
+`SimpleExoPlayer.Builder` should be used. This builder returns
+`SimpleExoPlayer`, which extends `ExoPlayer` to add additional high level player
+functionality. The code below is an example of creating a `SimpleExoPlayer`.
 
 ~~~
-SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(context);
+SimpleExoPlayer player = new SimpleExoPlayer.Builder(context).build();
 ~~~
 {: .language-java}
+
+### A note on threading ###
 
 ExoPlayer instances must be accessed from a single application thread. For the
 vast majority of cases this should be the application's main thread. Using the
@@ -111,6 +112,15 @@ used, or if that thread does not have a `Looper`, the `Looper` of the
 application's main thread is used. In all cases the `Looper` of the thread from
 which the player must be accessed can be queried using
 `Player.getApplicationLooper`.
+
+If you see "Player is accessed on the wrong thread" warnings, some code in your
+app is accessing a `SimpleExoPlayer` instance on the wrong thread (the logged
+stack trace shows you where!). This is not safe and may result in unexpected or
+obscure errors.
+{:.info}
+
+For more information about ExoPlayer's treading model, see the
+["Threading model" section of the ExoPlayer Javadoc][].
 
 ## Attaching the player to a view ##
 
@@ -131,11 +141,10 @@ onto which video is rendered, you can set the player's target `SurfaceView`,
 `setVideoSurfaceView`, `setVideoTextureView`, `setVideoSurfaceHolder` and
 `setVideoSurface` methods respectively. You can also use `PlayerControlView` as
 a standalone component, or implement your own playback controls that interact
-directly with the player. `SimpleExoPlayer`'s `addTextOutput` and
-`addMetadataOutput` methods can be used to receive caption and ID3 metadata
-during playback.
+directly with the player. `SimpleExoPlayer`'s `addTextOutput` method can be used
+to receive captions during playback.
 
-## Preparing the player ##
+# Preparing the player ##
 
 In ExoPlayer every piece of media is represented by a `MediaSource`. To play a
 piece of media you must first create a corresponding `MediaSource` and then
@@ -150,8 +159,9 @@ with a `MediaSource` suitable for playback of an MP4 file.
 DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(context,
     Util.getUserAgent(context, "yourApplicationName"));
 // This is the MediaSource representing the media to be played.
-MediaSource videoSource = new ProgressiveMediaSource.Factory(dataSourceFactory)
-    .createMediaSource(mp4VideoUri);
+MediaSource videoSource =
+    new ProgressiveMediaSource.Factory(dataSourceFactory)
+        .createMediaSource(mp4VideoUri);
 // Prepare the player with the source.
 player.prepare(videoSource);
 ~~~
@@ -178,3 +188,4 @@ can be done by calling `ExoPlayer.release`.
 [main demo app]: {{ site.release_v2 }}/demos/main/
 [extensions directory]: {{ site.release_v2 }}/extensions/
 [release notes]: {{ site.release_v2 }}/RELEASENOTES.md
+["Threading model" section of the ExoPlayer Javadoc]: {{ site.exo_sdk }}/ExoPlayer.html

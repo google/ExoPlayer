@@ -67,10 +67,10 @@ When a player has been initialized, it can be attached to the view by calling
 
 ~~~
 // Instantiate the player.
-player = ExoPlayerFactory.newSimpleInstance(context);
+player = new SimpleExoPlayer.Builder(context).build();
 // Attach player to the view.
 playerView.setPlayer(player);
-// Prepare the player with the dash media source.
+// Prepare the player with the media source.
 player.prepare(createMediaSource());
 ~~~
 {: .language-java}
@@ -78,10 +78,12 @@ player.prepare(createMediaSource());
 ### Choosing a surface type ###
 
 The `surface_type` attribute of `PlayerView` lets you set the type of surface
-used for video playback. Besides the value `spherical_view` (which is a special
-value for spherical video playback), the allowed values are `surface_view`,
-`texture_view` and `none`. If the view is for audio playback only, `none` should
-be used to avoid having to create a surface, since doing so can be expensive.
+used for video playback. Besides the values `spherical_gl_surface_view` (which
+is a special value for spherical video playback) and
+`video_decoder_gl_surface_view` (which is for video rendering using extension
+renderers), the allowed values are `surface_view`, `texture_view` and `none`. If
+the view is for audio playback only, `none` should be used to avoid having to
+create a surface, since doing so can be expensive.
 
 If the view is for regular video playback then `surface_view` or `texture_view`
 should be used. `SurfaceView` has a number of benefits over `TextureView` for
@@ -137,7 +139,7 @@ protected void onCreate(Bundle savedInstanceState) {
 
 private void initializePlayer() {
   // Instantiate the player.
-  player = ExoPlayerFactory.newSimpleInstance(context);
+  player = new SimpleExoPlayer.Builder(context).build();
   // Attach player to the view.
   playerControlView.setPlayer(player);
   // Prepare the player with the dash media source.

@@ -17,8 +17,8 @@ DataSource.Factory dataSourceFactory =
 HlsMediaSource hlsMediaSource =
     new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
 // Create a player instance.
-SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(context);
-// Prepare the player with the HLS media source.
+SimpleExoPlayer player = new SimpleExoPlayer.Builder(context).build();
+// Prepare the player with the media source.
 player.prepare(hlsMediaSource);
 ~~~
 {: .language-java}
@@ -43,9 +43,8 @@ player.addListener(
     new Player.EventListener() {
       @Override
       public void onTimelineChanged(
-          Timeline timeline,
-          @Nullable Object manifest,
-          @Player.TimelineChangeReason int reason) {
+          Timeline timeline, @Player.TimelineChangeReason int reason) {
+        Object manifest = player.getCurrentManifest();
         if (manifest != null) {
           HlsManifest hlsManifest = (HlsManifest) manifest;
           // Do something with the manifest.
@@ -84,9 +83,10 @@ You can find more details in our [Medium post about chunkless preparation][].
 Some apps may want to intercept HTTP requests and responses. You may want to
 inject custom request headers, read the server's response headers, modify the
 requests' URIs, etc. For example, your app may authenticate itself by injecting
-a custom token in the URIs that access the media segments. You can achieve these
-behaviors by injecting custom [HttpDataSources][] into the `HlsMediaSource` you
-create. The following snippet shows an example of request header injection:
+a token as a header when requesting the media segments.
+
+The following example demonstrates how to implement these behaviors by
+injecting custom [HttpDataSources][] into an `HlsMediaSource`:
 
 ~~~
 HlsMediaSource hlsMediaSource =
@@ -102,6 +102,41 @@ HlsMediaSource hlsMediaSource =
               return dataSource;
             })
         .createMediaSource(hlsUri);
+~~~
+{: .language-java}
+
+In the code snippet above, the injected `HttpDataSource` includes the header
+`"Header: Value"` in every HTTP request triggered by `hlsMediaSource`. This
+behavior is *fixed* for every interaction of `hlsMediaSource` with an HTTP
+source.
+
+For a more granular approach, you can inject just-in-time behavior using a
+`ResolvingDataSource`. The following code snippet shows how to inject
+request headers just before interacting with an HTTP source:
+
+~~~
+HlsMediaSource hlsMediaSource =
+    new HlsMediaSource.Factory(
+        new ResolvingDataSource.Factory(
+            new DefaultHttpDataSourceFactory(userAgent),
+            // Provide just-in-time request headers.
+            (DataSpec dataSpec) ->
+                dataSpec.withRequestHeaders(getCustomHeaders(dataSpec.uri))))
+        .createMediaSource(customSchemeUri);
+~~~
+{: .language-java}
+
+You may also use a `ResolvingDataSource`  to perform
+just-in-time modifications of the URI, as shown in the following snippet:
+
+~~~
+HlsMediaSource hlsMediaSource =
+    new HlsMediaSource.Factory(
+        new ResolvingDataSource.Factory(
+            new DefaultHttpDataSourceFactory(userAgent),
+            // Provide just-in-time URI resolution logic.
+            (DataSpec dataSpec) -> dataSpec.withUri(resolveUri(dataSpec.uri))))
+        .createMediaSource(customSchemeUri);
 ~~~
 {: .language-java}
 

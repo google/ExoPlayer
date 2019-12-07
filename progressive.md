@@ -17,8 +17,8 @@ DataSource.Factory dataSourceFactory =
 MediaSource mediaSource = new ProgressiveMediaSource.Factory(dataSourceFactory)
     .createMediaSource(progressiveUri);
 // Create a player instance.
-SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(context);
-// Prepare the player with the progressive media source.
+SimpleExoPlayer player = new SimpleExoPlayer.Builder(context).build();
+// Prepare the player with the media source.
 player.prepare(mediaSource);
 ~~~
 {: .language-java}
@@ -69,10 +69,10 @@ ProgressiveMediaSource progressiveMediaSource =
 Some apps may want to intercept HTTP requests and responses. You may want to
 inject custom request headers, read the server's response headers, modify the
 requests' URIs, etc. For example, your app may authenticate itself by injecting
-a token as a header when requesting the media segments. You can achieve these
-behaviors by injecting custom [HttpDataSources][] into the
-`ProgressiveMediaSource` you create. The following snippet shows an example of
-header injection:
+a token as a header when requesting the media segments.
+
+The following example demonstrates how to implement these behaviors by
+injecting custom [HttpDataSources][] into a `ProgressiveMediaSource`:
 
 ~~~
 ProgressiveMediaSource progressiveMediaSource =
@@ -85,6 +85,41 @@ ProgressiveMediaSource progressiveMediaSource =
               return dataSource;
             })
         .createMediaSource(progressiveUri);
+~~~
+{: .language-java}
+
+In the code snippet above, the injected `HttpDataSource` includes the header
+`"Header: Value"` in every HTTP request triggered by `progressiveMediaSource`.
+This behavior is *fixed* for every interaction of `progressiveMediaSource`
+with an HTTP source.
+
+For a more granular approach, you can inject just-in-time behavior using a
+`ResolvingDataSource`. The following code snippet shows how to inject
+request headers just before interacting with an HTTP source:
+
+~~~
+ProgressiveMediaSource progressiveMediaSource =
+    new ProgressiveMediaSource.Factory(
+        new ResolvingDataSource.Factory(
+            new DefaultHttpDataSourceFactory(userAgent),
+            // Provide just-in-time request headers.
+            (DataSpec dataSpec) ->
+                dataSpec.withRequestHeaders(getCustomHeaders(dataSpec.uri))))
+        .createMediaSource(customSchemeUri);
+~~~
+{: .language-java}
+
+You may also use a `ResolvingDataSource`  to perform
+just-in-time modifications of the URI, as shown in the following snippet:
+
+~~~
+ProgressiveMediaSource progressiveMediaSource =
+    new ProgressiveMediaSource.Factory(
+        new ResolvingDataSource.Factory(
+            new DefaultHttpDataSourceFactory(userAgent),
+            // Provide just-in-time URI resolution logic.
+            (DataSpec dataSpec)-> dataSpec.withUri(resolveUri(dataSpec.uri))))
+        .createMediaSource(customSchemeUri);
 ~~~
 {: .language-java}
 

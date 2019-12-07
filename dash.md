@@ -17,8 +17,8 @@ DataSource.Factory dataSourceFactory =
 MediaSource mediaSource = new DashMediaSource.Factory(dataSourceFactory)
     .createMediaSource(dashUri);
 // Create a player instance.
-SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(context);
-// Prepare the player with the DASH media source.
+SimpleExoPlayer player = new SimpleExoPlayer.Builder(context).build();
+// Prepare the player with the media source.
 player.prepare(mediaSource);
 ~~~
 {: .language-java}
@@ -40,9 +40,8 @@ player.addListener(
     new Player.EventListener() {
       @Override
       public void onTimelineChanged(
-          Timeline timeline,
-          @Nullable Object manifest,
-          @Player.TimelineChangeReason int reason) {
+          Timeline timeline, @Player.TimelineChangeReason int reason) {
+        Object manifest = player.getCurrentManifest();
         if (manifest != null) {
           DashManifest dashManifest = (DashManifest) manifest;
           // Do something with the manifest.
@@ -64,8 +63,8 @@ DataSource.Factory dataSourceFactory =
 MediaSource mediaSource = new DashMediaSource.Factory(dataSourceFactory)
     .createMediaSource(dashManifest);
 // Create a player instance which gets an adaptive track selector by default.
-SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(context);
-// Prepare the player with the dash media source.
+SimpleExoPlayer player = new SimpleExoPlayer.Builder(context).build();
+// Prepare the player with the media source.
 player.prepare(mediaSource);
 ~~~
 {: .language-java}
@@ -82,9 +81,10 @@ options available when building a `DashMediaSource`. See the
 Some apps may want to intercept HTTP requests and responses. You may want to
 inject custom request headers, read the server's response headers, modify the
 requests' URIs, etc. For example, your app may authenticate itself by injecting
-a token as a header when requesting the media segments. You can achieve these
-behaviors by injecting custom [HttpDataSources][] into the `DashMediaSource` you
-create. The following snippet shows an example of header injection:
+a token as a header when requesting the media segments.
+
+The following example demonstrates how to implement these behaviors by
+injecting custom [HttpDataSources][] into a `DashMediaSource`:
 
 ~~~
 DashMediaSource dashMediaSource =
@@ -96,6 +96,41 @@ DashMediaSource dashMediaSource =
               return dataSource;
             })
         .createMediaSource(dashUri);
+~~~
+{: .language-java}
+
+In the code snippet above, the injected `HttpDataSource` includes the header
+`"Header: Value"` in every HTTP request triggered by `dashMediaSource`. This
+behavior is *fixed* for every interaction of `dashMediaSource` with an HTTP
+source.
+
+For a more granular approach, you can inject just-in-time behavior using a
+`ResolvingDataSource`. The following code snippet shows how to inject
+request headers just before interacting with an HTTP source:
+
+~~~
+DashMediaSource dashMediaSource =
+    new DashMediaSource.Factory(
+        new ResolvingDataSource.Factory(
+            new DefaultHttpDataSourceFactory(userAgent),
+            // Provide just-in-time request headers.
+            (DataSpec dataSpec) ->
+                dataSpec.withRequestHeaders(getCustomHeaders(dataSpec.uri))))
+        .createMediaSource(customSchemeUri);
+~~~
+{: .language-java}
+
+You may also use a `ResolvingDataSource`  to perform
+just-in-time modifications of the URI, as shown in the following snippet:
+
+~~~
+DashMediaSource dashMediaSource =
+    new DashMediaSource.Factory(
+        new ResolvingDataSource.Factory(
+            new DefaultHttpDataSourceFactory(userAgent),
+            // Provide just-in-time URI resolution logic.
+            (DataSpec dataSpec) -> dataSpec.withUri(resolveUri(dataSpec.uri))))
+        .createMediaSource(customSchemeUri);
 ~~~
 {: .language-java}
 

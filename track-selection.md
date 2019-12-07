@@ -7,9 +7,11 @@ player. Track selection is the responsibility of a `TrackSelector`, an instance
 of which can be provided whenever an `ExoPlayer` is built.
 
 ~~~
-DefaultTrackSelector trackSelector = new DefaultTrackSelector();
+DefaultTrackSelector trackSelector = new DefaultTrackSelector(context);
 SimpleExoPlayer player =
-    ExoPlayerFactory.newSimpleInstance(context, trackSelector);
+    new SimpleExoPlayer.Builder(context)
+        .setTrackSelector(trackSelector)
+        .build();
 ~~~
 {: .language-java}
 

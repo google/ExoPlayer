@@ -175,8 +175,9 @@ status lines correctly.
 
 #### How can I query whether the stream being played is a live stream? ####
 
-You can query ExoPlayer's [isCurrentWindowDynamic][] method. A dynamic window
-implies that the stream being played is a live stream.
+You can query ExoPlayer's [isCurrentWindowLive][] method. In addition, you can
+check [isCurrentWindowDynamic][] to find out whether the window is dynamic, i.e.
+still updating over time.
 
 #### How do I keep audio playing when my app is backgrounded? ####
 
@@ -190,6 +191,12 @@ audio when your app is in the background:
 
 It's important that you stop the service and release the locks as soon as audio
 is no longer being played.
+
+#### Why does ExoPlayer support my content but the Cast extension doesn't? ####
+
+It's possible that the content that you are trying to play is not
+[CORS enabled][]. The [Cast framework][] requires content to be CORS enabled in
+order to play it.
 
 [Fixing "Cleartext HTTP traffic not permitted" errors]: #fixing-cleartext-http-traffic-not-permitted-errors
 [Fixing "SSLHandshakeException" and "CertPathValidatorException" errors]: #fixing-sslhandshakeexception-and-certpathvalidatorexception-errors
@@ -219,6 +226,7 @@ is no longer being played.
 [`DefaultHttpDataSourceFactory`]: {{ site.exo_sdk }}/upstream/DefaultHttpDataSourceFactory.html
 [Util.inferContentType]: {{ site.exo_sdk }}/util/Util.html#inferContentType-android.net.Uri-
 [issue tracker]: https://github.com/google/ExoPlayer/issues
+[isCurrentWindowLive]: {{ site.exo_sdk }}/ExoPlayer.html#isCurrentWindowLive--
 [isCurrentWindowDynamic]: {{ site.exo_sdk }}/ExoPlayer.html#isCurrentWindowDynamic--
 [setPlaybackParameters]: {{ site.exo_sdk }}/Player.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-
 [Util.inferContentType]: {{ site.exo_sdk }}/util/Util.html#inferContentType-android.net.Uri-
@@ -227,3 +235,5 @@ is no longer being played.
 [WakeLock]: {{ site.android_sdk }}/android/os/PowerManager.WakeLock.html
 ["Threading model" section of the ExoPlayer Javadoc]: {{ site.exo_sdk }}/ExoPlayer.html
 [OkHttp extension]: {{ site.release_v2 }}/extensions/okhttp
+[CORS enabled]: https://www.w3.org/wiki/CORS_Enabled
+[Cast framework]: {{ site.google_sdk }}/cast/docs/chrome_sender/advanced#cors_requirements
