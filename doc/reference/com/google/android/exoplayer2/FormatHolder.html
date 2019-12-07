@@ -16,6 +16,12 @@
     catch(err) {
     }
 //-->
+var methods = {"i0":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
 </script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
@@ -68,13 +74,13 @@
 <li>Nested&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
-<li><a href="#methods.inherited.from.class.java.lang.Object">Method</a></li>
+<li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
-<li>Method</li>
+<li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
 <a name="skip.navbar.top">
@@ -122,21 +128,21 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <th class="colLast" scope="col">Field and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/drm/DecryptionResource.html" title="class in com.google.android.exoplayer2.drm">DecryptionResource</a>&lt;?&gt;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/FormatHolder.html#decryptionResource">decryptionResource</a></span></code>
+<td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a>&lt;?&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/FormatHolder.html#drmSession">drmSession</a></span></code>
 <div class="block">An accompanying context for decrypting samples in the format.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/FormatHolder.html#decryptionResourceIsProvided">decryptionResourceIsProvided</a></span></code>
-<div class="block">Whether the object expected to populate <a href="../../../../com/google/android/exoplayer2/FormatHolder.html#format"><code>format</code></a> is also expected to populate <a href="../../../../com/google/android/exoplayer2/FormatHolder.html#decryptionResource"><code>decryptionResource</code></a>.</div>
-</td>
-</tr>
-<tr class="altColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/FormatHolder.html#format">format</a></span></code>
 <div class="block">The held <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/FormatHolder.html#includesDrmSession">includesDrmSession</a></span></code>
+<div class="block">Whether the <a href="../../../../com/google/android/exoplayer2/FormatHolder.html#format"><code>format</code></a> setter also sets the <a href="../../../../com/google/android/exoplayer2/FormatHolder.html#drmSession"><code>drmSession</code></a> field.</div>
 </td>
 </tr>
 </table>
@@ -165,6 +171,19 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <!--   -->
 </a>
 <h3>Method Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/FormatHolder.html#clear--">clear</a></span>()</code>
+<div class="block">Clears the holder.</div>
+</td>
+</tr>
+</table>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
 <!--   -->
@@ -186,24 +205,24 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a name="decryptionResourceIsProvided">
+<a name="includesDrmSession">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>decryptionResourceIsProvided</h4>
-<pre>public&nbsp;boolean decryptionResourceIsProvided</pre>
-<div class="block">Whether the object expected to populate <a href="../../../../com/google/android/exoplayer2/FormatHolder.html#format"><code>format</code></a> is also expected to populate <a href="../../../../com/google/android/exoplayer2/FormatHolder.html#decryptionResource"><code>decryptionResource</code></a>.</div>
+<h4>includesDrmSession</h4>
+<pre>public&nbsp;boolean includesDrmSession</pre>
+<div class="block">Whether the <a href="../../../../com/google/android/exoplayer2/FormatHolder.html#format"><code>format</code></a> setter also sets the <a href="../../../../com/google/android/exoplayer2/FormatHolder.html#drmSession"><code>drmSession</code></a> field.</div>
 </li>
 </ul>
-<a name="decryptionResource">
+<a name="drmSession">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>decryptionResource</h4>
+<h4>drmSession</h4>
 <pre>@Nullable
-public&nbsp;<a href="../../../../com/google/android/exoplayer2/drm/DecryptionResource.html" title="class in com.google.android.exoplayer2.drm">DecryptionResource</a>&lt;?&gt; decryptionResource</pre>
+public&nbsp;<a href="../../../../com/google/android/exoplayer2/drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a>&lt;?&gt; drmSession</pre>
 <div class="block">An accompanying context for decrypting samples in the format.</div>
 </li>
 </ul>
@@ -233,6 +252,24 @@ public&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" titl
 <li class="blockList">
 <h4>FormatHolder</h4>
 <pre>public&nbsp;FormatHolder()</pre>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="clear--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>clear</h4>
+<pre>public&nbsp;void&nbsp;clear()</pre>
+<div class="block">Clears the holder.</div>
 </li>
 </ul>
 </li>
@@ -290,13 +327,13 @@ public&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" titl
 <li>Nested&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
-<li><a href="#methods.inherited.from.class.java.lang.Object">Method</a></li>
+<li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
-<li>Method</li>
+<li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
 <a name="skip.navbar.bottom">

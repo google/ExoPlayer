@@ -171,10 +171,9 @@ implements <a href="../../../../../com/google/android/exoplayer2/util/MediaClock
 </td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a></code></td>
+<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/StandaloneMediaClock.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-">setPlaybackParameters</a></span>(<a href="../../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</code>
-<div class="block">Attempts to set the playback parameters and returns the active playback parameters, which may
- differ from those passed in.</div>
+<div class="block">Attempts to set the playback parameters.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
@@ -288,17 +287,15 @@ implements <a href="../../../../../com/google/android/exoplayer2/util/MediaClock
 <ul class="blockList">
 <li class="blockList">
 <h4>setPlaybackParameters</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;setPlaybackParameters(<a href="../../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</pre>
+<pre>public&nbsp;void&nbsp;setPlaybackParameters(<a href="../../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/util/MediaClock.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-">MediaClock</a></code></span></div>
-<div class="block">Attempts to set the playback parameters and returns the active playback parameters, which may
- differ from those passed in.</div>
+<div class="block">Attempts to set the playback parameters. The media clock may override these parameters if they
+ are not supported.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/util/MediaClock.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-">setPlaybackParameters</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/util/MediaClock.html" title="interface in com.google.android.exoplayer2.util">MediaClock</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>playbackParameters</code> - The playback parameters.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The active playback parameters.</dd>
+<dd><code>playbackParameters</code> - The playback parameters to attempt to set.</dd>
 </dl>
 </li>
 </ul>

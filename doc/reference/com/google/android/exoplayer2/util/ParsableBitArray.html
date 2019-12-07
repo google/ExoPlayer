@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -229,6 +229,12 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </td>
 </tr>
 <tr id="i8" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#readBitsToLong-int-">readBitsToLong</a></span>(int&nbsp;numBits)</code>
+<div class="block">Reads up to 64 bits.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#readBytes-byte:A-int-int-">readBytes</a></span>(byte[]&nbsp;buffer,
          int&nbsp;offset,
@@ -236,44 +242,44 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <div class="block">Reads the next <code>length</code> bytes into <code>buffer</code>.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#reset-byte:A-">reset</a></span>(byte[]&nbsp;data)</code>
 <div class="block">Updates the instance to wrap <code>data</code>, and resets the position to zero.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#reset-byte:A-int-">reset</a></span>(byte[]&nbsp;data,
      int&nbsp;limit)</code>
 <div class="block">Updates the instance to wrap <code>data</code>, and resets the position to zero.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#reset-com.google.android.exoplayer2.util.ParsableByteArray-">reset</a></span>(<a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;parsableByteArray)</code>
 <div class="block">Sets this instance's data, position and limit to match the provided <code>parsableByteArray</code>.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#setPosition-int-">setPosition</a></span>(int&nbsp;position)</code>
 <div class="block">Sets the current bit offset.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#skipBit--">skipBit</a></span>()</code>
 <div class="block">Skips a single bit.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#skipBits-int-">skipBits</a></span>(int&nbsp;numBits)</code>
 <div class="block">Skips bits and moves current reading position forward.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#skipBytes-int-">skipBytes</a></span>(int&nbsp;length)</code>
 <div class="block">Skips the next <code>length</code> bytes.</div>
@@ -509,7 +515,23 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>numBits</code> - The number of bits to read.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>An integer whose bottom n bits hold the read data.</dd>
+<dd>An integer whose bottom <code>numBits</code> bits hold the read data.</dd>
+</dl>
+</li>
+</ul>
+<a name="readBitsToLong-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>readBitsToLong</h4>
+<pre>public&nbsp;long&nbsp;readBitsToLong(int&nbsp;numBits)</pre>
+<div class="block">Reads up to 64 bits.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>numBits</code> - The number of bits to read.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>A long whose bottom <code>numBits</code> bits hold the read data.</dd>
 </dl>
 </li>
 </ul>
@@ -525,9 +547,9 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <div class="block">Reads <code>numBits</code> bits into <code>buffer</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>buffer</code> - The array into which the read data should be written. The trailing
-     <code>numBits % 8</code> bits are written into the most significant bits of the last modified
-     <code>buffer</code> byte. The remaining ones are unmodified.</dd>
+<dd><code>buffer</code> - The array into which the read data should be written. The trailing <code>numBits
+     % 8</code> bits are written into the most significant bits of the last modified <code>buffer</code>
+     byte. The remaining ones are unmodified.</dd>
 <dd><code>offset</code> - The offset in <code>buffer</code> at which the read data should be written.</dd>
 <dd><code>numBits</code> - The number of bits to read.</dd>
 </dl>

@@ -14,7 +14,6 @@
 <li><a href="BasePlayer.ListenerInvocation.html" title="interface in com.google.android.exoplayer2" target="classFrame"><span class="interfaceName">BasePlayer.ListenerInvocation</span></a></li>
 <li><a href="ControlDispatcher.html" title="interface in com.google.android.exoplayer2" target="classFrame"><span class="interfaceName">ControlDispatcher</span></a></li>
 <li><a href="ExoPlayer.html" title="interface in com.google.android.exoplayer2" target="classFrame"><span class="interfaceName">ExoPlayer</span></a></li>
-<li><a href="ExoPlayer.ExoPlayerComponent.html" title="interface in com.google.android.exoplayer2" target="classFrame"><span class="interfaceName">ExoPlayer.ExoPlayerComponent</span></a></li>
 <li><a href="LoadControl.html" title="interface in com.google.android.exoplayer2" target="classFrame"><span class="interfaceName">LoadControl</span></a></li>
 <li><a href="PlaybackPreparer.html" title="interface in com.google.android.exoplayer2" target="classFrame"><span class="interfaceName">PlaybackPreparer</span></a></li>
 <li><a href="Player.html" title="interface in com.google.android.exoplayer2" target="classFrame"><span class="interfaceName">Player</span></a></li>
@@ -40,7 +39,7 @@
 <li><a href="DefaultLoadControl.html" title="class in com.google.android.exoplayer2" target="classFrame">DefaultLoadControl</a></li>
 <li><a href="DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2" target="classFrame">DefaultLoadControl.Builder</a></li>
 <li><a href="DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2" target="classFrame">DefaultRenderersFactory</a></li>
-<li><a href="ExoPlayer.ExoPlayerMessage.html" title="class in com.google.android.exoplayer2" target="classFrame">ExoPlayer.ExoPlayerMessage</a></li>
+<li><a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2" target="classFrame">ExoPlayer.Builder</a></li>
 <li><a href="ExoPlayerFactory.html" title="class in com.google.android.exoplayer2" target="classFrame">ExoPlayerFactory</a></li>
 <li><a href="ExoPlayerLibraryInfo.html" title="class in com.google.android.exoplayer2" target="classFrame">ExoPlayerLibraryInfo</a></li>
 <li><a href="Format.html" title="class in com.google.android.exoplayer2" target="classFrame">Format</a></li>
@@ -52,6 +51,7 @@
 <li><a href="RendererConfiguration.html" title="class in com.google.android.exoplayer2" target="classFrame">RendererConfiguration</a></li>
 <li><a href="SeekParameters.html" title="class in com.google.android.exoplayer2" target="classFrame">SeekParameters</a></li>
 <li><a href="SimpleExoPlayer.html" title="class in com.google.android.exoplayer2" target="classFrame">SimpleExoPlayer</a></li>
+<li><a href="SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2" target="classFrame">SimpleExoPlayer.Builder</a></li>
 <li><a href="Timeline.html" title="class in com.google.android.exoplayer2" target="classFrame">Timeline</a></li>
 <li><a href="Timeline.Period.html" title="class in com.google.android.exoplayer2" target="classFrame">Timeline.Period</a></li>
 <li><a href="Timeline.Window.html" title="class in com.google.android.exoplayer2" target="classFrame">Timeline.Window</a></li>
@@ -64,6 +64,7 @@
 </ul>
 <h2 title="Annotation Types">Annotation Types</h2>
 <ul title="Annotation Types">
+<li><a href="C.AudioAllowedCapturePolicy.html" title="annotation in com.google.android.exoplayer2" target="classFrame">C.AudioAllowedCapturePolicy</a></li>
 <li><a href="C.AudioContentType.html" title="annotation in com.google.android.exoplayer2" target="classFrame">C.AudioContentType</a></li>
 <li><a href="C.AudioFlags.html" title="annotation in com.google.android.exoplayer2" target="classFrame">C.AudioFlags</a></li>
 <li><a href="C.AudioFocusGain.html" title="annotation in com.google.android.exoplayer2" target="classFrame">C.AudioFocusGain</a></li>
@@ -82,14 +83,20 @@
 <li><a href="C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2" target="classFrame">C.SelectionFlags</a></li>
 <li><a href="C.StereoMode.html" title="annotation in com.google.android.exoplayer2" target="classFrame">C.StereoMode</a></li>
 <li><a href="C.StreamType.html" title="annotation in com.google.android.exoplayer2" target="classFrame">C.StreamType</a></li>
+<li><a href="C.VideoOutputMode.html" title="annotation in com.google.android.exoplayer2" target="classFrame">C.VideoOutputMode</a></li>
 <li><a href="C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2" target="classFrame">C.VideoScalingMode</a></li>
 <li><a href="DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2" target="classFrame">DefaultRenderersFactory.ExtensionRendererMode</a></li>
 <li><a href="ExoPlaybackException.Type.html" title="annotation in com.google.android.exoplayer2" target="classFrame">ExoPlaybackException.Type</a></li>
 <li><a href="Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2" target="classFrame">Player.DiscontinuityReason</a></li>
 <li><a href="Player.PlaybackSuppressionReason.html" title="annotation in com.google.android.exoplayer2" target="classFrame">Player.PlaybackSuppressionReason</a></li>
 <li><a href="Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2" target="classFrame">Player.RepeatMode</a></li>
+<li><a href="Player.State.html" title="annotation in com.google.android.exoplayer2" target="classFrame">Player.State</a></li>
 <li><a href="Player.TimelineChangeReason.html" title="annotation in com.google.android.exoplayer2" target="classFrame">Player.TimelineChangeReason</a></li>
 <li><a href="Renderer.State.html" title="annotation in com.google.android.exoplayer2" target="classFrame">Renderer.State</a></li>
+<li><a href="RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2" target="classFrame">RendererCapabilities.AdaptiveSupport</a></li>
+<li><a href="RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2" target="classFrame">RendererCapabilities.Capabilities</a></li>
+<li><a href="RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2" target="classFrame">RendererCapabilities.FormatSupport</a></li>
+<li><a href="RendererCapabilities.TunnelingSupport.html" title="annotation in com.google.android.exoplayer2" target="classFrame">RendererCapabilities.TunnelingSupport</a></li>
 </ul>
 </div>
 </body>

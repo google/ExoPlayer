@@ -188,13 +188,13 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Loader
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream">Loader.LoadErrorAction</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#DONT_RETRY">DONT_RETRY</a></span></code>
-<div class="block">Discards the failed loading task and ignores any errors that have occurred.</div>
+<div class="block">Discards the failed <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream"><code>Loader.Loadable</code></a> and ignores any errors that have occurred.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream">Loader.LoadErrorAction</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#DONT_RETRY_FATAL">DONT_RETRY_FATAL</a></span></code>
-<div class="block">Discards the failed load.</div>
+<div class="block">Discards the failed <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream"><code>Loader.Loadable</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -269,7 +269,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Loader
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#isLoading--">isLoading</a></span>()</code>
-<div class="block">Returns whether the <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a> is currently loading a <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream"><code>Loader.Loadable</code></a>.</div>
+<div class="block">Returns whether the loader is currently loading.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
@@ -291,13 +291,13 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Loader
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#release--">release</a></span>()</code>
-<div class="block">Releases the <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a>.</div>
+<div class="block">Releases the loader.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#release-com.google.android.exoplayer2.upstream.Loader.ReleaseCallback-">release</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/Loader.ReleaseCallback.html" title="interface in com.google.android.exoplayer2.upstream">Loader.ReleaseCallback</a>&nbsp;callback)</code>
-<div class="block">Releases the <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a>.</div>
+<div class="block">Releases the loader.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
@@ -357,7 +357,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Loader
 <li class="blockList">
 <h4>DONT_RETRY</h4>
 <pre>public static final&nbsp;<a href="../../../../../com/google/android/exoplayer2/upstream/Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream">Loader.LoadErrorAction</a> DONT_RETRY</pre>
-<div class="block">Discards the failed loading task and ignores any errors that have occurred.</div>
+<div class="block">Discards the failed <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream"><code>Loader.Loadable</code></a> and ignores any errors that have occurred.</div>
 </li>
 </ul>
 <a name="DONT_RETRY_FATAL">
@@ -367,8 +367,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Loader
 <li class="blockList">
 <h4>DONT_RETRY_FATAL</h4>
 <pre>public static final&nbsp;<a href="../../../../../com/google/android/exoplayer2/upstream/Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream">Loader.LoadErrorAction</a> DONT_RETRY_FATAL</pre>
-<div class="block">Discards the failed load. The next call to <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#maybeThrowError--"><code>maybeThrowError()</code></a> will throw the last load
- error.</div>
+<div class="block">Discards the failed <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream"><code>Loader.Loadable</code></a>. The next call to <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#maybeThrowError--"><code>maybeThrowError()</code></a> will throw
+ the last load error.</div>
 </li>
 </ul>
 </li>
@@ -473,7 +473,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Loader
 <li class="blockList">
 <h4>isLoading</h4>
 <pre>public&nbsp;boolean&nbsp;isLoading()</pre>
-<div class="block">Returns whether the <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a> is currently loading a <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream"><code>Loader.Loadable</code></a>.</div>
+<div class="block">Returns whether the loader is currently loading.</div>
 </li>
 </ul>
 <a name="cancelLoading--">
@@ -483,7 +483,11 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Loader
 <li class="blockList">
 <h4>cancelLoading</h4>
 <pre>public&nbsp;void&nbsp;cancelLoading()</pre>
-<div class="block">Cancels the current load. This method should only be called when a load is in progress.</div>
+<div class="block">Cancels the current load.</div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/IllegalStateException.html" target="_top" title="class or interface in java.lang">IllegalStateException</a></code> - If the loader is not currently loading.</dd>
+</dl>
 </li>
 </ul>
 <a name="release--">
@@ -493,8 +497,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Loader
 <li class="blockList">
 <h4>release</h4>
 <pre>public&nbsp;void&nbsp;release()</pre>
-<div class="block">Releases the <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a>. This method should be called when the <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a> is no longer
- required.</div>
+<div class="block">Releases the loader. This method should be called when the loader is no longer required.</div>
 </li>
 </ul>
 <a name="release-com.google.android.exoplayer2.upstream.Loader.ReleaseCallback-">
@@ -505,8 +508,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Loader
 <h4>release</h4>
 <pre>public&nbsp;void&nbsp;release(@Nullable
                     <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.ReleaseCallback.html" title="interface in com.google.android.exoplayer2.upstream">Loader.ReleaseCallback</a>&nbsp;callback)</pre>
-<div class="block">Releases the <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a>. This method should be called when the <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a> is no longer
- required.</div>
+<div class="block">Releases the loader. This method should be called when the loader is no longer required.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>callback</code> - An optional callback to be called on the loading thread once the loader has

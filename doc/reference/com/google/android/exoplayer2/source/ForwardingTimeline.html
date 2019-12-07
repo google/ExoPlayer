@@ -204,8 +204,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/ForwardingTimeline.html#getIndexOfPeriod-java.lang.Object-">getIndexOfPeriod</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;uid)</code>
-<div class="block">Returns the index of the period identified by its unique <code>id</code>, or <a href="../../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a>
- if the period is not in the timeline.</div>
+<div class="block">Returns the index of the period identified by its unique <a href="../../../../../com/google/android/exoplayer2/Timeline.Period.html#uid"><code>Timeline.Period.uid</code></a>, or <a href="../../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if the period is not in the timeline.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
@@ -255,9 +254,8 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/ForwardingTimeline.html#getWindow-int-com.google.android.exoplayer2.Timeline.Window-boolean-long-">getWindow</a></span>(int&nbsp;windowIndex,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/ForwardingTimeline.html#getWindow-int-com.google.android.exoplayer2.Timeline.Window-long-">getWindow</a></span>(int&nbsp;windowIndex,
          <a href="../../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;window,
-         boolean&nbsp;setTag,
          long&nbsp;defaultPositionProjectionUs)</code>
 <div class="block">Populates a <a href="../../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> with data for the window at the specified index.</div>
 </td>
@@ -438,7 +436,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
 </dl>
 </li>
 </ul>
-<a name="getWindow-int-com.google.android.exoplayer2.Timeline.Window-boolean-long-">
+<a name="getWindow-int-com.google.android.exoplayer2.Timeline.Window-long-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -446,18 +444,15 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
 <h4>getWindow</h4>
 <pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;getWindow(int&nbsp;windowIndex,
                                  <a href="../../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;window,
-                                 boolean&nbsp;setTag,
                                  long&nbsp;defaultPositionProjectionUs)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Timeline.html#getWindow-int-com.google.android.exoplayer2.Timeline.Window-boolean-long-">Timeline</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Timeline.html#getWindow-int-com.google.android.exoplayer2.Timeline.Window-long-">Timeline</a></code></span></div>
 <div class="block">Populates a <a href="../../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> with data for the window at the specified index.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/Timeline.html#getWindow-int-com.google.android.exoplayer2.Timeline.Window-boolean-long-">getWindow</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/Timeline.html#getWindow-int-com.google.android.exoplayer2.Timeline.Window-long-">getWindow</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>windowIndex</code> - The index of the window.</dd>
 <dd><code>window</code> - The <a href="../../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> to populate. Must not be null.</dd>
-<dd><code>setTag</code> - Whether <a href="../../../../../com/google/android/exoplayer2/Timeline.Window.html#tag"><code>Timeline.Window.tag</code></a> should be populated. If false, the field will be set
-     to null. The caller should pass false for efficiency reasons unless the field is required.</dd>
 <dd><code>defaultPositionProjectionUs</code> - A duration into the future that the populated window's
      default start position should be projected.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -513,8 +508,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
 <h4>getIndexOfPeriod</h4>
 <pre>public&nbsp;int&nbsp;getIndexOfPeriod(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;uid)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Timeline.html#getIndexOfPeriod-java.lang.Object-">Timeline</a></code></span></div>
-<div class="block">Returns the index of the period identified by its unique <code>id</code>, or <a href="../../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a>
- if the period is not in the timeline.</div>
+<div class="block">Returns the index of the period identified by its unique <a href="../../../../../com/google/android/exoplayer2/Timeline.Period.html#uid"><code>Timeline.Period.uid</code></a>, or <a href="../../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if the period is not in the timeline.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/Timeline.html#getIndexOfPeriod-java.lang.Object-">getIndexOfPeriod</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></dd>

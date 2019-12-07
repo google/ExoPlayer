@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var methods = {"i0":10,"i1":10,"i2":9,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -239,7 +239,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Bandwi
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
@@ -258,13 +258,19 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Bandwi
 </td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html#getSingletonInstance-android.content.Context-">getSingletonInstance</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context)</code>
+<div class="block">Returns a singleton instance of a <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultBandwidthMeter</code></a> with default configuration.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html#getTransferListener--">getTransferListener</a></span>()</code>
 <div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>TransferListener</code></a> that this instance uses to gather bandwidth information
  from data transfers.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html#onBytesTransferred-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-int-">onBytesTransferred</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source,
                   <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
@@ -273,7 +279,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Bandwi
 <div class="block">Called incrementally during a transfer.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html#onTransferEnd-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-">onTransferEnd</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source,
              <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
@@ -281,7 +287,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Bandwi
 <div class="block">Called when a transfer ends.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html#onTransferInitializing-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-">onTransferInitializing</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source,
                       <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
@@ -289,7 +295,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Bandwi
 <div class="block">Called when a transfer is being initialized.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html#onTransferStart-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-">onTransferStart</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source,
                <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
@@ -297,13 +303,13 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Bandwi
 <div class="block">Called when a transfer starts.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html#removeEventListener-com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener-">removeEventListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter.EventListener</a>&nbsp;eventListener)</code>
 <div class="block">Removes an <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>BandwidthMeter.EventListener</code></a>.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html#setNetworkTypeOverride-int-">setNetworkTypeOverride</a></span>(int&nbsp;networkType)</code>
 <div class="block">Overrides the network type.</div>
@@ -438,6 +444,22 @@ public&nbsp;DefaultBandwidthMeter()</pre>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="getSingletonInstance-android.content.Context-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSingletonInstance</h4>
+<pre>public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter</a>&nbsp;getSingletonInstance(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context)</pre>
+<div class="block">Returns a singleton instance of a <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultBandwidthMeter</code></a> with default configuration.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>context</code> - A <a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content"><code>Context</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The singleton instance.</dd>
+</dl>
+</li>
+</ul>
 <a name="setNetworkTypeOverride-int-">
 <!--   -->
 </a>

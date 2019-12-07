@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html" title="class in com.google.android.exoplayer2.ext.cast"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.DrmScheme.html" title="class in com.google.android.exoplayer2.ext.cast"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.DrmConfiguration.html" title="class in com.google.android.exoplayer2.ext.cast"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html" target="_top">Frames</a></li>
@@ -131,9 +131,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html#Builder--">Builder</a></span>()</code>
-<div class="block">Creates an builder with default field values.</div>
-</td>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html#Builder--">Builder</a></span>()</code>&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -157,76 +155,33 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html#buildAndClear--">buildAndClear</a></span>()</code>
-<div class="block">Equivalent to <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html#build--"><code>build()</code></a>, except it also calls <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html#clear--"><code>clear()</code></a> after creating the
- <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html" title="class in com.google.android.exoplayer2.ext.cast"><code>MediaItem</code></a>.</div>
+<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem.Builder</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html#setDrmConfiguration-com.google.android.exoplayer2.ext.cast.MediaItem.DrmConfiguration-">setDrmConfiguration</a></span>(<a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.DrmConfiguration.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem.DrmConfiguration</a>&nbsp;drmConfiguration)</code>
+<div class="block">See <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html#drmConfiguration"><code>MediaItem.drmConfiguration</code></a>.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html#clear--">clear</a></span>()</code>
-<div class="block">Returns the builder to default values.</div>
-</td>
-</tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html#setAttachment-java.lang.Object-">setAttachment</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;attachment)</code>
-<div class="block">See <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html#attachment"><code>MediaItem.attachment</code></a>.</div>
-</td>
-</tr>
-<tr id="i4" class="altColor">
-<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html#setDescription-java.lang.String-">setDescription</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;description)</code>
-<div class="block">See <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html#description"><code>MediaItem.description</code></a>.</div>
-</td>
-</tr>
-<tr id="i5" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html#setDrmSchemes-java.util.List-">setDrmSchemes</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.DrmScheme.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem.DrmScheme</a>&gt;&nbsp;drmSchemes)</code>
-<div class="block">See <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html#drmSchemes"><code>MediaItem.drmSchemes</code></a>.</div>
-</td>
-</tr>
-<tr id="i6" class="altColor">
-<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html#setEndPositionUs-long-">setEndPositionUs</a></span>(long&nbsp;endPositionUs)</code>
-<div class="block">See <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html#endPositionUs"><code>MediaItem.endPositionUs</code></a>.</div>
-</td>
-</tr>
-<tr id="i7" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html#setMedia-com.google.android.exoplayer2.ext.cast.MediaItem.UriBundle-">setMedia</a></span>(<a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.UriBundle.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem.UriBundle</a>&nbsp;media)</code>
-<div class="block">See <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html#media"><code>MediaItem.media</code></a>.</div>
-</td>
-</tr>
-<tr id="i8" class="altColor">
-<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html#setMedia-java.lang.String-">setMedia</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;uri)</code>
-<div class="block">Equivalent to <code>setMedia(new UriBundle(Uri.parse(uri)))</code>.</div>
-</td>
-</tr>
-<tr id="i9" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html#setMimeType-java.lang.String-">setMimeType</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mimeType)</code>
 <div class="block">See <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html#mimeType"><code>MediaItem.mimeType</code></a>.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
-<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html#setStartPositionUs-long-">setStartPositionUs</a></span>(long&nbsp;startPositionUs)</code>
-<div class="block">See <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html#startPositionUs"><code>MediaItem.startPositionUs</code></a>.</div>
-</td>
-</tr>
-<tr id="i11" class="rowColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html#setTitle-java.lang.String-">setTitle</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;title)</code>
 <div class="block">See <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html#title"><code>MediaItem.title</code></a>.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html#setUuid-java.util.UUID-">setUuid</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid)</code>
-<div class="block">See <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html#uuid"><code>MediaItem.uuid</code></a>.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html#setUri-java.lang.String-">setUri</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;uri)</code>
+<div class="block">See <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html#uri"><code>MediaItem.uri</code></a>.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem.Builder</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html#setUri-android.net.Uri-">setUri</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri)</code>
+<div class="block">See <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html#uri"><code>MediaItem.uri</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -258,7 +213,6 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>Builder</h4>
 <pre>public&nbsp;Builder()</pre>
-<div class="block">Creates an builder with default field values.</div>
 </li>
 </ul>
 </li>
@@ -269,14 +223,24 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="setUuid-java.util.UUID-">
+<a name="setUri-java.lang.String-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>setUuid</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem.Builder</a>&nbsp;setUuid(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid)</pre>
-<div class="block">See <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html#uuid"><code>MediaItem.uuid</code></a>.</div>
+<h4>setUri</h4>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem.Builder</a>&nbsp;setUri(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;uri)</pre>
+<div class="block">See <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html#uri"><code>MediaItem.uri</code></a>.</div>
+</li>
+</ul>
+<a name="setUri-android.net.Uri-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setUri</h4>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem.Builder</a>&nbsp;setUri(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri)</pre>
+<div class="block">See <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html#uri"><code>MediaItem.uri</code></a>.</div>
 </li>
 </ul>
 <a name="setTitle-java.lang.String-">
@@ -289,76 +253,6 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <div class="block">See <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html#title"><code>MediaItem.title</code></a>.</div>
 </li>
 </ul>
-<a name="setDescription-java.lang.String-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setDescription</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem.Builder</a>&nbsp;setDescription(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;description)</pre>
-<div class="block">See <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html#description"><code>MediaItem.description</code></a>.</div>
-</li>
-</ul>
-<a name="setMedia-java.lang.String-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setMedia</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem.Builder</a>&nbsp;setMedia(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;uri)</pre>
-<div class="block">Equivalent to <code>setMedia(new UriBundle(Uri.parse(uri)))</code>.</div>
-</li>
-</ul>
-<a name="setMedia-com.google.android.exoplayer2.ext.cast.MediaItem.UriBundle-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setMedia</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem.Builder</a>&nbsp;setMedia(<a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.UriBundle.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem.UriBundle</a>&nbsp;media)</pre>
-<div class="block">See <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html#media"><code>MediaItem.media</code></a>.</div>
-</li>
-</ul>
-<a name="setAttachment-java.lang.Object-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setAttachment</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem.Builder</a>&nbsp;setAttachment(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;attachment)</pre>
-<div class="block">See <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html#attachment"><code>MediaItem.attachment</code></a>.</div>
-</li>
-</ul>
-<a name="setDrmSchemes-java.util.List-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setDrmSchemes</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem.Builder</a>&nbsp;setDrmSchemes(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.DrmScheme.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem.DrmScheme</a>&gt;&nbsp;drmSchemes)</pre>
-<div class="block">See <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html#drmSchemes"><code>MediaItem.drmSchemes</code></a>.</div>
-</li>
-</ul>
-<a name="setStartPositionUs-long-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setStartPositionUs</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem.Builder</a>&nbsp;setStartPositionUs(long&nbsp;startPositionUs)</pre>
-<div class="block">See <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html#startPositionUs"><code>MediaItem.startPositionUs</code></a>.</div>
-</li>
-</ul>
-<a name="setEndPositionUs-long-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setEndPositionUs</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem.Builder</a>&nbsp;setEndPositionUs(long&nbsp;endPositionUs)</pre>
-<div class="block">See <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html#endPositionUs"><code>MediaItem.endPositionUs</code></a>.</div>
-</li>
-</ul>
 <a name="setMimeType-java.lang.String-">
 <!--   -->
 </a>
@@ -369,25 +263,14 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <div class="block">See <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html#mimeType"><code>MediaItem.mimeType</code></a>.</div>
 </li>
 </ul>
-<a name="buildAndClear--">
+<a name="setDrmConfiguration-com.google.android.exoplayer2.ext.cast.MediaItem.DrmConfiguration-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>buildAndClear</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem</a>&nbsp;buildAndClear()</pre>
-<div class="block">Equivalent to <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html#build--"><code>build()</code></a>, except it also calls <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html#clear--"><code>clear()</code></a> after creating the
- <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html" title="class in com.google.android.exoplayer2.ext.cast"><code>MediaItem</code></a>.</div>
-</li>
-</ul>
-<a name="clear--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>clear</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem.Builder</a>&nbsp;clear()</pre>
-<div class="block">Returns the builder to default values.</div>
+<h4>setDrmConfiguration</h4>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem.Builder</a>&nbsp;setDrmConfiguration(<a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.DrmConfiguration.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem.DrmConfiguration</a>&nbsp;drmConfiguration)</pre>
+<div class="block">See <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html#drmConfiguration"><code>MediaItem.drmConfiguration</code></a>.</div>
 </li>
 </ul>
 <a name="build--">
@@ -397,8 +280,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>build</h4>
 <pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html" title="class in com.google.android.exoplayer2.ext.cast">MediaItem</a>&nbsp;build()</pre>
-<div class="block">Returns a new <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html" title="class in com.google.android.exoplayer2.ext.cast"><code>MediaItem</code></a> instance with the current builder values. This method also
- clears any values passed to <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html#setUuid-java.util.UUID-"><code>setUuid(UUID)</code></a>.</div>
+<div class="block">Returns a new <a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html" title="class in com.google.android.exoplayer2.ext.cast"><code>MediaItem</code></a> instance with the current builder values.</div>
 </li>
 </ul>
 </li>
@@ -429,7 +311,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html" title="class in com.google.android.exoplayer2.ext.cast"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.DrmScheme.html" title="class in com.google.android.exoplayer2.ext.cast"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.DrmConfiguration.html" title="class in com.google.android.exoplayer2.ext.cast"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/ext/cast/MediaItem.Builder.html" target="_top">Frames</a></li>

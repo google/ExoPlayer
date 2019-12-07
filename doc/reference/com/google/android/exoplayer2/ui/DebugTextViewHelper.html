@@ -221,7 +221,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onIsPlayingChanged-boolean-">onIsPlayingChanged</a>, <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onLoadingChanged-boolean-">onLoadingChanged</a>, <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlaybackParametersChanged-com.google.android.exoplayer2.PlaybackParameters-">onPlaybackParametersChanged</a>, <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlaybackSuppressionReasonChanged-int-">onPlaybackSuppressionReasonChanged</a>, <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlayerError-com.google.android.exoplayer2.ExoPlaybackException-">onPlayerError</a>, <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onRepeatModeChanged-int-">onRepeatModeChanged</a>, <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onSeekProcessed--">onSeekProcessed</a>, <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onShuffleModeEnabledChanged-boolean-">onShuffleModeEnabledChanged</a>, <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-java.lang.Object-int-">onTimelineChanged</a>, <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onTracksChanged-com.google.android.exoplayer2.source.TrackGroupArray-com.google.android.exoplayer2.trackselection.TrackSelectionArray-">onTracksChanged</a></code></li>
+<code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onIsPlayingChanged-boolean-">onIsPlayingChanged</a>, <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onLoadingChanged-boolean-">onLoadingChanged</a>, <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlaybackParametersChanged-com.google.android.exoplayer2.PlaybackParameters-">onPlaybackParametersChanged</a>, <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlaybackSuppressionReasonChanged-int-">onPlaybackSuppressionReasonChanged</a>, <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlayerError-com.google.android.exoplayer2.ExoPlaybackException-">onPlayerError</a>, <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onRepeatModeChanged-int-">onRepeatModeChanged</a>, <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onSeekProcessed--">onSeekProcessed</a>, <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onShuffleModeEnabledChanged-boolean-">onShuffleModeEnabledChanged</a>, <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-int-">onTimelineChanged</a>, <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-java.lang.Object-int-">onTimelineChanged</a>, <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onTracksChanged-com.google.android.exoplayer2.source.TrackGroupArray-com.google.android.exoplayer2.trackselection.TrackSelectionArray-">onTracksChanged</a></code></li>
 </ul>
 </li>
 </ul>
@@ -290,6 +290,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 <li class="blockList">
 <h4>onPlayerStateChanged</h4>
 <pre>public final&nbsp;void&nbsp;onPlayerStateChanged(boolean&nbsp;playWhenReady,
+                                       <a href="../../../../../com/google/android/exoplayer2/Player.State.html" title="annotation in com.google.android.exoplayer2">@Player.State</a>
                                        int&nbsp;playbackState)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlayerStateChanged-boolean-int-">Player.EventListener</a></code></span></div>
 <div class="block">Called when the value returned from either <a href="../../../../../com/google/android/exoplayer2/Player.html#getPlayWhenReady--"><code>Player.getPlayWhenReady()</code></a> or <a href="../../../../../com/google/android/exoplayer2/Player.html#getPlaybackState--"><code>Player.getPlaybackState()</code></a> changes.</div>
@@ -298,7 +299,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 <dd><code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlayerStateChanged-boolean-int-">onPlayerStateChanged</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>playWhenReady</code> - Whether playback will proceed when ready.</dd>
-<dd><code>playbackState</code> - One of the <code>STATE</code> constants.</dd>
+<dd><code>playbackState</code> - The new <a href="../../../../../com/google/android/exoplayer2/Player.State.html" title="annotation in com.google.android.exoplayer2"><code>playback state</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -318,8 +319,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
  when the source introduces a discontinuity internally).
 
  <p>When a position discontinuity occurs as a result of a change to the timeline this method
- is <em>not</em> called. <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-java.lang.Object-int-"><code>Player.EventListener.onTimelineChanged(Timeline, Object, int)</code></a> is called in this
- case.</div>
+ is <em>not</em> called. <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-int-"><code>Player.EventListener.onTimelineChanged(Timeline, int)</code></a> is called in this case.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPositionDiscontinuity-int-">onPositionDiscontinuity</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a></code></dd>

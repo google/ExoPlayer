@@ -301,8 +301,9 @@ implements <a href="../../../../../com/google/android/exoplayer2/decoder/Decoder
 <ul class="blockList">
 <li class="blockList">
 <h4>dequeueInputBuffer</h4>
-<pre>public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html" title="type parameter in SimpleDecoder">I</a>&nbsp;dequeueInputBuffer()
-                           throws <a href="../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html" title="type parameter in SimpleDecoder">E</a> extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Exception.html" target="_top" title="class or interface in java.lang">Exception</a></pre>
+<pre>@Nullable
+public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html" title="type parameter in SimpleDecoder">I</a>&nbsp;dequeueInputBuffer()
+                                     throws <a href="../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html" title="type parameter in SimpleDecoder">E</a> extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Exception.html" target="_top" title="class or interface in java.lang">Exception</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html#dequeueInputBuffer--">Decoder</a></code></span></div>
 <div class="block">Dequeues the next input buffer to be filled and queued to the decoder.</div>
 <dl>
@@ -345,8 +346,9 @@ implements <a href="../../../../../com/google/android/exoplayer2/decoder/Decoder
 <ul class="blockList">
 <li class="blockList">
 <h4>dequeueOutputBuffer</h4>
-<pre>public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html" title="type parameter in SimpleDecoder">O</a>&nbsp;dequeueOutputBuffer()
-                            throws <a href="../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html" title="type parameter in SimpleDecoder">E</a> extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Exception.html" target="_top" title="class or interface in java.lang">Exception</a></pre>
+<pre>@Nullable
+public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html" title="type parameter in SimpleDecoder">O</a>&nbsp;dequeueOutputBuffer()
+                                      throws <a href="../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html" title="type parameter in SimpleDecoder">E</a> extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Exception.html" target="_top" title="class or interface in java.lang">Exception</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html#dequeueOutputBuffer--">Decoder</a></code></span></div>
 <div class="block">Dequeues the next output buffer from the decoder.</div>
 <dl>
@@ -368,7 +370,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/decoder/Decoder
 <ul class="blockList">
 <li class="blockList">
 <h4>releaseOutputBuffer</h4>
-<pre>protected&nbsp;void&nbsp;releaseOutputBuffer(<a href="../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html" title="type parameter in SimpleDecoder">O</a>&nbsp;outputBuffer)</pre>
+<pre>@CallSuper
+protected&nbsp;void&nbsp;releaseOutputBuffer(<a href="../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html" title="type parameter in SimpleDecoder">O</a>&nbsp;outputBuffer)</pre>
 <div class="block">Releases an output buffer back to the decoder.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -398,7 +401,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/decoder/Decoder
 <ul class="blockList">
 <li class="blockList">
 <h4>release</h4>
-<pre>public&nbsp;void&nbsp;release()</pre>
+<pre>@CallSuper
+public&nbsp;void&nbsp;release()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html#release--">Decoder</a></code></span></div>
 <div class="block">Releases the decoder. Must be called when the decoder is no longer needed.</div>
 <dl>

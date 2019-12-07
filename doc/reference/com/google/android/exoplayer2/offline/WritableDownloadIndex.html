@@ -106,7 +106,8 @@ var activeTableTab = "activeTableTab";
 </dl>
 <hr>
 <br>
-<pre>public interface <span class="typeNameLabel">WritableDownloadIndex</span>
+<pre>@WorkerThread
+public interface <span class="typeNameLabel">WritableDownloadIndex</span>
 extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadIndex.html" title="interface in com.google.android.exoplayer2.offline">DownloadIndex</a></pre>
 <div class="block">A writable index of <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline"><code>Downloads</code></a>.</div>
 </li>
@@ -195,7 +196,9 @@ extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadIn
 <h4>putDownload</h4>
 <pre>void&nbsp;putDownload(<a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&nbsp;download)
           throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
-<div class="block">Adds or replaces a <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a>.</div>
+<div class="block">Adds or replaces a <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a>.
+
+ <p>This method may be slow and shouldn't normally be called on the main thread.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>download</code> - The <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a> to be added.</dd>
@@ -213,7 +216,9 @@ extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadIn
 <pre>void&nbsp;removeDownload(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id)
              throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
 <div class="block">Removes the download with the given ID. Does nothing if a download with the given ID does not
- exist.</div>
+ exist.
+
+ <p>This method may be slow and shouldn't normally be called on the main thread.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>id</code> - The ID of the download to remove.</dd>
@@ -230,7 +235,9 @@ extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadIn
 <h4>setDownloadingStatesToQueued</h4>
 <pre>void&nbsp;setDownloadingStatesToQueued()
                            throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
-<div class="block">Sets all <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_DOWNLOADING"><code>Download.STATE_DOWNLOADING</code></a> states to <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_QUEUED"><code>Download.STATE_QUEUED</code></a>.</div>
+<div class="block">Sets all <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_DOWNLOADING"><code>Download.STATE_DOWNLOADING</code></a> states to <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_QUEUED"><code>Download.STATE_QUEUED</code></a>.
+
+ <p>This method may be slow and shouldn't normally be called on the main thread.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code> - If an error occurs updating the state.</dd>
@@ -245,7 +252,9 @@ extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadIn
 <h4>setStatesToRemoving</h4>
 <pre>void&nbsp;setStatesToRemoving()
                   throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
-<div class="block">Sets all states to <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_REMOVING"><code>Download.STATE_REMOVING</code></a>.</div>
+<div class="block">Sets all states to <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_REMOVING"><code>Download.STATE_REMOVING</code></a>.
+
+ <p>This method may be slow and shouldn't normally be called on the main thread.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code> - If an error occurs updating the state.</dd>
@@ -261,7 +270,9 @@ extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadIn
 <pre>void&nbsp;setStopReason(int&nbsp;stopReason)
             throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
 <div class="block">Sets the stop reason of the downloads in a terminal state (<a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_COMPLETED"><code>Download.STATE_COMPLETED</code></a>,
- <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_FAILED"><code>Download.STATE_FAILED</code></a>).</div>
+ <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_FAILED"><code>Download.STATE_FAILED</code></a>).
+
+ <p>This method may be slow and shouldn't normally be called on the main thread.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>stopReason</code> - The stop reason.</dd>
@@ -280,7 +291,9 @@ extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadIn
                    int&nbsp;stopReason)
             throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
 <div class="block">Sets the stop reason of the download with the given ID in a terminal state (<a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_COMPLETED"><code>Download.STATE_COMPLETED</code></a>, <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_FAILED"><code>Download.STATE_FAILED</code></a>). Does nothing if a download with the
- given ID does not exist, or if it's not in a terminal state.</div>
+ given ID does not exist, or if it's not in a terminal state.
+
+ <p>This method may be slow and shouldn't normally be called on the main thread.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>id</code> - The ID of the download to update.</dd>

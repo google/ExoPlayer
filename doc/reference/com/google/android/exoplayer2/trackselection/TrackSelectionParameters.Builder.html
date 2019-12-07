@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -137,6 +137,14 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.Builder.html#Builder--">Builder</a></span>()</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment"><a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content"><code>Context</code></a> constraints will not be set when using this constructor. Use
+     <code>#Builder(Context)</code> instead.</span></div>
+</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.Builder.html#Builder-android.content.Context-">Builder</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context)</code>
 <div class="block">Creates a builder with default initial values.</div>
 </td>
 </tr>
@@ -181,11 +189,18 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.Builder.html#setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettings-android.content.Context-">setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettings</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context)</code>
+<div class="block">Sets the preferred language and role flags for text tracks based on the accessibility
+ settings of <a href="https://developer.android.com/reference/android/view/accessibility/CaptioningManager.html" target="_top" title="class or interface in android.view.accessibility"><code>CaptioningManager</code></a>.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.Builder.html#setPreferredTextRoleFlags-int-">setPreferredTextRoleFlags</a></span>(int&nbsp;preferredTextRoleFlags)</code>
 <div class="block">Sets the preferred <code>C.RoleFlags</code> for text tracks.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.Builder.html#setSelectUndeterminedTextLanguage-boolean-">setSelectUndeterminedTextLanguage</a></span>(boolean&nbsp;selectUndeterminedTextLanguage)</code>
 <div class="block">Sets whether a text track with undetermined language should be selected if no track with
@@ -215,14 +230,30 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
+<a name="Builder-android.content.Context-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>Builder</h4>
+<pre>public&nbsp;Builder(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context)</pre>
+<div class="block">Creates a builder with default initial values.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>context</code> - Any context.</dd>
+</dl>
+</li>
+</ul>
 <a name="Builder--">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>Builder</h4>
-<pre>public&nbsp;Builder()</pre>
-<div class="block">Creates a builder with default initial values.</div>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;Builder()</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment"><a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content"><code>Context</code></a> constraints will not be set when using this constructor. Use
+     <code>#Builder(Context)</code> instead.</span></div>
 </li>
 </ul>
 </li>
@@ -246,6 +277,25 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>preferredAudioLanguage</code> - Preferred audio language as an IETF BCP 47 conformant tag, or
      <code>null</code> to select the default track, or the first track if there's no default.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a name="setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettings-android.content.Context-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettings</h4>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettings(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context)</pre>
+<div class="block">Sets the preferred language and role flags for text tracks based on the accessibility
+ settings of <a href="https://developer.android.com/reference/android/view/accessibility/CaptioningManager.html" target="_top" title="class or interface in android.view.accessibility"><code>CaptioningManager</code></a>.
+
+ <p>Does nothing for API levels &lt; 19 or when the <a href="https://developer.android.com/reference/android/view/accessibility/CaptioningManager.html" target="_top" title="class or interface in android.view.accessibility"><code>CaptioningManager</code></a> is disabled.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>context</code> - A <a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content"><code>Context</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
 </dl>

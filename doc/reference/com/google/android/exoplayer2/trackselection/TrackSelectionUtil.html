@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9};
+var methods = {"i0":9,"i1":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -157,33 +157,6 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionUtil.html#getAverageBitrate-com.google.android.exoplayer2.source.chunk.MediaChunkIterator-long-">getAverageBitrate</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk">MediaChunkIterator</a>&nbsp;iterator,
-                 long&nbsp;maxDurationUs)</code>
-<div class="block">Returns average bitrate for chunks in bits per second.</div>
-</td>
-</tr>
-<tr id="i2" class="altColor">
-<td class="colFirst"><code>static int[]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionUtil.html#getBitratesUsingPastAndFutureInfo-com.google.android.exoplayer2.Format:A-java.util.List-long-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-long-boolean-int:A-">getBitratesUsingPastAndFutureInfo</a></span>(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>[]&nbsp;formats,
-                                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">MediaChunk</a>&gt;&nbsp;queue,
-                                 long&nbsp;maxPastDurationUs,
-                                 <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk">MediaChunkIterator</a>[]&nbsp;iterators,
-                                 long&nbsp;maxFutureDurationUs,
-                                 boolean&nbsp;useFormatBitrateAsLowerBound,
-                                 int[]&nbsp;bitrates)</code>
-<div class="block">Returns bitrate values for a set of tracks whose formats are given, using the given upcoming
- media chunk iterators and the queue of already buffered <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s.</div>
-</td>
-</tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code>static int[]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionUtil.html#getFormatBitrates-com.google.android.exoplayer2.Format:A-int:A-">getFormatBitrates</a></span>(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>[]&nbsp;formats,
-                 int[]&nbsp;bitrates)</code>
-<div class="block">Returns an array containing <a href="../../../../../com/google/android/exoplayer2/Format.html#bitrate"><code>Format.bitrate</code></a> values for given each format in order.</div>
-</td>
-</tr>
-<tr id="i4" class="altColor">
 <td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionUtil.html#updateParametersWithOverride-com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters-int-com.google.android.exoplayer2.source.TrackGroupArray-boolean-com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride-">updateParametersWithOverride</a></span>(<a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;parameters,
                             int&nbsp;rendererIndex,
@@ -239,7 +212,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <a name="updateParametersWithOverride-com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters-int-com.google.android.exoplayer2.source.TrackGroupArray-boolean-com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride-">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>updateParametersWithOverride</h4>
 <pre>public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;updateParametersWithOverride(<a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;parameters,
@@ -259,82 +232,6 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
      existing override for this renderer will be cleared.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The updated <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a>.</dd>
-</dl>
-</li>
-</ul>
-<a name="getAverageBitrate-com.google.android.exoplayer2.source.chunk.MediaChunkIterator-long-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getAverageBitrate</h4>
-<pre>public static&nbsp;int&nbsp;getAverageBitrate(<a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk">MediaChunkIterator</a>&nbsp;iterator,
-                                    long&nbsp;maxDurationUs)</pre>
-<div class="block">Returns average bitrate for chunks in bits per second. Chunks are included in average until
- <code>maxDurationMs</code> or the first unknown length chunk.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>iterator</code> - Iterator for media chunk sequences.</dd>
-<dd><code>maxDurationUs</code> - Maximum duration of chunks to be included in average bitrate, in
-     microseconds.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>Average bitrate for chunks in bits per second, or <a href="../../../../../com/google/android/exoplayer2/Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if there are
-     no chunks or the first chunk length is unknown.</dd>
-</dl>
-</li>
-</ul>
-<a name="getBitratesUsingPastAndFutureInfo-com.google.android.exoplayer2.Format:A-java.util.List-long-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-long-boolean-int:A-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getBitratesUsingPastAndFutureInfo</h4>
-<pre>public static&nbsp;int[]&nbsp;getBitratesUsingPastAndFutureInfo(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>[]&nbsp;formats,
-                                                      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">MediaChunk</a>&gt;&nbsp;queue,
-                                                      long&nbsp;maxPastDurationUs,
-                                                      <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk">MediaChunkIterator</a>[]&nbsp;iterators,
-                                                      long&nbsp;maxFutureDurationUs,
-                                                      boolean&nbsp;useFormatBitrateAsLowerBound,
-                                                      @Nullable
-                                                      int[]&nbsp;bitrates)</pre>
-<div class="block">Returns bitrate values for a set of tracks whose formats are given, using the given upcoming
- media chunk iterators and the queue of already buffered <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>formats</code> - The track formats.</dd>
-<dd><code>queue</code> - The queue of already buffered <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s. Must not be modified.</dd>
-<dd><code>maxPastDurationUs</code> - Maximum duration of past chunks to be included in average bitrate
-     values, in microseconds.</dd>
-<dd><code>iterators</code> - An array of <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>MediaChunkIterator</code></a>s providing information about the
-     sequence of upcoming media chunks for each track.</dd>
-<dd><code>maxFutureDurationUs</code> - Maximum duration of future chunks to be included in average bitrate
-     values, in microseconds.</dd>
-<dd><code>useFormatBitrateAsLowerBound</code> - Whether to return the estimated bitrate only if it's higher
-     than the bitrate of the track's format.</dd>
-<dd><code>bitrates</code> - An array into which the bitrate values will be written. If non-null, this array
-     is the one that will be returned.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>Bitrate values for the tracks. As long as the format of a track has set bitrate, a
-     bitrate value is set in the returned array. Otherwise it might be set to <a href="../../../../../com/google/android/exoplayer2/Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a>.</dd>
-</dl>
-</li>
-</ul>
-<a name="getFormatBitrates-com.google.android.exoplayer2.Format:A-int:A-">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>getFormatBitrates</h4>
-<pre>public static&nbsp;int[]&nbsp;getFormatBitrates(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>[]&nbsp;formats,
-                                      @Nullable
-                                      int[]&nbsp;bitrates)</pre>
-<div class="block">Returns an array containing <a href="../../../../../com/google/android/exoplayer2/Format.html#bitrate"><code>Format.bitrate</code></a> values for given each format in order.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>formats</code> - The format array to copy <a href="../../../../../com/google/android/exoplayer2/Format.html#bitrate"><code>Format.bitrate</code></a> values.</dd>
-<dd><code>bitrates</code> - If not null, stores bitrate values in this array.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>An array containing <a href="../../../../../com/google/android/exoplayer2/Format.html#bitrate"><code>Format.bitrate</code></a> values for given each format in order.</dd>
 </dl>
 </li>
 </ul>

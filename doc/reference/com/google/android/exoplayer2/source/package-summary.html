@@ -92,15 +92,15 @@
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.PrepareErrorListener.html" title="interface in com.google.android.exoplayer2.source">DeferredMediaPeriod.PrepareErrorListener</a></td>
-<td class="colLast">
-<div class="block">Listener for preparation errors.</div>
-</td>
-</tr>
-<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/source/ExtractorMediaSource.EventListener.html" title="interface in com.google.android.exoplayer2.source">ExtractorMediaSource.EventListener</a></td>
 <td class="colLast">Deprecated
 <div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceEventListener</code></a> instead.</span></div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.PrepareErrorListener.html" title="interface in com.google.android.exoplayer2.source">MaskingMediaPeriod.PrepareErrorListener</a></td>
+<td class="colLast">
+<div class="block">Listener for preparation errors.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -122,9 +122,9 @@
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.SourceInfoRefreshListener.html" title="interface in com.google.android.exoplayer2.source">MediaSource.SourceInfoRefreshListener</a></td>
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaSourceCaller.html" title="interface in com.google.android.exoplayer2.source">MediaSource.MediaSourceCaller</a></td>
 <td class="colLast">
-<div class="block">Listener for source events.</div>
+<div class="block">A caller of media sources, which will be notified of source events.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -134,36 +134,42 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a></td>
+<td class="colLast">
+<div class="block">Factory for creating <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a>s from URIs.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.UpstreamFormatChangedListener.html" title="interface in com.google.android.exoplayer2.source">SampleQueue.UpstreamFormatChangedListener</a></td>
 <td class="colLast">
 <div class="block">A listener for changes to the upstream format.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source">SampleStream</a></td>
 <td class="colLast">
 <div class="block">A stream of media samples (and associated format information).</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader</a></td>
 <td class="colLast">
 <div class="block">A loader that can proceed in approximate synchronization with other loaders.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.Callback.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader.Callback</a>&lt;T extends <a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader</a>&gt;</td>
 <td class="colLast">
 <div class="block">A callback to be notified of <a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source"><code>SequenceableLoader</code></a> events.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/source/ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source">ShuffleOrder</a></td>
 <td class="colLast">
 <div class="block">Shuffled order of indices.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.EventListener.html" title="interface in com.google.android.exoplayer2.source">SingleSampleMediaSource.EventListener</a></td>
 <td class="colLast">Deprecated
 <div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceEventListener</code></a>.</span></div>
@@ -226,20 +232,9 @@
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/source/DefaultMediaSourceEventListener.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceEventListener</a></td>
-<td class="colLast">
-<div class="block">A <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceEventListener</code></a> allowing selective overrides.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.html" title="class in com.google.android.exoplayer2.source">DeferredMediaPeriod</a></td>
-<td class="colLast">
-<div class="block">Media period that wraps a media source and defers calling its <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-long-"><code>MediaSource.createPeriod(MediaPeriodId, Allocator, long)</code></a> method until <code>#createPeriod(MediaPeriodId)</code> has been called.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/source/DynamicConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">DynamicConcatenatingMediaSource</a></td>
 <td class="colLast">Deprecated
-<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>ConcatenatingMediaSource</code></a> instead.</span></div>
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceEventListener</code></a> interface directly for selective overrides as
+     all methods are implemented as no-op default methods.</span></div>
 </td>
 </tr>
 <tr class="altColor">
@@ -256,7 +251,9 @@
 </tr>
 <tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/source/ExtractorMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">ExtractorMediaSource.Factory</a></td>
-<td class="colLast">Deprecated</td>
+<td class="colLast">Deprecated
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/source/ProgressiveMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source"><code>ProgressiveMediaSource.Factory</code></a> instead.</span></div>
+</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/source/ForwardingTimeline.html" title="class in com.google.android.exoplayer2.source">ForwardingTimeline</a></td>
@@ -268,6 +265,19 @@
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/source/LoopingMediaSource.html" title="class in com.google.android.exoplayer2.source">LoopingMediaSource</a></td>
 <td class="colLast">
 <div class="block">Loops a <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> a specified number of times.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html" title="class in com.google.android.exoplayer2.source">MaskingMediaPeriod</a></td>
+<td class="colLast">
+<div class="block">Media period that wraps a media source and defers calling its <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-long-"><code>MediaSource.createPeriod(MediaPeriodId, Allocator, long)</code></a> method until <code>#createPeriod(MediaPeriodId)</code> has been called.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaSource.html" title="class in com.google.android.exoplayer2.source">MaskingMediaSource</a></td>
+<td class="colLast">
+<div class="block">A <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> that masks the <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> with a placeholder until the actual media
+ structure is known.</div>
 </td>
 </tr>
 <tr class="rowColor">

@@ -113,7 +113,13 @@ var activeTableTab = "activeTableTab";
 <pre>public final class <span class="typeNameLabel">ProgressiveDownloader</span>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>
 implements <a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline">Downloader</a></pre>
-<div class="block">A downloader for progressive media streams.</div>
+<div class="block">A downloader for progressive media streams.
+
+ <p>The downloader attempts to download the entire media bytes referenced by a <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a> into a
+ cache as defined by <a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline"><code>DownloaderConstructorHelper</code></a>. Callers can use the constructor to
+ specify a custom cache key for the downloaded bytes.
+
+ <p>The downloader will avoid downloading already-downloaded media bytes.</div>
 </li>
 </ul>
 </div>

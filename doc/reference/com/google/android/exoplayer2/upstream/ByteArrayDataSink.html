@@ -236,8 +236,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/DataSi
 <ul class="blockList">
 <li class="blockList">
 <h4>open</h4>
-<pre>public&nbsp;void&nbsp;open(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)
-          throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
+<pre>public&nbsp;void&nbsp;open(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSink.html#open-com.google.android.exoplayer2.upstream.DataSpec-">DataSink</a></code></span></div>
 <div class="block">Opens the sink to consume the specified data.
 
@@ -248,8 +247,6 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/DataSi
 <dd><code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSink.html#open-com.google.android.exoplayer2.upstream.DataSpec-">open</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSink.html" title="interface in com.google.android.exoplayer2.upstream">DataSink</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>dataSpec</code> - Defines the data to be consumed.</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code> - If an error occurs opening the sink.</dd>
 </dl>
 </li>
 </ul>
@@ -282,8 +279,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/DataSi
 <h4>write</h4>
 <pre>public&nbsp;void&nbsp;write(byte[]&nbsp;buffer,
                   int&nbsp;offset,
-                  int&nbsp;length)
-           throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
+                  int&nbsp;length)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSink.html#write-byte:A-int-int-">DataSink</a></code></span></div>
 <div class="block">Consumes the provided data.</div>
 <dl>
@@ -293,8 +289,6 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/DataSi
 <dd><code>buffer</code> - The buffer from which data should be consumed.</dd>
 <dd><code>offset</code> - The offset of the data to consume in <code>buffer</code>.</dd>
 <dd><code>length</code> - The length of the data to consume, in bytes.</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code> - If an error occurs writing to the sink.</dd>
 </dl>
 </li>
 </ul>
@@ -304,7 +298,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/DataSi
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getData</h4>
-<pre>public&nbsp;byte[]&nbsp;getData()</pre>
+<pre>@Nullable
+public&nbsp;byte[]&nbsp;getData()</pre>
 <div class="block">Returns the data written to the sink since the last call to <a href="../../../../../com/google/android/exoplayer2/upstream/ByteArrayDataSink.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>open(DataSpec)</code></a>, or null if
  <a href="../../../../../com/google/android/exoplayer2/upstream/ByteArrayDataSink.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>open(DataSpec)</code></a> has never been called.</div>
 </li>

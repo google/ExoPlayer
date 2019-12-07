@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li>Prev&nbsp;Class</li>
-<li><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CommandReceiver.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CaptionCallback.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.html" target="_top">Frames</a></li>
@@ -155,60 +155,66 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CaptionCallback.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CaptionCallback</a></span></code>
+<div class="block">Handles requests for enabling or disabling captions.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CommandReceiver.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CommandReceiver</a></span></code>
 <div class="block">Receiver of media commands sent by a media controller.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CustomActionProvider.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CustomActionProvider</a></span></code>
 <div class="block">Provides a <code>PlaybackStateCompat.CustomAction</code> to be published and handles the action when
  sent by a media controller.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.DefaultMediaMetadataProvider.html" title="class in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.DefaultMediaMetadataProvider</a></span></code>
 <div class="block">Provides a default <a href="https://developer.android.com/reference/android/support.v4.media.MediaMetadataCompat.html" target="_top" title="class or interface in android"><code>MediaMetadataCompat</code></a> with properties and extras taken from the <a href="https://developer.android.com/reference/android/support.v4.media.MediaDescriptionCompat.html" target="_top" title="class or interface in android"><code>MediaDescriptionCompat</code></a> of the <code>MediaSessionCompat.QueueItem</code> of the active queue item.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.MediaButtonEventHandler.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.MediaButtonEventHandler</a></span></code>
 <div class="block">Handles a media button event.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.MediaMetadataProvider.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.MediaMetadataProvider</a></span></code>
 <div class="block">Provides a <a href="https://developer.android.com/reference/android/support.v4.media.MediaMetadataCompat.html" target="_top" title="class or interface in android"><code>MediaMetadataCompat</code></a> for a given player state.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.PlaybackActions.html" title="annotation in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.PlaybackActions</a></span></code>
 <div class="block">Playback actions supported by the connector.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.PlaybackPreparer.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.PlaybackPreparer</a></span></code>
 <div class="block">Interface to which playback preparation and play actions are delegated.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.QueueEditor.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueEditor</a></span></code>
 <div class="block">Handles media session queue edits.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.QueueNavigator.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueNavigator</a></span></code>
 <div class="block">Handles queue navigation actions, and updates the media session queue by calling <code>MediaSessionCompat.setQueue()</code>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.RatingCallback.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.RatingCallback</a></span></code>
 <div class="block">Callback receiving a user rating for the active media item.</div>
@@ -329,30 +335,36 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.html#setCaptionCallback-com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector.CaptionCallback-">setCaptionCallback</a></span>(<a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CaptionCallback.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CaptionCallback</a>&nbsp;captionCallback)</code>
+<div class="block">Sets the <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CaptionCallback.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.CaptionCallback</code></a> to handle requests to enable or disable captions.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.html#setControlDispatcher-com.google.android.exoplayer2.ControlDispatcher-">setControlDispatcher</a></span>(<a href="../../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher)</code>
 <div class="block">Sets the <a href="../../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a>.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.html#setCustomActionProviders-com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector.CustomActionProvider...-">setCustomActionProviders</a></span>(<a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CustomActionProvider.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CustomActionProvider</a>...&nbsp;customActionProviders)</code>
 <div class="block">Sets custom action providers.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.html#setCustomErrorMessage-java.lang.CharSequence-">setCustomErrorMessage</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/CharSequence.html" target="_top" title="class or interface in java.lang">CharSequence</a>&nbsp;message)</code>
 <div class="block">Sets a custom error on the session.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.html#setCustomErrorMessage-java.lang.CharSequence-int-">setCustomErrorMessage</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/CharSequence.html" target="_top" title="class or interface in java.lang">CharSequence</a>&nbsp;message,
                      int&nbsp;code)</code>
 <div class="block">Sets a custom error on the session.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.html#setCustomErrorMessage-java.lang.CharSequence-int-android.os.Bundle-">setCustomErrorMessage</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/CharSequence.html" target="_top" title="class or interface in java.lang">CharSequence</a>&nbsp;message,
                      int&nbsp;code,
@@ -360,74 +372,74 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <div class="block">Sets a custom error on the session.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.html#setEnabledPlaybackActions-long-">setEnabledPlaybackActions</a></span>(long&nbsp;enabledPlaybackActions)</code>
 <div class="block">Sets the enabled playback actions.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.html#setErrorMessageProvider-com.google.android.exoplayer2.util.ErrorMessageProvider-">setErrorMessageProvider</a></span>(<a href="../../../../../../com/google/android/exoplayer2/util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util">ErrorMessageProvider</a>&lt;? super <a href="../../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&gt;&nbsp;errorMessageProvider)</code>
 <div class="block">Sets the optional <a href="../../../../../../com/google/android/exoplayer2/util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util"><code>ErrorMessageProvider</code></a>.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.html#setFastForwardIncrementMs-int-">setFastForwardIncrementMs</a></span>(int&nbsp;fastForwardMs)</code>
 <div class="block">Sets the fast forward increment in milliseconds.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.html#setMediaButtonEventHandler-com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector.MediaButtonEventHandler-">setMediaButtonEventHandler</a></span>(<a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.MediaButtonEventHandler.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.MediaButtonEventHandler</a>&nbsp;mediaButtonEventHandler)</code>
 <div class="block">Sets the <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.MediaButtonEventHandler.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.MediaButtonEventHandler</code></a>.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.html#setMediaMetadataProvider-com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector.MediaMetadataProvider-">setMediaMetadataProvider</a></span>(<a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.MediaMetadataProvider.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.MediaMetadataProvider</a>&nbsp;mediaMetadataProvider)</code>
 <div class="block">Sets a provider of metadata to be published to the media session.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.html#setPlaybackPreparer-com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector.PlaybackPreparer-">setPlaybackPreparer</a></span>(<a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.PlaybackPreparer.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.PlaybackPreparer</a>&nbsp;playbackPreparer)</code>
 <div class="block">Sets the <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.PlaybackPreparer.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.PlaybackPreparer</code></a>.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.html#setPlayer-com.google.android.exoplayer2.Player-">setPlayer</a></span>(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code>
 <div class="block">Sets the player to be connected to the media session.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.html#setQueueEditor-com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector.QueueEditor-">setQueueEditor</a></span>(<a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.QueueEditor.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueEditor</a>&nbsp;queueEditor)</code>
 <div class="block">Sets the <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.QueueEditor.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.QueueEditor</code></a> to handle queue edits sent by the media controller.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.html#setQueueNavigator-com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector.QueueNavigator-">setQueueNavigator</a></span>(<a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.QueueNavigator.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueNavigator</a>&nbsp;queueNavigator)</code>
 <div class="block">Sets the <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.QueueNavigator.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.QueueNavigator</code></a> to handle queue navigation actions <code>ACTION_SKIP_TO_NEXT</code>,
  <code>ACTION_SKIP_TO_PREVIOUS</code> and <code>ACTION_SKIP_TO_QUEUE_ITEM</code>.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.html#setRatingCallback-com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector.RatingCallback-">setRatingCallback</a></span>(<a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.RatingCallback.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.RatingCallback</a>&nbsp;ratingCallback)</code>
 <div class="block">Sets the <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.RatingCallback.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.RatingCallback</code></a> to handle user ratings.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.html#setRewindIncrementMs-int-">setRewindIncrementMs</a></span>(int&nbsp;rewindMs)</code>
 <div class="block">Sets the rewind increment in milliseconds.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.html#unregisterCustomCommandReceiver-com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector.CommandReceiver-">unregisterCustomCommandReceiver</a></span>(<a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CommandReceiver.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CommandReceiver</a>&nbsp;commandReceiver)</code>
 <div class="block">Unregisters a previously registered custom command receiver.</div>
@@ -634,7 +646,17 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <pre>public&nbsp;void&nbsp;setMediaButtonEventHandler(@Nullable
                                        <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.MediaButtonEventHandler.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.MediaButtonEventHandler</a>&nbsp;mediaButtonEventHandler)</pre>
 <div class="block">Sets the <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.MediaButtonEventHandler.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.MediaButtonEventHandler</code></a>. Pass <code>null</code> if the media button event should be
- handled by <code>MediaSessionCompat.Callback#onMediaButtonEvent(Intent)</code>.</div>
+ handled by <code>MediaSessionCompat.Callback#onMediaButtonEvent(Intent)</code>.
+
+ <p>Please note that prior to API 21 MediaButton events are not delivered to the <a href="https://developer.android.com/reference/android/support.v4.media.session.MediaSessionCompat.html" target="_top" title="class or interface in android"><code>MediaSessionCompat</code></a>. Instead they are delivered as key events (see <a
+ href="https://developer.android.com/guide/topics/media-apps/mediabuttons">'Responding to media
+ buttons'</a>). In an <a href="https://developer.android.com/reference/android/app/Activity.html" target="_top" title="class or interface in android.app"><code>Activity</code></a>, media button events arrive at the
+ <a href="https://developer.android.com/reference/android/app/Activity.html?is-external=true#dispatchKeyEvent-android.view.KeyEvent-" title="class or interface in android.app"><code>Activity.dispatchKeyEvent(KeyEvent)</code></a> method.
+
+ <p>If you are running the player in a foreground service (prior to API 21), you can create an
+ intent filter and handle the <code>android.intent.action.MEDIA_BUTTON</code> action yourself. See <a
+ href="https://developer.android.com/reference/androidx/media/session/MediaButtonReceiver#service-handling-action_media_button">
+ Service handling ACTION_MEDIA_BUTTON</a> for more information.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mediaButtonEventHandler</code> - The <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.MediaButtonEventHandler.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.MediaButtonEventHandler</code></a>, or null to let the event be
@@ -707,7 +729,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>setQueueNavigator</h4>
-<pre>public&nbsp;void&nbsp;setQueueNavigator(<a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.QueueNavigator.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueNavigator</a>&nbsp;queueNavigator)</pre>
+<pre>public&nbsp;void&nbsp;setQueueNavigator(@Nullable
+                              <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.QueueNavigator.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueNavigator</a>&nbsp;queueNavigator)</pre>
 <div class="block">Sets the <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.QueueNavigator.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.QueueNavigator</code></a> to handle queue navigation actions <code>ACTION_SKIP_TO_NEXT</code>,
  <code>ACTION_SKIP_TO_PREVIOUS</code> and <code>ACTION_SKIP_TO_QUEUE_ITEM</code>.</div>
 <dl>
@@ -722,7 +745,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>setQueueEditor</h4>
-<pre>public&nbsp;void&nbsp;setQueueEditor(<a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.QueueEditor.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueEditor</a>&nbsp;queueEditor)</pre>
+<pre>public&nbsp;void&nbsp;setQueueEditor(@Nullable
+                           <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.QueueEditor.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueEditor</a>&nbsp;queueEditor)</pre>
 <div class="block">Sets the <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.QueueEditor.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.QueueEditor</code></a> to handle queue edits sent by the media controller.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -736,11 +760,27 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>setRatingCallback</h4>
-<pre>public&nbsp;void&nbsp;setRatingCallback(<a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.RatingCallback.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.RatingCallback</a>&nbsp;ratingCallback)</pre>
+<pre>public&nbsp;void&nbsp;setRatingCallback(@Nullable
+                              <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.RatingCallback.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.RatingCallback</a>&nbsp;ratingCallback)</pre>
 <div class="block">Sets the <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.RatingCallback.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.RatingCallback</code></a> to handle user ratings.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>ratingCallback</code> - The rating callback.</dd>
+</dl>
+</li>
+</ul>
+<a name="setCaptionCallback-com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector.CaptionCallback-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setCaptionCallback</h4>
+<pre>public&nbsp;void&nbsp;setCaptionCallback(@Nullable
+                               <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CaptionCallback.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CaptionCallback</a>&nbsp;captionCallback)</pre>
+<div class="block">Sets the <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CaptionCallback.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.CaptionCallback</code></a> to handle requests to enable or disable captions.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>captionCallback</code> - The caption callback.</dd>
 </dl>
 </li>
 </ul>
@@ -880,7 +920,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>registerCustomCommandReceiver</h4>
-<pre>public&nbsp;void&nbsp;registerCustomCommandReceiver(<a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CommandReceiver.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CommandReceiver</a>&nbsp;commandReceiver)</pre>
+<pre>public&nbsp;void&nbsp;registerCustomCommandReceiver(@Nullable
+                                          <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CommandReceiver.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CommandReceiver</a>&nbsp;commandReceiver)</pre>
 <div class="block">Registers a custom command receiver for responding to commands delivered via <code>MediaSessionCompat.Callback#onCommand(String, Bundle, ResultReceiver)</code>.
 
  <p>Commands are only dispatched to this receiver when a player is connected.</div>
@@ -896,7 +937,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockListLast">
 <li class="blockList">
 <h4>unregisterCustomCommandReceiver</h4>
-<pre>public&nbsp;void&nbsp;unregisterCustomCommandReceiver(<a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CommandReceiver.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CommandReceiver</a>&nbsp;commandReceiver)</pre>
+<pre>public&nbsp;void&nbsp;unregisterCustomCommandReceiver(@Nullable
+                                            <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CommandReceiver.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CommandReceiver</a>&nbsp;commandReceiver)</pre>
 <div class="block">Unregisters a previously registered custom command receiver.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -932,7 +974,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <div class="subNav">
 <ul class="navList">
 <li>Prev&nbsp;Class</li>
-<li><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CommandReceiver.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CaptionCallback.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.html" target="_top">Frames</a></li>

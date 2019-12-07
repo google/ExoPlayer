@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":41,"i12":9,"i13":9,"i14":9,"i15":9,"i16":41,"i17":9,"i18":9,"i19":9,"i20":9,"i21":9,"i22":9,"i23":9,"i24":9,"i25":9,"i26":9,"i27":9,"i28":41,"i29":9,"i30":9,"i31":9,"i32":9,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":9,"i39":10,"i40":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":41,"i15":9,"i16":9,"i17":9,"i18":9,"i19":41,"i20":9,"i21":9,"i22":9,"i23":9,"i24":9,"i25":9,"i26":9,"i27":9,"i28":9,"i29":9,"i30":9,"i31":41,"i32":9,"i33":9,"i34":9,"i35":9,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":9,"i42":10,"i43":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -207,130 +207,137 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#exoMediaCryptoType">exoMediaCryptoType</a></span></code>
+<div class="block">The type of the <a href="../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> provided by the media source, if the media source can
+ acquire a <a href="../../../../com/google/android/exoplayer2/drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSession</code></a> for <a href="../../../../com/google/android/exoplayer2/Format.html#drmInitData"><code>drmInitData</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>float</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#frameRate">frameRate</a></span></code>
 <div class="block">The frame rate in frames per second, or <a href="../../../../com/google/android/exoplayer2/Format.html#NO_VALUE"><code>NO_VALUE</code></a> if unknown or not applicable.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#height">height</a></span></code>
 <div class="block">The height of the video in pixels, or <a href="../../../../com/google/android/exoplayer2/Format.html#NO_VALUE"><code>NO_VALUE</code></a> if unknown or not applicable.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#id">id</a></span></code>
 <div class="block">An identifier for the format, or null if unknown or not applicable.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;byte[]&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#initializationData">initializationData</a></span></code>
 <div class="block">Initialization data that must be provided to the decoder.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#label">label</a></span></code>
 <div class="block">The human readable label, or null if unknown or not applicable.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#language">language</a></span></code>
 <div class="block">The language as an IETF BCP 47 conformant tag, or null if unknown or not applicable.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#maxInputSize">maxInputSize</a></span></code>
 <div class="block">The maximum size of a buffer of data (typically one sample), or <a href="../../../../com/google/android/exoplayer2/Format.html#NO_VALUE"><code>NO_VALUE</code></a> if unknown or
  not applicable.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#metadata">metadata</a></span></code>
 <div class="block">Metadata, or null if unknown or not applicable.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#NO_VALUE">NO_VALUE</a></span></code>
 <div class="block">A value for various fields to indicate that the field's value is unknown or not applicable.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#OFFSET_SAMPLE_RELATIVE">OFFSET_SAMPLE_RELATIVE</a></span></code>
 <div class="block">A value for <a href="../../../../com/google/android/exoplayer2/Format.html#subsampleOffsetUs"><code>subsampleOffsetUs</code></a> to indicate that subsample timestamps are relative to
  the timestamps of their parent samples.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#pcmEncoding">pcmEncoding</a></span></code>
 <div class="block">The encoding for PCM audio streams.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>float</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#pixelWidthHeightRatio">pixelWidthHeightRatio</a></span></code>
 <div class="block">The width to height ratio of pixels in the video, or 1.0 if unknown or not applicable.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>byte[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#projectionData">projectionData</a></span></code>
 <div class="block">The projection data for 360/VR video, or null if not applicable.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#roleFlags">roleFlags</a></span></code>
 <div class="block">Track role flags.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#rotationDegrees">rotationDegrees</a></span></code>
 <div class="block">The clockwise rotation that should be applied to the video for it to be rendered in the correct
  orientation, or 0 if unknown or not applicable.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#sampleMimeType">sampleMimeType</a></span></code>
 <div class="block">The mime type of the elementary stream (i.e.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#sampleRate">sampleRate</a></span></code>
 <div class="block">The audio sampling rate in Hz, or <a href="../../../../com/google/android/exoplayer2/Format.html#NO_VALUE"><code>NO_VALUE</code></a> if unknown or not applicable.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#selectionFlags">selectionFlags</a></span></code>
 <div class="block">Track selection flags.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#stereoMode">stereoMode</a></span></code>
 <div class="block">The stereo layout for 360/3D/VR video, or <a href="../../../../com/google/android/exoplayer2/Format.html#NO_VALUE"><code>NO_VALUE</code></a> if not applicable.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#subsampleOffsetUs">subsampleOffsetUs</a></span></code>
 <div class="block">For samples that contain subsamples, this is an offset that should be added to subsample
  timestamps.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#width">width</a></span></code>
 <div class="block">The width of the video in pixels, or <a href="../../../../com/google/android/exoplayer2/Format.html#NO_VALUE"><code>NO_VALUE</code></a> if unknown or not applicable.</div>
@@ -360,9 +367,14 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#copyWithBitrate-int-">copyWithBitrate</a></span>(int&nbsp;bitrate)</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#copyWithAdjustments-com.google.android.exoplayer2.drm.DrmInitData-com.google.android.exoplayer2.metadata.Metadata-">copyWithAdjustments</a></span>(<a href="../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData,
+                   <a href="../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata)</code>&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#copyWithBitrate-int-">copyWithBitrate</a></span>(int&nbsp;bitrate)</code>&nbsp;</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#copyWithContainerInfo-java.lang.String-java.lang.String-java.lang.String-java.lang.String-com.google.android.exoplayer2.metadata.Metadata-int-int-int-int-int-java.lang.String-">copyWithContainerInfo</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
                      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;label,
@@ -376,44 +388,53 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
                      int&nbsp;selectionFlags,
                      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language)</code>&nbsp;</td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#copyWithDrmInitData-com.google.android.exoplayer2.drm.DrmInitData-">copyWithDrmInitData</a></span>(<a href="../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</code>&nbsp;</td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
+<td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#copyWithExoMediaCryptoType-java.lang.Class-">copyWithExoMediaCryptoType</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;&nbsp;exoMediaCryptoType)</code>&nbsp;</td>
+</tr>
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#copyWithFrameRate-float-">copyWithFrameRate</a></span>(float&nbsp;frameRate)</code>&nbsp;</td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#copyWithGaplessInfo-int-int-">copyWithGaplessInfo</a></span>(int&nbsp;encoderDelay,
                    int&nbsp;encoderPadding)</code>&nbsp;</td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#copyWithLabel-java.lang.String-">copyWithLabel</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;label)</code>&nbsp;</td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#copyWithManifestFormatInfo-com.google.android.exoplayer2.Format-">copyWithManifestFormatInfo</a></span>(<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;manifestFormat)</code>&nbsp;</td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#copyWithMaxInputSize-int-">copyWithMaxInputSize</a></span>(int&nbsp;maxInputSize)</code>&nbsp;</td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#copyWithMetadata-com.google.android.exoplayer2.metadata.Metadata-">copyWithMetadata</a></span>(<a href="../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata)</code>&nbsp;</td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#copyWithRotationDegrees-int-">copyWithRotationDegrees</a></span>(int&nbsp;rotationDegrees)</code>&nbsp;</td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#copyWithSubsampleOffsetUs-long-">copyWithSubsampleOffsetUs</a></span>(long&nbsp;subsampleOffsetUs)</code>&nbsp;</td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#copyWithVideoSize-int-int-">copyWithVideoSize</a></span>(int&nbsp;width,
+                 int&nbsp;height)</code>&nbsp;</td>
+</tr>
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#createAudioContainerFormat-java.lang.String-java.lang.String-java.lang.String-java.lang.String-int-int-int-java.util.List-int-java.lang.String-">createAudioContainerFormat</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
                           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;containerMimeType,
@@ -431,7 +452,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#createAudioContainerFormat-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-com.google.android.exoplayer2.metadata.Metadata-int-int-int-java.util.List-int-int-java.lang.String-">createAudioContainerFormat</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
                           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;label,
@@ -447,7 +468,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
                           int&nbsp;roleFlags,
                           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language)</code>&nbsp;</td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#createAudioSampleFormat-java.lang.String-java.lang.String-java.lang.String-int-int-int-int-int-int-int-java.util.List-com.google.android.exoplayer2.drm.DrmInitData-int-java.lang.String-com.google.android.exoplayer2.metadata.Metadata-">createAudioSampleFormat</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
                        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
@@ -465,7 +486,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
                        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language,
                        <a href="../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata)</code>&nbsp;</td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#createAudioSampleFormat-java.lang.String-java.lang.String-java.lang.String-int-int-int-int-int-java.util.List-com.google.android.exoplayer2.drm.DrmInitData-int-java.lang.String-">createAudioSampleFormat</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
                        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
@@ -480,7 +501,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
                        int&nbsp;selectionFlags,
                        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language)</code>&nbsp;</td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#createAudioSampleFormat-java.lang.String-java.lang.String-java.lang.String-int-int-int-int-java.util.List-com.google.android.exoplayer2.drm.DrmInitData-int-java.lang.String-">createAudioSampleFormat</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
                        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
@@ -494,7 +515,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
                        int&nbsp;selectionFlags,
                        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language)</code>&nbsp;</td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#createContainerFormat-java.lang.String-java.lang.String-java.lang.String-java.lang.String-int-int-java.lang.String-">createContainerFormat</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
                      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;containerMimeType,
@@ -503,10 +524,13 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
                      int&nbsp;bitrate,
                      int&nbsp;selectionFlags,
                      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language)</code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/Format.html#createContainerFormat-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-int-int-int-java.lang.String-"><code>createContainerFormat(String, String, String, String, String, int, int,
+     int, String)</code></a> instead.</span></div>
+</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#createContainerFormat-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-int-int-int-java.lang.String-">createContainerFormat</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
                      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;label,
@@ -518,7 +542,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
                      int&nbsp;roleFlags,
                      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language)</code>&nbsp;</td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#createImageSampleFormat-java.lang.String-java.lang.String-java.lang.String-int-int-java.util.List-java.lang.String-com.google.android.exoplayer2.drm.DrmInitData-">createImageSampleFormat</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
                        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
@@ -529,13 +553,13 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
                        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language,
                        <a href="../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</code>&nbsp;</td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#createSampleFormat-java.lang.String-java.lang.String-long-">createSampleFormat</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
                   long&nbsp;subsampleOffsetUs)</code>&nbsp;</td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#createSampleFormat-java.lang.String-java.lang.String-java.lang.String-int-com.google.android.exoplayer2.drm.DrmInitData-">createSampleFormat</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
@@ -543,7 +567,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
                   int&nbsp;bitrate,
                   <a href="../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</code>&nbsp;</td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#createTextContainerFormat-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-int-int-int-java.lang.String-">createTextContainerFormat</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
                          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;label,
@@ -555,7 +579,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
                          int&nbsp;roleFlags,
                          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language)</code>&nbsp;</td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#createTextContainerFormat-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-int-int-int-java.lang.String-int-">createTextContainerFormat</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
                          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;label,
@@ -568,14 +592,14 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
                          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language,
                          int&nbsp;accessibilityChannel)</code>&nbsp;</td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i26" class="altColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#createTextSampleFormat-java.lang.String-java.lang.String-int-java.lang.String-">createTextSampleFormat</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
                       int&nbsp;selectionFlags,
                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language)</code>&nbsp;</td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i27" class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#createTextSampleFormat-java.lang.String-java.lang.String-int-java.lang.String-com.google.android.exoplayer2.drm.DrmInitData-">createTextSampleFormat</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
@@ -583,7 +607,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language,
                       <a href="../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</code>&nbsp;</td>
 </tr>
-<tr id="i25" class="rowColor">
+<tr id="i28" class="altColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#createTextSampleFormat-java.lang.String-java.lang.String-java.lang.String-int-int-java.lang.String-com.google.android.exoplayer2.drm.DrmInitData-long-">createTextSampleFormat</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
@@ -594,7 +618,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
                       <a href="../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData,
                       long&nbsp;subsampleOffsetUs)</code>&nbsp;</td>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i29" class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#createTextSampleFormat-java.lang.String-java.lang.String-java.lang.String-int-int-java.lang.String-int-com.google.android.exoplayer2.drm.DrmInitData-">createTextSampleFormat</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
@@ -605,7 +629,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
                       int&nbsp;accessibilityChannel,
                       <a href="../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</code>&nbsp;</td>
 </tr>
-<tr id="i27" class="rowColor">
+<tr id="i30" class="altColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#createTextSampleFormat-java.lang.String-java.lang.String-java.lang.String-int-int-java.lang.String-int-com.google.android.exoplayer2.drm.DrmInitData-long-java.util.List-">createTextSampleFormat</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
@@ -618,7 +642,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
                       long&nbsp;subsampleOffsetUs,
                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;byte[]&gt;&nbsp;initializationData)</code>&nbsp;</td>
 </tr>
-<tr id="i28" class="altColor">
+<tr id="i31" class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#createVideoContainerFormat-java.lang.String-java.lang.String-java.lang.String-java.lang.String-int-int-int-float-java.util.List-int-">createVideoContainerFormat</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
                           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;containerMimeType,
@@ -636,7 +660,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </div>
 </td>
 </tr>
-<tr id="i29" class="rowColor">
+<tr id="i32" class="altColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#createVideoContainerFormat-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-com.google.android.exoplayer2.metadata.Metadata-int-int-int-float-java.util.List-int-int-">createVideoContainerFormat</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
                           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;label,
@@ -652,7 +676,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
                           int&nbsp;selectionFlags,
                           int&nbsp;roleFlags)</code>&nbsp;</td>
 </tr>
-<tr id="i30" class="altColor">
+<tr id="i33" class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#createVideoSampleFormat-java.lang.String-java.lang.String-java.lang.String-int-int-int-int-float-java.util.List-com.google.android.exoplayer2.drm.DrmInitData-">createVideoSampleFormat</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
                        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
@@ -665,7 +689,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
                        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;byte[]&gt;&nbsp;initializationData,
                        <a href="../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</code>&nbsp;</td>
 </tr>
-<tr id="i31" class="rowColor">
+<tr id="i34" class="altColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#createVideoSampleFormat-java.lang.String-java.lang.String-java.lang.String-int-int-int-int-float-java.util.List-int-float-byte:A-int-com.google.android.exoplayer2.video.ColorInfo-com.google.android.exoplayer2.drm.DrmInitData-">createVideoSampleFormat</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
                        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
@@ -683,7 +707,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
                        <a href="../../../../com/google/android/exoplayer2/video/ColorInfo.html" title="class in com.google.android.exoplayer2.video">ColorInfo</a>&nbsp;colorInfo,
                        <a href="../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</code>&nbsp;</td>
 </tr>
-<tr id="i32" class="altColor">
+<tr id="i35" class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#createVideoSampleFormat-java.lang.String-java.lang.String-java.lang.String-int-int-int-int-float-java.util.List-int-float-com.google.android.exoplayer2.drm.DrmInitData-">createVideoSampleFormat</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
                        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
@@ -698,43 +722,43 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
                        float&nbsp;pixelWidthHeightRatio,
                        <a href="../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</code>&nbsp;</td>
 </tr>
-<tr id="i33" class="rowColor">
+<tr id="i36" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#describeContents--">describeContents</a></span>()</code>&nbsp;</td>
 </tr>
-<tr id="i34" class="altColor">
+<tr id="i37" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#equals-java.lang.Object-">equals</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;obj)</code>&nbsp;</td>
 </tr>
-<tr id="i35" class="rowColor">
+<tr id="i38" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#getPixelCount--">getPixelCount</a></span>()</code>
 <div class="block">Returns the number of pixels if this is a video format whose <a href="../../../../com/google/android/exoplayer2/Format.html#width"><code>width</code></a> and <a href="../../../../com/google/android/exoplayer2/Format.html#height"><code>height</code></a>
  are known, or <a href="../../../../com/google/android/exoplayer2/Format.html#NO_VALUE"><code>NO_VALUE</code></a> otherwise</div>
 </td>
 </tr>
-<tr id="i36" class="altColor">
+<tr id="i39" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#hashCode--">hashCode</a></span>()</code>&nbsp;</td>
 </tr>
-<tr id="i37" class="rowColor">
+<tr id="i40" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#initializationDataEquals-com.google.android.exoplayer2.Format-">initializationDataEquals</a></span>(<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;other)</code>
 <div class="block">Returns whether the <a href="../../../../com/google/android/exoplayer2/Format.html#initializationData"><code>initializationData</code></a>s belonging to this format and <code>other</code> are
  equal.</div>
 </td>
 </tr>
-<tr id="i38" class="altColor">
+<tr id="i41" class="rowColor">
 <td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#toLogString-com.google.android.exoplayer2.Format-">toLogString</a></span>(<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code>
 <div class="block">Returns a prettier <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang"><code>String</code></a> than <a href="../../../../com/google/android/exoplayer2/Format.html#toString--"><code>toString()</code></a>, intended for logging.</div>
 </td>
 </tr>
-<tr id="i39" class="rowColor">
+<tr id="i42" class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#toString--">toString</a></span>()</code>&nbsp;</td>
 </tr>
-<tr id="i40" class="altColor">
+<tr id="i43" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#writeToParcel-android.os.Parcel-int-">writeToParcel</a></span>(<a href="https://developer.android.com/reference/android/os/Parcel.html" target="_top" title="class or interface in android.os">Parcel</a>&nbsp;dest,
              int&nbsp;flags)</code>&nbsp;</td>
@@ -1094,6 +1118,19 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <div class="block">The Accessibility channel, or <a href="../../../../com/google/android/exoplayer2/Format.html#NO_VALUE"><code>NO_VALUE</code></a> if not known or applicable.</div>
 </li>
 </ul>
+<a name="exoMediaCryptoType">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>exoMediaCryptoType</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt; exoMediaCryptoType</pre>
+<div class="block">The type of the <a href="../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> provided by the media source, if the media source can
+ acquire a <a href="../../../../com/google/android/exoplayer2/drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSession</code></a> for <a href="../../../../com/google/android/exoplayer2/Format.html#drmInitData"><code>drmInitData</code></a>. Null if the media source cannot acquire
+ a session for <a href="../../../../com/google/android/exoplayer2/Format.html#drmInitData"><code>drmInitData</code></a>, or if not applicable.</div>
+</li>
+</ul>
 <a name="CREATOR">
 <!--   -->
 </a>
@@ -1122,7 +1159,9 @@ public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.htm
                                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
                                                             @Nullable
                                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;containerMimeType,
+                                                            @Nullable
                                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
+                                                            @Nullable
                                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;codecs,
                                                             int&nbsp;bitrate,
                                                             int&nbsp;width,
@@ -1148,7 +1187,9 @@ public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.htm
                                                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;label,
                                                 @Nullable
                                                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;containerMimeType,
+                                                @Nullable
                                                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
+                                                @Nullable
                                                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;codecs,
                                                 @Nullable
                                                 <a href="../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata,
@@ -1233,6 +1274,7 @@ public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.htm
                                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;byte[]&gt;&nbsp;initializationData,
                                              int&nbsp;rotationDegrees,
                                              float&nbsp;pixelWidthHeightRatio,
+                                             @Nullable
                                              byte[]&nbsp;projectionData,
                                              <a href="../../../../com/google/android/exoplayer2/C.StereoMode.html" title="annotation in com.google.android.exoplayer2">@C.StereoMode</a>
                                              int&nbsp;stereoMode,
@@ -1446,6 +1488,7 @@ public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.htm
 <h4>createTextSampleFormat</h4>
 <pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createTextSampleFormat(@Nullable
                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+                                            @Nullable
                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
                                             <a href="../../../../com/google/android/exoplayer2/C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@C.SelectionFlags</a>
                                             int&nbsp;selectionFlags,
@@ -1461,6 +1504,7 @@ public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.htm
 <h4>createTextSampleFormat</h4>
 <pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createTextSampleFormat(@Nullable
                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+                                            @Nullable
                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
                                             <a href="../../../../com/google/android/exoplayer2/C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@C.SelectionFlags</a>
                                             int&nbsp;selectionFlags,
@@ -1535,6 +1579,7 @@ public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.htm
                                             @Nullable
                                             <a href="../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData,
                                             long&nbsp;subsampleOffsetUs,
+                                            @Nullable
                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;byte[]&gt;&nbsp;initializationData)</pre>
 </li>
 </ul>
@@ -1581,7 +1626,8 @@ public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.htm
                                                        int&nbsp;selectionFlags,
                                                        @Nullable
                                                        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/Format.html#createContainerFormat-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-int-int-int-java.lang.String-"><code>createContainerFormat(String, String, String, String, String, int, int,
+     int, String)</code></a> instead.</span></div>
 </li>
 </ul>
 <a name="createContainerFormat-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-int-int-int-java.lang.String-">
@@ -1741,6 +1787,18 @@ public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.htm
                                <a href="../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata)</pre>
 </li>
 </ul>
+<a name="copyWithAdjustments-com.google.android.exoplayer2.drm.DrmInitData-com.google.android.exoplayer2.metadata.Metadata-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>copyWithAdjustments</h4>
+<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;copyWithAdjustments(@Nullable
+                                  <a href="../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData,
+                                  @Nullable
+                                  <a href="../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata)</pre>
+</li>
+</ul>
 <a name="copyWithRotationDegrees-int-">
 <!--   -->
 </a>
@@ -1757,6 +1815,26 @@ public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.htm
 <li class="blockList">
 <h4>copyWithBitrate</h4>
 <pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;copyWithBitrate(int&nbsp;bitrate)</pre>
+</li>
+</ul>
+<a name="copyWithVideoSize-int-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>copyWithVideoSize</h4>
+<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;copyWithVideoSize(int&nbsp;width,
+                                int&nbsp;height)</pre>
+</li>
+</ul>
+<a name="copyWithExoMediaCryptoType-java.lang.Class-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>copyWithExoMediaCryptoType</h4>
+<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;copyWithExoMediaCryptoType(@Nullable
+                                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;&nbsp;exoMediaCryptoType)</pre>
 </li>
 </ul>
 <a name="getPixelCount--">

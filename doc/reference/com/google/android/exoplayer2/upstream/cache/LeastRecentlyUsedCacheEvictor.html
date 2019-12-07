@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -106,13 +106,13 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.Listener.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache.Listener</a>, <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheEvictor</a>, <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Comparator.html" target="_top" title="class or interface in java.util">Comparator</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&gt;</dd>
+<dd><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.Listener.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache.Listener</a>, <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheEvictor</a></dd>
 </dl>
 <hr>
 <br>
 <pre>public final class <span class="typeNameLabel">LeastRecentlyUsedCacheEvictor</span>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>
-implements <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheEvictor</a>, <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Comparator.html" target="_top" title="class or interface in java.util">Comparator</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&gt;</pre>
+implements <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheEvictor</a></pre>
 <div class="block">Evicts least recently used cache files first.</div>
 </li>
 </ul>
@@ -150,31 +150,26 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/cac
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/LeastRecentlyUsedCacheEvictor.html#compare-com.google.android.exoplayer2.upstream.cache.CacheSpan-com.google.android.exoplayer2.upstream.cache.CacheSpan-">compare</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;lhs,
-       <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;rhs)</code>&nbsp;</td>
-</tr>
-<tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/LeastRecentlyUsedCacheEvictor.html#onCacheInitialized--">onCacheInitialized</a></span>()</code>
 <div class="block">Called when cache has been initialized.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/LeastRecentlyUsedCacheEvictor.html#onSpanAdded-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.cache.CacheSpan-">onSpanAdded</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
            <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;span)</code>
 <div class="block">Called when a <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> is added to the cache.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/LeastRecentlyUsedCacheEvictor.html#onSpanRemoved-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.cache.CacheSpan-">onSpanRemoved</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
              <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;span)</code>
 <div class="block">Called when a <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> is removed from the cache.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/LeastRecentlyUsedCacheEvictor.html#onSpanTouched-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.cache.CacheSpan-com.google.android.exoplayer2.upstream.cache.CacheSpan-">onSpanTouched</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
              <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;oldSpan,
@@ -182,7 +177,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/cac
 <div class="block">Called when an existing <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> is touched, causing it to be replaced.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/LeastRecentlyUsedCacheEvictor.html#onStartFile-com.google.android.exoplayer2.upstream.cache.Cache-java.lang.String-long-long-">onStartFile</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
@@ -191,7 +186,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/cac
 <div class="block">Called when a writer starts writing to the cache.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/LeastRecentlyUsedCacheEvictor.html#requiresCacheSpanTouches--">requiresCacheSpanTouches</a></span>()</code>
 <div class="block">Returns whether the evictor requires the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>Cache</code></a> to touch <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpans</code></a>
@@ -205,13 +200,6 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/cac
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></h3>
 <code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#clone--" title="class or interface in java.lang">clone</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang">wait</a></code></li>
-</ul>
-<ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.util.Comparator">
-<!--   -->
-</a>
-<h3>Methods inherited from interface&nbsp;java.util.<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Comparator.html" target="_top" title="class or interface in java.util">Comparator</a></h3>
-<code><a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true#comparing-java.util.function.Function-" title="class or interface in java.util">comparing</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true#comparing-java.util.function.Function-java.util.Comparator-" title="class or interface in java.util">comparing</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true#comparingDouble-java.util.function.ToDoubleFunction-" title="class or interface in java.util">comparingDouble</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true#comparingInt-java.util.function.ToIntFunction-" title="class or interface in java.util">comparingInt</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true#comparingLong-java.util.function.ToLongFunction-" title="class or interface in java.util">comparingLong</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.util">equals</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true#naturalOrder--" title="class or interface in java.util">naturalOrder</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true#nullsFirst-java.util.Comparator-" title="class or interface in java.util">nullsFirst</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true#nullsLast-java.util.Comparator-" title="class or interface in java.util">nullsLast</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true#reversed--" title="class or interface in java.util">reversed</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true#reverseOrder--" title="class or interface in java.util">reverseOrder</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true#thenComparing-java.util.Comparator-" title="class or interface in java.util">thenComparing</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true#thenComparing-java.util.function.Function-" title="class or interface in java.util">thenComparing</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true#thenComparing-java.util.function.Function-java.util.Comparator-" title="class or interface in java.util">thenComparing</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true#thenComparingDouble-java.util.function.ToDoubleFunction-" title="class or interface in java.util">thenComparingDouble</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true#thenComparingInt-java.util.function.ToIntFunction-" title="class or interface in java.util">thenComparingInt</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true#thenComparingLong-java.util.function.ToLongFunction-" title="class or interface in java.util">thenComparingLong</a></code></li>
 </ul>
 </li>
 </ul>
@@ -340,7 +328,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/cac
 <a name="onSpanTouched-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.cache.CacheSpan-com.google.android.exoplayer2.upstream.cache.CacheSpan-">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>onSpanTouched</h4>
 <pre>public&nbsp;void&nbsp;onSpanTouched(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
@@ -359,20 +347,6 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/cac
 <dd><code>cache</code> - The source of the event.</dd>
 <dd><code>oldSpan</code> - The old <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a>, which has been removed from the cache.</dd>
 <dd><code>newSpan</code> - The new <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a>, which has been added to the cache.</dd>
-</dl>
-</li>
-</ul>
-<a name="compare-com.google.android.exoplayer2.upstream.cache.CacheSpan-com.google.android.exoplayer2.upstream.cache.CacheSpan-">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>compare</h4>
-<pre>public&nbsp;int&nbsp;compare(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;lhs,
-                   <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;rhs)</pre>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Comparator.html?is-external=true#compare-T-T-" title="class or interface in java.util">compare</a></code>&nbsp;in interface&nbsp;<code><a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html" target="_top" title="class or interface in java.util">Comparator</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&gt;</code></dd>
 </dl>
 </li>
 </ul>

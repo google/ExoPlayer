@@ -173,12 +173,6 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <div class="block">The mimeType of <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html#data"><code>data</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
-<td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html#requiresSecureDecryption">requiresSecureDecryption</a></span></code>
-<div class="block">Whether secure decryption is required.</div>
-</td>
-</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a name="fields.inherited.from.class.android.os.Parcelable">
@@ -206,17 +200,10 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
           byte[]&nbsp;data)</code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html#SchemeData-java.util.UUID-java.lang.String-byte:A-boolean-">SchemeData</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
-          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mimeType,
-          byte[]&nbsp;data,
-          boolean&nbsp;requiresSecureDecryption)</code>&nbsp;</td>
-</tr>
-<tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html#SchemeData-java.util.UUID-java.lang.String-java.lang.String-byte:A-boolean-">SchemeData</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html#SchemeData-java.util.UUID-java.lang.String-java.lang.String-byte:A-">SchemeData</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;licenseServerUrl,
           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mimeType,
-          byte[]&nbsp;data,
-          boolean&nbsp;requiresSecureDecryption)</code>&nbsp;</td>
+          byte[]&nbsp;data)</code>&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -328,16 +315,6 @@ public final&nbsp;byte[] data</pre>
 <div class="block">The initialization data. May be null for scheme support checks only.</div>
 </li>
 </ul>
-<a name="requiresSecureDecryption">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>requiresSecureDecryption</h4>
-<pre>public final&nbsp;boolean requiresSecureDecryption</pre>
-<div class="block">Whether secure decryption is required.</div>
-</li>
-</ul>
 <a name="CREATOR">
 <!--   -->
 </a>
@@ -374,28 +351,7 @@ public final&nbsp;byte[] data</pre>
 </dl>
 </li>
 </ul>
-<a name="SchemeData-java.util.UUID-java.lang.String-byte:A-boolean-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>SchemeData</h4>
-<pre>public&nbsp;SchemeData(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
-                  <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mimeType,
-                  @Nullable
-                  byte[]&nbsp;data,
-                  boolean&nbsp;requiresSecureDecryption)</pre>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>uuid</code> - The <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util"><code>UUID</code></a> of the DRM scheme, or <a href="../../../../../com/google/android/exoplayer2/C.html#UUID_NIL"><code>C.UUID_NIL</code></a> if the data is
-     universal (i.e. applies to all schemes).</dd>
-<dd><code>mimeType</code> - See <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html#mimeType"><code>mimeType</code></a>.</dd>
-<dd><code>data</code> - See <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html#data"><code>data</code></a>.</dd>
-<dd><code>requiresSecureDecryption</code> - See <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html#requiresSecureDecryption"><code>requiresSecureDecryption</code></a>.</dd>
-</dl>
-</li>
-</ul>
-<a name="SchemeData-java.util.UUID-java.lang.String-java.lang.String-byte:A-boolean-">
+<a name="SchemeData-java.util.UUID-java.lang.String-java.lang.String-byte:A-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -406,8 +362,7 @@ public final&nbsp;byte[] data</pre>
                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;licenseServerUrl,
                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mimeType,
                   @Nullable
-                  byte[]&nbsp;data,
-                  boolean&nbsp;requiresSecureDecryption)</pre>
+                  byte[]&nbsp;data)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>uuid</code> - The <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util"><code>UUID</code></a> of the DRM scheme, or <a href="../../../../../com/google/android/exoplayer2/C.html#UUID_NIL"><code>C.UUID_NIL</code></a> if the data is
@@ -415,7 +370,6 @@ public final&nbsp;byte[] data</pre>
 <dd><code>licenseServerUrl</code> - See <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html#licenseServerUrl"><code>licenseServerUrl</code></a>.</dd>
 <dd><code>mimeType</code> - See <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html#mimeType"><code>mimeType</code></a>.</dd>
 <dd><code>data</code> - See <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html#data"><code>data</code></a>.</dd>
-<dd><code>requiresSecureDecryption</code> - See <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html#requiresSecureDecryption"><code>requiresSecureDecryption</code></a>.</dd>
 </dl>
 </li>
 </ul>

@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -242,52 +242,59 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/Ex
 </td>
 </tr>
 <tr id="i4" class="altColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mkv/MatroskaExtractor.html#handleBlockAdditionalData-com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor.Track-int-com.google.android.exoplayer2.extractor.ExtractorInput-int-">handleBlockAdditionalData</a></span>(com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor.Track&nbsp;track,
+                         int&nbsp;blockAdditionalId,
+                         <a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
+                         int&nbsp;contentSize)</code>&nbsp;</td>
+</tr>
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mkv/MatroskaExtractor.html#init-com.google.android.exoplayer2.extractor.ExtractorOutput-">init</a></span>(<a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a>&nbsp;output)</code>
 <div class="block">Initializes the extractor with an <a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorOutput</code></a>.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mkv/MatroskaExtractor.html#integerElement-int-long-">integerElement</a></span>(int&nbsp;id,
               long&nbsp;value)</code>
 <div class="block">Called when an integer element is encountered.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mkv/MatroskaExtractor.html#isLevel1Element-int-">isLevel1Element</a></span>(int&nbsp;id)</code>
 <div class="block">Checks if the given id is that of a level 1 element.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mkv/MatroskaExtractor.html#read-com.google.android.exoplayer2.extractor.ExtractorInput-com.google.android.exoplayer2.extractor.PositionHolder-">read</a></span>(<a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
     <a href="../../../../../../com/google/android/exoplayer2/extractor/PositionHolder.html" title="class in com.google.android.exoplayer2.extractor">PositionHolder</a>&nbsp;seekPosition)</code>
 <div class="block">Extracts data read from a provided <a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a>.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mkv/MatroskaExtractor.html#release--">release</a></span>()</code>
 <div class="block">Releases all kept resources.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mkv/MatroskaExtractor.html#seek-long-long-">seek</a></span>(long&nbsp;position,
     long&nbsp;timeUs)</code>
 <div class="block">Notifies the extractor that a seek has occurred.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mkv/MatroskaExtractor.html#sniff-com.google.android.exoplayer2.extractor.ExtractorInput-">sniff</a></span>(<a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input)</code>
 <div class="block">Returns whether this extractor can extract samples from the <a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a>, which must
  provide data from the start of the stream.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mkv/MatroskaExtractor.html#startMasterElement-int-long-long-">startMasterElement</a></span>(int&nbsp;id,
                   long&nbsp;contentPosition,
@@ -295,7 +302,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/Ex
 <div class="block">Called when the start of a master element is encountered.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mkv/MatroskaExtractor.html#stringElement-int-java.lang.String-">stringElement</a></span>(int&nbsp;id,
              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;value)</code>
@@ -640,7 +647,7 @@ protected&nbsp;void&nbsp;stringElement(int&nbsp;id,
 <a name="binaryElement-int-int-com.google.android.exoplayer2.extractor.ExtractorInput-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>binaryElement</h4>
 <pre>@CallSuper
@@ -656,6 +663,25 @@ protected&nbsp;void&nbsp;binaryElement(int&nbsp;id,
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></code></dd>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../com/google/android/exoplayer2/extractor/mkv/EbmlProcessor.html#binaryElement-int-int-com.google.android.exoplayer2.extractor.ExtractorInput-"><code>EbmlProcessor.binaryElement(int, int, ExtractorInput)</code></a></dd>
+</dl>
+</li>
+</ul>
+<a name="handleBlockAdditionalData-com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor.Track-int-com.google.android.exoplayer2.extractor.ExtractorInput-int-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>handleBlockAdditionalData</h4>
+<pre>protected&nbsp;void&nbsp;handleBlockAdditionalData(com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor.Track&nbsp;track,
+                                         int&nbsp;blockAdditionalId,
+                                         <a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
+                                         int&nbsp;contentSize)
+                                  throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>,
+                                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></pre>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code></dd>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></code></dd>
 </dl>
 </li>
 </ul>

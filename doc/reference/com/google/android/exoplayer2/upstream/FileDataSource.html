@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/upstream/DummyDataSource.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/upstream/FileDataSource.FileDataSourceException.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/upstream/FileDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/upstream/FileDataSource.html" target="_top">Frames</a></li>
@@ -138,18 +138,17 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/BaseDataS
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/FileDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream">FileDataSource.Factory</a></span></code>
+<div class="block"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource.Factory</code></a> for <a href="../../../../../com/google/android/exoplayer2/upstream/FileDataSource.html" title="class in com.google.android.exoplayer2.upstream"><code>FileDataSource</code></a> instances.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/FileDataSource.FileDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">FileDataSource.FileDataSourceException</a></span></code>
-<div class="block">Thrown when IOException is encountered during local file read operation.</div>
+<div class="block">Thrown when a <a href="../../../../../com/google/android/exoplayer2/upstream/FileDataSource.html" title="class in com.google.android.exoplayer2.upstream"><code>FileDataSource</code></a> encounters an error reading a file.</div>
 </td>
 </tr>
 </table>
-<ul class="blockList">
-<li class="blockList"><a name="nested.classes.inherited.from.class.com.google.android.exoplayer2.upstream.DataSource">
-<!--   -->
-</a>
-<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.upstream.<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a></code></li>
-</ul>
 </li>
 </ul>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
@@ -165,13 +164,6 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/BaseDataS
 </tr>
 <tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/FileDataSource.html#FileDataSource--">FileDataSource</a></span>()</code>&nbsp;</td>
-</tr>
-<tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/FileDataSource.html#FileDataSource-com.google.android.exoplayer2.upstream.TransferListener-">FileDataSource</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener)</code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/FileDataSource.html#FileDataSource--"><code>FileDataSource()</code></a> and <a href="../../../../../com/google/android/exoplayer2/upstream/BaseDataSource.html#addTransferListener-com.google.android.exoplayer2.upstream.TransferListener-"><code>BaseDataSource.addTransferListener(TransferListener)</code></a></span></div>
-</div>
-</td>
 </tr>
 </table>
 </li>
@@ -254,26 +246,10 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/BaseDataS
 <a name="FileDataSource--">
 <!--   -->
 </a>
-<ul class="blockList">
-<li class="blockList">
-<h4>FileDataSource</h4>
-<pre>public&nbsp;FileDataSource()</pre>
-</li>
-</ul>
-<a name="FileDataSource-com.google.android.exoplayer2.upstream.TransferListener-">
-<!--   -->
-</a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>FileDataSource</h4>
-<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
-public&nbsp;FileDataSource(@Nullable
-                                  <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/FileDataSource.html#FileDataSource--"><code>FileDataSource()</code></a> and <a href="../../../../../com/google/android/exoplayer2/upstream/BaseDataSource.html#addTransferListener-com.google.android.exoplayer2.upstream.TransferListener-"><code>BaseDataSource.addTransferListener(TransferListener)</code></a></span></div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>listener</code> - An optional listener.</dd>
-</dl>
+<pre>public&nbsp;FileDataSource()</pre>
 </li>
 </ul>
 </li>
@@ -408,7 +384,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.htm
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/upstream/DummyDataSource.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/upstream/FileDataSource.FileDataSourceException.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/upstream/FileDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/upstream/FileDataSource.html" target="_top">Frames</a></li>

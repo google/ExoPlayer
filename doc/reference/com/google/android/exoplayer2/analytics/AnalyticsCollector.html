@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li>Prev&nbsp;Class</li>
-<li><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.Factory.html" title="class in com.google.android.exoplayer2.analytics"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html" title="interface in com.google.android.exoplayer2.analytics"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/analytics/AnalyticsCollector.html" target="_top">Frames</a></li>
@@ -71,7 +71,7 @@ var activeTableTab = "activeTableTab";
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -127,19 +127,6 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 <!--   -->
 </a>
 <h3>Nested Class Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Nested Class Summary table, listing nested classes, and an explanation">
-<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Class and Description</th>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>static class&nbsp;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.Factory.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector.Factory</a></span></code>
-<div class="block">Factory for an analytics collector.</div>
-</td>
-</tr>
-</table>
 <ul class="blockList">
 <li class="blockList"><a name="nested.classes.inherited.from.class.com.google.android.exoplayer2.audio.AudioRendererEventListener">
 <!--   -->
@@ -172,14 +159,11 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
-<th class="colFirst" scope="col">Modifier</th>
-<th class="colLast" scope="col">Constructor and Description</th>
+<th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>protected </code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.html#AnalyticsCollector-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.util.Clock-">AnalyticsCollector</a></span>(<a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
-                  <a href="../../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</code>
-<div class="block">Creates an analytics collector for the specified player.</div>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.html#AnalyticsCollector-com.google.android.exoplayer2.util.Clock-">AnalyticsCollector</a></span>(<a href="../../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</code>
+<div class="block">Creates an analytics collector.</div>
 </td>
 </tr>
 </table>
@@ -479,10 +463,9 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 </tr>
 <tr id="i41" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-java.lang.Object-int-">onTimelineChanged</a></span>(<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
-                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;manifest,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-int-">onTimelineChanged</a></span>(<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
                  int&nbsp;reason)</code>
-<div class="block">Called when the timeline and/or manifest has been refreshed.</div>
+<div class="block">Called when the timeline has been refreshed.</div>
 </td>
 </tr>
 <tr id="i42" class="altColor">
@@ -569,6 +552,13 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></h3>
 <code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#clone--" title="class or interface in java.lang">clone</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang">wait</a></code></li>
 </ul>
+<ul class="blockList">
+<li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.Player.EventListener">
+<!--   -->
+</a>
+<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a></h3>
+<code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-java.lang.Object-int-">onTimelineChanged</a></code></li>
+</ul>
 </li>
 </ul>
 </li>
@@ -583,21 +573,16 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="AnalyticsCollector-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.util.Clock-">
+<a name="AnalyticsCollector-com.google.android.exoplayer2.util.Clock-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>AnalyticsCollector</h4>
-<pre>protected&nbsp;AnalyticsCollector(@Nullable
-                             <a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
-                             <a href="../../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</pre>
-<div class="block">Creates an analytics collector for the specified player.</div>
+<pre>public&nbsp;AnalyticsCollector(<a href="../../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</pre>
+<div class="block">Creates an analytics collector.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>player</code> - The <a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> for which data will be collected. Can be null, if the player
-     is set by calling <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.html#setPlayer-com.google.android.exoplayer2.Player-"><code>setPlayer(Player)</code></a> before using the analytics
-     collector.</dd>
 <dd><code>clock</code> - A <a href="../../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util"><code>Clock</code></a> used to generate timestamps.</dd>
 </dl>
 </li>
@@ -1255,19 +1240,17 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 </dl>
 </li>
 </ul>
-<a name="onTimelineChanged-com.google.android.exoplayer2.Timeline-java.lang.Object-int-">
+<a name="onTimelineChanged-com.google.android.exoplayer2.Timeline-int-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onTimelineChanged</h4>
 <pre>public final&nbsp;void&nbsp;onTimelineChanged(<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
-                                    @Nullable
-                                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;manifest,
                                     <a href="../../../../../com/google/android/exoplayer2/Player.TimelineChangeReason.html" title="annotation in com.google.android.exoplayer2">@Player.TimelineChangeReason</a>
                                     int&nbsp;reason)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-java.lang.Object-int-">Player.EventListener</a></code></span></div>
-<div class="block">Called when the timeline and/or manifest has been refreshed.
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-int-">Player.EventListener</a></code></span></div>
+<div class="block">Called when the timeline has been refreshed.
 
  <p>Note that if the timeline has changed then a position discontinuity may also have
  occurred. For example, the current period index may have changed as a result of periods being
@@ -1275,10 +1258,9 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
  <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPositionDiscontinuity-int-"><code>Player.EventListener.onPositionDiscontinuity(int)</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-java.lang.Object-int-">onTimelineChanged</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a></code></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-int-">onTimelineChanged</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>timeline</code> - The latest timeline. Never null, but may be empty.</dd>
-<dd><code>manifest</code> - The latest manifest. May be null.</dd>
 <dd><code>reason</code> - The <a href="../../../../../com/google/android/exoplayer2/Player.TimelineChangeReason.html" title="annotation in com.google.android.exoplayer2"><code>Player.TimelineChangeReason</code></a> responsible for this timeline change.</dd>
 </dl>
 </li>
@@ -1327,6 +1309,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 <li class="blockList">
 <h4>onPlayerStateChanged</h4>
 <pre>public final&nbsp;void&nbsp;onPlayerStateChanged(boolean&nbsp;playWhenReady,
+                                       <a href="../../../../../com/google/android/exoplayer2/Player.State.html" title="annotation in com.google.android.exoplayer2">@Player.State</a>
                                        int&nbsp;playbackState)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlayerStateChanged-boolean-int-">Player.EventListener</a></code></span></div>
 <div class="block">Called when the value returned from either <a href="../../../../../com/google/android/exoplayer2/Player.html#getPlayWhenReady--"><code>Player.getPlayWhenReady()</code></a> or <a href="../../../../../com/google/android/exoplayer2/Player.html#getPlaybackState--"><code>Player.getPlaybackState()</code></a> changes.</div>
@@ -1335,7 +1318,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 <dd><code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlayerStateChanged-boolean-int-">onPlayerStateChanged</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>playWhenReady</code> - Whether playback will proceed when ready.</dd>
-<dd><code>playbackState</code> - One of the <code>STATE</code> constants.</dd>
+<dd><code>playbackState</code> - The new <a href="../../../../../com/google/android/exoplayer2/Player.State.html" title="annotation in com.google.android.exoplayer2"><code>playback state</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -1443,8 +1426,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
  when the source introduces a discontinuity internally).
 
  <p>When a position discontinuity occurs as a result of a change to the timeline this method
- is <em>not</em> called. <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-java.lang.Object-int-"><code>Player.EventListener.onTimelineChanged(Timeline, Object, int)</code></a> is called in this
- case.</div>
+ is <em>not</em> called. <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-int-"><code>Player.EventListener.onTimelineChanged(Timeline, int)</code></a> is called in this case.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPositionDiscontinuity-int-">onPositionDiscontinuity</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a></code></dd>
@@ -1666,7 +1648,7 @@ protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/analytics/A
 <div class="subNav">
 <ul class="navList">
 <li>Prev&nbsp;Class</li>
-<li><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.Factory.html" title="class in com.google.android.exoplayer2.analytics"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html" title="interface in com.google.android.exoplayer2.analytics"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/analytics/AnalyticsCollector.html" target="_top">Frames</a></li>
@@ -1690,7 +1672,7 @@ protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/analytics/A
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>

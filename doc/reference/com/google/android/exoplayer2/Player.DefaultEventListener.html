@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":42,"i1":42};
+var methods = {"i0":42,"i1":42,"i2":42};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -161,14 +161,22 @@ implements <a href="../../../../com/google/android/exoplayer2/Player.EventListen
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.DefaultEventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-java.lang.Object-">onTimelineChanged</a></span>(<a href="../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
-                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;manifest)</code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-java.lang.Object-int-"><code>Player.EventListener.onTimelineChanged(Timeline, Object, int)</code></a> instead.</span></div>
-</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.DefaultEventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-int-">onTimelineChanged</a></span>(<a href="../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
+                 int&nbsp;reason)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;</div>
+<div class="block">Called when the timeline has been refreshed.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.DefaultEventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-java.lang.Object-">onTimelineChanged</a></span>(<a href="../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
+                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;manifest)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-int-"><code>Player.EventListener.onTimelineChanged(Timeline, int)</code></a> instead.</span></div>
+</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.DefaultEventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-java.lang.Object-int-">onTimelineChanged</a></span>(<a href="../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
                  <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;manifest,
@@ -224,6 +232,32 @@ implements <a href="../../../../com/google/android/exoplayer2/Player.EventListen
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="onTimelineChanged-com.google.android.exoplayer2.Timeline-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onTimelineChanged</h4>
+<pre>public&nbsp;void&nbsp;onTimelineChanged(<a href="../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
+                              <a href="../../../../com/google/android/exoplayer2/Player.TimelineChangeReason.html" title="annotation in com.google.android.exoplayer2">@Player.TimelineChangeReason</a>
+                              int&nbsp;reason)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;</div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-int-">Player.EventListener</a></code></span></div>
+<div class="block">Called when the timeline has been refreshed.
+
+ <p>Note that if the timeline has changed then a position discontinuity may also have
+ occurred. For example, the current period index may have changed as a result of periods being
+ added or removed from the timeline. This will <em>not</em> be reported via a separate call to
+ <a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onPositionDiscontinuity-int-"><code>Player.EventListener.onPositionDiscontinuity(int)</code></a>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-int-">onTimelineChanged</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>timeline</code> - The latest timeline. Never null, but may be empty.</dd>
+<dd><code>reason</code> - The <a href="../../../../com/google/android/exoplayer2/Player.TimelineChangeReason.html" title="annotation in com.google.android.exoplayer2"><code>Player.TimelineChangeReason</code></a> responsible for this timeline change.</dd>
+</dl>
+</li>
+</ul>
 <a name="onTimelineChanged-com.google.android.exoplayer2.Timeline-java.lang.Object-int-">
 <!--   -->
 </a>
@@ -263,7 +297,7 @@ implements <a href="../../../../com/google/android/exoplayer2/Player.EventListen
 public&nbsp;void&nbsp;onTimelineChanged(<a href="../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
                                           @Nullable
                                           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;manifest)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-java.lang.Object-int-"><code>Player.EventListener.onTimelineChanged(Timeline, Object, int)</code></a> instead.</span></div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-int-"><code>Player.EventListener.onTimelineChanged(Timeline, int)</code></a> instead.</span></div>
 </li>
 </ul>
 </li>

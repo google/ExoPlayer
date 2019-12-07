@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":6,"i2":10,"i3":10,"i4":10,"i5":10,"i6":6,"i7":10,"i8":6,"i9":10,"i10":10,"i11":10,"i12":6,"i13":10,"i14":10,"i15":6,"i16":6,"i17":10,"i18":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
+var methods = {"i0":10,"i1":6,"i2":10,"i3":10,"i4":10,"i5":10,"i6":6,"i7":10,"i8":6,"i9":10,"i10":10,"i11":10,"i12":6,"i13":10,"i14":42,"i15":6,"i16":6,"i17":10,"i18":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -106,7 +106,7 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>Direct Known Subclasses:</dt>
-<dd><a href="../../../../com/google/android/exoplayer2/source/ForwardingTimeline.html" title="class in com.google.android.exoplayer2.source">ForwardingTimeline</a>, <a href="../../../../com/google/android/exoplayer2/source/SinglePeriodTimeline.html" title="class in com.google.android.exoplayer2.source">SinglePeriodTimeline</a></dd>
+<dd><a href="../../../../com/google/android/exoplayer2/testutil/FakeTimeline.html" title="class in com.google.android.exoplayer2.testutil">FakeTimeline</a>, <a href="../../../../com/google/android/exoplayer2/source/ForwardingTimeline.html" title="class in com.google.android.exoplayer2.source">ForwardingTimeline</a>, <a href="../../../../com/google/android/exoplayer2/source/SinglePeriodTimeline.html" title="class in com.google.android.exoplayer2.source">SinglePeriodTimeline</a></dd>
 </dl>
 <hr>
 <br>
@@ -117,84 +117,80 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
  complex compositions of media such as playlists and streams with inserted ads. Instances are
  immutable. For cases where media is changing dynamically (e.g. live streams), a timeline provides
  a snapshot of the current state.
- <p>
- A timeline consists of related <a href="../../../../com/google/android/exoplayer2/Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a>s and <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a>s. A period defines a single
- logical piece of media, for example a media file. It may also define groups of ads inserted into
- the media, along with information about whether those ads have been loaded and played. A window
- spans one or more periods, defining the region within those periods that's currently available
- for playback along with additional information such as whether seeking is supported within the
- window. Each window defines a default position, which is the position from which playback will
- start when the player starts playing the window. The following examples illustrate timelines for
- various use cases.
+
+ <p>A timeline consists of <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Windows</code></a> and <a href="../../../../com/google/android/exoplayer2/Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Periods</code></a>.
+
+ <ul>
+   <li>A <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> usually corresponds to one playlist item. It may span one or more periods
+       and it defines the region within those periods that's currently available for playback. The
+       window also provides additional information such as whether seeking is supported within the
+       window and the default position, which is the position from which playback will start when
+       the player starts playing the window.
+   <li>A <a href="../../../../com/google/android/exoplayer2/Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a> defines a single logical piece of media, for example a media file. It may
+       also define groups of ads inserted into the media, along with information about whether
+       those ads have been loaded and played.
+ </ul>
+
+ <p>The following examples illustrate timelines for various use cases.
 
  <h3 id="single-file">Single media file or on-demand stream</h3>
- <p align="center">
-   <img src="doc-files/timeline-single-file.svg" alt="Example timeline for a single file">
- </p>
- A timeline for a single media file or on-demand stream consists of a single period and window.
- The window spans the whole period, indicating that all parts of the media are available for
- playback. The window's default position is typically at the start of the period (indicated by the
- black dot in the figure above).
+
+ <p align="center"><img src="doc-files/timeline-single-file.svg" alt="Example timeline for a
+ single file"> A timeline for a single media file or on-demand stream consists of a single period
+ and window. The window spans the whole period, indicating that all parts of the media are
+ available for playback. The window's default position is typically at the start of the period
+ (indicated by the black dot in the figure above).
 
  <h3>Playlist of media files or on-demand streams</h3>
- <p align="center">
-   <img src="doc-files/timeline-playlist.svg" alt="Example timeline for a playlist of files">
- </p>
- A timeline for a playlist of media files or on-demand streams consists of multiple periods, each
- with its own window. Each window spans the whole of the corresponding period, and typically has a
- default position at the start of the period. The properties of the periods and windows (e.g.
- their durations and whether the window is seekable) will often only become known when the player
- starts buffering the corresponding file or stream.
+
+ <p align="center"><img src="doc-files/timeline-playlist.svg" alt="Example timeline for a playlist
+ of files"> A timeline for a playlist of media files or on-demand streams consists of multiple
+ periods, each with its own window. Each window spans the whole of the corresponding period, and
+ typically has a default position at the start of the period. The properties of the periods and
+ windows (e.g. their durations and whether the window is seekable) will often only become known
+ when the player starts buffering the corresponding file or stream.
 
  <h3 id="live-limited">Live stream with limited availability</h3>
- <p align="center">
-   <img src="doc-files/timeline-live-limited.svg" alt="Example timeline for a live stream with
-       limited availability">
- </p>
- A timeline for a live stream consists of a period whose duration is unknown, since it's
- continually extending as more content is broadcast. If content only remains available for a
- limited period of time then the window may start at a non-zero position, defining the region of
- content that can still be played. The window will have <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#isDynamic"><code>Timeline.Window.isDynamic</code></a> set to true if
- the stream is still live. Its default position is typically near to the live edge (indicated by
- the black dot in the figure above).
+
+ <p align="center"><img src="doc-files/timeline-live-limited.svg" alt="Example timeline for a live
+ stream with limited availability"> A timeline for a live stream consists of a period whose
+ duration is unknown, since it's continually extending as more content is broadcast. If content
+ only remains available for a limited period of time then the window may start at a non-zero
+ position, defining the region of content that can still be played. The window will have <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#isLive"><code>Timeline.Window.isLive</code></a> set to true to indicate it's a live stream and <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#isDynamic"><code>Timeline.Window.isDynamic</code></a> set to
+ true as long as we expect changes to the live window. Its default position is typically near to
+ the live edge (indicated by the black dot in the figure above).
 
  <h3>Live stream with indefinite availability</h3>
- <p align="center">
-   <img src="doc-files/timeline-live-indefinite.svg" alt="Example timeline for a live stream with
-       indefinite availability">
- </p>
- A timeline for a live stream with indefinite availability is similar to the
- <a href="#live-limited">Live stream with limited availability</a> case, except that the window
- starts at the beginning of the period to indicate that all of the previously broadcast content
- can still be played.
+
+ <p align="center"><img src="doc-files/timeline-live-indefinite.svg" alt="Example timeline for a
+ live stream with indefinite availability"> A timeline for a live stream with indefinite
+ availability is similar to the <a href="#live-limited">Live stream with limited availability</a>
+ case, except that the window starts at the beginning of the period to indicate that all of the
+ previously broadcast content can still be played.
 
  <h3 id="live-multi-period">Live stream with multiple periods</h3>
- <p align="center">
-   <img src="doc-files/timeline-live-multi-period.svg" alt="Example timeline for a live stream
-       with multiple periods">
- </p>
- This case arises when a live stream is explicitly divided into separate periods, for example at
- content boundaries. This case is similar to the <a href="#live-limited">Live stream with limited
- availability</a> case, except that the window may span more than one period. Multiple periods are
- also possible in the indefinite availability case.
+
+ <p align="center"><img src="doc-files/timeline-live-multi-period.svg" alt="Example timeline for a
+ live stream with multiple periods"> This case arises when a live stream is explicitly divided
+ into separate periods, for example at content boundaries. This case is similar to the <a
+ href="#live-limited">Live stream with limited availability</a> case, except that the window may
+ span more than one period. Multiple periods are also possible in the indefinite availability
+ case.
 
  <h3>On-demand stream followed by live stream</h3>
- <p align="center">
-   <img src="doc-files/timeline-advanced.svg" alt="Example timeline for an on-demand stream
-       followed by a live stream">
- </p>
- This case is the concatenation of the <a href="#single-file">Single media file or on-demand
- stream</a> and <a href="#multi-period">Live stream with multiple periods</a> cases. When playback
- of the on-demand stream ends, playback of the live stream will start from its default position
- near the live edge.
+
+ <p align="center"><img src="doc-files/timeline-advanced.svg" alt="Example timeline for an
+ on-demand stream followed by a live stream"> This case is the concatenation of the <a
+ href="#single-file">Single media file or on-demand stream</a> and <a href="#multi-period">Live
+ stream with multiple periods</a> cases. When playback of the on-demand stream ends, playback of
+ the live stream will start from its default position near the live edge.
 
  <h3 id="single-file-midrolls">On-demand stream with mid-roll ads</h3>
- <p align="center">
-   <img src="doc-files/timeline-single-file-midrolls.svg" alt="Example timeline for an on-demand
-       stream with mid-roll ad groups">
- </p>
- This case includes mid-roll ad groups, which are defined as part of the timeline's single period.
- The period can be queried for information about the ad groups and the ads they contain.</div>
+
+ <p align="center"><img src="doc-files/timeline-single-file-midrolls.svg" alt="Example timeline
+ for an on-demand stream with mid-roll ad groups"> This case includes mid-roll ad groups, which
+ are defined as part of the timeline's single period. The period can be queried for information
+ about the ad groups and the ads they contain.</div>
 </li>
 </ul>
 </div>
@@ -273,7 +269,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
@@ -288,8 +284,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>abstract int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.html#getIndexOfPeriod-java.lang.Object-">getIndexOfPeriod</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;uid)</code>
-<div class="block">Returns the index of the period identified by its unique <code>id</code>, or <a href="../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a>
- if the period is not in the timeline.</div>
+<div class="block">Returns the index of the period identified by its unique <a href="../../../../com/google/android/exoplayer2/Timeline.Period.html#uid"><code>Timeline.Period.uid</code></a>, or <a href="../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if the period is not in the timeline.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
@@ -394,14 +389,15 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.html#getWindow-int-com.google.android.exoplayer2.Timeline.Window-boolean-">getWindow</a></span>(int&nbsp;windowIndex,
          <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;window,
          boolean&nbsp;setTag)</code>
-<div class="block">Populates a <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> with data for the window at the specified index.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/Timeline.html#getWindow-int-com.google.android.exoplayer2.Timeline.Window-"><code>getWindow(int, Window)</code></a> instead. Tags will always be set.</span></div>
+</div>
 </td>
 </tr>
 <tr id="i15" class="rowColor">
 <td class="colFirst"><code>abstract <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.html#getWindow-int-com.google.android.exoplayer2.Timeline.Window-boolean-long-">getWindow</a></span>(int&nbsp;windowIndex,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.html#getWindow-int-com.google.android.exoplayer2.Timeline.Window-long-">getWindow</a></span>(int&nbsp;windowIndex,
          <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;window,
-         boolean&nbsp;setTag,
          long&nbsp;defaultPositionProjectionUs)</code>
 <div class="block">Populates a <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> with data for the window at the specified index.</div>
 </td>
@@ -594,8 +590,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <h4>getWindow</h4>
 <pre>public final&nbsp;<a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;getWindow(int&nbsp;windowIndex,
                                        <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;window)</pre>
-<div class="block">Populates a <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> with data for the window at the specified index. Does not populate
- <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#tag"><code>Timeline.Window.tag</code></a>.</div>
+<div class="block">Populates a <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> with data for the window at the specified index.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>windowIndex</code> - The index of the window.</dd>
@@ -611,22 +606,14 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>getWindow</h4>
-<pre>public final&nbsp;<a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;getWindow(int&nbsp;windowIndex,
-                                       <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;window,
-                                       boolean&nbsp;setTag)</pre>
-<div class="block">Populates a <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> with data for the window at the specified index.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>windowIndex</code> - The index of the window.</dd>
-<dd><code>window</code> - The <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> to populate. Must not be null.</dd>
-<dd><code>setTag</code> - Whether <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#tag"><code>Timeline.Window.tag</code></a> should be populated. If false, the field will be set
-     to null. The caller should pass false for efficiency reasons unless the field is required.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The populated <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a>, for convenience.</dd>
-</dl>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public final&nbsp;<a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;getWindow(int&nbsp;windowIndex,
+                                                   <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;window,
+                                                   boolean&nbsp;setTag)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/Timeline.html#getWindow-int-com.google.android.exoplayer2.Timeline.Window-"><code>getWindow(int, Window)</code></a> instead. Tags will always be set.</span></div>
 </li>
 </ul>
-<a name="getWindow-int-com.google.android.exoplayer2.Timeline.Window-boolean-long-">
+<a name="getWindow-int-com.google.android.exoplayer2.Timeline.Window-long-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -634,15 +621,12 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <h4>getWindow</h4>
 <pre>public abstract&nbsp;<a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;getWindow(int&nbsp;windowIndex,
                                           <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;window,
-                                          boolean&nbsp;setTag,
                                           long&nbsp;defaultPositionProjectionUs)</pre>
 <div class="block">Populates a <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> with data for the window at the specified index.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>windowIndex</code> - The index of the window.</dd>
 <dd><code>window</code> - The <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> to populate. Must not be null.</dd>
-<dd><code>setTag</code> - Whether <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#tag"><code>Timeline.Window.tag</code></a> should be populated. If false, the field will be set
-     to null. The caller should pass false for efficiency reasons unless the field is required.</dd>
 <dd><code>defaultPositionProjectionUs</code> - A duration into the future that the populated window's
      default start position should be projected.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -821,8 +805,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/util/
 <li class="blockList">
 <h4>getIndexOfPeriod</h4>
 <pre>public abstract&nbsp;int&nbsp;getIndexOfPeriod(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;uid)</pre>
-<div class="block">Returns the index of the period identified by its unique <code>id</code>, or <a href="../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a>
- if the period is not in the timeline.</div>
+<div class="block">Returns the index of the period identified by its unique <a href="../../../../com/google/android/exoplayer2/Timeline.Period.html#uid"><code>Timeline.Period.uid</code></a>, or <a href="../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if the period is not in the timeline.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>uid</code> - A unique identifier for a period.</dd>

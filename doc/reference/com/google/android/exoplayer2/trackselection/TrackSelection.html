@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6,"i15":18,"i16":6,"i17":50,"i18":18};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"],32:["t6","Deprecated Methods"]};
+var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6,"i15":18,"i16":6,"i17":6};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -46,7 +46,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackBitrateEstimator.html" title="interface in com.google.android.exoplayer2.trackselection"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/trackselection/RandomTrackSelection.Factory.html" title="class in com.google.android.exoplayer2.trackselection"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -98,7 +98,7 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection">AdaptiveTrackSelection</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/BaseTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection">BaseTrackSelection</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/FixedTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection">FixedTrackSelection</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/RandomTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection">RandomTrackSelection</a></dd>
+<dd><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection">AdaptiveTrackSelection</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/BaseTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection">BaseTrackSelection</a>, <a href="../../../../../com/google/android/exoplayer2/testutil/FakeTrackSelection.html" title="class in com.google.android.exoplayer2.testutil">FakeTrackSelection</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/FixedTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection">FixedTrackSelection</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/RandomTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection">RandomTrackSelection</a></dd>
 </dl>
 <hr>
 <br>
@@ -149,7 +149,7 @@ var activeTableTab = "activeTableTab";
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
@@ -262,18 +262,7 @@ var activeTableTab = "activeTableTab";
 </td>
 </tr>
 <tr id="i17" class="rowColor">
-<td class="colFirst"><code>default void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-">updateSelectedTrack</a></span>(long&nbsp;playbackPositionUs,
-                   long&nbsp;bufferedDurationUs,
-                   long&nbsp;availableDurationUs)</code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use and implement <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-"><code>updateSelectedTrack(long, long, long, List,
-     MediaChunkIterator[])</code></a> instead.</span></div>
-</div>
-</td>
-</tr>
-<tr id="i18" class="altColor">
-<td class="colFirst"><code>default void</code></td>
+<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-">updateSelectedTrack</a></span>(long&nbsp;playbackPositionUs,
                    long&nbsp;bufferedDurationUs,
                    long&nbsp;availableDurationUs,
@@ -491,31 +480,17 @@ var activeTableTab = "activeTableTab";
  <p>This happens when the playback position jumps, e.g., as a result of a seek being performed.</div>
 </li>
 </ul>
-<a name="updateSelectedTrack-long-long-long-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>updateSelectedTrack</h4>
-<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
-default&nbsp;void&nbsp;updateSelectedTrack(long&nbsp;playbackPositionUs,
-                                             long&nbsp;bufferedDurationUs,
-                                             long&nbsp;availableDurationUs)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use and implement <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-"><code>updateSelectedTrack(long, long, long, List,
-     MediaChunkIterator[])</code></a> instead.</span></div>
-</li>
-</ul>
 <a name="updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>updateSelectedTrack</h4>
-<pre>default&nbsp;void&nbsp;updateSelectedTrack(long&nbsp;playbackPositionUs,
-                                 long&nbsp;bufferedDurationUs,
-                                 long&nbsp;availableDurationUs,
-                                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">MediaChunk</a>&gt;&nbsp;queue,
-                                 <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk">MediaChunkIterator</a>[]&nbsp;mediaChunkIterators)</pre>
+<pre>void&nbsp;updateSelectedTrack(long&nbsp;playbackPositionUs,
+                         long&nbsp;bufferedDurationUs,
+                         long&nbsp;availableDurationUs,
+                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">MediaChunk</a>&gt;&nbsp;queue,
+                         <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk">MediaChunkIterator</a>[]&nbsp;mediaChunkIterators)</pre>
 <div class="block">Updates the selected track for sources that load media in discrete <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s.
 
  <p>This method may only be called when the selection is enabled.</div>
@@ -623,7 +598,7 @@ default&nbsp;void&nbsp;updateSelectedTrack(long&nbsp;playbackPositionUs,
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackBitrateEstimator.html" title="interface in com.google.android.exoplayer2.trackselection"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/trackselection/RandomTrackSelection.Factory.html" title="class in com.google.android.exoplayer2.trackselection"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">

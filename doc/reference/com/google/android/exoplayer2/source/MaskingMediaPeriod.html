@@ -1,0 +1,924 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<title>MaskingMediaPeriod (ExoPlayer library)</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<script type="text/javascript" src="../../../../../script.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="MaskingMediaPeriod (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a name="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a name="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../../com/google/android/exoplayer2/source/LoopingMediaSource.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.PrepareErrorListener.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../../index.html?com/google/android/exoplayer2/source/MaskingMediaPeriod.html" target="_top">Frames</a></li>
+<li><a href="MaskingMediaPeriod.html" target="_top">No&nbsp;Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a name="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+<!-- ======== START OF CLASS DATA ======== -->
+<div class="header">
+<div class="subTitle">com.google.android.exoplayer2.source</div>
+<h2 title="Class MaskingMediaPeriod" class="title">Class MaskingMediaPeriod</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.source.MaskingMediaPeriod</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>, <a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.Callback.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod.Callback</a>, <a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader</a>, <a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.Callback.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader.Callback</a>&lt;<a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>&gt;</dd>
+</dl>
+<hr>
+<br>
+<pre>public final class <span class="typeNameLabel">MaskingMediaPeriod</span>
+extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>
+implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>, <a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.Callback.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod.Callback</a></pre>
+<div class="block">Media period that wraps a media source and defers calling its <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-long-"><code>MediaSource.createPeriod(MediaPeriodId, Allocator, long)</code></a> method until <code>#createPeriod(MediaPeriodId)</code> has been called. This is useful if you need to return a media
+ period immediately but the media source that should create it is not yet prepared.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Class and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.PrepareErrorListener.html" title="interface in com.google.android.exoplayer2.source">MaskingMediaPeriod.PrepareErrorListener</a></span></code>
+<div class="block">Listener for preparation errors.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="nested.classes.inherited.from.class.com.google.android.exoplayer2.source.MediaPeriod">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></h3>
+<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.Callback.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod.Callback</a></code></li>
+</ul>
+</li>
+</ul>
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#id">id</a></span></code>
+<div class="block">The <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a> used to create the masking media period.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#mediaSource">mediaSource</a></span></code>
+<div class="block">The <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> which will create the actual media period.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Constructor and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#MaskingMediaPeriod-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-long-">MaskingMediaPeriod</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
+                  <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;id,
+                  <a href="../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator,
+                  long&nbsp;preparePositionUs)</code>
+<div class="block">Creates a new masking media period.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ========== METHOD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#continueLoading-long-">continueLoading</a></span>(long&nbsp;positionUs)</code>
+<div class="block">Attempts to continue loading.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-">createPeriod</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;id)</code>
+<div class="block">Calls <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-long-"><code>MediaSource.createPeriod(MediaPeriodId, Allocator, long)</code></a> on the wrapped source
+ then prepares it if <a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#prepare-com.google.android.exoplayer2.source.MediaPeriod.Callback-long-"><code>MediaPeriod.prepare(Callback, long)</code></a> has been called.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#discardBuffer-long-boolean-">discardBuffer</a></span>(long&nbsp;positionUs,
+             boolean&nbsp;toKeyframe)</code>
+<div class="block">Discards buffered media up to the specified position.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#getAdjustedSeekPositionUs-long-com.google.android.exoplayer2.SeekParameters-">getAdjustedSeekPositionUs</a></span>(long&nbsp;positionUs,
+                         <a href="../../../../../com/google/android/exoplayer2/SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a>&nbsp;seekParameters)</code>
+<div class="block">Returns the position to which a seek will be performed, given the specified seek position and
+ <a href="../../../../../com/google/android/exoplayer2/SeekParameters.html" title="class in com.google.android.exoplayer2"><code>SeekParameters</code></a>.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#getBufferedPositionUs--">getBufferedPositionUs</a></span>()</code>
+<div class="block">Returns an estimate of the position up to which data is buffered for the enabled tracks.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#getNextLoadPositionUs--">getNextLoadPositionUs</a></span>()</code>
+<div class="block">Returns the next load time, or <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> if loading has finished.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#getPreparePositionUs--">getPreparePositionUs</a></span>()</code>
+<div class="block">Returns the position at which the masking media period was prepared, in microseconds.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#getTrackGroups--">getTrackGroups</a></span>()</code>
+<div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>s exposed by the period.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#isLoading--">isLoading</a></span>()</code>
+<div class="block">Returns whether the media period is currently loading.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#maybeThrowPrepareError--">maybeThrowPrepareError</a></span>()</code>
+<div class="block">Throws an error that's preventing the period from becoming prepared.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#onContinueLoadingRequested-com.google.android.exoplayer2.source.MediaPeriod-">onContinueLoadingRequested</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>&nbsp;source)</code>
+<div class="block">Called by the loader to indicate that it wishes for its <a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html#continueLoading-long-"><code>SequenceableLoader.continueLoading(long)</code></a> method
+ to be called when it can continue to load data.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#onPrepared-com.google.android.exoplayer2.source.MediaPeriod-">onPrepared</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>&nbsp;mediaPeriod)</code>
+<div class="block">Called when preparation completes.</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#overridePreparePositionUs-long-">overridePreparePositionUs</a></span>(long&nbsp;preparePositionUs)</code>
+<div class="block">Overrides the default prepare position at which to prepare the media period.</div>
+</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#prepare-com.google.android.exoplayer2.source.MediaPeriod.Callback-long-">prepare</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.Callback.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod.Callback</a>&nbsp;callback,
+       long&nbsp;preparePositionUs)</code>
+<div class="block">Prepares this media period asynchronously.</div>
+</td>
+</tr>
+<tr id="i14" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#readDiscontinuity--">readDiscontinuity</a></span>()</code>
+<div class="block">Attempts to read a discontinuity.</div>
+</td>
+</tr>
+<tr id="i15" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#reevaluateBuffer-long-">reevaluateBuffer</a></span>(long&nbsp;positionUs)</code>
+<div class="block">Re-evaluates the buffer given the playback position.</div>
+</td>
+</tr>
+<tr id="i16" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#releasePeriod--">releasePeriod</a></span>()</code>
+<div class="block">Releases the period.</div>
+</td>
+</tr>
+<tr id="i17" class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#seekToUs-long-">seekToUs</a></span>(long&nbsp;positionUs)</code>
+<div class="block">Attempts to seek to the specified position in microseconds.</div>
+</td>
+</tr>
+<tr id="i18" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#selectTracks-com.google.android.exoplayer2.trackselection.TrackSelection:A-boolean:A-com.google.android.exoplayer2.source.SampleStream:A-boolean:A-long-">selectTracks</a></span>(@NullableType <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a>[]&nbsp;selections,
+            boolean[]&nbsp;mayRetainStreamFlags,
+            @NullableType <a href="../../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source">SampleStream</a>[]&nbsp;streams,
+            boolean[]&nbsp;streamResetFlags,
+            long&nbsp;positionUs)</code>
+<div class="block">Performs a track selection.</div>
+</td>
+</tr>
+<tr id="i19" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#setPrepareErrorListener-com.google.android.exoplayer2.source.MaskingMediaPeriod.PrepareErrorListener-">setPrepareErrorListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.PrepareErrorListener.html" title="interface in com.google.android.exoplayer2.source">MaskingMediaPeriod.PrepareErrorListener</a>&nbsp;listener)</code>
+<div class="block">Sets a listener for preparation errors.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></h3>
+<code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#clone--" title="class or interface in java.lang">clone</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.source.MediaPeriod">
+<!--   -->
+</a>
+<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></h3>
+<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#getStreamKeys-java.util.List-">getStreamKeys</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="mediaSource">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>mediaSource</h4>
+<pre>public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a> mediaSource</pre>
+<div class="block">The <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> which will create the actual media period.</div>
+</li>
+</ul>
+<a name="id">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>id</h4>
+<pre>public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a> id</pre>
+<div class="block">The <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a> used to create the masking media period.</div>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a name="MaskingMediaPeriod-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-long-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>MaskingMediaPeriod</h4>
+<pre>public&nbsp;MaskingMediaPeriod(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
+                          <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;id,
+                          <a href="../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator,
+                          long&nbsp;preparePositionUs)</pre>
+<div class="block">Creates a new masking media period.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>mediaSource</code> - The media source to wrap.</dd>
+<dd><code>id</code> - The identifier used to create the masking media period.</dd>
+<dd><code>allocator</code> - The allocator used to create the media period.</dd>
+<dd><code>preparePositionUs</code> - The expected start position, in microseconds.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="setPrepareErrorListener-com.google.android.exoplayer2.source.MaskingMediaPeriod.PrepareErrorListener-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPrepareErrorListener</h4>
+<pre>public&nbsp;void&nbsp;setPrepareErrorListener(<a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.PrepareErrorListener.html" title="interface in com.google.android.exoplayer2.source">MaskingMediaPeriod.PrepareErrorListener</a>&nbsp;listener)</pre>
+<div class="block">Sets a listener for preparation errors.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>listener</code> - An listener to be notified of media period preparation errors. If a listener is
+     set, <a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#maybeThrowPrepareError--"><code>maybeThrowPrepareError()</code></a> will not throw but will instead pass the first
+     preparation error (if any) to the listener.</dd>
+</dl>
+</li>
+</ul>
+<a name="getPreparePositionUs--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getPreparePositionUs</h4>
+<pre>public&nbsp;long&nbsp;getPreparePositionUs()</pre>
+<div class="block">Returns the position at which the masking media period was prepared, in microseconds.</div>
+</li>
+</ul>
+<a name="overridePreparePositionUs-long-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>overridePreparePositionUs</h4>
+<pre>public&nbsp;void&nbsp;overridePreparePositionUs(long&nbsp;preparePositionUs)</pre>
+<div class="block">Overrides the default prepare position at which to prepare the media period. This value is only
+ used if called before <code>#createPeriod(MediaPeriodId)</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>preparePositionUs</code> - The default prepare position to use, in microseconds.</dd>
+</dl>
+</li>
+</ul>
+<a name="createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createPeriod</h4>
+<pre>public&nbsp;void&nbsp;createPeriod(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;id)</pre>
+<div class="block">Calls <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-long-"><code>MediaSource.createPeriod(MediaPeriodId, Allocator, long)</code></a> on the wrapped source
+ then prepares it if <a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#prepare-com.google.android.exoplayer2.source.MediaPeriod.Callback-long-"><code>MediaPeriod.prepare(Callback, long)</code></a> has been called. Call <a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#releasePeriod--"><code>releasePeriod()</code></a> to release the period.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>id</code> - The identifier that should be used to create the media period from the media source.</dd>
+</dl>
+</li>
+</ul>
+<a name="releasePeriod--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>releasePeriod</h4>
+<pre>public&nbsp;void&nbsp;releasePeriod()</pre>
+<div class="block">Releases the period.</div>
+</li>
+</ul>
+<a name="prepare-com.google.android.exoplayer2.source.MediaPeriod.Callback-long-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>prepare</h4>
+<pre>public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.Callback.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod.Callback</a>&nbsp;callback,
+                    long&nbsp;preparePositionUs)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#prepare-com.google.android.exoplayer2.source.MediaPeriod.Callback-long-">MediaPeriod</a></code></span></div>
+<div class="block">Prepares this media period asynchronously.
+
+ <p><code>callback.onPrepared</code> is called when preparation completes. If preparation fails,
+ <a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#maybeThrowPrepareError--"><code>MediaPeriod.maybeThrowPrepareError()</code></a> will throw an <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io"><code>IOException</code></a>.
+
+ <p>If preparation succeeds and results in a source timeline change (e.g. the period duration
+ becoming known), <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaSourceCaller.html#onSourceInfoRefreshed-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.Timeline-"><code>MediaSource.MediaSourceCaller.onSourceInfoRefreshed(MediaSource, Timeline)</code></a> will be
+ called before <code>callback.onPrepared</code>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#prepare-com.google.android.exoplayer2.source.MediaPeriod.Callback-long-">prepare</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>callback</code> - Callback to receive updates from this period, including being notified when
+     preparation completes.</dd>
+<dd><code>preparePositionUs</code> - The expected starting position, in microseconds.</dd>
+</dl>
+</li>
+</ul>
+<a name="maybeThrowPrepareError--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>maybeThrowPrepareError</h4>
+<pre>public&nbsp;void&nbsp;maybeThrowPrepareError()
+                            throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#maybeThrowPrepareError--">MediaPeriod</a></code></span></div>
+<div class="block">Throws an error that's preventing the period from becoming prepared. Does nothing if no such
+ error exists.
+
+ <p>This method is only called before the period has completed preparation.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#maybeThrowPrepareError--">maybeThrowPrepareError</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code> - The underlying error.</dd>
+</dl>
+</li>
+</ul>
+<a name="getTrackGroups--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTrackGroups</h4>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;getTrackGroups()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#getTrackGroups--">MediaPeriod</a></code></span></div>
+<div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>s exposed by the period.
+
+ <p>This method is only called after the period has been prepared.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#getTrackGroups--">getTrackGroups</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>s.</dd>
+</dl>
+</li>
+</ul>
+<a name="selectTracks-com.google.android.exoplayer2.trackselection.TrackSelection:A-boolean:A-com.google.android.exoplayer2.source.SampleStream:A-boolean:A-long-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>selectTracks</h4>
+<pre>public&nbsp;long&nbsp;selectTracks(@NullableType <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a>[]&nbsp;selections,
+                         boolean[]&nbsp;mayRetainStreamFlags,
+                         @NullableType <a href="../../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source">SampleStream</a>[]&nbsp;streams,
+                         boolean[]&nbsp;streamResetFlags,
+                         long&nbsp;positionUs)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#selectTracks-com.google.android.exoplayer2.trackselection.TrackSelection:A-boolean:A-com.google.android.exoplayer2.source.SampleStream:A-boolean:A-long-">MediaPeriod</a></code></span></div>
+<div class="block">Performs a track selection.
+
+ <p>The call receives track <code>selections</code> for each renderer, <code>mayRetainStreamFlags</code>
+ indicating whether the existing <a href="../../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> can be retained for each selection, and
+ the existing <code>stream</code>s themselves. The call will update <code>streams</code> to reflect the
+ provided selections, clearing, setting and replacing entries as required. If an existing sample
+ stream is retained but with the requirement that the consuming renderer be reset, then the
+ corresponding flag in <code>streamResetFlags</code> will be set to true. This flag will also be set
+ if a new sample stream is created.
+
+ <p>Note that previously passed <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>TrackSelections</code></a> are no longer valid, and
+ any references to them must be updated to point to the new selections.
+
+ <p>This method is only called after the period has been prepared.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#selectTracks-com.google.android.exoplayer2.trackselection.TrackSelection:A-boolean:A-com.google.android.exoplayer2.source.SampleStream:A-boolean:A-long-">selectTracks</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>selections</code> - The renderer track selections.</dd>
+<dd><code>mayRetainStreamFlags</code> - Flags indicating whether the existing sample stream can be retained
+     for each track selection. A <code>true</code> value indicates that the selection is equivalent
+     to the one that was previously passed, and that the caller does not require that the sample
+     stream be recreated. If a retained sample stream holds any references to the track
+     selection then they must be updated to point to the new selection.</dd>
+<dd><code>streams</code> - The existing sample streams, which will be updated to reflect the provided
+     selections.</dd>
+<dd><code>streamResetFlags</code> - Will be updated to indicate new sample streams, and sample streams that
+     have been retained but with the requirement that the consuming renderer be reset.</dd>
+<dd><code>positionUs</code> - The current playback position in microseconds. If playback of this period has
+     not yet started, the value will be the starting position.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The actual position at which the tracks were enabled, in microseconds.</dd>
+</dl>
+</li>
+</ul>
+<a name="discardBuffer-long-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>discardBuffer</h4>
+<pre>public&nbsp;void&nbsp;discardBuffer(long&nbsp;positionUs,
+                          boolean&nbsp;toKeyframe)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#discardBuffer-long-boolean-">MediaPeriod</a></code></span></div>
+<div class="block">Discards buffered media up to the specified position.
+
+ <p>This method is only called after the period has been prepared.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#discardBuffer-long-boolean-">discardBuffer</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>positionUs</code> - The position in microseconds.</dd>
+<dd><code>toKeyframe</code> - If true then for each track discards samples up to the keyframe before or at
+     the specified position, rather than any sample before or at that position.</dd>
+</dl>
+</li>
+</ul>
+<a name="readDiscontinuity--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>readDiscontinuity</h4>
+<pre>public&nbsp;long&nbsp;readDiscontinuity()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#readDiscontinuity--">MediaPeriod</a></code></span></div>
+<div class="block">Attempts to read a discontinuity.
+
+ <p>After this method has returned a value other than <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>, all <a href="../../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>s provided by the period are guaranteed to start from a key frame.
+
+ <p>This method is only called after the period has been prepared and before reading from any
+ <a href="../../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>s provided by the period.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#readDiscontinuity--">readDiscontinuity</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>If a discontinuity was read then the playback position in microseconds after the
+     discontinuity. Else <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a name="getBufferedPositionUs--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getBufferedPositionUs</h4>
+<pre>public&nbsp;long&nbsp;getBufferedPositionUs()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#getBufferedPositionUs--">MediaPeriod</a></code></span></div>
+<div class="block">Returns an estimate of the position up to which data is buffered for the enabled tracks.
+
+ <p>This method is only called when at least one track is selected.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#getBufferedPositionUs--">getBufferedPositionUs</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html#getBufferedPositionUs--">getBufferedPositionUs</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader</a></code></dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>An estimate of the absolute position in microseconds up to which data is buffered, or
+     <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> if the track is fully buffered.</dd>
+</dl>
+</li>
+</ul>
+<a name="seekToUs-long-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>seekToUs</h4>
+<pre>public&nbsp;long&nbsp;seekToUs(long&nbsp;positionUs)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#seekToUs-long-">MediaPeriod</a></code></span></div>
+<div class="block">Attempts to seek to the specified position in microseconds.
+
+ <p>After this method has been called, all <a href="../../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>s provided by the period are
+ guaranteed to start from a key frame.
+
+ <p>This method is only called when at least one track is selected.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#seekToUs-long-">seekToUs</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>positionUs</code> - The seek position in microseconds.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The actual position to which the period was seeked, in microseconds.</dd>
+</dl>
+</li>
+</ul>
+<a name="getAdjustedSeekPositionUs-long-com.google.android.exoplayer2.SeekParameters-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getAdjustedSeekPositionUs</h4>
+<pre>public&nbsp;long&nbsp;getAdjustedSeekPositionUs(long&nbsp;positionUs,
+                                      <a href="../../../../../com/google/android/exoplayer2/SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a>&nbsp;seekParameters)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#getAdjustedSeekPositionUs-long-com.google.android.exoplayer2.SeekParameters-">MediaPeriod</a></code></span></div>
+<div class="block">Returns the position to which a seek will be performed, given the specified seek position and
+ <a href="../../../../../com/google/android/exoplayer2/SeekParameters.html" title="class in com.google.android.exoplayer2"><code>SeekParameters</code></a>.
+
+ <p>This method is only called after the period has been prepared.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#getAdjustedSeekPositionUs-long-com.google.android.exoplayer2.SeekParameters-">getAdjustedSeekPositionUs</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>positionUs</code> - The seek position in microseconds.</dd>
+<dd><code>seekParameters</code> - Parameters that control how the seek is performed. Implementations may
+     apply seek parameters on a best effort basis.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The actual position to which a seek will be performed, in microseconds.</dd>
+</dl>
+</li>
+</ul>
+<a name="getNextLoadPositionUs--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getNextLoadPositionUs</h4>
+<pre>public&nbsp;long&nbsp;getNextLoadPositionUs()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#getNextLoadPositionUs--">MediaPeriod</a></code></span></div>
+<div class="block">Returns the next load time, or <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> if loading has finished.
+
+ <p>This method is only called after the period has been prepared. It may be called when no
+ tracks are selected.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#getNextLoadPositionUs--">getNextLoadPositionUs</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html#getNextLoadPositionUs--">getNextLoadPositionUs</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="reevaluateBuffer-long-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>reevaluateBuffer</h4>
+<pre>public&nbsp;void&nbsp;reevaluateBuffer(long&nbsp;positionUs)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#reevaluateBuffer-long-">MediaPeriod</a></code></span></div>
+<div class="block">Re-evaluates the buffer given the playback position.
+
+ <p>This method is only called after the period has been prepared.
+
+ <p>A period may choose to discard buffered media so that it can be re-buffered in a different
+ quality.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#reevaluateBuffer-long-">reevaluateBuffer</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html#reevaluateBuffer-long-">reevaluateBuffer</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>positionUs</code> - The current playback position in microseconds. If playback of this period has
+     not yet started, the value will be the starting position in this period minus the duration
+     of any media in previous periods still to be played.</dd>
+</dl>
+</li>
+</ul>
+<a name="continueLoading-long-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>continueLoading</h4>
+<pre>public&nbsp;boolean&nbsp;continueLoading(long&nbsp;positionUs)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#continueLoading-long-">MediaPeriod</a></code></span></div>
+<div class="block">Attempts to continue loading.
+
+ <p>This method may be called both during and after the period has been prepared.
+
+ <p>A period may call <a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.Callback.html#onContinueLoadingRequested-T-"><code>SequenceableLoader.Callback.onContinueLoadingRequested(SequenceableLoader)</code></a> on the
+ <a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.Callback.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod.Callback</code></a> passed to <a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#prepare-com.google.android.exoplayer2.source.MediaPeriod.Callback-long-"><code>MediaPeriod.prepare(Callback, long)</code></a> to request that this method be
+ called when the period is permitted to continue loading data. A period may do this both during
+ and after preparation.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#continueLoading-long-">continueLoading</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html#continueLoading-long-">continueLoading</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>positionUs</code> - The current playback position in microseconds. If playback of this period has
+     not yet started, the value will be the starting position in this period minus the duration
+     of any media in previous periods still to be played.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>True if progress was made, meaning that <a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#getNextLoadPositionUs--"><code>MediaPeriod.getNextLoadPositionUs()</code></a> will return a
+     different value than prior to the call. False otherwise.</dd>
+</dl>
+</li>
+</ul>
+<a name="isLoading--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isLoading</h4>
+<pre>public&nbsp;boolean&nbsp;isLoading()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#isLoading--">MediaPeriod</a></code></span></div>
+<div class="block">Returns whether the media period is currently loading.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#isLoading--">isLoading</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html#isLoading--">isLoading</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="onContinueLoadingRequested-com.google.android.exoplayer2.source.MediaPeriod-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onContinueLoadingRequested</h4>
+<pre>public&nbsp;void&nbsp;onContinueLoadingRequested(<a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>&nbsp;source)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.Callback.html#onContinueLoadingRequested-T-">SequenceableLoader.Callback</a></code></span></div>
+<div class="block">Called by the loader to indicate that it wishes for its <a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html#continueLoading-long-"><code>SequenceableLoader.continueLoading(long)</code></a> method
+ to be called when it can continue to load data. Called on the playback thread.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.Callback.html#onContinueLoadingRequested-T-">onContinueLoadingRequested</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.Callback.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader.Callback</a>&lt;<a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a name="onPrepared-com.google.android.exoplayer2.source.MediaPeriod-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>onPrepared</h4>
+<pre>public&nbsp;void&nbsp;onPrepared(<a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>&nbsp;mediaPeriod)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.Callback.html#onPrepared-com.google.android.exoplayer2.source.MediaPeriod-">MediaPeriod.Callback</a></code></span></div>
+<div class="block">Called when preparation completes.
+
+ <p>Called on the playback thread. After invoking this method, the <a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a> can
+ expect for <a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#selectTracks-com.google.android.exoplayer2.trackselection.TrackSelection:A-boolean:A-com.google.android.exoplayer2.source.SampleStream:A-boolean:A-long-"><code>MediaPeriod.selectTracks(TrackSelection[], boolean[], SampleStream[], boolean[],
+ long)</code></a> to be called with the initial track selection.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.Callback.html#onPrepared-com.google.android.exoplayer2.source.MediaPeriod-">onPrepared</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.Callback.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod.Callback</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>mediaPeriod</code> - The prepared <a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a>.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- ========= END OF CLASS DATA ========= -->
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a name="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a name="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../../com/google/android/exoplayer2/source/LoopingMediaSource.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.PrepareErrorListener.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../../index.html?com/google/android/exoplayer2/source/MaskingMediaPeriod.html" target="_top">Frames</a></li>
+<li><a href="MaskingMediaPeriod.html" target="_top">No&nbsp;Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a name="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</body>
+</html>

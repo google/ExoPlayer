@@ -114,6 +114,10 @@ var activeTableTab = "activeTableTab";
 <div class="description">
 <ul class="blockList">
 <li class="blockList">
+<dl>
+<dt>Direct Known Subclasses:</dt>
+<dd><a href="../../../../../com/google/android/exoplayer2/testutil/FakeTrackSelector.html" title="class in com.google.android.exoplayer2.testutil">FakeTrackSelector</a></dd>
+</dl>
 <hr>
 <br>
 <pre>public class <span class="typeNameLabel">DefaultTrackSelector</span>
@@ -296,18 +300,37 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Map
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#DefaultTrackSelector--">DefaultTrackSelector</a></span>()</code>&nbsp;</td>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#DefaultTrackSelector--">DefaultTrackSelector</a></span>()</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#DefaultTrackSelector-android.content.Context-"><code>DefaultTrackSelector(Context)</code></a> instead.</span></div>
+</div>
+</td>
 </tr>
 <tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#DefaultTrackSelector-com.google.android.exoplayer2.upstream.BandwidthMeter-">DefaultTrackSelector</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#DefaultTrackSelector--"><code>DefaultTrackSelector()</code></a> instead. Custom bandwidth meter should be
-     directly passed to the player in <a href="../../../../../com/google/android/exoplayer2/ExoPlayerFactory.html" title="class in com.google.android.exoplayer2"><code>ExoPlayerFactory</code></a>.</span></div>
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#DefaultTrackSelector-android.content.Context-"><code>DefaultTrackSelector(Context)</code></a> instead. The bandwidth meter should be
+     passed directly to the player in <a href="../../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a>.</span></div>
 </div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#DefaultTrackSelector-com.google.android.exoplayer2.trackselection.TrackSelection.Factory-">DefaultTrackSelector</a></span>(<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Factory.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection.Factory</a>&nbsp;trackSelectionFactory)</code>&nbsp;</td>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#DefaultTrackSelector-android.content.Context-">DefaultTrackSelector</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#DefaultTrackSelector-android.content.Context-com.google.android.exoplayer2.trackselection.TrackSelection.Factory-">DefaultTrackSelector</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+                    <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Factory.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection.Factory</a>&nbsp;trackSelectionFactory)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#DefaultTrackSelector-com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters-com.google.android.exoplayer2.trackselection.TrackSelection.Factory-">DefaultTrackSelector</a></span>(<a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;parameters,
+                    <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Factory.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection.Factory</a>&nbsp;trackSelectionFactory)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#DefaultTrackSelector-com.google.android.exoplayer2.trackselection.TrackSelection.Factory-">DefaultTrackSelector</a></span>(<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Factory.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection.Factory</a>&nbsp;trackSelectionFactory)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#DefaultTrackSelector-android.content.Context-com.google.android.exoplayer2.trackselection.TrackSelection.Factory-"><code>DefaultTrackSelector(Context, TrackSelection.Factory)</code></a>.</span></div>
+</div>
+</td>
 </tr>
 </table>
 </li>
@@ -379,7 +402,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Map
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#getRendererDisabled-int-">getRendererDisabled</a></span>(int&nbsp;rendererIndex)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#getRendererDisabled-int-"><code>DefaultTrackSelector.Parameters.getRendererDisabled(int)</code></a>. *</span></div>
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#getRendererDisabled-int-"><code>DefaultTrackSelector.Parameters.getRendererDisabled(int)</code></a>.</span></div>
 </div>
 </td>
 </tr>
@@ -397,7 +420,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Map
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#hasSelectionOverride-int-com.google.android.exoplayer2.source.TrackGroupArray-">hasSelectionOverride</a></span>(int&nbsp;rendererIndex,
                     <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;groups)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#hasSelectionOverride-int-com.google.android.exoplayer2.source.TrackGroupArray-"><code>DefaultTrackSelector.Parameters.hasSelectionOverride(int, TrackGroupArray)</code></a>. *</span></div>
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#hasSelectionOverride-int-com.google.android.exoplayer2.source.TrackGroupArray-"><code>DefaultTrackSelector.Parameters.hasSelectionOverride(int, TrackGroupArray)</code></a>.</span></div>
 </div>
 </td>
 </tr>
@@ -405,10 +428,8 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Map
 <td class="colFirst"><code>protected static boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#isSupported-int-boolean-">isSupported</a></span>(int&nbsp;formatSupport,
            boolean&nbsp;allowExceedsCapabilities)</code>
-<div class="block">Applies the <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_SUPPORT_MASK"><code>RendererCapabilities.FORMAT_SUPPORT_MASK</code></a> to a value obtained from
- <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#supportsFormat-com.google.android.exoplayer2.Format-"><code>RendererCapabilities.supportsFormat(Format)</code></a>, returning true if the result is
- <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_HANDLED"><code>RendererCapabilities.FORMAT_HANDLED</code></a> or if <code>allowExceedsCapabilities</code> is set
- and the result is <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_EXCEEDS_CAPABILITIES"><code>RendererCapabilities.FORMAT_EXCEEDS_CAPABILITIES</code></a>.</div>
+<div class="block">Returns true if the <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.FormatSupport</code></a> in the given <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a> is <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_HANDLED"><code>RendererCapabilities.FORMAT_HANDLED</code></a> or if <code>allowExceedsCapabilities</code> is set and the
+ format support is <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_EXCEEDS_CAPABILITIES"><code>RendererCapabilities.FORMAT_EXCEEDS_CAPABILITIES</code></a>.</div>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
@@ -559,7 +580,9 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Map
 <ul class="blockList">
 <li class="blockList">
 <h4>DefaultTrackSelector</h4>
-<pre>public&nbsp;DefaultTrackSelector()</pre>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;DefaultTrackSelector()</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#DefaultTrackSelector-android.content.Context-"><code>DefaultTrackSelector(Context)</code></a> instead.</span></div>
 </li>
 </ul>
 <a name="DefaultTrackSelector-com.google.android.exoplayer2.upstream.BandwidthMeter-">
@@ -570,19 +593,60 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Map
 <h4>DefaultTrackSelector</h4>
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
 public&nbsp;DefaultTrackSelector(<a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#DefaultTrackSelector--"><code>DefaultTrackSelector()</code></a> instead. Custom bandwidth meter should be
-     directly passed to the player in <a href="../../../../../com/google/android/exoplayer2/ExoPlayerFactory.html" title="class in com.google.android.exoplayer2"><code>ExoPlayerFactory</code></a>.</span></div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#DefaultTrackSelector-android.content.Context-"><code>DefaultTrackSelector(Context)</code></a> instead. The bandwidth meter should be
+     passed directly to the player in <a href="../../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a>.</span></div>
 </li>
 </ul>
 <a name="DefaultTrackSelector-com.google.android.exoplayer2.trackselection.TrackSelection.Factory-">
 <!--   -->
 </a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DefaultTrackSelector</h4>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;DefaultTrackSelector(<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Factory.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection.Factory</a>&nbsp;trackSelectionFactory)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#DefaultTrackSelector-android.content.Context-com.google.android.exoplayer2.trackselection.TrackSelection.Factory-"><code>DefaultTrackSelector(Context, TrackSelection.Factory)</code></a>.</span></div>
+</li>
+</ul>
+<a name="DefaultTrackSelector-android.content.Context-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DefaultTrackSelector</h4>
+<pre>public&nbsp;DefaultTrackSelector(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context)</pre>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>context</code> - Any <a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content"><code>Context</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a name="DefaultTrackSelector-android.content.Context-com.google.android.exoplayer2.trackselection.TrackSelection.Factory-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DefaultTrackSelector</h4>
+<pre>public&nbsp;DefaultTrackSelector(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+                            <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Factory.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection.Factory</a>&nbsp;trackSelectionFactory)</pre>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>context</code> - Any <a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content"><code>Context</code></a>.</dd>
+<dd><code>trackSelectionFactory</code> - A factory for <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>TrackSelection</code></a>s.</dd>
+</dl>
+</li>
+</ul>
+<a name="DefaultTrackSelector-com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters-com.google.android.exoplayer2.trackselection.TrackSelection.Factory-">
+<!--   -->
+</a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>DefaultTrackSelector</h4>
-<pre>public&nbsp;DefaultTrackSelector(<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Factory.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection.Factory</a>&nbsp;trackSelectionFactory)</pre>
+<pre>public&nbsp;DefaultTrackSelector(<a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;parameters,
+                            <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Factory.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection.Factory</a>&nbsp;trackSelectionFactory)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>parameters</code> - Initial <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a>.</dd>
 <dd><code>trackSelectionFactory</code> - A factory for <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>TrackSelection</code></a>s.</dd>
 </dl>
 </li>
@@ -667,7 +731,7 @@ public final&nbsp;void&nbsp;setRendererDisabled(int&nbsp;rendererIndex,
 <h4>getRendererDisabled</h4>
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
 public final&nbsp;boolean&nbsp;getRendererDisabled(int&nbsp;rendererIndex)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#getRendererDisabled-int-"><code>DefaultTrackSelector.Parameters.getRendererDisabled(int)</code></a>. *</span></div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#getRendererDisabled-int-"><code>DefaultTrackSelector.Parameters.getRendererDisabled(int)</code></a>.</span></div>
 </li>
 </ul>
 <a name="setSelectionOverride-int-com.google.android.exoplayer2.source.TrackGroupArray-com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride-">
@@ -679,6 +743,7 @@ public final&nbsp;boolean&nbsp;getRendererDisabled(int&nbsp;rendererIndex)</pre>
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
 public final&nbsp;void&nbsp;setSelectionOverride(int&nbsp;rendererIndex,
                                                    <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;groups,
+                                                   @Nullable
                                                    <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.SelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.SelectionOverride</a>&nbsp;override)</pre>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#setSelectionOverride-int-com.google.android.exoplayer2.source.TrackGroupArray-com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride-"><code>setSelectionOverride(int, TrackGroupArray,
      SelectionOverride)</code></a>.</span></div>
@@ -693,7 +758,7 @@ public final&nbsp;void&nbsp;setSelectionOverride(int&nbsp;rendererIndex,
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
 public final&nbsp;boolean&nbsp;hasSelectionOverride(int&nbsp;rendererIndex,
                                                       <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;groups)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#hasSelectionOverride-int-com.google.android.exoplayer2.source.TrackGroupArray-"><code>DefaultTrackSelector.Parameters.hasSelectionOverride(int, TrackGroupArray)</code></a>. *</span></div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#hasSelectionOverride-int-com.google.android.exoplayer2.source.TrackGroupArray-"><code>DefaultTrackSelector.Parameters.hasSelectionOverride(int, TrackGroupArray)</code></a>.</span></div>
 </li>
 </ul>
 <a name="getSelectionOverride-int-com.google.android.exoplayer2.source.TrackGroupArray-">
@@ -773,7 +838,9 @@ public&nbsp;void&nbsp;setTunnelingAudioSessionId(int&nbsp;tunnelingAudioSessionI
 <li class="blockList">
 <h4>selectTracks</h4>
 <pre>protected final&nbsp;<a href="https://developer.android.com/reference/android/util/Pair.html" target="_top" title="class or interface in android.util">Pair</a>&lt;<a href="../../../../../com/google/android/exoplayer2/RendererConfiguration.html" title="class in com.google.android.exoplayer2">RendererConfiguration</a>[],<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a>[]&gt;&nbsp;selectTracks(<a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html" title="class in com.google.android.exoplayer2.trackselection">MappingTrackSelector.MappedTrackInfo</a>&nbsp;mappedTrackInfo,
+                                                                            <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2">@RendererCapabilities.Capabilities</a>
                                                                             int[][][]&nbsp;rendererFormatSupports,
+                                                                            <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2">@RendererCapabilities.AdaptiveSupport</a>
                                                                             int[]&nbsp;rendererMixedMimeTypeAdaptationSupports)
                                                                      throws <a href="../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.html#selectTracks-com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo-int:A:A:A-int:A-">MappingTrackSelector</a></code></span></div>
@@ -783,9 +850,10 @@ public&nbsp;void&nbsp;setTunnelingAudioSessionId(int&nbsp;tunnelingAudioSessionI
 <dd><code><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.html#selectTracks-com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo-int:A:A:A-int:A-">selectTracks</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">MappingTrackSelector</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mappedTrackInfo</code> - Mapped track information.</dd>
-<dd><code>rendererFormatSupports</code> - The result of <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#supportsFormat-com.google.android.exoplayer2.Format-"><code>RendererCapabilities.supportsFormat(com.google.android.exoplayer2.Format)</code></a> for
-     each mapped track, indexed by renderer, track group and track (in that order).</dd>
-<dd><code>rendererMixedMimeTypeAdaptationSupports</code> - The result of <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#supportsMixedMimeTypeAdaptation--"><code>RendererCapabilities.supportsMixedMimeTypeAdaptation()</code></a> for each renderer.</dd>
+<dd><code>rendererFormatSupports</code> - The <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a> for ach mapped track, indexed by
+     renderer, track group and track (in that order).</dd>
+<dd><code>rendererMixedMimeTypeAdaptationSupports</code> - The <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.AdaptiveSupport</code></a> for mixed MIME type
+     adaptation for the renderer.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>A pair consisting of the track selections and configurations for each renderer. A null
      configuration indicates the renderer should be disabled, in which case the track selection
@@ -802,7 +870,9 @@ public&nbsp;void&nbsp;setTunnelingAudioSessionId(int&nbsp;tunnelingAudioSessionI
 <li class="blockList">
 <h4>selectAllTracks</h4>
 <pre>protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelection.Definition</a>[]&nbsp;selectAllTracks(<a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html" title="class in com.google.android.exoplayer2.trackselection">MappingTrackSelector.MappedTrackInfo</a>&nbsp;mappedTrackInfo,
+                                                      <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2">@RendererCapabilities.Capabilities</a>
                                                       int[][][]&nbsp;rendererFormatSupports,
+                                                      <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2">@RendererCapabilities.AdaptiveSupport</a>
                                                       int[]&nbsp;rendererMixedMimeTypeAdaptationSupports,
                                                       <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;params)
                                                throws <a href="../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
@@ -814,9 +884,10 @@ public&nbsp;void&nbsp;setTunnelingAudioSessionId(int&nbsp;tunnelingAudioSessionI
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mappedTrackInfo</code> - Mapped track information.</dd>
-<dd><code>rendererFormatSupports</code> - The result of <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#supportsFormat-com.google.android.exoplayer2.Format-"><code>RendererCapabilities.supportsFormat(com.google.android.exoplayer2.Format)</code></a> for
-     each mapped track, indexed by renderer, track group and track (in that order).</dd>
-<dd><code>rendererMixedMimeTypeAdaptationSupports</code> - The result of <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#supportsMixedMimeTypeAdaptation--"><code>RendererCapabilities.supportsMixedMimeTypeAdaptation()</code></a> for each renderer.</dd>
+<dd><code>rendererFormatSupports</code> - The <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a> for each mapped track, indexed by
+     renderer, track group and track (in that order).</dd>
+<dd><code>rendererMixedMimeTypeAdaptationSupports</code> - The <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.AdaptiveSupport</code></a> for mixed MIME type
+     adaptation for the renderer.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelection.Definition</code></a>s for the renderers. A null entry indicates no
      selection was made.</dd>
@@ -833,7 +904,9 @@ public&nbsp;void&nbsp;setTunnelingAudioSessionId(int&nbsp;tunnelingAudioSessionI
 <h4>selectVideoTrack</h4>
 <pre>@Nullable
 protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelection.Definition</a>&nbsp;selectVideoTrack(<a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;groups,
+                                                               <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2">@RendererCapabilities.Capabilities</a>
                                                                int[][]&nbsp;formatSupports,
+                                                               <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2">@RendererCapabilities.AdaptiveSupport</a>
                                                                int&nbsp;mixedMimeTypeAdaptationSupports,
                                                                <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;params,
                                                                boolean&nbsp;enableAdaptiveTrackSelection)
@@ -843,9 +916,10 @@ protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselect
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>groups</code> - The <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroupArray</code></a> mapped to the renderer.</dd>
-<dd><code>formatSupports</code> - The result of <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#supportsFormat-com.google.android.exoplayer2.Format-"><code>RendererCapabilities.supportsFormat(com.google.android.exoplayer2.Format)</code></a> for each mapped
-     track, indexed by track group index and track index (in that order).</dd>
-<dd><code>mixedMimeTypeAdaptationSupports</code> - The result of <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#supportsMixedMimeTypeAdaptation--"><code>RendererCapabilities.supportsMixedMimeTypeAdaptation()</code></a> for the renderer.</dd>
+<dd><code>formatSupports</code> - The <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a> for each mapped track, indexed by renderer,
+     track group and track (in that order).</dd>
+<dd><code>mixedMimeTypeAdaptationSupports</code> - The <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.AdaptiveSupport</code></a> for mixed MIME type
+     adaptation for the renderer.</dd>
 <dd><code>params</code> - The selector's current constraint parameters.</dd>
 <dd><code>enableAdaptiveTrackSelection</code> - Whether adaptive track selection is allowed.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -864,7 +938,9 @@ protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselect
 <h4>selectAudioTrack</h4>
 <pre>@Nullable
 protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pair.html" target="_top" title="class or interface in android.util">Pair</a>&lt;<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelection.Definition</a>,<a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.AudioTrackScore.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.AudioTrackScore</a>&gt;&nbsp;selectAudioTrack(<a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;groups,
+                                                                                                          <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2">@RendererCapabilities.Capabilities</a>
                                                                                                           int[][]&nbsp;formatSupports,
+                                                                                                          <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2">@RendererCapabilities.AdaptiveSupport</a>
                                                                                                           int&nbsp;mixedMimeTypeAdaptationSupports,
                                                                                                           <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;params,
                                                                                                           boolean&nbsp;enableAdaptiveTrackSelection)
@@ -874,9 +950,10 @@ protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pai
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>groups</code> - The <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroupArray</code></a> mapped to the renderer.</dd>
-<dd><code>formatSupports</code> - The result of <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#supportsFormat-com.google.android.exoplayer2.Format-"><code>RendererCapabilities.supportsFormat(com.google.android.exoplayer2.Format)</code></a> for each mapped
-     track, indexed by track group index and track index (in that order).</dd>
-<dd><code>mixedMimeTypeAdaptationSupports</code> - The result of <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#supportsMixedMimeTypeAdaptation--"><code>RendererCapabilities.supportsMixedMimeTypeAdaptation()</code></a> for the renderer.</dd>
+<dd><code>formatSupports</code> - The <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a> for each mapped track, indexed by renderer,
+     track group and track (in that order).</dd>
+<dd><code>mixedMimeTypeAdaptationSupports</code> - The <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.AdaptiveSupport</code></a> for mixed MIME type
+     adaptation for the renderer.</dd>
 <dd><code>params</code> - The selector's current constraint parameters.</dd>
 <dd><code>enableAdaptiveTrackSelection</code> - Whether adaptive track selection is allowed.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -895,6 +972,7 @@ protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pai
 <h4>selectTextTrack</h4>
 <pre>@Nullable
 protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pair.html" target="_top" title="class or interface in android.util">Pair</a>&lt;<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelection.Definition</a>,<a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.TextTrackScore.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.TextTrackScore</a>&gt;&nbsp;selectTextTrack(<a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;groups,
+                                                                                                        <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2">@RendererCapabilities.Capabilities</a>
                                                                                                         int[][]&nbsp;formatSupport,
                                                                                                         <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;params,
                                                                                                         @Nullable
@@ -905,8 +983,8 @@ protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pai
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>groups</code> - The <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroupArray</code></a> mapped to the renderer.</dd>
-<dd><code>formatSupport</code> - The result of <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#supportsFormat-com.google.android.exoplayer2.Format-"><code>RendererCapabilities.supportsFormat(com.google.android.exoplayer2.Format)</code></a> for each mapped
-     track, indexed by track group index and track index (in that order).</dd>
+<dd><code>formatSupport</code> - The <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a> for each mapped track, indexed by renderer, track
+     group and track (in that order).</dd>
 <dd><code>params</code> - The selector's current constraint parameters.</dd>
 <dd><code>selectedAudioLanguage</code> - The language of the selected audio track. May be null if the
      selected text track declares no language or no text track was selected.</dd>
@@ -927,6 +1005,7 @@ protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pai
 <pre>@Nullable
 protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelection.Definition</a>&nbsp;selectOtherTrack(int&nbsp;trackType,
                                                                <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;groups,
+                                                               <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2">@RendererCapabilities.Capabilities</a>
                                                                int[][]&nbsp;formatSupport,
                                                                <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;params)
                                                         throws <a href="../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
@@ -936,8 +1015,8 @@ protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselect
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>trackType</code> - The type of the renderer.</dd>
 <dd><code>groups</code> - The <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroupArray</code></a> mapped to the renderer.</dd>
-<dd><code>formatSupport</code> - The result of <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#supportsFormat-com.google.android.exoplayer2.Format-"><code>RendererCapabilities.supportsFormat(com.google.android.exoplayer2.Format)</code></a> for each mapped
-     track, indexed by track group index and track index (in that order).</dd>
+<dd><code>formatSupport</code> - The <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a> for each mapped track, indexed by renderer, track
+     group and track (in that order).</dd>
 <dd><code>params</code> - The selector's current constraint parameters.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>TrackSelection</code></a> for the renderer, or null if no selection was made.</dd>
@@ -952,21 +1031,18 @@ protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselect
 <ul class="blockList">
 <li class="blockList">
 <h4>isSupported</h4>
-<pre>protected static&nbsp;boolean&nbsp;isSupported(int&nbsp;formatSupport,
+<pre>protected static&nbsp;boolean&nbsp;isSupported(<a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2">@RendererCapabilities.Capabilities</a>
+                                     int&nbsp;formatSupport,
                                      boolean&nbsp;allowExceedsCapabilities)</pre>
-<div class="block">Applies the <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_SUPPORT_MASK"><code>RendererCapabilities.FORMAT_SUPPORT_MASK</code></a> to a value obtained from
- <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#supportsFormat-com.google.android.exoplayer2.Format-"><code>RendererCapabilities.supportsFormat(Format)</code></a>, returning true if the result is
- <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_HANDLED"><code>RendererCapabilities.FORMAT_HANDLED</code></a> or if <code>allowExceedsCapabilities</code> is set
- and the result is <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_EXCEEDS_CAPABILITIES"><code>RendererCapabilities.FORMAT_EXCEEDS_CAPABILITIES</code></a>.</div>
+<div class="block">Returns true if the <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.FormatSupport</code></a> in the given <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a> is <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_HANDLED"><code>RendererCapabilities.FORMAT_HANDLED</code></a> or if <code>allowExceedsCapabilities</code> is set and the
+ format support is <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_EXCEEDS_CAPABILITIES"><code>RendererCapabilities.FORMAT_EXCEEDS_CAPABILITIES</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>formatSupport</code> - A value obtained from <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#supportsFormat-com.google.android.exoplayer2.Format-"><code>RendererCapabilities.supportsFormat(Format)</code></a>.</dd>
-<dd><code>allowExceedsCapabilities</code> - Whether to return true if the format support component of the
-     value is <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_EXCEEDS_CAPABILITIES"><code>RendererCapabilities.FORMAT_EXCEEDS_CAPABILITIES</code></a>.</dd>
+<dd><code>formatSupport</code> - <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a>.</dd>
+<dd><code>allowExceedsCapabilities</code> - Whether to return true if <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.FormatSupport</code></a> is <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_EXCEEDS_CAPABILITIES"><code>RendererCapabilities.FORMAT_EXCEEDS_CAPABILITIES</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>True if the format support component is <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_HANDLED"><code>RendererCapabilities.FORMAT_HANDLED</code></a>, or
-     if <code>allowExceedsCapabilities</code> is set and the format support component is
-     <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_EXCEEDS_CAPABILITIES"><code>RendererCapabilities.FORMAT_EXCEEDS_CAPABILITIES</code></a>.</dd>
+<dd>True if <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.FormatSupport</code></a> is <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_HANDLED"><code>RendererCapabilities.FORMAT_HANDLED</code></a>, or if
+     <code>allowExceedsCapabilities</code> is set and the format support is <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_EXCEEDS_CAPABILITIES"><code>RendererCapabilities.FORMAT_EXCEEDS_CAPABILITIES</code></a>.</dd>
 </dl>
 </li>
 </ul>

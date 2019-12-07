@@ -327,19 +327,22 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>cache</h4>
-<pre>public static&nbsp;void&nbsp;cache(<a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
-                         <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
-                         @Nullable
-                         <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheKeyFactory</a>&nbsp;cacheKeyFactory,
-                         <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;upstream,
-                         @Nullable
-                         <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheUtil.ProgressListener.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheUtil.ProgressListener</a>&nbsp;progressListener,
-                         @Nullable
-                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/concurrent/atomic/AtomicBoolean.html" target="_top" title="class or interface in java.util.concurrent.atomic">AtomicBoolean</a>&nbsp;isCanceled)
-                  throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>,
-                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></pre>
+<pre>@WorkerThread
+public static&nbsp;void&nbsp;cache(<a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+                                       <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
+                                       @Nullable
+                                       <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheKeyFactory</a>&nbsp;cacheKeyFactory,
+                                       <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;upstream,
+                                       @Nullable
+                                       <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheUtil.ProgressListener.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheUtil.ProgressListener</a>&nbsp;progressListener,
+                                       @Nullable
+                                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/concurrent/atomic/AtomicBoolean.html" target="_top" title="class or interface in java.util.concurrent.atomic">AtomicBoolean</a>&nbsp;isCanceled)
+                                throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>,
+                                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></pre>
 <div class="block">Caches the data defined by <code>dataSpec</code>, skipping already cached data. Caching stops early
- if the end of the input is reached.</div>
+ if the end of the input is reached.
+
+ <p>This method may be slow and shouldn't normally be called on the main thread.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>dataSpec</code> - Defines the data to be cached.</dd>
@@ -360,28 +363,32 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>cache</h4>
-<pre>public static&nbsp;void&nbsp;cache(<a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
-                         <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
-                         @Nullable
-                         <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheKeyFactory</a>&nbsp;cacheKeyFactory,
-                         <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource</a>&nbsp;dataSource,
-                         byte[]&nbsp;buffer,
-                         <a href="../../../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util">PriorityTaskManager</a>&nbsp;priorityTaskManager,
-                         int&nbsp;priority,
-                         @Nullable
-                         <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheUtil.ProgressListener.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheUtil.ProgressListener</a>&nbsp;progressListener,
-                         @Nullable
-                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/concurrent/atomic/AtomicBoolean.html" target="_top" title="class or interface in java.util.concurrent.atomic">AtomicBoolean</a>&nbsp;isCanceled,
-                         boolean&nbsp;enableEOFException)
-                  throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>,
-                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></pre>
+<pre>@WorkerThread
+public static&nbsp;void&nbsp;cache(<a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+                                       <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
+                                       @Nullable
+                                       <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheKeyFactory</a>&nbsp;cacheKeyFactory,
+                                       <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource</a>&nbsp;dataSource,
+                                       byte[]&nbsp;buffer,
+                                       @Nullable
+                                       <a href="../../../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util">PriorityTaskManager</a>&nbsp;priorityTaskManager,
+                                       int&nbsp;priority,
+                                       @Nullable
+                                       <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheUtil.ProgressListener.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheUtil.ProgressListener</a>&nbsp;progressListener,
+                                       @Nullable
+                                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/concurrent/atomic/AtomicBoolean.html" target="_top" title="class or interface in java.util.concurrent.atomic">AtomicBoolean</a>&nbsp;isCanceled,
+                                       boolean&nbsp;enableEOFException)
+                                throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>,
+                                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></pre>
 <div class="block">Caches the data defined by <code>dataSpec</code> while skipping already cached data. Caching stops
  early if end of input is reached and <code>enableEOFException</code> is false.
 
  <p>If a <a href="../../../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util"><code>PriorityTaskManager</code></a> is given, it's used to pause and resume caching depending
  on <code>priority</code> and the priority of other tasks registered to the PriorityTaskManager.
  Please note that it's the responsibility of the calling code to call <a href="../../../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html#add-int-"><code>PriorityTaskManager.add(int)</code></a> to register with the manager before calling this method, and to call
- <a href="../../../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html#remove-int-"><code>PriorityTaskManager.remove(int)</code></a> afterwards to unregister.</div>
+ <a href="../../../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html#remove-int-"><code>PriorityTaskManager.remove(int)</code></a> afterwards to unregister.
+
+ <p>This method may be slow and shouldn't normally be called on the main thread.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>dataSpec</code> - Defines the data to be cached.</dd>
@@ -408,11 +415,14 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>remove</h4>
-<pre>public static&nbsp;void&nbsp;remove(<a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
-                          <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
-                          @Nullable
-                          <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheKeyFactory</a>&nbsp;cacheKeyFactory)</pre>
-<div class="block">Removes all of the data specified by the <code>dataSpec</code>.</div>
+<pre>@WorkerThread
+public static&nbsp;void&nbsp;remove(<a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+                                        <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
+                                        @Nullable
+                                        <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheKeyFactory</a>&nbsp;cacheKeyFactory)</pre>
+<div class="block">Removes all of the data specified by the <code>dataSpec</code>.
+
+ <p>This methods blocks until the operation is complete.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>dataSpec</code> - Defines the data to be removed.</dd>
@@ -427,9 +437,12 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockListLast">
 <li class="blockList">
 <h4>remove</h4>
-<pre>public static&nbsp;void&nbsp;remove(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
-                          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key)</pre>
-<div class="block">Removes all of the data specified by the <code>key</code>.</div>
+<pre>@WorkerThread
+public static&nbsp;void&nbsp;remove(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
+                                        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key)</pre>
+<div class="block">Removes all of the data specified by the <code>key</code>.
+
+ <p>This methods blocks until the operation is complete.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>cache</code> - A <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>Cache</code></a> to store the data.</dd>

@@ -40,7 +40,7 @@
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.html" title="class in com.google.android.exoplayer2.mediacodec"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.DecoderException.html" title="class in com.google.android.exoplayer2.mediacodec"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.KeepCodecResult.html" title="annotation in com.google.android.exoplayer2.mediacodec"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -144,9 +144,9 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <th class="colLast" scope="col">Field and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.DecoderInitializationException.html#decoderName">decoderName</a></span></code>
-<div class="block">The name of the decoder that failed to initialize.</div>
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.DecoderInitializationException.html#codecInfo">codecInfo</a></span></code>
+<div class="block">The <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec"><code>MediaCodecInfo</code></a> of the decoder that failed to initialize.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -195,10 +195,10 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
                               int&nbsp;errorCode)</code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.DecoderInitializationException.html#DecoderInitializationException-com.google.android.exoplayer2.Format-java.lang.Throwable-boolean-java.lang.String-">DecoderInitializationException</a></span>(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.DecoderInitializationException.html#DecoderInitializationException-com.google.android.exoplayer2.Format-java.lang.Throwable-boolean-com.google.android.exoplayer2.mediacodec.MediaCodecInfo-">DecoderInitializationException</a></span>(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                               <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Throwable.html" target="_top" title="class or interface in java.lang">Throwable</a>&nbsp;cause,
                               boolean&nbsp;secureDecoderRequired,
-                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;decoderName)</code>&nbsp;</td>
+                              <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&nbsp;mediaCodecInfo)</code>&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -257,14 +257,16 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <div class="block">Whether it was required that the decoder support a secure output path.</div>
 </li>
 </ul>
-<a name="decoderName">
+<a name="codecInfo">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>decoderName</h4>
-<pre>public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> decoderName</pre>
-<div class="block">The name of the decoder that failed to initialize. Null if no suitable decoder was found.</div>
+<h4>codecInfo</h4>
+<pre>@Nullable
+public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a> codecInfo</pre>
+<div class="block">The <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec"><code>MediaCodecInfo</code></a> of the decoder that failed to initialize. Null if no suitable
+ decoder was found.</div>
 </li>
 </ul>
 <a name="diagnosticInfo">
@@ -273,7 +275,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>diagnosticInfo</h4>
-<pre>public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> diagnosticInfo</pre>
+<pre>@Nullable
+public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> diagnosticInfo</pre>
 <div class="block">An optional developer-readable diagnostic information string. May be null.</div>
 </li>
 </ul>
@@ -310,7 +313,7 @@ public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/mediacod
                                       int&nbsp;errorCode)</pre>
 </li>
 </ul>
-<a name="DecoderInitializationException-com.google.android.exoplayer2.Format-java.lang.Throwable-boolean-java.lang.String-">
+<a name="DecoderInitializationException-com.google.android.exoplayer2.Format-java.lang.Throwable-boolean-com.google.android.exoplayer2.mediacodec.MediaCodecInfo-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -319,7 +322,7 @@ public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/mediacod
 <pre>public&nbsp;DecoderInitializationException(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Throwable.html" target="_top" title="class or interface in java.lang">Throwable</a>&nbsp;cause,
                                       boolean&nbsp;secureDecoderRequired,
-                                      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;decoderName)</pre>
+                                      <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&nbsp;mediaCodecInfo)</pre>
 </li>
 </ul>
 </li>
@@ -349,7 +352,7 @@ public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/mediacod
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.html" title="class in com.google.android.exoplayer2.mediacodec"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.DecoderException.html" title="class in com.google.android.exoplayer2.mediacodec"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.KeepCodecResult.html" title="annotation in com.google.android.exoplayer2.mediacodec"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">

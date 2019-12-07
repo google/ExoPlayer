@@ -112,14 +112,14 @@ var activeTableTab = "activeTableTab";
 <br>
 <pre>public static final class <span class="typeNameLabel">Timeline.Window</span>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></pre>
-<div class="block">Holds information about a window in a <a href="../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a>. A window defines a region of media
- currently available for playback along with additional information such as whether seeking is
- supported within the window. The figure below shows some of the information defined by a
- window, as well as how this information relates to corresponding <a href="../../../../com/google/android/exoplayer2/Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a>s in the
- timeline.
- <p align="center">
-   <img src="doc-files/timeline-window.svg" alt="Information defined by a timeline window">
- </p></div>
+<div class="block">Holds information about a window in a <a href="../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a>. A window usually corresponds to one
+ playlist item and defines a region of media currently available for playback along with
+ additional information such as whether seeking is supported within the window. The figure below
+ shows some of the information defined by a window, as well as how this information relates to
+ corresponding <a href="../../../../com/google/android/exoplayer2/Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Periods</code></a> in the timeline.
+
+ <p align="center"><img src="doc-files/timeline-window.svg" alt="Information defined by a
+ timeline window"></div>
 </li>
 </ul>
 </div>
@@ -165,14 +165,26 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#isLive">isLive</a></span></code>
+<div class="block">Whether the media in this window is live.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#isSeekable">isSeekable</a></span></code>
 <div class="block">Whether it's possible to seek within this window.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#lastPeriodIndex">lastPeriodIndex</a></span></code>
 <div class="block">The index of the last period that belongs to this window.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#manifest">manifest</a></span></code>
+<div class="block">The manifest of the window.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -190,9 +202,21 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#SINGLE_WINDOW_UID">SINGLE_WINDOW_UID</a></span></code>
+<div class="block">A <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#uid"><code>uid</code></a> for a window that must be used for single-window <a href="../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timelines</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#tag">tag</a></span></code>
 <div class="block">A tag for the window.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#uid">uid</a></span></code>
+<div class="block">A unique identifier for the window.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -217,7 +241,9 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#Window--">Window</a></span>()</code>&nbsp;</td>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#Window--">Window</a></span>()</code>
+<div class="block">Creates window.</div>
+</td>
 </tr>
 </table>
 </li>
@@ -276,11 +302,14 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#set-java.lang.Object-long-long-boolean-boolean-long-long-int-int-long-">set</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;tag,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#set-java.lang.Object-java.lang.Object-java.lang.Object-long-long-boolean-boolean-boolean-long-long-int-int-long-">set</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;uid,
+   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;tag,
+   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;manifest,
    long&nbsp;presentationStartTimeMs,
    long&nbsp;windowStartTimeMs,
    boolean&nbsp;isSeekable,
    boolean&nbsp;isDynamic,
+   boolean&nbsp;isLive,
    long&nbsp;defaultPositionUs,
    long&nbsp;durationUs,
    int&nbsp;firstPeriodIndex,
@@ -311,6 +340,26 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <!--   -->
 </a>
 <h3>Field Detail</h3>
+<a name="SINGLE_WINDOW_UID">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>SINGLE_WINDOW_UID</h4>
+<pre>public static final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a> SINGLE_WINDOW_UID</pre>
+<div class="block">A <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#uid"><code>uid</code></a> for a window that must be used for single-window <a href="../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timelines</code></a>.</div>
+</li>
+</ul>
+<a name="uid">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>uid</h4>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a> uid</pre>
+<div class="block">A unique identifier for the window. Single-window <a href="../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timelines</code></a> must use <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#SINGLE_WINDOW_UID"><code>SINGLE_WINDOW_UID</code></a>.</div>
+</li>
+</ul>
 <a name="tag">
 <!--   -->
 </a>
@@ -320,6 +369,17 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <pre>@Nullable
 public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a> tag</pre>
 <div class="block">A tag for the window. Not necessarily unique.</div>
+</li>
+</ul>
+<a name="manifest">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>manifest</h4>
+<pre>@Nullable
+public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a> manifest</pre>
+<div class="block">The manifest of the window. May be <code>null</code>.</div>
 </li>
 </ul>
 <a name="presentationStartTimeMs">
@@ -362,6 +422,18 @@ public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/l
 <h4>isDynamic</h4>
 <pre>public&nbsp;boolean isDynamic</pre>
 <div class="block">Whether this window may change when the timeline is updated.</div>
+</li>
+</ul>
+<a name="isLive">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isLive</h4>
+<pre>public&nbsp;boolean isLive</pre>
+<div class="block">Whether the media in this window is live. For informational purposes only.
+
+ <p>Check <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#isDynamic"><code>isDynamic</code></a> to know whether this window may still change.</div>
 </li>
 </ul>
 <a name="firstPeriodIndex">
@@ -433,6 +505,7 @@ public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/l
 <li class="blockList">
 <h4>Window</h4>
 <pre>public&nbsp;Window()</pre>
+<div class="block">Creates window.</div>
 </li>
 </ul>
 </li>
@@ -443,18 +516,22 @@ public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/l
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="set-java.lang.Object-long-long-boolean-boolean-long-long-int-int-long-">
+<a name="set-java.lang.Object-java.lang.Object-java.lang.Object-long-long-boolean-boolean-boolean-long-long-int-int-long-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>set</h4>
-<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;set(@Nullable
+<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;set(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;uid,
+                           @Nullable
                            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;tag,
+                           @Nullable
+                           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;manifest,
                            long&nbsp;presentationStartTimeMs,
                            long&nbsp;windowStartTimeMs,
                            boolean&nbsp;isSeekable,
                            boolean&nbsp;isDynamic,
+                           boolean&nbsp;isLive,
                            long&nbsp;defaultPositionUs,
                            long&nbsp;durationUs,
                            int&nbsp;firstPeriodIndex,

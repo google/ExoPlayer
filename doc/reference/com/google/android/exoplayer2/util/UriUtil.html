@@ -176,7 +176,9 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>resolveToUri</h4>
-<pre>public static&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;resolveToUri(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;baseUri,
+<pre>public static&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;resolveToUri(@Nullable
+                               <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;baseUri,
+                               @Nullable
                                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;referenceUri)</pre>
 <div class="block">Like <a href="../../../../../com/google/android/exoplayer2/util/UriUtil.html#resolve-java.lang.String-java.lang.String-"><code>resolve(String, String)</code></a>, but returns a <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a> instead of a <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang"><code>String</code></a>.</div>
 <dl>
@@ -192,11 +194,13 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>resolve</h4>
-<pre>public static&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;resolve(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;baseUri,
+<pre>public static&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;resolve(@Nullable
+                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;baseUri,
+                             @Nullable
                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;referenceUri)</pre>
 <div class="block">Performs relative resolution of a <code>referenceUri</code> with respect to a <code>baseUri</code>.
- <p>
- The resolution is performed as specified by RFC-3986.</div>
+
+ <p>The resolution is performed as specified by RFC-3986.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>baseUri</code> - The base URI.</dd>

@@ -195,7 +195,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <tr class="rowColor">
 <td class="colFirst"><code>static float</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#DIMEN_UNSET">DIMEN_UNSET</a></span></code>
-<div class="block">An unset position or width.</div>
+<div class="block">An unset position, width or size.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -435,7 +435,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>DIMEN_UNSET</h4>
 <pre>public static final&nbsp;float DIMEN_UNSET</pre>
-<div class="block">An unset position or width.</div>
+<div class="block">An unset position, width or size.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.text.Cue.DIMEN_UNSET">Constant Field Values</a></dd>
@@ -576,7 +576,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>text</h4>
-<pre>public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/CharSequence.html" target="_top" title="class or interface in java.lang">CharSequence</a> text</pre>
+<pre>@Nullable
+public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/CharSequence.html" target="_top" title="class or interface in java.lang">CharSequence</a> text</pre>
 <div class="block">The cue text, or null if this is an image cue. Note the <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/CharSequence.html" target="_top" title="class or interface in java.lang"><code>CharSequence</code></a> may be decorated
  with styling spans.</div>
 </li>
@@ -587,7 +588,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>textAlignment</h4>
-<pre>public final&nbsp;<a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" target="_top" title="class or interface in android.text">Layout.Alignment</a> textAlignment</pre>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" target="_top" title="class or interface in android.text">Layout.Alignment</a> textAlignment</pre>
 <div class="block">The alignment of the cue text within the cue box, or null if the alignment is undefined.</div>
 </li>
 </ul>
@@ -597,7 +599,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>bitmap</h4>
-<pre>public final&nbsp;<a href="https://developer.android.com/reference/android/graphics/Bitmap.html" target="_top" title="class or interface in android.graphics">Bitmap</a> bitmap</pre>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/android/graphics/Bitmap.html" target="_top" title="class or interface in android.graphics">Bitmap</a> bitmap</pre>
 <div class="block">The cue image, or null if this is a text cue.</div>
 </li>
 </ul>
@@ -819,6 +822,7 @@ public final&nbsp;int textSizeType</pre>
 <li class="blockList">
 <h4>Cue</h4>
 <pre>public&nbsp;Cue(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/CharSequence.html" target="_top" title="class or interface in java.lang">CharSequence</a>&nbsp;text,
+           @Nullable
            <a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" target="_top" title="class or interface in android.text">Layout.Alignment</a>&nbsp;textAlignment,
            float&nbsp;line,
            <a href="../../../../../com/google/android/exoplayer2/text/Cue.LineType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.LineType</a>
@@ -850,6 +854,7 @@ public final&nbsp;int textSizeType</pre>
 <li class="blockList">
 <h4>Cue</h4>
 <pre>public&nbsp;Cue(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/CharSequence.html" target="_top" title="class or interface in java.lang">CharSequence</a>&nbsp;text,
+           @Nullable
            <a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" target="_top" title="class or interface in android.text">Layout.Alignment</a>&nbsp;textAlignment,
            float&nbsp;line,
            <a href="../../../../../com/google/android/exoplayer2/text/Cue.LineType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.LineType</a>
@@ -886,6 +891,7 @@ public final&nbsp;int textSizeType</pre>
 <li class="blockList">
 <h4>Cue</h4>
 <pre>public&nbsp;Cue(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/CharSequence.html" target="_top" title="class or interface in java.lang">CharSequence</a>&nbsp;text,
+           @Nullable
            <a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" target="_top" title="class or interface in android.text">Layout.Alignment</a>&nbsp;textAlignment,
            float&nbsp;line,
            <a href="../../../../../com/google/android/exoplayer2/text/Cue.LineType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.LineType</a>

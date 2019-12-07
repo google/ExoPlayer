@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":18,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6};
+var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":18,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -46,7 +46,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/source/LoopingMediaSource.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaSource.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.Callback.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -102,7 +102,7 @@ var activeTableTab = "activeTableTab";
 </dl>
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/source/ClippingMediaPeriod.html" title="class in com.google.android.exoplayer2.source">ClippingMediaPeriod</a>, <a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.html" title="class in com.google.android.exoplayer2.source">DeferredMediaPeriod</a>, <a href="../../../../../com/google/android/exoplayer2/source/hls/HlsMediaPeriod.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaPeriod</a></dd>
+<dd><a href="../../../../../com/google/android/exoplayer2/source/ClippingMediaPeriod.html" title="class in com.google.android.exoplayer2.source">ClippingMediaPeriod</a>, <a href="../../../../../com/google/android/exoplayer2/testutil/FakeAdaptiveMediaPeriod.html" title="class in com.google.android.exoplayer2.testutil">FakeAdaptiveMediaPeriod</a>, <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaPeriod.html" title="class in com.google.android.exoplayer2.testutil">FakeMediaPeriod</a>, <a href="../../../../../com/google/android/exoplayer2/source/hls/HlsMediaPeriod.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaPeriod</a>, <a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html" title="class in com.google.android.exoplayer2.source">MaskingMediaPeriod</a></dd>
 </dl>
 <hr>
 <br>
@@ -197,37 +197,43 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/Sequenceabl
 </td>
 </tr>
 <tr id="i7" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#isLoading--">isLoading</a></span>()</code>
+<div class="block">Returns whether the media period is currently loading.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#maybeThrowPrepareError--">maybeThrowPrepareError</a></span>()</code>
 <div class="block">Throws an error that's preventing the period from becoming prepared.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#prepare-com.google.android.exoplayer2.source.MediaPeriod.Callback-long-">prepare</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.Callback.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod.Callback</a>&nbsp;callback,
        long&nbsp;positionUs)</code>
 <div class="block">Prepares this media period asynchronously.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#readDiscontinuity--">readDiscontinuity</a></span>()</code>
 <div class="block">Attempts to read a discontinuity.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#reevaluateBuffer-long-">reevaluateBuffer</a></span>(long&nbsp;positionUs)</code>
 <div class="block">Re-evaluates the buffer given the playback position.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#seekToUs-long-">seekToUs</a></span>(long&nbsp;positionUs)</code>
 <div class="block">Attempts to seek to the specified position in microseconds.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#selectTracks-com.google.android.exoplayer2.trackselection.TrackSelection:A-boolean:A-com.google.android.exoplayer2.source.SampleStream:A-boolean:A-long-">selectTracks</a></span>(@NullableType <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a>[]&nbsp;selections,
             boolean[]&nbsp;mayRetainStreamFlags,
@@ -266,8 +272,8 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/Sequenceabl
  <a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#maybeThrowPrepareError--"><code>maybeThrowPrepareError()</code></a> will throw an <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io"><code>IOException</code></a>.
 
  <p>If preparation succeeds and results in a source timeline change (e.g. the period duration
- becoming known), <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.SourceInfoRefreshListener.html#onSourceInfoRefreshed-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.Timeline-java.lang.Object-"><code>MediaSource.SourceInfoRefreshListener.onSourceInfoRefreshed(MediaSource, Timeline, Object)</code></a>
- will be called before <code>callback.onPrepared</code>.</div>
+ becoming known), <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaSourceCaller.html#onSourceInfoRefreshed-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.Timeline-"><code>MediaSource.MediaSourceCaller.onSourceInfoRefreshed(MediaSource, Timeline)</code></a> will be
+ called before <code>callback.onPrepared</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>callback</code> - Callback to receive updates from this period, including being notified when
@@ -353,16 +359,18 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/Sequenceabl
  corresponding flag in <code>streamResetFlags</code> will be set to true. This flag will also be set
  if a new sample stream is created.
 
- <p>Note that previously received <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>TrackSelections</code></a> are no longer valid and
- references need to be replaced even if the corresponding <a href="../../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> is kept.
+ <p>Note that previously passed <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>TrackSelections</code></a> are no longer valid, and
+ any references to them must be updated to point to the new selections.
 
  <p>This method is only called after the period has been prepared.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>selections</code> - The renderer track selections.</dd>
 <dd><code>mayRetainStreamFlags</code> - Flags indicating whether the existing sample stream can be retained
-     for each selection. A <code>true</code> value indicates that the selection is unchanged, and
-     that the caller does not require that the sample stream be recreated.</dd>
+     for each track selection. A <code>true</code> value indicates that the selection is equivalent
+     to the one that was previously passed, and that the caller does not require that the sample
+     stream be recreated. If a retained sample stream holds any references to the track
+     selection then they must be updated to point to the new selection.</dd>
 <dd><code>streams</code> - The existing sample streams, which will be updated to reflect the provided
      selections.</dd>
 <dd><code>streamResetFlags</code> - Will be updated to indicate new sample streams, and sample streams that
@@ -520,6 +528,20 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/Sequenceabl
 </dl>
 </li>
 </ul>
+<a name="isLoading--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isLoading</h4>
+<pre>boolean&nbsp;isLoading()</pre>
+<div class="block">Returns whether the media period is currently loading.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html#isLoading--">isLoading</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader</a></code></dd>
+</dl>
+</li>
+</ul>
 <a name="reevaluateBuffer-long-">
 <!--   -->
 </a>
@@ -570,7 +592,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/Sequenceabl
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/source/LoopingMediaSource.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaSource.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.Callback.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">

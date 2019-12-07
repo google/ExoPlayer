@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6};
+var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -102,7 +102,7 @@ var activeTableTab = "activeTableTab";
 </dl>
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk">ChunkSampleStream</a>, <a href="../../../../../com/google/android/exoplayer2/source/ClippingMediaPeriod.html" title="class in com.google.android.exoplayer2.source">ClippingMediaPeriod</a>, <a href="../../../../../com/google/android/exoplayer2/source/CompositeSequenceableLoader.html" title="class in com.google.android.exoplayer2.source">CompositeSequenceableLoader</a>, <a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.html" title="class in com.google.android.exoplayer2.source">DeferredMediaPeriod</a>, <a href="../../../../../com/google/android/exoplayer2/source/hls/HlsMediaPeriod.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaPeriod</a></dd>
+<dd><a href="../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk">ChunkSampleStream</a>, <a href="../../../../../com/google/android/exoplayer2/source/ClippingMediaPeriod.html" title="class in com.google.android.exoplayer2.source">ClippingMediaPeriod</a>, <a href="../../../../../com/google/android/exoplayer2/source/CompositeSequenceableLoader.html" title="class in com.google.android.exoplayer2.source">CompositeSequenceableLoader</a>, <a href="../../../../../com/google/android/exoplayer2/testutil/FakeAdaptiveMediaPeriod.html" title="class in com.google.android.exoplayer2.testutil">FakeAdaptiveMediaPeriod</a>, <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaPeriod.html" title="class in com.google.android.exoplayer2.testutil">FakeMediaPeriod</a>, <a href="../../../../../com/google/android/exoplayer2/source/hls/HlsMediaPeriod.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaPeriod</a>, <a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html" title="class in com.google.android.exoplayer2.source">MaskingMediaPeriod</a></dd>
 </dl>
 <hr>
 <br>
@@ -166,6 +166,12 @@ var activeTableTab = "activeTableTab";
 </td>
 </tr>
 <tr id="i3" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html#isLoading--">isLoading</a></span>()</code>
+<div class="block">Returns whether the loader is currently loading.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html#reevaluateBuffer-long-">reevaluateBuffer</a></span>(long&nbsp;positionUs)</code>
 <div class="block">Re-evaluates the buffer given the playback position.</div>
@@ -228,6 +234,16 @@ var activeTableTab = "activeTableTab";
 <dd>True if progress was made, meaning that <a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html#getNextLoadPositionUs--"><code>getNextLoadPositionUs()</code></a> will return
      a different value than prior to the call. False otherwise.</dd>
 </dl>
+</li>
+</ul>
+<a name="isLoading--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isLoading</h4>
+<pre>boolean&nbsp;isLoading()</pre>
+<div class="block">Returns whether the loader is currently loading.</div>
 </li>
 </ul>
 <a name="reevaluateBuffer-long-">

@@ -239,7 +239,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>drmSchemeType</h4>
-<pre>public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> drmSchemeType</pre>
+<pre>@Nullable
+public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> drmSchemeType</pre>
 </li>
 </ul>
 <a name="drmSchemeDatas">
@@ -286,6 +287,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <pre>public&nbsp;RepresentationInfo(<a href="../../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;baseUrl,
                           <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase</a>&nbsp;segmentBase,
+                          @Nullable
                           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;drmSchemeType,
                           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/ArrayList.html" target="_top" title="class or interface in java.util">ArrayList</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData.SchemeData</a>&gt;&nbsp;drmSchemeDatas,
                           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/ArrayList.html" target="_top" title="class or interface in java.util">ArrayList</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Descriptor</a>&gt;&nbsp;inbandEventStreams,

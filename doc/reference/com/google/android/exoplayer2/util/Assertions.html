@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9,"i9":9};
+var methods = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9,"i9":9,"i10":9,"i11":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -194,6 +194,19 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <div class="block">Throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/IllegalStateException.html" target="_top" title="class or interface in java.lang"><code>IllegalStateException</code></a> if <code>expression</code> evaluates to false.</div>
 </td>
 </tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>static &lt;T&gt;&nbsp;T</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Assertions.html#checkStateNotNull-T-">checkStateNotNull</a></span>(T&nbsp;reference)</code>
+<div class="block">Throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/IllegalStateException.html" target="_top" title="class or interface in java.lang"><code>IllegalStateException</code></a> if <code>reference</code> is null.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code>static &lt;T&gt;&nbsp;T</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Assertions.html#checkStateNotNull-T-java.lang.Object-">checkStateNotNull</a></span>(T&nbsp;reference,
+                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;errorMessage)</code>
+<div class="block">Throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/IllegalStateException.html" target="_top" title="class or interface in java.lang"><code>IllegalStateException</code></a> if <code>reference</code> is null.</div>
+</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -305,6 +318,57 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
      to a <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang"><code>String</code></a> using <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true#valueOf-java.lang.Object-" title="class or interface in java.lang"><code>String.valueOf(Object)</code></a>.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/IllegalStateException.html" target="_top" title="class or interface in java.lang">IllegalStateException</a></code> - If <code>expression</code> is false.</dd>
+</dl>
+</li>
+</ul>
+<a name="checkStateNotNull-java.lang.Object-">
+<!--   -->
+</a><a name="checkStateNotNull-T-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>checkStateNotNull</h4>
+<pre>@EnsuresNonNull(value="#1")
+public static&nbsp;&lt;T&gt;&nbsp;T&nbsp;checkStateNotNull(@Nullable
+                                                                  T&nbsp;reference)</pre>
+<div class="block">Throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/IllegalStateException.html" target="_top" title="class or interface in java.lang"><code>IllegalStateException</code></a> if <code>reference</code> is null.</div>
+<dl>
+<dt><span class="paramLabel">Type Parameters:</span></dt>
+<dd><code>T</code> - The type of the reference.</dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>reference</code> - The reference.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The non-null reference that was validated.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/IllegalStateException.html" target="_top" title="class or interface in java.lang">IllegalStateException</a></code> - If <code>reference</code> is null.</dd>
+</dl>
+</li>
+</ul>
+<a name="checkStateNotNull-java.lang.Object-java.lang.Object-">
+<!--   -->
+</a><a name="checkStateNotNull-T-java.lang.Object-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>checkStateNotNull</h4>
+<pre>@EnsuresNonNull(value="#1")
+public static&nbsp;&lt;T&gt;&nbsp;T&nbsp;checkStateNotNull(@Nullable
+                                                                  T&nbsp;reference,
+                                                                  <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;errorMessage)</pre>
+<div class="block">Throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/IllegalStateException.html" target="_top" title="class or interface in java.lang"><code>IllegalStateException</code></a> if <code>reference</code> is null.</div>
+<dl>
+<dt><span class="paramLabel">Type Parameters:</span></dt>
+<dd><code>T</code> - The type of the reference.</dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>reference</code> - The reference.</dd>
+<dd><code>errorMessage</code> - The exception message to use if the check fails. The message is converted
+     to a string using <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true#valueOf-java.lang.Object-" title="class or interface in java.lang"><code>String.valueOf(Object)</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The non-null reference that was validated.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/IllegalStateException.html" target="_top" title="class or interface in java.lang">IllegalStateException</a></code> - If <code>reference</code> is null.</dd>
 </dl>
 </li>
 </ul>

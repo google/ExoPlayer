@@ -363,7 +363,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/ext/mediases
 
  <p>Often artworks and icons need to be loaded asynchronously. In such a case, return a <a href="https://developer.android.com/reference/android/support.v4.media.MediaDescriptionCompat.html" target="_top" title="class or interface in android"><code>MediaDescriptionCompat</code></a> without the images, load your images asynchronously off the main thread
  and then call <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.html#invalidateMediaSessionQueue--"><code>MediaSessionConnector.invalidateMediaSessionQueue()</code></a> to make the connector
- update the queue by calling <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueNavigator.html#getMediaDescription-com.google.android.exoplayer2.Player-int-"><code>getMediaDescription(Player, int)</code></a> again.</div>
+ update the queue by calling this method again.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>player</code> - The current player.</dd>

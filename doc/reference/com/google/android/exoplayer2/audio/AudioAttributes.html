@@ -158,17 +158,21 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.html#contentType">contentType</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.html#allowedCapturePolicy">allowedCapturePolicy</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.html#contentType">contentType</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.html#DEFAULT">DEFAULT</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.html#flags">flags</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.html#usage">usage</a></span></code>&nbsp;</td>
 </tr>
@@ -193,7 +197,9 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/media/AudioAttributes.html" target="_top" title="class or interface in android.media">AudioAttributes</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.html#getAudioAttributesV21--">getAudioAttributesV21</a></span>()</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.html#getAudioAttributesV21--">getAudioAttributesV21</a></span>()</code>
+<div class="block">Returns a <a href="https://developer.android.com/reference/android/media/AudioAttributes.html" target="_top" title="class or interface in android.media"><code>AudioAttributes</code></a> from this instance.</div>
+</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>int</code></td>
@@ -253,11 +259,21 @@ public final&nbsp;int flags</pre>
 <a name="usage">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>usage</h4>
 <pre><a href="../../../../../com/google/android/exoplayer2/C.AudioUsage.html" title="annotation in com.google.android.exoplayer2">@C.AudioUsage</a>
 public final&nbsp;int usage</pre>
+</li>
+</ul>
+<a name="allowedCapturePolicy">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>allowedCapturePolicy</h4>
+<pre><a href="../../../../../com/google/android/exoplayer2/C.AudioAllowedCapturePolicy.html" title="annotation in com.google.android.exoplayer2">@C.AudioAllowedCapturePolicy</a>
+public final&nbsp;int allowedCapturePolicy</pre>
 </li>
 </ul>
 </li>
@@ -275,6 +291,9 @@ public final&nbsp;int usage</pre>
 <li class="blockList">
 <h4>getAudioAttributesV21</h4>
 <pre>public&nbsp;<a href="https://developer.android.com/reference/android/media/AudioAttributes.html" target="_top" title="class or interface in android.media">AudioAttributes</a>&nbsp;getAudioAttributesV21()</pre>
+<div class="block">Returns a <a href="https://developer.android.com/reference/android/media/AudioAttributes.html" target="_top" title="class or interface in android.media"><code>AudioAttributes</code></a> from this instance.
+
+ <p>Field <a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.html#allowedCapturePolicy"><code>allowedCapturePolicy</code></a> is ignored for API levels prior to 29.</div>
 </li>
 </ul>
 <a name="equals-java.lang.Object-">

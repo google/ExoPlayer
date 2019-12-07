@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":9,"i5":9,"i6":9,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10};
+var methods = {"i0":10,"i1":10,"i2":9,"i3":9,"i4":9,"i5":10,"i6":10,"i7":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -127,10 +127,10 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/OfflineLicenseHelper.html#OfflineLicenseHelper-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-">OfflineLicenseHelper</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
-                    <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/OfflineLicenseHelper.html" title="type parameter in OfflineLicenseHelper">T</a>&gt;&nbsp;mediaDrm,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/OfflineLicenseHelper.html#OfflineLicenseHelper-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm.Provider-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.Map-">OfflineLicenseHelper</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
+                    <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.Provider.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.Provider</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/OfflineLicenseHelper.html" title="type parameter in OfflineLicenseHelper">T</a>&gt;&nbsp;mediaDrmProvider,
                     <a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
-                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/HashMap.html" target="_top" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalKeyRequestParameters)</code>
+                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalKeyRequestParameters)</code>
 <div class="block">Constructs an instance.</div>
 </td>
 </tr>
@@ -162,14 +162,6 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>byte[]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/OfflineLicenseHelper.html#getPropertyByteArray-java.lang.String-">getPropertyByteArray</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key)</code>&nbsp;</td>
-</tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/OfflineLicenseHelper.html#getPropertyString-java.lang.String-">getPropertyString</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key)</code>&nbsp;</td>
-</tr>
-<tr id="i4" class="altColor">
 <td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/drm/OfflineLicenseHelper.html" title="class in com.google.android.exoplayer2.drm">OfflineLicenseHelper</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/OfflineLicenseHelper.html#newWidevineInstance-java.lang.String-boolean-com.google.android.exoplayer2.upstream.HttpDataSource.Factory-">newWidevineInstance</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;defaultLicenseUrl,
                    boolean&nbsp;forceDefaultLicenseUrl,
@@ -177,49 +169,39 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <div class="block">Instantiates a new instance which uses Widevine CDM.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/drm/OfflineLicenseHelper.html" title="class in com.google.android.exoplayer2.drm">OfflineLicenseHelper</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/OfflineLicenseHelper.html#newWidevineInstance-java.lang.String-boolean-com.google.android.exoplayer2.upstream.HttpDataSource.Factory-java.util.HashMap-">newWidevineInstance</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;defaultLicenseUrl,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/OfflineLicenseHelper.html#newWidevineInstance-java.lang.String-boolean-com.google.android.exoplayer2.upstream.HttpDataSource.Factory-java.util.Map-">newWidevineInstance</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;defaultLicenseUrl,
                    boolean&nbsp;forceDefaultLicenseUrl,
                    <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource.Factory</a>&nbsp;httpDataSourceFactory,
-                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/HashMap.html" target="_top" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalKeyRequestParameters)</code>
+                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalKeyRequestParameters)</code>
 <div class="block">Instantiates a new instance which uses Widevine CDM.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/drm/OfflineLicenseHelper.html" title="class in com.google.android.exoplayer2.drm">OfflineLicenseHelper</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/OfflineLicenseHelper.html#newWidevineInstance-java.lang.String-com.google.android.exoplayer2.upstream.HttpDataSource.Factory-">newWidevineInstance</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;defaultLicenseUrl,
                    <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource.Factory</a>&nbsp;httpDataSourceFactory)</code>
 <div class="block">Instantiates a new instance which uses Widevine CDM.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/OfflineLicenseHelper.html#release--">release</a></span>()</code>
 <div class="block">Releases the helper.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/OfflineLicenseHelper.html#releaseLicense-byte:A-">releaseLicense</a></span>(byte[]&nbsp;offlineLicenseKeySetId)</code>
 <div class="block">Releases an offline license.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>byte[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/OfflineLicenseHelper.html#renewLicense-byte:A-">renewLicense</a></span>(byte[]&nbsp;offlineLicenseKeySetId)</code>
 <div class="block">Renews an offline license.</div>
 </td>
-</tr>
-<tr id="i10" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/OfflineLicenseHelper.html#setPropertyByteArray-java.lang.String-byte:A-">setPropertyByteArray</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
-                    byte[]&nbsp;value)</code>&nbsp;</td>
-</tr>
-<tr id="i11" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/OfflineLicenseHelper.html#setPropertyString-java.lang.String-java.lang.String-">setPropertyString</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
-                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;value)</code>&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -243,28 +225,27 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="OfflineLicenseHelper-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-">
+<a name="OfflineLicenseHelper-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm.Provider-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.Map-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>OfflineLicenseHelper</h4>
 <pre>public&nbsp;OfflineLicenseHelper(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
-                            <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/OfflineLicenseHelper.html" title="type parameter in OfflineLicenseHelper">T</a>&gt;&nbsp;mediaDrm,
+                            <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.Provider.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.Provider</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/OfflineLicenseHelper.html" title="type parameter in OfflineLicenseHelper">T</a>&gt;&nbsp;mediaDrmProvider,
                             <a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
                             @Nullable
-                            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/HashMap.html" target="_top" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalKeyRequestParameters)</pre>
+                            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalKeyRequestParameters)</pre>
 <div class="block">Constructs an instance. Call <a href="../../../../../com/google/android/exoplayer2/drm/OfflineLicenseHelper.html#release--"><code>release()</code></a> when the instance is no longer required.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>uuid</code> - The UUID of the drm scheme.</dd>
-<dd><code>mediaDrm</code> - An underlying <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaDrm</code></a> for use by the manager.</dd>
+<dd><code>mediaDrmProvider</code> - A <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.Provider.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaDrm.Provider</code></a>.</dd>
 <dd><code>callback</code> - Performs key and provisioning requests.</dd>
 <dd><code>optionalKeyRequestParameters</code> - An optional map of parameters to pass as the last argument
-     to <a href="https://developer.android.com/reference/android/media/MediaDrm.html?is-external=true#getKeyRequest-byte:A-byte:A-java.lang.String-int-java.util.HashMap-" title="class or interface in android.media"><code>MediaDrm.getKeyRequest(byte[], byte[], String, int, HashMap)</code></a>. May be null.</dd>
+     to <a href="https://developer.android.com/reference/android/media/MediaDrm.html?is-external=true#getKeyRequest-byte:A-byte:A-java.lang.String-int-java.util.HashMap-" title="class or interface in android.media"><code>MediaDrm.getKeyRequest(byte[], byte[], java.lang.String, int, java.util.HashMap&lt;java.lang.String, java.lang.String&gt;)</code></a>. May be null.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#DefaultDrmSessionManager-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-"><code>DefaultDrmSessionManager.DefaultDrmSessionManager(java.util.UUID, ExoMediaDrm,
-     MediaDrmCallback, HashMap)</code></a></dd>
+<dd><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionManager.Builder</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -327,7 +308,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </dl>
 </li>
 </ul>
-<a name="newWidevineInstance-java.lang.String-boolean-com.google.android.exoplayer2.upstream.HttpDataSource.Factory-java.util.HashMap-">
+<a name="newWidevineInstance-java.lang.String-boolean-com.google.android.exoplayer2.upstream.HttpDataSource.Factory-java.util.Map-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -337,7 +318,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
                                                                              boolean&nbsp;forceDefaultLicenseUrl,
                                                                              <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource.Factory</a>&nbsp;httpDataSourceFactory,
                                                                              @Nullable
-                                                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/HashMap.html" target="_top" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalKeyRequestParameters)
+                                                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalKeyRequestParameters)
                                                                       throws <a href="../../../../../com/google/android/exoplayer2/drm/UnsupportedDrmException.html" title="class in com.google.android.exoplayer2.drm">UnsupportedDrmException</a></pre>
 <div class="block">Instantiates a new instance which uses Widevine CDM. Call <a href="../../../../../com/google/android/exoplayer2/drm/OfflineLicenseHelper.html#release--"><code>release()</code></a> when the instance
  is no longer required.</div>
@@ -348,69 +329,14 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <dd><code>forceDefaultLicenseUrl</code> - Whether to use <code>defaultLicenseUrl</code> for key requests that
      include their own license URL.</dd>
 <dd><code>optionalKeyRequestParameters</code> - An optional map of parameters to pass as the last argument
-     to <a href="https://developer.android.com/reference/android/media/MediaDrm.html?is-external=true#getKeyRequest-byte:A-byte:A-java.lang.String-int-java.util.HashMap-" title="class or interface in android.media"><code>MediaDrm.getKeyRequest(byte[], byte[], String, int, HashMap)</code></a>. May be null.</dd>
+     to <a href="https://developer.android.com/reference/android/media/MediaDrm.html?is-external=true#getKeyRequest-byte:A-byte:A-java.lang.String-int-java.util.HashMap-" title="class or interface in android.media"><code>MediaDrm.getKeyRequest(byte[], byte[], java.lang.String, int, java.util.HashMap&lt;java.lang.String, java.lang.String&gt;)</code></a>. May be null.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>A new instance which uses Widevine CDM.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/drm/UnsupportedDrmException.html" title="class in com.google.android.exoplayer2.drm">UnsupportedDrmException</a></code> - If the Widevine DRM scheme is unsupported or cannot be
      instantiated.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#DefaultDrmSessionManager-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-"><code>DefaultDrmSessionManager.DefaultDrmSessionManager(java.util.UUID, ExoMediaDrm,
-     MediaDrmCallback, HashMap)</code></a></dd>
-</dl>
-</li>
-</ul>
-<a name="getPropertyByteArray-java.lang.String-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getPropertyByteArray</h4>
-<pre>public&nbsp;byte[]&nbsp;getPropertyByteArray(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key)</pre>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#getPropertyByteArray-java.lang.String-"><code>DefaultDrmSessionManager.getPropertyByteArray(java.lang.String)</code></a></dd>
-</dl>
-</li>
-</ul>
-<a name="setPropertyByteArray-java.lang.String-byte:A-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setPropertyByteArray</h4>
-<pre>public&nbsp;void&nbsp;setPropertyByteArray(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
-                                 byte[]&nbsp;value)</pre>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#setPropertyByteArray-java.lang.String-byte:A-"><code>DefaultDrmSessionManager.setPropertyByteArray(java.lang.String, byte[])</code></a></dd>
-</dl>
-</li>
-</ul>
-<a name="getPropertyString-java.lang.String-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getPropertyString</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;getPropertyString(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key)</pre>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#getPropertyString-java.lang.String-"><code>DefaultDrmSessionManager.getPropertyString(java.lang.String)</code></a></dd>
-</dl>
-</li>
-</ul>
-<a name="setPropertyString-java.lang.String-java.lang.String-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setPropertyString</h4>
-<pre>public&nbsp;void&nbsp;setPropertyString(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
-                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;value)</pre>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#setPropertyString-java.lang.String-java.lang.String-"><code>DefaultDrmSessionManager.setPropertyString(java.lang.String, java.lang.String)</code></a></dd>
+<dd><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionManager.Builder</code></a></dd>
 </dl>
 </li>
 </ul>

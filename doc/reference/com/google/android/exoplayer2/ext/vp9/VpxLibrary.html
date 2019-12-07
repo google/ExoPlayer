@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9};
+var methods = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -153,12 +153,20 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/vp9/VpxLibrary.html#setLibraries-java.lang.String...-">setLibraries</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>...&nbsp;libraries)</code>
-<div class="block">Override the names of the Vpx native libraries.</div>
+<td class="colFirst"><code>static boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/vp9/VpxLibrary.html#matchesExpectedExoMediaCryptoType-java.lang.Class-">matchesExpectedExoMediaCryptoType</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;&nbsp;exoMediaCryptoType)</code>
+<div class="block">Returns whether the given <a href="../../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> type matches the one required for decoding
+ protected content.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/vp9/VpxLibrary.html#setLibraries-java.lang.Class-java.lang.String...-">setLibraries</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;&nbsp;exoMediaCryptoType,
+            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>...&nbsp;libraries)</code>
+<div class="block">Override the names of the Vpx native libraries.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>static boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/vp9/VpxLibrary.html#vpxIsSecureDecodeSupported--">vpxIsSecureDecodeSupported</a></span>()</code>&nbsp;</td>
 </tr>
@@ -184,18 +192,21 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="setLibraries-java.lang.String...-">
+<a name="setLibraries-java.lang.Class-java.lang.String...-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setLibraries</h4>
-<pre>public static&nbsp;void&nbsp;setLibraries(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>...&nbsp;libraries)</pre>
+<pre>public static&nbsp;void&nbsp;setLibraries(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;&nbsp;exoMediaCryptoType,
+                                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>...&nbsp;libraries)</pre>
 <div class="block">Override the names of the Vpx native libraries. If an application wishes to call this method,
  it must do so before calling any other method defined by this class, and before instantiating a
  <a href="../../../../../../com/google/android/exoplayer2/ext/vp9/LibvpxVideoRenderer.html" title="class in com.google.android.exoplayer2.ext.vp9"><code>LibvpxVideoRenderer</code></a> instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>exoMediaCryptoType</code> - The <a href="../../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> type required for decoding protected
+     content.</dd>
 <dd><code>libraries</code> - The names of the Vpx native libraries.</dd>
 </dl>
 </li>
@@ -241,6 +252,18 @@ public static&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html
 <h4>isHighBitDepthSupported</h4>
 <pre>public static&nbsp;boolean&nbsp;isHighBitDepthSupported()</pre>
 <div class="block">Returns true if the underlying libvpx library supports high bit depth.</div>
+</li>
+</ul>
+<a name="matchesExpectedExoMediaCryptoType-java.lang.Class-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>matchesExpectedExoMediaCryptoType</h4>
+<pre>public static&nbsp;boolean&nbsp;matchesExpectedExoMediaCryptoType(@Nullable
+                                                        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;&nbsp;exoMediaCryptoType)</pre>
+<div class="block">Returns whether the given <a href="../../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> type matches the one required for decoding
+ protected content.</div>
 </li>
 </ul>
 <a name="vpxIsSecureDecodeSupported--">

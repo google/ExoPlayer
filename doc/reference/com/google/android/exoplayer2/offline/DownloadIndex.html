@@ -46,7 +46,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/offline/DownloadHelper.Callback.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/offline/DownloadHelper.LiveContentUnsupportedException.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -106,7 +106,8 @@ var activeTableTab = "activeTableTab";
 </dl>
 <hr>
 <br>
-<pre>public interface <span class="typeNameLabel">DownloadIndex</span></pre>
+<pre>@WorkerThread
+public interface <span class="typeNameLabel">DownloadIndex</span></pre>
 <div class="block">An index of <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline"><code>Downloads</code></a>.</div>
 </li>
 </ul>
@@ -162,7 +163,9 @@ var activeTableTab = "activeTableTab";
 <pre>@Nullable
 <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&nbsp;getDownload(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id)
                         throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
-<div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a> with the given <code>id</code>, or null.</div>
+<div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a> with the given <code>id</code>, or null.
+
+ <p>This method may be slow and shouldn't normally be called on the main thread.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>id</code> - ID of a <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a>.</dd>
@@ -183,7 +186,9 @@ var activeTableTab = "activeTableTab";
 <pre><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html" title="interface in com.google.android.exoplayer2.offline">DownloadCursor</a>&nbsp;getDownloads(<a href="../../../../../com/google/android/exoplayer2/offline/Download.State.html" title="annotation in com.google.android.exoplayer2.offline">@Download.State</a>
                             int...&nbsp;states)
                      throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
-<div class="block">Returns a <a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html" title="interface in com.google.android.exoplayer2.offline"><code>DownloadCursor</code></a> to <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a>s with the given <code>states</code>.</div>
+<div class="block">Returns a <a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html" title="interface in com.google.android.exoplayer2.offline"><code>DownloadCursor</code></a> to <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a>s with the given <code>states</code>.
+
+ <p>This method may be slow and shouldn't normally be called on the main thread.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>states</code> - Returns only the <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a>s with this states. If empty, returns all.</dd>
@@ -221,7 +226,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/offline/DownloadHelper.Callback.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/offline/DownloadHelper.LiveContentUnsupportedException.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">

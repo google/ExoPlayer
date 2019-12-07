@@ -150,19 +150,13 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/Composit
  IOException, boolean)</code>.</div>
 </td>
 </tr>
-<tr class="rowColor">
-<td class="colFirst"><code>static interface&nbsp;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source.ads">AdsMediaSource.MediaSourceFactory</a></span></code>
-<div class="block">Factory for creating <a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a>s to play ad media.</div>
-</td>
-</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a name="nested.classes.inherited.from.class.com.google.android.exoplayer2.source.MediaSource">
 <!--   -->
 </a>
 <h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.source.<a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>, <a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.SourceInfoRefreshListener.html" title="interface in com.google.android.exoplayer2.source">MediaSource.SourceInfoRefreshListener</a></code></li>
+<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>, <a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.MediaSourceCaller.html" title="interface in com.google.android.exoplayer2.source">MediaSource.MediaSourceCaller</a></code></li>
 </ul>
 </li>
 </ul>
@@ -178,16 +172,16 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/Composit
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html#AdsMediaSource-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.source.ads.AdsMediaSource.MediaSourceFactory-com.google.android.exoplayer2.source.ads.AdsLoader-com.google.android.exoplayer2.source.ads.AdsLoader.AdViewProvider-">AdsMediaSource</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;contentMediaSource,
-              <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source.ads">AdsMediaSource.MediaSourceFactory</a>&nbsp;adMediaSourceFactory,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html#AdsMediaSource-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.source.ads.AdsLoader-com.google.android.exoplayer2.source.ads.AdsLoader.AdViewProvider-">AdsMediaSource</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;contentMediaSource,
+              <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
               <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader</a>&nbsp;adsLoader,
               <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.AdViewProvider</a>&nbsp;adViewProvider)</code>
 <div class="block">Constructs a new source that inserts ads linearly with the content specified by <code>contentMediaSource</code>.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html#AdsMediaSource-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.source.ads.AdsLoader-com.google.android.exoplayer2.source.ads.AdsLoader.AdViewProvider-">AdsMediaSource</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;contentMediaSource,
-              <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html#AdsMediaSource-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.source.MediaSourceFactory-com.google.android.exoplayer2.source.ads.AdsLoader-com.google.android.exoplayer2.source.ads.AdsLoader.AdViewProvider-">AdsMediaSource</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;contentMediaSource,
+              <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a>&nbsp;adMediaSourceFactory,
               <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader</a>&nbsp;adsLoader,
               <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.AdViewProvider</a>&nbsp;adViewProvider)</code>
 <div class="block">Constructs a new source that inserts ads linearly with the content specified by <code>contentMediaSource</code>.</div>
@@ -231,17 +225,17 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/Composit
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html#onChildSourceInfoRefreshed-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.Timeline-java.lang.Object-">onChildSourceInfoRefreshed</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html#onChildSourceInfoRefreshed-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.Timeline-">onChildSourceInfoRefreshed</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
                           <a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
-                          <a href="../../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
-                          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;manifest)</code>
+                          <a href="../../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline)</code>
 <div class="block">Called when the source info of a child source has been refreshed.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code>void</code></td>
+<td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.upstream.TransferListener-">prepareSourceInternal</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;mediaTransferListener)</code>
-<div class="block">Starts source preparation.</div>
+<div class="block">Starts source preparation and enables the source, see <a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html#prepareSource-com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller-com.google.android.exoplayer2.upstream.TransferListener-"><code>MediaSource.prepareSource(MediaSourceCaller,
+ TransferListener)</code></a>.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
@@ -251,9 +245,9 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/Composit
 </td>
 </tr>
 <tr id="i6" class="altColor">
-<td class="colFirst"><code>void</code></td>
+<td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html#releaseSourceInternal--">releaseSourceInternal</a></span>()</code>
-<div class="block">Releases the source.</div>
+<div class="block">Releases the source, see <a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html#releaseSource-com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller-"><code>MediaSource.releaseSource(MediaSourceCaller)</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -262,14 +256,14 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/Composit
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.source.<a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html" title="class in com.google.android.exoplayer2.source">CompositeMediaSource</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#getMediaTimeForChildMediaTime-T-long-">getMediaTimeForChildMediaTime</a>, <a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#getWindowIndexForChildWindowIndex-T-int-">getWindowIndexForChildWindowIndex</a>, <a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#maybeThrowSourceInfoRefreshError--">maybeThrowSourceInfoRefreshError</a>, <a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#prepareChildSource-T-com.google.android.exoplayer2.source.MediaSource-">prepareChildSource</a>, <a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#releaseChildSource-T-">releaseChildSource</a></code></li>
+<code><a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#disableChildSource-T-">disableChildSource</a>, <a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#disableInternal--">disableInternal</a>, <a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#enableChildSource-T-">enableChildSource</a>, <a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#enableInternal--">enableInternal</a>, <a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#getMediaTimeForChildMediaTime-T-long-">getMediaTimeForChildMediaTime</a>, <a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#getWindowIndexForChildWindowIndex-T-int-">getWindowIndexForChildWindowIndex</a>, <a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#maybeThrowSourceInfoRefreshError--">maybeThrowSourceInfoRefreshError</a>, <a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#prepareChildSource-T-com.google.android.exoplayer2.source.MediaSource-">prepareChildSource</a>, <a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#releaseChildSource-T-">releaseChildSource</a>, <a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#shouldDispatchCreateOrReleaseEvent-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-">shouldDispatchCreateOrReleaseEvent</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.source.BaseMediaSource">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.source.<a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html" title="class in com.google.android.exoplayer2.source">BaseMediaSource</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">addEventListener</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-">createEventDispatcher</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-">createEventDispatcher</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-">createEventDispatcher</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSource-com.google.android.exoplayer2.source.MediaSource.SourceInfoRefreshListener-com.google.android.exoplayer2.upstream.TransferListener-">prepareSource</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#refreshSourceInfo-com.google.android.exoplayer2.Timeline-java.lang.Object-">refreshSourceInfo</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#releaseSource-com.google.android.exoplayer2.source.MediaSource.SourceInfoRefreshListener-">releaseSource</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#removeEventListener-com.google.android.exoplayer2.source.MediaSourceEventListener-">removeEventListener</a></code></li>
+<code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">addEventListener</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-">createEventDispatcher</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-">createEventDispatcher</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-">createEventDispatcher</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#disable-com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller-">disable</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#enable-com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller-">enable</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#isEnabled--">isEnabled</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSource-com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller-com.google.android.exoplayer2.upstream.TransferListener-">prepareSource</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#refreshSourceInfo-com.google.android.exoplayer2.Timeline-">refreshSourceInfo</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#releaseSource-com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller-">releaseSource</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#removeEventListener-com.google.android.exoplayer2.source.MediaSourceEventListener-">removeEventListener</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -312,14 +306,14 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/Composit
 </dl>
 </li>
 </ul>
-<a name="AdsMediaSource-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.source.ads.AdsMediaSource.MediaSourceFactory-com.google.android.exoplayer2.source.ads.AdsLoader-com.google.android.exoplayer2.source.ads.AdsLoader.AdViewProvider-">
+<a name="AdsMediaSource-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.source.MediaSourceFactory-com.google.android.exoplayer2.source.ads.AdsLoader-com.google.android.exoplayer2.source.ads.AdsLoader.AdViewProvider-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>AdsMediaSource</h4>
 <pre>public&nbsp;AdsMediaSource(<a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;contentMediaSource,
-                      <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source.ads">AdsMediaSource.MediaSourceFactory</a>&nbsp;adMediaSourceFactory,
+                      <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a>&nbsp;adMediaSourceFactory,
                       <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader</a>&nbsp;adsLoader,
                       <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.AdViewProvider</a>&nbsp;adViewProvider)</pre>
 <div class="block">Constructs a new source that inserts ads linearly with the content specified by <code>contentMediaSource</code>.</div>
@@ -358,10 +352,11 @@ public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/l
 <ul class="blockList">
 <li class="blockList">
 <h4>prepareSourceInternal</h4>
-<pre>public&nbsp;void&nbsp;prepareSourceInternal(@Nullable
-                                  <a href="../../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;mediaTransferListener)</pre>
+<pre>protected&nbsp;void&nbsp;prepareSourceInternal(@Nullable
+                                     <a href="../../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;mediaTransferListener)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.upstream.TransferListener-">BaseMediaSource</a></code></span></div>
-<div class="block">Starts source preparation. This method is called at most once until the next call to <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#releaseSourceInternal--"><code>BaseMediaSource.releaseSourceInternal()</code></a>.</div>
+<div class="block">Starts source preparation and enables the source, see <a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html#prepareSource-com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller-com.google.android.exoplayer2.upstream.TransferListener-"><code>MediaSource.prepareSource(MediaSourceCaller,
+ TransferListener)</code></a>. This method is called at most once until the next call to <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#releaseSourceInternal--"><code>BaseMediaSource.releaseSourceInternal()</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.upstream.TransferListener-">prepareSourceInternal</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html" title="class in com.google.android.exoplayer2.source">CompositeMediaSource</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&gt;</code></dd>
@@ -383,10 +378,11 @@ public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/l
                                 <a href="../../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator,
                                 long&nbsp;startPositionUs)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-long-">MediaSource</a></code></span></div>
-<div class="block">Returns a new <a href="../../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a> identified by <code>periodId</code>. This method may be called
- multiple times without an intervening call to <a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html#releasePeriod-com.google.android.exoplayer2.source.MediaPeriod-"><code>MediaSource.releasePeriod(MediaPeriod)</code></a>.
+<div class="block">Returns a new <a href="../../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a> identified by <code>periodId</code>.
 
- <p>Should not be called directly from application code.</div>
+ <p>Should not be called directly from application code.
+
+ <p>Must only be called if the source is enabled.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>id</code> - The identifier of the period.</dd>
@@ -406,8 +402,8 @@ public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/l
 <pre>public&nbsp;void&nbsp;releasePeriod(<a href="../../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>&nbsp;mediaPeriod)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html#releasePeriod-com.google.android.exoplayer2.source.MediaPeriod-">MediaSource</a></code></span></div>
 <div class="block">Releases the period.
- <p>
- Should not be called directly from application code.</div>
+
+ <p>Should not be called directly from application code.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mediaPeriod</code> - The period to release.</dd>
@@ -420,16 +416,17 @@ public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/l
 <ul class="blockList">
 <li class="blockList">
 <h4>releaseSourceInternal</h4>
-<pre>public&nbsp;void&nbsp;releaseSourceInternal()</pre>
+<pre>protected&nbsp;void&nbsp;releaseSourceInternal()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#releaseSourceInternal--">BaseMediaSource</a></code></span></div>
-<div class="block">Releases the source. This method is called exactly once after each call to <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.upstream.TransferListener-"><code>BaseMediaSource.prepareSourceInternal(TransferListener)</code></a>.</div>
+<div class="block">Releases the source, see <a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html#releaseSource-com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller-"><code>MediaSource.releaseSource(MediaSourceCaller)</code></a>. This method is called
+ exactly once after each call to <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.upstream.TransferListener-"><code>BaseMediaSource.prepareSourceInternal(TransferListener)</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#releaseSourceInternal--">releaseSourceInternal</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html" title="class in com.google.android.exoplayer2.source">CompositeMediaSource</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&gt;</code></dd>
 </dl>
 </li>
 </ul>
-<a name="onChildSourceInfoRefreshed-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.Timeline-java.lang.Object-">
+<a name="onChildSourceInfoRefreshed-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.Timeline-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -437,19 +434,16 @@ public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/l
 <h4>onChildSourceInfoRefreshed</h4>
 <pre>protected&nbsp;void&nbsp;onChildSourceInfoRefreshed(<a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
                                           <a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
-                                          <a href="../../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
-                                          @Nullable
-                                          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;manifest)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#onChildSourceInfoRefreshed-T-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.Timeline-java.lang.Object-">CompositeMediaSource</a></code></span></div>
+                                          <a href="../../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#onChildSourceInfoRefreshed-T-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.Timeline-">CompositeMediaSource</a></code></span></div>
 <div class="block">Called when the source info of a child source has been refreshed.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#onChildSourceInfoRefreshed-T-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.Timeline-java.lang.Object-">onChildSourceInfoRefreshed</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html" title="class in com.google.android.exoplayer2.source">CompositeMediaSource</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&gt;</code></dd>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#onChildSourceInfoRefreshed-T-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.Timeline-">onChildSourceInfoRefreshed</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html" title="class in com.google.android.exoplayer2.source">CompositeMediaSource</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&gt;</code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mediaPeriodId</code> - The unique id used to prepare the child source.</dd>
 <dd><code>mediaSource</code> - The child source whose source info has been refreshed.</dd>
 <dd><code>timeline</code> - The timeline of the child source.</dd>
-<dd><code>manifest</code> - The manifest of the child source.</dd>
 </dl>
 </li>
 </ul>

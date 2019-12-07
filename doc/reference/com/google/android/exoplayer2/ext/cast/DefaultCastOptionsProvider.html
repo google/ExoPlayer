@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../../com/google/android/exoplayer2/ext/cast/CastPlayer.html" title="class in com.google.android.exoplayer2.ext.cast"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html" title="class in com.google.android.exoplayer2.ext.cast"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/ext/cast/DefaultMediaItemConverter.html" title="class in com.google.android.exoplayer2.ext.cast"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/ext/cast/DefaultCastOptionsProvider.html" target="_top">Frames</a></li>
@@ -72,13 +72,13 @@ var activeTableTab = "activeTableTab";
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
@@ -120,6 +120,33 @@ implements com.google.android.gms.cast.framework.OptionsProvider</pre>
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cast/DefaultCastOptionsProvider.html#APP_ID_DEFAULT_RECEIVER">APP_ID_DEFAULT_RECEIVER</a></span></code>
+<div class="block">App id of the Default Media Receiver app.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cast/DefaultCastOptionsProvider.html#APP_ID_DEFAULT_RECEIVER_WITH_DRM">APP_ID_DEFAULT_RECEIVER_WITH_DRM</a></span></code>
+<div class="block">App id for receiver app with rudimentary support for DRM.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <ul class="blockList">
 <li class="blockList"><a name="constructor.summary">
@@ -173,6 +200,49 @@ implements com.google.android.gms.cast.framework.OptionsProvider</pre>
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="APP_ID_DEFAULT_RECEIVER">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>APP_ID_DEFAULT_RECEIVER</h4>
+<pre>public static final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> APP_ID_DEFAULT_RECEIVER</pre>
+<div class="block">App id of the Default Media Receiver app. Apps that do not require DRM support may use this
+ receiver receiver app ID.
+
+ <p>See https://developers.google.com/cast/docs/caf_receiver/#default_media_receiver.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.ext.cast.DefaultCastOptionsProvider.APP_ID_DEFAULT_RECEIVER">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="APP_ID_DEFAULT_RECEIVER_WITH_DRM">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>APP_ID_DEFAULT_RECEIVER_WITH_DRM</h4>
+<pre>public static final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> APP_ID_DEFAULT_RECEIVER_WITH_DRM</pre>
+<div class="block">App id for receiver app with rudimentary support for DRM.
+
+ <p>This app id is only suitable for ExoPlayer's Cast Demo app, and it is not intended for
+ production use. In order to use DRM, custom receiver apps should be used. For environments that
+ do not require DRM, the default receiver app should be used (see <a href="../../../../../../com/google/android/exoplayer2/ext/cast/DefaultCastOptionsProvider.html#APP_ID_DEFAULT_RECEIVER"><code>APP_ID_DEFAULT_RECEIVER</code></a>).</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.ext.cast.DefaultCastOptionsProvider.APP_ID_DEFAULT_RECEIVER_WITH_DRM">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 <ul class="blockList">
 <li class="blockList"><a name="constructor.detail">
@@ -250,7 +320,7 @@ implements com.google.android.gms.cast.framework.OptionsProvider</pre>
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../../com/google/android/exoplayer2/ext/cast/CastPlayer.html" title="class in com.google.android.exoplayer2.ext.cast"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/ext/cast/MediaItem.html" title="class in com.google.android.exoplayer2.ext.cast"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/ext/cast/DefaultMediaItemConverter.html" title="class in com.google.android.exoplayer2.ext.cast"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/ext/cast/DefaultCastOptionsProvider.html" target="_top">Frames</a></li>
@@ -275,13 +345,13 @@ implements com.google.android.gms.cast.framework.OptionsProvider</pre>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>

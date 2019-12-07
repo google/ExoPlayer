@@ -348,9 +348,12 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>release</h4>
-<pre>void&nbsp;release()</pre>
+<pre>@WorkerThread
+void&nbsp;release()</pre>
 <div class="block">Releases the cache. This method must be called when the cache is no longer required. The cache
- must not be used after calling this method.</div>
+ must not be used after calling this method.
+
+ <p>This method may be slow and shouldn't normally be called on the main thread.</div>
 </li>
 </ul>
 <a name="addListener-java.lang.String-com.google.android.exoplayer2.upstream.cache.Cache.Listener-">
@@ -441,10 +444,11 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>startReadWrite</h4>
-<pre><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;startReadWrite(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
-                         long&nbsp;position)
-                  throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a>,
-                         <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></pre>
+<pre>@WorkerThread
+<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;startReadWrite(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
+                                       long&nbsp;position)
+                                throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a>,
+                                       <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></pre>
 <div class="block">A caller should invoke this method when they require data from a given position for a given
  key.
 
@@ -458,7 +462,9 @@ var activeTableTab = "activeTableTab";
  Whilst the caller holds the lock it may write data into the hole. It may split data into
  multiple files. When the caller has finished writing a file it should commit it to the cache by
  calling <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#commitFile-java.io.File-long-"><code>commitFile(File, long)</code></a>. When the caller has finished writing, it must release
- the lock by calling <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#releaseHoleSpan-com.google.android.exoplayer2.upstream.cache.CacheSpan-"><code>releaseHoleSpan(com.google.android.exoplayer2.upstream.cache.CacheSpan)</code></a>.</div>
+ the lock by calling <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#releaseHoleSpan-com.google.android.exoplayer2.upstream.cache.CacheSpan-"><code>releaseHoleSpan(com.google.android.exoplayer2.upstream.cache.CacheSpan)</code></a>.
+
+ <p>This method may be slow and shouldn't normally be called on the main thread.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>key</code> - The key of the data being requested.</dd>
@@ -477,12 +483,15 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>startReadWriteNonBlocking</h4>
-<pre>@Nullable
+<pre>@WorkerThread
+ @Nullable
 <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;startReadWriteNonBlocking(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
-                                              long&nbsp;position)
-                                       throws <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></pre>
+                                                             long&nbsp;position)
+                                                      throws <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></pre>
 <div class="block">Same as <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#startReadWrite-java.lang.String-long-"><code>startReadWrite(String, long)</code></a>. However, if the cache entry is locked, then
- instead of blocking, this method will return null as the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a>.</div>
+ instead of blocking, this method will return null as the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a>.
+
+ <p>This method may be slow and shouldn't normally be called on the main thread.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>key</code> - The key of the data being requested.</dd>
@@ -500,12 +509,15 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>startFile</h4>
-<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;startFile(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
-               long&nbsp;position,
-               long&nbsp;length)
-        throws <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></pre>
+<pre>@WorkerThread
+<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;startFile(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
+                             long&nbsp;position,
+                             long&nbsp;length)
+                      throws <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></pre>
 <div class="block">Obtains a cache file into which data can be written. Must only be called when holding a
- corresponding hole <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> obtained from <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#startReadWrite-java.lang.String-long-"><code>startReadWrite(String, long)</code></a>.</div>
+ corresponding hole <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> obtained from <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#startReadWrite-java.lang.String-long-"><code>startReadWrite(String, long)</code></a>.
+
+ <p>This method may be slow and shouldn't normally be called on the main thread.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>key</code> - The cache key for the data.</dd>
@@ -525,10 +537,13 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>commitFile</h4>
-<pre>void&nbsp;commitFile(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;file,
-                long&nbsp;length)
-         throws <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></pre>
-<div class="block">Commits a file into the cache. Must only be called when holding a corresponding hole <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> obtained from <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#startReadWrite-java.lang.String-long-"><code>startReadWrite(String, long)</code></a></div>
+<pre>@WorkerThread
+void&nbsp;commitFile(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;file,
+                              long&nbsp;length)
+                       throws <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></pre>
+<div class="block">Commits a file into the cache. Must only be called when holding a corresponding hole <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> obtained from <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#startReadWrite-java.lang.String-long-"><code>startReadWrite(String, long)</code></a>.
+
+ <p>This method may be slow and shouldn't normally be called on the main thread.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>file</code> - A newly written cache file.</dd>
@@ -559,9 +574,12 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>removeSpan</h4>
-<pre>void&nbsp;removeSpan(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;span)
-         throws <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></pre>
-<div class="block">Removes a cached <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> from the cache, deleting the underlying file.</div>
+<pre>@WorkerThread
+void&nbsp;removeSpan(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;span)
+                       throws <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></pre>
+<div class="block">Removes a cached <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> from the cache, deleting the underlying file.
+
+ <p>This method may be slow and shouldn't normally be called on the main thread.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>span</code> - The <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> to remove.</dd>
@@ -618,10 +636,13 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>applyContentMetadataMutations</h4>
-<pre>void&nbsp;applyContentMetadataMutations(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
-                                   <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadataMutations.html" title="class in com.google.android.exoplayer2.upstream.cache">ContentMetadataMutations</a>&nbsp;mutations)
-                            throws <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></pre>
-<div class="block">Applies <code>mutations</code> to the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>ContentMetadata</code></a> for the given key. A new <code>CachedContent</code> is added if there isn't one already with the given key.</div>
+<pre>@WorkerThread
+void&nbsp;applyContentMetadataMutations(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
+                                                 <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadataMutations.html" title="class in com.google.android.exoplayer2.upstream.cache">ContentMetadataMutations</a>&nbsp;mutations)
+                                          throws <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></pre>
+<div class="block">Applies <code>mutations</code> to the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>ContentMetadata</code></a> for the given key. A new <code>CachedContent</code> is added if there isn't one already with the given key.
+
+ <p>This method may be slow and shouldn't normally be called on the main thread.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>key</code> - The cache key for the data.</dd>

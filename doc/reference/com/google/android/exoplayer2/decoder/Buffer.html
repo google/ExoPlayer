@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -174,23 +174,29 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#hasSupplementalData--">hasSupplementalData</a></span>()</code>
+<div class="block">Returns whether the <a href="../../../../../com/google/android/exoplayer2/C.html#BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA"><code>C.BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA</code></a> flag is set.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#isDecodeOnly--">isDecodeOnly</a></span>()</code>
 <div class="block">Returns whether the <a href="../../../../../com/google/android/exoplayer2/C.html#BUFFER_FLAG_DECODE_ONLY"><code>C.BUFFER_FLAG_DECODE_ONLY</code></a> flag is set.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#isEndOfStream--">isEndOfStream</a></span>()</code>
 <div class="block">Returns whether the <a href="../../../../../com/google/android/exoplayer2/C.html#BUFFER_FLAG_END_OF_STREAM"><code>C.BUFFER_FLAG_END_OF_STREAM</code></a> flag is set.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#isKeyFrame--">isKeyFrame</a></span>()</code>
 <div class="block">Returns whether the <a href="../../../../../com/google/android/exoplayer2/C.html#BUFFER_FLAG_KEY_FRAME"><code>C.BUFFER_FLAG_KEY_FRAME</code></a> flag is set.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#setFlags-int-">setFlags</a></span>(int&nbsp;flags)</code>
 <div class="block">Replaces this buffer's flags with <code>flags</code>.</div>
@@ -273,6 +279,16 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <h4>isKeyFrame</h4>
 <pre>public final&nbsp;boolean&nbsp;isKeyFrame()</pre>
 <div class="block">Returns whether the <a href="../../../../../com/google/android/exoplayer2/C.html#BUFFER_FLAG_KEY_FRAME"><code>C.BUFFER_FLAG_KEY_FRAME</code></a> flag is set.</div>
+</li>
+</ul>
+<a name="hasSupplementalData--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hasSupplementalData</h4>
+<pre>public final&nbsp;boolean&nbsp;hasSupplementalData()</pre>
+<div class="block">Returns whether the <a href="../../../../../com/google/android/exoplayer2/C.html#BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA"><code>C.BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA</code></a> flag is set.</div>
 </li>
 </ul>
 <a name="setFlags-int-">

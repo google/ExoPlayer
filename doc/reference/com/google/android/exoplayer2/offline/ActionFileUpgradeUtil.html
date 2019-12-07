@@ -186,17 +186,20 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockListLast">
 <li class="blockList">
 <h4>upgradeAndDelete</h4>
-<pre>public static&nbsp;void&nbsp;upgradeAndDelete(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;actionFilePath,
-                                    @Nullable
-                                    <a href="../../../../../com/google/android/exoplayer2/offline/ActionFileUpgradeUtil.DownloadIdProvider.html" title="interface in com.google.android.exoplayer2.offline">ActionFileUpgradeUtil.DownloadIdProvider</a>&nbsp;downloadIdProvider,
-                                    <a href="../../../../../com/google/android/exoplayer2/offline/DefaultDownloadIndex.html" title="class in com.google.android.exoplayer2.offline">DefaultDownloadIndex</a>&nbsp;downloadIndex,
-                                    boolean&nbsp;deleteOnFailure,
-                                    boolean&nbsp;addNewDownloadsAsCompleted)
-                             throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
+<pre>@WorkerThread
+public static&nbsp;void&nbsp;upgradeAndDelete(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;actionFilePath,
+                                                  @Nullable
+                                                  <a href="../../../../../com/google/android/exoplayer2/offline/ActionFileUpgradeUtil.DownloadIdProvider.html" title="interface in com.google.android.exoplayer2.offline">ActionFileUpgradeUtil.DownloadIdProvider</a>&nbsp;downloadIdProvider,
+                                                  <a href="../../../../../com/google/android/exoplayer2/offline/DefaultDownloadIndex.html" title="class in com.google.android.exoplayer2.offline">DefaultDownloadIndex</a>&nbsp;downloadIndex,
+                                                  boolean&nbsp;deleteOnFailure,
+                                                  boolean&nbsp;addNewDownloadsAsCompleted)
+                                           throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
 <div class="block">Merges <a href="../../../../../com/google/android/exoplayer2/offline/DownloadRequest.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadRequests</code></a> contained in a legacy action file into a <a href="../../../../../com/google/android/exoplayer2/offline/DefaultDownloadIndex.html" title="class in com.google.android.exoplayer2.offline"><code>DefaultDownloadIndex</code></a>, deleting the action file if the merge is successful or if <code>deleteOnFailure</code> is <code>true</code>.
 
  <p>This method must not be called while the <a href="../../../../../com/google/android/exoplayer2/offline/DefaultDownloadIndex.html" title="class in com.google.android.exoplayer2.offline"><code>DefaultDownloadIndex</code></a> is being used by a
- <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadManager</code></a>.</div>
+ <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadManager</code></a>.
+
+ <p>This method may be slow and shouldn't normally be called on the main thread.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>actionFilePath</code> - The action file path.</dd>

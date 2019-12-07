@@ -435,7 +435,9 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <pre>public&nbsp;Segment(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;uri,
                long&nbsp;byterangeOffset,
                long&nbsp;byterangeLength,
+               @Nullable
                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;fullSegmentEncryptionKeyUri,
+               @Nullable
                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;encryptionIV)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -500,8 +502,7 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <ul class="blockListLast">
 <li class="blockList">
 <h4>compareTo</h4>
-<pre>public&nbsp;int&nbsp;compareTo(@NonNull
-                     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Long.html" target="_top" title="class or interface in java.lang">Long</a>&nbsp;relativeStartTimeUs)</pre>
+<pre>public&nbsp;int&nbsp;compareTo(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Long.html" target="_top" title="class or interface in java.lang">Long</a>&nbsp;relativeStartTimeUs)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Comparable.html?is-external=true#compareTo-T-" title="class or interface in java.lang">compareTo</a></code>&nbsp;in interface&nbsp;<code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Comparable.html" target="_top" title="class or interface in java.lang">Comparable</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Long.html" target="_top" title="class or interface in java.lang">Long</a>&gt;</code></dd>

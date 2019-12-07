@@ -167,42 +167,62 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <th class="colLast" scope="col">Field and Description</th>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#rendererFormat">rendererFormat</a></span></code>
+<div class="block">If <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#type"><code>type</code></a> is <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_RENDERER"><code>TYPE_RENDERER</code></a>, this is the <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> the renderer was using
+ at the time of the exception, or null if the renderer wasn't using a <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#rendererFormatSupport">rendererFormatSupport</a></span></code>
+<div class="block">If <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#type"><code>type</code></a> is <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_RENDERER"><code>TYPE_RENDERER</code></a>, this is the level of <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.FormatSupport</code></a> of the
+ renderer for <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#rendererFormat"><code>rendererFormat</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#rendererIndex">rendererIndex</a></span></code>
 <div class="block">If <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#type"><code>type</code></a> is <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_RENDERER"><code>TYPE_RENDERER</code></a>, this is the index of the renderer.</div>
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#timestampMs">timestampMs</a></span></code>
+<div class="block">The value of <a href="https://developer.android.com/reference/android/os/SystemClock.html?is-external=true#elapsedRealtime--" title="class or interface in android.os"><code>SystemClock.elapsedRealtime()</code></a> when this exception was created.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#type">type</a></span></code>
 <div class="block">The <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.Type.html" title="annotation in com.google.android.exoplayer2"><code>ExoPlaybackException.Type</code></a> of the playback failure.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_OUT_OF_MEMORY">TYPE_OUT_OF_MEMORY</a></span></code>
 <div class="block">The error was an <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/OutOfMemoryError.html" target="_top" title="class or interface in java.lang"><code>OutOfMemoryError</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_REMOTE">TYPE_REMOTE</a></span></code>
 <div class="block">The error occurred in a remote component.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_RENDERER">TYPE_RENDERER</a></span></code>
 <div class="block">The error occurred in a <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_SOURCE">TYPE_SOURCE</a></span></code>
 <div class="block">The error occurred loading data from a <a href="../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_UNEXPECTED">TYPE_UNEXPECTED</a></span></code>
 <div class="block">The error was an unexpected <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/RuntimeException.html" target="_top" title="class or interface in java.lang"><code>RuntimeException</code></a>.</div>
@@ -237,8 +257,10 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#createForRenderer-java.lang.Exception-int-">createForRenderer</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Exception.html" target="_top" title="class or interface in java.lang">Exception</a>&nbsp;cause,
-                 int&nbsp;rendererIndex)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#createForRenderer-java.lang.Exception-int-com.google.android.exoplayer2.Format-int-">createForRenderer</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Exception.html" target="_top" title="class or interface in java.lang">Exception</a>&nbsp;cause,
+                 int&nbsp;rendererIndex,
+                 <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;rendererFormat,
+                 int&nbsp;rendererFormatSupport)</code>
 <div class="block">Creates an instance of type <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_RENDERER"><code>TYPE_RENDERER</code></a>.</div>
 </td>
 </tr>
@@ -399,11 +421,45 @@ public final&nbsp;int type</pre>
 <a name="rendererIndex">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>rendererIndex</h4>
 <pre>public final&nbsp;int rendererIndex</pre>
 <div class="block">If <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#type"><code>type</code></a> is <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_RENDERER"><code>TYPE_RENDERER</code></a>, this is the index of the renderer.</div>
+</li>
+</ul>
+<a name="rendererFormat">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>rendererFormat</h4>
+<pre>@Nullable
+public final&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a> rendererFormat</pre>
+<div class="block">If <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#type"><code>type</code></a> is <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_RENDERER"><code>TYPE_RENDERER</code></a>, this is the <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> the renderer was using
+ at the time of the exception, or null if the renderer wasn't using a <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
+</li>
+</ul>
+<a name="rendererFormatSupport">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>rendererFormatSupport</h4>
+<pre><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2">@RendererCapabilities.FormatSupport</a>
+public final&nbsp;int rendererFormatSupport</pre>
+<div class="block">If <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#type"><code>type</code></a> is <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_RENDERER"><code>TYPE_RENDERER</code></a>, this is the level of <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.FormatSupport</code></a> of the
+ renderer for <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#rendererFormat"><code>rendererFormat</code></a>. If <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#rendererFormat"><code>rendererFormat</code></a> is null, this is <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_HANDLED"><code>RendererCapabilities.FORMAT_HANDLED</code></a>.</div>
+</li>
+</ul>
+<a name="timestampMs">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>timestampMs</h4>
+<pre>public final&nbsp;long timestampMs</pre>
+<div class="block">The value of <a href="https://developer.android.com/reference/android/os/SystemClock.html?is-external=true#elapsedRealtime--" title="class or interface in android.os"><code>SystemClock.elapsedRealtime()</code></a> when this exception was created.</div>
 </li>
 </ul>
 </li>
@@ -430,19 +486,26 @@ public final&nbsp;int type</pre>
 </dl>
 </li>
 </ul>
-<a name="createForRenderer-java.lang.Exception-int-">
+<a name="createForRenderer-java.lang.Exception-int-com.google.android.exoplayer2.Format-int-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>createForRenderer</h4>
 <pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;createForRenderer(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Exception.html" target="_top" title="class or interface in java.lang">Exception</a>&nbsp;cause,
-                                                     int&nbsp;rendererIndex)</pre>
+                                                     int&nbsp;rendererIndex,
+                                                     @Nullable
+                                                     <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;rendererFormat,
+                                                     <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2">@RendererCapabilities.FormatSupport</a>
+                                                     int&nbsp;rendererFormatSupport)</pre>
 <div class="block">Creates an instance of type <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_RENDERER"><code>TYPE_RENDERER</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>cause</code> - The cause of the failure.</dd>
 <dd><code>rendererIndex</code> - The index of the renderer in which the failure occurred.</dd>
+<dd><code>rendererFormat</code> - The <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> the renderer was using at the time of the exception,
+     or null if the renderer wasn't using a <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</dd>
+<dd><code>rendererFormatSupport</code> - The <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.FormatSupport</code></a> of the renderer for <code>rendererFormat</code>. Ignored if <code>rendererFormat</code> is null.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The created instance.</dd>
 </dl>

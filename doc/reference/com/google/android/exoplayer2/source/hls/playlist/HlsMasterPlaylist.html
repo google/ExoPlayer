@@ -440,7 +440,8 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/hls/p
 <ul class="blockList">
 <li class="blockList">
 <h4>muxedAudioFormat</h4>
-<pre>public final&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a> muxedAudioFormat</pre>
+<pre>@Nullable
+public final&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a> muxedAudioFormat</pre>
 <div class="block">The format of the audio muxed in the variants. May be null if the playlist does not declare any
  muxed audio.</div>
 </li>
@@ -451,7 +452,8 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/hls/p
 <ul class="blockList">
 <li class="blockList">
 <h4>muxedCaptionFormats</h4>
-<pre>public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&gt; muxedCaptionFormats</pre>
+<pre>@Nullable
+public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&gt; muxedCaptionFormats</pre>
 <div class="block">The format of the closed captions declared by the playlist. May be empty if the playlist
  explicitly declares no captions are available, or null if the playlist does not declare any
  captions information.</div>
@@ -498,7 +500,9 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/hls/p
                          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Rendition.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.Rendition</a>&gt;&nbsp;audios,
                          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Rendition.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.Rendition</a>&gt;&nbsp;subtitles,
                          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Rendition.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.Rendition</a>&gt;&nbsp;closedCaptions,
+                         @Nullable
                          <a href="../../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;muxedAudioFormat,
+                         @Nullable
                          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&gt;&nbsp;muxedCaptionFormats,
                          boolean&nbsp;hasIndependentSegments,
                          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;variableDefinitions,

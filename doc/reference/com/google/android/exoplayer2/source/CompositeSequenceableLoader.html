@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -202,6 +202,12 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/Sequence
 </td>
 </tr>
 <tr id="i3" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/CompositeSequenceableLoader.html#isLoading--">isLoading</a></span>()</code>
+<div class="block">Returns whether the loader is currently loading.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/CompositeSequenceableLoader.html#reevaluateBuffer-long-">reevaluateBuffer</a></span>(long&nbsp;positionUs)</code>
 <div class="block">Re-evaluates the buffer given the playback position.</div>
@@ -321,7 +327,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/Sequence
 <a name="continueLoading-long-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>continueLoading</h4>
 <pre>public&nbsp;boolean&nbsp;continueLoading(long&nbsp;positionUs)</pre>
@@ -337,6 +343,21 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/Sequence
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>True if progress was made, meaning that <a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html#getNextLoadPositionUs--"><code>SequenceableLoader.getNextLoadPositionUs()</code></a> will return
      a different value than prior to the call. False otherwise.</dd>
+</dl>
+</li>
+</ul>
+<a name="isLoading--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>isLoading</h4>
+<pre>public&nbsp;boolean&nbsp;isLoading()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html#isLoading--">SequenceableLoader</a></code></span></div>
+<div class="block">Returns whether the loader is currently loading.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html#isLoading--">isLoading</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader</a></code></dd>
 </dl>
 </li>
 </ul>

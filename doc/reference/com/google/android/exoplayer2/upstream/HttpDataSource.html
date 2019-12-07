@@ -302,11 +302,11 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/DataSourc
 <h4>open</h4>
 <pre>long&nbsp;open(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)
    throws <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-">DataSource</a></code></span></div>
 <div class="block">Opens the source to read the specified data.
- <p>
- Note: If an <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io"><code>IOException</code></a> is thrown, callers must still call <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#close--"><code>DataSource.close()</code></a> to ensure
- that any partial effects of the invocation are cleaned up.</div>
+
+ <p>Note: <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a> implementations are advised to set request headers passed via
+ (in order of decreasing priority) the <code>dataSpec</code>, <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#setRequestProperty-java.lang.String-java.lang.String-"><code>setRequestProperty(java.lang.String, java.lang.String)</code></a> and the
+ default parameters set in the <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource.Factory</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-">open</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></code></dd>
@@ -386,7 +386,11 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/DataSourc
 <pre>void&nbsp;setRequestProperty(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;name,
                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;value)</pre>
 <div class="block">Sets the value of a request header. The value will be used for subsequent connections
- established by the source.</div>
+ established by the source.
+
+ <p>Note: If the same header is set as a default parameter in the <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource.Factory</code></a>, then the
+ header value set with this method should be preferred when connecting with the data source. See
+ <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>open(com.google.android.exoplayer2.upstream.DataSpec)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>name</code> - The name of the header field.</dd>

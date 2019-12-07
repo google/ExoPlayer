@@ -426,7 +426,7 @@ public&nbsp;int&nbsp;getRendererSupport(int&nbsp;rendererIndex)</pre>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>rendererIndex</code> - The renderer index.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>One of <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#RENDERER_SUPPORT_PLAYABLE_TRACKS"><code>RENDERER_SUPPORT_PLAYABLE_TRACKS</code></a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#RENDERER_SUPPORT_EXCEEDS_CAPABILITIES_TRACKS"><code>RENDERER_SUPPORT_EXCEEDS_CAPABILITIES_TRACKS</code></a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#RENDERER_SUPPORT_UNSUPPORTED_TRACKS"><code>RENDERER_SUPPORT_UNSUPPORTED_TRACKS</code></a> and <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#RENDERER_SUPPORT_NO_TRACKS"><code>RENDERER_SUPPORT_NO_TRACKS</code></a>.</dd>
+<dd>The <code>RendererSupport</code>.</dd>
 </dl>
 </li>
 </ul>
@@ -458,7 +458,7 @@ public&nbsp;int&nbsp;getTypeSupport(int&nbsp;trackType)</pre>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>trackType</code> - The track type. One of the <a href="../../../../../com/google/android/exoplayer2/C.html" title="class in com.google.android.exoplayer2"><code>C</code></a> <code>TRACK_TYPE_*</code> constants.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>One of <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#RENDERER_SUPPORT_PLAYABLE_TRACKS"><code>RENDERER_SUPPORT_PLAYABLE_TRACKS</code></a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#RENDERER_SUPPORT_EXCEEDS_CAPABILITIES_TRACKS"><code>RENDERER_SUPPORT_EXCEEDS_CAPABILITIES_TRACKS</code></a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#RENDERER_SUPPORT_UNSUPPORTED_TRACKS"><code>RENDERER_SUPPORT_UNSUPPORTED_TRACKS</code></a> and <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#RENDERER_SUPPORT_NO_TRACKS"><code>RENDERER_SUPPORT_NO_TRACKS</code></a>.</dd>
+<dd>The <code>RendererSupport</code>.</dd>
 </dl>
 </li>
 </ul>
@@ -469,9 +469,10 @@ public&nbsp;int&nbsp;getTypeSupport(int&nbsp;trackType)</pre>
 <li class="blockList">
 <h4>getTrackFormatSupport</h4>
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+ <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2">@RendererCapabilities.FormatSupport</a>
 public&nbsp;int&nbsp;getTrackFormatSupport(int&nbsp;rendererIndex,
-                                             int&nbsp;groupIndex,
-                                             int&nbsp;trackIndex)</pre>
+                                                                                  int&nbsp;groupIndex,
+                                                                                  int&nbsp;trackIndex)</pre>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getTrackSupport-int-int-int-"><code>getTrackSupport(int, int, int)</code></a>.</span></div>
 </li>
 </ul>
@@ -481,9 +482,10 @@ public&nbsp;int&nbsp;getTrackFormatSupport(int&nbsp;rendererIndex,
 <ul class="blockList">
 <li class="blockList">
 <h4>getTrackSupport</h4>
-<pre>public&nbsp;int&nbsp;getTrackSupport(int&nbsp;rendererIndex,
-                           int&nbsp;groupIndex,
-                           int&nbsp;trackIndex)</pre>
+<pre><a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2">@RendererCapabilities.FormatSupport</a>
+public&nbsp;int&nbsp;getTrackSupport(int&nbsp;rendererIndex,
+                                                               int&nbsp;groupIndex,
+                                                               int&nbsp;trackIndex)</pre>
 <div class="block">Returns the extent to which an individual track is supported by the renderer.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -491,7 +493,7 @@ public&nbsp;int&nbsp;getTrackFormatSupport(int&nbsp;rendererIndex,
 <dd><code>groupIndex</code> - The index of the track group to which the track belongs.</dd>
 <dd><code>trackIndex</code> - The index of the track within the track group.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>One of <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_HANDLED"><code>RendererCapabilities.FORMAT_HANDLED</code></a>, <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_EXCEEDS_CAPABILITIES"><code>RendererCapabilities.FORMAT_EXCEEDS_CAPABILITIES</code></a>, <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_UNSUPPORTED_DRM"><code>RendererCapabilities.FORMAT_UNSUPPORTED_DRM</code></a>, <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_UNSUPPORTED_SUBTYPE"><code>RendererCapabilities.FORMAT_UNSUPPORTED_SUBTYPE</code></a> and <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_UNSUPPORTED_TYPE"><code>RendererCapabilities.FORMAT_UNSUPPORTED_TYPE</code></a>.</dd>
+<dd>The <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.FormatSupport</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -501,9 +503,10 @@ public&nbsp;int&nbsp;getTrackFormatSupport(int&nbsp;rendererIndex,
 <ul class="blockList">
 <li class="blockList">
 <h4>getAdaptiveSupport</h4>
-<pre>public&nbsp;int&nbsp;getAdaptiveSupport(int&nbsp;rendererIndex,
-                              int&nbsp;groupIndex,
-                              boolean&nbsp;includeCapabilitiesExceededTracks)</pre>
+<pre><a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2">@RendererCapabilities.AdaptiveSupport</a>
+public&nbsp;int&nbsp;getAdaptiveSupport(int&nbsp;rendererIndex,
+                                                                    int&nbsp;groupIndex,
+                                                                    boolean&nbsp;includeCapabilitiesExceededTracks)</pre>
 <div class="block">Returns the extent to which a renderer supports adaptation between supported tracks in a
  specified <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>.
 
@@ -516,7 +519,7 @@ public&nbsp;int&nbsp;getTrackFormatSupport(int&nbsp;rendererIndex,
 <dd><code>includeCapabilitiesExceededTracks</code> - Whether tracks that exceed the capabilities of the
      renderer are included when determining support.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>One of <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_SEAMLESS"><code>RendererCapabilities.ADAPTIVE_SEAMLESS</code></a>, <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_NOT_SEAMLESS"><code>RendererCapabilities.ADAPTIVE_NOT_SEAMLESS</code></a> and <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_NOT_SUPPORTED"><code>RendererCapabilities.ADAPTIVE_NOT_SUPPORTED</code></a>.</dd>
+<dd>The <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.AdaptiveSupport</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -526,9 +529,10 @@ public&nbsp;int&nbsp;getTrackFormatSupport(int&nbsp;rendererIndex,
 <ul class="blockList">
 <li class="blockList">
 <h4>getAdaptiveSupport</h4>
-<pre>public&nbsp;int&nbsp;getAdaptiveSupport(int&nbsp;rendererIndex,
-                              int&nbsp;groupIndex,
-                              int[]&nbsp;trackIndices)</pre>
+<pre><a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2">@RendererCapabilities.AdaptiveSupport</a>
+public&nbsp;int&nbsp;getAdaptiveSupport(int&nbsp;rendererIndex,
+                                                                    int&nbsp;groupIndex,
+                                                                    int[]&nbsp;trackIndices)</pre>
 <div class="block">Returns the extent to which a renderer supports adaptation between specified tracks within a
  <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>.</div>
 <dl>
@@ -536,7 +540,7 @@ public&nbsp;int&nbsp;getTrackFormatSupport(int&nbsp;rendererIndex,
 <dd><code>rendererIndex</code> - The renderer index.</dd>
 <dd><code>groupIndex</code> - The index of the track group.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>One of <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_SEAMLESS"><code>RendererCapabilities.ADAPTIVE_SEAMLESS</code></a>, <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_NOT_SEAMLESS"><code>RendererCapabilities.ADAPTIVE_NOT_SEAMLESS</code></a> and <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_NOT_SUPPORTED"><code>RendererCapabilities.ADAPTIVE_NOT_SUPPORTED</code></a>.</dd>
+<dd>The <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.AdaptiveSupport</code></a>.</dd>
 </dl>
 </li>
 </ul>

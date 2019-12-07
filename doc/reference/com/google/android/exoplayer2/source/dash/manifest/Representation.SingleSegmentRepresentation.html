@@ -307,7 +307,9 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/dash/
                                    <a href="../../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;baseUrl,
                                    <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.SingleSegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SingleSegmentBase</a>&nbsp;segmentBase,
+                                   @Nullable
                                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Descriptor</a>&gt;&nbsp;inbandEventStreams,
+                                   @Nullable
                                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;cacheKey,
                                    long&nbsp;contentLength)</pre>
 <dl>
@@ -344,6 +346,7 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/dash/
                                                                      long&nbsp;indexStart,
                                                                      long&nbsp;indexEnd,
                                                                      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Descriptor</a>&gt;&nbsp;inbandEventStreams,
+                                                                     @Nullable
                                                                      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;cacheKey,
                                                                      long&nbsp;contentLength)</pre>
 <dl>
@@ -367,7 +370,8 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/dash/
 <ul class="blockList">
 <li class="blockList">
 <h4>getIndexUri</h4>
-<pre>public&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;getIndexUri()</pre>
+<pre>@Nullable
+public&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;getIndexUri()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#getIndexUri--">Representation</a></code></span></div>
 <div class="block">Returns a <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>RangedUri</code></a> defining the location of the representation's segment index, or
  null if the representation provides an index directly.</div>
@@ -383,7 +387,8 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/dash/
 <ul class="blockList">
 <li class="blockList">
 <h4>getIndex</h4>
-<pre>public&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash">DashSegmentIndex</a>&nbsp;getIndex()</pre>
+<pre>@Nullable
+public&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash">DashSegmentIndex</a>&nbsp;getIndex()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#getIndex--">Representation</a></code></span></div>
 <div class="block">Returns an index if the representation provides one directly, or null otherwise.</div>
 <dl>
@@ -398,7 +403,8 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/dash/
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getCacheKey</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;getCacheKey()</pre>
+<pre>@Nullable
+public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;getCacheKey()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html#getCacheKey--">Representation</a></code></span></div>
 <div class="block">Returns a cache key for the representation if set, or null.</div>
 <dl>

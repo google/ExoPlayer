@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6,"i15":6,"i16":6,"i17":6,"i18":6,"i19":6,"i20":6,"i21":6,"i22":6,"i23":6,"i24":6,"i25":6,"i26":6,"i27":6,"i28":6,"i29":6,"i30":6,"i31":6,"i32":6,"i33":6,"i34":6,"i35":6,"i36":6,"i37":6,"i38":6,"i39":6,"i40":6,"i41":6,"i42":6,"i43":6,"i44":6,"i45":6,"i46":6,"i47":6,"i48":6,"i49":6,"i50":6,"i51":6,"i52":6,"i53":6,"i54":6};
+var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6,"i15":6,"i16":6,"i17":6,"i18":6,"i19":6,"i20":6,"i21":6,"i22":6,"i23":6,"i24":6,"i25":6,"i26":6,"i27":6,"i28":6,"i29":6,"i30":6,"i31":6,"i32":6,"i33":6,"i34":6,"i35":6,"i36":6,"i37":6,"i38":6,"i39":6,"i40":6,"i41":6,"i42":6,"i43":6,"i44":6,"i45":6,"i46":6,"i47":6,"i48":6,"i49":6,"i50":6,"i51":6,"i52":6,"i53":6,"i54":6,"i55":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -102,7 +102,7 @@ var activeTableTab = "activeTableTab";
 </dl>
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><a href="../../../../com/google/android/exoplayer2/BasePlayer.html" title="class in com.google.android.exoplayer2">BasePlayer</a>, <a href="../../../../com/google/android/exoplayer2/ext/cast/CastPlayer.html" title="class in com.google.android.exoplayer2.ext.cast">CastPlayer</a>, <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a></dd>
+<dd><a href="../../../../com/google/android/exoplayer2/BasePlayer.html" title="class in com.google.android.exoplayer2">BasePlayer</a>, <a href="../../../../com/google/android/exoplayer2/ext/cast/CastPlayer.html" title="class in com.google.android.exoplayer2.ext.cast">CastPlayer</a>, <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a>, <a href="../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html" title="class in com.google.android.exoplayer2.testutil">StubExoPlayer</a></dd>
 </dl>
 <hr>
 <br>
@@ -189,17 +189,23 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.TextComponent.html" title="interface in com.google.android.exoplayer2">Player.TextComponent</a></span></code>
-<div class="block">The text component of a <a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a>.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.State.html" title="annotation in com.google.android.exoplayer2">Player.State</a></span></code>
+<div class="block">Playback state.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.TimelineChangeReason.html" title="annotation in com.google.android.exoplayer2">Player.TimelineChangeReason</a></span></code>
-<div class="block">Reasons for timeline and/or manifest changes.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.TextComponent.html" title="interface in com.google.android.exoplayer2">Player.TextComponent</a></span></code>
+<div class="block">The text component of a <a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.TimelineChangeReason.html" title="annotation in com.google.android.exoplayer2">Player.TimelineChangeReason</a></span></code>
+<div class="block">Reasons for timeline changes.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html" title="interface in com.google.android.exoplayer2">Player.VideoComponent</a></span></code>
 <div class="block">The video component of a <a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a>.</div>
@@ -487,7 +493,7 @@ var activeTableTab = "activeTableTab";
 <tr id="i23" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.html#getPlaybackState--">getPlaybackState</a></span>()</code>
-<div class="block">Returns the current state of the player.</div>
+<div class="block">Returns the current <a href="../../../../com/google/android/exoplayer2/Player.State.html" title="annotation in com.google.android.exoplayer2"><code>playback state</code></a> of the player.</div>
 </td>
 </tr>
 <tr id="i24" class="altColor">
@@ -574,111 +580,117 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i37" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.html#isCurrentWindowLive--">isCurrentWindowLive</a></span>()</code>
+<div class="block">Returns whether the current window is live, or <code>false</code> if the <a href="../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> is empty.</div>
+</td>
+</tr>
+<tr id="i38" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.html#isCurrentWindowSeekable--">isCurrentWindowSeekable</a></span>()</code>
 <div class="block">Returns whether the current window is seekable, or <code>false</code> if the <a href="../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> is
  empty.</div>
 </td>
 </tr>
-<tr id="i38" class="altColor">
+<tr id="i39" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.html#isLoading--">isLoading</a></span>()</code>
 <div class="block">Whether the player is currently loading the source.</div>
 </td>
 </tr>
-<tr id="i39" class="rowColor">
+<tr id="i40" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.html#isPlaying--">isPlaying</a></span>()</code>
 <div class="block">Returns whether the player is playing, i.e.</div>
 </td>
 </tr>
-<tr id="i40" class="altColor">
+<tr id="i41" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.html#isPlayingAd--">isPlayingAd</a></span>()</code>
 <div class="block">Returns whether the player is currently playing an ad.</div>
 </td>
 </tr>
-<tr id="i41" class="rowColor">
+<tr id="i42" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.html#next--">next</a></span>()</code>
 <div class="block">Seeks to the default position of the next window in the timeline, which may depend on the
  current repeat mode and whether shuffle mode is enabled.</div>
 </td>
 </tr>
-<tr id="i42" class="altColor">
+<tr id="i43" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.html#previous--">previous</a></span>()</code>
 <div class="block">Seeks to the default position of the previous window in the timeline, which may depend on the
  current repeat mode and whether shuffle mode is enabled.</div>
 </td>
 </tr>
-<tr id="i43" class="rowColor">
+<tr id="i44" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.html#release--">release</a></span>()</code>
 <div class="block">Releases the player.</div>
 </td>
 </tr>
-<tr id="i44" class="altColor">
+<tr id="i45" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.html#removeListener-com.google.android.exoplayer2.Player.EventListener-">removeListener</a></span>(<a href="../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a>&nbsp;listener)</code>
 <div class="block">Unregister a listener.</div>
 </td>
 </tr>
-<tr id="i45" class="rowColor">
+<tr id="i46" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.html#seekTo-int-long-">seekTo</a></span>(int&nbsp;windowIndex,
       long&nbsp;positionMs)</code>
 <div class="block">Seeks to a position specified in milliseconds in the specified window.</div>
 </td>
 </tr>
-<tr id="i46" class="altColor">
+<tr id="i47" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.html#seekTo-long-">seekTo</a></span>(long&nbsp;positionMs)</code>
 <div class="block">Seeks to a position specified in milliseconds in the current window.</div>
 </td>
 </tr>
-<tr id="i47" class="rowColor">
+<tr id="i48" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.html#seekToDefaultPosition--">seekToDefaultPosition</a></span>()</code>
 <div class="block">Seeks to the default position associated with the current window.</div>
 </td>
 </tr>
-<tr id="i48" class="altColor">
+<tr id="i49" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.html#seekToDefaultPosition-int-">seekToDefaultPosition</a></span>(int&nbsp;windowIndex)</code>
 <div class="block">Seeks to the default position associated with the specified window.</div>
 </td>
 </tr>
-<tr id="i49" class="rowColor">
+<tr id="i50" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-">setPlaybackParameters</a></span>(<a href="../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</code>
 <div class="block">Attempts to set the playback parameters.</div>
 </td>
 </tr>
-<tr id="i50" class="altColor">
+<tr id="i51" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.html#setPlayWhenReady-boolean-">setPlayWhenReady</a></span>(boolean&nbsp;playWhenReady)</code>
 <div class="block">Sets whether playback should proceed when <a href="../../../../com/google/android/exoplayer2/Player.html#getPlaybackState--"><code>getPlaybackState()</code></a> == <a href="../../../../com/google/android/exoplayer2/Player.html#STATE_READY"><code>STATE_READY</code></a>.</div>
 </td>
 </tr>
-<tr id="i51" class="rowColor">
+<tr id="i52" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.html#setRepeatMode-int-">setRepeatMode</a></span>(int&nbsp;repeatMode)</code>
 <div class="block">Sets the <a href="../../../../com/google/android/exoplayer2/Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2"><code>Player.RepeatMode</code></a> to be used for playback.</div>
 </td>
 </tr>
-<tr id="i52" class="altColor">
+<tr id="i53" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.html#setShuffleModeEnabled-boolean-">setShuffleModeEnabled</a></span>(boolean&nbsp;shuffleModeEnabled)</code>
 <div class="block">Sets whether shuffling of windows is enabled.</div>
 </td>
 </tr>
-<tr id="i53" class="rowColor">
+<tr id="i54" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.html#stop--">stop</a></span>()</code>
 <div class="block">Stops playback without resetting the player.</div>
 </td>
 </tr>
-<tr id="i54" class="altColor">
+<tr id="i55" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.html#stop-boolean-">stop</a></span>(boolean&nbsp;reset)</code>
 <div class="block">Stops playback and optionally resets the player.</div>
@@ -1040,11 +1052,12 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>getPlaybackState</h4>
-<pre>int&nbsp;getPlaybackState()</pre>
-<div class="block">Returns the current state of the player.</div>
+<pre><a href="../../../../com/google/android/exoplayer2/Player.State.html" title="annotation in com.google.android.exoplayer2">@Player.State</a>
+int&nbsp;getPlaybackState()</pre>
+<div class="block">Returns the current <a href="../../../../com/google/android/exoplayer2/Player.State.html" title="annotation in com.google.android.exoplayer2"><code>playback state</code></a> of the player.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>One of the <code>STATE</code> constants defined in this interface.</dd>
+<dd>The current <a href="../../../../com/google/android/exoplayer2/Player.State.html" title="annotation in com.google.android.exoplayer2"><code>playback state</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -1148,7 +1161,7 @@ int&nbsp;getPlaybackSuppressionReason()</pre>
 <div class="block">Sets the <a href="../../../../com/google/android/exoplayer2/Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2"><code>Player.RepeatMode</code></a> to be used for playback.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>repeatMode</code> - A repeat mode.</dd>
+<dd><code>repeatMode</code> - The repeat mode.</dd>
 </dl>
 </li>
 </ul>
@@ -1325,13 +1338,9 @@ int&nbsp;getRepeatMode()</pre>
                            <a href="../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</pre>
 <div class="block">Attempts to set the playback parameters. Passing <code>null</code> sets the parameters to the
  default, <a href="../../../../com/google/android/exoplayer2/PlaybackParameters.html#DEFAULT"><code>PlaybackParameters.DEFAULT</code></a>, which means there is no speed or pitch adjustment.
- <p>
- Playback parameters changes may cause the player to buffer.
- <a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlaybackParametersChanged-com.google.android.exoplayer2.PlaybackParameters-"><code>Player.EventListener.onPlaybackParametersChanged(PlaybackParameters)</code></a> will be called whenever
- the currently active playback parameters change. When that listener is called, the parameters
- passed to it may not match <code>playbackParameters</code>. For example, the chosen speed or pitch
- may be out of range, in which case they are constrained to a set of permitted values. If it is
- not possible to change the playback parameters, the listener will not be invoked.</div>
+
+ <p>Playback parameters changes may cause the player to buffer. <a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlaybackParametersChanged-com.google.android.exoplayer2.PlaybackParameters-"><code>Player.EventListener.onPlaybackParametersChanged(PlaybackParameters)</code></a> will be called whenever the
+ currently active playback parameters change.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>playbackParameters</code> - The playback parameters, or <code>null</code> to use the defaults.</dd>
@@ -1589,6 +1598,20 @@ int&nbsp;getRepeatMode()</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#isDynamic"><code>Timeline.Window.isDynamic</code></a></dd>
+</dl>
+</li>
+</ul>
+<a name="isCurrentWindowLive--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isCurrentWindowLive</h4>
+<pre>boolean&nbsp;isCurrentWindowLive()</pre>
+<div class="block">Returns whether the current window is live, or <code>false</code> if the <a href="../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> is empty.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#isLive"><code>Timeline.Window.isLive</code></a></dd>
 </dl>
 </li>
 </ul>

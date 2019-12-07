@@ -288,8 +288,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/BaseDataS
 <h4>read</h4>
 <pre>public&nbsp;int&nbsp;read(byte[]&nbsp;buffer,
                 int&nbsp;offset,
-                int&nbsp;readLength)
-         throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
+                int&nbsp;readLength)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#read-byte:A-int-int-">DataSource</a></code></span></div>
 <div class="block">Reads up to <code>readLength</code> bytes of data and stores them into <code>buffer</code>, starting at
  index <code>offset</code>.
@@ -306,8 +305,6 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/BaseDataS
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The number of bytes read, or <a href="../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> if no data is available
      because the end of the opened range has been reached.</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code> - If an error occurs reading from the source.</dd>
 </dl>
 </li>
 </ul>
@@ -336,17 +333,12 @@ public&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.htm
 <ul class="blockListLast">
 <li class="blockList">
 <h4>close</h4>
-<pre>public&nbsp;void&nbsp;close()
-           throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
+<pre>public&nbsp;void&nbsp;close()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#close--">DataSource</a></code></span></div>
 <div class="block">Closes the source.
  <p>
  Note: This method must be called even if the corresponding call to <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>DataSource.open(DataSpec)</code></a>
  threw an <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io"><code>IOException</code></a>. See <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>DataSource.open(DataSpec)</code></a> for more details.</div>
-<dl>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code> - If an error occurs closing the source.</dd>
-</dl>
 </li>
 </ul>
 </li>

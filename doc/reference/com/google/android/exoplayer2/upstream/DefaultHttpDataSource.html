@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -121,8 +121,12 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDa
 <div class="block">An <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a> that uses Android's <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/net/HttpURLConnection.html" target="_top" title="class or interface in java.net"><code>HttpURLConnection</code></a>.
 
  <p>By default this implementation will not follow cross-protocol redirects (i.e. redirects from
- HTTP to HTTPS or vice versa). Cross-protocol redirects can be enabled by using the <code>#DefaultHttpDataSource(String, Predicate, TransferListener, int, int, boolean,
- RequestProperties)</code> constructor and passing <code>true</code> as the second last argument.</div>
+ HTTP to HTTPS or vice versa). Cross-protocol redirects can be enabled by using the <code>#DefaultHttpDataSource(String, int, int, boolean, RequestProperties)</code> constructor and passing
+ <code>true</code> for the <code>allowCrossProtocolRedirects</code> argument.
+
+ <p>Note: HTTP request headers will be set using all parameters passed via (in order of decreasing
+ priority) the <code>dataSpec</code>, <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#setRequestProperty-java.lang.String-java.lang.String-"><code>setRequestProperty(java.lang.String, java.lang.String)</code></a> and the default parameters used to
+ construct the instance.</div>
 </li>
 </ul>
 </div>
@@ -193,14 +197,34 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDa
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DefaultHttpDataSource-java.lang.String-">DefaultHttpDataSource</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;userAgent)</code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DefaultHttpDataSource-java.lang.String-int-int-">DefaultHttpDataSource</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;userAgent,
+                     int&nbsp;connectTimeoutMillis,
+                     int&nbsp;readTimeoutMillis)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DefaultHttpDataSource-java.lang.String-int-int-boolean-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-">DefaultHttpDataSource</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;userAgent,
+                     int&nbsp;connectTimeoutMillis,
+                     int&nbsp;readTimeoutMillis,
+                     boolean&nbsp;allowCrossProtocolRedirects,
+                     <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DefaultHttpDataSource-java.lang.String-com.google.android.exoplayer2.util.Predicate-">DefaultHttpDataSource</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;userAgent,
-                     <a href="../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;contentTypePredicate)</code>&nbsp;</td>
+                     <a href="../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;contentTypePredicate)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DefaultHttpDataSource-java.lang.String-"><code>DefaultHttpDataSource(String)</code></a> and <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#setContentTypePredicate-com.google.android.exoplayer2.util.Predicate-"><code>setContentTypePredicate(Predicate)</code></a>.</span></div>
+</div>
+</td>
 </tr>
 <tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DefaultHttpDataSource-java.lang.String-com.google.android.exoplayer2.util.Predicate-int-int-">DefaultHttpDataSource</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;userAgent,
                      <a href="../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;contentTypePredicate,
                      int&nbsp;connectTimeoutMillis,
-                     int&nbsp;readTimeoutMillis)</code>&nbsp;</td>
+                     int&nbsp;readTimeoutMillis)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DefaultHttpDataSource-java.lang.String-int-int-"><code>DefaultHttpDataSource(String, int, int)</code></a> and <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#setContentTypePredicate-com.google.android.exoplayer2.util.Predicate-"><code>setContentTypePredicate(Predicate)</code></a>.</span></div>
+</div>
+</td>
 </tr>
 <tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DefaultHttpDataSource-java.lang.String-com.google.android.exoplayer2.util.Predicate-int-int-boolean-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-">DefaultHttpDataSource</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;userAgent,
@@ -208,39 +232,10 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDa
                      int&nbsp;connectTimeoutMillis,
                      int&nbsp;readTimeoutMillis,
                      boolean&nbsp;allowCrossProtocolRedirects,
-                     <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties)</code>&nbsp;</td>
-</tr>
-<tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DefaultHttpDataSource-java.lang.String-com.google.android.exoplayer2.util.Predicate-com.google.android.exoplayer2.upstream.TransferListener-">DefaultHttpDataSource</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;userAgent,
-                     <a href="../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;contentTypePredicate,
-                     <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener)</code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DefaultHttpDataSource-java.lang.String-com.google.android.exoplayer2.util.Predicate-"><code>DefaultHttpDataSource(String, Predicate)</code></a> and <a href="../../../../../com/google/android/exoplayer2/upstream/BaseDataSource.html#addTransferListener-com.google.android.exoplayer2.upstream.TransferListener-"><code>BaseDataSource.addTransferListener(TransferListener)</code></a>.</span></div>
-</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DefaultHttpDataSource-java.lang.String-com.google.android.exoplayer2.util.Predicate-com.google.android.exoplayer2.upstream.TransferListener-int-int-">DefaultHttpDataSource</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;userAgent,
-                     <a href="../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;contentTypePredicate,
-                     <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener,
-                     int&nbsp;connectTimeoutMillis,
-                     int&nbsp;readTimeoutMillis)</code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DefaultHttpDataSource-java.lang.String-com.google.android.exoplayer2.util.Predicate-int-int-"><code>DefaultHttpDataSource(String, Predicate, int, int)</code></a> and <a href="../../../../../com/google/android/exoplayer2/upstream/BaseDataSource.html#addTransferListener-com.google.android.exoplayer2.upstream.TransferListener-"><code>BaseDataSource.addTransferListener(TransferListener)</code></a>.</span></div>
-</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DefaultHttpDataSource-java.lang.String-com.google.android.exoplayer2.util.Predicate-com.google.android.exoplayer2.upstream.TransferListener-int-int-boolean-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-">DefaultHttpDataSource</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;userAgent,
-                     <a href="../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;contentTypePredicate,
-                     <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener,
-                     int&nbsp;connectTimeoutMillis,
-                     int&nbsp;readTimeoutMillis,
-                     boolean&nbsp;allowCrossProtocolRedirects,
                      <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <code>#DefaultHttpDataSource(String, Predicate, int, int, boolean,
-     RequestProperties)</code> and <a href="../../../../../com/google/android/exoplayer2/upstream/BaseDataSource.html#addTransferListener-com.google.android.exoplayer2.upstream.TransferListener-"><code>BaseDataSource.addTransferListener(TransferListener)</code></a>.</span></div>
+<div class="block"><span class="deprecationComment">Use <code>#DefaultHttpDataSource(String, int, int, boolean, RequestProperties)</code>
+     and <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#setContentTypePredicate-com.google.android.exoplayer2.util.Predicate-"><code>setContentTypePredicate(Predicate)</code></a>.</span></div>
 </div>
 </td>
 </tr>
@@ -339,6 +334,12 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDa
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#setContentTypePredicate-com.google.android.exoplayer2.util.Predicate-">setContentTypePredicate</a></span>(<a href="../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;contentTypePredicate)</code>
+<div class="block">Sets a content type <a href="../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util"><code>Predicate</code></a>.</div>
+</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#setRequestProperty-java.lang.String-java.lang.String-">setRequestProperty</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;name,
                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;value)</code>
 <div class="block">Sets the value of a request header.</div>
@@ -429,15 +430,63 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDa
 </dl>
 </li>
 </ul>
-<a name="DefaultHttpDataSource-java.lang.String-com.google.android.exoplayer2.util.Predicate-">
+<a name="DefaultHttpDataSource-java.lang.String-int-int-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>DefaultHttpDataSource</h4>
 <pre>public&nbsp;DefaultHttpDataSource(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;userAgent,
+                             int&nbsp;connectTimeoutMillis,
+                             int&nbsp;readTimeoutMillis)</pre>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>userAgent</code> - The User-Agent string that should be used.</dd>
+<dd><code>connectTimeoutMillis</code> - The connection timeout, in milliseconds. A timeout of zero is
+     interpreted as an infinite timeout.</dd>
+<dd><code>readTimeoutMillis</code> - The read timeout, in milliseconds. A timeout of zero is interpreted as
+     an infinite timeout.</dd>
+</dl>
+</li>
+</ul>
+<a name="DefaultHttpDataSource-java.lang.String-int-int-boolean-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DefaultHttpDataSource</h4>
+<pre>public&nbsp;DefaultHttpDataSource(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;userAgent,
+                             int&nbsp;connectTimeoutMillis,
+                             int&nbsp;readTimeoutMillis,
+                             boolean&nbsp;allowCrossProtocolRedirects,
                              @Nullable
-                             <a href="../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;contentTypePredicate)</pre>
+                             <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties)</pre>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>userAgent</code> - The User-Agent string that should be used.</dd>
+<dd><code>connectTimeoutMillis</code> - The connection timeout, in milliseconds. A timeout of zero is
+     interpreted as an infinite timeout. Pass <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DEFAULT_CONNECT_TIMEOUT_MILLIS"><code>DEFAULT_CONNECT_TIMEOUT_MILLIS</code></a> to use the
+     default value.</dd>
+<dd><code>readTimeoutMillis</code> - The read timeout, in milliseconds. A timeout of zero is interpreted as
+     an infinite timeout. Pass <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DEFAULT_READ_TIMEOUT_MILLIS"><code>DEFAULT_READ_TIMEOUT_MILLIS</code></a> to use the default value.</dd>
+<dd><code>allowCrossProtocolRedirects</code> - Whether cross-protocol redirects (i.e. redirects from HTTP
+     to HTTPS and vice versa) are enabled.</dd>
+<dd><code>defaultRequestProperties</code> - The default request properties to be sent to the server as HTTP
+     headers or <code>null</code> if not required.</dd>
+</dl>
+</li>
+</ul>
+<a name="DefaultHttpDataSource-java.lang.String-com.google.android.exoplayer2.util.Predicate-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DefaultHttpDataSource</h4>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;DefaultHttpDataSource(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;userAgent,
+                                         @Nullable
+                                         <a href="../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;contentTypePredicate)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DefaultHttpDataSource-java.lang.String-"><code>DefaultHttpDataSource(String)</code></a> and <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#setContentTypePredicate-com.google.android.exoplayer2.util.Predicate-"><code>setContentTypePredicate(Predicate)</code></a>.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>userAgent</code> - The User-Agent string that should be used.</dd>
@@ -452,11 +501,13 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDa
 <ul class="blockList">
 <li class="blockList">
 <h4>DefaultHttpDataSource</h4>
-<pre>public&nbsp;DefaultHttpDataSource(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;userAgent,
-                             @Nullable
-                             <a href="../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;contentTypePredicate,
-                             int&nbsp;connectTimeoutMillis,
-                             int&nbsp;readTimeoutMillis)</pre>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;DefaultHttpDataSource(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;userAgent,
+                                         @Nullable
+                                         <a href="../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;contentTypePredicate,
+                                         int&nbsp;connectTimeoutMillis,
+                                         int&nbsp;readTimeoutMillis)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DefaultHttpDataSource-java.lang.String-int-int-"><code>DefaultHttpDataSource(String, int, int)</code></a> and <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#setContentTypePredicate-com.google.android.exoplayer2.util.Predicate-"><code>setContentTypePredicate(Predicate)</code></a>.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>userAgent</code> - The User-Agent string that should be used.</dd>
@@ -472,87 +523,6 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDa
 <a name="DefaultHttpDataSource-java.lang.String-com.google.android.exoplayer2.util.Predicate-int-int-boolean-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-">
 <!--   -->
 </a>
-<ul class="blockList">
-<li class="blockList">
-<h4>DefaultHttpDataSource</h4>
-<pre>public&nbsp;DefaultHttpDataSource(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;userAgent,
-                             @Nullable
-                             <a href="../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;contentTypePredicate,
-                             int&nbsp;connectTimeoutMillis,
-                             int&nbsp;readTimeoutMillis,
-                             boolean&nbsp;allowCrossProtocolRedirects,
-                             @Nullable
-                             <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties)</pre>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>userAgent</code> - The User-Agent string that should be used.</dd>
-<dd><code>contentTypePredicate</code> - An optional <a href="../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util"><code>Predicate</code></a>. If a content type is rejected by the
-     predicate then a <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.InvalidContentTypeException.html" title="class in com.google.android.exoplayer2.upstream"><code>HttpDataSource.InvalidContentTypeException</code></a> is thrown from <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>open(DataSpec)</code></a>.</dd>
-<dd><code>connectTimeoutMillis</code> - The connection timeout, in milliseconds. A timeout of zero is
-     interpreted as an infinite timeout. Pass <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DEFAULT_CONNECT_TIMEOUT_MILLIS"><code>DEFAULT_CONNECT_TIMEOUT_MILLIS</code></a> to use the
-     default value.</dd>
-<dd><code>readTimeoutMillis</code> - The read timeout, in milliseconds. A timeout of zero is interpreted as
-     an infinite timeout. Pass <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DEFAULT_READ_TIMEOUT_MILLIS"><code>DEFAULT_READ_TIMEOUT_MILLIS</code></a> to use the default value.</dd>
-<dd><code>allowCrossProtocolRedirects</code> - Whether cross-protocol redirects (i.e. redirects from HTTP
-     to HTTPS and vice versa) are enabled.</dd>
-<dd><code>defaultRequestProperties</code> - The default request properties to be sent to the server as HTTP
-     headers or <code>null</code> if not required.</dd>
-</dl>
-</li>
-</ul>
-<a name="DefaultHttpDataSource-java.lang.String-com.google.android.exoplayer2.util.Predicate-com.google.android.exoplayer2.upstream.TransferListener-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>DefaultHttpDataSource</h4>
-<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
-public&nbsp;DefaultHttpDataSource(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;userAgent,
-                                         @Nullable
-                                         <a href="../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;contentTypePredicate,
-                                         @Nullable
-                                         <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DefaultHttpDataSource-java.lang.String-com.google.android.exoplayer2.util.Predicate-"><code>DefaultHttpDataSource(String, Predicate)</code></a> and <a href="../../../../../com/google/android/exoplayer2/upstream/BaseDataSource.html#addTransferListener-com.google.android.exoplayer2.upstream.TransferListener-"><code>BaseDataSource.addTransferListener(TransferListener)</code></a>.</span></div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>userAgent</code> - The User-Agent string that should be used.</dd>
-<dd><code>contentTypePredicate</code> - An optional <a href="../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util"><code>Predicate</code></a>. If a content type is rejected by the
-     predicate then a <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.InvalidContentTypeException.html" title="class in com.google.android.exoplayer2.upstream"><code>HttpDataSource.InvalidContentTypeException</code></a> is thrown from <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>open(DataSpec)</code></a>.</dd>
-<dd><code>listener</code> - An optional listener.</dd>
-</dl>
-</li>
-</ul>
-<a name="DefaultHttpDataSource-java.lang.String-com.google.android.exoplayer2.util.Predicate-com.google.android.exoplayer2.upstream.TransferListener-int-int-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>DefaultHttpDataSource</h4>
-<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
-public&nbsp;DefaultHttpDataSource(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;userAgent,
-                                         @Nullable
-                                         <a href="../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;contentTypePredicate,
-                                         @Nullable
-                                         <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener,
-                                         int&nbsp;connectTimeoutMillis,
-                                         int&nbsp;readTimeoutMillis)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DefaultHttpDataSource-java.lang.String-com.google.android.exoplayer2.util.Predicate-int-int-"><code>DefaultHttpDataSource(String, Predicate, int, int)</code></a> and <a href="../../../../../com/google/android/exoplayer2/upstream/BaseDataSource.html#addTransferListener-com.google.android.exoplayer2.upstream.TransferListener-"><code>BaseDataSource.addTransferListener(TransferListener)</code></a>.</span></div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>userAgent</code> - The User-Agent string that should be used.</dd>
-<dd><code>contentTypePredicate</code> - An optional <a href="../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util"><code>Predicate</code></a>. If a content type is rejected by the
-     predicate then a <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.InvalidContentTypeException.html" title="class in com.google.android.exoplayer2.upstream"><code>HttpDataSource.InvalidContentTypeException</code></a> is thrown from <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>open(DataSpec)</code></a>.</dd>
-<dd><code>listener</code> - An optional listener.</dd>
-<dd><code>connectTimeoutMillis</code> - The connection timeout, in milliseconds. A timeout of zero is
-     interpreted as an infinite timeout.</dd>
-<dd><code>readTimeoutMillis</code> - The read timeout, in milliseconds. A timeout of zero is interpreted as
-     an infinite timeout.</dd>
-</dl>
-</li>
-</ul>
-<a name="DefaultHttpDataSource-java.lang.String-com.google.android.exoplayer2.util.Predicate-com.google.android.exoplayer2.upstream.TransferListener-int-int-boolean-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-">
-<!--   -->
-</a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>DefaultHttpDataSource</h4>
@@ -560,21 +530,18 @@ public&nbsp;DefaultHttpDataSource(<a href="https://docs.oracle.com/javase/7/docs
 public&nbsp;DefaultHttpDataSource(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;userAgent,
                                          @Nullable
                                          <a href="../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;contentTypePredicate,
-                                         @Nullable
-                                         <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener,
                                          int&nbsp;connectTimeoutMillis,
                                          int&nbsp;readTimeoutMillis,
                                          boolean&nbsp;allowCrossProtocolRedirects,
                                          @Nullable
                                          <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <code>#DefaultHttpDataSource(String, Predicate, int, int, boolean,
-     RequestProperties)</code> and <a href="../../../../../com/google/android/exoplayer2/upstream/BaseDataSource.html#addTransferListener-com.google.android.exoplayer2.upstream.TransferListener-"><code>BaseDataSource.addTransferListener(TransferListener)</code></a>.</span></div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <code>#DefaultHttpDataSource(String, int, int, boolean, RequestProperties)</code>
+     and <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#setContentTypePredicate-com.google.android.exoplayer2.util.Predicate-"><code>setContentTypePredicate(Predicate)</code></a>.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>userAgent</code> - The User-Agent string that should be used.</dd>
 <dd><code>contentTypePredicate</code> - An optional <a href="../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util"><code>Predicate</code></a>. If a content type is rejected by the
      predicate then a <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.InvalidContentTypeException.html" title="class in com.google.android.exoplayer2.upstream"><code>HttpDataSource.InvalidContentTypeException</code></a> is thrown from <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>open(DataSpec)</code></a>.</dd>
-<dd><code>listener</code> - An optional listener.</dd>
 <dd><code>connectTimeoutMillis</code> - The connection timeout, in milliseconds. A timeout of zero is
      interpreted as an infinite timeout. Pass <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DEFAULT_CONNECT_TIMEOUT_MILLIS"><code>DEFAULT_CONNECT_TIMEOUT_MILLIS</code></a> to use the
      default value.</dd>
@@ -595,6 +562,23 @@ public&nbsp;DefaultHttpDataSource(<a href="https://docs.oracle.com/javase/7/docs
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="setContentTypePredicate-com.google.android.exoplayer2.util.Predicate-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setContentTypePredicate</h4>
+<pre>public&nbsp;void&nbsp;setContentTypePredicate(@Nullable
+                                    <a href="../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;contentTypePredicate)</pre>
+<div class="block">Sets a content type <a href="../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util"><code>Predicate</code></a>. If a content type is rejected by the predicate then a
+ <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.InvalidContentTypeException.html" title="class in com.google.android.exoplayer2.upstream"><code>HttpDataSource.InvalidContentTypeException</code></a> is thrown from <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>open(DataSpec)</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>contentTypePredicate</code> - The content type <a href="../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util"><code>Predicate</code></a>, or <code>null</code> to clear a
+     predicate that was previously set.</dd>
+</dl>
+</li>
+</ul>
 <a name="getUri--">
 <!--   -->
 </a>
@@ -659,7 +643,11 @@ public&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.htm
                                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;value)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#setRequestProperty-java.lang.String-java.lang.String-">HttpDataSource</a></code></span></div>
 <div class="block">Sets the value of a request header. The value will be used for subsequent connections
- established by the source.</div>
+ established by the source.
+
+ <p>Note: If the same header is set as a default parameter in the <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource.Factory</code></a>, then the
+ header value set with this method should be preferred when connecting with the data source. See
+ <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>HttpDataSource.open(com.google.android.exoplayer2.upstream.DataSpec)</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#setRequestProperty-java.lang.String-java.lang.String-">setRequestProperty</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></code></dd>
@@ -710,11 +698,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.htm
 <h4>open</h4>
 <pre>public&nbsp;long&nbsp;open(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)
           throws <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-">DataSource</a></code></span></div>
-<div class="block">Opens the source to read the specified data.
- <p>
- Note: If an <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io"><code>IOException</code></a> is thrown, callers must still call <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#close--"><code>DataSource.close()</code></a> to ensure
- that any partial effects of the invocation are cleaned up.</div>
+<div class="block">Opens the source to read the specified data.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-">open</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></code></dd>

@@ -85,6 +85,24 @@
 <div class="block">A listener for analytics events.</div>
 </td>
 </tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html" title="interface in com.google.android.exoplayer2.analytics">PlaybackSessionManager</a></td>
+<td class="colLast">
+<div class="block">Manager for active playback sessions.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.Listener.html" title="interface in com.google.android.exoplayer2.analytics">PlaybackSessionManager.Listener</a></td>
+<td class="colLast">
+<div class="block">A listener for session updates.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackStatsListener.Callback.html" title="interface in com.google.android.exoplayer2.analytics">PlaybackStatsListener.Callback</a></td>
+<td class="colLast">
+<div class="block">A listener for <a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackStats.html" title="class in com.google.android.exoplayer2.analytics"><code>PlaybackStats</code></a> updates.</div>
+</td>
+</tr>
 </tbody>
 </table>
 </li>
@@ -104,22 +122,35 @@
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.Factory.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector.Factory</a></td>
-<td class="colLast">
-<div class="block">Factory for an analytics collector.</div>
-</td>
-</tr>
-<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a></td>
 <td class="colLast">
 <div class="block">Time information of an event.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/analytics/DefaultAnalyticsListener.html" title="class in com.google.android.exoplayer2.analytics">DefaultAnalyticsListener</a></td>
 <td class="colLast">Deprecated
 <div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html" title="interface in com.google.android.exoplayer2.analytics"><code>AnalyticsListener</code></a> directly for selective overrides as all methods are
      implemented as no-op default methods.</span></div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/analytics/DefaultPlaybackSessionManager.html" title="class in com.google.android.exoplayer2.analytics">DefaultPlaybackSessionManager</a></td>
+<td class="colLast">
+<div class="block">Default <a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html" title="interface in com.google.android.exoplayer2.analytics"><code>PlaybackSessionManager</code></a> which instantiates a new session for each window in the
+ timeline and also for each ad within the windows.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackStats.html" title="class in com.google.android.exoplayer2.analytics">PlaybackStats</a></td>
+<td class="colLast">
+<div class="block">Statistics about playbacks.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackStatsListener.html" title="class in com.google.android.exoplayer2.analytics">PlaybackStatsListener</a></td>
+<td class="colLast">
+<div class="block"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html" title="interface in com.google.android.exoplayer2.analytics"><code>AnalyticsListener</code></a> to gather <a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackStats.html" title="class in com.google.android.exoplayer2.analytics"><code>PlaybackStats</code></a> from the player.</div>
 </td>
 </tr>
 </tbody>

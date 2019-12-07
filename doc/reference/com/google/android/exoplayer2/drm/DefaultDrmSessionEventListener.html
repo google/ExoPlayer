@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":18,"i4":6,"i5":18};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
+var methods = {"i0":18,"i1":18,"i2":18,"i3":18,"i4":18,"i5":18};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -46,7 +46,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/drm/DecryptionResource.Owner.html" title="interface in com.google.android.exoplayer2.drm"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/drm/DecryptionException.html" title="class in com.google.android.exoplayer2.drm"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -117,25 +117,25 @@ var activeTableTab = "activeTableTab";
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>void</code></td>
+<td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html#onDrmKeysLoaded--">onDrmKeysLoaded</a></span>()</code>
 <div class="block">Called each time keys are loaded.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>void</code></td>
+<td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html#onDrmKeysRemoved--">onDrmKeysRemoved</a></span>()</code>
 <div class="block">Called each time offline keys are removed.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>void</code></td>
+<td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html#onDrmKeysRestored--">onDrmKeysRestored</a></span>()</code>
 <div class="block">Called each time offline keys are restored.</div>
 </td>
@@ -147,7 +147,7 @@ var activeTableTab = "activeTableTab";
 </td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code>void</code></td>
+<td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html#onDrmSessionManagerError-java.lang.Exception-">onDrmSessionManagerError</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Exception.html" target="_top" title="class or interface in java.lang">Exception</a>&nbsp;error)</code>
 <div class="block">Called when a drm error occurs.</div>
 </td>
@@ -189,7 +189,7 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>onDrmKeysLoaded</h4>
-<pre>void&nbsp;onDrmKeysLoaded()</pre>
+<pre>default&nbsp;void&nbsp;onDrmKeysLoaded()</pre>
 <div class="block">Called each time keys are loaded.</div>
 </li>
 </ul>
@@ -199,7 +199,7 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>onDrmSessionManagerError</h4>
-<pre>void&nbsp;onDrmSessionManagerError(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Exception.html" target="_top" title="class or interface in java.lang">Exception</a>&nbsp;error)</pre>
+<pre>default&nbsp;void&nbsp;onDrmSessionManagerError(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Exception.html" target="_top" title="class or interface in java.lang">Exception</a>&nbsp;error)</pre>
 <div class="block">Called when a drm error occurs.
 
  <p>This method being called does not indicate that playback has failed, or that it will fail.
@@ -220,7 +220,7 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>onDrmKeysRestored</h4>
-<pre>void&nbsp;onDrmKeysRestored()</pre>
+<pre>default&nbsp;void&nbsp;onDrmKeysRestored()</pre>
 <div class="block">Called each time offline keys are restored.</div>
 </li>
 </ul>
@@ -230,7 +230,7 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>onDrmKeysRemoved</h4>
-<pre>void&nbsp;onDrmKeysRemoved()</pre>
+<pre>default&nbsp;void&nbsp;onDrmKeysRemoved()</pre>
 <div class="block">Called each time offline keys are removed.</div>
 </li>
 </ul>
@@ -271,7 +271,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/drm/DecryptionResource.Owner.html" title="interface in com.google.android.exoplayer2.drm"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/drm/DecryptionException.html" title="class in com.google.android.exoplayer2.drm"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">

@@ -321,10 +321,9 @@ var activeTableTab = "activeTableTab";
 </td>
 </tr>
 <tr id="i18" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a></code></td>
+<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-">setPlaybackParameters</a></span>(<a href="../../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</code>
-<div class="block">Attempts to set the playback parameters and returns the active playback parameters, which may
- differ from those passed in.</div>
+<div class="block">Attempts to set the playback parameters.</div>
 </td>
 </tr>
 <tr id="i19" class="rowColor">
@@ -557,14 +556,12 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>setPlaybackParameters</h4>
-<pre><a href="../../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;setPlaybackParameters(<a href="../../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</pre>
-<div class="block">Attempts to set the playback parameters and returns the active playback parameters, which may
- differ from those passed in.</div>
+<pre>void&nbsp;setPlaybackParameters(<a href="../../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</pre>
+<div class="block">Attempts to set the playback parameters. The audio sink may override these parameters if they
+ are not supported.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>playbackParameters</code> - The new playback parameters to attempt to set.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The active playback parameters.</dd>
 </dl>
 </li>
 </ul>

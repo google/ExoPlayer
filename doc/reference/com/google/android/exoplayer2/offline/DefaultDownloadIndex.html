@@ -288,7 +288,9 @@ implements <a href="../../../../../com/google/android/exoplayer2/offline/Writabl
 public&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&nbsp;getDownload(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id)
                                throws <a href="../../../../../com/google/android/exoplayer2/database/DatabaseIOException.html" title="class in com.google.android.exoplayer2.database">DatabaseIOException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadIndex.html#getDownload-java.lang.String-">DownloadIndex</a></code></span></div>
-<div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a> with the given <code>id</code>, or null.</div>
+<div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a> with the given <code>id</code>, or null.
+
+ <p>This method may be slow and shouldn't normally be called on the main thread.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadIndex.html#getDownload-java.lang.String-">getDownload</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadIndex.html" title="interface in com.google.android.exoplayer2.offline">DownloadIndex</a></code></dd>
@@ -312,7 +314,9 @@ public&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/Downlo
                                    int...&nbsp;states)
                             throws <a href="../../../../../com/google/android/exoplayer2/database/DatabaseIOException.html" title="class in com.google.android.exoplayer2.database">DatabaseIOException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadIndex.html#getDownloads-int...-">DownloadIndex</a></code></span></div>
-<div class="block">Returns a <a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html" title="interface in com.google.android.exoplayer2.offline"><code>DownloadCursor</code></a> to <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a>s with the given <code>states</code>.</div>
+<div class="block">Returns a <a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html" title="interface in com.google.android.exoplayer2.offline"><code>DownloadCursor</code></a> to <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a>s with the given <code>states</code>.
+
+ <p>This method may be slow and shouldn't normally be called on the main thread.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadIndex.html#getDownloads-int...-">getDownloads</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadIndex.html" title="interface in com.google.android.exoplayer2.offline">DownloadIndex</a></code></dd>
@@ -334,7 +338,9 @@ public&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/Downlo
 <pre>public&nbsp;void&nbsp;putDownload(<a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&nbsp;download)
                  throws <a href="../../../../../com/google/android/exoplayer2/database/DatabaseIOException.html" title="class in com.google.android.exoplayer2.database">DatabaseIOException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html#putDownload-com.google.android.exoplayer2.offline.Download-">WritableDownloadIndex</a></code></span></div>
-<div class="block">Adds or replaces a <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a>.</div>
+<div class="block">Adds or replaces a <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a>.
+
+ <p>This method may be slow and shouldn't normally be called on the main thread.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html#putDownload-com.google.android.exoplayer2.offline.Download-">putDownload</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html" title="interface in com.google.android.exoplayer2.offline">WritableDownloadIndex</a></code></dd>
@@ -355,7 +361,9 @@ public&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/Downlo
                     throws <a href="../../../../../com/google/android/exoplayer2/database/DatabaseIOException.html" title="class in com.google.android.exoplayer2.database">DatabaseIOException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html#removeDownload-java.lang.String-">WritableDownloadIndex</a></code></span></div>
 <div class="block">Removes the download with the given ID. Does nothing if a download with the given ID does not
- exist.</div>
+ exist.
+
+ <p>This method may be slow and shouldn't normally be called on the main thread.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html#removeDownload-java.lang.String-">removeDownload</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html" title="interface in com.google.android.exoplayer2.offline">WritableDownloadIndex</a></code></dd>
@@ -375,7 +383,9 @@ public&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/Downlo
 <pre>public&nbsp;void&nbsp;setDownloadingStatesToQueued()
                                   throws <a href="../../../../../com/google/android/exoplayer2/database/DatabaseIOException.html" title="class in com.google.android.exoplayer2.database">DatabaseIOException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html#setDownloadingStatesToQueued--">WritableDownloadIndex</a></code></span></div>
-<div class="block">Sets all <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_DOWNLOADING"><code>Download.STATE_DOWNLOADING</code></a> states to <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_QUEUED"><code>Download.STATE_QUEUED</code></a>.</div>
+<div class="block">Sets all <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_DOWNLOADING"><code>Download.STATE_DOWNLOADING</code></a> states to <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_QUEUED"><code>Download.STATE_QUEUED</code></a>.
+
+ <p>This method may be slow and shouldn't normally be called on the main thread.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html#setDownloadingStatesToQueued--">setDownloadingStatesToQueued</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html" title="interface in com.google.android.exoplayer2.offline">WritableDownloadIndex</a></code></dd>
@@ -393,7 +403,9 @@ public&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/Downlo
 <pre>public&nbsp;void&nbsp;setStatesToRemoving()
                          throws <a href="../../../../../com/google/android/exoplayer2/database/DatabaseIOException.html" title="class in com.google.android.exoplayer2.database">DatabaseIOException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html#setStatesToRemoving--">WritableDownloadIndex</a></code></span></div>
-<div class="block">Sets all states to <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_REMOVING"><code>Download.STATE_REMOVING</code></a>.</div>
+<div class="block">Sets all states to <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_REMOVING"><code>Download.STATE_REMOVING</code></a>.
+
+ <p>This method may be slow and shouldn't normally be called on the main thread.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html#setStatesToRemoving--">setStatesToRemoving</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html" title="interface in com.google.android.exoplayer2.offline">WritableDownloadIndex</a></code></dd>
@@ -412,7 +424,9 @@ public&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/Downlo
                    throws <a href="../../../../../com/google/android/exoplayer2/database/DatabaseIOException.html" title="class in com.google.android.exoplayer2.database">DatabaseIOException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html#setStopReason-int-">WritableDownloadIndex</a></code></span></div>
 <div class="block">Sets the stop reason of the downloads in a terminal state (<a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_COMPLETED"><code>Download.STATE_COMPLETED</code></a>,
- <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_FAILED"><code>Download.STATE_FAILED</code></a>).</div>
+ <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_FAILED"><code>Download.STATE_FAILED</code></a>).
+
+ <p>This method may be slow and shouldn't normally be called on the main thread.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html#setStopReason-int-">setStopReason</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html" title="interface in com.google.android.exoplayer2.offline">WritableDownloadIndex</a></code></dd>
@@ -434,7 +448,9 @@ public&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/Downlo
                    throws <a href="../../../../../com/google/android/exoplayer2/database/DatabaseIOException.html" title="class in com.google.android.exoplayer2.database">DatabaseIOException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html#setStopReason-java.lang.String-int-">WritableDownloadIndex</a></code></span></div>
 <div class="block">Sets the stop reason of the download with the given ID in a terminal state (<a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_COMPLETED"><code>Download.STATE_COMPLETED</code></a>, <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_FAILED"><code>Download.STATE_FAILED</code></a>). Does nothing if a download with the
- given ID does not exist, or if it's not in a terminal state.</div>
+ given ID does not exist, or if it's not in a terminal state.
+
+ <p>This method may be slow and shouldn't normally be called on the main thread.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html#setStopReason-java.lang.String-int-">setStopReason</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html" title="interface in com.google.android.exoplayer2.offline">WritableDownloadIndex</a></code></dd>

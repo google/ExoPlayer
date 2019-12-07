@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6};
+var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/audio/AudioListener.html" title="interface in com.google.android.exoplayer2.audio"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.UnhandledFormatException.html" title="class in com.google.android.exoplayer2.audio"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/audio/AudioProcessor.html" target="_top">Frames</a></li>
@@ -106,11 +106,6 @@ var activeTableTab = "activeTableTab";
 <div class="block">Interface for audio processors, which take audio data as input and transform it, potentially
  modifying its channel count, encoding and/or sample rate.
 
- <p>Call <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#configure-int-int-int-"><code>configure(int, int, int)</code></a> to configure the processor to receive input audio, then
- call <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#isActive--"><code>isActive()</code></a> to determine whether the processor is active in the new configuration.
- <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#queueInput-java.nio.ByteBuffer-"><code>queueInput(ByteBuffer)</code></a>, <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#getOutputChannelCount--"><code>getOutputChannelCount()</code></a>, <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#getOutputEncoding--"><code>getOutputEncoding()</code></a>
- and <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#getOutputSampleRateHz--"><code>getOutputSampleRateHz()</code></a> may only be called if the processor is active. Call <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#reset--"><code>reset()</code></a> to reset the processor to its unconfigured state and release any resources.
-
  <p>In addition to being able to modify the format of audio, implementations may allow parameters
  to be set that affect the output audio and whether the processor is active/inactive.</div>
 </li>
@@ -133,7 +128,13 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.UnhandledFormatException.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.UnhandledFormatException</a></span></code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a></span></code>
+<div class="block">PCM audio format that may be handled by an audio processor.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.UnhandledAudioFormatException.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.UnhandledAudioFormatException</a></span></code>
 <div class="block">Exception thrown when a processor can't be configured for a given input audio format.</div>
 </td>
 </tr>
@@ -174,10 +175,8 @@ var activeTableTab = "activeTableTab";
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#configure-int-int-int-">configure</a></span>(int&nbsp;sampleRateHz,
-         int&nbsp;channelCount,
-         int&nbsp;encoding)</code>
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#configure-com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat-">configure</a></span>(<a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;inputAudioFormat)</code>
 <div class="block">Configures the processor to process input audio with the specified format.</div>
 </td>
 </tr>
@@ -194,52 +193,34 @@ var activeTableTab = "activeTableTab";
 </td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#getOutputChannelCount--">getOutputChannelCount</a></span>()</code>
-<div class="block">Returns the number of audio channels in the data output by the processor.</div>
-</td>
-</tr>
-<tr id="i4" class="altColor">
-<td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#getOutputEncoding--">getOutputEncoding</a></span>()</code>
-<div class="block">Returns the audio encoding used in the data output by the processor.</div>
-</td>
-</tr>
-<tr id="i5" class="rowColor">
-<td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#getOutputSampleRateHz--">getOutputSampleRateHz</a></span>()</code>
-<div class="block">Returns the sample rate of audio output by the processor, in hertz.</div>
-</td>
-</tr>
-<tr id="i6" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#isActive--">isActive</a></span>()</code>
 <div class="block">Returns whether the processor is configured and will process input buffers.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#isEnded--">isEnded</a></span>()</code>
 <div class="block">Returns whether this processor will return no more output from <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#getOutput--"><code>getOutput()</code></a> until it
  has been <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#flush--"><code>flush()</code></a>ed and more input has been queued.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#queueEndOfStream--">queueEndOfStream</a></span>()</code>
 <div class="block">Queues an end of stream signal.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#queueInput-java.nio.ByteBuffer-">queueInput</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio">ByteBuffer</a>&nbsp;buffer)</code>
 <div class="block">Queues audio data between the position and limit of the input <code>buffer</code> for processing.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#reset--">reset</a></span>()</code>
-<div class="block">Resets the processor to its unconfigured state.</div>
+<div class="block">Resets the processor to its unconfigured state, releasing any resources.</div>
 </td>
 </tr>
 </table>
@@ -275,36 +256,29 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="configure-int-int-int-">
+<a name="configure-com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>configure</h4>
-<pre>boolean&nbsp;configure(int&nbsp;sampleRateHz,
-                  int&nbsp;channelCount,
-                  <a href="../../../../../com/google/android/exoplayer2/C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2">@C.PcmEncoding</a>
-                  int&nbsp;encoding)
-           throws <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.UnhandledFormatException.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.UnhandledFormatException</a></pre>
+<pre><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;configure(<a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;inputAudioFormat)
+                              throws <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.UnhandledAudioFormatException.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.UnhandledAudioFormatException</a></pre>
 <div class="block">Configures the processor to process input audio with the specified format. After calling this
- method, call <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#isActive--"><code>isActive()</code></a> to determine whether the audio processor is active.
+ method, call <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#isActive--"><code>isActive()</code></a> to determine whether the audio processor is active. Returns
+ the configured output audio format if this instance is active.
 
- <p>If the audio processor is active after configuration, call <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#getOutputSampleRateHz--"><code>getOutputSampleRateHz()</code></a>,
- <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#getOutputChannelCount--"><code>getOutputChannelCount()</code></a> and <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#getOutputEncoding--"><code>getOutputEncoding()</code></a> to get its new output format.
-
- <p>If this method returns <code>true</code>, it is necessary to <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#flush--"><code>flush()</code></a> the processor
- before queueing more data, but you can (optionally) first drain output in the previous
- configuration by calling <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#queueEndOfStream--"><code>queueEndOfStream()</code></a> and <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#getOutput--"><code>getOutput()</code></a>. If this method
- returns <code>false</code>, it is safe to queue new input immediately.</div>
+ <p>After calling this method, it is necessary to <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#flush--"><code>flush()</code></a> the processor to apply the
+ new configuration. Before applying the new configuration, it is safe to queue input and get
+ output in the old input/output formats. Call <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#queueEndOfStream--"><code>queueEndOfStream()</code></a> when no more input
+ will be supplied in the old input format.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>sampleRateHz</code> - The sample rate of input audio in Hz.</dd>
-<dd><code>channelCount</code> - The number of interleaved channels in input audio.</dd>
-<dd><code>encoding</code> - The encoding of input audio.</dd>
+<dd><code>inputAudioFormat</code> - The format of audio that will be queued after the next call to <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#flush--"><code>flush()</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>Whether the processor must be <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#flush--"><code>flushed</code></a> before queueing more input.</dd>
+<dd>The configured output audio format if this instance is <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#isActive--"><code>active</code></a>.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.UnhandledFormatException.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.UnhandledFormatException</a></code> - Thrown if the specified format can't be handled as input.</dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.UnhandledAudioFormatException.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.UnhandledAudioFormatException</a></code> - Thrown if the specified format can't be handled as input.</dd>
 </dl>
 </li>
 </ul>
@@ -316,40 +290,6 @@ var activeTableTab = "activeTableTab";
 <h4>isActive</h4>
 <pre>boolean&nbsp;isActive()</pre>
 <div class="block">Returns whether the processor is configured and will process input buffers.</div>
-</li>
-</ul>
-<a name="getOutputChannelCount--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getOutputChannelCount</h4>
-<pre>int&nbsp;getOutputChannelCount()</pre>
-<div class="block">Returns the number of audio channels in the data output by the processor. The value may change
- as a result of calling <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#configure-int-int-int-"><code>configure(int, int, int)</code></a>.</div>
-</li>
-</ul>
-<a name="getOutputEncoding--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getOutputEncoding</h4>
-<pre><a href="../../../../../com/google/android/exoplayer2/C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2">@C.PcmEncoding</a>
-int&nbsp;getOutputEncoding()</pre>
-<div class="block">Returns the audio encoding used in the data output by the processor. The value may change as a
- result of calling <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#configure-int-int-int-"><code>configure(int, int, int)</code></a>.</div>
-</li>
-</ul>
-<a name="getOutputSampleRateHz--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getOutputSampleRateHz</h4>
-<pre>int&nbsp;getOutputSampleRateHz()</pre>
-<div class="block">Returns the sample rate of audio output by the processor, in hertz. The value may change as a
- result of calling <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#configure-int-int-int-"><code>configure(int, int, int)</code></a>.</div>
 </li>
 </ul>
 <a name="queueInput-java.nio.ByteBuffer-">
@@ -429,7 +369,7 @@ int&nbsp;getOutputEncoding()</pre>
 <li class="blockList">
 <h4>reset</h4>
 <pre>void&nbsp;reset()</pre>
-<div class="block">Resets the processor to its unconfigured state.</div>
+<div class="block">Resets the processor to its unconfigured state, releasing any resources.</div>
 </li>
 </ul>
 </li>
@@ -460,7 +400,7 @@ int&nbsp;getOutputEncoding()</pre>
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/audio/AudioListener.html" title="interface in com.google.android.exoplayer2.audio"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.UnhandledFormatException.html" title="class in com.google.android.exoplayer2.audio"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/audio/AudioProcessor.html" target="_top">Frames</a></li>

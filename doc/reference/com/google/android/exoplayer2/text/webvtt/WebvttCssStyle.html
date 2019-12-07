@@ -499,7 +499,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>reset</h4>
-<pre>public&nbsp;void&nbsp;reset()</pre>
+<pre>@EnsuresNonNull(value={"targetId","targetTag","targetClasses","targetVoice"})
+public&nbsp;void&nbsp;reset()</pre>
 </li>
 </ul>
 <a name="setTargetId-java.lang.String-">
@@ -544,9 +545,12 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>getSpecificityScore</h4>
-<pre>public&nbsp;int&nbsp;getSpecificityScore(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+<pre>public&nbsp;int&nbsp;getSpecificityScore(@Nullable
+                               <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+                               @Nullable
                                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;tag,
                                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>[]&nbsp;classes,
+                               @Nullable
                                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;voice)</pre>
 <div class="block">Returns a value in a score system compliant with the CSS Specificity rules.</div>
 <dl>
@@ -559,14 +563,13 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <dd>The score of the match, zero if there is no match.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="https://www.w3.org/TR/CSS2/cascade.html">CSS Cascading</a>
-
- The score works as follows:
- <ul>
- <li> Id match adds 0x40000000 to the score.
- <li> Each class and voice match adds 4 to the score.
- <li> Tag matching adds 2 to the score.
- <li> Universal selector matching scores 1.
- </ul></dd>
+     <p>The score works as follows:
+     <ul>
+       <li>Id match adds 0x40000000 to the score.
+       <li>Each class and voice match adds 4 to the score.
+       <li>Tag matching adds 2 to the score.
+       <li>Universal selector matching scores 1.
+     </ul></dd>
 </dl>
 </li>
 </ul>
@@ -646,7 +649,8 @@ public&nbsp;int&nbsp;getStyle()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>getFontFamily</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;getFontFamily()</pre>
+<pre>@Nullable
+public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;getFontFamily()</pre>
 </li>
 </ul>
 <a name="setFontFamily-java.lang.String-">
@@ -655,7 +659,8 @@ public&nbsp;int&nbsp;getStyle()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setFontFamily</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a>&nbsp;setFontFamily(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;fontFamily)</pre>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a>&nbsp;setFontFamily(@Nullable
+                                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;fontFamily)</pre>
 </li>
 </ul>
 <a name="getFontColor--">
@@ -718,7 +723,8 @@ public&nbsp;int&nbsp;getStyle()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>getTextAlign</h4>
-<pre>public&nbsp;<a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" target="_top" title="class or interface in android.text">Layout.Alignment</a>&nbsp;getTextAlign()</pre>
+<pre>@Nullable
+public&nbsp;<a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" target="_top" title="class or interface in android.text">Layout.Alignment</a>&nbsp;getTextAlign()</pre>
 </li>
 </ul>
 <a name="setTextAlign-android.text.Layout.Alignment-">
@@ -727,7 +733,8 @@ public&nbsp;int&nbsp;getStyle()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setTextAlign</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a>&nbsp;setTextAlign(<a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" target="_top" title="class or interface in android.text">Layout.Alignment</a>&nbsp;textAlign)</pre>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a>&nbsp;setTextAlign(@Nullable
+                                   <a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" target="_top" title="class or interface in android.text">Layout.Alignment</a>&nbsp;textAlign)</pre>
 </li>
 </ul>
 <a name="setFontSize-float-">

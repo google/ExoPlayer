@@ -129,8 +129,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/DataSo
    <li>data: For parsing data inlined in the URI as defined in RFC 2397.
    <li>udp: For fetching data over UDP (e.g. udp://something.com/media).
    <li>http(s): For fetching data over HTTP and HTTPS (e.g. https://www.something.com/media.mp4),
-       if constructed using <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultDataSource.html#DefaultDataSource-android.content.Context-com.google.android.exoplayer2.upstream.TransferListener-java.lang.String-boolean-"><code>DefaultDataSource(Context, TransferListener, String,
-       boolean)</code></a>, or any other schemes supported by a base data source if constructed using <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultDataSource.html#DefaultDataSource-android.content.Context-com.google.android.exoplayer2.upstream.TransferListener-com.google.android.exoplayer2.upstream.DataSource-"><code>DefaultDataSource(Context, TransferListener, DataSource)</code></a>.
+       if constructed using <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultDataSource.html#DefaultDataSource-android.content.Context-java.lang.String-boolean-"><code>DefaultDataSource(Context, String, boolean)</code></a>, or any other
+       schemes supported by a base data source if constructed using <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultDataSource.html#DefaultDataSource-android.content.Context-com.google.android.exoplayer2.upstream.DataSource-"><code>DefaultDataSource(Context, DataSource)</code></a>.
  </ul></div>
 </li>
 </ul>
@@ -185,37 +185,6 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/DataSo
                  int&nbsp;readTimeoutMillis,
                  boolean&nbsp;allowCrossProtocolRedirects)</code>
 <div class="block">Constructs a new instance, optionally configured to follow cross-protocol redirects.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultDataSource.html#DefaultDataSource-android.content.Context-com.google.android.exoplayer2.upstream.TransferListener-com.google.android.exoplayer2.upstream.DataSource-">DefaultDataSource</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
-                 <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener,
-                 <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;baseDataSource)</code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultDataSource.html#DefaultDataSource-android.content.Context-com.google.android.exoplayer2.upstream.DataSource-"><code>DefaultDataSource(Context, DataSource)</code></a> and <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultDataSource.html#addTransferListener-com.google.android.exoplayer2.upstream.TransferListener-"><code>addTransferListener(TransferListener)</code></a>.</span></div>
-</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultDataSource.html#DefaultDataSource-android.content.Context-com.google.android.exoplayer2.upstream.TransferListener-java.lang.String-boolean-">DefaultDataSource</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
-                 <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener,
-                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;userAgent,
-                 boolean&nbsp;allowCrossProtocolRedirects)</code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultDataSource.html#DefaultDataSource-android.content.Context-java.lang.String-boolean-"><code>DefaultDataSource(Context, String, boolean)</code></a> and <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultDataSource.html#addTransferListener-com.google.android.exoplayer2.upstream.TransferListener-"><code>addTransferListener(TransferListener)</code></a>.</span></div>
-</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultDataSource.html#DefaultDataSource-android.content.Context-com.google.android.exoplayer2.upstream.TransferListener-java.lang.String-int-int-boolean-">DefaultDataSource</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
-                 <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener,
-                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;userAgent,
-                 int&nbsp;connectTimeoutMillis,
-                 int&nbsp;readTimeoutMillis,
-                 boolean&nbsp;allowCrossProtocolRedirects)</code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultDataSource.html#DefaultDataSource-android.content.Context-java.lang.String-int-int-boolean-"><code>DefaultDataSource(Context, String, int, int, boolean)</code></a> and <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultDataSource.html#addTransferListener-com.google.android.exoplayer2.upstream.TransferListener-"><code>addTransferListener(TransferListener)</code></a>.</span></div>
-</div>
 </td>
 </tr>
 </table>
@@ -342,7 +311,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/DataSo
 <a name="DefaultDataSource-android.content.Context-com.google.android.exoplayer2.upstream.DataSource-">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>DefaultDataSource</h4>
 <pre>public&nbsp;DefaultDataSource(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
@@ -352,83 +321,6 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/DataSo
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>context</code> - A context.</dd>
-<dd><code>baseDataSource</code> - A <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> to use for URI schemes other than file, asset and
-     content. This <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> should normally support at least http(s).</dd>
-</dl>
-</li>
-</ul>
-<a name="DefaultDataSource-android.content.Context-com.google.android.exoplayer2.upstream.TransferListener-java.lang.String-boolean-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>DefaultDataSource</h4>
-<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
-public&nbsp;DefaultDataSource(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
-                                     @Nullable
-                                     <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener,
-                                     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;userAgent,
-                                     boolean&nbsp;allowCrossProtocolRedirects)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultDataSource.html#DefaultDataSource-android.content.Context-java.lang.String-boolean-"><code>DefaultDataSource(Context, String, boolean)</code></a> and <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultDataSource.html#addTransferListener-com.google.android.exoplayer2.upstream.TransferListener-"><code>addTransferListener(TransferListener)</code></a>.</span></div>
-<div class="block">Constructs a new instance, optionally configured to follow cross-protocol redirects.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>context</code> - A context.</dd>
-<dd><code>listener</code> - An optional listener.</dd>
-<dd><code>userAgent</code> - The User-Agent to use when requesting remote data.</dd>
-<dd><code>allowCrossProtocolRedirects</code> - Whether cross-protocol redirects (i.e. redirects from HTTP
-     to HTTPS and vice versa) are enabled when fetching remote data.</dd>
-</dl>
-</li>
-</ul>
-<a name="DefaultDataSource-android.content.Context-com.google.android.exoplayer2.upstream.TransferListener-java.lang.String-int-int-boolean-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>DefaultDataSource</h4>
-<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
-public&nbsp;DefaultDataSource(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
-                                     @Nullable
-                                     <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener,
-                                     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;userAgent,
-                                     int&nbsp;connectTimeoutMillis,
-                                     int&nbsp;readTimeoutMillis,
-                                     boolean&nbsp;allowCrossProtocolRedirects)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultDataSource.html#DefaultDataSource-android.content.Context-java.lang.String-int-int-boolean-"><code>DefaultDataSource(Context, String, int, int, boolean)</code></a> and <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultDataSource.html#addTransferListener-com.google.android.exoplayer2.upstream.TransferListener-"><code>addTransferListener(TransferListener)</code></a>.</span></div>
-<div class="block">Constructs a new instance, optionally configured to follow cross-protocol redirects.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>context</code> - A context.</dd>
-<dd><code>listener</code> - An optional listener.</dd>
-<dd><code>userAgent</code> - The User-Agent to use when requesting remote data.</dd>
-<dd><code>connectTimeoutMillis</code> - The connection timeout that should be used when requesting remote
-     data, in milliseconds. A timeout of zero is interpreted as an infinite timeout.</dd>
-<dd><code>readTimeoutMillis</code> - The read timeout that should be used when requesting remote data, in
-     milliseconds. A timeout of zero is interpreted as an infinite timeout.</dd>
-<dd><code>allowCrossProtocolRedirects</code> - Whether cross-protocol redirects (i.e. redirects from HTTP
-     to HTTPS and vice versa) are enabled when fetching remote data.</dd>
-</dl>
-</li>
-</ul>
-<a name="DefaultDataSource-android.content.Context-com.google.android.exoplayer2.upstream.TransferListener-com.google.android.exoplayer2.upstream.DataSource-">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>DefaultDataSource</h4>
-<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
-public&nbsp;DefaultDataSource(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
-                                     @Nullable
-                                     <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener,
-                                     <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;baseDataSource)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultDataSource.html#DefaultDataSource-android.content.Context-com.google.android.exoplayer2.upstream.DataSource-"><code>DefaultDataSource(Context, DataSource)</code></a> and <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultDataSource.html#addTransferListener-com.google.android.exoplayer2.upstream.TransferListener-"><code>addTransferListener(TransferListener)</code></a>.</span></div>
-<div class="block">Constructs a new instance that delegates to a provided <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> for URI schemes other
- than file, asset and content.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>context</code> - A context.</dd>
-<dd><code>listener</code> - An optional listener.</dd>
 <dd><code>baseDataSource</code> - A <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> to use for URI schemes other than file, asset and
      content. This <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> should normally support at least http(s).</dd>
 </dl>

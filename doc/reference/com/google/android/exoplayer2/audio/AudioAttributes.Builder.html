@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -158,13 +158,19 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.Builder.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.Builder.html#setContentType-int-">setContentType</a></span>(int&nbsp;contentType)</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.Builder.html#setAllowedCapturePolicy-int-">setAllowedCapturePolicy</a></span>(int&nbsp;allowedCapturePolicy)</code>
+<div class="block">See <a href="https://developer.android.com/reference/android/media/AudioAttributes.Builder.html?is-external=true#setAllowedCapturePolicy-int-" title="class or interface in android.media"><code>AudioAttributes.Builder.setAllowedCapturePolicy(int)</code></a>.</div>
+</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.Builder.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.Builder.html#setFlags-int-">setFlags</a></span>(int&nbsp;flags)</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.Builder.html#setContentType-int-">setContentType</a></span>(int&nbsp;contentType)</code>&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.Builder.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes.Builder</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.Builder.html#setFlags-int-">setFlags</a></span>(int&nbsp;flags)</code>&nbsp;</td>
+</tr>
+<tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.Builder.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.Builder.html#setUsage-int-">setUsage</a></span>(int&nbsp;usage)</code>&nbsp;</td>
 </tr>
@@ -198,9 +204,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <h4>Builder</h4>
 <pre>public&nbsp;Builder()</pre>
 <div class="block">Creates a new builder for <a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio"><code>AudioAttributes</code></a>.
- <p>
- By default the content type is <a href="../../../../../com/google/android/exoplayer2/C.html#CONTENT_TYPE_UNKNOWN"><code>C.CONTENT_TYPE_UNKNOWN</code></a>, usage is
- <a href="../../../../../com/google/android/exoplayer2/C.html#USAGE_MEDIA"><code>C.USAGE_MEDIA</code></a>, and no flags are set.</div>
+
+ <p>By default the content type is <a href="../../../../../com/google/android/exoplayer2/C.html#CONTENT_TYPE_UNKNOWN"><code>C.CONTENT_TYPE_UNKNOWN</code></a>, usage is <a href="../../../../../com/google/android/exoplayer2/C.html#USAGE_MEDIA"><code>C.USAGE_MEDIA</code></a>, capture policy is <a href="../../../../../com/google/android/exoplayer2/C.html#ALLOW_CAPTURE_BY_ALL"><code>C.ALLOW_CAPTURE_BY_ALL</code></a> and no flags are set.</div>
 </li>
 </ul>
 </li>
@@ -251,6 +256,17 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="https://developer.android.com/reference/android/media/AudioAttributes.Builder.html?is-external=true#setUsage-int-" title="class or interface in android.media"><code>AudioAttributes.Builder.setUsage(int)</code></a></dd>
 </dl>
+</li>
+</ul>
+<a name="setAllowedCapturePolicy-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAllowedCapturePolicy</h4>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.Builder.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes.Builder</a>&nbsp;setAllowedCapturePolicy(<a href="../../../../../com/google/android/exoplayer2/C.AudioAllowedCapturePolicy.html" title="annotation in com.google.android.exoplayer2">@C.AudioAllowedCapturePolicy</a>
+                                                       int&nbsp;allowedCapturePolicy)</pre>
+<div class="block">See <a href="https://developer.android.com/reference/android/media/AudioAttributes.Builder.html?is-external=true#setAllowedCapturePolicy-int-" title="class or interface in android.media"><code>AudioAttributes.Builder.setAllowedCapturePolicy(int)</code></a>.</div>
 </li>
 </ul>
 <a name="build--">

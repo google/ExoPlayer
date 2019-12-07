@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -186,29 +186,14 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Sampl
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html#ChunkSampleStream-int-int:A-com.google.android.exoplayer2.Format:A-T-com.google.android.exoplayer2.source.SequenceableLoader.Callback-com.google.android.exoplayer2.upstream.Allocator-long-int-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-">ChunkSampleStream</a></span>(int&nbsp;primaryTrackType,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html#ChunkSampleStream-int-int:A-com.google.android.exoplayer2.Format:A-T-com.google.android.exoplayer2.source.SequenceableLoader.Callback-com.google.android.exoplayer2.upstream.Allocator-long-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-">ChunkSampleStream</a></span>(int&nbsp;primaryTrackType,
                  int[]&nbsp;embeddedTrackTypes,
                  <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>[]&nbsp;embeddedTrackFormats,
                  <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html" title="type parameter in ChunkSampleStream">T</a>&nbsp;chunkSource,
                  <a href="../../../../../../com/google/android/exoplayer2/source/SequenceableLoader.Callback.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader.Callback</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk">ChunkSampleStream</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html" title="type parameter in ChunkSampleStream">T</a>&gt;&gt;&nbsp;callback,
                  <a href="../../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator,
                  long&nbsp;positionUs,
-                 int&nbsp;minLoadableRetryCount,
-                 <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <code>#ChunkSampleStream(int, int[], Format[], ChunkSource, Callback,
-     Allocator, long, LoadErrorHandlingPolicy, EventDispatcher)</code> instead.</span></div>
-</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html#ChunkSampleStream-int-int:A-com.google.android.exoplayer2.Format:A-T-com.google.android.exoplayer2.source.SequenceableLoader.Callback-com.google.android.exoplayer2.upstream.Allocator-long-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-">ChunkSampleStream</a></span>(int&nbsp;primaryTrackType,
-                 int[]&nbsp;embeddedTrackTypes,
-                 <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>[]&nbsp;embeddedTrackFormats,
-                 <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html" title="type parameter in ChunkSampleStream">T</a>&nbsp;chunkSource,
-                 <a href="../../../../../../com/google/android/exoplayer2/source/SequenceableLoader.Callback.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader.Callback</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk">ChunkSampleStream</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html" title="type parameter in ChunkSampleStream">T</a>&gt;&gt;&nbsp;callback,
-                 <a href="../../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator,
-                 long&nbsp;positionUs,
+                 <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;?&gt;&nbsp;drmSessionManager,
                  <a href="../../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy,
                  <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</code>
 <div class="block">Constructs an instance.</div>
@@ -269,17 +254,23 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Sampl
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html#isLoading--">isLoading</a></span>()</code>
+<div class="block">Returns whether the loader is currently loading.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html#isReady--">isReady</a></span>()</code>
 <div class="block">Returns whether data is available to be read.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html#maybeThrowError--">maybeThrowError</a></span>()</code>
 <div class="block">Throws an error that's preventing data from being read.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html#onLoadCanceled-com.google.android.exoplayer2.source.chunk.Chunk-long-long-boolean-">onLoadCanceled</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;loadable,
               long&nbsp;elapsedRealtimeMs,
@@ -288,7 +279,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Sampl
 <div class="block">Called when a load has been canceled.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html#onLoadCompleted-com.google.android.exoplayer2.source.chunk.Chunk-long-long-">onLoadCompleted</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;loadable,
                long&nbsp;elapsedRealtimeMs,
@@ -296,13 +287,13 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Sampl
 <div class="block">Called when a load has completed.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html#onLoaderReleased--">onLoaderReleased</a></span>()</code>
 <div class="block">Called when the <a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a> has finished being released.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream">Loader.LoadErrorAction</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html#onLoadError-com.google.android.exoplayer2.source.chunk.Chunk-long-long-java.io.IOException-int-">onLoadError</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;loadable,
            long&nbsp;elapsedRealtimeMs,
@@ -312,7 +303,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Sampl
 <div class="block">Called when a load encounters an error.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html#readData-com.google.android.exoplayer2.FormatHolder-com.google.android.exoplayer2.decoder.DecoderInputBuffer-boolean-">readData</a></span>(<a href="../../../../../../com/google/android/exoplayer2/FormatHolder.html" title="class in com.google.android.exoplayer2">FormatHolder</a>&nbsp;formatHolder,
         <a href="../../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;buffer,
@@ -320,31 +311,31 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Sampl
 <div class="block">Attempts to read from the stream.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html#reevaluateBuffer-long-">reevaluateBuffer</a></span>(long&nbsp;positionUs)</code>
 <div class="block">Re-evaluates the buffer given the playback position.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html#release--">release</a></span>()</code>
 <div class="block">Releases the stream.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html#release-com.google.android.exoplayer2.source.chunk.ChunkSampleStream.ReleaseCallback-">release</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.ReleaseCallback.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkSampleStream.ReleaseCallback</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html" title="type parameter in ChunkSampleStream">T</a>&gt;&nbsp;callback)</code>
 <div class="block">Releases the stream.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html#seekToUs-long-">seekToUs</a></span>(long&nbsp;positionUs)</code>
 <div class="block">Seeks to the specified position in microseconds.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.EmbeddedSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk">ChunkSampleStream.EmbeddedSampleStream</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html#selectEmbeddedTrack-long-int-">selectEmbeddedTrack</a></span>(long&nbsp;positionUs,
                    int&nbsp;trackType)</code>
@@ -352,7 +343,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Sampl
  samples can be consumed.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html#skipData-long-">skipData</a></span>(long&nbsp;positionUs)</code>
 <div class="block">Attempts to skip to the keyframe before the specified position, or to the end of the stream if
@@ -398,57 +389,24 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Sampl
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="ChunkSampleStream-int-int:A-com.google.android.exoplayer2.Format:A-com.google.android.exoplayer2.source.chunk.ChunkSource-com.google.android.exoplayer2.source.SequenceableLoader.Callback-com.google.android.exoplayer2.upstream.Allocator-long-int-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-">
+<a name="ChunkSampleStream-int-int:A-com.google.android.exoplayer2.Format:A-com.google.android.exoplayer2.source.chunk.ChunkSource-com.google.android.exoplayer2.source.SequenceableLoader.Callback-com.google.android.exoplayer2.upstream.Allocator-long-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-">
 <!--   -->
-</a><a name="ChunkSampleStream-int-int:A-com.google.android.exoplayer2.Format:A-T-com.google.android.exoplayer2.source.SequenceableLoader.Callback-com.google.android.exoplayer2.upstream.Allocator-long-int-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>ChunkSampleStream</h4>
-<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
-public&nbsp;ChunkSampleStream(int&nbsp;primaryTrackType,
-                                     int[]&nbsp;embeddedTrackTypes,
-                                     <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>[]&nbsp;embeddedTrackFormats,
-                                     <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html" title="type parameter in ChunkSampleStream">T</a>&nbsp;chunkSource,
-                                     <a href="../../../../../../com/google/android/exoplayer2/source/SequenceableLoader.Callback.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader.Callback</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk">ChunkSampleStream</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html" title="type parameter in ChunkSampleStream">T</a>&gt;&gt;&nbsp;callback,
-                                     <a href="../../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator,
-                                     long&nbsp;positionUs,
-                                     int&nbsp;minLoadableRetryCount,
-                                     <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <code>#ChunkSampleStream(int, int[], Format[], ChunkSource, Callback,
-     Allocator, long, LoadErrorHandlingPolicy, EventDispatcher)</code> instead.</span></div>
-<div class="block">Constructs an instance.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>primaryTrackType</code> - The type of the primary track. One of the <a href="../../../../../../com/google/android/exoplayer2/C.html" title="class in com.google.android.exoplayer2"><code>C</code></a> <code>TRACK_TYPE_*</code> constants.</dd>
-<dd><code>embeddedTrackTypes</code> - The types of any embedded tracks, or null.</dd>
-<dd><code>embeddedTrackFormats</code> - The formats of the embedded tracks, or null.</dd>
-<dd><code>chunkSource</code> - A <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>ChunkSource</code></a> from which chunks to load are obtained.</dd>
-<dd><code>callback</code> - An <code>Callback</code> for the stream.</dd>
-<dd><code>allocator</code> - An <a href="../../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream"><code>Allocator</code></a> from which allocations can be obtained.</dd>
-<dd><code>positionUs</code> - The position from which to start loading media.</dd>
-<dd><code>minLoadableRetryCount</code> - The minimum number of times that the source should retry a load
-     before propagating an error.</dd>
-<dd><code>eventDispatcher</code> - A dispatcher to notify of events.</dd>
-</dl>
-</li>
-</ul>
-<a name="ChunkSampleStream-int-int:A-com.google.android.exoplayer2.Format:A-com.google.android.exoplayer2.source.chunk.ChunkSource-com.google.android.exoplayer2.source.SequenceableLoader.Callback-com.google.android.exoplayer2.upstream.Allocator-long-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-">
-<!--   -->
-</a><a name="ChunkSampleStream-int-int:A-com.google.android.exoplayer2.Format:A-T-com.google.android.exoplayer2.source.SequenceableLoader.Callback-com.google.android.exoplayer2.upstream.Allocator-long-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-">
+</a><a name="ChunkSampleStream-int-int:A-com.google.android.exoplayer2.Format:A-T-com.google.android.exoplayer2.source.SequenceableLoader.Callback-com.google.android.exoplayer2.upstream.Allocator-long-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>ChunkSampleStream</h4>
 <pre>public&nbsp;ChunkSampleStream(int&nbsp;primaryTrackType,
+                         @Nullable
                          int[]&nbsp;embeddedTrackTypes,
+                         @Nullable
                          <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>[]&nbsp;embeddedTrackFormats,
                          <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html" title="type parameter in ChunkSampleStream">T</a>&nbsp;chunkSource,
                          <a href="../../../../../../com/google/android/exoplayer2/source/SequenceableLoader.Callback.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader.Callback</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk">ChunkSampleStream</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html" title="type parameter in ChunkSampleStream">T</a>&gt;&gt;&nbsp;callback,
                          <a href="../../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator,
                          long&nbsp;positionUs,
+                         <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;?&gt;&nbsp;drmSessionManager,
                          <a href="../../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy,
                          <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</pre>
 <div class="block">Constructs an instance.</div>
@@ -461,6 +419,8 @@ public&nbsp;ChunkSampleStream(int&nbsp;primaryTrackType,
 <dd><code>callback</code> - An <code>Callback</code> for the stream.</dd>
 <dd><code>allocator</code> - An <a href="../../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream"><code>Allocator</code></a> from which allocations can be obtained.</dd>
 <dd><code>positionUs</code> - The position from which to start loading media.</dd>
+<dd><code>drmSessionManager</code> - The <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> to obtain <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessions</code></a>
+     from.</dd>
 <dd><code>loadErrorHandlingPolicy</code> - The <a href="../../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>.</dd>
 <dd><code>eventDispatcher</code> - A dispatcher to notify of events.</dd>
 </dl>
@@ -813,6 +773,21 @@ public&nbsp;ChunkSampleStream(int&nbsp;primaryTrackType,
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>True if progress was made, meaning that <a href="../../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html#getNextLoadPositionUs--"><code>SequenceableLoader.getNextLoadPositionUs()</code></a> will return
      a different value than prior to the call. False otherwise.</dd>
+</dl>
+</li>
+</ul>
+<a name="isLoading--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isLoading</h4>
+<pre>public&nbsp;boolean&nbsp;isLoading()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html#isLoading--">SequenceableLoader</a></code></span></div>
+<div class="block">Returns whether the loader is currently loading.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html#isLoading--">isLoading</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader</a></code></dd>
 </dl>
 </li>
 </ul>

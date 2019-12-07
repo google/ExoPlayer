@@ -349,14 +349,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
                   throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>,
                          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#readFully-byte:A-int-int-boolean-">ExtractorInput</a></code></span></div>
-<div class="block">Like <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#read-byte:A-int-int-"><code>ExtractorInput.read(byte[], int, int)</code></a>, but reads the requested <code>length</code> in full.
- <p>
- If the end of the input is found having read no data, then behavior is dependent on
- <code>allowEndOfInput</code>. If <code>allowEndOfInput == true</code> then <code>false</code> is returned.
- Otherwise an <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/EOFException.html" target="_top" title="class or interface in java.io"><code>EOFException</code></a> is thrown.
- <p>
- Encountering the end of input having partially satisfied the read is always considered an
- error, and will result in an <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/EOFException.html" target="_top" title="class or interface in java.io"><code>EOFException</code></a> being thrown.</div>
+<div class="block">Like <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#read-byte:A-int-int-"><code>ExtractorInput.read(byte[], int, int)</code></a>, but reads the requested <code>length</code> in full.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#readFully-byte:A-int-int-boolean-">readFully</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
@@ -366,10 +359,11 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <dd><code>length</code> - The number of bytes to read from the input.</dd>
 <dd><code>allowEndOfInput</code> - True if encountering the end of the input having read no data is
      allowed, and should result in <code>false</code> being returned. False if it should be
-     considered an error, causing an <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/EOFException.html" target="_top" title="class or interface in java.io"><code>EOFException</code></a> to be thrown.</dd>
+     considered an error, causing an <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/EOFException.html" target="_top" title="class or interface in java.io"><code>EOFException</code></a> to be thrown. See note in class
+     Javadoc.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>True if the read was successful. False if the end of the input was encountered having
-     read no data.</dd>
+<dd>True if the read was successful. False if <code>allowEndOfInput=true</code> and the end of
+     the input was encountered having read no data.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/EOFException.html" target="_top" title="class or interface in java.io">EOFException</a></code> - If the end of input was encountered having partially satisfied the read
      (i.e. having read at least one byte, but fewer than <code>length</code>), or if no bytes were
@@ -449,10 +443,11 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <dd><code>length</code> - The number of bytes to skip from the input.</dd>
 <dd><code>allowEndOfInput</code> - True if encountering the end of the input having skipped no data is
      allowed, and should result in <code>false</code> being returned. False if it should be
-     considered an error, causing an <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/EOFException.html" target="_top" title="class or interface in java.io"><code>EOFException</code></a> to be thrown.</dd>
+     considered an error, causing an <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/EOFException.html" target="_top" title="class or interface in java.io"><code>EOFException</code></a> to be thrown. See note in class
+     Javadoc.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>True if the skip was successful. False if the end of the input was encountered having
-     skipped no data.</dd>
+<dd>True if the skip was successful. False if <code>allowEndOfInput=true</code> and the end of
+     the input was encountered having skipped no data.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/EOFException.html" target="_top" title="class or interface in java.io">EOFException</a></code> - If the end of input was encountered having partially satisfied the skip
      (i.e. having skipped at least one byte, but fewer than <code>length</code>), or if no bytes were
@@ -503,12 +498,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#peekFully-byte:A-int-int-boolean-">ExtractorInput</a></code></span></div>
 <div class="block">Peeks <code>length</code> bytes from the peek position, writing them into <code>target</code> at index
  <code>offset</code>. The current read position is left unchanged.
- <p>
- If the end of the input is found having peeked no data, then behavior is dependent on
- <code>allowEndOfInput</code>. If <code>allowEndOfInput == true</code> then <code>false</code> is returned.
- Otherwise an <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/EOFException.html" target="_top" title="class or interface in java.io"><code>EOFException</code></a> is thrown.
- <p>
- Calling <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#resetPeekPosition--"><code>ExtractorInput.resetPeekPosition()</code></a> resets the peek position to equal the current read
+
+ <p>Calling <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#resetPeekPosition--"><code>ExtractorInput.resetPeekPosition()</code></a> resets the peek position to equal the current read
  position, so the caller can peek the same data again. Reading or skipping also resets the peek
  position.</div>
 <dl>
@@ -520,10 +511,11 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <dd><code>length</code> - The number of bytes to peek from the input.</dd>
 <dd><code>allowEndOfInput</code> - True if encountering the end of the input having peeked no data is
      allowed, and should result in <code>false</code> being returned. False if it should be
-     considered an error, causing an <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/EOFException.html" target="_top" title="class or interface in java.io"><code>EOFException</code></a> to be thrown.</dd>
+     considered an error, causing an <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/EOFException.html" target="_top" title="class or interface in java.io"><code>EOFException</code></a> to be thrown. See note in class
+     Javadoc.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>True if the peek was successful. False if the end of the input was encountered having
-     peeked no data.</dd>
+<dd>True if the peek was successful. False if <code>allowEndOfInput=true</code> and the end of
+     the input was encountered having peeked no data.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/EOFException.html" target="_top" title="class or interface in java.io">EOFException</a></code> - If the end of input was encountered having partially satisfied the peek
      (i.e. having peeked at least one byte, but fewer than <code>length</code>), or if no bytes were
@@ -576,11 +568,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
                             throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>,
                                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#advancePeekPosition-int-boolean-">ExtractorInput</a></code></span></div>
-<div class="block">Advances the peek position by <code>length</code> bytes.
- <p>
- If the end of the input is encountered before advancing the peek position, then behavior is
- dependent on <code>allowEndOfInput</code>. If <code>allowEndOfInput == true</code> then <code>false</code> is
- returned. Otherwise an <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/EOFException.html" target="_top" title="class or interface in java.io"><code>EOFException</code></a> is thrown.</div>
+<div class="block">Advances the peek position by <code>length</code> bytes. Like <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#peekFully-byte:A-int-int-boolean-"><code>ExtractorInput.peekFully(byte[], int, int,
+ boolean)</code></a> except the data is skipped instead of read.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#advancePeekPosition-int-boolean-">advancePeekPosition</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
@@ -588,10 +577,10 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <dd><code>length</code> - The number of bytes by which to advance the peek position.</dd>
 <dd><code>allowEndOfInput</code> - True if encountering the end of the input before advancing is allowed,
      and should result in <code>false</code> being returned. False if it should be considered an
-     error, causing an <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/EOFException.html" target="_top" title="class or interface in java.io"><code>EOFException</code></a> to be thrown.</dd>
+     error, causing an <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/EOFException.html" target="_top" title="class or interface in java.io"><code>EOFException</code></a> to be thrown. See note in class Javadoc.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>True if advancing the peek position was successful. False if the end of the input was
-     encountered before the peek position could be advanced.</dd>
+<dd>True if advancing the peek position was successful. False if <code>allowEndOfInput=true</code> and the end of the input was encountered before advancing over any
+     data.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/EOFException.html" target="_top" title="class or interface in java.io">EOFException</a></code> - If the end of input was encountered having partially advanced (i.e. having
      advanced by at least one byte, but fewer than <code>length</code>), or if the end of input was
@@ -611,7 +600,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
                          throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>,
                                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#advancePeekPosition-int-">ExtractorInput</a></code></span></div>
-<div class="block">Advances the peek position by <code>length</code> bytes.</div>
+<div class="block">Advances the peek position by <code>length</code> bytes. Like <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#peekFully-byte:A-int-int-"><code>ExtractorInput.peekFully(byte[], int, int)</code></a>
+ except the data is skipped instead of read.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#advancePeekPosition-int-">advancePeekPosition</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>

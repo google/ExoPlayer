@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -216,9 +216,10 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Bas
                       <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#AdaptiveTrackSelection-com.google.android.exoplayer2.source.TrackGroup-int:A-com.google.android.exoplayer2.upstream.BandwidthMeter-long-long-long-float-float-long-com.google.android.exoplayer2.util.Clock-">AdaptiveTrackSelection</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#AdaptiveTrackSelection-com.google.android.exoplayer2.source.TrackGroup-int:A-com.google.android.exoplayer2.upstream.BandwidthMeter-long-long-long-long-float-float-long-com.google.android.exoplayer2.util.Clock-">AdaptiveTrackSelection</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
                       int[]&nbsp;tracks,
                       <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter,
+                      long&nbsp;reservedBandwidth,
                       long&nbsp;minDurationForQualityIncreaseMs,
                       long&nbsp;maxDurationForQualityDecreaseMs,
                       long&nbsp;minDurationToRetainAfterDiscardMs,
@@ -272,56 +273,44 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Bas
 </td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#experimental_setNonAllocatableBandwidth-long-">experimental_setNonAllocatableBandwidth</a></span>(long&nbsp;nonAllocatableBandwidth)</code>
-<div class="block">Sets the non-allocatable bandwidth, which shouldn't be considered available.</div>
-</td>
-</tr>
-<tr id="i5" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#experimental_setTrackBitrateEstimator-com.google.android.exoplayer2.trackselection.TrackBitrateEstimator-">experimental_setTrackBitrateEstimator</a></span>(<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackBitrateEstimator.html" title="interface in com.google.android.exoplayer2.trackselection">TrackBitrateEstimator</a>&nbsp;trackBitrateEstimator)</code>
-<div class="block">Sets a TrackBitrateEstimator.</div>
-</td>
-</tr>
-<tr id="i6" class="altColor">
 <td class="colFirst"><code>protected long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#getMinDurationToRetainAfterDiscardUs--">getMinDurationToRetainAfterDiscardUs</a></span>()</code>
 <div class="block">Called from <a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#evaluateQueueSize-long-java.util.List-"><code>evaluateQueueSize(long, List)</code></a> to determine the minimum duration of buffer
  to retain after discarding chunks.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#getSelectedIndex--">getSelectedIndex</a></span>()</code>
 <div class="block">Returns the index of the selected track.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#getSelectionData--">getSelectionData</a></span>()</code>
 <div class="block">Returns optional data associated with the current track selection.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#getSelectionReason--">getSelectionReason</a></span>()</code>
 <div class="block">Returns the reason for the current track selection.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#onPlaybackSpeed-float-">onPlaybackSpeed</a></span>(float&nbsp;playbackSpeed)</code>
 <div class="block">Called to notify the selection of the current playback speed.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#shouldEvaluateQueueSize-long-">shouldEvaluateQueueSize</a></span>(long&nbsp;nowMs)</code>
 <div class="block">Called from <a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#evaluateQueueSize-long-java.util.List-"><code>evaluateQueueSize(long, List)</code></a> to determine whether an evaluation should be
  performed.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-">updateSelectedTrack</a></span>(long&nbsp;playbackPositionUs,
                    long&nbsp;bufferedDurationUs,
@@ -351,7 +340,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Bas
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.trackselection.<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#onDiscontinuity--">onDiscontinuity</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-">updateSelectedTrack</a></code></li>
+<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#onDiscontinuity--">onDiscontinuity</a></code></li>
 </ul>
 </li>
 </ul>
@@ -471,7 +460,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Bas
 </dl>
 </li>
 </ul>
-<a name="AdaptiveTrackSelection-com.google.android.exoplayer2.source.TrackGroup-int:A-com.google.android.exoplayer2.upstream.BandwidthMeter-long-long-long-float-float-long-com.google.android.exoplayer2.util.Clock-">
+<a name="AdaptiveTrackSelection-com.google.android.exoplayer2.source.TrackGroup-int:A-com.google.android.exoplayer2.upstream.BandwidthMeter-long-long-long-long-float-float-long-com.google.android.exoplayer2.util.Clock-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -480,6 +469,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Bas
 <pre>public&nbsp;AdaptiveTrackSelection(<a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
                               int[]&nbsp;tracks,
                               <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter,
+                              long&nbsp;reservedBandwidth,
                               long&nbsp;minDurationForQualityIncreaseMs,
                               long&nbsp;maxDurationForQualityDecreaseMs,
                               long&nbsp;minDurationToRetainAfterDiscardMs,
@@ -493,6 +483,8 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Bas
 <dd><code>tracks</code> - The indices of the selected tracks within the <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>. Must not be
      empty. May be in any order.</dd>
 <dd><code>bandwidthMeter</code> - Provides an estimate of the currently available bandwidth.</dd>
+<dd><code>reservedBandwidth</code> - The reserved bandwidth, which shouldn't be considered available for
+     use, in bits per second.</dd>
 <dd><code>minDurationForQualityIncreaseMs</code> - The minimum duration of buffered data required for the
      selected track to switch to one of higher quality.</dd>
 <dd><code>maxDurationForQualityDecreaseMs</code> - The maximum duration of buffered data required for the
@@ -524,38 +516,6 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Bas
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="experimental_setTrackBitrateEstimator-com.google.android.exoplayer2.trackselection.TrackBitrateEstimator-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>experimental_setTrackBitrateEstimator</h4>
-<pre>public&nbsp;void&nbsp;experimental_setTrackBitrateEstimator(<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackBitrateEstimator.html" title="interface in com.google.android.exoplayer2.trackselection">TrackBitrateEstimator</a>&nbsp;trackBitrateEstimator)</pre>
-<div class="block">Sets a TrackBitrateEstimator.
-
- <p>This method is experimental, and will be renamed or removed in a future release.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>trackBitrateEstimator</code> - A <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackBitrateEstimator.html" title="interface in com.google.android.exoplayer2.trackselection"><code>TrackBitrateEstimator</code></a>.</dd>
-</dl>
-</li>
-</ul>
-<a name="experimental_setNonAllocatableBandwidth-long-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>experimental_setNonAllocatableBandwidth</h4>
-<pre>public&nbsp;void&nbsp;experimental_setNonAllocatableBandwidth(long&nbsp;nonAllocatableBandwidth)</pre>
-<div class="block">Sets the non-allocatable bandwidth, which shouldn't be considered available.
-
- <p>This method is experimental, and will be renamed or removed in a future release.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>nonAllocatableBandwidth</code> - The non-allocatable bandwidth in bits per second.</dd>
-</dl>
-</li>
-</ul>
 <a name="experimental_setBandwidthAllocationCheckpoints-long:A:A-">
 <!--   -->
 </a>

@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":9};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":9,"i6":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -111,7 +111,7 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>Direct Known Subclasses:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/metadata/MetadataInputBuffer.html" title="class in com.google.android.exoplayer2.metadata">MetadataInputBuffer</a>, <a href="../../../../../com/google/android/exoplayer2/text/SubtitleInputBuffer.html" title="class in com.google.android.exoplayer2.text">SubtitleInputBuffer</a></dd>
+<dd><a href="../../../../../com/google/android/exoplayer2/metadata/MetadataInputBuffer.html" title="class in com.google.android.exoplayer2.metadata">MetadataInputBuffer</a>, <a href="../../../../../com/google/android/exoplayer2/text/SubtitleInputBuffer.html" title="class in com.google.android.exoplayer2.text">SubtitleInputBuffer</a>, <a href="../../../../../com/google/android/exoplayer2/video/VideoDecoderInputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderInputBuffer</a></dd>
 </dl>
 <hr>
 <br>
@@ -188,6 +188,12 @@ extends <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.htm
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio">ByteBuffer</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#supplementalData">supplementalData</a></span></code>
+<div class="block">Supplemental data related to the buffer, if <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#hasSupplementalData--"><code>Buffer.hasSupplementalData()</code></a> returns true.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#timeUs">timeUs</a></span></code>
 <div class="block">The time at which the sample should be presented.</div>
@@ -241,7 +247,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.htm
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#flip--">flip</a></span>()</code>
-<div class="block">Flips <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#data"><code>data</code></a> in preparation for being queued to a decoder.</div>
+<div class="block">Flips <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#data"><code>data</code></a> and <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#supplementalData"><code>supplementalData</code></a> in preparation for being queued to a decoder.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
@@ -263,13 +269,19 @@ extends <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.htm
 <div class="block">Creates a new instance for which <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#isFlagsOnly--"><code>isFlagsOnly()</code></a> will return true.</div>
 </td>
 </tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#resetSupplementalData-int-">resetSupplementalData</a></span>(int&nbsp;length)</code>
+<div class="block">Clears <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#supplementalData"><code>supplementalData</code></a> and ensures that it's large enough to accommodate <code>length</code> bytes.</div>
+</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.decoder.Buffer">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.decoder.<a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html" title="class in com.google.android.exoplayer2.decoder">Buffer</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#addFlag-int-">addFlag</a>, <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#clearFlag-int-">clearFlag</a>, <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#getFlag-int-">getFlag</a>, <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#isDecodeOnly--">isDecodeOnly</a>, <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#isEndOfStream--">isEndOfStream</a>, <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#isKeyFrame--">isKeyFrame</a>, <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#setFlags-int-">setFlags</a></code></li>
+<code><a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#addFlag-int-">addFlag</a>, <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#clearFlag-int-">clearFlag</a>, <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#getFlag-int-">getFlag</a>, <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#hasSupplementalData--">hasSupplementalData</a>, <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#isDecodeOnly--">isDecodeOnly</a>, <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#isEndOfStream--">isEndOfStream</a>, <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#isKeyFrame--">isKeyFrame</a>, <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#setFlags-int-">setFlags</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -350,18 +362,31 @@ extends <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.htm
 <ul class="blockList">
 <li class="blockList">
 <h4>data</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio">ByteBuffer</a> data</pre>
+<pre>@Nullable
+public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio">ByteBuffer</a> data</pre>
 <div class="block">The buffer's data, or <code>null</code> if no data has been set.</div>
 </li>
 </ul>
 <a name="timeUs">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>timeUs</h4>
 <pre>public&nbsp;long timeUs</pre>
 <div class="block">The time at which the sample should be presented.</div>
+</li>
+</ul>
+<a name="supplementalData">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>supplementalData</h4>
+<pre>@Nullable
+public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio">ByteBuffer</a> supplementalData</pre>
+<div class="block">Supplemental data related to the buffer, if <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#hasSupplementalData--"><code>Buffer.hasSupplementalData()</code></a> returns true. If
+ present, the buffer is populated with supplemental data from position 0 to its limit.</div>
 </li>
 </ul>
 </li>
@@ -410,13 +435,29 @@ extends <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.htm
 </dl>
 </li>
 </ul>
+<a name="resetSupplementalData-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>resetSupplementalData</h4>
+<pre>@EnsuresNonNull(value="supplementalData")
+public&nbsp;void&nbsp;resetSupplementalData(int&nbsp;length)</pre>
+<div class="block">Clears <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#supplementalData"><code>supplementalData</code></a> and ensures that it's large enough to accommodate <code>length</code> bytes.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>length</code> - The length of the supplemental data that must be accommodated, in bytes.</dd>
+</dl>
+</li>
+</ul>
 <a name="ensureSpaceForWrite-int-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>ensureSpaceForWrite</h4>
-<pre>public&nbsp;void&nbsp;ensureSpaceForWrite(int&nbsp;length)</pre>
+<pre>@EnsuresNonNull(value="data")
+public&nbsp;void&nbsp;ensureSpaceForWrite(int&nbsp;length)</pre>
 <div class="block">Ensures that <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#data"><code>data</code></a> is large enough to accommodate a write of a given length at its
  current position.
 
@@ -460,7 +501,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.htm
 <li class="blockList">
 <h4>flip</h4>
 <pre>public final&nbsp;void&nbsp;flip()</pre>
-<div class="block">Flips <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#data"><code>data</code></a> in preparation for being queued to a decoder.</div>
+<div class="block">Flips <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#data"><code>data</code></a> and <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#supplementalData"><code>supplementalData</code></a> in preparation for being queued to a decoder.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="https://docs.oracle.com/javase/7/docs/api/java/nio/Buffer.html?is-external=true#flip--" title="class or interface in java.nio"><code>Buffer.flip()</code></a></dd>

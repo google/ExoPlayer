@@ -461,7 +461,9 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/smoot
 <dd><code>blacklistDurationMs</code> - The duration for which the associated track may be blacklisted, or
      <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the track may not be blacklisted.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>Whether the load should be canceled. Must be false if <code>cancelable</code> is false.</dd>
+<dd>Whether the load should be canceled so that a replacement chunk can be loaded instead.
+     Must be <code>false</code> if <code>cancelable</code> is <code>false</code>. If <code>true</code>, <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html#getNextChunk-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.ChunkHolder-"><code>ChunkSource.getNextChunk(long, long, List, ChunkHolder)</code></a> will be called to obtain the replacement
+     chunk.</dd>
 </dl>
 </li>
 </ul>

@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":9,"i33":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":9,"i36":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -110,7 +110,7 @@ var activeTableTab = "activeTableTab";
 </dl>
 <dl>
 <dt>Direct Known Subclasses:</dt>
-<dd><a href="../../../../com/google/android/exoplayer2/video/spherical/CameraMotionRenderer.html" title="class in com.google.android.exoplayer2.video.spherical">CameraMotionRenderer</a>, <a href="../../../../com/google/android/exoplayer2/ext/vp9/LibvpxVideoRenderer.html" title="class in com.google.android.exoplayer2.ext.vp9">LibvpxVideoRenderer</a>, <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecRenderer</a>, <a href="../../../../com/google/android/exoplayer2/metadata/MetadataRenderer.html" title="class in com.google.android.exoplayer2.metadata">MetadataRenderer</a>, <a href="../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">SimpleDecoderAudioRenderer</a>, <a href="../../../../com/google/android/exoplayer2/text/TextRenderer.html" title="class in com.google.android.exoplayer2.text">TextRenderer</a></dd>
+<dd><a href="../../../../com/google/android/exoplayer2/video/spherical/CameraMotionRenderer.html" title="class in com.google.android.exoplayer2.video.spherical">CameraMotionRenderer</a>, <a href="../../../../com/google/android/exoplayer2/testutil/FakeRenderer.html" title="class in com.google.android.exoplayer2.testutil">FakeRenderer</a>, <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecRenderer</a>, <a href="../../../../com/google/android/exoplayer2/metadata/MetadataRenderer.html" title="class in com.google.android.exoplayer2.metadata">MetadataRenderer</a>, <a href="../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">SimpleDecoderAudioRenderer</a>, <a href="../../../../com/google/android/exoplayer2/video/SimpleDecoderVideoRenderer.html" title="class in com.google.android.exoplayer2.video">SimpleDecoderVideoRenderer</a>, <a href="../../../../com/google/android/exoplayer2/text/TextRenderer.html" title="class in com.google.android.exoplayer2.text">TextRenderer</a></dd>
 </dl>
 <hr>
 <br>
@@ -136,6 +136,13 @@ implements <a href="../../../../com/google/android/exoplayer2/Renderer.html" tit
 </a>
 <h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a></h3>
 <code><a href="../../../../com/google/android/exoplayer2/Renderer.State.html" title="annotation in com.google.android.exoplayer2">Renderer.State</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="nested.classes.inherited.from.class.com.google.android.exoplayer2.RendererCapabilities">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html" title="interface in com.google.android.exoplayer2">RendererCapabilities</a></h3>
+<code><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.AdaptiveSupport</a>, <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.Capabilities</a>, <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.FormatSupport</a>, <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.TunnelingSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.TunnelingSupport</a></code></li>
 </ul>
 </li>
 </ul>
@@ -191,12 +198,20 @@ implements <a href="../../../../com/google/android/exoplayer2/Renderer.html" tit
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
+<td class="colFirst"><code>protected <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#createRendererException-java.lang.Exception-com.google.android.exoplayer2.Format-">createRendererException</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Exception.html" target="_top" title="class or interface in java.lang">Exception</a>&nbsp;cause,
+                       <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code>
+<div class="block">Creates an <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2"><code>ExoPlaybackException</code></a> of type <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_RENDERER"><code>ExoPlaybackException.TYPE_RENDERER</code></a> for
+ this renderer.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#disable--">disable</a></span>()</code>
 <div class="block">Disable the renderer, transitioning it to the <a href="../../../../com/google/android/exoplayer2/Renderer.html#STATE_DISABLED"><code>Renderer.STATE_DISABLED</code></a> state.</div>
 </td>
 </tr>
-<tr id="i1" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#enable-com.google.android.exoplayer2.RendererConfiguration-com.google.android.exoplayer2.Format:A-com.google.android.exoplayer2.source.SampleStream-long-boolean-long-">enable</a></span>(<a href="../../../../com/google/android/exoplayer2/RendererConfiguration.html" title="class in com.google.android.exoplayer2">RendererConfiguration</a>&nbsp;configuration,
       <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>[]&nbsp;formats,
@@ -207,139 +222,154 @@ implements <a href="../../../../com/google/android/exoplayer2/Renderer.html" tit
 <div class="block">Enables the renderer to consume from the specified <a href="../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html" title="interface in com.google.android.exoplayer2">RendererCapabilities</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#getCapabilities--">getCapabilities</a></span>()</code>
 <div class="block">Returns the capabilities of the renderer.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>protected <a href="../../../../com/google/android/exoplayer2/RendererConfiguration.html" title="class in com.google.android.exoplayer2">RendererConfiguration</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#getConfiguration--">getConfiguration</a></span>()</code>
 <div class="block">Returns the configuration set when the renderer was most recently enabled.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../../com/google/android/exoplayer2/FormatHolder.html" title="class in com.google.android.exoplayer2">FormatHolder</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#getFormatHolder--">getFormatHolder</a></span>()</code>
+<div class="block">Returns a clear <a href="../../../../com/google/android/exoplayer2/FormatHolder.html" title="class in com.google.android.exoplayer2"><code>FormatHolder</code></a>.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>protected int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#getIndex--">getIndex</a></span>()</code>
 <div class="block">Returns the index of the renderer within the player.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/util/MediaClock.html" title="interface in com.google.android.exoplayer2.util">MediaClock</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#getMediaClock--">getMediaClock</a></span>()</code>
 <div class="block">If the renderer advances its own playback position then this method returns a corresponding
  <a href="../../../../com/google/android/exoplayer2/util/MediaClock.html" title="interface in com.google.android.exoplayer2.util"><code>MediaClock</code></a>.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#getReadingPositionUs--">getReadingPositionUs</a></span>()</code>
 <div class="block">Returns the playback position up to which the renderer has read samples from the current <a href="../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>, in microseconds, or <a href="../../../../com/google/android/exoplayer2/C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> if the renderer has read the
  current <a href="../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> to the end.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#getState--">getState</a></span>()</code>
 <div class="block">Returns the current state of the renderer.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source">SampleStream</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#getStream--">getStream</a></span>()</code>
 <div class="block">Returns the <a href="../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> being consumed, or null if the renderer is disabled.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>protected <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#getStreamFormats--">getStreamFormats</a></span>()</code>
 <div class="block">Returns the formats of the currently enabled stream.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#getTrackType--">getTrackType</a></span>()</code>
 <div class="block">Returns the track type that the <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> handles.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code>protected &lt;T extends <a href="../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;<br><a href="../../../../com/google/android/exoplayer2/drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a>&lt;T&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#getUpdatedSourceDrmSession-com.google.android.exoplayer2.Format-com.google.android.exoplayer2.Format-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.drm.DrmSession-">getUpdatedSourceDrmSession</a></span>(<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;oldFormat,
+                          <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;newFormat,
+                          <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;T&gt;&nbsp;drmSessionManager,
+                          <a href="../../../../com/google/android/exoplayer2/drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a>&lt;T&gt;&nbsp;existingSourceSession)</code>
+<div class="block">Returns a <a href="../../../../com/google/android/exoplayer2/drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSession</code></a> ready for assignment, handling resource management.</div>
+</td>
+</tr>
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#handleMessage-int-java.lang.Object-">handleMessage</a></span>(int&nbsp;what,
              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;object)</code>
 <div class="block">Handles a message delivered to the target.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#hasReadStreamToEnd--">hasReadStreamToEnd</a></span>()</code>
 <div class="block">Returns whether the renderer has read the current <a href="../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> to the end.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#isCurrentStreamFinal--">isCurrentStreamFinal</a></span>()</code>
 <div class="block">Returns whether the current <a href="../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> will be the final one supplied before the
  renderer is next disabled or reset.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#isSourceReady--">isSourceReady</a></span>()</code>
 <div class="block">Returns whether the upstream source is ready.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#maybeThrowStreamError--">maybeThrowStreamError</a></span>()</code>
 <div class="block">Throws an error that's preventing the renderer from reading from its <a href="../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#onDisabled--">onDisabled</a></span>()</code>
 <div class="block">Called when the renderer is disabled.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#onEnabled-boolean-">onEnabled</a></span>(boolean&nbsp;joining)</code>
 <div class="block">Called when the renderer is enabled.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#onPositionReset-long-boolean-">onPositionReset</a></span>(long&nbsp;positionUs,
                boolean&nbsp;joining)</code>
 <div class="block">Called when the position is reset.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#onReset--">onReset</a></span>()</code>
 <div class="block">Called when the renderer is reset.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#onStarted--">onStarted</a></span>()</code>
 <div class="block">Called when the renderer is started.</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#onStopped--">onStopped</a></span>()</code>
 <div class="block">Called when the renderer is stopped.</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#onStreamChanged-com.google.android.exoplayer2.Format:A-long-">onStreamChanged</a></span>(<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>[]&nbsp;formats,
                long&nbsp;offsetUs)</code>
 <div class="block">Called when the renderer's stream has changed.</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i26" class="altColor">
 <td class="colFirst"><code>protected int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#readSource-com.google.android.exoplayer2.FormatHolder-com.google.android.exoplayer2.decoder.DecoderInputBuffer-boolean-">readSource</a></span>(<a href="../../../../com/google/android/exoplayer2/FormatHolder.html" title="class in com.google.android.exoplayer2">FormatHolder</a>&nbsp;formatHolder,
           <a href="../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;buffer,
@@ -347,7 +377,7 @@ implements <a href="../../../../com/google/android/exoplayer2/Renderer.html" tit
 <div class="block">Reads from the enabled upstream source.</div>
 </td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i27" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#replaceStream-com.google.android.exoplayer2.Format:A-com.google.android.exoplayer2.source.SampleStream-long-">replaceStream</a></span>(<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>[]&nbsp;formats,
              <a href="../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source">SampleStream</a>&nbsp;stream,
@@ -355,52 +385,52 @@ implements <a href="../../../../com/google/android/exoplayer2/Renderer.html" tit
 <div class="block">Replaces the <a href="../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> from which samples will be consumed.</div>
 </td>
 </tr>
-<tr id="i25" class="rowColor">
+<tr id="i28" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#reset--">reset</a></span>()</code>
 <div class="block">Forces the renderer to give up any resources (e.g.</div>
 </td>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i29" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#resetPosition-long-">resetPosition</a></span>(long&nbsp;positionUs)</code>
 <div class="block">Signals to the renderer that a position discontinuity has occurred.</div>
 </td>
 </tr>
-<tr id="i27" class="rowColor">
+<tr id="i30" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#setCurrentStreamFinal--">setCurrentStreamFinal</a></span>()</code>
 <div class="block">Signals to the renderer that the current <a href="../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> will be the final one supplied
  before it is next disabled or reset.</div>
 </td>
 </tr>
-<tr id="i28" class="altColor">
+<tr id="i31" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#setIndex-int-">setIndex</a></span>(int&nbsp;index)</code>
 <div class="block">Sets the index of this renderer within the player.</div>
 </td>
 </tr>
-<tr id="i29" class="rowColor">
+<tr id="i32" class="altColor">
 <td class="colFirst"><code>protected int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#skipSource-long-">skipSource</a></span>(long&nbsp;positionUs)</code>
 <div class="block">Attempts to skip to the keyframe before the specified position, or to the end of the stream if
  <code>positionUs</code> is beyond it.</div>
 </td>
 </tr>
-<tr id="i30" class="altColor">
+<tr id="i33" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#start--">start</a></span>()</code>
 <div class="block">Starts the renderer, meaning that calls to <a href="../../../../com/google/android/exoplayer2/Renderer.html#render-long-long-"><code>Renderer.render(long, long)</code></a> will cause media to be
  rendered.</div>
 </td>
 </tr>
-<tr id="i31" class="rowColor">
+<tr id="i34" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#stop--">stop</a></span>()</code>
 <div class="block">Stops the renderer, transitioning it to the <a href="../../../../com/google/android/exoplayer2/Renderer.html#STATE_ENABLED"><code>Renderer.STATE_ENABLED</code></a> state.</div>
 </td>
 </tr>
-<tr id="i32" class="altColor">
+<tr id="i35" class="rowColor">
 <td class="colFirst"><code>protected static boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#supportsFormatDrm-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.drm.DrmInitData-">supportsFormatDrm</a></span>(<a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;?&gt;&nbsp;drmSessionManager,
                  <a href="../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</code>
@@ -408,11 +438,11 @@ implements <a href="../../../../com/google/android/exoplayer2/Renderer.html" tit
  if <code>drmInitData</code> is null.</div>
 </td>
 </tr>
-<tr id="i33" class="rowColor">
+<tr id="i36" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html#supportsMixedMimeTypeAdaptation--">supportsMixedMimeTypeAdaptation</a></span>()</code>
 <div class="block">Returns the extent to which the <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> supports adapting between supported formats
- that have different mime types.</div>
+ that have different MIME types.</div>
 </td>
 </tr>
 </table>
@@ -435,7 +465,7 @@ implements <a href="../../../../com/google/android/exoplayer2/Renderer.html" tit
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html" title="interface in com.google.android.exoplayer2">RendererCapabilities</a></h3>
-<code><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#supportsFormat-com.google.android.exoplayer2.Format-">supportsFormat</a></code></li>
+<code><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#create-int-">create</a>, <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#create-int-int-int-">create</a>, <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#getAdaptiveSupport-int-">getAdaptiveSupport</a>, <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#getFormatSupport-int-">getFormatSupport</a>, <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#getFormatSupportString-int-">getFormatSupportString</a>, <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#getTunnelingSupport-int-">getTunnelingSupport</a>, <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#supportsFormat-com.google.android.exoplayer2.Format-">supportsFormat</a></code></li>
 </ul>
 </li>
 </ul>
@@ -536,12 +566,12 @@ implements <a href="../../../../com/google/android/exoplayer2/Renderer.html" tit
 <ul class="blockList">
 <li class="blockList">
 <h4>getMediaClock</h4>
-<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/util/MediaClock.html" title="interface in com.google.android.exoplayer2.util">MediaClock</a>&nbsp;getMediaClock()</pre>
+<pre>@Nullable
+public&nbsp;<a href="../../../../com/google/android/exoplayer2/util/MediaClock.html" title="interface in com.google.android.exoplayer2.util">MediaClock</a>&nbsp;getMediaClock()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../com/google/android/exoplayer2/Renderer.html#getMediaClock--">Renderer</a></code></span></div>
 <div class="block">If the renderer advances its own playback position then this method returns a corresponding
  <a href="../../../../com/google/android/exoplayer2/util/MediaClock.html" title="interface in com.google.android.exoplayer2.util"><code>MediaClock</code></a>. If provided, the player will use the returned <a href="../../../../com/google/android/exoplayer2/util/MediaClock.html" title="interface in com.google.android.exoplayer2.util"><code>MediaClock</code></a> as its
- source of time during playback. A player may have at most one renderer that returns a
- <a href="../../../../com/google/android/exoplayer2/util/MediaClock.html" title="interface in com.google.android.exoplayer2.util"><code>MediaClock</code></a> from this method.</div>
+ source of time during playback. A player may have at most one renderer that returns a <a href="../../../../com/google/android/exoplayer2/util/MediaClock.html" title="interface in com.google.android.exoplayer2.util"><code>MediaClock</code></a> from this method.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../com/google/android/exoplayer2/Renderer.html#getMediaClock--">getMediaClock</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a></code></dd>
@@ -657,7 +687,8 @@ implements <a href="../../../../com/google/android/exoplayer2/Renderer.html" tit
 <ul class="blockList">
 <li class="blockList">
 <h4>getStream</h4>
-<pre>public final&nbsp;<a href="../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source">SampleStream</a>&nbsp;getStream()</pre>
+<pre>@Nullable
+public final&nbsp;<a href="../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source">SampleStream</a>&nbsp;getStream()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../com/google/android/exoplayer2/Renderer.html#getStream--">Renderer</a></code></span></div>
 <div class="block">Returns the <a href="../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> being consumed, or null if the renderer is disabled.</div>
 <dl>
@@ -849,18 +880,18 @@ implements <a href="../../../../com/google/android/exoplayer2/Renderer.html" tit
 <ul class="blockList">
 <li class="blockList">
 <h4>supportsMixedMimeTypeAdaptation</h4>
-<pre>public&nbsp;int&nbsp;supportsMixedMimeTypeAdaptation()
-                                    throws <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<pre><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2">@RendererCapabilities.AdaptiveSupport</a>
+public&nbsp;int&nbsp;supportsMixedMimeTypeAdaptation()
+                                                                          throws <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#supportsMixedMimeTypeAdaptation--">RendererCapabilities</a></code></span></div>
 <div class="block">Returns the extent to which the <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> supports adapting between supported formats
- that have different mime types.</div>
+ that have different MIME types.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#supportsMixedMimeTypeAdaptation--">supportsMixedMimeTypeAdaptation</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html" title="interface in com.google.android.exoplayer2">RendererCapabilities</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The extent to which the renderer supports adapting between supported formats that have
-     different mime types. One of <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_SEAMLESS"><code>RendererCapabilities.ADAPTIVE_SEAMLESS</code></a>, <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_NOT_SEAMLESS"><code>RendererCapabilities.ADAPTIVE_NOT_SEAMLESS</code></a> and
-     <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_NOT_SUPPORTED"><code>RendererCapabilities.ADAPTIVE_NOT_SUPPORTED</code></a>.</dd>
+<dd>The <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.AdaptiveSupport</code></a> for adapting between supported formats that have different
+     MIME types.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></code> - If an error occurs.</dd>
 </dl>
@@ -1018,6 +1049,16 @@ implements <a href="../../../../com/google/android/exoplayer2/Renderer.html" tit
  <p>The default implementation is a no-op.</div>
 </li>
 </ul>
+<a name="getFormatHolder--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getFormatHolder</h4>
+<pre>protected final&nbsp;<a href="../../../../com/google/android/exoplayer2/FormatHolder.html" title="class in com.google.android.exoplayer2">FormatHolder</a>&nbsp;getFormatHolder()</pre>
+<div class="block">Returns a clear <a href="../../../../com/google/android/exoplayer2/FormatHolder.html" title="class in com.google.android.exoplayer2"><code>FormatHolder</code></a>.</div>
+</li>
+</ul>
 <a name="getStreamFormats--">
 <!--   -->
 </a>
@@ -1038,6 +1079,28 @@ implements <a href="../../../../com/google/android/exoplayer2/Renderer.html" tit
 <div class="block">Returns the configuration set when the renderer was most recently enabled.</div>
 </li>
 </ul>
+<a name="getUpdatedSourceDrmSession-com.google.android.exoplayer2.Format-com.google.android.exoplayer2.Format-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.drm.DrmSession-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getUpdatedSourceDrmSession</h4>
+<pre>@Nullable
+protected final&nbsp;&lt;T extends <a href="../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;&nbsp;<a href="../../../../com/google/android/exoplayer2/drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a>&lt;T&gt;&nbsp;getUpdatedSourceDrmSession(@Nullable
+                                                                                              <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;oldFormat,
+                                                                                              <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;newFormat,
+                                                                                              @Nullable
+                                                                                              <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;T&gt;&nbsp;drmSessionManager,
+                                                                                              @Nullable
+                                                                                              <a href="../../../../com/google/android/exoplayer2/drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a>&lt;T&gt;&nbsp;existingSourceSession)
+                                                                                       throws <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<div class="block">Returns a <a href="../../../../com/google/android/exoplayer2/drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSession</code></a> ready for assignment, handling resource management.</div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></code></dd>
+</dl>
+</li>
+</ul>
 <a name="getIndex--">
 <!--   -->
 </a>
@@ -1046,6 +1109,24 @@ implements <a href="../../../../com/google/android/exoplayer2/Renderer.html" tit
 <h4>getIndex</h4>
 <pre>protected final&nbsp;int&nbsp;getIndex()</pre>
 <div class="block">Returns the index of the renderer within the player.</div>
+</li>
+</ul>
+<a name="createRendererException-java.lang.Exception-com.google.android.exoplayer2.Format-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createRendererException</h4>
+<pre>protected final&nbsp;<a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;createRendererException(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Exception.html" target="_top" title="class or interface in java.lang">Exception</a>&nbsp;cause,
+                                                             @Nullable
+                                                             <a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
+<div class="block">Creates an <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2"><code>ExoPlaybackException</code></a> of type <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_RENDERER"><code>ExoPlaybackException.TYPE_RENDERER</code></a> for
+ this renderer.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>cause</code> - The cause of the exception.</dd>
+<dd><code>format</code> - The current format used by the renderer. May be null.</dd>
+</dl>
 </li>
 </ul>
 <a name="readSource-com.google.android.exoplayer2.FormatHolder-com.google.android.exoplayer2.decoder.DecoderInputBuffer-boolean-">
@@ -1064,8 +1145,7 @@ implements <a href="../../../../com/google/android/exoplayer2/Renderer.html" tit
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>formatHolder</code> - A <a href="../../../../com/google/android/exoplayer2/FormatHolder.html" title="class in com.google.android.exoplayer2"><code>FormatHolder</code></a> to populate in the case of reading a format.</dd>
 <dd><code>buffer</code> - A <a href="../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder"><code>DecoderInputBuffer</code></a> to populate in the case of reading a sample or the
-     end of the stream. If the end of the stream has been reached, the
-     <a href="../../../../com/google/android/exoplayer2/C.html#BUFFER_FLAG_END_OF_STREAM"><code>C.BUFFER_FLAG_END_OF_STREAM</code></a> flag will be set on the buffer.</dd>
+     end of the stream. If the end of the stream has been reached, the <a href="../../../../com/google/android/exoplayer2/C.html#BUFFER_FLAG_END_OF_STREAM"><code>C.BUFFER_FLAG_END_OF_STREAM</code></a> flag will be set on the buffer.</dd>
 <dd><code>formatRequired</code> - Whether the caller requires that the format of the stream be read even if
      it's not changing. A sample will never be read if set to true, however it is still possible
      for the end of stream or nothing to be read.</dd>

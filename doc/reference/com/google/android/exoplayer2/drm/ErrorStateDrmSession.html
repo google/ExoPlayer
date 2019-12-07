@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -46,7 +46,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/drm/DummyExoMediaDrm.html" title="class in com.google.android.exoplayer2.drm"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -180,26 +180,32 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ErrorStateDrmSession.html#acquire--">acquire</a></span>()</code>
+<div class="block">Increments the reference count.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.DrmSessionException.html" title="class in com.google.android.exoplayer2.drm">DrmSession.DrmSessionException</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ErrorStateDrmSession.html#getError--">getError</a></span>()</code>
 <div class="block">Returns the cause of the error state, or null if <a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html#getState--"><code>DrmSession.getState()</code></a> is not <a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html#STATE_ERROR"><code>DrmSession.STATE_ERROR</code></a>.</div>
 </td>
 </tr>
-<tr id="i1" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/drm/ErrorStateDrmSession.html" title="type parameter in ErrorStateDrmSession">T</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ErrorStateDrmSession.html#getMediaCrypto--">getMediaCrypto</a></span>()</code>
 <div class="block">Returns a <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> for the open session, or null if called before the session has
  been opened or after it's been released.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>byte[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ErrorStateDrmSession.html#getOfflineLicenseKeySetId--">getOfflineLicenseKeySetId</a></span>()</code>
 <div class="block">Returns the key set id of the offline license loaded into this session, or null if there isn't
  one.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ErrorStateDrmSession.html#getState--">getState</a></span>()</code>
 <div class="block">Returns the current state of the session, which is one of <a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html#STATE_ERROR"><code>DrmSession.STATE_ERROR</code></a>,
@@ -207,11 +213,23 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.
  <a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html#STATE_OPENED_WITH_KEYS"><code>DrmSession.STATE_OPENED_WITH_KEYS</code></a>.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ErrorStateDrmSession.html#playClearSamplesWithoutKeys--">playClearSamplesWithoutKeys</a></span>()</code>
+<div class="block">Returns whether this session allows playback of clear samples prior to keys being loaded.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ErrorStateDrmSession.html#queryKeyStatus--">queryKeyStatus</a></span>()</code>
 <div class="block">Returns a map describing the key status for the session, or null if called before the session
  has been opened or after it's been released.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ErrorStateDrmSession.html#release--">release</a></span>()</code>
+<div class="block">Decrements the reference count.</div>
 </td>
 </tr>
 </table>
@@ -221,6 +239,13 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></h3>
 <code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#clone--" title="class or interface in java.lang">clone</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.drm.DrmSession">
+<!--   -->
+</a>
+<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.drm.<a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a></h3>
+<code><a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html#replaceSession-com.google.android.exoplayer2.drm.DrmSession-com.google.android.exoplayer2.drm.DrmSession-">replaceSession</a></code></li>
 </ul>
 </li>
 </ul>
@@ -267,6 +292,21 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html#getState--">getState</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/ErrorStateDrmSession.html" title="type parameter in ErrorStateDrmSession">T</a> extends <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a name="playClearSamplesWithoutKeys--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>playClearSamplesWithoutKeys</h4>
+<pre>public&nbsp;boolean&nbsp;playClearSamplesWithoutKeys()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html#playClearSamplesWithoutKeys--">DrmSession</a></code></span></div>
+<div class="block">Returns whether this session allows playback of clear samples prior to keys being loaded.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html#playClearSamplesWithoutKeys--">playClearSamplesWithoutKeys</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/ErrorStateDrmSession.html" title="type parameter in ErrorStateDrmSession">T</a> extends <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;</code></dd>
 </dl>
 </li>
 </ul>
@@ -332,7 +372,7 @@ public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/u
 <a name="getOfflineLicenseKeySetId--">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>getOfflineLicenseKeySetId</h4>
 <pre>@Nullable
@@ -343,6 +383,38 @@ public&nbsp;byte[]&nbsp;getOfflineLicenseKeySetId()</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html#getOfflineLicenseKeySetId--">getOfflineLicenseKeySetId</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/ErrorStateDrmSession.html" title="type parameter in ErrorStateDrmSession">T</a> extends <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a name="acquire--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>acquire</h4>
+<pre>public&nbsp;void&nbsp;acquire()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html#acquire--">DrmSession</a></code></span></div>
+<div class="block">Increments the reference count. When the caller no longer needs to use the instance, it must
+ call <a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html#release--"><code>DrmSession.release()</code></a> to decrement the reference count.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html#acquire--">acquire</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/ErrorStateDrmSession.html" title="type parameter in ErrorStateDrmSession">T</a> extends <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a name="release--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>release</h4>
+<pre>public&nbsp;void&nbsp;release()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html#release--">DrmSession</a></code></span></div>
+<div class="block">Decrements the reference count. If the reference count drops to 0 underlying resources are
+ released, and the instance cannot be re-used.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html#release--">release</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/ErrorStateDrmSession.html" title="type parameter in ErrorStateDrmSession">T</a> extends <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;</code></dd>
 </dl>
 </li>
 </ul>
@@ -373,7 +445,7 @@ public&nbsp;byte[]&nbsp;getOfflineLicenseKeySetId()</pre>
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/drm/DummyExoMediaDrm.html" title="class in com.google.android.exoplayer2.drm"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">

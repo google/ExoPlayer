@@ -204,30 +204,6 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/BaseDataS
 <div class="block">Constructs a new instance.</div>
 </td>
 </tr>
-<tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/UdpDataSource.html#UdpDataSource-com.google.android.exoplayer2.upstream.TransferListener-">UdpDataSource</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener)</code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/UdpDataSource.html#UdpDataSource--"><code>UdpDataSource()</code></a> and <a href="../../../../../com/google/android/exoplayer2/upstream/BaseDataSource.html#addTransferListener-com.google.android.exoplayer2.upstream.TransferListener-"><code>BaseDataSource.addTransferListener(TransferListener)</code></a>.</span></div>
-</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/UdpDataSource.html#UdpDataSource-com.google.android.exoplayer2.upstream.TransferListener-int-">UdpDataSource</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener,
-             int&nbsp;maxPacketSize)</code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/UdpDataSource.html#UdpDataSource-int-"><code>UdpDataSource(int)</code></a> and <a href="../../../../../com/google/android/exoplayer2/upstream/BaseDataSource.html#addTransferListener-com.google.android.exoplayer2.upstream.TransferListener-"><code>BaseDataSource.addTransferListener(TransferListener)</code></a>.</span></div>
-</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/UdpDataSource.html#UdpDataSource-com.google.android.exoplayer2.upstream.TransferListener-int-int-">UdpDataSource</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener,
-             int&nbsp;maxPacketSize,
-             int&nbsp;socketTimeoutMillis)</code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/UdpDataSource.html#UdpDataSource-int-int-"><code>UdpDataSource(int, int)</code></a> and <a href="../../../../../com/google/android/exoplayer2/upstream/BaseDataSource.html#addTransferListener-com.google.android.exoplayer2.upstream.TransferListener-"><code>BaseDataSource.addTransferListener(TransferListener)</code></a>.</span></div>
-</div>
-</td>
-</tr>
 </table>
 </li>
 </ul>
@@ -368,7 +344,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/BaseDataS
 <a name="UdpDataSource-int-int-">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>UdpDataSource</h4>
 <pre>public&nbsp;UdpDataSource(int&nbsp;maxPacketSize,
@@ -376,64 +352,6 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/BaseDataS
 <div class="block">Constructs a new instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>maxPacketSize</code> - The maximum datagram packet size, in bytes.</dd>
-<dd><code>socketTimeoutMillis</code> - The socket timeout in milliseconds. A timeout of zero is interpreted
-     as an infinite timeout.</dd>
-</dl>
-</li>
-</ul>
-<a name="UdpDataSource-com.google.android.exoplayer2.upstream.TransferListener-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>UdpDataSource</h4>
-<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
-public&nbsp;UdpDataSource(@Nullable
-                                 <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/UdpDataSource.html#UdpDataSource--"><code>UdpDataSource()</code></a> and <a href="../../../../../com/google/android/exoplayer2/upstream/BaseDataSource.html#addTransferListener-com.google.android.exoplayer2.upstream.TransferListener-"><code>BaseDataSource.addTransferListener(TransferListener)</code></a>.</span></div>
-<div class="block">Constructs a new instance.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>listener</code> - An optional listener.</dd>
-</dl>
-</li>
-</ul>
-<a name="UdpDataSource-com.google.android.exoplayer2.upstream.TransferListener-int-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>UdpDataSource</h4>
-<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
-public&nbsp;UdpDataSource(@Nullable
-                                 <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener,
-                                 int&nbsp;maxPacketSize)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/UdpDataSource.html#UdpDataSource-int-"><code>UdpDataSource(int)</code></a> and <a href="../../../../../com/google/android/exoplayer2/upstream/BaseDataSource.html#addTransferListener-com.google.android.exoplayer2.upstream.TransferListener-"><code>BaseDataSource.addTransferListener(TransferListener)</code></a>.</span></div>
-<div class="block">Constructs a new instance.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>listener</code> - An optional listener.</dd>
-<dd><code>maxPacketSize</code> - The maximum datagram packet size, in bytes.</dd>
-</dl>
-</li>
-</ul>
-<a name="UdpDataSource-com.google.android.exoplayer2.upstream.TransferListener-int-int-">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>UdpDataSource</h4>
-<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
-public&nbsp;UdpDataSource(@Nullable
-                                 <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener,
-                                 int&nbsp;maxPacketSize,
-                                 int&nbsp;socketTimeoutMillis)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/UdpDataSource.html#UdpDataSource-int-int-"><code>UdpDataSource(int, int)</code></a> and <a href="../../../../../com/google/android/exoplayer2/upstream/BaseDataSource.html#addTransferListener-com.google.android.exoplayer2.upstream.TransferListener-"><code>BaseDataSource.addTransferListener(TransferListener)</code></a>.</span></div>
-<div class="block">Constructs a new instance.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>listener</code> - An optional listener.</dd>
 <dd><code>maxPacketSize</code> - The maximum datagram packet size, in bytes.</dd>
 <dd><code>socketTimeoutMillis</code> - The socket timeout in milliseconds. A timeout of zero is interpreted
      as an infinite timeout.</dd>

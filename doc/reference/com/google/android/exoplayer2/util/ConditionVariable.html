@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -165,6 +165,12 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ConditionVariable.html#isOpen--">isOpen</a></span>()</code>
+<div class="block">Returns whether the condition is opened.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ConditionVariable.html#open--">open</a></span>()</code>
 <div class="block">Opens the condition and releases all threads that are blocked.</div>
 </td>
@@ -254,7 +260,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <a name="block-long-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>block</h4>
 <pre>public&nbsp;boolean&nbsp;block(long&nbsp;timeout)
@@ -268,6 +274,16 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></code> - If the thread is interrupted.</dd>
 </dl>
+</li>
+</ul>
+<a name="isOpen--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>isOpen</h4>
+<pre>public&nbsp;boolean&nbsp;isOpen()</pre>
+<div class="block">Returns whether the condition is opened.</div>
 </li>
 </ul>
 </li>

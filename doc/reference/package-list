@@ -4,6 +4,7 @@ com.google.android.exoplayer2.audio
 com.google.android.exoplayer2.database
 com.google.android.exoplayer2.decoder
 com.google.android.exoplayer2.drm
+com.google.android.exoplayer2.ext.av1
 com.google.android.exoplayer2.ext.cast
 com.google.android.exoplayer2.ext.cronet
 com.google.android.exoplayer2.ext.ffmpeg
@@ -49,6 +50,7 @@ com.google.android.exoplayer2.source.hls.playlist
 com.google.android.exoplayer2.source.smoothstreaming
 com.google.android.exoplayer2.source.smoothstreaming.manifest
 com.google.android.exoplayer2.source.smoothstreaming.offline
+com.google.android.exoplayer2.testutil
 com.google.android.exoplayer2.text
 com.google.android.exoplayer2.text.cea
 com.google.android.exoplayer2.text.dvb

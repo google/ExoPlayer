@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6,"i15":6};
+var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6,"i15":6,"i16":6,"i17":6,"i18":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyRequest.html" title="class in com.google.android.exoplayer2.drm"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.AppManagedProvider.html" title="class in com.google.android.exoplayer2.drm"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/drm/ExoMediaDrm.html" target="_top">Frames</a></li>
@@ -98,12 +98,22 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaDrm.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaDrm</a></dd>
+<dd><a href="../../../../../com/google/android/exoplayer2/drm/DummyExoMediaDrm.html" title="class in com.google.android.exoplayer2.drm">DummyExoMediaDrm</a>, <a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaDrm.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaDrm</a></dd>
 </dl>
 <hr>
 <br>
 <pre>public interface <span class="typeNameLabel">ExoMediaDrm&lt;T extends <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;</span></pre>
-<div class="block">Used to obtain keys for decrypting protected media streams. See <a href="https://developer.android.com/reference/android/media/MediaDrm.html" target="_top" title="class or interface in android.media"><code>MediaDrm</code></a>.</div>
+<div class="block">Used to obtain keys for decrypting protected media streams. See <a href="https://developer.android.com/reference/android/media/MediaDrm.html" target="_top" title="class or interface in android.media"><code>MediaDrm</code></a>.
+
+ <h3>Reference counting</h3>
+
+ <p>Access to an instance is managed by reference counting, where <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#acquire--"><code>acquire()</code></a> increments
+ the reference count and <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#release--"><code>release()</code></a> decrements it. When the reference count drops to 0
+ underlying resources are released, and the instance cannot be re-used.
+
+ <p>Each new instance has an initial reference count of 1. Hence application code that creates a
+ new instance does not normally need to call <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#acquire--"><code>acquire()</code></a>, and must call <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#release--"><code>release()</code></a>
+ when the instance is no longer required.</div>
 </li>
 </ul>
 </div>
@@ -124,19 +134,31 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.KeyRequest</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.AppManagedProvider.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.AppManagedProvider</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.AppManagedProvider.html" title="type parameter in ExoMediaDrm.AppManagedProvider">T</a> extends <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;</span></code>
+<div class="block">Provides an <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaDrm</code></a> instance owned by the app.</div>
+</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyStatus.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.KeyStatus</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.KeyRequest</a></span></code>&nbsp;</td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>static interface&nbsp;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnEventListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnEventListener</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnEventListener.html" title="type parameter in ExoMediaDrm.OnEventListener">T</a> extends <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;</span></code>&nbsp;</td>
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyStatus.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.KeyStatus</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnEventListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnEventListener</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnEventListener.html" title="type parameter in ExoMediaDrm.OnEventListener">T</a> extends <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;</span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnKeyStatusChangeListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnKeyStatusChangeListener</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnKeyStatusChangeListener.html" title="type parameter in ExoMediaDrm.OnKeyStatusChangeListener">T</a> extends <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;</span></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.Provider.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.Provider</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.Provider.html" title="type parameter in ExoMediaDrm.Provider">T</a> extends <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;</span></code>
+<div class="block"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaDrm</code></a> instances provider.</div>
+</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
@@ -198,13 +220,26 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#closeSession-byte:A-">closeSession</a></span>(byte[]&nbsp;sessionId)</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#acquire--">acquire</a></span>()</code>
+<div class="block">Increments the reference count.</div>
+</td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#closeSession-byte:A-">closeSession</a></span>(byte[]&nbsp;sessionId)</code>&nbsp;</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="type parameter in ExoMediaDrm">T</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#createMediaCrypto-byte:A-">createMediaCrypto</a></span>(byte[]&nbsp;sessionId)</code>&nbsp;</td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="type parameter in ExoMediaDrm">T</a>&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getExoMediaCryptoType--">getExoMediaCryptoType</a></span>()</code>
+<div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> type created by <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#createMediaCrypto-byte:A-"><code>createMediaCrypto(byte[])</code></a>, or null
+ if this instance cannot create any <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> instances.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.KeyRequest</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getKeyRequest-byte:A-java.util.List-int-java.util.HashMap-">getKeyRequest</a></span>(byte[]&nbsp;scope,
              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData.SchemeData</a>&gt;&nbsp;schemeDatas,
@@ -213,58 +248,66 @@ var activeTableTab = "activeTableTab";
 <div class="block">Generates a key request.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code>byte[]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getPropertyByteArray-java.lang.String-">getPropertyByteArray</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;propertyName)</code>&nbsp;</td>
-</tr>
-<tr id="i4" class="altColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getPropertyString-java.lang.String-">getPropertyString</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;propertyName)</code>&nbsp;</td>
-</tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.ProvisionRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.ProvisionRequest</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getProvisionRequest--">getProvisionRequest</a></span>()</code>&nbsp;</td>
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/PersistableBundle.html" target="_top" title="class or interface in android.os">PersistableBundle</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getMetrics--">getMetrics</a></span>()</code>
+<div class="block">Returns drm metrics.</div>
+</td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>byte[]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#openSession--">openSession</a></span>()</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getPropertyByteArray-java.lang.String-">getPropertyByteArray</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;propertyName)</code>&nbsp;</td>
 </tr>
 <tr id="i7" class="rowColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getPropertyString-java.lang.String-">getPropertyString</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;propertyName)</code>&nbsp;</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.ProvisionRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.ProvisionRequest</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getProvisionRequest--">getProvisionRequest</a></span>()</code>&nbsp;</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>byte[]</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#openSession--">openSession</a></span>()</code>&nbsp;</td>
+</tr>
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>byte[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#provideKeyResponse-byte:A-byte:A-">provideKeyResponse</a></span>(byte[]&nbsp;scope,
                   byte[]&nbsp;response)</code>&nbsp;</td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#provideProvisionResponse-byte:A-">provideProvisionResponse</a></span>(byte[]&nbsp;response)</code>&nbsp;</td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#queryKeyStatus-byte:A-">queryKeyStatus</a></span>(byte[]&nbsp;sessionId)</code>&nbsp;</td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#release--">release</a></span>()</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#release--">release</a></span>()</code>
+<div class="block">Decrements the reference count.</div>
+</td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#restoreKeys-byte:A-byte:A-">restoreKeys</a></span>(byte[]&nbsp;sessionId,
            byte[]&nbsp;keySetId)</code>&nbsp;</td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#setOnEventListener-com.google.android.exoplayer2.drm.ExoMediaDrm.OnEventListener-">setOnEventListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnEventListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnEventListener</a>&lt;? super <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="type parameter in ExoMediaDrm">T</a>&gt;&nbsp;listener)</code>&nbsp;</td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#setOnKeyStatusChangeListener-com.google.android.exoplayer2.drm.ExoMediaDrm.OnKeyStatusChangeListener-">setOnKeyStatusChangeListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnKeyStatusChangeListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnKeyStatusChangeListener</a>&lt;? super <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="type parameter in ExoMediaDrm">T</a>&gt;&nbsp;listener)</code>&nbsp;</td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#setPropertyByteArray-java.lang.String-byte:A-">setPropertyByteArray</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;propertyName,
                     byte[]&nbsp;value)</code>&nbsp;</td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#setPropertyString-java.lang.String-java.lang.String-">setPropertyString</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;propertyName,
                  <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;value)</code>&nbsp;</td>
@@ -528,6 +571,20 @@ byte[]&nbsp;provideKeyResponse(byte[]&nbsp;scope,
 </dl>
 </li>
 </ul>
+<a name="acquire--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>acquire</h4>
+<pre>void&nbsp;acquire()</pre>
+<div class="block">Increments the reference count. When the caller no longer needs to use the instance, it must
+ call <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#release--"><code>release()</code></a> to decrement the reference count.
+
+ <p>A new instance will have an initial reference count of 1, and therefore it is not normally
+ necessary for application code to call this method.</div>
+</li>
+</ul>
 <a name="release--">
 <!--   -->
 </a>
@@ -535,10 +592,8 @@ byte[]&nbsp;provideKeyResponse(byte[]&nbsp;scope,
 <li class="blockList">
 <h4>release</h4>
 <pre>void&nbsp;release()</pre>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html?is-external=true#release--" title="class or interface in android.media"><code>MediaDrm.release()</code></a></dd>
-</dl>
+<div class="block">Decrements the reference count. If the reference count drops to 0 underlying resources are
+ released, and the instance cannot be re-used.</div>
 </li>
 </ul>
 <a name="restoreKeys-byte:A-byte:A-">
@@ -552,6 +607,21 @@ byte[]&nbsp;provideKeyResponse(byte[]&nbsp;scope,
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html?is-external=true#restoreKeys-byte:A-byte:A-" title="class or interface in android.media"><code>MediaDrm.restoreKeys(byte[], byte[])</code></a></dd>
+</dl>
+</li>
+</ul>
+<a name="getMetrics--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMetrics</h4>
+<pre>@Nullable
+<a href="https://developer.android.com/reference/android/os/PersistableBundle.html" target="_top" title="class or interface in android.os">PersistableBundle</a>&nbsp;getMetrics()</pre>
+<div class="block">Returns drm metrics. May be null if unavailable.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html?is-external=true#getMetrics--" title="class or interface in android.media"><code>MediaDrm.getMetrics()</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -612,7 +682,7 @@ byte[]&nbsp;provideKeyResponse(byte[]&nbsp;scope,
 <a name="createMediaCrypto-byte:A-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>createMediaCrypto</h4>
 <pre><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="type parameter in ExoMediaDrm">T</a>&nbsp;createMediaCrypto(byte[]&nbsp;sessionId)
@@ -627,6 +697,18 @@ byte[]&nbsp;provideKeyResponse(byte[]&nbsp;scope,
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="https://developer.android.com/reference/android/media/MediaCrypto.html?is-external=true#MediaCrypto-java.util.UUID-byte:A-" title="class or interface in android.media"><code>MediaCrypto.MediaCrypto(UUID, byte[])</code></a></dd>
 </dl>
+</li>
+</ul>
+<a name="getExoMediaCryptoType--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getExoMediaCryptoType</h4>
+<pre>@Nullable
+<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="type parameter in ExoMediaDrm">T</a>&gt;&nbsp;getExoMediaCryptoType()</pre>
+<div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> type created by <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#createMediaCrypto-byte:A-"><code>createMediaCrypto(byte[])</code></a>, or null
+ if this instance cannot create any <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> instances.</div>
 </li>
 </ul>
 </li>
@@ -657,7 +739,7 @@ byte[]&nbsp;provideKeyResponse(byte[]&nbsp;scope,
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyRequest.html" title="class in com.google.android.exoplayer2.drm"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.AppManagedProvider.html" title="class in com.google.android.exoplayer2.drm"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/drm/ExoMediaDrm.html" target="_top">Frames</a></li>

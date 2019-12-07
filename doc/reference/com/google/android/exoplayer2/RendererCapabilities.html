@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var methods = {"i0":17,"i1":17,"i2":17,"i3":17,"i4":17,"i5":6,"i6":17,"i7":6,"i8":6};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../com/google/android/exoplayer2/Renderer.State.html" title="annotation in com.google.android.exoplayer2"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../com/google/android/exoplayer2/RendererConfiguration.html" title="class in com.google.android.exoplayer2"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../index.html?com/google/android/exoplayer2/RendererCapabilities.html" target="_top">Frames</a></li>
@@ -71,7 +71,7 @@ var activeTableTab = "activeTableTab";
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -98,7 +98,7 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html" title="class in com.google.android.exoplayer2">BaseRenderer</a>, <a href="../../../../com/google/android/exoplayer2/video/spherical/CameraMotionRenderer.html" title="class in com.google.android.exoplayer2.video.spherical">CameraMotionRenderer</a>, <a href="../../../../com/google/android/exoplayer2/ext/ffmpeg/FfmpegAudioRenderer.html" title="class in com.google.android.exoplayer2.ext.ffmpeg">FfmpegAudioRenderer</a>, <a href="../../../../com/google/android/exoplayer2/ext/flac/LibflacAudioRenderer.html" title="class in com.google.android.exoplayer2.ext.flac">LibflacAudioRenderer</a>, <a href="../../../../com/google/android/exoplayer2/ext/opus/LibopusAudioRenderer.html" title="class in com.google.android.exoplayer2.ext.opus">LibopusAudioRenderer</a>, <a href="../../../../com/google/android/exoplayer2/ext/vp9/LibvpxVideoRenderer.html" title="class in com.google.android.exoplayer2.ext.vp9">LibvpxVideoRenderer</a>, <a href="../../../../com/google/android/exoplayer2/audio/MediaCodecAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">MediaCodecAudioRenderer</a>, <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecRenderer</a>, <a href="../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html" title="class in com.google.android.exoplayer2.video">MediaCodecVideoRenderer</a>, <a href="../../../../com/google/android/exoplayer2/metadata/MetadataRenderer.html" title="class in com.google.android.exoplayer2.metadata">MetadataRenderer</a>, <a href="../../../../com/google/android/exoplayer2/NoSampleRenderer.html" title="class in com.google.android.exoplayer2">NoSampleRenderer</a>, <a href="../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">SimpleDecoderAudioRenderer</a>, <a href="../../../../com/google/android/exoplayer2/text/TextRenderer.html" title="class in com.google.android.exoplayer2.text">TextRenderer</a></dd>
+<dd><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html" title="class in com.google.android.exoplayer2">BaseRenderer</a>, <a href="../../../../com/google/android/exoplayer2/video/spherical/CameraMotionRenderer.html" title="class in com.google.android.exoplayer2.video.spherical">CameraMotionRenderer</a>, <a href="../../../../com/google/android/exoplayer2/testutil/FakeMediaClockRenderer.html" title="class in com.google.android.exoplayer2.testutil">FakeMediaClockRenderer</a>, <a href="../../../../com/google/android/exoplayer2/testutil/FakeRenderer.html" title="class in com.google.android.exoplayer2.testutil">FakeRenderer</a>, <a href="../../../../com/google/android/exoplayer2/ext/ffmpeg/FfmpegAudioRenderer.html" title="class in com.google.android.exoplayer2.ext.ffmpeg">FfmpegAudioRenderer</a>, <a href="../../../../com/google/android/exoplayer2/ext/flac/LibflacAudioRenderer.html" title="class in com.google.android.exoplayer2.ext.flac">LibflacAudioRenderer</a>, <a href="../../../../com/google/android/exoplayer2/ext/av1/Libgav1VideoRenderer.html" title="class in com.google.android.exoplayer2.ext.av1">Libgav1VideoRenderer</a>, <a href="../../../../com/google/android/exoplayer2/ext/opus/LibopusAudioRenderer.html" title="class in com.google.android.exoplayer2.ext.opus">LibopusAudioRenderer</a>, <a href="../../../../com/google/android/exoplayer2/ext/vp9/LibvpxVideoRenderer.html" title="class in com.google.android.exoplayer2.ext.vp9">LibvpxVideoRenderer</a>, <a href="../../../../com/google/android/exoplayer2/audio/MediaCodecAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">MediaCodecAudioRenderer</a>, <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecRenderer</a>, <a href="../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html" title="class in com.google.android.exoplayer2.video">MediaCodecVideoRenderer</a>, <a href="../../../../com/google/android/exoplayer2/metadata/MetadataRenderer.html" title="class in com.google.android.exoplayer2.metadata">MetadataRenderer</a>, <a href="../../../../com/google/android/exoplayer2/NoSampleRenderer.html" title="class in com.google.android.exoplayer2">NoSampleRenderer</a>, <a href="../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">SimpleDecoderAudioRenderer</a>, <a href="../../../../com/google/android/exoplayer2/video/SimpleDecoderVideoRenderer.html" title="class in com.google.android.exoplayer2.video">SimpleDecoderVideoRenderer</a>, <a href="../../../../com/google/android/exoplayer2/text/TextRenderer.html" title="class in com.google.android.exoplayer2.text">TextRenderer</a></dd>
 </dl>
 <hr>
 <br>
@@ -110,6 +110,45 @@ var activeTableTab = "activeTableTab";
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Interface and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.AdaptiveSupport</a></span></code>
+<div class="block">Level of renderer support for adaptive format switches.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.Capabilities</a></span></code>
+<div class="block">Combined renderer capabilities.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.FormatSupport</a></span></code>
+<div class="block">Level of renderer support for a format.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.TunnelingSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.TunnelingSupport</a></span></code>
+<div class="block">Level of renderer support for tunneling.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
 <!-- =========== FIELD SUMMARY =========== -->
 <ul class="blockList">
 <li class="blockList"><a name="field.summary">
@@ -144,8 +183,7 @@ var activeTableTab = "activeTableTab";
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_SUPPORT_MASK">ADAPTIVE_SUPPORT_MASK</a></span></code>
-<div class="block">A mask to apply to the result of <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#supportsFormat-com.google.android.exoplayer2.Format-"><code>supportsFormat(Format)</code></a> to obtain one of
- <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_SEAMLESS"><code>ADAPTIVE_SEAMLESS</code></a>, <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_NOT_SEAMLESS"><code>ADAPTIVE_NOT_SEAMLESS</code></a> and <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_NOT_SUPPORTED"><code>ADAPTIVE_NOT_SUPPORTED</code></a>.</div>
+<div class="block">A mask to apply to <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a> to obtain the <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.AdaptiveSupport</code></a> only.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -164,9 +202,7 @@ var activeTableTab = "activeTableTab";
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_SUPPORT_MASK">FORMAT_SUPPORT_MASK</a></span></code>
-<div class="block">A mask to apply to the result of <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#supportsFormat-com.google.android.exoplayer2.Format-"><code>supportsFormat(Format)</code></a> to obtain one of
- <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_HANDLED"><code>FORMAT_HANDLED</code></a>, <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_EXCEEDS_CAPABILITIES"><code>FORMAT_EXCEEDS_CAPABILITIES</code></a>, <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_UNSUPPORTED_DRM"><code>FORMAT_UNSUPPORTED_DRM</code></a>,
- <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_UNSUPPORTED_SUBTYPE"><code>FORMAT_UNSUPPORTED_SUBTYPE</code></a> and <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_UNSUPPORTED_TYPE"><code>FORMAT_UNSUPPORTED_TYPE</code></a>.</div>
+<div class="block">A mask to apply to <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a> to obtain the <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.FormatSupport</code></a> only.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -201,8 +237,7 @@ var activeTableTab = "activeTableTab";
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#TUNNELING_SUPPORT_MASK">TUNNELING_SUPPORT_MASK</a></span></code>
-<div class="block">A mask to apply to the result of <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#supportsFormat-com.google.android.exoplayer2.Format-"><code>supportsFormat(Format)</code></a> to obtain one of
- <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#TUNNELING_SUPPORTED"><code>TUNNELING_SUPPORTED</code></a> and <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#TUNNELING_NOT_SUPPORTED"><code>TUNNELING_NOT_SUPPORTED</code></a>.</div>
+<div class="block">A mask to apply to <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a> to obtain the <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.TunnelingSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.TunnelingSupport</code></a> only.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -221,28 +256,67 @@ var activeTableTab = "activeTableTab";
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#create-int-">create</a></span>(int&nbsp;formatSupport)</code>
+<div class="block">Returns <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a> for the given <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.FormatSupport</code></a>.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#create-int-int-int-">create</a></span>(int&nbsp;formatSupport,
+      int&nbsp;adaptiveSupport,
+      int&nbsp;tunnelingSupport)</code>
+<div class="block">Returns <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a> combining the given <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.FormatSupport</code></a>, <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.AdaptiveSupport</code></a>
+ and <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.TunnelingSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.TunnelingSupport</code></a>.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#getAdaptiveSupport-int-">getAdaptiveSupport</a></span>(int&nbsp;supportFlags)</code>
+<div class="block">Returns the <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.AdaptiveSupport</code></a> from the combined <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a>.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#getFormatSupport-int-">getFormatSupport</a></span>(int&nbsp;supportFlags)</code>
+<div class="block">Returns the <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.FormatSupport</code></a> from the combined <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a>.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#getFormatSupportString-int-">getFormatSupportString</a></span>(int&nbsp;formatSupport)</code>
+<div class="block">Returns string representation of a <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.FormatSupport</code></a> flag.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#getTrackType--">getTrackType</a></span>()</code>
 <div class="block">Returns the track type that the <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> handles.</div>
 </td>
 </tr>
-<tr id="i1" class="rowColor">
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#getTunnelingSupport-int-">getTunnelingSupport</a></span>(int&nbsp;supportFlags)</code>
+<div class="block">Returns the <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.TunnelingSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.TunnelingSupport</code></a> from the combined <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a>.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#supportsFormat-com.google.android.exoplayer2.Format-">supportsFormat</a></span>(<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code>
 <div class="block">Returns the extent to which the <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> supports a given format.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#supportsMixedMimeTypeAdaptation--">supportsMixedMimeTypeAdaptation</a></span>()</code>
 <div class="block">Returns the extent to which the <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> supports adapting between supported formats
- that have different mime types.</div>
+ that have different MIME types.</div>
 </td>
 </tr>
 </table>
@@ -267,9 +341,7 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <h4>FORMAT_SUPPORT_MASK</h4>
 <pre>static final&nbsp;int FORMAT_SUPPORT_MASK</pre>
-<div class="block">A mask to apply to the result of <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#supportsFormat-com.google.android.exoplayer2.Format-"><code>supportsFormat(Format)</code></a> to obtain one of
- <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_HANDLED"><code>FORMAT_HANDLED</code></a>, <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_EXCEEDS_CAPABILITIES"><code>FORMAT_EXCEEDS_CAPABILITIES</code></a>, <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_UNSUPPORTED_DRM"><code>FORMAT_UNSUPPORTED_DRM</code></a>,
- <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_UNSUPPORTED_SUBTYPE"><code>FORMAT_UNSUPPORTED_SUBTYPE</code></a> and <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_UNSUPPORTED_TYPE"><code>FORMAT_UNSUPPORTED_TYPE</code></a>.</div>
+<div class="block">A mask to apply to <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a> to obtain the <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.FormatSupport</code></a> only.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.RendererCapabilities.FORMAT_SUPPORT_MASK">Constant Field Values</a></dd>
@@ -375,8 +447,7 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <h4>ADAPTIVE_SUPPORT_MASK</h4>
 <pre>static final&nbsp;int ADAPTIVE_SUPPORT_MASK</pre>
-<div class="block">A mask to apply to the result of <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#supportsFormat-com.google.android.exoplayer2.Format-"><code>supportsFormat(Format)</code></a> to obtain one of
- <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_SEAMLESS"><code>ADAPTIVE_SEAMLESS</code></a>, <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_NOT_SEAMLESS"><code>ADAPTIVE_NOT_SEAMLESS</code></a> and <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_NOT_SUPPORTED"><code>ADAPTIVE_NOT_SUPPORTED</code></a>.</div>
+<div class="block">A mask to apply to <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a> to obtain the <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.AdaptiveSupport</code></a> only.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.RendererCapabilities.ADAPTIVE_SUPPORT_MASK">Constant Field Values</a></dd>
@@ -433,8 +504,7 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <h4>TUNNELING_SUPPORT_MASK</h4>
 <pre>static final&nbsp;int TUNNELING_SUPPORT_MASK</pre>
-<div class="block">A mask to apply to the result of <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#supportsFormat-com.google.android.exoplayer2.Format-"><code>supportsFormat(Format)</code></a> to obtain one of
- <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#TUNNELING_SUPPORTED"><code>TUNNELING_SUPPORTED</code></a> and <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#TUNNELING_NOT_SUPPORTED"><code>TUNNELING_NOT_SUPPORTED</code></a>.</div>
+<div class="block">A mask to apply to <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a> to obtain the <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.TunnelingSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.TunnelingSupport</code></a> only.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.RendererCapabilities.TUNNELING_SUPPORT_MASK">Constant Field Values</a></dd>
@@ -477,6 +547,122 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="create-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>create</h4>
+<pre><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2">@RendererCapabilities.Capabilities</a>
+static&nbsp;int&nbsp;create(<a href="../../../../com/google/android/exoplayer2/RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2">@RendererCapabilities.FormatSupport</a>
+                                                     int&nbsp;formatSupport)</pre>
+<div class="block">Returns <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a> for the given <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.FormatSupport</code></a>.
+
+ <p>The <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.AdaptiveSupport</code></a> is set to <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_NOT_SUPPORTED"><code>ADAPTIVE_NOT_SUPPORTED</code></a> and {<a href="../../../../com/google/android/exoplayer2/RendererCapabilities.TunnelingSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.TunnelingSupport</code></a> is set to <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#TUNNELING_NOT_SUPPORTED"><code>TUNNELING_NOT_SUPPORTED</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>formatSupport</code> - The <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.FormatSupport</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The combined <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a> of the given <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.FormatSupport</code></a>, <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_NOT_SUPPORTED"><code>ADAPTIVE_NOT_SUPPORTED</code></a> and <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#TUNNELING_NOT_SUPPORTED"><code>TUNNELING_NOT_SUPPORTED</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a name="create-int-int-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>create</h4>
+<pre><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2">@RendererCapabilities.Capabilities</a>
+static&nbsp;int&nbsp;create(<a href="../../../../com/google/android/exoplayer2/RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2">@RendererCapabilities.FormatSupport</a>
+                                                     int&nbsp;formatSupport,
+                                                     <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2">@RendererCapabilities.AdaptiveSupport</a>
+                                                     int&nbsp;adaptiveSupport,
+                                                     <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.TunnelingSupport.html" title="annotation in com.google.android.exoplayer2">@RendererCapabilities.TunnelingSupport</a>
+                                                     int&nbsp;tunnelingSupport)</pre>
+<div class="block">Returns <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a> combining the given <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.FormatSupport</code></a>, <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.AdaptiveSupport</code></a>
+ and <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.TunnelingSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.TunnelingSupport</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>formatSupport</code> - The <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.FormatSupport</code></a>.</dd>
+<dd><code>adaptiveSupport</code> - The <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.AdaptiveSupport</code></a>.</dd>
+<dd><code>tunnelingSupport</code> - The <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.TunnelingSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.TunnelingSupport</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The combined <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a name="getFormatSupport-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getFormatSupport</h4>
+<pre><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2">@RendererCapabilities.FormatSupport</a>
+static&nbsp;int&nbsp;getFormatSupport(<a href="../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2">@RendererCapabilities.Capabilities</a>
+                                                                int&nbsp;supportFlags)</pre>
+<div class="block">Returns the <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.FormatSupport</code></a> from the combined <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>supportFlags</code> - The combined <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.FormatSupport</code></a> only.</dd>
+</dl>
+</li>
+</ul>
+<a name="getAdaptiveSupport-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getAdaptiveSupport</h4>
+<pre><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2">@RendererCapabilities.AdaptiveSupport</a>
+static&nbsp;int&nbsp;getAdaptiveSupport(<a href="../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2">@RendererCapabilities.Capabilities</a>
+                                                                    int&nbsp;supportFlags)</pre>
+<div class="block">Returns the <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.AdaptiveSupport</code></a> from the combined <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>supportFlags</code> - The combined <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.AdaptiveSupport</code></a> only.</dd>
+</dl>
+</li>
+</ul>
+<a name="getTunnelingSupport-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTunnelingSupport</h4>
+<pre><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.TunnelingSupport.html" title="annotation in com.google.android.exoplayer2">@RendererCapabilities.TunnelingSupport</a>
+static&nbsp;int&nbsp;getTunnelingSupport(<a href="../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2">@RendererCapabilities.Capabilities</a>
+                                                                      int&nbsp;supportFlags)</pre>
+<div class="block">Returns the <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.TunnelingSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.TunnelingSupport</code></a> from the combined <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>supportFlags</code> - The combined <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.TunnelingSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.TunnelingSupport</code></a> only.</dd>
+</dl>
+</li>
+</ul>
+<a name="getFormatSupportString-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getFormatSupportString</h4>
+<pre>static&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;getFormatSupportString(<a href="../../../../com/google/android/exoplayer2/RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2">@RendererCapabilities.FormatSupport</a>
+                                     int&nbsp;formatSupport)</pre>
+<div class="block">Returns string representation of a <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.FormatSupport</code></a> flag.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>formatSupport</code> - A <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.FormatSupport</code></a> flag.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>A string representation of the flag.</dd>
+</dl>
+</li>
+</ul>
 <a name="getTrackType--">
 <!--   -->
 </a>
@@ -501,30 +687,15 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>supportsFormat</h4>
-<pre>int&nbsp;supportsFormat(<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)
-            throws <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
-<div class="block">Returns the extent to which the <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> supports a given format. The returned value is
- the bitwise OR of three properties:
- <ul>
- <li>The level of support for the format itself. One of <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_HANDLED"><code>FORMAT_HANDLED</code></a>,
- <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_EXCEEDS_CAPABILITIES"><code>FORMAT_EXCEEDS_CAPABILITIES</code></a>, <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_UNSUPPORTED_DRM"><code>FORMAT_UNSUPPORTED_DRM</code></a>,
- <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_UNSUPPORTED_SUBTYPE"><code>FORMAT_UNSUPPORTED_SUBTYPE</code></a> and <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_UNSUPPORTED_TYPE"><code>FORMAT_UNSUPPORTED_TYPE</code></a>.</li>
- <li>The level of support for adapting from the format to another format of the same mime type.
- One of <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_SEAMLESS"><code>ADAPTIVE_SEAMLESS</code></a>, <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_NOT_SEAMLESS"><code>ADAPTIVE_NOT_SEAMLESS</code></a> and
- <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_NOT_SUPPORTED"><code>ADAPTIVE_NOT_SUPPORTED</code></a>. Only set if the level of support for the format itself is
- <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_HANDLED"><code>FORMAT_HANDLED</code></a> or <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_EXCEEDS_CAPABILITIES"><code>FORMAT_EXCEEDS_CAPABILITIES</code></a>.</li>
- <li>The level of support for tunneling. One of <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#TUNNELING_SUPPORTED"><code>TUNNELING_SUPPORTED</code></a> and
- <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#TUNNELING_NOT_SUPPORTED"><code>TUNNELING_NOT_SUPPORTED</code></a>. Only set if the level of support for the format itself is
- <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_HANDLED"><code>FORMAT_HANDLED</code></a> or <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_EXCEEDS_CAPABILITIES"><code>FORMAT_EXCEEDS_CAPABILITIES</code></a>.</li>
- </ul>
- The individual properties can be retrieved by performing a bitwise AND with
- <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_SUPPORT_MASK"><code>FORMAT_SUPPORT_MASK</code></a>, <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_SUPPORT_MASK"><code>ADAPTIVE_SUPPORT_MASK</code></a> and
- <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#TUNNELING_SUPPORT_MASK"><code>TUNNELING_SUPPORT_MASK</code></a> respectively.</div>
+<pre><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2">@RendererCapabilities.Capabilities</a>
+int&nbsp;supportsFormat(<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)
+                                               throws <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<div class="block">Returns the extent to which the <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> supports a given format.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>format</code> - The format.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The extent to which the renderer is capable of supporting the given format.</dd>
+<dd>The <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a> for this format.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></code> - If an error occurs.</dd>
 </dl>
@@ -536,15 +707,15 @@ var activeTableTab = "activeTableTab";
 <ul class="blockListLast">
 <li class="blockList">
 <h4>supportsMixedMimeTypeAdaptation</h4>
-<pre>int&nbsp;supportsMixedMimeTypeAdaptation()
-                             throws <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<pre><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2">@RendererCapabilities.AdaptiveSupport</a>
+int&nbsp;supportsMixedMimeTypeAdaptation()
+                                                                   throws <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
 <div class="block">Returns the extent to which the <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> supports adapting between supported formats
- that have different mime types.</div>
+ that have different MIME types.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The extent to which the renderer supports adapting between supported formats that have
-     different mime types. One of <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_SEAMLESS"><code>ADAPTIVE_SEAMLESS</code></a>, <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_NOT_SEAMLESS"><code>ADAPTIVE_NOT_SEAMLESS</code></a> and
-     <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_NOT_SUPPORTED"><code>ADAPTIVE_NOT_SUPPORTED</code></a>.</dd>
+<dd>The <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.AdaptiveSupport</code></a> for adapting between supported formats that have different
+     MIME types.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></code> - If an error occurs.</dd>
 </dl>
@@ -578,7 +749,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../com/google/android/exoplayer2/Renderer.State.html" title="annotation in com.google.android.exoplayer2"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../com/google/android/exoplayer2/RendererConfiguration.html" title="class in com.google.android.exoplayer2"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../index.html?com/google/android/exoplayer2/RendererCapabilities.html" target="_top">Frames</a></li>
@@ -602,7 +773,7 @@ var activeTableTab = "activeTableTab";
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>

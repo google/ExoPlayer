@@ -162,34 +162,39 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SinglePeriodTimeline.html#SinglePeriodTimeline-long-boolean-boolean-">SinglePeriodTimeline</a></span>(long&nbsp;durationUs,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SinglePeriodTimeline.html#SinglePeriodTimeline-long-boolean-boolean-boolean-">SinglePeriodTimeline</a></span>(long&nbsp;durationUs,
                     boolean&nbsp;isSeekable,
-                    boolean&nbsp;isDynamic)</code>
+                    boolean&nbsp;isDynamic,
+                    boolean&nbsp;isLive)</code>
 <div class="block">Creates a timeline containing a single period and a window that spans it.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SinglePeriodTimeline.html#SinglePeriodTimeline-long-boolean-boolean-java.lang.Object-">SinglePeriodTimeline</a></span>(long&nbsp;durationUs,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SinglePeriodTimeline.html#SinglePeriodTimeline-long-boolean-boolean-boolean-java.lang.Object-java.lang.Object-">SinglePeriodTimeline</a></span>(long&nbsp;durationUs,
                     boolean&nbsp;isSeekable,
                     boolean&nbsp;isDynamic,
+                    boolean&nbsp;isLive,
+                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;manifest,
                     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;tag)</code>
 <div class="block">Creates a timeline containing a single period and a window that spans it.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SinglePeriodTimeline.html#SinglePeriodTimeline-long-long-long-long-boolean-boolean-java.lang.Object-">SinglePeriodTimeline</a></span>(long&nbsp;periodDurationUs,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SinglePeriodTimeline.html#SinglePeriodTimeline-long-long-long-long-boolean-boolean-boolean-java.lang.Object-java.lang.Object-">SinglePeriodTimeline</a></span>(long&nbsp;periodDurationUs,
                     long&nbsp;windowDurationUs,
                     long&nbsp;windowPositionInPeriodUs,
                     long&nbsp;windowDefaultStartPositionUs,
                     boolean&nbsp;isSeekable,
                     boolean&nbsp;isDynamic,
+                    boolean&nbsp;isLive,
+                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;manifest,
                     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;tag)</code>
 <div class="block">Creates a timeline with one period, and a window of known duration starting at a specified
  position in the period.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SinglePeriodTimeline.html#SinglePeriodTimeline-long-long-long-long-long-long-boolean-boolean-java.lang.Object-">SinglePeriodTimeline</a></span>(long&nbsp;presentationStartTimeMs,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SinglePeriodTimeline.html#SinglePeriodTimeline-long-long-long-long-long-long-boolean-boolean-boolean-java.lang.Object-java.lang.Object-">SinglePeriodTimeline</a></span>(long&nbsp;presentationStartTimeMs,
                     long&nbsp;windowStartTimeMs,
                     long&nbsp;periodDurationUs,
                     long&nbsp;windowDurationUs,
@@ -197,6 +202,8 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
                     long&nbsp;windowDefaultStartPositionUs,
                     boolean&nbsp;isSeekable,
                     boolean&nbsp;isDynamic,
+                    boolean&nbsp;isLive,
+                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;manifest,
                     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;tag)</code>
 <div class="block">Creates a timeline with one period, and a window of known duration starting at a specified
  position in the period.</div>
@@ -220,8 +227,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SinglePeriodTimeline.html#getIndexOfPeriod-java.lang.Object-">getIndexOfPeriod</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;uid)</code>
-<div class="block">Returns the index of the period identified by its unique <code>id</code>, or <a href="../../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a>
- if the period is not in the timeline.</div>
+<div class="block">Returns the index of the period identified by its unique <a href="../../../../../com/google/android/exoplayer2/Timeline.Period.html#uid"><code>Timeline.Period.uid</code></a>, or <a href="../../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if the period is not in the timeline.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
@@ -246,9 +252,8 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SinglePeriodTimeline.html#getWindow-int-com.google.android.exoplayer2.Timeline.Window-boolean-long-">getWindow</a></span>(int&nbsp;windowIndex,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SinglePeriodTimeline.html#getWindow-int-com.google.android.exoplayer2.Timeline.Window-long-">getWindow</a></span>(int&nbsp;windowIndex,
          <a href="../../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;window,
-         boolean&nbsp;setTag,
          long&nbsp;defaultPositionProjectionUs)</code>
 <div class="block">Populates a <a href="../../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> with data for the window at the specified index.</div>
 </td>
@@ -288,25 +293,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="SinglePeriodTimeline-long-boolean-boolean-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>SinglePeriodTimeline</h4>
-<pre>public&nbsp;SinglePeriodTimeline(long&nbsp;durationUs,
-                            boolean&nbsp;isSeekable,
-                            boolean&nbsp;isDynamic)</pre>
-<div class="block">Creates a timeline containing a single period and a window that spans it.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>durationUs</code> - The duration of the period, in microseconds.</dd>
-<dd><code>isSeekable</code> - Whether seeking is supported within the period.</dd>
-<dd><code>isDynamic</code> - Whether the window may change when the timeline is updated.</dd>
-</dl>
-</li>
-</ul>
-<a name="SinglePeriodTimeline-long-boolean-boolean-java.lang.Object-">
+<a name="SinglePeriodTimeline-long-boolean-boolean-boolean-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -315,6 +302,29 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
 <pre>public&nbsp;SinglePeriodTimeline(long&nbsp;durationUs,
                             boolean&nbsp;isSeekable,
                             boolean&nbsp;isDynamic,
+                            boolean&nbsp;isLive)</pre>
+<div class="block">Creates a timeline containing a single period and a window that spans it.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>durationUs</code> - The duration of the period, in microseconds.</dd>
+<dd><code>isSeekable</code> - Whether seeking is supported within the period.</dd>
+<dd><code>isDynamic</code> - Whether the window may change when the timeline is updated.</dd>
+<dd><code>isLive</code> - Whether the window is live.</dd>
+</dl>
+</li>
+</ul>
+<a name="SinglePeriodTimeline-long-boolean-boolean-boolean-java.lang.Object-java.lang.Object-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>SinglePeriodTimeline</h4>
+<pre>public&nbsp;SinglePeriodTimeline(long&nbsp;durationUs,
+                            boolean&nbsp;isSeekable,
+                            boolean&nbsp;isDynamic,
+                            boolean&nbsp;isLive,
+                            @Nullable
+                            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;manifest,
                             @Nullable
                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;tag)</pre>
 <div class="block">Creates a timeline containing a single period and a window that spans it.</div>
@@ -323,11 +333,13 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
 <dd><code>durationUs</code> - The duration of the period, in microseconds.</dd>
 <dd><code>isSeekable</code> - Whether seeking is supported within the period.</dd>
 <dd><code>isDynamic</code> - Whether the window may change when the timeline is updated.</dd>
-<dd><code>tag</code> - A tag used for <code>Timeline.Window#tag</code>.</dd>
+<dd><code>isLive</code> - Whether the window is live.</dd>
+<dd><code>manifest</code> - The manifest. May be <code>null</code>.</dd>
+<dd><code>tag</code> - A tag used for <code>Window#tag</code>.</dd>
 </dl>
 </li>
 </ul>
-<a name="SinglePeriodTimeline-long-long-long-long-boolean-boolean-java.lang.Object-">
+<a name="SinglePeriodTimeline-long-long-long-long-boolean-boolean-boolean-java.lang.Object-java.lang.Object-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -339,6 +351,9 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
                             long&nbsp;windowDefaultStartPositionUs,
                             boolean&nbsp;isSeekable,
                             boolean&nbsp;isDynamic,
+                            boolean&nbsp;isLive,
+                            @Nullable
+                            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;manifest,
                             @Nullable
                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;tag)</pre>
 <div class="block">Creates a timeline with one period, and a window of known duration starting at a specified
@@ -353,11 +368,13 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
      which to begin playback, in microseconds.</dd>
 <dd><code>isSeekable</code> - Whether seeking is supported within the window.</dd>
 <dd><code>isDynamic</code> - Whether the window may change when the timeline is updated.</dd>
+<dd><code>isLive</code> - Whether the window is live.</dd>
+<dd><code>manifest</code> - The manifest. May be (@code null}.</dd>
 <dd><code>tag</code> - A tag used for <code>Timeline.Window#tag</code>.</dd>
 </dl>
 </li>
 </ul>
-<a name="SinglePeriodTimeline-long-long-long-long-long-long-boolean-boolean-java.lang.Object-">
+<a name="SinglePeriodTimeline-long-long-long-long-long-long-boolean-boolean-boolean-java.lang.Object-java.lang.Object-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -371,6 +388,9 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
                             long&nbsp;windowDefaultStartPositionUs,
                             boolean&nbsp;isSeekable,
                             boolean&nbsp;isDynamic,
+                            boolean&nbsp;isLive,
+                            @Nullable
+                            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;manifest,
                             @Nullable
                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;tag)</pre>
 <div class="block">Creates a timeline with one period, and a window of known duration starting at a specified
@@ -388,6 +408,8 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
      which to begin playback, in microseconds.</dd>
 <dd><code>isSeekable</code> - Whether seeking is supported within the window.</dd>
 <dd><code>isDynamic</code> - Whether the window may change when the timeline is updated.</dd>
+<dd><code>isLive</code> - Whether the window is live.</dd>
+<dd><code>manifest</code> - The manifest. May be <code>null</code>.</dd>
 <dd><code>tag</code> - A tag used for <code>Timeline.Window#tag</code>.</dd>
 </dl>
 </li>
@@ -415,7 +437,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
 </dl>
 </li>
 </ul>
-<a name="getWindow-int-com.google.android.exoplayer2.Timeline.Window-boolean-long-">
+<a name="getWindow-int-com.google.android.exoplayer2.Timeline.Window-long-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -423,18 +445,15 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
 <h4>getWindow</h4>
 <pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;getWindow(int&nbsp;windowIndex,
                                  <a href="../../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;window,
-                                 boolean&nbsp;setTag,
                                  long&nbsp;defaultPositionProjectionUs)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Timeline.html#getWindow-int-com.google.android.exoplayer2.Timeline.Window-boolean-long-">Timeline</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Timeline.html#getWindow-int-com.google.android.exoplayer2.Timeline.Window-long-">Timeline</a></code></span></div>
 <div class="block">Populates a <a href="../../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> with data for the window at the specified index.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/Timeline.html#getWindow-int-com.google.android.exoplayer2.Timeline.Window-boolean-long-">getWindow</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/Timeline.html#getWindow-int-com.google.android.exoplayer2.Timeline.Window-long-">getWindow</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>windowIndex</code> - The index of the window.</dd>
 <dd><code>window</code> - The <a href="../../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> to populate. Must not be null.</dd>
-<dd><code>setTag</code> - Whether <a href="../../../../../com/google/android/exoplayer2/Timeline.Window.html#tag"><code>Timeline.Window.tag</code></a> should be populated. If false, the field will be set
-     to null. The caller should pass false for efficiency reasons unless the field is required.</dd>
 <dd><code>defaultPositionProjectionUs</code> - A duration into the future that the populated window's
      default start position should be projected.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -490,8 +509,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
 <h4>getIndexOfPeriod</h4>
 <pre>public&nbsp;int&nbsp;getIndexOfPeriod(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;uid)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Timeline.html#getIndexOfPeriod-java.lang.Object-">Timeline</a></code></span></div>
-<div class="block">Returns the index of the period identified by its unique <code>id</code>, or <a href="../../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a>
- if the period is not in the timeline.</div>
+<div class="block">Returns the index of the period identified by its unique <a href="../../../../../com/google/android/exoplayer2/Timeline.Period.html#uid"><code>Timeline.Period.uid</code></a>, or <a href="../../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if the period is not in the timeline.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/Timeline.html#getIndexOfPeriod-java.lang.Object-">getIndexOfPeriod</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></dd>

@@ -236,7 +236,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockListLast">
 <li class="blockList">
 <h4>SegmentBase</h4>
-<pre>public&nbsp;SegmentBase(<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;initialization,
+<pre>public&nbsp;SegmentBase(@Nullable
+                   <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;initialization,
                    long&nbsp;timescale,
                    long&nbsp;presentationTimeOffset)</pre>
 <dl>
@@ -263,7 +264,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>getInitialization</h4>
-<pre>public&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;getInitialization(<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;representation)</pre>
+<pre>@Nullable
+public&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;getInitialization(<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;representation)</pre>
 <div class="block">Returns the <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>RangedUri</code></a> defining the location of initialization data for a given
  representation, or null if no initialization data exists.</div>
 <dl>
