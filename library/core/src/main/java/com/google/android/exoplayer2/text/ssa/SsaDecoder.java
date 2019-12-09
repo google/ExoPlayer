@@ -72,7 +72,7 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
   }
 
   /**
-   * Constructs an SsaDecoder with optional format & header info.
+   * Constructs an SsaDecoder with optional format and header info.
    *
    * @param initializationData Optional initialization data for the decoder. If not null or empty,
    *     the initialization data must consist of two byte arrays. The first must contain an SSA
