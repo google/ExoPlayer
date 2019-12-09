@@ -377,7 +377,7 @@ public class MatroskaExtractor implements Extractor {
   private int blockAdditionalId;
   private boolean blockHasReferenceBlock;
 
-  // Sample reading state.
+  // Sample writing state.
   private int sampleBytesRead;
   private int sampleBytesWritten;
   private int sampleCurrentNalBytesRemaining;
@@ -434,7 +434,7 @@ public class MatroskaExtractor implements Extractor {
     blockState = BLOCK_STATE_START;
     reader.reset();
     varintReader.reset();
-    resetSample();
+    resetWriteSampleData();
     for (int i = 0; i < tracks.size(); i++) {
       tracks.valueAt(i).reset();
     }
@@ -686,7 +686,12 @@ public class MatroskaExtractor implements Extractor {
         if (!blockHasReferenceBlock) {
           blockFlags |= C.BUFFER_FLAG_KEY_FRAME;
         }
-        commitSampleToOutput(tracks.get(blockTrackNumber), blockTimeUs);
+        commitSampleToOutput(
+            tracks.get(blockTrackNumber),
+            blockTimeUs,
+            blockFlags,
+            blockSampleSizes[0],
+            /* offset= */ 0);
         blockState = BLOCK_STATE_START;
         break;
       case ID_CONTENT_ENCODING:
@@ -1184,17 +1189,17 @@ public class MatroskaExtractor implements Extractor {
         if (id == ID_SIMPLE_BLOCK) {
           // For SimpleBlock, we have metadata for each sample here.
           while (blockSampleIndex < blockSampleCount) {
-            writeSampleData(input, track, blockSampleSizes[blockSampleIndex]);
+            int sampleSize = writeSampleData(input, track, blockSampleSizes[blockSampleIndex]);
             long sampleTimeUs =
                 blockTimeUs + (blockSampleIndex * track.defaultSampleDurationNs) / 1000;
-            commitSampleToOutput(track, sampleTimeUs);
+            commitSampleToOutput(track, sampleTimeUs, blockFlags, sampleSize, /* offset= */ 0);
             blockSampleIndex++;
           }
           blockState = BLOCK_STATE_START;
         } else {
           // For Block, we send the metadata at the end of the BlockGroup element since we'll know
           // if the sample is a keyframe or not only at that point.
-          writeSampleData(input, track, blockSampleSizes[0]);
+          blockSampleSizes[0] = writeSampleData(input, track, blockSampleSizes[0]);
         }
 
         break;
@@ -1223,9 +1228,10 @@ public class MatroskaExtractor implements Extractor {
     }
   }
 
-  private void commitSampleToOutput(Track track, long timeUs) {
+  private void commitSampleToOutput(
+      Track track, long timeUs, @C.BufferFlags int flags, int size, int offset) {
     if (track.trueHdSampleRechunker != null) {
-      track.trueHdSampleRechunker.sampleMetadata(track, timeUs);
+      track.trueHdSampleRechunker.sampleMetadata(track, timeUs, flags, size, offset);
     } else {
       if (CODEC_ID_SUBRIP.equals(track.codecId) || CODEC_ID_ASS.equals(track.codecId)) {
         if (durationUs == C.TIME_UNSET) {
@@ -1235,33 +1241,19 @@ public class MatroskaExtractor implements Extractor {
           // Note: If we ever want to support DRM protected subtitles then we'll need to output the
           // appropriate encryption data here.
           track.output.sampleData(subtitleSample, subtitleSample.limit());
-          sampleBytesWritten += subtitleSample.limit();
+          size += subtitleSample.limit();
         }
       }
 
-      if ((blockFlags & C.BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA) != 0) {
+      if ((flags & C.BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA) != 0) {
         // Append supplemental data.
         int blockAdditionalSize = blockAdditionalData.limit();
         track.output.sampleData(blockAdditionalData, blockAdditionalSize);
-        sampleBytesWritten += blockAdditionalSize;
+        size += blockAdditionalSize;
       }
-      track.output.sampleMetadata(timeUs, blockFlags, sampleBytesWritten, 0, track.cryptoData);
+      track.output.sampleMetadata(timeUs, flags, size, offset, track.cryptoData);
     }
     haveOutputSample = true;
-    resetSample();
-  }
-
-  private void resetSample() {
-    sampleBytesRead = 0;
-    sampleBytesWritten = 0;
-    sampleCurrentNalBytesRemaining = 0;
-    sampleEncodingHandled = false;
-    sampleSignalByteRead = false;
-    samplePartitionCountRead = false;
-    samplePartitionCount = 0;
-    sampleSignalByte = (byte) 0;
-    sampleInitializationVectorRead = false;
-    sampleStrippedBytes.reset();
   }
 
   /**
@@ -1281,14 +1273,24 @@ public class MatroskaExtractor implements Extractor {
     scratch.setLimit(requiredLength);
   }
 
-  private void writeSampleData(ExtractorInput input, Track track, int size)
+  /**
+   * Writes data for a single sample to the track output.
+   *
+   * @param input The input from which to read sample data.
+   * @param track The track to output the sample to.
+   * @param size The size of the sample data on the input side.
+   * @return The final size of the written sample.
+   * @throws IOException If an error occurs reading from the input.
+   * @throws InterruptedException If the thread is interrupted.
+   */
+  private int writeSampleData(ExtractorInput input, Track track, int size)
       throws IOException, InterruptedException {
     if (CODEC_ID_SUBRIP.equals(track.codecId)) {
       writeSubtitleSampleData(input, SUBRIP_PREFIX, size);
-      return;
+      return finishWriteSampleData();
     } else if (CODEC_ID_ASS.equals(track.codecId)) {
       writeSubtitleSampleData(input, SSA_PREFIX, size);
-      return;
+      return finishWriteSampleData();
     }
 
     TrackOutput output = track.output;
@@ -1413,8 +1415,9 @@ public class MatroskaExtractor implements Extractor {
       while (sampleBytesRead < size) {
         if (sampleCurrentNalBytesRemaining == 0) {
           // Read the NAL length so that we know where we find the next one.
-          readToTarget(input, nalLengthData, nalUnitLengthFieldLengthDiff,
-              nalUnitLengthFieldLength);
+          writeToTarget(
+              input, nalLengthData, nalUnitLengthFieldLengthDiff, nalUnitLengthFieldLength);
+          sampleBytesRead += nalUnitLengthFieldLength;
           nalLength.setPosition(0);
           sampleCurrentNalBytesRemaining = nalLength.readUnsignedIntToInt();
           // Write a start code for the current NAL unit.
@@ -1423,17 +1426,21 @@ public class MatroskaExtractor implements Extractor {
           sampleBytesWritten += 4;
         } else {
           // Write the payload of the NAL unit.
-          sampleCurrentNalBytesRemaining -=
-              readToOutput(input, output, sampleCurrentNalBytesRemaining);
+          int bytesWritten = writeToOutput(input, output, sampleCurrentNalBytesRemaining);
+          sampleBytesRead += bytesWritten;
+          sampleBytesWritten += bytesWritten;
+          sampleCurrentNalBytesRemaining -= bytesWritten;
         }
       }
     } else {
       if (track.trueHdSampleRechunker != null) {
         Assertions.checkState(sampleStrippedBytes.limit() == 0);
-        track.trueHdSampleRechunker.startSample(input, blockFlags, size);
+        track.trueHdSampleRechunker.startSample(input);
       }
       while (sampleBytesRead < size) {
-        readToOutput(input, output, size - sampleBytesRead);
+        int bytesWritten = writeToOutput(input, output, size - sampleBytesRead);
+        sampleBytesRead += bytesWritten;
+        sampleBytesWritten += bytesWritten;
       }
     }
 
@@ -1448,6 +1455,32 @@ public class MatroskaExtractor implements Extractor {
       output.sampleData(vorbisNumPageSamples, 4);
       sampleBytesWritten += 4;
     }
+
+    return finishWriteSampleData();
+  }
+
+  /**
+   * Called by {@link #writeSampleData(ExtractorInput, Track, int)} when the sample has been
+   * written. Returns the final sample size and resets state for the next sample.
+   */
+  private int finishWriteSampleData() {
+    int sampleSize = sampleBytesWritten;
+    resetWriteSampleData();
+    return sampleSize;
+  }
+
+  /** Resets state used by {@link #writeSampleData(ExtractorInput, Track, int)}. */
+  private void resetWriteSampleData() {
+    sampleBytesRead = 0;
+    sampleBytesWritten = 0;
+    sampleCurrentNalBytesRemaining = 0;
+    sampleEncodingHandled = false;
+    sampleSignalByteRead = false;
+    samplePartitionCountRead = false;
+    samplePartitionCount = 0;
+    sampleSignalByte = (byte) 0;
+    sampleInitializationVectorRead = false;
+    sampleStrippedBytes.reset();
   }
 
   private void writeSubtitleSampleData(ExtractorInput input, byte[] samplePrefix, int size)
@@ -1515,8 +1548,9 @@ public class MatroskaExtractor implements Extractor {
     int seconds = (int) (timeUs / C.MICROS_PER_SECOND);
     timeUs -= (seconds * C.MICROS_PER_SECOND);
     int lastValue = (int) (timeUs / lastTimecodeValueScalingFactor);
-      timeCodeData = Util.getUtf8Bytes(String.format(Locale.US, timecodeFormat, hours, minutes,
-          seconds, lastValue));
+    timeCodeData =
+        Util.getUtf8Bytes(
+            String.format(Locale.US, timecodeFormat, hours, minutes, seconds, lastValue));
     return timeCodeData;
   }
 
@@ -1524,33 +1558,30 @@ public class MatroskaExtractor implements Extractor {
    * Writes {@code length} bytes of sample data into {@code target} at {@code offset}, consisting of
    * pending {@link #sampleStrippedBytes} and any remaining data read from {@code input}.
    */
-  private void readToTarget(ExtractorInput input, byte[] target, int offset, int length)
+  private void writeToTarget(ExtractorInput input, byte[] target, int offset, int length)
       throws IOException, InterruptedException {
     int pendingStrippedBytes = Math.min(length, sampleStrippedBytes.bytesLeft());
     input.readFully(target, offset + pendingStrippedBytes, length - pendingStrippedBytes);
     if (pendingStrippedBytes > 0) {
       sampleStrippedBytes.readBytes(target, offset, pendingStrippedBytes);
     }
-    sampleBytesRead += length;
   }
 
   /**
    * Outputs up to {@code length} bytes of sample data to {@code output}, consisting of either
    * {@link #sampleStrippedBytes} or data read from {@code input}.
    */
-  private int readToOutput(ExtractorInput input, TrackOutput output, int length)
+  private int writeToOutput(ExtractorInput input, TrackOutput output, int length)
       throws IOException, InterruptedException {
-    int bytesRead;
+    int bytesWritten;
     int strippedBytesLeft = sampleStrippedBytes.bytesLeft();
     if (strippedBytesLeft > 0) {
-      bytesRead = Math.min(length, strippedBytesLeft);
-      output.sampleData(sampleStrippedBytes, bytesRead);
+      bytesWritten = Math.min(length, strippedBytesLeft);
+      output.sampleData(sampleStrippedBytes, bytesWritten);
     } else {
-      bytesRead = output.sampleData(input, length, false);
+      bytesWritten = output.sampleData(input, length, false);
     }
-    sampleBytesRead += bytesRead;
-    sampleBytesWritten += bytesRead;
-    return bytesRead;
+    return bytesWritten;
   }
 
   /**
@@ -1725,10 +1756,11 @@ public class MatroskaExtractor implements Extractor {
     private final byte[] syncframePrefix;
 
     private boolean foundSyncframe;
-    private int sampleCount;
+    private int chunkSampleCount;
+    private long chunkTimeUs;
+    private @C.BufferFlags int chunkFlags;
     private int chunkSize;
-    private long timeUs;
-    private @C.BufferFlags int blockFlags;
+    private int chunkOffset;
 
     public TrueHdSampleRechunker() {
       syncframePrefix = new byte[Ac3Util.TRUEHD_SYNCFRAME_PREFIX_LENGTH];
@@ -1736,47 +1768,46 @@ public class MatroskaExtractor implements Extractor {
 
     public void reset() {
       foundSyncframe = false;
+      chunkSampleCount = 0;
     }
 
-    public void startSample(ExtractorInput input, @C.BufferFlags int blockFlags, int size)
-        throws IOException, InterruptedException {
-      if (!foundSyncframe) {
-        input.peekFully(syncframePrefix, 0, Ac3Util.TRUEHD_SYNCFRAME_PREFIX_LENGTH);
-        input.resetPeekPosition();
-        if (Ac3Util.parseTrueHdSyncframeAudioSampleCount(syncframePrefix) == 0) {
-          return;
-        }
-        foundSyncframe = true;
-        sampleCount = 0;
+    public void startSample(ExtractorInput input) throws IOException, InterruptedException {
+      if (foundSyncframe) {
+        return;
       }
-      if (sampleCount == 0) {
-        // This is the first sample in the chunk, so reset the block flags and chunk size.
-        this.blockFlags = blockFlags;
+      input.peekFully(syncframePrefix, 0, Ac3Util.TRUEHD_SYNCFRAME_PREFIX_LENGTH);
+      input.resetPeekPosition();
+      if (Ac3Util.parseTrueHdSyncframeAudioSampleCount(syncframePrefix) == 0) {
+        return;
+      }
+      foundSyncframe = true;
+    }
+
+    public void sampleMetadata(
+        Track track, long timeUs, @C.BufferFlags int flags, int size, int offset) {
+      if (!foundSyncframe) {
+        return;
+      }
+      if (chunkSampleCount++ == 0) {
+        // This is the first sample in the chunk.
+        chunkTimeUs = timeUs;
+        chunkFlags = flags;
         chunkSize = 0;
       }
       chunkSize += size;
-    }
-
-    public void sampleMetadata(Track track, long timeUs) {
-      if (!foundSyncframe) {
-        return;
-      }
-      if (sampleCount++ == 0) {
-        // This is the first sample in the chunk, so update the timestamp.
-        this.timeUs = timeUs;
-      }
-      if (sampleCount < Ac3Util.TRUEHD_RECHUNK_SAMPLE_COUNT) {
+      chunkOffset = offset; // The offset is to the end of the sample.
+      if (chunkSampleCount >= Ac3Util.TRUEHD_RECHUNK_SAMPLE_COUNT) {
         // We haven't read enough samples to output a chunk.
         return;
       }
-      track.output.sampleMetadata(this.timeUs, blockFlags, chunkSize, 0, track.cryptoData);
-      sampleCount = 0;
+      outputPendingSampleMetadata(track);
     }
 
     public void outputPendingSampleMetadata(Track track) {
-      if (foundSyncframe && sampleCount > 0) {
-        track.output.sampleMetadata(this.timeUs, blockFlags, chunkSize, 0, track.cryptoData);
-        sampleCount = 0;
+      if (chunkSampleCount > 0) {
+        track.output.sampleMetadata(
+            chunkTimeUs, chunkFlags, chunkSize, chunkOffset, track.cryptoData);
+        chunkSampleCount = 0;
       }
     }
   }
