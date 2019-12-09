@@ -682,16 +682,24 @@ public class MatroskaExtractor implements Extractor {
           // We've skipped this block (due to incompatible track number).
           return;
         }
-        // If the ReferenceBlock element was not found for this sample, then it is a keyframe.
-        if (!blockHasReferenceBlock) {
-          blockFlags |= C.BUFFER_FLAG_KEY_FRAME;
+        // Commit sample metadata.
+        int sampleOffset = 0;
+        for (int i = 0; i < blockSampleCount; i++) {
+          sampleOffset += blockSampleSizes[i];
         }
-        commitSampleToOutput(
-            tracks.get(blockTrackNumber),
-            blockTimeUs,
-            blockFlags,
-            blockSampleSizes[0],
-            /* offset= */ 0);
+        Track track = tracks.get(blockTrackNumber);
+        for (int i = 0; i < blockSampleCount; i++) {
+          long sampleTimeUs = blockTimeUs + (i * track.defaultSampleDurationNs) / 1000;
+          int sampleFlags = blockFlags;
+          if (i == 0 && !blockHasReferenceBlock) {
+            // If the ReferenceBlock element was not found in this block, then the first frame is a
+            // keyframe.
+            sampleFlags |= C.BUFFER_FLAG_KEY_FRAME;
+          }
+          int sampleSize = blockSampleSizes[i];
+          sampleOffset -= sampleSize; // The offset is to the end of the sample.
+          commitSampleToOutput(track, sampleTimeUs, sampleFlags, sampleSize, sampleOffset);
+        }
         blockState = BLOCK_STATE_START;
         break;
       case ID_CONTENT_ENCODING:
@@ -1102,10 +1110,6 @@ public class MatroskaExtractor implements Extractor {
             blockSampleSizes = ensureArrayCapacity(blockSampleSizes, 1);
             blockSampleSizes[0] = contentSize - blockTrackNumberLength - 3;
           } else {
-            if (id != ID_SIMPLE_BLOCK) {
-              throw new ParserException("Lacing only supported in SimpleBlocks.");
-            }
-
             // Read the sample count (1 byte).
             readScratch(input, 4);
             blockSampleCount = (scratch.data[3] & 0xFF) + 1;
@@ -1187,7 +1191,8 @@ public class MatroskaExtractor implements Extractor {
         }
 
         if (id == ID_SIMPLE_BLOCK) {
-          // For SimpleBlock, we have metadata for each sample here.
+          // For SimpleBlock, we can write sample data and immediately commit the corresponding
+          // sample metadata.
           while (blockSampleIndex < blockSampleCount) {
             int sampleSize = writeSampleData(input, track, blockSampleSizes[blockSampleIndex]);
             long sampleTimeUs =
@@ -1197,9 +1202,16 @@ public class MatroskaExtractor implements Extractor {
           }
           blockState = BLOCK_STATE_START;
         } else {
-          // For Block, we send the metadata at the end of the BlockGroup element since we'll know
-          // if the sample is a keyframe or not only at that point.
-          blockSampleSizes[0] = writeSampleData(input, track, blockSampleSizes[0]);
+          // For Block, we need to wait until the end of the BlockGroup element before committing
+          // sample metadata. This is so that we can handle ReferenceBlock (which can be used to
+          // infer whether the first sample in the block is a keyframe), and BlockAdditions (which
+          // can contain additional sample data to append) contained in the block group. Just output
+          // the sample data, storing the final sample sizes for when we commit the metadata.
+          while (blockSampleIndex < blockSampleCount) {
+            blockSampleSizes[blockSampleIndex] =
+                writeSampleData(input, track, blockSampleSizes[blockSampleIndex]);
+            blockSampleIndex++;
+          }
         }
 
         break;
@@ -1234,7 +1246,9 @@ public class MatroskaExtractor implements Extractor {
       track.trueHdSampleRechunker.sampleMetadata(track, timeUs, flags, size, offset);
     } else {
       if (CODEC_ID_SUBRIP.equals(track.codecId) || CODEC_ID_ASS.equals(track.codecId)) {
-        if (durationUs == C.TIME_UNSET) {
+        if (blockSampleCount > 1) {
+          Log.w(TAG, "Skipping subtitle sample in laced block.");
+        } else if (durationUs == C.TIME_UNSET) {
           Log.w(TAG, "Skipping subtitle sample with no duration.");
         } else {
           setSubtitleEndTime(track.codecId, durationUs, subtitleSample.data);
@@ -1246,10 +1260,16 @@ public class MatroskaExtractor implements Extractor {
       }
 
       if ((flags & C.BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA) != 0) {
-        // Append supplemental data.
-        int blockAdditionalSize = blockAdditionalData.limit();
-        track.output.sampleData(blockAdditionalData, blockAdditionalSize);
-        size += blockAdditionalSize;
+        if (blockSampleCount > 1) {
+          // There were multiple samples in the block. Appending the additional data to the last
+          // sample doesn't make sense. Skip instead.
+          flags &= ~C.BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA;
+        } else {
+          // Append supplemental data.
+          int blockAdditionalSize = blockAdditionalData.limit();
+          track.output.sampleData(blockAdditionalData, blockAdditionalSize);
+          size += blockAdditionalSize;
+        }
       }
       track.output.sampleMetadata(timeUs, flags, size, offset, track.cryptoData);
     }

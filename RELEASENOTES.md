@@ -2,6 +2,8 @@
 
 ### dev-v2 (not yet released) ###
 
+* Matroska: Support lacing in Blocks
+  ([#3026](https://github.com/google/ExoPlayer/issues/3026)).
 * Add Java FLAC extractor
   ([#6406](https://github.com/google/ExoPlayer/issues/6406)).
   This extractor does not support seeking and live streams. If
