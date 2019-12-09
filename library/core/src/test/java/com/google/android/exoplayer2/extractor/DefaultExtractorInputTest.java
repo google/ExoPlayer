@@ -49,7 +49,7 @@ public class DefaultExtractorInputTest {
   }
 
   @Test
-  public void testRead() throws Exception {
+  public void testReadMultipleTimes() throws Exception {
     DefaultExtractorInput input = createDefaultExtractorInput();
     byte[] target = new byte[TEST_DATA.length];
     // We expect to perform three reads of three bytes, as setup in buildTestDataSource.
@@ -60,39 +60,70 @@ public class DefaultExtractorInputTest {
     assertThat(bytesRead).isEqualTo(6);
     bytesRead += input.read(target, 6, TEST_DATA.length);
     assertThat(bytesRead).isEqualTo(9);
-    // Check the read data is correct.
-    assertThat(Arrays.equals(TEST_DATA, target)).isTrue();
-    // Check we're now indicated that the end of input is reached.
-    int expectedEndOfInput = input.read(target, 0, TEST_DATA.length);
-    assertThat(expectedEndOfInput).isEqualTo(RESULT_END_OF_INPUT);
+    assertThat(input.getPosition()).isEqualTo(9);
+    assertThat(TEST_DATA).isEqualTo(target);
   }
 
   @Test
-  public void testReadPeeked() throws Exception {
+  public void testReadAlreadyPeeked() throws Exception {
     DefaultExtractorInput input = createDefaultExtractorInput();
     byte[] target = new byte[TEST_DATA.length];
 
     input.advancePeekPosition(TEST_DATA.length);
+    int bytesRead = input.read(target, 0, TEST_DATA.length - 1);
 
+    assertThat(bytesRead).isEqualTo(TEST_DATA.length - 1);
+    assertThat(input.getPosition()).isEqualTo(TEST_DATA.length - 1);
+    assertThat(Arrays.copyOf(TEST_DATA, TEST_DATA.length - 1))
+        .isEqualTo(Arrays.copyOf(target, TEST_DATA.length - 1));
+  }
+
+  @Test
+  public void testReadPartiallyPeeked() throws Exception {
+    DefaultExtractorInput input = createDefaultExtractorInput();
+    byte[] target = new byte[TEST_DATA.length];
+
+    input.advancePeekPosition(TEST_DATA.length - 1);
     int bytesRead = input.read(target, 0, TEST_DATA.length);
-    assertThat(bytesRead).isEqualTo(TEST_DATA.length);
 
-    // Check the read data is correct.
-    assertThat(Arrays.equals(TEST_DATA, target)).isTrue();
+    assertThat(bytesRead).isEqualTo(TEST_DATA.length - 1);
+    assertThat(input.getPosition()).isEqualTo(TEST_DATA.length - 1);
+    assertThat(Arrays.copyOf(TEST_DATA, TEST_DATA.length - 1))
+        .isEqualTo(Arrays.copyOf(target, TEST_DATA.length - 1));
   }
 
   @Test
-  public void testReadMoreDataPeeked() throws Exception {
+  public void testReadEndOfInputBeforeFirstByteRead() throws Exception {
     DefaultExtractorInput input = createDefaultExtractorInput();
     byte[] target = new byte[TEST_DATA.length];
 
-    input.advancePeekPosition(TEST_DATA.length);
+    input.skipFully(TEST_DATA.length);
+    int bytesRead = input.read(target, 0, TEST_DATA.length);
 
-    int bytesRead = input.read(target, 0, TEST_DATA.length + 1);
-    assertThat(bytesRead).isEqualTo(TEST_DATA.length);
+    assertThat(bytesRead).isEqualTo(RESULT_END_OF_INPUT);
+    assertThat(input.getPosition()).isEqualTo(TEST_DATA.length);
+  }
 
-    // Check the read data is correct.
-    assertThat(Arrays.equals(TEST_DATA, target)).isTrue();
+  @Test
+  public void testReadEndOfInputAfterFirstByteRead() throws Exception {
+    DefaultExtractorInput input = createDefaultExtractorInput();
+    byte[] target = new byte[TEST_DATA.length];
+
+    input.skipFully(TEST_DATA.length - 1);
+    int bytesRead = input.read(target, 0, TEST_DATA.length);
+
+    assertThat(bytesRead).isEqualTo(1);
+    assertThat(input.getPosition()).isEqualTo(TEST_DATA.length);
+  }
+
+  @Test
+  public void testReadZeroLength() throws Exception {
+    DefaultExtractorInput input = createDefaultExtractorInput();
+    byte[] target = new byte[TEST_DATA.length];
+
+    int bytesRead = input.read(target, /* offset= */ 0, /* length= */ 0);
+
+    assertThat(bytesRead).isEqualTo(0);
   }
 
   @Test
@@ -101,7 +132,7 @@ public class DefaultExtractorInputTest {
     byte[] target = new byte[TEST_DATA.length];
     input.readFully(target, 0, TEST_DATA.length);
     // Check that we read the whole of TEST_DATA.
-    assertThat(Arrays.equals(TEST_DATA, target)).isTrue();
+    assertThat(TEST_DATA).isEqualTo(target);
     assertThat(input.getPosition()).isEqualTo(TEST_DATA.length);
     // Check that we see end of input if we read again with allowEndOfInput set.
     boolean result = input.readFully(target, 0, 1, true);
@@ -121,11 +152,11 @@ public class DefaultExtractorInputTest {
     DefaultExtractorInput input = createDefaultExtractorInput();
     byte[] target = new byte[5];
     input.readFully(target, 0, 5);
-    assertThat(Arrays.equals(copyOf(TEST_DATA, 5), target)).isTrue();
+    assertThat(copyOf(TEST_DATA, 5)).isEqualTo(target);
     assertThat(input.getPosition()).isEqualTo(5);
     target = new byte[4];
     input.readFully(target, 0, 4);
-    assertThat(Arrays.equals(copyOfRange(TEST_DATA, 5, 9), target)).isTrue();
+    assertThat(copyOfRange(TEST_DATA, 5, 9)).isEqualTo(target);
     assertThat(input.getPosition()).isEqualTo(5 + 4);
   }
 
@@ -180,32 +211,81 @@ public class DefaultExtractorInputTest {
     input.readFully(target, 0, TEST_DATA.length);
 
     // Check the read data is correct.
-    assertThat(Arrays.equals(TEST_DATA, target)).isTrue();
+    assertThat(TEST_DATA).isEqualTo(target);
     assertThat(input.getPosition()).isEqualTo(TEST_DATA.length);
   }
 
   @Test
-  public void testSkip() throws Exception {
-    FakeDataSource testDataSource = buildDataSource();
-    DefaultExtractorInput input = new DefaultExtractorInput(testDataSource, 0, C.LENGTH_UNSET);
+  public void testSkipMultipleTimes() throws Exception {
+    DefaultExtractorInput input = createDefaultExtractorInput();
     // We expect to perform three skips of three bytes, as setup in buildTestDataSource.
     for (int i = 0; i < 3; i++) {
       assertThat(input.skip(TEST_DATA.length)).isEqualTo(3);
     }
-    // Check we're now indicated that the end of input is reached.
-    int expectedEndOfInput = input.skip(TEST_DATA.length);
-    assertThat(expectedEndOfInput).isEqualTo(RESULT_END_OF_INPUT);
+    assertThat(input.getPosition()).isEqualTo(TEST_DATA.length);
   }
 
   @Test
   public void testLargeSkip() throws Exception {
-    FakeDataSource testDataSource = buildLargeDataSource();
-    DefaultExtractorInput input = new DefaultExtractorInput(testDataSource, 0, C.LENGTH_UNSET);
+    DefaultExtractorInput input = createDefaultExtractorInput();
     // Check that skipping the entire data source succeeds.
     int bytesToSkip = LARGE_TEST_DATA_LENGTH;
     while (bytesToSkip > 0) {
       bytesToSkip -= input.skip(bytesToSkip);
     }
+  }
+
+  @Test
+  public void testSkipAlreadyPeeked() throws Exception {
+    DefaultExtractorInput input = createDefaultExtractorInput();
+
+    input.advancePeekPosition(TEST_DATA.length);
+    int bytesSkipped = input.skip(TEST_DATA.length - 1);
+
+    assertThat(bytesSkipped).isEqualTo(TEST_DATA.length - 1);
+    assertThat(input.getPosition()).isEqualTo(TEST_DATA.length - 1);
+  }
+
+  @Test
+  public void testSkipPartiallyPeeked() throws Exception {
+    DefaultExtractorInput input = createDefaultExtractorInput();
+
+    input.advancePeekPosition(TEST_DATA.length - 1);
+    int bytesSkipped = input.skip(TEST_DATA.length);
+
+    assertThat(bytesSkipped).isEqualTo(TEST_DATA.length - 1);
+    assertThat(input.getPosition()).isEqualTo(TEST_DATA.length - 1);
+  }
+
+  @Test
+  public void testSkipEndOfInputBeforeFirstByteSkipped() throws Exception {
+    DefaultExtractorInput input = createDefaultExtractorInput();
+
+    input.skipFully(TEST_DATA.length);
+    int bytesSkipped = input.skip(TEST_DATA.length);
+
+    assertThat(bytesSkipped).isEqualTo(RESULT_END_OF_INPUT);
+    assertThat(input.getPosition()).isEqualTo(TEST_DATA.length);
+  }
+
+  @Test
+  public void testSkipEndOfInputAfterFirstByteSkipped() throws Exception {
+    DefaultExtractorInput input = createDefaultExtractorInput();
+
+    input.skipFully(TEST_DATA.length - 1);
+    int bytesSkipped = input.skip(TEST_DATA.length);
+
+    assertThat(bytesSkipped).isEqualTo(1);
+    assertThat(input.getPosition()).isEqualTo(TEST_DATA.length);
+  }
+
+  @Test
+  public void testSkipZeroLength() throws Exception {
+    DefaultExtractorInput input = createDefaultExtractorInput();
+
+    int bytesRead = input.skip(0);
+
+    assertThat(bytesRead).isEqualTo(0);
   }
 
   @Test
@@ -310,20 +390,100 @@ public class DefaultExtractorInputTest {
   }
 
   @Test
+  public void testPeekMultipleTimes() throws Exception {
+    DefaultExtractorInput input = createDefaultExtractorInput();
+    byte[] target = new byte[TEST_DATA.length];
+
+    // We expect to perform three peeks of three bytes, as setup in buildTestDataSource.
+    int bytesPeeked = 0;
+    bytesPeeked += input.peek(target, 0, TEST_DATA.length);
+    assertThat(bytesPeeked).isEqualTo(3);
+    bytesPeeked += input.peek(target, 3, TEST_DATA.length);
+    assertThat(bytesPeeked).isEqualTo(6);
+    bytesPeeked += input.peek(target, 6, TEST_DATA.length);
+    assertThat(bytesPeeked).isEqualTo(9);
+    assertThat(input.getPeekPosition()).isEqualTo(TEST_DATA.length);
+    assertThat(TEST_DATA).isEqualTo(target);
+  }
+
+  @Test
+  public void testPeekAlreadyPeeked() throws Exception {
+    DefaultExtractorInput input = createDefaultExtractorInput();
+    byte[] target = new byte[TEST_DATA.length];
+
+    input.advancePeekPosition(TEST_DATA.length);
+    input.resetPeekPosition();
+    int bytesPeeked = input.peek(target, 0, TEST_DATA.length - 1);
+
+    assertThat(bytesPeeked).isEqualTo(TEST_DATA.length - 1);
+    assertThat(input.getPeekPosition()).isEqualTo(TEST_DATA.length - 1);
+    assertThat(Arrays.copyOf(TEST_DATA, TEST_DATA.length - 1))
+        .isEqualTo(Arrays.copyOf(target, TEST_DATA.length - 1));
+  }
+
+  @Test
+  public void testPeekPartiallyPeeked() throws Exception {
+    DefaultExtractorInput input = createDefaultExtractorInput();
+    byte[] target = new byte[TEST_DATA.length];
+
+    input.advancePeekPosition(TEST_DATA.length - 1);
+    input.resetPeekPosition();
+    int bytesPeeked = input.peek(target, 0, TEST_DATA.length);
+
+    assertThat(bytesPeeked).isEqualTo(TEST_DATA.length - 1);
+    assertThat(Arrays.copyOf(TEST_DATA, TEST_DATA.length - 1))
+        .isEqualTo(Arrays.copyOf(target, TEST_DATA.length - 1));
+  }
+
+  @Test
+  public void testPeekEndOfInputBeforeFirstBytePeeked() throws Exception {
+    DefaultExtractorInput input = createDefaultExtractorInput();
+    byte[] target = new byte[TEST_DATA.length];
+
+    input.advancePeekPosition(TEST_DATA.length);
+    int bytesPeeked = input.peek(target, 0, TEST_DATA.length);
+
+    assertThat(bytesPeeked).isEqualTo(RESULT_END_OF_INPUT);
+    assertThat(input.getPeekPosition()).isEqualTo(TEST_DATA.length);
+  }
+
+  @Test
+  public void testPeekEndOfInputAfterFirstBytePeeked() throws Exception {
+    DefaultExtractorInput input = createDefaultExtractorInput();
+    byte[] target = new byte[TEST_DATA.length];
+
+    input.advancePeekPosition(TEST_DATA.length - 1);
+    int bytesPeeked = input.peek(target, 0, TEST_DATA.length);
+
+    assertThat(bytesPeeked).isEqualTo(1);
+    assertThat(input.getPeekPosition()).isEqualTo(TEST_DATA.length);
+  }
+
+  @Test
+  public void testPeekZeroLength() throws Exception {
+    DefaultExtractorInput input = createDefaultExtractorInput();
+    byte[] target = new byte[TEST_DATA.length];
+
+    int bytesPeeked = input.peek(target, /* offset= */ 0, /* length= */ 0);
+
+    assertThat(bytesPeeked).isEqualTo(0);
+  }
+
+  @Test
   public void testPeekFully() throws Exception {
     DefaultExtractorInput input = createDefaultExtractorInput();
     byte[] target = new byte[TEST_DATA.length];
     input.peekFully(target, 0, TEST_DATA.length);
 
     // Check that we read the whole of TEST_DATA.
-    assertThat(Arrays.equals(TEST_DATA, target)).isTrue();
+    assertThat(TEST_DATA).isEqualTo(target);
     assertThat(input.getPosition()).isEqualTo(0);
     assertThat(input.getPeekPosition()).isEqualTo(TEST_DATA.length);
 
     // Check that we can read again from the buffer
     byte[] target2 = new byte[TEST_DATA.length];
     input.readFully(target2, 0, TEST_DATA.length);
-    assertThat(Arrays.equals(TEST_DATA, target2)).isTrue();
+    assertThat(TEST_DATA).isEqualTo(target2);
     assertThat(input.getPosition()).isEqualTo(TEST_DATA.length);
     assertThat(input.getPeekPosition()).isEqualTo(TEST_DATA.length);
 
@@ -350,7 +510,7 @@ public class DefaultExtractorInputTest {
     input.peekFully(target, /* offset= */ 0, /* length= */ TEST_DATA.length);
 
     assertThat(input.getPeekPosition()).isEqualTo(TEST_DATA.length);
-    assertThat(Arrays.equals(TEST_DATA, Arrays.copyOf(target, TEST_DATA.length))).isTrue();
+    assertThat(TEST_DATA).isEqualTo(Arrays.copyOf(target, TEST_DATA.length));
   }
 
   @Test
@@ -360,14 +520,14 @@ public class DefaultExtractorInputTest {
     input.peekFully(target, 0, TEST_DATA.length);
 
     // Check that we read the whole of TEST_DATA.
-    assertThat(Arrays.equals(TEST_DATA, target)).isTrue();
+    assertThat(TEST_DATA).isEqualTo(target);
     assertThat(input.getPosition()).isEqualTo(0);
 
     // Check that we can peek again after resetting.
     input.resetPeekPosition();
     byte[] target2 = new byte[TEST_DATA.length];
     input.peekFully(target2, 0, TEST_DATA.length);
-    assertThat(Arrays.equals(TEST_DATA, target2)).isTrue();
+    assertThat(TEST_DATA).isEqualTo(target2);
 
     // Check that we fail with EOFException if we peek past the end of the input.
     try {
