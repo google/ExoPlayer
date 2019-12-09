@@ -58,9 +58,7 @@ public final class DefaultExtractorInput implements ExtractorInput {
   public int read(byte[] target, int offset, int length) throws IOException, InterruptedException {
     int bytesRead = readFromPeekBuffer(target, offset, length);
     if (bytesRead == 0) {
-      bytesRead =
-          readFromDataSource(
-              target, offset, length, /* bytesAlreadyRead= */ 0, /* allowEndOfInput= */ true);
+      bytesRead = readFromDataSource(target, offset, length, 0, true);
     }
     commitBytesRead(bytesRead);
     return bytesRead;
@@ -110,31 +108,6 @@ public final class DefaultExtractorInput implements ExtractorInput {
   @Override
   public void skipFully(int length) throws IOException, InterruptedException {
     skipFully(length, false);
-  }
-
-  @Override
-  public int peek(byte[] target, int offset, int length) throws IOException, InterruptedException {
-    ensureSpaceForPeek(length);
-    int peekBufferRemainingBytes = peekBufferLength - peekBufferPosition;
-    int bytesPeeked;
-    if (peekBufferRemainingBytes == 0) {
-      bytesPeeked =
-          readFromDataSource(
-              peekBuffer,
-              peekBufferPosition,
-              length,
-              /* bytesAlreadyRead= */ 0,
-              /* allowEndOfInput= */ true);
-      if (bytesPeeked == C.RESULT_END_OF_INPUT) {
-        return C.RESULT_END_OF_INPUT;
-      }
-      peekBufferLength += bytesPeeked;
-    } else {
-      bytesPeeked = Math.min(length, peekBufferRemainingBytes);
-    }
-    System.arraycopy(peekBuffer, peekBufferPosition, target, offset, bytesPeeked);
-    peekBufferPosition += bytesPeeked;
-    return bytesPeeked;
   }
 
   @Override
@@ -228,7 +201,7 @@ public final class DefaultExtractorInput implements ExtractorInput {
   }
 
   /**
-   * Reads from the peek buffer.
+   * Reads from the peek buffer
    *
    * @param target A target array into which data should be written.
    * @param offset The offset into the target array at which to write.
