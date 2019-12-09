@@ -27,19 +27,19 @@ import java.io.InputStream;
  * for more info about each mode.
  *
  * <ul>
- *   <li>The {@code read()} and {@code skip()} methods provide {@link InputStream}-like byte-level
- *       access operations.
+ *   <li>The {@code read()/peek()} and {@code skip()} methods provide {@link InputStream}-like
+ *       byte-level access operations.
  *   <li>The {@code read/skip/peekFully()} and {@code advancePeekPosition()} methods assume the user
  *       wants to read an entire block/frame/header of known length.
  * </ul>
  *
  * <h3>{@link InputStream}-like methods</h3>
  *
- * <p>The {@code read()} and {@code skip()} methods provide {@link InputStream}-like byte-level
- * access operations. The {@code length} parameter is a maximum, and each method returns the number
- * of bytes actually processed. This may be less than {@code length} because the end of the input
- * was reached, or the method was interrupted, or the operation was aborted early for another
- * reason.
+ * <p>The {@code read()/peek()} and {@code skip()} methods provide {@link InputStream}-like
+ * byte-level access operations. The {@code length} parameter is a maximum, and each method returns
+ * the number of bytes actually processed. This may be less than {@code length} because the end of
+ * the input was reached, or the method was interrupted, or the operation was aborted early for
+ * another reason.
  *
  * <h3>Block-based methods</h3>
  *
@@ -102,7 +102,8 @@ public interface ExtractorInput {
       throws IOException, InterruptedException;
 
   /**
-   * Equivalent to {@code readFully(target, offset, length, false)}.
+   * Equivalent to {@link #readFully(byte[], int, int, boolean) readFully(target, offset, length,
+   * false)}.
    *
    * @param target A target array into which data should be written.
    * @param offset The offset into the target array at which to write.
@@ -155,12 +156,27 @@ public interface ExtractorInput {
   void skipFully(int length) throws IOException, InterruptedException;
 
   /**
-   * Peeks {@code length} bytes from the peek position, writing them into {@code target} at index
-   * {@code offset}. The current read position is left unchanged.
+   * Peeks up to {@code length} bytes from the peek position. The current read position is left
+   * unchanged.
+   *
+   * <p>This method blocks until at least one byte of data can be peeked, the end of the input is
+   * detected, or an exception is thrown.
    *
    * <p>Calling {@link #resetPeekPosition()} resets the peek position to equal the current read
    * position, so the caller can peek the same data again. Reading or skipping also resets the peek
    * position.
+   *
+   * @param target A target array into which data should be written.
+   * @param offset The offset into the target array at which to write.
+   * @param length The maximum number of bytes to peek from the input.
+   * @return The number of bytes peeked, or {@link C#RESULT_END_OF_INPUT} if the input has ended.
+   * @throws IOException If an error occurs peeking from the input.
+   * @throws InterruptedException If the thread has been interrupted.
+   */
+  int peek(byte[] target, int offset, int length) throws IOException, InterruptedException;
+
+  /**
+   * Like {@link #peek(byte[], int, int)}, but peeks the requested {@code length} in full.
    *
    * @param target A target array into which data should be written.
    * @param offset The offset into the target array at which to write.
@@ -181,12 +197,8 @@ public interface ExtractorInput {
       throws IOException, InterruptedException;
 
   /**
-   * Peeks {@code length} bytes from the peek position, writing them into {@code target} at index
-   * {@code offset}. The current read position is left unchanged.
-   * <p>
-   * Calling {@link #resetPeekPosition()} resets the peek position to equal the current read
-   * position, so the caller can peek the same data again. Reading and skipping also reset the peek
-   * position.
+   * Equivalent to {@link #peekFully(byte[], int, int, boolean) peekFully(target, offset, length,
+   * false)}.
    *
    * @param target A target array into which data should be written.
    * @param offset The offset into the target array at which to write.
