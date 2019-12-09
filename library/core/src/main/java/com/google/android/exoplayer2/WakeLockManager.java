@@ -88,11 +88,9 @@ import com.google.android.exoplayer2.util.Log;
   private void updateWakeLock() {
     // Needed for the library nullness check. If enabled is true, the wakelock will not be null.
     if (wakeLock != null) {
-      if (enabled) {
-        if (stayAwake && !wakeLock.isHeld()) {
+      if (enabled && stayAwake) {
+        if (!wakeLock.isHeld()) {
           wakeLock.acquire();
-        } else if (!stayAwake && wakeLock.isHeld()) {
-          wakeLock.release();
         }
       } else if (wakeLock.isHeld()) {
         wakeLock.release();
