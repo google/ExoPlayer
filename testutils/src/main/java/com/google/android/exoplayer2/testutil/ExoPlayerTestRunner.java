@@ -447,7 +447,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
             if (actionSchedule != null) {
               actionSchedule.start(player, trackSelector, null, handler, ExoPlayerTestRunner.this);
             }
-            player.setMediaItem(mediaSource);
+            player.setMediaSource(mediaSource);
             player.prepare();
           } catch (Exception e) {
             handleException(e);

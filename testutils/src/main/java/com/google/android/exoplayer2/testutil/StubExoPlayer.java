@@ -112,12 +112,12 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
-  public void setMediaItem(MediaSource mediaItem) {
+  public void setMediaSource(MediaSource mediaSource) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void setMediaItem(MediaSource mediaItem, long startPositionMs) {
+  public void setMediaSource(MediaSource mediaSource, long startPositionMs) {
     throw new UnsupportedOperationException();
   }
 

@@ -236,14 +236,14 @@ import java.util.concurrent.TimeoutException;
   @Override
   @Deprecated
   public void prepare(MediaSource mediaSource) {
-    setMediaItem(mediaSource);
+    setMediaSource(mediaSource);
     prepareInternal(/* resetPosition= */ true, /* resetState= */ true);
   }
 
   @Override
   @Deprecated
   public void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState) {
-    setMediaItem(mediaSource);
+    setMediaSource(mediaSource);
     prepareInternal(resetPosition, resetState);
   }
 
@@ -254,17 +254,17 @@ import java.util.concurrent.TimeoutException;
   }
 
   @Override
-  public void setMediaItem(MediaSource mediaItem, long startPositionMs) {
+  public void setMediaSource(MediaSource mediaSource, long startPositionMs) {
     if (!getCurrentTimeline().isEmpty()) {
       stop(/* reset= */ true);
     }
     seekTo(/* windowIndex= */ 0, startPositionMs);
-    setMediaItem(mediaItem);
+    setMediaSource(mediaSource);
   }
 
   @Override
-  public void setMediaItem(MediaSource mediaItem) {
-    mediaSource = mediaItem;
+  public void setMediaSource(MediaSource mediaSource) {
+    this.mediaSource = mediaSource;
   }
 
   @Override

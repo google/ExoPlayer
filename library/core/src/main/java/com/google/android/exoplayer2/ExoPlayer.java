@@ -358,12 +358,13 @@ public interface ExoPlayer extends Player {
   void prepare();
 
   /**
-   * @deprecated Use {@code setMediaItem(mediaSource, C.TIME_UNSET)} and {@link #prepare()} instead.
+   * @deprecated Use {@code setMediaSource(mediaSource, C.TIME_UNSET)} and {@link #prepare()}
+   *     instead.
    */
   @Deprecated
   void prepare(MediaSource mediaSource);
 
-  /** @deprecated Use {@link #setMediaItem(MediaSource, long)} and {@link #prepare()} instead. */
+  /** @deprecated Use {@link #setMediaSource(MediaSource, long)} and {@link #prepare()} instead. */
   @Deprecated
   void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState);
 
@@ -373,9 +374,9 @@ public interface ExoPlayer extends Player {
    * <p>Note: This is an intermediate implementation towards a larger change. Until then {@link
    * #prepare()} has to be called immediately after calling this method.
    *
-   * @param mediaItem The new {@link MediaSource}.
+   * @param mediaSource The new {@link MediaSource}.
    */
-  void setMediaItem(MediaSource mediaItem);
+  void setMediaSource(MediaSource mediaSource);
 
   /**
    * Sets the specified {@link MediaSource}.
@@ -391,13 +392,13 @@ public interface ExoPlayer extends Player {
    *     player.stop(true);
    *   }
    *   player.seekTo(0, startPositionMs);
-   *   player.setMediaItem(mediaItem);
+   *   player.setMediaSource(mediaSource);
    * </code></pre>
    *
-   * @param mediaItem The new {@link MediaSource}.
+   * @param mediaSource The new {@link MediaSource}.
    * @param startPositionMs The position in milliseconds to start playback from.
    */
-  void setMediaItem(MediaSource mediaItem, long startPositionMs);
+  void setMediaSource(MediaSource mediaSource, long startPositionMs);
 
   /**
    * Creates a message that can be sent to a {@link PlayerMessage.Target}. By default, the message

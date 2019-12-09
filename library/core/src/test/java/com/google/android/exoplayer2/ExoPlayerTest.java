@@ -3062,7 +3062,7 @@ public final class ExoPlayerTest {
                 new PlayerRunnable() {
                   @Override
                   public void run(SimpleExoPlayer player) {
-                    player.setMediaItem(mediaSource, /* startPositionMs= */ 5000);
+                    player.setMediaSource(mediaSource, /* startPositionMs= */ 5000);
                     player.prepare();
                   }
                 })

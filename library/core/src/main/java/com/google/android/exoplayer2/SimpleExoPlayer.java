@@ -1185,7 +1185,7 @@ public class SimpleExoPlayer extends BasePlayer
   @Deprecated
   public void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState) {
     verifyApplicationThread();
-    setMediaItem(mediaSource);
+    setMediaSource(mediaSource);
     prepareInternal(resetPosition, resetState);
   }
 
@@ -1196,17 +1196,17 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public void setMediaItem(MediaSource mediaItem, long startPositionMs) {
+  public void setMediaSource(MediaSource mediaSource, long startPositionMs) {
     verifyApplicationThread();
-    setMediaItemInternal(mediaItem);
-    player.setMediaItem(mediaItem, startPositionMs);
+    setMediaSourceInternal(mediaSource);
+    player.setMediaSource(mediaSource, startPositionMs);
   }
 
   @Override
-  public void setMediaItem(MediaSource mediaItem) {
+  public void setMediaSource(MediaSource mediaSource) {
     verifyApplicationThread();
-    setMediaItemInternal(mediaItem);
-    player.setMediaItem(mediaItem);
+    setMediaSourceInternal(mediaSource);
+    player.setMediaSource(mediaSource);
   }
 
   @Override
@@ -1463,13 +1463,13 @@ public class SimpleExoPlayer extends BasePlayer
     player.prepareInternal(resetPosition, resetState);
   }
 
-  private void setMediaItemInternal(MediaSource mediaItem) {
-    if (mediaSource != null) {
-      mediaSource.removeEventListener(analyticsCollector);
+  private void setMediaSourceInternal(MediaSource mediaSource) {
+    if (this.mediaSource != null) {
+      this.mediaSource.removeEventListener(analyticsCollector);
       analyticsCollector.resetForNewMediaSource();
     }
-    mediaSource = mediaItem;
-    mediaSource.addEventListener(eventHandler, analyticsCollector);
+    this.mediaSource = mediaSource;
+    this.mediaSource.addEventListener(eventHandler, analyticsCollector);
   }
 
   private void removeSurfaceCallbacks() {
