@@ -2,8 +2,6 @@
 
 ### dev-v2 (not yet released) ###
 
-* Matroska: Support lacing in Blocks
-  ([#3026](https://github.com/google/ExoPlayer/issues/3026)).
 * Add Java FLAC extractor
   ([#6406](https://github.com/google/ExoPlayer/issues/6406)).
   This extractor does not support seeking and live streams. If
@@ -140,6 +138,8 @@
   * Fix issue where streams could get stuck in an infinite buffering state
     after a postroll ad
     ([#6314](https://github.com/google/ExoPlayer/issues/6314)).
+* Matroska: Support lacing in Blocks
+  ([#3026](https://github.com/google/ExoPlayer/issues/3026)).
 * AV1 extension:
   * New in this release. The AV1 extension allows use of the
     [libgav1 software decoder](https://chromium.googlesource.com/codecs/libgav1/)
