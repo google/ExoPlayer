@@ -33,7 +33,7 @@ import java.io.InputStream;
  *       wants to read an entire block/frame/header of known length.
  * </ul>
  *
- * <h4>{@link InputStream}-like methods</h4>
+ * <h3>{@link InputStream}-like methods</h3>
  *
  * <p>The {@code read()} and {@code skip()} methods provide {@link InputStream}-like byte-level
  * access operations. The {@code length} parameter is a maximum, and each method returns the number
@@ -41,7 +41,7 @@ import java.io.InputStream;
  * was reached, or the method was interrupted, or the operation was aborted early for another
  * reason.
  *
- * <h4>Block-based methods</h4>
+ * <h3>Block-based methods</h3>
  *
  * <p>The {@code read/skip/peekFully()} and {@code advancePeekPosition()} methods assume the user
  * wants to read an entire block/frame/header of known length.
@@ -218,7 +218,7 @@ public interface ExtractorInput {
       throws IOException, InterruptedException;
 
   /**
-   * Advances the peek position by {@code length} bytes. Like {@link #peekFully(byte[], int, int,)}
+   * Advances the peek position by {@code length} bytes. Like {@link #peekFully(byte[], int, int)}
    * except the data is skipped instead of read.
    *
    * @param length The number of bytes to peek from the input.
