@@ -183,7 +183,7 @@ public final class CacheUtil {
 
     String key = buildCacheKey(dataSpec, cacheKeyFactory);
     long bytesLeft;
-    ProgressNotifier progressNotifier = null;
+    @Nullable ProgressNotifier progressNotifier = null;
     if (progressListener != null) {
       progressNotifier = new ProgressNotifier(progressListener);
       Pair<Long, Long> lengthAndBytesAlreadyCached = getCached(dataSpec, cache, cacheKeyFactory);
@@ -373,7 +373,7 @@ public final class CacheUtil {
   }
 
   /* package */ static boolean isCausedByPositionOutOfRange(IOException e) {
-    Throwable cause = e;
+    @Nullable Throwable cause = e;
     while (cause != null) {
       if (cause instanceof DataSourceException) {
         int reason = ((DataSourceException) cause).reason;

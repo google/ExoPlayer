@@ -229,11 +229,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    * @return A new or existing CachedContent instance with the given key.
    */
   public CachedContent getOrAdd(String key) {
-    CachedContent cachedContent = keyToContent.get(key);
+    @Nullable CachedContent cachedContent = keyToContent.get(key);
     return cachedContent == null ? addNew(key) : cachedContent;
   }
 
   /** Returns a CachedContent instance with the given key or null if there isn't one. */
+  @Nullable
   public CachedContent get(String key) {
     return keyToContent.get(key);
   }
@@ -254,14 +255,15 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     return getOrAdd(key).id;
   }
 
-  /** Returns the key which has the given id assigned. */
+  /** Returns the key which has the given id assigned, or {@code null} if no such key exists. */
+  @Nullable
   public String getKeyForId(int id) {
     return idToKey.get(id);
   }
 
   /** Removes {@link CachedContent} with the given key from index if it's empty and not locked. */
   public void maybeRemove(String key) {
-    CachedContent cachedContent = keyToContent.get(key);
+    @Nullable CachedContent cachedContent = keyToContent.get(key);
     if (cachedContent != null && cachedContent.isEmpty() && !cachedContent.isLocked()) {
       keyToContent.remove(key);
       int id = cachedContent.id;
@@ -626,7 +628,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
 
     private void writeFile(HashMap<String, CachedContent> content) throws IOException {
-      DataOutputStream output = null;
+      @Nullable DataOutputStream output = null;
       try {
         OutputStream outputStream = atomicFile.startWrite();
         if (bufferedOutputStream == null) {

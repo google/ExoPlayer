@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 The Android Open Source Project
+ * Copyright (C) 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.upstream.cache;
+@NonNullApi
+package com.google.android.exoplayer2.upstream.crypto;
 
-import com.google.android.exoplayer2.upstream.DataSpec;
-
-/** Factory for cache keys. */
-public interface CacheKeyFactory {
-
-  /**
-   * Returns a cache key for the given {@link DataSpec}.
-   *
-   * @param dataSpec The data being cached.
-   * @return The cache key.
-   */
-  String buildCacheKey(DataSpec dataSpec);
-}
+import com.google.android.exoplayer2.util.NonNullApi;
