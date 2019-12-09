@@ -43,7 +43,6 @@ import java.lang.annotation.RetentionPolicy;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 // TODO: implement seeking.
-// TODO: support live streams.
 /**
  * Extracts data from FLAC container format.
  *
