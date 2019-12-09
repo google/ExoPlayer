@@ -117,6 +117,8 @@
   * Fix issue where streams could get stuck in an infinite buffering state
     after a postroll ad
     ([#6314](https://github.com/google/ExoPlayer/issues/6314)).
+* Matroska: Support lacing in Blocks
+  ([#3026](https://github.com/google/ExoPlayer/issues/3026)).
 * AV1 extension:
   * New in this release. The AV1 extension allows use of the
     [libgav1 software decoder](https://chromium.googlesource.com/codecs/libgav1/)
