@@ -377,7 +377,7 @@ public final class CacheDataSource implements DataSource {
    *     reading from {@link #upstreamDataSource}, which is the currently open source.
    */
   private void openNextSource(boolean checkCache) throws IOException {
-    CacheSpan nextSpan;
+    @Nullable CacheSpan nextSpan;
     if (currentRequestIgnoresCache) {
       nextSpan = null;
     } else if (blockOnCache) {
@@ -487,7 +487,7 @@ public final class CacheDataSource implements DataSource {
   }
 
   private static Uri getRedirectedUriOrDefault(Cache cache, String key, Uri defaultUri) {
-    Uri redirectedUri = ContentMetadata.getRedirectedUri(cache.getContentMetadata(key));
+    @Nullable Uri redirectedUri = ContentMetadata.getRedirectedUri(cache.getContentMetadata(key));
     return redirectedUri != null ? redirectedUri : defaultUri;
   }
 

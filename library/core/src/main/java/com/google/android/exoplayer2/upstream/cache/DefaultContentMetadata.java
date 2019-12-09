@@ -67,8 +67,8 @@ public final class DefaultContentMetadata implements ContentMetadata {
   @Override
   @Nullable
   public final byte[] get(String name, @Nullable byte[] defaultValue) {
-    if (metadata.containsKey(name)) {
-      byte[] bytes = metadata.get(name);
+    @Nullable byte[] bytes = metadata.get(name);
+    if (bytes != null) {
       return Arrays.copyOf(bytes, bytes.length);
     } else {
       return defaultValue;
@@ -78,8 +78,8 @@ public final class DefaultContentMetadata implements ContentMetadata {
   @Override
   @Nullable
   public final String get(String name, @Nullable String defaultValue) {
-    if (metadata.containsKey(name)) {
-      byte[] bytes = metadata.get(name);
+    @Nullable byte[] bytes = metadata.get(name);
+    if (bytes != null) {
       return new String(bytes, Charset.forName(C.UTF8_NAME));
     } else {
       return defaultValue;
@@ -88,8 +88,8 @@ public final class DefaultContentMetadata implements ContentMetadata {
 
   @Override
   public final long get(String name, long defaultValue) {
-    if (metadata.containsKey(name)) {
-      byte[] bytes = metadata.get(name);
+    @Nullable byte[] bytes = metadata.get(name);
+    if (bytes != null) {
       return ByteBuffer.wrap(bytes).getLong();
     } else {
       return defaultValue;
@@ -130,7 +130,7 @@ public final class DefaultContentMetadata implements ContentMetadata {
     }
     for (Entry<String, byte[]> entry : first.entrySet()) {
       byte[] value = entry.getValue();
-      byte[] otherValue = second.get(entry.getKey());
+      @Nullable byte[] otherValue = second.get(entry.getKey());
       if (!Arrays.equals(value, otherValue)) {
         return false;
       }
@@ -153,8 +153,8 @@ public final class DefaultContentMetadata implements ContentMetadata {
   }
 
   private static void addValues(HashMap<String, byte[]> metadata, Map<String, Object> values) {
-    for (String name : values.keySet()) {
-      metadata.put(name, getBytes(values.get(name)));
+    for (Entry<String, Object> entry : values.entrySet()) {
+      metadata.put(entry.getKey(), getBytes(entry.getValue()));
     }
   }
 
