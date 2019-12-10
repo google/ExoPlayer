@@ -358,7 +358,7 @@ public class PlayerNotificationManager {
   private final Timeline.Window window;
 
   @Nullable private NotificationCompat.Builder builder;
-  @Nullable private ArrayList<NotificationCompat.Action> builderActions;
+  @Nullable private List<NotificationCompat.Action> builderActions;
   @Nullable private Player player;
   @Nullable private PlaybackPreparer playbackPreparer;
   private ControlDispatcher controlDispatcher;
@@ -998,8 +998,6 @@ public class PlayerNotificationManager {
    *     NotificationCompat.Builder#build()} to obtain the notification, or {@code null} if no
    *     notification should be displayed.
    */
-  // incompatible types in argument.
-  @SuppressWarnings("nullness:argument.type.incompatible")
   @Nullable
   protected NotificationCompat.Builder createNotification(
       Player player,
@@ -1013,7 +1011,7 @@ public class PlayerNotificationManager {
     }
 
     List<String> actionNames = getActions(player);
-    ArrayList<NotificationCompat.Action> actions = new ArrayList<>(actionNames.size());
+    List<NotificationCompat.Action> actions = new ArrayList<>(actionNames.size());
     for (int i = 0; i < actionNames.size(); i++) {
       String actionName = actionNames.get(i);
       NotificationCompat.Action action =
