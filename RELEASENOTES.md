@@ -449,6 +449,7 @@
   * Update `TrackSelection.Factory` interface to support creating all track
     selections together.
   * Allow to specify a selection reason for a `SelectionOverride`.
+  * Select audio track based on system language if no preference is provided.
   * When no text language preference matches, only select forced text tracks
     whose language matches the selected audio language.
 * UI:
