@@ -36,8 +36,6 @@ import com.google.android.exoplayer2.util.Assertions;
  *
  * The following interactions occur between the player and its track selector during playback.
  *
- * <p>
- *
  * <ul>
  *   <li>When the player is created it will initialize the track selector by calling {@link
  *       #init(InvalidationListener, BandwidthMeter)}.
