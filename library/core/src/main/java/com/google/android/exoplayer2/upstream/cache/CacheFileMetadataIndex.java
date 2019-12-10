@@ -43,7 +43,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private static final int COLUMN_INDEX_LENGTH = 1;
   private static final int COLUMN_INDEX_LAST_TOUCH_TIMESTAMP = 2;
 
-  private static final String WHERE_NAME_EQUALS = COLUMN_INDEX_NAME + " = ?";
+  private static final String WHERE_NAME_EQUALS = COLUMN_NAME + " = ?";
 
   private static final String[] COLUMNS =
       new String[] {
