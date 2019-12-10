@@ -129,8 +129,6 @@ public final class Track {
         : sampleDescriptionEncryptionBoxes[sampleDescriptionIndex];
   }
 
-  // incompatible types in argument.
-  @SuppressWarnings("nullness:argument.type.incompatible")
   public Track copyWithFormat(Format format) {
     return new Track(
         id,

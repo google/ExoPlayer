@@ -943,8 +943,6 @@ public final class MediaCodecUtil {
 
     @Nullable private android.media.MediaCodecInfo[] mediaCodecInfos;
 
-    // the constructor does not initialize fields: mediaCodecInfos
-    @SuppressWarnings("nullness:initialization.fields.uninitialized")
     public MediaCodecListCompatV21(boolean includeSecure, boolean includeTunneling) {
       codecKind =
           includeSecure || includeTunneling
@@ -958,8 +956,6 @@ public final class MediaCodecUtil {
       return mediaCodecInfos.length;
     }
 
-    // incompatible types in return.
-    @SuppressWarnings("nullness:return.type.incompatible")
     @Override
     public android.media.MediaCodecInfo getCodecInfoAt(int index) {
       ensureMediaCodecInfosInitialized();
