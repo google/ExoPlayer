@@ -101,6 +101,9 @@
   * Fix Dolby Vision fallback to AVC and HEVC.
   * Fix early end-of-stream detection when using video tunneling, on API level
     23 and above.
+  * Fix an issue where a keyframe was rendered rather than skipped when
+    performing an exact seek to a non-zero position close to the start of the
+    stream.
 * Audio:
   * Fix the start of audio getting truncated when transitioning to a new
     item in a playlist of Opus streams.
