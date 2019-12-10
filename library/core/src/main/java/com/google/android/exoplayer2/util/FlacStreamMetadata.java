@@ -171,14 +171,14 @@ public final class FlacStreamMetadata {
   }
 
   /**
-   * Returns the sample index for the sample at given position.
+   * Returns the sample number of the sample at a given time.
    *
    * @param timeUs Time position in microseconds in the FLAC stream.
-   * @return The sample index for the sample at given position.
+   * @return The sample number corresponding to the time position.
    */
-  public long getSampleIndex(long timeUs) {
-    long sampleIndex = (timeUs * sampleRate) / C.MICROS_PER_SECOND;
-    return Util.constrainValue(sampleIndex, /* min= */ 0, totalSamples - 1);
+  public long getSampleNumber(long timeUs) {
+    long sampleNumber = (timeUs * sampleRate) / C.MICROS_PER_SECOND;
+    return Util.constrainValue(sampleNumber, /* min= */ 0, totalSamples - 1);
   }
 
   /** Returns the approximate number of bytes per frame for the current FLAC stream. */

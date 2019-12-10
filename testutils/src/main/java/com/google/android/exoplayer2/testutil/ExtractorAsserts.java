@@ -171,7 +171,7 @@ public final class ExtractorAsserts {
    * @throws IOException If reading from the input fails.
    * @throws InterruptedException If interrupted while reading from the input.
    */
-  private static FakeExtractorOutput assertOutput(
+  public static FakeExtractorOutput assertOutput(
       Extractor extractor,
       String file,
       byte[] data,

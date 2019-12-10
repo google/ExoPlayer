@@ -4,8 +4,7 @@
 
 * Add Java FLAC extractor
   ([#6406](https://github.com/google/ExoPlayer/issues/6406)).
-  This extractor does not support seeking and live streams. If
-  `DefaultExtractorsFactory` is used, this extractor is only used if the FLAC
+  If `DefaultExtractorsFactory` is used, this extractor is only used if the FLAC
   extension is not loaded.
 * Make `MediaSourceEventListener.LoadEventInfo` and
   `MediaSourceEventListener.MediaLoadData` top-level classes.

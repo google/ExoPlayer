@@ -15,8 +15,14 @@
  */
 package com.google.android.exoplayer2.extractor.flac;
 
+import android.content.Context;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
+import com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory;
+import com.google.android.exoplayer2.testutil.TestUtil;
+import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -26,41 +32,41 @@ public class FlacExtractorTest {
 
   @Test
   public void testSample() throws Exception {
-    ExtractorAsserts.assertBehavior(FlacExtractor::new, "flac/bear.flac");
+    assertBehavior(FlacExtractor::new, "flac/bear.flac");
   }
 
   @Test
   public void testSampleWithId3HeaderAndId3Enabled() throws Exception {
-    ExtractorAsserts.assertBehavior(FlacExtractor::new, "flac/bear_with_id3_enabled.flac");
+    assertBehavior(FlacExtractor::new, "flac/bear_with_id3_enabled.flac");
   }
 
   @Test
   public void testSampleWithId3HeaderAndId3Disabled() throws Exception {
     // bear_with_id3_disabled.flac is identical to bear_with_id3_enabled.flac, but the dump file is
     // different due to setting FLAG_DISABLE_ID3_METADATA.
-    ExtractorAsserts.assertBehavior(
+    assertBehavior(
         () -> new FlacExtractor(FlacExtractor.FLAG_DISABLE_ID3_METADATA),
         "flac/bear_with_id3_disabled.flac");
   }
 
   @Test
   public void testSampleWithVorbisComments() throws Exception {
-    ExtractorAsserts.assertBehavior(FlacExtractor::new, "flac/bear_with_vorbis_comments.flac");
+    assertBehavior(FlacExtractor::new, "flac/bear_with_vorbis_comments.flac");
   }
 
   @Test
   public void testSampleWithPicture() throws Exception {
-    ExtractorAsserts.assertBehavior(FlacExtractor::new, "flac/bear_with_picture.flac");
+    assertBehavior(FlacExtractor::new, "flac/bear_with_picture.flac");
   }
 
   @Test
   public void testOneMetadataBlock() throws Exception {
-    ExtractorAsserts.assertBehavior(FlacExtractor::new, "flac/bear_one_metadata_block.flac");
+    assertBehavior(FlacExtractor::new, "flac/bear_one_metadata_block.flac");
   }
 
   @Test
   public void testNoMinMaxFrameSize() throws Exception {
-    ExtractorAsserts.assertBehavior(FlacExtractor::new, "flac/bear_no_min_max_frame_size.flac");
+    assertBehavior(FlacExtractor::new, "flac/bear_no_min_max_frame_size.flac");
   }
 
   @Test
@@ -70,6 +76,24 @@ public class FlacExtractorTest {
 
   @Test
   public void testUncommonSampleRate() throws Exception {
-    ExtractorAsserts.assertBehavior(FlacExtractor::new, "flac/bear_uncommon_sample_rate.flac");
+    assertBehavior(FlacExtractor::new, "flac/bear_uncommon_sample_rate.flac");
+  }
+
+  private void assertBehavior(ExtractorFactory factory, String file)
+      throws IOException, InterruptedException {
+    // Check behavior prior to initialization.
+    Extractor extractor = factory.create();
+    extractor.seek(0, 0);
+    extractor.release();
+    // Assert output.
+    Context context = ApplicationProvider.getApplicationContext();
+    byte[] data = TestUtil.getByteArray(context, file);
+    // Don't simulate IO errors as it is too slow (see b/145994869).
+    ExtractorAsserts.assertOutput(factory.create(), file, data, context, true, false, false, false);
+    ExtractorAsserts.assertOutput(factory.create(), file, data, context, true, false, false, true);
+    ExtractorAsserts.assertOutput(factory.create(), file, data, context, true, false, true, false);
+    ExtractorAsserts.assertOutput(factory.create(), file, data, context, true, false, true, true);
+    ExtractorAsserts.assertOutput(
+        factory.create(), file, data, context, false, false, false, false);
   }
 }
