@@ -386,7 +386,8 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    *
    * @return The current open connection, or null.
    */
-  protected final @Nullable HttpURLConnection getConnection() {
+  @Nullable
+  protected final HttpURLConnection getConnection() {
     return connection;
   }
 
@@ -428,7 +429,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   private HttpURLConnection makeConnection(DataSpec dataSpec) throws IOException {
     URL url = new URL(dataSpec.uri.toString());
     @HttpMethod int httpMethod = dataSpec.httpMethod;
-    byte[] httpBody = dataSpec.httpBody;
+    @Nullable byte[] httpBody = dataSpec.httpBody;
     long position = dataSpec.position;
     long length = dataSpec.length;
     boolean allowGzip = dataSpec.isFlagSet(DataSpec.FLAG_ALLOW_GZIP);
@@ -495,7 +496,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    *
    * @param url The url to connect to.
    * @param httpMethod The http method.
-   * @param httpBody The body data.
+   * @param httpBody The body data, or {@code null} if not required.
    * @param position The byte offset of the requested data.
    * @param length The length of the requested data, or {@link C#LENGTH_UNSET}.
    * @param allowGzip Whether to allow the use of gzip.
@@ -505,7 +506,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   private HttpURLConnection makeConnection(
       URL url,
       @HttpMethod int httpMethod,
-      byte[] httpBody,
+      @Nullable byte[] httpBody,
       long position,
       long length,
       boolean allowGzip,
@@ -562,11 +563,11 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    * Handles a redirect.
    *
    * @param originalUrl The original URL.
-   * @param location The Location header in the response.
+   * @param location The Location header in the response. May be {@code null}.
    * @return The next URL.
    * @throws IOException If redirection isn't possible.
    */
-  private static URL handleRedirect(URL originalUrl, String location) throws IOException {
+  private static URL handleRedirect(URL originalUrl, @Nullable String location) throws IOException {
     if (location == null) {
       throw new ProtocolException("Null location redirect");
     }
