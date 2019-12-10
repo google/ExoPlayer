@@ -239,7 +239,10 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
                     ? AmrExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING
                     : 0));
     extractors[12] = new Ac4Extractor();
-    // Prefer the FLAC extension extractor because it supports seeking.
+    // Prefer the FLAC extension extractor because it outputs raw audio, which can be handled by the
+    // framework on all API levels, unlike the core library FLAC extractor, which outputs FLAC audio
+    // frames and so relies on having a FLAC decoder (e.g., a MediaCodec decoder that handles FLAC
+    // (from API 27), or the FFmpeg extension with FLAC enabled).
     if (FLAC_EXTENSION_EXTRACTOR_CONSTRUCTOR != null) {
       try {
         extractors[13] = FLAC_EXTENSION_EXTRACTOR_CONSTRUCTOR.newInstance();

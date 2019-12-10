@@ -1,7 +1,7 @@
 seekMap:
-  isSeekable = false
+  isSeekable = true
   duration = 2741000
-  getPosition(0) = [[timeUs=0, position=0]]
+  getPosition(0) = [[timeUs=0, position=39868]]
 numberOfTracks = 1
 track 0:
   format:
