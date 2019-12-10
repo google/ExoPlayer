@@ -86,7 +86,6 @@ public final class FileDataSource extends BaseDataSource {
       transferInitializing(dataSpec);
 
       this.file = openLocalFile(uri);
-
       file.seek(dataSpec.position);
       bytesRemaining = dataSpec.length == C.LENGTH_UNSET ? file.length() - dataSpec.position
           : dataSpec.length;
@@ -101,23 +100,6 @@ public final class FileDataSource extends BaseDataSource {
     transferStarted(dataSpec);
 
     return bytesRemaining;
-  }
-
-  private static RandomAccessFile openLocalFile(Uri uri) throws FileDataSourceException {
-    try {
-      return new RandomAccessFile(Assertions.checkNotNull(uri.getPath()), "r");
-    } catch (FileNotFoundException e) {
-      if (!TextUtils.isEmpty(uri.getQuery()) || !TextUtils.isEmpty(uri.getFragment())) {
-        throw new FileDataSourceException(
-            String.format(
-                "uri has query and/or fragment, which are not supported. Did you call Uri.parse()"
-                    + " on a string containing '?' or '#'? Use Uri.fromFile(new File(path)) to"
-                    + " avoid this. path=%s,query=%s,fragment=%s",
-                uri.getPath(), uri.getQuery(), uri.getFragment()),
-            e);
-      }
-      throw new FileDataSourceException(e);
-    }
   }
 
   @Override
@@ -168,4 +150,20 @@ public final class FileDataSource extends BaseDataSource {
     }
   }
 
+  private static RandomAccessFile openLocalFile(Uri uri) throws FileDataSourceException {
+    try {
+      return new RandomAccessFile(Assertions.checkNotNull(uri.getPath()), "r");
+    } catch (FileNotFoundException e) {
+      if (!TextUtils.isEmpty(uri.getQuery()) || !TextUtils.isEmpty(uri.getFragment())) {
+        throw new FileDataSourceException(
+            String.format(
+                "uri has query and/or fragment, which are not supported. Did you call Uri.parse()"
+                    + " on a string containing '?' or '#'? Use Uri.fromFile(new File(path)) to"
+                    + " avoid this. path=%s,query=%s,fragment=%s",
+                uri.getPath(), uri.getQuery(), uri.getFragment()),
+            e);
+      }
+      throw new FileDataSourceException(e);
+    }
+  }
 }

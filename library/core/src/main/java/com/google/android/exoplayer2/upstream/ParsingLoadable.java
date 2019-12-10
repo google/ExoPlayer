@@ -127,7 +127,8 @@ public final class ParsingLoadable<T> implements Loadable {
   }
 
   /** Returns the loaded object, or null if an object has not been loaded. */
-  public final @Nullable T getResult() {
+  @Nullable
+  public final T getResult() {
     return result;
   }
 

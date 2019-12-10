@@ -210,7 +210,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
     }
 
     private static int[] getCountryGroupIndices(String countryCode) {
-      int[] groupIndices = DEFAULT_INITIAL_BITRATE_COUNTRY_GROUPS.get(countryCode);
+      @Nullable int[] groupIndices = DEFAULT_INITIAL_BITRATE_COUNTRY_GROUPS.get(countryCode);
       // Assume median group if not found.
       return groupIndices == null ? new int[] {2, 2, 2, 2} : groupIndices;
     }
@@ -304,7 +304,6 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
   }
 
   @Override
-  @Nullable
   public TransferListener getTransferListener() {
     return this;
   }
