@@ -20,6 +20,8 @@
 * Upgrade Truth dependency from 0.44 to 1.0.
 * Upgrade to JUnit 4.13-rc-2.
 * Add support for attaching DRM sessions to clear content in the demo app.
+* UI: Exclude `DefaultTimeBar` region from system gesture detection
+  ([#6685](https://github.com/google/ExoPlayer/issues/6685)).
 
 ### 2.11.0 (2019-12-11) ###
 

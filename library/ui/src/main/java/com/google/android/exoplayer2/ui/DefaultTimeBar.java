@@ -36,12 +36,15 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction;
 import androidx.annotation.ColorInt;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import java.util.Collections;
 import java.util.Formatter;
 import java.util.Locale;
 import java.util.concurrent.CopyOnWriteArraySet;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A time bar that shows a current position, buffered position, duration and ad markers.
@@ -199,6 +202,7 @@ public class DefaultTimeBar extends View implements TimeBar {
   private int keyCountIncrement;
   private long keyTimeIncrement;
   private int lastCoarseScrubXPosition;
+  @MonotonicNonNull private Rect lastExclusionRectangle;
 
   private boolean scrubbing;
   private long scrubPosition;
@@ -604,6 +608,9 @@ public class DefaultTimeBar extends View implements TimeBar {
     seekBounds.set(seekLeft, barY, seekRight, barY + touchTargetHeight);
     progressBar.set(seekBounds.left + scrubberPadding, progressY,
         seekBounds.right - scrubberPadding, progressY + barHeight);
+    if (Util.SDK_INT >= 29) {
+      setSystemGestureExclusionRectsV29(width, height);
+    }
     update();
   }
 
@@ -832,6 +839,18 @@ public class DefaultTimeBar extends View implements TimeBar {
         && scrubberDrawable.setState(getDrawableState())) {
       invalidate();
     }
+  }
+
+  @RequiresApi(29)
+  private void setSystemGestureExclusionRectsV29(int width, int height) {
+    if (lastExclusionRectangle != null
+        && lastExclusionRectangle.width() == width
+        && lastExclusionRectangle.height() == height) {
+      // Allocating inside onLayout is considered a DrawAllocation lint error, so avoid if possible.
+      return;
+    }
+    lastExclusionRectangle = new Rect(/* left= */ 0, /* top= */ 0, width, height);
+    setSystemGestureExclusionRects(Collections.singletonList(lastExclusionRectangle));
   }
 
   private String getProgressText() {
