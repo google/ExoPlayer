@@ -385,8 +385,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @DrainAction private int codecDrainAction;
   private boolean codecReceivedBuffers;
   private boolean codecReceivedEos;
-  private long lastBufferInStreamPresentationTimeUs;
   private long largestQueuedPresentationTimeUs;
+  private long lastBufferInStreamPresentationTimeUs;
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
   private boolean waitingForKeys;
@@ -1016,6 +1016,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     codecReconfigurationState = RECONFIGURATION_STATE_NONE;
     codecReceivedEos = false;
     codecReceivedBuffers = false;
+    largestQueuedPresentationTimeUs = C.TIME_UNSET;
+    lastBufferInStreamPresentationTimeUs = C.TIME_UNSET;
     codecDrainState = DRAIN_STATE_NONE;
     codecDrainAction = DRAIN_ACTION_NONE;
     codecNeedsAdaptationWorkaroundBuffer = false;
