@@ -56,7 +56,7 @@ public final class IntArrayQueue {
   /**
    * Remove an item from the queue.
    *
-   * @throws {@link NoSuchElementException} if the queue is empty.
+   * @throws NoSuchElementException if the queue is empty.
    */
   public int remove() {
     if (size == 0) {
