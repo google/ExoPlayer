@@ -302,8 +302,6 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
     }
   }
 
-  // incompatible types in argument.
-  @SuppressWarnings("nullness:argument.type.incompatible")
   private Cursor getCursor(String selection, @Nullable String[] selectionArgs)
       throws DatabaseIOException {
     try {

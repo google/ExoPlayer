@@ -36,8 +36,6 @@ public final class DataSchemeDataSource extends BaseDataSource {
   private int endPosition;
   private int readPosition;
 
-  // the constructor does not initialize fields: data
-  @SuppressWarnings("nullness:initialization.fields.uninitialized")
   public DataSchemeDataSource() {
     super(/* isNetwork= */ false);
   }

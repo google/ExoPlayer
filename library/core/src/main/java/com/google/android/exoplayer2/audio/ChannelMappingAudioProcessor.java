@@ -24,7 +24,6 @@ import java.nio.ByteBuffer;
  * An {@link AudioProcessor} that applies a mapping from input channels onto specified output
  * channels. This can be used to reorder, duplicate or discard channels.
  */
-@SuppressWarnings("nullness:initialization.fields.uninitialized")
 /* package */ final class ChannelMappingAudioProcessor extends BaseAudioProcessor {
 
   @Nullable private int[] pendingOutputChannels;
