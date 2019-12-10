@@ -22,6 +22,9 @@
 * Add support for attaching DRM sessions to clear content in the demo app.
 * UI: Exclude `DefaultTimeBar` region from system gesture detection
   ([#6685](https://github.com/google/ExoPlayer/issues/6685)).
+* Add `SpannedSubject` to testutils, for assertions on
+  [Span-styled text]( https://developer.android.com/guide/topics/text/spans)
+  (e.g. subtitles).
 
 ### 2.11.0 (2019-12-11) ###
 
