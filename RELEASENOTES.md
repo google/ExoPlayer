@@ -1,5 +1,10 @@
 # Release notes #
 
+### 2.11.1 (2019-12-20) ###
+
+* UI: Exclude `DefaultTimeBar` region from system gesture detection
+  ([#6685](https://github.com/google/ExoPlayer/issues/6685)).
+
 ### 2.11.0 (2019-12-11) ###
 
 * Core library:
