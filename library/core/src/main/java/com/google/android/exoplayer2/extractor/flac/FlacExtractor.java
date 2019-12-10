@@ -25,9 +25,8 @@ import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.extractor.FlacFrameReader;
-import com.google.android.exoplayer2.extractor.FlacFrameReader.BlockSizeHolder;
+import com.google.android.exoplayer2.extractor.FlacFrameReader.SampleNumberHolder;
 import com.google.android.exoplayer2.extractor.FlacMetadataReader;
-import com.google.android.exoplayer2.extractor.FlacMetadataReader.FirstFrameMetadata;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
@@ -42,7 +41,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-// TODO: implement seeking.
+// TODO: implement seeking using the optional seek table.
 /**
  * Extracts data from FLAC container format.
  *
@@ -78,7 +77,7 @@ public final class FlacExtractor implements Extractor {
     STATE_GET_STREAM_MARKER_AND_INFO_BLOCK_BYTES,
     STATE_READ_STREAM_MARKER,
     STATE_READ_METADATA_BLOCKS,
-    STATE_GET_FIRST_FRAME_METADATA,
+    STATE_GET_FRAME_START_MARKER,
     STATE_READ_FRAMES
   })
   private @interface State {}
@@ -87,20 +86,20 @@ public final class FlacExtractor implements Extractor {
   private static final int STATE_GET_STREAM_MARKER_AND_INFO_BLOCK_BYTES = 1;
   private static final int STATE_READ_STREAM_MARKER = 2;
   private static final int STATE_READ_METADATA_BLOCKS = 3;
-  private static final int STATE_GET_FIRST_FRAME_METADATA = 4;
+  private static final int STATE_GET_FRAME_START_MARKER = 4;
   private static final int STATE_READ_FRAMES = 5;
 
   /** Arbitrary scratch length of 32KB, which is ~170ms of 16-bit stereo PCM audio at 48KHz. */
   private static final int SCRATCH_LENGTH = 32 * 1024;
 
-  /** Value of an unknown block size. */
-  private static final int BLOCK_SIZE_UNKNOWN = -1;
+  /** Value of an unknown sample number. */
+  private static final int SAMPLE_NUMBER_UNKNOWN = -1;
 
   private final byte[] streamMarkerAndInfoBlock;
   private final ParsableByteArray scratch;
   private final boolean id3MetadataDisabled;
 
-  private final BlockSizeHolder blockSizeHolder;
+  private final SampleNumberHolder sampleNumberHolder;
 
   @MonotonicNonNull private ExtractorOutput extractorOutput;
   @MonotonicNonNull private TrackOutput trackOutput;
@@ -110,9 +109,9 @@ public final class FlacExtractor implements Extractor {
   @MonotonicNonNull private FlacStreamMetadata flacStreamMetadata;
   private int minFrameSize;
   private int frameStartMarker;
-  private int currentFrameBlockSizeSamples;
+  @MonotonicNonNull private FlacBinarySearchSeeker binarySearchSeeker;
   private int currentFrameBytesWritten;
-  private long totalSamplesWritten;
+  private long currentFrameFirstSampleNumber;
 
   /** Constructs an instance with {@code flags = 0}. */
   public FlacExtractor() {
@@ -129,8 +128,8 @@ public final class FlacExtractor implements Extractor {
     streamMarkerAndInfoBlock =
         new byte[FlacConstants.STREAM_MARKER_SIZE + FlacConstants.STREAM_INFO_BLOCK_SIZE];
     scratch = new ParsableByteArray(SCRATCH_LENGTH);
-    blockSizeHolder = new BlockSizeHolder();
     id3MetadataDisabled = (flags & FLAG_DISABLE_ID3_METADATA) != 0;
+    sampleNumberHolder = new SampleNumberHolder();
   }
 
   @Override
@@ -147,7 +146,7 @@ public final class FlacExtractor implements Extractor {
   }
 
   @Override
-  public int read(ExtractorInput input, PositionHolder seekPosition)
+  public @ReadResult int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
     switch (state) {
       case STATE_READ_ID3_METADATA:
@@ -162,11 +161,11 @@ public final class FlacExtractor implements Extractor {
       case STATE_READ_METADATA_BLOCKS:
         readMetadataBlocks(input);
         return Extractor.RESULT_CONTINUE;
-      case STATE_GET_FIRST_FRAME_METADATA:
-        getFirstFrameMetadata(input);
+      case STATE_GET_FRAME_START_MARKER:
+        getFrameStartMarker(input);
         return Extractor.RESULT_CONTINUE;
       case STATE_READ_FRAMES:
-        return readFrames(input);
+        return readFrames(input, seekPosition);
       default:
         throw new IllegalStateException();
     }
@@ -174,9 +173,13 @@ public final class FlacExtractor implements Extractor {
 
   @Override
   public void seek(long position, long timeUs) {
-    state = STATE_READ_ID3_METADATA;
+    if (position == 0) {
+      state = STATE_READ_ID3_METADATA;
+      currentFrameFirstSampleNumber = 0;
+    } else if (binarySearchSeeker != null) {
+      binarySearchSeeker.setSeekTargetUs(timeUs);
+    }
     currentFrameBytesWritten = 0;
-    totalSamplesWritten = 0;
     scratch.reset();
   }
 
@@ -218,24 +221,32 @@ public final class FlacExtractor implements Extractor {
     minFrameSize = Math.max(flacStreamMetadata.minFrameSize, FlacConstants.MIN_FRAME_HEADER_SIZE);
     castNonNull(trackOutput)
         .format(flacStreamMetadata.getFormat(streamMarkerAndInfoBlock, id3Metadata));
-    castNonNull(extractorOutput)
-        .seekMap(new SeekMap.Unseekable(flacStreamMetadata.getDurationUs()));
 
-    state = STATE_GET_FIRST_FRAME_METADATA;
+    state = STATE_GET_FRAME_START_MARKER;
   }
 
-  private void getFirstFrameMetadata(ExtractorInput input)
-      throws IOException, InterruptedException {
-    FirstFrameMetadata firstFrameMetadata = FlacMetadataReader.getFirstFrameMetadata(input);
-    frameStartMarker = firstFrameMetadata.frameStartMarker;
-    currentFrameBlockSizeSamples = firstFrameMetadata.blockSizeSamples;
+  private void getFrameStartMarker(ExtractorInput input) throws IOException, InterruptedException {
+    frameStartMarker = FlacMetadataReader.getFrameStartMarker(input);
+    castNonNull(extractorOutput)
+        .seekMap(
+            getSeekMap(
+                /* firstFramePosition= */ (int) input.getPosition(),
+                /* streamLength= */ input.getLength()));
 
     state = STATE_READ_FRAMES;
   }
 
-  private int readFrames(ExtractorInput input) throws IOException, InterruptedException {
+  private @ReadResult int readFrames(ExtractorInput input, PositionHolder seekPosition)
+      throws IOException, InterruptedException {
     Assertions.checkNotNull(trackOutput);
     Assertions.checkNotNull(flacStreamMetadata);
+
+    // Handle pending seek if necessary.
+    if (binarySearchSeeker != null && binarySearchSeeker.isSeeking()) {
+      int seekResult = binarySearchSeeker.handlePendingSeek(input, seekPosition);
+      currentFrameFirstSampleNumber = sampleNumberHolder.sampleNumber;
+      return seekResult;
+    }
 
     // Copy more bytes into the scratch.
     int currentLimit = scratch.limit();
@@ -246,7 +257,8 @@ public final class FlacExtractor implements Extractor {
     if (!foundEndOfInput) {
       scratch.setLimit(currentLimit + bytesRead);
     } else if (scratch.bytesLeft() == 0) {
-      return C.RESULT_END_OF_INPUT;
+      outputSampleMetadata();
+      return Extractor.RESULT_END_OF_INPUT;
     }
 
     // Search for a frame.
@@ -257,24 +269,17 @@ public final class FlacExtractor implements Extractor {
       scratch.skipBytes(Math.min(minFrameSize, scratch.bytesLeft()));
     }
 
-    int nextFrameBlockSizeSamples = findFrame(scratch, foundEndOfInput);
+    long nextFrameFirstSampleNumber = findFrame(scratch, foundEndOfInput);
     int numberOfFrameBytes = scratch.getPosition() - positionBeforeFindingAFrame;
     scratch.setPosition(positionBeforeFindingAFrame);
     trackOutput.sampleData(scratch, numberOfFrameBytes);
     currentFrameBytesWritten += numberOfFrameBytes;
 
     // Frame found.
-    if (nextFrameBlockSizeSamples != BLOCK_SIZE_UNKNOWN || foundEndOfInput) {
-      long timeUs = getTimeUs(totalSamplesWritten, flacStreamMetadata.sampleRate);
-      trackOutput.sampleMetadata(
-          timeUs,
-          C.BUFFER_FLAG_KEY_FRAME,
-          currentFrameBytesWritten,
-          /* offset= */ 0,
-          /* encryptionData= */ null);
-      totalSamplesWritten += currentFrameBlockSizeSamples;
+    if (nextFrameFirstSampleNumber != SAMPLE_NUMBER_UNKNOWN) {
+      outputSampleMetadata();
       currentFrameBytesWritten = 0;
-      currentFrameBlockSizeSamples = nextFrameBlockSizeSamples;
+      currentFrameFirstSampleNumber = nextFrameFirstSampleNumber;
     }
 
     if (scratch.bytesLeft() < FlacConstants.MAX_FRAME_HEADER_SIZE) {
@@ -288,6 +293,21 @@ public final class FlacExtractor implements Extractor {
     return Extractor.RESULT_CONTINUE;
   }
 
+  private SeekMap getSeekMap(int firstFramePosition, long streamLength) {
+    Assertions.checkNotNull(flacStreamMetadata);
+    if (streamLength == C.LENGTH_UNSET || flacStreamMetadata.totalSamples == 0) {
+      return new SeekMap.Unseekable(flacStreamMetadata.getDurationUs());
+    }
+    binarySearchSeeker =
+        new FlacBinarySearchSeeker(
+            flacStreamMetadata,
+            frameStartMarker,
+            firstFramePosition,
+            streamLength,
+            sampleNumberHolder);
+    return binarySearchSeeker.getSeekMap();
+  }
+
   /**
    * Searches for the start of a frame in {@code scratch}.
    *
@@ -298,19 +318,19 @@ public final class FlacExtractor implements Extractor {
    *
    * @param scratch The array to be searched.
    * @param foundEndOfInput If the end of input was met when filling in the {@code scratch}.
-   * @return The block size of the frame found, or {@code BLOCK_SIZE_UNKNOWN} if the search was not
-   *     successful.
+   * @return The number of the first sample in the frame found, or {@code SAMPLE_NUMBER_UNKNOWN} if
+   *     the search was not successful.
    */
-  private int findFrame(ParsableByteArray scratch, boolean foundEndOfInput) {
+  private long findFrame(ParsableByteArray scratch, boolean foundEndOfInput) {
     Assertions.checkNotNull(flacStreamMetadata);
 
     int frameOffset = scratch.getPosition();
     while (frameOffset <= scratch.limit() - FlacConstants.MAX_FRAME_HEADER_SIZE) {
       scratch.setPosition(frameOffset);
       if (FlacFrameReader.checkAndReadFrameHeader(
-          scratch, flacStreamMetadata, frameStartMarker, blockSizeHolder)) {
+          scratch, flacStreamMetadata, frameStartMarker, sampleNumberHolder)) {
         scratch.setPosition(frameOffset);
-        return blockSizeHolder.blockSizeSamples;
+        return sampleNumberHolder.sampleNumber;
       }
       frameOffset++;
     }
@@ -322,10 +342,20 @@ public final class FlacExtractor implements Extractor {
       scratch.setPosition(frameOffset);
     }
 
-    return BLOCK_SIZE_UNKNOWN;
+    return SAMPLE_NUMBER_UNKNOWN;
   }
 
-  private long getTimeUs(long numSamples, int sampleRate) {
-    return numSamples * C.MICROS_PER_SECOND / sampleRate;
+  private void outputSampleMetadata() {
+    long timeUs =
+        currentFrameFirstSampleNumber
+            * C.MICROS_PER_SECOND
+            / castNonNull(flacStreamMetadata).sampleRate;
+    castNonNull(trackOutput)
+        .sampleMetadata(
+            timeUs,
+            C.BUFFER_FLAG_KEY_FRAME,
+            currentFrameBytesWritten,
+            /* offset= */ 0,
+            /* encryptionData= */ null);
   }
 }

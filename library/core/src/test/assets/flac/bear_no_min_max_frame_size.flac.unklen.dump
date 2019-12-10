@@ -1,7 +1,7 @@
 seekMap:
-  isSeekable = true
+  isSeekable = false
   duration = 2741000
-  getPosition(0) = [[timeUs=0, position=42]]
+  getPosition(0) = [[timeUs=0, position=0]]
 numberOfTracks = 1
 track 0:
   format:
@@ -9,7 +9,7 @@ track 0:
     id = null
     containerMimeType = null
     sampleMimeType = audio/flac
-    maxInputSize = 5776
+    maxInputSize = -1
     width = -1
     height = -1
     frameRate = -1.0
@@ -26,7 +26,7 @@ track 0:
     drmInitData = -
     metadata = null
     initializationData:
-      data = length 42, hash 83F6895
+      data = length 42, hash 9218FDB7
   total output bytes = 164431
   sample count = 33
   sample 0:
