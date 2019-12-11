@@ -122,7 +122,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Nullable private T mediaCrypto;
   @Nullable private DrmSessionException lastException;
   @Nullable private byte[] sessionId;
-  @MonotonicNonNull private byte[] offlineLicenseKeySetId;
+  private byte @MonotonicNonNull [] offlineLicenseKeySetId;
 
   @Nullable private KeyRequest currentKeyRequest;
   @Nullable private ProvisionRequest currentProvisionRequest;
@@ -147,8 +147,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @param loadErrorHandlingPolicy The {@link LoadErrorHandlingPolicy} for key and provisioning
    *     requests.
    */
-  // the constructor does not initialize fields: sessionId
-  @SuppressWarnings("nullness:initialization.fields.uninitialized")
   public DefaultDrmSession(
       UUID uuid,
       ExoMediaDrm<T> mediaDrm,
