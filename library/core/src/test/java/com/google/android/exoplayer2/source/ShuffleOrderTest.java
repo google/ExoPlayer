@@ -123,7 +123,8 @@ public final class ShuffleOrderTest {
       assertThat(shuffleOrder.getLastIndex()).isEqualTo(indices[length - 1]);
       assertThat(shuffleOrder.getNextIndex(indices[length - 1])).isEqualTo(INDEX_UNSET);
       for (int i = 0; i < length; i++) {
-        assertThat(indices[i] >= 0 && indices[i] < length).isTrue();
+        assertThat(indices[i] >= 0).isTrue();
+        assertThat(indices[i] < length).isTrue();
       }
     }
   }

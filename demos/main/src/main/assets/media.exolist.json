@@ -376,44 +376,48 @@
         "uri": "https://html5demos.com/assets/dizzy.mp4"
       },
       {
-        "name": "Apple AAC 10s",
+        "name": "Apple 10s (AAC)",
         "uri": "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3/gear0/fileSequence0.aac"
       },
       {
-        "name": "Apple TS 10s",
+        "name": "Apple 10s (TS)",
         "uri": "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3/gear1/fileSequence0.ts"
       },
       {
-        "name": "Android screens (Matroska)",
+        "name": "Android screens (MKV)",
         "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mkv/android-screens-lavf-56.36.100-aac-avc-main-1280x720.mkv"
       },
       {
-        "name": "Screens 360P (WebM,VP9,No Audio)",
+        "name": "Screens 360p video (WebM,VP9)",
         "uri": "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segment/video-vp9-360.webm"
       },
       {
-        "name": "Screens 480p (FMP4,H264,No Audio)",
+        "name": "Screens 480p video (FMP4,H264)",
         "uri": "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segment/video-avc-baseline-480.mp4"
       },
       {
-        "name": "Screens 1080p (FMP4,H264, No Audio)",
+        "name": "Screens 1080p video (FMP4,H264)",
         "uri": "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segment/video-137.mp4"
       },
       {
-        "name": "Screens (FMP4,AAC Audio)",
+        "name": "Screens audio (FMP4)",
         "uri": "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segment/audio-141.mp4"
       },
       {
-        "name": "Google Play (MP3 Audio)",
+        "name": "Google Play (MP3)",
         "uri": "https://storage.googleapis.com/exoplayer-test-media-0/play.mp3"
       },
       {
-        "name": "Google Play (Ogg/Vorbis Audio)",
+        "name": "Google Play (Ogg/Vorbis)",
         "uri": "https://storage.googleapis.com/exoplayer-test-media-1/ogg/play.ogg"
       },
       {
-        "name": "Big Buck Bunny (FLV Video)",
+        "name": "Big Buck Bunny video (FLV)",
         "uri": "https://vod.leasewebcdn.com/bbb.flv?ri=1024&rs=150&start=0"
+      },
+      {
+        "name": "Big Buck Bunny 480p video (MP4,AV1)",
+        "uri": "https://storage.googleapis.com/downloads.webmproject.org/av1/exoplayer/bbb-av1-480p.mp4"
       }
     ]
   },
@@ -447,23 +451,27 @@
       },
       {
         "name": "Clear -> Enc -> Clear -> Enc -> Enc",
-        "drm_scheme": "widevine",
-        "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test",
         "playlist": [
           {
             "uri": "https://html5demos.com/assets/dizzy.mp4"
           },
           {
-            "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears_sd.mpd"
+            "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears_sd.mpd",
+            "drm_scheme": "widevine",
+            "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
           },
           {
             "uri": "https://html5demos.com/assets/dizzy.mp4"
           },
           {
-            "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears_sd.mpd"
+            "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears_sd.mpd",
+            "drm_scheme": "widevine",
+            "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
           },
           {
-            "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears_sd.mpd"
+            "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears_sd.mpd",
+            "drm_scheme": "widevine",
+            "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
           }
         ]
       }
@@ -576,6 +584,18 @@
         "name": "Iceland (360 top-bottom stereo ts)",
         "uri": "https://storage.googleapis.com/exoplayer-test-media-1/360/iceland0.ts",
         "spherical_stereo_mode": "top_bottom"
+      }
+    ]
+  },
+  {
+    "name": "Subtitles",
+    "samples": [
+      {
+        "name": "TTML",
+        "uri": "https://html5demos.com/assets/dizzy.mp4",
+        "subtitle_uri": "https://storage.googleapis.com/exoplayer-test-media-1/ttml/netflix_ttml_sample.xml",
+        "subtitle_mime_type": "application/ttml+xml",
+        "subtitle_language": "en"
       }
     ]
   }

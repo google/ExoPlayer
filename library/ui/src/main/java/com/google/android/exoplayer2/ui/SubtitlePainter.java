@@ -35,10 +35,14 @@ import android.text.style.AbsoluteSizeSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.util.DisplayMetrics;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.CaptionStyleCompat;
 import com.google.android.exoplayer2.text.Cue;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * Paints subtitle {@link Cue}s.
@@ -63,9 +67,9 @@ import com.google.android.exoplayer2.util.Util;
   private final Paint paint;
 
   // Previous input variables.
-  private CharSequence cueText;
-  private Alignment cueTextAlignment;
-  private Bitmap cueBitmap;
+  @Nullable private CharSequence cueText;
+  @Nullable private Alignment cueTextAlignment;
+  @Nullable private Bitmap cueBitmap;
   private float cueLine;
   @Cue.LineType
   private int cueLineType;
@@ -93,11 +97,11 @@ import com.google.android.exoplayer2.util.Util;
   private int parentBottom;
 
   // Derived drawing variables.
-  private StaticLayout textLayout;
+  private @MonotonicNonNull StaticLayout textLayout;
   private int textLeft;
   private int textTop;
   private int textPaddingX;
-  private Rect bitmapRect;
+  private @MonotonicNonNull Rect bitmapRect;
 
   @SuppressWarnings("ResourceType")
   public SubtitlePainter(Context context) {
@@ -225,14 +229,18 @@ import com.google.android.exoplayer2.util.Util;
     this.parentBottom = cueBoxBottom;
 
     if (isTextCue) {
+      Assertions.checkNotNull(cueText);
       setupTextLayout();
     } else {
+      Assertions.checkNotNull(cueBitmap);
       setupBitmapLayout();
     }
     drawLayout(canvas, isTextCue);
   }
 
+  @RequiresNonNull("cueText")
   private void setupTextLayout() {
+    CharSequence cueText = this.cueText;
     int parentWidth = parentRight - parentLeft;
     int parentHeight = parentBottom - parentTop;
 
@@ -248,7 +256,6 @@ import com.google.android.exoplayer2.util.Util;
       return;
     }
 
-    CharSequence cueText = this.cueText;
     // Remove embedded styling or font size if requested.
     if (!applyEmbeddedStyles) {
       cueText = cueText.toString(); // Equivalent to erasing all spans.
@@ -304,9 +311,19 @@ import com.google.android.exoplayer2.util.Util;
     int textRight;
     if (cuePosition != Cue.DIMEN_UNSET) {
       int anchorPosition = Math.round(parentWidth * cuePosition) + parentLeft;
-      textLeft = cuePositionAnchor == Cue.ANCHOR_TYPE_END ? anchorPosition - textWidth
-          : cuePositionAnchor == Cue.ANCHOR_TYPE_MIDDLE ? (anchorPosition * 2 - textWidth) / 2
-              : anchorPosition;
+      switch (cuePositionAnchor) {
+        case Cue.ANCHOR_TYPE_END:
+          textLeft = anchorPosition - textWidth;
+          break;
+        case Cue.ANCHOR_TYPE_MIDDLE:
+          textLeft = (anchorPosition * 2 - textWidth) / 2;
+          break;
+        case Cue.ANCHOR_TYPE_START:
+        case Cue.TYPE_UNSET:
+        default:
+          textLeft = anchorPosition;
+      }
+
       textLeft = Math.max(textLeft, parentLeft);
       textRight = Math.min(textLeft + textWidth, parentRight);
     } else {
@@ -354,7 +371,9 @@ import com.google.android.exoplayer2.util.Util;
     this.textPaddingX = textPaddingX;
   }
 
+  @RequiresNonNull("cueBitmap")
   private void setupBitmapLayout() {
+    Bitmap cueBitmap = this.cueBitmap;
     int parentWidth = parentRight - parentLeft;
     int parentHeight = parentBottom - parentTop;
     float anchorX = parentLeft + (parentWidth * cuePosition);
@@ -379,6 +398,8 @@ import com.google.android.exoplayer2.util.Util;
     if (isTextCue) {
       drawTextLayout(canvas);
     } else {
+      Assertions.checkNotNull(bitmapRect);
+      Assertions.checkNotNull(cueBitmap);
       drawBitmapLayout(canvas);
     }
   }
@@ -428,8 +449,9 @@ import com.google.android.exoplayer2.util.Util;
     canvas.restoreToCount(saveCount);
   }
 
+  @RequiresNonNull({"cueBitmap", "bitmapRect"})
   private void drawBitmapLayout(Canvas canvas) {
-    canvas.drawBitmap(cueBitmap, null, bitmapRect, null);
+    canvas.drawBitmap(cueBitmap, /* src= */ null, bitmapRect, /* paint= */ null);
   }
 
   /**
@@ -438,10 +460,10 @@ import com.google.android.exoplayer2.util.Util;
    * may be embedded within the {@link CharSequence}s.
    */
   @SuppressWarnings("UndefinedEquals")
-  private static boolean areCharSequencesEqual(CharSequence first, CharSequence second) {
+  private static boolean areCharSequencesEqual(
+      @Nullable CharSequence first, @Nullable CharSequence second) {
     // Some CharSequence implementations don't perform a cheap referential equality check in their
     // equals methods, so we perform one explicitly here.
     return first == second || (first != null && first.equals(second));
   }
-
 }

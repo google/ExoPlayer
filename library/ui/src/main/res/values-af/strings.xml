@@ -14,6 +14,8 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_show">Wys spelerkontroles</string>
+  <string name="exo_controls_hide">Versteek spelerkontroles</string>
   <string name="exo_controls_previous_description">Vorige snit</string>
   <string name="exo_controls_next_description">Volgende snit</string>
   <string name="exo_controls_pause_description">Onderbreek</string>

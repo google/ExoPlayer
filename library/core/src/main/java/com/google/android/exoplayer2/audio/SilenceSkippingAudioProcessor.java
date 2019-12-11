@@ -98,14 +98,14 @@ public final class SilenceSkippingAudioProcessor extends BaseAudioProcessor {
   }
 
   /**
-   * Sets whether to skip silence in the input. Calling this method will discard any data buffered
-   * within the processor, and may update the value returned by {@link #isActive()}.
+   * Sets whether to skip silence in the input. This method may only be called after draining data
+   * through the processor. The value returned by {@link #isActive()} may change, and the processor
+   * must be {@link #flush() flushed} before queueing more data.
    *
    * @param enabled Whether to skip silence in the input.
    */
   public void setEnabled(boolean enabled) {
     this.enabled = enabled;
-    flush();
   }
 
   /**
@@ -119,18 +119,17 @@ public final class SilenceSkippingAudioProcessor extends BaseAudioProcessor {
   // AudioProcessor implementation.
 
   @Override
-  public boolean configure(int sampleRateHz, int channelCount, @C.PcmEncoding int encoding)
-      throws UnhandledFormatException {
-    if (encoding != C.ENCODING_PCM_16BIT) {
-      throw new UnhandledFormatException(sampleRateHz, channelCount, encoding);
+  public AudioFormat onConfigure(AudioFormat inputAudioFormat)
+      throws UnhandledAudioFormatException {
+    if (inputAudioFormat.encoding != C.ENCODING_PCM_16BIT) {
+      throw new UnhandledAudioFormatException(inputAudioFormat);
     }
-    bytesPerFrame = channelCount * 2;
-    return setInputFormat(sampleRateHz, channelCount, encoding);
+    return enabled ? inputAudioFormat : AudioFormat.NOT_SET;
   }
 
   @Override
   public boolean isActive() {
-    return super.isActive() && enabled;
+    return enabled;
   }
 
   @Override
@@ -165,7 +164,8 @@ public final class SilenceSkippingAudioProcessor extends BaseAudioProcessor {
 
   @Override
   protected void onFlush() {
-    if (isActive()) {
+    if (enabled) {
+      bytesPerFrame = inputAudioFormat.bytesPerFrame;
       int maybeSilenceBufferSize = durationUsToFrames(MINIMUM_SILENCE_DURATION_US) * bytesPerFrame;
       if (maybeSilenceBuffer.length != maybeSilenceBufferSize) {
         maybeSilenceBuffer = new byte[maybeSilenceBufferSize];
@@ -317,7 +317,7 @@ public final class SilenceSkippingAudioProcessor extends BaseAudioProcessor {
    * Returns the number of input frames corresponding to {@code durationUs} microseconds of audio.
    */
   private int durationUsToFrames(long durationUs) {
-    return (int) ((durationUs * sampleRateHz) / C.MICROS_PER_SECOND);
+    return (int) ((durationUs * inputAudioFormat.sampleRate) / C.MICROS_PER_SECOND);
   }
 
   /**

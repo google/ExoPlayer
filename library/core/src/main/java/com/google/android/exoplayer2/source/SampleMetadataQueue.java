@@ -15,13 +15,20 @@
  */
 package com.google.android.exoplayer2.source;
 
+import android.os.Looper;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.drm.DrmInitData;
+import com.google.android.exoplayer2.drm.DrmSession;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.TrackOutput.CryptoData;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import java.io.IOException;
 
 /**
  * A queue of metadata describing the contents of a media buffer.
@@ -40,6 +47,11 @@ import com.google.android.exoplayer2.util.Util;
   }
 
   private static final int SAMPLE_CAPACITY_INCREMENT = 1000;
+
+  private final DrmSessionManager<?> drmSessionManager;
+
+  @Nullable private Format downstreamFormat;
+  @Nullable private DrmSession<?> currentDrmSession;
 
   private int capacity;
   private int[] sourceIds;
@@ -61,9 +73,11 @@ import com.google.android.exoplayer2.util.Util;
   private boolean upstreamKeyframeRequired;
   private boolean upstreamFormatRequired;
   private Format upstreamFormat;
+  private Format upstreamCommittedFormat;
   private int upstreamSourceId;
 
-  public SampleMetadataQueue() {
+  public SampleMetadataQueue(DrmSessionManager<?> drmSessionManager) {
+    this.drmSessionManager = drmSessionManager;
     capacity = SAMPLE_CAPACITY_INCREMENT;
     sourceIds = new int[capacity];
     offsets = new long[capacity];
@@ -77,6 +91,8 @@ import com.google.android.exoplayer2.util.Util;
     upstreamFormatRequired = true;
     upstreamKeyframeRequired = true;
   }
+
+  // Called by the consuming thread, but only when there is no loading thread.
 
   /**
    * Clears all sample metadata from the queue.
@@ -95,6 +111,7 @@ import com.google.android.exoplayer2.util.Util;
     largestDiscardedTimestampUs = Long.MIN_VALUE;
     largestQueuedTimestampUs = Long.MIN_VALUE;
     isLastSampleQueued = false;
+    upstreamCommittedFormat = null;
     if (resetUpstreamFormat) {
       upstreamFormat = null;
       upstreamFormatRequired = true;
@@ -136,8 +153,29 @@ import com.google.android.exoplayer2.util.Util;
   // Called by the consuming thread.
 
   /**
-   * Returns the current absolute start index.
+   * Throws an error that's preventing data from being read. Does nothing if no such error exists.
+   *
+   * @throws IOException The underlying error.
    */
+  public void maybeThrowError() throws IOException {
+    // TODO: Avoid throwing if the DRM error is not preventing a read operation.
+    if (currentDrmSession != null && currentDrmSession.getState() == DrmSession.STATE_ERROR) {
+      throw Assertions.checkNotNull(currentDrmSession.getError());
+    }
+  }
+
+  /** Releases any owned {@link DrmSession} references. */
+  public void releaseDrmSessionReferences() {
+    if (currentDrmSession != null) {
+      currentDrmSession.release();
+      currentDrmSession = null;
+      // Clear downstream format to avoid violating the assumption that downstreamFormat.drmInitData
+      // != null implies currentSession != null
+      downstreamFormat = null;
+    }
+  }
+
+  /** Returns the current absolute start index. */
   public int getFirstIndex() {
     return absoluteFirstIndex;
   }
@@ -155,16 +193,9 @@ import com.google.android.exoplayer2.util.Util;
    *
    * @return The source id.
    */
-  public int peekSourceId() {
+  public synchronized int peekSourceId() {
     int relativeReadIndex = getRelativeIndex(readPosition);
     return hasNextSample() ? sourceIds[relativeReadIndex] : upstreamSourceId;
-  }
-
-  /**
-   * Returns whether a sample is available to be read.
-   */
-  public synchronized boolean hasNextSample() {
-    return readPosition != length;
   }
 
   /**
@@ -215,6 +246,31 @@ import com.google.android.exoplayer2.util.Util;
   }
 
   /**
+   * Returns whether there is data available for reading.
+   *
+   * <p>Note: If the stream has ended then a buffer with the end of stream flag can always be read
+   * from {@link #read}. Hence an ended stream is always ready.
+   *
+   * @param loadingFinished Whether no more samples will be written to the sample queue. When true,
+   *     this method returns true if the sample queue is empty, because an empty sample queue means
+   *     the end of stream has been reached. When false, this method returns false if the sample
+   *     queue is empty.
+   */
+  public boolean isReady(boolean loadingFinished) {
+    if (!hasNextSample()) {
+      return loadingFinished
+          || isLastSampleQueued
+          || (upstreamFormat != null && upstreamFormat != downstreamFormat);
+    }
+    int relativeReadIndex = getRelativeIndex(readPosition);
+    if (formats[relativeReadIndex] != downstreamFormat) {
+      // A format can be read.
+      return true;
+    }
+    return mayReadSample(relativeReadIndex);
+  }
+
+  /**
    * Attempts to read from the queue.
    *
    * @param formatHolder A {@link FormatHolder} to populate in the case of reading a format.
@@ -231,8 +287,6 @@ import com.google.android.exoplayer2.util.Util;
    *     it's not changing. A sample will never be read if set to true, however it is still possible
    *     for the end of stream or nothing to be read.
    * @param loadingFinished True if an empty queue should be considered the end of the stream.
-   * @param downstreamFormat The current downstream {@link Format}. If the format of the next sample
-   *     is different to the current downstream format then a format will be read.
    * @param extrasHolder The holder into which extra sample information should be written.
    * @return The result, which can be {@link C#RESULT_NOTHING_READ}, {@link C#RESULT_FORMAT_READ} or
    *     {@link C#RESULT_BUFFER_READ}.
@@ -243,15 +297,13 @@ import com.google.android.exoplayer2.util.Util;
       DecoderInputBuffer buffer,
       boolean formatRequired,
       boolean loadingFinished,
-      Format downstreamFormat,
       SampleExtrasHolder extrasHolder) {
     if (!hasNextSample()) {
       if (loadingFinished || isLastSampleQueued) {
         buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
         return C.RESULT_BUFFER_READ;
-      } else if (upstreamFormat != null
-          && (formatRequired || upstreamFormat != downstreamFormat)) {
-        formatHolder.format = upstreamFormat;
+      } else if (upstreamFormat != null && (formatRequired || upstreamFormat != downstreamFormat)) {
+        onFormatResult(Assertions.checkNotNull(upstreamFormat), formatHolder);
         return C.RESULT_FORMAT_READ;
       } else {
         return C.RESULT_NOTHING_READ;
@@ -260,8 +312,12 @@ import com.google.android.exoplayer2.util.Util;
 
     int relativeReadIndex = getRelativeIndex(readPosition);
     if (formatRequired || formats[relativeReadIndex] != downstreamFormat) {
-      formatHolder.format = formats[relativeReadIndex];
+      onFormatResult(formats[relativeReadIndex], formatHolder);
       return C.RESULT_FORMAT_READ;
+    }
+
+    if (!mayReadSample(relativeReadIndex)) {
+      return C.RESULT_NOTHING_READ;
     }
 
     buffer.setFlags(flags[relativeReadIndex]);
@@ -393,8 +449,16 @@ import com.google.android.exoplayer2.util.Util;
     }
     upstreamFormatRequired = false;
     if (Util.areEqual(format, upstreamFormat)) {
-      // Suppress changes between equal formats so we can use referential equality in readData.
+      // The format is unchanged. If format and upstreamFormat are different objects, we keep the
+      // current upstreamFormat so we can detect format changes in read() using cheap referential
+      // equality.
       return false;
+    } else if (Util.areEqual(format, upstreamCommittedFormat)) {
+      // The format has changed back to the format of the last committed sample. If they are
+      // different objects, we revert back to using upstreamCommittedFormat as the upstreamFormat so
+      // we can detect format changes in read() using cheap referential equality.
+      upstreamFormat = upstreamCommittedFormat;
+      return true;
     } else {
       upstreamFormat = format;
       return true;
@@ -422,6 +486,7 @@ import com.google.android.exoplayer2.util.Util;
     cryptoDatas[relativeEndIndex] = cryptoData;
     formats[relativeEndIndex] = upstreamFormat;
     sourceIds[relativeEndIndex] = upstreamSourceId;
+    upstreamCommittedFormat = upstreamFormat;
 
     length++;
     if (length == capacity) {
@@ -494,9 +559,74 @@ import com.google.android.exoplayer2.util.Util;
 
   // Internal methods.
 
+  private boolean hasNextSample() {
+    return readPosition != length;
+  }
+
   /**
-   * Finds the sample in the specified range that's before or at the specified time. If
-   * {@code keyframe} is {@code true} then the sample is additionally required to be a keyframe.
+   * Sets the downstream format, performs DRM resource management, and populates the {@code
+   * outputFormatHolder}.
+   *
+   * @param newFormat The new downstream format.
+   * @param outputFormatHolder The output {@link FormatHolder}.
+   */
+  private void onFormatResult(Format newFormat, FormatHolder outputFormatHolder) {
+    outputFormatHolder.format = newFormat;
+    boolean isFirstFormat = downstreamFormat == null;
+    DrmInitData oldDrmInitData = isFirstFormat ? null : downstreamFormat.drmInitData;
+    downstreamFormat = newFormat;
+    if (drmSessionManager == DrmSessionManager.DUMMY) {
+      // Avoid attempting to acquire a session using the dummy DRM session manager. It's likely that
+      // the media source creation has not yet been migrated and the renderer can acquire the
+      // session for the read DRM init data.
+      // TODO: Remove once renderers are migrated [Internal ref: b/122519809].
+      return;
+    }
+    DrmInitData newDrmInitData = newFormat.drmInitData;
+    outputFormatHolder.includesDrmSession = true;
+    outputFormatHolder.drmSession = currentDrmSession;
+    if (!isFirstFormat && Util.areEqual(oldDrmInitData, newDrmInitData)) {
+      // Nothing to do.
+      return;
+    }
+    // Ensure we acquire the new session before releasing the previous one in case the same session
+    // is being used for both DrmInitData.
+    DrmSession<?> previousSession = currentDrmSession;
+    Looper playbackLooper = Assertions.checkNotNull(Looper.myLooper());
+    currentDrmSession =
+        newDrmInitData != null
+            ? drmSessionManager.acquireSession(playbackLooper, newDrmInitData)
+            : drmSessionManager.acquirePlaceholderSession(
+                playbackLooper, MimeTypes.getTrackType(newFormat.sampleMimeType));
+    outputFormatHolder.drmSession = currentDrmSession;
+
+    if (previousSession != null) {
+      previousSession.release();
+    }
+  }
+
+  /**
+   * Returns whether it's possible to read the next sample.
+   *
+   * @param relativeReadIndex The relative read index of the next sample.
+   * @return Whether it's possible to read the next sample.
+   */
+  private boolean mayReadSample(int relativeReadIndex) {
+    if (drmSessionManager == DrmSessionManager.DUMMY) {
+      // TODO: Remove once renderers are migrated [Internal ref: b/122519809].
+      // For protected content it's likely that the DrmSessionManager is still being injected into
+      // the renderers. We assume that the renderers will be able to acquire a DrmSession if needed.
+      return true;
+    }
+    return currentDrmSession == null
+        || currentDrmSession.getState() == DrmSession.STATE_OPENED_WITH_KEYS
+        || ((flags[relativeReadIndex] & C.BUFFER_FLAG_ENCRYPTED) == 0
+            && currentDrmSession.playClearSamplesWithoutKeys());
+  }
+
+  /**
+   * Finds the sample in the specified range that's before or at the specified time. If {@code
+   * keyframe} is {@code true} then the sample is additionally required to be a keyframe.
    *
    * @param relativeStartIndex The relative index from which to start searching.
    * @param length The length of the range being searched.

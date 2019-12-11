@@ -28,11 +28,9 @@ android {
     }
 
     buildTypes {
-        // Re-enable test coverage when the following issue is fixed:
-        // https://issuetracker.google.com/issues/37019591
-        // debug {
-        //    testCoverageEnabled = true
-        // }
+        debug {
+            testCoverageEnabled = true
+        }
     }
 
     testOptions.unitTests.includeAndroidResources = true
@@ -41,8 +39,10 @@ android {
 dependencies {
     implementation project(modulePrefix + 'library-core')
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
-    implementation 'androidx.annotation:annotation:1.1.0'
-    testImplementation project(modulePrefix + 'testutils-robolectric')
+    compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkVersion
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+    testImplementation project(modulePrefix + 'testutils')
+    testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
 
 ext {

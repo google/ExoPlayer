@@ -14,6 +14,8 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_show">显示播放器控件</string>
+  <string name="exo_controls_hide">隐藏播放器控件</string>
   <string name="exo_controls_previous_description">上一曲</string>
   <string name="exo_controls_next_description">下一曲</string>
   <string name="exo_controls_pause_description">暂停</string>

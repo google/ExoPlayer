@@ -14,4 +14,6 @@
      limitations under the License.
 -->
 
-<manifest package="com.google.android.exoplayer2.source.smoothstreaming.test"/>
+<manifest package="com.google.android.exoplayer2.source.smoothstreaming.test">
+  <uses-sdk/>
+</manifest>

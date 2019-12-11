@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.Renderer;
+import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -45,7 +46,6 @@ public class FakeRenderer extends BaseRenderer {
 
   private final List<Format> expectedFormats;
   private final DecoderInputBuffer buffer;
-  private final FormatHolder formatHolder;
 
   private long playbackPositionUs;
   private long lastSamplePositionUs;
@@ -60,7 +60,6 @@ public class FakeRenderer extends BaseRenderer {
         : MimeTypes.getTrackType(expectedFormats[0].sampleMimeType));
     this.expectedFormats = Collections.unmodifiableList(Arrays.asList(expectedFormats));
     buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
-    formatHolder = new FormatHolder();
     lastSamplePositionUs = Long.MIN_VALUE;
   }
 
@@ -79,7 +78,7 @@ public class FakeRenderer extends BaseRenderer {
     }
     playbackPositionUs = positionUs;
     while (lastSamplePositionUs < positionUs + SOURCE_READAHEAD_US) {
-      formatHolder.format = null;
+      FormatHolder formatHolder = getFormatHolder();
       buffer.clear();
       int result = readSource(formatHolder, buffer, false);
       if (result == C.RESULT_FORMAT_READ) {
@@ -112,9 +111,11 @@ public class FakeRenderer extends BaseRenderer {
   }
 
   @Override
+  @Capabilities
   public int supportsFormat(Format format) throws ExoPlaybackException {
     return getTrackType() == MimeTypes.getTrackType(format.sampleMimeType)
-        ? (FORMAT_HANDLED | ADAPTIVE_SEAMLESS) : FORMAT_UNSUPPORTED_TYPE;
+        ? RendererCapabilities.create(FORMAT_HANDLED, ADAPTIVE_SEAMLESS, TUNNELING_NOT_SUPPORTED)
+        : RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
   }
 
   /** Called when the renderer reads a new format. */

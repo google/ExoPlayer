@@ -62,6 +62,9 @@ extensions/vp9/src/main/jni/libvpx
 extensions/vp9/src/main/jni/libvpx_android_configs
 extensions/vp9/src/main/jni/libyuv
 
+# AV1 extension
+extensions/av1/src/main/jni/libgav1
+
 # Opus extension
 extensions/opus/src/main/jni/libopus
 

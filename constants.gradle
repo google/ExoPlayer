@@ -13,17 +13,30 @@
 // limitations under the License.
 project.ext {
     // ExoPlayer version and version code.
-    releaseVersion = '2.10.8'
-    releaseVersionCode = 2010008
+    releaseVersion = '2.11.0'
+    releaseVersionCode = 2011000
     minSdkVersion = 16
-    targetSdkVersion = 28
-    compileSdkVersion = 28
+    appTargetSdkVersion = 29
+    targetSdkVersion = 28 // TODO: Bump once b/143232359 is resolved
+    compileSdkVersion = 29
     dexmakerVersion = '2.21.0'
+    guavaVersion = '23.5-android'
     mockitoVersion = '2.25.0'
-    robolectricVersion = '4.2'
+    robolectricVersion = '4.3'
     autoValueVersion = '1.6'
+    autoServiceVersion = '1.0-rc4'
     checkerframeworkVersion = '2.5.0'
-    androidXTestVersion = '1.1.0'
+    jsr305Version = '3.0.2'
+    kotlinAnnotationsVersion = '1.3.31'
+    androidxAnnotationVersion = '1.1.0'
+    androidxAppCompatVersion = '1.1.0'
+    androidxCollectionVersion = '1.1.0'
+    androidxMediaVersion = '1.0.1'
+    androidxTestCoreVersion = '1.2.0'
+    androidxTestJUnitVersion = '1.1.1'
+    androidxTestRunnerVersion = '1.2.0'
+    androidxTestRulesVersion = '1.2.0'
+    truthVersion = '0.44'
     modulePrefix = ':'
     if (gradle.ext.has('exoplayerModulePrefix')) {
         modulePrefix += gradle.ext.exoplayerModulePrefix

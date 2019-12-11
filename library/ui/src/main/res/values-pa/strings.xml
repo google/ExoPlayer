@@ -14,6 +14,8 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_show">ਪਲੇਅਰ ਕੰਟਰੋਲਾਂ ਨੂੰ ਦਿਖਾਓ</string>
+  <string name="exo_controls_hide">ਪਲੇਅਰ ਕੰਟਰੋਲਾਂ ਨੂੰ ਲੁਕਾਓ</string>
   <string name="exo_controls_previous_description">ਪਿਛਲਾ ਟਰੈਕ</string>
   <string name="exo_controls_next_description">ਅਗਲਾ ਟਰੈਕ</string>
   <string name="exo_controls_pause_description">ਰੋਕੋ</string>

@@ -362,7 +362,7 @@ public class HlsMediaPlaylistParserTest {
     List<Segment> segments = playlist.segments;
     assertThat(segments.get(0).initializationSegment).isNull();
     assertThat(segments.get(1).initializationSegment)
-        .isSameAs(segments.get(2).initializationSegment);
+        .isSameInstanceAs(segments.get(2).initializationSegment);
     assertThat(segments.get(1).initializationSegment.url).isEqualTo("init1.ts");
     assertThat(segments.get(3).initializationSegment.url).isEqualTo("init2.ts");
   }

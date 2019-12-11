@@ -15,10 +15,10 @@
  */
 package com.google.android.exoplayer2.extractor.mp4;
 
-import androidx.annotation.IntDef;
-import androidx.annotation.Nullable;
 import android.util.Pair;
 import android.util.SparseArray;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
@@ -57,6 +57,7 @@ import java.util.List;
 import java.util.UUID;
 
 /** Extracts data from the FMP4 container format. */
+@SuppressWarnings("ConstantField")
 public class FragmentedMp4Extractor implements Extractor {
 
   /** Factory for {@link FragmentedMp4Extractor} instances. */
@@ -106,8 +107,8 @@ public class FragmentedMp4Extractor implements Extractor {
 
   private static final String TAG = "FragmentedMp4Extractor";
 
-  @SuppressWarnings("ConstantField")
-  private static final int SAMPLE_GROUP_TYPE_seig = Util.getIntegerCodeForString("seig");
+  @SuppressWarnings("ConstantCaseForConstants")
+  private static final int SAMPLE_GROUP_TYPE_seig = 0x73656967;
 
   private static final byte[] PIFF_SAMPLE_ENCRYPTION_BOX_EXTENDED_TYPE =
       new byte[] {-94, 57, 79, 82, 90, -101, 79, 20, -94, 68, 108, 66, 124, 100, -115, -12};
@@ -123,11 +124,11 @@ public class FragmentedMp4Extractor implements Extractor {
 
   // Workarounds.
   @Flags private final int flags;
-  private final @Nullable Track sideloadedTrack;
+  @Nullable private final Track sideloadedTrack;
 
   // Sideloaded data.
   private final List<Format> closedCaptionFormats;
-  private final @Nullable DrmInitData sideloadedDrmInitData;
+  @Nullable private final DrmInitData sideloadedDrmInitData;
 
   // Track-linked data bundle, accessible as a whole through trackID.
   private final SparseArray<TrackBundle> trackBundles;
@@ -140,7 +141,7 @@ public class FragmentedMp4Extractor implements Extractor {
   private final ParsableByteArray scratch;
 
   // Adjusts sample timestamps.
-  private final @Nullable TimestampAdjuster timestampAdjuster;
+  @Nullable private final TimestampAdjuster timestampAdjuster;
 
   private final EventMessageEncoder eventMessageEncoder;
 
@@ -148,7 +149,7 @@ public class FragmentedMp4Extractor implements Extractor {
   private final ParsableByteArray atomHeader;
   private final ArrayDeque<ContainerAtom> containerAtoms;
   private final ArrayDeque<MetadataSampleInfo> pendingMetadataSampleInfos;
-  private final @Nullable TrackOutput additionalEmsgTrackOutput;
+  @Nullable private final TrackOutput additionalEmsgTrackOutput;
 
   private int parserState;
   private int atomType;

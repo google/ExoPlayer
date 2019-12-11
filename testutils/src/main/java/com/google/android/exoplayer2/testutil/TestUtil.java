@@ -33,7 +33,6 @@ import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
-import com.google.android.exoplayer2.testutil.FakeExtractorInput.SimulatedIOException;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
@@ -50,17 +49,14 @@ public class TestUtil {
 
   private TestUtil() {}
 
-  public static boolean sniffTestData(Extractor extractor, FakeExtractorInput input)
-      throws IOException, InterruptedException {
-    while (true) {
-      try {
-        return extractor.sniff(input);
-      } catch (SimulatedIOException e) {
-        // Ignore.
-      }
-    }
-  }
-
+  /**
+   * Given an open {@link DataSource}, repeatedly calls {@link DataSource#read(byte[], int, int)}
+   * until {@link C#RESULT_END_OF_INPUT} is returned.
+   *
+   * @param dataSource The source from which to read.
+   * @return The concatenation of all read data.
+   * @throws IOException If an error occurs reading from the source.
+   */
   public static byte[] readToEnd(DataSource dataSource) throws IOException {
     byte[] data = new byte[1024];
     int position = 0;
@@ -77,6 +73,14 @@ public class TestUtil {
     return Arrays.copyOf(data, position);
   }
 
+  /**
+   * Given an open {@link DataSource}, repeatedly calls {@link DataSource#read(byte[], int, int)}
+   * until exactly {@code length} bytes have been read.
+   *
+   * @param dataSource The source from which to read.
+   * @return The read data.
+   * @throws IOException If an error occurs reading from the source.
+   */
   public static byte[] readExactly(DataSource dataSource, int length) throws IOException {
     byte[] data = new byte[length];
     int position = 0;
@@ -91,22 +95,49 @@ public class TestUtil {
     return data;
   }
 
+  /**
+   * Equivalent to {@code buildTestData(length, length)}.
+   *
+   * @param length The length of the array.
+   * @return The generated array.
+   */
   public static byte[] buildTestData(int length) {
     return buildTestData(length, length);
   }
 
+  /**
+   * Generates an array of random bytes with the specified length.
+   *
+   * @param length The length of the array.
+   * @param seed A seed for an internally created {@link Random source of randomness}.
+   * @return The generated array.
+   */
   public static byte[] buildTestData(int length, int seed) {
     return buildTestData(length, new Random(seed));
   }
 
+  /**
+   * Generates an array of random bytes with the specified length.
+   *
+   * @param length The length of the array.
+   * @param random A source of randomness.
+   * @return The generated array.
+   */
   public static byte[] buildTestData(int length, Random random) {
     byte[] source = new byte[length];
     random.nextBytes(source);
     return source;
   }
 
-  public static String buildTestString(int maxLength, Random random) {
-    int length = random.nextInt(maxLength);
+  /**
+   * Generates a random string with the specified maximum length.
+   *
+   * @param maximumLength The maximum length of the string.
+   * @param random A source of randomness.
+   * @return The generated string.
+   */
+  public static String buildTestString(int maximumLength, Random random) {
+    int length = random.nextInt(maximumLength);
     StringBuilder builder = new StringBuilder(length);
     for (int i = 0; i < length; i++) {
       builder.append((char) random.nextInt());
@@ -129,6 +160,12 @@ public class TestUtil {
     return byteArray;
   }
 
+  /**
+   * Concatenates the provided byte arrays.
+   *
+   * @param byteArrays The byte arrays to concatenate.
+   * @return The concatenated result.
+   */
   public static byte[] joinByteArrays(byte[]... byteArrays) {
     int length = 0;
     for (byte[] byteArray : byteArrays) {
@@ -143,24 +180,28 @@ public class TestUtil {
     return joined;
   }
 
+  /** Returns the bytes of an asset file. */
   public static byte[] getByteArray(Context context, String fileName) throws IOException {
     return Util.toByteArray(getInputStream(context, fileName));
   }
 
+  /** Returns an {@link InputStream} for reading from an asset file. */
   public static InputStream getInputStream(Context context, String fileName) throws IOException {
     return context.getResources().getAssets().open(fileName);
   }
 
+  /** Returns a {@link String} read from an asset file. */
   public static String getString(Context context, String fileName) throws IOException {
     return Util.fromUtf8Bytes(getByteArray(context, fileName));
   }
 
-  public static Bitmap readBitmapFromFile(Context context, String fileName) throws IOException {
+  /** Returns a {@link Bitmap} read from an asset file. */
+  public static Bitmap getBitmap(Context context, String fileName) throws IOException {
     return BitmapFactory.decodeStream(getInputStream(context, fileName));
   }
 
-  public static DatabaseProvider getTestDatabaseProvider() {
-    // Provides an in-memory database.
+  /** Returns a {@link DatabaseProvider} that provides an in-memory database. */
+  public static DatabaseProvider getInMemoryDatabaseProvider() {
     return new DefaultDatabaseProvider(
         new SQLiteOpenHelper(
             /* context= */ null, /* name= */ null, /* factory= */ null, /* version= */ 1) {

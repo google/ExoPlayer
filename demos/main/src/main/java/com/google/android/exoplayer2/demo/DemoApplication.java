@@ -28,7 +28,7 @@ import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
-import com.google.android.exoplayer2.upstream.FileDataSourceFactory;
+import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
@@ -165,7 +165,7 @@ public class DemoApplication extends Application {
     return new CacheDataSourceFactory(
         cache,
         upstreamFactory,
-        new FileDataSourceFactory(),
+        new FileDataSource.Factory(),
         /* cacheWriteDataSinkFactory= */ null,
         CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR,
         /* eventListener= */ null);
