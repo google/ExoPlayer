@@ -42,7 +42,7 @@ public final class WebvttDecoder extends SimpleSubtitleDecoder {
 
   private final WebvttCueParser cueParser;
   private final ParsableByteArray parsableWebvttData;
-  private final WebvttCue.Builder webvttCueBuilder;
+  private final WebvttCueInfo.Builder webvttCueBuilder;
   private final CssParser cssParser;
   private final List<WebvttCssStyle> definedStyles;
 
@@ -50,7 +50,7 @@ public final class WebvttDecoder extends SimpleSubtitleDecoder {
     super("WebvttDecoder");
     cueParser = new WebvttCueParser();
     parsableWebvttData = new ParsableByteArray();
-    webvttCueBuilder = new WebvttCue.Builder();
+    webvttCueBuilder = new WebvttCueInfo.Builder();
     cssParser = new CssParser();
     definedStyles = new ArrayList<>();
   }
@@ -72,24 +72,24 @@ public final class WebvttDecoder extends SimpleSubtitleDecoder {
     while (!TextUtils.isEmpty(parsableWebvttData.readLine())) {}
 
     int event;
-    ArrayList<WebvttCue> subtitles = new ArrayList<>();
+    List<WebvttCueInfo> cueInfos = new ArrayList<>();
     while ((event = getNextEvent(parsableWebvttData)) != EVENT_END_OF_FILE) {
       if (event == EVENT_COMMENT) {
         skipComment(parsableWebvttData);
       } else if (event == EVENT_STYLE_BLOCK) {
-        if (!subtitles.isEmpty()) {
+        if (!cueInfos.isEmpty()) {
           throw new SubtitleDecoderException("A style block was found after the first cue.");
         }
         parsableWebvttData.readLine(); // Consume the "STYLE" header.
         definedStyles.addAll(cssParser.parseBlock(parsableWebvttData));
       } else if (event == EVENT_CUE) {
         if (cueParser.parseCue(parsableWebvttData, webvttCueBuilder, definedStyles)) {
-          subtitles.add(webvttCueBuilder.build());
+          cueInfos.add(webvttCueBuilder.build());
           webvttCueBuilder.reset();
         }
       }
     }
-    return new WebvttSubtitle(subtitles);
+    return new WebvttSubtitle(cueInfos);
   }
 
   /**

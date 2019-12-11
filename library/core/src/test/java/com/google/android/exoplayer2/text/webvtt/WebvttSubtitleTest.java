@@ -41,16 +41,16 @@ public class WebvttSubtitleTest {
   private static final WebvttSubtitle simpleSubtitle;
 
   static {
-    ArrayList<WebvttCue> simpleSubtitleCues = new ArrayList<>();
-    WebvttCue firstCue =
-        new WebvttCue.Builder()
+    ArrayList<WebvttCueInfo> simpleSubtitleCues = new ArrayList<>();
+    WebvttCueInfo firstCue =
+        new WebvttCueInfo.Builder()
             .setStartTime(1000000)
             .setEndTime(2000000)
             .setText(FIRST_SUBTITLE_STRING)
             .build();
     simpleSubtitleCues.add(firstCue);
-    WebvttCue secondCue =
-        new WebvttCue.Builder()
+    WebvttCueInfo secondCue =
+        new WebvttCueInfo.Builder()
             .setStartTime(3000000)
             .setEndTime(4000000)
             .setText(SECOND_SUBTITLE_STRING)
@@ -62,16 +62,16 @@ public class WebvttSubtitleTest {
   private static final WebvttSubtitle overlappingSubtitle;
 
   static {
-    ArrayList<WebvttCue> overlappingSubtitleCues = new ArrayList<>();
-    WebvttCue firstCue =
-        new WebvttCue.Builder()
+    ArrayList<WebvttCueInfo> overlappingSubtitleCues = new ArrayList<>();
+    WebvttCueInfo firstCue =
+        new WebvttCueInfo.Builder()
             .setStartTime(1000000)
             .setEndTime(3000000)
             .setText(FIRST_SUBTITLE_STRING)
             .build();
     overlappingSubtitleCues.add(firstCue);
-    WebvttCue secondCue =
-        new WebvttCue.Builder()
+    WebvttCueInfo secondCue =
+        new WebvttCueInfo.Builder()
             .setStartTime(2000000)
             .setEndTime(4000000)
             .setText(SECOND_SUBTITLE_STRING)
@@ -83,16 +83,16 @@ public class WebvttSubtitleTest {
   private static final WebvttSubtitle nestedSubtitle;
 
   static {
-    ArrayList<WebvttCue> nestedSubtitleCues = new ArrayList<>();
-    WebvttCue firstCue =
-        new WebvttCue.Builder()
+    ArrayList<WebvttCueInfo> nestedSubtitleCues = new ArrayList<>();
+    WebvttCueInfo firstCue =
+        new WebvttCueInfo.Builder()
             .setStartTime(1000000)
             .setEndTime(4000000)
             .setText(FIRST_SUBTITLE_STRING)
             .build();
     nestedSubtitleCues.add(firstCue);
-    WebvttCue secondCue =
-        new WebvttCue.Builder()
+    WebvttCueInfo secondCue =
+        new WebvttCueInfo.Builder()
             .setStartTime(2000000)
             .setEndTime(3000000)
             .setText(SECOND_SUBTITLE_STRING)

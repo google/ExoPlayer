@@ -41,12 +41,12 @@ public final class Mp4WebvttDecoder extends SimpleSubtitleDecoder {
   private static final int TYPE_vttc = 0x76747463;
 
   private final ParsableByteArray sampleData;
-  private final WebvttCue.Builder builder;
+  private final WebvttCueInfo.Builder builder;
 
   public Mp4WebvttDecoder() {
     super("Mp4WebvttDecoder");
     sampleData = new ParsableByteArray();
-    builder = new WebvttCue.Builder();
+    builder = new WebvttCueInfo.Builder();
   }
 
   @Override
@@ -72,8 +72,9 @@ public final class Mp4WebvttDecoder extends SimpleSubtitleDecoder {
     return new Mp4WebvttSubtitle(resultingCueList);
   }
 
-  private static Cue parseVttCueBox(ParsableByteArray sampleData, WebvttCue.Builder builder,
-        int remainingCueBoxBytes) throws SubtitleDecoderException {
+  private static Cue parseVttCueBox(
+      ParsableByteArray sampleData, WebvttCueInfo.Builder builder, int remainingCueBoxBytes)
+      throws SubtitleDecoderException {
     builder.reset();
     while (remainingCueBoxBytes > 0) {
       if (remainingCueBoxBytes < BOX_HEADER_SIZE) {
@@ -95,7 +96,7 @@ public final class Mp4WebvttDecoder extends SimpleSubtitleDecoder {
         // Other VTTCueBox children are still not supported and are ignored.
       }
     }
-    return builder.build();
+    return builder.build().cue;
   }
 
 }
