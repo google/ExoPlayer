@@ -33,6 +33,8 @@ import com.google.android.exoplayer2.util.Util;
   private final int blockAlignment;
   /** Bits per sample for the audio data. */
   private final int bitsPerSample;
+  /** Number of samples in each block. */
+  private final int samplesPerBlock;
   /** The PCM encoding. */
   @C.PcmEncoding private final int encoding;
 
@@ -47,12 +49,14 @@ import com.google.android.exoplayer2.util.Util;
       int averageBytesPerSecond,
       int blockAlignment,
       int bitsPerSample,
+      int samplesPerBlock,
       @C.PcmEncoding int encoding) {
     this.numChannels = numChannels;
     this.sampleRateHz = sampleRateHz;
     this.averageBytesPerSecond = averageBytesPerSecond;
     this.blockAlignment = blockAlignment;
     this.bitsPerSample = bitsPerSample;
+    this.samplesPerBlock = samplesPerBlock;
     this.encoding = encoding;
     dataStartPosition = C.POSITION_UNSET;
     dataEndPosition = C.POSITION_UNSET;
@@ -101,8 +105,8 @@ import com.google.android.exoplayer2.util.Util;
 
   @Override
   public long getDurationUs() {
-    long numFrames = (dataEndPosition - dataStartPosition) / blockAlignment;
-    return (numFrames * C.MICROS_PER_SECOND) / sampleRateHz;
+    long numBlocks = (dataEndPosition - dataStartPosition) / blockAlignment;
+    return numBlocks * samplesPerBlock * C.MICROS_PER_SECOND / sampleRateHz;
   }
 
   @Override
@@ -155,6 +159,11 @@ import com.google.android.exoplayer2.util.Util;
   /** Returns the number of audio channels in this WAV. */
   public int getNumChannels() {
     return numChannels;
+  }
+
+  /** Returns the number of samples in each block. */
+  public int getSamplesPerBlock() {
+    return samplesPerBlock;
   }
 
   /** Returns the PCM encoding. **/

@@ -94,7 +94,13 @@ import java.io.IOException;
     input.advancePeekPosition((int) chunkHeader.size - 16);
 
     return new WavHeader(
-        numChannels, sampleRateHz, averageBytesPerSecond, blockAlignment, bitsPerSample, encoding);
+        numChannels,
+        sampleRateHz,
+        averageBytesPerSecond,
+        blockAlignment,
+        bitsPerSample,
+        /* samplesPerBlock= */ 1,
+        encoding);
   }
 
   /**
@@ -182,7 +188,7 @@ import java.io.IOException;
      */
     public static ChunkHeader peek(ExtractorInput input, ParsableByteArray scratch)
         throws IOException, InterruptedException {
-      input.peekFully(scratch.data, 0, SIZE_IN_BYTES);
+      input.peekFully(scratch.data, /* offset= */ 0, /* length= */ SIZE_IN_BYTES);
       scratch.setPosition(0);
 
       int id = scratch.readInt();
