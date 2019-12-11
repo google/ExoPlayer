@@ -818,7 +818,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         /* initializationData= */ null);
   }
 
-  @SuppressWarnings("unchecked")
+  // We won't assign the array to a variable that erases the generic type, and then write into it.
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private static ChunkSampleStream<DashChunkSource>[] newSampleStreamArray(int length) {
     return new ChunkSampleStream[length];
   }

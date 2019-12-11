@@ -45,7 +45,7 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
   private final long durationUs;
 
   private Callback callback;
-  private List<ChunkSampleStream<FakeChunkSource>> sampleStreams;
+  private ChunkSampleStream<FakeChunkSource>[] sampleStreams;
   private SequenceableLoader sequenceableLoader;
 
   public FakeAdaptiveMediaPeriod(
@@ -60,7 +60,7 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
     this.chunkSourceFactory = chunkSourceFactory;
     this.transferListener = transferListener;
     this.durationUs = durationUs;
-    this.sampleStreams = new ArrayList<>();
+    this.sampleStreams = newSampleStreamArray(0);
     this.sequenceableLoader = new CompositeSequenceableLoader(new SequenceableLoader[0]);
   }
 
@@ -94,9 +94,8 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
         validStreams.add((ChunkSampleStream<FakeChunkSource>) stream);
       }
     }
-    this.sampleStreams = validStreams;
-    this.sequenceableLoader =
-        new CompositeSequenceableLoader(sampleStreams.toArray(new SequenceableLoader[0]));
+    this.sampleStreams = validStreams.toArray(newSampleStreamArray(validStreams.size()));
+    this.sequenceableLoader = new CompositeSequenceableLoader(sampleStreams);
     return returnPositionUs;
   }
 
@@ -165,5 +164,11 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
   @Override
   public void onContinueLoadingRequested(ChunkSampleStream<FakeChunkSource> source) {
     callback.onContinueLoadingRequested(this);
+  }
+
+  // We won't assign the array to a variable that erases the generic type, and then write into it.
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  private static ChunkSampleStream<FakeChunkSource>[] newSampleStreamArray(int length) {
+    return new ChunkSampleStream[length];
   }
 }
