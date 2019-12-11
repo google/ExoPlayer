@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor.ogg;
 
 import com.google.android.exoplayer2.extractor.ExtractorInput;
+import com.google.android.exoplayer2.extractor.FlacFrameReader;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.SeekPoint;
 import com.google.android.exoplayer2.util.FlacStreamMetadata;
@@ -84,35 +85,15 @@ import java.util.Arrays;
   }
 
   private int getFlacFrameBlockSize(ParsableByteArray packet) {
-    int blockSizeCode = (packet.data[2] & 0xFF) >> 4;
-    switch (blockSizeCode) {
-      case 1:
-        return 192;
-      case 2:
-      case 3:
-      case 4:
-      case 5:
-        return 576 << (blockSizeCode - 2);
-      case 6:
-      case 7:
-        // skip the sample number
-        packet.skipBytes(FRAME_HEADER_SAMPLE_NUMBER_OFFSET);
-        packet.readUtf8EncodedLong();
-        int value = blockSizeCode == 6 ? packet.readUnsignedByte() : packet.readUnsignedShort();
-        packet.setPosition(0);
-        return value + 1;
-      case 8:
-      case 9:
-      case 10:
-      case 11:
-      case 12:
-      case 13:
-      case 14:
-      case 15:
-        return 256 << (blockSizeCode - 8);
-      default:
-        return -1;
+    int blockSizeKey = (packet.data[2] & 0xFF) >> 4;
+    if (blockSizeKey == 6 || blockSizeKey == 7) {
+      // Skip the sample number.
+      packet.skipBytes(FRAME_HEADER_SAMPLE_NUMBER_OFFSET);
+      packet.readUtf8EncodedLong();
     }
+    int result = FlacFrameReader.readFrameBlockSizeSamplesFromKey(packet, blockSizeKey);
+    packet.setPosition(0);
+    return result;
   }
 
   private class FlacOggSeeker implements OggSeeker, SeekMap {
