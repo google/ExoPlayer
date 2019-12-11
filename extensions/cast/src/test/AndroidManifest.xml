@@ -14,4 +14,6 @@
      limitations under the License.
 -->
 
-<manifest package="com.google.android.exoplayer2.ext.cast.test"/>
+<manifest package="com.google.android.exoplayer2.ext.cast.test">
+  <uses-sdk/>
+</manifest>

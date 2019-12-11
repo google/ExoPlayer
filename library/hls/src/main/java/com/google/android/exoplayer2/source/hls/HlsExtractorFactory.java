@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.hls;
 
 import android.net.Uri;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -82,11 +83,11 @@ public interface HlsExtractorFactory {
    * @throws IOException If an I/O error is encountered while sniffing.
    */
   Result createExtractor(
-      Extractor previousExtractor,
+      @Nullable Extractor previousExtractor,
       Uri uri,
       Format format,
-      List<Format> muxedCaptionFormats,
-      DrmInitData drmInitData,
+      @Nullable List<Format> muxedCaptionFormats,
+      @Nullable DrmInitData drmInitData,
       TimestampAdjuster timestampAdjuster,
       Map<String, List<String>> responseHeaders,
       ExtractorInput sniffingExtractorInput)

@@ -23,7 +23,6 @@ import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCachedDa
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
-import android.os.ConditionVariable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.offline.DefaultDownloadIndex;
@@ -38,7 +37,6 @@ import com.google.android.exoplayer2.testutil.DummyMainThread;
 import com.google.android.exoplayer2.testutil.DummyMainThread.TestRunnable;
 import com.google.android.exoplayer2.testutil.FakeDataSet;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
-import com.google.android.exoplayer2.testutil.RobolectricUtil;
 import com.google.android.exoplayer2.testutil.TestDownloadManagerListener;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.DataSource.Factory;
@@ -48,21 +46,23 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.annotation.Config;
+import org.robolectric.annotation.LooperMode;
 import org.robolectric.shadows.ShadowLog;
 
 /** Tests {@link DownloadManager}. */
 @RunWith(AndroidJUnit4.class)
-@Config(shadows = {RobolectricUtil.CustomLooper.class, RobolectricUtil.CustomMessageQueue.class})
+@LooperMode(LooperMode.Mode.PAUSED)
 public class DownloadManagerDashTest {
 
-  private static final int ASSERT_TRUE_TIMEOUT = 1000;
+  private static final int ASSERT_TRUE_TIMEOUT_MS = 5000;
 
   private SimpleCache cache;
   private File tempFolder;
@@ -97,7 +97,7 @@ public class DownloadManagerDashTest {
 
     fakeStreamKey1 = new StreamKey(0, 0, 0);
     fakeStreamKey2 = new StreamKey(0, 1, 0);
-    downloadIndex = new DefaultDownloadIndex(TestUtil.getTestDatabaseProvider());
+    downloadIndex = new DefaultDownloadIndex(TestUtil.getInMemoryDatabaseProvider());
     createDownloadManager();
   }
 
@@ -193,7 +193,6 @@ public class DownloadManagerDashTest {
     assertCacheEmpty(cache);
   }
 
-  // Disabled due to flakiness.
   @Test
   public void testHandleRemoveActionBeforeDownloadFinish() throws Throwable {
     handleDownloadRequest(fakeStreamKey1);
@@ -204,19 +203,19 @@ public class DownloadManagerDashTest {
     assertCacheEmpty(cache);
   }
 
-  // Disabled due to flakiness [Internal: b/122290449].
   @Test
   public void testHandleInterferingRemoveAction() throws Throwable {
-    final ConditionVariable downloadInProgressCondition = new ConditionVariable();
+    CountDownLatch downloadInProgressLatch = new CountDownLatch(1);
     fakeDataSet
         .newData("audio_segment_2")
-        .appendReadAction(downloadInProgressCondition::open)
+        .appendReadAction(downloadInProgressLatch::countDown)
         .appendReadData(TestUtil.buildTestData(5))
         .endData();
 
     handleDownloadRequest(fakeStreamKey1);
 
-    assertThat(downloadInProgressCondition.block(ASSERT_TRUE_TIMEOUT)).isTrue();
+    assertThat(downloadInProgressLatch.await(ASSERT_TRUE_TIMEOUT_MS, TimeUnit.MILLISECONDS))
+        .isTrue();
 
     handleRemoveAction();
 
@@ -264,7 +263,7 @@ public class DownloadManagerDashTest {
 
           downloadManagerListener =
               new TestDownloadManagerListener(
-                  downloadManager, dummyMainThread, /* timeout= */ 3000);
+                  downloadManager, dummyMainThread, /* timeoutMs= */ 3000);
           downloadManager.resumeDownloads();
         });
   }

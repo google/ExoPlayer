@@ -19,7 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.audio.AudioProcessor.UnhandledFormatException;
+import com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat;
 import com.google.android.exoplayer2.util.Assertions;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -32,8 +32,9 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class SilenceSkippingAudioProcessorTest {
 
-  private static final int TEST_SIGNAL_SAMPLE_RATE_HZ = 1000;
-  private static final int TEST_SIGNAL_CHANNEL_COUNT = 2;
+  private static final AudioFormat AUDIO_FORMAT =
+      new AudioFormat(
+          /* sampleRate= */ 1000, /* channelCount= */ 2, /* encoding= */ C.ENCODING_PCM_16BIT);
   private static final int TEST_SIGNAL_SILENCE_DURATION_MS = 1000;
   private static final int TEST_SIGNAL_NOISE_DURATION_MS = 1000;
   private static final int TEST_SIGNAL_FRAME_COUNT = 100000;
@@ -53,13 +54,9 @@ public final class SilenceSkippingAudioProcessorTest {
     silenceSkippingAudioProcessor.setEnabled(true);
 
     // When configuring it.
-    boolean reconfigured =
-        silenceSkippingAudioProcessor.configure(
-            TEST_SIGNAL_SAMPLE_RATE_HZ, TEST_SIGNAL_CHANNEL_COUNT, C.ENCODING_PCM_16BIT);
-    silenceSkippingAudioProcessor.flush();
+    silenceSkippingAudioProcessor.configure(AUDIO_FORMAT);
 
     // It's active.
-    assertThat(reconfigured).isTrue();
     assertThat(silenceSkippingAudioProcessor.isActive()).isTrue();
   }
 
@@ -69,8 +66,7 @@ public final class SilenceSkippingAudioProcessorTest {
     silenceSkippingAudioProcessor.setEnabled(false);
 
     // When configuring it.
-    silenceSkippingAudioProcessor.configure(
-        TEST_SIGNAL_SAMPLE_RATE_HZ, TEST_SIGNAL_CHANNEL_COUNT, C.ENCODING_PCM_16BIT);
+    silenceSkippingAudioProcessor.configure(AUDIO_FORMAT);
 
     // It's not active.
     assertThat(silenceSkippingAudioProcessor.isActive()).isFalse();
@@ -80,52 +76,10 @@ public final class SilenceSkippingAudioProcessorTest {
   public void testDefaultProcessor_isNotEnabled() throws Exception {
     // Given a processor in its default state.
     // When reconfigured.
-    silenceSkippingAudioProcessor.configure(
-        TEST_SIGNAL_SAMPLE_RATE_HZ, TEST_SIGNAL_CHANNEL_COUNT, C.ENCODING_PCM_16BIT);
+    silenceSkippingAudioProcessor.configure(AUDIO_FORMAT);
 
     // It's not active.
     assertThat(silenceSkippingAudioProcessor.isActive()).isFalse();
-  }
-
-  @Test
-  public void testChangingSampleRate_requiresReconfiguration() throws Exception {
-    // Given an enabled processor and configured processor.
-    silenceSkippingAudioProcessor.setEnabled(true);
-    boolean reconfigured =
-        silenceSkippingAudioProcessor.configure(
-            TEST_SIGNAL_SAMPLE_RATE_HZ, TEST_SIGNAL_CHANNEL_COUNT, C.ENCODING_PCM_16BIT);
-    if (reconfigured) {
-      silenceSkippingAudioProcessor.flush();
-    }
-
-    // When reconfiguring it with a different sample rate.
-    reconfigured =
-        silenceSkippingAudioProcessor.configure(
-            TEST_SIGNAL_SAMPLE_RATE_HZ * 2, TEST_SIGNAL_CHANNEL_COUNT, C.ENCODING_PCM_16BIT);
-
-    // It's reconfigured.
-    assertThat(reconfigured).isTrue();
-    assertThat(silenceSkippingAudioProcessor.isActive()).isTrue();
-  }
-
-  @Test
-  public void testReconfiguringWithSameSampleRate_doesNotRequireReconfiguration() throws Exception {
-    // Given an enabled processor and configured processor.
-    silenceSkippingAudioProcessor.setEnabled(true);
-    boolean reconfigured =
-        silenceSkippingAudioProcessor.configure(
-            TEST_SIGNAL_SAMPLE_RATE_HZ, TEST_SIGNAL_CHANNEL_COUNT, C.ENCODING_PCM_16BIT);
-    assertThat(reconfigured).isTrue();
-    silenceSkippingAudioProcessor.flush();
-
-    // When reconfiguring it with the same sample rate.
-    reconfigured =
-        silenceSkippingAudioProcessor.configure(
-            TEST_SIGNAL_SAMPLE_RATE_HZ, TEST_SIGNAL_CHANNEL_COUNT, C.ENCODING_PCM_16BIT);
-
-    // It's not reconfigured but it is active.
-    assertThat(reconfigured).isFalse();
-    assertThat(silenceSkippingAudioProcessor.isActive()).isTrue();
   }
 
   @Test
@@ -133,19 +87,14 @@ public final class SilenceSkippingAudioProcessorTest {
     // Given a signal with only noise.
     InputBufferProvider inputBufferProvider =
         getInputBufferProviderForAlternatingSilenceAndNoise(
-            TEST_SIGNAL_SAMPLE_RATE_HZ,
-            TEST_SIGNAL_CHANNEL_COUNT,
             TEST_SIGNAL_SILENCE_DURATION_MS,
             /* noiseDurationMs= */ 0,
             TEST_SIGNAL_FRAME_COUNT);
 
     // When processing the entire signal.
     silenceSkippingAudioProcessor.setEnabled(true);
-    boolean reconfigured =
-        silenceSkippingAudioProcessor.configure(
-            TEST_SIGNAL_SAMPLE_RATE_HZ, TEST_SIGNAL_CHANNEL_COUNT, C.ENCODING_PCM_16BIT);
+    silenceSkippingAudioProcessor.configure(AUDIO_FORMAT);
     silenceSkippingAudioProcessor.flush();
-    assertThat(reconfigured).isTrue();
     assertThat(silenceSkippingAudioProcessor.isActive()).isTrue();
     long totalOutputFrames =
         process(silenceSkippingAudioProcessor, inputBufferProvider, INPUT_BUFFER_SIZE);
@@ -160,8 +109,6 @@ public final class SilenceSkippingAudioProcessorTest {
     // Given a signal with only silence.
     InputBufferProvider inputBufferProvider =
         getInputBufferProviderForAlternatingSilenceAndNoise(
-            TEST_SIGNAL_SAMPLE_RATE_HZ,
-            TEST_SIGNAL_CHANNEL_COUNT,
             /* silenceDurationMs= */ 0,
             TEST_SIGNAL_NOISE_DURATION_MS,
             TEST_SIGNAL_FRAME_COUNT);
@@ -170,11 +117,8 @@ public final class SilenceSkippingAudioProcessorTest {
     SilenceSkippingAudioProcessor silenceSkippingAudioProcessor =
         new SilenceSkippingAudioProcessor();
     silenceSkippingAudioProcessor.setEnabled(true);
-    boolean reconfigured =
-        silenceSkippingAudioProcessor.configure(
-            TEST_SIGNAL_SAMPLE_RATE_HZ, TEST_SIGNAL_CHANNEL_COUNT, C.ENCODING_PCM_16BIT);
+    silenceSkippingAudioProcessor.configure(AUDIO_FORMAT);
     silenceSkippingAudioProcessor.flush();
-    assertThat(reconfigured).isTrue();
     assertThat(silenceSkippingAudioProcessor.isActive()).isTrue();
     long totalOutputFrames =
         process(silenceSkippingAudioProcessor, inputBufferProvider, INPUT_BUFFER_SIZE);
@@ -190,8 +134,6 @@ public final class SilenceSkippingAudioProcessorTest {
     // Given a signal that alternates between silence and noise.
     InputBufferProvider inputBufferProvider =
         getInputBufferProviderForAlternatingSilenceAndNoise(
-            TEST_SIGNAL_SAMPLE_RATE_HZ,
-            TEST_SIGNAL_CHANNEL_COUNT,
             TEST_SIGNAL_SILENCE_DURATION_MS,
             TEST_SIGNAL_NOISE_DURATION_MS,
             TEST_SIGNAL_FRAME_COUNT);
@@ -200,11 +142,8 @@ public final class SilenceSkippingAudioProcessorTest {
     SilenceSkippingAudioProcessor silenceSkippingAudioProcessor =
         new SilenceSkippingAudioProcessor();
     silenceSkippingAudioProcessor.setEnabled(true);
-    boolean reconfigured =
-        silenceSkippingAudioProcessor.configure(
-            TEST_SIGNAL_SAMPLE_RATE_HZ, TEST_SIGNAL_CHANNEL_COUNT, C.ENCODING_PCM_16BIT);
+    silenceSkippingAudioProcessor.configure(AUDIO_FORMAT);
     silenceSkippingAudioProcessor.flush();
-    assertThat(reconfigured).isTrue();
     assertThat(silenceSkippingAudioProcessor.isActive()).isTrue();
     long totalOutputFrames =
         process(silenceSkippingAudioProcessor, inputBufferProvider, INPUT_BUFFER_SIZE);
@@ -220,8 +159,6 @@ public final class SilenceSkippingAudioProcessorTest {
     // Given a signal that alternates between silence and noise.
     InputBufferProvider inputBufferProvider =
         getInputBufferProviderForAlternatingSilenceAndNoise(
-            TEST_SIGNAL_SAMPLE_RATE_HZ,
-            TEST_SIGNAL_CHANNEL_COUNT,
             TEST_SIGNAL_SILENCE_DURATION_MS,
             TEST_SIGNAL_NOISE_DURATION_MS,
             TEST_SIGNAL_FRAME_COUNT);
@@ -230,11 +167,8 @@ public final class SilenceSkippingAudioProcessorTest {
     SilenceSkippingAudioProcessor silenceSkippingAudioProcessor =
         new SilenceSkippingAudioProcessor();
     silenceSkippingAudioProcessor.setEnabled(true);
-    boolean reconfigured =
-        silenceSkippingAudioProcessor.configure(
-            TEST_SIGNAL_SAMPLE_RATE_HZ, TEST_SIGNAL_CHANNEL_COUNT, C.ENCODING_PCM_16BIT);
+    silenceSkippingAudioProcessor.configure(AUDIO_FORMAT);
     silenceSkippingAudioProcessor.flush();
-    assertThat(reconfigured).isTrue();
     assertThat(silenceSkippingAudioProcessor.isActive()).isTrue();
     long totalOutputFrames =
         process(silenceSkippingAudioProcessor, inputBufferProvider, /* inputBufferSize= */ 80);
@@ -250,8 +184,6 @@ public final class SilenceSkippingAudioProcessorTest {
     // Given a signal that alternates between silence and noise.
     InputBufferProvider inputBufferProvider =
         getInputBufferProviderForAlternatingSilenceAndNoise(
-            TEST_SIGNAL_SAMPLE_RATE_HZ,
-            TEST_SIGNAL_CHANNEL_COUNT,
             TEST_SIGNAL_SILENCE_DURATION_MS,
             TEST_SIGNAL_NOISE_DURATION_MS,
             TEST_SIGNAL_FRAME_COUNT);
@@ -260,11 +192,8 @@ public final class SilenceSkippingAudioProcessorTest {
     SilenceSkippingAudioProcessor silenceSkippingAudioProcessor =
         new SilenceSkippingAudioProcessor();
     silenceSkippingAudioProcessor.setEnabled(true);
-    boolean reconfigured =
-        silenceSkippingAudioProcessor.configure(
-            TEST_SIGNAL_SAMPLE_RATE_HZ, TEST_SIGNAL_CHANNEL_COUNT, C.ENCODING_PCM_16BIT);
+    silenceSkippingAudioProcessor.configure(AUDIO_FORMAT);
     silenceSkippingAudioProcessor.flush();
-    assertThat(reconfigured).isTrue();
     assertThat(silenceSkippingAudioProcessor.isActive()).isTrue();
     long totalOutputFrames =
         process(silenceSkippingAudioProcessor, inputBufferProvider, /* inputBufferSize= */ 120);
@@ -279,8 +208,6 @@ public final class SilenceSkippingAudioProcessorTest {
     // Given a signal that alternates between silence and noise.
     InputBufferProvider inputBufferProvider =
         getInputBufferProviderForAlternatingSilenceAndNoise(
-            TEST_SIGNAL_SAMPLE_RATE_HZ,
-            TEST_SIGNAL_CHANNEL_COUNT,
             TEST_SIGNAL_SILENCE_DURATION_MS,
             TEST_SIGNAL_NOISE_DURATION_MS,
             TEST_SIGNAL_FRAME_COUNT);
@@ -289,11 +216,8 @@ public final class SilenceSkippingAudioProcessorTest {
     SilenceSkippingAudioProcessor silenceSkippingAudioProcessor =
         new SilenceSkippingAudioProcessor();
     silenceSkippingAudioProcessor.setEnabled(true);
-    boolean reconfigured =
-        silenceSkippingAudioProcessor.configure(
-            TEST_SIGNAL_SAMPLE_RATE_HZ, TEST_SIGNAL_CHANNEL_COUNT, C.ENCODING_PCM_16BIT);
+    silenceSkippingAudioProcessor.configure(AUDIO_FORMAT);
     silenceSkippingAudioProcessor.flush();
-    assertThat(reconfigured).isTrue();
     assertThat(silenceSkippingAudioProcessor.isActive()).isTrue();
     process(silenceSkippingAudioProcessor, inputBufferProvider, INPUT_BUFFER_SIZE);
     silenceSkippingAudioProcessor.flush();
@@ -309,8 +233,8 @@ public final class SilenceSkippingAudioProcessorTest {
   private static long process(
       SilenceSkippingAudioProcessor processor,
       InputBufferProvider inputBufferProvider,
-      int inputBufferSize)
-      throws UnhandledFormatException {
+      int inputBufferSize) {
+    int bytesPerFrame = AUDIO_FORMAT.bytesPerFrame;
     processor.flush();
     long totalOutputFrames = 0;
     while (inputBufferProvider.hasRemaining()) {
@@ -318,14 +242,14 @@ public final class SilenceSkippingAudioProcessorTest {
       while (inputBuffer.hasRemaining()) {
         processor.queueInput(inputBuffer);
         ByteBuffer outputBuffer = processor.getOutput();
-        totalOutputFrames += outputBuffer.remaining() / (2 * processor.getOutputChannelCount());
+        totalOutputFrames += outputBuffer.remaining() / bytesPerFrame;
         outputBuffer.clear();
       }
     }
     processor.queueEndOfStream();
     while (!processor.isEnded()) {
       ByteBuffer outputBuffer = processor.getOutput();
-      totalOutputFrames += outputBuffer.remaining() / (2 * processor.getOutputChannelCount());
+      totalOutputFrames += outputBuffer.remaining() / bytesPerFrame;
       outputBuffer.clear();
     }
     return totalOutputFrames;
@@ -336,16 +260,16 @@ public final class SilenceSkippingAudioProcessorTest {
    * between silence/noise of the specified durations to fill {@code totalFrameCount}.
    */
   private static InputBufferProvider getInputBufferProviderForAlternatingSilenceAndNoise(
-      int sampleRateHz,
-      int channelCount,
       int silenceDurationMs,
       int noiseDurationMs,
       int totalFrameCount) {
+    int sampleRate = AUDIO_FORMAT.sampleRate;
+    int channelCount = AUDIO_FORMAT.channelCount;
     Pcm16BitAudioBuilder audioBuilder = new Pcm16BitAudioBuilder(channelCount, totalFrameCount);
     while (!audioBuilder.isFull()) {
-      int silenceDurationFrames = (silenceDurationMs * sampleRateHz) / 1000;
+      int silenceDurationFrames = (silenceDurationMs * sampleRate) / 1000;
       audioBuilder.appendFrames(/* count= */ silenceDurationFrames, /* channelLevels= */ (short) 0);
-      int noiseDurationFrames = (noiseDurationMs * sampleRateHz) / 1000;
+      int noiseDurationFrames = (noiseDurationMs * sampleRate) / 1000;
       audioBuilder.appendFrames(
           /* count= */ noiseDurationFrames, /* channelLevels= */ Short.MAX_VALUE);
     }

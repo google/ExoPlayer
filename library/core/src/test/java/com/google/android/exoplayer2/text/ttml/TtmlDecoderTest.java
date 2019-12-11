@@ -701,6 +701,6 @@ public final class TtmlDecoderTest {
   private TtmlSubtitle getSubtitle(String file) throws IOException, SubtitleDecoderException {
     TtmlDecoder ttmlDecoder = new TtmlDecoder();
     byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), file);
-    return ttmlDecoder.decode(bytes, bytes.length, false);
+    return (TtmlSubtitle) ttmlDecoder.decode(bytes, bytes.length, false);
   }
 }

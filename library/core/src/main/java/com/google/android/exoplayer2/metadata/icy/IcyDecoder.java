@@ -15,10 +15,12 @@
  */
 package com.google.android.exoplayer2.metadata.icy;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataDecoder;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 import java.util.regex.Matcher;
@@ -27,8 +29,6 @@ import java.util.regex.Pattern;
 /** Decodes ICY stream information. */
 public final class IcyDecoder implements MetadataDecoder {
 
-  private static final String TAG = "IcyDecoder";
-
   private static final Pattern METADATA_ELEMENT = Pattern.compile("(.+?)='(.*?)';", Pattern.DOTALL);
   private static final String STREAM_KEY_NAME = "streamtitle";
   private static final String STREAM_KEY_URL = "streamurl";
@@ -36,7 +36,7 @@ public final class IcyDecoder implements MetadataDecoder {
   @Override
   @SuppressWarnings("ByteBufferBackingArray")
   public Metadata decode(MetadataInputBuffer inputBuffer) {
-    ByteBuffer buffer = inputBuffer.data;
+    ByteBuffer buffer = Assertions.checkNotNull(inputBuffer.data);
     byte[] data = buffer.array();
     int length = buffer.limit();
     return decode(Util.fromUtf8Bytes(data, 0, length));
@@ -44,8 +44,8 @@ public final class IcyDecoder implements MetadataDecoder {
 
   @VisibleForTesting
   /* package */ Metadata decode(String metadata) {
-    String name = null;
-    String url = null;
+    @Nullable String name = null;
+    @Nullable String url = null;
     int index = 0;
     Matcher matcher = METADATA_ELEMENT.matcher(metadata);
     while (matcher.find(index)) {

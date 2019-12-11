@@ -14,6 +14,8 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_show">플레이어 컨트롤 표시</string>
+  <string name="exo_controls_hide">플레이어 컨트롤 숨기기</string>
   <string name="exo_controls_previous_description">이전 트랙</string>
   <string name="exo_controls_next_description">다음 트랙</string>
   <string name="exo_controls_pause_description">일시중지</string>

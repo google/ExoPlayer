@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.cast;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.gms.cast.CastStatusCodes;
@@ -33,7 +34,7 @@ import com.google.android.gms.cast.MediaTrack;
    * @param mediaInfo The media info to get the duration from.
    * @return The duration in microseconds, or {@link C#TIME_UNSET} if unknown or not applicable.
    */
-  public static long getStreamDurationUs(MediaInfo mediaInfo) {
+  public static long getStreamDurationUs(@Nullable MediaInfo mediaInfo) {
     if (mediaInfo == null) {
       return C.TIME_UNSET;
     }

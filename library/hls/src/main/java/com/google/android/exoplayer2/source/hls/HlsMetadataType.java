@@ -19,6 +19,7 @@ package com.google.android.exoplayer2.source.hls;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import androidx.annotation.IntDef;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 
 /**
@@ -26,9 +27,12 @@ import java.lang.annotation.Retention;
  *
  * <p>See {@link HlsMediaSource.Factory#setMetadataType(int)}.
  */
+@Documented
 @Retention(SOURCE)
 @IntDef({HlsMetadataType.ID3, HlsMetadataType.EMSG})
 public @interface HlsMetadataType {
+  /** Type for ID3 metadata in HLS streams. */
   int ID3 = 1;
+  /** Type for ESMG metadata in HLS streams. */
   int EMSG = 3;
 }

@@ -17,8 +17,6 @@ package com.google.android.exoplayer2.ui;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import androidx.annotation.AttrRes;
-import androidx.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Pair;
 import android.util.SparseArray;
@@ -26,6 +24,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckedTextView;
 import android.widget.LinearLayout;
+import androidx.annotation.AttrRes;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -67,7 +67,7 @@ public class TrackSelectionView extends LinearLayout {
   private TrackNameProvider trackNameProvider;
   private CheckedTextView[][] trackViews;
 
-  @MonotonicNonNull private MappedTrackInfo mappedTrackInfo;
+  private @MonotonicNonNull MappedTrackInfo mappedTrackInfo;
   private int rendererIndex;
   private TrackGroupArray trackGroups;
   private boolean isDisabled;
@@ -371,7 +371,8 @@ public class TrackSelectionView extends LinearLayout {
   private boolean shouldEnableAdaptiveSelection(int groupIndex) {
     return allowAdaptiveSelections
         && trackGroups.get(groupIndex).length > 1
-        && mappedTrackInfo.getAdaptiveSupport(rendererIndex, groupIndex, false)
+        && mappedTrackInfo.getAdaptiveSupport(
+                rendererIndex, groupIndex, /* includeCapabilitiesExceededTracks= */ false)
             != RendererCapabilities.ADAPTIVE_NOT_SUPPORTED;
   }
 

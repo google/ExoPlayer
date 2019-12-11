@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.metadata.Metadata;
@@ -195,7 +196,8 @@ public final class PlayerEmsgHandler implements Handler.Callback {
 
   /** Returns a {@link TrackOutput} that emsg messages could be written to. */
   public PlayerTrackEmsgHandler newPlayerTrackEmsgHandler() {
-    return new PlayerTrackEmsgHandler(new SampleQueue(allocator));
+    return new PlayerTrackEmsgHandler(
+        new SampleQueue(allocator, DrmSessionManager.getDummyDrmSessionManager()));
   }
 
   /** Release this emsg handler. It should not be reused after this call. */
@@ -353,16 +355,13 @@ public final class PlayerEmsgHandler implements Handler.Callback {
     // Internal methods.
 
     private void parseAndDiscardSamples() {
-      while (sampleQueue.hasNextSample()) {
+      while (sampleQueue.isReady(/* loadingFinished= */ false)) {
         MetadataInputBuffer inputBuffer = dequeueSample();
         if (inputBuffer == null) {
           continue;
         }
         long eventTimeUs = inputBuffer.timeUs;
         Metadata metadata = decoder.decode(inputBuffer);
-        if (metadata == null) {
-          continue;
-        }
         EventMessage eventMessage = (EventMessage) metadata.get(0);
         if (isPlayerEmsgEvent(eventMessage.schemeIdUri, eventMessage.value)) {
           parsePlayerEmsgEvent(eventTimeUs, eventMessage);
@@ -374,7 +373,13 @@ public final class PlayerEmsgHandler implements Handler.Callback {
     @Nullable
     private MetadataInputBuffer dequeueSample() {
       buffer.clear();
-      int result = sampleQueue.read(formatHolder, buffer, false, false, 0);
+      int result =
+          sampleQueue.read(
+              formatHolder,
+              buffer,
+              /* formatRequired= */ false,
+              /* loadingFinished= */ false,
+              /* decodeOnlyUntilUs= */ 0);
       if (result == C.RESULT_BUFFER_READ) {
         buffer.flip();
         return buffer;

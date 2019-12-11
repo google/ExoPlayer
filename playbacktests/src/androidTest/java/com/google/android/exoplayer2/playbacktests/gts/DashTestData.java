@@ -17,10 +17,8 @@ package com.google.android.exoplayer2.playbacktests.gts;
 
 import com.google.android.exoplayer2.util.Util;
 
-/**
- * Test data for DASH tests.
- */
-public final class DashTestData {
+/** Test data for DASH tests. */
+/* package */ final class DashTestData {
 
   private static final String BASE_URL =
       "https://storage.googleapis.com/exoplayer-test-media-1/gen-4/";

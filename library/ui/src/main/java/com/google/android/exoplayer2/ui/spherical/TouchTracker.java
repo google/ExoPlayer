@@ -17,11 +17,11 @@ package com.google.android.exoplayer2.ui.spherical;
 
 import android.content.Context;
 import android.graphics.PointF;
-import androidx.annotation.BinderThread;
-import androidx.annotation.Nullable;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import androidx.annotation.BinderThread;
+import androidx.annotation.Nullable;
 
 /**
  * Basic touch input system.
@@ -65,7 +65,7 @@ import android.view.View;
   // The conversion from touch to yaw & pitch requires compensating for device roll. This is set
   // on the sensor thread and read on the UI thread.
   private volatile float roll;
-  private @Nullable SingleTapListener singleTapListener;
+  @Nullable private SingleTapListener singleTapListener;
 
   @SuppressWarnings({
     "nullness:assignment.type.incompatible",
@@ -75,7 +75,7 @@ import android.view.View;
     this.listener = listener;
     this.pxPerDegrees = pxPerDegrees;
     gestureDetector = new GestureDetector(context, this);
-    roll = SphericalSurfaceView.UPRIGHT_ROLL;
+    roll = SphericalGLSurfaceView.UPRIGHT_ROLL;
   }
 
   public void setSingleTapListener(@Nullable SingleTapListener listener) {

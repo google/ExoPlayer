@@ -363,7 +363,7 @@ public final class CacheDataSourceTest {
         .appendReadData(1);
 
     // Lock the content on the cache.
-    SimpleCacheSpan cacheSpan = cache.startReadWriteNonBlocking(defaultCacheKey, 0);
+    CacheSpan cacheSpan = cache.startReadWriteNonBlocking(defaultCacheKey, 0);
     assertThat(cacheSpan).isNotNull();
     assertThat(cacheSpan.isHoleSpan()).isTrue();
 

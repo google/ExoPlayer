@@ -218,6 +218,24 @@ public class UtilTest {
   }
 
   @Test
+  public void testToUnsignedLongPositiveValue() {
+    int x = 0x05D67F23;
+
+    long result = Util.toUnsignedLong(x);
+
+    assertThat(result).isEqualTo(0x05D67F23L);
+  }
+
+  @Test
+  public void testToUnsignedLongNegativeValue() {
+    int x = 0xF5D67F23;
+
+    long result = Util.toUnsignedLong(x);
+
+    assertThat(result).isEqualTo(0xF5D67F23L);
+  }
+
+  @Test
   public void testGetCodecsOfType() {
     assertThat(getCodecsOfType(null, C.TRACK_TYPE_VIDEO)).isNull();
     assertThat(getCodecsOfType("avc1.64001e,vp9.63.1", C.TRACK_TYPE_AUDIO)).isNull();
@@ -246,6 +264,30 @@ public class UtilTest {
       String string = TestUtil.buildTestString(1000, random);
       assertEscapeUnescapeFileName(string);
     }
+  }
+
+  @Test
+  public void testCrc32() {
+    byte[] bytes = {0x5F, 0x78, 0x04, 0x7B, 0x5F};
+    int start = 1;
+    int end = 4;
+    int initialValue = 0xFFFFFFFF;
+
+    int result = Util.crc32(bytes, start, end, initialValue);
+
+    assertThat(result).isEqualTo(0x67CE9747);
+  }
+
+  @Test
+  public void testCrc8() {
+    byte[] bytes = {0x5F, 0x78, 0x04, 0x7B, 0x5F};
+    int start = 1;
+    int end = 4;
+    int initialValue = 0;
+
+    int result = Util.crc8(bytes, start, end, initialValue);
+
+    assertThat(result).isEqualTo(0x4);
   }
 
   @Test

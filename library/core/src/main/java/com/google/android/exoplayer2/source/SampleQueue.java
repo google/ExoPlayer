@@ -20,6 +20,8 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.drm.DrmSession;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.source.SampleMetadataQueue.SampleExtrasHolder;
@@ -62,9 +64,6 @@ public class SampleQueue implements TrackOutput {
   private AllocationNode readAllocationNode;
   private AllocationNode writeAllocationNode;
 
-  // Accessed only by the consuming thread.
-  private Format downstreamFormat;
-
   // Accessed only by the loading thread (or the consuming thread when there is no loading thread).
   private boolean pendingFormatAdjustment;
   private Format lastUnadjustedFormat;
@@ -74,12 +73,16 @@ public class SampleQueue implements TrackOutput {
   private UpstreamFormatChangedListener upstreamFormatChangeListener;
 
   /**
+   * Creates a sample queue.
+   *
    * @param allocator An {@link Allocator} from which allocations for sample data can be obtained.
+   * @param drmSessionManager The {@link DrmSessionManager} to obtain {@link DrmSession DrmSessions}
+   *     from. The created instance does not take ownership of this {@link DrmSessionManager}.
    */
-  public SampleQueue(Allocator allocator) {
+  public SampleQueue(Allocator allocator, DrmSessionManager<?> drmSessionManager) {
     this.allocator = allocator;
     allocationLength = allocator.getIndividualAllocationLength();
-    metadataQueue = new SampleMetadataQueue();
+    metadataQueue = new SampleMetadataQueue(drmSessionManager);
     extrasHolder = new SampleExtrasHolder();
     scratch = new ParsableByteArray(INITIAL_SCRATCH_SIZE);
     firstAllocationNode = new AllocationNode(0, allocationLength);
@@ -173,10 +176,12 @@ public class SampleQueue implements TrackOutput {
   // Called by the consuming thread.
 
   /**
-   * Returns whether a sample is available to be read.
+   * Throws an error that's preventing data from being read. Does nothing if no such error exists.
+   *
+   * @throws IOException The underlying error.
    */
-  public boolean hasNextSample() {
-    return metadataQueue.hasNextSample();
+  public void maybeThrowError() throws IOException {
+    metadataQueue.maybeThrowError();
   }
 
   /**
@@ -267,6 +272,18 @@ public class SampleQueue implements TrackOutput {
     discardDownstreamTo(metadataQueue.discardToRead());
   }
 
+  /** Calls {@link #discardToEnd()} and releases any owned {@link DrmSession} references. */
+  public void preRelease() {
+    discardToEnd();
+    metadataQueue.releaseDrmSessionReferences();
+  }
+
+  /** Calls {@link #reset()} and releases any owned {@link DrmSession} references. */
+  public void release() {
+    reset();
+    metadataQueue.releaseDrmSessionReferences();
+  }
+
   /**
    * Discards to the end of the queue. The read position is also advanced.
    */
@@ -315,6 +332,15 @@ public class SampleQueue implements TrackOutput {
   /**
    * Attempts to read from the queue.
    *
+   * <p>{@link Format Formats} read from this method may be associated to a {@link DrmSession}
+   * through {@link FormatHolder#drmSession}, which is populated in two scenarios:
+   *
+   * <ul>
+   *   <li>The {@link Format} has a non-null {@link Format#drmInitData}.
+   *   <li>The {@link DrmSessionManager} provides placeholder sessions for this queue's track type.
+   *       See {@link DrmSessionManager#acquirePlaceholderSession(Looper, int)}.
+   * </ul>
+   *
    * @param formatHolder A {@link FormatHolder} to populate in the case of reading a format.
    * @param buffer A {@link DecoderInputBuffer} to populate in the case of reading a sample or the
    *     end of the stream. If the end of the stream has been reached, the {@link
@@ -330,47 +356,83 @@ public class SampleQueue implements TrackOutput {
    * @return The result, which can be {@link C#RESULT_NOTHING_READ}, {@link C#RESULT_FORMAT_READ} or
    *     {@link C#RESULT_BUFFER_READ}.
    */
+  @SuppressWarnings("ReferenceEquality")
   public int read(
       FormatHolder formatHolder,
       DecoderInputBuffer buffer,
       boolean formatRequired,
       boolean loadingFinished,
       long decodeOnlyUntilUs) {
-    int result = metadataQueue.read(formatHolder, buffer, formatRequired, loadingFinished,
-        downstreamFormat, extrasHolder);
-    switch (result) {
-      case C.RESULT_FORMAT_READ:
-        downstreamFormat = formatHolder.format;
-        return C.RESULT_FORMAT_READ;
-      case C.RESULT_BUFFER_READ:
-        if (!buffer.isEndOfStream()) {
-          if (buffer.timeUs < decodeOnlyUntilUs) {
-            buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
-          }
-          if (!buffer.isFlagsOnly()) {
-            // Read encryption data if the sample is encrypted.
-            if (buffer.isEncrypted()) {
-              readEncryptionData(buffer, extrasHolder);
-            }
-            // Write the sample data into the holder.
-            buffer.ensureSpaceForWrite(extrasHolder.size);
-            readData(extrasHolder.offset, buffer.data, extrasHolder.size);
-          }
-        }
-        return C.RESULT_BUFFER_READ;
-      case C.RESULT_NOTHING_READ:
-        return C.RESULT_NOTHING_READ;
-      default:
-        throw new IllegalStateException();
+    int result =
+        metadataQueue.read(formatHolder, buffer, formatRequired, loadingFinished, extrasHolder);
+    if (result == C.RESULT_BUFFER_READ && !buffer.isEndOfStream()) {
+      if (buffer.timeUs < decodeOnlyUntilUs) {
+        buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
+      }
+      if (!buffer.isFlagsOnly()) {
+        readToBuffer(buffer, extrasHolder);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Returns whether there is data available for reading.
+   *
+   * <p>Note: If the stream has ended then a buffer with the end of stream flag can always be read
+   * from {@link #read}. Hence an ended stream is always ready.
+   *
+   * @param loadingFinished Whether no more samples will be written to the sample queue. When true,
+   *     this method returns true if the sample queue is empty, because an empty sample queue means
+   *     the end of stream has been reached. When false, this method returns false if the sample
+   *     queue is empty.
+   */
+  public boolean isReady(boolean loadingFinished) {
+    return metadataQueue.isReady(loadingFinished);
+  }
+
+  /**
+   * Reads data from the rolling buffer to populate a decoder input buffer.
+   *
+   * @param buffer The buffer to populate.
+   * @param extrasHolder The extras holder whose offset should be read and subsequently adjusted.
+   */
+  private void readToBuffer(DecoderInputBuffer buffer, SampleExtrasHolder extrasHolder) {
+    // Read encryption data if the sample is encrypted.
+    if (buffer.isEncrypted()) {
+      readEncryptionData(buffer, extrasHolder);
+    }
+    // Read sample data, extracting supplemental data into a separate buffer if needed.
+    if (buffer.hasSupplementalData()) {
+      // If there is supplemental data, the sample data is prefixed by its size.
+      scratch.reset(4);
+      readData(extrasHolder.offset, scratch.data, 4);
+      int sampleSize = scratch.readUnsignedIntToInt();
+      extrasHolder.offset += 4;
+      extrasHolder.size -= 4;
+
+      // Write the sample data.
+      buffer.ensureSpaceForWrite(sampleSize);
+      readData(extrasHolder.offset, buffer.data, sampleSize);
+      extrasHolder.offset += sampleSize;
+      extrasHolder.size -= sampleSize;
+
+      // Write the remaining data as supplemental data.
+      buffer.resetSupplementalData(extrasHolder.size);
+      readData(extrasHolder.offset, buffer.supplementalData, extrasHolder.size);
+    } else {
+      // Write the sample data.
+      buffer.ensureSpaceForWrite(extrasHolder.size);
+      readData(extrasHolder.offset, buffer.data, extrasHolder.size);
     }
   }
 
   /**
    * Reads encryption data for the current sample.
-   * <p>
-   * The encryption data is written into {@link DecoderInputBuffer#cryptoInfo}, and
-   * {@link SampleExtrasHolder#size} is adjusted to subtract the number of bytes that were read. The
-   * same value is added to {@link SampleExtrasHolder#offset}.
+   *
+   * <p>The encryption data is written into {@link DecoderInputBuffer#cryptoInfo}, and {@link
+   * SampleExtrasHolder#size} is adjusted to subtract the number of bytes that were read. The same
+   * value is added to {@link SampleExtrasHolder#offset}.
    *
    * @param buffer The buffer into which the encryption data should be written.
    * @param extrasHolder The extras holder whose offset should be read and subsequently adjusted.
@@ -673,9 +735,7 @@ public class SampleQueue implements TrackOutput {
     return format;
   }
 
-  /**
-   * A node in a linked list of {@link Allocation}s held by the output.
-   */
+  /** A node in a linked list of {@link Allocation}s held by the output. */
   private static final class AllocationNode {
 
     /**

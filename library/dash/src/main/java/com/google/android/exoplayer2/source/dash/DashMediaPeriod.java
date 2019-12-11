@@ -15,13 +15,15 @@
  */
 package com.google.android.exoplayer2.source.dash;
 
-import androidx.annotation.IntDef;
-import androidx.annotation.Nullable;
 import android.util.Pair;
 import android.util.SparseIntArray;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.SeekParameters;
+import com.google.android.exoplayer2.drm.DrmInitData;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
 import com.google.android.exoplayer2.source.EmptySampleStream;
@@ -58,6 +60,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /** A DASH {@link MediaPeriod}. */
 /* package */ final class DashMediaPeriod
@@ -69,7 +72,8 @@ import java.util.regex.Pattern;
 
   /* package */ final int id;
   private final DashChunkSource.Factory chunkSourceFactory;
-  private final @Nullable TransferListener transferListener;
+  @Nullable private final TransferListener transferListener;
+  private final DrmSessionManager<?> drmSessionManager;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final long elapsedRealtimeOffsetMs;
   private final LoaderErrorThrower manifestLoaderErrorThrower;
@@ -82,7 +86,7 @@ import java.util.regex.Pattern;
       trackEmsgHandlerBySampleStream;
   private final EventDispatcher eventDispatcher;
 
-  private @Nullable Callback callback;
+  @Nullable private Callback callback;
   private ChunkSampleStream<DashChunkSource>[] sampleStreams;
   private EventSampleStream[] eventSampleStreams;
   private SequenceableLoader compositeSequenceableLoader;
@@ -97,6 +101,7 @@ import java.util.regex.Pattern;
       int periodIndex,
       DashChunkSource.Factory chunkSourceFactory,
       @Nullable TransferListener transferListener,
+      DrmSessionManager<?> drmSessionManager,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       EventDispatcher eventDispatcher,
       long elapsedRealtimeOffsetMs,
@@ -109,6 +114,7 @@ import java.util.regex.Pattern;
     this.periodIndex = periodIndex;
     this.chunkSourceFactory = chunkSourceFactory;
     this.transferListener = transferListener;
+    this.drmSessionManager = drmSessionManager;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     this.eventDispatcher = eventDispatcher;
     this.elapsedRealtimeOffsetMs = elapsedRealtimeOffsetMs;
@@ -123,8 +129,8 @@ import java.util.regex.Pattern;
         compositeSequenceableLoaderFactory.createCompositeSequenceableLoader(sampleStreams);
     Period period = manifest.getPeriod(periodIndex);
     eventStreams = period.eventStreams;
-    Pair<TrackGroupArray, TrackGroupInfo[]> result = buildTrackGroups(period.adaptationSets,
-        eventStreams);
+    Pair<TrackGroupArray, TrackGroupInfo[]> result =
+        buildTrackGroups(drmSessionManager, period.adaptationSets, eventStreams);
     trackGroups = result.first;
     trackGroupInfos = result.second;
     eventDispatcher.mediaPeriodCreated();
@@ -219,9 +225,8 @@ import java.util.regex.Pattern;
       int totalTracksInPreviousAdaptationSets = 0;
       int tracksInCurrentAdaptationSet =
           manifestAdaptationSets.get(adaptationSetIndices[0]).representations.size();
-      for (int i = 0; i < trackIndices.length; i++) {
-        while (trackIndices[i]
-            >= totalTracksInPreviousAdaptationSets + tracksInCurrentAdaptationSet) {
+      for (int trackIndex : trackIndices) {
+        while (trackIndex >= totalTracksInPreviousAdaptationSets + tracksInCurrentAdaptationSet) {
           currentAdaptationSetIndex++;
           totalTracksInPreviousAdaptationSets += tracksInCurrentAdaptationSet;
           tracksInCurrentAdaptationSet =
@@ -234,15 +239,19 @@ import java.util.regex.Pattern;
             new StreamKey(
                 periodIndex,
                 adaptationSetIndices[currentAdaptationSetIndex],
-                trackIndices[i] - totalTracksInPreviousAdaptationSets));
+                trackIndex - totalTracksInPreviousAdaptationSets));
       }
     }
     return streamKeys;
   }
 
   @Override
-  public long selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
-      SampleStream[] streams, boolean[] streamResetFlags, long positionUs) {
+  public long selectTracks(
+      @NullableType TrackSelection[] selections,
+      boolean[] mayRetainStreamFlags,
+      @NullableType SampleStream[] streams,
+      boolean[] streamResetFlags,
+      long positionUs) {
     int[] streamIndexToTrackGroupIndex = getStreamIndexToTrackGroupIndex(selections);
     releaseDisabledStreams(selections, mayRetainStreamFlags, streams);
     releaseOrphanEmbeddedStreams(selections, streams, streamIndexToTrackGroupIndex);
@@ -286,6 +295,11 @@ import java.util.regex.Pattern;
   @Override
   public boolean continueLoading(long positionUs) {
     return compositeSequenceableLoader.continueLoading(positionUs);
+  }
+
+  @Override
+  public boolean isLoading() {
+    return compositeSequenceableLoader.isLoading();
   }
 
   @Override
@@ -466,7 +480,9 @@ import java.util.regex.Pattern;
   }
 
   private static Pair<TrackGroupArray, TrackGroupInfo[]> buildTrackGroups(
-      List<AdaptationSet> adaptationSets, List<EventStream> eventStreams) {
+      DrmSessionManager<?> drmSessionManager,
+      List<AdaptationSet> adaptationSets,
+      List<EventStream> eventStreams) {
     int[][] groupedAdaptationSetIndices = getGroupedAdaptationSetIndices(adaptationSets);
 
     int primaryGroupCount = groupedAdaptationSetIndices.length;
@@ -486,6 +502,7 @@ import java.util.regex.Pattern;
 
     int trackGroupCount =
         buildPrimaryAndEmbeddedTrackGroupInfos(
+            drmSessionManager,
             adaptationSets,
             groupedAdaptationSetIndices,
             primaryGroupCount,
@@ -525,10 +542,9 @@ import java.util.regex.Pattern;
         int[] adaptationSetIndices = new int[1 + extraAdaptationSetIds.length];
         adaptationSetIndices[0] = i;
         int outputIndex = 1;
-        for (int j = 0; j < extraAdaptationSetIds.length; j++) {
+        for (String adaptationSetId : extraAdaptationSetIds) {
           int extraIndex =
-              idToIndexMap.get(
-                  Integer.parseInt(extraAdaptationSetIds[j]), /* valueIfKeyNotFound= */ -1);
+              idToIndexMap.get(Integer.parseInt(adaptationSetId), /* valueIfKeyNotFound= */ -1);
           if (extraIndex != -1) {
             adaptationSetUsedFlags[extraIndex] = true;
             adaptationSetIndices[outputIndex] = extraIndex;
@@ -581,6 +597,7 @@ import java.util.regex.Pattern;
   }
 
   private static int buildPrimaryAndEmbeddedTrackGroupInfos(
+      DrmSessionManager<?> drmSessionManager,
       List<AdaptationSet> adaptationSets,
       int[][] groupedAdaptationSetIndices,
       int primaryGroupCount,
@@ -597,7 +614,14 @@ import java.util.regex.Pattern;
       }
       Format[] formats = new Format[representations.size()];
       for (int j = 0; j < formats.length; j++) {
-        formats[j] = representations.get(j).format;
+        Format format = representations.get(j).format;
+        DrmInitData drmInitData = format.drmInitData;
+        if (drmInitData != null) {
+          format =
+              format.copyWithExoMediaCryptoType(
+                  drmSessionManager.getExoMediaCryptoType(drmInitData));
+        }
+        formats[j] = format;
       }
 
       AdaptationSet firstAdaptationSet = adaptationSets.get(adaptationSetIndices[0]);
@@ -704,6 +728,7 @@ import java.util.regex.Pattern;
             this,
             allocator,
             positionUs,
+            drmSessionManager,
             loadErrorHandlingPolicy,
             eventDispatcher);
     synchronized (this) {
@@ -793,7 +818,8 @@ import java.util.regex.Pattern;
         /* initializationData= */ null);
   }
 
-  @SuppressWarnings("unchecked")
+  // We won't assign the array to a variable that erases the generic type, and then write into it.
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private static ChunkSampleStream<DashChunkSource>[] newSampleStreamArray(int length) {
     return new ChunkSampleStream[length];
   }

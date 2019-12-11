@@ -26,7 +26,9 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.SinglePeriodTimeline;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.source.ads.SinglePeriodAdTimeline;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.Allocator;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,7 +44,8 @@ public final class MediaPeriodQueueTest {
   private static final long SECOND_AD_START_TIME_US = 20 * C.MICROS_PER_SECOND;
 
   private static final Timeline CONTENT_TIMELINE =
-      new SinglePeriodTimeline(CONTENT_DURATION_US, /* isSeekable= */ true, /* isDynamic= */ false);
+      new SinglePeriodTimeline(
+          CONTENT_DURATION_US, /* isSeekable= */ true, /* isDynamic= */ false, /* isLive= */ false);
   private static final Uri AD_URI = Uri.EMPTY;
 
   private MediaPeriodQueue mediaPeriodQueue;
@@ -353,11 +356,11 @@ public final class MediaPeriodQueueTest {
     playbackInfo =
         new PlaybackInfo(
             timeline,
-            /* manifest= */ null,
             mediaPeriodQueue.resolveMediaPeriodIdForAds(periodUid, initialPositionUs),
             /* startPositionUs= */ 0,
             /* contentPositionUs= */ 0,
             Player.STATE_READY,
+            /* playbackError= */ null,
             /* isLoading= */ false,
             /* trackGroups= */ null,
             /* trackSelectorResult= */ null,
@@ -369,7 +372,9 @@ public final class MediaPeriodQueueTest {
 
   private void advance() {
     enqueueNext();
-    advancePlaying();
+    if (mediaPeriodQueue.getLoadingPeriod() != mediaPeriodQueue.getPlayingPeriod()) {
+      advancePlaying();
+    }
   }
 
   private void advancePlaying() {
@@ -381,8 +386,14 @@ public final class MediaPeriodQueueTest {
   }
 
   private void enqueueNext() {
-    mediaPeriodQueue.enqueueNextMediaPeriod(
-        rendererCapabilities, trackSelector, allocator, mediaSource, getNextMediaPeriodInfo());
+    mediaPeriodQueue.enqueueNextMediaPeriodHolder(
+        rendererCapabilities,
+        trackSelector,
+        allocator,
+        mediaSource,
+        getNextMediaPeriodInfo(),
+        new TrackSelectorResult(
+            new RendererConfiguration[0], new TrackSelection[0], /* info= */ null));
   }
 
   private MediaPeriodInfo getNextMediaPeriodInfo() {
@@ -453,7 +464,7 @@ public final class MediaPeriodQueueTest {
 
   private int getQueueLength() {
     int length = 0;
-    MediaPeriodHolder periodHolder = mediaPeriodQueue.getFrontPeriod();
+    MediaPeriodHolder periodHolder = mediaPeriodQueue.getPlayingPeriod();
     while (periodHolder != null) {
       length++;
       periodHolder = periodHolder.getNext();

@@ -14,6 +14,8 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_show">Afspeelbediening weergeven</string>
+  <string name="exo_controls_hide">Afspeelbediening verbergen</string>
   <string name="exo_controls_previous_description">Vorige track</string>
   <string name="exo_controls_next_description">Volgende track</string>
   <string name="exo_controls_pause_description">Pauzeren</string>

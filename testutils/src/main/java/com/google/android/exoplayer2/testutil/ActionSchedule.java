@@ -16,8 +16,8 @@
 package com.google.android.exoplayer2.testutil;
 
 import android.os.Looper;
-import androidx.annotation.Nullable;
 import android.view.Surface;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.PlayerMessage;
 import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.testutil.Action.ClearVideoSurface;
 import com.google.android.exoplayer2.testutil.Action.ExecuteRunnable;
@@ -33,6 +34,7 @@ import com.google.android.exoplayer2.testutil.Action.PlayUntilPosition;
 import com.google.android.exoplayer2.testutil.Action.PrepareSource;
 import com.google.android.exoplayer2.testutil.Action.Seek;
 import com.google.android.exoplayer2.testutil.Action.SendMessages;
+import com.google.android.exoplayer2.testutil.Action.SetAudioAttributes;
 import com.google.android.exoplayer2.testutil.Action.SetPlayWhenReady;
 import com.google.android.exoplayer2.testutil.Action.SetPlaybackParameters;
 import com.google.android.exoplayer2.testutil.Action.SetRendererDisabled;
@@ -42,6 +44,7 @@ import com.google.android.exoplayer2.testutil.Action.SetVideoSurface;
 import com.google.android.exoplayer2.testutil.Action.Stop;
 import com.google.android.exoplayer2.testutil.Action.ThrowPlaybackException;
 import com.google.android.exoplayer2.testutil.Action.WaitForIsLoading;
+import com.google.android.exoplayer2.testutil.Action.WaitForPlayWhenReady;
 import com.google.android.exoplayer2.testutil.Action.WaitForPlaybackState;
 import com.google.android.exoplayer2.testutil.Action.WaitForPositionDiscontinuity;
 import com.google.android.exoplayer2.testutil.Action.WaitForSeekProcessed;
@@ -131,7 +134,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules an action to be executed.
+     * Schedules an action.
      *
      * @param action The action to schedule.
      * @return The builder, for convenience.
@@ -141,7 +144,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules an action to be executed repeatedly.
+     * Schedules an action repeatedly.
      *
      * @param action The action to schedule.
      * @param intervalMs The interval between each repetition in milliseconds.
@@ -152,7 +155,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a seek action to be executed.
+     * Schedules a seek action.
      *
      * @param positionMs The seek position.
      * @return The builder, for convenience.
@@ -162,7 +165,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a seek action to be executed.
+     * Schedules a seek action.
      *
      * @param windowIndex The window to seek to.
      * @param positionMs The seek position.
@@ -173,7 +176,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a seek action to be executed and waits until playback resumes after the seek.
+     * Schedules a seek action and waits until playback resumes after the seek.
      *
      * @param positionMs The seek position.
      * @return The builder, for convenience.
@@ -194,7 +197,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a playback parameters setting action to be executed.
+     * Schedules a playback parameters setting action.
      *
      * @param playbackParameters The playback parameters to set.
      * @return The builder, for convenience.
@@ -205,7 +208,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a stop action to be executed.
+     * Schedules a stop action.
      *
      * @return The builder, for convenience.
      */
@@ -214,7 +217,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a stop action to be executed.
+     * Schedules a stop action.
      *
      * @param reset Whether the player should be reset.
      * @return The builder, for convenience.
@@ -224,7 +227,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a play action to be executed.
+     * Schedules a play action.
      *
      * @return The builder, for convenience.
      */
@@ -233,8 +236,8 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a play action to be executed, waits until the player reaches the specified
-     * position, and pauses the player again.
+     * Schedules a play action, waits until the player reaches the specified position, and pauses
+     * the player again.
      *
      * @param windowIndex The window index at which the player should be paused again.
      * @param positionMs The position in that window at which the player should be paused again.
@@ -245,8 +248,8 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a play action to be executed, waits until the player reaches the start of the
-     * specified window, and pauses the player again.
+     * Schedules a play action, waits until the player reaches the start of the specified window,
+     * and pauses the player again.
      *
      * @param windowIndex The window index at which the player should be paused again.
      * @return The builder, for convenience.
@@ -256,7 +259,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a pause action to be executed.
+     * Schedules a pause action.
      *
      * @return The builder, for convenience.
      */
@@ -265,7 +268,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a renderer enable action to be executed.
+     * Schedules a renderer enable action.
      *
      * @return The builder, for convenience.
      */
@@ -274,7 +277,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a renderer disable action to be executed.
+     * Schedules a renderer disable action.
      *
      * @return The builder, for convenience.
      */
@@ -283,7 +286,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a clear video surface action to be executed.
+     * Schedules a clear video surface action.
      *
      * @return The builder, for convenience.
      */
@@ -292,7 +295,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a set video surface action to be executed.
+     * Schedules a set video surface action.
      *
      * @return The builder, for convenience.
      */
@@ -301,7 +304,16 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a new source preparation action to be executed.
+     * Schedules application of audio attributes.
+     *
+     * @return The builder, for convenience.
+     */
+    public Builder setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus) {
+      return apply(new SetAudioAttributes(tag, audioAttributes, handleAudioFocus));
+    }
+
+    /**
+     * Schedules a new source preparation action.
      *
      * @return The builder, for convenience.
      */
@@ -310,18 +322,18 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a new source preparation action to be executed.
-     * @see com.google.android.exoplayer2.ExoPlayer#prepare(MediaSource, boolean, boolean).
+     * Schedules a new source preparation action.
      *
+     * @see com.google.android.exoplayer2.ExoPlayer#prepare(MediaSource, boolean, boolean)
      * @return The builder, for convenience.
      */
-    public Builder prepareSource(MediaSource mediaSource, boolean resetPosition,
-        boolean resetState) {
+    public Builder prepareSource(
+        MediaSource mediaSource, boolean resetPosition, boolean resetState) {
       return apply(new PrepareSource(tag, mediaSource, resetPosition, resetState));
     }
 
     /**
-     * Schedules a repeat mode setting action to be executed.
+     * Schedules a repeat mode setting action.
      *
      * @return The builder, for convenience.
      */
@@ -330,7 +342,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a shuffle setting action to be executed.
+     * Schedules a shuffle setting action.
      *
      * @return The builder, for convenience.
      */
@@ -406,6 +418,16 @@ public final class ActionSchedule {
     }
 
     /**
+     * Schedules a delay until playWhenReady has the specified value.
+     *
+     * @param targetPlayWhenReady The target playWhenReady value.
+     * @return The builder, for convenience.
+     */
+    public Builder waitForPlayWhenReady(boolean targetPlayWhenReady) {
+      return apply(new WaitForPlayWhenReady(tag, targetPlayWhenReady));
+    }
+
+    /**
      * Schedules a delay until the playback state changed to the specified state.
      *
      * @param targetPlaybackState The target playback state.
@@ -426,7 +448,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a {@link Runnable} to be executed.
+     * Schedules a {@link Runnable}.
      *
      * @return The builder, for convenience.
      */
@@ -444,6 +466,7 @@ public final class ActionSchedule {
       return apply(new ThrowPlaybackException(tag, exception));
     }
 
+    /** Builds the schedule. */
     public ActionSchedule build() {
       CallbackAction callbackAction = new CallbackAction(tag);
       apply(callbackAction);
@@ -504,9 +527,7 @@ public final class ActionSchedule {
     }
   }
 
-  /**
-   * Wraps an {@link Action}, allowing a delay and a next {@link Action} to be specified.
-   */
+  /** Wraps an {@link Action}, allowing a delay and a next {@link Action} to be specified. */
   /* package */ static final class ActionNode implements Runnable {
 
     private final Action action;
@@ -550,8 +571,8 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules {@link #action} to be executed after {@link #delayMs}. The {@link #next} node will
-     * be scheduled immediately after {@link #action} is executed.
+     * Schedules {@link #action} after {@link #delayMs}. The {@link #next} node will be scheduled
+     * immediately after {@link #action} is executed.
      *
      * @param player The player to which actions should be applied.
      * @param trackSelector The track selector to which actions should be applied.
@@ -613,7 +634,7 @@ public final class ActionSchedule {
    */
   private static final class CallbackAction extends Action {
 
-    private @Nullable Callback callback;
+    @Nullable private Callback callback;
 
     public CallbackAction(String tag) {
       super(tag, "FinishedCallback");

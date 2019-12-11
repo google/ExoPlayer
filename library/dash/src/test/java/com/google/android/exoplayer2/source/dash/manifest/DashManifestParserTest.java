@@ -23,6 +23,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.metadata.emsg.EventMessage;
+import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SegmentTimelineElement;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -189,6 +190,81 @@ public class DashManifestParserTest {
 
     assertThat(adaptationSets.get(0).representations.get(0).format.label).isEqualTo("audio label");
     assertThat(adaptationSets.get(1).representations.get(0).format.label).isEqualTo("video label");
+  }
+
+  @Test
+  public void parseSegmentTimeline_repeatCount() throws Exception {
+    DashManifestParser parser = new DashManifestParser();
+    XmlPullParser xpp = XmlPullParserFactory.newInstance().newPullParser();
+    xpp.setInput(
+        new StringReader(
+            "<SegmentTimeline><S d=\"96000\" r=\"2\"/><S d=\"48000\" r=\"0\"/></SegmentTimeline>"
+                + NEXT_TAG));
+    xpp.next();
+
+    List<SegmentTimelineElement> elements =
+        parser.parseSegmentTimeline(xpp, /* timescale= */ 48000, /* periodDurationMs= */ 10000);
+
+    assertThat(elements)
+        .containsExactly(
+            new SegmentTimelineElement(/* startTime= */ 0, /* duration= */ 96000),
+            new SegmentTimelineElement(/* startTime= */ 96000, /* duration= */ 96000),
+            new SegmentTimelineElement(/* startTime= */ 192000, /* duration= */ 96000),
+            new SegmentTimelineElement(/* startTime= */ 288000, /* duration= */ 48000))
+        .inOrder();
+    assertNextTag(xpp);
+  }
+
+  @Test
+  public void parseSegmentTimeline_singleUndefinedRepeatCount() throws Exception {
+    DashManifestParser parser = new DashManifestParser();
+    XmlPullParser xpp = XmlPullParserFactory.newInstance().newPullParser();
+    xpp.setInput(
+        new StringReader(
+            "<SegmentTimeline><S d=\"96000\" r=\"-1\"/></SegmentTimeline>" + NEXT_TAG));
+    xpp.next();
+
+    List<SegmentTimelineElement> elements =
+        parser.parseSegmentTimeline(xpp, /* timescale= */ 48000, /* periodDurationMs= */ 10000);
+
+    assertThat(elements)
+        .containsExactly(
+            new SegmentTimelineElement(/* startTime= */ 0, /* duration= */ 96000),
+            new SegmentTimelineElement(/* startTime= */ 96000, /* duration= */ 96000),
+            new SegmentTimelineElement(/* startTime= */ 192000, /* duration= */ 96000),
+            new SegmentTimelineElement(/* startTime= */ 288000, /* duration= */ 96000),
+            new SegmentTimelineElement(/* startTime= */ 384000, /* duration= */ 96000))
+        .inOrder();
+    assertNextTag(xpp);
+  }
+
+  @Test
+  public void parseSegmentTimeline_timeOffsetsAndUndefinedRepeatCount() throws Exception {
+    DashManifestParser parser = new DashManifestParser();
+    XmlPullParser xpp = XmlPullParserFactory.newInstance().newPullParser();
+    xpp.setInput(
+        new StringReader(
+            "<SegmentTimeline><S t=\"0\" "
+                + "d=\"96000\" r=\"-1\"/><S t=\"192000\" d=\"48000\" r=\"-1\"/>"
+                + "</SegmentTimeline>"
+                + NEXT_TAG));
+    xpp.next();
+
+    List<SegmentTimelineElement> elements =
+        parser.parseSegmentTimeline(xpp, /* timescale= */ 48000, /* periodDurationMs= */ 10000);
+
+    assertThat(elements)
+        .containsExactly(
+            new SegmentTimelineElement(/* startTime= */ 0, /* duration= */ 96000),
+            new SegmentTimelineElement(/* startTime= */ 96000, /* duration= */ 96000),
+            new SegmentTimelineElement(/* startTime= */ 192000, /* duration= */ 48000),
+            new SegmentTimelineElement(/* startTime= */ 240000, /* duration= */ 48000),
+            new SegmentTimelineElement(/* startTime= */ 288000, /* duration= */ 48000),
+            new SegmentTimelineElement(/* startTime= */ 336000, /* duration= */ 48000),
+            new SegmentTimelineElement(/* startTime= */ 384000, /* duration= */ 48000),
+            new SegmentTimelineElement(/* startTime= */ 432000, /* duration= */ 48000))
+        .inOrder();
+    assertNextTag(xpp);
   }
 
   @Test
