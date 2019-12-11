@@ -27,14 +27,15 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 
 /** A representation of a WebVTT cue. */
-public final class WebvttCue extends Cue {
+public final class WebvttCueInfo {
 
-  private static final float DEFAULT_POSITION = 0.5f;
+  /* package */ static final float DEFAULT_POSITION = 0.5f;
 
+  public final Cue cue;
   public final long startTime;
   public final long endTime;
 
-  private WebvttCue(
+  private WebvttCueInfo(
       long startTime,
       long endTime,
       CharSequence text,
@@ -45,19 +46,10 @@ public final class WebvttCue extends Cue {
       float position,
       @Cue.AnchorType int positionAnchor,
       float width) {
-    super(text, textAlignment, line, lineType, lineAnchor, position, positionAnchor, width);
+    this.cue =
+        new Cue(text, textAlignment, line, lineType, lineAnchor, position, positionAnchor, width);
     this.startTime = startTime;
     this.endTime = endTime;
-  }
-
-  /**
-   * Returns whether or not this cue should be placed in the default position and rolled-up with
-   * the other "normal" cues.
-   *
-   * @return Whether this cue should be placed in the default position.
-   */
-  public boolean isNormalCue() {
-    return (line == DIMEN_UNSET && position == DEFAULT_POSITION);
   }
 
   /** Builder for WebVTT cues. */
@@ -120,10 +112,10 @@ public final class WebvttCue extends Cue {
     private float line;
     // Equivalent to WebVTT's snap-to-lines flag:
     // https://www.w3.org/TR/webvtt1/#webvtt-cue-snap-to-lines-flag
-    @LineType private int lineType;
-    @AnchorType private int lineAnchor;
+    @Cue.LineType private int lineType;
+    @Cue.AnchorType private int lineAnchor;
     private float position;
-    @AnchorType private int positionAnchor;
+    @Cue.AnchorType private int positionAnchor;
     private float width;
 
     // Initialization methods
@@ -154,7 +146,7 @@ public final class WebvttCue extends Cue {
 
     // Construction methods.
 
-    public WebvttCue build() {
+    public WebvttCueInfo build() {
       line = computeLine(line, lineType);
 
       if (position == Cue.DIMEN_UNSET) {
@@ -167,7 +159,7 @@ public final class WebvttCue extends Cue {
 
       width = Math.min(width, deriveMaxSize(positionAnchor, position));
 
-      return new WebvttCue(
+      return new WebvttCueInfo(
           startTime,
           endTime,
           Assertions.checkNotNull(text),
@@ -205,12 +197,12 @@ public final class WebvttCue extends Cue {
       return this;
     }
 
-    public Builder setLineType(@LineType int lineType) {
+    public Builder setLineType(@Cue.LineType int lineType) {
       this.lineType = lineType;
       return this;
     }
 
-    public Builder setLineAnchor(@AnchorType int lineAnchor) {
+    public Builder setLineAnchor(@Cue.AnchorType int lineAnchor) {
       this.lineAnchor = lineAnchor;
       return this;
     }
@@ -220,7 +212,7 @@ public final class WebvttCue extends Cue {
       return this;
     }
 
-    public Builder setPositionAnchor(@AnchorType int positionAnchor) {
+    public Builder setPositionAnchor(@Cue.AnchorType int positionAnchor) {
       this.positionAnchor = positionAnchor;
       return this;
     }
@@ -231,7 +223,7 @@ public final class WebvttCue extends Cue {
     }
 
     // https://www.w3.org/TR/webvtt1/#webvtt-cue-line
-    private static float computeLine(float line, @LineType int lineType) {
+    private static float computeLine(float line, @Cue.LineType int lineType) {
       if (line != Cue.DIMEN_UNSET
           && lineType == Cue.LINE_TYPE_FRACTION
           && (line < 0.0f || line > 1.0f)) {
@@ -242,9 +234,9 @@ public final class WebvttCue extends Cue {
       } else if (lineType == Cue.LINE_TYPE_FRACTION) {
         return 1.0f; // Step 3
       } else {
-        // Steps 4 - 10 (stacking multiple simultaneous cues) are handled by WebvttSubtitle#getCues
-        // and WebvttCue#isNormalCue.
-        return DIMEN_UNSET;
+        // Steps 4 - 10 (stacking multiple simultaneous cues) are handled by
+        // WebvttSubtitle.getCues(long) and WebvttSubtitle.isNormal(Cue).
+        return Cue.DIMEN_UNSET;
       }
     }
 
@@ -264,7 +256,7 @@ public final class WebvttCue extends Cue {
     }
 
     // https://www.w3.org/TR/webvtt1/#webvtt-cue-position-alignment
-    @AnchorType
+    @Cue.AnchorType
     private static int derivePositionAnchor(@TextAlignment int textAlignment) {
       switch (textAlignment) {
         case TextAlignment.LEFT:
@@ -297,7 +289,7 @@ public final class WebvttCue extends Cue {
     }
 
     // Step 2 here: https://www.w3.org/TR/webvtt1/#processing-cue-settings
-    private static float deriveMaxSize(@AnchorType int positionAnchor, float position) {
+    private static float deriveMaxSize(@Cue.AnchorType int positionAnchor, float position) {
       switch (positionAnchor) {
         case Cue.ANCHOR_TYPE_START:
           return 1.0f - position;

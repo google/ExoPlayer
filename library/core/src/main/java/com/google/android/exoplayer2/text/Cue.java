@@ -24,10 +24,11 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-/**
- * Contains information about a specific cue, including textual content and formatting data.
- */
-public class Cue {
+/** Contains information about a specific cue, including textual content and formatting data. */
+// This class shouldn't be sub-classed. If a subtitle format needs additional fields, either they
+// should be generic enough to be added here, or the format-specific decoder should pass the
+// information around in a sidecar object.
+public final class Cue {
 
   /** The empty cue. */
   public static final Cue EMPTY = new Cue("");

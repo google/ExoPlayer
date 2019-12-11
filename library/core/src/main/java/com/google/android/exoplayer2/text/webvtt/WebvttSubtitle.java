@@ -30,23 +30,20 @@ import java.util.List;
  */
 /* package */ final class WebvttSubtitle implements Subtitle {
 
-  private final List<WebvttCue> cues;
-  private final int numCues;
+  private final List<Cue> cues;
   private final long[] cueTimesUs;
   private final long[] sortedCueTimesUs;
 
-  /**
-   * @param cues A list of the cues in this subtitle.
-   */
-  public WebvttSubtitle(List<WebvttCue> cues) {
-    this.cues = cues;
-    numCues = cues.size();
-    cueTimesUs = new long[2 * numCues];
-    for (int cueIndex = 0; cueIndex < numCues; cueIndex++) {
-      WebvttCue cue = cues.get(cueIndex);
+  /** Constructs a new WebvttSubtitle from a list of {@link WebvttCueInfo}s. */
+  public WebvttSubtitle(List<WebvttCueInfo> cueInfos) {
+    this.cues = new ArrayList<>(cueInfos.size());
+    cueTimesUs = new long[2 * cueInfos.size()];
+    for (int cueIndex = 0; cueIndex < cueInfos.size(); cueIndex++) {
+      WebvttCueInfo cueInfo = cueInfos.get(cueIndex);
+      this.cues.add(cueInfo.cue);
       int arrayIndex = cueIndex * 2;
-      cueTimesUs[arrayIndex] = cue.startTime;
-      cueTimesUs[arrayIndex + 1] = cue.endTime;
+      cueTimesUs[arrayIndex] = cueInfo.startTime;
+      cueTimesUs[arrayIndex + 1] = cueInfo.endTime;
     }
     sortedCueTimesUs = Arrays.copyOf(cueTimesUs, cueTimesUs.length);
     Arrays.sort(sortedCueTimesUs);
@@ -73,16 +70,16 @@ import java.util.List;
   @Override
   public List<Cue> getCues(long timeUs) {
     List<Cue> list = new ArrayList<>();
-    WebvttCue firstNormalCue = null;
+    Cue firstNormalCue = null;
     SpannableStringBuilder normalCueTextBuilder = null;
 
-    for (int i = 0; i < numCues; i++) {
+    for (int i = 0; i < cues.size(); i++) {
       if ((cueTimesUs[i * 2] <= timeUs) && (timeUs < cueTimesUs[i * 2 + 1])) {
-        WebvttCue cue = cues.get(i);
+        Cue cue = cues.get(i);
         // TODO(ibaker): Replace this with a closer implementation of the WebVTT spec (keeping
         // individual cues, but tweaking their `line` value):
         // https://www.w3.org/TR/webvtt1/#cue-computed-line
-        if (cue.isNormalCue()) {
+        if (isNormal(cue)) {
           // we want to merge all of the normal cues into a single cue to ensure they are drawn
           // correctly (i.e. don't overlap) and to emulate roll-up, but only if there are multiple
           // normal cues, otherwise we can just append the single normal cue
@@ -104,7 +101,7 @@ import java.util.List;
     }
     if (normalCueTextBuilder != null) {
       // there were multiple normal cues, so create a new cue with all of the text
-      list.add(new WebvttCue.Builder().setText(normalCueTextBuilder).build());
+      list.add(new WebvttCueInfo.Builder().setText(normalCueTextBuilder).build().cue);
     } else if (firstNormalCue != null) {
       // there was only a single normal cue, so just add it to the list
       list.add(firstNormalCue);
@@ -112,4 +109,13 @@ import java.util.List;
     return list;
   }
 
+  /**
+   * Returns whether or not this cue should be placed in the default position and rolled-up with the
+   * other "normal" cues.
+   *
+   * @return Whether this cue should be placed in the default position.
+   */
+  private static boolean isNormal(Cue cue) {
+    return (cue.line == Cue.DIMEN_UNSET && cue.position == WebvttCueInfo.DEFAULT_POSITION);
+  }
 }

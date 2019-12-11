@@ -91,7 +91,7 @@ public final class WebvttCueParser {
    * @return Whether a valid Cue was found.
    */
   public boolean parseCue(
-      ParsableByteArray webvttData, WebvttCue.Builder builder, List<WebvttCssStyle> styles) {
+      ParsableByteArray webvttData, WebvttCueInfo.Builder builder, List<WebvttCssStyle> styles) {
     @Nullable String firstLine = webvttData.readLine();
     if (firstLine == null) {
       return false;
@@ -119,10 +119,10 @@ public final class WebvttCueParser {
    * Parses a string containing a list of cue settings.
    *
    * @param cueSettingsList String containing the settings for a given cue.
-   * @param builder The {@link WebvttCue.Builder} where incremental construction takes place.
+   * @param builder The {@link WebvttCueInfo.Builder} where incremental construction takes place.
    */
-  /* package */ static void parseCueSettingsList(String cueSettingsList,
-      WebvttCue.Builder builder) {
+  /* package */ static void parseCueSettingsList(
+      String cueSettingsList, WebvttCueInfo.Builder builder) {
     // Parse the cue settings list.
     Matcher cueSettingMatcher = CUE_SETTING_PATTERN.matcher(cueSettingsList);
     while (cueSettingMatcher.find()) {
@@ -147,7 +147,8 @@ public final class WebvttCueParser {
   }
 
   /**
-   * Parses the text payload of a WebVTT Cue and applies modifications on {@link WebvttCue.Builder}.
+   * Parses the text payload of a WebVTT Cue and applies modifications on {@link
+   * WebvttCueInfo.Builder}.
    *
    * @param id Id of the cue, {@code null} if it is not present.
    * @param markup The markup text to be parsed.
@@ -155,7 +156,10 @@ public final class WebvttCueParser {
    * @param builder Output builder.
    */
   /* package */ static void parseCueText(
-      @Nullable String id, String markup, WebvttCue.Builder builder, List<WebvttCssStyle> styles) {
+      @Nullable String id,
+      String markup,
+      WebvttCueInfo.Builder builder,
+      List<WebvttCssStyle> styles) {
     SpannableStringBuilder spannedText = new SpannableStringBuilder();
     ArrayDeque<StartTag> startTagStack = new ArrayDeque<>();
     List<StyleMatch> scratchStyleMatches = new ArrayList<>();
@@ -230,7 +234,7 @@ public final class WebvttCueParser {
       @Nullable String id,
       Matcher cueHeaderMatcher,
       ParsableByteArray webvttData,
-      WebvttCue.Builder builder,
+      WebvttCueInfo.Builder builder,
       StringBuilder textBuilder,
       List<WebvttCssStyle> styles) {
     try {
@@ -260,7 +264,7 @@ public final class WebvttCueParser {
 
   // Internal methods
 
-  private static void parseLineAttribute(String s, WebvttCue.Builder builder) {
+  private static void parseLineAttribute(String s, WebvttCueInfo.Builder builder) {
     int commaIndex = s.indexOf(',');
     if (commaIndex != -1) {
       builder.setLineAnchor(parsePositionAnchor(s.substring(commaIndex + 1)));
@@ -279,7 +283,7 @@ public final class WebvttCueParser {
     }
   }
 
-  private static void parsePositionAttribute(String s, WebvttCue.Builder builder) {
+  private static void parsePositionAttribute(String s, WebvttCueInfo.Builder builder) {
     int commaIndex = s.indexOf(',');
     if (commaIndex != -1) {
       builder.setPositionAnchor(parsePositionAnchor(s.substring(commaIndex + 1)));
@@ -304,24 +308,24 @@ public final class WebvttCueParser {
     }
   }
 
-  @WebvttCue.Builder.TextAlignment
+  @WebvttCueInfo.Builder.TextAlignment
   private static int parseTextAlignment(String s) {
     switch (s) {
       case "start":
-        return WebvttCue.Builder.TextAlignment.START;
+        return WebvttCueInfo.Builder.TextAlignment.START;
       case "left":
-        return WebvttCue.Builder.TextAlignment.LEFT;
+        return WebvttCueInfo.Builder.TextAlignment.LEFT;
       case "center":
       case "middle":
-        return WebvttCue.Builder.TextAlignment.CENTER;
+        return WebvttCueInfo.Builder.TextAlignment.CENTER;
       case "end":
-        return WebvttCue.Builder.TextAlignment.END;
+        return WebvttCueInfo.Builder.TextAlignment.END;
       case "right":
-        return WebvttCue.Builder.TextAlignment.RIGHT;
+        return WebvttCueInfo.Builder.TextAlignment.RIGHT;
       default:
         Log.w(TAG, "Invalid alignment value: " + s);
         // Default value: https://www.w3.org/TR/webvtt1/#webvtt-cue-text-alignment
-        return WebvttCue.Builder.TextAlignment.CENTER;
+        return WebvttCueInfo.Builder.TextAlignment.CENTER;
     }
   }
 
