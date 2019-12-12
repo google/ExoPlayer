@@ -15,9 +15,11 @@
  */
 package com.google.android.exoplayer2.extractor.wav;
 
+import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.audio.WavUtil;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
@@ -41,9 +43,16 @@ public final class WavExtractor implements Extractor {
 
   private ExtractorOutput extractorOutput;
   private TrackOutput trackOutput;
-  private WavHeader wavHeader;
-  private int bytesPerFrame;
+  private WavHeader header;
+  private WavSeekMap seekMap;
+  private int dataStartPosition;
+  private long dataEndPosition;
   private int pendingBytes;
+
+  public WavExtractor() {
+    dataStartPosition = C.POSITION_UNSET;
+    dataEndPosition = C.POSITION_UNSET;
+  }
 
   @Override
   public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
@@ -54,7 +63,7 @@ public final class WavExtractor implements Extractor {
   public void init(ExtractorOutput output) {
     extractorOutput = output;
     trackOutput = output.track(0, C.TRACK_TYPE_AUDIO);
-    wavHeader = null;
+    header = null;
     output.endTracks();
   }
 
@@ -71,29 +80,58 @@ public final class WavExtractor implements Extractor {
   @Override
   public int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
-    if (wavHeader == null) {
-      wavHeader = WavHeaderReader.peek(input);
-      if (wavHeader == null) {
+    if (header == null) {
+      header = WavHeaderReader.peek(input);
+      if (header == null) {
         // Should only happen if the media wasn't sniffed.
         throw new ParserException("Unsupported or unrecognized wav header.");
       }
-      Format format = Format.createAudioSampleFormat(null, MimeTypes.AUDIO_RAW, null,
-          wavHeader.getBitrate(), MAX_INPUT_SIZE, wavHeader.getNumChannels(),
-          wavHeader.getSampleRateHz(), wavHeader.getEncoding(), null, null, 0, null);
+
+      @C.PcmEncoding
+      int pcmEncoding = WavUtil.getPcmEncodingForType(header.formatType, header.bitsPerSample);
+      if (pcmEncoding == C.ENCODING_INVALID) {
+        throw new ParserException("Unsupported WAV format type: " + header.formatType);
+      }
+
+      // PCM specific header validation.
+      int expectedBytesPerFrame = header.numChannels * header.bitsPerSample / 8;
+      if (header.blockAlign != expectedBytesPerFrame) {
+        throw new ParserException(
+            "Unexpected bytes per frame: "
+                + header.blockAlign
+                + "; expected: "
+                + expectedBytesPerFrame);
+      }
+
+      Format format =
+          Format.createAudioSampleFormat(
+              /* id= */ null,
+              MimeTypes.AUDIO_RAW,
+              /* codecs= */ null,
+              /* bitrate= */ header.averageBytesPerSecond * 8,
+              MAX_INPUT_SIZE,
+              header.numChannels,
+              header.sampleRateHz,
+              pcmEncoding,
+              /* initializationData= */ null,
+              /* drmInitData= */ null,
+              /* selectionFlags= */ 0,
+              /* language= */ null);
       trackOutput.format(format);
-      bytesPerFrame = wavHeader.getBytesPerFrame();
     }
 
-    if (!wavHeader.hasDataBounds()) {
-      WavHeaderReader.skipToData(input, wavHeader);
-      extractorOutput.seekMap(wavHeader);
+    if (dataStartPosition == C.POSITION_UNSET) {
+      Pair<Long, Long> dataBounds = WavHeaderReader.skipToData(input);
+      dataStartPosition = dataBounds.first.intValue();
+      dataEndPosition = dataBounds.second;
+      seekMap =
+          new WavSeekMap(header, /* samplesPerBlock= */ 1, dataStartPosition, dataEndPosition);
+      extractorOutput.seekMap(seekMap);
     } else if (input.getPosition() == 0) {
-      input.skipFully(wavHeader.getDataStartPosition());
+      input.skipFully(dataStartPosition);
     }
 
-    long dataEndPosition = wavHeader.getDataEndPosition();
     Assertions.checkState(dataEndPosition != C.POSITION_UNSET);
-
     long bytesLeft = dataEndPosition - input.getPosition();
     if (bytesLeft <= 0) {
       return Extractor.RESULT_END_OF_INPUT;
@@ -105,16 +143,17 @@ public final class WavExtractor implements Extractor {
       pendingBytes += bytesAppended;
     }
 
-    // Samples must consist of a whole number of frames.
+    // For PCM blockAlign is the frame size, and samples must consist of a whole number of frames.
+    int bytesPerFrame = header.blockAlign;
     int pendingFrames = pendingBytes / bytesPerFrame;
     if (pendingFrames > 0) {
-      long timeUs = wavHeader.getTimeUs(input.getPosition() - pendingBytes);
+      long timeUs = seekMap.getTimeUs(input.getPosition() - pendingBytes);
       int size = pendingFrames * bytesPerFrame;
       pendingBytes -= size;
-      trackOutput.sampleMetadata(timeUs, C.BUFFER_FLAG_KEY_FRAME, size, pendingBytes, null);
+      trackOutput.sampleMetadata(
+          timeUs, C.BUFFER_FLAG_KEY_FRAME, size, pendingBytes, /* encryptionData= */ null);
     }
 
     return bytesAppended == RESULT_END_OF_INPUT ? RESULT_END_OF_INPUT : RESULT_CONTINUE;
   }
-
 }
