@@ -42,9 +42,16 @@ public final class WavUtil {
   /** WAVE type value for extended WAVE format. */
   private static final int TYPE_WAVE_FORMAT_EXTENSIBLE = 0xFFFE;
 
-  /** Returns the WAVE type value for the given {@code encoding}. */
-  public static int getTypeForEncoding(@C.PcmEncoding int encoding) {
-    switch (encoding) {
+  /**
+   * Returns the WAVE format type value for the given {@link C.PcmEncoding}.
+   *
+   * @param pcmEncoding The {@link C.PcmEncoding} value.
+   * @return The corresponding WAVE format type.
+   * @throws IllegalArgumentException If {@code pcmEncoding} is not a {@link C.PcmEncoding}, or if
+   *     it's {@link C#ENCODING_INVALID} or {@link Format#NO_VALUE}.
+   */
+  public static int getTypeForPcmEncoding(@C.PcmEncoding int pcmEncoding) {
+    switch (pcmEncoding) {
       case C.ENCODING_PCM_8BIT:
       case C.ENCODING_PCM_16BIT:
       case C.ENCODING_PCM_24BIT:
@@ -63,8 +70,11 @@ public final class WavUtil {
     }
   }
 
-  /** Returns the PCM encoding for the given WAVE {@code type} value. */
-  public static @C.PcmEncoding int getEncodingForType(int type, int bitsPerSample) {
+  /**
+   * Returns the {@link C.PcmEncoding} for the given WAVE format type value, or {@link
+   * C#ENCODING_INVALID} if the type is not a known PCM type.
+   */
+  public static @C.PcmEncoding int getPcmEncodingForType(int type, int bitsPerSample) {
     switch (type) {
       case TYPE_PCM:
       case TYPE_WAVE_FORMAT_EXTENSIBLE:

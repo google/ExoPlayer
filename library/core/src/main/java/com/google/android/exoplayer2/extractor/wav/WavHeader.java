@@ -15,160 +15,41 @@
  */
 package com.google.android.exoplayer2.extractor.wav;
 
-import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.extractor.SeekMap;
-import com.google.android.exoplayer2.extractor.SeekPoint;
-import com.google.android.exoplayer2.util.Util;
-
 /** Header for a WAV file. */
-/* package */ final class WavHeader implements SeekMap {
+/* package */ final class WavHeader {
 
-  /** Number of audio channels. */
-  private final int numChannels;
-  /** Sample rate in Hertz. */
-  private final int sampleRateHz;
-  /** Average bytes per second for the sample data. */
-  private final int averageBytesPerSecond;
-  /** Alignment for frames of audio data; should equal {@code numChannels * bitsPerSample / 8}. */
-  private final int blockAlignment;
-  /** Bits per sample for the audio data. */
-  private final int bitsPerSample;
-  /** Number of samples in each block. */
-  private final int samplesPerBlock;
-  /** The PCM encoding. */
-  @C.PcmEncoding private final int encoding;
-
-  /** Position of the start of the sample data, in bytes. */
-  private int dataStartPosition;
-  /** Position of the end of the sample data (exclusive), in bytes. */
-  private long dataEndPosition;
+  /**
+   * The format type. Standard format types are the "WAVE form Registration Number" constants
+   * defined in RFC 2361 Appendix A.
+   */
+  public final int formatType;
+  /** The number of channels. */
+  public final int numChannels;
+  /** The sample rate in Hertz. */
+  public final int sampleRateHz;
+  /** The average bytes per second for the sample data. */
+  public final int averageBytesPerSecond;
+  /** The block size in bytes. */
+  public final int blockAlign;
+  /** Bits per sample for a single channel. */
+  public final int bitsPerSample;
+  /** Extra data appended to the format chunk of the header. */
+  public final byte[] extraData;
 
   public WavHeader(
+      int formatType,
       int numChannels,
       int sampleRateHz,
       int averageBytesPerSecond,
-      int blockAlignment,
+      int bytesPerFrame,
       int bitsPerSample,
-      int samplesPerBlock,
-      @C.PcmEncoding int encoding) {
+      byte[] extraData) {
+    this.formatType = formatType;
     this.numChannels = numChannels;
     this.sampleRateHz = sampleRateHz;
     this.averageBytesPerSecond = averageBytesPerSecond;
-    this.blockAlignment = blockAlignment;
+    this.blockAlign = bytesPerFrame;
     this.bitsPerSample = bitsPerSample;
-    this.samplesPerBlock = samplesPerBlock;
-    this.encoding = encoding;
-    dataStartPosition = C.POSITION_UNSET;
-    dataEndPosition = C.POSITION_UNSET;
+    this.extraData = extraData;
   }
-
-  // Data bounds.
-
-  /**
-   * Sets the data start position and size in bytes of sample data in this WAV.
-   *
-   * @param dataStartPosition The position of the start of the sample data, in bytes.
-   * @param dataEndPosition The position of the end of the sample data (exclusive), in bytes.
-   */
-  public void setDataBounds(int dataStartPosition, long dataEndPosition) {
-    this.dataStartPosition = dataStartPosition;
-    this.dataEndPosition = dataEndPosition;
-  }
-
-  /**
-   * Returns the position of the start of the sample data, in bytes, or {@link C#POSITION_UNSET} if
-   * the data bounds have not been set.
-   */
-  public int getDataStartPosition() {
-    return dataStartPosition;
-  }
-
-  /**
-   * Returns the position of the end of the sample data (exclusive), in bytes, or {@link
-   * C#POSITION_UNSET} if the data bounds have not been set.
-   */
-  public long getDataEndPosition() {
-    return dataEndPosition;
-  }
-
-  /** Returns whether the data start position and size have been set. */
-  public boolean hasDataBounds() {
-    return dataStartPosition != C.POSITION_UNSET;
-  }
-
-  // SeekMap implementation.
-
-  @Override
-  public boolean isSeekable() {
-    return true;
-  }
-
-  @Override
-  public long getDurationUs() {
-    long numBlocks = (dataEndPosition - dataStartPosition) / blockAlignment;
-    return numBlocks * samplesPerBlock * C.MICROS_PER_SECOND / sampleRateHz;
-  }
-
-  @Override
-  public SeekPoints getSeekPoints(long timeUs) {
-    long dataSize = dataEndPosition - dataStartPosition;
-    long positionOffset = (timeUs * averageBytesPerSecond) / C.MICROS_PER_SECOND;
-    // Constrain to nearest preceding frame offset.
-    positionOffset = (positionOffset / blockAlignment) * blockAlignment;
-    positionOffset = Util.constrainValue(positionOffset, 0, dataSize - blockAlignment);
-    long seekPosition = dataStartPosition + positionOffset;
-    long seekTimeUs = getTimeUs(seekPosition);
-    SeekPoint seekPoint = new SeekPoint(seekTimeUs, seekPosition);
-    if (seekTimeUs >= timeUs || positionOffset == dataSize - blockAlignment) {
-      return new SeekPoints(seekPoint);
-    } else {
-      long secondSeekPosition = seekPosition + blockAlignment;
-      long secondSeekTimeUs = getTimeUs(secondSeekPosition);
-      SeekPoint secondSeekPoint = new SeekPoint(secondSeekTimeUs, secondSeekPosition);
-      return new SeekPoints(seekPoint, secondSeekPoint);
-    }
-  }
-
-  // Misc getters.
-
-  /**
-   * Returns the time in microseconds for the given position in bytes.
-   *
-   * @param position The position in bytes.
-   */
-  public long getTimeUs(long position) {
-    long positionOffset = Math.max(0, position - dataStartPosition);
-    return (positionOffset * C.MICROS_PER_SECOND) / averageBytesPerSecond;
-  }
-
-  /** Returns the bytes per frame of this WAV. */
-  public int getBytesPerFrame() {
-    return blockAlignment;
-  }
-
-  /** Returns the bitrate of this WAV. */
-  public int getBitrate() {
-    return sampleRateHz * bitsPerSample * numChannels;
-  }
-
-  /** Returns the sample rate in Hertz of this WAV. */
-  public int getSampleRateHz() {
-    return sampleRateHz;
-  }
-
-  /** Returns the number of audio channels in this WAV. */
-  public int getNumChannels() {
-    return numChannels;
-  }
-
-  /** Returns the number of samples in each block. */
-  public int getSamplesPerBlock() {
-    return samplesPerBlock;
-  }
-
-  /** Returns the PCM encoding. **/
-  public @C.PcmEncoding int getEncoding() {
-    return encoding;
-  }
-
 }
