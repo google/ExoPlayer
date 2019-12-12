@@ -392,7 +392,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private boolean waitingForKeys;
   private boolean waitingForFirstSyncSample;
   private boolean waitingForFirstSampleInFormat;
-  private boolean skipMediaCodecStopOnRelease;
   private boolean pendingOutputEndOfStream;
 
   private @MediaCodecOperationMode int mediaCodecOperationMode;
@@ -456,22 +455,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   public void experimental_setRenderTimeLimitMs(long renderTimeLimitMs) {
     this.renderTimeLimitMs = renderTimeLimitMs;
-  }
-
-  /**
-   * Skip calling {@link MediaCodec#stop()} when the underlying MediaCodec is going to be released.
-   *
-   * <p>By default, when the MediaCodecRenderer is releasing the underlying {@link MediaCodec}, it
-   * first calls {@link MediaCodec#stop()} and then calls {@link MediaCodec#release()}. If this
-   * feature is enabled, the MediaCodecRenderer will skip the call to {@link MediaCodec#stop()}.
-   *
-   * <p>This method is experimental, and will be renamed or removed in a future release. It should
-   * only be called before the renderer is used.
-   *
-   * @param enabled enable or disable the feature.
-   */
-  public void experimental_setSkipMediaCodecStopOnRelease(boolean enabled) {
-    skipMediaCodecStopOnRelease = enabled;
   }
 
   /**
@@ -705,13 +688,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     try {
       if (codec != null) {
         decoderCounters.decoderReleaseCount++;
-        try {
-          if (!skipMediaCodecStopOnRelease) {
-            codec.stop();
-          }
-        } finally {
-          codec.release();
-        }
+        codec.release();
       }
     } finally {
       codec = null;
