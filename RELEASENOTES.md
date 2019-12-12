@@ -24,6 +24,7 @@
 * Add `SpannedSubject` to testutils, for assertions on
   [Span-styled text]( https://developer.android.com/guide/topics/text/spans)
   (e.g. subtitles).
+* Add `Player.getCurrentLiveOffset` to conveniently return the live offset.
 
 ### 2.11.0 (2019-12-11) ###
 
