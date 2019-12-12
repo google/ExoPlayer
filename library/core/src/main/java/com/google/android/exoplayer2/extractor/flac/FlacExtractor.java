@@ -177,6 +177,7 @@ public final class FlacExtractor implements Extractor {
       state = STATE_READ_ID3_METADATA;
       currentFrameFirstSampleNumber = 0;
     } else if (binarySearchSeeker != null) {
+      currentFrameFirstSampleNumber = SAMPLE_NUMBER_UNKNOWN;
       binarySearchSeeker.setSeekTargetUs(timeUs);
     }
     currentFrameBytesWritten = 0;
@@ -243,9 +244,14 @@ public final class FlacExtractor implements Extractor {
 
     // Handle pending seek if necessary.
     if (binarySearchSeeker != null && binarySearchSeeker.isSeeking()) {
-      int seekResult = binarySearchSeeker.handlePendingSeek(input, seekPosition);
-      currentFrameFirstSampleNumber = sampleNumberHolder.sampleNumber;
-      return seekResult;
+      return binarySearchSeeker.handlePendingSeek(input, seekPosition);
+    }
+
+    // Set current frame first sample number if it became unknown after seeking.
+    if (currentFrameFirstSampleNumber == SAMPLE_NUMBER_UNKNOWN) {
+      currentFrameFirstSampleNumber =
+          FlacFrameReader.getFirstSampleNumber(input, flacStreamMetadata);
+      return Extractor.RESULT_CONTINUE;
     }
 
     // Copy more bytes into the scratch.
@@ -300,11 +306,7 @@ public final class FlacExtractor implements Extractor {
     }
     binarySearchSeeker =
         new FlacBinarySearchSeeker(
-            flacStreamMetadata,
-            frameStartMarker,
-            firstFramePosition,
-            streamLength,
-            sampleNumberHolder);
+            flacStreamMetadata, frameStartMarker, firstFramePosition, streamLength);
     return binarySearchSeeker.getSeekMap();
   }
 

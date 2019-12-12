@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor;
 
-import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.util.FlacConstants;
 import com.google.android.exoplayer2.util.FlacStreamMetadata;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -107,19 +107,8 @@ public final class FlacFrameReader {
     System.arraycopy(
         frameStartBytes, /* srcPos= */ 0, scratch.data, /* destPos= */ 0, /* length= */ 2);
 
-    int totalBytesPeeked = 2;
-    while (totalBytesPeeked < FlacConstants.MAX_FRAME_HEADER_SIZE) {
-      int bytesPeeked =
-          input.peek(
-              scratch.data,
-              totalBytesPeeked,
-              FlacConstants.MAX_FRAME_HEADER_SIZE - totalBytesPeeked);
-      if (bytesPeeked == C.RESULT_END_OF_INPUT) {
-        // The size of the last frame is less than MAX_FRAME_HEADER_SIZE.
-        break;
-      }
-      totalBytesPeeked += bytesPeeked;
-    }
+    int totalBytesPeeked =
+        ExtractorUtil.peekToLength(input, scratch.data, 2, FlacConstants.MAX_FRAME_HEADER_SIZE - 2);
     scratch.setLimit(totalBytesPeeked);
 
     input.resetPeekPosition();
@@ -127,6 +116,46 @@ public final class FlacFrameReader {
 
     return checkAndReadFrameHeader(
         scratch, flacStreamMetadata, frameStartMarker, sampleNumberHolder);
+  }
+
+  /**
+   * Returns the number of the first sample in the given frame.
+   *
+   * <p>The read position of {@code input} is left unchanged.
+   *
+   * <p>If no exception is thrown, the peek position is aligned with the read position. Otherwise,
+   * there is no guarantee on the peek position.
+   *
+   * @param input Input stream to get the sample number from (starting from the read position).
+   * @return The frame first sample number.
+   * @throws ParserException If an error occurs parsing the sample number.
+   * @throws IOException If peeking from the input fails.
+   * @throws InterruptedException If interrupted while peeking from input.
+   */
+  public static long getFirstSampleNumber(
+      ExtractorInput input, FlacStreamMetadata flacStreamMetadata)
+      throws IOException, InterruptedException {
+    input.resetPeekPosition();
+    input.advancePeekPosition(1);
+    byte[] blockingStrategyByte = new byte[1];
+    input.peekFully(blockingStrategyByte, 0, 1);
+    boolean isBlockSizeVariable = (blockingStrategyByte[0] & 1) == 1;
+    input.advancePeekPosition(2);
+
+    int maxUtf8SampleNumberSize = isBlockSizeVariable ? 7 : 6;
+    ParsableByteArray scratch = new ParsableByteArray(maxUtf8SampleNumberSize);
+    int totalBytesPeeked =
+        ExtractorUtil.peekToLength(input, scratch.data, 0, maxUtf8SampleNumberSize);
+    scratch.setLimit(totalBytesPeeked);
+    input.resetPeekPosition();
+
+    SampleNumberHolder sampleNumberHolder = new SampleNumberHolder();
+    if (!checkAndReadFirstSampleNumber(
+        scratch, flacStreamMetadata, isBlockSizeVariable, sampleNumberHolder)) {
+      throw new ParserException();
+    }
+
+    return sampleNumberHolder.sampleNumber;
   }
 
   /**

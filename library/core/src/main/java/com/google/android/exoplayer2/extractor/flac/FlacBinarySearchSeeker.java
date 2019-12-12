@@ -40,18 +40,15 @@ import java.io.IOException;
    *     in the stream must start.
    * @param firstFramePosition The byte offset of the first frame in the stream.
    * @param inputLength The length of the stream in bytes.
-   * @param sampleNumberHolder A holder used to retrieve the sample number of a frame found by a
-   *     seeking operation.
    */
   public FlacBinarySearchSeeker(
       FlacStreamMetadata flacStreamMetadata,
       int frameStartMarker,
       long firstFramePosition,
-      long inputLength,
-      SampleNumberHolder sampleNumberHolder) {
+      long inputLength) {
     super(
         /* seekTimestampConverter= */ flacStreamMetadata::getSampleNumber,
-        new FlacTimestampSeeker(flacStreamMetadata, frameStartMarker, sampleNumberHolder),
+        new FlacTimestampSeeker(flacStreamMetadata, frameStartMarker),
         flacStreamMetadata.getDurationUs(),
         /* floorTimePosition= */ 0,
         /* ceilingTimePosition= */ flacStreamMetadata.totalSamples,
@@ -66,21 +63,16 @@ import java.io.IOException;
 
     private final FlacStreamMetadata flacStreamMetadata;
     private final int frameStartMarker;
-    private final SampleNumberHolder foundFrameSampleNumberHolder;
-    private final SampleNumberHolder tempSampleNumberHolder;
+    private final SampleNumberHolder sampleNumberHolder;
 
-    private FlacTimestampSeeker(
-        FlacStreamMetadata flacStreamMetadata,
-        int frameStartMarker,
-        SampleNumberHolder foundFrameSampleNumberHolder) {
+    private FlacTimestampSeeker(FlacStreamMetadata flacStreamMetadata, int frameStartMarker) {
       this.flacStreamMetadata = flacStreamMetadata;
       this.frameStartMarker = frameStartMarker;
-      this.foundFrameSampleNumberHolder = foundFrameSampleNumberHolder;
-      tempSampleNumberHolder = new SampleNumberHolder();
+      sampleNumberHolder = new SampleNumberHolder();
     }
 
     @Override
-    public TimestampSearchResult searchForTimestamp(ExtractorInput input, long targetSampleIndex)
+    public TimestampSearchResult searchForTimestamp(ExtractorInput input, long targetSampleNumber)
         throws IOException, InterruptedException {
       long searchPosition = input.getPosition();
 
@@ -95,11 +87,10 @@ import java.io.IOException;
       long rightFrameFirstSampleNumber = findNextFrame(input);
       long rightFramePosition = input.getPeekPosition();
 
-      if (leftFrameFirstSampleNumber <= targetSampleIndex
-          && rightFrameFirstSampleNumber > targetSampleIndex) {
-        foundFrameSampleNumberHolder.sampleNumber = leftFrameFirstSampleNumber;
+      if (leftFrameFirstSampleNumber <= targetSampleNumber
+          && rightFrameFirstSampleNumber > targetSampleNumber) {
         return TimestampSearchResult.targetFoundResult(leftFramePosition);
-      } else if (rightFrameFirstSampleNumber <= targetSampleIndex) {
+      } else if (rightFrameFirstSampleNumber <= targetSampleNumber) {
         return TimestampSearchResult.underestimatedResult(
             rightFrameFirstSampleNumber, rightFramePosition);
       } else {
@@ -125,7 +116,7 @@ import java.io.IOException;
     private long findNextFrame(ExtractorInput input) throws IOException, InterruptedException {
       while (input.getPeekPosition() < input.getLength() - FlacConstants.MIN_FRAME_HEADER_SIZE
           && !FlacFrameReader.checkFrameHeaderFromPeek(
-              input, flacStreamMetadata, frameStartMarker, tempSampleNumberHolder)) {
+              input, flacStreamMetadata, frameStartMarker, sampleNumberHolder)) {
         input.advancePeekPosition(1);
       }
 
@@ -134,7 +125,7 @@ import java.io.IOException;
         return flacStreamMetadata.totalSamples;
       }
 
-      return tempSampleNumberHolder.sampleNumber;
+      return sampleNumberHolder.sampleNumber;
     }
   }
 }
