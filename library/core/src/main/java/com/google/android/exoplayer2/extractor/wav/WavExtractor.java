@@ -35,19 +35,17 @@ import java.io.IOException;
  */
 public final class WavExtractor implements Extractor {
 
+  /** Arbitrary maximum sample size of 32KB, which is ~170ms of 16-bit stereo PCM audio at 48KHz. */
+  private static final int MAX_SAMPLE_SIZE = 32 * 1024;
+
   /** Factory for {@link WavExtractor} instances. */
   public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new WavExtractor()};
 
-  /** Arbitrary maximum input size of 32KB, which is ~170ms of 16-bit stereo PCM audio at 48KHz. */
-  private static final int MAX_INPUT_SIZE = 32 * 1024;
-
   private ExtractorOutput extractorOutput;
   private TrackOutput trackOutput;
-  private WavHeader header;
-  private WavSeekMap seekMap;
+  private OutputWriter outputWriter;
   private int dataStartPosition;
   private long dataEndPosition;
-  private int pendingBytes;
 
   public WavExtractor() {
     dataStartPosition = C.POSITION_UNSET;
@@ -63,13 +61,14 @@ public final class WavExtractor implements Extractor {
   public void init(ExtractorOutput output) {
     extractorOutput = output;
     trackOutput = output.track(0, C.TRACK_TYPE_AUDIO);
-    header = null;
     output.endTracks();
   }
 
   @Override
   public void seek(long position, long timeUs) {
-    pendingBytes = 0;
+    if (outputWriter != null) {
+      outputWriter.reset();
+    }
   }
 
   @Override
@@ -80,8 +79,8 @@ public final class WavExtractor implements Extractor {
   @Override
   public int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
-    if (header == null) {
-      header = WavHeaderReader.peek(input);
+    if (outputWriter == null) {
+      WavHeader header = WavHeaderReader.peek(input);
       if (header == null) {
         // Should only happen if the media wasn't sniffed.
         throw new ParserException("Unsupported or unrecognized wav header.");
@@ -92,41 +91,14 @@ public final class WavExtractor implements Extractor {
       if (pcmEncoding == C.ENCODING_INVALID) {
         throw new ParserException("Unsupported WAV format type: " + header.formatType);
       }
-
-      // PCM specific header validation.
-      int expectedBytesPerFrame = header.numChannels * header.bitsPerSample / 8;
-      if (header.blockAlign != expectedBytesPerFrame) {
-        throw new ParserException(
-            "Unexpected bytes per frame: "
-                + header.blockAlign
-                + "; expected: "
-                + expectedBytesPerFrame);
-      }
-
-      Format format =
-          Format.createAudioSampleFormat(
-              /* id= */ null,
-              MimeTypes.AUDIO_RAW,
-              /* codecs= */ null,
-              /* bitrate= */ header.averageBytesPerSecond * 8,
-              MAX_INPUT_SIZE,
-              header.numChannels,
-              header.sampleRateHz,
-              pcmEncoding,
-              /* initializationData= */ null,
-              /* drmInitData= */ null,
-              /* selectionFlags= */ 0,
-              /* language= */ null);
-      trackOutput.format(format);
+      outputWriter = new PcmOutputWriter(extractorOutput, trackOutput, header, pcmEncoding);
     }
 
     if (dataStartPosition == C.POSITION_UNSET) {
       Pair<Long, Long> dataBounds = WavHeaderReader.skipToData(input);
       dataStartPosition = dataBounds.first.intValue();
       dataEndPosition = dataBounds.second;
-      seekMap =
-          new WavSeekMap(header, /* samplesPerBlock= */ 1, dataStartPosition, dataEndPosition);
-      extractorOutput.seekMap(seekMap);
+      outputWriter.init(dataStartPosition, dataEndPosition);
     } else if (input.getPosition() == 0) {
       input.skipFully(dataStartPosition);
     }
@@ -137,23 +109,122 @@ public final class WavExtractor implements Extractor {
       return Extractor.RESULT_END_OF_INPUT;
     }
 
-    int maxBytesToRead = (int) Math.min(MAX_INPUT_SIZE - pendingBytes, bytesLeft);
-    int bytesAppended = trackOutput.sampleData(input, maxBytesToRead, true);
-    if (bytesAppended != RESULT_END_OF_INPUT) {
-      pendingBytes += bytesAppended;
+    return outputWriter.sampleData(input, bytesLeft) ? RESULT_CONTINUE : RESULT_END_OF_INPUT;
+  }
+
+  /** Writes to the extractor's output. */
+  private interface OutputWriter {
+
+    /** Resets the writer. */
+    void reset();
+
+    /**
+     * Initializes the writer.
+     *
+     * <p>Must be called once, before any calls to {@link #sampleData(ExtractorInput, long)}.
+     *
+     * @param dataStartPosition The byte position (inclusive) in the stream at which data starts.
+     * @param dataEndPosition The end position (exclusive) in the stream at which data ends.
+     * @throws ParserException If an error occurs initializing the writer.
+     */
+    void init(int dataStartPosition, long dataEndPosition) throws ParserException;
+
+    /**
+     * Consumes sample data from {@code input}, writing corresponding samples to the extractor's
+     * output.
+     *
+     * <p>Must not be called until after {@link #init(int, long)} has been called.
+     *
+     * @param input The input from which to read.
+     * @param bytesLeft The number of sample data bytes left to be read from the input.
+     * @return True if data was consumed. False if the end of the stream has been reached.
+     * @throws IOException If an error occurs reading from the input.
+     * @throws InterruptedException If the thread has been interrupted.
+     */
+    boolean sampleData(ExtractorInput input, long bytesLeft)
+        throws IOException, InterruptedException;
+  }
+
+  private static final class PcmOutputWriter implements OutputWriter {
+
+    private final ExtractorOutput extractorOutput;
+    private final TrackOutput trackOutput;
+    private final WavHeader header;
+    private final @C.PcmEncoding int pcmEncoding;
+
+    private WavSeekMap seekMap;
+    private int pendingBytes;
+
+    public PcmOutputWriter(
+        ExtractorOutput extractorOutput,
+        TrackOutput trackOutput,
+        WavHeader header,
+        @C.PcmEncoding int pcmEncoding) {
+      this.extractorOutput = extractorOutput;
+      this.trackOutput = trackOutput;
+      this.header = header;
+      this.pcmEncoding = pcmEncoding;
     }
 
-    // For PCM blockAlign is the frame size, and samples must consist of a whole number of frames.
-    int bytesPerFrame = header.blockAlign;
-    int pendingFrames = pendingBytes / bytesPerFrame;
-    if (pendingFrames > 0) {
-      long timeUs = seekMap.getTimeUs(input.getPosition() - pendingBytes);
-      int size = pendingFrames * bytesPerFrame;
-      pendingBytes -= size;
-      trackOutput.sampleMetadata(
-          timeUs, C.BUFFER_FLAG_KEY_FRAME, size, pendingBytes, /* encryptionData= */ null);
+    @Override
+    public void reset() {
+      pendingBytes = 0;
     }
 
-    return bytesAppended == RESULT_END_OF_INPUT ? RESULT_END_OF_INPUT : RESULT_CONTINUE;
+    @Override
+    public void init(int dataStartPosition, long dataEndPosition) throws ParserException {
+      // Validate the header.
+      int expectedBytesPerFrame = header.numChannels * header.bitsPerSample / 8;
+      if (header.blockAlign != expectedBytesPerFrame) {
+        throw new ParserException(
+            "Expected block alignment: " + expectedBytesPerFrame + "; got: " + header.blockAlign);
+      }
+
+      // Output the seek map.
+      seekMap =
+          new WavSeekMap(header, /* samplesPerBlock= */ 1, dataStartPosition, dataEndPosition);
+      extractorOutput.seekMap(seekMap);
+
+      // Output the format.
+      Format format =
+          Format.createAudioSampleFormat(
+              /* id= */ null,
+              MimeTypes.AUDIO_RAW,
+              /* codecs= */ null,
+              /* bitrate= */ header.averageBytesPerSecond * 8,
+              MAX_SAMPLE_SIZE,
+              header.numChannels,
+              header.sampleRateHz,
+              pcmEncoding,
+              /* initializationData= */ null,
+              /* drmInitData= */ null,
+              /* selectionFlags= */ 0,
+              /* language= */ null);
+      trackOutput.format(format);
+    }
+
+    @Override
+    public boolean sampleData(ExtractorInput input, long bytesLeft)
+        throws IOException, InterruptedException {
+      int maxBytesToRead = (int) Math.min(MAX_SAMPLE_SIZE - pendingBytes, bytesLeft);
+      int numBytesAppended = trackOutput.sampleData(input, maxBytesToRead, true);
+      boolean wereBytesAppended = numBytesAppended != RESULT_END_OF_INPUT;
+      if (wereBytesAppended) {
+        pendingBytes += numBytesAppended;
+      }
+
+      // blockAlign is the frame size, and samples must consist of a whole number of frames.
+      int bytesPerFrame = header.blockAlign;
+      int pendingFrames = pendingBytes / bytesPerFrame;
+      if (pendingFrames > 0) {
+        long timeUs = seekMap.getTimeUs(input.getPosition() - pendingBytes);
+        int size = pendingFrames * bytesPerFrame;
+        pendingBytes -= size;
+        trackOutput.sampleMetadata(
+            timeUs, C.BUFFER_FLAG_KEY_FRAME, size, pendingBytes, /* encryptionData= */ null);
+      }
+
+      return wereBytesAppended;
+    }
   }
 }
