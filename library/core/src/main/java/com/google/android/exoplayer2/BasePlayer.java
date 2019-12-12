@@ -144,6 +144,19 @@ public abstract class BasePlayer implements Player {
   }
 
   @Override
+  public final long getCurrentLiveOffset() {
+    Timeline timeline = getCurrentTimeline();
+    if (timeline.isEmpty()) {
+      return C.TIME_UNSET;
+    }
+    long windowStartTimeMs = timeline.getWindow(getCurrentWindowIndex(), window).windowStartTimeMs;
+    if (windowStartTimeMs == C.TIME_UNSET) {
+      return C.TIME_UNSET;
+    }
+    return System.currentTimeMillis() - window.windowStartTimeMs - getContentPosition();
+  }
+
+  @Override
   public final boolean isCurrentWindowSeekable() {
     Timeline timeline = getCurrentTimeline();
     return !timeline.isEmpty() && timeline.getWindow(getCurrentWindowIndex(), window).isSeekable;

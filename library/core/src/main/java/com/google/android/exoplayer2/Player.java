@@ -1001,6 +1001,19 @@ public interface Player {
   boolean isCurrentWindowLive();
 
   /**
+   * Returns the offset of the current playback position from the live edge in milliseconds, or
+   * {@link C#TIME_UNSET} if the current window {@link #isCurrentWindowLive() isn't live} or the
+   * offset is unknown.
+   *
+   * <p>The offset is calculated as {@code currentTime - playbackPosition}, so should usually be
+   * positive.
+   *
+   * <p>Note that this offset may rely on an accurate local time, so this method may return an
+   * incorrect value if the difference between system clock and server clock is unknown.
+   */
+  long getCurrentLiveOffset();
+
+  /**
    * Returns whether the current window is seekable, or {@code false} if the {@link Timeline} is
    * empty.
    *
