@@ -26,6 +26,10 @@
   (e.g. subtitles).
 * Add `Player.getCurrentLiveOffset` to conveniently return the live offset.
 * Propagate HTTP request headers through `CacheDataSource`.
+* Update `IcyDecoder` to try ISO-8859-1 decoding if UTF-8 decoding fails.
+  Also change `IcyInfo.rawMetadata` from `String` to `byte[]` to allow
+  developers to handle data that's neither UTF-8 nor ISO-8859-1
+  ([#6753](https://github.com/google/ExoPlayer/issues/6753)).
 
 ### 2.11.0 (2019-12-11) ###
 
