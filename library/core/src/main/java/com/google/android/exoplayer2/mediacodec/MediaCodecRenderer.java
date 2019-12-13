@@ -195,7 +195,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     MediaCodecOperationMode.SYNCHRONOUS,
-    MediaCodecOperationMode.ASYNCHRONOUS_PLAYBACK_THREAD
+    MediaCodecOperationMode.ASYNCHRONOUS_PLAYBACK_THREAD,
+    MediaCodecOperationMode.ASYNCHRONOUS_DEDICATED_THREAD
   })
   public @interface MediaCodecOperationMode {
 
@@ -206,6 +207,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
      * callbacks to the playback Thread.
      */
     int ASYNCHRONOUS_PLAYBACK_THREAD = 1;
+    /**
+     * Operates the {@link MediaCodec} in asynchronous mode and routes {@link MediaCodec.Callback}
+     * callbacks to a dedicated Thread.
+     */
+    int ASYNCHRONOUS_DEDICATED_THREAD = 2;
   }
 
   /** Indicates no codec operating rate should be set. */
@@ -471,6 +477,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    *           will operate in asynchronous mode and {@link MediaCodec.Callback} callbacks will be
    *           routed to the Playback Thread. This mode requires API level &ge; 21; if the API level
    *           is &le; 20, the operation mode will be set to {@link
+   *           MediaCodecOperationMode#SYNCHRONOUS}.
+   *       <li>{@link MediaCodecOperationMode#ASYNCHRONOUS_DEDICATED_THREAD}: The {@link MediaCodec}
+   *           will operate in asynchronous mode and {@link MediaCodec.Callback} callbacks will be
+   *           routed to a dedicated Thread. This mode requires API level &ge; 23; if the API level
+   *           is &le; 22, the operation mode will be set to {@link
    *           MediaCodecOperationMode#SYNCHRONOUS}.
    *     </ul>
    *     By default, the operation mode is set to {@link MediaCodecOperationMode#SYNCHRONOUS}.
@@ -943,6 +954,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       if (mediaCodecOperationMode == MediaCodecOperationMode.ASYNCHRONOUS_PLAYBACK_THREAD
           && Util.SDK_INT >= 21) {
         codecAdapter = new AsynchronousMediaCodecAdapter(codec);
+      } else if (mediaCodecOperationMode == MediaCodecOperationMode.ASYNCHRONOUS_DEDICATED_THREAD
+          && Util.SDK_INT >= 23) {
+        codecAdapter = new DedicatedThreadAsyncMediaCodecAdapter(codec, getTrackType());
+        ((DedicatedThreadAsyncMediaCodecAdapter) codecAdapter).start();
       } else {
         codecAdapter = new SynchronousMediaCodecAdapter(codec, getDequeueOutputBufferTimeoutUs());
       }
