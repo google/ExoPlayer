@@ -462,8 +462,9 @@ bool FLACParser::getSeekPositions(int64_t timeUs,
     if (sampleNumber <= targetSampleNumber) {
       result[0] = (sampleNumber * 1000000LL) / sampleRate;
       result[1] = firstFrameOffset + points[i - 1].stream_offset;
-      if (sampleNumber == targetSampleNumber || i >= length) {
-        // exact seek, or no following seek point.
+      if (sampleNumber == targetSampleNumber || i >= length ||
+          points[i].sample_number == -1) {  // placeholder
+        // exact seek, or no following non-placeholder seek point
         result[2] = result[0];
         result[3] = result[1];
       } else {
