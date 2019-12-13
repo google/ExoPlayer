@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.content.Context;
 import android.util.SparseArray;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import java.io.File;
@@ -69,6 +70,9 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
 
   @Override
   public void seekMap(SeekMap seekMap) {
+    if (seekMap.isSeekable() && seekMap.getDurationUs() == C.TIME_UNSET) {
+      throw new IllegalStateException("SeekMap cannot be seekable and have an unknown duration");
+    }
     this.seekMap = seekMap;
   }
 
