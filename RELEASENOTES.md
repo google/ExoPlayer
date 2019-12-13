@@ -4,6 +4,7 @@
 
 * UI: Exclude `DefaultTimeBar` region from system gesture detection
   ([#6685](https://github.com/google/ExoPlayer/issues/6685)).
+* Propagate HTTP request headers through `CacheDataSource`.
 
 ### 2.11.0 (2019-12-11) ###
 
