@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.metadata.icy;
 
 import static com.google.common.truth.Truth.assertThat;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import android.os.Parcel;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -28,7 +29,8 @@ public final class IcyInfoTest {
 
   @Test
   public void parcelEquals() {
-    IcyInfo streamInfo = new IcyInfo("StreamName='name';StreamUrl='url'", "name", "url");
+    IcyInfo streamInfo =
+        new IcyInfo("StreamName='name';StreamUrl='url'".getBytes(UTF_8), "name", "url");
     // Write to parcel.
     Parcel parcel = Parcel.obtain();
     streamInfo.writeToParcel(parcel, 0);
