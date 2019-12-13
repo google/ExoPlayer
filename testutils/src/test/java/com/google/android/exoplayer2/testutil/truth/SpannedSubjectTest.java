@@ -36,6 +36,24 @@ import org.junit.runner.RunWith;
 public class SpannedSubjectTest {
 
   @Test
+  public void hasNoSpans_success() {
+    SpannableString spannable = SpannableString.valueOf("test with no spans");
+
+    assertThat(spannable).hasNoSpans();
+  }
+
+  @Test
+  public void hasNoSpans_failure() {
+    SpannableString spannable = SpannableString.valueOf("test with underlined section");
+    spannable.setSpan(new UnderlineSpan(), 5, 10, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+    AssertionError expected =
+        expectFailure(whenTesting -> whenTesting.that(spannable).hasNoSpans());
+    assertThat(expected).factKeys().contains("Expected no spans");
+    assertThat(expected).factValue("but found").contains("start=" + 5);
+  }
+
+  @Test
   public void italicSpan_success() {
     SpannableString spannable = SpannableString.valueOf("test with italic section");
     int start = "test with ".length();

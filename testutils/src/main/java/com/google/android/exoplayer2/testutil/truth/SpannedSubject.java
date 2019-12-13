@@ -58,6 +58,16 @@ public final class SpannedSubject extends Subject {
     return assertAbout(spanned()).that(spanned);
   }
 
+  public void hasNoSpans() {
+    Object[] spans = actual.getSpans(0, actual.length(), Object.class);
+    if (spans.length > 0) {
+      failWithoutActual(
+          simpleFact("Expected no spans"),
+          fact("in text", actual),
+          fact("but found", actualSpansString()));
+    }
+  }
+
   /**
    * Checks that the subject has an italic span from {@code startIndex} to {@code endIndex}.
    *
