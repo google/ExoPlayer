@@ -34,6 +34,8 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.NavigableSet;
 import org.junit.After;
 import org.junit.Before;
@@ -48,20 +50,27 @@ public final class CacheDataSourceTest {
   private static final int CACHE_FRAGMENT_SIZE = 3;
   private static final String DATASPEC_KEY = "dataSpecKey";
 
+  // Test data
   private Uri testDataUri;
+  private Map<String, String> httpRequestHeaders;
   private DataSpec unboundedDataSpec;
   private DataSpec boundedDataSpec;
   private DataSpec unboundedDataSpecWithKey;
   private DataSpec boundedDataSpecWithKey;
   private String defaultCacheKey;
   private String customCacheKey;
+
+  // Dependencies of SUT
   private CacheKeyFactory cacheKeyFactory;
   private File tempFolder;
   private SimpleCache cache;
+  private FakeDataSource upstreamDataSource;
 
   @Before
   public void setUp() throws Exception {
     testDataUri = Uri.parse("https://www.test.com/data");
+    httpRequestHeaders = new HashMap<>();
+    httpRequestHeaders.put("Test-key", "Test-val");
     unboundedDataSpec = buildDataSpec(/* unbounded= */ true, /* key= */ null);
     boundedDataSpec = buildDataSpec(/* unbounded= */ false, /* key= */ null);
     unboundedDataSpecWithKey = buildDataSpec(/* unbounded= */ true, DATASPEC_KEY);
@@ -69,9 +78,11 @@ public final class CacheDataSourceTest {
     defaultCacheKey = CacheUtil.DEFAULT_CACHE_KEY_FACTORY.buildCacheKey(unboundedDataSpec);
     customCacheKey = "customKey." + defaultCacheKey;
     cacheKeyFactory = dataSpec -> customCacheKey;
+
     tempFolder =
         Util.createTempDirectory(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
     cache = new SimpleCache(tempFolder, new NoOpCacheEvictor());
+    upstreamDataSource = new FakeDataSource();
   }
 
   @After
@@ -109,6 +120,19 @@ public final class CacheDataSourceTest {
   @Test
   public void testCacheAndRead() throws Exception {
     assertCacheAndRead(boundedDataSpec, /* unknownLength= */ false);
+  }
+
+  @Test
+  public void testPropagatesHttpHeadersUpstream() throws Exception {
+    CacheDataSource cacheDataSource =
+        createCacheDataSource(/* setReadException= */ false, /* unknownLength= */ false);
+    DataSpec dataSpec = buildDataSpec(/* position= */ 2, /* length= */ 5);
+    cacheDataSource.open(dataSpec);
+
+    DataSpec[] upstreamDataSpecs = upstreamDataSource.getAndClearOpenedDataSpecs();
+
+    assertThat(upstreamDataSpecs).hasLength(1);
+    assertThat(upstreamDataSpecs[0].httpRequestHeaders).isEqualTo(this.httpRequestHeaders);
   }
 
   @Test
@@ -572,9 +596,8 @@ public final class CacheDataSourceTest {
       @CacheDataSource.Flags int flags,
       CacheDataSink cacheWriteDataSink,
       CacheKeyFactory cacheKeyFactory) {
-    FakeDataSource upstream = new FakeDataSource();
     FakeData fakeData =
-        upstream
+        upstreamDataSource
             .getDataSet()
             .newDefaultData()
             .setSimulateUnknownLength(unknownLength)
@@ -584,7 +607,7 @@ public final class CacheDataSourceTest {
     }
     return new CacheDataSource(
         cache,
-        upstream,
+        upstreamDataSource,
         new FileDataSource(),
         cacheWriteDataSink,
         flags,
@@ -602,6 +625,11 @@ public final class CacheDataSourceTest {
 
   private DataSpec buildDataSpec(long position, long length, @Nullable String key) {
     return new DataSpec(
-        testDataUri, position, length, key, DataSpec.FLAG_ALLOW_CACHE_FRAGMENTATION);
+        testDataUri,
+        position,
+        length,
+        key,
+        DataSpec.FLAG_ALLOW_CACHE_FRAGMENTATION,
+        httpRequestHeaders);
   }
 }

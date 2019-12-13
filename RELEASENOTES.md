@@ -25,6 +25,7 @@
   [Span-styled text]( https://developer.android.com/guide/topics/text/spans)
   (e.g. subtitles).
 * Add `Player.getCurrentLiveOffset` to conveniently return the live offset.
+* Propagate HTTP request headers through `CacheDataSource`.
 
 ### 2.11.0 (2019-12-11) ###
 
