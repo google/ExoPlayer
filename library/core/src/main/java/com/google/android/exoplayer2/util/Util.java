@@ -134,9 +134,8 @@ public final class Util {
           + "(T(([0-9]*)H)?(([0-9]*)M)?(([0-9.]*)S)?)?$");
   private static final Pattern ESCAPED_CHARACTER_PATTERN = Pattern.compile("%([A-Fa-f0-9]{2})");
 
-  // Android standardizes to ISO 639-1 2-letter codes and provides no way to map a 3-letter
-  // ISO 639-2 code back to the corresponding 2-letter code.
-  @Nullable private static HashMap<String, String> languageTagIso3ToIso2;
+  // Replacement map of ISO language codes used for normalization.
+  @Nullable private static HashMap<String, String> languageTagReplacementMap;
 
   private Util() {}
 
@@ -497,26 +496,23 @@ public final class Util {
     // Locale data (especially for API < 21) may produce tags with '_' instead of the
     // standard-conformant '-'.
     String normalizedTag = language.replace('_', '-');
-    if (Util.SDK_INT >= 21) {
-      // Filters out ill-formed sub-tags, replaces deprecated tags and normalizes all valid tags.
-      normalizedTag = normalizeLanguageCodeSyntaxV21(normalizedTag);
-    }
     if (normalizedTag.isEmpty() || "und".equals(normalizedTag)) {
       // Tag isn't valid, keep using the original.
       normalizedTag = language;
     }
     normalizedTag = Util.toLowerInvariant(normalizedTag);
     String mainLanguage = Util.splitAtFirst(normalizedTag, "-")[0];
-    if (mainLanguage.length() == 3) {
-      // 3-letter ISO 639-2/B or ISO 639-2/T language codes will not be converted to 2-letter ISO
-      // 639-1 codes automatically.
-      if (languageTagIso3ToIso2 == null) {
-        languageTagIso3ToIso2 = createIso3ToIso2Map();
-      }
-      String iso2Language = languageTagIso3ToIso2.get(mainLanguage);
-      if (iso2Language != null) {
-        normalizedTag = iso2Language + normalizedTag.substring(/* beginIndex= */ 3);
-      }
+    if (languageTagReplacementMap == null) {
+      languageTagReplacementMap = createIsoLanguageReplacementMap();
+    }
+    @Nullable String replacedLanguage = languageTagReplacementMap.get(mainLanguage);
+    if (replacedLanguage != null) {
+      normalizedTag =
+          replacedLanguage + normalizedTag.substring(/* beginIndex= */ mainLanguage.length());
+      mainLanguage = replacedLanguage;
+    }
+    if ("no".equals(mainLanguage) || "i".equals(mainLanguage) || "zh".equals(mainLanguage)) {
+      normalizedTag = maybeReplaceGrandfatheredLanguageTags(normalizedTag);
     }
     return normalizedTag;
   }
@@ -2069,11 +2065,6 @@ public final class Util {
     return locale.toLanguageTag();
   }
 
-  @TargetApi(21)
-  private static String normalizeLanguageCodeSyntaxV21(String languageTag) {
-    return Locale.forLanguageTag(languageTag).toLanguageTag();
-  }
-
   private static @C.NetworkType int getMobileNetworkType(NetworkInfo networkInfo) {
     switch (networkInfo.getSubtype()) {
       case TelephonyManager.NETWORK_TYPE_EDGE:
@@ -2104,32 +2095,45 @@ public final class Util {
     }
   }
 
-  private static HashMap<String, String> createIso3ToIso2Map() {
+  private static HashMap<String, String> createIsoLanguageReplacementMap() {
     String[] iso2Languages = Locale.getISOLanguages();
-    HashMap<String, String> iso3ToIso2 =
+    HashMap<String, String> replacedLanguages =
         new HashMap<>(
-            /* initialCapacity= */ iso2Languages.length + iso3BibliographicalToIso2.length);
+            /* initialCapacity= */ iso2Languages.length + additionalIsoLanguageReplacements.length);
     for (String iso2 : iso2Languages) {
       try {
         // This returns the ISO 639-2/T code for the language.
         String iso3 = new Locale(iso2).getISO3Language();
         if (!TextUtils.isEmpty(iso3)) {
-          iso3ToIso2.put(iso3, iso2);
+          replacedLanguages.put(iso3, iso2);
         }
       } catch (MissingResourceException e) {
         // Shouldn't happen for list of known languages, but we don't want to throw either.
       }
     }
-    // Add additional ISO 639-2/B codes to mapping.
-    for (int i = 0; i < iso3BibliographicalToIso2.length; i += 2) {
-      iso3ToIso2.put(iso3BibliographicalToIso2[i], iso3BibliographicalToIso2[i + 1]);
+    // Add additional replacement mappings.
+    for (int i = 0; i < additionalIsoLanguageReplacements.length; i += 2) {
+      replacedLanguages.put(
+          additionalIsoLanguageReplacements[i], additionalIsoLanguageReplacements[i + 1]);
     }
-    return iso3ToIso2;
+    return replacedLanguages;
   }
 
-  // See https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes.
-  private static final String[] iso3BibliographicalToIso2 =
+  private static String maybeReplaceGrandfatheredLanguageTags(String languageTag) {
+    for (int i = 0; i < isoGrandfatheredTagReplacements.length; i += 2) {
+      if (languageTag.startsWith(isoGrandfatheredTagReplacements[i])) {
+        return isoGrandfatheredTagReplacements[i + 1]
+            + languageTag.substring(/* beginIndex= */ isoGrandfatheredTagReplacements[i].length());
+      }
+    }
+    return languageTag;
+  }
+
+  // Additional mapping from ISO3 to ISO2 language codes.
+  private static final String[] additionalIsoLanguageReplacements =
       new String[] {
+        // Bibliographical codes defined in ISO 639-2/B, replaced by terminological code defined in
+        // ISO 639-2/T. See https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes.
         "alb", "sq",
         "arm", "hy",
         "baq", "eu",
@@ -2148,8 +2152,50 @@ public final class Util {
         "may", "ms",
         "per", "fa",
         "rum", "ro",
+        "scc", "hbs-srp",
         "slo", "sk",
-        "wel", "cy"
+        "wel", "cy",
+        // Deprecated 2-letter codes, replaced by modern equivalent (including macrolanguage)
+        // See https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes, "ISO 639:1988"
+        "id", "ms-ind",
+        "iw", "he",
+        "heb", "he",
+        "ji", "yi",
+        // Individual macrolanguage codes mapped back to full macrolanguage code.
+        // See https://en.wikipedia.org/wiki/ISO_639_macrolanguage
+        "in", "ms-ind",
+        "ind", "ms-ind",
+        "nb", "no-nob",
+        "nob", "no-nob",
+        "nn", "no-nno",
+        "nno", "no-nno",
+        "tw", "ak-twi",
+        "twi", "ak-twi",
+        "bs", "hbs-bos",
+        "bos", "hbs-bos",
+        "hr", "hbs-hrv",
+        "hrv", "hbs-hrv",
+        "sr", "hbs-srp",
+        "srp", "hbs-srp",
+        "cmn", "zh-cmn",
+        "hak", "zh-hak",
+        "nan", "zh-nan",
+        "hsn", "zh-hsn"
+      };
+
+  // "Grandfathered tags", replaced by modern equivalents (including macrolanguage)
+  // See https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry.
+  private static final String[] isoGrandfatheredTagReplacements =
+      new String[] {
+        "i-lux", "lb",
+        "i-hak", "zh-hak",
+        "i-navajo", "nv",
+        "no-bok", "no-nob",
+        "no-nyn", "no-nno",
+        "zh-guoyu", "zh-cmn",
+        "zh-hakka", "zh-hak",
+        "zh-min-nan", "zh-nan",
+        "zh-xiang", "zh-hsn"
       };
 
   /**
