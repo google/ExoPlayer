@@ -43,6 +43,7 @@ import android.security.NetworkSecurityPolicy;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.view.Display;
+import android.view.SurfaceView;
 import android.view.WindowManager;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -1903,24 +1904,36 @@ public final class Util {
   }
 
   /**
-   * Gets the physical size of the default display, in pixels.
+   * Gets the size of the current mode of the default display, in pixels.
+   *
+   * <p>Note that due to application UI scaling, the number of pixels made available to applications
+   * (as reported by {@link Display#getSize(Point)} may differ from the mode's actual resolution (as
+   * reported by this function). For example, applications running on a display configured with a 4K
+   * mode may have their UI laid out and rendered in 1080p and then scaled up. Applications can take
+   * advantage of the full mode resolution through a {@link SurfaceView} using full size buffers.
    *
    * @param context Any context.
-   * @return The physical display size, in pixels.
+   * @return The size of the current mode, in pixels.
    */
-  public static Point getPhysicalDisplaySize(Context context) {
+  public static Point getCurrentDisplayModeSize(Context context) {
     WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-    return getPhysicalDisplaySize(context, windowManager.getDefaultDisplay());
+    return getCurrentDisplayModeSize(context, windowManager.getDefaultDisplay());
   }
 
   /**
-   * Gets the physical size of the specified display, in pixels.
+   * Gets the size of the current mode of the specified display, in pixels.
+   *
+   * <p>Note that due to application UI scaling, the number of pixels made available to applications
+   * (as reported by {@link Display#getSize(Point)} may differ from the mode's actual resolution (as
+   * reported by this function). For example, applications running on a display configured with a 4K
+   * mode may have their UI laid out and rendered in 1080p and then scaled up. Applications can take
+   * advantage of the full mode resolution through a {@link SurfaceView} using full size buffers.
    *
    * @param context Any context.
    * @param display The display whose size is to be returned.
-   * @return The physical display size, in pixels.
+   * @return The size of the current mode, in pixels.
    */
-  public static Point getPhysicalDisplaySize(Context context, Display display) {
+  public static Point getCurrentDisplayModeSize(Context context, Display display) {
     if (Util.SDK_INT <= 29 && display.getDisplayId() == Display.DEFAULT_DISPLAY && isTv(context)) {
       // On Android TVs it is common for the UI to be configured for a lower resolution than
       // SurfaceViews can output. Before API 26 the Display object does not provide a way to
