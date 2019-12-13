@@ -95,14 +95,16 @@ public final class C {
    * The name of the ASCII charset.
    */
   public static final String ASCII_NAME = "US-ASCII";
+
   /**
    * The name of the UTF-8 charset.
    */
   public static final String UTF8_NAME = "UTF-8";
 
-  /**
-   * The name of the UTF-16 charset.
-   */
+  /** The name of the ISO-8859-1 charset. */
+  public static final String ISO88591_NAME = "ISO-8859-1";
+
+  /** The name of the UTF-16 charset. */
   public static final String UTF16_NAME = "UTF-16";
 
   /** The name of the UTF-16 little-endian charset. */
