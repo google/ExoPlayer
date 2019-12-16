@@ -51,18 +51,11 @@ dependencies {
     compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkVersion
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
     androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion
-    androidTestImplementation 'androidx.test.ext:junit:' + androidxTestJUnitVersion
-    androidTestImplementation 'com.google.truth:truth:' + truthVersion
     androidTestImplementation 'com.google.guava:guava:' + guavaVersion
     androidTestImplementation 'com.linkedin.dexmaker:dexmaker:' + dexmakerVersion
     androidTestImplementation 'com.linkedin.dexmaker:dexmaker-mockito:' + dexmakerVersion
-    androidTestImplementation 'org.mockito:mockito-core:' + mockitoVersion
     androidTestImplementation project(modulePrefix + 'testutils')
-    testImplementation 'androidx.test:core:' + androidxTestCoreVersion
-    testImplementation 'androidx.test.ext:junit:' + androidxTestJUnitVersion
-    testImplementation 'com.google.truth:truth:' + truthVersion
     testImplementation 'com.google.guava:guava:' + guavaVersion
-    testImplementation 'org.mockito:mockito-core:' + mockitoVersion
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
     testImplementation project(modulePrefix + 'testutils')
 }
