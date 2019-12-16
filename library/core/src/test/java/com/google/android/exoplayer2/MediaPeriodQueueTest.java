@@ -81,7 +81,7 @@ public final class MediaPeriodQueueTest {
 
   @Test
   public void getNextMediaPeriodInfo_withPrerollAd_returnsCorrectMediaPeriodInfos() {
-    setupTimeline(/* initialPositionUs= */ 0, /* adGroupTimesUs= */ 0);
+    setupTimeline(/* initialPositionUs= */ 0, /* adGroupTimesUs...= */ 0);
     setAdGroupLoaded(/* adGroupIndex= */ 0);
     assertNextMediaPeriodInfoIsAd(/* adGroupIndex= */ 0, /* contentPositionUs= */ 0);
     advance();
@@ -97,7 +97,7 @@ public final class MediaPeriodQueueTest {
   public void getNextMediaPeriodInfo_withMidrollAds_returnsCorrectMediaPeriodInfos() {
     setupTimeline(
         /* initialPositionUs= */ 0,
-        /* adGroupTimesUs= */ FIRST_AD_START_TIME_US,
+        /* adGroupTimesUs...= */ FIRST_AD_START_TIME_US,
         SECOND_AD_START_TIME_US);
     assertGetNextMediaPeriodInfoReturnsContentMediaPeriod(
         /* startPositionUs= */ 0,
@@ -135,7 +135,7 @@ public final class MediaPeriodQueueTest {
   public void getNextMediaPeriodInfo_withMidrollAndPostroll_returnsCorrectMediaPeriodInfos() {
     setupTimeline(
         /* initialPositionUs= */ 0,
-        /* adGroupTimesUs= */ FIRST_AD_START_TIME_US,
+        /* adGroupTimesUs...= */ FIRST_AD_START_TIME_US,
         C.TIME_END_OF_SOURCE);
     assertGetNextMediaPeriodInfoReturnsContentMediaPeriod(
         /* startPositionUs= */ 0,
@@ -169,7 +169,7 @@ public final class MediaPeriodQueueTest {
 
   @Test
   public void getNextMediaPeriodInfo_withPostrollLoadError_returnsEmptyFinalMediaPeriodInfo() {
-    setupTimeline(/* initialPositionUs= */ 0, /* adGroupTimesUs= */ C.TIME_END_OF_SOURCE);
+    setupTimeline(/* initialPositionUs= */ 0, /* adGroupTimesUs...= */ C.TIME_END_OF_SOURCE);
     assertGetNextMediaPeriodInfoReturnsContentMediaPeriod(
         /* startPositionUs= */ 0,
         /* endPositionUs= */ C.TIME_END_OF_SOURCE,
@@ -191,7 +191,7 @@ public final class MediaPeriodQueueTest {
       updateQueuedPeriods_withDurationChangeAfterReadingPeriod_handlesChangeAndRemovesPeriodsAfterChangedPeriod() {
     setupTimeline(
         /* initialPositionUs= */ 0,
-        /* adGroupTimesUs= */ FIRST_AD_START_TIME_US,
+        /* adGroupTimesUs...= */ FIRST_AD_START_TIME_US,
         SECOND_AD_START_TIME_US);
     setAdGroupLoaded(/* adGroupIndex= */ 0);
     setAdGroupLoaded(/* adGroupIndex= */ 1);
@@ -204,7 +204,7 @@ public final class MediaPeriodQueueTest {
     // Change position of second ad (= change duration of content between ads).
     setupTimeline(
         /* initialPositionUs= */ 0,
-        /* adGroupTimesUs= */ FIRST_AD_START_TIME_US,
+        /* adGroupTimesUs...= */ FIRST_AD_START_TIME_US,
         SECOND_AD_START_TIME_US + 1);
     setAdGroupLoaded(/* adGroupIndex= */ 0);
     setAdGroupLoaded(/* adGroupIndex= */ 1);
@@ -221,7 +221,7 @@ public final class MediaPeriodQueueTest {
       updateQueuedPeriods_withDurationChangeBeforeReadingPeriod_doesntHandleChangeAndRemovesPeriodsAfterChangedPeriod() {
     setupTimeline(
         /* initialPositionUs= */ 0,
-        /* adGroupTimesUs= */ FIRST_AD_START_TIME_US,
+        /* adGroupTimesUs...= */ FIRST_AD_START_TIME_US,
         SECOND_AD_START_TIME_US);
     setAdGroupLoaded(/* adGroupIndex= */ 0);
     setAdGroupLoaded(/* adGroupIndex= */ 1);
@@ -235,7 +235,7 @@ public final class MediaPeriodQueueTest {
     // Change position of first ad (= change duration of content before first ad).
     setupTimeline(
         /* initialPositionUs= */ 0,
-        /* adGroupTimesUs= */ FIRST_AD_START_TIME_US + 1,
+        /* adGroupTimesUs...= */ FIRST_AD_START_TIME_US + 1,
         SECOND_AD_START_TIME_US);
     setAdGroupLoaded(/* adGroupIndex= */ 0);
     setAdGroupLoaded(/* adGroupIndex= */ 1);
@@ -252,7 +252,7 @@ public final class MediaPeriodQueueTest {
       updateQueuedPeriods_withDurationChangeInReadingPeriodAfterReadingPosition_handlesChangeAndRemovesPeriodsAfterChangedPeriod() {
     setupTimeline(
         /* initialPositionUs= */ 0,
-        /* adGroupTimesUs= */ FIRST_AD_START_TIME_US,
+        /* adGroupTimesUs...= */ FIRST_AD_START_TIME_US,
         SECOND_AD_START_TIME_US);
     setAdGroupLoaded(/* adGroupIndex= */ 0);
     setAdGroupLoaded(/* adGroupIndex= */ 1);
@@ -267,7 +267,7 @@ public final class MediaPeriodQueueTest {
     // Change position of second ad (= change duration of content between ads).
     setupTimeline(
         /* initialPositionUs= */ 0,
-        /* adGroupTimesUs= */ FIRST_AD_START_TIME_US,
+        /* adGroupTimesUs...= */ FIRST_AD_START_TIME_US,
         SECOND_AD_START_TIME_US - 1000);
     setAdGroupLoaded(/* adGroupIndex= */ 0);
     setAdGroupLoaded(/* adGroupIndex= */ 1);
@@ -286,7 +286,7 @@ public final class MediaPeriodQueueTest {
       updateQueuedPeriods_withDurationChangeInReadingPeriodBeforeReadingPosition_doesntHandleChangeAndRemovesPeriodsAfterChangedPeriod() {
     setupTimeline(
         /* initialPositionUs= */ 0,
-        /* adGroupTimesUs= */ FIRST_AD_START_TIME_US,
+        /* adGroupTimesUs...= */ FIRST_AD_START_TIME_US,
         SECOND_AD_START_TIME_US);
     setAdGroupLoaded(/* adGroupIndex= */ 0);
     setAdGroupLoaded(/* adGroupIndex= */ 1);
@@ -301,7 +301,7 @@ public final class MediaPeriodQueueTest {
     // Change position of second ad (= change duration of content between ads).
     setupTimeline(
         /* initialPositionUs= */ 0,
-        /* adGroupTimesUs= */ FIRST_AD_START_TIME_US,
+        /* adGroupTimesUs...= */ FIRST_AD_START_TIME_US,
         SECOND_AD_START_TIME_US - 1000);
     setAdGroupLoaded(/* adGroupIndex= */ 0);
     setAdGroupLoaded(/* adGroupIndex= */ 1);
@@ -320,7 +320,7 @@ public final class MediaPeriodQueueTest {
       updateQueuedPeriods_withDurationChangeInReadingPeriodReadToEnd_doesntHandleChangeAndRemovesPeriodsAfterChangedPeriod() {
     setupTimeline(
         /* initialPositionUs= */ 0,
-        /* adGroupTimesUs= */ FIRST_AD_START_TIME_US,
+        /* adGroupTimesUs...= */ FIRST_AD_START_TIME_US,
         SECOND_AD_START_TIME_US);
     setAdGroupLoaded(/* adGroupIndex= */ 0);
     setAdGroupLoaded(/* adGroupIndex= */ 1);
@@ -335,7 +335,7 @@ public final class MediaPeriodQueueTest {
     // Change position of second ad (= change duration of content between ads).
     setupTimeline(
         /* initialPositionUs= */ 0,
-        /* adGroupTimesUs= */ FIRST_AD_START_TIME_US,
+        /* adGroupTimesUs...= */ FIRST_AD_START_TIME_US,
         SECOND_AD_START_TIME_US - 1000);
     setAdGroupLoaded(/* adGroupIndex= */ 0);
     setAdGroupLoaded(/* adGroupIndex= */ 1);
