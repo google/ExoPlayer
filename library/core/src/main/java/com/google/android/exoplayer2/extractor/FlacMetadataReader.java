@@ -32,7 +32,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-/** Reads and peeks FLAC stream metadata elements from an {@link ExtractorInput}. */
+/**
+ * Reads and peeks FLAC stream metadata elements according to the <a
+ * href="https://xiph.org/flac/format.html">FLAC format specification</a>.
+ */
 public final class FlacMetadataReader {
 
   /** Holds a {@link FlacStreamMetadata}. */
@@ -47,9 +50,7 @@ public final class FlacMetadataReader {
 
   private static final int STREAM_MARKER = 0x664C6143; // ASCII for "fLaC"
   private static final int SYNC_CODE = 0x3FFE;
-  private static final int STREAM_INFO_TYPE = 0;
-  private static final int VORBIS_COMMENT_TYPE = 4;
-  private static final int PICTURE_TYPE = 6;
+  private static final int SEEK_POINT_SIZE = 18;
 
   /**
    * Peeks ID3 Data.
@@ -167,18 +168,21 @@ public final class FlacMetadataReader {
     boolean isLastMetadataBlock = scratch.readBit();
     int type = scratch.readBits(7);
     int length = FlacConstants.METADATA_BLOCK_HEADER_SIZE + scratch.readBits(24);
-    if (type == STREAM_INFO_TYPE) {
+    if (type == FlacConstants.METADATA_TYPE_STREAM_INFO) {
       metadataHolder.flacStreamMetadata = readStreamInfoBlock(input);
     } else {
       FlacStreamMetadata flacStreamMetadata = metadataHolder.flacStreamMetadata;
       if (flacStreamMetadata == null) {
         throw new IllegalArgumentException();
       }
-      if (type == VORBIS_COMMENT_TYPE) {
+      if (type == FlacConstants.METADATA_TYPE_SEEK_TABLE) {
+        FlacStreamMetadata.SeekTable seekTable = readSeekTableMetadataBlock(input, length);
+        metadataHolder.flacStreamMetadata = flacStreamMetadata.copyWithSeekTable(seekTable);
+      } else if (type == FlacConstants.METADATA_TYPE_VORBIS_COMMENT) {
         List<String> vorbisComments = readVorbisCommentMetadataBlock(input, length);
         metadataHolder.flacStreamMetadata =
             flacStreamMetadata.copyWithVorbisComments(vorbisComments);
-      } else if (type == PICTURE_TYPE) {
+      } else if (type == FlacConstants.METADATA_TYPE_PICTURE) {
         PictureFrame pictureFrame = readPictureMetadataBlock(input, length);
         metadataHolder.flacStreamMetadata =
             flacStreamMetadata.copyWithPictureFrames(Collections.singletonList(pictureFrame));
@@ -188,6 +192,42 @@ public final class FlacMetadataReader {
     }
 
     return isLastMetadataBlock;
+  }
+
+  /**
+   * Reads a FLAC seek table metadata block.
+   *
+   * <p>The position of {@code data} is moved to the byte following the seek table metadata block
+   * (placeholder points included).
+   *
+   * @param data The array to read the data from, whose position must correspond to the seek table
+   *     metadata block (header included).
+   * @return The seek table, without the placeholder points.
+   */
+  public static FlacStreamMetadata.SeekTable readSeekTableMetadataBlock(ParsableByteArray data) {
+    data.skipBytes(1);
+    int length = data.readUnsignedInt24();
+
+    long seekTableEndPosition = data.getPosition() + length;
+    int seekPointCount = length / SEEK_POINT_SIZE;
+    long[] pointSampleNumbers = new long[seekPointCount];
+    long[] pointOffsets = new long[seekPointCount];
+    for (int i = 0; i < seekPointCount; i++) {
+      // The sample number is expected to fit in a signed long, except if it is a placeholder, in
+      // which case its value is -1.
+      long sampleNumber = data.readLong();
+      if (sampleNumber == -1) {
+        pointSampleNumbers = Arrays.copyOf(pointSampleNumbers, i);
+        pointOffsets = Arrays.copyOf(pointOffsets, i);
+        break;
+      }
+      pointSampleNumbers[i] = sampleNumber;
+      pointOffsets[i] = data.readLong();
+      data.skipBytes(2);
+    }
+
+    data.skipBytes((int) (seekTableEndPosition - data.getPosition()));
+    return new FlacStreamMetadata.SeekTable(pointSampleNumbers, pointOffsets);
   }
 
   /**
@@ -225,6 +265,13 @@ public final class FlacMetadataReader {
     input.readFully(scratchData, 0, FlacConstants.STREAM_INFO_BLOCK_SIZE);
     return new FlacStreamMetadata(
         scratchData, /* offset= */ FlacConstants.METADATA_BLOCK_HEADER_SIZE);
+  }
+
+  private static FlacStreamMetadata.SeekTable readSeekTableMetadataBlock(
+      ExtractorInput input, int length) throws IOException, InterruptedException {
+    ParsableByteArray scratch = new ParsableByteArray(length);
+    input.readFully(scratch.data, 0, length);
+    return readSeekTableMetadataBlock(scratch);
   }
 
   private static List<String> readVorbisCommentMetadataBlock(ExtractorInput input, int length)

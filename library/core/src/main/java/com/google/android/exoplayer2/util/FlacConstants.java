@@ -29,5 +29,14 @@ public final class FlacConstants {
   /** Maximum size of a FLAC frame header in bytes. */
   public static final int MAX_FRAME_HEADER_SIZE = 16;
 
+  /** Stream info metadata block type. */
+  public static final int METADATA_TYPE_STREAM_INFO = 0;
+  /** Seek table metadata block type. */
+  public static final int METADATA_TYPE_SEEK_TABLE = 3;
+  /** Vorbis comment metadata block type. */
+  public static final int METADATA_TYPE_VORBIS_COMMENT = 4;
+  /** Picture metadata block type. */
+  public static final int METADATA_TYPE_PICTURE = 6;
+
   private FlacConstants() {}
 }

@@ -30,12 +30,27 @@ import java.util.List;
  *
  * @see <a href="https://xiph.org/flac/format.html#metadata_block_streaminfo">FLAC format
  *     METADATA_BLOCK_STREAMINFO</a>
+ * @see <a href="https://xiph.org/flac/format.html#metadata_block_seektable">FLAC format
+ *     METADATA_BLOCK_SEEKTABLE</a>
  * @see <a href="https://xiph.org/flac/format.html#metadata_block_vorbis_comment">FLAC format
  *     METADATA_BLOCK_VORBIS_COMMENT</a>
  * @see <a href="https://xiph.org/flac/format.html#metadata_block_picture">FLAC format
  *     METADATA_BLOCK_PICTURE</a>
  */
 public final class FlacStreamMetadata {
+
+  /** A FLAC seek table. */
+  public static class SeekTable {
+    /** Seek points sample numbers. */
+    public final long[] pointSampleNumbers;
+    /** Seek points byte offsets from the first frame. */
+    public final long[] pointOffsets;
+
+    public SeekTable(long[] pointSampleNumbers, long[] pointOffsets) {
+      this.pointSampleNumbers = pointSampleNumbers;
+      this.pointOffsets = pointOffsets;
+    }
+  }
 
   private static final String TAG = "FlacStreamMetadata";
 
@@ -79,7 +94,8 @@ public final class FlacStreamMetadata {
   public final int bitsPerSampleLookupKey;
   /** Total number of samples, or 0 if the value is unknown. */
   public final long totalSamples;
-
+  /** Seek table, or {@code null} if it is not provided. */
+  @Nullable public final SeekTable seekTable;
   /** Content metadata, or {@code null} if it is not provided. */
   @Nullable private final Metadata metadata;
 
@@ -102,6 +118,7 @@ public final class FlacStreamMetadata {
     bitsPerSample = scratch.readBits(5) + 1;
     bitsPerSampleLookupKey = getBitsPerSampleLookupKey(bitsPerSample);
     totalSamples = scratch.readBitsToLong(36);
+    seekTable = null;
     metadata = null;
   }
 
@@ -126,6 +143,7 @@ public final class FlacStreamMetadata {
         channels,
         bitsPerSample,
         totalSamples,
+        /* seekTable= */ null,
         buildMetadata(vorbisComments, pictureFrames));
   }
 
@@ -138,6 +156,7 @@ public final class FlacStreamMetadata {
       int channels,
       int bitsPerSample,
       long totalSamples,
+      @Nullable SeekTable seekTable,
       @Nullable Metadata metadata) {
     this.minBlockSizeSamples = minBlockSizeSamples;
     this.maxBlockSizeSamples = maxBlockSizeSamples;
@@ -149,6 +168,7 @@ public final class FlacStreamMetadata {
     this.bitsPerSample = bitsPerSample;
     this.bitsPerSampleLookupKey = getBitsPerSampleLookupKey(bitsPerSample);
     this.totalSamples = totalSamples;
+    this.seekTable = seekTable;
     this.metadata = metadata;
   }
 
@@ -239,6 +259,21 @@ public final class FlacStreamMetadata {
     return metadata == null ? other : metadata.copyWithAppendedEntriesFrom(other);
   }
 
+  /** Returns a copy of {@code this} with the seek table replaced by the one given. */
+  public FlacStreamMetadata copyWithSeekTable(@Nullable SeekTable seekTable) {
+    return new FlacStreamMetadata(
+        minBlockSizeSamples,
+        maxBlockSizeSamples,
+        minFrameSize,
+        maxFrameSize,
+        sampleRate,
+        channels,
+        bitsPerSample,
+        totalSamples,
+        seekTable,
+        metadata);
+  }
+
   /** Returns a copy of {@code this} with the given Vorbis comments added to the metadata. */
   public FlacStreamMetadata copyWithVorbisComments(List<String> vorbisComments) {
     @Nullable
@@ -254,6 +289,7 @@ public final class FlacStreamMetadata {
         channels,
         bitsPerSample,
         totalSamples,
+        seekTable,
         appendedMetadata);
   }
 
@@ -272,6 +308,7 @@ public final class FlacStreamMetadata {
         channels,
         bitsPerSample,
         totalSamples,
+        seekTable,
         appendedMetadata);
   }
 

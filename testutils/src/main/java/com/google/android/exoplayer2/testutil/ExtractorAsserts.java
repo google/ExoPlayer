@@ -208,18 +208,21 @@ public final class ExtractorAsserts {
       extractorOutput.assertOutput(context, file + ".0" + DUMP_EXTENSION);
     }
 
-    // If the SeekMap is seekable, test seeking to 4 positions in the stream.
+    // If the SeekMap is seekable, test seeking in the stream.
     SeekMap seekMap = extractorOutput.seekMap;
     if (seekMap.isSeekable()) {
       long durationUs = seekMap.getDurationUs();
       for (int j = 0; j < 4; j++) {
         extractorOutput.clearTrackOutputs();
-        long timeUs = (durationUs * j) / 3;
+        long timeUs = durationUs == C.TIME_UNSET ? 0 : (durationUs * j) / 3;
         long position = seekMap.getSeekPoints(timeUs).first.position;
         input.reset();
         input.setPosition((int) position);
         consumeTestData(extractor, input, timeUs, extractorOutput, false);
         extractorOutput.assertOutput(context, file + '.' + j + DUMP_EXTENSION);
+        if (durationUs == C.TIME_UNSET) {
+          break;
+        }
       }
     }
 
