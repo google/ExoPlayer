@@ -22,21 +22,19 @@ import com.google.android.exoplayer2.util.Util;
 
 /* package */ final class WavSeekMap implements SeekMap {
 
-  /** The WAV header for the stream. */
   private final WavHeader wavHeader;
-  /** Number of samples in each block. */
-  private final int samplesPerBlock;
-  /** Position of the start of the sample data, in bytes. */
-  private final long dataStartPosition;
-  /** Position of the end of the sample data (exclusive), in bytes. */
-  private final long dataEndPosition;
+  private final int framesPerBlock;
+  private final long firstBlockPosition;
+  private final long blockCount;
+  private final long durationUs;
 
   public WavSeekMap(
-      WavHeader wavHeader, int samplesPerBlock, long dataStartPosition, long dataEndPosition) {
+      WavHeader wavHeader, int framesPerBlock, long dataStartPosition, long dataEndPosition) {
     this.wavHeader = wavHeader;
-    this.samplesPerBlock = samplesPerBlock;
-    this.dataStartPosition = dataStartPosition;
-    this.dataEndPosition = dataEndPosition;
+    this.framesPerBlock = framesPerBlock;
+    this.firstBlockPosition = dataStartPosition;
+    this.blockCount = (dataEndPosition - dataStartPosition) / wavHeader.blockSize;
+    durationUs = blockIndexToTimeUs(blockCount);
   }
 
   @Override
@@ -46,38 +44,33 @@ import com.google.android.exoplayer2.util.Util;
 
   @Override
   public long getDurationUs() {
-    long numBlocks = (dataEndPosition - dataStartPosition) / wavHeader.blockAlign;
-    return numBlocks * samplesPerBlock * C.MICROS_PER_SECOND / wavHeader.sampleRateHz;
+    return durationUs;
   }
 
   @Override
   public SeekPoints getSeekPoints(long timeUs) {
-    long blockAlign = wavHeader.blockAlign;
-    long dataSize = dataEndPosition - dataStartPosition;
+    // Calculate the expected number of bytes of sample data corresponding to the requested time.
     long positionOffset = (timeUs * wavHeader.averageBytesPerSecond) / C.MICROS_PER_SECOND;
-    // Constrain to nearest preceding frame offset.
-    positionOffset = (positionOffset / blockAlign) * blockAlign;
-    positionOffset = Util.constrainValue(positionOffset, 0, dataSize - blockAlign);
-    long seekPosition = dataStartPosition + positionOffset;
-    long seekTimeUs = getTimeUs(seekPosition);
+    // Calculate the containing block index, constraining to valid indices.
+    long blockSize = wavHeader.blockSize;
+    long blockIndex = Util.constrainValue(positionOffset / blockSize, 0, blockCount - 1);
+
+    long seekPosition = firstBlockPosition + (blockIndex * blockSize);
+    long seekTimeUs = blockIndexToTimeUs(blockIndex);
     SeekPoint seekPoint = new SeekPoint(seekTimeUs, seekPosition);
-    if (seekTimeUs >= timeUs || positionOffset == dataSize - blockAlign) {
+    if (seekTimeUs >= timeUs || blockIndex == blockCount - 1) {
       return new SeekPoints(seekPoint);
     } else {
-      long secondSeekPosition = seekPosition + blockAlign;
-      long secondSeekTimeUs = getTimeUs(secondSeekPosition);
+      long secondBlockIndex = blockIndex + 1;
+      long secondSeekPosition = firstBlockPosition + (secondBlockIndex * blockSize);
+      long secondSeekTimeUs = blockIndexToTimeUs(secondBlockIndex);
       SeekPoint secondSeekPoint = new SeekPoint(secondSeekTimeUs, secondSeekPosition);
       return new SeekPoints(seekPoint, secondSeekPoint);
     }
   }
 
-  /**
-   * Returns the time in microseconds for the given position in bytes.
-   *
-   * @param position The position in bytes.
-   */
-  public long getTimeUs(long position) {
-    long positionOffset = Math.max(0, position - dataStartPosition);
-    return (positionOffset * C.MICROS_PER_SECOND) / wavHeader.averageBytesPerSecond;
+  private long blockIndexToTimeUs(long blockIndex) {
+    return Util.scaleLargeTimestamp(
+        blockIndex * framesPerBlock, C.MICROS_PER_SECOND, wavHeader.frameRateHz);
   }
 }

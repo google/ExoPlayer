@@ -26,11 +26,11 @@ package com.google.android.exoplayer2.extractor.wav;
   /** The number of channels. */
   public final int numChannels;
   /** The sample rate in Hertz. */
-  public final int sampleRateHz;
+  public final int frameRateHz;
   /** The average bytes per second for the sample data. */
   public final int averageBytesPerSecond;
   /** The block size in bytes. */
-  public final int blockAlign;
+  public final int blockSize;
   /** Bits per sample for a single channel. */
   public final int bitsPerSample;
   /** Extra data appended to the format chunk of the header. */
@@ -39,16 +39,16 @@ package com.google.android.exoplayer2.extractor.wav;
   public WavHeader(
       int formatType,
       int numChannels,
-      int sampleRateHz,
+      int frameRateHz,
       int averageBytesPerSecond,
-      int bytesPerFrame,
+      int blockSize,
       int bitsPerSample,
       byte[] extraData) {
     this.formatType = formatType;
     this.numChannels = numChannels;
-    this.sampleRateHz = sampleRateHz;
+    this.frameRateHz = frameRateHz;
     this.averageBytesPerSecond = averageBytesPerSecond;
-    this.blockAlign = bytesPerFrame;
+    this.blockSize = blockSize;
     this.bitsPerSample = bitsPerSample;
     this.extraData = extraData;
   }
