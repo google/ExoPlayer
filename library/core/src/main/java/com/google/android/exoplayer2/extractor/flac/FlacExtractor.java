@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.extractor.FlacFrameReader;
 import com.google.android.exoplayer2.extractor.FlacFrameReader.SampleNumberHolder;
 import com.google.android.exoplayer2.extractor.FlacMetadataReader;
+import com.google.android.exoplayer2.extractor.FlacSeekTableSeekMap;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
@@ -41,7 +42,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-// TODO: implement seeking using the optional seek table.
 /**
  * Extracts data from FLAC container format.
  *
@@ -175,11 +175,10 @@ public final class FlacExtractor implements Extractor {
   public void seek(long position, long timeUs) {
     if (position == 0) {
       state = STATE_READ_ID3_METADATA;
-      currentFrameFirstSampleNumber = 0;
     } else if (binarySearchSeeker != null) {
-      currentFrameFirstSampleNumber = SAMPLE_NUMBER_UNKNOWN;
       binarySearchSeeker.setSeekTargetUs(timeUs);
     }
+    currentFrameFirstSampleNumber = timeUs == 0 ? 0 : SAMPLE_NUMBER_UNKNOWN;
     currentFrameBytesWritten = 0;
     scratch.reset();
   }
@@ -231,7 +230,7 @@ public final class FlacExtractor implements Extractor {
     castNonNull(extractorOutput)
         .seekMap(
             getSeekMap(
-                /* firstFramePosition= */ (int) input.getPosition(),
+                /* firstFramePosition= */ input.getPosition(),
                 /* streamLength= */ input.getLength()));
 
     state = STATE_READ_FRAMES;
@@ -242,7 +241,7 @@ public final class FlacExtractor implements Extractor {
     Assertions.checkNotNull(trackOutput);
     Assertions.checkNotNull(flacStreamMetadata);
 
-    // Handle pending seek if necessary.
+    // Handle pending binary search seek if necessary.
     if (binarySearchSeeker != null && binarySearchSeeker.isSeeking()) {
       return binarySearchSeeker.handlePendingSeek(input, seekPosition);
     }
@@ -299,39 +298,42 @@ public final class FlacExtractor implements Extractor {
     return Extractor.RESULT_CONTINUE;
   }
 
-  private SeekMap getSeekMap(int firstFramePosition, long streamLength) {
+  private SeekMap getSeekMap(long firstFramePosition, long streamLength) {
     Assertions.checkNotNull(flacStreamMetadata);
-    if (streamLength == C.LENGTH_UNSET || flacStreamMetadata.totalSamples == 0) {
+    if (flacStreamMetadata.seekTable != null) {
+      return new FlacSeekTableSeekMap(flacStreamMetadata, firstFramePosition);
+    } else if (streamLength != C.LENGTH_UNSET && flacStreamMetadata.totalSamples > 0) {
+      binarySearchSeeker =
+          new FlacBinarySearchSeeker(
+              flacStreamMetadata, frameStartMarker, firstFramePosition, streamLength);
+      return binarySearchSeeker.getSeekMap();
+    } else {
       return new SeekMap.Unseekable(flacStreamMetadata.getDurationUs());
     }
-    binarySearchSeeker =
-        new FlacBinarySearchSeeker(
-            flacStreamMetadata, frameStartMarker, firstFramePosition, streamLength);
-    return binarySearchSeeker.getSeekMap();
   }
 
   /**
-   * Searches for the start of a frame in {@code scratch}.
+   * Searches for the start of a frame in {@code data}.
    *
    * <ul>
    *   <li>If the search is successful, the position is set to the start of the found frame.
    *   <li>Otherwise, the position is set to the first unsearched byte.
    * </ul>
    *
-   * @param scratch The array to be searched.
-   * @param foundEndOfInput If the end of input was met when filling in the {@code scratch}.
+   * @param data The array to be searched.
+   * @param foundEndOfInput If the end of input was met when filling in the {@code data}.
    * @return The number of the first sample in the frame found, or {@code SAMPLE_NUMBER_UNKNOWN} if
    *     the search was not successful.
    */
-  private long findFrame(ParsableByteArray scratch, boolean foundEndOfInput) {
+  private long findFrame(ParsableByteArray data, boolean foundEndOfInput) {
     Assertions.checkNotNull(flacStreamMetadata);
 
-    int frameOffset = scratch.getPosition();
-    while (frameOffset <= scratch.limit() - FlacConstants.MAX_FRAME_HEADER_SIZE) {
-      scratch.setPosition(frameOffset);
+    int frameOffset = data.getPosition();
+    while (frameOffset <= data.limit() - FlacConstants.MAX_FRAME_HEADER_SIZE) {
+      data.setPosition(frameOffset);
       if (FlacFrameReader.checkAndReadFrameHeader(
-          scratch, flacStreamMetadata, frameStartMarker, sampleNumberHolder)) {
-        scratch.setPosition(frameOffset);
+          data, flacStreamMetadata, frameStartMarker, sampleNumberHolder)) {
+        data.setPosition(frameOffset);
         return sampleNumberHolder.sampleNumber;
       }
       frameOffset++;
@@ -339,9 +341,9 @@ public final class FlacExtractor implements Extractor {
 
     if (foundEndOfInput) {
       // Reached the end of the file. Assume it's the end of the frame.
-      scratch.setPosition(scratch.limit());
+      data.setPosition(data.limit());
     } else {
-      scratch.setPosition(frameOffset);
+      data.setPosition(frameOffset);
     }
 
     return SAMPLE_NUMBER_UNKNOWN;
