@@ -1078,7 +1078,7 @@ public final class SampleQueueTest {
    * filled with the specified sample data.
    *
    * @param timeUs The expected buffer timestamp.
-   * @param isKeyframe The expected keyframe flag.
+   * @param isKeyFrame The expected keyframe flag.
    * @param isEncrypted The expected encrypted flag.
    * @param sampleData An array containing the expected sample data.
    * @param offset The offset in {@code sampleData} of the expected sample data.
@@ -1086,7 +1086,7 @@ public final class SampleQueueTest {
    */
   private void assertReadSample(
       long timeUs,
-      boolean isKeyframe,
+      boolean isKeyFrame,
       boolean isEncrypted,
       byte[] sampleData,
       int offset,
@@ -1104,7 +1104,7 @@ public final class SampleQueueTest {
     assertThat(formatHolder.format).isNull();
     // inputBuffer should be populated.
     assertThat(inputBuffer.timeUs).isEqualTo(timeUs);
-    assertThat(inputBuffer.isKeyFrame()).isEqualTo(isKeyframe);
+    assertThat(inputBuffer.isKeyFrame()).isEqualTo(isKeyFrame);
     assertThat(inputBuffer.isDecodeOnly()).isFalse();
     assertThat(inputBuffer.isEncrypted()).isEqualTo(isEncrypted);
     inputBuffer.flip();
