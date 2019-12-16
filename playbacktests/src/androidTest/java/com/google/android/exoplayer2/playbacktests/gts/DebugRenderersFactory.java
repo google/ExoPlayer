@@ -125,19 +125,15 @@ import java.util.ArrayList;
     }
 
     @Override
-    protected void releaseCodec() {
-      super.releaseCodec();
+    protected void resetCodecStateForFlush() {
+      super.resetCodecStateForFlush();
       clearTimestamps();
-      skipToPositionBeforeRenderingFirstFrame = false;
     }
 
     @Override
-    protected boolean flushOrReleaseCodec() {
-      try {
-        return super.flushOrReleaseCodec();
-      } finally {
-        clearTimestamps();
-      }
+    protected void resetCodecStateForRelease() {
+      super.resetCodecStateForRelease();
+      skipToPositionBeforeRenderingFirstFrame = false;
     }
 
     @Override

@@ -24,6 +24,7 @@ import android.media.MediaCryptoException;
 import android.media.MediaFormat;
 import android.os.Bundle;
 import android.os.SystemClock;
+import androidx.annotation.CallSuper;
 import androidx.annotation.CheckResult;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -440,13 +441,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     formatQueue = new TimedValueQueue<>();
     decodeOnlyPresentationTimestamps = new ArrayList<>();
     outputBufferInfo = new MediaCodec.BufferInfo();
-    codecReconfigurationState = RECONFIGURATION_STATE_NONE;
-    codecDrainState = DRAIN_STATE_NONE;
-    codecDrainAction = DRAIN_ACTION_NONE;
-    codecOperatingRate = CODEC_OPERATING_RATE_UNSET;
     rendererOperatingRate = 1f;
     renderTimeLimitMs = C.TIME_UNSET;
     mediaCodecOperationMode = MediaCodecOperationMode.SYNCHRONOUS;
+    resetCodecStateForRelease();
   }
 
   /**
@@ -681,36 +679,25 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   protected void releaseCodec() {
-    availableCodecInfos = null;
-    codecInfo = null;
-    codecFormat = null;
-    if (codecAdapter != null) {
-      codecAdapter.shutdown();
-      codecAdapter = null;
-    }
-    resetInputBuffer();
-    resetOutputBuffer();
-    resetCodecBuffers();
-    waitingForKeys = false;
-    codecHotswapDeadlineMs = C.TIME_UNSET;
-    decodeOnlyPresentationTimestamps.clear();
-    largestQueuedPresentationTimeUs = C.TIME_UNSET;
-    lastBufferInStreamPresentationTimeUs = C.TIME_UNSET;
     try {
+      if (codecAdapter != null) {
+        codecAdapter.shutdown();
+      }
       if (codec != null) {
         decoderCounters.decoderReleaseCount++;
         codec.release();
       }
     } finally {
       codec = null;
+      codecAdapter = null;
       try {
         if (mediaCrypto != null) {
           mediaCrypto.release();
         }
       } finally {
         mediaCrypto = null;
-        mediaCryptoRequiresSecureDecoder = false;
         setCodecDrmSession(null);
+        resetCodecStateForRelease();
       }
     }
   }
@@ -799,8 +786,17 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       releaseCodec();
       return true;
     }
+    try {
+      codecAdapter.flush();
+    } finally {
+      resetCodecStateForFlush();
+    }
+    return false;
+  }
 
-    codecAdapter.flush();
+  /** Resets the renderer internal state after a codec flush. */
+  @CallSuper
+  protected void resetCodecStateForFlush() {
     resetInputBuffer();
     resetOutputBuffer();
     codecHotswapDeadlineMs = C.TIME_UNSET;
@@ -811,7 +807,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     shouldSkipAdaptationWorkaroundOutputBuffer = false;
     isDecodeOnlyOutputBuffer = false;
     isLastOutputBuffer = false;
-
     waitingForKeys = false;
     decodeOnlyPresentationTimestamps.clear();
     largestQueuedPresentationTimeUs = C.TIME_UNSET;
@@ -823,7 +818,38 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     // guarantee that it's processed.
     codecReconfigurationState =
         codecReconfigured ? RECONFIGURATION_STATE_WRITE_PENDING : RECONFIGURATION_STATE_NONE;
-    return false;
+  }
+
+  /**
+   * Resets the renderer internal state after a codec release.
+   *
+   * <p>Note that this only needs to reset state variables that are changed in addition to those
+   * already changed in {@link #resetCodecStateForFlush()}.
+   */
+  @CallSuper
+  protected void resetCodecStateForRelease() {
+    resetCodecStateForFlush();
+
+    availableCodecInfos = null;
+    codec = null;
+    codecInfo = null;
+    codecFormat = null;
+    codecAdapter = null;
+    codecOperatingRate = CODEC_OPERATING_RATE_UNSET;
+    codecAdaptationWorkaroundMode = ADAPTATION_WORKAROUND_MODE_NEVER;
+    codecNeedsReconfigureWorkaround = false;
+    codecNeedsDiscardToSpsWorkaround = false;
+    codecNeedsFlushWorkaround = false;
+    codecNeedsEosFlushWorkaround = false;
+    codecNeedsEosOutputExceptionWorkaround = false;
+    codecNeedsMonoChannelCountWorkaround = false;
+    codecNeedsEosPropagation = false;
+    codecReconfigured = false;
+    codecReconfigurationState = RECONFIGURATION_STATE_NONE;
+    resetCodecBuffers();
+
+    mediaCrypto = null;
+    mediaCryptoRequiresSecureDecoder = false;
   }
 
   protected DecoderException createDecoderException(
@@ -997,26 +1023,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         codecNeedsMonoChannelCountWorkaround(codecName, codecFormat);
     codecNeedsEosPropagation =
         codecNeedsEosPropagationWorkaround(codecInfo) || getCodecNeedsEosPropagation();
-
-    resetInputBuffer();
-    resetOutputBuffer();
-    codecHotswapDeadlineMs =
-        getState() == STATE_STARTED
-            ? (SystemClock.elapsedRealtime() + MAX_CODEC_HOTSWAP_TIME_MS)
-            : C.TIME_UNSET;
-    codecReconfigured = false;
-    codecReconfigurationState = RECONFIGURATION_STATE_NONE;
-    codecReceivedEos = false;
-    codecReceivedBuffers = false;
-    largestQueuedPresentationTimeUs = C.TIME_UNSET;
-    lastBufferInStreamPresentationTimeUs = C.TIME_UNSET;
-    codecDrainState = DRAIN_STATE_NONE;
-    codecDrainAction = DRAIN_ACTION_NONE;
-    codecNeedsAdaptationWorkaroundBuffer = false;
-    shouldSkipAdaptationWorkaroundOutputBuffer = false;
-    isDecodeOnlyOutputBuffer = false;
-    isLastOutputBuffer = false;
-    waitingForFirstSyncSample = true;
+    if (getState() == STATE_STARTED) {
+      codecHotswapDeadlineMs = SystemClock.elapsedRealtime() + MAX_CODEC_HOTSWAP_TIME_MS;
+    }
 
     decoderCounters.decoderInitCount++;
     long elapsed = codecInitializedTimestamp - codecInitializingTimestamp;
