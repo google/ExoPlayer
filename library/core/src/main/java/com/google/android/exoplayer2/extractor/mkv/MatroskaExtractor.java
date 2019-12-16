@@ -1635,6 +1635,16 @@ public class MatroskaExtractor implements Extractor {
     sizes[cuePointsSize - 1] =
         (int) (segmentContentPosition + segmentContentSize - offsets[cuePointsSize - 1]);
     durationsUs[cuePointsSize - 1] = durationUs - timesUs[cuePointsSize - 1];
+
+    long lastDurationUs = durationsUs[cuePointsSize - 1];
+    if (lastDurationUs <= 0) {
+      Log.w(TAG, "Discarding last cue point with unexpected duration: " + lastDurationUs);
+      sizes = Arrays.copyOf(sizes, sizes.length - 1);
+      offsets = Arrays.copyOf(offsets, offsets.length - 1);
+      durationsUs = Arrays.copyOf(durationsUs, durationsUs.length - 1);
+      timesUs = Arrays.copyOf(timesUs, timesUs.length - 1);
+    }
+
     cueTimesUs = null;
     cueClusterPositions = null;
     return new ChunkIndex(sizes, offsets, durationsUs, timesUs);
