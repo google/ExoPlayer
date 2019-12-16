@@ -93,6 +93,12 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
   @Override
   public void sampleMetadata(long timeUs, @C.BufferFlags int flags, int size, int offset,
       CryptoData cryptoData) {
+    if (format == null) {
+      throw new IllegalStateException("TrackOutput must receive format before sampleMetadata");
+    }
+    if (format.maxInputSize != Format.NO_VALUE && size > format.maxInputSize) {
+      throw new IllegalStateException("Sample size exceeds Format.maxInputSize");
+    }
     sampleTimesUs.add(timeUs);
     sampleFlags.add(flags);
     sampleStartOffsets.add(sampleData.length - offset - size);
