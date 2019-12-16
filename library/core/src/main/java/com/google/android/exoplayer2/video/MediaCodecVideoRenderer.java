@@ -708,22 +708,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   @CallSuper
   @Override
-  protected void releaseCodec() {
-    try {
-      super.releaseCodec();
-    } finally {
-      buffersInCodecCount = 0;
-    }
-  }
-
-  @CallSuper
-  @Override
-  protected boolean flushOrReleaseCodec() {
-    try {
-      return super.flushOrReleaseCodec();
-    } finally {
-      buffersInCodecCount = 0;
-    }
+  protected void resetCodecStateForFlush() {
+    super.resetCodecStateForFlush();
+    buffersInCodecCount = 0;
   }
 
   @Override
