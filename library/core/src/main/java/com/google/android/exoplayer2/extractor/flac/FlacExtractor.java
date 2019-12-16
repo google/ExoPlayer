@@ -89,14 +89,14 @@ public final class FlacExtractor implements Extractor {
   private static final int STATE_GET_FRAME_START_MARKER = 4;
   private static final int STATE_READ_FRAMES = 5;
 
-  /** Arbitrary scratch length of 32KB, which is ~170ms of 16-bit stereo PCM audio at 48KHz. */
-  private static final int SCRATCH_LENGTH = 32 * 1024;
+  /** Arbitrary buffer length of 32KB, which is ~170ms of 16-bit stereo PCM audio at 48KHz. */
+  private static final int BUFFER_LENGTH = 32 * 1024;
 
   /** Value of an unknown sample number. */
   private static final int SAMPLE_NUMBER_UNKNOWN = -1;
 
   private final byte[] streamMarkerAndInfoBlock;
-  private final ParsableByteArray scratch;
+  private final ParsableByteArray buffer;
   private final boolean id3MetadataDisabled;
 
   private final SampleNumberHolder sampleNumberHolder;
@@ -127,9 +127,10 @@ public final class FlacExtractor implements Extractor {
   public FlacExtractor(int flags) {
     streamMarkerAndInfoBlock =
         new byte[FlacConstants.STREAM_MARKER_SIZE + FlacConstants.STREAM_INFO_BLOCK_SIZE];
-    scratch = new ParsableByteArray(SCRATCH_LENGTH);
+    buffer = new ParsableByteArray(new byte[BUFFER_LENGTH], /* limit= */ 0);
     id3MetadataDisabled = (flags & FLAG_DISABLE_ID3_METADATA) != 0;
     sampleNumberHolder = new SampleNumberHolder();
+    state = STATE_READ_ID3_METADATA;
   }
 
   @Override
@@ -180,7 +181,7 @@ public final class FlacExtractor implements Extractor {
     }
     currentFrameFirstSampleNumber = timeUs == 0 ? 0 : SAMPLE_NUMBER_UNKNOWN;
     currentFrameBytesWritten = 0;
-    scratch.reset();
+    buffer.reset();
   }
 
   @Override
@@ -253,31 +254,31 @@ public final class FlacExtractor implements Extractor {
       return Extractor.RESULT_CONTINUE;
     }
 
-    // Copy more bytes into the scratch.
-    int currentLimit = scratch.limit();
+    // Copy more bytes into the buffer.
+    int currentLimit = buffer.limit();
     int bytesRead =
         input.read(
-            scratch.data, /* offset= */ currentLimit, /* length= */ SCRATCH_LENGTH - currentLimit);
+            buffer.data, /* offset= */ currentLimit, /* length= */ BUFFER_LENGTH - currentLimit);
     boolean foundEndOfInput = bytesRead == C.RESULT_END_OF_INPUT;
     if (!foundEndOfInput) {
-      scratch.setLimit(currentLimit + bytesRead);
-    } else if (scratch.bytesLeft() == 0) {
+      buffer.setLimit(currentLimit + bytesRead);
+    } else if (buffer.bytesLeft() == 0) {
       outputSampleMetadata();
       return Extractor.RESULT_END_OF_INPUT;
     }
 
     // Search for a frame.
-    int positionBeforeFindingAFrame = scratch.getPosition();
+    int positionBeforeFindingAFrame = buffer.getPosition();
 
     // Skip frame search on the bytes within the minimum frame size.
     if (currentFrameBytesWritten < minFrameSize) {
-      scratch.skipBytes(Math.min(minFrameSize, scratch.bytesLeft()));
+      buffer.skipBytes(Math.min(minFrameSize, buffer.bytesLeft()));
     }
 
-    long nextFrameFirstSampleNumber = findFrame(scratch, foundEndOfInput);
-    int numberOfFrameBytes = scratch.getPosition() - positionBeforeFindingAFrame;
-    scratch.setPosition(positionBeforeFindingAFrame);
-    trackOutput.sampleData(scratch, numberOfFrameBytes);
+    long nextFrameFirstSampleNumber = findFrame(buffer, foundEndOfInput);
+    int numberOfFrameBytes = buffer.getPosition() - positionBeforeFindingAFrame;
+    buffer.setPosition(positionBeforeFindingAFrame);
+    trackOutput.sampleData(buffer, numberOfFrameBytes);
     currentFrameBytesWritten += numberOfFrameBytes;
 
     // Frame found.
@@ -287,12 +288,12 @@ public final class FlacExtractor implements Extractor {
       currentFrameFirstSampleNumber = nextFrameFirstSampleNumber;
     }
 
-    if (scratch.bytesLeft() < FlacConstants.MAX_FRAME_HEADER_SIZE) {
-      // The next frame header may not fit in the rest of the scratch, so put the trailing bytes at
-      // the start of the scratch, and reset the position and limit.
+    if (buffer.bytesLeft() < FlacConstants.MAX_FRAME_HEADER_SIZE) {
+      // The next frame header may not fit in the rest of the buffer, so put the trailing bytes at
+      // the start of the buffer, and reset the position and limit.
       System.arraycopy(
-          scratch.data, scratch.getPosition(), scratch.data, /* destPos= */ 0, scratch.bytesLeft());
-      scratch.reset(scratch.bytesLeft());
+          buffer.data, buffer.getPosition(), buffer.data, /* destPos= */ 0, buffer.bytesLeft());
+      buffer.reset(buffer.bytesLeft());
     }
 
     return Extractor.RESULT_CONTINUE;
