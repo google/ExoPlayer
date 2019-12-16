@@ -1,7 +1,7 @@
 seekMap:
   isSeekable = true
   duration = 2741000
-  getPosition(0) = [[timeUs=0, position=8288]]
+  getPosition(0) = [[timeUs=0, position=8230]]
 numberOfTracks = 1
 track 0:
   format:
@@ -27,9 +27,13 @@ track 0:
     metadata = null
     initializationData:
       data = length 42, hash 7249A1B8
-  total output bytes = 548
-  sample count = 1
+  total output bytes = 3385
+  sample count = 2
   sample 0:
+    time = 2618181
+    flags = 1
+    data = length 2837, hash 10F1716E
+  sample 1:
     time = 2722909
     flags = 1
     data = length 548, hash B46F603C

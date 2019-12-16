@@ -17,8 +17,11 @@ package com.google.android.exoplayer2.extractor.ogg;
 
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.FlacFrameReader;
+import com.google.android.exoplayer2.extractor.FlacMetadataReader;
+import com.google.android.exoplayer2.extractor.FlacSeekTableSeekMap;
 import com.google.android.exoplayer2.extractor.SeekMap;
-import com.google.android.exoplayer2.extractor.SeekPoint;
+import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.FlacConstants;
 import com.google.android.exoplayer2.util.FlacStreamMetadata;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
@@ -31,7 +34,6 @@ import java.util.Arrays;
 /* package */ final class FlacReader extends StreamReader {
 
   private static final byte AUDIO_PACKET_TYPE = (byte) 0xFF;
-  private static final byte SEEKTABLE_PACKET_TYPE = 0x03;
 
   private static final int FRAME_HEADER_SAMPLE_NUMBER_OFFSET = 4;
 
@@ -71,9 +73,11 @@ import java.util.Arrays;
       streamMetadata = new FlacStreamMetadata(data, 17);
       byte[] metadata = Arrays.copyOfRange(data, 9, packet.limit());
       setupData.format = streamMetadata.getFormat(metadata, /* id3Metadata= */ null);
-    } else if ((data[0] & 0x7F) == SEEKTABLE_PACKET_TYPE) {
+    } else if ((data[0] & 0x7F) == FlacConstants.METADATA_TYPE_SEEK_TABLE) {
       flacOggSeeker = new FlacOggSeeker();
-      flacOggSeeker.parseSeekTable(packet);
+      FlacStreamMetadata.SeekTable seekTable =
+          FlacMetadataReader.readSeekTableMetadataBlock(packet);
+      streamMetadata = streamMetadata.copyWithSeekTable(seekTable);
     } else if (isAudioPacket(data)) {
       if (flacOggSeeker != null) {
         flacOggSeeker.setFirstFrameOffset(position);
@@ -96,13 +100,8 @@ import java.util.Arrays;
     return result;
   }
 
-  private class FlacOggSeeker implements OggSeeker, SeekMap {
+  private class FlacOggSeeker implements OggSeeker {
 
-    private static final int METADATA_LENGTH_OFFSET = 1;
-    private static final int SEEK_POINT_SIZE = 18;
-
-    private long[] seekPointGranules;
-    private long[] seekPointOffsets;
     private long firstFrameOffset;
     private long pendingSeekGranule;
 
@@ -113,27 +112,6 @@ import java.util.Arrays;
 
     public void setFirstFrameOffset(long firstFrameOffset) {
       this.firstFrameOffset = firstFrameOffset;
-    }
-
-    /**
-     * Parses a FLAC file seek table metadata structure and initializes internal fields.
-     *
-     * @param data A {@link ParsableByteArray} including whole seek table metadata block. Its
-     *     position should be set to the beginning of the block.
-     * @see <a href="https://xiph.org/flac/format.html#metadata_block_seektable">FLAC format
-     *     METADATA_BLOCK_SEEKTABLE</a>
-     */
-    public void parseSeekTable(ParsableByteArray data) {
-      data.skipBytes(METADATA_LENGTH_OFFSET);
-      int length = data.readUnsignedInt24();
-      int numberOfSeekPoints = length / SEEK_POINT_SIZE;
-      seekPointGranules = new long[numberOfSeekPoints];
-      seekPointOffsets = new long[numberOfSeekPoints];
-      for (int i = 0; i < numberOfSeekPoints; i++) {
-        seekPointGranules[i] = data.readLong();
-        seekPointOffsets[i] = data.readLong();
-        data.skipBytes(2); // Skip "Number of samples in the target frame."
-      }
     }
 
     @Override
@@ -148,40 +126,16 @@ import java.util.Arrays;
 
     @Override
     public void startSeek(long targetGranule) {
+      Assertions.checkNotNull(streamMetadata.seekTable);
+      long[] seekPointGranules = streamMetadata.seekTable.pointSampleNumbers;
       int index = Util.binarySearchFloor(seekPointGranules, targetGranule, true, true);
       pendingSeekGranule = seekPointGranules[index];
     }
 
     @Override
     public SeekMap createSeekMap() {
-      return this;
-    }
-
-    @Override
-    public boolean isSeekable() {
-      return true;
-    }
-
-    @Override
-    public SeekPoints getSeekPoints(long timeUs) {
-      long granule = convertTimeToGranule(timeUs);
-      int index = Util.binarySearchFloor(seekPointGranules, granule, true, true);
-      long seekTimeUs = convertGranuleToTime(seekPointGranules[index]);
-      long seekPosition = firstFrameOffset + seekPointOffsets[index];
-      SeekPoint seekPoint = new SeekPoint(seekTimeUs, seekPosition);
-      if (seekTimeUs >= timeUs || index == seekPointGranules.length - 1) {
-        return new SeekPoints(seekPoint);
-      } else {
-        long secondSeekTimeUs = convertGranuleToTime(seekPointGranules[index + 1]);
-        long secondSeekPosition = firstFrameOffset + seekPointOffsets[index + 1];
-        SeekPoint secondSeekPoint = new SeekPoint(secondSeekTimeUs, secondSeekPosition);
-        return new SeekPoints(seekPoint, secondSeekPoint);
-      }
-    }
-
-    @Override
-    public long getDurationUs() {
-      return streamMetadata.getDurationUs();
+      Assertions.checkState(firstFrameOffset != -1);
+      return new FlacSeekTableSeekMap(streamMetadata, firstFrameOffset);
     }
 
   }

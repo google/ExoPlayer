@@ -27,9 +27,13 @@ track 0:
     metadata = null
     initializationData:
       data = length 42, hash 83F6895
-  total output bytes = 445
-  sample count = 1
+  total output bytes = 3829
+  sample count = 2
   sample 0:
+    time = 2645333
+    flags = 1
+    data = length 3384, hash 938BCDD9
+  sample 1:
     time = 2730666
     flags = 1
     data = length 445, hash A388E3D6
