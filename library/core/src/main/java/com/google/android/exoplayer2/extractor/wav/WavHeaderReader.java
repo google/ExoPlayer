@@ -75,9 +75,9 @@ import java.io.IOException;
     scratch.setPosition(0);
     int audioFormatType = scratch.readLittleEndianUnsignedShort();
     int numChannels = scratch.readLittleEndianUnsignedShort();
-    int sampleRateHz = scratch.readLittleEndianUnsignedIntToInt();
+    int frameRateHz = scratch.readLittleEndianUnsignedIntToInt();
     int averageBytesPerSecond = scratch.readLittleEndianUnsignedIntToInt();
-    int blockAlignment = scratch.readLittleEndianUnsignedShort();
+    int blockSize = scratch.readLittleEndianUnsignedShort();
     int bitsPerSample = scratch.readLittleEndianUnsignedShort();
 
     int bytesLeft = (int) chunkHeader.size - 16;
@@ -92,9 +92,9 @@ import java.io.IOException;
     return new WavHeader(
         audioFormatType,
         numChannels,
-        sampleRateHz,
+        frameRateHz,
         averageBytesPerSecond,
-        blockAlignment,
+        blockSize,
         bitsPerSample,
         extraData);
   }

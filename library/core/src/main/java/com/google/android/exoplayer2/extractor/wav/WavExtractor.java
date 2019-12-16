@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /**
@@ -35,8 +36,12 @@ import java.io.IOException;
  */
 public final class WavExtractor implements Extractor {
 
-  /** Arbitrary maximum sample size of 32KB, which is ~170ms of 16-bit stereo PCM audio at 48KHz. */
-  private static final int MAX_SAMPLE_SIZE = 32 * 1024;
+  /**
+   * When outputting PCM data to a {@link TrackOutput}, we can choose how many frames are grouped
+   * into each sample, and hence each sample's duration. This is the target number of samples to
+   * output for each second of media, meaning that each sample will have a duration of ~100ms.
+   */
+  private static final int TARGET_SAMPLES_PER_SECOND = 10;
 
   /** Factory for {@link WavExtractor} instances. */
   public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new WavExtractor()};
@@ -67,7 +72,7 @@ public final class WavExtractor implements Extractor {
   @Override
   public void seek(long position, long timeUs) {
     if (outputWriter != null) {
-      outputWriter.reset();
+      outputWriter.reset(timeUs);
     }
   }
 
@@ -105,18 +110,18 @@ public final class WavExtractor implements Extractor {
 
     Assertions.checkState(dataEndPosition != C.POSITION_UNSET);
     long bytesLeft = dataEndPosition - input.getPosition();
-    if (bytesLeft <= 0) {
-      return Extractor.RESULT_END_OF_INPUT;
-    }
-
-    return outputWriter.sampleData(input, bytesLeft) ? RESULT_CONTINUE : RESULT_END_OF_INPUT;
+    return outputWriter.sampleData(input, bytesLeft) ? RESULT_END_OF_INPUT : RESULT_CONTINUE;
   }
 
   /** Writes to the extractor's output. */
   private interface OutputWriter {
 
-    /** Resets the writer. */
-    void reset();
+    /**
+     * Resets the writer.
+     *
+     * @param timeUs The new start position in microseconds.
+     */
+    void reset(long timeUs);
 
     /**
      * Initializes the writer.
@@ -137,7 +142,7 @@ public final class WavExtractor implements Extractor {
      *
      * @param input The input from which to read.
      * @param bytesLeft The number of sample data bytes left to be read from the input.
-     * @return True if data was consumed. False if the end of the stream has been reached.
+     * @return Whether the end of the sample data has been reached.
      * @throws IOException If an error occurs reading from the input.
      * @throws InterruptedException If the thread has been interrupted.
      */
@@ -151,8 +156,10 @@ public final class WavExtractor implements Extractor {
     private final TrackOutput trackOutput;
     private final WavHeader header;
     private final @C.PcmEncoding int pcmEncoding;
+    private final int targetSampleSize;
 
-    private WavSeekMap seekMap;
+    private long startTimeUs;
+    private long outputFrameCount;
     private int pendingBytes;
 
     public PcmOutputWriter(
@@ -164,26 +171,31 @@ public final class WavExtractor implements Extractor {
       this.trackOutput = trackOutput;
       this.header = header;
       this.pcmEncoding = pcmEncoding;
+      // For PCM blocks correspond to single frames. This is validated in init(int, long).
+      int bytesPerFrame = header.blockSize;
+      targetSampleSize =
+          Math.max(bytesPerFrame, header.frameRateHz * bytesPerFrame / TARGET_SAMPLES_PER_SECOND);
     }
 
     @Override
-    public void reset() {
+    public void reset(long timeUs) {
+      startTimeUs = timeUs;
+      outputFrameCount = 0;
       pendingBytes = 0;
     }
 
     @Override
     public void init(int dataStartPosition, long dataEndPosition) throws ParserException {
       // Validate the header.
-      int expectedBytesPerFrame = header.numChannels * header.bitsPerSample / 8;
-      if (header.blockAlign != expectedBytesPerFrame) {
+      int bytesPerFrame = header.numChannels * header.bitsPerSample / 8;
+      if (header.blockSize != bytesPerFrame) {
         throw new ParserException(
-            "Expected block alignment: " + expectedBytesPerFrame + "; got: " + header.blockAlign);
+            "Expected block size: " + bytesPerFrame + "; got: " + header.blockSize);
       }
 
       // Output the seek map.
-      seekMap =
-          new WavSeekMap(header, /* samplesPerBlock= */ 1, dataStartPosition, dataEndPosition);
-      extractorOutput.seekMap(seekMap);
+      extractorOutput.seekMap(
+          new WavSeekMap(header, /* framesPerBlock= */ 1, dataStartPosition, dataEndPosition));
 
       // Output the format.
       Format format =
@@ -192,9 +204,9 @@ public final class WavExtractor implements Extractor {
               MimeTypes.AUDIO_RAW,
               /* codecs= */ null,
               /* bitrate= */ header.averageBytesPerSecond * 8,
-              MAX_SAMPLE_SIZE,
+              targetSampleSize,
               header.numChannels,
-              header.sampleRateHz,
+              header.frameRateHz,
               pcmEncoding,
               /* initializationData= */ null,
               /* drmInitData= */ null,
@@ -206,25 +218,36 @@ public final class WavExtractor implements Extractor {
     @Override
     public boolean sampleData(ExtractorInput input, long bytesLeft)
         throws IOException, InterruptedException {
-      int maxBytesToRead = (int) Math.min(MAX_SAMPLE_SIZE - pendingBytes, bytesLeft);
-      int numBytesAppended = trackOutput.sampleData(input, maxBytesToRead, true);
-      boolean wereBytesAppended = numBytesAppended != RESULT_END_OF_INPUT;
-      if (wereBytesAppended) {
-        pendingBytes += numBytesAppended;
+      // Write sample data until we've reached the target sample size, or the end of the data.
+      boolean endOfSampleData = bytesLeft == 0;
+      while (!endOfSampleData && pendingBytes < targetSampleSize) {
+        int bytesToRead = (int) Math.min(targetSampleSize - pendingBytes, bytesLeft);
+        int bytesAppended = trackOutput.sampleData(input, bytesToRead, true);
+        if (bytesAppended == RESULT_END_OF_INPUT) {
+          endOfSampleData = true;
+        } else {
+          pendingBytes += bytesAppended;
+        }
       }
 
-      // blockAlign is the frame size, and samples must consist of a whole number of frames.
-      int bytesPerFrame = header.blockAlign;
+      // Write the corresponding sample metadata. Samples must be a whole number of frames. It's
+      // possible pendingBytes is not a whole number of frames if the stream ended unexpectedly.
+      int bytesPerFrame = header.blockSize;
       int pendingFrames = pendingBytes / bytesPerFrame;
       if (pendingFrames > 0) {
-        long timeUs = seekMap.getTimeUs(input.getPosition() - pendingBytes);
+        long timeUs =
+            startTimeUs
+                + Util.scaleLargeTimestamp(
+                    outputFrameCount, C.MICROS_PER_SECOND, header.frameRateHz);
         int size = pendingFrames * bytesPerFrame;
-        pendingBytes -= size;
+        int offset = pendingBytes - size;
         trackOutput.sampleMetadata(
-            timeUs, C.BUFFER_FLAG_KEY_FRAME, size, pendingBytes, /* encryptionData= */ null);
+            timeUs, C.BUFFER_FLAG_KEY_FRAME, size, offset, /* encryptionData= */ null);
+        outputFrameCount += pendingFrames;
+        pendingBytes = offset;
       }
 
-      return wereBytesAppended;
+      return endOfSampleData;
     }
   }
 }
