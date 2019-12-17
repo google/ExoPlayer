@@ -208,12 +208,23 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             fillRegionPaint);
       }
 
-      Bitmap cueBitmap = Bitmap.createBitmap(bitmap, baseHorizontalAddress, baseVerticalAddress,
-          regionComposition.width, regionComposition.height);
-      cues.add(new Cue(cueBitmap, (float) baseHorizontalAddress / displayDefinition.width,
-          Cue.ANCHOR_TYPE_START, (float) baseVerticalAddress / displayDefinition.height,
-          Cue.ANCHOR_TYPE_START, (float) regionComposition.width / displayDefinition.width,
-          (float) regionComposition.height / displayDefinition.height));
+      cues.add(
+          new Cue.Builder()
+              .setBitmap(
+                  Bitmap.createBitmap(
+                      bitmap,
+                      baseHorizontalAddress,
+                      baseVerticalAddress,
+                      regionComposition.width,
+                      regionComposition.height))
+              .setPosition((float) baseHorizontalAddress / displayDefinition.width)
+              .setPositionAnchor(Cue.ANCHOR_TYPE_START)
+              .setLine(
+                  (float) baseVerticalAddress / displayDefinition.height, Cue.LINE_TYPE_FRACTION)
+              .setLineAnchor(Cue.ANCHOR_TYPE_START)
+              .setSize((float) regionComposition.width / displayDefinition.width)
+              .setBitmapHeight((float) regionComposition.height / displayDefinition.height)
+              .build());
 
       canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
       // Restore clean clipping state.
