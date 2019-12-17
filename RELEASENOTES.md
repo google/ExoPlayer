@@ -34,6 +34,7 @@
   ([6773](https://github.com/google/ExoPlayer/issues/6773)).
 * Suppress ProGuard warnings for compile-time `javax.annotation` package
   ([#6771](https://github.com/google/ExoPlayer/issues/6771)).
+* Add playlist API ([#6161](https://github.com/google/ExoPlayer/issues/6161)).
 
 ### 2.11.0 (2019-12-11) ###
 
