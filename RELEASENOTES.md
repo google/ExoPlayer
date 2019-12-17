@@ -7,6 +7,8 @@
 * Propagate HTTP request headers through `CacheDataSource`.
 * AV1 extension: Fix ProGuard rules
   ([6773](https://github.com/google/ExoPlayer/issues/6773)).
+* Suppress ProGuard warnings for compile-time `javax.annotation` package
+  ([#6771](https://github.com/google/ExoPlayer/issues/6771)).
 
 ### 2.11.0 (2019-12-11) ###
 
