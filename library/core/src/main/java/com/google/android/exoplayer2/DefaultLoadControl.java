@@ -246,7 +246,7 @@ public class DefaultLoadControl implements LoadControl {
   private final long backBufferDurationUs;
   private final boolean retainBackBufferFromKeyframe;
 
-  private int targetBufferBytes;
+  private int targetBufferSize;
   private boolean isBuffering;
   private boolean hasVideo;
 
@@ -334,10 +334,6 @@ public class DefaultLoadControl implements LoadControl {
     this.bufferForPlaybackUs = C.msToUs(bufferForPlaybackMs);
     this.bufferForPlaybackAfterRebufferUs = C.msToUs(bufferForPlaybackAfterRebufferMs);
     this.targetBufferBytesOverwrite = targetBufferBytes;
-    this.targetBufferBytes =
-        targetBufferBytesOverwrite != C.LENGTH_UNSET
-            ? targetBufferBytesOverwrite
-            : DEFAULT_MUXED_BUFFER_SIZE;
     this.prioritizeTimeOverSizeThresholds = prioritizeTimeOverSizeThresholds;
     this.backBufferDurationUs = C.msToUs(backBufferDurationMs);
     this.retainBackBufferFromKeyframe = retainBackBufferFromKeyframe;
@@ -352,11 +348,11 @@ public class DefaultLoadControl implements LoadControl {
   public void onTracksSelected(Renderer[] renderers, TrackGroupArray trackGroups,
       TrackSelectionArray trackSelections) {
     hasVideo = hasVideo(renderers, trackSelections);
-    targetBufferBytes =
+    targetBufferSize =
         targetBufferBytesOverwrite == C.LENGTH_UNSET
-            ? calculateTargetBufferBytes(renderers, trackSelections)
+            ? calculateTargetBufferSize(renderers, trackSelections)
             : targetBufferBytesOverwrite;
-    allocator.setTargetBufferSize(targetBufferBytes);
+    allocator.setTargetBufferSize(targetBufferSize);
   }
 
   @Override
@@ -386,7 +382,7 @@ public class DefaultLoadControl implements LoadControl {
 
   @Override
   public boolean shouldContinueLoading(long bufferedDurationUs, float playbackSpeed) {
-    boolean targetBufferSizeReached = allocator.getTotalBytesAllocated() >= targetBufferBytes;
+    boolean targetBufferSizeReached = allocator.getTotalBytesAllocated() >= targetBufferSize;
     long minBufferUs = hasVideo ? minBufferVideoUs : minBufferAudioUs;
     if (playbackSpeed > 1) {
       // The playback speed is faster than real time, so scale up the minimum required media
@@ -395,8 +391,6 @@ public class DefaultLoadControl implements LoadControl {
           Util.getMediaDurationForPlayoutDuration(minBufferUs, playbackSpeed);
       minBufferUs = Math.min(mediaDurationMinBufferUs, maxBufferUs);
     }
-    // Prevent playback from getting stuck if minBufferUs is too small.
-    minBufferUs = Math.max(minBufferUs, 500_000);
     if (bufferedDurationUs < minBufferUs) {
       isBuffering = prioritizeTimeOverSizeThresholds || !targetBufferSizeReached;
     } else if (bufferedDurationUs >= maxBufferUs || targetBufferSizeReached) {
@@ -413,7 +407,7 @@ public class DefaultLoadControl implements LoadControl {
     return minBufferDurationUs <= 0
         || bufferedDurationUs >= minBufferDurationUs
         || (!prioritizeTimeOverSizeThresholds
-            && allocator.getTotalBytesAllocated() >= targetBufferBytes);
+            && allocator.getTotalBytesAllocated() >= targetBufferSize);
   }
 
   /**
@@ -424,7 +418,7 @@ public class DefaultLoadControl implements LoadControl {
    * @param trackSelectionArray The selected tracks.
    * @return The target buffer size in bytes.
    */
-  protected int calculateTargetBufferBytes(
+  protected int calculateTargetBufferSize(
       Renderer[] renderers, TrackSelectionArray trackSelectionArray) {
     int targetBufferSize = 0;
     for (int i = 0; i < renderers.length; i++) {
@@ -436,10 +430,7 @@ public class DefaultLoadControl implements LoadControl {
   }
 
   private void reset(boolean resetAllocator) {
-    targetBufferBytes =
-        targetBufferBytesOverwrite == C.LENGTH_UNSET
-            ? DEFAULT_MUXED_BUFFER_SIZE
-            : targetBufferBytesOverwrite;
+    targetBufferSize = 0;
     isBuffering = false;
     if (resetAllocator) {
       allocator.reset();
