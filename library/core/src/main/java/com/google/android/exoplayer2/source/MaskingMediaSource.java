@@ -337,6 +337,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
           /* manifest= */ null,
           /* presentationStartTimeMs= */ C.TIME_UNSET,
           /* windowStartTimeMs= */ C.TIME_UNSET,
+          /* elapsedRealtimeEpochOffsetMs= */ C.TIME_UNSET,
           /* isSeekable= */ false,
           // Dynamic window to indicate pending timeline updates.
           /* isDynamic= */ true,

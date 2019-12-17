@@ -134,6 +134,7 @@ public class TimelineTest {
             window.manifest,
             window.presentationStartTimeMs,
             window.windowStartTimeMs,
+            window.elapsedRealtimeEpochOffsetMs,
             window.isSeekable,
             window.isDynamic,
             window.isLive,
