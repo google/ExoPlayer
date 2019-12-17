@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
+import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
@@ -93,6 +94,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
   private boolean playClearSamplesWithoutKeys;
   private boolean enableDecoderFallback;
   private MediaCodecSelector mediaCodecSelector;
+  @MediaCodecRenderer.MediaCodecOperationMode private int mediaCodecOperationMode;
 
   /** @param context A {@link Context}. */
   public DefaultRenderersFactory(Context context) {
@@ -100,6 +102,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
     extensionRendererMode = EXTENSION_RENDERER_MODE_OFF;
     allowedVideoJoiningTimeMs = DEFAULT_ALLOWED_VIDEO_JOINING_TIME_MS;
     mediaCodecSelector = MediaCodecSelector.DEFAULT;
+    mediaCodecOperationMode = MediaCodecRenderer.MediaCodecOperationMode.SYNCHRONOUS;
   }
 
   /**
@@ -182,6 +185,21 @@ public class DefaultRenderersFactory implements RenderersFactory {
   public DefaultRenderersFactory setExtensionRendererMode(
       @ExtensionRendererMode int extensionRendererMode) {
     this.extensionRendererMode = extensionRendererMode;
+    return this;
+  }
+
+  /**
+   * Set the {@link MediaCodecRenderer.MediaCodecOperationMode} of {@link MediaCodecRenderer}
+   * instances.
+   *
+   * <p>This method is experimental, and will be renamed or removed in a future release.
+   *
+   * @param mode The {@link MediaCodecRenderer.MediaCodecOperationMode} to set.
+   * @return This factory, for convenience.
+   */
+  public DefaultRenderersFactory experimental_setMediaCodecOperationMode(
+      @MediaCodecRenderer.MediaCodecOperationMode int mode) {
+    mediaCodecOperationMode = mode;
     return this;
   }
 
@@ -319,7 +337,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
       VideoRendererEventListener eventListener,
       long allowedVideoJoiningTimeMs,
       ArrayList<Renderer> out) {
-    out.add(
+    MediaCodecVideoRenderer videoRenderer =
         new MediaCodecVideoRenderer(
             context,
             mediaCodecSelector,
@@ -329,7 +347,9 @@ public class DefaultRenderersFactory implements RenderersFactory {
             enableDecoderFallback,
             eventHandler,
             eventListener,
-            MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY));
+            MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY);
+    videoRenderer.experimental_setMediaCodecOperationMode(mediaCodecOperationMode);
+    out.add(videoRenderer);
 
     if (extensionRendererMode == EXTENSION_RENDERER_MODE_OFF) {
       return;
@@ -425,7 +445,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
       Handler eventHandler,
       AudioRendererEventListener eventListener,
       ArrayList<Renderer> out) {
-    out.add(
+    MediaCodecAudioRenderer audioRenderer =
         new MediaCodecAudioRenderer(
             context,
             mediaCodecSelector,
@@ -434,7 +454,9 @@ public class DefaultRenderersFactory implements RenderersFactory {
             enableDecoderFallback,
             eventHandler,
             eventListener,
-            new DefaultAudioSink(AudioCapabilities.getCapabilities(context), audioProcessors)));
+            new DefaultAudioSink(AudioCapabilities.getCapabilities(context), audioProcessors));
+    audioRenderer.experimental_setMediaCodecOperationMode(mediaCodecOperationMode);
+    out.add(audioRenderer);
 
     if (extensionRendererMode == EXTENSION_RENDERER_MODE_OFF) {
       return;
