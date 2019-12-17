@@ -42,7 +42,8 @@ import com.google.android.exoplayer2.util.Util;
    * @return A {@link XingSeeker} for seeking in the stream, or {@code null} if the required
    *     information is not present.
    */
-  public static @Nullable XingSeeker create(
+  @Nullable
+  public static XingSeeker create(
       long inputLength, long position, MpegAudioHeader mpegAudioHeader, ParsableByteArray frame) {
     int samplesPerFrame = mpegAudioHeader.samplesPerFrame;
     int sampleRate = mpegAudioHeader.sampleRate;

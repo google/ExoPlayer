@@ -88,7 +88,7 @@ import java.util.ArrayList;
 
   @Override
   protected boolean readHeaders(ParsableByteArray packet, long position, SetupData setupData)
-      throws IOException, InterruptedException {
+      throws IOException {
     if (vorbisSetup != null) {
       return false;
     }

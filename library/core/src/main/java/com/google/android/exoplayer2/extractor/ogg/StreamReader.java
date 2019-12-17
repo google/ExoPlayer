@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** StreamReader abstract class. */
 @SuppressWarnings("UngroupedOverloads")
@@ -42,9 +43,9 @@ import java.io.IOException;
 
   private final OggPacket oggPacket;
 
-  private TrackOutput trackOutput;
-  private ExtractorOutput extractorOutput;
-  private OggSeeker oggSeeker;
+  @MonotonicNonNull private TrackOutput trackOutput;
+  @MonotonicNonNull private ExtractorOutput extractorOutput;
+  @MonotonicNonNull private OggSeeker oggSeeker;
   private long targetGranule;
   private long payloadStartPosition;
   private long currentGranule;

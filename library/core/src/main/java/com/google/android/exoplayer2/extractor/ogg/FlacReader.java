@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.ogg;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.FlacFrameReader;
 import com.google.android.exoplayer2.extractor.FlacMetadataReader;
@@ -37,8 +38,8 @@ import java.util.Arrays;
 
   private static final int FRAME_HEADER_SAMPLE_NUMBER_OFFSET = 4;
 
-  private FlacStreamMetadata streamMetadata;
-  private FlacOggSeeker flacOggSeeker;
+  @Nullable private FlacStreamMetadata streamMetadata;
+  @Nullable private FlacOggSeeker flacOggSeeker;
 
   public static boolean verifyBitstreamType(ParsableByteArray data) {
     return data.bytesLeft() >= 5 && data.readUnsignedByte() == 0x7F && // packet type
