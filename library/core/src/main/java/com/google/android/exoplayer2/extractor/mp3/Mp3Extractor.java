@@ -34,12 +34,17 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
 import com.google.android.exoplayer2.metadata.id3.Id3Decoder.FramePredicate;
 import com.google.android.exoplayer2.metadata.id3.MlltFrame;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
 import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * Extracts data from the MP3 container format.
@@ -107,13 +112,13 @@ public final class Mp3Extractor implements Extractor {
   private final Id3Peeker id3Peeker;
 
   // Extractor outputs.
-  private ExtractorOutput extractorOutput;
-  private TrackOutput trackOutput;
+  @MonotonicNonNull private ExtractorOutput extractorOutput;
+  @MonotonicNonNull private TrackOutput trackOutput;
 
   private int synchronizedHeaderData;
 
-  private Metadata metadata;
-  @Nullable private Seeker seeker;
+  @Nullable private Metadata metadata;
+  @MonotonicNonNull private Seeker seeker;
   private boolean disableSeeking;
   private long basisTimeUs;
   private long samplesRead;
@@ -176,6 +181,7 @@ public final class Mp3Extractor implements Extractor {
   @Override
   public int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
+    assertInitialized();
     if (synchronizedHeaderData == 0) {
       try {
         synchronize(input, false);
@@ -242,6 +248,7 @@ public final class Mp3Extractor implements Extractor {
 
   // Internal methods.
 
+  @RequiresNonNull({"trackOutput", "seeker"})
   private int readSample(ExtractorInput extractorInput) throws IOException, InterruptedException {
     if (sampleBytesRemaining == 0) {
       extractorInput.resetPeekPosition();
@@ -390,6 +397,7 @@ public final class Mp3Extractor implements Extractor {
    * @throws InterruptedException Thrown if reading from the stream was interrupted. Not expected if
    *     the next two frames were already peeked during synchronization.
    */
+  @Nullable
   private Seeker maybeReadSeekFrame(ExtractorInput input) throws IOException, InterruptedException {
     ParsableByteArray frame = new ParsableByteArray(synchronizedHeader.frameSize);
     input.peekFully(frame.data, 0, synchronizedHeader.frameSize);
@@ -397,7 +405,7 @@ public final class Mp3Extractor implements Extractor {
         ? (synchronizedHeader.channels != 1 ? 36 : 21) // MPEG 1
         : (synchronizedHeader.channels != 1 ? 21 : 13); // MPEG 2 or 2.5
     int seekHeader = getSeekFrameHeader(frame, xingBase);
-    Seeker seeker;
+    @Nullable Seeker seeker;
     if (seekHeader == SEEK_HEADER_XING || seekHeader == SEEK_HEADER_INFO) {
       seeker = XingSeeker.create(input.getLength(), input.getPosition(), synchronizedHeader, frame);
       if (seeker != null && !gaplessInfoHolder.hasGaplessInfo()) {
@@ -435,6 +443,12 @@ public final class Mp3Extractor implements Extractor {
     return new ConstantBitrateSeeker(input.getLength(), input.getPosition(), synchronizedHeader);
   }
 
+  @EnsuresNonNull({"extractorOutput", "trackOutput"})
+  private void assertInitialized() {
+    Assertions.checkStateNotNull(trackOutput);
+    Util.castNonNull(extractorOutput);
+  }
+
   /**
    * Returns whether the headers match in those bits masked by {@link #MPEG_AUDIO_HEADER_MASK}.
    */
@@ -465,7 +479,8 @@ public final class Mp3Extractor implements Extractor {
   }
 
   @Nullable
-  private static MlltSeeker maybeHandleSeekMetadata(Metadata metadata, long firstFramePosition) {
+  private static MlltSeeker maybeHandleSeekMetadata(
+      @Nullable Metadata metadata, long firstFramePosition) {
     if (metadata != null) {
       int length = metadata.length();
       for (int i = 0; i < length; i++) {
@@ -477,6 +492,4 @@ public final class Mp3Extractor implements Extractor {
     }
     return null;
   }
-
-
 }

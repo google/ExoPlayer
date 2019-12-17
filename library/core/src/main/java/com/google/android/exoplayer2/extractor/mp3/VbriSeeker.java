@@ -41,7 +41,8 @@ import com.google.android.exoplayer2.util.Util;
    * @return A {@link VbriSeeker} for seeking in the stream, or {@code null} if the required
    *     information is not present.
    */
-  public static @Nullable VbriSeeker create(
+  @Nullable
+  public static VbriSeeker create(
       long inputLength, long position, MpegAudioHeader mpegAudioHeader, ParsableByteArray frame) {
     frame.skipBytes(10);
     int numFrames = frame.readInt();

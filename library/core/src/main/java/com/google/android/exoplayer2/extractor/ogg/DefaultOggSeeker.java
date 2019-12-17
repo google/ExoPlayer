@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.ogg;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
@@ -39,7 +40,7 @@ import java.io.IOException;
   private static final int STATE_SKIP = 3;
   private static final int STATE_IDLE = 4;
 
-  private final OggPageHeader pageHeader = new OggPageHeader();
+  private final OggPageHeader pageHeader;
   private final long payloadStartPosition;
   private final long payloadEndPosition;
   private final StreamReader streamReader;
@@ -83,6 +84,7 @@ import java.io.IOException;
     } else {
       state = STATE_SEEK_TO_END;
     }
+    pageHeader = new OggPageHeader();
   }
 
   @Override
@@ -121,6 +123,7 @@ import java.io.IOException;
   }
 
   @Override
+  @Nullable
   public OggSeekMap createSeekMap() {
     return totalGranules != 0 ? new OggSeekMap() : null;
   }
