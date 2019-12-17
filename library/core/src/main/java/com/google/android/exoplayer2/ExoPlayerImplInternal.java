@@ -830,14 +830,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
       for (Renderer renderer : enabledRenderers) {
         renderer.maybeThrowStreamError();
       }
-      if (!shouldContinueLoading
-          && playbackInfo.totalBufferedDurationUs < 500_000
-          && isLoadingPossible()) {
-        // Throw if the LoadControl prevents loading even if the buffer is empty or almost empty. We
-        // can't compare against 0 to account for small differences between the renderer position
-        // and buffered position in the media at the point where playback gets stuck.
-        throw new IllegalStateException("Playback stuck buffering and not loading");
-      }
     }
 
     if ((playWhenReady && playbackInfo.playbackState == Player.STATE_READY)
@@ -1992,6 +1984,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
     long bufferedDurationUs =
         getTotalBufferedDurationUs(queue.getLoadingPeriod().getNextLoadPositionUs());
+    if (bufferedDurationUs < 500_000) {
+      // Prevent loading from getting stuck even if LoadControl.shouldContinueLoading returns false
+      // when the buffer is empty or almost empty. We can't compare against 0 to account for small
+      // differences between the renderer position and buffered position in the media at the point
+      // where playback gets stuck.
+      return true;
+    }
     float playbackSpeed = mediaClock.getPlaybackParameters().speed;
     return loadControl.shouldContinueLoading(bufferedDurationUs, playbackSpeed);
   }
