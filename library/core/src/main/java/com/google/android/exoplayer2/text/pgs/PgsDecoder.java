@@ -235,14 +235,15 @@ public final class PgsDecoder extends SimpleSubtitleDecoder {
       Bitmap bitmap =
           Bitmap.createBitmap(argbBitmapData, bitmapWidth, bitmapHeight, Bitmap.Config.ARGB_8888);
       // Build the cue.
-      return new Cue(
-          bitmap,
-          (float) bitmapX / planeWidth,
-          Cue.ANCHOR_TYPE_START,
-          (float) bitmapY / planeHeight,
-          Cue.ANCHOR_TYPE_START,
-          (float) bitmapWidth / planeWidth,
-          (float) bitmapHeight / planeHeight);
+      return new Cue.Builder()
+          .setBitmap(bitmap)
+          .setPosition((float) bitmapX / planeWidth)
+          .setPositionAnchor(Cue.ANCHOR_TYPE_START)
+          .setLine((float) bitmapY / planeHeight, Cue.LINE_TYPE_FRACTION)
+          .setLineAnchor(Cue.ANCHOR_TYPE_START)
+          .setSize((float) bitmapWidth / planeWidth)
+          .setBitmapHeight((float) bitmapHeight / planeHeight)
+          .build();
     }
 
     public void reset() {

@@ -228,14 +228,15 @@ import java.util.TreeSet;
       TtmlRegion region = regionMap.get(regionImagePair.first);
 
       cues.add(
-          new Cue(
-              bitmap,
-              region.position,
-              Cue.ANCHOR_TYPE_START,
-              region.line,
-              region.lineAnchor,
-              region.width,
-              region.height));
+          new Cue.Builder()
+              .setBitmap(bitmap)
+              .setPosition(region.position)
+              .setPositionAnchor(Cue.ANCHOR_TYPE_START)
+              .setLine(region.line, Cue.LINE_TYPE_FRACTION)
+              .setLineAnchor(region.lineAnchor)
+              .setSize(region.width)
+              .setBitmapHeight(region.height)
+              .build());
     }
 
     // Create text based cues.

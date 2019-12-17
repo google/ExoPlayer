@@ -228,50 +228,6 @@ public final class Cue {
   public final float textSize;
 
   /**
-   * Creates an image cue.
-   *
-   * @param bitmap See {@link #bitmap}.
-   * @param horizontalPosition The position of the horizontal anchor within the viewport, expressed
-   *     as a fraction of the viewport width.
-   * @param horizontalPositionAnchor The horizontal anchor. One of {@link #ANCHOR_TYPE_START},
-   *     {@link #ANCHOR_TYPE_MIDDLE}, {@link #ANCHOR_TYPE_END} and {@link #TYPE_UNSET}.
-   * @param verticalPosition The position of the vertical anchor within the viewport, expressed as a
-   *     fraction of the viewport height.
-   * @param verticalPositionAnchor The vertical anchor. One of {@link #ANCHOR_TYPE_START}, {@link
-   *     #ANCHOR_TYPE_MIDDLE}, {@link #ANCHOR_TYPE_END} and {@link #TYPE_UNSET}.
-   * @param width The width of the cue as a fraction of the viewport width.
-   * @param height The height of the cue as a fraction of the viewport height, or {@link
-   *     #DIMEN_UNSET} if the bitmap should be displayed at its natural height for the specified
-   *     {@code width}.
-   * @deprecated Use {@link Builder}.
-   */
-  @Deprecated
-  public Cue(
-      Bitmap bitmap,
-      float horizontalPosition,
-      @AnchorType int horizontalPositionAnchor,
-      float verticalPosition,
-      @AnchorType int verticalPositionAnchor,
-      float width,
-      float height) {
-    this(
-        /* text= */ null,
-        /* textAlignment= */ null,
-        bitmap,
-        verticalPosition,
-        /* lineType= */ LINE_TYPE_FRACTION,
-        verticalPositionAnchor,
-        horizontalPosition,
-        horizontalPositionAnchor,
-        /* textSizeType= */ TYPE_UNSET,
-        /* textSize= */ DIMEN_UNSET,
-        width,
-        height,
-        /* windowColorSet= */ false,
-        /* windowColor= */ Color.BLACK);
-  }
-
-  /**
    * Creates a text cue whose {@link #textAlignment} is null, whose type parameters are set to
    * {@link #TYPE_UNSET} and whose dimension parameters are set to {@link #DIMEN_UNSET}.
    *
