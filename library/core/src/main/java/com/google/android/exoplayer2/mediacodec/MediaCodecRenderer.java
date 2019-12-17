@@ -197,7 +197,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @IntDef({
     MediaCodecOperationMode.SYNCHRONOUS,
     MediaCodecOperationMode.ASYNCHRONOUS_PLAYBACK_THREAD,
-    MediaCodecOperationMode.ASYNCHRONOUS_DEDICATED_THREAD
+    MediaCodecOperationMode.ASYNCHRONOUS_DEDICATED_THREAD,
+    MediaCodecOperationMode.ASYNCHRONOUS_DEDICATED_THREAD_MULTI_LOCK
   })
   public @interface MediaCodecOperationMode {
 
@@ -213,6 +214,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
      * callbacks to a dedicated Thread.
      */
     int ASYNCHRONOUS_DEDICATED_THREAD = 2;
+    /**
+     * Operates the {@link MediaCodec} in asynchronous mode and routes {@link MediaCodec.Callback}
+     * callbacks to a dedicated Thread. Uses granular locking for input and output buffers.
+     */
+    int ASYNCHRONOUS_DEDICATED_THREAD_MULTI_LOCK = 3;
   }
 
   /** Indicates no codec operating rate should be set. */
@@ -481,6 +487,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    *           routed to a dedicated Thread. This mode requires API level &ge; 23; if the API level
    *           is &le; 22, the operation mode will be set to {@link
    *           MediaCodecOperationMode#SYNCHRONOUS}.
+   *       <li>{@link MediaCodecOperationMode#ASYNCHRONOUS_DEDICATED_THREAD_MULTI_LOCK}: Same as
+   *           {@link MediaCodecOperationMode#ASYNCHRONOUS_DEDICATED_THREAD} but it will internally
+   *           use a finer grained locking mechanism for increased performance.
    *     </ul>
    *     By default, the operation mode is set to {@link MediaCodecOperationMode#SYNCHRONOUS}.
    */
@@ -984,6 +993,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           && Util.SDK_INT >= 23) {
         codecAdapter = new DedicatedThreadAsyncMediaCodecAdapter(codec, getTrackType());
         ((DedicatedThreadAsyncMediaCodecAdapter) codecAdapter).start();
+      } else if (mediaCodecOperationMode
+              == MediaCodecOperationMode.ASYNCHRONOUS_DEDICATED_THREAD_MULTI_LOCK
+          && Util.SDK_INT >= 23) {
+        codecAdapter = new MultiLockAsynchMediaCodecAdapter(codec, getTrackType());
+        ((MultiLockAsynchMediaCodecAdapter) codecAdapter).start();
       } else {
         codecAdapter = new SynchronousMediaCodecAdapter(codec, getDequeueOutputBufferTimeoutUs());
       }
