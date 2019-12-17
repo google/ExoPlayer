@@ -840,10 +840,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     resetCodecStateForFlush();
 
     availableCodecInfos = null;
-    codec = null;
     codecInfo = null;
     codecFormat = null;
-    codecAdapter = null;
     codecOperatingRate = CODEC_OPERATING_RATE_UNSET;
     codecAdaptationWorkaroundMode = ADAPTATION_WORKAROUND_MODE_NEVER;
     codecNeedsReconfigureWorkaround = false;
@@ -856,8 +854,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     codecReconfigured = false;
     codecReconfigurationState = RECONFIGURATION_STATE_NONE;
     resetCodecBuffers();
-
-    mediaCrypto = null;
     mediaCryptoRequiresSecureDecoder = false;
   }
 
