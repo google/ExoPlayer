@@ -162,7 +162,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
   public MediaPeriodId getDummyFirstMediaPeriodId(
       boolean shuffleModeEnabled, Timeline.Window window, Timeline.Period period) {
     if (timeline.isEmpty()) {
-      return DUMMY_MEDIA_PERIOD_ID;
+      return getDummyPeriodForEmptyTimeline();
     }
     int firstWindowIndex = timeline.getFirstWindowIndex(shuffleModeEnabled);
     int firstPeriodIndex = timeline.getWindow(firstWindowIndex, window).firstPeriodIndex;
@@ -176,6 +176,11 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
       }
     }
     return new MediaPeriodId(timeline.getUidOfPeriod(firstPeriodIndex), windowSequenceNumber);
+  }
+
+  /** Returns dummy period id for an empty timeline. */
+  public MediaPeriodId getDummyPeriodForEmptyTimeline() {
+    return DUMMY_MEDIA_PERIOD_ID;
   }
 
   /**

@@ -288,7 +288,7 @@ public class ImaAdsLoaderTest {
       this.adPlaybackState = adPlaybackState;
       fakeExoPlayer.updateTimeline(
           new SinglePeriodAdTimeline(contentTimeline, adPlaybackState),
-          Player.TIMELINE_CHANGE_REASON_DYNAMIC);
+          Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
     }
 
     @Override

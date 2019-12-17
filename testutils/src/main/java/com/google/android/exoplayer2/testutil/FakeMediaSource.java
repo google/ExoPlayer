@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.source.BaseMediaSource;
+import com.google.android.exoplayer2.source.ForwardingTimeline;
 import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaPeriod;
@@ -48,6 +49,22 @@ import java.util.List;
  * FakeMediaPeriod} with a {@link TrackGroupArray} using the given {@link Format}s.
  */
 public class FakeMediaSource extends BaseMediaSource {
+
+  /** A forwarding timeline to provide an initial timeline for fake multi window sources. */
+  public static class InitialTimeline extends ForwardingTimeline {
+
+    public InitialTimeline(Timeline timeline) {
+      super(timeline);
+    }
+
+    @Override
+    public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
+      Window childWindow = timeline.getWindow(windowIndex, window, defaultPositionProjectionUs);
+      childWindow.isDynamic = true;
+      childWindow.isSeekable = false;
+      return childWindow;
+    }
+  }
 
   private static final DataSpec FAKE_DATA_SPEC = new DataSpec(Uri.parse("http://manifest.uri"));
   private static final int MANIFEST_LOAD_BYTES = 100;
@@ -90,6 +107,19 @@ public class FakeMediaSource extends BaseMediaSource {
   public Object getTag() {
     boolean hasTimeline = timeline != null && !timeline.isEmpty();
     return hasTimeline ? timeline.getWindow(0, new Timeline.Window()).tag : null;
+  }
+
+  @Nullable
+  @Override
+  public Timeline getInitialTimeline() {
+    return timeline == null || timeline == Timeline.EMPTY || timeline.getWindowCount() == 1
+        ? null
+        : new InitialTimeline(timeline);
+  }
+
+  @Override
+  public boolean isSingleWindow() {
+    return timeline == null || timeline == Timeline.EMPTY || timeline.getWindowCount() == 1;
   }
 
   @Override
@@ -249,5 +279,4 @@ public class FakeMediaSource extends BaseMediaSource {
     }
     return new TrackGroupArray(trackGroups);
   }
-
 }
