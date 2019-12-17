@@ -5,6 +5,8 @@
 * UI: Exclude `DefaultTimeBar` region from system gesture detection
   ([#6685](https://github.com/google/ExoPlayer/issues/6685)).
 * Propagate HTTP request headers through `CacheDataSource`.
+* AV1 extension: Fix ProGuard rules
+  ([6773](https://github.com/google/ExoPlayer/issues/6773)).
 
 ### 2.11.0 (2019-12-11) ###
 
