@@ -30,6 +30,8 @@
   Also change `IcyInfo.rawMetadata` from `String` to `byte[]` to allow
   developers to handle data that's neither UTF-8 nor ISO-8859-1
   ([#6753](https://github.com/google/ExoPlayer/issues/6753)).
+* AV1 extension: Fix ProGuard rules
+  ([6773](https://github.com/google/ExoPlayer/issues/6773)).
 
 ### 2.11.0 (2019-12-11) ###
 
