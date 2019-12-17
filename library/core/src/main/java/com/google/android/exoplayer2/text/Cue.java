@@ -17,9 +17,12 @@ package com.google.android.exoplayer2.text;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.text.Layout;
 import android.text.Layout.Alignment;
+import androidx.annotation.ColorInt;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.util.Assertions;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -240,7 +243,9 @@ public final class Cue {
    * @param height The height of the cue as a fraction of the viewport height, or {@link
    *     #DIMEN_UNSET} if the bitmap should be displayed at its natural height for the specified
    *     {@code width}.
+   * @deprecated Use {@link Builder}.
    */
+  @Deprecated
   public Cue(
       Bitmap bitmap,
       float horizontalPosition,
@@ -271,7 +276,9 @@ public final class Cue {
    * {@link #TYPE_UNSET} and whose dimension parameters are set to {@link #DIMEN_UNSET}.
    *
    * @param text See {@link #text}.
+   * @deprecated Use {@link Builder}.
    */
+  @Deprecated
   public Cue(CharSequence text) {
     this(
         text,
@@ -295,7 +302,9 @@ public final class Cue {
    * @param position See {@link #position}.
    * @param positionAnchor See {@link #positionAnchor}.
    * @param size See {@link #size}.
+   * @deprecated Use {@link Builder}.
    */
+  @Deprecated
   public Cue(
       CharSequence text,
       @Nullable Alignment textAlignment,
@@ -331,7 +340,9 @@ public final class Cue {
    * @param size See {@link #size}.
    * @param textSizeType See {@link #textSizeType}.
    * @param textSize See {@link #textSize}.
+   * @deprecated Use {@link Builder}.
    */
+  @Deprecated
   public Cue(
       CharSequence text,
       @Nullable Alignment textAlignment,
@@ -373,7 +384,9 @@ public final class Cue {
    * @param size See {@link #size}.
    * @param windowColorSet See {@link #windowColorSet}.
    * @param windowColor See {@link #windowColor}.
+   * @deprecated Use {@link Builder}.
    */
+  @Deprecated
   public Cue(
       CharSequence text,
       @Nullable Alignment textAlignment,
@@ -417,6 +430,12 @@ public final class Cue {
       float bitmapHeight,
       boolean windowColorSet,
       int windowColor) {
+    // Exactly one of text or bitmap should be set.
+    if (text == null) {
+      Assertions.checkNotNull(bitmap);
+    } else {
+      Assertions.checkArgument(bitmap == null);
+    }
     this.text = text;
     this.textAlignment = textAlignment;
     this.bitmap = bitmap;
@@ -433,4 +452,225 @@ public final class Cue {
     this.textSize = textSize;
   }
 
+  /** A builder for {@link Cue} objects. */
+  public static final class Builder {
+    @Nullable private CharSequence text;
+    @Nullable private Bitmap bitmap;
+    @Nullable private Alignment textAlignment;
+    private float line;
+    @LineType private int lineType;
+    @AnchorType private int lineAnchor;
+    private float position;
+    @AnchorType private int positionAnchor;
+    @TextSizeType private int textSizeType;
+    private float textSize;
+    private float size;
+    private float bitmapHeight;
+    private boolean windowColorSet;
+    @ColorInt private int windowColor;
+
+    public Builder() {
+      text = null;
+      bitmap = null;
+      textAlignment = null;
+      line = DIMEN_UNSET;
+      lineType = TYPE_UNSET;
+      lineAnchor = TYPE_UNSET;
+      position = DIMEN_UNSET;
+      positionAnchor = TYPE_UNSET;
+      textSizeType = TYPE_UNSET;
+      textSize = DIMEN_UNSET;
+      size = DIMEN_UNSET;
+      bitmapHeight = DIMEN_UNSET;
+      windowColorSet = false;
+      windowColor = Color.BLACK;
+    }
+
+    /**
+     * Sets the cue text.
+     *
+     * <p>Note that {@code text} may be decorated with styling spans.
+     *
+     * @see Cue#text
+     */
+    public Builder setText(CharSequence text) {
+      this.text = text;
+      return this;
+    }
+
+    /** Sets the cue image. */
+    public Builder setBitmap(Bitmap bitmap) {
+      this.bitmap = bitmap;
+      return this;
+    }
+
+    /**
+     * Sets the alignment of the cue text within the cue box.
+     *
+     * <p>Passing null means the alignment is undefined.
+     *
+     * @see Cue#textAlignment
+     */
+    public Builder setTextAlignment(@Nullable Layout.Alignment textAlignment) {
+      this.textAlignment = textAlignment;
+      return this;
+    }
+
+    /**
+     * Sets the position of the {@code lineAnchor} of the cue box within the viewport in the
+     * direction orthogonal to the writing direction.
+     *
+     * <p>The interpretation of the {@code line} depends on the value of {@code lineType}.
+     *
+     * <ul>
+     *   <li>{@link #LINE_TYPE_FRACTION} indicates that {@code line} is a fractional position within
+     *       the viewport.
+     *   <li>{@link #LINE_TYPE_NUMBER} indicates that {@code line} is a line number, where the size
+     *       of each line is taken to be the size of the first line of the cue.
+     *       <ul>
+     *         <li>When {@code line} is greater than or equal to 0 lines count from the start of the
+     *             viewport, with 0 indicating zero offset from the start edge.
+     *         <li>When {@code line} is negative lines count from the end of the viewport, with -1
+     *             indicating zero offset from the end edge.
+     *         <li>For horizontal text the line spacing is the height of the first line of the cue,
+     *             and the start and end of the viewport are the top and bottom respectively.
+     *       </ul>
+     * </ul>
+     *
+     * <p>Note that it's particularly important to consider the effect of {@link #setLineAnchor(int)
+     * lineAnchor} when using {@link #LINE_TYPE_NUMBER}.
+     *
+     * <ul>
+     *   <li>{@code (line == 0 && lineAnchor == ANCHOR_TYPE_START)} positions a (potentially
+     *       multi-line) cue at the very start of the viewport.
+     *   <li>{@code (line == -1 && lineAnchor == ANCHOR_TYPE_END)} positions a (potentially
+     *       multi-line) cue at the very end of the viewport.
+     *   <li>{@code (line == 0 && lineAnchor == ANCHOR_TYPE_END)} and {@code (line == -1 &&
+     *       lineAnchor == ANCHOR_TYPE_START)} position cues entirely outside of the viewport.
+     *   <li>{@code (line == 1 && lineAnchor == ANCHOR_TYPE_END)} positions a cue so that only the
+     *       last line is visible at the start of the viewport.
+     *   <li>{@code (line == -2 && lineAnchor == ANCHOR_TYPE_START)} position a cue so that only its
+     *       first line is visible at the end of the viewport.
+     * </ul>
+     *
+     * @see Cue#line
+     * @see Cue#lineType
+     */
+    public Builder setLine(float line, @LineType int lineType) {
+      this.line = line;
+      this.lineType = lineType;
+      return this;
+    }
+
+    /**
+     * Sets the cue box anchor positioned by {@link #setLine(float, int) line}.
+     *
+     * <p>For the normal case of horizontal text, {@link #ANCHOR_TYPE_START}, {@link
+     * #ANCHOR_TYPE_MIDDLE} and {@link #ANCHOR_TYPE_END} correspond to the top, middle and bottom of
+     * the cue box respectively.
+     *
+     * @see Cue#lineAnchor
+     */
+    public Builder setLineAnchor(@AnchorType int lineAnchor) {
+      this.lineAnchor = lineAnchor;
+      return this;
+    }
+
+    /**
+     * Sets the fractional position of the {@link #setPositionAnchor(int) positionAnchor} of the cue
+     * box within the viewport in the direction orthogonal to {@link #setLine(float, int) line}.
+     *
+     * <p>For horizontal text, this is the horizontal position relative to the left of the viewport.
+     * Note that positioning is relative to the left of the viewport even in the case of
+     * right-to-left text.
+     *
+     * @see Cue#position
+     */
+    public Builder setPosition(float position) {
+      this.position = position;
+      return this;
+    }
+
+    /**
+     * Sets the cue box anchor positioned by {@link #setPosition(float) position}.
+     *
+     * <p>For the normal case of horizontal text, {@link #ANCHOR_TYPE_START}, {@link
+     * #ANCHOR_TYPE_MIDDLE} and {@link #ANCHOR_TYPE_END} correspond to the left, middle and right of
+     * the cue box respectively.
+     *
+     * @see Cue#positionAnchor
+     */
+    public Builder setPositionAnchor(@AnchorType int positionAnchor) {
+      this.positionAnchor = positionAnchor;
+      return this;
+    }
+
+    /**
+     * Sets the default text size type for this cue's text.
+     *
+     * @see Cue#textSize
+     * @see Cue#textSizeType
+     */
+    public Builder setTextSize(float textSize, @TextSizeType int textSizeType) {
+      this.textSize = textSize;
+      this.textSizeType = textSizeType;
+      return this;
+    }
+
+    /**
+     * Sets the size of the cue box in the writing direction specified as a fraction of the viewport
+     * size in that direction.
+     *
+     * @see Cue#textSize
+     * @see Cue#textSizeType
+     * @see Cue#size
+     */
+    public Builder setSize(float size) {
+      this.size = size;
+      return this;
+    }
+
+    /**
+     * Sets the bitmap height as a fraction of the of the viewport size.
+     *
+     * @see Cue#bitmapHeight
+     */
+    public Builder setBitmapHeight(float bitmapHeight) {
+      this.bitmapHeight = bitmapHeight;
+      return this;
+    }
+
+    /**
+     * Sets the fill color of the window.
+     *
+     * <p>Also sets {@link Cue#windowColorSet} to true.
+     *
+     * @see Cue#windowColor
+     * @see Cue#windowColorSet
+     */
+    public Builder setWindowColor(@ColorInt int windowColor) {
+      this.windowColor = windowColor;
+      this.windowColorSet = true;
+      return this;
+    }
+
+    /** Build the cue. */
+    public Cue build() {
+      return new Cue(
+          text,
+          textAlignment,
+          bitmap,
+          line,
+          lineType,
+          lineAnchor,
+          position,
+          positionAnchor,
+          textSizeType,
+          textSize,
+          size,
+          bitmapHeight,
+          windowColorSet,
+          windowColor);
+    }
+  }
 }
