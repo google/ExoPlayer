@@ -3150,12 +3150,52 @@ public final class ExoPlayerTest {
   }
 
   @Test
-  public void loadControlNeverWantsToLoadOrPlay_playbackDoesNotGetStuck() throws Exception {
-    LoadControl neverLoadingOrPlayingLoadControl =
+  public void loadControlNeverWantsToLoad_throwsIllegalStateException() throws Exception {
+    LoadControl neverLoadingLoadControl =
         new DefaultLoadControl() {
           @Override
           public boolean shouldContinueLoading(long bufferedDurationUs, float playbackSpeed) {
             return false;
+          }
+
+          @Override
+          public boolean shouldStartPlayback(
+              long bufferedDurationUs, float playbackSpeed, boolean rebuffering) {
+            return true;
+          }
+        };
+
+    // Use chunked data to ensure the player actually needs to continue loading and playing.
+    FakeAdaptiveDataSet.Factory dataSetFactory =
+        new FakeAdaptiveDataSet.Factory(
+            /* chunkDurationUs= */ 500_000, /* bitratePercentStdDev= */ 10.0);
+    MediaSource chunkedMediaSource =
+        new FakeAdaptiveMediaSource(
+            new FakeTimeline(/* windowCount= */ 1),
+            new TrackGroupArray(new TrackGroup(Builder.VIDEO_FORMAT)),
+            new FakeChunkSource.Factory(dataSetFactory, new FakeDataSource.Factory()));
+
+    try {
+      new ExoPlayerTestRunner.Builder()
+          .setLoadControl(neverLoadingLoadControl)
+          .setMediaSource(chunkedMediaSource)
+          .build(context)
+          .start()
+          .blockUntilEnded(TIMEOUT_MS);
+      fail();
+    } catch (ExoPlaybackException e) {
+      assertThat(e.type).isEqualTo(ExoPlaybackException.TYPE_UNEXPECTED);
+      assertThat(e.getUnexpectedException()).isInstanceOf(IllegalStateException.class);
+    }
+  }
+
+  @Test
+  public void loadControlNeverWantsToPlay_playbackDoesNotGetStuck() throws Exception {
+    LoadControl neverLoadingOrPlayingLoadControl =
+        new DefaultLoadControl() {
+          @Override
+          public boolean shouldContinueLoading(long bufferedDurationUs, float playbackSpeed) {
+            return true;
           }
 
           @Override
