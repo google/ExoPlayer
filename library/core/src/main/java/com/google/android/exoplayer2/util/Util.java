@@ -39,6 +39,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcel;
+import android.os.SystemClock;
 import android.security.NetworkSecurityPolicy;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -2043,6 +2044,19 @@ public final class Util {
       default:
         return trackType >= C.TRACK_TYPE_CUSTOM_BASE ? "custom (" + trackType + ")" : "?";
     }
+  }
+
+  /**
+   * Returns the current time in milliseconds since the epoch.
+   *
+   * @param elapsedRealtimeEpochOffsetMs The offset between {@link SystemClock#elapsedRealtime()}
+   *     and the time since the Unix epoch, or {@link C#TIME_UNSET} if unknown.
+   * @return The Unix time in milliseconds since the epoch.
+   */
+  public static long getNowUnixTimeMs(long elapsedRealtimeEpochOffsetMs) {
+    return elapsedRealtimeEpochOffsetMs == C.TIME_UNSET
+        ? System.currentTimeMillis()
+        : SystemClock.elapsedRealtime() + elapsedRealtimeEpochOffsetMs;
   }
 
   @Nullable

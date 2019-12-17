@@ -42,7 +42,8 @@ public interface DashChunkSource extends ChunkSource {
      * @param trackSelection The track selection.
      * @param elapsedRealtimeOffsetMs If known, an estimate of the instantaneous difference between
      *     server-side unix time and {@link SystemClock#elapsedRealtime()} in milliseconds,
-     *     specified as the server's unix time minus the local elapsed time. If unknown, set to 0.
+     *     specified as the server's unix time minus the local elapsed time. Or {@link
+     *     com.google.android.exoplayer2.C#TIME_UNSET} if unknown.
      * @param enableEventMessageTrack Whether to output an event message track.
      * @param closedCaptionFormats The {@link Format Formats} of closed caption tracks to be output.
      * @param transferListener The transfer listener which should be informed of any data transfers.

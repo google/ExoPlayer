@@ -468,6 +468,7 @@ public final class HlsMediaSource extends BaseMediaSource
           new SinglePeriodTimeline(
               presentationStartTimeMs,
               windowStartTimeMs,
+              /* elapsedRealtimeEpochOffsetMs= */ C.TIME_UNSET,
               periodDurationUs,
               /* windowDurationUs= */ playlist.durationUs,
               /* windowPositionInPeriodUs= */ offsetFromInitialStartTimeUs,
@@ -485,6 +486,7 @@ public final class HlsMediaSource extends BaseMediaSource
           new SinglePeriodTimeline(
               presentationStartTimeMs,
               windowStartTimeMs,
+              /* elapsedRealtimeEpochOffsetMs= */ C.TIME_UNSET,
               /* periodDurationUs= */ playlist.durationUs,
               /* windowDurationUs= */ playlist.durationUs,
               /* windowPositionInPeriodUs= */ 0,

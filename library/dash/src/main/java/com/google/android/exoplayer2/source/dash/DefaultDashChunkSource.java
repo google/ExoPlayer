@@ -136,7 +136,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
    * @param dataSource A {@link DataSource} suitable for loading the media data.
    * @param elapsedRealtimeOffsetMs If known, an estimate of the instantaneous difference between
    *     server-side unix time and {@link SystemClock#elapsedRealtime()} in milliseconds, specified
-   *     as the server's unix time minus the local elapsed time. If unknown, set to 0.
+   *     as the server's unix time minus the local elapsed time. Or {@link C#TIME_UNSET} if unknown.
    * @param maxSegmentsPerLoad The maximum number of segments to combine into a single request. Note
    *     that segments will only be combined if their {@link Uri}s are the same and if their data
    *     ranges are adjacent.
@@ -267,7 +267,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
       return;
     }
 
-    long nowUnixTimeUs = getNowUnixTimeUs();
+    long nowUnixTimeUs = C.msToUs(Util.getNowUnixTimeMs(elapsedRealtimeOffsetMs));
     MediaChunk previous = queue.isEmpty() ? null : queue.get(queue.size() - 1);
     MediaChunkIterator[] chunkIterators = new MediaChunkIterator[trackSelection.length()];
     for (int i = 0; i < chunkIterators.length; i++) {
@@ -472,14 +472,6 @@ public class DefaultDashChunkSource implements DashChunkSource {
       RepresentationHolder representationHolder, long lastAvailableSegmentNum) {
     liveEdgeTimeUs = manifest.dynamic
         ? representationHolder.getSegmentEndTimeUs(lastAvailableSegmentNum) : C.TIME_UNSET;
-  }
-
-  private long getNowUnixTimeUs() {
-    if (elapsedRealtimeOffsetMs != 0) {
-      return (SystemClock.elapsedRealtime() + elapsedRealtimeOffsetMs) * 1000;
-    } else {
-      return System.currentTimeMillis() * 1000;
-    }
   }
 
   private long resolveTimeToLiveEdgeUs(long playbackPositionUs) {

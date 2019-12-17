@@ -153,7 +153,7 @@ public abstract class BasePlayer implements Player {
     if (windowStartTimeMs == C.TIME_UNSET) {
       return C.TIME_UNSET;
     }
-    return System.currentTimeMillis() - window.windowStartTimeMs - getContentPosition();
+    return window.getCurrentUnixTimeMs() - window.windowStartTimeMs - getContentPosition();
   }
 
   @Override

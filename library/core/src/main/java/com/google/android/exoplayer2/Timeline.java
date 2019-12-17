@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2;
 
+import android.os.SystemClock;
 import android.util.Pair;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
@@ -136,19 +137,28 @@ public abstract class Timeline {
 
     /**
      * The start time of the presentation to which this window belongs in milliseconds since the
-     * epoch, or {@link C#TIME_UNSET} if unknown or not applicable. For informational purposes only.
+     * Unix epoch, or {@link C#TIME_UNSET} if unknown or not applicable. For informational purposes
+     * only.
      */
     public long presentationStartTimeMs;
 
     /**
-     * The window's start time in milliseconds since the epoch, or {@link C#TIME_UNSET} if unknown
-     * or not applicable. For informational purposes only.
+     * The window's start time in milliseconds since the Unix epoch, or {@link C#TIME_UNSET} if
+     * unknown or not applicable. For informational purposes only.
      */
     public long windowStartTimeMs;
 
     /**
-     * Whether it's possible to seek within this window.
+     * The offset between {@link SystemClock#elapsedRealtime()} and the time since the Unix epoch
+     * according to the clock of the media origin server, or {@link C#TIME_UNSET} if unknown or not
+     * applicable.
+     *
+     * <p>Note that the current Unix time can be retrieved using {@link #getCurrentUnixTimeMs()} and
+     * is calculated as {@code SystemClock.elapsedRealtime() + elapsedRealtimeEpochOffsetMs}.
      */
+    public long elapsedRealtimeEpochOffsetMs;
+
+    /** Whether it's possible to seek within this window. */
     public boolean isSeekable;
 
     // TODO: Split this to better describe which parts of the window might change. For example it
@@ -205,6 +215,7 @@ public abstract class Timeline {
         @Nullable Object manifest,
         long presentationStartTimeMs,
         long windowStartTimeMs,
+        long elapsedRealtimeEpochOffsetMs,
         boolean isSeekable,
         boolean isDynamic,
         boolean isLive,
@@ -218,6 +229,7 @@ public abstract class Timeline {
       this.manifest = manifest;
       this.presentationStartTimeMs = presentationStartTimeMs;
       this.windowStartTimeMs = windowStartTimeMs;
+      this.elapsedRealtimeEpochOffsetMs = elapsedRealtimeEpochOffsetMs;
       this.isSeekable = isSeekable;
       this.isDynamic = isDynamic;
       this.isLive = isLive;
@@ -279,6 +291,16 @@ public abstract class Timeline {
       return positionInFirstPeriodUs;
     }
 
+    /**
+     * Returns the current time in milliseconds since the Unix epoch.
+     *
+     * <p>This method applies {@link #elapsedRealtimeEpochOffsetMs known corrections} made available
+     * by the media such that this time corresponds to the clock of the media origin server.
+     */
+    public long getCurrentUnixTimeMs() {
+      return Util.getNowUnixTimeMs(elapsedRealtimeEpochOffsetMs);
+    }
+
     @Override
     public boolean equals(@Nullable Object obj) {
       if (this == obj) {
@@ -293,6 +315,7 @@ public abstract class Timeline {
           && Util.areEqual(manifest, that.manifest)
           && presentationStartTimeMs == that.presentationStartTimeMs
           && windowStartTimeMs == that.windowStartTimeMs
+          && elapsedRealtimeEpochOffsetMs == that.elapsedRealtimeEpochOffsetMs
           && isSeekable == that.isSeekable
           && isDynamic == that.isDynamic
           && isLive == that.isLive
@@ -311,6 +334,9 @@ public abstract class Timeline {
       result = 31 * result + (manifest == null ? 0 : manifest.hashCode());
       result = 31 * result + (int) (presentationStartTimeMs ^ (presentationStartTimeMs >>> 32));
       result = 31 * result + (int) (windowStartTimeMs ^ (windowStartTimeMs >>> 32));
+      result =
+          31 * result
+              + (int) (elapsedRealtimeEpochOffsetMs ^ (elapsedRealtimeEpochOffsetMs >>> 32));
       result = 31 * result + (isSeekable ? 1 : 0);
       result = 31 * result + (isDynamic ? 1 : 0);
       result = 31 * result + (isLive ? 1 : 0);
