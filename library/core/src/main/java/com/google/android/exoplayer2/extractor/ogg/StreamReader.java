@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.ogg;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -23,6 +24,7 @@ import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -51,7 +53,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private long currentGranule;
   private int state;
   private int sampleRate;
-  private SetupData setupData;
+  @Nullable private SetupData setupData;
   private long lengthOfReadPacket;
   private boolean seekMapSet;
   private boolean formatSet;
@@ -149,7 +151,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       boolean isLastPage = (firstPayloadPageHeader.type & 0x04) != 0; // Type 4 is end of stream.
       oggSeeker =
           new DefaultOggSeeker(
-              this,
+              /* streamReader= */ this,
               payloadStartPosition,
               input.getLength(),
               firstPayloadPageHeader.headerSize + firstPayloadPageHeader.bodySize,
@@ -173,8 +175,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     } else if (position < -1) {
       onSeekEnd(-(position + 2));
     }
+
     if (!seekMapSet) {
-      SeekMap seekMap = oggSeeker.createSeekMap();
+      SeekMap seekMap = Assertions.checkNotNull(oggSeeker.createSeekMap());
       extractorOutput.seekMap(seekMap);
       seekMapSet = true;
     }
