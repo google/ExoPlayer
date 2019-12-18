@@ -42,8 +42,8 @@ import java.util.List;
       WebvttCueInfo cueInfo = cueInfos.get(cueIndex);
       this.cues.add(cueInfo.cue);
       int arrayIndex = cueIndex * 2;
-      cueTimesUs[arrayIndex] = cueInfo.startTime;
-      cueTimesUs[arrayIndex + 1] = cueInfo.endTime;
+      cueTimesUs[arrayIndex] = cueInfo.startTimeUs;
+      cueTimesUs[arrayIndex + 1] = cueInfo.endTimeUs;
     }
     sortedCueTimesUs = Arrays.copyOf(cueTimesUs, cueTimesUs.length);
     Arrays.sort(sortedCueTimesUs);
