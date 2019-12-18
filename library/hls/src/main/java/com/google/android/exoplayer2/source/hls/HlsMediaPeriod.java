@@ -75,7 +75,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   private final TimestampAdjusterProvider timestampAdjusterProvider;
   private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
   private final boolean allowChunklessPreparation;
-  private final @HlsMetadataType int metadataType;
+  private final @HlsMediaSource.MetadataType int metadataType;
   private final boolean useSessionKeys;
 
   @Nullable private Callback callback;
@@ -118,7 +118,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
       Allocator allocator,
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
       boolean allowChunklessPreparation,
-      @HlsMetadataType int metadataType,
+      @HlsMediaSource.MetadataType int metadataType,
       boolean useSessionKeys) {
     this.extractorFactory = extractorFactory;
     this.playlistTracker = playlistTracker;

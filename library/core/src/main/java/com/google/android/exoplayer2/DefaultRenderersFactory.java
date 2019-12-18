@@ -102,7 +102,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
     extensionRendererMode = EXTENSION_RENDERER_MODE_OFF;
     allowedVideoJoiningTimeMs = DEFAULT_ALLOWED_VIDEO_JOINING_TIME_MS;
     mediaCodecSelector = MediaCodecSelector.DEFAULT;
-    mediaCodecOperationMode = MediaCodecRenderer.MediaCodecOperationMode.SYNCHRONOUS;
+    mediaCodecOperationMode = MediaCodecRenderer.OPERATION_MODE_SYNCHRONOUS;
   }
 
   /**

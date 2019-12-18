@@ -41,12 +41,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /* package */ final class DedicatedThreadAsyncMediaCodecAdapter extends MediaCodec.Callback
     implements MediaCodecAdapter {
 
-  @IntDef({State.CREATED, State.STARTED, State.SHUT_DOWN})
-  private @interface State {
-    int CREATED = 0;
-    int STARTED = 1;
-    int SHUT_DOWN = 2;
-  }
+  @IntDef({STATE_CREATED, STATE_STARTED, STATE_SHUT_DOWN})
+  private @interface State {}
+
+  private static final int STATE_CREATED = 0;
+  private static final int STATE_STARTED = 1;
+  private static final int STATE_SHUT_DOWN = 2;
 
   private final MediaCodecAsyncCallback mediaCodecAsyncCallback;
   private final MediaCodec codec;
@@ -76,7 +76,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     mediaCodecAsyncCallback = new MediaCodecAsyncCallback();
     this.codec = codec;
     this.handlerThread = handlerThread;
-    state = State.CREATED;
+    state = STATE_CREATED;
     onCodecStart = codec::start;
   }
 
@@ -90,17 +90,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @throws IllegalStateException If this method has been called already.
    */
   public synchronized void start() {
-    Assertions.checkState(state == State.CREATED);
+    Assertions.checkState(state == STATE_CREATED);
 
     handlerThread.start();
     handler = new Handler(handlerThread.getLooper());
     codec.setCallback(this, handler);
-    state = State.STARTED;
+    state = STATE_STARTED;
   }
 
   @Override
   public synchronized int dequeueInputBufferIndex() {
-    Assertions.checkState(state == State.STARTED);
+    Assertions.checkState(state == STATE_STARTED);
 
     if (isFlushing()) {
       return MediaCodec.INFO_TRY_AGAIN_LATER;
@@ -112,7 +112,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public synchronized int dequeueOutputBufferIndex(MediaCodec.BufferInfo bufferInfo) {
-    Assertions.checkState(state == State.STARTED);
+    Assertions.checkState(state == STATE_STARTED);
 
     if (isFlushing()) {
       return MediaCodec.INFO_TRY_AGAIN_LATER;
@@ -124,14 +124,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public synchronized MediaFormat getOutputFormat() {
-    Assertions.checkState(state == State.STARTED);
+    Assertions.checkState(state == STATE_STARTED);
 
     return mediaCodecAsyncCallback.getOutputFormat();
   }
 
   @Override
   public synchronized void flush() {
-    Assertions.checkState(state == State.STARTED);
+    Assertions.checkState(state == STATE_STARTED);
 
     codec.flush();
     ++pendingFlushCount;
@@ -140,12 +140,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public synchronized void shutdown() {
-    if (state == State.STARTED) {
+    if (state == STATE_STARTED) {
       handlerThread.quit();
       mediaCodecAsyncCallback.flush();
     }
 
-    state = State.SHUT_DOWN;
+    state = STATE_SHUT_DOWN;
   }
 
   @Override
@@ -182,7 +182,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   private synchronized void onFlushCompleted() {
-    if (state != State.STARTED) {
+    if (state != STATE_STARTED) {
       // The adapter has been shutdown.
       return;
     }
