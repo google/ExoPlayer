@@ -1,5 +1,10 @@
 # Proguard rules specific to the core module.
 
+# Constant folding for resource integers may mean that a resource passed to this method appears to be unused. Keep the method to prevent this from happening.
+-keep class com.google.android.exoplayer2.upstream.RawResourceDataSource {
+  public static android.net.Uri buildRawResourceUri(int);
+}
+
 # Constructors accessed via reflection in DefaultRenderersFactory
 -dontnote com.google.android.exoplayer2.ext.vp9.LibvpxVideoRenderer
 -keepclassmembers class com.google.android.exoplayer2.ext.vp9.LibvpxVideoRenderer {
@@ -69,5 +74,5 @@
 
 # Some members of this class are being accessed from native methods. Keep them unobfuscated.
 -keep class com.google.android.exoplayer2.ext.video.VideoDecoderOutputBuffer {
-    *;
+  *;
 }
