@@ -55,6 +55,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Extracts data from the FMP4 container format. */
 @SuppressWarnings("ConstantField")
@@ -155,14 +156,14 @@ public class FragmentedMp4Extractor implements Extractor {
   private int atomType;
   private long atomSize;
   private int atomHeaderBytesRead;
-  private ParsableByteArray atomData;
+  @Nullable private ParsableByteArray atomData;
   private long endOfMdatPosition;
   private int pendingMetadataSampleBytes;
   private long pendingSeekTimeUs;
 
   private long durationUs;
   private long segmentIndexEarliestPresentationTimeUs;
-  private TrackBundle currentTrackBundle;
+  @Nullable private TrackBundle currentTrackBundle;
   private int sampleSize;
   private int sampleBytesWritten;
   private int sampleCurrentNalBytesRemaining;
@@ -170,7 +171,7 @@ public class FragmentedMp4Extractor implements Extractor {
   private boolean isAc4HeaderRequired;
 
   // Extractor output.
-  private ExtractorOutput extractorOutput;
+  @MonotonicNonNull private ExtractorOutput extractorOutput;
   private TrackOutput[] emsgTrackOutputs;
   private TrackOutput[] cea608TrackOutputs;
 
@@ -495,6 +496,7 @@ public class FragmentedMp4Extractor implements Extractor {
     for (int i = 0; i < moovContainerChildrenSize; i++) {
       Atom.ContainerAtom atom = moov.containerChildren.get(i);
       if (atom.type == Atom.TYPE_trak) {
+        @Nullable
         Track track =
             modifyTrack(
                 AtomParsers.parseTrak(
@@ -712,7 +714,7 @@ public class FragmentedMp4Extractor implements Extractor {
   private static void parseTraf(ContainerAtom traf, SparseArray<TrackBundle> trackBundleArray,
       @Flags int flags, byte[] extendedTypeScratch) throws ParserException {
     LeafAtom tfhd = traf.getLeafAtomOfType(Atom.TYPE_tfhd);
-    TrackBundle trackBundle = parseTfhd(tfhd.data, trackBundleArray);
+    @Nullable TrackBundle trackBundle = parseTfhd(tfhd.data, trackBundleArray);
     if (trackBundle == null) {
       return;
     }
@@ -721,33 +723,34 @@ public class FragmentedMp4Extractor implements Extractor {
     long decodeTime = fragment.nextFragmentDecodeTime;
     trackBundle.reset();
 
-    LeafAtom tfdtAtom = traf.getLeafAtomOfType(Atom.TYPE_tfdt);
+    @Nullable LeafAtom tfdtAtom = traf.getLeafAtomOfType(Atom.TYPE_tfdt);
     if (tfdtAtom != null && (flags & FLAG_WORKAROUND_IGNORE_TFDT_BOX) == 0) {
       decodeTime = parseTfdt(traf.getLeafAtomOfType(Atom.TYPE_tfdt).data);
     }
 
     parseTruns(traf, trackBundle, decodeTime, flags);
 
-    TrackEncryptionBox encryptionBox = trackBundle.track
-        .getSampleDescriptionEncryptionBox(fragment.header.sampleDescriptionIndex);
+    @Nullable
+    TrackEncryptionBox encryptionBox =
+        trackBundle.track.getSampleDescriptionEncryptionBox(fragment.header.sampleDescriptionIndex);
 
-    LeafAtom saiz = traf.getLeafAtomOfType(Atom.TYPE_saiz);
+    @Nullable LeafAtom saiz = traf.getLeafAtomOfType(Atom.TYPE_saiz);
     if (saiz != null) {
       parseSaiz(encryptionBox, saiz.data, fragment);
     }
 
-    LeafAtom saio = traf.getLeafAtomOfType(Atom.TYPE_saio);
+    @Nullable LeafAtom saio = traf.getLeafAtomOfType(Atom.TYPE_saio);
     if (saio != null) {
       parseSaio(saio.data, fragment);
     }
 
-    LeafAtom senc = traf.getLeafAtomOfType(Atom.TYPE_senc);
+    @Nullable LeafAtom senc = traf.getLeafAtomOfType(Atom.TYPE_senc);
     if (senc != null) {
       parseSenc(senc.data, fragment);
     }
 
-    LeafAtom sbgp = traf.getLeafAtomOfType(Atom.TYPE_sbgp);
-    LeafAtom sgpd = traf.getLeafAtomOfType(Atom.TYPE_sgpd);
+    @Nullable LeafAtom sbgp = traf.getLeafAtomOfType(Atom.TYPE_sbgp);
+    @Nullable LeafAtom sgpd = traf.getLeafAtomOfType(Atom.TYPE_sgpd);
     if (sbgp != null && sgpd != null) {
       parseSgpd(sbgp.data, sgpd.data, encryptionBox != null ? encryptionBox.schemeType : null,
           fragment);
@@ -863,13 +866,14 @@ public class FragmentedMp4Extractor implements Extractor {
    * @return The {@link TrackBundle} to which the {@link TrackFragment} belongs, or null if the tfhd
    *     does not refer to any {@link TrackBundle}.
    */
+  @Nullable
   private static TrackBundle parseTfhd(
       ParsableByteArray tfhd, SparseArray<TrackBundle> trackBundles) {
     tfhd.setPosition(Atom.HEADER_SIZE);
     int fullAtom = tfhd.readInt();
     int atomFlags = Atom.parseFullAtomFlags(fullAtom);
     int trackId = tfhd.readInt();
-    TrackBundle trackBundle = getTrackBundle(trackBundles, trackId);
+    @Nullable TrackBundle trackBundle = getTrackBundle(trackBundles, trackId);
     if (trackBundle == null) {
       return null;
     }
@@ -1053,8 +1057,12 @@ public class FragmentedMp4Extractor implements Extractor {
     out.fillEncryptionData(senc);
   }
 
-  private static void parseSgpd(ParsableByteArray sbgp, ParsableByteArray sgpd, String schemeType,
-      TrackFragment out) throws ParserException {
+  private static void parseSgpd(
+      ParsableByteArray sbgp,
+      ParsableByteArray sgpd,
+      @Nullable String schemeType,
+      TrackFragment out)
+      throws ParserException {
     sbgp.setPosition(Atom.HEADER_SIZE);
     int sbgpFullAtom = sbgp.readInt();
     if (sbgp.readInt() != SAMPLE_GROUP_TYPE_seig) {
@@ -1216,7 +1224,7 @@ public class FragmentedMp4Extractor implements Extractor {
   private boolean readSample(ExtractorInput input) throws IOException, InterruptedException {
     if (parserState == STATE_READING_SAMPLE_START) {
       if (currentTrackBundle == null) {
-        TrackBundle currentTrackBundle = getNextFragmentRun(trackBundles);
+        @Nullable TrackBundle currentTrackBundle = getNextFragmentRun(trackBundles);
         if (currentTrackBundle == null) {
           // We've run out of samples in the current mdat. Discard any trailing data and prepare to
           // read the header of the next atom.
@@ -1388,6 +1396,7 @@ public class FragmentedMp4Extractor implements Extractor {
    * Returns the {@link TrackBundle} whose fragment run has the earliest file position out of those
    * yet to be consumed, or null if all have been consumed.
    */
+  @Nullable
   private static TrackBundle getNextFragmentRun(SparseArray<TrackBundle> trackBundles) {
     TrackBundle nextTrackBundle = null;
     long nextTrackRunOffset = Long.MAX_VALUE;
@@ -1410,7 +1419,7 @@ public class FragmentedMp4Extractor implements Extractor {
 
   /** Returns DrmInitData from leaf atoms. */
   private static DrmInitData getDrmInitDataFromAtoms(List<Atom.LeafAtom> leafChildren) {
-    ArrayList<SchemeData> schemeDatas = null;
+    @Nullable ArrayList<SchemeData> schemeDatas = null;
     int leafChildrenSize = leafChildren.size();
     for (int i = 0; i < leafChildrenSize; i++) {
       LeafAtom child = leafChildren.get(i);
@@ -1419,7 +1428,7 @@ public class FragmentedMp4Extractor implements Extractor {
           schemeDatas = new ArrayList<>();
         }
         byte[] psshData = child.data.data;
-        UUID uuid = PsshAtomUtil.parseUuid(psshData);
+        @Nullable UUID uuid = PsshAtomUtil.parseUuid(psshData);
         if (uuid == null) {
           Log.w(TAG, "Skipped pssh atom (failed to extract uuid)");
         } else {
@@ -1496,9 +1505,10 @@ public class FragmentedMp4Extractor implements Extractor {
     }
 
     public void updateDrmInitData(DrmInitData drmInitData) {
+      @Nullable
       TrackEncryptionBox encryptionBox =
           track.getSampleDescriptionEncryptionBox(fragment.header.sampleDescriptionIndex);
-      String schemeType = encryptionBox != null ? encryptionBox.schemeType : null;
+      @Nullable String schemeType = encryptionBox != null ? encryptionBox.schemeType : null;
       output.format(track.format.copyWithDrmInitData(drmInitData.copyWithSchemeType(schemeType)));
     }
 
@@ -1595,7 +1605,7 @@ public class FragmentedMp4Extractor implements Extractor {
 
     /** Skips the encryption data for the current sample. */
     private void skipSampleEncryptionData() {
-      TrackEncryptionBox encryptionBox = getEncryptionBoxIfEncrypted();
+      @Nullable TrackEncryptionBox encryptionBox = getEncryptionBoxIfEncrypted();
       if (encryptionBox == null) {
         return;
       }
@@ -1609,8 +1619,10 @@ public class FragmentedMp4Extractor implements Extractor {
       }
     }
 
+    @Nullable
     private TrackEncryptionBox getEncryptionBoxIfEncrypted() {
       int sampleDescriptionIndex = fragment.header.sampleDescriptionIndex;
+      @Nullable
       TrackEncryptionBox encryptionBox =
           fragment.trackEncryptionBox != null
               ? fragment.trackEncryptionBox

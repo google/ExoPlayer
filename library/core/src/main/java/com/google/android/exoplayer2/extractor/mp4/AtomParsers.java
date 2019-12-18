@@ -125,14 +125,16 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     Pair<Long, String> mdhdData = parseMdhd(mdia.getLeafAtomOfType(Atom.TYPE_mdhd).data);
     StsdData stsdData = parseStsd(stbl.getLeafAtomOfType(Atom.TYPE_stsd).data, tkhdData.id,
         tkhdData.rotationDegrees, mdhdData.second, drmInitData, isQuickTime);
-    long[] editListDurations = null;
-    long[] editListMediaTimes = null;
+    @Nullable long[] editListDurations = null;
+    @Nullable long[] editListMediaTimes = null;
     if (!ignoreEditLists) {
-      @Nullable
-      Pair<long[], long[]> edtsData = parseEdts(trak.getContainerAtomOfType(Atom.TYPE_edts));
-      if (edtsData != null) {
-        editListDurations = edtsData.first;
-        editListMediaTimes = edtsData.second;
+      @Nullable Atom.ContainerAtom edtsAtom = trak.getContainerAtomOfType(Atom.TYPE_edts);
+      if (edtsAtom != null) {
+        @Nullable Pair<long[], long[]> edtsData = parseEdts(edtsAtom);
+        if (edtsData != null) {
+          editListDurations = edtsData.first;
+          editListMediaTimes = edtsData.second;
+        }
       }
     }
     return stsdData.format == null ? null
@@ -154,11 +156,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       Track track, Atom.ContainerAtom stblAtom, GaplessInfoHolder gaplessInfoHolder)
       throws ParserException {
     SampleSizeBox sampleSizeBox;
-    Atom.LeafAtom stszAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_stsz);
+    @Nullable Atom.LeafAtom stszAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_stsz);
     if (stszAtom != null) {
       sampleSizeBox = new StszSampleSizeBox(stszAtom);
     } else {
-      Atom.LeafAtom stz2Atom = stblAtom.getLeafAtomOfType(Atom.TYPE_stz2);
+      @Nullable Atom.LeafAtom stz2Atom = stblAtom.getLeafAtomOfType(Atom.TYPE_stz2);
       if (stz2Atom == null) {
         throw new ParserException("Track has no sample table size information");
       }
@@ -179,7 +181,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     // Entries are byte offsets of chunks.
     boolean chunkOffsetsAreLongs = false;
-    Atom.LeafAtom chunkOffsetsAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_stco);
+    @Nullable Atom.LeafAtom chunkOffsetsAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_stco);
     if (chunkOffsetsAtom == null) {
       chunkOffsetsAreLongs = true;
       chunkOffsetsAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_co64);
@@ -190,11 +192,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     // Entries are (number of samples, timestamp delta between those samples).
     ParsableByteArray stts = stblAtom.getLeafAtomOfType(Atom.TYPE_stts).data;
     // Entries are the indices of samples that are synchronization samples.
-    Atom.LeafAtom stssAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_stss);
-    ParsableByteArray stss = stssAtom != null ? stssAtom.data : null;
+    @Nullable Atom.LeafAtom stssAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_stss);
+    @Nullable ParsableByteArray stss = stssAtom != null ? stssAtom.data : null;
     // Entries are (number of samples, timestamp offset).
-    Atom.LeafAtom cttsAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_ctts);
-    ParsableByteArray ctts = cttsAtom != null ? cttsAtom.data : null;
+    @Nullable Atom.LeafAtom cttsAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_ctts);
+    @Nullable ParsableByteArray ctts = cttsAtom != null ? cttsAtom.data : null;
 
     // Prepare to read chunk information.
     ChunkIterator chunkIterator = new ChunkIterator(stsc, chunkOffsets, chunkOffsetsAreLongs);
@@ -542,9 +544,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    */
   @Nullable
   public static Metadata parseMdtaFromMeta(Atom.ContainerAtom meta) {
-    Atom.LeafAtom hdlrAtom = meta.getLeafAtomOfType(Atom.TYPE_hdlr);
-    Atom.LeafAtom keysAtom = meta.getLeafAtomOfType(Atom.TYPE_keys);
-    Atom.LeafAtom ilstAtom = meta.getLeafAtomOfType(Atom.TYPE_ilst);
+    @Nullable Atom.LeafAtom hdlrAtom = meta.getLeafAtomOfType(Atom.TYPE_hdlr);
+    @Nullable Atom.LeafAtom keysAtom = meta.getLeafAtomOfType(Atom.TYPE_keys);
+    @Nullable Atom.LeafAtom ilstAtom = meta.getLeafAtomOfType(Atom.TYPE_ilst);
     if (hdlrAtom == null
         || keysAtom == null
         || ilstAtom == null
@@ -575,6 +577,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       int keyIndex = ilst.readInt() - 1;
       if (keyIndex >= 0 && keyIndex < keyNames.length) {
         String key = keyNames[keyIndex];
+        @Nullable
         Metadata.Entry entry =
             MetadataUtil.parseMdtaMetadataEntryFromIlst(ilst, atomPosition + atomSize, key);
         if (entry != null) {
@@ -609,7 +612,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     ilst.skipBytes(Atom.HEADER_SIZE);
     ArrayList<Metadata.Entry> entries = new ArrayList<>();
     while (ilst.getPosition() < limit) {
-      Metadata.Entry entry = MetadataUtil.parseIlstElement(ilst);
+      @Nullable Metadata.Entry entry = MetadataUtil.parseIlstElement(ilst);
       if (entry != null) {
         entries.add(entry);
       }
@@ -817,12 +820,18 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     return out;
   }
 
-  private static void parseTextSampleEntry(ParsableByteArray parent, int atomType, int position,
-      int atomSize, int trackId, String language, StsdData out) throws ParserException {
+  private static void parseTextSampleEntry(
+      ParsableByteArray parent,
+      int atomType,
+      int position,
+      int atomSize,
+      int trackId,
+      String language,
+      StsdData out) {
     parent.setPosition(position + Atom.HEADER_SIZE + StsdData.STSD_HEADER_SIZE);
 
     // Default values.
-    List<byte[]> initializationData = null;
+    @Nullable List<byte[]> initializationData = null;
     long subsampleOffsetUs = Format.OFFSET_SAMPLE_RELATIVE;
 
     String mimeType;
@@ -934,7 +943,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         initializationData = hevcConfig.initializationData;
         out.nalUnitLengthFieldLength = hevcConfig.nalUnitLengthFieldLength;
       } else if (childAtomType == Atom.TYPE_dvcC || childAtomType == Atom.TYPE_dvvC) {
-        DolbyVisionConfig dolbyVisionConfig = DolbyVisionConfig.parse(parent);
+        @Nullable DolbyVisionConfig dolbyVisionConfig = DolbyVisionConfig.parse(parent);
         if (dolbyVisionConfig != null) {
           codecs = dolbyVisionConfig.codecs;
           mimeType = MimeTypes.VIDEO_DOLBY_VISION;
@@ -1021,11 +1030,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    */
   @Nullable
   private static Pair<long[], long[]> parseEdts(Atom.ContainerAtom edtsAtom) {
-    Atom.LeafAtom elst;
-    if (edtsAtom == null || (elst = edtsAtom.getLeafAtomOfType(Atom.TYPE_elst)) == null) {
+    @Nullable Atom.LeafAtom elstAtom = edtsAtom.getLeafAtomOfType(Atom.TYPE_elst);
+    if (elstAtom == null) {
       return null;
     }
-    ParsableByteArray elstData = elst.data;
+    ParsableByteArray elstData = elstAtom.data;
     elstData.setPosition(Atom.HEADER_SIZE);
     int fullAtom = elstData.readInt();
     int version = Atom.parseFullAtomVersion(fullAtom);
@@ -1328,8 +1337,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     int childPosition = position + Atom.HEADER_SIZE;
     int schemeInformationBoxPosition = C.POSITION_UNSET;
     int schemeInformationBoxSize = 0;
-    String schemeType = null;
-    Integer dataFormat = null;
+    @Nullable String schemeType = null;
+    @Nullable Integer dataFormat = null;
     while (childPosition - position < size) {
       parent.setPosition(childPosition);
       int childAtomSize = parent.readInt();
@@ -1352,9 +1361,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       Assertions.checkStateNotNull(dataFormat, "frma atom is mandatory");
       Assertions.checkState(
           schemeInformationBoxPosition != C.POSITION_UNSET, "schi atom is mandatory");
-      TrackEncryptionBox encryptionBox = parseSchiFromParent(parent, schemeInformationBoxPosition,
-          schemeInformationBoxSize, schemeType);
-      Assertions.checkStateNotNull(encryptionBox, "tenc atom is mandatory");
+      TrackEncryptionBox encryptionBox =
+          Assertions.checkStateNotNull(
+              parseSchiFromParent(
+                  parent, schemeInformationBoxPosition, schemeInformationBoxSize, schemeType),
+              "tenc atom is mandatory");
       return Pair.create(dataFormat, encryptionBox);
     } else {
       return null;

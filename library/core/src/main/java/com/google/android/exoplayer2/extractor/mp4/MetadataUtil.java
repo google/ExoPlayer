@@ -325,8 +325,11 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
   @Nullable
   private static TextInformationFrame parseStandardGenreAttribute(ParsableByteArray data) {
     int genreCode = parseUint8AttributeValue(data);
-    String genreString = (0 < genreCode && genreCode <= STANDARD_GENRES.length)
-        ? STANDARD_GENRES[genreCode - 1] : null;
+    @Nullable
+    String genreString =
+        (0 < genreCode && genreCode <= STANDARD_GENRES.length)
+            ? STANDARD_GENRES[genreCode - 1]
+            : null;
     if (genreString != null) {
       return new TextInformationFrame("TCON", /* description= */ null, genreString);
     }
@@ -341,7 +344,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
     if (atomType == Atom.TYPE_data) {
       int fullVersionInt = data.readInt();
       int flags = Atom.parseFullAtomFlags(fullVersionInt);
-      String mimeType = flags == 13 ? "image/jpeg" : flags == 14 ? "image/png" : null;
+      @Nullable String mimeType = flags == 13 ? "image/jpeg" : flags == 14 ? "image/png" : null;
       if (mimeType == null) {
         Log.w(TAG, "Unrecognized cover art flags: " + flags);
         return null;
@@ -361,8 +364,8 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 
   @Nullable
   private static Id3Frame parseInternalAttribute(ParsableByteArray data, int endPosition) {
-    String domain = null;
-    String name = null;
+    @Nullable String domain = null;
+    @Nullable String name = null;
     int dataAtomPosition = -1;
     int dataAtomSize = -1;
     while (data.getPosition() < endPosition) {
