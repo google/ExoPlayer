@@ -998,8 +998,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         ((DedicatedThreadAsyncMediaCodecAdapter) codecAdapter).start();
       } else if (mediaCodecOperationMode == OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD_MULTI_LOCK
           && Util.SDK_INT >= 23) {
-        codecAdapter = new MultiLockAsynchMediaCodecAdapter(codec, getTrackType());
-        ((MultiLockAsynchMediaCodecAdapter) codecAdapter).start();
+        codecAdapter = new MultiLockAsyncMediaCodecAdapter(codec, getTrackType());
+        ((MultiLockAsyncMediaCodecAdapter) codecAdapter).start();
       } else {
         codecAdapter = new SynchronousMediaCodecAdapter(codec, getDequeueOutputBufferTimeoutUs());
       }
