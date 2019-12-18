@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor.mp4;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
@@ -42,6 +43,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Extracts data from the MP4 container format.
@@ -105,7 +107,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   private int atomType;
   private long atomSize;
   private int atomHeaderBytesRead;
-  private ParsableByteArray atomData;
+  @Nullable private ParsableByteArray atomData;
 
   private int sampleTrackIndex;
   private int sampleBytesWritten;
@@ -113,7 +115,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   private boolean isAc4HeaderRequired;
 
   // Extractor outputs.
-  private ExtractorOutput extractorOutput;
+  @MonotonicNonNull private ExtractorOutput extractorOutput;
   private Mp4Track[] tracks;
   private long[][] accumulatedSampleSizes;
   private int firstVideoTrackIndex;
@@ -290,8 +292,11 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       // The atom extends to the end of the file. Note that if the atom is within a container we can
       // work out its size even if the input length is unknown.
       long endPosition = input.getLength();
-      if (endPosition == C.LENGTH_UNSET && !containerAtoms.isEmpty()) {
-        endPosition = containerAtoms.peek().endPosition;
+      if (endPosition == C.LENGTH_UNSET) {
+        @Nullable ContainerAtom containerAtom = containerAtoms.peek();
+        if (containerAtom != null) {
+          endPosition = containerAtom.endPosition;
+        }
       }
       if (endPosition != C.LENGTH_UNSET) {
         atomSize = endPosition - input.getPosition() + atomHeaderBytesRead;
@@ -386,17 +391,17 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     List<Mp4Track> tracks = new ArrayList<>();
 
     // Process metadata.
-    Metadata udtaMetadata = null;
+    @Nullable Metadata udtaMetadata = null;
     GaplessInfoHolder gaplessInfoHolder = new GaplessInfoHolder();
-    Atom.LeafAtom udta = moov.getLeafAtomOfType(Atom.TYPE_udta);
+    @Nullable Atom.LeafAtom udta = moov.getLeafAtomOfType(Atom.TYPE_udta);
     if (udta != null) {
       udtaMetadata = AtomParsers.parseUdta(udta, isQuickTime);
       if (udtaMetadata != null) {
         gaplessInfoHolder.setFromMetadata(udtaMetadata);
       }
     }
-    Metadata mdtaMetadata = null;
-    Atom.ContainerAtom meta = moov.getContainerAtomOfType(Atom.TYPE_meta);
+    @Nullable Metadata mdtaMetadata = null;
+    @Nullable Atom.ContainerAtom meta = moov.getContainerAtomOfType(Atom.TYPE_meta);
     if (meta != null) {
       mdtaMetadata = AtomParsers.parseMdtaFromMeta(meta);
     }
@@ -453,6 +458,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       if (atom.type != Atom.TYPE_trak) {
         continue;
       }
+      @Nullable
       Track track =
           AtomParsers.parseTrak(
               atom,
