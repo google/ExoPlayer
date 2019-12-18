@@ -9,6 +9,8 @@
   ([6773](https://github.com/google/ExoPlayer/issues/6773)).
 * Suppress ProGuard warnings for compile-time `javax.annotation` package
   ([#6771](https://github.com/google/ExoPlayer/issues/6771)).
+* Fix proguard rules for R8 to ensure raw resources used with
+  `RawResourceDataSource` are kept.
 
 ### 2.11.0 (2019-12-11) ###
 
