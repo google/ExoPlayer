@@ -51,7 +51,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * <p>After creating an instance, you need to call {@link #start()} to start the internal Thread.
  */
 @RequiresApi(23)
-/* package */ final class MultiLockAsynchMediaCodecAdapter extends MediaCodec.Callback
+/* package */ final class MultiLockAsyncMediaCodecAdapter extends MediaCodec.Callback
     implements MediaCodecAdapter {
 
   @IntDef({STATE_CREATED, STATE_STARTED, STATE_SHUT_DOWN})
@@ -97,12 +97,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private Runnable onCodecStart;
 
   /** Creates a new instance that wraps the specified {@link MediaCodec}. */
-  /* package */ MultiLockAsynchMediaCodecAdapter(MediaCodec codec, int trackType) {
+  /* package */ MultiLockAsyncMediaCodecAdapter(MediaCodec codec, int trackType) {
     this(codec, new HandlerThread(createThreadLabel(trackType)));
   }
 
   @VisibleForTesting
-  /* package */ MultiLockAsynchMediaCodecAdapter(MediaCodec codec, HandlerThread handlerThread) {
+  /* package */ MultiLockAsyncMediaCodecAdapter(MediaCodec codec, HandlerThread handlerThread) {
     this.codec = codec;
     inputBufferLock = new Object();
     outputBufferLock = new Object();

@@ -38,10 +38,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.shadows.ShadowLooper;
 
-/** Unit tests for {@link MultiLockAsynchMediaCodecAdapter}. */
+/** Unit tests for {@link MultiLockAsyncMediaCodecAdapter}. */
 @RunWith(AndroidJUnit4.class)
 public class MultiLockAsyncMediaCodecAdapterTest {
-  private MultiLockAsynchMediaCodecAdapter adapter;
+  private MultiLockAsyncMediaCodecAdapter adapter;
   private MediaCodec codec;
   private MediaCodec.BufferInfo bufferInfo = null;
   private MediaCodecAsyncCallback mediaCodecAsyncCallbackSpy;
@@ -51,7 +51,7 @@ public class MultiLockAsyncMediaCodecAdapterTest {
   public void setup() throws IOException {
     codec = MediaCodec.createByCodecName("h264");
     handlerThread = new TestHandlerThread("TestHandlerThread");
-    adapter = new MultiLockAsynchMediaCodecAdapter(codec, handlerThread);
+    adapter = new MultiLockAsyncMediaCodecAdapter(codec, handlerThread);
     bufferInfo = new MediaCodec.BufferInfo();
   }
 
