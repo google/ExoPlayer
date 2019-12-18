@@ -80,9 +80,9 @@ import java.util.List;
         // individual cues, but tweaking their `line` value):
         // https://www.w3.org/TR/webvtt1/#cue-computed-line
         if (isNormal(cue)) {
-          // we want to merge all of the normal cues into a single cue to ensure they are drawn
+          // We want to merge all of the normal cues into a single cue to ensure they are drawn
           // correctly (i.e. don't overlap) and to emulate roll-up, but only if there are multiple
-          // normal cues, otherwise we can just append the single normal cue
+          // normal cues, otherwise we can just append the single normal cue.
           if (firstNormalCue == null) {
             firstNormalCue = cue;
           } else if (normalCueTextBuilder == null) {
@@ -100,10 +100,10 @@ import java.util.List;
       }
     }
     if (normalCueTextBuilder != null) {
-      // there were multiple normal cues, so create a new cue with all of the text
-      list.add(new WebvttCueInfo.Builder().setText(normalCueTextBuilder).build().cue);
+      // There were multiple normal cues, so create a new cue with all of the text.
+      list.add(WebvttCueParser.newCueForText(normalCueTextBuilder));
     } else if (firstNormalCue != null) {
-      // there was only a single normal cue, so just add it to the list
+      // There was only a single normal cue, so just add it to the list.
       list.add(firstNormalCue);
     }
     return list;
@@ -116,6 +116,6 @@ import java.util.List;
    * @return Whether this cue should be placed in the default position.
    */
   private static boolean isNormal(Cue cue) {
-    return (cue.line == Cue.DIMEN_UNSET && cue.position == WebvttCueInfo.DEFAULT_POSITION);
+    return (cue.line == Cue.DIMEN_UNSET && cue.position == WebvttCueParser.DEFAULT_POSITION);
   }
 }

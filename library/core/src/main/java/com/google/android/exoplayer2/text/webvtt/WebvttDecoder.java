@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.text.webvtt;
 
 import android.text.TextUtils;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.text.SimpleSubtitleDecoder;
 import com.google.android.exoplayer2.text.Subtitle;
@@ -40,28 +41,20 @@ public final class WebvttDecoder extends SimpleSubtitleDecoder {
   private static final String COMMENT_START = "NOTE";
   private static final String STYLE_START = "STYLE";
 
-  private final WebvttCueParser cueParser;
   private final ParsableByteArray parsableWebvttData;
-  private final WebvttCueInfo.Builder webvttCueBuilder;
   private final CssParser cssParser;
-  private final List<WebvttCssStyle> definedStyles;
 
   public WebvttDecoder() {
     super("WebvttDecoder");
-    cueParser = new WebvttCueParser();
     parsableWebvttData = new ParsableByteArray();
-    webvttCueBuilder = new WebvttCueInfo.Builder();
     cssParser = new CssParser();
-    definedStyles = new ArrayList<>();
   }
 
   @Override
   protected Subtitle decode(byte[] bytes, int length, boolean reset)
       throws SubtitleDecoderException {
     parsableWebvttData.reset(bytes, length);
-    // Initialization for consistent starting state.
-    webvttCueBuilder.reset();
-    definedStyles.clear();
+    List<WebvttCssStyle> definedStyles = new ArrayList<>();
 
     // Validate the first line of the header, and skip the remainder.
     try {
@@ -83,9 +76,10 @@ public final class WebvttDecoder extends SimpleSubtitleDecoder {
         parsableWebvttData.readLine(); // Consume the "STYLE" header.
         definedStyles.addAll(cssParser.parseBlock(parsableWebvttData));
       } else if (event == EVENT_CUE) {
-        if (cueParser.parseCue(parsableWebvttData, webvttCueBuilder, definedStyles)) {
-          cueInfos.add(webvttCueBuilder.build());
-          webvttCueBuilder.reset();
+        @Nullable
+        WebvttCueInfo cueInfo = WebvttCueParser.parseCue(parsableWebvttData, definedStyles);
+        if (cueInfo != null) {
+          cueInfos.add(cueInfo);
         }
       }
     }

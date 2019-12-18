@@ -217,13 +217,7 @@ public final class WebvttCueParserTest {
   }
 
   private static Spanned parseCueText(String string) {
-    WebvttCueInfo.Builder builder = new WebvttCueInfo.Builder();
-    WebvttCueParser.parseCueText(null, string, builder, Collections.emptyList());
-    return (Spanned) builder.build().cue.text;
+    return WebvttCueParser.parseCueText(
+        /* id= */ null, string, /* styles= */ Collections.emptyList());
   }
-
-  private static <T> T[] getSpans(Spanned text, Class<T> spanType) {
-    return text.getSpans(0, text.length(), spanType);
-  }
-
 }
