@@ -70,6 +70,10 @@
   * Fix issue where player errors are thrown too early at playlist transitions
     ([#5407](https://github.com/google/ExoPlayer/issues/5407)).
   * Add `Format` and renderer support flags to renderer `ExoPlaybackException`s.
+  * Where there are multiple platform decoders for a given MIME type, prefer to
+    use one that advertises support for the profile and level of the media being
+    played over one that does not, even if it does not come first in the
+    `MediaCodecList`.
 * DRM:
   * Inject `DrmSessionManager` into the `MediaSources` instead of `Renderers`.
     This allows each `MediaSource` in a `ConcatenatingMediaSource` to use a
