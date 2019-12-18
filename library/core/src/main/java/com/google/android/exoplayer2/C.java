@@ -151,9 +151,9 @@ public final class C {
    * Represents an audio encoding, or an invalid or unset value. One of {@link Format#NO_VALUE},
    * {@link #ENCODING_INVALID}, {@link #ENCODING_PCM_8BIT}, {@link #ENCODING_PCM_16BIT}, {@link
    * #ENCODING_PCM_24BIT}, {@link #ENCODING_PCM_32BIT}, {@link #ENCODING_PCM_FLOAT}, {@link
-   * #ENCODING_PCM_MU_LAW}, {@link #ENCODING_PCM_A_LAW}, {@link #ENCODING_AC3}, {@link
-   * #ENCODING_E_AC3}, {@link #ENCODING_E_AC3_JOC}, {@link #ENCODING_AC4}, {@link #ENCODING_DTS},
-   * {@link #ENCODING_DTS_HD} or {@link #ENCODING_DOLBY_TRUEHD}.
+   * #ENCODING_PCM_MU_LAW}, {@link #ENCODING_PCM_A_LAW}, {@link #ENCODING_MP3}, {@link
+   * #ENCODING_AC3}, {@link #ENCODING_E_AC3}, {@link #ENCODING_E_AC3_JOC}, {@link #ENCODING_AC4},
+   * {@link #ENCODING_DTS}, {@link #ENCODING_DTS_HD} or {@link #ENCODING_DOLBY_TRUEHD}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -167,6 +167,7 @@ public final class C {
     ENCODING_PCM_FLOAT,
     ENCODING_PCM_MU_LAW,
     ENCODING_PCM_A_LAW,
+    ENCODING_MP3,
     ENCODING_AC3,
     ENCODING_E_AC3,
     ENCODING_E_AC3_JOC,
@@ -213,6 +214,8 @@ public final class C {
   public static final int ENCODING_PCM_MU_LAW = 0x10000000;
   /** Audio encoding for A-law. */
   public static final int ENCODING_PCM_A_LAW = 0x20000000;
+  /** @see AudioFormat#ENCODING_MP3 */
+  public static final int ENCODING_MP3 = AudioFormat.ENCODING_MP3;
   /** @see AudioFormat#ENCODING_AC3 */
   public static final int ENCODING_AC3 = AudioFormat.ENCODING_AC3;
   /** @see AudioFormat#ENCODING_E_AC3 */
