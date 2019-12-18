@@ -15,8 +15,11 @@
  */
 package com.google.android.exoplayer2.source.hls;
 
+import static java.lang.annotation.RetentionPolicy.SOURCE;
+
 import android.net.Uri;
 import android.os.Handler;
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
@@ -47,6 +50,8 @@ import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
 import java.util.List;
 
 /** An HLS {@link MediaSource}. */
@@ -56,6 +61,28 @@ public final class HlsMediaSource extends BaseMediaSource
   static {
     ExoPlayerLibraryInfo.registerModule("goog.exo.hls");
   }
+
+  /**
+   * The types of metadata that can be extracted from HLS streams.
+   *
+   * <p>Allowed values:
+   *
+   * <ul>
+   *   <li>{@link #METADATA_TYPE_ID3}
+   *   <li>{@link #METADATA_TYPE_EMSG}
+   * </ul>
+   *
+   * <p>See {@link Factory#setMetadataType(int)}.
+   */
+  @Documented
+  @Retention(SOURCE)
+  @IntDef({METADATA_TYPE_ID3, METADATA_TYPE_EMSG})
+  public @interface MetadataType {}
+
+  /** Type for ID3 metadata in HLS streams. */
+  public static final int METADATA_TYPE_ID3 = 1;
+  /** Type for ESMG metadata in HLS streams. */
+  public static final int METADATA_TYPE_EMSG = 3;
 
   /** Factory for {@link HlsMediaSource}s. */
   public static final class Factory implements MediaSourceFactory {
@@ -70,7 +97,7 @@ public final class HlsMediaSource extends BaseMediaSource
     private DrmSessionManager<?> drmSessionManager;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
     private boolean allowChunklessPreparation;
-    @HlsMetadataType private int metadataType;
+    @MetadataType private int metadataType;
     private boolean useSessionKeys;
     private boolean isCreateCalled;
     @Nullable private Object tag;
@@ -100,7 +127,7 @@ public final class HlsMediaSource extends BaseMediaSource
       drmSessionManager = DrmSessionManager.getDummyDrmSessionManager();
       loadErrorHandlingPolicy = new DefaultLoadErrorHandlingPolicy();
       compositeSequenceableLoaderFactory = new DefaultCompositeSequenceableLoaderFactory();
-      metadataType = HlsMetadataType.ID3;
+      metadataType = METADATA_TYPE_ID3;
     }
 
     /**
@@ -246,24 +273,24 @@ public final class HlsMediaSource extends BaseMediaSource
 
     /**
      * Sets the type of metadata to extract from the HLS source (defaults to {@link
-     * HlsMetadataType#ID3}).
+     * #METADATA_TYPE_ID3}).
      *
      * <p>HLS supports in-band ID3 in both TS and fMP4 streams, but in the fMP4 case the data is
      * wrapped in an EMSG box [<a href="https://aomediacodec.github.io/av1-id3/">spec</a>].
      *
-     * <p>If this is set to {@link HlsMetadataType#ID3} then raw ID3 metadata of will be extracted
+     * <p>If this is set to {@link #METADATA_TYPE_ID3} then raw ID3 metadata of will be extracted
      * from TS sources. From fMP4 streams EMSGs containing metadata of this type (in the variant
      * stream only) will be unwrapped to expose the inner data. All other in-band metadata will be
      * dropped.
      *
-     * <p>If this is set to {@link HlsMetadataType#EMSG} then all EMSG data from the fMP4 variant
+     * <p>If this is set to {@link #METADATA_TYPE_EMSG} then all EMSG data from the fMP4 variant
      * stream will be extracted. No metadata will be extracted from TS streams, since they don't
      * support EMSG.
      *
      * @param metadataType The type of metadata to extract.
      * @return This factory, for convenience.
      */
-    public Factory setMetadataType(@HlsMetadataType int metadataType) {
+    public Factory setMetadataType(@MetadataType int metadataType) {
       Assertions.checkState(!isCreateCalled);
       this.metadataType = metadataType;
       return this;
@@ -347,7 +374,7 @@ public final class HlsMediaSource extends BaseMediaSource
   private final DrmSessionManager<?> drmSessionManager;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final boolean allowChunklessPreparation;
-  private final @HlsMetadataType int metadataType;
+  private final @MetadataType int metadataType;
   private final boolean useSessionKeys;
   private final HlsPlaylistTracker playlistTracker;
   @Nullable private final Object tag;
@@ -363,7 +390,7 @@ public final class HlsMediaSource extends BaseMediaSource
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       HlsPlaylistTracker playlistTracker,
       boolean allowChunklessPreparation,
-      @HlsMetadataType int metadataType,
+      @MetadataType int metadataType,
       boolean useSessionKeys,
       @Nullable Object tag) {
     this.manifestUri = manifestUri;

@@ -308,20 +308,20 @@ public final class WebvttCueParser {
   private static int parseTextAlignment(String s) {
     switch (s) {
       case "start":
-        return WebvttCue.Builder.TextAlignment.START;
+        return WebvttCue.Builder.TEXT_ALIGNMENT_START;
       case "left":
-        return WebvttCue.Builder.TextAlignment.LEFT;
+        return WebvttCue.Builder.TEXT_ALIGNMENT_LEFT;
       case "center":
       case "middle":
-        return WebvttCue.Builder.TextAlignment.CENTER;
+        return WebvttCue.Builder.TEXT_ALIGNMENT_CENTER;
       case "end":
-        return WebvttCue.Builder.TextAlignment.END;
+        return WebvttCue.Builder.TEXT_ALIGNMENT_END;
       case "right":
-        return WebvttCue.Builder.TextAlignment.RIGHT;
+        return WebvttCue.Builder.TEXT_ALIGNMENT_RIGHT;
       default:
         Log.w(TAG, "Invalid alignment value: " + s);
         // Default value: https://www.w3.org/TR/webvtt1/#webvtt-cue-text-alignment
-        return WebvttCue.Builder.TextAlignment.CENTER;
+        return WebvttCue.Builder.TEXT_ALIGNMENT_CENTER;
     }
   }
 

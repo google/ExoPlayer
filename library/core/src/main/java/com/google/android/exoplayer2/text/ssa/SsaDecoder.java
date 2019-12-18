@@ -300,12 +300,12 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
       float screenWidth,
       float screenHeight) {
     @SsaStyle.SsaAlignment int alignment;
-    if (styleOverrides.alignment != SsaStyle.SsaAlignment.UNKNOWN) {
+    if (styleOverrides.alignment != SsaStyle.SSA_ALIGNMENT_UNKNOWN) {
       alignment = styleOverrides.alignment;
     } else if (style != null) {
       alignment = style.alignment;
     } else {
-      alignment = SsaStyle.SsaAlignment.UNKNOWN;
+      alignment = SsaStyle.SSA_ALIGNMENT_UNKNOWN;
     }
     @Cue.AnchorType int positionAnchor = toPositionAnchor(alignment);
     @Cue.AnchorType int lineAnchor = toLineAnchor(alignment);
@@ -337,19 +337,19 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
   @Nullable
   private static Layout.Alignment toTextAlignment(@SsaStyle.SsaAlignment int alignment) {
     switch (alignment) {
-      case SsaStyle.SsaAlignment.BOTTOM_LEFT:
-      case SsaStyle.SsaAlignment.MIDDLE_LEFT:
-      case SsaStyle.SsaAlignment.TOP_LEFT:
+      case SsaStyle.SSA_ALIGNMENT_BOTTOM_LEFT:
+      case SsaStyle.SSA_ALIGNMENT_MIDDLE_LEFT:
+      case SsaStyle.SSA_ALIGNMENT_TOP_LEFT:
         return Layout.Alignment.ALIGN_NORMAL;
-      case SsaStyle.SsaAlignment.BOTTOM_CENTER:
-      case SsaStyle.SsaAlignment.MIDDLE_CENTER:
-      case SsaStyle.SsaAlignment.TOP_CENTER:
+      case SsaStyle.SSA_ALIGNMENT_BOTTOM_CENTER:
+      case SsaStyle.SSA_ALIGNMENT_MIDDLE_CENTER:
+      case SsaStyle.SSA_ALIGNMENT_TOP_CENTER:
         return Layout.Alignment.ALIGN_CENTER;
-      case SsaStyle.SsaAlignment.BOTTOM_RIGHT:
-      case SsaStyle.SsaAlignment.MIDDLE_RIGHT:
-      case SsaStyle.SsaAlignment.TOP_RIGHT:
+      case SsaStyle.SSA_ALIGNMENT_BOTTOM_RIGHT:
+      case SsaStyle.SSA_ALIGNMENT_MIDDLE_RIGHT:
+      case SsaStyle.SSA_ALIGNMENT_TOP_RIGHT:
         return Layout.Alignment.ALIGN_OPPOSITE;
-      case SsaStyle.SsaAlignment.UNKNOWN:
+      case SsaStyle.SSA_ALIGNMENT_UNKNOWN:
         return null;
       default:
         Log.w(TAG, "Unknown alignment: " + alignment);
@@ -360,19 +360,19 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
   @Cue.AnchorType
   private static int toLineAnchor(@SsaStyle.SsaAlignment int alignment) {
     switch (alignment) {
-      case SsaStyle.SsaAlignment.BOTTOM_LEFT:
-      case SsaStyle.SsaAlignment.BOTTOM_CENTER:
-      case SsaStyle.SsaAlignment.BOTTOM_RIGHT:
+      case SsaStyle.SSA_ALIGNMENT_BOTTOM_LEFT:
+      case SsaStyle.SSA_ALIGNMENT_BOTTOM_CENTER:
+      case SsaStyle.SSA_ALIGNMENT_BOTTOM_RIGHT:
         return Cue.ANCHOR_TYPE_END;
-      case SsaStyle.SsaAlignment.MIDDLE_LEFT:
-      case SsaStyle.SsaAlignment.MIDDLE_CENTER:
-      case SsaStyle.SsaAlignment.MIDDLE_RIGHT:
+      case SsaStyle.SSA_ALIGNMENT_MIDDLE_LEFT:
+      case SsaStyle.SSA_ALIGNMENT_MIDDLE_CENTER:
+      case SsaStyle.SSA_ALIGNMENT_MIDDLE_RIGHT:
         return Cue.ANCHOR_TYPE_MIDDLE;
-      case SsaStyle.SsaAlignment.TOP_LEFT:
-      case SsaStyle.SsaAlignment.TOP_CENTER:
-      case SsaStyle.SsaAlignment.TOP_RIGHT:
+      case SsaStyle.SSA_ALIGNMENT_TOP_LEFT:
+      case SsaStyle.SSA_ALIGNMENT_TOP_CENTER:
+      case SsaStyle.SSA_ALIGNMENT_TOP_RIGHT:
         return Cue.ANCHOR_TYPE_START;
-      case SsaStyle.SsaAlignment.UNKNOWN:
+      case SsaStyle.SSA_ALIGNMENT_UNKNOWN:
         return Cue.TYPE_UNSET;
       default:
         Log.w(TAG, "Unknown alignment: " + alignment);
@@ -383,19 +383,19 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
   @Cue.AnchorType
   private static int toPositionAnchor(@SsaStyle.SsaAlignment int alignment) {
     switch (alignment) {
-      case SsaStyle.SsaAlignment.BOTTOM_LEFT:
-      case SsaStyle.SsaAlignment.MIDDLE_LEFT:
-      case SsaStyle.SsaAlignment.TOP_LEFT:
+      case SsaStyle.SSA_ALIGNMENT_BOTTOM_LEFT:
+      case SsaStyle.SSA_ALIGNMENT_MIDDLE_LEFT:
+      case SsaStyle.SSA_ALIGNMENT_TOP_LEFT:
         return Cue.ANCHOR_TYPE_START;
-      case SsaStyle.SsaAlignment.BOTTOM_CENTER:
-      case SsaStyle.SsaAlignment.MIDDLE_CENTER:
-      case SsaStyle.SsaAlignment.TOP_CENTER:
+      case SsaStyle.SSA_ALIGNMENT_BOTTOM_CENTER:
+      case SsaStyle.SSA_ALIGNMENT_MIDDLE_CENTER:
+      case SsaStyle.SSA_ALIGNMENT_TOP_CENTER:
         return Cue.ANCHOR_TYPE_MIDDLE;
-      case SsaStyle.SsaAlignment.BOTTOM_RIGHT:
-      case SsaStyle.SsaAlignment.MIDDLE_RIGHT:
-      case SsaStyle.SsaAlignment.TOP_RIGHT:
+      case SsaStyle.SSA_ALIGNMENT_BOTTOM_RIGHT:
+      case SsaStyle.SSA_ALIGNMENT_MIDDLE_RIGHT:
+      case SsaStyle.SSA_ALIGNMENT_TOP_RIGHT:
         return Cue.ANCHOR_TYPE_END;
-      case SsaStyle.SsaAlignment.UNKNOWN:
+      case SsaStyle.SSA_ALIGNMENT_UNKNOWN:
         return Cue.TYPE_UNSET;
       default:
         Log.w(TAG, "Unknown alignment: " + alignment);
