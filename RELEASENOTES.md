@@ -11,6 +11,8 @@
   ([#6771](https://github.com/google/ExoPlayer/issues/6771)).
 * Fix proguard rules for R8 to ensure raw resources used with
   `RawResourceDataSource` are kept.
+* Fix proguard rules to keep `VideoDecoderOutputBuffer` for video decoder
+  extensions.
 
 ### 2.11.0 (2019-12-11) ###
 
