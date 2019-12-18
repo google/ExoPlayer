@@ -35,7 +35,7 @@ import android.media.MediaFormat;
    * Returns the next available input buffer index from the underlying {@link MediaCodec} or {@link
    * MediaCodec#INFO_TRY_AGAIN_LATER} if no such buffer exists.
    *
-   * @throws {@link IllegalStateException} if the underlying {@link MediaCodec} raised an error.
+   * @throws IllegalStateException If the underlying {@link MediaCodec} raised an error.
    */
   int dequeueInputBufferIndex();
 
@@ -46,7 +46,7 @@ import android.media.MediaFormat;
    * the format. If there is no available output, this method will return {@link
    * MediaCodec#INFO_TRY_AGAIN_LATER}.
    *
-   * @throws {@link IllegalStateException} if the underlying {@link MediaCodec} raised an error.
+   * @throws IllegalStateException If the underlying {@link MediaCodec} raised an error.
    */
   int dequeueOutputBufferIndex(MediaCodec.BufferInfo bufferInfo);
 

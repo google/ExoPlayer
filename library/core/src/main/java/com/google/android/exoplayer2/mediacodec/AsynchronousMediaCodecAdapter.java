@@ -43,7 +43,7 @@ import com.google.android.exoplayer2.util.Assertions;
   /**
    * Create a new {@code AsynchronousMediaCodecAdapter}.
    *
-   * @param codec the {@link MediaCodec} to wrap.
+   * @param codec The {@link MediaCodec} to wrap.
    */
   public AsynchronousMediaCodecAdapter(MediaCodec codec) {
     this(codec, Assertions.checkNotNull(Looper.myLooper()));

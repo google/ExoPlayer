@@ -406,9 +406,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private boolean waitingForFirstSyncSample;
   private boolean waitingForFirstSampleInFormat;
   private boolean pendingOutputEndOfStream;
-
-  private @MediaCodecOperationMode int mediaCodecOperationMode;
-
+  @MediaCodecOperationMode private int mediaCodecOperationMode;
   protected DecoderCounters decoderCounters;
 
   /**
@@ -473,7 +471,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * <p>This method is experimental, and will be renamed or removed in a future release. It should
    * only be called before the renderer is used.
    *
-   * @param mode the mode of the MediaCodec. The supported modes are:
+   * @param mode The mode of the MediaCodec. The supported modes are:
    *     <ul>
    *       <li>{@link MediaCodecOperationMode#SYNCHRONOUS}: The {@link MediaCodec} will operate in
    *           synchronous mode.
