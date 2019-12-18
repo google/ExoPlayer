@@ -345,6 +345,8 @@ public final class MimeTypes {
    */
   public static @C.Encoding int getEncoding(String mimeType) {
     switch (mimeType) {
+      case MimeTypes.AUDIO_MPEG:
+        return C.ENCODING_MP3;
       case MimeTypes.AUDIO_AC3:
         return C.ENCODING_AC3;
       case MimeTypes.AUDIO_E_AC3:
