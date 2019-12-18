@@ -22,12 +22,12 @@ import com.google.android.exoplayer2.text.Cue;
 public final class WebvttCueInfo {
 
   public final Cue cue;
-  public final long startTime;
-  public final long endTime;
+  public final long startTimeUs;
+  public final long endTimeUs;
 
   public WebvttCueInfo(Cue cue, long startTimeUs, long endTimeUs) {
     this.cue = cue;
-    this.startTime = startTimeUs;
-    this.endTime = endTimeUs;
+    this.startTimeUs = startTimeUs;
+    this.endTimeUs = endTimeUs;
   }
 }
