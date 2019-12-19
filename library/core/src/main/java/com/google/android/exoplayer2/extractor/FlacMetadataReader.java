@@ -171,7 +171,7 @@ public final class FlacMetadataReader {
     if (type == FlacConstants.METADATA_TYPE_STREAM_INFO) {
       metadataHolder.flacStreamMetadata = readStreamInfoBlock(input);
     } else {
-      FlacStreamMetadata flacStreamMetadata = metadataHolder.flacStreamMetadata;
+      @Nullable FlacStreamMetadata flacStreamMetadata = metadataHolder.flacStreamMetadata;
       if (flacStreamMetadata == null) {
         throw new IllegalArgumentException();
       }

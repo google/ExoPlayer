@@ -91,7 +91,7 @@ public abstract class BinarySearchSeeker {
 
   protected final BinarySearchSeekMap seekMap;
   protected final TimestampSeeker timestampSeeker;
-  protected @Nullable SeekOperationParams seekOperationParams;
+  @Nullable protected SeekOperationParams seekOperationParams;
 
   private final int minimumSearchRange;
 
@@ -173,7 +173,6 @@ public abstract class BinarySearchSeeker {
    */
   public int handlePendingSeek(ExtractorInput input, PositionHolder seekPositionHolder)
       throws InterruptedException, IOException {
-    TimestampSeeker timestampSeeker = Assertions.checkNotNull(this.timestampSeeker);
     while (true) {
       SeekOperationParams seekOperationParams = Assertions.checkNotNull(this.seekOperationParams);
       long floorPosition = seekOperationParams.getFloorBytePosition();
