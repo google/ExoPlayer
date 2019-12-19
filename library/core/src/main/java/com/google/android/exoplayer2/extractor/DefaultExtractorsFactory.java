@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.extractor.amr.AmrExtractor;
 import com.google.android.exoplayer2.extractor.flac.FlacExtractor;
 import com.google.android.exoplayer2.extractor.flv.FlvExtractor;
@@ -56,10 +57,11 @@ import java.lang.reflect.Constructor;
  */
 public final class DefaultExtractorsFactory implements ExtractorsFactory {
 
+  @Nullable
   private static final Constructor<? extends Extractor> FLAC_EXTENSION_EXTRACTOR_CONSTRUCTOR;
 
   static {
-    Constructor<? extends Extractor> flacExtensionExtractorConstructor = null;
+    @Nullable Constructor<? extends Extractor> flacExtensionExtractorConstructor = null;
     try {
       // LINT.IfChange
       flacExtensionExtractorConstructor =
