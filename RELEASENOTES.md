@@ -19,26 +19,32 @@
 * Upgrade Truth dependency from 0.44 to 1.0.
 * Upgrade to JUnit 4.13-rc-2.
 * Add support for attaching DRM sessions to clear content in the demo app.
-* UI: Exclude `DefaultTimeBar` region from system gesture detection
-  ([#6685](https://github.com/google/ExoPlayer/issues/6685)).
 * Add `SpannedSubject` to testutils, for assertions on
   [Span-styled text]( https://developer.android.com/guide/topics/text/spans)
   (e.g. subtitles).
 * Add `Player.getCurrentLiveOffset` to conveniently return the live offset.
-* Propagate HTTP request headers through `CacheDataSource`.
 * Update `IcyDecoder` to try ISO-8859-1 decoding if UTF-8 decoding fails.
   Also change `IcyInfo.rawMetadata` from `String` to `byte[]` to allow
   developers to handle data that's neither UTF-8 nor ISO-8859-1
   ([#6753](https://github.com/google/ExoPlayer/issues/6753)).
-* AV1 extension: Fix ProGuard rules
-  ([6773](https://github.com/google/ExoPlayer/issues/6773)).
-* Suppress ProGuard warnings for compile-time `javax.annotation` package
-  ([#6771](https://github.com/google/ExoPlayer/issues/6771)).
 * Add playlist API ([#6161](https://github.com/google/ExoPlayer/issues/6161)).
-* Fix proguard rules for R8 to ensure raw resources used with
-  `RawResourceDataSource` are kept.
-* Fix proguard rules to keep `VideoDecoderOutputBuffer` for video decoder
-  extensions.
+
+### 2.11.1 (2019-12-20) ###
+
+* UI: Exclude `DefaultTimeBar` region from system gesture detection
+  ([#6685](https://github.com/google/ExoPlayer/issues/6685)).
+* ProGuard fixes:
+  * Ensure `Libgav1VideoRenderer` constructor is kept for use by
+    `DefaultRenderersFactory`
+    ([#6773](https://github.com/google/ExoPlayer/issues/6773)).
+  * Ensure `VideoDecoderOutputBuffer` and its members are kept for use by video
+    decoder extensions.
+  * Ensure raw resources used with `RawResourceDataSource` are kept.
+  * Suppress spurious warnings about the `javax.annotation` package, and
+    restructure use of `IntDef` annotations to remove spurious warnings about
+    `SsaStyle$SsaAlignment`
+    ([#6771](https://github.com/google/ExoPlayer/issues/6771)).
+* Fix `CacheDataSource` to correctly propagate `DataSpec.httpRequestHeaders`.
 
 ### 2.11.0 (2019-12-11) ###
 
