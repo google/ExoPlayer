@@ -4,15 +4,18 @@
 
 * UI: Exclude `DefaultTimeBar` region from system gesture detection
   ([#6685](https://github.com/google/ExoPlayer/issues/6685)).
-* Propagate HTTP request headers through `CacheDataSource`.
-* AV1 extension: Fix ProGuard rules
-  ([6773](https://github.com/google/ExoPlayer/issues/6773)).
-* Suppress ProGuard warnings for compile-time `javax.annotation` package
-  ([#6771](https://github.com/google/ExoPlayer/issues/6771)).
-* Fix proguard rules for R8 to ensure raw resources used with
-  `RawResourceDataSource` are kept.
-* Fix proguard rules to keep `VideoDecoderOutputBuffer` for video decoder
-  extensions.
+* ProGuard fixes:
+  * Ensure `Libgav1VideoRenderer` constructor is kept for use by
+    `DefaultRenderersFactory`
+    ([#6773](https://github.com/google/ExoPlayer/issues/6773)).
+  * Ensure `VideoDecoderOutputBuffer` and its members are kept for use by video
+    decoder extensions.
+  * Ensure raw resources used with `RawResourceDataSource` are kept.
+  * Suppress spurious warnings about the `javax.annotation` package, and
+    restructure use of `IntDef` annotations to remove spurious warnings about
+    `SsaStyle$SsaAlignment`
+    ([#6771](https://github.com/google/ExoPlayer/issues/6771)).
+* Fix `CacheDataSource` to correctly propagate `DataSpec.httpRequestHeaders`.
 
 ### 2.11.0 (2019-12-11) ###
 
