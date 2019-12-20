@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaSource.html" title="class in com.google.android.exoplayer2.source.hls"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMetadataType.html" title="annotation in com.google.android.exoplayer2.source.hls"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaSource.MetadataType.html" title="annotation in com.google.android.exoplayer2.source.hls"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/source/hls/HlsMediaSource.Factory.html" target="_top">Frames</a></li>
@@ -218,7 +218,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
 <tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaSource.Factory.html#setMetadataType-int-">setMetadataType</a></span>(int&nbsp;metadataType)</code>
-<div class="block">Sets the type of metadata to extract from the HLS source (defaults to <a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMetadataType.html#ID3"><code>HlsMetadataType.ID3</code></a>).</div>
+<div class="block">Sets the type of metadata to extract from the HLS source (defaults to <a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaSource.html#METADATA_TYPE_ID3"><code>HlsMediaSource.METADATA_TYPE_ID3</code></a>).</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
@@ -501,19 +501,19 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/hls/
 <ul class="blockList">
 <li class="blockList">
 <h4>setMetadataType</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a>&nbsp;setMetadataType(<a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMetadataType.html" title="annotation in com.google.android.exoplayer2.source.hls">@HlsMetadataType</a>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a>&nbsp;setMetadataType(<a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaSource.MetadataType.html" title="annotation in com.google.android.exoplayer2.source.hls">@HlsMediaSource.MetadataType</a>
                                               int&nbsp;metadataType)</pre>
-<div class="block">Sets the type of metadata to extract from the HLS source (defaults to <a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMetadataType.html#ID3"><code>HlsMetadataType.ID3</code></a>).
+<div class="block">Sets the type of metadata to extract from the HLS source (defaults to <a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaSource.html#METADATA_TYPE_ID3"><code>HlsMediaSource.METADATA_TYPE_ID3</code></a>).
 
  <p>HLS supports in-band ID3 in both TS and fMP4 streams, but in the fMP4 case the data is
  wrapped in an EMSG box [<a href="https://aomediacodec.github.io/av1-id3/">spec</a>].
 
- <p>If this is set to <a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMetadataType.html#ID3"><code>HlsMetadataType.ID3</code></a> then raw ID3 metadata of will be extracted
+ <p>If this is set to <a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaSource.html#METADATA_TYPE_ID3"><code>HlsMediaSource.METADATA_TYPE_ID3</code></a> then raw ID3 metadata of will be extracted
  from TS sources. From fMP4 streams EMSGs containing metadata of this type (in the variant
  stream only) will be unwrapped to expose the inner data. All other in-band metadata will be
  dropped.
 
- <p>If this is set to <a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMetadataType.html#EMSG"><code>HlsMetadataType.EMSG</code></a> then all EMSG data from the fMP4 variant
+ <p>If this is set to <a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaSource.html#METADATA_TYPE_EMSG"><code>HlsMediaSource.METADATA_TYPE_EMSG</code></a> then all EMSG data from the fMP4 variant
  stream will be extracted. No metadata will be extracted from TS streams, since they don't
  support EMSG.</div>
 <dl>
@@ -640,7 +640,7 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/hls/
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaSource.html" title="class in com.google.android.exoplayer2.source.hls"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMetadataType.html" title="annotation in com.google.android.exoplayer2.source.hls"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaSource.MetadataType.html" title="annotation in com.google.android.exoplayer2.source.hls"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/source/hls/HlsMediaSource.Factory.html" target="_top">Frames</a></li>
