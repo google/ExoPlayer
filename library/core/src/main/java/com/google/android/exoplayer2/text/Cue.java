@@ -49,9 +49,7 @@ public final class Cue {
   @IntDef({TYPE_UNSET, ANCHOR_TYPE_START, ANCHOR_TYPE_MIDDLE, ANCHOR_TYPE_END})
   public @interface AnchorType {}
 
-  /**
-   * An unset anchor or line type value.
-   */
+  /** An unset anchor, line, text size or vertical type value. */
   public static final int TYPE_UNSET = Integer.MIN_VALUE;
 
   /**
@@ -113,6 +111,25 @@ public final class Cue {
 
   /** Text size is measured in number of pixels. */
   public static final int TEXT_SIZE_TYPE_ABSOLUTE = 2;
+
+  /**
+   * The type of vertical layout for this cue, which may be unset (i.e. horizontal). One of {@link
+   * #TYPE_UNSET}, {@link #VERTICAL_TYPE_RL} or {@link #VERTICAL_TYPE_LR}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    TYPE_UNSET,
+    VERTICAL_TYPE_RL,
+    VERTICAL_TYPE_LR,
+  })
+  public @interface VerticalType {}
+
+  /** Vertical right-to-left (e.g. for Japanese). */
+  public static final int VERTICAL_TYPE_RL = 1;
+
+  /** Vertical left-to-right (e.g. for Mongolian). */
+  public static final int VERTICAL_TYPE_LR = 2;
 
   /**
    * The cue text, or null if this is an image cue. Note the {@link CharSequence} may be decorated
@@ -242,6 +259,12 @@ public final class Cue {
   public final float textSize;
 
   /**
+   * The vertical formatting of this Cue, or {@link #TYPE_UNSET} if the cue has no vertical setting
+   * (and so should be horizontal).
+   */
+  public final @VerticalType int verticalType;
+
+  /**
    * Creates a text cue whose {@link #textAlignment} is null, whose type parameters are set to
    * {@link #TYPE_UNSET} and whose dimension parameters are set to {@link #DIMEN_UNSET}.
    *
@@ -338,7 +361,8 @@ public final class Cue {
         size,
         /* bitmapHeight= */ DIMEN_UNSET,
         /* windowColorSet= */ false,
-        /* windowColor= */ Color.BLACK);
+        /* windowColor= */ Color.BLACK,
+        /* verticalType= */ TYPE_UNSET);
   }
 
   /**
@@ -382,7 +406,8 @@ public final class Cue {
         size,
         /* bitmapHeight= */ DIMEN_UNSET,
         windowColorSet,
-        windowColor);
+        windowColor,
+        /* verticalType= */ TYPE_UNSET);
   }
 
   private Cue(
@@ -399,7 +424,8 @@ public final class Cue {
       float size,
       float bitmapHeight,
       boolean windowColorSet,
-      int windowColor) {
+      int windowColor,
+      @VerticalType int verticalType) {
     // Exactly one of text or bitmap should be set.
     if (text == null) {
       Assertions.checkNotNull(bitmap);
@@ -420,6 +446,7 @@ public final class Cue {
     this.windowColor = windowColor;
     this.textSizeType = textSizeType;
     this.textSize = textSize;
+    this.verticalType = verticalType;
   }
 
   /** A builder for {@link Cue} objects. */
@@ -438,6 +465,7 @@ public final class Cue {
     private float bitmapHeight;
     private boolean windowColorSet;
     @ColorInt private int windowColor;
+    @VerticalType private int verticalType;
 
     public Builder() {
       text = null;
@@ -454,6 +482,7 @@ public final class Cue {
       bitmapHeight = DIMEN_UNSET;
       windowColorSet = false;
       windowColor = Color.BLACK;
+      verticalType = TYPE_UNSET;
     }
 
     /**
@@ -624,6 +653,16 @@ public final class Cue {
       return this;
     }
 
+    /**
+     * Sets the vertical formatting for this Cue.
+     *
+     * @see Cue#verticalType
+     */
+    public Builder setVerticalType(@VerticalType int verticalType) {
+      this.verticalType = verticalType;
+      return this;
+    }
+
     /** Build the cue. */
     public Cue build() {
       return new Cue(
@@ -640,7 +679,8 @@ public final class Cue {
           size,
           bitmapHeight,
           windowColorSet,
-          windowColor);
+          windowColor,
+          verticalType);
     }
   }
 }

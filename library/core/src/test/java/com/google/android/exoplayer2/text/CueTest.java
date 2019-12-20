@@ -43,6 +43,7 @@ public class CueTest {
             .setTextSize(0.2f, Cue.TEXT_SIZE_TYPE_FRACTIONAL)
             .setSize(0.8f)
             .setWindowColor(Color.CYAN)
+            .setVerticalType(Cue.VERTICAL_TYPE_RL)
             .build();
 
     assertThat(cue.text).isEqualTo("text");
@@ -56,6 +57,7 @@ public class CueTest {
     assertThat(cue.size).isEqualTo(0.8f);
     assertThat(cue.windowColor).isEqualTo(Color.CYAN);
     assertThat(cue.windowColorSet).isTrue();
+    assertThat(cue.verticalType).isEqualTo(Cue.VERTICAL_TYPE_RL);
   }
 
   @Test
