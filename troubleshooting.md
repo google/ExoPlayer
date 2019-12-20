@@ -16,6 +16,7 @@ redirect_from:
 * [How can I fix "Unexpected status line: ICY 200 OK"?][]
 * [How can I query whether the stream being played is a live stream?][]
 * [How do I keep audio playing when my app is backgrounded?][]
+* [How can I get a decoding extension to load and be used for playback?][]
 
 ---
 
@@ -198,6 +199,35 @@ It's possible that the content that you are trying to play is not
 [CORS enabled][]. The [Cast framework][] requires content to be CORS enabled in
 order to play it.
 
+### How can I get a decoding extension to load and be used for playback? ###
+
+* Most extensions have manual steps to check out and build the dependencies, so
+  make sure you've followed the steps in the README for the relevant extension.
+  For example, for the FFmpeg extension it's necessary to follow the
+  instructions in [extensions/ffmpeg/README.md][], including passing
+  configuration flags to [enable decoders][] for the format(s) you want to play.
+* For extensions that have native code, make sure you're using the correct
+  version of the Android NDK as specified in the README, and look out for any
+  errors that appear during configuration and building. You should see `.so`
+  files appear in the `libs` subdirectory of the extension's path for each
+  supported architecture after following the steps in the README.
+* To try out playback using the extension in the [demo application][], see
+  [enabling extension decoders][]. See the README for the extension for
+  instructions on using the extension from your own app.
+* If you're using [DefaultRenderersFactory][], you should see an info-level log
+  line like "Loaded FfmpegAudioRenderer" in logcat when the extension loads. If
+  that's missing, make sure the application has a dependency on the extension.
+* If you see warning-level logs from [LibraryLoader][] in logcat, this indicates
+  that loading the native component of the extension failed. If this happens,
+  check you've followed the steps in the extension's README correctly and that
+  no errors were output while following the instructions.
+
+If you're still experiencing problems using extensions, please check the
+ExoPlayer [issue tracker][] for any relevant recent issues. If you need to file
+a new issue and it relates to building the native part of the extension, please
+include full command line output from running README instructions, to help us
+diagnose the issue.
+
 [Fixing "Cleartext HTTP traffic not permitted" errors]: #fixing-cleartext-http-traffic-not-permitted-errors
 [Fixing "SSLHandshakeException" and "CertPathValidatorException" errors]: #fixing-sslhandshakeexception-and-certpathvalidatorexception-errors
 [What formats does ExoPlayer support?]: #what-formats-does-exoplayer-support
@@ -211,6 +241,8 @@ order to play it.
 [How can I fix "Unexpected status line: ICY 200 OK"?]:  #how-can-i-fix-unexpected-status-line-icy-200-ok
 [How can I query whether the stream being played is a live stream?]: #how-can-i-query-whether-the-stream-being-played-is-a-live-stream
 [How do I keep audio playing when my app is backgrounded?]: #how-do-i-keep-audio-playing-when-my-app-is-backgrounded
+[How can I get a decoding extension to load and be used for playback?]: #how-can-i-get-a-decoding-extension-to-load-and-be-used-for-playback
+
 
 [Supported formats]: {{ site.baseurl }}/supported-formats.html
 [setMp3ExtractorFlags]: {{ site.exo_sdk }}/extractor/DefaultExtractorsFactory#setMp3ExtractorFlags-int-
@@ -237,3 +269,9 @@ order to play it.
 [OkHttp extension]: {{ site.release_v2 }}/extensions/okhttp
 [CORS enabled]: https://www.w3.org/wiki/CORS_Enabled
 [Cast framework]: {{ site.google_sdk }}/cast/docs/chrome_sender/advanced#cors_requirements
+[extensions/ffmpeg/README.md]: {{ site.release_v2 }}/extensions/ffmpeg/README.md
+[enable decoders]: {{ site.base_url }}/supported-formats.html#ffmpeg-extension
+[demo application]: {{ site.base_url }}/demo-application.html
+[enabling extension decoders]: {{ site.base_url }}/demo-application.html#enabling-extension-decoders
+[DefaultRenderersFactory]: {{ site.exo_sdk }}/DefaultRenderersFactory.html
+[LibraryLoader]: {{ site.exo_sdk }}/util/LibraryLoader.html
