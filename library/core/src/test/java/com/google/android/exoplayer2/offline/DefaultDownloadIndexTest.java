@@ -249,6 +249,23 @@ public class DefaultDownloadIndexTest {
   }
 
   @Test
+  public void setStatesToRemoving_setsStateAndClearsFailureReason() throws Exception {
+    String id = "id";
+    DownloadBuilder downloadBuilder =
+        new DownloadBuilder(id)
+            .setState(Download.STATE_FAILED)
+            .setFailureReason(Download.FAILURE_REASON_UNKNOWN);
+    Download download = downloadBuilder.build();
+    downloadIndex.putDownload(download);
+
+    downloadIndex.setStatesToRemoving();
+
+    download = downloadIndex.getDownload(id);
+    assertThat(download.state).isEqualTo(Download.STATE_REMOVING);
+    assertThat(download.failureReason).isEqualTo(Download.FAILURE_REASON_NONE);
+  }
+
+  @Test
   public void setSingleDownloadStopReason_setReasonToNone() throws Exception {
     String id = "id";
     DownloadBuilder downloadBuilder =

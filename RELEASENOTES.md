@@ -45,6 +45,10 @@
     `SsaStyle$SsaAlignment`
     ([#6771](https://github.com/google/ExoPlayer/issues/6771)).
 * Fix `CacheDataSource` to correctly propagate `DataSpec.httpRequestHeaders`.
+* Fix issue with `DefaultDownloadIndex` that could result in an
+  `IllegalStateException` being thrown from
+  `DefaultDownloadIndex.getDownloadForCurrentRow`
+  ([#6785](https://github.com/google/ExoPlayer/issues/6785)).
 * Add missing @Nullable to `MediaCodecAudioRenderer.getMediaClock` and
   `SimpleDecoderAudioRenderer.getMediaClock`
   ([#6792](https://github.com/google/ExoPlayer/issues/6792)).
