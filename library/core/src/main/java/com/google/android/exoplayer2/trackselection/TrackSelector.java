@@ -73,7 +73,7 @@ import com.google.android.exoplayer2.util.Assertions;
  * the two are tightly bound together. It may only be possible to play a certain combination tracks
  * if the renderers are configured in a particular way. Equally, it may only be possible to
  * configure renderers in a particular way if certain tracks are selected. Hence it makes sense to
- * determined the track selection and corresponding renderer configurations in a single step.
+ * determine the track selection and corresponding renderer configurations in a single step.
  *
  * <h3>Threading model</h3>
  *
