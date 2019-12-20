@@ -118,10 +118,6 @@ import java.io.IOException;
         }
       }
 
-      if (inputLength != C.LENGTH_UNSET && bytesSearched + atomSize > inputLength) {
-        // The file is invalid because the atom extends past the end of the file.
-        return false;
-      }
       if (atomSize < headerSize) {
         // The file is invalid because the atom size is too small for its header.
         return false;
