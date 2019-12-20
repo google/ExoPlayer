@@ -33,4 +33,13 @@ public final class Mp4ExtractorTest {
   public void testMp4SampleWithSlowMotionMetadata() throws Exception {
     ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/sample_android_slow_motion.mp4");
   }
+
+  /**
+   * Test case for https://github.com/google/ExoPlayer/issues/6774. The sample file contains an mdat
+   * atom whose size indicates that it extends 8 bytes beyond the end of the file.
+   */
+  @Test
+  public void testMp4SampleWithMdatTooLong() throws Exception {
+    ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/sample_mdat_too_long.mp4");
+  }
 }
