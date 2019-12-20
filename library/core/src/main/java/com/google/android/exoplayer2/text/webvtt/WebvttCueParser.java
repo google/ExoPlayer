@@ -313,6 +313,8 @@ public final class WebvttCueParser {
           parsePositionAttribute(value, builder);
         } else if ("size".equals(name)) {
           builder.size = WebvttParserUtil.parsePercentage(value);
+        } else if ("vertical".equals(name)) {
+          builder.verticalType = parseVerticalAttribute(value);
         } else {
           Log.w(TAG, "Unknown cue setting " + name + ":" + value);
         }
@@ -364,6 +366,19 @@ public final class WebvttCueParser {
         return Cue.ANCHOR_TYPE_END;
       default:
         Log.w(TAG, "Invalid anchor value: " + s);
+        return Cue.TYPE_UNSET;
+    }
+  }
+
+  @Cue.VerticalType
+  private static int parseVerticalAttribute(String s) {
+    switch (s) {
+      case "rl":
+        return Cue.VERTICAL_TYPE_RL;
+      case "lr":
+        return Cue.VERTICAL_TYPE_LR;
+      default:
+        Log.w(TAG, "Invalid 'vertical' value: " + s);
         return Cue.TYPE_UNSET;
     }
   }
@@ -564,6 +579,7 @@ public final class WebvttCueParser {
     public float position;
     @Cue.AnchorType public int positionAnchor;
     public float size;
+    @Cue.VerticalType public int verticalType;
 
     public WebvttCueInfoBuilder() {
       startTimeUs = 0;
@@ -579,6 +595,7 @@ public final class WebvttCueParser {
       positionAnchor = Cue.TYPE_UNSET;
       // Default: https://www.w3.org/TR/webvtt1/#webvtt-cue-size
       size = 1.0f;
+      verticalType = Cue.TYPE_UNSET;
     }
 
     public WebvttCueInfo build() {
@@ -600,7 +617,8 @@ public final class WebvttCueParser {
               .setLineAnchor(lineAnchor)
               .setPosition(position)
               .setPositionAnchor(positionAnchor)
-              .setSize(Math.min(size, deriveMaxSize(positionAnchor, position)));
+              .setSize(Math.min(size, deriveMaxSize(positionAnchor, position)))
+              .setVerticalType(verticalType);
 
       if (text != null) {
         cueBuilder.setText(text);
