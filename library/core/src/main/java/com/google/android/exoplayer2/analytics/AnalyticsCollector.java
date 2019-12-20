@@ -804,7 +804,8 @@ public class AnalyticsCollector
 
     /** Updates the queue with a newly created media period. */
     public void onMediaPeriodCreated(int windowIndex, MediaPeriodId mediaPeriodId) {
-      boolean isInTimeline = timeline.getIndexOfPeriod(mediaPeriodId.periodUid) != C.INDEX_UNSET;
+      int periodIndex = timeline.getIndexOfPeriod(mediaPeriodId.periodUid);
+      boolean isInTimeline = periodIndex != C.INDEX_UNSET;
       MediaPeriodInfo mediaPeriodInfo =
           new MediaPeriodInfo(
               mediaPeriodId,
