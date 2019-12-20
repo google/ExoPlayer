@@ -174,7 +174,8 @@ public abstract class BinarySearchSeeker {
   public int handlePendingSeek(ExtractorInput input, PositionHolder seekPositionHolder)
       throws InterruptedException, IOException {
     while (true) {
-      SeekOperationParams seekOperationParams = Assertions.checkNotNull(this.seekOperationParams);
+      SeekOperationParams seekOperationParams =
+          Assertions.checkStateNotNull(this.seekOperationParams);
       long floorPosition = seekOperationParams.getFloorBytePosition();
       long ceilingPosition = seekOperationParams.getCeilingBytePosition();
       long searchPosition = seekOperationParams.getNextSearchBytePosition();

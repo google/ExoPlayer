@@ -133,7 +133,7 @@ import com.google.android.exoplayer2.util.Util;
       scaledPosition = 256;
     } else {
       int prevTableIndex = (int) percent;
-      long[] tableOfContents = Assertions.checkNotNull(this.tableOfContents);
+      long[] tableOfContents = Assertions.checkStateNotNull(this.tableOfContents);
       double prevScaledPosition = tableOfContents[prevTableIndex];
       double nextScaledPosition = prevTableIndex == 99 ? 256 : tableOfContents[prevTableIndex + 1];
       // Linearly interpolate between the two scaled positions.
@@ -153,7 +153,7 @@ import com.google.android.exoplayer2.util.Util;
     if (!isSeekable() || positionOffset <= xingFrameSize) {
       return 0L;
     }
-    long[] tableOfContents = Assertions.checkNotNull(this.tableOfContents);
+    long[] tableOfContents = Assertions.checkStateNotNull(this.tableOfContents);
     double scaledPosition = (positionOffset * 256d) / dataSize;
     int prevTableIndex = Util.binarySearchFloor(tableOfContents, (long) scaledPosition, true, true);
     long prevTimeUs = getTimeUsForTableIndex(prevTableIndex);

@@ -177,7 +177,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     if (!seekMapSet) {
-      SeekMap seekMap = Assertions.checkNotNull(oggSeeker.createSeekMap());
+      SeekMap seekMap = Assertions.checkStateNotNull(oggSeeker.createSeekMap());
       extractorOutput.seekMap(seekMap);
       seekMapSet = true;
     }
