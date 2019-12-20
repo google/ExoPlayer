@@ -8,6 +8,10 @@
   Also change `IcyInfo.rawMetadata` from `String` to `byte[]` to allow
   developers to handle data that's neither UTF-8 nor ISO-8859-1
   ([#6753](https://github.com/google/ExoPlayer/issues/6753)).
+* Fix handling of network transitions in `RequirementsWatcher`
+  ([#6733](https://github.com/google/ExoPlayer/issues/6733)). Incorrect handling
+  could previously cause downloads to be paused when they should have been able
+  to proceed.
 
 ### 2.11.1 (2019-12-20) ###
 
