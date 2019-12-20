@@ -97,6 +97,14 @@ a custom track selector the choice of `Renderer` is up to your implementation,
 so you need to make sure you are passing an `LibflacAudioRenderer` to the
 player, then implement your own logic to use the renderer for a given track.
 
+## Using the extension in the demo application ##
+
+To try out playback using the extension in the [demo application][], see
+[enabling extension decoders][].
+
+[demo application]: https://exoplayer.dev/demo-application.html
+[enabling extension decoders]: https://exoplayer.dev/demo-application.html#enabling-extension-decoders
+
 ## Links ##
 
 * [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.flac.*`
