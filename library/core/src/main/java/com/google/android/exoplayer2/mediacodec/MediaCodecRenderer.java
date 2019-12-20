@@ -59,9 +59,7 @@ import java.util.List;
  */
 public abstract class MediaCodecRenderer extends BaseRenderer {
 
-  /**
-   * Thrown when a failure occurs instantiating a decoder.
-   */
+  /** Thrown when a failure occurs instantiating a decoder. */
   public static class DecoderInitializationException extends Exception {
 
     private static final int CUSTOM_ERROR_CODE_BASE = -50000;

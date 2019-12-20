@@ -116,7 +116,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final Loader loader;
   private final EventDispatcher eventDispatcher;
-  private final @HlsMetadataType int metadataType;
+  private final @HlsMediaSource.MetadataType int metadataType;
   private final HlsChunkSource.HlsChunkHolder nextChunkHolder;
   private final ArrayList<HlsMediaChunk> mediaChunks;
   private final List<HlsMediaChunk> readOnlyMediaChunks;
@@ -190,7 +190,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       DrmSessionManager<?> drmSessionManager,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       EventDispatcher eventDispatcher,
-      @HlsMetadataType int metadataType) {
+      @HlsMediaSource.MetadataType int metadataType) {
     this.trackType = trackType;
     this.callback = callback;
     this.chunkSource = chunkSource;
@@ -1362,14 +1362,15 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     private byte[] buffer;
     private int bufferPosition;
 
-    public EmsgUnwrappingTrackOutput(TrackOutput delegate, @HlsMetadataType int metadataType) {
+    public EmsgUnwrappingTrackOutput(
+        TrackOutput delegate, @HlsMediaSource.MetadataType int metadataType) {
       this.emsgDecoder = new EventMessageDecoder();
       this.delegate = delegate;
       switch (metadataType) {
-        case HlsMetadataType.ID3:
+        case HlsMediaSource.METADATA_TYPE_ID3:
           delegateFormat = ID3_FORMAT;
           break;
-        case HlsMetadataType.EMSG:
+        case HlsMediaSource.METADATA_TYPE_EMSG:
           delegateFormat = EMSG_FORMAT;
           break;
         default:

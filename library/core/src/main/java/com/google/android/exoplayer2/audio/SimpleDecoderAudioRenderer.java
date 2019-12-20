@@ -218,6 +218,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   }
 
   @Override
+  @Nullable
   public MediaClock getMediaClock() {
     return this;
   }

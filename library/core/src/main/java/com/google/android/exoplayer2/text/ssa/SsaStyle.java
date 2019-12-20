@@ -37,6 +37,52 @@ import java.util.regex.Pattern;
 
   private static final String TAG = "SsaStyle";
 
+  /**
+   * The SSA/ASS alignments.
+   *
+   * <p>Allowed values:
+   *
+   * <ul>
+   *   <li>{@link #SSA_ALIGNMENT_UNKNOWN}
+   *   <li>{@link #SSA_ALIGNMENT_BOTTOM_LEFT}
+   *   <li>{@link #SSA_ALIGNMENT_BOTTOM_CENTER}
+   *   <li>{@link #SSA_ALIGNMENT_BOTTOM_RIGHT}
+   *   <li>{@link #SSA_ALIGNMENT_MIDDLE_LEFT}
+   *   <li>{@link #SSA_ALIGNMENT_MIDDLE_CENTER}
+   *   <li>{@link #SSA_ALIGNMENT_MIDDLE_RIGHT}
+   *   <li>{@link #SSA_ALIGNMENT_TOP_LEFT}
+   *   <li>{@link #SSA_ALIGNMENT_TOP_CENTER}
+   *   <li>{@link #SSA_ALIGNMENT_TOP_RIGHT}
+   * </ul>
+   */
+  @IntDef({
+    SSA_ALIGNMENT_UNKNOWN,
+    SSA_ALIGNMENT_BOTTOM_LEFT,
+    SSA_ALIGNMENT_BOTTOM_CENTER,
+    SSA_ALIGNMENT_BOTTOM_RIGHT,
+    SSA_ALIGNMENT_MIDDLE_LEFT,
+    SSA_ALIGNMENT_MIDDLE_CENTER,
+    SSA_ALIGNMENT_MIDDLE_RIGHT,
+    SSA_ALIGNMENT_TOP_LEFT,
+    SSA_ALIGNMENT_TOP_CENTER,
+    SSA_ALIGNMENT_TOP_RIGHT,
+  })
+  @Documented
+  @Retention(SOURCE)
+  public @interface SsaAlignment {}
+
+  // The numbering follows the ASS (v4+) spec (i.e. the points on the number pad).
+  public static final int SSA_ALIGNMENT_UNKNOWN = -1;
+  public static final int SSA_ALIGNMENT_BOTTOM_LEFT = 1;
+  public static final int SSA_ALIGNMENT_BOTTOM_CENTER = 2;
+  public static final int SSA_ALIGNMENT_BOTTOM_RIGHT = 3;
+  public static final int SSA_ALIGNMENT_MIDDLE_LEFT = 4;
+  public static final int SSA_ALIGNMENT_MIDDLE_CENTER = 5;
+  public static final int SSA_ALIGNMENT_MIDDLE_RIGHT = 6;
+  public static final int SSA_ALIGNMENT_TOP_LEFT = 7;
+  public static final int SSA_ALIGNMENT_TOP_CENTER = 8;
+  public static final int SSA_ALIGNMENT_TOP_RIGHT = 9;
+
   public final String name;
   @SsaAlignment public final int alignment;
 
@@ -77,22 +123,22 @@ import java.util.regex.Pattern;
       // Swallow the exception and return UNKNOWN below.
     }
     Log.w(TAG, "Ignoring unknown alignment: " + alignmentStr);
-    return SsaAlignment.UNKNOWN;
+    return SSA_ALIGNMENT_UNKNOWN;
   }
 
   private static boolean isValidAlignment(@SsaAlignment int alignment) {
     switch (alignment) {
-      case SsaAlignment.BOTTOM_CENTER:
-      case SsaAlignment.BOTTOM_LEFT:
-      case SsaAlignment.BOTTOM_RIGHT:
-      case SsaAlignment.MIDDLE_CENTER:
-      case SsaAlignment.MIDDLE_LEFT:
-      case SsaAlignment.MIDDLE_RIGHT:
-      case SsaAlignment.TOP_CENTER:
-      case SsaAlignment.TOP_LEFT:
-      case SsaAlignment.TOP_RIGHT:
+      case SSA_ALIGNMENT_BOTTOM_CENTER:
+      case SSA_ALIGNMENT_BOTTOM_LEFT:
+      case SSA_ALIGNMENT_BOTTOM_RIGHT:
+      case SSA_ALIGNMENT_MIDDLE_CENTER:
+      case SSA_ALIGNMENT_MIDDLE_LEFT:
+      case SSA_ALIGNMENT_MIDDLE_RIGHT:
+      case SSA_ALIGNMENT_TOP_CENTER:
+      case SSA_ALIGNMENT_TOP_LEFT:
+      case SSA_ALIGNMENT_TOP_RIGHT:
         return true;
-      case SsaAlignment.UNKNOWN:
+      case SSA_ALIGNMENT_UNKNOWN:
       default:
         return false;
     }
@@ -177,7 +223,7 @@ import java.util.regex.Pattern;
     }
 
     public static Overrides parseFromDialogue(String text) {
-      @SsaAlignment int alignment = SsaAlignment.UNKNOWN;
+      @SsaAlignment int alignment = SSA_ALIGNMENT_UNKNOWN;
       PointF position = null;
       Matcher matcher = BRACES_PATTERN.matcher(text);
       while (matcher.find()) {
@@ -192,7 +238,7 @@ import java.util.regex.Pattern;
         }
         try {
           @SsaAlignment int parsedAlignment = parseAlignmentOverride(braceContents);
-          if (parsedAlignment != SsaAlignment.UNKNOWN) {
+          if (parsedAlignment != SSA_ALIGNMENT_UNKNOWN) {
             alignment = parsedAlignment;
           }
         } catch (RuntimeException e) {
@@ -249,36 +295,7 @@ import java.util.regex.Pattern;
     @SsaAlignment
     private static int parseAlignmentOverride(String braceContents) {
       Matcher matcher = ALIGNMENT_OVERRIDE_PATTERN.matcher(braceContents);
-      return matcher.find() ? parseAlignment(matcher.group(1)) : SsaAlignment.UNKNOWN;
+      return matcher.find() ? parseAlignment(matcher.group(1)) : SSA_ALIGNMENT_UNKNOWN;
     }
-  }
-
-  /** The SSA/ASS alignments. */
-  @IntDef({
-    SsaAlignment.UNKNOWN,
-    SsaAlignment.BOTTOM_LEFT,
-    SsaAlignment.BOTTOM_CENTER,
-    SsaAlignment.BOTTOM_RIGHT,
-    SsaAlignment.MIDDLE_LEFT,
-    SsaAlignment.MIDDLE_CENTER,
-    SsaAlignment.MIDDLE_RIGHT,
-    SsaAlignment.TOP_LEFT,
-    SsaAlignment.TOP_CENTER,
-    SsaAlignment.TOP_RIGHT,
-  })
-  @Documented
-  @Retention(SOURCE)
-  /* package */ @interface SsaAlignment {
-    // The numbering follows the ASS (v4+) spec (i.e. the points on the number pad).
-    int UNKNOWN = -1;
-    int BOTTOM_LEFT = 1;
-    int BOTTOM_CENTER = 2;
-    int BOTTOM_RIGHT = 3;
-    int MIDDLE_LEFT = 4;
-    int MIDDLE_CENTER = 5;
-    int MIDDLE_RIGHT = 6;
-    int TOP_LEFT = 7;
-    int TOP_CENTER = 8;
-    int TOP_RIGHT = 9;
   }
 }

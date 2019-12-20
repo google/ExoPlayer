@@ -1,5 +1,31 @@
 # Release notes #
 
+### 2.11.1 (2019-12-20) ###
+
+* UI: Exclude `DefaultTimeBar` region from system gesture detection
+  ([#6685](https://github.com/google/ExoPlayer/issues/6685)).
+* ProGuard fixes:
+  * Ensure `Libgav1VideoRenderer` constructor is kept for use by
+    `DefaultRenderersFactory`
+    ([#6773](https://github.com/google/ExoPlayer/issues/6773)).
+  * Ensure `VideoDecoderOutputBuffer` and its members are kept for use by video
+    decoder extensions.
+  * Ensure raw resources used with `RawResourceDataSource` are kept.
+  * Suppress spurious warnings about the `javax.annotation` package, and
+    restructure use of `IntDef` annotations to remove spurious warnings about
+    `SsaStyle$SsaAlignment`
+    ([#6771](https://github.com/google/ExoPlayer/issues/6771)).
+* Fix `CacheDataSource` to correctly propagate `DataSpec.httpRequestHeaders`.
+* Fix issue with `DefaultDownloadIndex` that could result in an
+  `IllegalStateException` being thrown from
+  `DefaultDownloadIndex.getDownloadForCurrentRow`
+  ([#6785](https://github.com/google/ExoPlayer/issues/6785)).
+* Fix `IndexOutOfBoundsException` in `SinglePeriodTimeline.getWindow`
+  ([#6776](https://github.com/google/ExoPlayer/issues/6776)).
+* Add missing `@Nullable` to `MediaCodecAudioRenderer.getMediaClock` and
+  `SimpleDecoderAudioRenderer.getMediaClock`
+  ([#6792](https://github.com/google/ExoPlayer/issues/6792)).
+
 ### 2.11.0 (2019-12-11) ###
 
 * Core library:
@@ -30,6 +56,10 @@
   * Fix issue where player errors are thrown too early at playlist transitions
     ([#5407](https://github.com/google/ExoPlayer/issues/5407)).
   * Add `Format` and renderer support flags to renderer `ExoPlaybackException`s.
+  * Where there are multiple platform decoders for a given MIME type, prefer to
+    use one that advertises support for the profile and level of the media being
+    played over one that does not, even if it does not come first in the
+    `MediaCodecList`.
 * DRM:
   * Inject `DrmSessionManager` into the `MediaSources` instead of `Renderers`.
     This allows each `MediaSource` in a `ConcatenatingMediaSource` to use a

@@ -77,39 +77,40 @@ public final class WebvttCue extends Cue {
     @Documented
     @Retention(SOURCE)
     @IntDef({
-      TextAlignment.START,
-      TextAlignment.CENTER,
-      TextAlignment.END,
-      TextAlignment.LEFT,
-      TextAlignment.RIGHT
+        TEXT_ALIGNMENT_START,
+        TEXT_ALIGNMENT_CENTER,
+        TEXT_ALIGNMENT_END,
+        TEXT_ALIGNMENT_LEFT,
+        TEXT_ALIGNMENT_RIGHT
     })
-    public @interface TextAlignment {
-      /**
-       * See WebVTT's <a
-       * href="https://www.w3.org/TR/webvtt1/#webvtt-cue-start-alignment">align:start</a>.
-       */
-      int START = 1;
-      /**
-       * See WebVTT's <a
-       * href="https://www.w3.org/TR/webvtt1/#webvtt-cue-center-alignment">align:center</a>.
-       */
-      int CENTER = 2;
-      /**
-       * See WebVTT's <a
-       * href="https://www.w3.org/TR/webvtt1/#webvtt-cue-end-alignment">align:end</a>.
-       */
-      int END = 3;
-      /**
-       * See WebVTT's <a
-       * href="https://www.w3.org/TR/webvtt1/#webvtt-cue-left-alignment">align:left</a>.
-       */
-      int LEFT = 4;
-      /**
-       * See WebVTT's <a
-       * href="https://www.w3.org/TR/webvtt1/#webvtt-cue-right-alignment">align:right</a>.
-       */
-      int RIGHT = 5;
-    }
+    public @interface TextAlignment {}
+    /**
+     * See WebVTT's <a
+     * href="https://www.w3.org/TR/webvtt1/#webvtt-cue-start-alignment">align:start</a>.
+     */
+    public static final int TEXT_ALIGNMENT_START = 1;
+
+    /**
+     * See WebVTT's <a
+     * href="https://www.w3.org/TR/webvtt1/#webvtt-cue-center-alignment">align:center</a>.
+     */
+    public static final int TEXT_ALIGNMENT_CENTER = 2;
+
+    /**
+     * See WebVTT's <a href="https://www.w3.org/TR/webvtt1/#webvtt-cue-end-alignment">align:end</a>.
+     */
+    public static final int TEXT_ALIGNMENT_END = 3;
+
+    /**
+     * See WebVTT's <a href="https://www.w3.org/TR/webvtt1/#webvtt-cue-left-alignment">align:left</a>.
+     */
+    public static final int TEXT_ALIGNMENT_LEFT = 4;
+
+    /**
+     * See WebVTT's <a
+     * href="https://www.w3.org/TR/webvtt1/#webvtt-cue-right-alignment">align:right</a>.
+     */
+    public static final int TEXT_ALIGNMENT_RIGHT = 5;
 
     private static final String TAG = "WebvttCueBuilder";
 
@@ -140,7 +141,7 @@ public final class WebvttCue extends Cue {
       endTime = 0;
       text = null;
       // Default: https://www.w3.org/TR/webvtt1/#webvtt-cue-text-alignment
-      textAlignment = TextAlignment.CENTER;
+      textAlignment = TEXT_ALIGNMENT_CENTER;
       line = Cue.DIMEN_UNSET;
       // Defaults to NUMBER (true): https://www.w3.org/TR/webvtt1/#webvtt-cue-snap-to-lines-flag
       lineType = Cue.LINE_TYPE_NUMBER;
@@ -251,13 +252,13 @@ public final class WebvttCue extends Cue {
     // https://www.w3.org/TR/webvtt1/#webvtt-cue-position
     private static float derivePosition(@TextAlignment int textAlignment) {
       switch (textAlignment) {
-        case TextAlignment.LEFT:
+        case TEXT_ALIGNMENT_LEFT:
           return 0.0f;
-        case TextAlignment.RIGHT:
+        case TEXT_ALIGNMENT_RIGHT:
           return 1.0f;
-        case TextAlignment.START:
-        case TextAlignment.CENTER:
-        case TextAlignment.END:
+        case TEXT_ALIGNMENT_START:
+        case TEXT_ALIGNMENT_CENTER:
+        case TEXT_ALIGNMENT_END:
         default:
           return DEFAULT_POSITION;
       }
@@ -267,13 +268,13 @@ public final class WebvttCue extends Cue {
     @AnchorType
     private static int derivePositionAnchor(@TextAlignment int textAlignment) {
       switch (textAlignment) {
-        case TextAlignment.LEFT:
-        case TextAlignment.START:
+        case TEXT_ALIGNMENT_LEFT:
+        case TEXT_ALIGNMENT_START:
           return Cue.ANCHOR_TYPE_START;
-        case TextAlignment.RIGHT:
-        case TextAlignment.END:
+        case TEXT_ALIGNMENT_RIGHT:
+        case TEXT_ALIGNMENT_END:
           return Cue.ANCHOR_TYPE_END;
-        case TextAlignment.CENTER:
+        case TEXT_ALIGNMENT_CENTER:
         default:
           return Cue.ANCHOR_TYPE_MIDDLE;
       }
@@ -282,13 +283,13 @@ public final class WebvttCue extends Cue {
     @Nullable
     private static Alignment convertTextAlignment(@TextAlignment int textAlignment) {
       switch (textAlignment) {
-        case TextAlignment.START:
-        case TextAlignment.LEFT:
+        case TEXT_ALIGNMENT_START:
+        case TEXT_ALIGNMENT_LEFT:
           return Alignment.ALIGN_NORMAL;
-        case TextAlignment.CENTER:
+        case TEXT_ALIGNMENT_CENTER:
           return Alignment.ALIGN_CENTER;
-        case TextAlignment.END:
-        case TextAlignment.RIGHT:
+        case TEXT_ALIGNMENT_END:
+        case TEXT_ALIGNMENT_RIGHT:
           return Alignment.ALIGN_OPPOSITE;
         default:
           Log.w(TAG, "Unknown textAlignment: " + textAlignment);
