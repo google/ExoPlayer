@@ -96,6 +96,14 @@ a custom track selector the choice of `Renderer` is up to your implementation.
 You need to make sure you are passing a `Libgav1VideoRenderer` to the player and
 then you need to implement your own logic to use the renderer for a given track.
 
+## Using the extension in the demo application ##
+
+To try out playback using the extension in the [demo application][], see
+[enabling extension decoders][].
+
+[demo application]: https://exoplayer.dev/demo-application.html
+[enabling extension decoders]: https://exoplayer.dev/demo-application.html#enabling-extension-decoders
+
 ## Rendering options ##
 
 There are two possibilities for rendering the output `Libgav1VideoRenderer`

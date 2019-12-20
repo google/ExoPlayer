@@ -106,9 +106,19 @@ then implement your own logic to use the renderer for a given track.
 [#2781]: https://github.com/google/ExoPlayer/issues/2781
 [Supported formats]: https://exoplayer.dev/supported-formats.html#ffmpeg-extension
 
+## Using the extension in the demo application ##
+
+To try out playback using the extension in the [demo application][], see
+[enabling extension decoders][].
+
+[demo application]: https://exoplayer.dev/demo-application.html
+[enabling extension decoders]: https://exoplayer.dev/demo-application.html#enabling-extension-decoders
+
 ## Links ##
 
+* [Troubleshooting using extensions][]
 * [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.ffmpeg.*`
   belong to this module.
 
+[Troubleshooting using extensions]: https://exoplayer.dev/troubleshooting.html#how-can-i-get-a-decoding-extension-to-load-and-be-used-for-playback
 [Javadoc]: https://exoplayer.dev/doc/reference/index.html
