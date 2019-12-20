@@ -20,6 +20,8 @@
   `IllegalStateException` being thrown from
   `DefaultDownloadIndex.getDownloadForCurrentRow`
   ([#6785](https://github.com/google/ExoPlayer/issues/6785)).
+* Fix `IndexOutOfBoundsException` in `SinglePeriodTimeline.getWindow`
+  ([#6776](https://github.com/google/ExoPlayer/issues/6776)).
 * Add missing @Nullable to `MediaCodecAudioRenderer.getMediaClock` and
   `SimpleDecoderAudioRenderer.getMediaClock`
   ([#6792](https://github.com/google/ExoPlayer/issues/6792)).
