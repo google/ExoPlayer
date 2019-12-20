@@ -1290,9 +1290,9 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public MediaSource removeMediaItem(int index) {
+  public void removeMediaItem(int index) {
     verifyApplicationThread();
-    return player.removeMediaItem(index);
+    player.removeMediaItem(index);
   }
 
   @Override

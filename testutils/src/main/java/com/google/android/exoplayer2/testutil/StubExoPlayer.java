@@ -190,7 +190,7 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
-  public MediaSource removeMediaItem(int index) {
+  public void removeMediaItem(int index) {
     throw new UnsupportedOperationException();
   }
 
