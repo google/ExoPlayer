@@ -806,7 +806,10 @@ public class AnalyticsCollector
     public void onMediaPeriodCreated(int windowIndex, MediaPeriodId mediaPeriodId) {
       boolean isInTimeline = timeline.getIndexOfPeriod(mediaPeriodId.periodUid) != C.INDEX_UNSET;
       MediaPeriodInfo mediaPeriodInfo =
-          new MediaPeriodInfo(mediaPeriodId, isInTimeline ? timeline : Timeline.EMPTY, windowIndex);
+          new MediaPeriodInfo(
+              mediaPeriodId,
+              isInTimeline ? timeline : Timeline.EMPTY,
+              isInTimeline ? timeline.getPeriod(periodIndex, period).windowIndex : windowIndex);
       mediaPeriodInfoQueue.add(mediaPeriodInfo);
       mediaPeriodIdToInfo.put(mediaPeriodId, mediaPeriodInfo);
       lastPlayingMediaPeriod = mediaPeriodInfoQueue.get(0);
