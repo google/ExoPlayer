@@ -48,6 +48,7 @@ public class WebvttDecoderTest {
   private static final String TYPICAL_WITH_IDS_FILE = "webvtt/typical_with_identifiers";
   private static final String TYPICAL_WITH_COMMENTS_FILE = "webvtt/typical_with_comments";
   private static final String WITH_POSITIONING_FILE = "webvtt/with_positioning";
+  private static final String WITH_VERTICAL_FILE = "webvtt/with_vertical";
   private static final String WITH_BAD_CUE_HEADER_FILE = "webvtt/with_bad_cue_header";
   private static final String WITH_TAGS_FILE = "webvtt/with_tags";
   private static final String WITH_CSS_STYLES = "webvtt/with_css_styles";
@@ -231,7 +232,8 @@ public class WebvttDecoderTest {
         /* lineAnchor= */ Cue.ANCHOR_TYPE_START,
         /* position= */ 0.1f,
         /* positionAnchor= */ Cue.ANCHOR_TYPE_START,
-        /* size= */ 0.35f);
+        /* size= */ 0.35f,
+        /* verticalType= */ Cue.TYPE_UNSET);
     assertCue(
         subtitle,
         /* eventTimeIndex= */ 2,
@@ -244,7 +246,8 @@ public class WebvttDecoderTest {
         /* lineAnchor= */ Cue.ANCHOR_TYPE_START,
         /* position= */ 0.5f,
         /* positionAnchor= */ Cue.ANCHOR_TYPE_END,
-        /* size= */ 0.35f);
+        /* size= */ 0.35f,
+        /* verticalType= */ Cue.TYPE_UNSET);
     assertCue(
         subtitle,
         /* eventTimeIndex= */ 4,
@@ -257,7 +260,8 @@ public class WebvttDecoderTest {
         /* lineAnchor= */ Cue.ANCHOR_TYPE_END,
         /* position= */ 0.5f,
         /* positionAnchor= */ Cue.ANCHOR_TYPE_MIDDLE,
-        /* size= */ 0.35f);
+        /* size= */ 0.35f,
+        /* verticalType= */ Cue.TYPE_UNSET);
     assertCue(
         subtitle,
         /* eventTimeIndex= */ 6,
@@ -270,7 +274,8 @@ public class WebvttDecoderTest {
         /* lineAnchor= */ Cue.ANCHOR_TYPE_START,
         /* position= */ 0.5f,
         /* positionAnchor= */ Cue.ANCHOR_TYPE_MIDDLE,
-        /* size= */ 1.0f);
+        /* size= */ 1.0f,
+        /* verticalType= */ Cue.TYPE_UNSET);
     assertCue(
         subtitle,
         /* eventTimeIndex= */ 8,
@@ -283,7 +288,8 @@ public class WebvttDecoderTest {
         /* lineAnchor= */ Cue.ANCHOR_TYPE_START,
         /* position= */ 1.0f,
         /* positionAnchor= */ Cue.ANCHOR_TYPE_END,
-        /* size= */ 1.0f);
+        /* size= */ 1.0f,
+        /* verticalType= */ Cue.TYPE_UNSET);
     assertCue(
         subtitle,
         /* eventTimeIndex= */ 10,
@@ -296,7 +302,58 @@ public class WebvttDecoderTest {
         /* lineAnchor= */ Cue.ANCHOR_TYPE_END,
         /* position= */ 0.5f,
         /* positionAnchor= */ Cue.ANCHOR_TYPE_MIDDLE,
-        /* size= */ 0.35f);
+        /* size= */ 0.35f,
+        /* verticalType= */ Cue.TYPE_UNSET);
+  }
+
+  @Test
+  public void testDecodeWithVertical() throws Exception {
+    WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_VERTICAL_FILE);
+    // Test event count.
+    assertThat(subtitle.getEventTimeCount()).isEqualTo(6);
+    // Test cues.
+    assertCue(
+        subtitle,
+        /* eventTimeIndex= */ 0,
+        /* startTimeUs= */ 0,
+        /* endTimeUs= */ 1234000,
+        "Vertical right-to-left (e.g. Japanese)",
+        Alignment.ALIGN_CENTER,
+        /* line= */ Cue.DIMEN_UNSET,
+        /* lineType= */ Cue.LINE_TYPE_NUMBER,
+        /* lineAnchor= */ Cue.ANCHOR_TYPE_START,
+        /* position= */ 0.5f,
+        /* positionAnchor= */ Cue.ANCHOR_TYPE_MIDDLE,
+        /* size= */ 1.0f,
+        Cue.VERTICAL_TYPE_RL);
+    assertCue(
+        subtitle,
+        /* eventTimeIndex= */ 2,
+        /* startTimeUs= */ 2345000,
+        /* endTimeUs= */ 3456000,
+        "Vertical left-to-right (e.g. Mongolian)",
+        Alignment.ALIGN_CENTER,
+        /* line= */ Cue.DIMEN_UNSET,
+        /* lineType= */ Cue.LINE_TYPE_NUMBER,
+        /* lineAnchor= */ Cue.ANCHOR_TYPE_START,
+        /* position= */ 0.5f,
+        /* positionAnchor= */ Cue.ANCHOR_TYPE_MIDDLE,
+        /* size= */ 1.0f,
+        Cue.VERTICAL_TYPE_LR);
+    assertCue(
+        subtitle,
+        /* eventTimeIndex= */ 4,
+        /* startTimeUs= */ 4000000,
+        /* endTimeUs= */ 5000000,
+        "No vertical setting (i.e. horizontal)",
+        Alignment.ALIGN_CENTER,
+        /* line= */ Cue.DIMEN_UNSET,
+        /* lineType= */ Cue.LINE_TYPE_NUMBER,
+        /* lineAnchor= */ Cue.ANCHOR_TYPE_START,
+        /* position= */ 0.5f,
+        /* positionAnchor= */ Cue.ANCHOR_TYPE_MIDDLE,
+        /* size= */ 1.0f,
+        /* verticalType= */ Cue.TYPE_UNSET);
   }
 
   @Test
@@ -421,7 +478,8 @@ public class WebvttDecoderTest {
         /* lineAnchor= */ Cue.ANCHOR_TYPE_START,
         /* position= */ 0.5f,
         /* positionAnchor= */ Cue.ANCHOR_TYPE_MIDDLE,
-        /* size= */ 1.0f);
+        /* size= */ 1.0f,
+        /* verticalType= */ Cue.TYPE_UNSET);
   }
 
   private void assertCue(
@@ -436,7 +494,8 @@ public class WebvttDecoderTest {
       @Cue.AnchorType int lineAnchor,
       float position,
       @Cue.AnchorType int positionAnchor,
-      float size) {
+      float size,
+      @Cue.VerticalType int verticalType) {
     expect
         .withMessage("startTimeUs")
         .that(subtitle.getEventTime(eventTimeIndex))
@@ -457,6 +516,7 @@ public class WebvttDecoderTest {
     expect.withMessage("cue.position").that(cue.position).isEqualTo(position);
     expect.withMessage("cue.positionAnchor").that(cue.positionAnchor).isEqualTo(positionAnchor);
     expect.withMessage("cue.size").that(cue.size).isEqualTo(size);
+    expect.withMessage("cue.verticalType").that(cue.verticalType).isEqualTo(verticalType);
 
     assertThat(expect.hasFailures()).isFalse();
   }
