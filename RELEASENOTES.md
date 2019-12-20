@@ -16,6 +16,9 @@
     `SsaStyle$SsaAlignment`
     ([#6771](https://github.com/google/ExoPlayer/issues/6771)).
 * Fix `CacheDataSource` to correctly propagate `DataSpec.httpRequestHeaders`.
+* Add missing @Nullable to `MediaCodecAudioRenderer.getMediaClock` and
+  `SimpleDecoderAudioRenderer.getMediaClock`
+  ([#6792](https://github.com/google/ExoPlayer/issues/6792)).
 
 ### 2.11.0 (2019-12-11) ###
 

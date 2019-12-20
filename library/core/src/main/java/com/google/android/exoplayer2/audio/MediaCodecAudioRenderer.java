@@ -520,6 +520,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
+  @Nullable
   public MediaClock getMediaClock() {
     return this;
   }
