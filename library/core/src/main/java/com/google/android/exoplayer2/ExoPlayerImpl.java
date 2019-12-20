@@ -368,10 +368,8 @@ import java.util.concurrent.TimeoutException;
   }
 
   @Override
-  public MediaSource removeMediaItem(int index) {
-    List<Playlist.MediaSourceHolder> mediaSourceHolders =
-        removeMediaItemsInternal(/* fromIndex= */ index, /* toIndex= */ index + 1);
-    return mediaSourceHolders.isEmpty() ? null : mediaSourceHolders.get(0).mediaSource;
+  public void removeMediaItem(int index) {
+    removeMediaItemsInternal(/* fromIndex= */ index, /* toIndex= */ index + 1);
   }
 
   @Override
@@ -956,7 +954,7 @@ import java.util.concurrent.TimeoutException;
     return holders;
   }
 
-  private List<Playlist.MediaSourceHolder> removeMediaItemsInternal(int fromIndex, int toIndex) {
+  private void removeMediaItemsInternal(int fromIndex, int toIndex) {
     Assertions.checkArgument(
         fromIndex >= 0 && toIndex >= fromIndex && toIndex <= mediaSourceHolders.size());
     int currentWindowIndex = getCurrentWindowIndex();
@@ -965,8 +963,7 @@ import java.util.concurrent.TimeoutException;
     Timeline oldTimeline = getCurrentTimeline();
     int currentMediaSourceCount = mediaSourceHolders.size();
     pendingOperationAcks++;
-    List<Playlist.MediaSourceHolder> removedHolders =
-        removeMediaSourceHolders(fromIndex, /* toIndexExclusive= */ toIndex);
+    removeMediaSourceHolders(fromIndex, /* toIndexExclusive= */ toIndex);
     Timeline timeline =
         maskTimelineAndWindowIndex(currentWindowIndex, currentPositionMs, oldTimeline);
     // Player transitions to STATE_ENDED if the current index is part of the removed tail.
@@ -987,7 +984,6 @@ import java.util.concurrent.TimeoutException;
             listener.onPlayerStateChanged(currentPlayWhenReady, STATE_ENDED);
           }
         });
-    return removedHolders;
   }
 
   private List<Playlist.MediaSourceHolder> removeMediaSourceHolders(

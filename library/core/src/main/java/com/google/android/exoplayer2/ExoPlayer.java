@@ -486,10 +486,8 @@ public interface ExoPlayer extends Player {
    * Removes the media item at the given index of the playlist.
    *
    * @param index The index at which to remove the media item.
-   * @return The removed {@link MediaSource} or null if no item exists at the given index.
    */
-  @Nullable
-  MediaSource removeMediaItem(int index);
+  void removeMediaItem(int index);
 
   /**
    * Removes a range of media items from the playlist.
