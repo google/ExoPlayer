@@ -52,7 +52,7 @@ public final class FlacSeekTableSeekMap implements SeekMap {
 
   @Override
   public SeekPoints getSeekPoints(long timeUs) {
-    Assertions.checkNotNull(flacStreamMetadata.seekTable);
+    Assertions.checkStateNotNull(flacStreamMetadata.seekTable);
     long[] pointSampleNumbers = flacStreamMetadata.seekTable.pointSampleNumbers;
     long[] pointOffsets = flacStreamMetadata.seekTable.pointOffsets;
 

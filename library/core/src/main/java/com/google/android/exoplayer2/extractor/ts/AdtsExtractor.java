@@ -20,7 +20,6 @@ import static com.google.android.exoplayer2.metadata.id3.Id3Decoder.ID3_HEADER_L
 import static com.google.android.exoplayer2.metadata.id3.Id3Decoder.ID3_TAG;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.ConstantBitrateSeekMap;
@@ -39,6 +38,8 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * Extracts data from AAC bit streams with ADTS framing.
@@ -86,7 +87,7 @@ public final class AdtsExtractor implements Extractor {
   private final ParsableByteArray scratch;
   private final ParsableBitArray scratchBits;
 
-  @Nullable private ExtractorOutput extractorOutput;
+  @MonotonicNonNull private ExtractorOutput extractorOutput;
 
   private long firstSampleTimestampUs;
   private long firstFramePosition;
@@ -180,6 +181,8 @@ public final class AdtsExtractor implements Extractor {
   @Override
   public int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
+    Assertions.checkStateNotNull(extractorOutput); // Asserts that init has been called.
+
     long inputLength = input.getLength();
     boolean canUseConstantBitrateSeeking =
         (flags & FLAG_ENABLE_CONSTANT_BITRATE_SEEKING) != 0 && inputLength != C.LENGTH_UNSET;
@@ -230,6 +233,7 @@ public final class AdtsExtractor implements Extractor {
     return firstFramePosition;
   }
 
+  @RequiresNonNull("extractorOutput")
   private void maybeOutputSeekMap(
       long inputLength, boolean canUseConstantBitrateSeeking, boolean readEndOfStream) {
     if (hasOutputSeekMap) {
@@ -244,7 +248,6 @@ public final class AdtsExtractor implements Extractor {
       return;
     }
 
-    ExtractorOutput extractorOutput = Assertions.checkNotNull(this.extractorOutput);
     if (useConstantBitrateSeeking && reader.getSampleDurationUs() != C.TIME_UNSET) {
       extractorOutput.seekMap(getConstantBitrateSeekMap(inputLength));
     } else {

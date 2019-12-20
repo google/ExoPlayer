@@ -80,7 +80,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   public boolean read(ExtractorInput input) throws IOException, InterruptedException {
-    Assertions.checkNotNull(processor);
+    Assertions.checkStateNotNull(processor);
     while (true) {
       MasterElement head = masterElementsStack.peek();
       if (head != null && input.getPosition() >= head.elementEndPosition) {
