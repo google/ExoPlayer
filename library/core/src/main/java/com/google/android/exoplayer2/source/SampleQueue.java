@@ -323,7 +323,8 @@ public class SampleQueue implements TrackOutput {
         readSampleMetadata(
             formatHolder, buffer, formatRequired, loadingFinished, decodeOnlyUntilUs, extrasHolder);
     if (result == C.RESULT_BUFFER_READ && !buffer.isEndOfStream() && !buffer.isFlagsOnly()) {
-      sampleDataQueue.readToBuffer(buffer, extrasHolder);
+      sampleDataQueue.readToBuffer(buffer, extrasHolder,
+          downstreamFormat == null ? null : downstreamFormat.sampleMimeType);
     }
     return result;
   }
