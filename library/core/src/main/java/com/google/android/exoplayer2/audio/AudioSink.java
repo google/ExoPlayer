@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.audio;
 
 import android.media.AudioTrack;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
@@ -259,13 +259,12 @@ public interface AudioSink {
   boolean hasPendingData();
 
   /**
-   * Attempts to set the playback parameters and returns the active playback parameters, which may
-   * differ from those passed in.
+   * Attempts to set the playback parameters. The audio sink may override these parameters if they
+   * are not supported.
    *
    * @param playbackParameters The new playback parameters to attempt to set.
-   * @return The active playback parameters.
    */
-  PlaybackParameters setPlaybackParameters(PlaybackParameters playbackParameters);
+  void setPlaybackParameters(PlaybackParameters playbackParameters);
 
   /**
    * Gets the active {@link PlaybackParameters}.

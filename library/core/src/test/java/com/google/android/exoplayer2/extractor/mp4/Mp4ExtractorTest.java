@@ -15,19 +15,31 @@
  */
 package com.google.android.exoplayer2.extractor.mp4;
 
-import android.annotation.TargetApi;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
 /** Tests for {@link Mp4Extractor}. */
-@TargetApi(16)
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class Mp4ExtractorTest {
 
   @Test
   public void testMp4Sample() throws Exception {
     ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/sample.mp4");
+  }
+
+  @Test
+  public void testMp4SampleWithSlowMotionMetadata() throws Exception {
+    ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/sample_android_slow_motion.mp4");
+  }
+
+  /**
+   * Test case for https://github.com/google/ExoPlayer/issues/6774. The sample file contains an mdat
+   * atom whose size indicates that it extends 8 bytes beyond the end of the file.
+   */
+  @Test
+  public void testMp4SampleWithMdatTooLong() throws Exception {
+    ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/sample_mdat_too_long.mp4");
   }
 }

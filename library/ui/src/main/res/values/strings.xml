@@ -14,6 +14,10 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <!-- Description for a media player view to indicate that tapping on the view shows the playback controls. [CHAR LIMIT=50] -->
+  <string name="exo_controls_show">Show player controls</string>
+  <!-- Description for a media player view to indicate that tapping on the view hides the playback controls [CHAR LIMIT=50] -->
+  <string name="exo_controls_hide">Hide player controls</string>
   <!-- Description for a media control button that causes the previous track to be played. [CHAR LIMIT=30] -->
   <string name="exo_controls_previous_description">Previous track</string>
   <!-- Description for a media control button that causes the next track to be played. [CHAR LIMIT=30] -->
@@ -34,8 +38,10 @@
   <string name="exo_controls_repeat_one_description">Repeat one</string>
   <!-- Description for a button that controls the repeat mode of a media playback. In this mode the entire playlist is repeated. [CHAR LIMIT=30] -->
   <string name="exo_controls_repeat_all_description">Repeat all</string>
-  <!-- Description for a media control button that toggles whether shuffle mode is enabled. [CHAR LIMIT=30] -->
-  <string name="exo_controls_shuffle_description">Shuffle</string>
+  <!-- Description for a button that controls the shuffle mode of media playback. In this mode shuffle is on. [CHAR LIMIT=40] -->
+  <string name="exo_controls_shuffle_on_description">Shuffle on</string>
+  <!-- Description for a button that controls the shuffle mode of media playback. In this mode shuffle is off. [CHAR LIMIT=40] -->
+  <string name="exo_controls_shuffle_off_description">Shuffle off</string>
   <!-- Description for a media control button that toggles whether a video playback is fullscreen. [CHAR LIMIT=30] -->
   <string name="exo_controls_fullscreen_description">Fullscreen mode</string>
   <!-- Description for a media control button that toggles whether a video playback is in VR mode. [CHAR LIMIT=30] -->
@@ -76,6 +82,14 @@
   <string name="exo_track_surround_5_point_1">5.1 surround sound</string>
   <!-- Describes a 7.1 (https://en.wikipedia.org/wiki/7.1_surround_sound) audio track. [CHAR LIMIT=40] -->
   <string name="exo_track_surround_7_point_1">7.1 surround sound</string>
+  <!-- Describes an alternate track, e.g. a video recorded from a different viewpoint. [CHAR LIMIT=40] -->
+  <string name="exo_track_role_alternate">Alternate</string>
+  <!-- Describes a supplementary track. [CHAR LIMIT=40] -->
+  <string name="exo_track_role_supplementary">Supplementary</string>
+  <!-- Describes a track containing commentary. [CHAR LIMIT=40] -->
+  <string name="exo_track_role_commentary">Commentary</string>
+  <!-- Describes a track with closed captions. [CHAR LIMIT=40] -->
+  <string name="exo_track_role_closed_captions">CC</string>
   <!-- Describes the bitrate of a media track in Megabits (https://en.wikipedia.org/wiki/Megabit) per second. [CHAR LIMIT=20] -->
   <string name="exo_track_bitrate"><xliff:g id="bitrate" example="5.2">%1$.2f</xliff:g> Mbps</string>
   <!-- Defines a way of appending an item to a list of items. For example appending "banana" to "apple, pear" to get "apple, pear, banana". Note: the command separator will appear between all consecutive list items, so do not use an equivalent of 'and'. [CHAR LIMIT=40] -->

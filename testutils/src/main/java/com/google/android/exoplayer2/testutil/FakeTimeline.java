@@ -40,6 +40,7 @@ public final class FakeTimeline extends Timeline {
     public final Object id;
     public final boolean isSeekable;
     public final boolean isDynamic;
+    public final boolean isLive;
     public final long durationUs;
     public final AdPlaybackState adPlaybackState;
 
@@ -99,10 +100,41 @@ public final class FakeTimeline extends Timeline {
         boolean isDynamic,
         long durationUs,
         AdPlaybackState adPlaybackState) {
+      this(
+          periodCount,
+          id,
+          isSeekable,
+          isDynamic,
+          /* isLive= */ isDynamic,
+          durationUs,
+          adPlaybackState);
+    }
+
+    /**
+     * Creates a window definition with ad groups.
+     *
+     * @param periodCount The number of periods in the window. Each period get an equal slice of the
+     *     total window duration.
+     * @param id The UID of the window.
+     * @param isSeekable Whether the window is seekable.
+     * @param isDynamic Whether the window is dynamic.
+     * @param isLive Whether the window is live.
+     * @param durationUs The duration of the window in microseconds.
+     * @param adPlaybackState The ad playback state.
+     */
+    public TimelineWindowDefinition(
+        int periodCount,
+        Object id,
+        boolean isSeekable,
+        boolean isDynamic,
+        boolean isLive,
+        long durationUs,
+        AdPlaybackState adPlaybackState) {
       this.periodCount = periodCount;
       this.id = id;
       this.isSeekable = isSeekable;
       this.isDynamic = isDynamic;
+      this.isLive = isLive;
       this.durationUs = durationUs;
       this.adPlaybackState = adPlaybackState;
     }
@@ -112,6 +144,7 @@ public final class FakeTimeline extends Timeline {
   private static final long AD_DURATION_US = 10 * C.MICROS_PER_SECOND;
 
   private final TimelineWindowDefinition[] windowDefinitions;
+  private final Object[] manifests;
   private final int[] periodOffsets;
 
   /**
@@ -140,9 +173,10 @@ public final class FakeTimeline extends Timeline {
    * with a duration of {@link TimelineWindowDefinition#DEFAULT_WINDOW_DURATION_US} each.
    *
    * @param windowCount The number of windows.
+   * @param manifests The manifests of the windows.
    */
-  public FakeTimeline(int windowCount) {
-    this(createDefaultWindowDefinitions(windowCount));
+  public FakeTimeline(int windowCount, Object... manifests) {
+    this(manifests, createDefaultWindowDefinitions(windowCount));
   }
 
   /**
@@ -151,6 +185,18 @@ public final class FakeTimeline extends Timeline {
    * @param windowDefinitions A list of {@link TimelineWindowDefinition}s.
    */
   public FakeTimeline(TimelineWindowDefinition... windowDefinitions) {
+    this(new Object[0], windowDefinitions);
+  }
+
+  /**
+   * Creates a fake timeline with the given window definitions.
+   *
+   * @param windowDefinitions A list of {@link TimelineWindowDefinition}s.
+   */
+  public FakeTimeline(Object[] manifests, TimelineWindowDefinition... windowDefinitions) {
+    this.manifests = new Object[windowDefinitions.length];
+    System.arraycopy(
+        manifests, 0, this.manifests, 0, Math.min(this.manifests.length, manifests.length));
     this.windowDefinitions = windowDefinitions;
     periodOffsets = new int[windowDefinitions.length + 1];
     periodOffsets[0] = 0;
@@ -165,16 +211,18 @@ public final class FakeTimeline extends Timeline {
   }
 
   @Override
-  public Window getWindow(
-      int windowIndex, Window window, boolean setTag, long defaultPositionProjectionUs) {
+  public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
     TimelineWindowDefinition windowDefinition = windowDefinitions[windowIndex];
-    Object tag = setTag ? windowDefinition.id : null;
     return window.set(
-        tag,
+        /* uid= */ windowDefinition.id,
+        /* tag= */ windowDefinition.id,
+        manifests[windowIndex],
         /* presentationStartTimeMs= */ C.TIME_UNSET,
         /* windowStartTimeMs= */ C.TIME_UNSET,
+        /* elapsedRealtimeEpochOffsetMs= */ C.TIME_UNSET,
         windowDefinition.isSeekable,
         windowDefinition.isDynamic,
+        windowDefinition.isLive,
         /* defaultPositionUs= */ 0,
         windowDefinition.durationUs,
         periodOffsets[windowIndex],

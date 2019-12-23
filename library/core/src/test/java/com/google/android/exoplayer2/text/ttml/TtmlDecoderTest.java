@@ -30,6 +30,8 @@ import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.SubtitleDecoderException;
@@ -39,11 +41,9 @@ import java.util.List;
 import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
 /** Unit test for {@link TtmlDecoder}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class TtmlDecoderTest {
 
   private static final String INLINE_ATTRIBUTES_TTML_FILE = "ttml/inline_style_attributes.xml";
@@ -514,7 +514,7 @@ public final class TtmlDecoderTest {
     assertThat(cue.position).isEqualTo(24f / 100f);
     assertThat(cue.line).isEqualTo(28f / 100f);
     assertThat(cue.size).isEqualTo(51f / 100f);
-    assertThat(cue.bitmapHeight).isEqualTo(Cue.DIMEN_UNSET);
+    assertThat(cue.bitmapHeight).isEqualTo(12f / 100f);
 
     cues = subtitle.getCues(4000000);
     assertThat(cues).hasSize(1);
@@ -524,7 +524,7 @@ public final class TtmlDecoderTest {
     assertThat(cue.position).isEqualTo(21f / 100f);
     assertThat(cue.line).isEqualTo(35f / 100f);
     assertThat(cue.size).isEqualTo(57f / 100f);
-    assertThat(cue.bitmapHeight).isEqualTo(Cue.DIMEN_UNSET);
+    assertThat(cue.bitmapHeight).isEqualTo(6f / 100f);
 
     cues = subtitle.getCues(7500000);
     assertThat(cues).hasSize(1);
@@ -534,7 +534,7 @@ public final class TtmlDecoderTest {
     assertThat(cue.position).isEqualTo(24f / 100f);
     assertThat(cue.line).isEqualTo(28f / 100f);
     assertThat(cue.size).isEqualTo(51f / 100f);
-    assertThat(cue.bitmapHeight).isEqualTo(Cue.DIMEN_UNSET);
+    assertThat(cue.bitmapHeight).isEqualTo(12f / 100f);
   }
 
   @Test
@@ -549,7 +549,7 @@ public final class TtmlDecoderTest {
     assertThat(cue.position).isEqualTo(307f / 1280f);
     assertThat(cue.line).isEqualTo(562f / 720f);
     assertThat(cue.size).isEqualTo(653f / 1280f);
-    assertThat(cue.bitmapHeight).isEqualTo(Cue.DIMEN_UNSET);
+    assertThat(cue.bitmapHeight).isEqualTo(86f / 720f);
 
     cues = subtitle.getCues(4000000);
     assertThat(cues).hasSize(1);
@@ -559,7 +559,7 @@ public final class TtmlDecoderTest {
     assertThat(cue.position).isEqualTo(269f / 1280f);
     assertThat(cue.line).isEqualTo(612f / 720f);
     assertThat(cue.size).isEqualTo(730f / 1280f);
-    assertThat(cue.bitmapHeight).isEqualTo(Cue.DIMEN_UNSET);
+    assertThat(cue.bitmapHeight).isEqualTo(43f / 720f);
   }
 
   @Test
@@ -700,7 +700,7 @@ public final class TtmlDecoderTest {
 
   private TtmlSubtitle getSubtitle(String file) throws IOException, SubtitleDecoderException {
     TtmlDecoder ttmlDecoder = new TtmlDecoder();
-    byte[] bytes = TestUtil.getByteArray(RuntimeEnvironment.application, file);
-    return ttmlDecoder.decode(bytes, bytes.length, false);
+    byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), file);
+    return (TtmlSubtitle) ttmlDecoder.decode(bytes, bytes.length, false);
   }
 }

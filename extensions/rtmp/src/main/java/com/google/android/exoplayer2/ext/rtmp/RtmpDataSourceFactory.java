@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.rtmp;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource.Factory;
 import com.google.android.exoplayer2.upstream.TransferListener;
@@ -25,7 +25,7 @@ import com.google.android.exoplayer2.upstream.TransferListener;
  */
 public final class RtmpDataSourceFactory implements DataSource.Factory {
 
-  private final @Nullable TransferListener listener;
+  @Nullable private final TransferListener listener;
 
   public RtmpDataSourceFactory() {
     this(null);
@@ -37,7 +37,7 @@ public final class RtmpDataSourceFactory implements DataSource.Factory {
   }
 
   @Override
-  public DataSource createDataSource() {
+  public RtmpDataSource createDataSource() {
     RtmpDataSource dataSource = new RtmpDataSource();
     if (listener != null) {
       dataSource.addTransferListener(listener);

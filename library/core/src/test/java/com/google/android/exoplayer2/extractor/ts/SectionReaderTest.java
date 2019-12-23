@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -30,12 +31,9 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Test for {@link SectionReader}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Test for {@link SectionReader}. */
+@RunWith(AndroidJUnit4.class)
 public final class SectionReaderTest {
 
   private byte[] packetPayload;

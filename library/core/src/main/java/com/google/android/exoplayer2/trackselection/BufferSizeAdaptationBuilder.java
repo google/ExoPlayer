@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
-import android.support.annotation.Nullable;
 import android.util.Pair;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.Format;
@@ -29,7 +29,6 @@ import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
-import com.google.android.exoplayer2.util.PriorityTaskManager;
 import java.util.List;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
@@ -112,9 +111,8 @@ public final class BufferSizeAdaptationBuilder {
   private int hysteresisBufferMs;
   private float startUpBandwidthFraction;
   private int startUpMinBufferForQualityIncreaseMs;
-  @Nullable private PriorityTaskManager priorityTaskManager;
   private DynamicFormatFilter dynamicFormatFilter;
-  boolean buildCalled;
+  private boolean buildCalled;
 
   /** Creates builder with default values. */
   public BufferSizeAdaptationBuilder() {
@@ -220,20 +218,6 @@ public final class BufferSizeAdaptationBuilder {
   }
 
   /**
-   * Sets the {@link PriorityTaskManager} to use.
-   *
-   * @param priorityTaskManager The {@link PriorityTaskManager}.
-   * @return This builder, for convenience.
-   * @throws IllegalStateException If {@link #buildPlayerComponents()} has already been called.
-   */
-  public BufferSizeAdaptationBuilder setPriorityTaskManager(
-      PriorityTaskManager priorityTaskManager) {
-    Assertions.checkState(!buildCalled);
-    this.priorityTaskManager = priorityTaskManager;
-    return this;
-  }
-
-  /**
    * Sets the {@link DynamicFormatFilter} to use when updating the selected track.
    *
    * @param dynamicFormatFilter The {@link DynamicFormatFilter}.
@@ -266,9 +250,6 @@ public final class BufferSizeAdaptationBuilder {
                 maxBufferMs,
                 bufferForPlaybackMs,
                 bufferForPlaybackAfterRebufferMs);
-    if (priorityTaskManager != null) {
-      loadControlBuilder.setPriorityTaskManager(priorityTaskManager);
-    }
     if (allocator != null) {
       loadControlBuilder.setAllocator(allocator);
     }
@@ -352,7 +333,8 @@ public final class BufferSizeAdaptationBuilder {
       // buffer = slope * ln(bitrate) + intercept,
       // with buffer(minBitrate) = minBuffer and buffer(maxBitrate) = maxBuffer - hysteresisBuffer.
       bitrateToBufferFunctionSlope =
-          (maxBufferUs - hysteresisBufferUs - minBufferUs) / Math.log(maxBitrate / minBitrate);
+          (maxBufferUs - hysteresisBufferUs - minBufferUs)
+              / Math.log((double) maxBitrate / minBitrate);
       bitrateToBufferFunctionIntercept =
           minBufferUs - bitrateToBufferFunctionSlope * Math.log(minBitrate);
     }
@@ -433,7 +415,7 @@ public final class BufferSizeAdaptationBuilder {
       int lowestBitrateNonBlacklistedIndex = 0;
       for (int i = 0; i < formatBitrates.length; i++) {
         if (formatBitrates[i] != BITRATE_BLACKLISTED) {
-          if (getTargetBufferForBitrateUs(formatBitrates[i]) < bufferUs
+          if (getTargetBufferForBitrateUs(formatBitrates[i]) <= bufferUs
               && dynamicFormatFilter.isFormatAllowed(
                   getFormat(i), formatBitrates[i], /* isInitialSelection= */ false)) {
             return i;

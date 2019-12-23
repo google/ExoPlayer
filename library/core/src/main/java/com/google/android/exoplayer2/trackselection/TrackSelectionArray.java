@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import java.util.Arrays;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
@@ -42,7 +42,8 @@ public final class TrackSelectionArray {
    * @param index The index of the selection.
    * @return The selection.
    */
-  public @Nullable TrackSelection get(int index) {
+  @Nullable
+  public TrackSelection get(int index) {
     return trackSelections[index];
   }
 

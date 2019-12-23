@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.extractor.mp3;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.MpegAudioHeader;
 import com.google.android.exoplayer2.extractor.SeekMap.SeekPoints;
@@ -26,12 +27,9 @@ import com.google.android.exoplayer2.util.Util;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Tests for {@link XingSeeker}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Tests for {@link XingSeeker}. */
+@RunWith(AndroidJUnit4.class)
 public final class XingSeekerTest {
 
   // Xing header/payload from http://storage.googleapis.com/exoplayer-test-media-0/play.mp3.

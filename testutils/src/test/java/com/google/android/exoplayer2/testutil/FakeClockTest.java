@@ -19,18 +19,18 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.os.ConditionVariable;
 import android.os.HandlerThread;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
+import org.robolectric.annotation.LooperMode;
 
 /** Unit test for {@link FakeClock}. */
-@RunWith(RobolectricTestRunner.class)
-@Config(shadows = {RobolectricUtil.CustomLooper.class, RobolectricUtil.CustomMessageQueue.class})
+@RunWith(AndroidJUnit4.class)
+@LooperMode(LooperMode.Mode.PAUSED)
 public final class FakeClockTest {
 
   private static final long TIMEOUT_MS = 10000;

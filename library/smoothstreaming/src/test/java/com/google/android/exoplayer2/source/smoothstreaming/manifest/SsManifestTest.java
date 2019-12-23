@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source.smoothstreaming.manifest;
 import static com.google.android.exoplayer2.source.smoothstreaming.SsTestUtils.createSsManifest;
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.offline.StreamKey;
@@ -30,10 +31,9 @@ import java.util.List;
 import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
 /** Unit tests for {@link SsManifest}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class SsManifestTest {
 
   @Test
@@ -122,6 +122,7 @@ public class SsManifestTest {
         /* codecs= */ null,
         /* bitrate= */ Format.NO_VALUE,
         /* selectionFlags= */ 0,
+        /* roleFlags= */ 0,
         /* language= */ null);
   }
 }

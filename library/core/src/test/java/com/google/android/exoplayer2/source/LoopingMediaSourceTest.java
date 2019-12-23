@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
@@ -22,18 +23,16 @@ import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.testutil.MediaSourceTestRunner;
-import com.google.android.exoplayer2.testutil.RobolectricUtil;
 import com.google.android.exoplayer2.testutil.TimelineAsserts;
 import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
+import org.robolectric.annotation.LooperMode;
 
 /** Unit tests for {@link LoopingMediaSource}. */
-@RunWith(RobolectricTestRunner.class)
-@Config(shadows = {RobolectricUtil.CustomLooper.class, RobolectricUtil.CustomMessageQueue.class})
+@RunWith(AndroidJUnit4.class)
+@LooperMode(LooperMode.Mode.PAUSED)
 public class LoopingMediaSourceTest {
 
   private FakeTimeline multiWindowTimeline;
@@ -136,7 +135,7 @@ public class LoopingMediaSourceTest {
    * Wraps the specified timeline in a {@link LoopingMediaSource} and returns the looping timeline.
    */
   private static Timeline getLoopingTimeline(Timeline timeline, int loopCount) throws IOException {
-    FakeMediaSource fakeMediaSource = new FakeMediaSource(timeline, null);
+    FakeMediaSource fakeMediaSource = new FakeMediaSource(timeline);
     LoopingMediaSource mediaSource = new LoopingMediaSource(fakeMediaSource, loopCount);
     MediaSourceTestRunner testRunner = new MediaSourceTestRunner(mediaSource, null);
     try {
@@ -154,7 +153,7 @@ public class LoopingMediaSourceTest {
    * the looping timeline can be created and prepared.
    */
   private static void testMediaPeriodCreation(Timeline timeline, int loopCount) throws Exception {
-    FakeMediaSource fakeMediaSource = new FakeMediaSource(timeline, null);
+    FakeMediaSource fakeMediaSource = new FakeMediaSource(timeline);
     LoopingMediaSource mediaSource = new LoopingMediaSource(fakeMediaSource, loopCount);
     MediaSourceTestRunner testRunner = new MediaSourceTestRunner(mediaSource, null);
     try {

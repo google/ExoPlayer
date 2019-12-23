@@ -18,9 +18,10 @@ package com.google.android.exoplayer2.offline;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.Util;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -30,30 +31,23 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
 /** Unit tests for {@link ActionFile}. */
-@RunWith(RobolectricTestRunner.class)
+@SuppressWarnings("deprecation")
+@RunWith(AndroidJUnit4.class)
 public class ActionFileTest {
 
   private File tempFile;
-  private DownloadAction action1;
-  private DownloadAction action2;
+  private DownloadRequest expectedAction1;
+  private DownloadRequest expectedAction2;
 
   @Before
   public void setUp() throws Exception {
-    tempFile = Util.createTempFile(RuntimeEnvironment.application, "ExoPlayerTest");
-    action1 =
-        buildAction(
-            DownloadAction.TYPE_PROGRESSIVE,
-            Uri.parse("http://test1.uri"),
-            TestUtil.buildTestData(16));
-    action2 =
-        buildAction(
-            DownloadAction.TYPE_PROGRESSIVE,
-            Uri.parse("http://test2.uri"),
-            TestUtil.buildTestData(32));
+    tempFile = Util.createTempFile(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
+    expectedAction1 =
+        buildExpectedRequest(Uri.parse("http://test1.uri"), TestUtil.buildTestData(16));
+    expectedAction2 =
+        buildExpectedRequest(Uri.parse("http://test2.uri"), TestUtil.buildTestData(32));
   }
 
   @After
@@ -63,8 +57,9 @@ public class ActionFileTest {
 
   @Test
   public void testLoadNoDataThrowsIOException() throws Exception {
+    ActionFile actionFile = getActionFile("offline/action_file_no_data.exi");
     try {
-      loadActions(new Object[] {});
+      actionFile.load();
       Assert.fail();
     } catch (IOException e) {
       // Expected exception.
@@ -73,8 +68,9 @@ public class ActionFileTest {
 
   @Test
   public void testLoadIncompleteHeaderThrowsIOException() throws Exception {
+    ActionFile actionFile = getActionFile("offline/action_file_incomplete_header.exi");
     try {
-      loadActions(new Object[] {ActionFile.VERSION});
+      actionFile.load();
       Assert.fail();
     } catch (IOException e) {
       // Expected exception.
@@ -82,95 +78,59 @@ public class ActionFileTest {
   }
 
   @Test
-  public void testLoadCompleteHeaderZeroAction() throws Exception {
-    DownloadAction[] actions = loadActions(new Object[] {ActionFile.VERSION, 0});
+  public void testLoadZeroActions() throws Exception {
+    ActionFile actionFile = getActionFile("offline/action_file_zero_actions.exi");
+    DownloadRequest[] actions = actionFile.load();
     assertThat(actions).isNotNull();
     assertThat(actions).hasLength(0);
   }
 
   @Test
-  public void testLoadAction() throws Exception {
-    DownloadAction[] actions =
-        loadActions(
-            new Object[] {
-              ActionFile.VERSION,
-              1, // Action count
-              action1
-            });
-    assertThat(actions).isNotNull();
+  public void testLoadOneAction() throws Exception {
+    ActionFile actionFile = getActionFile("offline/action_file_one_action.exi");
+    DownloadRequest[] actions = actionFile.load();
     assertThat(actions).hasLength(1);
-    assertThat(actions[0]).isEqualTo(action1);
+    assertThat(actions[0]).isEqualTo(expectedAction1);
   }
 
   @Test
-  public void testLoadActions() throws Exception {
-    DownloadAction[] actions =
-        loadActions(
-            new Object[] {
-              ActionFile.VERSION,
-              2, // Action count
-              action1,
-              action2,
-            });
-    assertThat(actions).isNotNull();
+  public void testLoadTwoActions() throws Exception {
+    ActionFile actionFile = getActionFile("offline/action_file_two_actions.exi");
+    DownloadRequest[] actions = actionFile.load();
     assertThat(actions).hasLength(2);
-    assertThat(actions[0]).isEqualTo(action1);
-    assertThat(actions[1]).isEqualTo(action2);
+    assertThat(actions[0]).isEqualTo(expectedAction1);
+    assertThat(actions[1]).isEqualTo(expectedAction2);
   }
 
   @Test
-  public void testLoadNotSupportedVersion() throws Exception {
+  public void testLoadUnsupportedVersion() throws Exception {
+    ActionFile actionFile = getActionFile("offline/action_file_unsupported_version.exi");
     try {
-      loadActions(
-          new Object[] {
-            ActionFile.VERSION + 1,
-            1, // Action count
-            action1,
-          });
+      actionFile.load();
       Assert.fail();
     } catch (IOException e) {
       // Expected exception.
     }
   }
 
-  @Test
-  public void testStoreAndLoadNoActions() throws Exception {
-    doTestSerializationRoundTrip();
-  }
-
-  @Test
-  public void testStoreAndLoadActions() throws Exception {
-    doTestSerializationRoundTrip(action1, action2);
-  }
-
-  private void doTestSerializationRoundTrip(DownloadAction... actions) throws IOException {
-    ActionFile actionFile = new ActionFile(tempFile);
-    actionFile.store(actions);
-    assertThat(actionFile.load()).isEqualTo(actions);
-  }
-
-  // TODO: Remove this method and add assets for invalid and legacy serialized action files.
-  private DownloadAction[] loadActions(Object[] values) throws IOException {
-    FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
-    DataOutputStream dataOutputStream = new DataOutputStream(fileOutputStream);
-    try {
-      for (Object value : values) {
-        if (value instanceof Integer) {
-          dataOutputStream.writeInt((Integer) value);
-        } else if (value instanceof DownloadAction) {
-          ((DownloadAction) value).serializeToStream(dataOutputStream);
-        } else {
-          throw new IllegalArgumentException();
-        }
-      }
-    } finally {
-      dataOutputStream.close();
+  private ActionFile getActionFile(String fileName) throws IOException {
+    // Copy the test data from the asset to where the ActionFile expects it to be.
+    byte[] actionFileBytes =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), fileName);
+    try (FileOutputStream output = new FileOutputStream(tempFile)) {
+      output.write(actionFileBytes);
     }
-    return new ActionFile(tempFile).load();
+    // Load the action file.
+    return new ActionFile(tempFile);
   }
 
-  private static DownloadAction buildAction(String type, Uri uri, byte[] data) {
-    return DownloadAction.createDownloadAction(
-        type, uri, /* keys= */ Collections.emptyList(), /* customCacheKey= */ null, data);
+  private static DownloadRequest buildExpectedRequest(Uri uri, byte[] data) {
+    return new DownloadRequest(
+        /* id= */ uri.toString(),
+        DownloadRequest.TYPE_PROGRESSIVE,
+        uri,
+        /* streamKeys= */ Collections.emptyList(),
+        /* customCacheKey= */ null,
+        data);
   }
 }

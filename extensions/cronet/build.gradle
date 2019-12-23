@@ -16,10 +16,9 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion project.ext.compileSdkVersion
-    buildToolsVersion project.ext.buildToolsVersion
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
     }
 
@@ -27,14 +26,18 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    testOptions.unitTests.includeAndroidResources = true
 }
 
 dependencies {
-    api 'org.chromium.net:cronet-embedded:66.3359.158'
+    api 'org.chromium.net:cronet-embedded:76.3809.111'
     implementation project(modulePrefix + 'library-core')
-    implementation 'com.android.support:support-annotations:' + supportLibraryVersion
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+    compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     testImplementation project(modulePrefix + 'library')
-    testImplementation project(modulePrefix + 'testutils-robolectric')
+    testImplementation project(modulePrefix + 'testutils')
+    testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
 
 ext {

@@ -19,14 +19,12 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.annotation.SuppressLint;
 import android.media.MediaCodec;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Unit test for {@link C}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Unit test for {@link C}. */
+@RunWith(AndroidJUnit4.class)
 public class CTest {
 
   @SuppressLint("InlinedApi")

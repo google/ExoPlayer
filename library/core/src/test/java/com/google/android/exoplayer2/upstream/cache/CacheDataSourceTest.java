@@ -20,7 +20,9 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import android.net.Uri;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.CacheAsserts;
 import com.google.android.exoplayer2.testutil.FakeDataSet.FakeData;
@@ -32,38 +34,43 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.NavigableSet;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
-/**
- * Unit tests for {@link CacheDataSource}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Unit tests for {@link CacheDataSource}. */
+@RunWith(AndroidJUnit4.class)
 public final class CacheDataSourceTest {
 
   private static final byte[] TEST_DATA = new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
   private static final int CACHE_FRAGMENT_SIZE = 3;
   private static final String DATASPEC_KEY = "dataSpecKey";
 
+  // Test data
   private Uri testDataUri;
+  private Map<String, String> httpRequestHeaders;
   private DataSpec unboundedDataSpec;
   private DataSpec boundedDataSpec;
   private DataSpec unboundedDataSpecWithKey;
   private DataSpec boundedDataSpecWithKey;
   private String defaultCacheKey;
   private String customCacheKey;
+
+  // Dependencies of SUT
   private CacheKeyFactory cacheKeyFactory;
   private File tempFolder;
   private SimpleCache cache;
+  private FakeDataSource upstreamDataSource;
 
   @Before
   public void setUp() throws Exception {
     testDataUri = Uri.parse("https://www.test.com/data");
+    httpRequestHeaders = new HashMap<>();
+    httpRequestHeaders.put("Test-key", "Test-val");
     unboundedDataSpec = buildDataSpec(/* unbounded= */ true, /* key= */ null);
     boundedDataSpec = buildDataSpec(/* unbounded= */ false, /* key= */ null);
     unboundedDataSpecWithKey = buildDataSpec(/* unbounded= */ true, DATASPEC_KEY);
@@ -71,8 +78,11 @@ public final class CacheDataSourceTest {
     defaultCacheKey = CacheUtil.DEFAULT_CACHE_KEY_FACTORY.buildCacheKey(unboundedDataSpec);
     customCacheKey = "customKey." + defaultCacheKey;
     cacheKeyFactory = dataSpec -> customCacheKey;
-    tempFolder = Util.createTempDirectory(RuntimeEnvironment.application, "ExoPlayerTest");
+
+    tempFolder =
+        Util.createTempDirectory(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
     cache = new SimpleCache(tempFolder, new NoOpCacheEvictor());
+    upstreamDataSource = new FakeDataSource();
   }
 
   @After
@@ -110,6 +120,19 @@ public final class CacheDataSourceTest {
   @Test
   public void testCacheAndRead() throws Exception {
     assertCacheAndRead(boundedDataSpec, /* unknownLength= */ false);
+  }
+
+  @Test
+  public void testPropagatesHttpHeadersUpstream() throws Exception {
+    CacheDataSource cacheDataSource =
+        createCacheDataSource(/* setReadException= */ false, /* unknownLength= */ false);
+    DataSpec dataSpec = buildDataSpec(/* position= */ 2, /* length= */ 5);
+    cacheDataSource.open(dataSpec);
+
+    DataSpec[] upstreamDataSpecs = upstreamDataSource.getAndClearOpenedDataSpecs();
+
+    assertThat(upstreamDataSpecs).hasLength(1);
+    assertThat(upstreamDataSpecs[0].httpRequestHeaders).isEqualTo(this.httpRequestHeaders);
   }
 
   @Test
@@ -344,7 +367,7 @@ public final class CacheDataSourceTest {
         cache,
         /* cacheKeyFactory= */ null,
         upstream2,
-        /* counters= */ null,
+        /* progressListener= */ null,
         /* isCanceled= */ null);
 
     // Read the rest of the data.
@@ -364,7 +387,7 @@ public final class CacheDataSourceTest {
         .appendReadData(1);
 
     // Lock the content on the cache.
-    SimpleCacheSpan cacheSpan = cache.startReadWriteNonBlocking(defaultCacheKey, 0);
+    CacheSpan cacheSpan = cache.startReadWriteNonBlocking(defaultCacheKey, 0);
     assertThat(cacheSpan).isNotNull();
     assertThat(cacheSpan.isHoleSpan()).isTrue();
 
@@ -393,7 +416,7 @@ public final class CacheDataSourceTest {
         cache,
         /* cacheKeyFactory= */ null,
         upstream2,
-        /* counters= */ null,
+        /* progressListener= */ null,
         /* isCanceled= */ null);
 
     // Read the rest of the data.
@@ -417,7 +440,7 @@ public final class CacheDataSourceTest {
         cache,
         /* cacheKeyFactory= */ null,
         upstream,
-        /* counters= */ null,
+        /* progressListener= */ null,
         /* isCanceled= */ null);
 
     // Create cache read-only CacheDataSource.
@@ -453,7 +476,7 @@ public final class CacheDataSourceTest {
         cache,
         /* cacheKeyFactory= */ null,
         upstream,
-        /* counters= */ null,
+        /* progressListener= */ null,
         /* isCanceled= */ null);
 
     // Create blocking CacheDataSource.
@@ -573,9 +596,8 @@ public final class CacheDataSourceTest {
       @CacheDataSource.Flags int flags,
       CacheDataSink cacheWriteDataSink,
       CacheKeyFactory cacheKeyFactory) {
-    FakeDataSource upstream = new FakeDataSource();
     FakeData fakeData =
-        upstream
+        upstreamDataSource
             .getDataSet()
             .newDefaultData()
             .setSimulateUnknownLength(unknownLength)
@@ -585,7 +607,7 @@ public final class CacheDataSourceTest {
     }
     return new CacheDataSource(
         cache,
-        upstream,
+        upstreamDataSource,
         new FileDataSource(),
         cacheWriteDataSink,
         flags,
@@ -603,6 +625,11 @@ public final class CacheDataSourceTest {
 
   private DataSpec buildDataSpec(long position, long length, @Nullable String key) {
     return new DataSpec(
-        testDataUri, position, length, key, DataSpec.FLAG_ALLOW_CACHE_FRAGMENTATION);
+        testDataUri,
+        position,
+        length,
+        key,
+        DataSpec.FLAG_ALLOW_CACHE_FRAGMENTATION,
+        httpRequestHeaders);
   }
 }

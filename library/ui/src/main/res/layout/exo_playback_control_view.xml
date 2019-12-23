@@ -37,7 +37,7 @@
       style="@style/ExoMediaButton.Rewind"/>
 
     <ImageButton android:id="@id/exo_shuffle"
-      style="@style/ExoMediaButton.Shuffle"/>
+      style="@style/ExoMediaButton"/>
 
     <ImageButton android:id="@id/exo_repeat_toggle"
       style="@style/ExoMediaButton"/>
@@ -76,8 +76,7 @@
       android:includeFontPadding="false"
       android:textColor="#FFBEBEBE"/>
 
-    <com.google.android.exoplayer2.ui.DefaultTimeBar
-      android:id="@id/exo_progress"
+    <View android:id="@id/exo_progress_placeholder"
       android:layout_width="0dp"
       android:layout_weight="1"
       android:layout_height="26dp"/>

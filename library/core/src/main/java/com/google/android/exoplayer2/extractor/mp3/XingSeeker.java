@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.mp3;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.MpegAudioHeader;
 import com.google.android.exoplayer2.extractor.SeekPoint;
@@ -24,10 +24,8 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 
-/**
- * MP3 seeker that uses metadata from a Xing header.
- */
-/* package */ final class XingSeeker implements Mp3Extractor.Seeker {
+/** MP3 seeker that uses metadata from a Xing header. */
+/* package */ final class XingSeeker implements Seeker {
 
   private static final String TAG = "XingSeeker";
 
@@ -44,7 +42,8 @@ import com.google.android.exoplayer2.util.Util;
    * @return A {@link XingSeeker} for seeking in the stream, or {@code null} if the required
    *     information is not present.
    */
-  public static @Nullable XingSeeker create(
+  @Nullable
+  public static XingSeeker create(
       long inputLength, long position, MpegAudioHeader mpegAudioHeader, ParsableByteArray frame) {
     int samplesPerFrame = mpegAudioHeader.samplesPerFrame;
     int sampleRate = mpegAudioHeader.sampleRate;
@@ -90,7 +89,7 @@ import com.google.android.exoplayer2.util.Util;
    * Entries are in the range [0, 255], but are stored as long integers for convenience. Null if the
    * table of contents was missing from the header, in which case seeking is not be supported.
    */
-  private final @Nullable long[] tableOfContents;
+  @Nullable private final long[] tableOfContents;
 
   private XingSeeker(long dataStartPosition, int xingFrameSize, long durationUs) {
     this(
@@ -134,7 +133,7 @@ import com.google.android.exoplayer2.util.Util;
       scaledPosition = 256;
     } else {
       int prevTableIndex = (int) percent;
-      long[] tableOfContents = Assertions.checkNotNull(this.tableOfContents);
+      long[] tableOfContents = Assertions.checkStateNotNull(this.tableOfContents);
       double prevScaledPosition = tableOfContents[prevTableIndex];
       double nextScaledPosition = prevTableIndex == 99 ? 256 : tableOfContents[prevTableIndex + 1];
       // Linearly interpolate between the two scaled positions.
@@ -154,7 +153,7 @@ import com.google.android.exoplayer2.util.Util;
     if (!isSeekable() || positionOffset <= xingFrameSize) {
       return 0L;
     }
-    long[] tableOfContents = Assertions.checkNotNull(this.tableOfContents);
+    long[] tableOfContents = Assertions.checkStateNotNull(this.tableOfContents);
     double scaledPosition = (positionOffset * 256d) / dataSize;
     int prevTableIndex = Util.binarySearchFloor(tableOfContents, (long) scaledPosition, true, true);
     long prevTimeUs = getTimeUsForTableIndex(prevTableIndex);

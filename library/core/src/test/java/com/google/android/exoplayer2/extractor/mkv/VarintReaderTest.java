@@ -20,6 +20,7 @@ import static com.google.android.exoplayer2.C.RESULT_MAX_LENGTH_EXCEEDED;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
@@ -28,12 +29,9 @@ import java.io.EOFException;
 import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Tests for {@link VarintReader}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Tests for {@link VarintReader}. */
+@RunWith(AndroidJUnit4.class)
 public final class VarintReaderTest {
 
   private static final byte MAX_BYTE = (byte) 0xFF;

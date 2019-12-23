@@ -79,7 +79,7 @@ public class DebugTextViewHelper implements Player.EventListener, Runnable {
   // Player.EventListener implementation.
 
   @Override
-  public final void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+  public final void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
     updateAndPost();
   }
 

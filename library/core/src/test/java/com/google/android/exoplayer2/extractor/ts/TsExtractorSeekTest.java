@@ -18,6 +18,8 @@ package com.google.android.exoplayer2.extractor.ts;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
@@ -34,11 +36,9 @@ import java.util.Random;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
 /** Seeking tests for {@link TsExtractor}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class TsExtractorSeekTest {
 
   private static final String TEST_FILE = "ts/bbb_2500ms.ts";
@@ -57,12 +57,12 @@ public final class TsExtractorSeekTest {
     positionHolder = new PositionHolder();
     expectedTrackOutput =
         TestUtil.extractAllSamplesFromFile(
-                new TsExtractor(), RuntimeEnvironment.application, TEST_FILE)
+                new TsExtractor(), ApplicationProvider.getApplicationContext(), TEST_FILE)
             .trackOutputs
             .get(AUDIO_TRACK_ID);
 
     dataSource =
-        new DefaultDataSourceFactory(RuntimeEnvironment.application, "UserAgent")
+        new DefaultDataSourceFactory(ApplicationProvider.getApplicationContext(), "UserAgent")
             .createDataSource();
   }
 

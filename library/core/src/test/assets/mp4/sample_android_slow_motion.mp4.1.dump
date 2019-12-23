@@ -1,0 +1,61 @@
+seekMap:
+  isSeekable = true
+  duration = 526000
+  getPosition(0) = [[timeUs=0, position=1161]]
+numberOfTracks = 1
+track 0:
+  format:
+    bitrate = -1
+    id = 1
+    containerMimeType = null
+    sampleMimeType = video/avc
+    maxInputSize = 34686
+    width = 1280
+    height = 720
+    frameRate = 13.307984
+    rotationDegrees = 0
+    pixelWidthHeightRatio = 1.0
+    channelCount = -1
+    sampleRate = -1
+    pcmEncoding = -1
+    encoderDelay = 0
+    encoderPadding = 0
+    subsampleOffsetUs = 9223372036854775807
+    selectionFlags = 0
+    language = null
+    drmInitData = -
+    metadata = entries=[mdta: key=com.android.capture.fps]
+    initializationData:
+      data = length 22, hash 4CF81805
+      data = length 9, hash FBAFBA1C
+  total output bytes = 42320
+  sample count = 7
+  sample 0:
+    time = 0
+    flags = 1
+    data = length 34656, hash D92B66FF
+  sample 1:
+    time = 325344
+    flags = 0
+    data = length 768, hash D0C3B229
+  sample 2:
+    time = 358677
+    flags = 0
+    data = length 1184, hash C598EFC0
+  sample 3:
+    time = 392011
+    flags = 0
+    data = length 576, hash 667AEC2C
+  sample 4:
+    time = 425344
+    flags = 0
+    data = length 1456, hash 430D1498
+  sample 5:
+    time = 458677
+    flags = 0
+    data = length 1280, hash 12267E0E
+  sample 6:
+    time = 492011
+    flags = 536870912
+    data = length 2400, hash FBCB42C
+tracksEnded = true

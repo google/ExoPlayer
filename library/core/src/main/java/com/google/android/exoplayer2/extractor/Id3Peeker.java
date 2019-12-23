@@ -16,7 +16,7 @@
 
 package com.google.android.exoplayer2.extractor;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -50,10 +50,10 @@ public final class Id3Peeker {
       ExtractorInput input, @Nullable Id3Decoder.FramePredicate id3FramePredicate)
       throws IOException, InterruptedException {
     int peekedId3Bytes = 0;
-    Metadata metadata = null;
+    @Nullable Metadata metadata = null;
     while (true) {
       try {
-        input.peekFully(scratch.data, 0, Id3Decoder.ID3_HEADER_LENGTH);
+        input.peekFully(scratch.data, /* offset= */ 0, Id3Decoder.ID3_HEADER_LENGTH);
       } catch (EOFException e) {
         // If input has less than ID3_HEADER_LENGTH, ignore the rest.
         break;

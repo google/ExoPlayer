@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.Ac3Util;
@@ -201,7 +201,7 @@ public final class Ac3Reader implements ElementaryStreamReader {
       output.format(format);
     }
     sampleSize = frameInfo.frameSize;
-    // In this class a sample is an access unit (syncframe in AC-3), but the MediaFormat sample rate
+    // In this class a sample is an access unit (syncframe in AC-3), but Format#sampleRate
     // specifies the number of PCM audio samples per second.
     sampleDurationUs = C.MICROS_PER_SECOND * frameInfo.sampleCount / format.sampleRate;
   }

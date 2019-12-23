@@ -19,8 +19,10 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Handler;
 import android.os.SystemClock;
-import android.support.annotation.Nullable;
 import android.view.Surface;
+import androidx.annotation.Nullable;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
@@ -34,19 +36,17 @@ import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
+import com.google.android.exoplayer2.source.LoadEventInfo;
+import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
-import com.google.android.exoplayer2.source.MediaSourceEventListener.LoadEventInfo;
-import com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.testutil.ActionSchedule;
 import com.google.android.exoplayer2.testutil.ActionSchedule.PlayerRunnable;
 import com.google.android.exoplayer2.testutil.ExoPlayerTestRunner;
-import com.google.android.exoplayer2.testutil.ExoPlayerTestRunner.Builder;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeRenderer;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
-import com.google.android.exoplayer2.testutil.RobolectricUtil;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
@@ -56,13 +56,12 @@ import java.util.Iterator;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
+import org.robolectric.annotation.LooperMode;
+import org.robolectric.annotation.LooperMode.Mode;
 
 /** Integration test for {@link AnalyticsCollector}. */
-@RunWith(RobolectricTestRunner.class)
-@Config(shadows = {RobolectricUtil.CustomLooper.class, RobolectricUtil.CustomMessageQueue.class})
+@RunWith(AndroidJUnit4.class)
+@LooperMode(Mode.PAUSED)
 public final class AnalyticsCollectorTest {
 
   private static final int EVENT_PLAYER_STATE_CHANGED = 0;
@@ -125,13 +124,16 @@ public final class AnalyticsCollectorTest {
   public void testEmptyTimeline() throws Exception {
     FakeMediaSource mediaSource =
         new FakeMediaSource(
-            Timeline.EMPTY, /* manifest= */ null, Builder.VIDEO_FORMAT, Builder.AUDIO_FORMAT);
+            Timeline.EMPTY,
+            ExoPlayerTestRunner.Builder.VIDEO_FORMAT,
+            ExoPlayerTestRunner.Builder.AUDIO_FORMAT);
     TestAnalyticsListener listener = runAnalyticsTest(mediaSource);
 
     assertThat(listener.getEvents(EVENT_PLAYER_STATE_CHANGED))
         .containsExactly(
             WINDOW_0 /* setPlayWhenReady */, WINDOW_0 /* BUFFERING */, WINDOW_0 /* ENDED */);
-    assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED)).containsExactly(WINDOW_0);
+    assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED))
+        .containsExactly(WINDOW_0 /* PLAYLIST_CHANGED */, WINDOW_0 /* DYNAMIC */);
     listener.assertNoMoreEvents();
   }
 
@@ -140,19 +142,19 @@ public final class AnalyticsCollectorTest {
     FakeMediaSource mediaSource =
         new FakeMediaSource(
             SINGLE_PERIOD_TIMELINE,
-            /* manifest= */ null,
-            Builder.VIDEO_FORMAT,
-            Builder.AUDIO_FORMAT);
+            ExoPlayerTestRunner.Builder.VIDEO_FORMAT,
+            ExoPlayerTestRunner.Builder.AUDIO_FORMAT);
     TestAnalyticsListener listener = runAnalyticsTest(mediaSource);
 
-    populateEventIds(SINGLE_PERIOD_TIMELINE);
+    populateEventIds(listener.lastReportedTimeline);
     assertThat(listener.getEvents(EVENT_PLAYER_STATE_CHANGED))
         .containsExactly(
             WINDOW_0 /* setPlayWhenReady */,
             WINDOW_0 /* BUFFERING */,
             period0 /* READY */,
             period0 /* ENDED */);
-    assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED)).containsExactly(WINDOW_0);
+    assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED))
+        .containsExactly(WINDOW_0 /* PLAYLIST_CHANGED */, WINDOW_0 /* DYNAMIC */);
     assertThat(listener.getEvents(EVENT_LOADING_CHANGED))
         .containsExactly(period0 /* started */, period0 /* stopped */);
     assertThat(listener.getEvents(EVENT_TRACKS_CHANGED)).containsExactly(period0);
@@ -183,14 +185,12 @@ public final class AnalyticsCollectorTest {
         new ConcatenatingMediaSource(
             new FakeMediaSource(
                 SINGLE_PERIOD_TIMELINE,
-                /* manifest= */ null,
-                Builder.VIDEO_FORMAT,
-                Builder.AUDIO_FORMAT),
+                ExoPlayerTestRunner.Builder.VIDEO_FORMAT,
+                ExoPlayerTestRunner.Builder.AUDIO_FORMAT),
             new FakeMediaSource(
                 SINGLE_PERIOD_TIMELINE,
-                /* manifest= */ null,
-                Builder.VIDEO_FORMAT,
-                Builder.AUDIO_FORMAT));
+                ExoPlayerTestRunner.Builder.VIDEO_FORMAT,
+                ExoPlayerTestRunner.Builder.AUDIO_FORMAT));
     TestAnalyticsListener listener = runAnalyticsTest(mediaSource);
 
     populateEventIds(listener.lastReportedTimeline);
@@ -200,7 +200,8 @@ public final class AnalyticsCollectorTest {
             WINDOW_0 /* BUFFERING */,
             period0 /* READY */,
             period1 /* ENDED */);
-    assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED)).containsExactly(WINDOW_0);
+    assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED))
+        .containsExactly(WINDOW_0 /* PLAYLIST_CHANGED */, period0 /* DYNAMIC */);
     assertThat(listener.getEvents(EVENT_POSITION_DISCONTINUITY)).containsExactly(period1);
     assertThat(listener.getEvents(EVENT_LOADING_CHANGED))
         .containsExactly(period0, period0, period0, period0);
@@ -242,9 +243,8 @@ public final class AnalyticsCollectorTest {
   public void testPeriodTransitionWithRendererChange() throws Exception {
     MediaSource mediaSource =
         new ConcatenatingMediaSource(
-            new FakeMediaSource(SINGLE_PERIOD_TIMELINE, /* manifest= */ null, Builder.VIDEO_FORMAT),
-            new FakeMediaSource(
-                SINGLE_PERIOD_TIMELINE, /* manifest= */ null, Builder.AUDIO_FORMAT));
+            new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.Builder.VIDEO_FORMAT),
+            new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.Builder.AUDIO_FORMAT));
     TestAnalyticsListener listener = runAnalyticsTest(mediaSource);
 
     populateEventIds(listener.lastReportedTimeline);
@@ -256,7 +256,8 @@ public final class AnalyticsCollectorTest {
             period1 /* BUFFERING */,
             period1 /* READY */,
             period1 /* ENDED */);
-    assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED)).containsExactly(WINDOW_0);
+    assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED))
+        .containsExactly(WINDOW_0 /* PLAYLIST_CHANGED */, period0 /* DYNAMIC */);
     assertThat(listener.getEvents(EVENT_POSITION_DISCONTINUITY)).containsExactly(period1);
     assertThat(listener.getEvents(EVENT_LOADING_CHANGED))
         .containsExactly(period0, period0, period0, period0);
@@ -296,9 +297,8 @@ public final class AnalyticsCollectorTest {
   public void testSeekToOtherPeriod() throws Exception {
     MediaSource mediaSource =
         new ConcatenatingMediaSource(
-            new FakeMediaSource(SINGLE_PERIOD_TIMELINE, /* manifest= */ null, Builder.VIDEO_FORMAT),
-            new FakeMediaSource(
-                SINGLE_PERIOD_TIMELINE, /* manifest= */ null, Builder.AUDIO_FORMAT));
+            new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.Builder.VIDEO_FORMAT),
+            new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.Builder.AUDIO_FORMAT));
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder("AnalyticsCollectorTest")
             .pause()
@@ -319,13 +319,14 @@ public final class AnalyticsCollectorTest {
             period1 /* READY */,
             period1 /* setPlayWhenReady=true */,
             period1 /* ENDED */);
-    assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED)).containsExactly(WINDOW_0);
+    assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED))
+        .containsExactly(WINDOW_0 /* PLAYLIST_CHANGED */, period0 /* DYNAMIC */);
     assertThat(listener.getEvents(EVENT_POSITION_DISCONTINUITY)).containsExactly(period1);
     assertThat(listener.getEvents(EVENT_SEEK_STARTED)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_SEEK_PROCESSED)).containsExactly(period1);
     List<EventWindowAndPeriodId> loadingEvents = listener.getEvents(EVENT_LOADING_CHANGED);
     assertThat(loadingEvents).hasSize(4);
-    assertThat(loadingEvents).containsAllOf(period0, period0);
+    assertThat(loadingEvents).containsAtLeast(period0, period0);
     assertThat(listener.getEvents(EVENT_TRACKS_CHANGED)).containsExactly(period0, period1);
     assertThat(listener.getEvents(EVENT_LOAD_STARTED))
         .containsExactly(
@@ -361,12 +362,11 @@ public final class AnalyticsCollectorTest {
   public void testSeekBackAfterReadingAhead() throws Exception {
     MediaSource mediaSource =
         new ConcatenatingMediaSource(
-            new FakeMediaSource(SINGLE_PERIOD_TIMELINE, /* manifest= */ null, Builder.VIDEO_FORMAT),
+            new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.Builder.VIDEO_FORMAT),
             new FakeMediaSource(
                 SINGLE_PERIOD_TIMELINE,
-                /* manifest= */ null,
-                Builder.VIDEO_FORMAT,
-                Builder.AUDIO_FORMAT));
+                ExoPlayerTestRunner.Builder.VIDEO_FORMAT,
+                ExoPlayerTestRunner.Builder.AUDIO_FORMAT));
     long periodDurationMs =
         SINGLE_PERIOD_TIMELINE.getWindow(/* windowIndex= */ 0, new Window()).getDurationMs();
     ActionSchedule actionSchedule =
@@ -374,8 +374,7 @@ public final class AnalyticsCollectorTest {
             .pause()
             .waitForPlaybackState(Player.STATE_READY)
             .playUntilPosition(/* windowIndex= */ 0, periodDurationMs)
-            .seek(/* positionMs= */ 0)
-            .waitForPlaybackState(Player.STATE_READY)
+            .seekAndWait(/* positionMs= */ 0)
             .play()
             .build();
     TestAnalyticsListener listener = runAnalyticsTest(mediaSource, actionSchedule);
@@ -384,8 +383,8 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_PLAYER_STATE_CHANGED))
         .containsExactly(
             WINDOW_0 /* setPlayWhenReady=true */,
-            WINDOW_0 /* BUFFERING */,
             WINDOW_0 /* setPlayWhenReady=false */,
+            WINDOW_0 /* BUFFERING */,
             period0 /* READY */,
             period0 /* setPlayWhenReady=true */,
             period0 /* setPlayWhenReady=false */,
@@ -395,7 +394,8 @@ public final class AnalyticsCollectorTest {
             period1Seq2 /* BUFFERING */,
             period1Seq2 /* READY */,
             period1Seq2 /* ENDED */);
-    assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED)).containsExactly(WINDOW_0);
+    assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED))
+        .containsExactly(WINDOW_0 /* PLAYLIST_CHANGED */, period0 /* DYNAMIC */);
     assertThat(listener.getEvents(EVENT_POSITION_DISCONTINUITY))
         .containsExactly(period0, period1Seq2);
     assertThat(listener.getEvents(EVENT_SEEK_STARTED)).containsExactly(period0);
@@ -444,19 +444,27 @@ public final class AnalyticsCollectorTest {
   @Test
   public void testPrepareNewSource() throws Exception {
     MediaSource mediaSource1 =
-        new FakeMediaSource(SINGLE_PERIOD_TIMELINE, /* manifest= */ null, Builder.VIDEO_FORMAT);
+        new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.Builder.VIDEO_FORMAT);
     MediaSource mediaSource2 =
-        new FakeMediaSource(SINGLE_PERIOD_TIMELINE, /* manifest= */ null, Builder.VIDEO_FORMAT);
+        new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.Builder.VIDEO_FORMAT);
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder("AnalyticsCollectorTest")
             .pause()
             .waitForPlaybackState(Player.STATE_READY)
-            .prepareSource(mediaSource2)
+            .setMediaSources(/* resetPosition= */ false, mediaSource2)
             .play()
             .build();
     TestAnalyticsListener listener = runAnalyticsTest(mediaSource1, actionSchedule);
 
-    populateEventIds(SINGLE_PERIOD_TIMELINE);
+    // Populate all event ids with last timeline (after second prepare).
+    populateEventIds(listener.lastReportedTimeline);
+    // Populate event id of period 0, sequence 0 with timeline of initial preparation.
+    period0Seq0 =
+        new EventWindowAndPeriodId(
+            /* windowIndex= */ 0,
+            new MediaPeriodId(
+                listener.reportedTimelines.get(1).getUidOfPeriod(/* periodIndex= */ 0),
+                /* windowSequenceNumber= */ 0));
     assertThat(listener.getEvents(EVENT_PLAYER_STATE_CHANGED))
         .containsExactly(
             WINDOW_0 /* setPlayWhenReady=true */,
@@ -468,12 +476,16 @@ public final class AnalyticsCollectorTest {
             period0Seq1 /* READY */,
             period0Seq1 /* ENDED */);
     assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED))
-        .containsExactly(WINDOW_0 /* prepared */, WINDOW_0 /* reset */, WINDOW_0 /* prepared */);
+        .containsExactly(
+            WINDOW_0 /* PLAYLIST_CHANGE */,
+            WINDOW_0 /* DYNAMIC */,
+            WINDOW_0 /* PLAYLIST_CHANGE */,
+            WINDOW_0 /* DYNAMIC */);
     assertThat(listener.getEvents(EVENT_LOADING_CHANGED))
         .containsExactly(period0Seq0, period0Seq0, period0Seq1, period0Seq1);
     assertThat(listener.getEvents(EVENT_TRACKS_CHANGED))
         .containsExactly(
-            period0Seq0 /* prepared */, WINDOW_0 /* reset */, period0Seq1 /* prepared */);
+            period0Seq0 /* prepared */, WINDOW_0 /* setMediaSources */, period0Seq1 /* prepared */);
     assertThat(listener.getEvents(EVENT_LOAD_STARTED))
         .containsExactly(
             WINDOW_0 /* manifest */,
@@ -508,18 +520,19 @@ public final class AnalyticsCollectorTest {
   @Test
   public void testReprepareAfterError() throws Exception {
     MediaSource mediaSource =
-        new FakeMediaSource(SINGLE_PERIOD_TIMELINE, /* manifest= */ null, Builder.VIDEO_FORMAT);
+        new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.Builder.VIDEO_FORMAT);
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder("AnalyticsCollectorTest")
             .waitForPlaybackState(Player.STATE_READY)
             .throwPlaybackException(ExoPlaybackException.createForSource(new IOException()))
             .waitForPlaybackState(Player.STATE_IDLE)
-            .prepareSource(mediaSource, /* resetPosition= */ false, /* resetState= */ false)
+            .seek(/* positionMs= */ 0)
+            .prepare()
             .waitForPlaybackState(Player.STATE_ENDED)
             .build();
     TestAnalyticsListener listener = runAnalyticsTest(mediaSource, actionSchedule);
 
-    populateEventIds(SINGLE_PERIOD_TIMELINE);
+    populateEventIds(listener.lastReportedTimeline);
     assertThat(listener.getEvents(EVENT_PLAYER_STATE_CHANGED))
         .containsExactly(
             WINDOW_0 /* setPlayWhenReady=true */,
@@ -531,9 +544,12 @@ public final class AnalyticsCollectorTest {
             period0Seq0 /* ENDED */);
     assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED))
         .containsExactly(WINDOW_0 /* prepared */, WINDOW_0 /* prepared */);
+    assertThat(listener.getEvents(EVENT_POSITION_DISCONTINUITY)).containsExactly(WINDOW_0);
+    assertThat(listener.getEvents(EVENT_SEEK_STARTED)).containsExactly(WINDOW_0);
+    assertThat(listener.getEvents(EVENT_SEEK_PROCESSED)).containsExactly(WINDOW_0);
     assertThat(listener.getEvents(EVENT_LOADING_CHANGED))
         .containsExactly(period0Seq0, period0Seq0, period0Seq0, period0Seq0);
-    assertThat(listener.getEvents(EVENT_PLAYER_ERROR)).containsExactly(WINDOW_0);
+    assertThat(listener.getEvents(EVENT_PLAYER_ERROR)).containsExactly(period0Seq0);
     assertThat(listener.getEvents(EVENT_TRACKS_CHANGED)).containsExactly(period0Seq0, period0Seq0);
     assertThat(listener.getEvents(EVENT_LOAD_STARTED))
         .containsExactly(
@@ -570,7 +586,7 @@ public final class AnalyticsCollectorTest {
   @Test
   public void testDynamicTimelineChange() throws Exception {
     MediaSource childMediaSource =
-        new FakeMediaSource(SINGLE_PERIOD_TIMELINE, /* manifest= */ null, Builder.VIDEO_FORMAT);
+        new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.Builder.VIDEO_FORMAT);
     final ConcatenatingMediaSource concatenatedMediaSource =
         new ConcatenatingMediaSource(childMediaSource, childMediaSource);
     long periodDurationMs =
@@ -594,15 +610,19 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_PLAYER_STATE_CHANGED))
         .containsExactly(
             WINDOW_0 /* setPlayWhenReady=true */,
-            WINDOW_0 /* BUFFERING */,
             WINDOW_0 /* setPlayWhenReady=false */,
+            WINDOW_0 /* BUFFERING */,
             window0Period1Seq0 /* READY */,
             window0Period1Seq0 /* setPlayWhenReady=true */,
             window0Period1Seq0 /* setPlayWhenReady=false */,
             period1Seq0 /* setPlayWhenReady=true */,
             period1Seq0 /* BUFFERING */,
             period1Seq0 /* ENDED */);
-    assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED)).containsExactly(WINDOW_0, period1Seq0);
+    assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED))
+        .containsExactly(
+            WINDOW_0 /* PLAYLIST_CHANGED */,
+            window0Period1Seq0 /* DYNAMIC (concatenated timeline replaces dummy) */,
+            period1Seq0 /* DYNAMIC (child sources in concatenating source moved) */);
     assertThat(listener.getEvents(EVENT_LOADING_CHANGED))
         .containsExactly(
             window0Period1Seq0, window0Period1Seq0, window0Period1Seq0, window0Period1Seq0);
@@ -639,7 +659,7 @@ public final class AnalyticsCollectorTest {
 
   @Test
   public void testNotifyExternalEvents() throws Exception {
-    MediaSource mediaSource = new FakeMediaSource(SINGLE_PERIOD_TIMELINE, /* manifest= */ null);
+    MediaSource mediaSource = new FakeMediaSource(SINGLE_PERIOD_TIMELINE);
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder("AnalyticsCollectorTest")
             .pause()
@@ -656,7 +676,7 @@ public final class AnalyticsCollectorTest {
             .build();
     TestAnalyticsListener listener = runAnalyticsTest(mediaSource, actionSchedule);
 
-    populateEventIds(SINGLE_PERIOD_TIMELINE);
+    populateEventIds(listener.lastReportedTimeline);
     assertThat(listener.getEvents(EVENT_SEEK_STARTED)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_SEEK_PROCESSED)).containsExactly(period0);
   }
@@ -723,11 +743,11 @@ public final class AnalyticsCollectorTest {
     TestAnalyticsListener listener = new TestAnalyticsListener();
     try {
       new ExoPlayerTestRunner.Builder()
-          .setMediaSource(mediaSource)
+          .setMediaSources(mediaSource)
           .setRenderersFactory(renderersFactory)
           .setAnalyticsListener(listener)
           .setActionSchedule(actionSchedule)
-          .build(RuntimeEnvironment.application)
+          .build(ApplicationProvider.getApplicationContext())
           .start()
           .blockUntilActionScheduleFinished(TIMEOUT_MS)
           .blockUntilEnded(TIMEOUT_MS);
@@ -745,7 +765,7 @@ public final class AnalyticsCollectorTest {
     private boolean renderedFirstFrame;
 
     public FakeVideoRenderer(Handler handler, VideoRendererEventListener eventListener) {
-      super(Builder.VIDEO_FORMAT);
+      super(ExoPlayerTestRunner.Builder.VIDEO_FORMAT);
       eventDispatcher = new VideoRendererEventListener.EventDispatcher(handler, eventListener);
       decoderCounters = new DecoderCounters();
     }
@@ -803,7 +823,7 @@ public final class AnalyticsCollectorTest {
     private boolean notifiedAudioSessionId;
 
     public FakeAudioRenderer(Handler handler, AudioRendererEventListener eventListener) {
-      super(Builder.AUDIO_FORMAT);
+      super(ExoPlayerTestRunner.Builder.AUDIO_FORMAT);
       eventDispatcher = new AudioRendererEventListener.EventDispatcher(handler, eventListener);
       decoderCounters = new DecoderCounters();
     }
@@ -847,7 +867,7 @@ public final class AnalyticsCollectorTest {
   private static final class EventWindowAndPeriodId {
 
     private final int windowIndex;
-    private final @Nullable MediaPeriodId mediaPeriodId;
+    @Nullable private final MediaPeriodId mediaPeriodId;
 
     public EventWindowAndPeriodId(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
       this.windowIndex = windowIndex;
@@ -887,10 +907,12 @@ public final class AnalyticsCollectorTest {
 
     public Timeline lastReportedTimeline;
 
+    private final List<Timeline> reportedTimelines;
     private final ArrayList<ReportedEvent> reportedEvents;
 
     public TestAnalyticsListener() {
       reportedEvents = new ArrayList<>();
+      reportedTimelines = new ArrayList<>();
       lastReportedTimeline = Timeline.EMPTY;
     }
 
@@ -913,13 +935,14 @@ public final class AnalyticsCollectorTest {
 
     @Override
     public void onPlayerStateChanged(
-        EventTime eventTime, boolean playWhenReady, int playbackState) {
+        EventTime eventTime, boolean playWhenReady, @Player.State int playbackState) {
       reportedEvents.add(new ReportedEvent(EVENT_PLAYER_STATE_CHANGED, eventTime));
     }
 
     @Override
     public void onTimelineChanged(EventTime eventTime, int reason) {
       lastReportedTimeline = eventTime.timeline;
+      reportedTimelines.add(eventTime.timeline);
       reportedEvents.add(new ReportedEvent(EVENT_TIMELINE_CHANGED, eventTime));
     }
 

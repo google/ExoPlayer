@@ -17,10 +17,10 @@ package com.google.android.exoplayer2.text.ttml;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.support.annotation.Nullable;
 import android.text.SpannableStringBuilder;
 import android.util.Base64;
 import android.util.Pair;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.util.Assertions;
@@ -228,14 +228,15 @@ import java.util.TreeSet;
       TtmlRegion region = regionMap.get(regionImagePair.first);
 
       cues.add(
-          new Cue(
-              bitmap,
-              region.position,
-              Cue.ANCHOR_TYPE_MIDDLE,
-              region.line,
-              region.lineAnchor,
-              region.width,
-              /* height= */ Cue.DIMEN_UNSET));
+          new Cue.Builder()
+              .setBitmap(bitmap)
+              .setPosition(region.position)
+              .setPositionAnchor(Cue.ANCHOR_TYPE_START)
+              .setLine(region.line, Cue.LINE_TYPE_FRACTION)
+              .setLineAnchor(region.lineAnchor)
+              .setSize(region.width)
+              .setBitmapHeight(region.height)
+              .build());
     }
 
     // Create text based cues.

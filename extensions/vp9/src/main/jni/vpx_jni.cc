@@ -30,8 +30,6 @@
 #include <cstring>
 #include <new>
 
-#include "libyuv.h"  // NOLINT
-
 #define VPX_CODEC_DISABLE_COMPAT 1
 #include "vpx/vpx_decoder.h"
 #include "vpx/vp8dx.h"
@@ -40,29 +38,29 @@
 #define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, LOG_TAG, \
                                              __VA_ARGS__))
 
-#define DECODER_FUNC(RETURN_TYPE, NAME, ...) \
-  extern "C" { \
-  JNIEXPORT RETURN_TYPE \
-    Java_com_google_android_exoplayer2_ext_vp9_VpxDecoder_ ## NAME \
-      (JNIEnv* env, jobject thiz, ##__VA_ARGS__);\
-  } \
-  JNIEXPORT RETURN_TYPE \
-    Java_com_google_android_exoplayer2_ext_vp9_VpxDecoder_ ## NAME \
-      (JNIEnv* env, jobject thiz, ##__VA_ARGS__)\
+#define DECODER_FUNC(RETURN_TYPE, NAME, ...)                        \
+  extern "C" {                                                      \
+  JNIEXPORT RETURN_TYPE                                             \
+      Java_com_google_android_exoplayer2_ext_vp9_VpxDecoder_##NAME( \
+          JNIEnv* env, jobject thiz, ##__VA_ARGS__);                \
+  }                                                                 \
+  JNIEXPORT RETURN_TYPE                                             \
+      Java_com_google_android_exoplayer2_ext_vp9_VpxDecoder_##NAME( \
+          JNIEnv* env, jobject thiz, ##__VA_ARGS__)
 
-#define LIBRARY_FUNC(RETURN_TYPE, NAME, ...) \
-  extern "C" { \
-  JNIEXPORT RETURN_TYPE \
-    Java_com_google_android_exoplayer2_ext_vp9_VpxLibrary_ ## NAME \
-      (JNIEnv* env, jobject thiz, ##__VA_ARGS__);\
-  } \
-  JNIEXPORT RETURN_TYPE \
-    Java_com_google_android_exoplayer2_ext_vp9_VpxLibrary_ ## NAME \
-      (JNIEnv* env, jobject thiz, ##__VA_ARGS__)\
+#define LIBRARY_FUNC(RETURN_TYPE, NAME, ...)                        \
+  extern "C" {                                                      \
+  JNIEXPORT RETURN_TYPE                                             \
+      Java_com_google_android_exoplayer2_ext_vp9_VpxLibrary_##NAME( \
+          JNIEnv* env, jobject thiz, ##__VA_ARGS__);                \
+  }                                                                 \
+  JNIEXPORT RETURN_TYPE                                             \
+      Java_com_google_android_exoplayer2_ext_vp9_VpxLibrary_##NAME( \
+          JNIEnv* env, jobject thiz, ##__VA_ARGS__)
 
-// JNI references for VpxOutputBuffer class.
-static jmethodID initForRgbFrame;
+// JNI references for VideoDecoderOutputBuffer class.
 static jmethodID initForYuvFrame;
+static jmethodID initForPrivateFrame;
 static jfieldID dataField;
 static jfieldID outputModeField;
 static jfieldID decoderPrivateField;
@@ -344,7 +342,7 @@ class JniBufferManager {
     *fb = out_buffer->vpx_fb;
     int retVal = 0;
     if (!out_buffer->vpx_fb.data || all_buffer_count >= MAX_FRAMES) {
-      LOGE("ERROR: JniBufferManager get_buffer OOM.");
+      LOGE("JniBufferManager get_buffer OOM.");
       retVal = -1;
     } else {
       memset(fb->data, 0, fb->size);
@@ -356,7 +354,7 @@ class JniBufferManager {
 
   JniFrameBuffer* get_buffer(int id) const {
     if (id < 0 || id >= all_buffer_count) {
-      LOGE("ERROR: JniBufferManager get_buffer invalid id %d.", id);
+      LOGE("JniBufferManager get_buffer invalid id %d.", id);
       return NULL;
     }
     return all_buffers[id];
@@ -364,7 +362,7 @@ class JniBufferManager {
 
   void add_ref(int id) {
     if (id < 0 || id >= all_buffer_count) {
-      LOGE("ERROR: JniBufferManager add_ref invalid id %d.", id);
+      LOGE("JniBufferManager add_ref invalid id %d.", id);
       return;
     }
     pthread_mutex_lock(&mutex);
@@ -374,13 +372,13 @@ class JniBufferManager {
 
   int release(int id) {
     if (id < 0 || id >= all_buffer_count) {
-      LOGE("ERROR: JniBufferManager release invalid id %d.", id);
+      LOGE("JniBufferManager release invalid id %d.", id);
       return -1;
     }
     pthread_mutex_lock(&mutex);
     JniFrameBuffer* buffer = all_buffers[id];
     if (!buffer->ref_count) {
-      LOGE("ERROR: JniBufferManager release, buffer already released.");
+      LOGE("JniBufferManager release, buffer already released.");
       pthread_mutex_unlock(&mutex);
       return -1;
     }
@@ -393,11 +391,7 @@ class JniBufferManager {
 };
 
 struct JniCtx {
-  JniCtx(bool enableBufferManager) {
-    if (enableBufferManager) {
-      buffer_manager = new JniBufferManager();
-    }
-  }
+  JniCtx() { buffer_manager = new JniBufferManager(); }
 
   ~JniCtx() {
     if (native_window) {
@@ -441,51 +435,53 @@ int vpx_release_frame_buffer(void* priv, vpx_codec_frame_buffer_t* fb) {
 }
 
 DECODER_FUNC(jlong, vpxInit, jboolean disableLoopFilter,
-             jboolean enableBufferManager) {
-  JniCtx* context = new JniCtx(enableBufferManager);
+             jboolean enableRowMultiThreadMode, jint threads) {
+  JniCtx* context = new JniCtx();
   context->decoder = new vpx_codec_ctx_t();
   vpx_codec_dec_cfg_t cfg = {0, 0, 0};
-  cfg.threads = android_getCpuCount();
+  cfg.threads = threads;
   errorCode = 0;
   vpx_codec_err_t err =
       vpx_codec_dec_init(context->decoder, &vpx_codec_vp9_dx_algo, &cfg, 0);
   if (err) {
-    LOGE("ERROR: Failed to initialize libvpx decoder, error = %d.", err);
+    LOGE("Failed to initialize libvpx decoder, error = %d.", err);
     errorCode = err;
     return 0;
   }
+#ifdef VPX_CTRL_VP9_DECODE_SET_ROW_MT
+  err = vpx_codec_control(context->decoder, VP9D_SET_ROW_MT,
+                          enableRowMultiThreadMode);
+  if (err) {
+    LOGE("Failed to enable row multi thread mode, error = %d.", err);
+  }
+#endif
   if (disableLoopFilter) {
-    // TODO(b/71930387): Use vpx_codec_control(), not vpx_codec_control_().
-    err = vpx_codec_control_(context->decoder, VP9_SET_SKIP_LOOP_FILTER, true);
+    err = vpx_codec_control(context->decoder, VP9_SET_SKIP_LOOP_FILTER, true);
     if (err) {
-      LOGE("ERROR: Failed to shut off libvpx loop filter, error = %d.", err);
+      LOGE("Failed to shut off libvpx loop filter, error = %d.", err);
     }
 #ifdef VPX_CTRL_VP9_SET_LOOP_FILTER_OPT
   } else {
     err = vpx_codec_control(context->decoder, VP9D_SET_LOOP_FILTER_OPT, true);
     if (err) {
-      LOGE("ERROR: Failed to enable loop filter optimization, error = %d.",
-           err);
+      LOGE("Failed to enable loop filter optimization, error = %d.", err);
     }
 #endif
   }
-  if (enableBufferManager) {
-    err = vpx_codec_set_frame_buffer_functions(
-        context->decoder, vpx_get_frame_buffer, vpx_release_frame_buffer,
-        context->buffer_manager);
-    if (err) {
-      LOGE("ERROR: Failed to set libvpx frame buffer functions, error = %d.",
-           err);
-    }
+  err = vpx_codec_set_frame_buffer_functions(
+      context->decoder, vpx_get_frame_buffer, vpx_release_frame_buffer,
+      context->buffer_manager);
+  if (err) {
+    LOGE("Failed to set libvpx frame buffer functions, error = %d.", err);
   }
 
   // Populate JNI References.
   const jclass outputBufferClass = env->FindClass(
-      "com/google/android/exoplayer2/ext/vp9/VpxOutputBuffer");
+      "com/google/android/exoplayer2/video/VideoDecoderOutputBuffer");
   initForYuvFrame = env->GetMethodID(outputBufferClass, "initForYuvFrame",
                                      "(IIIII)Z");
-  initForRgbFrame = env->GetMethodID(outputBufferClass, "initForRgbFrame",
-                                     "(II)Z");
+  initForPrivateFrame =
+      env->GetMethodID(outputBufferClass, "initForPrivateFrame", "(II)V");
   dataField = env->GetFieldID(outputBufferClass, "data",
                               "Ljava/nio/ByteBuffer;");
   outputModeField = env->GetFieldID(outputBufferClass, "mode", "I");
@@ -502,7 +498,7 @@ DECODER_FUNC(jlong, vpxDecode, jlong jContext, jobject encoded, jint len) {
       vpx_codec_decode(context->decoder, buffer, len, NULL, 0);
   errorCode = 0;
   if (status != VPX_CODEC_OK) {
-    LOGE("ERROR: vpx_codec_decode() failed, status= %d", status);
+    LOGE("vpx_codec_decode() failed, status= %d", status);
     errorCode = status;
     return -1;
   }
@@ -536,33 +532,19 @@ DECODER_FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer) {
     return 1;
   }
 
+  // LINT.IfChange
   const int kOutputModeYuv = 0;
-  const int kOutputModeRgb = 1;
-  const int kOutputModeSurfaceYuv = 2;
+  const int kOutputModeSurfaceYuv = 1;
+  // LINT.ThenChange(../../../../../library/core/src/main/java/com/google/android/exoplayer2/C.java)
 
   int outputMode = env->GetIntField(jOutputBuffer, outputModeField);
-  if (outputMode == kOutputModeRgb) {
-    // resize buffer if required.
-    jboolean initResult = env->CallBooleanMethod(jOutputBuffer, initForRgbFrame,
-                                                 img->d_w, img->d_h);
-    if (env->ExceptionCheck() || !initResult) {
-      return -1;
-    }
-
-    // get pointer to the data buffer.
-    const jobject dataObject = env->GetObjectField(jOutputBuffer, dataField);
-    uint8_t* const dst =
-        reinterpret_cast<uint8_t*>(env->GetDirectBufferAddress(dataObject));
-
-    libyuv::I420ToRGB565(img->planes[VPX_PLANE_Y], img->stride[VPX_PLANE_Y],
-                         img->planes[VPX_PLANE_U], img->stride[VPX_PLANE_U],
-                         img->planes[VPX_PLANE_V], img->stride[VPX_PLANE_V],
-                         dst, img->d_w * 2, img->d_w, img->d_h);
-  } else if (outputMode == kOutputModeYuv) {
+  if (outputMode == kOutputModeYuv) {
+    // LINT.IfChange
     const int kColorspaceUnknown = 0;
     const int kColorspaceBT601 = 1;
     const int kColorspaceBT709 = 2;
     const int kColorspaceBT2020 = 3;
+    // LINT.ThenChange(../../../../../library/core/src/main/java/com/google/android/exoplayer2/video/VideoDecoderOutputBuffer.java)
 
     int colorspace = kColorspaceUnknown;
     switch (img->cs) {
@@ -614,10 +596,13 @@ DECODER_FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer) {
       memcpy(data + yLength, img->planes[VPX_PLANE_U], uvLength);
       memcpy(data + yLength + uvLength, img->planes[VPX_PLANE_V], uvLength);
     }
-  } else if (outputMode == kOutputModeSurfaceYuv &&
-             img->fmt != VPX_IMG_FMT_I42016) {
-    if (!context->buffer_manager) {
-      return -1;  // enableBufferManager was not set in vpxInit.
+  } else if (outputMode == kOutputModeSurfaceYuv) {
+    if (img->fmt & VPX_IMG_FMT_HIGHBITDEPTH) {
+      LOGE(
+          "High bit depth output format %d not supported in surface YUV output "
+          "mode",
+          img->fmt);
+      return -1;
     }
     int id = *(int*)img->fb_priv;
     context->buffer_manager->add_ref(id);
@@ -628,6 +613,10 @@ DECODER_FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer) {
     }
     jfb->d_w = img->d_w;
     jfb->d_h = img->d_h;
+    env->CallVoidMethod(jOutputBuffer, initForPrivateFrame, img->d_w, img->d_h);
+    if (env->ExceptionCheck()) {
+      return -1;
+    }
     env->SetIntField(jOutputBuffer, decoderPrivateField,
                      id + kDecoderPrivateBase);
   }

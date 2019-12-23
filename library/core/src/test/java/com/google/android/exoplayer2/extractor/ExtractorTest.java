@@ -17,15 +17,13 @@ package com.google.android.exoplayer2.extractor;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Unit test for {@link Extractor}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Unit test for {@link Extractor}. */
+@RunWith(AndroidJUnit4.class)
 public final class ExtractorTest {
 
   @Test

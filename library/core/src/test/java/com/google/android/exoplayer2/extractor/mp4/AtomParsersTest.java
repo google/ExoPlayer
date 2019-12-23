@@ -17,16 +17,14 @@ package com.google.android.exoplayer2.extractor.mp4;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Tests for {@link AtomParsers}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Tests for {@link AtomParsers}. */
+@RunWith(AndroidJUnit4.class)
 public final class AtomParsersTest {
 
   private static final String ATOM_HEADER = "000000000000000000000000";

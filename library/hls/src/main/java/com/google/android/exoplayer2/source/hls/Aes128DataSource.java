@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.source.hls;
 
 import android.net.Uri;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceInputStream;
@@ -51,7 +51,7 @@ import javax.crypto.spec.SecretKeySpec;
   private final byte[] encryptionKey;
   private final byte[] encryptionIv;
 
-  private @Nullable CipherInputStream cipherInputStream;
+  @Nullable private CipherInputStream cipherInputStream;
 
   /**
    * @param upstream The upstream {@link DataSource}.
@@ -105,7 +105,8 @@ import javax.crypto.spec.SecretKeySpec;
   }
 
   @Override
-  public final @Nullable Uri getUri() {
+  @Nullable
+  public final Uri getUri() {
     return upstream.getUri();
   }
 

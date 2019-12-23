@@ -20,7 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.source.MediaPeriod;
@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.Collections;
 
@@ -126,7 +127,7 @@ public class FakeMediaPeriod implements MediaPeriod {
         SystemClock.elapsedRealtime());
     prepareCallback = callback;
     if (deferOnPrepared) {
-      playerHandler = new Handler();
+      playerHandler = Util.createHandler();
     } else {
       finishPreparation();
     }
@@ -214,6 +215,11 @@ public class FakeMediaPeriod implements MediaPeriod {
 
   @Override
   public boolean continueLoading(long positionUs) {
+    return false;
+  }
+
+  @Override
+  public boolean isLoading() {
     return false;
   }
 

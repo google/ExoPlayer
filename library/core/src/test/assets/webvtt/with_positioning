@@ -21,13 +21,12 @@ NOTE Line as absolute negative number and without line alignment.
 00:06.000 --> 00:07.000 line:-10 align:middle
 This is the fourth subtitle.
 
-NOTE The positioning alignment should be inherited from align.
+NOTE The position and positioning alignment should be inherited from align.
 
-00:07.000 --> 00:08.000 position:10% align:end size:10%
+00:07.000 --> 00:08.000 align:right
 This is the fifth subtitle.
 
 NOTE In newer drafts, align:middle has been replaced by align:center
 
 00:10.000 --> 00:11.000 line:45%,end align:center size:35%
 This is the sixth subtitle.
-

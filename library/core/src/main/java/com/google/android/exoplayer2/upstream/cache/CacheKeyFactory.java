@@ -24,6 +24,7 @@ public interface CacheKeyFactory {
    * Returns a cache key for the given {@link DataSpec}.
    *
    * @param dataSpec The data being cached.
+   * @return The cache key.
    */
   String buildCacheKey(DataSpec dataSpec);
 }

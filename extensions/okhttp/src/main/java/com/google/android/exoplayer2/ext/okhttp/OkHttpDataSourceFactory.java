@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.okhttp;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource.BaseFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource.Factory;
@@ -29,9 +29,9 @@ import okhttp3.Call;
 public final class OkHttpDataSourceFactory extends BaseFactory {
 
   private final Call.Factory callFactory;
-  private final @Nullable String userAgent;
-  private final @Nullable TransferListener listener;
-  private final @Nullable CacheControl cacheControl;
+  @Nullable private final String userAgent;
+  @Nullable private final TransferListener listener;
+  @Nullable private final CacheControl cacheControl;
 
   /**
    * @param callFactory A {@link Call.Factory} (typically an {@link okhttp3.OkHttpClient}) for use
@@ -89,7 +89,6 @@ public final class OkHttpDataSourceFactory extends BaseFactory {
         new OkHttpDataSource(
             callFactory,
             userAgent,
-            /* contentTypePredicate= */ null,
             cacheControl,
             defaultRequestProperties);
     if (listener != null) {

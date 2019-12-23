@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.source;
 
 import android.net.Uri;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -110,7 +110,7 @@ import java.util.Map;
   /**
    * Reads an ICY stream metadata block, passing it to {@link #listener} unless the block is empty.
    *
-   * @return True if the block was extracted, including if it's length byte indicated a length of
+   * @return True if the block was extracted, including if its length byte indicated a length of
    *     zero. False if the end of the stream was reached.
    * @throws IOException If an error occurs reading from the wrapped {@link DataSource}.
    */

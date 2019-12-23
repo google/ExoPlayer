@@ -18,16 +18,14 @@ package com.google.android.exoplayer2.util;
 import static com.google.android.exoplayer2.testutil.TestUtil.createByteArray;
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Tests for {@link NalUnitUtil}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Tests for {@link NalUnitUtil}. */
+@RunWith(AndroidJUnit4.class)
 public final class NalUnitUtilTest {
 
   private static final int TEST_PARTIAL_NAL_POSITION = 4;
