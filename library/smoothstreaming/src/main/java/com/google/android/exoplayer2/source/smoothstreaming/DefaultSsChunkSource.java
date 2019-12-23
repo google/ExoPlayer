@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.source.smoothstreaming;
 
 import android.net.Uri;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.SeekParameters;
@@ -74,10 +74,10 @@ public class DefaultSsChunkSource implements SsChunkSource {
 
   private final LoaderErrorThrower manifestLoaderErrorThrower;
   private final int streamElementIndex;
-  private final TrackSelection trackSelection;
   private final ChunkExtractorWrapper[] extractorWrappers;
   private final DataSource dataSource;
 
+  private TrackSelection trackSelection;
   private SsManifest manifest;
   private int currentManifestChunkOffset;
 
@@ -153,6 +153,11 @@ public class DefaultSsChunkSource implements SsChunkSource {
       }
     }
     manifest = newManifest;
+  }
+
+  @Override
+  public void updateTrackSelection(TrackSelection trackSelection) {
+    this.trackSelection = trackSelection;
   }
 
   // ChunkSource implementation.

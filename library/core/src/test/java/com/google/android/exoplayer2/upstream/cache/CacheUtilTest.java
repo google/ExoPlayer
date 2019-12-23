@@ -22,13 +22,15 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import android.net.Uri;
+import android.util.Pair;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.FakeDataSet;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.FileDataSource;
-import com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters;
 import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
 import java.io.File;
@@ -39,13 +41,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
-/**
- * Tests {@link CacheUtil}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Tests {@link CacheUtil}. */
+@RunWith(AndroidJUnit4.class)
 public final class CacheUtilTest {
 
   /**
@@ -96,17 +94,18 @@ public final class CacheUtilTest {
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
     mockCache.init();
-    tempFolder = Util.createTempDirectory(RuntimeEnvironment.application, "ExoPlayerTest");
+    tempFolder =
+        Util.createTempDirectory(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
     cache = new SimpleCache(tempFolder, new NoOpCacheEvictor());
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     Util.recursiveDelete(tempFolder);
   }
 
   @Test
-  public void testGenerateKey() throws Exception {
+  public void testGenerateKey() {
     assertThat(CacheUtil.generateKey(Uri.EMPTY)).isNotNull();
 
     Uri testUri = Uri.parse("test");
@@ -121,7 +120,7 @@ public final class CacheUtilTest {
   }
 
   @Test
-  public void testDefaultCacheKeyFactory_buildCacheKey() throws Exception {
+  public void testDefaultCacheKeyFactory_buildCacheKey() {
     Uri testUri = Uri.parse("test");
     String key = "key";
     // If DataSpec.key is present, returns it.
@@ -137,44 +136,66 @@ public final class CacheUtilTest {
   }
 
   @Test
-  public void testGetCachedNoData() throws Exception {
-    CachingCounters counters = new CachingCounters();
-    CacheUtil.getCached(
-        new DataSpec(Uri.parse("test")), mockCache, /* cacheKeyFactory= */ null, counters);
+  public void testGetCachedNoData() {
+    Pair<Long, Long> contentLengthAndBytesCached =
+        CacheUtil.getCached(
+            new DataSpec(Uri.parse("test")), mockCache, /* cacheKeyFactory= */ null);
 
-    assertCounters(counters, 0, 0, C.LENGTH_UNSET);
+    assertThat(contentLengthAndBytesCached.first).isEqualTo(C.LENGTH_UNSET);
+    assertThat(contentLengthAndBytesCached.second).isEqualTo(0);
   }
 
   @Test
-  public void testGetCachedDataUnknownLength() throws Exception {
+  public void testGetCachedDataUnknownLength() {
     // Mock there is 100 bytes cached at the beginning
     mockCache.spansAndGaps = new int[] {100};
-    CachingCounters counters = new CachingCounters();
-    CacheUtil.getCached(
-        new DataSpec(Uri.parse("test")), mockCache, /* cacheKeyFactory= */ null, counters);
+    Pair<Long, Long> contentLengthAndBytesCached =
+        CacheUtil.getCached(
+            new DataSpec(Uri.parse("test")), mockCache, /* cacheKeyFactory= */ null);
 
-    assertCounters(counters, 100, 0, C.LENGTH_UNSET);
+    assertThat(contentLengthAndBytesCached.first).isEqualTo(C.LENGTH_UNSET);
+    assertThat(contentLengthAndBytesCached.second).isEqualTo(100);
   }
 
   @Test
-  public void testGetCachedNoDataKnownLength() throws Exception {
+  public void testGetCachedNoDataKnownLength() {
     mockCache.contentLength = 1000;
-    CachingCounters counters = new CachingCounters();
-    CacheUtil.getCached(
-        new DataSpec(Uri.parse("test")), mockCache, /* cacheKeyFactory= */ null, counters);
+    Pair<Long, Long> contentLengthAndBytesCached =
+        CacheUtil.getCached(
+            new DataSpec(Uri.parse("test")), mockCache, /* cacheKeyFactory= */ null);
 
-    assertCounters(counters, 0, 0, 1000);
+    assertThat(contentLengthAndBytesCached.first).isEqualTo(1000);
+    assertThat(contentLengthAndBytesCached.second).isEqualTo(0);
   }
 
   @Test
-  public void testGetCached() throws Exception {
+  public void testGetCached() {
     mockCache.contentLength = 1000;
     mockCache.spansAndGaps = new int[] {100, 100, 200};
-    CachingCounters counters = new CachingCounters();
-    CacheUtil.getCached(
-        new DataSpec(Uri.parse("test")), mockCache, /* cacheKeyFactory= */ null, counters);
+    Pair<Long, Long> contentLengthAndBytesCached =
+        CacheUtil.getCached(
+            new DataSpec(Uri.parse("test")), mockCache, /* cacheKeyFactory= */ null);
 
-    assertCounters(counters, 300, 0, 1000);
+    assertThat(contentLengthAndBytesCached.first).isEqualTo(1000);
+    assertThat(contentLengthAndBytesCached.second).isEqualTo(300);
+  }
+
+  @Test
+  public void testGetCachedFromNonZeroPosition() {
+    mockCache.contentLength = 1000;
+    mockCache.spansAndGaps = new int[] {100, 100, 200};
+    Pair<Long, Long> contentLengthAndBytesCached =
+        CacheUtil.getCached(
+            new DataSpec(
+                Uri.parse("test"),
+                /* absoluteStreamPosition= */ 100,
+                /* length= */ C.LENGTH_UNSET,
+                /* key= */ null),
+            mockCache,
+            /* cacheKeyFactory= */ null);
+
+    assertThat(contentLengthAndBytesCached.first).isEqualTo(900);
+    assertThat(contentLengthAndBytesCached.second).isEqualTo(200);
   }
 
   @Test
@@ -191,7 +212,7 @@ public final class CacheUtilTest {
         counters,
         /* isCanceled= */ null);
 
-    assertCounters(counters, 0, 100, 100);
+    counters.assertValues(0, 100, 100);
     assertCachedData(cache, fakeDataSet);
   }
 
@@ -206,7 +227,8 @@ public final class CacheUtilTest {
     CacheUtil.cache(
         dataSpec, cache, /* cacheKeyFactory= */ null, dataSource, counters, /* isCanceled= */ null);
 
-    assertCounters(counters, 0, 20, 20);
+    counters.assertValues(0, 20, 20);
+    counters.reset();
 
     CacheUtil.cache(
         new DataSpec(testUri),
@@ -216,7 +238,7 @@ public final class CacheUtilTest {
         counters,
         /* isCanceled= */ null);
 
-    assertCounters(counters, 20, 80, 100);
+    counters.assertValues(20, 80, 100);
     assertCachedData(cache, fakeDataSet);
   }
 
@@ -232,7 +254,7 @@ public final class CacheUtilTest {
     CacheUtil.cache(
         dataSpec, cache, /* cacheKeyFactory= */ null, dataSource, counters, /* isCanceled= */ null);
 
-    assertCounters(counters, 0, 100, 100);
+    counters.assertValues(0, 100, 100);
     assertCachedData(cache, fakeDataSet);
   }
 
@@ -249,7 +271,8 @@ public final class CacheUtilTest {
     CacheUtil.cache(
         dataSpec, cache, /* cacheKeyFactory= */ null, dataSource, counters, /* isCanceled= */ null);
 
-    assertCounters(counters, 0, 20, 20);
+    counters.assertValues(0, 20, 20);
+    counters.reset();
 
     CacheUtil.cache(
         new DataSpec(testUri),
@@ -259,7 +282,7 @@ public final class CacheUtilTest {
         counters,
         /* isCanceled= */ null);
 
-    assertCounters(counters, 20, 80, 100);
+    counters.assertValues(20, 80, 100);
     assertCachedData(cache, fakeDataSet);
   }
 
@@ -274,7 +297,7 @@ public final class CacheUtilTest {
     CacheUtil.cache(
         dataSpec, cache, /* cacheKeyFactory= */ null, dataSource, counters, /* isCanceled= */ null);
 
-    assertCounters(counters, 0, 100, 1000);
+    counters.assertValues(0, 100, 1000);
     assertCachedData(cache, fakeDataSet);
   }
 
@@ -295,7 +318,7 @@ public final class CacheUtilTest {
           new byte[CacheUtil.DEFAULT_BUFFER_SIZE_BYTES],
           /* priorityTaskManager= */ null,
           /* priority= */ 0,
-          /* counters= */ null,
+          /* progressListener= */ null,
           /* isCanceled= */ null,
           /* enableEOFException= */ true);
       fail();
@@ -311,9 +334,9 @@ public final class CacheUtilTest {
         new FakeDataSet()
             .newData("test_data")
             .appendReadData(TestUtil.buildTestData(100))
-            .appendReadAction(() -> assertCounters(counters, 0, 100, 300))
+            .appendReadAction(() -> counters.assertValues(0, 100, 300))
             .appendReadData(TestUtil.buildTestData(100))
-            .appendReadAction(() -> assertCounters(counters, 0, 200, 300))
+            .appendReadAction(() -> counters.assertValues(0, 200, 300))
             .appendReadData(TestUtil.buildTestData(100))
             .endData();
     FakeDataSource dataSource = new FakeDataSource(fakeDataSet);
@@ -326,7 +349,7 @@ public final class CacheUtilTest {
         counters,
         /* isCanceled= */ null);
 
-    assertCounters(counters, 0, 300, 300);
+    counters.assertValues(0, 300, 300);
     assertCachedData(cache, fakeDataSet);
   }
 
@@ -352,7 +375,7 @@ public final class CacheUtilTest {
         new byte[CacheUtil.DEFAULT_BUFFER_SIZE_BYTES],
         /* priorityTaskManager= */ null,
         /* priority= */ 0,
-        /* counters= */ null,
+        /* progressListener= */ null,
         /* isCanceled= */ null,
         true);
     CacheUtil.remove(dataSpec, cache, /* cacheKeyFactory= */ null);
@@ -360,10 +383,34 @@ public final class CacheUtilTest {
     assertCacheEmpty(cache);
   }
 
-  private static void assertCounters(CachingCounters counters, int alreadyCachedBytes,
-      int newlyCachedBytes, int contentLength) {
-    assertThat(counters.alreadyCachedBytes).isEqualTo(alreadyCachedBytes);
-    assertThat(counters.newlyCachedBytes).isEqualTo(newlyCachedBytes);
-    assertThat(counters.contentLength).isEqualTo(contentLength);
+  private static final class CachingCounters implements CacheUtil.ProgressListener {
+
+    private long contentLength = C.LENGTH_UNSET;
+    private long bytesAlreadyCached;
+    private long bytesNewlyCached;
+    private boolean seenFirstProgressUpdate;
+
+    @Override
+    public void onProgress(long contentLength, long bytesCached, long newBytesCached) {
+      this.contentLength = contentLength;
+      if (!seenFirstProgressUpdate) {
+        bytesAlreadyCached = bytesCached;
+        seenFirstProgressUpdate = true;
+      }
+      bytesNewlyCached = bytesCached - bytesAlreadyCached;
+    }
+
+    public void assertValues(int bytesAlreadyCached, int bytesNewlyCached, int contentLength) {
+      assertThat(this.bytesAlreadyCached).isEqualTo(bytesAlreadyCached);
+      assertThat(this.bytesNewlyCached).isEqualTo(bytesNewlyCached);
+      assertThat(this.contentLength).isEqualTo(contentLength);
+    }
+
+    public void reset() {
+      contentLength = C.LENGTH_UNSET;
+      bytesAlreadyCached = 0;
+      bytesNewlyCached = 0;
+      seenFirstProgressUpdate = false;
+    }
   }
 }

@@ -20,6 +20,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.testutil.StubExoPlayer;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import java.util.ArrayList;
 
 /** A fake player for testing content/ad playback. */
@@ -29,8 +30,7 @@ import java.util.ArrayList;
   private final Timeline.Period period;
   private final Timeline timeline;
 
-  private boolean prepared;
-  private int state;
+  @Player.State private int state;
   private boolean playWhenReady;
   private long position;
   private long contentPosition;
@@ -47,14 +47,10 @@ import java.util.ArrayList;
   }
 
   /** Sets the timeline on this fake player, which notifies listeners with the changed timeline. */
-  public void updateTimeline(Timeline timeline) {
+  public void updateTimeline(Timeline timeline, @TimelineChangeReason int reason) {
     for (Player.EventListener listener : listeners) {
-      listener.onTimelineChanged(
-          timeline,
-          null,
-          prepared ? TIMELINE_CHANGE_REASON_DYNAMIC : TIMELINE_CHANGE_REASON_PREPARED);
+      listener.onTimelineChanged(timeline, reason);
     }
-    prepared = true;
   }
 
   /**
@@ -95,8 +91,8 @@ import java.util.ArrayList;
     }
   }
 
-  /** Sets the state of this player with the given {@code STATE} constant. */
-  public void setState(int state, boolean playWhenReady) {
+  /** Sets the {@link Player.State} of this player. */
+  public void setState(@Player.State int state, boolean playWhenReady) {
     boolean notify = this.state != state || this.playWhenReady != playWhenReady;
     this.state = state;
     this.playWhenReady = playWhenReady;
@@ -108,6 +104,11 @@ import java.util.ArrayList;
   }
 
   // ExoPlayer methods. Other methods are unsupported.
+
+  @Override
+  public AudioComponent getAudioComponent() {
+    return null;
+  }
 
   @Override
   public Looper getApplicationLooper() {
@@ -125,6 +126,7 @@ import java.util.ArrayList;
   }
 
   @Override
+  @Player.State
   public int getPlaybackState() {
     return state;
   }
@@ -132,6 +134,16 @@ import java.util.ArrayList;
   @Override
   public boolean getPlayWhenReady() {
     return playWhenReady;
+  }
+
+  @Override
+  public int getRendererCount() {
+    return 0;
+  }
+
+  @Override
+  public TrackSelectionArray getCurrentTrackSelections() {
+    return new TrackSelectionArray();
   }
 
   @Override

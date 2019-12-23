@@ -76,7 +76,7 @@ public final class ChunkIndex implements SeekMap {
    * @return The index of the corresponding chunk.
    */
   public int getChunkIndex(long timeUs) {
-    return Util.binarySearchFloor(timesUs, timeUs, true, true);
+    return Util.binarySearchFloor(timesUs, timeUs, /* inclusive= */ true, /* stayInBounds= */ true);
   }
 
   // SeekMap implementation.

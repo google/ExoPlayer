@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.testutil;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -34,10 +34,9 @@ public class FakeAdaptiveMediaSource extends FakeMediaSource {
 
   public FakeAdaptiveMediaSource(
       Timeline timeline,
-      Object manifest,
       TrackGroupArray trackGroupArray,
       FakeChunkSource.Factory chunkSourceFactory) {
-    super(timeline, manifest, trackGroupArray);
+    super(timeline, trackGroupArray);
     this.chunkSourceFactory = chunkSourceFactory;
   }
 

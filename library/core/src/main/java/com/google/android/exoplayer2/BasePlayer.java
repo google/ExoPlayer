@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Util;
 
 /** Abstract base {@link Player} which implements common implementation independent methods. */
@@ -25,6 +25,23 @@ public abstract class BasePlayer implements Player {
 
   public BasePlayer() {
     window = new Timeline.Window();
+  }
+
+  @Override
+  public final void play() {
+    setPlayWhenReady(true);
+  }
+
+  @Override
+  public final void pause() {
+    setPlayWhenReady(false);
+  }
+
+  @Override
+  public final boolean isPlaying() {
+    return getPlaybackState() == Player.STATE_READY
+        && getPlayWhenReady()
+        && getPlaybackSuppressionReason() == PLAYBACK_SUPPRESSION_REASON_NONE;
   }
 
   @Override
@@ -94,11 +111,15 @@ public abstract class BasePlayer implements Player {
   @Override
   @Nullable
   public final Object getCurrentTag() {
-    int windowIndex = getCurrentWindowIndex();
     Timeline timeline = getCurrentTimeline();
-    return windowIndex >= timeline.getWindowCount()
-        ? null
-        : timeline.getWindow(windowIndex, window, /* setTag= */ true).tag;
+    return timeline.isEmpty() ? null : timeline.getWindow(getCurrentWindowIndex(), window).tag;
+  }
+
+  @Override
+  @Nullable
+  public final Object getCurrentManifest() {
+    Timeline timeline = getCurrentTimeline();
+    return timeline.isEmpty() ? null : timeline.getWindow(getCurrentWindowIndex(), window).manifest;
   }
 
   @Override
@@ -114,6 +135,25 @@ public abstract class BasePlayer implements Player {
   public final boolean isCurrentWindowDynamic() {
     Timeline timeline = getCurrentTimeline();
     return !timeline.isEmpty() && timeline.getWindow(getCurrentWindowIndex(), window).isDynamic;
+  }
+
+  @Override
+  public final boolean isCurrentWindowLive() {
+    Timeline timeline = getCurrentTimeline();
+    return !timeline.isEmpty() && timeline.getWindow(getCurrentWindowIndex(), window).isLive;
+  }
+
+  @Override
+  public final long getCurrentLiveOffset() {
+    Timeline timeline = getCurrentTimeline();
+    if (timeline.isEmpty()) {
+      return C.TIME_UNSET;
+    }
+    long windowStartTimeMs = timeline.getWindow(getCurrentWindowIndex(), window).windowStartTimeMs;
+    if (windowStartTimeMs == C.TIME_UNSET) {
+      return C.TIME_UNSET;
+    }
+    return window.getCurrentUnixTimeMs() - window.windowStartTimeMs - getContentPosition();
   }
 
   @Override

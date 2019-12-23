@@ -3,7 +3,7 @@
 The OkHttp extension is an [HttpDataSource][] implementation using Square's
 [OkHttp][].
 
-[HttpDataSource]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/upstream/HttpDataSource.html
+[HttpDataSource]: https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/upstream/HttpDataSource.html
 [OkHttp]: https://square.github.io/okhttp/
 
 ## License note ##
@@ -61,4 +61,4 @@ respectively.
 * [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.okhttp.*`
   belong to this module.
 
-[Javadoc]: https://google.github.io/ExoPlayer/doc/reference/index.html
+[Javadoc]: https://exoplayer.dev/doc/reference/index.html

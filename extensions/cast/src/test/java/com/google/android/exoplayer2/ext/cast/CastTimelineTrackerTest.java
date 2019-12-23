@@ -15,23 +15,23 @@
  */
 package com.google.android.exoplayer2.ext.cast;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.TimelineAsserts;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.gms.cast.MediaInfo;
-import com.google.android.gms.cast.MediaQueueItem;
 import com.google.android.gms.cast.MediaStatus;
-import java.util.ArrayList;
+import com.google.android.gms.cast.framework.media.MediaQueue;
+import com.google.android.gms.cast.framework.media.RemoteMediaClient;
+import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.robolectric.RobolectricTestRunner;
 
 /** Tests for {@link CastTimelineTracker}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class CastTimelineTrackerTest {
 
-  private static final long DURATION_1_MS = 1000;
   private static final long DURATION_2_MS = 2000;
   private static final long DURATION_3_MS = 3000;
   private static final long DURATION_4_MS = 4000;
@@ -39,91 +39,89 @@ public class CastTimelineTrackerTest {
 
   /** Tests that duration of the current media info is correctly propagated to the timeline. */
   @Test
-  public void testGetCastTimeline() {
-    MediaInfo mediaInfo;
-    MediaStatus status =
-        mockMediaStatus(
-            new int[] {1, 2, 3},
-            new String[] {"contentId1", "contentId2", "contentId3"},
-            new long[] {DURATION_1_MS, MediaInfo.UNKNOWN_DURATION, MediaInfo.UNKNOWN_DURATION});
-
+  public void testGetCastTimelinePersistsDuration() {
     CastTimelineTracker tracker = new CastTimelineTracker();
-    mediaInfo = getMediaInfo("contentId1", DURATION_1_MS);
-    Mockito.when(status.getMediaInfo()).thenReturn(mediaInfo);
-    TimelineAsserts.assertPeriodDurations(
-        tracker.getCastTimeline(status), C.msToUs(DURATION_1_MS), C.TIME_UNSET, C.TIME_UNSET);
 
-    mediaInfo = getMediaInfo("contentId3", DURATION_3_MS);
-    Mockito.when(status.getMediaInfo()).thenReturn(mediaInfo);
+    RemoteMediaClient remoteMediaClient =
+        mockRemoteMediaClient(
+            /* itemIds= */ new int[] {1, 2, 3, 4, 5},
+            /* currentItemId= */ 2,
+            /* currentDurationMs= */ DURATION_2_MS);
     TimelineAsserts.assertPeriodDurations(
-        tracker.getCastTimeline(status),
-        C.msToUs(DURATION_1_MS),
+        tracker.getCastTimeline(remoteMediaClient),
         C.TIME_UNSET,
-        C.msToUs(DURATION_3_MS));
+        C.msToUs(DURATION_2_MS),
+        C.TIME_UNSET,
+        C.TIME_UNSET,
+        C.TIME_UNSET);
 
-    mediaInfo = getMediaInfo("contentId2", DURATION_2_MS);
-    Mockito.when(status.getMediaInfo()).thenReturn(mediaInfo);
+    remoteMediaClient =
+        mockRemoteMediaClient(
+            /* itemIds= */ new int[] {1, 2, 3},
+            /* currentItemId= */ 3,
+            /* currentDurationMs= */ DURATION_3_MS);
     TimelineAsserts.assertPeriodDurations(
-        tracker.getCastTimeline(status),
-        C.msToUs(DURATION_1_MS),
+        tracker.getCastTimeline(remoteMediaClient),
+        C.TIME_UNSET,
         C.msToUs(DURATION_2_MS),
         C.msToUs(DURATION_3_MS));
 
-    MediaStatus newStatus =
-        mockMediaStatus(
-            new int[] {4, 1, 5, 3},
-            new String[] {"contentId4", "contentId1", "contentId5", "contentId3"},
-            new long[] {
-              MediaInfo.UNKNOWN_DURATION,
-              MediaInfo.UNKNOWN_DURATION,
-              DURATION_5_MS,
-              MediaInfo.UNKNOWN_DURATION
-            });
-    mediaInfo = getMediaInfo("contentId5", DURATION_5_MS);
-    Mockito.when(newStatus.getMediaInfo()).thenReturn(mediaInfo);
+    remoteMediaClient =
+        mockRemoteMediaClient(
+            /* itemIds= */ new int[] {1, 3},
+            /* currentItemId= */ 3,
+            /* currentDurationMs= */ DURATION_3_MS);
     TimelineAsserts.assertPeriodDurations(
-        tracker.getCastTimeline(newStatus),
-        C.TIME_UNSET,
-        C.msToUs(DURATION_1_MS),
-        C.msToUs(DURATION_5_MS),
-        C.msToUs(DURATION_3_MS));
+        tracker.getCastTimeline(remoteMediaClient), C.TIME_UNSET, C.msToUs(DURATION_3_MS));
 
-    mediaInfo = getMediaInfo("contentId3", DURATION_3_MS);
-    Mockito.when(newStatus.getMediaInfo()).thenReturn(mediaInfo);
+    remoteMediaClient =
+        mockRemoteMediaClient(
+            /* itemIds= */ new int[] {1, 2, 3, 4, 5},
+            /* currentItemId= */ 4,
+            /* currentDurationMs= */ DURATION_4_MS);
     TimelineAsserts.assertPeriodDurations(
-        tracker.getCastTimeline(newStatus),
+        tracker.getCastTimeline(remoteMediaClient),
         C.TIME_UNSET,
-        C.msToUs(DURATION_1_MS),
-        C.msToUs(DURATION_5_MS),
-        C.msToUs(DURATION_3_MS));
-
-    mediaInfo = getMediaInfo("contentId4", DURATION_4_MS);
-    Mockito.when(newStatus.getMediaInfo()).thenReturn(mediaInfo);
-    TimelineAsserts.assertPeriodDurations(
-        tracker.getCastTimeline(newStatus),
+        C.TIME_UNSET,
+        C.msToUs(DURATION_3_MS),
         C.msToUs(DURATION_4_MS),
-        C.msToUs(DURATION_1_MS),
-        C.msToUs(DURATION_5_MS),
-        C.msToUs(DURATION_3_MS));
+        C.TIME_UNSET);
+
+    remoteMediaClient =
+        mockRemoteMediaClient(
+            /* itemIds= */ new int[] {1, 2, 3, 4, 5},
+            /* currentItemId= */ 5,
+            /* currentDurationMs= */ DURATION_5_MS);
+    TimelineAsserts.assertPeriodDurations(
+        tracker.getCastTimeline(remoteMediaClient),
+        C.TIME_UNSET,
+        C.TIME_UNSET,
+        C.msToUs(DURATION_3_MS),
+        C.msToUs(DURATION_4_MS),
+        C.msToUs(DURATION_5_MS));
   }
 
-  private static MediaStatus mockMediaStatus(
-      int[] itemIds, String[] contentIds, long[] durationsMs) {
-    ArrayList<MediaQueueItem> items = new ArrayList<>();
-    for (int i = 0; i < contentIds.length; i++) {
-      MediaInfo mediaInfo = getMediaInfo(contentIds[i], durationsMs[i]);
-      MediaQueueItem item = Mockito.mock(MediaQueueItem.class);
-      Mockito.when(item.getMedia()).thenReturn(mediaInfo);
-      Mockito.when(item.getItemId()).thenReturn(itemIds[i]);
-      items.add(item);
-    }
+  private static RemoteMediaClient mockRemoteMediaClient(
+      int[] itemIds, int currentItemId, long currentDurationMs) {
+    RemoteMediaClient remoteMediaClient = Mockito.mock(RemoteMediaClient.class);
     MediaStatus status = Mockito.mock(MediaStatus.class);
-    Mockito.when(status.getQueueItems()).thenReturn(items);
-    return status;
+    Mockito.when(status.getQueueItems()).thenReturn(Collections.emptyList());
+    Mockito.when(remoteMediaClient.getMediaStatus()).thenReturn(status);
+    Mockito.when(status.getMediaInfo()).thenReturn(getMediaInfo(currentDurationMs));
+    Mockito.when(status.getCurrentItemId()).thenReturn(currentItemId);
+    MediaQueue mediaQueue = mockMediaQueue(itemIds);
+    Mockito.when(remoteMediaClient.getMediaQueue()).thenReturn(mediaQueue);
+    return remoteMediaClient;
   }
 
-  private static MediaInfo getMediaInfo(String contentId, long durationMs) {
-    return new MediaInfo.Builder(contentId)
+  private static MediaQueue mockMediaQueue(int[] itemIds) {
+    MediaQueue mediaQueue = Mockito.mock(MediaQueue.class);
+    Mockito.when(mediaQueue.getItemIds()).thenReturn(itemIds);
+    return mediaQueue;
+  }
+
+  private static MediaInfo getMediaInfo(long durationMs) {
+    return new MediaInfo.Builder(/*contentId= */ "")
         .setStreamDuration(durationMs)
         .setContentType(MimeTypes.APPLICATION_MP4)
         .setStreamType(MediaInfo.STREAM_TYPE_NONE)

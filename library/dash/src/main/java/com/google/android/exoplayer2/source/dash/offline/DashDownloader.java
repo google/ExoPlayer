@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.source.dash.offline;
 
 import android.net.Uri;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
 import com.google.android.exoplayer2.offline.DownloadException;
@@ -45,7 +45,7 @@ import java.util.List;
  * <p>Example usage:
  *
  * <pre>{@code
- * SimpleCache cache = new SimpleCache(downloadFolder, new NoOpCacheEvictor());
+ * SimpleCache cache = new SimpleCache(downloadFolder, new NoOpCacheEvictor(), databaseProvider);
  * DefaultHttpDataSourceFactory factory = new DefaultHttpDataSourceFactory("ExoPlayer", null);
  * DownloaderConstructorHelper constructorHelper =
  *     new DownloaderConstructorHelper(cache, factory);
@@ -55,7 +55,7 @@ import java.util.List;
  *     new DashDownloader(
  *         manifestUrl, Collections.singletonList(new StreamKey(0, 0, 0)), constructorHelper);
  * // Perform the download.
- * dashDownloader.download();
+ * dashDownloader.download(progressListener);
  * // Access downloaded data using CacheDataSource
  * CacheDataSource cacheDataSource =
  *     new CacheDataSource(cache, factory.createDataSource(), CacheDataSource.FLAG_BLOCK_ON_CACHE);

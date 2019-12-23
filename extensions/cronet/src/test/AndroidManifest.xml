@@ -14,4 +14,6 @@
      limitations under the License.
 -->
 
-<manifest package="com.google.android.exoplayer2.ext.cronet"/>
+<manifest package="com.google.android.exoplayer2.ext.cronet">
+  <uses-sdk/>
+</manifest>

@@ -16,7 +16,6 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion project.ext.compileSdkVersion
-    buildToolsVersion project.ext.buildToolsVersion
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -28,13 +27,21 @@ android {
         targetSdkVersion project.ext.targetSdkVersion
         consumerProguardFiles 'proguard-rules.txt'
     }
+
+    testOptions.unitTests.includeAndroidResources = true
 }
 
 dependencies {
     implementation project(modulePrefix + 'library-core')
-    implementation 'com.android.support:support-annotations:' + supportLibraryVersion
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
-    api 'com.squareup.okhttp3:okhttp:3.11.0'
+    testImplementation project(modulePrefix + 'testutils')
+    testImplementation 'org.robolectric:robolectric:' + robolectricVersion
+    // Do not update to 3.13.X or later until minSdkVersion is increased to 21:
+    // https://cashapp.github.io/2019-02-05/okhttp-3-13-requires-android-5
+    // Since OkHttp is distributed as a jar rather than an aar, Gradle wont stop
+    // us from making this mistake!
+    api 'com.squareup.okhttp3:okhttp:3.12.5'
 }
 
 ext {

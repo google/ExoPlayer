@@ -18,14 +18,12 @@ package com.google.android.exoplayer2.metadata.id3;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Parcel;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Test for {@link ChapterTocFrame}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Test for {@link ChapterTocFrame}. */
+@RunWith(AndroidJUnit4.class)
 public final class ChapterTocFrameTest {
 
   @Test

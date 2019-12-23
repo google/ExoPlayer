@@ -52,7 +52,7 @@ public class FakeDataSource extends BaseDataSource {
     }
 
     @Override
-    public DataSource createDataSource() {
+    public FakeDataSource createDataSource() {
       return new FakeDataSource(fakeDataSet, isNetwork);
     }
   }

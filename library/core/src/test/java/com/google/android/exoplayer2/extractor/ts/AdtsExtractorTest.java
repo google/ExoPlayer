@@ -15,13 +15,13 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
 /** Unit test for {@link AdtsExtractor}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class AdtsExtractorTest {
 
   @Test
@@ -32,10 +32,15 @@ public final class AdtsExtractorTest {
   @Test
   public void testSample_withSeeking() throws Exception {
     ExtractorAsserts.assertBehavior(
-        () ->
-            new AdtsExtractor(
-                /* firstStreamSampleTimestampUs= */ 0,
-                /* flags= */ AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING),
+        () -> new AdtsExtractor(/* flags= */ AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING),
         "ts/sample_cbs.adts");
+  }
+
+  // https://github.com/google/ExoPlayer/issues/6700
+  @Test
+  public void testSample_withSeekingAndTruncatedFile() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        () -> new AdtsExtractor(/* flags= */ AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING),
+        "ts/sample_cbs_truncated.adts");
   }
 }

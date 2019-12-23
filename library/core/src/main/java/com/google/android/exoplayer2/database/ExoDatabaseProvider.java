@@ -25,7 +25,7 @@ import com.google.android.exoplayer2.util.Log;
 /**
  * An {@link SQLiteOpenHelper} that provides instances of a standalone ExoPlayer database.
  *
- * <p>Suitable for use by applications that do not already have their own database, or which would
+ * <p>Suitable for use by applications that do not already have their own database, or that would
  * prefer to keep ExoPlayer tables isolated in their own database. Other applications should prefer
  * to use {@link DefaultDatabaseProvider} with their own {@link SQLiteOpenHelper}.
  */
@@ -37,6 +37,12 @@ public final class ExoDatabaseProvider extends SQLiteOpenHelper implements Datab
   private static final int VERSION = 1;
   private static final String TAG = "ExoDatabaseProvider";
 
+  /**
+   * Provides instances of the database located by passing {@link #DATABASE_NAME} to {@link
+   * Context#getDatabasePath(String)}.
+   *
+   * @param context Any context.
+   */
   public ExoDatabaseProvider(Context context) {
     super(context.getApplicationContext(), DATABASE_NAME, /* factory= */ null, VERSION);
   }

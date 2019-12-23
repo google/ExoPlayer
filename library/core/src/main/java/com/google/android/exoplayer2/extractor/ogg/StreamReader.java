@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.ogg;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -23,8 +24,10 @@ import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** StreamReader abstract class. */
 @SuppressWarnings("UngroupedOverloads")
@@ -42,15 +45,15 @@ import java.io.IOException;
 
   private final OggPacket oggPacket;
 
-  private TrackOutput trackOutput;
-  private ExtractorOutput extractorOutput;
-  private OggSeeker oggSeeker;
+  @MonotonicNonNull private TrackOutput trackOutput;
+  @MonotonicNonNull private ExtractorOutput extractorOutput;
+  @MonotonicNonNull private OggSeeker oggSeeker;
   private long targetGranule;
   private long payloadStartPosition;
   private long currentGranule;
   private int state;
   private int sampleRate;
-  private SetupData setupData;
+  @Nullable private SetupData setupData;
   private long lengthOfReadPacket;
   private boolean seekMapSet;
   private boolean formatSet;
@@ -91,7 +94,8 @@ import java.io.IOException;
       reset(!seekMapSet);
     } else {
       if (state != STATE_READ_HEADERS) {
-        targetGranule = oggSeeker.startSeek(timeUs);
+        targetGranule = convertTimeToGranule(timeUs);
+        oggSeeker.startSeek(targetGranule);
         state = STATE_READ_PAYLOAD;
       }
     }
@@ -147,9 +151,9 @@ import java.io.IOException;
       boolean isLastPage = (firstPayloadPageHeader.type & 0x04) != 0; // Type 4 is end of stream.
       oggSeeker =
           new DefaultOggSeeker(
+              /* streamReader= */ this,
               payloadStartPosition,
               input.getLength(),
-              this,
               firstPayloadPageHeader.headerSize + firstPayloadPageHeader.bodySize,
               firstPayloadPageHeader.granulePosition,
               isLastPage);
@@ -171,8 +175,9 @@ import java.io.IOException;
     } else if (position < -1) {
       onSeekEnd(-(position + 2));
     }
+
     if (!seekMapSet) {
-      SeekMap seekMap = oggSeeker.createSeekMap();
+      SeekMap seekMap = Assertions.checkStateNotNull(oggSeeker.createSeekMap());
       extractorOutput.seekMap(seekMap);
       seekMapSet = true;
     }
@@ -248,13 +253,13 @@ import java.io.IOException;
   private static final class UnseekableOggSeeker implements OggSeeker {
 
     @Override
-    public long read(ExtractorInput input) throws IOException, InterruptedException {
+    public long read(ExtractorInput input) {
       return -1;
     }
 
     @Override
-    public long startSeek(long timeUs) {
-      return 0;
+    public void startSeek(long targetGranule) {
+      // Do nothing.
     }
 
     @Override

@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.extractor.mkv;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.TestUtil;
@@ -26,30 +27,27 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Tests {@link DefaultEbmlReader}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Tests {@link DefaultEbmlReader}. */
+@RunWith(AndroidJUnit4.class)
 public class DefaultEbmlReaderTest {
 
   @Test
   public void testMasterElement() throws IOException, InterruptedException {
     ExtractorInput input = createTestInput(0x1A, 0x45, 0xDF, 0xA3, 0x84, 0x42, 0x85, 0x81, 0x01);
-    TestOutput expected = new TestOutput();
-    expected.startMasterElement(TestOutput.ID_EBML, 5, 4);
-    expected.integerElement(TestOutput.ID_DOC_TYPE_READ_VERSION, 1);
-    expected.endMasterElement(TestOutput.ID_EBML);
+    TestProcessor expected = new TestProcessor();
+    expected.startMasterElement(TestProcessor.ID_EBML, 5, 4);
+    expected.integerElement(TestProcessor.ID_DOC_TYPE_READ_VERSION, 1);
+    expected.endMasterElement(TestProcessor.ID_EBML);
     assertEvents(input, expected.events);
   }
 
   @Test
   public void testMasterElementEmpty() throws IOException, InterruptedException {
     ExtractorInput input = createTestInput(0x18, 0x53, 0x80, 0x67, 0x80);
-    TestOutput expected = new TestOutput();
-    expected.startMasterElement(TestOutput.ID_SEGMENT, 5, 0);
-    expected.endMasterElement(TestOutput.ID_SEGMENT);
+    TestProcessor expected = new TestProcessor();
+    expected.startMasterElement(TestProcessor.ID_SEGMENT, 5, 0);
+    expected.endMasterElement(TestProcessor.ID_SEGMENT);
     assertEvents(input, expected.events);
   }
 
@@ -57,8 +55,8 @@ public class DefaultEbmlReaderTest {
   public void testUnsignedIntegerElement() throws IOException, InterruptedException {
     // 0xFE is chosen because for signed integers it should be interpreted as -2
     ExtractorInput input = createTestInput(0x42, 0xF7, 0x81, 0xFE);
-    TestOutput expected = new TestOutput();
-    expected.integerElement(TestOutput.ID_EBML_READ_VERSION, 254);
+    TestProcessor expected = new TestProcessor();
+    expected.integerElement(TestProcessor.ID_EBML_READ_VERSION, 254);
     assertEvents(input, expected.events);
   }
 
@@ -66,8 +64,8 @@ public class DefaultEbmlReaderTest {
   public void testUnsignedIntegerElementLarge() throws IOException, InterruptedException {
     ExtractorInput input =
         createTestInput(0x42, 0xF7, 0x88, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
-    TestOutput expected = new TestOutput();
-    expected.integerElement(TestOutput.ID_EBML_READ_VERSION, Long.MAX_VALUE);
+    TestProcessor expected = new TestProcessor();
+    expected.integerElement(TestProcessor.ID_EBML_READ_VERSION, Long.MAX_VALUE);
     assertEvents(input, expected.events);
   }
 
@@ -76,32 +74,32 @@ public class DefaultEbmlReaderTest {
       throws IOException, InterruptedException {
     ExtractorInput input =
         createTestInput(0x42, 0xF7, 0x88, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
-    TestOutput expected = new TestOutput();
-    expected.integerElement(TestOutput.ID_EBML_READ_VERSION, -1);
+    TestProcessor expected = new TestProcessor();
+    expected.integerElement(TestProcessor.ID_EBML_READ_VERSION, -1);
     assertEvents(input, expected.events);
   }
 
   @Test
   public void testStringElement() throws IOException, InterruptedException {
     ExtractorInput input = createTestInput(0x42, 0x82, 0x86, 0x41, 0x62, 0x63, 0x31, 0x32, 0x33);
-    TestOutput expected = new TestOutput();
-    expected.stringElement(TestOutput.ID_DOC_TYPE, "Abc123");
+    TestProcessor expected = new TestProcessor();
+    expected.stringElement(TestProcessor.ID_DOC_TYPE, "Abc123");
     assertEvents(input, expected.events);
   }
 
   @Test
   public void testStringElementWithZeroPadding() throws IOException, InterruptedException {
     ExtractorInput input = createTestInput(0x42, 0x82, 0x86, 0x41, 0x62, 0x63, 0x00, 0x00, 0x00);
-    TestOutput expected = new TestOutput();
-    expected.stringElement(TestOutput.ID_DOC_TYPE, "Abc");
+    TestProcessor expected = new TestProcessor();
+    expected.stringElement(TestProcessor.ID_DOC_TYPE, "Abc");
     assertEvents(input, expected.events);
   }
 
   @Test
   public void testStringElementEmpty() throws IOException, InterruptedException {
     ExtractorInput input = createTestInput(0x42, 0x82, 0x80);
-    TestOutput expected = new TestOutput();
-    expected.stringElement(TestOutput.ID_DOC_TYPE, "");
+    TestProcessor expected = new TestProcessor();
+    expected.stringElement(TestProcessor.ID_DOC_TYPE, "");
     assertEvents(input, expected.events);
   }
 
@@ -109,8 +107,8 @@ public class DefaultEbmlReaderTest {
   public void testFloatElementFourBytes() throws IOException, InterruptedException {
     ExtractorInput input =
         createTestInput(0x44, 0x89, 0x84, 0x3F, 0x80, 0x00, 0x00);
-    TestOutput expected = new TestOutput();
-    expected.floatElement(TestOutput.ID_DURATION, 1.0);
+    TestProcessor expected = new TestProcessor();
+    expected.floatElement(TestProcessor.ID_DURATION, 1.0);
     assertEvents(input, expected.events);
   }
 
@@ -118,8 +116,8 @@ public class DefaultEbmlReaderTest {
   public void testFloatElementEightBytes() throws IOException, InterruptedException {
     ExtractorInput input =
         createTestInput(0x44, 0x89, 0x88, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-    TestOutput expected = new TestOutput();
-    expected.floatElement(TestOutput.ID_DURATION, -2.0);
+    TestProcessor expected = new TestProcessor();
+    expected.floatElement(TestProcessor.ID_DURATION, -2.0);
     assertEvents(input, expected.events);
   }
 
@@ -127,8 +125,10 @@ public class DefaultEbmlReaderTest {
   public void testBinaryElement() throws IOException, InterruptedException {
     ExtractorInput input =
         createTestInput(0xA3, 0x88, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08);
-    TestOutput expected = new TestOutput();
-    expected.binaryElement(TestOutput.ID_SIMPLE_BLOCK, 8,
+    TestProcessor expected = new TestProcessor();
+    expected.binaryElement(
+        TestProcessor.ID_SIMPLE_BLOCK,
+        8,
         createTestInput(0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
     assertEvents(input, expected.events);
   }
@@ -136,7 +136,7 @@ public class DefaultEbmlReaderTest {
   private static void assertEvents(ExtractorInput input, List<String> expectedEvents)
       throws IOException, InterruptedException {
     DefaultEbmlReader reader = new DefaultEbmlReader();
-    TestOutput output = new TestOutput();
+    TestProcessor output = new TestProcessor();
     reader.init(output);
 
     // We expect the number of successful reads to equal the number of expected events.
@@ -164,10 +164,8 @@ public class DefaultEbmlReaderTest {
         .build();
   }
 
-  /**
-   * An {@link EbmlReaderOutput} that records each event callback.
-   */
-  private static final class TestOutput implements EbmlReaderOutput {
+  /** An {@link EbmlProcessor} that records each event callback. */
+  private static final class TestProcessor implements EbmlProcessor {
 
     // Element IDs
     private static final int ID_EBML = 0x1A45DFA3;
@@ -182,22 +180,23 @@ public class DefaultEbmlReaderTest {
     private final List<String> events = new ArrayList<>();
 
     @Override
-    public @ElementType int getElementType(int id) {
+    @EbmlProcessor.ElementType
+    public int getElementType(int id) {
       switch (id) {
         case ID_EBML:
         case ID_SEGMENT:
-          return TYPE_MASTER;
+          return EbmlProcessor.ELEMENT_TYPE_MASTER;
         case ID_EBML_READ_VERSION:
         case ID_DOC_TYPE_READ_VERSION:
-          return TYPE_UNSIGNED_INT;
+          return EbmlProcessor.ELEMENT_TYPE_UNSIGNED_INT;
         case ID_DOC_TYPE:
-          return TYPE_STRING;
+          return EbmlProcessor.ELEMENT_TYPE_STRING;
         case ID_SIMPLE_BLOCK:
-          return TYPE_BINARY;
+          return EbmlProcessor.ELEMENT_TYPE_BINARY;
         case ID_DURATION:
-          return TYPE_FLOAT;
+          return EbmlProcessor.ELEMENT_TYPE_FLOAT;
         default:
-          return TYPE_UNKNOWN;
+          return EbmlProcessor.ELEMENT_TYPE_UNKNOWN;
       }
     }
 
@@ -219,12 +218,12 @@ public class DefaultEbmlReaderTest {
 
     @Override
     public void integerElement(int id, long value) {
-      events.add(formatEvent(id, "integer=" + String.valueOf(value)));
+      events.add(formatEvent(id, "integer=" + value));
     }
 
     @Override
     public void floatElement(int id, double value) {
-      events.add(formatEvent(id, "float=" + String.valueOf(value)));
+      events.add(formatEvent(id, "float=" + value));
     }
 
     @Override

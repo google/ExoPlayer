@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.upstream;
 
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import java.util.ArrayList;
 
 /**
@@ -33,7 +33,7 @@ public abstract class BaseDataSource implements DataSource {
   private final ArrayList<TransferListener> listeners;
 
   private int listenerCount;
-  private @Nullable DataSpec dataSpec;
+  @Nullable private DataSpec dataSpec;
 
   /**
    * Creates base data source.

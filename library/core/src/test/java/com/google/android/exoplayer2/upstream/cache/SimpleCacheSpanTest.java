@@ -18,28 +18,28 @@ package com.google.android.exoplayer2.upstream.cache;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import android.util.LongSparseArray;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeSet;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
 /** Unit tests for {@link SimpleCacheSpan}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class SimpleCacheSpanTest {
 
   public static File createCacheSpanFile(
-      File cacheDir, int id, long offset, long length, long lastAccessTimestamp)
-      throws IOException {
-    File cacheFile = SimpleCacheSpan.getCacheFile(cacheDir, id, offset, lastAccessTimestamp);
+      File cacheDir, int id, long offset, long length, long lastTouchTimestamp) throws IOException {
+    File cacheFile = SimpleCacheSpan.getCacheFile(cacheDir, id, offset, lastTouchTimestamp);
     createTestFile(cacheFile, length);
     return cacheFile;
   }
@@ -50,8 +50,8 @@ public class SimpleCacheSpanTest {
   @Before
   public void setUp() throws Exception {
     cacheDir =
-        Util.createTempDirectory(RuntimeEnvironment.application, "ExoPlayerTest");
-    index = new CachedContentIndex(cacheDir);
+        Util.createTempDirectory(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
+    index = new CachedContentIndex(TestUtil.getInMemoryDatabaseProvider());
   }
 
   @After
@@ -111,18 +111,18 @@ public class SimpleCacheSpanTest {
     TreeSet<SimpleCacheSpan> spans = index.get(key).getSpans();
     assertWithMessage("upgradeOldFiles() shouldn't add any spans.").that(spans.isEmpty()).isTrue();
 
-    HashMap<Long, Long> cachedPositions = new HashMap<>();
+    LongSparseArray<Long> cachedPositions = new LongSparseArray<>();
     for (File file : files) {
       SimpleCacheSpan cacheSpan = SimpleCacheSpan.createCacheEntry(file, file.length(), index);
       if (cacheSpan != null) {
         assertThat(cacheSpan.key).isEqualTo(key);
-        cachedPositions.put(cacheSpan.position, cacheSpan.lastAccessTimestamp);
+        cachedPositions.put(cacheSpan.position, cacheSpan.lastTouchTimestamp);
       }
     }
 
-    assertThat(cachedPositions.get((long) 0)).isEqualTo(1);
-    assertThat(cachedPositions.get((long) 1)).isEqualTo(2);
-    assertThat(cachedPositions.get((long) 5)).isEqualTo(6);
+    assertThat(cachedPositions.get(0)).isEqualTo(1);
+    assertThat(cachedPositions.get(1)).isEqualTo(2);
+    assertThat(cachedPositions.get(5)).isEqualTo(6);
   }
 
   private static void createTestFile(File file, long length) throws IOException {
@@ -139,12 +139,11 @@ public class SimpleCacheSpanTest {
     return file;
   }
 
-  private void assertCacheSpan(String key, long offset, long lastAccessTimestamp)
+  private void assertCacheSpan(String key, long offset, long lastTouchTimestamp)
       throws IOException {
     int id = index.assignIdForKey(key);
     long cacheFileLength = 1;
-    File cacheFile =
-        createCacheSpanFile(cacheDir, id, offset, cacheFileLength, lastAccessTimestamp);
+    File cacheFile = createCacheSpanFile(cacheDir, id, offset, cacheFileLength, lastTouchTimestamp);
     SimpleCacheSpan cacheSpan = SimpleCacheSpan.createCacheEntry(cacheFile, cacheFileLength, index);
     String message = cacheFile.toString();
     assertWithMessage(message).that(cacheSpan).isNotNull();
@@ -154,14 +153,13 @@ public class SimpleCacheSpanTest {
     assertWithMessage(message).that(cacheSpan.length).isEqualTo(1);
     assertWithMessage(message).that(cacheSpan.isCached).isTrue();
     assertWithMessage(message).that(cacheSpan.file).isEqualTo(cacheFile);
-    assertWithMessage(message).that(cacheSpan.lastAccessTimestamp).isEqualTo(lastAccessTimestamp);
+    assertWithMessage(message).that(cacheSpan.lastTouchTimestamp).isEqualTo(lastTouchTimestamp);
   }
 
-  private void assertNullCacheSpan(File parent, String key, long offset,
-      long lastAccessTimestamp) {
+  private void assertNullCacheSpan(File parent, String key, long offset, long lastTouchTimestamp) {
     long cacheFileLength = 0;
-    File cacheFile = SimpleCacheSpan.getCacheFile(parent, index.assignIdForKey(key), offset,
-        lastAccessTimestamp);
+    File cacheFile =
+        SimpleCacheSpan.getCacheFile(parent, index.assignIdForKey(key), offset, lastTouchTimestamp);
     CacheSpan cacheSpan = SimpleCacheSpan.createCacheEntry(cacheFile, cacheFileLength, index);
     assertWithMessage(cacheFile.toString()).that(cacheSpan).isNull();
   }

@@ -20,7 +20,10 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.net.Uri;
 import android.util.SparseArray;
-import com.google.android.exoplayer2.C;
+import androidx.annotation.Nullable;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,11 +35,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
 /** Tests {@link CachedContentIndex}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class CachedContentIndexTest {
 
   private final byte[] testIndexV1File = {
@@ -73,14 +74,12 @@ public class CachedContentIndexTest {
       0, 0, 0, 0, 0, 0, 10, 0, // original_content_length
       0x12, 0x15, 0x66, (byte) 0x8A // hashcode_of_CachedContent_array
   };
-  private CachedContentIndex index;
   private File cacheDir;
 
   @Before
   public void setUp() throws Exception {
     cacheDir =
-        Util.createTempDirectory(RuntimeEnvironment.application, "ExoPlayerTest");
-    index = new CachedContentIndex(cacheDir);
+        Util.createTempDirectory(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
   }
 
   @After
@@ -93,6 +92,8 @@ public class CachedContentIndexTest {
     final String key1 = "key1";
     final String key2 = "key2";
     final String key3 = "key3";
+
+    CachedContentIndex index = newInstance();
 
     // Add two CachedContents with add methods
     CachedContent cachedContent1 = index.getOrAdd(key1);
@@ -107,7 +108,7 @@ public class CachedContentIndexTest {
             cachedContent1.id,
             /* offset= */ 10,
             cacheFileLength,
-            /* lastAccessTimestamp= */ 30);
+            /* lastTouchTimestamp= */ 30);
     SimpleCacheSpan span = SimpleCacheSpan.createCacheEntry(cacheSpanFile, cacheFileLength, index);
     assertThat(span).isNotNull();
     cachedContent1.addSpan(span);
@@ -145,17 +146,20 @@ public class CachedContentIndexTest {
   }
 
   @Test
-  public void testStoreAndLoad() throws Exception {
-    assertStoredAndLoadedEqual(index, new CachedContentIndex(cacheDir));
+  public void testLegacyStoreAndLoad() throws Exception {
+    assertStoredAndLoadedEqual(newLegacyInstance(), newLegacyInstance());
   }
 
   @Test
-  public void testLoadV1() throws Exception {
-    FileOutputStream fos = new FileOutputStream(new File(cacheDir, CachedContentIndex.FILE_NAME));
+  public void testLegacyLoadV1() throws Exception {
+    CachedContentIndex index = newLegacyInstance();
+
+    FileOutputStream fos =
+        new FileOutputStream(new File(cacheDir, CachedContentIndex.FILE_NAME_ATOMIC));
     fos.write(testIndexV1File);
     fos.close();
 
-    index.load();
+    index.initialize(/* uid= */ 0);
     assertThat(index.getAll()).hasSize(2);
 
     assertThat(index.assignIdForKey("ABCDE")).isEqualTo(5);
@@ -168,12 +172,15 @@ public class CachedContentIndexTest {
   }
 
   @Test
-  public void testLoadV2() throws Exception {
-    FileOutputStream fos = new FileOutputStream(new File(cacheDir, CachedContentIndex.FILE_NAME));
+  public void testLegacyLoadV2() throws Exception {
+    CachedContentIndex index = newLegacyInstance();
+
+    FileOutputStream fos =
+        new FileOutputStream(new File(cacheDir, CachedContentIndex.FILE_NAME_ATOMIC));
     fos.write(testIndexV2File);
     fos.close();
 
-    index.load();
+    index.initialize(/* uid= */ 0);
     assertThat(index.getAll()).hasSize(2);
 
     assertThat(index.assignIdForKey("ABCDE")).isEqualTo(5);
@@ -188,6 +195,7 @@ public class CachedContentIndexTest {
 
   @Test
   public void testAssignIdForKeyAndGetKeyForId() {
+    CachedContentIndex index = newInstance();
     final String key1 = "key1";
     final String key2 = "key2";
     int id1 = index.assignIdForKey(key1);
@@ -212,21 +220,19 @@ public class CachedContentIndexTest {
   }
 
   @Test
-  public void testEncryption() throws Exception {
-    byte[] key = "Bar12345Bar12345".getBytes(C.UTF8_NAME); // 128 bit key
-    byte[] key2 = "Foo12345Foo12345".getBytes(C.UTF8_NAME); // 128 bit key
+  public void testLegacyEncryption() throws Exception {
+    byte[] key = Util.getUtf8Bytes("Bar12345Bar12345"); // 128 bit key
+    byte[] key2 = Util.getUtf8Bytes("Foo12345Foo12345"); // 128 bit key
 
-    assertStoredAndLoadedEqual(
-        new CachedContentIndex(cacheDir, key), new CachedContentIndex(cacheDir, key));
+    assertStoredAndLoadedEqual(newLegacyInstance(key), newLegacyInstance(key));
 
     // Rename the index file from the test above
-    File file1 = new File(cacheDir, CachedContentIndex.FILE_NAME);
+    File file1 = new File(cacheDir, CachedContentIndex.FILE_NAME_ATOMIC);
     File file2 = new File(cacheDir, "file2compare");
     assertThat(file1.renameTo(file2)).isTrue();
 
     // Write a new index file
-    assertStoredAndLoadedEqual(
-        new CachedContentIndex(cacheDir, key), new CachedContentIndex(cacheDir, key));
+    assertStoredAndLoadedEqual(newLegacyInstance(key), newLegacyInstance(key));
 
     assertThat(file1.length()).isEqualTo(file2.length());
     // Assert file content is different
@@ -238,8 +244,7 @@ public class CachedContentIndexTest {
 
     boolean threw = false;
     try {
-      assertStoredAndLoadedEqual(
-          new CachedContentIndex(cacheDir, key), new CachedContentIndex(cacheDir, key2));
+      assertStoredAndLoadedEqual(newLegacyInstance(key), newLegacyInstance(key2));
     } catch (AssertionError e) {
       threw = true;
     }
@@ -248,8 +253,7 @@ public class CachedContentIndexTest {
         .isTrue();
 
     try {
-      assertStoredAndLoadedEqual(
-          new CachedContentIndex(cacheDir, key), new CachedContentIndex(cacheDir));
+      assertStoredAndLoadedEqual(newLegacyInstance(key), newLegacyInstance());
     } catch (AssertionError e) {
       threw = true;
     }
@@ -258,18 +262,18 @@ public class CachedContentIndexTest {
         .isTrue();
 
     // Non encrypted index file can be read even when encryption key provided.
-    assertStoredAndLoadedEqual(
-        new CachedContentIndex(cacheDir), new CachedContentIndex(cacheDir, key));
+    assertStoredAndLoadedEqual(newLegacyInstance(), newLegacyInstance(key));
 
     // Test multiple store() calls
-    CachedContentIndex index = new CachedContentIndex(cacheDir, key);
+    CachedContentIndex index = newLegacyInstance(key);
     index.getOrAdd("key3");
     index.store();
-    assertStoredAndLoadedEqual(index, new CachedContentIndex(cacheDir, key));
+    assertStoredAndLoadedEqual(index, newLegacyInstance(key));
   }
 
   @Test
   public void testRemoveEmptyNotLockedCachedContent() {
+    CachedContentIndex index = newInstance();
     CachedContent cachedContent = index.getOrAdd("key1");
 
     index.maybeRemove(cachedContent.key);
@@ -279,6 +283,8 @@ public class CachedContentIndexTest {
 
   @Test
   public void testCantRemoveNotEmptyCachedContent() throws Exception {
+    CachedContentIndex index = newInstance();
+
     CachedContent cachedContent = index.getOrAdd("key1");
     long cacheFileLength = 20;
     File cacheFile =
@@ -287,7 +293,7 @@ public class CachedContentIndexTest {
             cachedContent.id,
             /* offset= */ 10,
             cacheFileLength,
-            /* lastAccessTimestamp= */ 30);
+            /* lastTouchTimestamp= */ 30);
     SimpleCacheSpan span = SimpleCacheSpan.createCacheEntry(cacheFile, cacheFileLength, index);
     cachedContent.addSpan(span);
 
@@ -298,6 +304,7 @@ public class CachedContentIndexTest {
 
   @Test
   public void testCantRemoveLockedCachedContent() {
+    CachedContentIndex index = newInstance();
     CachedContent cachedContent = index.getOrAdd("key1");
     cachedContent.setLocked(true);
 
@@ -317,12 +324,29 @@ public class CachedContentIndexTest {
     index.getOrAdd("ABCDE").applyMetadataMutations(mutations2);
     index.store();
 
-    index2.load();
+    index2.initialize(/* uid= */ 0);
     Set<String> keys = index.getKeys();
     Set<String> keys2 = index2.getKeys();
     assertThat(keys2).isEqualTo(keys);
     for (String key : keys) {
       assertThat(index2.get(key)).isEqualTo(index.get(key));
     }
+  }
+
+  private CachedContentIndex newInstance() {
+    return new CachedContentIndex(TestUtil.getInMemoryDatabaseProvider());
+  }
+
+  private CachedContentIndex newLegacyInstance() {
+    return newLegacyInstance(null);
+  }
+
+  private CachedContentIndex newLegacyInstance(@Nullable byte[] key) {
+    return new CachedContentIndex(
+        /* databaseProvider= */ null,
+        cacheDir,
+        /* legacyStorageSecretKey= */ key,
+        /* legacyStorageEncrypt= */ key != null,
+        /* preferLegacyStorage= */ true);
   }
 }

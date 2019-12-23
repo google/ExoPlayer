@@ -15,14 +15,12 @@
  */
 package com.google.android.exoplayer2.demo;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.util.JsonReader;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,8 +34,13 @@ import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.RenderersFactory;
+import com.google.android.exoplayer2.demo.Sample.DrmInfo;
+import com.google.android.exoplayer2.demo.Sample.PlaylistSample;
+import com.google.android.exoplayer2.demo.Sample.UriSample;
 import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceInputStream;
@@ -55,7 +58,7 @@ import java.util.Collections;
 import java.util.List;
 
 /** An activity for selecting from a list of media samples. */
-public class SampleChooserActivity extends Activity
+public class SampleChooserActivity extends AppCompatActivity
     implements DownloadTracker.Listener, OnChildClickListener {
 
   private static final String TAG = "SampleChooserActivity";
@@ -65,6 +68,7 @@ public class SampleChooserActivity extends Activity
   private SampleAdapter sampleAdapter;
   private MenuItem preferExtensionDecodersMenuItem;
   private MenuItem randomAbrMenuItem;
+  private MenuItem tunnelingMenuItem;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -122,6 +126,10 @@ public class SampleChooserActivity extends Activity
     preferExtensionDecodersMenuItem = menu.findItem(R.id.prefer_extension_decoders);
     preferExtensionDecodersMenuItem.setVisible(useExtensionRenderers);
     randomAbrMenuItem = menu.findItem(R.id.random_abr);
+    tunnelingMenuItem = menu.findItem(R.id.tunneling);
+    if (Util.SDK_INT < 21) {
+      tunnelingMenuItem.setEnabled(false);
+    }
     return true;
   }
 
@@ -161,13 +169,18 @@ public class SampleChooserActivity extends Activity
   public boolean onChildClick(
       ExpandableListView parent, View view, int groupPosition, int childPosition, long id) {
     Sample sample = (Sample) view.getTag();
-    startActivity(
-        sample.buildIntent(
-            /* context= */ this,
-            isNonNullAndChecked(preferExtensionDecodersMenuItem),
-            isNonNullAndChecked(randomAbrMenuItem)
-                ? PlayerActivity.ABR_ALGORITHM_RANDOM
-                : PlayerActivity.ABR_ALGORITHM_DEFAULT));
+    Intent intent = new Intent(this, PlayerActivity.class);
+    intent.putExtra(
+        PlayerActivity.PREFER_EXTENSION_DECODERS_EXTRA,
+        isNonNullAndChecked(preferExtensionDecodersMenuItem));
+    String abrAlgorithm =
+        isNonNullAndChecked(randomAbrMenuItem)
+            ? PlayerActivity.ABR_ALGORITHM_RANDOM
+            : PlayerActivity.ABR_ALGORITHM_DEFAULT;
+    intent.putExtra(PlayerActivity.ABR_ALGORITHM_EXTRA, abrAlgorithm);
+    intent.putExtra(PlayerActivity.TUNNELING_EXTRA, isNonNullAndChecked(tunnelingMenuItem));
+    sample.addToIntent(intent);
+    startActivity(intent);
     return true;
   }
 
@@ -182,7 +195,11 @@ public class SampleChooserActivity extends Activity
           ((DemoApplication) getApplication())
               .buildRenderersFactory(isNonNullAndChecked(preferExtensionDecodersMenuItem));
       downloadTracker.toggleDownload(
-          this, sample.name, uriSample.uri, uriSample.extension, renderersFactory);
+          getSupportFragmentManager(),
+          sample.name,
+          uriSample.uri,
+          uriSample.extension,
+          renderersFactory);
     }
   }
 
@@ -193,6 +210,9 @@ public class SampleChooserActivity extends Activity
     UriSample uriSample = (UriSample) sample;
     if (uriSample.drmInfo != null) {
       return R.string.download_drm_unsupported;
+    }
+    if (uriSample.isLive) {
+      return R.string.download_live_unsupported;
     }
     if (uriSample.adTagUri != null) {
       return R.string.download_ads_unsupported;
@@ -283,13 +303,19 @@ public class SampleChooserActivity extends Activity
       String sampleName = null;
       Uri uri = null;
       String extension = null;
+      boolean isLive = false;
       String drmScheme = null;
       String drmLicenseUrl = null;
       String[] drmKeyRequestProperties = null;
+      String[] drmSessionForClearTypes = null;
       boolean drmMultiSession = false;
       ArrayList<UriSample> playlistSamples = null;
       String adTagUri = null;
       String sphericalStereoMode = null;
+      List<Sample.SubtitleInfo> subtitleInfos = new ArrayList<>();
+      Uri subtitleUri = null;
+      String subtitleMimeType = null;
+      String subtitleLanguage = null;
 
       reader.beginObject();
       while (reader.hasNext()) {
@@ -305,17 +331,15 @@ public class SampleChooserActivity extends Activity
             extension = reader.nextString();
             break;
           case "drm_scheme":
-            Assertions.checkState(!insidePlaylist, "Invalid attribute on nested item: drm_scheme");
             drmScheme = reader.nextString();
             break;
+          case "is_live":
+            isLive = reader.nextBoolean();
+            break;
           case "drm_license_url":
-            Assertions.checkState(!insidePlaylist,
-                "Invalid attribute on nested item: drm_license_url");
             drmLicenseUrl = reader.nextString();
             break;
           case "drm_key_request_properties":
-            Assertions.checkState(!insidePlaylist,
-                "Invalid attribute on nested item: drm_key_request_properties");
             ArrayList<String> drmKeyRequestPropertiesList = new ArrayList<>();
             reader.beginObject();
             while (reader.hasNext()) {
@@ -325,6 +349,15 @@ public class SampleChooserActivity extends Activity
             reader.endObject();
             drmKeyRequestProperties = drmKeyRequestPropertiesList.toArray(new String[0]);
             break;
+          case "drm_session_for_clear_types":
+            ArrayList<String> drmSessionForClearTypesList = new ArrayList<>();
+            reader.beginArray();
+            while (reader.hasNext()) {
+              drmSessionForClearTypesList.add(reader.nextString());
+            }
+            reader.endArray();
+            drmSessionForClearTypes = drmSessionForClearTypesList.toArray(new String[0]);
+            break;
           case "drm_multi_session":
             drmMultiSession = reader.nextBoolean();
             break;
@@ -333,7 +366,7 @@ public class SampleChooserActivity extends Activity
             playlistSamples = new ArrayList<>();
             reader.beginArray();
             while (reader.hasNext()) {
-              playlistSamples.add((UriSample) readEntry(reader, true));
+              playlistSamples.add((UriSample) readEntry(reader, /* insidePlaylist= */ true));
             }
             reader.endArray();
             break;
@@ -345,6 +378,15 @@ public class SampleChooserActivity extends Activity
                 !insidePlaylist, "Invalid attribute on nested item: spherical_stereo_mode");
             sphericalStereoMode = reader.nextString();
             break;
+          case "subtitle_uri":
+            subtitleUri = Uri.parse(reader.nextString());
+            break;
+          case "subtitle_mime_type":
+            subtitleMimeType = reader.nextString();
+            break;
+          case "subtitle_language":
+            subtitleLanguage = reader.nextString();
+            break;
           default:
             throw new ParserException("Unsupported attribute name: " + name);
         }
@@ -353,18 +395,33 @@ public class SampleChooserActivity extends Activity
       DrmInfo drmInfo =
           drmScheme == null
               ? null
-              : new DrmInfo(drmScheme, drmLicenseUrl, drmKeyRequestProperties, drmMultiSession);
+              : new DrmInfo(
+                  Util.getDrmUuid(drmScheme),
+                  drmLicenseUrl,
+                  drmKeyRequestProperties,
+                  Sample.toTrackTypeArray(drmSessionForClearTypes),
+                  drmMultiSession);
+      Sample.SubtitleInfo subtitleInfo =
+          subtitleUri == null
+              ? null
+              : new Sample.SubtitleInfo(
+                  subtitleUri,
+                  Assertions.checkNotNull(
+                      subtitleMimeType, "subtitle_mime_type is required if subtitle_uri is set."),
+                  subtitleLanguage);
       if (playlistSamples != null) {
         UriSample[] playlistSamplesArray = playlistSamples.toArray(new UriSample[0]);
-        return new PlaylistSample(sampleName, drmInfo, playlistSamplesArray);
+        return new PlaylistSample(sampleName, playlistSamplesArray);
       } else {
         return new UriSample(
             sampleName,
-            drmInfo,
             uri,
             extension,
-            adTagUri,
-            sphericalStereoMode);
+            isLive,
+            drmInfo,
+            adTagUri != null ? Uri.parse(adTagUri) : null,
+            sphericalStereoMode,
+            subtitleInfo);
       }
     }
 
@@ -476,7 +533,7 @@ public class SampleChooserActivity extends Activity
       ImageButton downloadButton = view.findViewById(R.id.download_button);
       downloadButton.setTag(sample);
       downloadButton.setColorFilter(
-          canDownload ? (isDownloaded ? 0xFF42A5F5 : 0xFFBDBDBD) : 0xFFEEEEEE);
+          canDownload ? (isDownloaded ? 0xFF42A5F5 : 0xFFBDBDBD) : 0xFF666666);
       downloadButton.setImageResource(
           isDownloaded ? R.drawable.ic_download_done : R.drawable.ic_download);
     }
@@ -493,116 +550,4 @@ public class SampleChooserActivity extends Activity
     }
 
   }
-
-  private static final class DrmInfo {
-    public final String drmScheme;
-    public final String drmLicenseUrl;
-    public final String[] drmKeyRequestProperties;
-    public final boolean drmMultiSession;
-
-    public DrmInfo(
-        String drmScheme,
-        String drmLicenseUrl,
-        String[] drmKeyRequestProperties,
-        boolean drmMultiSession) {
-      this.drmScheme = drmScheme;
-      this.drmLicenseUrl = drmLicenseUrl;
-      this.drmKeyRequestProperties = drmKeyRequestProperties;
-      this.drmMultiSession = drmMultiSession;
-    }
-
-    public void updateIntent(Intent intent) {
-      Assertions.checkNotNull(intent);
-      intent.putExtra(PlayerActivity.DRM_SCHEME_EXTRA, drmScheme);
-      intent.putExtra(PlayerActivity.DRM_LICENSE_URL_EXTRA, drmLicenseUrl);
-      intent.putExtra(PlayerActivity.DRM_KEY_REQUEST_PROPERTIES_EXTRA, drmKeyRequestProperties);
-      intent.putExtra(PlayerActivity.DRM_MULTI_SESSION_EXTRA, drmMultiSession);
-    }
-  }
-
-  private abstract static class Sample {
-    public final String name;
-    public final DrmInfo drmInfo;
-
-    public Sample(String name, DrmInfo drmInfo) {
-      this.name = name;
-      this.drmInfo = drmInfo;
-    }
-
-    public Intent buildIntent(
-        Context context, boolean preferExtensionDecoders, String abrAlgorithm) {
-      Intent intent = new Intent(context, PlayerActivity.class);
-      intent.putExtra(PlayerActivity.PREFER_EXTENSION_DECODERS_EXTRA, preferExtensionDecoders);
-      intent.putExtra(PlayerActivity.ABR_ALGORITHM_EXTRA, abrAlgorithm);
-      if (drmInfo != null) {
-        drmInfo.updateIntent(intent);
-      }
-      return intent;
-    }
-
-  }
-
-  private static final class UriSample extends Sample {
-
-    public final Uri uri;
-    public final String extension;
-    public final String adTagUri;
-    public final String sphericalStereoMode;
-
-    public UriSample(
-        String name,
-        DrmInfo drmInfo,
-        Uri uri,
-        String extension,
-        String adTagUri,
-        String sphericalStereoMode) {
-      super(name, drmInfo);
-      this.uri = uri;
-      this.extension = extension;
-      this.adTagUri = adTagUri;
-      this.sphericalStereoMode = sphericalStereoMode;
-    }
-
-    @Override
-    public Intent buildIntent(
-        Context context, boolean preferExtensionDecoders, String abrAlgorithm) {
-      return super.buildIntent(context, preferExtensionDecoders, abrAlgorithm)
-          .setData(uri)
-          .putExtra(PlayerActivity.EXTENSION_EXTRA, extension)
-          .putExtra(PlayerActivity.AD_TAG_URI_EXTRA, adTagUri)
-          .putExtra(PlayerActivity.SPHERICAL_STEREO_MODE_EXTRA, sphericalStereoMode)
-          .setAction(PlayerActivity.ACTION_VIEW);
-    }
-
-  }
-
-  private static final class PlaylistSample extends Sample {
-
-    public final UriSample[] children;
-
-    public PlaylistSample(
-        String name,
-        DrmInfo drmInfo,
-        UriSample... children) {
-      super(name, drmInfo);
-      this.children = children;
-    }
-
-    @Override
-    public Intent buildIntent(
-        Context context, boolean preferExtensionDecoders, String abrAlgorithm) {
-      String[] uris = new String[children.length];
-      String[] extensions = new String[children.length];
-      for (int i = 0; i < children.length; i++) {
-        uris[i] = children[i].uri.toString();
-        extensions[i] = children[i].extension;
-      }
-      return super.buildIntent(context, preferExtensionDecoders, abrAlgorithm)
-          .putExtra(PlayerActivity.URI_LIST_EXTRA, uris)
-          .putExtra(PlayerActivity.EXTENSION_LIST_EXTRA, extensions)
-          .setAction(PlayerActivity.ACTION_VIEW_LIST);
-    }
-
-  }
-
 }

@@ -15,11 +15,14 @@
  */
 package com.google.android.exoplayer2.ext.flac;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.decoder.SimpleOutputBuffer;
-import com.google.android.exoplayer2.util.FlacStreamInfo;
+import com.google.android.exoplayer2.util.FlacStreamMetadata;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -56,21 +59,20 @@ import java.util.List;
     }
     decoderJni = new FlacDecoderJni();
     decoderJni.setData(ByteBuffer.wrap(initializationData.get(0)));
-    FlacStreamInfo streamInfo;
+    FlacStreamMetadata streamMetadata;
     try {
-      streamInfo = decoderJni.decodeMetadata();
+      streamMetadata = decoderJni.decodeStreamMetadata();
+    } catch (ParserException e) {
+      throw new FlacDecoderException("Failed to decode StreamInfo", e);
     } catch (IOException | InterruptedException e) {
       // Never happens.
       throw new IllegalStateException(e);
     }
-    if (streamInfo == null) {
-      throw new FlacDecoderException("Metadata decoding failed");
-    }
 
     int initialInputBufferSize =
-        maxInputBufferSize != Format.NO_VALUE ? maxInputBufferSize : streamInfo.maxFrameSize;
+        maxInputBufferSize != Format.NO_VALUE ? maxInputBufferSize : streamMetadata.maxFrameSize;
     setInitialInputBufferSize(initialInputBufferSize);
-    maxOutputBufferSize = streamInfo.maxDecodedFrameSize();
+    maxOutputBufferSize = streamMetadata.getMaxDecodedFrameSize();
   }
 
   @Override
@@ -94,12 +96,13 @@ import java.util.List;
   }
 
   @Override
+  @Nullable
   protected FlacDecoderException decode(
       DecoderInputBuffer inputBuffer, SimpleOutputBuffer outputBuffer, boolean reset) {
     if (reset) {
       decoderJni.flush();
     }
-    decoderJni.setData(inputBuffer.data);
+    decoderJni.setData(Util.castNonNull(inputBuffer.data));
     ByteBuffer outputData = outputBuffer.init(inputBuffer.timeUs, maxOutputBufferSize);
     try {
       decoderJni.decodeSample(outputData);

@@ -16,11 +16,13 @@
 package com.google.android.exoplayer2.ext.flac;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
 
 import android.content.Context;
 import android.net.Uri;
-import android.support.annotation.Nullable;
-import android.test.InstrumentationTestCase;
+import androidx.annotation.Nullable;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -38,9 +40,13 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /** Seeking tests for {@link FlacExtractor} when the FLAC stream does not have a SEEKTABLE. */
-public final class FlacExtractorSeekTest extends InstrumentationTestCase {
+@RunWith(AndroidJUnit4.class)
+public final class FlacExtractorSeekTest {
 
   private static final String NO_SEEKTABLE_FLAC = "bear_no_seek.flac";
   private static final int DURATION_US = 2_741_000;
@@ -54,23 +60,24 @@ public final class FlacExtractorSeekTest extends InstrumentationTestCase {
   private PositionHolder positionHolder;
   private long totalInputLength;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() throws Exception {
     if (!FlacLibrary.isAvailable()) {
       fail("Flac library not available.");
     }
     expectedOutput = new FakeExtractorOutput();
-    extractAllSamplesFromFileToExpectedOutput(getInstrumentation().getContext(), NO_SEEKTABLE_FLAC);
+    extractAllSamplesFromFileToExpectedOutput(
+        ApplicationProvider.getApplicationContext(), NO_SEEKTABLE_FLAC);
     expectedTrackOutput = expectedOutput.trackOutputs.get(0);
 
     dataSource =
-        new DefaultDataSourceFactory(getInstrumentation().getContext(), "UserAgent")
+        new DefaultDataSourceFactory(ApplicationProvider.getApplicationContext(), "UserAgent")
             .createDataSource();
     totalInputLength = readInputLength();
     positionHolder = new PositionHolder();
   }
 
+  @Test
   public void testFlacExtractorReads_nonSeekTableFile_returnSeekableSeekMap()
       throws IOException, InterruptedException {
     FlacExtractor extractor = new FlacExtractor();
@@ -82,6 +89,7 @@ public final class FlacExtractorSeekTest extends InstrumentationTestCase {
     assertThat(seekMap.isSeekable()).isTrue();
   }
 
+  @Test
   public void testHandlePendingSeek_handlesSeekingToPositionInFile_extractsCorrectFrame()
       throws IOException, InterruptedException {
     FlacExtractor extractor = new FlacExtractor();
@@ -98,6 +106,7 @@ public final class FlacExtractorSeekTest extends InstrumentationTestCase {
         trackOutput, targetSeekTimeUs, extractedFrameIndex);
   }
 
+  @Test
   public void testHandlePendingSeek_handlesSeekToEoF_extractsLastFrame()
       throws IOException, InterruptedException {
     FlacExtractor extractor = new FlacExtractor();
@@ -115,6 +124,7 @@ public final class FlacExtractorSeekTest extends InstrumentationTestCase {
         trackOutput, targetSeekTimeUs, extractedFrameIndex);
   }
 
+  @Test
   public void testHandlePendingSeek_handlesSeekingBackward_extractsCorrectFrame()
       throws IOException, InterruptedException {
     FlacExtractor extractor = new FlacExtractor();
@@ -134,6 +144,7 @@ public final class FlacExtractorSeekTest extends InstrumentationTestCase {
         trackOutput, targetSeekTimeUs, extractedFrameIndex);
   }
 
+  @Test
   public void testHandlePendingSeek_handlesSeekingForward_extractsCorrectFrame()
       throws IOException, InterruptedException {
     FlacExtractor extractor = new FlacExtractor();
@@ -153,6 +164,7 @@ public final class FlacExtractorSeekTest extends InstrumentationTestCase {
         trackOutput, targetSeekTimeUs, extractedFrameIndex);
   }
 
+  @Test
   public void testHandlePendingSeek_handlesRandomSeeks_extractsCorrectFrame()
       throws IOException, InterruptedException {
     FlacExtractor extractor = new FlacExtractor();
@@ -223,7 +235,8 @@ public final class FlacExtractorSeekTest extends InstrumentationTestCase {
     }
   }
 
-  private @Nullable SeekMap extractSeekMap(FlacExtractor extractor, FakeExtractorOutput output)
+  @Nullable
+  private SeekMap extractSeekMap(FlacExtractor extractor, FakeExtractorOutput output)
       throws IOException, InterruptedException {
     try {
       ExtractorInput input = getExtractorInputFromPosition(0);

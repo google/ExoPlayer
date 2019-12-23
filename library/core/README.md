@@ -6,4 +6,4 @@ The core of the ExoPlayer library.
 
 * [Javadoc][]: Note that this Javadoc is combined with that of other modules.
 
-[Javadoc]: https://google.github.io/ExoPlayer/doc/reference/index.html
+[Javadoc]: https://exoplayer.dev/doc/reference/index.html

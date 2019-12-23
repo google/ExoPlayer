@@ -16,8 +16,8 @@
 package com.google.android.exoplayer2.testutil;
 
 import android.os.Looper;
-import android.support.annotation.Nullable;
 import android.view.Surface;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
@@ -26,22 +26,27 @@ import com.google.android.exoplayer2.PlayerMessage;
 import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.testutil.Action.ClearVideoSurface;
 import com.google.android.exoplayer2.testutil.Action.ExecuteRunnable;
 import com.google.android.exoplayer2.testutil.Action.PlayUntilPosition;
-import com.google.android.exoplayer2.testutil.Action.PrepareSource;
 import com.google.android.exoplayer2.testutil.Action.Seek;
 import com.google.android.exoplayer2.testutil.Action.SendMessages;
+import com.google.android.exoplayer2.testutil.Action.SetAudioAttributes;
 import com.google.android.exoplayer2.testutil.Action.SetPlayWhenReady;
 import com.google.android.exoplayer2.testutil.Action.SetPlaybackParameters;
 import com.google.android.exoplayer2.testutil.Action.SetRendererDisabled;
 import com.google.android.exoplayer2.testutil.Action.SetRepeatMode;
 import com.google.android.exoplayer2.testutil.Action.SetShuffleModeEnabled;
+import com.google.android.exoplayer2.testutil.Action.SetShuffleOrder;
 import com.google.android.exoplayer2.testutil.Action.SetVideoSurface;
 import com.google.android.exoplayer2.testutil.Action.Stop;
 import com.google.android.exoplayer2.testutil.Action.ThrowPlaybackException;
 import com.google.android.exoplayer2.testutil.Action.WaitForIsLoading;
+import com.google.android.exoplayer2.testutil.Action.WaitForMessage;
+import com.google.android.exoplayer2.testutil.Action.WaitForPlayWhenReady;
 import com.google.android.exoplayer2.testutil.Action.WaitForPlaybackState;
 import com.google.android.exoplayer2.testutil.Action.WaitForPositionDiscontinuity;
 import com.google.android.exoplayer2.testutil.Action.WaitForSeekProcessed;
@@ -131,7 +136,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules an action to be executed.
+     * Schedules an action.
      *
      * @param action The action to schedule.
      * @return The builder, for convenience.
@@ -141,7 +146,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules an action to be executed repeatedly.
+     * Schedules an action repeatedly.
      *
      * @param action The action to schedule.
      * @param intervalMs The interval between each repetition in milliseconds.
@@ -152,7 +157,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a seek action to be executed.
+     * Schedules a seek action.
      *
      * @param positionMs The seek position.
      * @return The builder, for convenience.
@@ -162,18 +167,30 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a seek action to be executed.
+     * Schedules a seek action.
      *
      * @param windowIndex The window to seek to.
      * @param positionMs The seek position.
      * @return The builder, for convenience.
      */
     public Builder seek(int windowIndex, long positionMs) {
-      return apply(new Seek(tag, windowIndex, positionMs));
+      return apply(new Seek(tag, windowIndex, positionMs, /* catchIllegalSeekException= */ false));
     }
 
     /**
-     * Schedules a seek action to be executed and waits until playback resumes after the seek.
+     * Schedules a seek action to be executed.
+     *
+     * @param windowIndex The window to seek to.
+     * @param positionMs The seek position.
+     * @param catchIllegalSeekException Whether an illegal seek position should be caught or not.
+     * @return The builder, for convenience.
+     */
+    public Builder seek(int windowIndex, long positionMs, boolean catchIllegalSeekException) {
+      return apply(new Seek(tag, windowIndex, positionMs, catchIllegalSeekException));
+    }
+
+    /**
+     * Schedules a seek action and waits until playback resumes after the seek.
      *
      * @param positionMs The seek position.
      * @return The builder, for convenience.
@@ -194,7 +211,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a playback parameters setting action to be executed.
+     * Schedules a playback parameters setting action.
      *
      * @param playbackParameters The playback parameters to set.
      * @return The builder, for convenience.
@@ -205,7 +222,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a stop action to be executed.
+     * Schedules a stop action.
      *
      * @return The builder, for convenience.
      */
@@ -214,7 +231,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a stop action to be executed.
+     * Schedules a stop action.
      *
      * @param reset Whether the player should be reset.
      * @return The builder, for convenience.
@@ -224,7 +241,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a play action to be executed.
+     * Schedules a play action.
      *
      * @return The builder, for convenience.
      */
@@ -233,8 +250,8 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a play action to be executed, waits until the player reaches the specified
-     * position, and pauses the player again.
+     * Schedules a play action, waits until the player reaches the specified position, and pauses
+     * the player again.
      *
      * @param windowIndex The window index at which the player should be paused again.
      * @param positionMs The position in that window at which the player should be paused again.
@@ -245,8 +262,8 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a play action to be executed, waits until the player reaches the start of the
-     * specified window, and pauses the player again.
+     * Schedules a play action, waits until the player reaches the start of the specified window,
+     * and pauses the player again.
      *
      * @param windowIndex The window index at which the player should be paused again.
      * @return The builder, for convenience.
@@ -256,7 +273,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a pause action to be executed.
+     * Schedules a pause action.
      *
      * @return The builder, for convenience.
      */
@@ -265,7 +282,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a renderer enable action to be executed.
+     * Schedules a renderer enable action.
      *
      * @return The builder, for convenience.
      */
@@ -274,7 +291,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a renderer disable action to be executed.
+     * Schedules a renderer disable action.
      *
      * @return The builder, for convenience.
      */
@@ -283,7 +300,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a clear video surface action to be executed.
+     * Schedules a clear video surface action.
      *
      * @return The builder, for convenience.
      */
@@ -292,7 +309,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a set video surface action to be executed.
+     * Schedules a set video surface action.
      *
      * @return The builder, for convenience.
      */
@@ -301,32 +318,127 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a new source preparation action to be executed.
+     * Schedules application of audio attributes.
      *
      * @return The builder, for convenience.
      */
-    public Builder prepareSource(MediaSource mediaSource) {
-      return apply(new PrepareSource(tag, mediaSource));
+    public Builder setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus) {
+      return apply(new SetAudioAttributes(tag, audioAttributes, handleAudioFocus));
     }
 
     /**
-     * Schedules a new source preparation action to be executed.
-     * @see com.google.android.exoplayer2.ExoPlayer#prepare(MediaSource, boolean, boolean).
+     * Schedules a set media items action to be executed.
+     *
+     * @param windowIndex The window index to start playback from or {@link C#INDEX_UNSET} if the
+     *     playback position should not be reset.
+     * @param positionMs The position in milliseconds from where playback should start. If {@link
+     *     C#TIME_UNSET} is passed the default position is used. In any case, if {@code windowIndex}
+     *     is set to {@link C#INDEX_UNSET} the position is not reset at all and this parameter is
+     *     ignored.
+     * @return The builder, for convenience.
+     */
+    public Builder setMediaSources(int windowIndex, long positionMs, MediaSource... sources) {
+      return apply(new Action.SetMediaItems(tag, windowIndex, positionMs, sources));
+    }
+
+    /**
+     * Schedules a set media items action to be executed.
+     *
+     * @param resetPosition Whether the playback position should be reset.
+     * @return The builder, for convenience.
+     */
+    public Builder setMediaSources(boolean resetPosition, MediaSource... sources) {
+      return apply(new Action.SetMediaItemsResetPosition(tag, resetPosition, sources));
+    }
+
+    /**
+     * Schedules a set media items action to be executed.
+     *
+     * @param mediaSources The media sources to add.
+     * @return The builder, for convenience.
+     */
+    public Builder setMediaSources(MediaSource... mediaSources) {
+      return apply(
+          new Action.SetMediaItems(
+              tag, /* windowIndex= */ C.INDEX_UNSET, /* positionMs= */ C.TIME_UNSET, mediaSources));
+    }
+    /**
+     * Schedules a add media items action to be executed.
+     *
+     * @param mediaSources The media sources to add.
+     * @return The builder, for convenience.
+     */
+    public Builder addMediaSources(MediaSource... mediaSources) {
+      return apply(new Action.AddMediaItems(tag, mediaSources));
+    }
+
+    /**
+     * Schedules a move media item action to be executed.
+     *
+     * @param currentIndex The current index of the item to move.
+     * @param newIndex The index after the item has been moved.
+     * @return The builder, for convenience.
+     */
+    public Builder moveMediaItem(int currentIndex, int newIndex) {
+      return apply(new Action.MoveMediaItem(tag, currentIndex, newIndex));
+    }
+
+    /**
+     * Schedules a remove media item action to be executed.
+     *
+     * @param index The index of the media item to be removed.
+     * @return The builder, for convenience.
+     */
+    public Builder removeMediaItem(int index) {
+      return apply(new Action.RemoveMediaItem(tag, index));
+    }
+
+    /**
+     * Schedules a remove media items action to be executed.
+     *
+     * @param fromIndex The start of the range of media items to be removed.
+     * @param toIndex The end of the range of media items to be removed (exclusive).
+     * @return The builder, for convenience.
+     */
+    public Builder removeMediaItems(int fromIndex, int toIndex) {
+      return apply(new Action.RemoveMediaItems(tag, fromIndex, toIndex));
+    }
+
+    /**
+     * Schedules a prepare action to be executed.
      *
      * @return The builder, for convenience.
      */
-    public Builder prepareSource(MediaSource mediaSource, boolean resetPosition,
-        boolean resetState) {
-      return apply(new PrepareSource(tag, mediaSource, resetPosition, resetState));
+    public Builder prepare() {
+      return apply(new Action.Prepare(tag));
     }
 
     /**
-     * Schedules a repeat mode setting action to be executed.
+     * Schedules a clear media items action to be created.
+     *
+     * @return The builder. for convenience,
+     */
+    public Builder clearMediaItems() {
+      return apply(new Action.ClearMediaItems(tag));
+    }
+
+    /**
+     * Schedules a repeat mode setting action.
      *
      * @return The builder, for convenience.
      */
     public Builder setRepeatMode(@Player.RepeatMode int repeatMode) {
       return apply(new SetRepeatMode(tag, repeatMode));
+    }
+
+    /**
+     * Schedules a set shuffle order action to be executed.
+     *
+     * @param shuffleOrder The shuffle order.
+     * @return The builder, for convenience.
+     */
+    public Builder setShuffleOrder(ShuffleOrder shuffleOrder) {
+      return apply(new SetShuffleOrder(tag, shuffleOrder));
     }
 
     /**
@@ -382,18 +494,19 @@ public final class ActionSchedule {
      * @return The builder, for convenience.
      */
     public Builder waitForTimelineChanged() {
-      return apply(new WaitForTimelineChanged(tag, /* expectedTimeline= */ null));
+      return apply(new WaitForTimelineChanged(tag));
     }
 
     /**
      * Schedules a delay until the timeline changed to a specified expected timeline.
      *
-     * @param expectedTimeline The expected timeline to wait for. If null, wait for any timeline
-     *     change.
+     * @param expectedTimeline The expected timeline.
+     * @param expectedReason The expected reason of the timeline change.
      * @return The builder, for convenience.
      */
-    public Builder waitForTimelineChanged(Timeline expectedTimeline) {
-      return apply(new WaitForTimelineChanged(tag, expectedTimeline));
+    public Builder waitForTimelineChanged(
+        Timeline expectedTimeline, @Player.TimelineChangeReason int expectedReason) {
+      return apply(new WaitForTimelineChanged(tag, expectedTimeline, expectedReason));
     }
 
     /**
@@ -403,6 +516,16 @@ public final class ActionSchedule {
      */
     public Builder waitForPositionDiscontinuity() {
       return apply(new WaitForPositionDiscontinuity(tag));
+    }
+
+    /**
+     * Schedules a delay until playWhenReady has the specified value.
+     *
+     * @param targetPlayWhenReady The target playWhenReady value.
+     * @return The builder, for convenience.
+     */
+    public Builder waitForPlayWhenReady(boolean targetPlayWhenReady) {
+      return apply(new WaitForPlayWhenReady(tag, targetPlayWhenReady));
     }
 
     /**
@@ -426,7 +549,17 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a {@link Runnable} to be executed.
+     * Schedules a delay until a message arrives at the {@link PlayerMessage.Target}.
+     *
+     * @param playerTarget The target to observe.
+     * @return The builder, for convenience.
+     */
+    public Builder waitForMessage(PlayerTarget playerTarget) {
+      return apply(new WaitForMessage(tag, playerTarget));
+    }
+
+    /**
+     * Schedules a {@link Runnable}.
      *
      * @return The builder, for convenience.
      */
@@ -444,6 +577,7 @@ public final class ActionSchedule {
       return apply(new ThrowPlaybackException(tag, exception));
     }
 
+    /** Builds the schedule. */
     public ActionSchedule build() {
       CallbackAction callbackAction = new CallbackAction(tag);
       apply(callbackAction);
@@ -461,10 +595,28 @@ public final class ActionSchedule {
   /**
    * Provides a wrapper for a {@link Target} which has access to the player when handling messages.
    * Can be used with {@link Builder#sendMessage(Target, long)}.
+   *
+   * <p>The target can be passed to {@link ActionSchedule.Builder#waitForMessage(PlayerTarget)} to
+   * wait for a message to arrive at the target.
    */
   public abstract static class PlayerTarget implements Target {
 
+    /** Callback to be called when message arrives. */
+    public interface Callback {
+      /** Notifies about the arrival of the message. */
+      void onMessageArrived();
+    }
+
     private SimpleExoPlayer player;
+    private boolean hasArrived;
+    private Callback callback;
+
+    public void setCallback(Callback callback) {
+      this.callback = callback;
+      if (hasArrived) {
+        callback.onMessageArrived();
+      }
+    }
 
     /** Handles the message send to the component and additionally provides access to the player. */
     public abstract void handleMessage(
@@ -476,9 +628,12 @@ public final class ActionSchedule {
     }
 
     @Override
-    public final void handleMessage(int messageType, @Nullable Object message)
-        throws ExoPlaybackException {
+    public final void handleMessage(int messageType, @Nullable Object message) {
       handleMessage(player, messageType, message);
+      if (callback != null) {
+        hasArrived = true;
+        callback.onMessageArrived();
+      }
     }
   }
 
@@ -504,9 +659,7 @@ public final class ActionSchedule {
     }
   }
 
-  /**
-   * Wraps an {@link Action}, allowing a delay and a next {@link Action} to be specified.
-   */
+  /** Wraps an {@link Action}, allowing a delay and a next {@link Action} to be specified. */
   /* package */ static final class ActionNode implements Runnable {
 
     private final Action action;
@@ -550,8 +703,8 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules {@link #action} to be executed after {@link #delayMs}. The {@link #next} node will
-     * be scheduled immediately after {@link #action} is executed.
+     * Schedules {@link #action} after {@link #delayMs}. The {@link #next} node will be scheduled
+     * immediately after {@link #action} is executed.
      *
      * @param player The player to which actions should be applied.
      * @param trackSelector The track selector to which actions should be applied.
@@ -613,7 +766,7 @@ public final class ActionSchedule {
    */
   private static final class CallbackAction extends Action {
 
-    private @Nullable Callback callback;
+    @Nullable private Callback callback;
 
     public CallbackAction(String tag) {
       super(tag, "FinishedCallback");

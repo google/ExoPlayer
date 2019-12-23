@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.source.smoothstreaming;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.source.chunk.ChunkSource;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
@@ -55,4 +55,11 @@ public interface SsChunkSource extends ChunkSource {
    * @param newManifest The new manifest.
    */
   void updateManifest(SsManifest newManifest);
+
+  /**
+   * Updates the track selection.
+   *
+   * @param trackSelection The new track selection instance. Must be equivalent to the previous one.
+   */
+  void updateTrackSelection(TrackSelection trackSelection);
 }

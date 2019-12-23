@@ -23,13 +23,13 @@ import com.google.android.exoplayer2.util.Util;
 public final class WavUtil {
 
   /** Four character code for "RIFF". */
-  public static final int RIFF_FOURCC = Util.getIntegerCodeForString("RIFF");
+  public static final int RIFF_FOURCC = 0x52494646;
   /** Four character code for "WAVE". */
-  public static final int WAVE_FOURCC = Util.getIntegerCodeForString("WAVE");
+  public static final int WAVE_FOURCC = 0x57415645;
   /** Four character code for "fmt ". */
-  public static final int FMT_FOURCC = Util.getIntegerCodeForString("fmt ");
+  public static final int FMT_FOURCC = 0x666d7420;
   /** Four character code for "data". */
-  public static final int DATA_FOURCC = Util.getIntegerCodeForString("data");
+  public static final int DATA_FOURCC = 0x64617461;
 
   /** WAVE type value for integer PCM audio data. */
   private static final int TYPE_PCM = 0x0001;
@@ -42,9 +42,16 @@ public final class WavUtil {
   /** WAVE type value for extended WAVE format. */
   private static final int TYPE_WAVE_FORMAT_EXTENSIBLE = 0xFFFE;
 
-  /** Returns the WAVE type value for the given {@code encoding}. */
-  public static int getTypeForEncoding(@C.PcmEncoding int encoding) {
-    switch (encoding) {
+  /**
+   * Returns the WAVE format type value for the given {@link C.PcmEncoding}.
+   *
+   * @param pcmEncoding The {@link C.PcmEncoding} value.
+   * @return The corresponding WAVE format type.
+   * @throws IllegalArgumentException If {@code pcmEncoding} is not a {@link C.PcmEncoding}, or if
+   *     it's {@link C#ENCODING_INVALID} or {@link Format#NO_VALUE}.
+   */
+  public static int getTypeForPcmEncoding(@C.PcmEncoding int pcmEncoding) {
+    switch (pcmEncoding) {
       case C.ENCODING_PCM_8BIT:
       case C.ENCODING_PCM_16BIT:
       case C.ENCODING_PCM_24BIT:
@@ -63,8 +70,11 @@ public final class WavUtil {
     }
   }
 
-  /** Returns the PCM encoding for the given WAVE {@code type} value. */
-  public static @C.PcmEncoding int getEncodingForType(int type, int bitsPerSample) {
+  /**
+   * Returns the {@link C.PcmEncoding} for the given WAVE format type value, or {@link
+   * C#ENCODING_INVALID} if the type is not a known PCM type.
+   */
+  public static @C.PcmEncoding int getPcmEncodingForType(int type, int bitsPerSample) {
     switch (type) {
       case TYPE_PCM:
       case TYPE_WAVE_FORMAT_EXTENSIBLE:

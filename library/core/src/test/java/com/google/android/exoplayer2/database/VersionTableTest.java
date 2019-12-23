@@ -15,64 +15,86 @@
  */
 package com.google.android.exoplayer2.database;
 
-import static com.google.android.exoplayer2.database.VersionTable.FEATURE_CACHE;
-import static com.google.android.exoplayer2.database.VersionTable.FEATURE_OFFLINE;
 import static com.google.common.truth.Truth.assertThat;
 
-import org.junit.After;
+import android.database.sqlite.SQLiteDatabase;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.testutil.TestUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
 /** Unit tests for {@link VersionTable}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class VersionTableTest {
 
-  private ExoDatabaseProvider databaseProvider;
+  private static final int FEATURE_1 = 1;
+  private static final int FEATURE_2 = 2;
+  private static final String INSTANCE_1 = "1";
+  private static final String INSTANCE_2 = "2";
+
+  private DatabaseProvider databaseProvider;
+  private SQLiteDatabase database;
 
   @Before
   public void setUp() {
-    databaseProvider = new ExoDatabaseProvider(RuntimeEnvironment.application);
-  }
-
-  @After
-  public void tearDown() {
-    databaseProvider.close();
+    databaseProvider = TestUtil.getInMemoryDatabaseProvider();
+    database = databaseProvider.getWritableDatabase();
   }
 
   @Test
-  public void getVersion_nonExistingTable_returnsVersionUnset() {
-    VersionTable versionTable = new VersionTable(databaseProvider);
-    int version = versionTable.getVersion(FEATURE_OFFLINE);
+  public void getVersion_unsetFeature_returnsVersionUnset() throws DatabaseIOException {
+    int version = VersionTable.getVersion(database, FEATURE_1, INSTANCE_1);
     assertThat(version).isEqualTo(VersionTable.VERSION_UNSET);
   }
 
   @Test
-  public void getVersion_returnsSetVersion() {
-    VersionTable versionTable = new VersionTable(databaseProvider);
+  public void getVersion_unsetVersion_returnsVersionUnset() throws DatabaseIOException {
+    VersionTable.setVersion(database, FEATURE_1, INSTANCE_1, 1);
+    int version = VersionTable.getVersion(database, FEATURE_1, INSTANCE_2);
+    assertThat(version).isEqualTo(VersionTable.VERSION_UNSET);
+  }
 
-    versionTable.setVersion(FEATURE_OFFLINE, 1);
-    assertThat(versionTable.getVersion(FEATURE_OFFLINE)).isEqualTo(1);
+  @Test
+  public void getVersion_returnsSetVersion() throws DatabaseIOException {
+    VersionTable.setVersion(database, FEATURE_1, INSTANCE_1, 1);
+    assertThat(VersionTable.getVersion(database, FEATURE_1, INSTANCE_1)).isEqualTo(1);
 
-    versionTable.setVersion(FEATURE_OFFLINE, 10);
-    assertThat(versionTable.getVersion(FEATURE_OFFLINE)).isEqualTo(10);
+    VersionTable.setVersion(database, FEATURE_1, INSTANCE_1, 2);
+    assertThat(VersionTable.getVersion(database, FEATURE_1, INSTANCE_1)).isEqualTo(2);
 
-    versionTable.setVersion(FEATURE_CACHE, 5);
-    assertThat(versionTable.getVersion(FEATURE_CACHE)).isEqualTo(5);
-    assertThat(versionTable.getVersion(FEATURE_OFFLINE)).isEqualTo(10);
+    VersionTable.setVersion(database, FEATURE_2, INSTANCE_1, 3);
+    assertThat(VersionTable.getVersion(database, FEATURE_2, INSTANCE_1)).isEqualTo(3);
+    assertThat(VersionTable.getVersion(database, FEATURE_1, INSTANCE_1)).isEqualTo(2);
+
+    VersionTable.setVersion(database, FEATURE_2, INSTANCE_2, 4);
+    assertThat(VersionTable.getVersion(database, FEATURE_2, INSTANCE_2)).isEqualTo(4);
+    assertThat(VersionTable.getVersion(database, FEATURE_2, INSTANCE_1)).isEqualTo(3);
+    assertThat(VersionTable.getVersion(database, FEATURE_1, INSTANCE_1)).isEqualTo(2);
+  }
+
+  @Test
+  public void removeVersion_removesSetVersion() throws DatabaseIOException {
+    VersionTable.setVersion(database, FEATURE_1, INSTANCE_1, 1);
+    VersionTable.setVersion(database, FEATURE_1, INSTANCE_2, 2);
+    assertThat(VersionTable.getVersion(database, FEATURE_1, INSTANCE_1)).isEqualTo(1);
+    assertThat(VersionTable.getVersion(database, FEATURE_1, INSTANCE_2)).isEqualTo(2);
+
+    VersionTable.removeVersion(database, FEATURE_1, INSTANCE_1);
+    assertThat(VersionTable.getVersion(database, FEATURE_1, INSTANCE_1))
+        .isEqualTo(VersionTable.VERSION_UNSET);
+    assertThat(VersionTable.getVersion(database, FEATURE_1, INSTANCE_2)).isEqualTo(2);
   }
 
   @Test
   public void doesTableExist_nonExistingTable_returnsFalse() {
-    assertThat(VersionTable.doesTableExist(databaseProvider, "NonExistingTable")).isFalse();
+    assertThat(VersionTable.tableExists(database, "NonExistingTable")).isFalse();
   }
 
   @Test
   public void doesTableExist_existingTable_returnsTrue() {
     String table = "TestTable";
     databaseProvider.getWritableDatabase().execSQL("CREATE TABLE " + table + " (dummy INTEGER)");
-    assertThat(VersionTable.doesTableExist(databaseProvider, table)).isTrue();
+    assertThat(VersionTable.tableExists(database, table)).isTrue();
   }
 }

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.cast;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.gms.cast.CastStatusCodes;
@@ -31,11 +32,13 @@ import com.google.android.gms.cast.MediaTrack;
    * unknown or not applicable.
    *
    * @param mediaInfo The media info to get the duration from.
-   * @return The duration in microseconds.
+   * @return The duration in microseconds, or {@link C#TIME_UNSET} if unknown or not applicable.
    */
-  public static long getStreamDurationUs(MediaInfo mediaInfo) {
-    long durationMs =
-        mediaInfo != null ? mediaInfo.getStreamDuration() : MediaInfo.UNKNOWN_DURATION;
+  public static long getStreamDurationUs(@Nullable MediaInfo mediaInfo) {
+    if (mediaInfo == null) {
+      return C.TIME_UNSET;
+    }
+    long durationMs = mediaInfo.getStreamDuration();
     return durationMs != MediaInfo.UNKNOWN_DURATION ? C.msToUs(durationMs) : C.TIME_UNSET;
   }
 
@@ -109,6 +112,7 @@ import com.google.android.gms.cast.MediaTrack;
         /* codecs= */ null,
         /* bitrate= */ Format.NO_VALUE,
         /* selectionFlags= */ 0,
+        /* roleFlags= */ 0,
         mediaTrack.getLanguage());
   }
 

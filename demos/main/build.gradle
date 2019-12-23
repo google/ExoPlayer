@@ -16,7 +16,6 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion project.ext.compileSdkVersion
-    buildToolsVersion project.ext.buildToolsVersion
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -26,8 +25,8 @@ android {
     defaultConfig {
         versionName project.ext.releaseVersion
         versionCode project.ext.releaseVersionCode
-        minSdkVersion 16
-        targetSdkVersion project.ext.targetSdkVersion
+        minSdkVersion project.ext.minSdkVersion
+        targetSdkVersion project.ext.appTargetSdkVersion
     }
 
     buildTypes {
@@ -45,8 +44,9 @@ android {
     }
 
     lintOptions {
-        // The demo app does not have translations.
-        disable 'MissingTranslation'
+        // The demo app isn't indexed, doesn't have translations, and has a
+        // banner for AndroidTV that's only in xhdpi density.
+        disable 'GoogleAppIndexingWarning','MissingTranslation','IconDensities'
     }
 
     flavorDimensions "extensions"
@@ -62,12 +62,15 @@ android {
 }
 
 dependencies {
-    implementation 'com.android.support:support-annotations:' + supportLibraryVersion
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+    implementation 'androidx.appcompat:appcompat:' + androidxAppCompatVersion
+    implementation 'com.google.android.material:material:1.0.0'
     implementation project(modulePrefix + 'library-core')
     implementation project(modulePrefix + 'library-dash')
     implementation project(modulePrefix + 'library-hls')
     implementation project(modulePrefix + 'library-smoothstreaming')
     implementation project(modulePrefix + 'library-ui')
+    withExtensionsImplementation project(path: modulePrefix + 'extension-av1')
     withExtensionsImplementation project(path: modulePrefix + 'extension-ffmpeg')
     withExtensionsImplementation project(path: modulePrefix + 'extension-flac')
     withExtensionsImplementation project(path: modulePrefix + 'extension-ima')

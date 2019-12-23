@@ -18,6 +18,8 @@ package com.google.android.exoplayer2.extractor.ts;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer2.testutil.FakeTrackOutput;
@@ -30,11 +32,9 @@ import java.util.Random;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
 /** Unit test for {@link AdtsExtractor}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class AdtsExtractorSeekTest {
 
   private static final Random random = new Random(1234L);
@@ -49,7 +49,7 @@ public final class AdtsExtractorSeekTest {
   @Before
   public void setUp() {
     dataSource =
-        new DefaultDataSourceFactory(RuntimeEnvironment.application, "UserAgent")
+        new DefaultDataSourceFactory(ApplicationProvider.getApplicationContext(), "UserAgent")
             .createDataSource();
   }
 
@@ -60,7 +60,7 @@ public final class AdtsExtractorSeekTest {
     Uri fileUri = TestUtil.buildAssetUri(fileName);
     expectedTrackOutput =
         TestUtil.extractAllSamplesFromFile(
-                createAdtsExtractor(), RuntimeEnvironment.application, fileName)
+                createAdtsExtractor(), ApplicationProvider.getApplicationContext(), fileName)
             .trackOutputs
             .get(0);
 
@@ -80,7 +80,7 @@ public final class AdtsExtractorSeekTest {
     Uri fileUri = TestUtil.buildAssetUri(fileName);
     expectedTrackOutput =
         TestUtil.extractAllSamplesFromFile(
-                createAdtsExtractor(), RuntimeEnvironment.application, fileName)
+                createAdtsExtractor(), ApplicationProvider.getApplicationContext(), fileName)
             .trackOutputs
             .get(0);
 
@@ -107,7 +107,7 @@ public final class AdtsExtractorSeekTest {
     Uri fileUri = TestUtil.buildAssetUri(fileName);
     expectedTrackOutput =
         TestUtil.extractAllSamplesFromFile(
-                createAdtsExtractor(), RuntimeEnvironment.application, fileName)
+                createAdtsExtractor(), ApplicationProvider.getApplicationContext(), fileName)
             .trackOutputs
             .get(0);
     AdtsExtractor extractor = createAdtsExtractor();
@@ -134,7 +134,7 @@ public final class AdtsExtractorSeekTest {
     Uri fileUri = TestUtil.buildAssetUri(fileName);
     expectedTrackOutput =
         TestUtil.extractAllSamplesFromFile(
-                createAdtsExtractor(), RuntimeEnvironment.application, fileName)
+                createAdtsExtractor(), ApplicationProvider.getApplicationContext(), fileName)
             .trackOutputs
             .get(0);
     AdtsExtractor extractor = createAdtsExtractor();
@@ -163,7 +163,7 @@ public final class AdtsExtractorSeekTest {
     Uri fileUri = TestUtil.buildAssetUri(fileName);
     expectedTrackOutput =
         TestUtil.extractAllSamplesFromFile(
-                createAdtsExtractor(), RuntimeEnvironment.application, fileName)
+                createAdtsExtractor(), ApplicationProvider.getApplicationContext(), fileName)
             .trackOutputs
             .get(0);
     AdtsExtractor extractor = createAdtsExtractor();
@@ -192,7 +192,7 @@ public final class AdtsExtractorSeekTest {
     Uri fileUri = TestUtil.buildAssetUri(fileName);
     expectedTrackOutput =
         TestUtil.extractAllSamplesFromFile(
-                createAdtsExtractor(), RuntimeEnvironment.application, fileName)
+                createAdtsExtractor(), ApplicationProvider.getApplicationContext(), fileName)
             .trackOutputs
             .get(0);
     AdtsExtractor extractor = createAdtsExtractor();
@@ -217,9 +217,7 @@ public final class AdtsExtractorSeekTest {
   // Internal methods
 
   private static AdtsExtractor createAdtsExtractor() {
-    return new AdtsExtractor(
-        /* firstStreamSampleTimestampUs= */ 0,
-        /* flags= */ AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING);
+    return new AdtsExtractor(/* flags= */ AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING);
   }
 
   private void assertFirstSampleAfterSeekContainTargetSeekTime(

@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.extractor.mp4;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
@@ -47,8 +47,7 @@ public final class MdtaMetadataEntry implements Metadata.Entry {
 
   private MdtaMetadataEntry(Parcel in) {
     key = Util.castNonNull(in.readString());
-    value = new byte[in.readInt()];
-    in.readByteArray(value);
+    value = Util.castNonNull(in.createByteArray());
     localeIndicator = in.readInt();
     typeIndicator = in.readInt();
   }
@@ -88,7 +87,6 @@ public final class MdtaMetadataEntry implements Metadata.Entry {
   @Override
   public void writeToParcel(Parcel dest, int flags) {
     dest.writeString(key);
-    dest.writeInt(value.length);
     dest.writeByteArray(value);
     dest.writeInt(localeIndicator);
     dest.writeInt(typeIndicator);

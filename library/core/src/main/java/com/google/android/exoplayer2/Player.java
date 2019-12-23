@@ -16,12 +16,12 @@
 package com.google.android.exoplayer2;
 
 import android.os.Looper;
-import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C.VideoScalingMode;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AudioListener;
@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoListener;
 import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
@@ -41,20 +42,20 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * A media player interface defining traditional high-level functionality, such as the ability to
  * play, pause, seek and query properties of the currently playing media.
- * <p>
- * Some important properties of media players that implement this interface are:
+ *
+ * <p>Some important properties of media players that implement this interface are:
+ *
  * <ul>
- *     <li>They can provide a {@link Timeline} representing the structure of the media being played,
- *     which can be obtained by calling {@link #getCurrentTimeline()}.</li>
- *     <li>They can provide a {@link TrackGroupArray} defining the currently available tracks,
- *     which can be obtained by calling {@link #getCurrentTrackGroups()}.</li>
- *     <li>They contain a number of renderers, each of which is able to render tracks of a single
- *     type (e.g. audio, video or text). The number of renderers and their respective track types
- *     can be obtained by calling {@link #getRendererCount()} and {@link #getRendererType(int)}.
- *     </li>
- *     <li>They can provide a {@link TrackSelectionArray} defining which of the currently available
- *     tracks are selected to be rendered by each renderer. This can be obtained by calling
- *     {@link #getCurrentTrackSelections()}}.</li>
+ *   <li>They can provide a {@link Timeline} representing the structure of the media being played,
+ *       which can be obtained by calling {@link #getCurrentTimeline()}.
+ *   <li>They can provide a {@link TrackGroupArray} defining the currently available tracks, which
+ *       can be obtained by calling {@link #getCurrentTrackGroups()}.
+ *   <li>They contain a number of renderers, each of which is able to render tracks of a single type
+ *       (e.g. audio, video or text). The number of renderers and their respective track types can
+ *       be obtained by calling {@link #getRendererCount()} and {@link #getRendererType(int)}.
+ *   <li>They can provide a {@link TrackSelectionArray} defining which of the currently available
+ *       tracks are selected to be rendered by each renderer. This can be obtained by calling {@link
+ *       #getCurrentTrackSelections()}}.
  * </ul>
  */
 public interface Player {
@@ -216,7 +217,7 @@ public interface Player {
      *
      * @param surface The surface to clear.
      */
-    void clearVideoSurface(Surface surface);
+    void clearVideoSurface(@Nullable Surface surface);
 
     /**
      * Sets the {@link Surface} onto which video will be rendered. The caller is responsible for
@@ -239,7 +240,7 @@ public interface Player {
      *
      * @param surfaceHolder The surface holder.
      */
-    void setVideoSurfaceHolder(SurfaceHolder surfaceHolder);
+    void setVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder);
 
     /**
      * Clears the {@link SurfaceHolder} that holds the {@link Surface} onto which video is being
@@ -247,7 +248,7 @@ public interface Player {
      *
      * @param surfaceHolder The surface holder to clear.
      */
-    void clearVideoSurfaceHolder(SurfaceHolder surfaceHolder);
+    void clearVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder);
 
     /**
      * Sets the {@link SurfaceView} onto which video will be rendered. The player will track the
@@ -255,7 +256,7 @@ public interface Player {
      *
      * @param surfaceView The surface view.
      */
-    void setVideoSurfaceView(SurfaceView surfaceView);
+    void setVideoSurfaceView(@Nullable SurfaceView surfaceView);
 
     /**
      * Clears the {@link SurfaceView} onto which video is being rendered if it matches the one
@@ -263,7 +264,7 @@ public interface Player {
      *
      * @param surfaceView The texture view to clear.
      */
-    void clearVideoSurfaceView(SurfaceView surfaceView);
+    void clearVideoSurfaceView(@Nullable SurfaceView surfaceView);
 
     /**
      * Sets the {@link TextureView} onto which video will be rendered. The player will track the
@@ -271,7 +272,7 @@ public interface Player {
      *
      * @param textureView The texture view.
      */
-    void setVideoTextureView(TextureView textureView);
+    void setVideoTextureView(@Nullable TextureView textureView);
 
     /**
      * Clears the {@link TextureView} onto which video is being rendered if it matches the one
@@ -279,7 +280,31 @@ public interface Player {
      *
      * @param textureView The texture view to clear.
      */
-    void clearVideoTextureView(TextureView textureView);
+    void clearVideoTextureView(@Nullable TextureView textureView);
+
+    /**
+     * Sets the video decoder output buffer renderer. This is intended for use only with extension
+     * renderers that accept {@link C#MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER}. For most use
+     * cases, an output surface or view should be passed via {@link #setVideoSurface(Surface)} or
+     * {@link #setVideoSurfaceView(SurfaceView)} instead.
+     *
+     * @param videoDecoderOutputBufferRenderer The video decoder output buffer renderer, or {@code
+     *     null} to clear the output buffer renderer.
+     */
+    void setVideoDecoderOutputBufferRenderer(
+        @Nullable VideoDecoderOutputBufferRenderer videoDecoderOutputBufferRenderer);
+
+    /** Clears the video decoder output buffer renderer. */
+    void clearVideoDecoderOutputBufferRenderer();
+
+    /**
+     * Clears the video decoder output buffer renderer if it matches the one passed. Else does
+     * nothing.
+     *
+     * @param videoDecoderOutputBufferRenderer The video decoder output buffer renderer to clear.
+     */
+    void clearVideoDecoderOutputBufferRenderer(
+        @Nullable VideoDecoderOutputBufferRenderer videoDecoderOutputBufferRenderer);
   }
 
   /** The text component of a {@link Player}. */
@@ -325,6 +350,29 @@ public interface Player {
   interface EventListener {
 
     /**
+     * Called when the timeline has been refreshed.
+     *
+     * <p>Note that if the timeline has changed then a position discontinuity may also have
+     * occurred. For example, the current period index may have changed as a result of periods being
+     * added or removed from the timeline. This will <em>not</em> be reported via a separate call to
+     * {@link #onPositionDiscontinuity(int)}.
+     *
+     * @param timeline The latest timeline. Never null, but may be empty.
+     * @param reason The {@link TimelineChangeReason} responsible for this timeline change.
+     */
+    @SuppressWarnings("deprecation")
+    default void onTimelineChanged(Timeline timeline, @TimelineChangeReason int reason) {
+      Object manifest = null;
+      if (timeline.getWindowCount() == 1) {
+        // Legacy behavior was to report the manifest for single window timelines only.
+        Timeline.Window window = new Timeline.Window();
+        manifest = timeline.getWindow(0, window).manifest;
+      }
+      // Call deprecated version.
+      onTimelineChanged(timeline, manifest, reason);
+    }
+
+    /**
      * Called when the timeline and/or manifest has been refreshed.
      *
      * <p>Note that if the timeline has changed then a position discontinuity may also have
@@ -333,9 +381,14 @@ public interface Player {
      * {@link #onPositionDiscontinuity(int)}.
      *
      * @param timeline The latest timeline. Never null, but may be empty.
-     * @param manifest The latest manifest. May be null.
+     * @param manifest The latest manifest in case the timeline has a single window only. Always
+     *     null if the timeline has more than a single window.
      * @param reason The {@link TimelineChangeReason} responsible for this timeline change.
+     * @deprecated Use {@link #onTimelineChanged(Timeline, int)} instead. The manifest can be
+     *     accessed by using {@link #getCurrentManifest()} or {@code timeline.getWindow(windowIndex,
+     *     window).manifest} for a given window index.
      */
+    @Deprecated
     default void onTimelineChanged(
         Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason) {}
 
@@ -361,9 +414,24 @@ public interface Player {
      * #getPlaybackState()} changes.
      *
      * @param playWhenReady Whether playback will proceed when ready.
-     * @param playbackState One of the {@code STATE} constants.
+     * @param playbackState The new {@link State playback state}.
      */
-    default void onPlayerStateChanged(boolean playWhenReady, int playbackState) {}
+    default void onPlayerStateChanged(boolean playWhenReady, @State int playbackState) {}
+
+    /**
+     * Called when the value returned from {@link #getPlaybackSuppressionReason()} changes.
+     *
+     * @param playbackSuppressionReason The current {@link PlaybackSuppressionReason}.
+     */
+    default void onPlaybackSuppressionReasonChanged(
+        @PlaybackSuppressionReason int playbackSuppressionReason) {}
+
+    /**
+     * Called when the value of {@link #isPlaying()} changes.
+     *
+     * @param isPlaying Whether the player is playing.
+     */
+    default void onIsPlayingChanged(boolean isPlaying) {}
 
     /**
      * Called when the value of {@link #getRepeatMode()} changes.
@@ -396,8 +464,7 @@ public interface Player {
      * when the source introduces a discontinuity internally).
      *
      * <p>When a position discontinuity occurs as a result of a change to the timeline this method
-     * is <em>not</em> called. {@link #onTimelineChanged(Timeline, Object, int)} is called in this
-     * case.
+     * is <em>not</em> called. {@link #onTimelineChanged(Timeline, int)} is called in this case.
      *
      * @param reason The {@link DiscontinuityReason} responsible for the discontinuity.
      */
@@ -429,6 +496,18 @@ public interface Player {
   abstract class DefaultEventListener implements EventListener {
 
     @Override
+    public void onTimelineChanged(Timeline timeline, @TimelineChangeReason int reason) {
+      Object manifest = null;
+      if (timeline.getWindowCount() == 1) {
+        // Legacy behavior was to report the manifest for single window timelines only.
+        Timeline.Window window = new Timeline.Window();
+        manifest = timeline.getWindow(0, window).manifest;
+      }
+      // Call deprecated version.
+      onTimelineChanged(timeline, manifest, reason);
+    }
+
+    @Override
     @SuppressWarnings("deprecation")
     public void onTimelineChanged(
         Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason) {
@@ -436,13 +515,21 @@ public interface Player {
       onTimelineChanged(timeline, manifest);
     }
 
-    /** @deprecated Use {@link EventListener#onTimelineChanged(Timeline, Object, int)} instead. */
+    /** @deprecated Use {@link EventListener#onTimelineChanged(Timeline, int)} instead. */
     @Deprecated
     public void onTimelineChanged(Timeline timeline, @Nullable Object manifest) {
       // Do nothing.
     }
   }
 
+  /**
+   * Playback state. One of {@link #STATE_IDLE}, {@link #STATE_BUFFERING}, {@link #STATE_READY} or
+   * {@link #STATE_ENDED}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({STATE_IDLE, STATE_BUFFERING, STATE_READY, STATE_ENDED})
+  @interface State {}
   /**
    * The player does not have any media to play.
    */
@@ -461,6 +548,23 @@ public interface Player {
    * The player has finished playing the media.
    */
   int STATE_ENDED = 4;
+
+  /**
+   * Reason why playback is suppressed even though {@link #getPlayWhenReady()} is {@code true}. One
+   * of {@link #PLAYBACK_SUPPRESSION_REASON_NONE} or {@link
+   * #PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    PLAYBACK_SUPPRESSION_REASON_NONE,
+    PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS
+  })
+  @interface PlaybackSuppressionReason {}
+  /** Playback is not suppressed. */
+  int PLAYBACK_SUPPRESSION_REASON_NONE = 0;
+  /** Playback is suppressed due to transient audio focus loss. */
+  int PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS = 1;
 
   /**
    * Repeat modes for playback. One of {@link #REPEAT_MODE_OFF}, {@link #REPEAT_MODE_ONE} or {@link
@@ -516,29 +620,17 @@ public interface Player {
   int DISCONTINUITY_REASON_INTERNAL = 4;
 
   /**
-   * Reasons for timeline and/or manifest changes. One of {@link #TIMELINE_CHANGE_REASON_PREPARED},
-   * {@link #TIMELINE_CHANGE_REASON_RESET} or {@link #TIMELINE_CHANGE_REASON_DYNAMIC}.
+   * Reasons for timeline changes. One of {@link #TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED} or {@link
+   * #TIMELINE_CHANGE_REASON_SOURCE_UPDATE}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({
-    TIMELINE_CHANGE_REASON_PREPARED,
-    TIMELINE_CHANGE_REASON_RESET,
-    TIMELINE_CHANGE_REASON_DYNAMIC
-  })
+  @IntDef({TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED, TIMELINE_CHANGE_REASON_SOURCE_UPDATE})
   @interface TimelineChangeReason {}
-  /**
-   * Timeline and manifest changed as a result of a player initialization with new media.
-   */
-  int TIMELINE_CHANGE_REASON_PREPARED = 0;
-  /**
-   * Timeline and manifest changed as a result of a player reset.
-   */
-  int TIMELINE_CHANGE_REASON_RESET = 1;
-  /**
-   * Timeline or manifest changed as a result of an dynamic update introduced by the played media.
-   */
-  int TIMELINE_CHANGE_REASON_DYNAMIC = 2;
+  /** Timeline changed as a result of a change of the playlist items or the order of the items. */
+  int TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED = 0;
+  /** Timeline changed as a result of a dynamic update introduced by the played media. */
+  int TIMELINE_CHANGE_REASON_SOURCE_UPDATE = 1;
 
   /** Returns the component of this player for audio output, or null if audio is not supported. */
   @Nullable
@@ -581,11 +673,36 @@ public interface Player {
   void removeListener(EventListener listener);
 
   /**
-   * Returns the current state of the player.
+   * Returns the current {@link State playback state} of the player.
    *
-   * @return One of the {@code STATE} constants defined in this interface.
+   * @return The current {@link State playback state}.
    */
+  @State
   int getPlaybackState();
+
+  /**
+   * Returns the reason why playback is suppressed even though {@link #getPlayWhenReady()} is {@code
+   * true}, or {@link #PLAYBACK_SUPPRESSION_REASON_NONE} if playback is not suppressed.
+   *
+   * @return The current {@link PlaybackSuppressionReason playback suppression reason}.
+   */
+  @PlaybackSuppressionReason
+  int getPlaybackSuppressionReason();
+
+  /**
+   * Returns whether the player is playing, i.e. {@link #getContentPosition()} is advancing.
+   *
+   * <p>If {@code false}, then at least one of the following is true:
+   *
+   * <ul>
+   *   <li>The {@link #getPlaybackState() playback state} is not {@link #STATE_READY ready}.
+   *   <li>There is no {@link #getPlayWhenReady() intention to play}.
+   *   <li>Playback is {@link #getPlaybackSuppressionReason() suppressed for other reasons}.
+   * </ul>
+   *
+   * @return Whether the player is playing.
+   */
+  boolean isPlaying();
 
   /**
    * Returns the error that caused playback to fail. This is the same error that will have been
@@ -593,16 +710,27 @@ public interface Player {
    * failure. It can be queried using this method until {@code stop(true)} is called or the player
    * is re-prepared.
    *
+   * <p>Note that this method will always return {@code null} if {@link #getPlaybackState()} is not
+   * {@link #STATE_IDLE}.
+   *
    * @return The error, or {@code null}.
    */
   @Nullable
   ExoPlaybackException getPlaybackError();
 
   /**
+   * Resumes playback as soon as {@link #getPlaybackState()} == {@link #STATE_READY}. Equivalent to
+   * {@code setPlayWhenReady(true)}.
+   */
+  void play();
+
+  /** Pauses playback. Equivalent to {@code setPlayWhenReady(false)}. */
+  void pause();
+
+  /**
    * Sets whether playback should proceed when {@link #getPlaybackState()} == {@link #STATE_READY}.
-   * <p>
-   * If the player is already in the ready state then this method can be used to pause and resume
-   * playback.
+   *
+   * <p>If the player is already in the ready state then this method pauses and resumes playback.
    *
    * @param playWhenReady Whether playback should proceed when ready.
    */
@@ -618,7 +746,7 @@ public interface Player {
   /**
    * Sets the {@link RepeatMode} to be used for playback.
    *
-   * @param repeatMode A repeat mode.
+   * @param repeatMode The repeat mode.
    */
   void setRepeatMode(@RepeatMode int repeatMode);
 
@@ -713,13 +841,10 @@ public interface Player {
   /**
    * Attempts to set the playback parameters. Passing {@code null} sets the parameters to the
    * default, {@link PlaybackParameters#DEFAULT}, which means there is no speed or pitch adjustment.
-   * <p>
-   * Playback parameters changes may cause the player to buffer.
-   * {@link EventListener#onPlaybackParametersChanged(PlaybackParameters)} will be called whenever
-   * the currently active playback parameters change. When that listener is called, the parameters
-   * passed to it may not match {@code playbackParameters}. For example, the chosen speed or pitch
-   * may be out of range, in which case they are constrained to a set of permitted values. If it is
-   * not possible to change the playback parameters, the listener will not be invoked.
+   *
+   * <p>Playback parameters changes may cause the player to buffer. {@link
+   * EventListener#onPlaybackParametersChanged(PlaybackParameters)} will be called whenever the
+   * currently active playback parameters change.
    *
    * @param playbackParameters The playback parameters, or {@code null} to use the defaults.
    */
@@ -733,8 +858,8 @@ public interface Player {
   PlaybackParameters getPlaybackParameters();
 
   /**
-   * Stops playback without resetting the player. Use {@code setPlayWhenReady(false)} rather than
-   * this method if the intention is to pause playback.
+   * Stops playback without resetting the player. Use {@link #pause()} rather than this method if
+   * the intention is to pause playback.
    *
    * <p>Calling this method will cause the playback state to transition to {@link #STATE_IDLE}. The
    * player instance can still be used, and {@link #release()} must still be called on the player if
@@ -745,8 +870,8 @@ public interface Player {
   void stop();
 
   /**
-   * Stops playback and optionally resets the player. Use {@code setPlayWhenReady(false)} rather
-   * than this method if the intention is to pause playback.
+   * Stops playback and optionally resets the player. Use {@link #pause()} rather than this method
+   * if the intention is to pause playback.
    *
    * <p>Calling this method will cause the playback state to transition to {@link #STATE_IDLE}. The
    * player instance can still be used, and {@link #release()} must still be called on the player if
@@ -860,6 +985,26 @@ public interface Player {
    * @see Timeline.Window#isDynamic
    */
   boolean isCurrentWindowDynamic();
+
+  /**
+   * Returns whether the current window is live, or {@code false} if the {@link Timeline} is empty.
+   *
+   * @see Timeline.Window#isLive
+   */
+  boolean isCurrentWindowLive();
+
+  /**
+   * Returns the offset of the current playback position from the live edge in milliseconds, or
+   * {@link C#TIME_UNSET} if the current window {@link #isCurrentWindowLive() isn't live} or the
+   * offset is unknown.
+   *
+   * <p>The offset is calculated as {@code currentTime - playbackPosition}, so should usually be
+   * positive.
+   *
+   * <p>Note that this offset may rely on an accurate local time, so this method may return an
+   * incorrect value if the difference between system clock and server clock is unknown.
+   */
+  long getCurrentLiveOffset();
 
   /**
    * Returns whether the current window is seekable, or {@code false} if the {@link Timeline} is

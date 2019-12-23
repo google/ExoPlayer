@@ -15,7 +15,9 @@
  */
 package com.google.android.exoplayer2.extractor;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.extractor.amr.AmrExtractor;
+import com.google.android.exoplayer2.extractor.flac.FlacExtractor;
 import com.google.android.exoplayer2.extractor.flv.FlvExtractor;
 import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer2.extractor.mp3.Mp3Extractor;
@@ -23,6 +25,7 @@ import com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.extractor.ogg.OggExtractor;
 import com.google.android.exoplayer2.extractor.ts.Ac3Extractor;
+import com.google.android.exoplayer2.extractor.ts.Ac4Extractor;
 import com.google.android.exoplayer2.extractor.ts.AdtsExtractor;
 import com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory;
 import com.google.android.exoplayer2.extractor.ts.PsExtractor;
@@ -47,18 +50,21 @@ import java.lang.reflect.Constructor;
  *   <li>FLV ({@link FlvExtractor})
  *   <li>WAV ({@link WavExtractor})
  *   <li>AC3 ({@link Ac3Extractor})
+ *   <li>AC4 ({@link Ac4Extractor})
  *   <li>AMR ({@link AmrExtractor})
  *   <li>FLAC (only available if the FLAC extension is built and included)
  * </ul>
  */
 public final class DefaultExtractorsFactory implements ExtractorsFactory {
 
-  private static final Constructor<? extends Extractor> FLAC_EXTRACTOR_CONSTRUCTOR;
+  @Nullable
+  private static final Constructor<? extends Extractor> FLAC_EXTENSION_EXTRACTOR_CONSTRUCTOR;
+
   static {
-    Constructor<? extends Extractor> flacExtractorConstructor = null;
+    @Nullable Constructor<? extends Extractor> flacExtensionExtractorConstructor = null;
     try {
       // LINT.IfChange
-      flacExtractorConstructor =
+      flacExtensionExtractorConstructor =
           Class.forName("com.google.android.exoplayer2.ext.flac.FlacExtractor")
               .asSubclass(Extractor.class)
               .getConstructor();
@@ -69,7 +75,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
       // The FLAC extension is present, but instantiation failed.
       throw new RuntimeException("Error instantiating FLAC extension", e);
     }
-    FLAC_EXTRACTOR_CONSTRUCTOR = flacExtractorConstructor;
+    FLAC_EXTENSION_EXTRACTOR_CONSTRUCTOR = flacExtensionExtractorConstructor;
   }
 
   private boolean constantBitrateSeekingEnabled;
@@ -106,7 +112,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
   /**
    * Sets flags for {@link AdtsExtractor} instances created by the factory.
    *
-   * @see AdtsExtractor#AdtsExtractor(long, int)
+   * @see AdtsExtractor#AdtsExtractor(int)
    * @param flags The flags to use.
    * @return The factory, for convenience.
    */
@@ -206,7 +212,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
 
   @Override
   public synchronized Extractor[] createExtractors() {
-    Extractor[] extractors = new Extractor[FLAC_EXTRACTOR_CONSTRUCTOR == null ? 12 : 13];
+    Extractor[] extractors = new Extractor[14];
     extractors[0] = new MatroskaExtractor(matroskaFlags);
     extractors[1] = new FragmentedMp4Extractor(fragmentedMp4Flags);
     extractors[2] = new Mp4Extractor(mp4Flags);
@@ -218,7 +224,6 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
                     : 0));
     extractors[4] =
         new AdtsExtractor(
-            /* firstStreamSampleTimestampUs= */ 0,
             adtsFlags
                 | (constantBitrateSeekingEnabled
                     ? AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING
@@ -235,13 +240,20 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
                 | (constantBitrateSeekingEnabled
                     ? AmrExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING
                     : 0));
-    if (FLAC_EXTRACTOR_CONSTRUCTOR != null) {
+    extractors[12] = new Ac4Extractor();
+    // Prefer the FLAC extension extractor because it outputs raw audio, which can be handled by the
+    // framework on all API levels, unlike the core library FLAC extractor, which outputs FLAC audio
+    // frames and so relies on having a FLAC decoder (e.g., a MediaCodec decoder that handles FLAC
+    // (from API 27), or the FFmpeg extension with FLAC enabled).
+    if (FLAC_EXTENSION_EXTRACTOR_CONSTRUCTOR != null) {
       try {
-        extractors[12] = FLAC_EXTRACTOR_CONSTRUCTOR.newInstance();
+        extractors[13] = FLAC_EXTENSION_EXTRACTOR_CONSTRUCTOR.newInstance();
       } catch (Exception e) {
         // Should never happen.
         throw new IllegalStateException("Unexpected error creating FLAC extractor", e);
       }
+    } else {
+      extractors[13] = new FlacExtractor();
     }
     return extractors;
   }

@@ -17,29 +17,29 @@ package com.google.android.exoplayer2.offline;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.net.Uri;
-import android.support.annotation.Nullable;
-import com.google.android.exoplayer2.C;
+import android.database.sqlite.SQLiteDatabase;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.database.DatabaseIOException;
 import com.google.android.exoplayer2.database.ExoDatabaseProvider;
 import com.google.android.exoplayer2.database.VersionTable;
-import java.util.Arrays;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
 /** Unit tests for {@link DefaultDownloadIndex}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class DefaultDownloadIndexTest {
+
+  private static final String EMPTY_NAME = "";
 
   private ExoDatabaseProvider databaseProvider;
   private DefaultDownloadIndex downloadIndex;
 
   @Before
   public void setUp() {
-    databaseProvider = new ExoDatabaseProvider(RuntimeEnvironment.application);
+    databaseProvider = new ExoDatabaseProvider(ApplicationProvider.getApplicationContext());
     downloadIndex = new DefaultDownloadIndex(databaseProvider);
   }
 
@@ -49,334 +49,278 @@ public class DefaultDownloadIndexTest {
   }
 
   @Test
-  public void getDownloadState_nonExistingId_returnsNull() {
-    assertThat(downloadIndex.getDownloadState("non existing id")).isNull();
+  public void getDownload_nonExistingId_returnsNull() throws DatabaseIOException {
+    assertThat(downloadIndex.getDownload("non existing id")).isNull();
   }
 
   @Test
-  public void addAndGetDownloadState_nonExistingId_returnsTheSameDownloadState() {
+  public void addAndGetDownload_nonExistingId_returnsTheSameDownload() throws DatabaseIOException {
     String id = "id";
-    DownloadState downloadState = new DownloadStateBuilder(id).build();
+    Download download = new DownloadBuilder(id).build();
 
-    downloadIndex.putDownloadState(downloadState);
-    DownloadState readDownloadState = downloadIndex.getDownloadState(id);
+    downloadIndex.putDownload(download);
+    Download readDownload = downloadIndex.getDownload(id);
 
-    assertEqual(readDownloadState, downloadState);
+    assertEqual(readDownload, download);
   }
 
   @Test
-  public void addAndGetDownloadState_existingId_returnsUpdatedDownloadState() {
+  public void addAndGetDownload_existingId_returnsUpdatedDownload() throws DatabaseIOException {
     String id = "id";
-    DownloadStateBuilder downloadStateBuilder = new DownloadStateBuilder(id);
-    downloadIndex.putDownloadState(downloadStateBuilder.build());
+    DownloadBuilder downloadBuilder = new DownloadBuilder(id);
+    downloadIndex.putDownload(downloadBuilder.build());
 
-    DownloadState downloadState =
-        downloadStateBuilder
+    Download download =
+        downloadBuilder
             .setType("different type")
             .setUri("different uri")
             .setCacheKey("different cacheKey")
-            .setState(DownloadState.STATE_FAILED)
-            .setDownloadPercentage(50)
-            .setDownloadedBytes(200)
-            .setTotalBytes(400)
-            .setFailureReason(DownloadState.FAILURE_REASON_UNKNOWN)
-            .setStopFlags(DownloadState.STOP_FLAG_STOPPED)
+            .setState(Download.STATE_FAILED)
+            .setPercentDownloaded(50)
+            .setBytesDownloaded(200)
+            .setContentLength(400)
+            .setFailureReason(Download.FAILURE_REASON_UNKNOWN)
+            .setStopReason(0x12345678)
             .setStartTimeMs(10)
             .setUpdateTimeMs(20)
             .setStreamKeys(
                 new StreamKey(/* periodIndex= */ 0, /* groupIndex= */ 1, /* trackIndex= */ 2),
                 new StreamKey(/* periodIndex= */ 3, /* groupIndex= */ 4, /* trackIndex= */ 5))
-            .setCustomMetadata(new byte[] {0, 1, 2, 3})
+            .setCustomMetadata(new byte[] {0, 1, 2, 3, 7, 8, 9, 10})
             .build();
-    downloadIndex.putDownloadState(downloadState);
-    DownloadState readDownloadState = downloadIndex.getDownloadState(id);
+    downloadIndex.putDownload(download);
+    Download readDownload = downloadIndex.getDownload(id);
 
-    assertThat(readDownloadState).isNotNull();
-    assertEqual(readDownloadState, downloadState);
+    assertThat(readDownload).isNotNull();
+    assertEqual(readDownload, download);
   }
 
   @Test
-  public void releaseAndRecreateDownloadIndex_returnsTheSameDownloadState() {
+  public void releaseAndRecreateDownloadIndex_returnsTheSameDownload() throws DatabaseIOException {
     String id = "id";
-    DownloadState downloadState = new DownloadStateBuilder(id).build();
-    downloadIndex.putDownloadState(downloadState);
+    Download download = new DownloadBuilder(id).build();
+    downloadIndex.putDownload(download);
 
     downloadIndex = new DefaultDownloadIndex(databaseProvider);
-    DownloadState readDownloadState = downloadIndex.getDownloadState(id);
-    assertThat(readDownloadState).isNotNull();
-    assertEqual(readDownloadState, downloadState);
+    Download readDownload = downloadIndex.getDownload(id);
+    assertThat(readDownload).isNotNull();
+    assertEqual(readDownload, download);
   }
 
   @Test
-  public void removeDownloadState_nonExistingId_doesNotFail() {
-    downloadIndex.removeDownloadState("non existing id");
+  public void removeDownload_nonExistingId_doesNotFail() throws DatabaseIOException {
+    downloadIndex.removeDownload("non existing id");
   }
 
   @Test
-  public void removeDownloadState_existingId_getDownloadStateReturnsNull() {
+  public void removeDownload_existingId_getDownloadReturnsNull() throws DatabaseIOException {
     String id = "id";
-    DownloadState downloadState = new DownloadStateBuilder(id).build();
-    downloadIndex.putDownloadState(downloadState);
-    downloadIndex.removeDownloadState(id);
+    Download download = new DownloadBuilder(id).build();
+    downloadIndex.putDownload(download);
+    downloadIndex.removeDownload(id);
 
-    DownloadState readDownloadState = downloadIndex.getDownloadState(id);
-    assertThat(readDownloadState).isNull();
+    Download readDownload = downloadIndex.getDownload(id);
+    assertThat(readDownload).isNull();
   }
 
   @Test
-  public void getDownloadStates_emptyDownloadIndex_returnsEmptyArray() {
-    assertThat(downloadIndex.getDownloadStates().getCount()).isEqualTo(0);
+  public void getDownloads_emptyDownloadIndex_returnsEmptyArray() throws DatabaseIOException {
+    assertThat(downloadIndex.getDownloads().getCount()).isEqualTo(0);
   }
 
   @Test
-  public void getDownloadStates_noState_returnsAllDownloadStatusSortedByStartTime() {
-    DownloadState downloadState1 = new DownloadStateBuilder("id1").setStartTimeMs(1).build();
-    downloadIndex.putDownloadState(downloadState1);
-    DownloadState downloadState2 = new DownloadStateBuilder("id2").setStartTimeMs(0).build();
-    downloadIndex.putDownloadState(downloadState2);
+  public void getDownloads_noState_returnsAllDownloadStatusSortedByStartTime()
+      throws DatabaseIOException {
+    Download download1 = new DownloadBuilder("id1").setStartTimeMs(1).build();
+    downloadIndex.putDownload(download1);
+    Download download2 = new DownloadBuilder("id2").setStartTimeMs(0).build();
+    downloadIndex.putDownload(download2);
 
-    DownloadStateCursor cursor = downloadIndex.getDownloadStates();
-
-    assertThat(cursor.getCount()).isEqualTo(2);
-    cursor.moveToNext();
-    assertEqual(cursor.getDownloadState(), downloadState2);
-    cursor.moveToNext();
-    assertEqual(cursor.getDownloadState(), downloadState1);
-    cursor.close();
+    try (DownloadCursor cursor = downloadIndex.getDownloads()) {
+      assertThat(cursor.getCount()).isEqualTo(2);
+      cursor.moveToNext();
+      assertEqual(cursor.getDownload(), download2);
+      cursor.moveToNext();
+      assertEqual(cursor.getDownload(), download1);
+    }
   }
 
   @Test
-  public void getDownloadStates_withStates_returnsAllDownloadStatusWithTheSameStates() {
-    DownloadState downloadState1 =
-        new DownloadStateBuilder("id1")
-            .setStartTimeMs(0)
-            .setState(DownloadState.STATE_REMOVED)
-            .build();
-    downloadIndex.putDownloadState(downloadState1);
-    DownloadState downloadState2 =
-        new DownloadStateBuilder("id2")
-            .setStartTimeMs(1)
-            .setState(DownloadState.STATE_STOPPED)
-            .build();
-    downloadIndex.putDownloadState(downloadState2);
-    DownloadState downloadState3 =
-        new DownloadStateBuilder("id3")
-            .setStartTimeMs(2)
-            .setState(DownloadState.STATE_COMPLETED)
-            .build();
-    downloadIndex.putDownloadState(downloadState3);
+  public void getDownloads_withStates_returnsAllDownloadStatusWithTheSameStates()
+      throws DatabaseIOException {
+    Download download1 =
+        new DownloadBuilder("id1").setStartTimeMs(0).setState(Download.STATE_REMOVING).build();
+    downloadIndex.putDownload(download1);
+    Download download2 =
+        new DownloadBuilder("id2").setStartTimeMs(1).setState(Download.STATE_STOPPED).build();
+    downloadIndex.putDownload(download2);
+    Download download3 =
+        new DownloadBuilder("id3").setStartTimeMs(2).setState(Download.STATE_COMPLETED).build();
+    downloadIndex.putDownload(download3);
 
-    DownloadStateCursor cursor =
-        downloadIndex.getDownloadStates(DownloadState.STATE_REMOVED, DownloadState.STATE_COMPLETED);
-
-    assertThat(cursor.getCount()).isEqualTo(2);
-    cursor.moveToNext();
-    assertEqual(cursor.getDownloadState(), downloadState1);
-    cursor.moveToNext();
-    assertEqual(cursor.getDownloadState(), downloadState3);
-    cursor.close();
+    try (DownloadCursor cursor =
+        downloadIndex.getDownloads(Download.STATE_REMOVING, Download.STATE_COMPLETED)) {
+      assertThat(cursor.getCount()).isEqualTo(2);
+      cursor.moveToNext();
+      assertEqual(cursor.getDownload(), download1);
+      cursor.moveToNext();
+      assertEqual(cursor.getDownload(), download3);
+    }
   }
 
   @Test
-  public void putDownloadState_setsVersion() {
-    VersionTable versionTable = new VersionTable(databaseProvider);
-    assertThat(versionTable.getVersion(VersionTable.FEATURE_OFFLINE))
+  public void putDownload_setsVersion() throws DatabaseIOException {
+    SQLiteDatabase readableDatabase = databaseProvider.getReadableDatabase();
+    assertThat(VersionTable.getVersion(readableDatabase, VersionTable.FEATURE_OFFLINE, EMPTY_NAME))
         .isEqualTo(VersionTable.VERSION_UNSET);
 
-    downloadIndex.putDownloadState(new DownloadStateBuilder("id1").build());
+    downloadIndex.putDownload(new DownloadBuilder("id1").build());
 
-    assertThat(versionTable.getVersion(VersionTable.FEATURE_OFFLINE))
+    assertThat(VersionTable.getVersion(readableDatabase, VersionTable.FEATURE_OFFLINE, EMPTY_NAME))
         .isEqualTo(DefaultDownloadIndex.TABLE_VERSION);
   }
 
   @Test
-  public void downloadIndex_versionDowngradeWipesData() {
-    DownloadState downloadState1 = new DownloadStateBuilder("id1").build();
-    downloadIndex.putDownloadState(downloadState1);
-    DownloadStateCursor cursor = downloadIndex.getDownloadStates();
+  public void downloadIndex_versionDowngradeWipesData() throws DatabaseIOException {
+    Download download1 = new DownloadBuilder("id1").build();
+    downloadIndex.putDownload(download1);
+    DownloadCursor cursor = downloadIndex.getDownloads();
     assertThat(cursor.getCount()).isEqualTo(1);
     cursor.close();
 
-    VersionTable versionTable = new VersionTable(databaseProvider);
-    versionTable.setVersion(VersionTable.FEATURE_OFFLINE, Integer.MAX_VALUE);
+    SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
+    VersionTable.setVersion(
+        writableDatabase, VersionTable.FEATURE_OFFLINE, EMPTY_NAME, Integer.MAX_VALUE);
 
     downloadIndex = new DefaultDownloadIndex(databaseProvider);
 
-    cursor = downloadIndex.getDownloadStates();
+    cursor = downloadIndex.getDownloads();
     assertThat(cursor.getCount()).isEqualTo(0);
     cursor.close();
-    assertThat(versionTable.getVersion(VersionTable.FEATURE_OFFLINE))
+    assertThat(VersionTable.getVersion(writableDatabase, VersionTable.FEATURE_OFFLINE, EMPTY_NAME))
         .isEqualTo(DefaultDownloadIndex.TABLE_VERSION);
   }
 
-  private static void assertEqual(DownloadState downloadState, DownloadState expected) {
-    assertThat(areEqual(downloadState, expected)).isTrue();
+  @Test
+  public void setStopReason_setReasonToNone() throws Exception {
+    String id = "id";
+    DownloadBuilder downloadBuilder =
+        new DownloadBuilder(id).setState(Download.STATE_COMPLETED).setStopReason(0x12345678);
+    Download download = downloadBuilder.build();
+    downloadIndex.putDownload(download);
+
+    downloadIndex.setStopReason(Download.STOP_REASON_NONE);
+
+    Download readDownload = downloadIndex.getDownload(id);
+    Download expectedDownload = downloadBuilder.setStopReason(Download.STOP_REASON_NONE).build();
+    assertEqual(readDownload, expectedDownload);
   }
 
-  private static boolean areEqual(DownloadState downloadState, DownloadState that) {
-    if (downloadState.state != that.state) {
-      return false;
-    }
-    if (Float.compare(that.downloadPercentage, downloadState.downloadPercentage) != 0) {
-      return false;
-    }
-    if (downloadState.downloadedBytes != that.downloadedBytes) {
-      return false;
-    }
-    if (downloadState.totalBytes != that.totalBytes) {
-      return false;
-    }
-    if (downloadState.startTimeMs != that.startTimeMs) {
-      return false;
-    }
-    if (downloadState.updateTimeMs != that.updateTimeMs) {
-      return false;
-    }
-    if (downloadState.failureReason != that.failureReason) {
-      return false;
-    }
-    if (downloadState.stopFlags != that.stopFlags) {
-      return false;
-    }
-    if (!downloadState.id.equals(that.id)) {
-      return false;
-    }
-    if (!downloadState.type.equals(that.type)) {
-      return false;
-    }
-    if (!downloadState.uri.equals(that.uri)) {
-      return false;
-    }
-    if (downloadState.cacheKey != null
-        ? !downloadState.cacheKey.equals(that.cacheKey)
-        : that.cacheKey != null) {
-      return false;
-    }
-    if (!Arrays.equals(downloadState.streamKeys, that.streamKeys)) {
-      return false;
-    }
-    return Arrays.equals(downloadState.customMetadata, that.customMetadata);
+  @Test
+  public void setStopReason_setReason() throws Exception {
+    String id = "id";
+    DownloadBuilder downloadBuilder =
+        new DownloadBuilder(id)
+            .setState(Download.STATE_FAILED)
+            .setFailureReason(Download.FAILURE_REASON_UNKNOWN);
+    Download download = downloadBuilder.build();
+    downloadIndex.putDownload(download);
+    int stopReason = 0x12345678;
+
+    downloadIndex.setStopReason(stopReason);
+
+    Download readDownload = downloadIndex.getDownload(id);
+    Download expectedDownload = downloadBuilder.setStopReason(stopReason).build();
+    assertEqual(readDownload, expectedDownload);
   }
 
-  private static class DownloadStateBuilder {
-    private String id;
-    private String type;
-    private String uri;
-    @Nullable private String cacheKey;
-    private int state;
-    private float downloadPercentage;
-    private long downloadedBytes;
-    private long totalBytes;
-    private int failureReason;
-    private int stopFlags;
-    private long startTimeMs;
-    private long updateTimeMs;
-    private StreamKey[] streamKeys;
-    private byte[] customMetadata;
+  @Test
+  public void setStopReason_notTerminalState_doesNotSetStopReason() throws Exception {
+    String id = "id";
+    DownloadBuilder downloadBuilder = new DownloadBuilder(id).setState(Download.STATE_DOWNLOADING);
+    Download download = downloadBuilder.build();
+    downloadIndex.putDownload(download);
+    int notMetRequirements = 0x12345678;
 
-    private DownloadStateBuilder(String id) {
-      this.id = id;
-      this.type = "type";
-      this.uri = "uri";
-      this.cacheKey = null;
-      this.state = DownloadState.STATE_QUEUED;
-      this.downloadPercentage = (float) C.PERCENTAGE_UNSET;
-      this.downloadedBytes = (long) 0;
-      this.totalBytes = (long) C.LENGTH_UNSET;
-      this.failureReason = DownloadState.FAILURE_REASON_NONE;
-      this.stopFlags = 0;
-      this.startTimeMs = (long) 0;
-      this.updateTimeMs = (long) 0;
-      this.streamKeys = new StreamKey[0];
-      this.customMetadata = new byte[0];
-    }
+    downloadIndex.setStopReason(notMetRequirements);
 
-    public DownloadStateBuilder setId(String id) {
-      this.id = id;
-      return this;
-    }
+    Download readDownload = downloadIndex.getDownload(id);
+    assertEqual(readDownload, download);
+  }
 
-    public DownloadStateBuilder setType(String type) {
-      this.type = type;
-      return this;
-    }
+  @Test
+  public void setStatesToRemoving_setsStateAndClearsFailureReason() throws Exception {
+    String id = "id";
+    DownloadBuilder downloadBuilder =
+        new DownloadBuilder(id)
+            .setState(Download.STATE_FAILED)
+            .setFailureReason(Download.FAILURE_REASON_UNKNOWN);
+    Download download = downloadBuilder.build();
+    downloadIndex.putDownload(download);
 
-    public DownloadStateBuilder setUri(String uri) {
-      this.uri = uri;
-      return this;
-    }
+    downloadIndex.setStatesToRemoving();
 
-    public DownloadStateBuilder setCacheKey(@Nullable String cacheKey) {
-      this.cacheKey = cacheKey;
-      return this;
-    }
+    download = downloadIndex.getDownload(id);
+    assertThat(download.state).isEqualTo(Download.STATE_REMOVING);
+    assertThat(download.failureReason).isEqualTo(Download.FAILURE_REASON_NONE);
+  }
 
-    public DownloadStateBuilder setState(int state) {
-      this.state = state;
-      return this;
-    }
+  @Test
+  public void setSingleDownloadStopReason_setReasonToNone() throws Exception {
+    String id = "id";
+    DownloadBuilder downloadBuilder =
+        new DownloadBuilder(id).setState(Download.STATE_COMPLETED).setStopReason(0x12345678);
+    Download download = downloadBuilder.build();
+    downloadIndex.putDownload(download);
 
-    public DownloadStateBuilder setDownloadPercentage(float downloadPercentage) {
-      this.downloadPercentage = downloadPercentage;
-      return this;
-    }
+    downloadIndex.setStopReason(id, Download.STOP_REASON_NONE);
 
-    public DownloadStateBuilder setDownloadedBytes(long downloadedBytes) {
-      this.downloadedBytes = downloadedBytes;
-      return this;
-    }
+    Download readDownload = downloadIndex.getDownload(id);
+    Download expectedDownload = downloadBuilder.setStopReason(Download.STOP_REASON_NONE).build();
+    assertEqual(readDownload, expectedDownload);
+  }
 
-    public DownloadStateBuilder setTotalBytes(long totalBytes) {
-      this.totalBytes = totalBytes;
-      return this;
-    }
+  @Test
+  public void setSingleDownloadStopReason_setReason() throws Exception {
+    String id = "id";
+    DownloadBuilder downloadBuilder =
+        new DownloadBuilder(id)
+            .setState(Download.STATE_FAILED)
+            .setFailureReason(Download.FAILURE_REASON_UNKNOWN);
+    Download download = downloadBuilder.build();
+    downloadIndex.putDownload(download);
+    int stopReason = 0x12345678;
 
-    public DownloadStateBuilder setFailureReason(int failureReason) {
-      this.failureReason = failureReason;
-      return this;
-    }
+    downloadIndex.setStopReason(id, stopReason);
 
-    public DownloadStateBuilder setStopFlags(int stopFlags) {
-      this.stopFlags = stopFlags;
-      return this;
-    }
+    Download readDownload = downloadIndex.getDownload(id);
+    Download expectedDownload = downloadBuilder.setStopReason(stopReason).build();
+    assertEqual(readDownload, expectedDownload);
+  }
 
-    public DownloadStateBuilder setStartTimeMs(long startTimeMs) {
-      this.startTimeMs = startTimeMs;
-      return this;
-    }
+  @Test
+  public void setSingleDownloadStopReason_notTerminalState_doesNotSetStopReason() throws Exception {
+    String id = "id";
+    DownloadBuilder downloadBuilder = new DownloadBuilder(id).setState(Download.STATE_DOWNLOADING);
+    Download download = downloadBuilder.build();
+    downloadIndex.putDownload(download);
+    int notMetRequirements = 0x12345678;
 
-    public DownloadStateBuilder setUpdateTimeMs(long updateTimeMs) {
-      this.updateTimeMs = updateTimeMs;
-      return this;
-    }
+    downloadIndex.setStopReason(id, notMetRequirements);
 
-    public DownloadStateBuilder setStreamKeys(StreamKey... streamKeys) {
-      this.streamKeys = streamKeys;
-      return this;
-    }
+    Download readDownload = downloadIndex.getDownload(id);
+    assertEqual(readDownload, download);
+  }
 
-    public DownloadStateBuilder setCustomMetadata(byte[] customMetadata) {
-      this.customMetadata = customMetadata;
-      return this;
-    }
-
-    public DownloadState build() {
-      return new DownloadState(
-          id,
-          type,
-          Uri.parse(uri),
-          cacheKey,
-          state,
-          downloadPercentage,
-          downloadedBytes,
-          totalBytes,
-          failureReason,
-          stopFlags,
-          startTimeMs,
-          updateTimeMs,
-          streamKeys,
-          customMetadata);
-    }
+  private static void assertEqual(Download download, Download that) {
+    assertThat(download.request).isEqualTo(that.request);
+    assertThat(download.state).isEqualTo(that.state);
+    assertThat(download.startTimeMs).isEqualTo(that.startTimeMs);
+    assertThat(download.updateTimeMs).isEqualTo(that.updateTimeMs);
+    assertThat(download.contentLength).isEqualTo(that.contentLength);
+    assertThat(download.stopReason).isEqualTo(that.stopReason);
+    assertThat(download.failureReason).isEqualTo(that.failureReason);
+    assertThat(download.getPercentDownloaded()).isEqualTo(that.getPercentDownloaded());
+    assertThat(download.getBytesDownloaded()).isEqualTo(that.getBytesDownloaded());
   }
 }

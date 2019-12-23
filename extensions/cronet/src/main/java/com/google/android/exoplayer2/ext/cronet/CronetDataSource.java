@@ -15,12 +15,13 @@
  */
 package com.google.android.exoplayer2.ext.cronet;
 
+import static com.google.android.exoplayer2.util.Util.castNonNull;
+
 import android.net.Uri;
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
-import com.google.android.exoplayer2.metadata.icy.IcyHeaders;
 import com.google.android.exoplayer2.upstream.BaseDataSource;
 import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -35,12 +36,14 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Executor;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.chromium.net.CronetEngine;
 import org.chromium.net.CronetException;
 import org.chromium.net.NetworkException;
@@ -51,7 +54,9 @@ import org.chromium.net.UrlResponseInfo;
 /**
  * DataSource without intermediate buffer based on Cronet API set using UrlRequest.
  *
- * <p>This class's methods are organized in the sequence of expected calls.
+ * <p>Note: HTTP request headers will be set using all parameters passed via (in order of decreasing
+ * priority) the {@code dataSpec}, {@link #setRequestProperty} and the default parameters used to
+ * construct the instance.
  */
 public class CronetDataSource extends BaseDataSource implements HttpDataSource {
 
@@ -113,15 +118,16 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
 
   private final CronetEngine cronetEngine;
   private final Executor executor;
-  private final Predicate<String> contentTypePredicate;
   private final int connectTimeoutMs;
   private final int readTimeoutMs;
   private final boolean resetTimeoutOnRedirects;
   private final boolean handleSetCookieRequests;
-  private final RequestProperties defaultRequestProperties;
+  @Nullable private final RequestProperties defaultRequestProperties;
   private final RequestProperties requestProperties;
   private final ConditionVariable operation;
   private final Clock clock;
+
+  @Nullable private Predicate<String> contentTypePredicate;
 
   // Accessed by the calling thread only.
   private boolean opened;
@@ -130,18 +136,18 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
 
   // Written from the calling thread only. currentUrlRequest.start() calls ensure writes are visible
   // to reads made by the Cronet thread.
-  private UrlRequest currentUrlRequest;
-  private DataSpec currentDataSpec;
+  @Nullable private UrlRequest currentUrlRequest;
+  @Nullable private DataSpec currentDataSpec;
 
   // Reference written and read by calling thread only. Passed to Cronet thread as a local variable.
   // operation.open() calls ensure writes into the buffer are visible to reads made by the calling
   // thread.
-  private ByteBuffer readBuffer;
+  @Nullable private ByteBuffer readBuffer;
 
   // Written from the Cronet thread only. operation.open() calls ensure writes are visible to reads
   // made by the calling thread.
-  private UrlResponseInfo responseInfo;
-  private IOException exception;
+  @Nullable private UrlResponseInfo responseInfo;
+  @Nullable private IOException exception;
   private boolean finished;
 
   private volatile long currentConnectTimeoutMs;
@@ -153,21 +159,15 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
    *     hop from Cronet's internal network thread to the response handling thread. However, to
    *     avoid slowing down overall network performance, care must be taken to make sure response
    *     handling is a fast operation when using a direct executor.
-   * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
-   *     predicate then an {@link InvalidContentTypeException} is thrown from {@link
-   *     #open(DataSpec)}.
    */
-  public CronetDataSource(
-      CronetEngine cronetEngine, Executor executor, Predicate<String> contentTypePredicate) {
+  public CronetDataSource(CronetEngine cronetEngine, Executor executor) {
     this(
         cronetEngine,
         executor,
-        contentTypePredicate,
         DEFAULT_CONNECT_TIMEOUT_MILLIS,
         DEFAULT_READ_TIMEOUT_MILLIS,
-        false,
-        null,
-        false);
+        /* resetTimeoutOnRedirects= */ false,
+        /* defaultRequestProperties= */ null);
   }
 
   /**
@@ -177,32 +177,28 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
    *     hop from Cronet's internal network thread to the response handling thread. However, to
    *     avoid slowing down overall network performance, care must be taken to make sure response
    *     handling is a fast operation when using a direct executor.
-   * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
-   *     predicate then an {@link InvalidContentTypeException} is thrown from {@link
-   *     #open(DataSpec)}.
    * @param connectTimeoutMs The connection timeout, in milliseconds.
    * @param readTimeoutMs The read timeout, in milliseconds.
    * @param resetTimeoutOnRedirects Whether the connect timeout is reset when a redirect occurs.
-   * @param defaultRequestProperties The default request properties to be used.
+   * @param defaultRequestProperties Optional default {@link RequestProperties} to be sent to the
+   *     server as HTTP headers on every request.
    */
   public CronetDataSource(
       CronetEngine cronetEngine,
       Executor executor,
-      Predicate<String> contentTypePredicate,
       int connectTimeoutMs,
       int readTimeoutMs,
       boolean resetTimeoutOnRedirects,
-      RequestProperties defaultRequestProperties) {
+      @Nullable RequestProperties defaultRequestProperties) {
     this(
         cronetEngine,
         executor,
-        contentTypePredicate,
         connectTimeoutMs,
         readTimeoutMs,
         resetTimeoutOnRedirects,
         Clock.DEFAULT,
         defaultRequestProperties,
-        false);
+        /* handleSetCookieRequests= */ false);
   }
 
   /**
@@ -212,29 +208,25 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
    *     hop from Cronet's internal network thread to the response handling thread. However, to
    *     avoid slowing down overall network performance, care must be taken to make sure response
    *     handling is a fast operation when using a direct executor.
-   * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
-   *     predicate then an {@link InvalidContentTypeException} is thrown from {@link
-   *     #open(DataSpec)}.
    * @param connectTimeoutMs The connection timeout, in milliseconds.
    * @param readTimeoutMs The read timeout, in milliseconds.
    * @param resetTimeoutOnRedirects Whether the connect timeout is reset when a redirect occurs.
-   * @param defaultRequestProperties The default request properties to be used.
+   * @param defaultRequestProperties Optional default {@link RequestProperties} to be sent to the
+   *     server as HTTP headers on every request.
    * @param handleSetCookieRequests Whether "Set-Cookie" requests on redirect should be forwarded to
    *     the redirect url in the "Cookie" header.
    */
   public CronetDataSource(
       CronetEngine cronetEngine,
       Executor executor,
-      Predicate<String> contentTypePredicate,
       int connectTimeoutMs,
       int readTimeoutMs,
       boolean resetTimeoutOnRedirects,
-      RequestProperties defaultRequestProperties,
+      @Nullable RequestProperties defaultRequestProperties,
       boolean handleSetCookieRequests) {
     this(
         cronetEngine,
         executor,
-        contentTypePredicate,
         connectTimeoutMs,
         readTimeoutMs,
         resetTimeoutOnRedirects,
@@ -243,21 +235,127 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
         handleSetCookieRequests);
   }
 
+  /**
+   * @param cronetEngine A CronetEngine.
+   * @param executor The {@link java.util.concurrent.Executor} that will handle responses. This may
+   *     be a direct executor (i.e. executes tasks on the calling thread) in order to avoid a thread
+   *     hop from Cronet's internal network thread to the response handling thread. However, to
+   *     avoid slowing down overall network performance, care must be taken to make sure response
+   *     handling is a fast operation when using a direct executor.
+   * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
+   *     predicate then an {@link InvalidContentTypeException} is thrown from {@link
+   *     #open(DataSpec)}.
+   * @deprecated Use {@link #CronetDataSource(CronetEngine, Executor)} and {@link
+   *     #setContentTypePredicate(Predicate)}.
+   */
+  @Deprecated
+  public CronetDataSource(
+      CronetEngine cronetEngine,
+      Executor executor,
+      @Nullable Predicate<String> contentTypePredicate) {
+    this(
+        cronetEngine,
+        executor,
+        contentTypePredicate,
+        DEFAULT_CONNECT_TIMEOUT_MILLIS,
+        DEFAULT_READ_TIMEOUT_MILLIS,
+        /* resetTimeoutOnRedirects= */ false,
+        /* defaultRequestProperties= */ null);
+  }
+
+  /**
+   * @param cronetEngine A CronetEngine.
+   * @param executor The {@link java.util.concurrent.Executor} that will handle responses. This may
+   *     be a direct executor (i.e. executes tasks on the calling thread) in order to avoid a thread
+   *     hop from Cronet's internal network thread to the response handling thread. However, to
+   *     avoid slowing down overall network performance, care must be taken to make sure response
+   *     handling is a fast operation when using a direct executor.
+   * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
+   *     predicate then an {@link InvalidContentTypeException} is thrown from {@link
+   *     #open(DataSpec)}.
+   * @param connectTimeoutMs The connection timeout, in milliseconds.
+   * @param readTimeoutMs The read timeout, in milliseconds.
+   * @param resetTimeoutOnRedirects Whether the connect timeout is reset when a redirect occurs.
+   * @param defaultRequestProperties Optional default {@link RequestProperties} to be sent to the
+   *     server as HTTP headers on every request.
+   * @deprecated Use {@link #CronetDataSource(CronetEngine, Executor, int, int, boolean,
+   *     RequestProperties)} and {@link #setContentTypePredicate(Predicate)}.
+   */
+  @Deprecated
+  public CronetDataSource(
+      CronetEngine cronetEngine,
+      Executor executor,
+      @Nullable Predicate<String> contentTypePredicate,
+      int connectTimeoutMs,
+      int readTimeoutMs,
+      boolean resetTimeoutOnRedirects,
+      @Nullable RequestProperties defaultRequestProperties) {
+    this(
+        cronetEngine,
+        executor,
+        contentTypePredicate,
+        connectTimeoutMs,
+        readTimeoutMs,
+        resetTimeoutOnRedirects,
+        defaultRequestProperties,
+        /* handleSetCookieRequests= */ false);
+  }
+
+  /**
+   * @param cronetEngine A CronetEngine.
+   * @param executor The {@link java.util.concurrent.Executor} that will handle responses. This may
+   *     be a direct executor (i.e. executes tasks on the calling thread) in order to avoid a thread
+   *     hop from Cronet's internal network thread to the response handling thread. However, to
+   *     avoid slowing down overall network performance, care must be taken to make sure response
+   *     handling is a fast operation when using a direct executor.
+   * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
+   *     predicate then an {@link InvalidContentTypeException} is thrown from {@link
+   *     #open(DataSpec)}.
+   * @param connectTimeoutMs The connection timeout, in milliseconds.
+   * @param readTimeoutMs The read timeout, in milliseconds.
+   * @param resetTimeoutOnRedirects Whether the connect timeout is reset when a redirect occurs.
+   * @param defaultRequestProperties Optional default {@link RequestProperties} to be sent to the
+   *     server as HTTP headers on every request.
+   * @param handleSetCookieRequests Whether "Set-Cookie" requests on redirect should be forwarded to
+   *     the redirect url in the "Cookie" header.
+   * @deprecated Use {@link #CronetDataSource(CronetEngine, Executor, int, int, boolean,
+   *     RequestProperties, boolean)} and {@link #setContentTypePredicate(Predicate)}.
+   */
+  @Deprecated
+  public CronetDataSource(
+      CronetEngine cronetEngine,
+      Executor executor,
+      @Nullable Predicate<String> contentTypePredicate,
+      int connectTimeoutMs,
+      int readTimeoutMs,
+      boolean resetTimeoutOnRedirects,
+      @Nullable RequestProperties defaultRequestProperties,
+      boolean handleSetCookieRequests) {
+    this(
+        cronetEngine,
+        executor,
+        connectTimeoutMs,
+        readTimeoutMs,
+        resetTimeoutOnRedirects,
+        Clock.DEFAULT,
+        defaultRequestProperties,
+        handleSetCookieRequests);
+    this.contentTypePredicate = contentTypePredicate;
+  }
+
   /* package */ CronetDataSource(
       CronetEngine cronetEngine,
       Executor executor,
-      Predicate<String> contentTypePredicate,
       int connectTimeoutMs,
       int readTimeoutMs,
       boolean resetTimeoutOnRedirects,
       Clock clock,
-      RequestProperties defaultRequestProperties,
+      @Nullable RequestProperties defaultRequestProperties,
       boolean handleSetCookieRequests) {
     super(/* isNetwork= */ true);
     this.urlRequestCallback = new UrlRequestCallback();
     this.cronetEngine = Assertions.checkNotNull(cronetEngine);
     this.executor = Assertions.checkNotNull(executor);
-    this.contentTypePredicate = contentTypePredicate;
     this.connectTimeoutMs = connectTimeoutMs;
     this.readTimeoutMs = readTimeoutMs;
     this.resetTimeoutOnRedirects = resetTimeoutOnRedirects;
@@ -266,6 +364,17 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     this.handleSetCookieRequests = handleSetCookieRequests;
     requestProperties = new RequestProperties();
     operation = new ConditionVariable();
+  }
+
+  /**
+   * Sets a content type {@link Predicate}. If a content type is rejected by the predicate then a
+   * {@link HttpDataSource.InvalidContentTypeException} is thrown from {@link #open(DataSpec)}.
+   *
+   * @param contentTypePredicate The content type {@link Predicate}, or {@code null} to clear a
+   *     predicate that was previously set.
+   */
+  public void setContentTypePredicate(@Nullable Predicate<String> contentTypePredicate) {
+    this.contentTypePredicate = contentTypePredicate;
   }
 
   // HttpDataSource implementation.
@@ -286,11 +395,19 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   }
 
   @Override
+  public int getResponseCode() {
+    return responseInfo == null || responseInfo.getHttpStatusCode() <= 0
+        ? -1
+        : responseInfo.getHttpStatusCode();
+  }
+
+  @Override
   public Map<String, List<String>> getResponseHeaders() {
     return responseInfo == null ? Collections.emptyMap() : responseInfo.getAllHeaders();
   }
 
   @Override
+  @Nullable
   public Uri getUri() {
     return responseInfo == null ? null : Uri.parse(responseInfo.getUrl());
   }
@@ -303,22 +420,23 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     operation.close();
     resetConnectTimeout();
     currentDataSpec = dataSpec;
+    UrlRequest urlRequest;
     try {
-      currentUrlRequest = buildRequestBuilder(dataSpec).build();
+      urlRequest = buildRequestBuilder(dataSpec).build();
+      currentUrlRequest = urlRequest;
     } catch (IOException e) {
-      throw new OpenException(e, currentDataSpec, Status.IDLE);
+      throw new OpenException(e, dataSpec, Status.IDLE);
     }
-    currentUrlRequest.start();
+    urlRequest.start();
 
     transferInitializing(dataSpec);
     try {
       boolean connectionOpened = blockUntilConnectTimeout();
       if (exception != null) {
-        throw new OpenException(exception, currentDataSpec, getStatus(currentUrlRequest));
+        throw new OpenException(exception, dataSpec, getStatus(urlRequest));
       } else if (!connectionOpened) {
         // The timeout was reached before the connection was opened.
-        throw new OpenException(
-            new SocketTimeoutException(), dataSpec, getStatus(currentUrlRequest));
+        throw new OpenException(new SocketTimeoutException(), dataSpec, getStatus(urlRequest));
       }
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
@@ -326,6 +444,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     }
 
     // Check for a valid response code.
+    UrlResponseInfo responseInfo = Assertions.checkNotNull(this.responseInfo);
     int responseCode = responseInfo.getHttpStatusCode();
     if (responseCode < 200 || responseCode > 299) {
       InvalidResponseCodeException exception =
@@ -333,7 +452,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
               responseCode,
               responseInfo.getHttpStatusText(),
               responseInfo.getAllHeaders(),
-              currentDataSpec);
+              dataSpec);
       if (responseCode == 416) {
         exception.initCause(new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE));
       }
@@ -341,11 +460,12 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     }
 
     // Check for a valid content type.
+    Predicate<String> contentTypePredicate = this.contentTypePredicate;
     if (contentTypePredicate != null) {
       List<String> contentTypeHeaders = responseInfo.getAllHeaders().get(CONTENT_TYPE);
       String contentType = isEmpty(contentTypeHeaders) ? null : contentTypeHeaders.get(0);
-      if (!contentTypePredicate.evaluate(contentType)) {
-        throw new InvalidContentTypeException(contentType, currentDataSpec);
+      if (contentType != null && !contentTypePredicate.evaluate(contentType)) {
+        throw new InvalidContentTypeException(contentType, dataSpec);
       }
     }
 
@@ -355,7 +475,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     bytesToSkip = responseCode == 200 && dataSpec.position != 0 ? dataSpec.position : 0;
 
     // Calculate the content length.
-    if (!getIsCompressed(responseInfo)) {
+    if (!isCompressed(responseInfo)) {
       if (dataSpec.length != C.LENGTH_UNSET) {
         bytesRemaining = dataSpec.length;
       } else {
@@ -364,7 +484,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     } else {
       // If the response is compressed then the content length will be that of the compressed data
       // which isn't what we want. Always use the dataSpec length in this case.
-      bytesRemaining = currentDataSpec.length;
+      bytesRemaining = dataSpec.length;
     }
 
     opened = true;
@@ -383,37 +503,19 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       return C.RESULT_END_OF_INPUT;
     }
 
+    ByteBuffer readBuffer = this.readBuffer;
     if (readBuffer == null) {
       readBuffer = ByteBuffer.allocateDirect(READ_BUFFER_SIZE_BYTES);
       readBuffer.limit(0);
+      this.readBuffer = readBuffer;
     }
     while (!readBuffer.hasRemaining()) {
       // Fill readBuffer with more data from Cronet.
       operation.close();
       readBuffer.clear();
-      currentUrlRequest.read(readBuffer);
-      try {
-        if (!operation.block(readTimeoutMs)) {
-          throw new SocketTimeoutException();
-        }
-      } catch (InterruptedException e) {
-        // The operation is ongoing so replace readBuffer to avoid it being written to by this
-        // operation during a subsequent request.
-        readBuffer = null;
-        Thread.currentThread().interrupt();
-        throw new HttpDataSourceException(
-            new InterruptedIOException(e), currentDataSpec, HttpDataSourceException.TYPE_READ);
-      } catch (SocketTimeoutException e) {
-        // The operation is ongoing so replace readBuffer to avoid it being written to by this
-        // operation during a subsequent request.
-        readBuffer = null;
-        throw new HttpDataSourceException(e, currentDataSpec, HttpDataSourceException.TYPE_READ);
-      }
+      readInternal(castNonNull(readBuffer));
 
-      if (exception != null) {
-        throw new HttpDataSourceException(exception, currentDataSpec,
-            HttpDataSourceException.TYPE_READ);
-      } else if (finished) {
+      if (finished) {
         bytesRemaining = 0;
         return C.RESULT_END_OF_INPUT;
       } else {
@@ -431,6 +533,115 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     int bytesRead = Math.min(readBuffer.remaining(), readLength);
     readBuffer.get(buffer, offset, bytesRead);
 
+    if (bytesRemaining != C.LENGTH_UNSET) {
+      bytesRemaining -= bytesRead;
+    }
+    bytesTransferred(bytesRead);
+    return bytesRead;
+  }
+
+  /**
+   * Reads up to {@code buffer.remaining()} bytes of data and stores them into {@code buffer},
+   * starting at {@code buffer.position()}. Advances the position of the buffer by the number of
+   * bytes read and returns this length.
+   *
+   * <p>If there is an error, a {@link HttpDataSourceException} is thrown and the contents of {@code
+   * buffer} should be ignored. If the exception has error code {@code
+   * HttpDataSourceException.TYPE_READ}, note that Cronet may continue writing into {@code buffer}
+   * after the method has returned. Thus the caller should not attempt to reuse the buffer.
+   *
+   * <p>If {@code buffer.remaining()} is zero then 0 is returned. Otherwise, if no data is available
+   * because the end of the opened range has been reached, then {@link C#RESULT_END_OF_INPUT} is
+   * returned. Otherwise, the call will block until at least one byte of data has been read and the
+   * number of bytes read is returned.
+   *
+   * <p>Passed buffer must be direct ByteBuffer. If you have a non-direct ByteBuffer, consider the
+   * alternative read method with its backed array.
+   *
+   * @param buffer The ByteBuffer into which the read data should be stored. Must be a direct
+   *     ByteBuffer.
+   * @return The number of bytes read, or {@link C#RESULT_END_OF_INPUT} if no data is available
+   *     because the end of the opened range has been reached.
+   * @throws HttpDataSourceException If an error occurs reading from the source.
+   * @throws IllegalArgumentException If {@code buffer} is not a direct ByteBuffer.
+   */
+  public int read(ByteBuffer buffer) throws HttpDataSourceException {
+    Assertions.checkState(opened);
+
+    if (!buffer.isDirect()) {
+      throw new IllegalArgumentException("Passed buffer is not a direct ByteBuffer");
+    }
+    if (!buffer.hasRemaining()) {
+      return 0;
+    } else if (bytesRemaining == 0) {
+      return C.RESULT_END_OF_INPUT;
+    }
+    int readLength = buffer.remaining();
+
+    if (readBuffer != null) {
+      // Skip all the bytes we can from readBuffer if there are still bytes to skip.
+      if (bytesToSkip != 0) {
+        if (bytesToSkip >= readBuffer.remaining()) {
+          bytesToSkip -= readBuffer.remaining();
+          readBuffer.position(readBuffer.limit());
+        } else {
+          readBuffer.position(readBuffer.position() + (int) bytesToSkip);
+          bytesToSkip = 0;
+        }
+      }
+
+      // If there is existing data in the readBuffer, read as much as possible. Return if any read.
+      int copyBytes = copyByteBuffer(/* src= */ readBuffer, /* dst= */ buffer);
+      if (copyBytes != 0) {
+        if (bytesRemaining != C.LENGTH_UNSET) {
+          bytesRemaining -= copyBytes;
+        }
+        bytesTransferred(copyBytes);
+        return copyBytes;
+      }
+    }
+
+    boolean readMore = true;
+    while (readMore) {
+      // If bytesToSkip > 0, read into intermediate buffer that we can discard instead of caller's
+      // buffer. If we do not need to skip bytes, we may write to buffer directly.
+      final boolean useCallerBuffer = bytesToSkip == 0;
+
+      operation.close();
+
+      if (!useCallerBuffer) {
+        if (readBuffer == null) {
+          readBuffer = ByteBuffer.allocateDirect(READ_BUFFER_SIZE_BYTES);
+        } else {
+          readBuffer.clear();
+        }
+        if (bytesToSkip < READ_BUFFER_SIZE_BYTES) {
+          readBuffer.limit((int) bytesToSkip);
+        }
+      }
+
+      // Fill buffer with more data from Cronet.
+      readInternal(useCallerBuffer ? buffer : castNonNull(readBuffer));
+
+      if (finished) {
+        bytesRemaining = 0;
+        return C.RESULT_END_OF_INPUT;
+      } else {
+        // The operation didn't time out, fail or finish, and therefore data must have been read.
+        Assertions.checkState(
+            useCallerBuffer
+                ? readLength > buffer.remaining()
+                : castNonNull(readBuffer).position() > 0);
+        // If we meant to skip bytes, subtract what was left and repeat, otherwise, continue.
+        if (useCallerBuffer) {
+          readMore = false;
+        } else {
+          bytesToSkip -= castNonNull(readBuffer).position();
+        }
+      }
+    }
+
+    final int bytesRead = readLength - buffer.remaining();
     if (bytesRemaining != C.LENGTH_UNSET) {
       bytesRemaining -= bytesRead;
     }
@@ -476,29 +687,25 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
         cronetEngine
             .newUrlRequestBuilder(dataSpec.uri.toString(), urlRequestCallback, executor)
             .allowDirectExecutor();
+
     // Set the headers.
-    boolean isContentTypeHeaderSet = false;
+    Map<String, String> requestHeaders = new HashMap<>();
     if (defaultRequestProperties != null) {
-      for (Entry<String, String> headerEntry : defaultRequestProperties.getSnapshot().entrySet()) {
-        String key = headerEntry.getKey();
-        isContentTypeHeaderSet = isContentTypeHeaderSet || CONTENT_TYPE.equals(key);
-        requestBuilder.addHeader(key, headerEntry.getValue());
-      }
+      requestHeaders.putAll(defaultRequestProperties.getSnapshot());
     }
-    Map<String, String> requestPropertiesSnapshot = requestProperties.getSnapshot();
-    for (Entry<String, String> headerEntry : requestPropertiesSnapshot.entrySet()) {
+    requestHeaders.putAll(requestProperties.getSnapshot());
+    requestHeaders.putAll(dataSpec.httpRequestHeaders);
+
+    for (Entry<String, String> headerEntry : requestHeaders.entrySet()) {
       String key = headerEntry.getKey();
-      isContentTypeHeaderSet = isContentTypeHeaderSet || CONTENT_TYPE.equals(key);
-      requestBuilder.addHeader(key, headerEntry.getValue());
+      String value = headerEntry.getValue();
+      requestBuilder.addHeader(key, value);
     }
-    if (dataSpec.httpBody != null && !isContentTypeHeaderSet) {
+
+    if (dataSpec.httpBody != null && !requestHeaders.containsKey(CONTENT_TYPE)) {
       throw new IOException("HTTP request with non-empty body must set Content-Type");
     }
-    if (dataSpec.isFlagSet(DataSpec.FLAG_ALLOW_ICY_METADATA)) {
-      requestBuilder.addHeader(
-          IcyHeaders.REQUEST_HEADER_ENABLE_METADATA_NAME,
-          IcyHeaders.REQUEST_HEADER_ENABLE_METADATA_VALUE);
-    }
+    
     // Set the Range header.
     if (dataSpec.position != 0 || dataSpec.length != C.LENGTH_UNSET) {
       StringBuilder rangeValue = new StringBuilder();
@@ -510,7 +717,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       }
       requestBuilder.addHeader("Range", rangeValue.toString());
     }
-    // TODO: Uncomment when https://bugs.chromium.org/p/chromium/issues/detail?id=767025 is fixed
+    // TODO: Uncomment when https://bugs.chromium.org/p/chromium/issues/detail?id=711810 is fixed
     // (adjusting the code as necessary).
     // Force identity encoding unless gzip is allowed.
     // if (!dataSpec.isFlagSet(DataSpec.FLAG_ALLOW_GZIP)) {
@@ -539,7 +746,49 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     currentConnectTimeoutMs = clock.elapsedRealtime() + connectTimeoutMs;
   }
 
-  private static boolean getIsCompressed(UrlResponseInfo info) {
+  /**
+   * Reads up to {@code buffer.remaining()} bytes of data from {@code currentUrlRequest} and stores
+   * them into {@code buffer}. If there is an error and {@code buffer == readBuffer}, then it resets
+   * the current {@code readBuffer} object so that it is not reused in the future.
+   *
+   * @param buffer The ByteBuffer into which the read data is stored. Must be a direct ByteBuffer.
+   * @throws HttpDataSourceException If an error occurs reading from the source.
+   */
+  @SuppressWarnings("ReferenceEquality")
+  private void readInternal(ByteBuffer buffer) throws HttpDataSourceException {
+    castNonNull(currentUrlRequest).read(buffer);
+    try {
+      if (!operation.block(readTimeoutMs)) {
+        throw new SocketTimeoutException();
+      }
+    } catch (InterruptedException e) {
+      // The operation is ongoing so replace buffer to avoid it being written to by this
+      // operation during a subsequent request.
+      if (buffer == readBuffer) {
+        readBuffer = null;
+      }
+      Thread.currentThread().interrupt();
+      throw new HttpDataSourceException(
+          new InterruptedIOException(e),
+          castNonNull(currentDataSpec),
+          HttpDataSourceException.TYPE_READ);
+    } catch (SocketTimeoutException e) {
+      // The operation is ongoing so replace buffer to avoid it being written to by this
+      // operation during a subsequent request.
+      if (buffer == readBuffer) {
+        readBuffer = null;
+      }
+      throw new HttpDataSourceException(
+          e, castNonNull(currentDataSpec), HttpDataSourceException.TYPE_READ);
+    }
+
+    if (exception != null) {
+      throw new HttpDataSourceException(
+          exception, castNonNull(currentDataSpec), HttpDataSourceException.TYPE_READ);
+    }
+  }
+
+  private static boolean isCompressed(UrlResponseInfo info) {
     for (Map.Entry<String, String> entry : info.getAllHeadersAsList()) {
       if (entry.getKey().equalsIgnoreCase("Content-Encoding")) {
         return !entry.getValue().equalsIgnoreCase("identity");
@@ -617,8 +866,20 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     return statusHolder[0];
   }
 
-  private static boolean isEmpty(List<?> list) {
+  @EnsuresNonNullIf(result = false, expression = "#1")
+  private static boolean isEmpty(@Nullable List<?> list) {
     return list == null || list.isEmpty();
+  }
+
+  // Copy as much as possible from the src buffer into dst buffer.
+  // Returns the number of bytes copied.
+  private static int copyByteBuffer(ByteBuffer src, ByteBuffer dst) {
+    int remaining = Math.min(src.remaining(), dst.remaining());
+    int limit = src.limit();
+    src.limit(src.position() + remaining);
+    dst.put(src);
+    src.limit(limit);
+    return remaining;
   }
 
   private final class UrlRequestCallback extends UrlRequest.Callback {
@@ -629,13 +890,15 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       if (request != currentUrlRequest) {
         return;
       }
-      if (currentDataSpec.httpMethod == DataSpec.HTTP_METHOD_POST) {
+      UrlRequest urlRequest = Assertions.checkNotNull(currentUrlRequest);
+      DataSpec dataSpec = Assertions.checkNotNull(currentDataSpec);
+      if (dataSpec.httpMethod == DataSpec.HTTP_METHOD_POST) {
         int responseCode = info.getHttpStatusCode();
         // The industry standard is to disregard POST redirects when the status code is 307 or 308.
         if (responseCode == 307 || responseCode == 308) {
           exception =
               new InvalidResponseCodeException(
-                  responseCode, info.getHttpStatusText(), info.getAllHeaders(), currentDataSpec);
+                  responseCode, info.getHttpStatusText(), info.getAllHeaders(), dataSpec);
           operation.open();
           return;
         }
@@ -644,40 +907,47 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
         resetConnectTimeout();
       }
 
-      Map<String, List<String>> headers = info.getAllHeaders();
-      if (!handleSetCookieRequests || isEmpty(headers.get(SET_COOKIE))) {
+      if (!handleSetCookieRequests) {
         request.followRedirect();
-      } else {
-        currentUrlRequest.cancel();
-        DataSpec redirectUrlDataSpec;
-        if (currentDataSpec.httpMethod == DataSpec.HTTP_METHOD_POST) {
-          // For POST redirects that aren't 307 or 308, the redirect is followed but request is
-          // transformed into a GET.
-          redirectUrlDataSpec =
-              new DataSpec(
-                  Uri.parse(newLocationUrl),
-                  DataSpec.HTTP_METHOD_GET,
-                  /* httpBody= */ null,
-                  currentDataSpec.absoluteStreamPosition,
-                  currentDataSpec.position,
-                  currentDataSpec.length,
-                  currentDataSpec.key,
-                  currentDataSpec.flags);
-        } else {
-          redirectUrlDataSpec = currentDataSpec.withUri(Uri.parse(newLocationUrl));
-        }
-        UrlRequest.Builder requestBuilder;
-        try {
-          requestBuilder = buildRequestBuilder(redirectUrlDataSpec);
-        } catch (IOException e) {
-          exception = e;
-          return;
-        }
-        String cookieHeadersValue = parseCookies(headers.get(SET_COOKIE));
-        attachCookies(requestBuilder, cookieHeadersValue);
-        currentUrlRequest = requestBuilder.build();
-        currentUrlRequest.start();
+        return;
       }
+
+      List<String> setCookieHeaders = info.getAllHeaders().get(SET_COOKIE);
+      if (isEmpty(setCookieHeaders)) {
+        request.followRedirect();
+        return;
+      }
+
+      urlRequest.cancel();
+      DataSpec redirectUrlDataSpec;
+      if (dataSpec.httpMethod == DataSpec.HTTP_METHOD_POST) {
+        // For POST redirects that aren't 307 or 308, the redirect is followed but request is
+        // transformed into a GET.
+        redirectUrlDataSpec =
+            new DataSpec(
+                Uri.parse(newLocationUrl),
+                DataSpec.HTTP_METHOD_GET,
+                /* httpBody= */ null,
+                dataSpec.absoluteStreamPosition,
+                dataSpec.position,
+                dataSpec.length,
+                dataSpec.key,
+                dataSpec.flags,
+                dataSpec.httpRequestHeaders);
+      } else {
+        redirectUrlDataSpec = dataSpec.withUri(Uri.parse(newLocationUrl));
+      }
+      UrlRequest.Builder requestBuilder;
+      try {
+        requestBuilder = buildRequestBuilder(redirectUrlDataSpec);
+      } catch (IOException e) {
+        exception = e;
+        return;
+      }
+      String cookieHeadersValue = parseCookies(setCookieHeaders);
+      attachCookies(requestBuilder, cookieHeadersValue);
+      currentUrlRequest = requestBuilder.build();
+      currentUrlRequest.start();
     }
 
     @Override

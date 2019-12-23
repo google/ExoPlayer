@@ -18,9 +18,10 @@ package com.google.android.exoplayer2.ui.spherical;
 import static com.google.android.exoplayer2.util.GlUtil.checkGlError;
 
 import android.graphics.SurfaceTexture;
+import android.media.MediaFormat;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Assertions;
@@ -36,7 +37,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Renders a GL Scene. */
-public final class SceneRenderer implements VideoFrameMetadataListener, CameraMotionListener {
+/* package */ final class SceneRenderer
+    implements VideoFrameMetadataListener, CameraMotionListener {
 
   private final AtomicBoolean frameAvailable;
   private final AtomicBoolean resetRotationAtNextFrame;
@@ -54,7 +56,7 @@ public final class SceneRenderer implements VideoFrameMetadataListener, CameraMo
   // Used by other threads only
   private volatile @C.StreamType int defaultStereoMode;
   private @C.StreamType int lastStereoMode;
-  private @Nullable byte[] lastProjectionData;
+  @Nullable private byte[] lastProjectionData;
 
   // Methods called on any thread.
 
@@ -142,7 +144,10 @@ public final class SceneRenderer implements VideoFrameMetadataListener, CameraMo
 
   @Override
   public void onVideoFrameAboutToBeRendered(
-      long presentationTimeUs, long releaseTimeNs, Format format) {
+      long presentationTimeUs,
+      long releaseTimeNs,
+      Format format,
+      @Nullable MediaFormat mediaFormat) {
     sampleTimestampQueue.add(releaseTimeNs, presentationTimeUs);
     setProjection(format.projectionData, format.stereoMode, releaseTimeNs);
   }

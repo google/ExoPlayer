@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.source.ads;
 
-import android.support.annotation.VisibleForTesting;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.ForwardingTimeline;
@@ -55,9 +55,8 @@ public final class SinglePeriodAdTimeline extends ForwardingTimeline {
   }
 
   @Override
-  public Window getWindow(
-      int windowIndex, Window window, boolean setTag, long defaultPositionProjectionUs) {
-    window = super.getWindow(windowIndex, window, setTag, defaultPositionProjectionUs);
+  public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
+    window = super.getWindow(windowIndex, window, defaultPositionProjectionUs);
     if (window.durationUs == C.TIME_UNSET) {
       window.durationUs = adPlaybackState.contentDurationUs;
     }

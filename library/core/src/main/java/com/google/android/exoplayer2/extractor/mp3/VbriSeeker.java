@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.mp3;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.MpegAudioHeader;
 import com.google.android.exoplayer2.extractor.SeekPoint;
@@ -23,10 +23,8 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 
-/**
- * MP3 seeker that uses metadata from a VBRI header.
- */
-/* package */ final class VbriSeeker implements Mp3Extractor.Seeker {
+/** MP3 seeker that uses metadata from a VBRI header. */
+/* package */ final class VbriSeeker implements Seeker {
 
   private static final String TAG = "VbriSeeker";
 
@@ -43,7 +41,8 @@ import com.google.android.exoplayer2.util.Util;
    * @return A {@link VbriSeeker} for seeking in the stream, or {@code null} if the required
    *     information is not present.
    */
-  public static @Nullable VbriSeeker create(
+  @Nullable
+  public static VbriSeeker create(
       long inputLength, long position, MpegAudioHeader mpegAudioHeader, ParsableByteArray frame) {
     frame.skipBytes(10);
     int numFrames = frame.readInt();

@@ -24,6 +24,7 @@ track 0:
     selectionFlags = 0
     language = null
     drmInitData = -
+    metadata = null
     initializationData:
       data = length 19, hash BFE794DB
       data = length 8, hash CA22068C

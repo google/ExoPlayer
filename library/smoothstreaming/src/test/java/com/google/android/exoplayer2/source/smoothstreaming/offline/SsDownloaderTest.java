@@ -18,8 +18,9 @@ package com.google.android.exoplayer2.source.smoothstreaming.offline;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.offline.DefaultDownloaderFactory;
-import com.google.android.exoplayer2.offline.DownloadAction;
+import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.offline.Downloader;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.DownloaderFactory;
@@ -30,10 +31,9 @@ import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.robolectric.RobolectricTestRunner;
 
 /** Unit tests for {@link SsDownloader}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class SsDownloaderTest {
 
   @Test
@@ -44,8 +44,9 @@ public final class SsDownloaderTest {
 
     Downloader downloader =
         factory.createDownloader(
-            DownloadAction.createDownloadAction(
-                DownloadAction.TYPE_SS,
+            new DownloadRequest(
+                "id",
+                DownloadRequest.TYPE_SS,
                 Uri.parse("https://www.test.com/download"),
                 Collections.singletonList(new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 0)),
                 /* customCacheKey= */ null,
