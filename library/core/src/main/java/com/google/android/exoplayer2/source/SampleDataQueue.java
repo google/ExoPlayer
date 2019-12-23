@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.extractor.TrackOutput.CryptoData;
 import com.google.android.exoplayer2.source.SampleQueue.SampleExtrasHolder;
 import com.google.android.exoplayer2.upstream.Allocation;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.EOFException;
 import java.io.IOException;
@@ -114,11 +115,13 @@ import java.nio.ByteBuffer;
    *
    * @param buffer The buffer to populate.
    * @param extrasHolder The extras holder whose offset should be read and subsequently adjusted.
+   * @param mimeType The MIME type.
    */
-  public void readToBuffer(DecoderInputBuffer buffer, SampleExtrasHolder extrasHolder) {
+  public void readToBuffer(DecoderInputBuffer buffer, SampleExtrasHolder extrasHolder,
+      String mimeType) {
     // Read encryption data if the sample is encrypted.
     if (buffer.isEncrypted()) {
-      readEncryptionData(buffer, extrasHolder);
+      readEncryptionData(buffer, extrasHolder, mimeType);
     }
     // Read sample data, extracting supplemental data into a separate buffer if needed.
     if (buffer.hasSupplementalData()) {
@@ -215,8 +218,10 @@ import java.nio.ByteBuffer;
    *
    * @param buffer The buffer into which the encryption data should be written.
    * @param extrasHolder The extras holder whose offset should be read and subsequently adjusted.
+   * @param mimeType The MIME type.
    */
-  private void readEncryptionData(DecoderInputBuffer buffer, SampleExtrasHolder extrasHolder) {
+  private void readEncryptionData(DecoderInputBuffer buffer, SampleExtrasHolder extrasHolder,
+      String mimeType) {
     long offset = extrasHolder.offset;
 
     // Read the signal byte.
@@ -265,8 +270,10 @@ import java.nio.ByteBuffer;
         encryptedDataSizes[i] = scratch.readUnsignedIntToInt();
       }
     } else {
-      clearDataSizes[0] = 0;
-      encryptedDataSizes[0] = extrasHolder.size - (int) (offset - extrasHolder.offset);
+      int addedHeaderSize = MimeTypes.AUDIO_AC4.equals(mimeType) ? 7 : 0;
+      clearDataSizes[0] = addedHeaderSize;
+      encryptedDataSizes[0] = extrasHolder.size - (int) (offset - extrasHolder.offset)
+          - addedHeaderSize;
     }
 
     // Populate the cryptoInfo.
