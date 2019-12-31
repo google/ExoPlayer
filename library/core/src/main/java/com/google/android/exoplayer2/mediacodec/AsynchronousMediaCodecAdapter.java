@@ -33,7 +33,7 @@ import com.google.android.exoplayer2.util.Assertions;
  */
 @RequiresApi(21)
 /* package */ final class AsynchronousMediaCodecAdapter implements MediaCodecAdapter {
-  private MediaCodecAsyncCallback mediaCodecAsyncCallback;
+  private final MediaCodecAsyncCallback mediaCodecAsyncCallback;
   private final Handler handler;
   private final MediaCodec codec;
   @Nullable private IllegalStateException internalException;
@@ -51,7 +51,7 @@ import com.google.android.exoplayer2.util.Assertions;
 
   @VisibleForTesting
   /* package */ AsynchronousMediaCodecAdapter(MediaCodec codec, Looper looper) {
-    this.mediaCodecAsyncCallback = new MediaCodecAsyncCallback();
+    mediaCodecAsyncCallback = new MediaCodecAsyncCallback();
     handler = new Handler(looper);
     this.codec = codec;
     this.codec.setCallback(mediaCodecAsyncCallback);
