@@ -34,6 +34,8 @@
   to proceed.
 * Fix handling of E-AC-3 streams that contain AC-3 syncframes
   ([#6602](https://github.com/google/ExoPlayer/issues/6602)).
+* Support "twos" codec (big endian PCM) in MP4
+  ([#5789](https://github.com/google/ExoPlayer/issues/5789)).
 
 ### 2.11.1 (2019-12-20) ###
 
