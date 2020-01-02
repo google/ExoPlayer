@@ -116,7 +116,7 @@ full resolution of the display, upscaling it for presentation to the user. For
 example, the UI layer may be run at 1080p on an Android TV that has a 4K
 display. On such devices, `SurfaceView` must be used to render content at the
 full resolution of the display. The full resolution of the display (in its
-current display mode) can be queried using [`Util.getCurrentDisplayModeSize`][].
+current display mode) can be queried using [`Util.getPhysicalDisplaySize`][].
 The UI layer resolution can be queried using Android's [`Display.getSize`] API.
 {:.info}
 
@@ -239,5 +239,5 @@ specified using the `controller_layout_id` attribute:
 [`PlayerView`]: {{ site.exo_sdk }}/ui/PlayerView.html
 [`PlayerControlView`]: {{ site.exo_sdk }}/ui/PlayerControlView.html
 [`SDK_INT`]: {{ site.android_sdk }}/android/os/Build.VERSION.html#SDK_INT
-[`Util.getCurrentDisplayModeSize`]: {{ site.exo_sdk }}/util/Util.html#getCurrentDisplayModeSize-android.content.Context-
+[`Util.getPhysicalDisplaySize`]: {{ site.exo_sdk }}/util/Util.html#getPhysicalDisplaySize-android.content.Context-
 [`Display.getSize`]: {{ site.android_sdk }}/android/view/Display.html#getSize(android.graphics.Point)
