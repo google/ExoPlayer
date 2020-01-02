@@ -15,11 +15,11 @@ implementation 'com.google.android.exoplayer:exoplayer-ui:2.X.X'
 
 The most important components are `PlayerControlView` and `PlayerView`.
 
-* `PlayerControlView` is a view for controlling playbacks. It displays
+* [`PlayerControlView`][] is a view for controlling playbacks. It displays
   standard playback controls including a play/pause button, fast-forward and
   rewind buttons, and a seek bar.
-* `PlayerView` is a high level view for playbacks. It displays video, subtitles
-  and album art during playback, as well as playback controls using a
+* [`PlayerView`][] is a high level view for playbacks. It displays video,
+  subtitles and album art during playback, as well as playback controls using a
   `PlayerControlView`.
 
 Both views have a `setPlayer` method for attaching and detaching (by passing
@@ -92,6 +92,8 @@ video playback:
 * Significantly lower power consumption on many devices.
 * More accurate frame timing, resulting in smoother video playback.
 * Support for secure output when playing DRM protected content.
+* The ability to render video content at the full resolution of the display on
+  Android TV devices that upscale the UI layer.
 
 `SurfaceView` should therefore be preferred over `TextureView` where possible.
 `TextureView` should be used only if `SurfaceView` does not meet your needs. One
@@ -107,6 +109,15 @@ animation. Such effects included the view's contents appearing to lag slightly
 behind where it should be displayed, and the view turning black when subjected
 to animation. To achieve smooth animation or scrolling of video prior to Android
 N, it's therefore necessary to use `TextureView` rather than `SurfaceView`.
+{:.info}
+
+Some Android TV devices run their UI layer at a resolution that's lower than the
+full resolution of the display, upscaling it for presentation to the user. For
+example, the UI layer may be run at 1080p on an Android TV that has a 4K
+display. On such devices, `SurfaceView` must be used to render content at the
+full resolution of the display. The full resolution of the display (in its
+current display mode) can be queried using [`Util.getCurrentDisplayModeSize`][].
+The UI layer resolution can be queried using Android's [`Display.getSize`] API.
 {:.info}
 
 ## PlayerControlView ##
@@ -148,7 +159,23 @@ private void initializePlayer() {
 ~~~
 {: .language-java}
 
-## Overriding layout files ##
+## Customization ##
+
+Where significant customization is required, we expect that app developers will
+implement their own UI components rather than using those provided by
+ExoPlayer's UI module. That said, the provided UI components do allow for
+customization by setting attributes (as described above), overriding drawables,
+overriding layout files, and by specifying custom layout files.
+
+### Overriding drawables ###
+
+The drawables used by `PlayerControlView` (with its default layout file) can be
+overridden by drawables with the same names defined in your application. See the
+[`PlayerControlView`][] Javadoc for a list of drawables that can be overridden.
+Since `PlayerView` uses a `PlayerControlView`, overriding these drawables works
+for `PlayerView` too.
+
+### Overriding layout files ###
 
 When a `PlayerView` is instantiated it inflates its layout from the layout file
 `exo_player_view.xml`. `PlayerControlView` inflates its layout from
@@ -189,7 +216,7 @@ below.
 
 {% include figure.html url="/images/overriding-layoutfiles.png" index="1" caption="Replacing the standard playback controls (left) with custom controls (right)" %}
 
-## Custom layout files ##
+### Custom layout files ###
 
 Overriding a layout file is an excellent solution for changing the layout across
 the whole of an application, but what if a custom layout is required only in a
@@ -212,3 +239,5 @@ specified using the `controller_layout_id` attribute:
 [`PlayerView`]: {{ site.exo_sdk }}/ui/PlayerView.html
 [`PlayerControlView`]: {{ site.exo_sdk }}/ui/PlayerControlView.html
 [`SDK_INT`]: {{ site.android_sdk }}/android/os/Build.VERSION.html#SDK_INT
+[`Util.getCurrentDisplayModeSize`]: {{ site.exo_sdk }}/util/Util.html#getCurrentDisplayModeSize-android.content.Context-
+[`Display.getSize`]: {{ site.android_sdk }}/android/view/Display.html#getSize(android.graphics.Point)

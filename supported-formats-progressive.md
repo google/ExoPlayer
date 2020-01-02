@@ -10,13 +10,13 @@ The contained audio and video sample formats must also be supported (see the
 | WebM| YES ||
 | Matroska| YES ||
 | MP3 | YES | Some streams only seekable using constant bitrate seeking** |
-| Ogg | YES | Containing Vorbis, Opus and Flac |
+| Ogg | YES | Containing Vorbis, Opus and FLAC |
 | WAV | YES ||
 | MPEG-TS | YES ||
 | MPEG-PS | YES ||
 | FLV | YES | Not seekable* |
 | ADTS (AAC) | YES | Only seekable using constant bitrate seeking** |
-| Flac | YES | Using the [Flac extension][] only |
+| FLAC | YES | Using the [FLAC extension][] only |
 | AMR | YES | Only seekable using constant bitrate seeking** |
 
 \* Seeking is unsupported because the container does not provide metadata (e.g.,
@@ -30,4 +30,4 @@ functionality for all extractors that support it is to use
 `DefaultExtractorsFactory.setConstantBitrateSeekingEnabled`, as described
 [here](progressive.html#enabling-constant-bitrate-seeking).
 
-[Flac extension]: {{ site.release_v2 }}/extensions/flac
+[FLAC extension]: {{ site.release_v2 }}/extensions/flac

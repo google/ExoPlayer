@@ -17,11 +17,11 @@ highest, these are:
   may be the same.
 * Adaptive streaming technologies such as DASH, SmoothStreaming and HLS. These
   are not media formats as such, however it's still necessary to define what
-  level of support that ExoPlayer provides.
+  level of support ExoPlayer provides.
 
 The following sections define ExoPlayer's support at each level, from highest to
-lowest. Support for standalone subtitle formats is also described at the bottom
-of this page.
+lowest. The last two sections describe support for standalone subtitle formats
+and HDR video playback.
 
 ## Adaptive streaming ##
 
@@ -55,7 +55,7 @@ projects that wish to make use of them. We currently provide software decoder
 extensions for
 [AV1]({{ site.release_v2 }}/extensions/av1),
 [VP9]({{ site.release_v2 }}/extensions/vp9),
-[Flac]({{ site.release_v2 }}/extensions/flac),
+[FLAC]({{ site.release_v2 }}/extensions/flac),
 [Opus]({{ site.release_v2 }}/extensions/opus) and
 [FFmpeg]({{ site.release_v2 }}/extensions/ffmpeg).
 
@@ -101,3 +101,20 @@ files can be side-loaded as described on the [Media source page][].
 | SubStationAlpha (SSA/ASS) | YES          | MimeTypes.TEXT_SSA |
 
 [Media source page]: {{ site.baseurl }}/media-sources.html#side-loading-a-subtitle-file
+
+## HDR video playback ##
+
+ExoPlayer handles extracting high dynamic range (HDR) video in various
+containers, including Dolby Vision in MP4 and HDR10+ in Matroska/WebM. Decoding
+and displaying HDR content depends on support from the Android platform and
+device. See
+[HDR Video Playback](https://source.android.com/devices/tech/display/hdr.html)
+to learn about checking for HDR decoding/display capabilities and limitations of
+HDR support across Android versions.
+
+When playing an HDR stream that requires support for a particular codec profile,
+ExoPlayer's default `MediaCodec` selector will pick a decoder that supports that
+profile (if available), even if another decoder for the same MIME type that
+doesn't support that profile appears higher up the codec list. This can result
+in selecting a software decoder in cases where the stream exceeds the
+capabilities of a hardware decoder for the same MIME type.

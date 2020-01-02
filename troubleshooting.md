@@ -7,6 +7,7 @@ redirect_from:
 * [Fixing "Cleartext HTTP traffic not permitted" errors][]
 * [Fixing "SSLHandshakeException" and "CertPathValidatorException" errors][]
 * [Why are some media files not seekable?][]
+* [Why is seeking inaccurate in some MP3 files?][]
 * [Why do some MPEG-TS files fail to play?][]
 * [Why do some MP4/FMP4 files play incorrectly?][]
 * [Why do some streams fail with HTTP response code 301 or 302?][]
@@ -22,12 +23,12 @@ redirect_from:
 
 #### Fixing "Cleartext HTTP traffic not permitted" errors ####
 
-This error will occur if your app requests cleartext traffic (e.g. `http://`
+This error will occur if your app requests cleartext traffic (e.g., `http://`
 rather than `https://`) when its Network Security Configuration does not permit
 it. If your app targets Android 9 (API level 28) or later, cleartext traffic is
 disabled by the default configuration.
 
-If your app needs to work with cleartext traffic (e.g. to stream media over
+If your app needs to work with cleartext traffic (e.g., to stream media over
 `http://`) then you need to use a Network Security Configuration that permits
 it. Please see Android's
 [network security documentation](https://developer.android.com/training/articles/security-config.html)
@@ -58,6 +59,44 @@ content to use a more appropriate container format. For MP3, ADTS and AMR files,
 you can also enable seeking under the assumption that the files have a constant
 bitrate, as described
 [here](progressive.html#enabling-constant-bitrate-seeking).
+
+#### Why is seeking inaccurate in some MP3 files? ####
+
+Variable bitrate (VBR) MP3 files are fundamentally unsuitable for use cases that
+require exact seeking. There are two reasons for this:
+
+1. For exact seeking, a container format will ideally provide a precise
+   time-to-byte mapping in a header. This mapping allows a player to map a
+   requested seek time to the corresponding byte offset, and start requesting,
+   parsing and playing media from that offset. The headers available for
+   specifying this mapping in MP3 (e.g., XING headers) are, unfortunately, often
+   imprecise.
+1. For container formats that don't provide a precise time-to-byte mapping (or
+   any time-to-byte mapping at all), it's still possible to perform an exact
+   seek if the container includes absolute sample timestamps in the stream. In
+   this case a player can map the seek time to a best guess of the corresponding
+   byte offset, start requesting media from that offset, parse the first
+   absolute sample timestamp, and effectively perform a guided binary search
+   into the media until it finds the right sample. Unfortunately MP3 does not
+   include absolute sample timestamps in the stream, so this approach is not
+   possible.
+
+For these reasons, the only way to perform an exact seek into a VBR MP3 file is
+to scan the entire file and manually build up a time-to-byte mapping in the
+player. This doesn't scale well to large MP3 files, particularly if the user
+tries to seek to near the end of the stream shortly after starting playback,
+which would require the player to wait until it's downloaded and indexed the
+entire stream before performing the seek. For ExoPlayer, we decided to optimize
+for speed over accuracy in this case.
+
+[Issue #6787][] tracks adding support for exact seeking by building up a
+time-to-byte mapping in the player, however when support is added it will likely
+be disabled by default, and will still be subject to the fundamental scaling
+issue described above.
+
+If you control the media you're playing, we strongly advise that you use a more
+appropriate container format, such as MP4. There are no use cases we're aware of
+where MP3 is the best choice of media format.
 
 #### Why do some MPEG-TS files fail to play? ####
 
@@ -177,8 +216,8 @@ status lines correctly.
 #### How can I query whether the stream being played is a live stream? ####
 
 You can query ExoPlayer's [isCurrentWindowLive][] method. In addition, you can
-check [isCurrentWindowDynamic][] to find out whether the window is dynamic, i.e.
-still updating over time.
+check [isCurrentWindowDynamic][] to find out whether the window is dynamic
+(i.e., still updating over time).
 
 #### How do I keep audio playing when my app is backgrounded? ####
 
@@ -232,6 +271,7 @@ diagnose the issue.
 [Fixing "SSLHandshakeException" and "CertPathValidatorException" errors]: #fixing-sslhandshakeexception-and-certpathvalidatorexception-errors
 [What formats does ExoPlayer support?]: #what-formats-does-exoplayer-support
 [Why are some media files not seekable?]: #why-are-some-media-files-not-seekable
+[Why is seeking inaccurate in some MP3 files?]: #why-is-seeking-inaccurate-in-some-mp3-files
 [Why do some MPEG-TS files fail to play?]: #why-do-some-mpeg-ts-files-fail-to-play
 [Why do some MP4/FMP4 files play incorrectly?]: #why-do-some-mp4fmp4-files-play-incorrectly
 [Why do some streams fail with HTTP response code 301 or 302?]: #why-do-some-streams-fail-with-http-response-code-301-or-302

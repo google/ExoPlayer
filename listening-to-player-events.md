@@ -180,17 +180,17 @@ the playback never rebuffers (after the initial buffering) and is paused by the
 user once:
 
 ```
-EventLogger: state [0.00, 0.00, window=0, true, BUFFERING]
-EventLogger: state [0.92, 0.04, window=0, period=0, true, READY]
-EventLogger: state [11.53, 10.60, window=0, period=0, false, READY]
-EventLogger: state [14.26, 10.60, window=0, period=0, true, READY]
-EventLogger: state [131.89, 128.27, window=0, period=0, true, ENDED]
+EventLogger: state [eventTime=0.00, mediaPos=0.00, window=0, true, BUFFERING]
+EventLogger: state [eventTime=0.92, mediaPos=0.04, window=0, period=0, true, READY]
+EventLogger: state [eventTime=11.53, mediaPos=10.60, window=0, period=0, false, READY]
+EventLogger: state [eventTime=14.26, mediaPos=10.60, window=0, period=0, true, READY]
+EventLogger: state [eventTime=131.89, mediaPos=128.27, window=0, period=0, true, ENDED]
 ```
 
 The elements within the square brackets are:
 
-* `[float]`: The wall clock time since player creation.
-* `[float]`: The current playback position.
+* `[eventTime=float]`: The wall clock time since player creation.
+* `[mediaPos=float]`: The current playback position.
 * `[window=int]`: The current window index.
 * `[period=int]`: The current period in that window.
 * `[boolean]`: The `playWhenReady` flag.
