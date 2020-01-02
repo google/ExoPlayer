@@ -379,6 +379,9 @@ import java.util.List;
   @SuppressWarnings("ConstantCaseForConstants")
   public static final int TYPE_dfLa = 0x64664c61;
 
+  @SuppressWarnings("ConstantCaseForConstants")
+  public static final int TYPE_twos = 0x74776f73;
+
   public final int type;
 
   public Atom(int type) {

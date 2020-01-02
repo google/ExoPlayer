@@ -1341,6 +1341,7 @@ public final class Util {
   public static boolean isEncodingLinearPcm(@C.Encoding int encoding) {
     return encoding == C.ENCODING_PCM_8BIT
         || encoding == C.ENCODING_PCM_16BIT
+        || encoding == C.ENCODING_PCM_16BIT_BIG_ENDIAN
         || encoding == C.ENCODING_PCM_24BIT
         || encoding == C.ENCODING_PCM_32BIT
         || encoding == C.ENCODING_PCM_FLOAT;
@@ -1409,6 +1410,7 @@ public final class Util {
       case C.ENCODING_PCM_8BIT:
         return channelCount;
       case C.ENCODING_PCM_16BIT:
+      case C.ENCODING_PCM_16BIT_BIG_ENDIAN:
         return channelCount * 2;
       case C.ENCODING_PCM_24BIT:
         return channelCount * 3;
