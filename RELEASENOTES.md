@@ -12,6 +12,8 @@
   ([#6733](https://github.com/google/ExoPlayer/issues/6733)). Incorrect handling
   could previously cause downloads to be paused when they should have been able
   to proceed.
+* Fix handling of E-AC-3 streams that contain AC-3 syncframes
+  ([#6602](https://github.com/google/ExoPlayer/issues/6602)).
 
 ### 2.11.1 (2019-12-20) ###
 
