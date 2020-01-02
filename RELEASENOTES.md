@@ -16,6 +16,7 @@
   ([#6602](https://github.com/google/ExoPlayer/issues/6602)).
 * Support "twos" codec (big endian PCM) in MP4
   ([#5789](https://github.com/google/ExoPlayer/issues/5789)).
+* WAV: Support IMA ADPCM encoded data.
 
 ### 2.11.1 (2019-12-20) ###
 
