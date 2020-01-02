@@ -32,15 +32,17 @@ public final class WavUtil {
   public static final int DATA_FOURCC = 0x64617461;
 
   /** WAVE type value for integer PCM audio data. */
-  private static final int TYPE_PCM = 0x0001;
+  public static final int TYPE_PCM = 0x0001;
   /** WAVE type value for float PCM audio data. */
-  private static final int TYPE_FLOAT = 0x0003;
+  public static final int TYPE_FLOAT = 0x0003;
   /** WAVE type value for 8-bit ITU-T G.711 A-law audio data. */
-  private static final int TYPE_A_LAW = 0x0006;
+  public static final int TYPE_A_LAW = 0x0006;
   /** WAVE type value for 8-bit ITU-T G.711 mu-law audio data. */
-  private static final int TYPE_MU_LAW = 0x0007;
+  public static final int TYPE_MU_LAW = 0x0007;
+  /** WAVE type value for IMA ADPCM audio data. */
+  public static final int TYPE_IMA_ADPCM = 0x0011;
   /** WAVE type value for extended WAVE format. */
-  private static final int TYPE_WAVE_FORMAT_EXTENSIBLE = 0xFFFE;
+  public static final int TYPE_WAVE_FORMAT_EXTENSIBLE = 0xFFFE;
 
   /**
    * Returns the WAVE format type value for the given {@link C.PcmEncoding}.
