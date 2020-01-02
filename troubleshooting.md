@@ -286,6 +286,7 @@ diagnose the issue.
 
 [Supported formats]: {{ site.baseurl }}/supported-formats.html
 [setMp3ExtractorFlags]: {{ site.exo_sdk }}/extractor/DefaultExtractorsFactory#setMp3ExtractorFlags-int-
+[Issue #6787]: https://github.com/google/ExoPlayer/issues/6787
 [FLAG_DETECT_ACCESS_UNITS]: {{ site.exo_sdk }}/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_DETECT_ACCESS_UNITS
 [FLAG_ALLOW_NON_IDR_KEYFRAMES]: {{ site.exo_sdk }}/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_ALLOW_NON_IDR_KEYFRAMES
 [`setTsExtractorFlags`]: {{ site.exo_sdk }}/extractor/DefaultExtractorsFactory#setTsExtractorFlags-int-
