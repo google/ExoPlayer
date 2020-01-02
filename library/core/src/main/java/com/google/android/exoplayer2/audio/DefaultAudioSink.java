@@ -1166,10 +1166,9 @@ public final class DefaultAudioSink implements AudioSink {
       case C.ENCODING_DTS_HD:
         return DtsUtil.parseDtsAudioSampleCount(buffer);
       case C.ENCODING_AC3:
-        return Ac3Util.getAc3SyncframeAudioSampleCount();
       case C.ENCODING_E_AC3:
       case C.ENCODING_E_AC3_JOC:
-        return Ac3Util.parseEAc3SyncframeAudioSampleCount(buffer);
+        return Ac3Util.parseAc3SyncframeAudioSampleCount(buffer);
       case C.ENCODING_AC4:
         return Ac4Util.parseAc4SyncframeAudioSampleCount(buffer);
       case C.ENCODING_DOLBY_TRUEHD:
