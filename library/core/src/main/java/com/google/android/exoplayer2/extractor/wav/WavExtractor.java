@@ -203,7 +203,7 @@ public final class WavExtractor implements Extractor {
               /* id= */ null,
               MimeTypes.AUDIO_RAW,
               /* codecs= */ null,
-              /* bitrate= */ header.averageBytesPerSecond * 8,
+              /* bitrate= */ header.frameRateHz * bytesPerFrame * 8,
               targetSampleSize,
               header.numChannels,
               header.frameRateHz,
