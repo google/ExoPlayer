@@ -204,7 +204,7 @@ public class SimpleCacheTest {
     simpleCache.releaseHoleSpan(cacheSpan2);
     simpleCache.removeSpan(simpleCache.getCachedSpans(KEY_2).first());
 
-    // Don't release the cache. This means the index file wont have been written to disk after the
+    // Don't release the cache. This means the index file won't have been written to disk after the
     // data for KEY_2 was removed. Move the cache instead, so we can reload it without failing the
     // folder locking check.
     File cacheDir2 =
