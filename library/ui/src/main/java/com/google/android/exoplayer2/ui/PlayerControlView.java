@@ -49,8 +49,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * A view for controlling {@link Player} instances.
  *
  * <p>A PlayerControlView can be customized by setting attributes (or calling corresponding
- * methods), overriding the view's layout file or by specifying a custom view layout file, as
- * outlined below.
+ * methods), overriding drawables, overriding the view's layout file, or by specifying a custom view
+ * layout file.
  *
  * <h3>Attributes</h3>
  *
@@ -104,6 +104,30 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *       layout is overridden to specify a custom {@code exo_progress} (see below).
  * </ul>
  *
+ * <h3>Overriding drawables</h3>
+ *
+ * The drawables used by PlayerControlView (with its default layout file) can be overridden by
+ * drawables with the same names defined in your application. The drawables that can be overridden
+ * are:
+ *
+ * <ul>
+ *   <li><b>{@code exo_controls_play}</b> - The play icon.
+ *   <li><b>{@code exo_controls_pause}</b> - The pause icon.
+ *   <li><b>{@code exo_controls_rewind}</b> - The rewind icon.
+ *   <li><b>{@code exo_controls_fastforward}</b> - The fast forward icon.
+ *   <li><b>{@code exo_controls_previous}</b> - The previous icon.
+ *   <li><b>{@code exo_controls_next}</b> - The next icon.
+ *   <li><b>{@code exo_controls_repeat_off}</b> - The repeat icon for {@link
+ *       Player#REPEAT_MODE_OFF}.
+ *   <li><b>{@code exo_controls_repeat_one}</b> - The repeat icon for {@link
+ *       Player#REPEAT_MODE_ONE}.
+ *   <li><b>{@code exo_controls_repeat_all}</b> - The repeat icon for {@link
+ *       Player#REPEAT_MODE_ALL}.
+ *   <li><b>{@code exo_controls_shuffle_off}</b> - The shuffle icon when shuffling is disabled.
+ *   <li><b>{@code exo_controls_shuffle_on}</b> - The shuffle icon when shuffling is enabled.
+ *   <li><b>{@code exo_controls_vr}</b> - The VR icon.
+ * </ul>
+ *
  * <h3>Overriding the layout file</h3>
  *
  * To customize the layout of PlayerControlView throughout your app, or just for certain
@@ -123,29 +147,38 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *       <ul>
  *         <li>Type: {@link View}
  *       </ul>
- *   <li><b>{@code exo_ffwd}</b> - The fast forward button.
- *       <ul>
- *         <li>Type: {@link View}
- *       </ul>
  *   <li><b>{@code exo_rew}</b> - The rewind button.
  *       <ul>
  *         <li>Type: {@link View}
  *       </ul>
- *   <li><b>{@code exo_prev}</b> - The previous track button.
+ *   <li><b>{@code exo_ffwd}</b> - The fast forward button.
  *       <ul>
  *         <li>Type: {@link View}
  *       </ul>
- *   <li><b>{@code exo_next}</b> - The next track button.
+ *   <li><b>{@code exo_prev}</b> - The previous button.
+ *       <ul>
+ *         <li>Type: {@link View}
+ *       </ul>
+ *   <li><b>{@code exo_next}</b> - The next button.
  *       <ul>
  *         <li>Type: {@link View}
  *       </ul>
  *   <li><b>{@code exo_repeat_toggle}</b> - The repeat toggle button.
  *       <ul>
- *         <li>Type: {@link View}
+ *         <li>Type: {@link ImageView}
+ *         <li>Note: PlayerControlView will programmatically set the drawable on the repeat toggle
+ *             button according to the player's current repeat mode. The drawables used are {@code
+ *             exo_controls_repeat_off}, {@code exo_controls_repeat_one} and {@code
+ *             exo_controls_repeat_all}. See the section above for information on overriding these
+ *             drawables.
  *       </ul>
  *   <li><b>{@code exo_shuffle}</b> - The shuffle button.
  *       <ul>
- *         <li>Type: {@link View}
+ *         <li>Type: {@link ImageView}
+ *         <li>Note: PlayerControlView will programmatically set the drawable on the shuffle button
+ *             according to the player's current repeat mode. The drawables used are {@code
+ *             exo_controls_shuffle_off} and {@code exo_controls_shuffle_on}. See the section above
+ *             for information on overriding these drawables.
  *       </ul>
  *   <li><b>{@code exo_vr}</b> - The VR mode button.
  *       <ul>
