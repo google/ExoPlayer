@@ -492,8 +492,7 @@ public final class WebvttCueParser {
       return;
     }
     if (style.getStyle() != WebvttCssStyle.UNSPECIFIED) {
-      spannedText.setSpan(new StyleSpan(style.getStyle()), start, end,
-          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+      addOrReplaceSpan(spannedText, new StyleSpan(style.getStyle()), start, end);
     }
     if (style.isLinethrough()) {
       spannedText.setSpan(new StrikethroughSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -502,39 +501,54 @@ public final class WebvttCueParser {
       spannedText.setSpan(new UnderlineSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
     if (style.hasFontColor()) {
-      spannedText.setSpan(new ForegroundColorSpan(style.getFontColor()), start, end,
-          Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+      addOrReplaceSpan(spannedText, new ForegroundColorSpan(style.getFontColor()), start, end);
     }
     if (style.hasBackgroundColor()) {
-      spannedText.setSpan(new BackgroundColorSpan(style.getBackgroundColor()), start, end,
-          Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+      addOrReplaceSpan(
+          spannedText, new BackgroundColorSpan(style.getBackgroundColor()), start, end);
     }
     if (style.getFontFamily() != null) {
-      spannedText.setSpan(new TypefaceSpan(style.getFontFamily()), start, end,
-          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+      addOrReplaceSpan(spannedText, new TypefaceSpan(style.getFontFamily()), start, end);
     }
     Layout.Alignment textAlign = style.getTextAlign();
     if (textAlign != null) {
-      spannedText.setSpan(
-          new AlignmentSpan.Standard(textAlign), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+      addOrReplaceSpan(spannedText, new AlignmentSpan.Standard(textAlign), start, end);
     }
     switch (style.getFontSizeUnit()) {
       case WebvttCssStyle.FONT_SIZE_UNIT_PIXEL:
-        spannedText.setSpan(new AbsoluteSizeSpan((int) style.getFontSize(), true), start, end,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        addOrReplaceSpan(
+            spannedText, new AbsoluteSizeSpan((int) style.getFontSize(), true), start, end);
         break;
       case WebvttCssStyle.FONT_SIZE_UNIT_EM:
-        spannedText.setSpan(new RelativeSizeSpan(style.getFontSize()), start, end,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        addOrReplaceSpan(spannedText, new RelativeSizeSpan(style.getFontSize()), start, end);
         break;
       case WebvttCssStyle.FONT_SIZE_UNIT_PERCENT:
-        spannedText.setSpan(new RelativeSizeSpan(style.getFontSize() / 100), start, end,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        addOrReplaceSpan(spannedText, new RelativeSizeSpan(style.getFontSize() / 100), start, end);
         break;
       case WebvttCssStyle.UNSPECIFIED:
         // Do nothing.
         break;
     }
+  }
+
+  /**
+   * Adds {@code span} to {@code spannedText} between {@code start} and {@code end}, removing any
+   * existing spans of the same type and with the same indices.
+   *
+   * <p>This is useful for types of spans that don't make sense to duplicate and where the
+   * evaluation order might have an unexpected impact on the final text, e.g. {@link
+   * ForegroundColorSpan}.
+   */
+  private static void addOrReplaceSpan(
+      SpannableStringBuilder spannedText, Object span, int start, int end) {
+    Object[] existingSpans = spannedText.getSpans(start, end, span.getClass());
+    for (Object existingSpan : existingSpans) {
+      if (spannedText.getSpanStart(existingSpan) == start
+          && spannedText.getSpanEnd(existingSpan) == end) {
+        spannedText.removeSpan(existingSpan);
+      }
+    }
+    spannedText.setSpan(span, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
   }
 
   /**
