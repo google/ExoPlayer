@@ -21,9 +21,12 @@ import static com.google.android.exoplayer2.testutil.truth.SpannedSubject.spanne
 import static com.google.common.truth.ExpectFailure.assertThat;
 import static com.google.common.truth.ExpectFailure.expectFailureAbout;
 
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.style.BackgroundColorSpan;
+import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -153,7 +156,167 @@ public class SpannedSubjectTest {
     int end = start + "underlined".length();
     spannable.setSpan(new UnderlineSpan(), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
 
-    assertThat(spannable).hasUnderlineSpan(start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+    assertThat(spannable)
+        .hasUnderlineSpanBetween(start, end)
+        .withFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+  }
+
+  @Test
+  public void foregroundColorSpan_success() {
+    SpannableString spannable = SpannableString.valueOf("test with cyan section");
+    int start = "test with ".length();
+    int end = start + "cyan".length();
+    spannable.setSpan(
+        new ForegroundColorSpan(Color.CYAN), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+    assertThat(spannable)
+        .hasForegroundColorSpanBetween(start, end)
+        .withColor(Color.CYAN)
+        .andFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+  }
+
+  @Test
+  public void foregroundColorSpan_wrongEndIndex() {
+    SpannableString spannable = SpannableString.valueOf("test with cyan section");
+    int start = "test with ".length();
+    int end = start + "cyan".length();
+    spannable.setSpan(
+        new ForegroundColorSpan(Color.CYAN), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+    int incorrectEnd = end + 2;
+    AssertionError expected =
+        expectFailure(
+            whenTesting ->
+                whenTesting
+                    .that(spannable)
+                    .hasForegroundColorSpanBetween(start, incorrectEnd)
+                    .withColor(Color.CYAN));
+    assertThat(expected).factValue("expected").contains("end=" + incorrectEnd);
+    assertThat(expected).factValue("but found").contains("end=" + end);
+  }
+
+  @Test
+  public void foregroundColorSpan_wrongColor() {
+    SpannableString spannable = SpannableString.valueOf("test with cyan section");
+    int start = "test with ".length();
+    int end = start + "cyan".length();
+    spannable.setSpan(
+        new ForegroundColorSpan(Color.CYAN), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+    AssertionError expected =
+        expectFailure(
+            whenTesting ->
+                whenTesting
+                    .that(spannable)
+                    .hasForegroundColorSpanBetween(start, end)
+                    .withColor(Color.BLUE));
+    assertThat(expected).factValue("value of").contains("foregroundColor");
+    assertThat(expected).factValue("expected").contains("0xFF0000FF"); // Color.BLUE
+    assertThat(expected).factValue("but was").contains("0xFF00FFFF"); // Color.CYAN
+  }
+
+  @Test
+  public void foregroundColorSpan_wrongFlags() {
+    SpannableString spannable = SpannableString.valueOf("test with cyan section");
+    int start = "test with ".length();
+    int end = start + "cyan".length();
+    spannable.setSpan(
+        new ForegroundColorSpan(Color.CYAN), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+    AssertionError expected =
+        expectFailure(
+            whenTesting ->
+                whenTesting
+                    .that(spannable)
+                    .hasForegroundColorSpanBetween(start, end)
+                    .withColor(Color.CYAN)
+                    .andFlags(Spanned.SPAN_EXCLUSIVE_EXCLUSIVE));
+    assertThat(expected).factValue("value of").contains("flags");
+    assertThat(expected)
+        .factValue("expected to contain")
+        .contains(String.valueOf(Spanned.SPAN_EXCLUSIVE_EXCLUSIVE));
+    assertThat(expected)
+        .factValue("but was")
+        .contains(String.valueOf(Spanned.SPAN_INCLUSIVE_EXCLUSIVE));
+  }
+
+  @Test
+  public void backgroundColorSpan_success() {
+    SpannableString spannable = SpannableString.valueOf("test with cyan section");
+    int start = "test with ".length();
+    int end = start + "cyan".length();
+    spannable.setSpan(
+        new BackgroundColorSpan(Color.CYAN), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+    assertThat(spannable)
+        .hasBackgroundColorSpanBetween(start, end)
+        .withColor(Color.CYAN)
+        .andFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+  }
+
+  @Test
+  public void backgroundColorSpan_wrongEndIndex() {
+    SpannableString spannable = SpannableString.valueOf("test with cyan section");
+    int start = "test with ".length();
+    int end = start + "cyan".length();
+    spannable.setSpan(
+        new BackgroundColorSpan(Color.CYAN), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+    int incorrectEnd = end + 2;
+    AssertionError expected =
+        expectFailure(
+            whenTesting ->
+                whenTesting
+                    .that(spannable)
+                    .hasBackgroundColorSpanBetween(start, incorrectEnd)
+                    .withColor(Color.CYAN));
+    assertThat(expected).factValue("expected").contains("end=" + incorrectEnd);
+    assertThat(expected).factValue("but found").contains("end=" + end);
+  }
+
+  @Test
+  public void backgroundColorSpan_wrongColor() {
+    SpannableString spannable = SpannableString.valueOf("test with cyan section");
+    int start = "test with ".length();
+    int end = start + "cyan".length();
+    spannable.setSpan(
+        new BackgroundColorSpan(Color.CYAN), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+    AssertionError expected =
+        expectFailure(
+            whenTesting ->
+                whenTesting
+                    .that(spannable)
+                    .hasBackgroundColorSpanBetween(start, end)
+                    .withColor(Color.BLUE));
+    assertThat(expected).factValue("value of").contains("backgroundColor");
+    assertThat(expected).factValue("expected").contains("0xFF0000FF"); // Color.BLUE
+    assertThat(expected).factValue("but was").contains("0xFF00FFFF"); // Color.CYAN
+  }
+
+  @Test
+  public void backgroundColorSpan_wrongFlags() {
+    SpannableString spannable = SpannableString.valueOf("test with cyan section");
+    int start = "test with ".length();
+    int end = start + "cyan".length();
+    spannable.setSpan(
+        new BackgroundColorSpan(Color.CYAN), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+    AssertionError expected =
+        expectFailure(
+            whenTesting ->
+                whenTesting
+                    .that(spannable)
+                    .hasBackgroundColorSpanBetween(start, end)
+                    .withColor(Color.CYAN)
+                    .andFlags(Spanned.SPAN_EXCLUSIVE_EXCLUSIVE));
+    assertThat(expected).factValue("value of").contains("flags");
+    assertThat(expected)
+        .factValue("expected to contain")
+        .contains(String.valueOf(Spanned.SPAN_EXCLUSIVE_EXCLUSIVE));
+    assertThat(expected)
+        .factValue("but was")
+        .contains(String.valueOf(Spanned.SPAN_INCLUSIVE_EXCLUSIVE));
   }
 
   private static AssertionError expectFailure(

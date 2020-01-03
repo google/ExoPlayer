@@ -34,8 +34,7 @@ public final class WebvttCueParserTest {
         + "This <u.style1.style2 some stuff>is</u> text with <b.foo><i.bar>html</i></b> tags");
 
     assertThat(text.toString()).isEqualTo("This is text with html tags");
-    assertThat(text)
-        .hasUnderlineSpan("This ".length(), "This is".length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    assertThat(text).hasUnderlineSpanBetween("This ".length(), "This is".length());
     assertThat(text)
         .hasBoldItalicSpan(
             "This is text with ".length(),
@@ -59,10 +58,7 @@ public final class WebvttCueParserTest {
 
     assertThat(text.toString()).isEqualTo("An unclosed u tag with italic inside");
     assertThat(text)
-        .hasUnderlineSpan(
-            "An ".length(),
-            "An unclosed u tag with italic inside".length(),
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        .hasUnderlineSpanBetween("An ".length(), "An unclosed u tag with italic inside".length());
     assertThat(text)
         .hasItalicSpan(
             "An unclosed u tag with ".length(),
@@ -81,10 +77,9 @@ public final class WebvttCueParserTest {
             "An italic tag with unclosed underline".length(),
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     assertThat(text)
-        .hasUnderlineSpan(
+        .hasUnderlineSpanBetween(
             "An italic tag with unclosed ".length(),
-            "An italic tag with unclosed underline".length(),
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            "An italic tag with unclosed underline".length());
   }
 
   @Test
@@ -95,8 +90,7 @@ public final class WebvttCueParserTest {
     assertThat(text.toString()).isEqualTo(expectedText);
     assertThat(text).hasBoldSpan(0, expectedText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     // Text between the <u> tags is underlined.
-    assertThat(text)
-        .hasUnderlineSpan(0, "Overlapping u and".length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    assertThat(text).hasUnderlineSpanBetween(0, "Overlapping u and".length());
     // Only text from <i> to <\\u> is italic (unexpected - but simplifies the parsing).
     assertThat(text)
         .hasItalicSpan(
