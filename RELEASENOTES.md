@@ -40,6 +40,9 @@
 * Show ad group markers in `DefaultTimeBar` even if they are after the end of
   the current window
   ([#6552](https://github.com/google/ExoPlayer/issues/6552)).
+* WAV:
+  * Support IMA ADPCM encoded data.
+  * Improve support for G.711 A-law and mu-law encoded data.
 
 ### 2.11.1 (2019-12-20) ###
 

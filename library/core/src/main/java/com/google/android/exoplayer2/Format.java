@@ -138,13 +138,7 @@ public final class Format implements Parcelable {
    * The audio sampling rate in Hz, or {@link #NO_VALUE} if unknown or not applicable.
    */
   public final int sampleRate;
-  /**
-   * The encoding for PCM audio streams. If {@link #sampleMimeType} is {@link MimeTypes#AUDIO_RAW}
-   * then one of {@link C#ENCODING_PCM_8BIT}, {@link C#ENCODING_PCM_16BIT}, {@link
-   * C#ENCODING_PCM_24BIT}, {@link C#ENCODING_PCM_32BIT}, {@link C#ENCODING_PCM_FLOAT}, {@link
-   * C#ENCODING_PCM_MU_LAW} or {@link C#ENCODING_PCM_A_LAW}. Set to {@link #NO_VALUE} for other
-   * media types.
-   */
+  /** The {@link C.PcmEncoding} for PCM audio. Set to {@link #NO_VALUE} for other media types. */
   public final @C.PcmEncoding int pcmEncoding;
   /**
    * The number of frames to trim from the start of the decoded audio stream, or 0 if not

@@ -94,13 +94,31 @@ public final class WavExtractor implements Extractor {
 
       if (header.formatType == WavUtil.TYPE_IMA_ADPCM) {
         outputWriter = new ImaAdPcmOutputWriter(extractorOutput, trackOutput, header);
+      } else if (header.formatType == WavUtil.TYPE_ALAW) {
+        outputWriter =
+            new PassthroughOutputWriter(
+                extractorOutput,
+                trackOutput,
+                header,
+                MimeTypes.AUDIO_ALAW,
+                /* pcmEncoding= */ Format.NO_VALUE);
+      } else if (header.formatType == WavUtil.TYPE_MLAW) {
+        outputWriter =
+            new PassthroughOutputWriter(
+                extractorOutput,
+                trackOutput,
+                header,
+                MimeTypes.AUDIO_MLAW,
+                /* pcmEncoding= */ Format.NO_VALUE);
       } else {
         @C.PcmEncoding
         int pcmEncoding = WavUtil.getPcmEncodingForType(header.formatType, header.bitsPerSample);
         if (pcmEncoding == C.ENCODING_INVALID) {
           throw new ParserException("Unsupported WAV format type: " + header.formatType);
         }
-        outputWriter = new PcmOutputWriter(extractorOutput, trackOutput, header, pcmEncoding);
+        outputWriter =
+            new PassthroughOutputWriter(
+                extractorOutput, trackOutput, header, MimeTypes.AUDIO_RAW, pcmEncoding);
       }
     }
 
@@ -155,12 +173,12 @@ public final class WavExtractor implements Extractor {
         throws IOException, InterruptedException;
   }
 
-  private static final class PcmOutputWriter implements OutputWriter {
+  private static final class PassthroughOutputWriter implements OutputWriter {
 
     private final ExtractorOutput extractorOutput;
     private final TrackOutput trackOutput;
     private final WavHeader header;
-    private final @C.PcmEncoding int pcmEncoding;
+    private final Format format;
     /** The target size of each output sample, in bytes. */
     private final int targetSampleSizeBytes;
 
@@ -178,19 +196,33 @@ public final class WavExtractor implements Extractor {
      */
     private long outputFrameCount;
 
-    public PcmOutputWriter(
+    public PassthroughOutputWriter(
         ExtractorOutput extractorOutput,
         TrackOutput trackOutput,
         WavHeader header,
+        String mimeType,
         @C.PcmEncoding int pcmEncoding) {
       this.extractorOutput = extractorOutput;
       this.trackOutput = trackOutput;
       this.header = header;
-      this.pcmEncoding = pcmEncoding;
-      // For PCM blocks correspond to single frames. This is validated in init(int, long).
+      // Blocks are expected to correspond to single frames. This is validated in init(int, long).
       int bytesPerFrame = header.blockSize;
       targetSampleSizeBytes =
           Math.max(bytesPerFrame, header.frameRateHz * bytesPerFrame / TARGET_SAMPLES_PER_SECOND);
+      format =
+          Format.createAudioSampleFormat(
+              /* id= */ null,
+              mimeType,
+              /* codecs= */ null,
+              /* bitrate= */ header.frameRateHz * bytesPerFrame * 8,
+              /* maxInputSize= */ targetSampleSizeBytes,
+              header.numChannels,
+              header.frameRateHz,
+              pcmEncoding,
+              /* initializationData= */ null,
+              /* drmInitData= */ null,
+              /* selectionFlags= */ 0,
+              /* language= */ null);
     }
 
     @Override
@@ -209,25 +241,9 @@ public final class WavExtractor implements Extractor {
             "Expected block size: " + bytesPerFrame + "; got: " + header.blockSize);
       }
 
-      // Output the seek map.
+      // Output the seek map and format.
       extractorOutput.seekMap(
           new WavSeekMap(header, /* framesPerBlock= */ 1, dataStartPosition, dataEndPosition));
-
-      // Output the format.
-      Format format =
-          Format.createAudioSampleFormat(
-              /* id= */ null,
-              MimeTypes.AUDIO_RAW,
-              /* codecs= */ null,
-              /* bitrate= */ header.frameRateHz * bytesPerFrame * 8,
-              /* maxInputSize= */ targetSampleSizeBytes,
-              header.numChannels,
-              header.frameRateHz,
-              pcmEncoding,
-              /* initializationData= */ null,
-              /* drmInitData= */ null,
-              /* selectionFlags= */ 0,
-              /* language= */ null);
       trackOutput.format(format);
     }
 

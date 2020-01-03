@@ -36,9 +36,9 @@ public final class WavUtil {
   /** WAVE type value for float PCM audio data. */
   public static final int TYPE_FLOAT = 0x0003;
   /** WAVE type value for 8-bit ITU-T G.711 A-law audio data. */
-  public static final int TYPE_A_LAW = 0x0006;
+  public static final int TYPE_ALAW = 0x0006;
   /** WAVE type value for 8-bit ITU-T G.711 mu-law audio data. */
-  public static final int TYPE_MU_LAW = 0x0007;
+  public static final int TYPE_MLAW = 0x0007;
   /** WAVE type value for IMA ADPCM audio data. */
   public static final int TYPE_IMA_ADPCM = 0x0011;
   /** WAVE type value for extended WAVE format. */
@@ -59,10 +59,6 @@ public final class WavUtil {
       case C.ENCODING_PCM_24BIT:
       case C.ENCODING_PCM_32BIT:
         return TYPE_PCM;
-      case C.ENCODING_PCM_A_LAW:
-        return TYPE_A_LAW;
-      case C.ENCODING_PCM_MU_LAW:
-        return TYPE_MU_LAW;
       case C.ENCODING_PCM_FLOAT:
         return TYPE_FLOAT;
       case C.ENCODING_INVALID:
@@ -83,10 +79,6 @@ public final class WavUtil {
         return Util.getPcmEncoding(bitsPerSample);
       case TYPE_FLOAT:
         return bitsPerSample == 32 ? C.ENCODING_PCM_FLOAT : C.ENCODING_INVALID;
-      case TYPE_A_LAW:
-        return C.ENCODING_PCM_A_LAW;
-      case TYPE_MU_LAW:
-        return C.ENCODING_PCM_MU_LAW;
       default:
         return C.ENCODING_INVALID;
     }
