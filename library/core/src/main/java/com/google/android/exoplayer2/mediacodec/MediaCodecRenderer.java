@@ -1001,7 +1001,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         codecAdapter = new MultiLockAsyncMediaCodecAdapter(codec, getTrackType());
         ((MultiLockAsyncMediaCodecAdapter) codecAdapter).start();
       } else {
-        codecAdapter = new SynchronousMediaCodecAdapter(codec, getDequeueOutputBufferTimeoutUs());
+        codecAdapter = new SynchronousMediaCodecAdapter(codec);
       }
 
       TraceUtil.endSection();
@@ -1458,15 +1458,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
             || hasOutputBuffer()
             || (codecHotswapDeadlineMs != C.TIME_UNSET
                 && SystemClock.elapsedRealtime() < codecHotswapDeadlineMs));
-  }
-
-  /**
-   * Returns the maximum time to block whilst waiting for a decoded output buffer.
-   *
-   * @return The maximum time to block, in microseconds.
-   */
-  protected long getDequeueOutputBufferTimeoutUs() {
-    return 0;
   }
 
   /**
