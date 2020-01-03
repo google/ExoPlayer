@@ -167,7 +167,7 @@ public final class FlacFrameReader {
    * @param data The array to read the data from, whose position must correspond to the block size
    *     bits.
    * @param blockSizeKey The key in the block size lookup table.
-   * @return The block size in samples.
+   * @return The block size in samples, or -1 if the {@code blockSizeKey} is invalid.
    */
   public static int readFrameBlockSizeSamplesFromKey(ParsableByteArray data, int blockSizeKey) {
     switch (blockSizeKey) {
