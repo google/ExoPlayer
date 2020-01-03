@@ -1149,9 +1149,7 @@ public final class DefaultAudioSink implements AudioSink {
       case C.ENCODING_PCM_24BIT:
       case C.ENCODING_PCM_32BIT:
       case C.ENCODING_PCM_8BIT:
-      case C.ENCODING_PCM_A_LAW:
       case C.ENCODING_PCM_FLOAT:
-      case C.ENCODING_PCM_MU_LAW:
       case Format.NO_VALUE:
       default:
         throw new IllegalArgumentException();

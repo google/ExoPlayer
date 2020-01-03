@@ -64,8 +64,6 @@ import java.nio.ByteBuffer;
         break;
       case C.ENCODING_PCM_16BIT:
       case C.ENCODING_PCM_FLOAT:
-      case C.ENCODING_PCM_A_LAW:
-      case C.ENCODING_PCM_MU_LAW:
       case C.ENCODING_INVALID:
       case Format.NO_VALUE:
       default:
@@ -105,8 +103,6 @@ import java.nio.ByteBuffer;
         break;
       case C.ENCODING_PCM_16BIT:
       case C.ENCODING_PCM_FLOAT:
-      case C.ENCODING_PCM_A_LAW:
-      case C.ENCODING_PCM_MU_LAW:
       case C.ENCODING_INVALID:
       case Format.NO_VALUE:
       default:
