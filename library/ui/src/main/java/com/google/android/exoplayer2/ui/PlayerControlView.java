@@ -943,7 +943,7 @@ public class PlayerControlView extends FrameLayout {
               adGroupTimeInPeriodUs = period.durationUs;
             }
             long adGroupTimeInWindowUs = adGroupTimeInPeriodUs + period.getPositionInWindowUs();
-            if (adGroupTimeInWindowUs >= 0 && adGroupTimeInWindowUs <= window.durationUs) {
+            if (adGroupTimeInWindowUs >= 0) {
               if (adGroupCount == adGroupTimesMs.length) {
                 int newLength = adGroupTimesMs.length == 0 ? 1 : adGroupTimesMs.length * 2;
                 adGroupTimesMs = Arrays.copyOf(adGroupTimesMs, newLength);

@@ -37,6 +37,9 @@
 * Support "twos" codec (big endian PCM) in MP4
   ([#5789](https://github.com/google/ExoPlayer/issues/5789)).
 * WAV: Support IMA ADPCM encoded data.
+* Show ad group markers in `DefaultTimeBar` even if they are after the end of
+  the current window
+  ([#6552](https://github.com/google/ExoPlayer/issues/6552)).
 
 ### 2.11.1 (2019-12-20) ###
 
