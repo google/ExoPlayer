@@ -15,23 +15,23 @@
  */
 package com.google.android.exoplayer2.text.webvtt;
 
+import static com.google.android.exoplayer2.testutil.truth.SpannedSubject.assertThat;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import android.graphics.Typeface;
 import android.text.Layout.Alignment;
 import android.text.Spanned;
-import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
-import android.text.style.UnderlineSpan;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.SubtitleDecoderException;
+import com.google.android.exoplayer2.util.ColorParser;
 import com.google.common.truth.Expect;
 import java.io.IOException;
 import java.util.List;
@@ -403,14 +403,25 @@ public class WebvttDecoderTest {
     Spanned s2 = getUniqueSpanTextAt(subtitle, /* timeUs= */ 2345000);
     Spanned s3 = getUniqueSpanTextAt(subtitle, /* timeUs= */ 20000000);
     Spanned s4 = getUniqueSpanTextAt(subtitle, /* timeUs= */ 25000000);
-    assertThat(s1.getSpans(/* start= */ 0, s1.length(), ForegroundColorSpan.class)).hasLength(1);
-    assertThat(s1.getSpans(/* start= */ 0, s1.length(), BackgroundColorSpan.class)).hasLength(1);
-    assertThat(s2.getSpans(/* start= */ 0, s2.length(), ForegroundColorSpan.class)).hasLength(1);
-    assertThat(s3.getSpans(/* start= */ 10, s3.length(), UnderlineSpan.class)).hasLength(1);
-    assertThat(s4.getSpans(/* start= */ 0, /* end= */ 16, BackgroundColorSpan.class)).hasLength(2);
-    assertThat(s4.getSpans(/* start= */ 17, s4.length(), StyleSpan.class)).hasLength(1);
-    assertThat(s4.getSpans(/* start= */ 17, s4.length(), StyleSpan.class)[0].getStyle())
-        .isEqualTo(Typeface.BOLD);
+    assertThat(s1)
+        .hasForegroundColorSpanBetween(0, s1.length())
+        .withColor(ColorParser.parseCssColor("papayawhip"));
+    assertThat(s1)
+        .hasBackgroundColorSpanBetween(0, s1.length())
+        .withColor(ColorParser.parseCssColor("green"));
+    assertThat(s2)
+        .hasForegroundColorSpanBetween(0, s2.length())
+        .withColor(ColorParser.parseCssColor("peachpuff"));
+
+    assertThat(s3).hasUnderlineSpanBetween(10, s3.length());
+    assertThat(s4)
+        .hasBackgroundColorSpanBetween(0, 16)
+        .withColor(ColorParser.parseCssColor("lime"));
+    assertThat(s4)
+        .hasBoldSpan(
+            /* startIndex= */ 17,
+            /* endIndex= */ s4.length(),
+            /* flags= */ Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
   }
 
   @Test
