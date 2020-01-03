@@ -13,6 +13,7 @@
 // limitations under the License.
 apply plugin: 'com.android.library'
 apply from: '../../constants.gradle'
+apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion project.ext.compileSdkVersion
@@ -55,6 +56,7 @@ dependencies {
     androidTestImplementation 'com.linkedin.dexmaker:dexmaker:' + dexmakerVersion
     androidTestImplementation 'com.linkedin.dexmaker:dexmaker-mockito:' + dexmakerVersion
     androidTestImplementation project(modulePrefix + 'testutils')
+    testImplementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:' + kotlinVersion
     testImplementation 'com.google.guava:guava:' + guavaVersion
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
     testImplementation project(modulePrefix + 'testutils')
