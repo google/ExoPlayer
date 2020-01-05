@@ -32,6 +32,8 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.NotificationUtil;
 import com.google.android.exoplayer2.util.Util;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -856,6 +858,7 @@ public abstract class DownloadService extends Service {
     @Nullable private final Scheduler scheduler;
     private final Class<? extends DownloadService> serviceClass;
     @Nullable private DownloadService downloadService;
+    private final List<Runnable> resendMessageCallbacks = new ArrayList<>();
 
     private DownloadManagerHelper(
         Context context,
@@ -877,6 +880,13 @@ public abstract class DownloadService extends Service {
     public void attachService(DownloadService downloadService) {
       Assertions.checkState(this.downloadService == null);
       this.downloadService = downloadService;
+      if (!resendMessageCallbacks.isEmpty()) {
+        Log.d(TAG, String.format("%d messages to resend.", resendMessageCallbacks.size()));
+        for (Runnable notifyCallback : resendMessageCallbacks) {
+          notifyCallback.run();
+        }
+        resendMessageCallbacks.clear();
+      }
     }
 
     public void detachService(DownloadService downloadService, boolean unschedule) {
@@ -891,6 +901,9 @@ public abstract class DownloadService extends Service {
     public void onDownloadChanged(DownloadManager downloadManager, Download download) {
       if (downloadService != null) {
         downloadService.notifyDownloadChanged(download);
+      } else {
+        Log.d(TAG, "onDownloadChanged with null service. Queuing to resend message later.");
+        resendMessageCallbacks.add(() -> downloadManager.resendDownloadUpdate(download, false));
       }
     }
 
@@ -898,6 +911,9 @@ public abstract class DownloadService extends Service {
     public void onDownloadRemoved(DownloadManager downloadManager, Download download) {
       if (downloadService != null) {
         downloadService.notifyDownloadRemoved(download);
+      } else {
+        Log.d(TAG, "onDownloadRemoved with null service. Queuing to resend message later.");
+        resendMessageCallbacks.add(() -> downloadManager.resendDownloadUpdate(download, true));
       }
     }
 

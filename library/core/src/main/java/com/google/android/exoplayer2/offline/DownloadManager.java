@@ -484,6 +484,13 @@ public final class DownloadManager {
     }
   }
 
+  void resendDownloadUpdate(Download download, boolean isRemove) {
+    Assertions.checkNotNull(download);
+    DownloadUpdate update =
+            new DownloadUpdate(download, isRemove, Collections.singletonList(download));
+    mainHandler.obtainMessage(MSG_DOWNLOAD_UPDATE, update).sendToTarget();
+  }
+
   private void onRequirementsStateChanged(
       RequirementsWatcher requirementsWatcher,
       @Requirements.RequirementFlags int notMetRequirements) {
