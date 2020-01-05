@@ -1,0 +1,22 @@
+name-template: Release v$NEXT_MINOR_VERSION 🌈
+tag-template: v$NEXT_MINOR_VERSION
+categories:
+  - title: 🚀 Features
+    label: feature
+  - title: 🐛 Bug Fixes
+    label: fix
+  - title: 🧰 Maintenance
+    label: chore
+  - title: 🕮 Documentation
+    label: docs
+  - title: ⚙ Dependencies and Libraries
+    label: dependencies
+change-template: '- $TITLE (#$NUMBER) - @$AUTHOR'
+template: |
+  ## Changes
+  $CHANGES
+  
+  ## Contributors
+  
+  Thanks a lot to our contributors for making this release possible:
+  $CONTRIBUTORS
