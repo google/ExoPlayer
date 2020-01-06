@@ -30,6 +30,7 @@ import android.text.style.UnderlineSpan;
 import androidx.annotation.CheckResult;
 import androidx.annotation.ColorInt;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.text.span.RubySpan;
 import com.google.common.truth.FailureMetadata;
 import com.google.common.truth.Subject;
 import java.util.ArrayList;
@@ -194,7 +195,7 @@ public final class SpannedSubject extends Subject {
   }
 
   /**
-   * Checks that the subject as a {@link ForegroundColorSpan} from {@code start} to {@code end}.
+   * Checks that the subject has a {@link ForegroundColorSpan} from {@code start} to {@code end}.
    *
    * <p>The color is asserted in a follow-up method call on the return {@link Colored} object.
    *
@@ -222,7 +223,7 @@ public final class SpannedSubject extends Subject {
   }
 
   /**
-   * Checks that the subject as a {@link ForegroundColorSpan} from {@code start} to {@code end}.
+   * Checks that the subject has a {@link BackgroundColorSpan} from {@code start} to {@code end}.
    *
    * <p>The color is asserted in a follow-up method call on the return {@link Colored} object.
    *
@@ -247,6 +248,30 @@ public final class SpannedSubject extends Subject {
     return check("BackgroundColorSpan (start=%s,end=%s)", start, end)
         .about(backgroundColorSpans(actual))
         .that(backgroundColorSpans);
+  }
+
+  /**
+   * Checks that the subject has a {@link RubySpan} from {@code start} to {@code end}.
+   *
+   * <p>The ruby-text is asserted in a follow-up method call on the return {@link RubyText} object.
+   *
+   * @param start The start of the expected span.
+   * @param end The end of the expected span.
+   * @return A {@link Colored} object to assert on the color of the matching spans.
+   */
+  @CheckResult
+  public RubyText hasRubySpanBetween(int start, int end) {
+    if (actual == null) {
+      failWithoutActual(simpleFact("Spanned must not be null"));
+      return ALREADY_FAILED_WITH_TEXT;
+    }
+
+    List<RubySpan> rubySpans = findMatchingSpans(start, end, RubySpan.class);
+    if (rubySpans.isEmpty()) {
+      failWithExpectedSpan(start, end, RubySpan.class, actual.toString().substring(start, end));
+      return ALREADY_FAILED_WITH_TEXT;
+    }
+    return check("RubySpan (start=%s,end=%s)", start, end).about(rubySpans(actual)).that(rubySpans);
   }
 
   private <T> List<T> findMatchingSpans(int startIndex, int endIndex, Class<T> spanClazz) {
@@ -438,6 +463,94 @@ public final class SpannedSubject extends Subject {
       String expectedColorString = String.format("0x%08X", color);
       check("backgroundColor").that(spanColors).containsExactly(expectedColorString);
       return check("flags").about(spanFlags()).that(matchingSpanFlags);
+    }
+  }
+
+  /** Allows assertions about a span's ruby text and its position. */
+  public interface RubyText {
+
+    /**
+     * Checks that at least one of the matched spans has the expected {@code text}.
+     *
+     * @param text The expected text.
+     * @param position The expected position of the text.
+     * @return A {@link WithSpanFlags} object for optional additional assertions on the flags.
+     */
+    AndSpanFlags withTextAndPosition(String text, @RubySpan.Position int position);
+  }
+
+  private static final RubyText ALREADY_FAILED_WITH_TEXT =
+      (text, position) -> ALREADY_FAILED_AND_FLAGS;
+
+  private Factory<RubySpansSubject, List<RubySpan>> rubySpans(Spanned actualSpanned) {
+    return (FailureMetadata metadata, List<RubySpan> spans) ->
+        new RubySpansSubject(metadata, spans, actualSpanned);
+  }
+
+  private static final class RubySpansSubject extends Subject implements RubyText {
+
+    private final List<RubySpan> actualSpans;
+    private final Spanned actualSpanned;
+
+    private RubySpansSubject(
+        FailureMetadata metadata, List<RubySpan> actualSpans, Spanned actualSpanned) {
+      super(metadata, actualSpans);
+      this.actualSpans = actualSpans;
+      this.actualSpanned = actualSpanned;
+    }
+
+    @Override
+    public AndSpanFlags withTextAndPosition(String text, @RubySpan.Position int position) {
+      List<Integer> matchingSpanFlags = new ArrayList<>();
+      List<TextAndPosition> spanTextsAndPositions = new ArrayList<>();
+      for (RubySpan span : actualSpans) {
+        spanTextsAndPositions.add(new TextAndPosition(span.rubyText, span.position));
+        if (span.rubyText.equals(text)) {
+          matchingSpanFlags.add(actualSpanned.getSpanFlags(span));
+        }
+      }
+      check("rubyTextAndPosition")
+          .that(spanTextsAndPositions)
+          .containsExactly(new TextAndPosition(text, position));
+      return check("flags").about(spanFlags()).that(matchingSpanFlags);
+    }
+
+    private static class TextAndPosition {
+      private final String text;
+      @RubySpan.Position private final int position;
+
+      private TextAndPosition(String text, int position) {
+        this.text = text;
+        this.position = position;
+      }
+
+      @Override
+      public boolean equals(Object o) {
+        if (this == o) {
+          return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+          return false;
+        }
+
+        TextAndPosition that = (TextAndPosition) o;
+        if (position != that.position) {
+          return false;
+        }
+        return text.equals(that.text);
+      }
+
+      @Override
+      public int hashCode() {
+        int result = text.hashCode();
+        result = 31 * result + position;
+        return result;
+      }
+
+      @Override
+      public String toString() {
+        return String.format("{text='%s',position=%s}", text, position);
+      }
     }
   }
 }
