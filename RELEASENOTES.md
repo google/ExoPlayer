@@ -47,6 +47,8 @@
   next cue ([#6833](https://github.com/google/ExoPlayer/issues/6833)).
 * Parse \<ruby\> and \<rt\> tags in WebVTT subtitles (rendering is coming
   later).
+* Parse `text-combine-upright` CSS property (i.e. tate-chu-yoko) in WebVTT
+  subtitles (rendering is coming later).
 
 ### 2.11.1 (2019-12-20) ###
 

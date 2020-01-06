@@ -95,6 +95,7 @@ public final class WebvttCssStyle {
   @FontSizeUnit private int fontSizeUnit;
   private float fontSize;
   @Nullable private Layout.Alignment textAlign;
+  private boolean combineUpright;
 
   // Calling reset() is forbidden because `this` isn't initialized. This can be safely suppressed
   // because reset() only assigns fields, it doesn't read any.
@@ -118,6 +119,7 @@ public final class WebvttCssStyle {
     italic = UNSPECIFIED;
     fontSizeUnit = UNSPECIFIED;
     textAlign = null;
+    combineUpright = false;
   }
 
   public void setTargetId(String targetId) {
@@ -285,6 +287,14 @@ public final class WebvttCssStyle {
 
   public float getFontSize() {
     return fontSize;
+  }
+
+  public void setCombineUpright(boolean enabled) {
+    this.combineUpright = enabled;
+  }
+
+  public boolean getCombineUpright() {
+    return combineUpright;
   }
 
   private static int updateScoreForMatch(

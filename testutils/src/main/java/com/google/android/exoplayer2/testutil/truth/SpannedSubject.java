@@ -30,11 +30,13 @@ import android.text.style.UnderlineSpan;
 import androidx.annotation.CheckResult;
 import androidx.annotation.ColorInt;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.text.span.HorizontalTextInVerticalContextSpan;
 import com.google.android.exoplayer2.text.span.RubySpan;
 import com.google.common.truth.FailureMetadata;
 import com.google.common.truth.Subject;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /** A Truth {@link Subject} for assertions on {@link Spanned} instances containing text styling. */
@@ -183,12 +185,10 @@ public final class SpannedSubject extends Subject {
     }
 
     List<UnderlineSpan> underlineSpans = findMatchingSpans(start, end, UnderlineSpan.class);
-    List<Integer> allFlags = new ArrayList<>();
-    for (UnderlineSpan span : underlineSpans) {
-      allFlags.add(actual.getSpanFlags(span));
-    }
     if (underlineSpans.size() == 1) {
-      return check("UnderlineSpan (start=%s,end=%s)", start, end).about(spanFlags()).that(allFlags);
+      return check("UnderlineSpan (start=%s,end=%s)", start, end)
+          .about(spanFlags())
+          .that(Collections.singletonList(actual.getSpanFlags(underlineSpans.get(0))));
     }
     failWithExpectedSpan(start, end, UnderlineSpan.class, actual.toString().substring(start, end));
     return ALREADY_FAILED_WITH_FLAGS;
@@ -272,6 +272,35 @@ public final class SpannedSubject extends Subject {
       return ALREADY_FAILED_WITH_TEXT;
     }
     return check("RubySpan (start=%s,end=%s)", start, end).about(rubySpans(actual)).that(rubySpans);
+  }
+
+  /**
+   * Checks that the subject has an {@link HorizontalTextInVerticalContextSpan} from {@code start}
+   * to {@code end}.
+   *
+   * @param start The start of the expected span.
+   * @param end The end of the expected span.
+   * @return A {@link WithSpanFlags} object for optional additional assertions on the flags.
+   */
+  public WithSpanFlags hasHorizontalTextInVerticalContextSpanBetween(int start, int end) {
+    if (actual == null) {
+      failWithoutActual(simpleFact("Spanned must not be null"));
+      return ALREADY_FAILED_WITH_FLAGS;
+    }
+
+    List<HorizontalTextInVerticalContextSpan> horizontalInVerticalSpans =
+        findMatchingSpans(start, end, HorizontalTextInVerticalContextSpan.class);
+    if (horizontalInVerticalSpans.size() == 1) {
+      return check("HorizontalTextInVerticalContextSpan (start=%s,end=%s)", start, end)
+          .about(spanFlags())
+          .that(Collections.singletonList(actual.getSpanFlags(horizontalInVerticalSpans.get(0))));
+    }
+    failWithExpectedSpan(
+        start,
+        end,
+        HorizontalTextInVerticalContextSpan.class,
+        actual.toString().substring(start, end));
+    return ALREADY_FAILED_WITH_FLAGS;
   }
 
   private <T> List<T> findMatchingSpans(int startIndex, int endIndex, Class<T> spanClazz) {

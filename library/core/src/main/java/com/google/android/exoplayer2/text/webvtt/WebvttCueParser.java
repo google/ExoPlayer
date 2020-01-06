@@ -37,6 +37,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.Cue;
+import com.google.android.exoplayer2.text.span.HorizontalTextInVerticalContextSpan;
 import com.google.android.exoplayer2.text.span.RubySpan;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
@@ -570,6 +571,10 @@ public final class WebvttCueParser {
       case WebvttCssStyle.UNSPECIFIED:
         // Do nothing.
         break;
+    }
+    if (style.getCombineUpright()) {
+      spannedText.setSpan(
+          new HorizontalTextInVerticalContextSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
   }
 
