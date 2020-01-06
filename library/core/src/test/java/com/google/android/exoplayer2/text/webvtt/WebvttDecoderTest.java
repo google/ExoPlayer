@@ -53,6 +53,8 @@ public class WebvttDecoderTest {
   private static final String WITH_TAGS_FILE = "webvtt/with_tags";
   private static final String WITH_CSS_STYLES = "webvtt/with_css_styles";
   private static final String WITH_CSS_COMPLEX_SELECTORS = "webvtt/with_css_complex_selectors";
+  private static final String WITH_CSS_TEXT_COMBINE_UPRIGHT =
+      "webvtt/with_css_text_combine_upright";
   private static final String WITH_BOM = "webvtt/with_bom";
   private static final String EMPTY_FILE = "webvtt/empty";
 
@@ -458,6 +460,20 @@ public class WebvttDecoderTest {
     assertThat(text.getSpans(/* start= */ 19, text.length(), StyleSpan.class)).hasLength(1);
     assertThat(text.getSpans(/* start= */ 19, text.length(), StyleSpan.class)[0].getStyle())
         .isEqualTo(Typeface.ITALIC);
+  }
+
+  @Test
+  public void testWebvttWithCssTextCombineUpright() throws Exception {
+    WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_CSS_TEXT_COMBINE_UPRIGHT);
+
+    Spanned firstCueText = getUniqueSpanTextAt(subtitle, 500_000);
+    assertThat(firstCueText)
+        .hasHorizontalTextInVerticalContextSpanBetween("Combine ".length(), "Combine all".length());
+
+    Spanned secondCueText = getUniqueSpanTextAt(subtitle, 3_500_000);
+    assertThat(secondCueText)
+        .hasHorizontalTextInVerticalContextSpanBetween(
+            "Combine ".length(), "Combine 0004".length());
   }
 
   private WebvttSubtitle getSubtitleForTestAsset(String asset)

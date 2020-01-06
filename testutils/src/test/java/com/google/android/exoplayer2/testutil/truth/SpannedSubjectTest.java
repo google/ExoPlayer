@@ -30,6 +30,7 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.text.span.HorizontalTextInVerticalContextSpan;
 import com.google.android.exoplayer2.text.span.RubySpan;
 import com.google.common.truth.ExpectFailure;
 import org.junit.Test;
@@ -451,6 +452,19 @@ public class SpannedSubjectTest {
     assertThat(expected)
         .factValue("but was")
         .contains(String.valueOf(Spanned.SPAN_INCLUSIVE_EXCLUSIVE));
+  }
+
+  @Test
+  public void horizontalTextInVerticalContextSpan_success() {
+    SpannableString spannable = SpannableString.valueOf("vertical text with horizontal section");
+    int start = "vertical text with ".length();
+    int end = start + "horizontal".length();
+    spannable.setSpan(
+        new HorizontalTextInVerticalContextSpan(), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+    assertThat(spannable)
+        .hasHorizontalTextInVerticalContextSpanBetween(start, end)
+        .withFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
   }
 
   private static AssertionError expectFailure(
