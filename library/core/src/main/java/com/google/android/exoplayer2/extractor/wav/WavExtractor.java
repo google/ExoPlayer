@@ -31,6 +31,8 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Extracts data from WAV byte streams.
@@ -47,9 +49,9 @@ public final class WavExtractor implements Extractor {
   /** Factory for {@link WavExtractor} instances. */
   public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new WavExtractor()};
 
-  private ExtractorOutput extractorOutput;
-  private TrackOutput trackOutput;
-  private OutputWriter outputWriter;
+  @MonotonicNonNull private ExtractorOutput extractorOutput;
+  @MonotonicNonNull private TrackOutput trackOutput;
+  @MonotonicNonNull private OutputWriter outputWriter;
   private int dataStartPosition;
   private long dataEndPosition;
 
@@ -85,6 +87,7 @@ public final class WavExtractor implements Extractor {
   @Override
   public int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
+    assertInitialized();
     if (outputWriter == null) {
       WavHeader header = WavHeaderReader.peek(input);
       if (header == null) {
@@ -134,6 +137,12 @@ public final class WavExtractor implements Extractor {
     Assertions.checkState(dataEndPosition != C.POSITION_UNSET);
     long bytesLeft = dataEndPosition - input.getPosition();
     return outputWriter.sampleData(input, bytesLeft) ? RESULT_END_OF_INPUT : RESULT_CONTINUE;
+  }
+
+  @EnsuresNonNull({"extractorOutput", "trackOutput"})
+  private void assertInitialized() {
+    Assertions.checkStateNotNull(trackOutput);
+    Util.castNonNull(extractorOutput);
   }
 
   /** Writes to the extractor's output. */
@@ -201,12 +210,19 @@ public final class WavExtractor implements Extractor {
         TrackOutput trackOutput,
         WavHeader header,
         String mimeType,
-        @C.PcmEncoding int pcmEncoding) {
+        @C.PcmEncoding int pcmEncoding)
+        throws ParserException {
       this.extractorOutput = extractorOutput;
       this.trackOutput = trackOutput;
       this.header = header;
-      // Blocks are expected to correspond to single frames. This is validated in init(int, long).
-      int bytesPerFrame = header.blockSize;
+
+      int bytesPerFrame = header.numChannels * header.bitsPerSample / 8;
+      // Validate the header. Blocks are expected to correspond to single frames.
+      if (header.blockSize != bytesPerFrame) {
+        throw new ParserException(
+            "Expected block size: " + bytesPerFrame + "; got: " + header.blockSize);
+      }
+
       targetSampleSizeBytes =
           Math.max(bytesPerFrame, header.frameRateHz * bytesPerFrame / TARGET_SAMPLES_PER_SECOND);
       format =
@@ -233,15 +249,7 @@ public final class WavExtractor implements Extractor {
     }
 
     @Override
-    public void init(int dataStartPosition, long dataEndPosition) throws ParserException {
-      // Validate the header.
-      int bytesPerFrame = header.numChannels * header.bitsPerSample / 8;
-      if (header.blockSize != bytesPerFrame) {
-        throw new ParserException(
-            "Expected block size: " + bytesPerFrame + "; got: " + header.blockSize);
-      }
-
-      // Output the seek map and format.
+    public void init(int dataStartPosition, long dataEndPosition) {
       extractorOutput.seekMap(
           new WavSeekMap(header, /* framesPerBlock= */ 1, dataStartPosition, dataEndPosition));
       trackOutput.format(format);
@@ -302,18 +310,20 @@ public final class WavExtractor implements Extractor {
     private final ExtractorOutput extractorOutput;
     private final TrackOutput trackOutput;
     private final WavHeader header;
+
+    /** Number of frames per block of the input (yet to be decoded) data. */
+    private final int framesPerBlock;
+    /** Target for the input (yet to be decoded) data. */
+    private final byte[] inputData;
+    /** Target for decoded (yet to be output) data. */
+    private final ParsableByteArray decodedData;
     /** The target size of each output sample, in frames. */
     private final int targetSampleSizeFrames;
+    /** The output format. */
+    private final Format format;
 
-    // Properties of the input (yet to be decoded) data.
-    private int framesPerBlock;
-    private byte[] inputData;
+    /** The number of pending bytes in {@link #inputData}. */
     private int pendingInputBytes;
-
-    // Target for decoded (yet to be output) data.
-    private ParsableByteArray decodedData;
-
-    // Properties of the output.
     /** The time at which the writer was last {@link #reset}. */
     private long startTimeUs;
     /**
@@ -329,33 +339,21 @@ public final class WavExtractor implements Extractor {
     private long outputFrameCount;
 
     public ImaAdPcmOutputWriter(
-        ExtractorOutput extractorOutput, TrackOutput trackOutput, WavHeader header) {
+        ExtractorOutput extractorOutput, TrackOutput trackOutput, WavHeader header)
+        throws ParserException {
       this.extractorOutput = extractorOutput;
       this.trackOutput = trackOutput;
       this.header = header;
       targetSampleSizeFrames = Math.max(1, header.frameRateHz / TARGET_SAMPLES_PER_SECOND);
-    }
 
-    @Override
-    public void reset(long timeUs) {
-      // Reset the input side.
-      pendingInputBytes = 0;
-      // Reset the output side.
-      startTimeUs = timeUs;
-      pendingOutputBytes = 0;
-      outputFrameCount = 0;
-    }
-
-    @Override
-    public void init(int dataStartPosition, long dataEndPosition) throws ParserException {
-      // Validate the header.
       ParsableByteArray scratch = new ParsableByteArray(header.extraData);
       scratch.readLittleEndianUnsignedShort();
       framesPerBlock = scratch.readLittleEndianUnsignedShort();
-      // This calculation is defined in "Microsoft Multimedia Standards Update - New Multimedia
-      // Types and Data Techniques" (1994). See the "IMA ADPCM Wave Type" and
-      // "DVI ADPCM Wave Type" sections, and the calculation of wSamplesPerBlock in the latter.
+
       int numChannels = header.numChannels;
+      // Validate the header. This calculation is defined in "Microsoft Multimedia Standards Update
+      // - New Multimedia Types and Data Techniques" (1994). See the "IMA ADPCM Wave Type" and "DVI
+      // ADPCM Wave Type" sections, and the calculation of wSamplesPerBlock in the latter.
       int expectedFramesPerBlock =
           (((header.blockSize - (4 * numChannels)) * 8) / (header.bitsPerSample * numChannels)) + 1;
       if (framesPerBlock != expectedFramesPerBlock) {
@@ -368,22 +366,19 @@ public final class WavExtractor implements Extractor {
       int maxBlocksToDecode = Util.ceilDivide(targetSampleSizeFrames, framesPerBlock);
       inputData = new byte[maxBlocksToDecode * header.blockSize];
       decodedData =
-          new ParsableByteArray(maxBlocksToDecode * numOutputFramesToBytes(framesPerBlock));
+          new ParsableByteArray(
+              maxBlocksToDecode * numOutputFramesToBytes(framesPerBlock, numChannels));
 
-      // Output the seek map.
-      extractorOutput.seekMap(
-          new WavSeekMap(header, framesPerBlock, dataStartPosition, dataEndPosition));
-
-      // Output the format. We calculate the bitrate of the data before decoding, since this is the
+      // Create the format. We calculate the bitrate of the data before decoding, since this is the
       // bitrate of the stream itself.
       int bitrate = header.frameRateHz * header.blockSize * 8 / framesPerBlock;
-      Format format =
+      format =
           Format.createAudioSampleFormat(
               /* id= */ null,
               MimeTypes.AUDIO_RAW,
               /* codecs= */ null,
               bitrate,
-              /* maxInputSize= */ numOutputFramesToBytes(targetSampleSizeFrames),
+              /* maxInputSize= */ numOutputFramesToBytes(targetSampleSizeFrames, numChannels),
               header.numChannels,
               header.frameRateHz,
               C.ENCODING_PCM_16BIT,
@@ -391,6 +386,20 @@ public final class WavExtractor implements Extractor {
               /* drmInitData= */ null,
               /* selectionFlags= */ 0,
               /* language= */ null);
+    }
+
+    @Override
+    public void reset(long timeUs) {
+      pendingInputBytes = 0;
+      startTimeUs = timeUs;
+      pendingOutputBytes = 0;
+      outputFrameCount = 0;
+    }
+
+    @Override
+    public void init(int dataStartPosition, long dataEndPosition) {
+      extractorOutput.seekMap(
+          new WavSeekMap(header, framesPerBlock, dataStartPosition, dataEndPosition));
       trackOutput.format(format);
     }
 
@@ -543,7 +552,11 @@ public final class WavExtractor implements Extractor {
     }
 
     private int numOutputFramesToBytes(int frames) {
-      return frames * 2 * header.numChannels;
+      return numOutputFramesToBytes(frames, header.numChannels);
+    }
+
+    private static int numOutputFramesToBytes(int frames, int numChannels) {
+      return frames * 2 * numChannels;
     }
   }
 }
