@@ -272,7 +272,7 @@ public final class FlacExtractor implements Extractor {
 
     // Skip frame search on the bytes within the minimum frame size.
     if (currentFrameBytesWritten < minFrameSize) {
-      buffer.skipBytes(Math.min(minFrameSize, buffer.bytesLeft()));
+      buffer.skipBytes(Math.min(minFrameSize - currentFrameBytesWritten, buffer.bytesLeft()));
     }
 
     long nextFrameFirstSampleNumber = findFrame(buffer, foundEndOfInput);
