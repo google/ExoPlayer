@@ -417,11 +417,7 @@ public class WebvttDecoderTest {
     assertThat(s4)
         .hasBackgroundColorSpanBetween(0, 16)
         .withColor(ColorParser.parseCssColor("lime"));
-    assertThat(s4)
-        .hasBoldSpan(
-            /* startIndex= */ 17,
-            /* endIndex= */ s4.length(),
-            /* flags= */ Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    assertThat(s4).hasBoldSpanBetween(/* startIndex= */ 17, /* endIndex= */ s4.length());
   }
 
   @Test
