@@ -15,11 +15,14 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
-import android.support.annotation.IntDef;
+import static com.google.android.exoplayer2.extractor.ts.TsPayloadReader.FLAG_PAYLOAD_UNIT_START_INDICATOR;
+
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
+import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
@@ -37,6 +40,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
@@ -45,25 +49,18 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Facilitates the extraction of data from the MPEG-2 TS container format.
+ * Extracts data from the MPEG-2 TS container format.
  */
 public final class TsExtractor implements Extractor {
 
-  /**
-   * Factory for {@link TsExtractor} instances.
-   */
-  public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
-
-    @Override
-    public Extractor[] createExtractors() {
-      return new Extractor[] {new TsExtractor()};
-    }
-
-  };
+  /** Factory for {@link TsExtractor} instances. */
+  public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new TsExtractor()};
 
   /**
-   * Modes for the extractor.
+   * Modes for the extractor. One of {@link #MODE_MULTI_PMT}, {@link #MODE_SINGLE_PMT} or {@link
+   * #MODE_HLS}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({MODE_MULTI_PMT, MODE_SINGLE_PMT, MODE_HLS})
   public @interface Mode {}
@@ -84,11 +81,13 @@ public final class TsExtractor implements Extractor {
 
   public static final int TS_STREAM_TYPE_MPA = 0x03;
   public static final int TS_STREAM_TYPE_MPA_LSF = 0x04;
-  public static final int TS_STREAM_TYPE_AAC = 0x0F;
+  public static final int TS_STREAM_TYPE_AAC_ADTS = 0x0F;
+  public static final int TS_STREAM_TYPE_AAC_LATM = 0x11;
   public static final int TS_STREAM_TYPE_AC3 = 0x81;
   public static final int TS_STREAM_TYPE_DTS = 0x8A;
   public static final int TS_STREAM_TYPE_HDMV_DTS = 0x82;
   public static final int TS_STREAM_TYPE_E_AC3 = 0x87;
+  public static final int TS_STREAM_TYPE_AC4 = 0xAC; // DVB/ATSC AC-4 Descriptor
   public static final int TS_STREAM_TYPE_H262 = 0x02;
   public static final int TS_STREAM_TYPE_H264 = 0x1B;
   public static final int TS_STREAM_TYPE_H265 = 0x24;
@@ -96,31 +95,40 @@ public final class TsExtractor implements Extractor {
   public static final int TS_STREAM_TYPE_SPLICE_INFO = 0x86;
   public static final int TS_STREAM_TYPE_DVBSUBS = 0x59;
 
-  private static final int TS_PACKET_SIZE = 188;
-  private static final int TS_SYNC_BYTE = 0x47; // First byte of each TS packet.
+  public static final int TS_PACKET_SIZE = 188;
+  public static final int TS_SYNC_BYTE = 0x47; // First byte of each TS packet.
+
   private static final int TS_PAT_PID = 0;
   private static final int MAX_PID_PLUS_ONE = 0x2000;
 
-  private static final long AC3_FORMAT_IDENTIFIER = Util.getIntegerCodeForString("AC-3");
-  private static final long E_AC3_FORMAT_IDENTIFIER = Util.getIntegerCodeForString("EAC3");
-  private static final long HEVC_FORMAT_IDENTIFIER = Util.getIntegerCodeForString("HEVC");
+  private static final long AC3_FORMAT_IDENTIFIER = 0x41432d33;
+  private static final long E_AC3_FORMAT_IDENTIFIER = 0x45414333;
+  private static final long AC4_FORMAT_IDENTIFIER = 0x41432d34;
+  private static final long HEVC_FORMAT_IDENTIFIER = 0x48455643;
 
-  private static final int BUFFER_PACKET_COUNT = 5; // Should be at least 2
-  private static final int BUFFER_SIZE = TS_PACKET_SIZE * BUFFER_PACKET_COUNT;
+  private static final int BUFFER_SIZE = TS_PACKET_SIZE * 50;
+  private static final int SNIFF_TS_PACKET_COUNT = 5;
 
-  @Mode private final int mode;
+  private final @Mode int mode;
   private final List<TimestampAdjuster> timestampAdjusters;
   private final ParsableByteArray tsPacketBuffer;
   private final SparseIntArray continuityCounters;
   private final TsPayloadReader.Factory payloadReaderFactory;
   private final SparseArray<TsPayloadReader> tsPayloadReaders; // Indexed by pid
   private final SparseBooleanArray trackIds;
+  private final SparseBooleanArray trackPids;
+  private final TsDurationReader durationReader;
 
   // Accessed only by the loading thread.
+  private TsBinarySearchSeeker tsBinarySearchSeeker;
   private ExtractorOutput output;
   private int remainingPmts;
   private boolean tracksEnded;
+  private boolean hasOutputSeekMap;
+  private boolean pendingSeekToStart;
   private TsPayloadReader id3Reader;
+  private int bytesSinceLastSync;
+  private int pcrPid;
 
   public TsExtractor() {
     this(0);
@@ -141,10 +149,11 @@ public final class TsExtractor implements Extractor {
    *     {@code FLAG_*} values that control the behavior of the payload readers.
    */
   public TsExtractor(@Mode int mode, @Flags int defaultTsPayloadReaderFlags) {
-    this(mode, new TimestampAdjuster(0),
+    this(
+        mode,
+        new TimestampAdjuster(0),
         new DefaultTsPayloadReaderFactory(defaultTsPayloadReaderFlags));
   }
-
 
   /**
    * @param mode Mode for the extractor. One of {@link #MODE_MULTI_PMT}, {@link #MODE_SINGLE_PMT}
@@ -152,7 +161,9 @@ public final class TsExtractor implements Extractor {
    * @param timestampAdjuster A timestamp adjuster for offsetting and scaling sample timestamps.
    * @param payloadReaderFactory Factory for injecting a custom set of payload readers.
    */
-  public TsExtractor(@Mode int mode, TimestampAdjuster timestampAdjuster,
+  public TsExtractor(
+      @Mode int mode,
+      TimestampAdjuster timestampAdjuster,
       TsPayloadReader.Factory payloadReaderFactory) {
     this.payloadReaderFactory = Assertions.checkNotNull(payloadReaderFactory);
     this.mode = mode;
@@ -162,10 +173,13 @@ public final class TsExtractor implements Extractor {
       timestampAdjusters = new ArrayList<>();
       timestampAdjusters.add(timestampAdjuster);
     }
-    tsPacketBuffer = new ParsableByteArray(BUFFER_SIZE);
+    tsPacketBuffer = new ParsableByteArray(new byte[BUFFER_SIZE], 0);
     trackIds = new SparseBooleanArray();
+    trackPids = new SparseBooleanArray();
     tsPayloadReaders = new SparseArray<>();
     continuityCounters = new SparseIntArray();
+    durationReader = new TsDurationReader();
+    pcrPid = -1;
     resetPayloadReaders();
   }
 
@@ -174,16 +188,19 @@ public final class TsExtractor implements Extractor {
   @Override
   public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
     byte[] buffer = tsPacketBuffer.data;
-    input.peekFully(buffer, 0, BUFFER_SIZE);
-    for (int j = 0; j < TS_PACKET_SIZE; j++) {
-      for (int i = 0; true; i++) {
-        if (i == BUFFER_PACKET_COUNT) {
-          input.skipFully(j);
-          return true;
-        }
-        if (buffer[j + i * TS_PACKET_SIZE] != TS_SYNC_BYTE) {
+    input.peekFully(buffer, 0, TS_PACKET_SIZE * SNIFF_TS_PACKET_COUNT);
+    for (int startPosCandidate = 0; startPosCandidate < TS_PACKET_SIZE; startPosCandidate++) {
+      // Try to identify at least SNIFF_TS_PACKET_COUNT packets starting with TS_SYNC_BYTE.
+      boolean isSyncBytePatternCorrect = true;
+      for (int i = 0; i < SNIFF_TS_PACKET_COUNT; i++) {
+        if (buffer[startPosCandidate + i * TS_PACKET_SIZE] != TS_SYNC_BYTE) {
+          isSyncBytePatternCorrect = false;
           break;
         }
+      }
+      if (isSyncBytePatternCorrect) {
+        input.skipFully(startPosCandidate);
+        return true;
       }
     }
     return false;
@@ -192,19 +209,37 @@ public final class TsExtractor implements Extractor {
   @Override
   public void init(ExtractorOutput output) {
     this.output = output;
-    output.seekMap(new SeekMap.Unseekable(C.TIME_UNSET));
   }
 
   @Override
   public void seek(long position, long timeUs) {
+    Assertions.checkState(mode != MODE_HLS);
     int timestampAdjustersCount = timestampAdjusters.size();
     for (int i = 0; i < timestampAdjustersCount; i++) {
-      timestampAdjusters.get(i).reset();
+      TimestampAdjuster timestampAdjuster = timestampAdjusters.get(i);
+      boolean hasNotEncounteredFirstTimestamp =
+          timestampAdjuster.getTimestampOffsetUs() == C.TIME_UNSET;
+      if (hasNotEncounteredFirstTimestamp
+          || (timestampAdjuster.getTimestampOffsetUs() != 0
+              && timestampAdjuster.getFirstSampleTimestampUs() != timeUs)) {
+        // - If a track in the TS stream has not encountered any sample, it's going to treat the
+        // first sample encountered as timestamp 0, which is incorrect. So we have to set the first
+        // sample timestamp for that track manually.
+        // - If the timestamp adjuster has its timestamp set manually before, and now we seek to a
+        // different position, we need to set the first sample timestamp manually again.
+        timestampAdjuster.reset();
+        timestampAdjuster.setFirstSampleTimestampUs(timeUs);
+      }
+    }
+    if (timeUs != 0 && tsBinarySearchSeeker != null) {
+      tsBinarySearchSeeker.setSeekTargetUs(timeUs);
     }
     tsPacketBuffer.reset();
     continuityCounters.clear();
-    // Elementary stream readers' state should be cleared to get consistent behaviours when seeking.
-    resetPayloadReaders();
+    for (int i = 0; i < tsPayloadReaders.size(); i++) {
+      tsPayloadReaders.valueAt(i).seek();
+    }
+    bytesSinceLastSync = 0;
   }
 
   @Override
@@ -213,88 +248,101 @@ public final class TsExtractor implements Extractor {
   }
 
   @Override
-  public int read(ExtractorInput input, PositionHolder seekPosition)
+  public @ReadResult int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
-    byte[] data = tsPacketBuffer.data;
-    // Shift bytes to the start of the buffer if there isn't enough space left at the end
-    if (BUFFER_SIZE - tsPacketBuffer.getPosition() < TS_PACKET_SIZE) {
-      int bytesLeft = tsPacketBuffer.bytesLeft();
-      if (bytesLeft > 0) {
-        System.arraycopy(data, tsPacketBuffer.getPosition(), data, 0, bytesLeft);
+    long inputLength = input.getLength();
+    if (tracksEnded) {
+      boolean canReadDuration = inputLength != C.LENGTH_UNSET && mode != MODE_HLS;
+      if (canReadDuration && !durationReader.isDurationReadFinished()) {
+        return durationReader.readDuration(input, seekPosition, pcrPid);
       }
-      tsPacketBuffer.reset(data, bytesLeft);
-    }
-    // Read more bytes until there is at least one packet size
-    while (tsPacketBuffer.bytesLeft() < TS_PACKET_SIZE) {
-      int limit = tsPacketBuffer.limit();
-      int read = input.read(data, limit, BUFFER_SIZE - limit);
-      if (read == C.RESULT_END_OF_INPUT) {
-        return RESULT_END_OF_INPUT;
+      maybeOutputSeekMap(inputLength);
+
+      if (pendingSeekToStart) {
+        pendingSeekToStart = false;
+        seek(/* position= */ 0, /* timeUs= */ 0);
+        if (input.getPosition() != 0) {
+          seekPosition.position = 0;
+          return RESULT_SEEK;
+        }
       }
-      tsPacketBuffer.setLimit(limit + read);
+
+      if (tsBinarySearchSeeker != null && tsBinarySearchSeeker.isSeeking()) {
+        return tsBinarySearchSeeker.handlePendingSeek(input, seekPosition);
+      }
     }
 
-    // Note: see ISO/IEC 13818-1, section 2.4.3.2 for detailed information on the format of
-    // the header.
-    final int limit = tsPacketBuffer.limit();
-    int position = tsPacketBuffer.getPosition();
-    while (position < limit && data[position] != TS_SYNC_BYTE) {
-      position++;
+    if (!fillBufferWithAtLeastOnePacket(input)) {
+      return RESULT_END_OF_INPUT;
     }
-    tsPacketBuffer.setPosition(position);
 
-    int endOfPacket = position + TS_PACKET_SIZE;
+    int endOfPacket = findEndOfFirstTsPacketInBuffer();
+    int limit = tsPacketBuffer.limit();
     if (endOfPacket > limit) {
       return RESULT_CONTINUE;
     }
 
+    @TsPayloadReader.Flags int packetHeaderFlags = 0;
+
+    // Note: See ISO/IEC 13818-1, section 2.4.3.2 for details of the header format.
     int tsPacketHeader = tsPacketBuffer.readInt();
     if ((tsPacketHeader & 0x800000) != 0) { // transport_error_indicator
       // There are uncorrectable errors in this packet.
       tsPacketBuffer.setPosition(endOfPacket);
       return RESULT_CONTINUE;
     }
-    boolean payloadUnitStartIndicator = (tsPacketHeader & 0x400000) != 0;
+    packetHeaderFlags |= (tsPacketHeader & 0x400000) != 0 ? FLAG_PAYLOAD_UNIT_START_INDICATOR : 0;
     // Ignoring transport_priority (tsPacketHeader & 0x200000)
     int pid = (tsPacketHeader & 0x1FFF00) >> 8;
     // Ignoring transport_scrambling_control (tsPacketHeader & 0xC0)
     boolean adaptationFieldExists = (tsPacketHeader & 0x20) != 0;
     boolean payloadExists = (tsPacketHeader & 0x10) != 0;
 
+    TsPayloadReader payloadReader = payloadExists ? tsPayloadReaders.get(pid) : null;
+    if (payloadReader == null) {
+      tsPacketBuffer.setPosition(endOfPacket);
+      return RESULT_CONTINUE;
+    }
+
     // Discontinuity check.
-    boolean discontinuityFound = false;
     if (mode != MODE_HLS) {
       int continuityCounter = tsPacketHeader & 0xF;
       int previousCounter = continuityCounters.get(pid, continuityCounter - 1);
       continuityCounters.put(pid, continuityCounter);
       if (previousCounter == continuityCounter) {
-        if (payloadExists) {
-          // Duplicate packet found.
-          tsPacketBuffer.setPosition(endOfPacket);
-          return RESULT_CONTINUE;
-        }
+        // Duplicate packet found.
+        tsPacketBuffer.setPosition(endOfPacket);
+        return RESULT_CONTINUE;
       } else if (continuityCounter != ((previousCounter + 1) & 0xF)) {
-        discontinuityFound = true;
+        // Discontinuity found.
+        payloadReader.seek();
       }
     }
 
     // Skip the adaptation field.
     if (adaptationFieldExists) {
       int adaptationFieldLength = tsPacketBuffer.readUnsignedByte();
-      tsPacketBuffer.skipBytes(adaptationFieldLength);
+      int adaptationFieldFlags = tsPacketBuffer.readUnsignedByte();
+
+      packetHeaderFlags |=
+          (adaptationFieldFlags & 0x40) != 0 // random_access_indicator.
+              ? TsPayloadReader.FLAG_RANDOM_ACCESS_INDICATOR
+              : 0;
+      tsPacketBuffer.skipBytes(adaptationFieldLength - 1 /* flags */);
     }
 
     // Read the payload.
-    if (payloadExists) {
-      TsPayloadReader payloadReader = tsPayloadReaders.get(pid);
-      if (payloadReader != null) {
-        if (discontinuityFound) {
-          payloadReader.seek();
-        }
-        tsPacketBuffer.setLimit(endOfPacket);
-        payloadReader.consume(tsPacketBuffer, payloadUnitStartIndicator);
-        tsPacketBuffer.setLimit(limit);
-      }
+    boolean wereTracksEnded = tracksEnded;
+    if (shouldConsumePacketPayload(pid)) {
+      tsPacketBuffer.setLimit(endOfPacket);
+      payloadReader.consume(tsPacketBuffer, packetHeaderFlags);
+      tsPacketBuffer.setLimit(limit);
+    }
+    if (mode != MODE_HLS && !wereTracksEnded && tracksEnded && inputLength != C.LENGTH_UNSET) {
+      // We have read all tracks from all PMTs in this non-live stream. Now seek to the beginning
+      // and read again to make sure we output all media, including any contained in packets prior
+      // to those containing the track information.
+      pendingSeekToStart = true;
     }
 
     tsPacketBuffer.setPosition(endOfPacket);
@@ -302,6 +350,78 @@ public final class TsExtractor implements Extractor {
   }
 
   // Internals.
+
+  private void maybeOutputSeekMap(long inputLength) {
+    if (!hasOutputSeekMap) {
+      hasOutputSeekMap = true;
+      if (durationReader.getDurationUs() != C.TIME_UNSET) {
+        tsBinarySearchSeeker =
+            new TsBinarySearchSeeker(
+                durationReader.getPcrTimestampAdjuster(),
+                durationReader.getDurationUs(),
+                inputLength,
+                pcrPid);
+        output.seekMap(tsBinarySearchSeeker.getSeekMap());
+      } else {
+        output.seekMap(new SeekMap.Unseekable(durationReader.getDurationUs()));
+      }
+    }
+  }
+
+  private boolean fillBufferWithAtLeastOnePacket(ExtractorInput input)
+      throws IOException, InterruptedException {
+    byte[] data = tsPacketBuffer.data;
+    // Shift bytes to the start of the buffer if there isn't enough space left at the end.
+    if (BUFFER_SIZE - tsPacketBuffer.getPosition() < TS_PACKET_SIZE) {
+      int bytesLeft = tsPacketBuffer.bytesLeft();
+      if (bytesLeft > 0) {
+        System.arraycopy(data, tsPacketBuffer.getPosition(), data, 0, bytesLeft);
+      }
+      tsPacketBuffer.reset(data, bytesLeft);
+    }
+    // Read more bytes until we have at least one packet.
+    while (tsPacketBuffer.bytesLeft() < TS_PACKET_SIZE) {
+      int limit = tsPacketBuffer.limit();
+      int read = input.read(data, limit, BUFFER_SIZE - limit);
+      if (read == C.RESULT_END_OF_INPUT) {
+        return false;
+      }
+      tsPacketBuffer.setLimit(limit + read);
+    }
+    return true;
+  }
+
+  /**
+   * Returns the position of the end of the first TS packet (exclusive) in the packet buffer.
+   *
+   * <p>This may be a position beyond the buffer limit if the packet has not been read fully into
+   * the buffer, or if no packet could be found within the buffer.
+   */
+  private int findEndOfFirstTsPacketInBuffer() throws ParserException {
+    int searchStart = tsPacketBuffer.getPosition();
+    int limit = tsPacketBuffer.limit();
+    int syncBytePosition = TsUtil.findSyncBytePosition(tsPacketBuffer.data, searchStart, limit);
+    // Discard all bytes before the sync byte.
+    // If sync byte is not found, this means discard the whole buffer.
+    tsPacketBuffer.setPosition(syncBytePosition);
+    int endOfPacket = syncBytePosition + TS_PACKET_SIZE;
+    if (endOfPacket > limit) {
+      bytesSinceLastSync += syncBytePosition - searchStart;
+      if (mode == MODE_HLS && bytesSinceLastSync > TS_PACKET_SIZE * 2) {
+        throw new ParserException("Cannot find sync byte. Most likely not a Transport Stream.");
+      }
+    } else {
+      // We have found a packet within the buffer.
+      bytesSinceLastSync = 0;
+    }
+    return endOfPacket;
+  }
+
+  private boolean shouldConsumePacketPayload(int packetPid) {
+    return mode == MODE_HLS
+        || tracksEnded
+        || !trackPids.get(packetPid, /* valueIfKeyNotFound= */ false); // It's a PSI packet
+  }
 
   private void resetPayloadReaders() {
     trackIds.clear();
@@ -375,7 +495,10 @@ public final class TsExtractor implements Extractor {
     private static final int TS_PMT_DESC_AC3 = 0x6A;
     private static final int TS_PMT_DESC_EAC3 = 0x7A;
     private static final int TS_PMT_DESC_DTS = 0x7B;
+    private static final int TS_PMT_DESC_DVB_EXT = 0x7F;
     private static final int TS_PMT_DESC_DVBSUBS = 0x59;
+
+    private static final int TS_PMT_DESC_DVB_EXT_AC4 = 0x15;
 
     private final ParsableBitArray pmtScratch;
     private final SparseArray<TsPayloadReader> trackIdToReaderScratch;
@@ -415,9 +538,16 @@ public final class TsExtractor implements Extractor {
       // section_syntax_indicator(1), '0'(1), reserved(2), section_length(12)
       sectionData.skipBytes(2);
       int programNumber = sectionData.readUnsignedShort();
+
+      // Skip 3 bytes (24 bits), including:
       // reserved (2), version_number (5), current_next_indicator (1), section_number (8),
-      // last_section_number (8), reserved (3), PCR_PID (13)
-      sectionData.skipBytes(5);
+      // last_section_number (8)
+      sectionData.skipBytes(3);
+
+      sectionData.readBytes(pmtScratch, 2);
+      // reserved (3), PCR_PID (13)
+      pmtScratch.skipBits(3);
+      pcrPid = pmtScratch.readBits(13);
 
       // Read program_info_length.
       sectionData.readBytes(pmtScratch, 2);
@@ -430,7 +560,7 @@ public final class TsExtractor implements Extractor {
       if (mode == MODE_HLS && id3Reader == null) {
         // Setup an ID3 track regardless of whether there's a corresponding entry, in case one
         // appears intermittently during playback. See [Internal: b/20261500].
-        EsInfo dummyEsInfo = new EsInfo(TS_STREAM_TYPE_ID3, null, null, new byte[0]);
+        EsInfo dummyEsInfo = new EsInfo(TS_STREAM_TYPE_ID3, null, null, Util.EMPTY_BYTE_ARRAY);
         id3Reader = payloadReaderFactory.createPayloadReader(TS_STREAM_TYPE_ID3, dummyEsInfo);
         id3Reader.init(timestampAdjuster, output,
             new TrackIdGenerator(programNumber, TS_STREAM_TYPE_ID3, MAX_PID_PLUS_ONE));
@@ -469,14 +599,16 @@ public final class TsExtractor implements Extractor {
       int trackIdCount = trackIdToPidScratch.size();
       for (int i = 0; i < trackIdCount; i++) {
         int trackId = trackIdToPidScratch.keyAt(i);
+        int trackPid = trackIdToPidScratch.valueAt(i);
         trackIds.put(trackId, true);
+        trackPids.put(trackPid, true);
         TsPayloadReader reader = trackIdToReaderScratch.valueAt(i);
         if (reader != null) {
           if (reader != id3Reader) {
             reader.init(timestampAdjuster, output,
                 new TrackIdGenerator(programNumber, trackId, MAX_PID_PLUS_ONE));
           }
-          tsPayloadReaders.put(trackIdToPidScratch.valueAt(i), reader);
+          tsPayloadReaders.put(trackPid, reader);
         }
       }
 
@@ -520,6 +652,8 @@ public final class TsExtractor implements Extractor {
             streamType = TS_STREAM_TYPE_AC3;
           } else if (formatIdentifier == E_AC3_FORMAT_IDENTIFIER) {
             streamType = TS_STREAM_TYPE_E_AC3;
+          } else if (formatIdentifier == AC4_FORMAT_IDENTIFIER) {
+            streamType = TS_STREAM_TYPE_AC4;
           } else if (formatIdentifier == HEVC_FORMAT_IDENTIFIER) {
             streamType = TS_STREAM_TYPE_H265;
           }
@@ -527,6 +661,13 @@ public final class TsExtractor implements Extractor {
           streamType = TS_STREAM_TYPE_AC3;
         } else if (descriptorTag == TS_PMT_DESC_EAC3) { // enhanced_AC-3_descriptor
           streamType = TS_STREAM_TYPE_E_AC3;
+        } else if (descriptorTag == TS_PMT_DESC_DVB_EXT) {
+          // Extension descriptor in DVB (ETSI EN 300 468).
+          int descriptorTagExt = data.readUnsignedByte();
+          if (descriptorTagExt == TS_PMT_DESC_DVB_EXT_AC4) {
+            // AC-4_descriptor in DVB (ETSI EN 300 468).
+            streamType = TS_STREAM_TYPE_AC4;
+          }
         } else if (descriptorTag == TS_PMT_DESC_DTS) { // DTS_descriptor
           streamType = TS_STREAM_TYPE_DTS;
         } else if (descriptorTag == TS_PMT_DESC_ISO639_LANG) {
@@ -553,6 +694,5 @@ public final class TsExtractor implements Extractor {
     }
 
   }
-
 
 }

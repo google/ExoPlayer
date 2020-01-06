@@ -35,6 +35,7 @@ public final class ParsableNalUnitBitArray {
    * @param offset The byte offset in {@code data} to start reading from.
    * @param limit The byte offset of the end of the bitstream in {@code data}.
    */
+  @SuppressWarnings({"initialization.fields.uninitialized", "method.invocation.invalid"})
   public ParsableNalUnitBitArray(byte[] data, int offset, int limit) {
     reset(data, offset, limit);
   }
@@ -140,7 +141,7 @@ public final class ParsableNalUnitBitArray {
       returnValue |= (data[byteOffset] & 0xFF) << bitOffset;
       byteOffset += shouldSkipByte(byteOffset + 1) ? 2 : 1;
     }
-    returnValue |= (data[byteOffset] & 0xFF) >> 8 - bitOffset;
+    returnValue |= (data[byteOffset] & 0xFF) >> (8 - bitOffset);
     returnValue &= 0xFFFFFFFF >>> (32 - numBits);
     if (bitOffset == 8) {
       bitOffset = 0;

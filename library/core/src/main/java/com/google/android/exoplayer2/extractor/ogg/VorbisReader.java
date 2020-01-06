@@ -15,9 +15,12 @@
  */
 package com.google.android.exoplayer2.extractor.ogg;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
-import com.google.android.exoplayer2.extractor.ogg.VorbisUtil.Mode;
+import com.google.android.exoplayer2.extractor.VorbisUtil;
+import com.google.android.exoplayer2.extractor.VorbisUtil.Mode;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
@@ -28,16 +31,16 @@ import java.util.ArrayList;
  */
 /* package */ final class VorbisReader extends StreamReader {
 
-  private VorbisSetup vorbisSetup;
+  @Nullable private VorbisSetup vorbisSetup;
   private int previousPacketBlockSize;
   private boolean seenFirstAudioPacket;
 
-  private VorbisUtil.VorbisIdHeader vorbisIdHeader;
-  private VorbisUtil.CommentHeader commentHeader;
+  @Nullable private VorbisUtil.VorbisIdHeader vorbisIdHeader;
+  @Nullable private VorbisUtil.CommentHeader commentHeader;
 
   public static boolean verifyBitstreamType(ParsableByteArray data) {
     try {
-      return VorbisUtil.verifyVorbisHeaderCapturePattern(0x01, data, true);
+      return VorbisUtil.verifyVorbisHeaderCapturePattern(/* headerType= */ 0x01, data, true);
     } catch (ParserException e) {
       return false;
     }
@@ -86,7 +89,7 @@ import java.util.ArrayList;
 
   @Override
   protected boolean readHeaders(ParsableByteArray packet, long position, SetupData setupData)
-      throws IOException, InterruptedException {
+      throws IOException {
     if (vorbisSetup != null) {
       return false;
     }
@@ -100,14 +103,24 @@ import java.util.ArrayList;
     codecInitialisationData.add(vorbisSetup.idHeader.data);
     codecInitialisationData.add(vorbisSetup.setupHeaderData);
 
-    setupData.format = Format.createAudioSampleFormat(null, MimeTypes.AUDIO_VORBIS, null,
-        this.vorbisSetup.idHeader.bitrateNominal, Format.NO_VALUE,
-        this.vorbisSetup.idHeader.channels, (int) this.vorbisSetup.idHeader.sampleRate,
-        codecInitialisationData, null, 0, null);
+    setupData.format =
+        Format.createAudioSampleFormat(
+            null,
+            MimeTypes.AUDIO_VORBIS,
+            /* codecs= */ null,
+            this.vorbisSetup.idHeader.bitrateNominal,
+            Format.NO_VALUE,
+            this.vorbisSetup.idHeader.channels,
+            (int) this.vorbisSetup.idHeader.sampleRate,
+            codecInitialisationData,
+            null,
+            /* selectionFlags= */ 0,
+            /* language= */ null);
     return true;
   }
 
-  //@VisibleForTesting
+  @VisibleForTesting
+  @Nullable
   /* package */ VorbisSetup readSetupHeaders(ParsableByteArray scratch) throws IOException {
 
     if (vorbisIdHeader == null) {
@@ -133,27 +146,27 @@ import java.util.ArrayList;
   }
 
   /**
-   * Reads an int of {@code length} bits from {@code src} starting at
-   * {@code leastSignificantBitIndex}.
+   * Reads an int of {@code length} bits from {@code src} starting at {@code
+   * leastSignificantBitIndex}.
    *
    * @param src the {@code byte} to read from.
    * @param length the length in bits of the int to read.
    * @param leastSignificantBitIndex the index of the least significant bit of the int to read.
    * @return the int value read.
    */
-  //@VisibleForTesting
+  @VisibleForTesting
   /* package */ static int readBits(byte src, int length, int leastSignificantBitIndex) {
     return (src >> leastSignificantBitIndex) & (255 >>> (8 - length));
   }
 
-  //@VisibleForTesting
-  /* package */ static void appendNumberOfSamples(ParsableByteArray buffer,
-      long packetSampleCount) {
+  @VisibleForTesting
+  /* package */ static void appendNumberOfSamples(
+      ParsableByteArray buffer, long packetSampleCount) {
 
     buffer.setLimit(buffer.limit() + 4);
     // The vorbis decoder expects the number of samples in the packet
     // to be appended to the audio data as an int32
-    buffer.data[buffer.limit() - 4] = (byte) ((packetSampleCount) & 0xFF);
+    buffer.data[buffer.limit() - 4] = (byte) (packetSampleCount & 0xFF);
     buffer.data[buffer.limit() - 3] = (byte) ((packetSampleCount >>> 8) & 0xFF);
     buffer.data[buffer.limit() - 2] = (byte) ((packetSampleCount >>> 16) & 0xFF);
     buffer.data[buffer.limit() - 1] = (byte) ((packetSampleCount >>> 24) & 0xFF);

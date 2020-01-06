@@ -37,15 +37,28 @@ local.properties
 proguard.cfg
 proguard-project.txt
 
+# Bazel
+bazel-bin
+bazel-genfiles
+bazel-out
+bazel-testlogs
+
 # Other
 .DS_Store
+cmake-build-debug
 dist
 tmp
+
+# External native builds
+.externalNativeBuild
 
 # VP9 extension
 extensions/vp9/src/main/jni/libvpx
 extensions/vp9/src/main/jni/libvpx_android_configs
 extensions/vp9/src/main/jni/libyuv
+
+# AV1 extension
+extensions/av1/src/main/jni/libgav1
 
 # Opus extension
 extensions/opus/src/main/jni/libopus

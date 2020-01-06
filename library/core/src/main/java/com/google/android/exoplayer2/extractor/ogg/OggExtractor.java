@@ -23,52 +23,30 @@ import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * Ogg {@link Extractor}.
+ * Extracts data from the Ogg container format.
  */
 public class OggExtractor implements Extractor {
 
-  /**
-   * Factory for {@link OggExtractor} instances.
-   */
-  public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
-
-    @Override
-    public Extractor[] createExtractors() {
-      return new Extractor[] {new OggExtractor()};
-    }
-
-  };
+  /** Factory for {@link OggExtractor} instances. */
+  public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new OggExtractor()};
 
   private static final int MAX_VERIFICATION_BYTES = 8;
 
-  private StreamReader streamReader;
+  @MonotonicNonNull private ExtractorOutput output;
+  @MonotonicNonNull private StreamReader streamReader;
+  private boolean streamReaderInitialized;
 
   @Override
   public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
     try {
-      OggPageHeader header = new OggPageHeader();
-      if (!header.populate(input, true) || (header.type & 0x02) != 0x02) {
-        return false;
-      }
-
-      int length = Math.min(header.bodySize, MAX_VERIFICATION_BYTES);
-      ParsableByteArray scratch = new ParsableByteArray(length);
-      input.peekFully(scratch.data, 0, length);
-
-      if (FlacReader.verifyBitstreamType(resetPosition(scratch))) {
-        streamReader = new FlacReader();
-      } else if (VorbisReader.verifyBitstreamType(resetPosition(scratch))) {
-        streamReader = new VorbisReader();
-      } else if (OpusReader.verifyBitstreamType(resetPosition(scratch))) {
-        streamReader = new OpusReader();
-      } else {
-        return false;
-      }
-      return true;
+      return sniffInternal(input);
     } catch (ParserException e) {
       return false;
     }
@@ -76,15 +54,14 @@ public class OggExtractor implements Extractor {
 
   @Override
   public void init(ExtractorOutput output) {
-    TrackOutput trackOutput = output.track(0, C.TRACK_TYPE_AUDIO);
-    output.endTracks();
-    // TODO: fix the case if sniff() isn't called
-    streamReader.init(output, trackOutput);
+    this.output = output;
   }
 
   @Override
   public void seek(long position, long timeUs) {
-    streamReader.seek(position, timeUs);
+    if (streamReader != null) {
+      streamReader.seek(position, timeUs);
+    }
   }
 
   @Override
@@ -95,12 +72,43 @@ public class OggExtractor implements Extractor {
   @Override
   public int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
+    Assertions.checkStateNotNull(output); // Asserts that init has been called.
+    if (streamReader == null) {
+      if (!sniffInternal(input)) {
+        throw new ParserException("Failed to determine bitstream type");
+      }
+      input.resetPeekPosition();
+    }
+    if (!streamReaderInitialized) {
+      TrackOutput trackOutput = output.track(0, C.TRACK_TYPE_AUDIO);
+      output.endTracks();
+      streamReader.init(output, trackOutput);
+      streamReaderInitialized = true;
+    }
     return streamReader.read(input, seekPosition);
   }
 
-  //@VisibleForTesting
-  /* package */ StreamReader getStreamReader() {
-    return streamReader;
+  @EnsuresNonNullIf(expression = "streamReader", result = true)
+  private boolean sniffInternal(ExtractorInput input) throws IOException, InterruptedException {
+    OggPageHeader header = new OggPageHeader();
+    if (!header.populate(input, true) || (header.type & 0x02) != 0x02) {
+      return false;
+    }
+
+    int length = Math.min(header.bodySize, MAX_VERIFICATION_BYTES);
+    ParsableByteArray scratch = new ParsableByteArray(length);
+    input.peekFully(scratch.data, 0, length);
+
+    if (FlacReader.verifyBitstreamType(resetPosition(scratch))) {
+      streamReader = new FlacReader();
+    } else if (VorbisReader.verifyBitstreamType(resetPosition(scratch))) {
+      streamReader = new VorbisReader();
+    } else if (OpusReader.verifyBitstreamType(resetPosition(scratch))) {
+      streamReader = new OpusReader();
+    } else {
+      return false;
+    }
+    return true;
   }
 
   private static ParsableByteArray resetPosition(ParsableByteArray scratch) {

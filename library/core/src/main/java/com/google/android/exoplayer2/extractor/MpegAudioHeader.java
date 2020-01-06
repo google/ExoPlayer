@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.MimeTypes;
 
@@ -34,23 +35,38 @@ public final class MpegAudioHeader {
   private static final String[] MIME_TYPE_BY_LAYER =
       new String[] {MimeTypes.AUDIO_MPEG_L1, MimeTypes.AUDIO_MPEG_L2, MimeTypes.AUDIO_MPEG};
   private static final int[] SAMPLING_RATE_V1 = {44100, 48000, 32000};
-  private static final int[] BITRATE_V1_L1 =
-      {32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448};
-  private static final int[] BITRATE_V2_L1 =
-      {32, 48, 56, 64, 80, 96, 112, 128, 144, 160, 176, 192, 224, 256};
-  private static final int[] BITRATE_V1_L2 =
-      {32, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, 384};
-  private static final int[] BITRATE_V1_L3 =
-      {32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320};
-  private static final int[] BITRATE_V2 =
-      {8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160};
+  private static final int[] BITRATE_V1_L1 = {
+    32000, 64000, 96000, 128000, 160000, 192000, 224000, 256000, 288000, 320000, 352000, 384000,
+    416000, 448000
+  };
+  private static final int[] BITRATE_V2_L1 = {
+    32000, 48000, 56000, 64000, 80000, 96000, 112000, 128000, 144000, 160000, 176000, 192000,
+    224000, 256000
+  };
+  private static final int[] BITRATE_V1_L2 = {
+    32000, 48000, 56000, 64000, 80000, 96000, 112000, 128000, 160000, 192000, 224000, 256000,
+    320000, 384000
+  };
+  private static final int[] BITRATE_V1_L3 = {
+    32000, 40000, 48000, 56000, 64000, 80000, 96000, 112000, 128000, 160000, 192000, 224000, 256000,
+    320000
+  };
+  private static final int[] BITRATE_V2 = {
+    8000, 16000, 24000, 32000, 40000, 48000, 56000, 64000, 80000, 96000, 112000, 128000, 144000,
+    160000
+  };
+
+  private static final int SAMPLES_PER_FRAME_L1 = 384;
+  private static final int SAMPLES_PER_FRAME_L2 = 1152;
+  private static final int SAMPLES_PER_FRAME_L3_V1 = 1152;
+  private static final int SAMPLES_PER_FRAME_L3_V2 = 576;
 
   /**
    * Returns the size of the frame associated with {@code header}, or {@link C#LENGTH_UNSET} if it
    * is invalid.
    */
   public static int getFrameSize(int header) {
-    if ((header & 0xFFE00000) != 0xFFE00000) {
+    if (!isMagicPresent(header)) {
       return C.LENGTH_UNSET;
     }
 
@@ -89,7 +105,7 @@ public final class MpegAudioHeader {
     if (layer == 3) {
       // Layer I (layer == 3)
       bitrate = version == 3 ? BITRATE_V1_L1[bitrateIndex - 1] : BITRATE_V2_L1[bitrateIndex - 1];
-      return (12000 * bitrate / samplingRate + padding) * 4;
+      return (12 * bitrate / samplingRate + padding) * 4;
     } else {
       // Layer II (layer == 2) or III (layer == 1)
       if (version == 3) {
@@ -102,11 +118,41 @@ public final class MpegAudioHeader {
 
     if (version == 3) {
       // Version 1
-      return 144000 * bitrate / samplingRate + padding;
+      return 144 * bitrate / samplingRate + padding;
     } else {
       // Version 2 or 2.5
-      return (layer == 1 ? 72000 : 144000) * bitrate / samplingRate + padding;
+      return (layer == 1 ? 72 : 144) * bitrate / samplingRate + padding;
     }
+  }
+
+  /**
+   * Returns the number of samples per frame associated with {@code header}, or {@link
+   * C#LENGTH_UNSET} if it is invalid.
+   */
+  public static int getFrameSampleCount(int header) {
+
+    if (!isMagicPresent(header)) {
+      return C.LENGTH_UNSET;
+    }
+
+    int version = (header >>> 19) & 3;
+    if (version == 1) {
+      return C.LENGTH_UNSET;
+    }
+
+    int layer = (header >>> 17) & 3;
+    if (layer == 0) {
+      return C.LENGTH_UNSET;
+    }
+
+    // Those header values are not used but are checked for consistency with the other methods
+    int bitrateIndex = (header >>> 12) & 15;
+    int samplingRateIndex = (header >>> 10) & 3;
+    if (bitrateIndex == 0 || bitrateIndex == 0xF || samplingRateIndex == 3) {
+      return C.LENGTH_UNSET;
+    }
+
+    return getFrameSizeInSamples(version, layer);
   }
 
   /**
@@ -118,7 +164,7 @@ public final class MpegAudioHeader {
    *     is not a valid MPEG audio header.
    */
   public static boolean populateHeader(int headerData, MpegAudioHeader header) {
-    if ((headerData & 0xFFE00000) != 0xFFE00000) {
+    if (!isMagicPresent(headerData)) {
       return false;
     }
 
@@ -153,38 +199,52 @@ public final class MpegAudioHeader {
     }
 
     int padding = (headerData >>> 9) & 1;
-    int bitrate, frameSize, samplesPerFrame;
+    int bitrate;
+    int frameSize;
+    int samplesPerFrame = getFrameSizeInSamples(version, layer);
     if (layer == 3) {
       // Layer I (layer == 3)
       bitrate = version == 3 ? BITRATE_V1_L1[bitrateIndex - 1] : BITRATE_V2_L1[bitrateIndex - 1];
-      frameSize = (12000 * bitrate / sampleRate + padding) * 4;
-      samplesPerFrame = 384;
+      frameSize = (12 * bitrate / sampleRate + padding) * 4;
     } else {
       // Layer II (layer == 2) or III (layer == 1)
       if (version == 3) {
         // Version 1
         bitrate = layer == 2 ? BITRATE_V1_L2[bitrateIndex - 1] : BITRATE_V1_L3[bitrateIndex - 1];
-        samplesPerFrame = 1152;
-        frameSize = 144000 * bitrate / sampleRate + padding;
+        frameSize = 144 * bitrate / sampleRate + padding;
       } else {
         // Version 2 or 2.5.
         bitrate = BITRATE_V2[bitrateIndex - 1];
-        samplesPerFrame = layer == 1 ? 576 : 1152;
-        frameSize = (layer == 1 ? 72000 : 144000) * bitrate / sampleRate + padding;
+        frameSize = (layer == 1 ? 72 : 144) * bitrate / sampleRate + padding;
       }
     }
 
     String mimeType = MIME_TYPE_BY_LAYER[3 - layer];
     int channels = ((headerData >> 6) & 3) == 3 ? 1 : 2;
-    header.setValues(version, mimeType, frameSize, sampleRate, channels, bitrate * 1000,
-        samplesPerFrame);
+    header.setValues(version, mimeType, frameSize, sampleRate, channels, bitrate, samplesPerFrame);
     return true;
+  }
+
+  private static boolean isMagicPresent(int header) {
+    return (header & 0xFFE00000) == 0xFFE00000;
+  }
+
+  private static int getFrameSizeInSamples(int version, int layer) {
+    switch (layer) {
+      case 1:
+        return version == 3 ? SAMPLES_PER_FRAME_L3_V1 : SAMPLES_PER_FRAME_L3_V2; // Layer III
+      case 2:
+        return SAMPLES_PER_FRAME_L2; // Layer II
+      case 3:
+        return SAMPLES_PER_FRAME_L1; // Layer I
+    }
+    throw new IllegalArgumentException();
   }
 
   /** MPEG audio header version. */
   public int version;
   /** The mime type. */
-  public String mimeType;
+  @Nullable public String mimeType;
   /** Size of the frame associated with this header, in bytes. */
   public int frameSize;
   /** Sample rate in samples per second. */
@@ -196,8 +256,14 @@ public final class MpegAudioHeader {
   /** Number of samples stored in the frame. */
   public int samplesPerFrame;
 
-  private void setValues(int version, String mimeType, int frameSize, int sampleRate, int channels,
-      int bitrate, int samplesPerFrame) {
+  private void setValues(
+      int version,
+      String mimeType,
+      int frameSize,
+      int sampleRate,
+      int channels,
+      int bitrate,
+      int samplesPerFrame) {
     this.version = version;
     this.mimeType = mimeType;
     this.frameSize = frameSize;
@@ -206,5 +272,4 @@ public final class MpegAudioHeader {
     this.bitrate = bitrate;
     this.samplesPerFrame = samplesPerFrame;
   }
-
 }

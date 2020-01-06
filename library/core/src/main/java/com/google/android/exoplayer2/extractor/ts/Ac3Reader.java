@@ -15,15 +15,17 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.Ac3Util;
+import com.google.android.exoplayer2.audio.Ac3Util.SyncFrameInfo;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -32,14 +34,16 @@ import java.lang.annotation.RetentionPolicy;
  */
 public final class Ac3Reader implements ElementaryStreamReader {
 
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({STATE_FINDING_SYNC, STATE_READING_HEADER, STATE_READING_SAMPLE})
   private @interface State {}
+
   private static final int STATE_FINDING_SYNC = 0;
   private static final int STATE_READING_HEADER = 1;
   private static final int STATE_READING_SAMPLE = 2;
 
-  private static final int HEADER_SIZE = 8;
+  private static final int HEADER_SIZE = 128;
 
   private final ParsableBitArray headerScratchBits;
   private final ParsableByteArray headerScratchBytes;
@@ -96,7 +100,7 @@ public final class Ac3Reader implements ElementaryStreamReader {
   }
 
   @Override
-  public void packetStarted(long pesTimeUs, boolean dataAlignmentIndicator) {
+  public void packetStarted(long pesTimeUs, @TsPayloadReader.Flags int flags) {
     timeUs = pesTimeUs;
   }
 
@@ -187,7 +191,7 @@ public final class Ac3Reader implements ElementaryStreamReader {
   @SuppressWarnings("ReferenceEquality")
   private void parseHeader() {
     headerScratchBits.setPosition(0);
-    Ac3Util.Ac3SyncFrameInfo frameInfo = Ac3Util.parseAc3SyncframeInfo(headerScratchBits);
+    SyncFrameInfo frameInfo = Ac3Util.parseAc3SyncframeInfo(headerScratchBits);
     if (format == null || frameInfo.channelCount != format.channelCount
         || frameInfo.sampleRate != format.sampleRate
         || frameInfo.mimeType != format.sampleMimeType) {
@@ -197,7 +201,7 @@ public final class Ac3Reader implements ElementaryStreamReader {
       output.format(format);
     }
     sampleSize = frameInfo.frameSize;
-    // In this class a sample is an access unit (syncframe in AC-3), but the MediaFormat sample rate
+    // In this class a sample is an access unit (syncframe in AC-3), but Format#sampleRate
     // specifies the number of PCM audio samples per second.
     sampleDurationUs = C.MICROS_PER_SECOND * frameInfo.sampleCount / format.sampleRate;
   }

@@ -11,36 +11,20 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-include ':library'
-include ':library-core'
-include ':library-dash'
-include ':library-hls'
-include ':library-smoothstreaming'
-include ':library-ui'
-include ':testutils'
-include ':demo'
-include ':playbacktests'
-include ':extension-ffmpeg'
-include ':extension-flac'
-include ':extension-gvr'
-include ':extension-okhttp'
-include ':extension-opus'
-include ':extension-vp9'
-// Uncomment the following line to use the Cronet Extension.
-// include ':extension-cronet'
+gradle.ext.exoplayerRoot = settingsDir
 
-project(':library').projectDir = new File(settingsDir, 'library/all')
-project(':library-core').projectDir = new File(settingsDir, 'library/core')
-project(':library-dash').projectDir = new File(settingsDir, 'library/dash')
-project(':library-hls').projectDir = new File(settingsDir, 'library/hls')
-project(':library-smoothstreaming').projectDir = new File(settingsDir, 'library/smoothstreaming')
-project(':library-ui').projectDir = new File(settingsDir, 'library/ui')
-project(':extension-ffmpeg').projectDir = new File(settingsDir, 'extensions/ffmpeg')
-project(':extension-flac').projectDir = new File(settingsDir, 'extensions/flac')
-project(':extension-gvr').projectDir = new File(settingsDir, 'extensions/gvr')
-project(':extension-okhttp').projectDir = new File(settingsDir, 'extensions/okhttp')
-project(':extension-opus').projectDir = new File(settingsDir, 'extensions/opus')
-project(':extension-vp9').projectDir = new File(settingsDir, 'extensions/vp9')
-// Uncomment the following line to use the Cronet Extension.
-// See extensions/cronet/README.md for details.
-// project(':extension-cronet').projectDir = new File(settingsDir, 'extensions/cronet')
+def modulePrefix = ':'
+if (gradle.ext.has('exoplayerModulePrefix')) {
+    modulePrefix += gradle.ext.exoplayerModulePrefix
+}
+
+include modulePrefix + 'demo'
+include modulePrefix + 'demo-cast'
+include modulePrefix + 'demo-surface'
+include modulePrefix + 'playbacktests'
+project(modulePrefix + 'demo').projectDir = new File(rootDir, 'demos/main')
+project(modulePrefix + 'demo-cast').projectDir = new File(rootDir, 'demos/cast')
+project(modulePrefix + 'demo-surface').projectDir = new File(rootDir, 'demos/surface')
+project(modulePrefix + 'playbacktests').projectDir = new File(rootDir, 'playbacktests')
+
+apply from: 'core_settings.gradle'

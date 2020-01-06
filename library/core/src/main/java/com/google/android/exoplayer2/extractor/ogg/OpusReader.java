@@ -19,8 +19,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
-import com.google.android.exoplayer2.util.Util;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -39,7 +37,7 @@ import java.util.List;
    */
   private static final int SAMPLE_RATE = 48000;
 
-  private static final int OPUS_CODE = Util.getIntegerCodeForString("Opus");
+  private static final int OPUS_CODE = 0x4f707573;
   private static final byte[] OPUS_SIGNATURE = {'O', 'p', 'u', 's', 'H', 'e', 'a', 'd'};
 
   private boolean headerRead;
@@ -67,8 +65,7 @@ import java.util.List;
   }
 
   @Override
-  protected boolean readHeaders(ParsableByteArray packet, long position, SetupData setupData)
-      throws IOException, InterruptedException {
+  protected boolean readHeaders(ParsableByteArray packet, long position, SetupData setupData) {
     if (!headerRead) {
       byte[] metadata = Arrays.copyOf(packet.data, packet.limit());
       int channelCount = metadata[9] & 0xFF;
@@ -79,9 +76,19 @@ import java.util.List;
       putNativeOrderLong(initializationData, preskip);
       putNativeOrderLong(initializationData, DEFAULT_SEEK_PRE_ROLL_SAMPLES);
 
-      setupData.format = Format.createAudioSampleFormat(null, MimeTypes.AUDIO_OPUS, null,
-          Format.NO_VALUE, Format.NO_VALUE, channelCount, SAMPLE_RATE, initializationData, null, 0,
-          null);
+      setupData.format =
+          Format.createAudioSampleFormat(
+              null,
+              MimeTypes.AUDIO_OPUS,
+              /* codecs= */ null,
+              Format.NO_VALUE,
+              Format.NO_VALUE,
+              channelCount,
+              SAMPLE_RATE,
+              initializationData,
+              /* drmInitData= */ null,
+              /* selectionFlags= */ 0,
+              /* language= */ null);
       headerRead = true;
     } else {
       boolean headerPacket = packet.readInt() == OPUS_CODE;
@@ -130,6 +137,6 @@ import java.util.List;
     } else {
       length = 10000 << length;
     }
-    return frames * length;
+    return (long) frames * length;
   }
 }

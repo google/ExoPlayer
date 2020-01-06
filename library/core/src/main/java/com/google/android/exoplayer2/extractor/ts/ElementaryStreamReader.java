@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -42,16 +43,17 @@ public interface ElementaryStreamReader {
    * Called when a packet starts.
    *
    * @param pesTimeUs The timestamp associated with the packet.
-   * @param dataAlignmentIndicator The data alignment indicator associated with the packet.
+   * @param flags See {@link TsPayloadReader.Flags}.
    */
-  void packetStarted(long pesTimeUs, boolean dataAlignmentIndicator);
+  void packetStarted(long pesTimeUs, @TsPayloadReader.Flags int flags);
 
   /**
    * Consumes (possibly partial) data from the current packet.
    *
    * @param data The data to consume.
+   * @throws ParserException If the data could not be parsed.
    */
-  void consume(ParsableByteArray data);
+  void consume(ParsableByteArray data) throws ParserException;
 
   /**
    * Called when a packet ends.
