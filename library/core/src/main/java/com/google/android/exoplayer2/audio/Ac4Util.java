@@ -58,6 +58,12 @@ public final class Ac4Util {
   // TODO: Parse AC-4 stream channel count.
   private static final int CHANNEL_COUNT_2 = 2;
   /**
+   * The AC-4 sync frame header size for extractor.
+   * The 7 bytes are 0xAC, 0x40, 0xFF, 0xFF, sizeByte1, sizeByte2, sizeByte3.
+   * See ETSI TS 103 190-1 V1.3.1, Annex G
+   */
+  public static final int SAMPLE_HEADER_SIZE = 7;
+  /**
    * The header size for AC-4 parser. Only needs to be as big as we need to read, not the full
    * header size.
    */

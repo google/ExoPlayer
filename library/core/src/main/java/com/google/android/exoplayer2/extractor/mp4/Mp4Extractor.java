@@ -112,7 +112,6 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   private int sampleTrackIndex;
   private int sampleBytesWritten;
   private int sampleCurrentNalBytesRemaining;
-  private boolean isAc4HeaderRequired;
 
   // Extractor outputs.
   @MonotonicNonNull private ExtractorOutput extractorOutput;
@@ -162,7 +161,6 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     sampleTrackIndex = C.INDEX_UNSET;
     sampleBytesWritten = 0;
     sampleCurrentNalBytesRemaining = 0;
-    isAc4HeaderRequired = false;
     if (position == 0) {
       enterReadingAtomHeaderState();
     } else if (tracks != null) {
@@ -507,8 +505,6 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       if (sampleTrackIndex == C.INDEX_UNSET) {
         return RESULT_END_OF_INPUT;
       }
-      isAc4HeaderRequired =
-          MimeTypes.AUDIO_AC4.equals(tracks[sampleTrackIndex].track.format.sampleMimeType);
     }
     Mp4Track track = tracks[sampleTrackIndex];
     TrackOutput trackOutput = track.trackOutput;
@@ -527,6 +523,13 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       sampleSize -= Atom.HEADER_SIZE;
     }
     input.skipFully((int) skipAmount);
+    if (MimeTypes.AUDIO_AC4.equals(track.track.format.sampleMimeType)) {
+      Ac4Util.getAc4SampleHeader(sampleSize, scratch);
+      int length = scratch.limit();
+      trackOutput.sampleData(scratch, length);
+      sampleSize += length;
+      sampleBytesWritten += length;
+    }
     if (track.track.nalUnitLengthFieldLength != 0) {
       // Zero the top three bytes of the array that we'll use to decode nal unit lengths, in case
       // they're only 1 or 2 bytes long.
@@ -562,14 +565,6 @@ public final class Mp4Extractor implements Extractor, SeekMap {
         }
       }
     } else {
-      if (isAc4HeaderRequired) {
-        Ac4Util.getAc4SampleHeader(sampleSize, scratch);
-        int length = scratch.limit();
-        trackOutput.sampleData(scratch, length);
-        sampleSize += length;
-        sampleBytesWritten += length;
-        isAc4HeaderRequired = false;
-      }
       while (sampleBytesWritten < sampleSize) {
         int writtenBytes = trackOutput.sampleData(input, sampleSize - sampleBytesWritten, false);
         sampleBytesWritten += writtenBytes;
