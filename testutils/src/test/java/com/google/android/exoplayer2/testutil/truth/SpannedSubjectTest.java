@@ -30,6 +30,7 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.text.span.RubySpan;
 import com.google.common.truth.ExpectFailure;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -328,6 +329,120 @@ public class SpannedSubjectTest {
                     .that(spannable)
                     .hasBackgroundColorSpanBetween(start, end)
                     .withColor(Color.CYAN)
+                    .andFlags(Spanned.SPAN_EXCLUSIVE_EXCLUSIVE));
+    assertThat(expected).factValue("value of").contains("flags");
+    assertThat(expected)
+        .factValue("expected to contain")
+        .contains(String.valueOf(Spanned.SPAN_EXCLUSIVE_EXCLUSIVE));
+    assertThat(expected)
+        .factValue("but was")
+        .contains(String.valueOf(Spanned.SPAN_INCLUSIVE_EXCLUSIVE));
+  }
+
+  @Test
+  public void rubySpan_success() {
+    SpannableString spannable = SpannableString.valueOf("test with rubied section");
+    int start = "test with ".length();
+    int end = start + "rubied".length();
+    spannable.setSpan(
+        new RubySpan("ruby text", RubySpan.POSITION_OVER),
+        start,
+        end,
+        Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+    assertThat(spannable)
+        .hasRubySpanBetween(start, end)
+        .withTextAndPosition("ruby text", RubySpan.POSITION_OVER)
+        .andFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+  }
+
+  @Test
+  public void rubySpan_wrongEndIndex() {
+    SpannableString spannable = SpannableString.valueOf("test with cyan section");
+    int start = "test with ".length();
+    int end = start + "cyan".length();
+    spannable.setSpan(
+        new RubySpan("ruby text", RubySpan.POSITION_OVER),
+        start,
+        end,
+        Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+    int incorrectEnd = end + 2;
+    AssertionError expected =
+        expectFailure(
+            whenTesting ->
+                whenTesting
+                    .that(spannable)
+                    .hasRubySpanBetween(start, incorrectEnd)
+                    .withTextAndPosition("ruby text", RubySpan.POSITION_OVER));
+    assertThat(expected).factValue("expected").contains("end=" + incorrectEnd);
+    assertThat(expected).factValue("but found").contains("end=" + end);
+  }
+
+  @Test
+  public void rubySpan_wrongText() {
+    SpannableString spannable = SpannableString.valueOf("test with rubied section");
+    int start = "test with ".length();
+    int end = start + "rubied".length();
+    spannable.setSpan(
+        new RubySpan("ruby text", RubySpan.POSITION_OVER),
+        start,
+        end,
+        Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+    AssertionError expected =
+        expectFailure(
+            whenTesting ->
+                whenTesting
+                    .that(spannable)
+                    .hasRubySpanBetween(start, end)
+                    .withTextAndPosition("incorrect text", RubySpan.POSITION_OVER));
+    assertThat(expected).factValue("value of").contains("rubyTextAndPosition");
+    assertThat(expected).factValue("expected").contains("text='incorrect text'");
+    assertThat(expected).factValue("but was").contains("text='ruby text'");
+  }
+
+  @Test
+  public void rubySpan_wrongPosition() {
+    SpannableString spannable = SpannableString.valueOf("test with rubied section");
+    int start = "test with ".length();
+    int end = start + "rubied".length();
+    spannable.setSpan(
+        new RubySpan("ruby text", RubySpan.POSITION_OVER),
+        start,
+        end,
+        Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+    AssertionError expected =
+        expectFailure(
+            whenTesting ->
+                whenTesting
+                    .that(spannable)
+                    .hasRubySpanBetween(start, end)
+                    .withTextAndPosition("ruby text", RubySpan.POSITION_UNDER));
+    assertThat(expected).factValue("value of").contains("rubyTextAndPosition");
+    assertThat(expected).factValue("expected").contains("position=" + RubySpan.POSITION_UNDER);
+    assertThat(expected).factValue("but was").contains("position=" + RubySpan.POSITION_OVER);
+  }
+
+  @Test
+  public void rubySpan_wrongFlags() {
+    SpannableString spannable = SpannableString.valueOf("test with rubied section");
+    int start = "test with ".length();
+    int end = start + "rubied".length();
+    spannable.setSpan(
+        new RubySpan("ruby text", RubySpan.POSITION_OVER),
+        start,
+        end,
+        Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+    AssertionError expected =
+        expectFailure(
+            whenTesting ->
+                whenTesting
+                    .that(spannable)
+                    .hasRubySpanBetween(start, end)
+                    .withTextAndPosition("ruby text", RubySpan.POSITION_OVER)
                     .andFlags(Spanned.SPAN_EXCLUSIVE_EXCLUSIVE));
     assertThat(expected).factValue("value of").contains("flags");
     assertThat(expected)
