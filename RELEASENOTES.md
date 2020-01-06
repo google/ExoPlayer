@@ -43,6 +43,8 @@
 * WAV:
   * Support IMA ADPCM encoded data.
   * Improve support for G.711 A-law and mu-law encoded data.
+* Fix MKV subtitles to disappear when intended instead of lasting until the
+  next cue ([#6833](https://github.com/google/ExoPlayer/issues/6833)).
 
 ### 2.11.1 (2019-12-20) ###
 
