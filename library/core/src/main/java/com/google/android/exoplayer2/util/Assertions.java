@@ -17,7 +17,9 @@ package com.google.android.exoplayer2.util;
 
 import android.os.Looper;
 import android.text.TextUtils;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 
 /**
  * Provides methods for asserting the truth of expressions and properties.
@@ -95,6 +97,42 @@ public final class Assertions {
   }
 
   /**
+   * Throws {@link IllegalStateException} if {@code reference} is null.
+   *
+   * @param <T> The type of the reference.
+   * @param reference The reference.
+   * @return The non-null reference that was validated.
+   * @throws IllegalStateException If {@code reference} is null.
+   */
+  @SuppressWarnings({"contracts.postcondition.not.satisfied", "return.type.incompatible"})
+  @EnsuresNonNull({"#1"})
+  public static <T> T checkStateNotNull(@Nullable T reference) {
+    if (ExoPlayerLibraryInfo.ASSERTIONS_ENABLED && reference == null) {
+      throw new IllegalStateException();
+    }
+    return reference;
+  }
+
+  /**
+   * Throws {@link IllegalStateException} if {@code reference} is null.
+   *
+   * @param <T> The type of the reference.
+   * @param reference The reference.
+   * @param errorMessage The exception message to use if the check fails. The message is converted
+   *     to a string using {@link String#valueOf(Object)}.
+   * @return The non-null reference that was validated.
+   * @throws IllegalStateException If {@code reference} is null.
+   */
+  @SuppressWarnings({"contracts.postcondition.not.satisfied", "return.type.incompatible"})
+  @EnsuresNonNull({"#1"})
+  public static <T> T checkStateNotNull(@Nullable T reference, Object errorMessage) {
+    if (ExoPlayerLibraryInfo.ASSERTIONS_ENABLED && reference == null) {
+      throw new IllegalStateException(String.valueOf(errorMessage));
+    }
+    return reference;
+  }
+
+  /**
    * Throws {@link NullPointerException} if {@code reference} is null.
    *
    * @param <T> The type of the reference.
@@ -102,7 +140,9 @@ public final class Assertions {
    * @return The non-null reference that was validated.
    * @throws NullPointerException If {@code reference} is null.
    */
-  public static <T> T checkNotNull(T reference) {
+  @SuppressWarnings({"contracts.postcondition.not.satisfied", "return.type.incompatible"})
+  @EnsuresNonNull({"#1"})
+  public static <T> T checkNotNull(@Nullable T reference) {
     if (ExoPlayerLibraryInfo.ASSERTIONS_ENABLED && reference == null) {
       throw new NullPointerException();
     }
@@ -119,7 +159,9 @@ public final class Assertions {
    * @return The non-null reference that was validated.
    * @throws NullPointerException If {@code reference} is null.
    */
-  public static <T> T checkNotNull(T reference, Object errorMessage) {
+  @SuppressWarnings({"contracts.postcondition.not.satisfied", "return.type.incompatible"})
+  @EnsuresNonNull({"#1"})
+  public static <T> T checkNotNull(@Nullable T reference, Object errorMessage) {
     if (ExoPlayerLibraryInfo.ASSERTIONS_ENABLED && reference == null) {
       throw new NullPointerException(String.valueOf(errorMessage));
     }
@@ -133,7 +175,9 @@ public final class Assertions {
    * @return The non-null, non-empty string that was validated.
    * @throws IllegalArgumentException If {@code string} is null or 0-length.
    */
-  public static String checkNotEmpty(String string) {
+  @SuppressWarnings({"contracts.postcondition.not.satisfied", "return.type.incompatible"})
+  @EnsuresNonNull({"#1"})
+  public static String checkNotEmpty(@Nullable String string) {
     if (ExoPlayerLibraryInfo.ASSERTIONS_ENABLED && TextUtils.isEmpty(string)) {
       throw new IllegalArgumentException();
     }
@@ -149,7 +193,9 @@ public final class Assertions {
    * @return The non-null, non-empty string that was validated.
    * @throws IllegalArgumentException If {@code string} is null or 0-length.
    */
-  public static String checkNotEmpty(String string, Object errorMessage) {
+  @SuppressWarnings({"contracts.postcondition.not.satisfied", "return.type.incompatible"})
+  @EnsuresNonNull({"#1"})
+  public static String checkNotEmpty(@Nullable String string, Object errorMessage) {
     if (ExoPlayerLibraryInfo.ASSERTIONS_ENABLED && TextUtils.isEmpty(string)) {
       throw new IllegalArgumentException(String.valueOf(errorMessage));
     }

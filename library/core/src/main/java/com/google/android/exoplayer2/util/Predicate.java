@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.util;
 
 /**
- * Determines a true of false value for a given input.
+ * Determines a true or false value for a given input.
  *
  * @param <T> The input type of the predicate.
  */

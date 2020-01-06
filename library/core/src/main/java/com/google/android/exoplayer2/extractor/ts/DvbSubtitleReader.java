@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import static com.google.android.exoplayer2.extractor.ts.TsPayloadReader.FLAG_DATA_ALIGNMENT_INDICATOR;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
@@ -58,16 +60,23 @@ public final class DvbSubtitleReader implements ElementaryStreamReader {
       DvbSubtitleInfo subtitleInfo = subtitleInfos.get(i);
       idGenerator.generateNewId();
       TrackOutput output = extractorOutput.track(idGenerator.getTrackId(), C.TRACK_TYPE_TEXT);
-      output.format(Format.createImageSampleFormat(idGenerator.getFormatId(),
-          MimeTypes.APPLICATION_DVBSUBS, null, Format.NO_VALUE,
-          Collections.singletonList(subtitleInfo.initializationData), subtitleInfo.language, null));
+      output.format(
+          Format.createImageSampleFormat(
+              idGenerator.getFormatId(),
+              MimeTypes.APPLICATION_DVBSUBS,
+              null,
+              Format.NO_VALUE,
+              0,
+              Collections.singletonList(subtitleInfo.initializationData),
+              subtitleInfo.language,
+              null));
       outputs[i] = output;
     }
   }
 
   @Override
-  public void packetStarted(long pesTimeUs, boolean dataAlignmentIndicator) {
-    if (!dataAlignmentIndicator) {
+  public void packetStarted(long pesTimeUs, @TsPayloadReader.Flags int flags) {
+    if ((flags & FLAG_DATA_ALIGNMENT_INDICATOR) == 0) {
       return;
     }
     writingSample = true;

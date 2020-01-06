@@ -16,14 +16,18 @@
 package com.google.android.exoplayer2.text.webvtt;
 
 import android.graphics.Typeface;
-import android.support.annotation.IntDef;
 import android.text.Layout;
+import android.text.TextUtils;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 
 /**
  * Style object of a Css style block in a Webvtt file.
@@ -31,29 +35,44 @@ import java.util.List;
  * @see <a href="https://w3c.github.io/webvtt/#applying-css-properties">W3C specification - Apply
  *     CSS properties</a>
  */
-/* package */ final class WebvttCssStyle {
+public final class WebvttCssStyle {
 
   public static final int UNSPECIFIED = -1;
 
+  /**
+   * Style flag enum. Possible flag values are {@link #UNSPECIFIED}, {@link #STYLE_NORMAL}, {@link
+   * #STYLE_BOLD}, {@link #STYLE_ITALIC} and {@link #STYLE_BOLD_ITALIC}.
+   */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef(flag = true, value = {UNSPECIFIED, STYLE_NORMAL, STYLE_BOLD, STYLE_ITALIC,
-      STYLE_BOLD_ITALIC})
+  @IntDef(
+      flag = true,
+      value = {UNSPECIFIED, STYLE_NORMAL, STYLE_BOLD, STYLE_ITALIC, STYLE_BOLD_ITALIC})
   public @interface StyleFlags {}
+
   public static final int STYLE_NORMAL = Typeface.NORMAL;
   public static final int STYLE_BOLD = Typeface.BOLD;
   public static final int STYLE_ITALIC = Typeface.ITALIC;
   public static final int STYLE_BOLD_ITALIC = Typeface.BOLD_ITALIC;
 
+  /**
+   * Font size unit enum. One of {@link #UNSPECIFIED}, {@link #FONT_SIZE_UNIT_PIXEL}, {@link
+   * #FONT_SIZE_UNIT_EM} or {@link #FONT_SIZE_UNIT_PERCENT}.
+   */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({UNSPECIFIED, FONT_SIZE_UNIT_PIXEL, FONT_SIZE_UNIT_EM, FONT_SIZE_UNIT_PERCENT})
   public @interface FontSizeUnit {}
+
   public static final int FONT_SIZE_UNIT_PIXEL = 1;
   public static final int FONT_SIZE_UNIT_EM = 2;
   public static final int FONT_SIZE_UNIT_PERCENT = 3;
 
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({UNSPECIFIED, OFF, ON})
   private @interface OptionalBoolean {}
+
   private static final int OFF = 0;
   private static final int ON = 1;
 
@@ -64,7 +83,7 @@ import java.util.List;
   private String targetVoice;
 
   // Style properties.
-  private String fontFamily;
+  @Nullable private String fontFamily;
   private int fontColor;
   private boolean hasFontColor;
   private int backgroundColor;
@@ -75,12 +94,16 @@ import java.util.List;
   @OptionalBoolean private int italic;
   @FontSizeUnit private int fontSizeUnit;
   private float fontSize;
-  private Layout.Alignment textAlign;
+  @Nullable private Layout.Alignment textAlign;
 
+  // Calling reset() is forbidden because `this` isn't initialized. This can be safely suppressed
+  // because reset() only assigns fields, it doesn't read any.
+  @SuppressWarnings("nullness:method.invocation.invalid")
   public WebvttCssStyle() {
     reset();
   }
 
+  @EnsuresNonNull({"targetId", "targetTag", "targetClasses", "targetVoice"})
   public void reset() {
     targetId = "";
     targetTag = "";
@@ -117,14 +140,13 @@ import java.util.List;
    * Returns a value in a score system compliant with the CSS Specificity rules.
    *
    * @see <a href="https://www.w3.org/TR/CSS2/cascade.html">CSS Cascading</a>
-   *
-   * The score works as follows:
-   * <ul>
-   * <li> Id match adds 0x40000000 to the score.
-   * <li> Each class and voice match adds 4 to the score.
-   * <li> Tag matching adds 2 to the score.
-   * <li> Universal selector matching scores 1.
-   * </ul>
+   *     <p>The score works as follows:
+   *     <ul>
+   *       <li>Id match adds 0x40000000 to the score.
+   *       <li>Each class and voice match adds 4 to the score.
+   *       <li>Tag matching adds 2 to the score.
+   *       <li>Universal selector matching scores 1.
+   *     </ul>
    *
    * @param id The id of the cue if present, {@code null} otherwise.
    * @param tag Name of the tag, {@code null} if it refers to the entire cue.
@@ -132,12 +154,13 @@ import java.util.List;
    * @param voice Annotated voice if present, {@code null} otherwise.
    * @return The score of the match, zero if there is no match.
    */
-  public int getSpecificityScore(String id, String tag, String[] classes, String voice) {
+  public int getSpecificityScore(
+      @Nullable String id, @Nullable String tag, String[] classes, @Nullable String voice) {
     if (targetId.isEmpty() && targetTag.isEmpty() && targetClasses.isEmpty()
         && targetVoice.isEmpty()) {
       // The selector is universal. It matches with the minimum score if and only if the given
       // element is a whole cue.
-      return tag.isEmpty() ? 1 : 0;
+      return TextUtils.isEmpty(tag) ? 1 : 0;
     }
     int score = 0;
     score = updateScoreForMatch(score, targetId, id, 0x40000000);
@@ -192,11 +215,12 @@ import java.util.List;
     return this;
   }
 
+  @Nullable
   public String getFontFamily() {
     return fontFamily;
   }
 
-  public WebvttCssStyle setFontFamily(String fontFamily) {
+  public WebvttCssStyle setFontFamily(@Nullable String fontFamily) {
     this.fontFamily = Util.toLowerInvariant(fontFamily);
     return this;
   }
@@ -235,11 +259,12 @@ import java.util.List;
     return hasBackgroundColor;
   }
 
+  @Nullable
   public Layout.Alignment getTextAlign() {
     return textAlign;
   }
 
-  public WebvttCssStyle setTextAlign(Layout.Alignment textAlign) {
+  public WebvttCssStyle setTextAlign(@Nullable Layout.Alignment textAlign) {
     this.textAlign = textAlign;
     return this;
   }
@@ -293,8 +318,8 @@ import java.util.List;
     }
   }
 
-  private static int updateScoreForMatch(int currentScore, String target, String actual,
-      int score) {
+  private static int updateScoreForMatch(
+      int currentScore, String target, @Nullable String actual, int score) {
     if (target.isEmpty() || currentScore == -1) {
       return currentScore;
     }

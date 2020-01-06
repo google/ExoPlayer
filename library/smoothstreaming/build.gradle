@@ -11,21 +11,20 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+apply from: '../../constants.gradle'
 apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion project.ext.compileSdkVersion
-    buildToolsVersion project.ext.buildToolsVersion
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 
     defaultConfig {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
-    }
-
-    sourceSets {
-        androidTest {
-            java.srcDirs += "../../testutils/src/main/java/"
-        }
     }
 
     buildTypes {
@@ -33,14 +32,17 @@ android {
             testCoverageEnabled = true
         }
     }
+
+    testOptions.unitTests.includeAndroidResources = true
 }
 
 dependencies {
-    compile project(':library-core')
-    compile 'com.android.support:support-annotations:' + supportLibraryVersion
-    androidTestCompile 'com.google.dexmaker:dexmaker:' + dexmakerVersion
-    androidTestCompile 'com.google.dexmaker:dexmaker-mockito:' + dexmakerVersion
-    androidTestCompile 'org.mockito:mockito-core:' + mockitoVersion
+    implementation project(modulePrefix + 'library-core')
+    compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
+    compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkVersion
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+    testImplementation project(modulePrefix + 'testutils')
+    testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
 
 ext {

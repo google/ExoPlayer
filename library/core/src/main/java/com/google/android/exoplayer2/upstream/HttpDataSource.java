@@ -15,11 +15,13 @@
  */
 package com.google.android.exoplayer2.upstream;
 
-import android.support.annotation.IntDef;
 import android.text.TextUtils;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Predicate;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
@@ -87,7 +89,7 @@ public interface HttpDataSource extends DataSource {
   final class RequestProperties {
 
     private final Map<String, String> requestProperties;
-    private Map<String, String> requestPropertiesSnapshot;
+    @Nullable private Map<String, String> requestPropertiesSnapshot;
 
     public RequestProperties() {
       requestProperties = new HashMap<>();
@@ -181,18 +183,21 @@ public interface HttpDataSource extends DataSource {
       return defaultRequestProperties;
     }
 
+    /** @deprecated Use {@link #getDefaultRequestProperties} instead. */
     @Deprecated
     @Override
     public final void setDefaultRequestProperty(String name, String value) {
       defaultRequestProperties.set(name, value);
     }
 
+    /** @deprecated Use {@link #getDefaultRequestProperties} instead. */
     @Deprecated
     @Override
     public final void clearDefaultRequestProperty(String name) {
       defaultRequestProperties.remove(name);
     }
 
+    /** @deprecated Use {@link #getDefaultRequestProperties} instead. */
     @Deprecated
     @Override
     public final void clearAllDefaultRequestProperties() {
@@ -211,29 +216,26 @@ public interface HttpDataSource extends DataSource {
 
   }
 
-  /**
-   * A {@link Predicate} that rejects content types often used for pay-walls.
-   */
-  Predicate<String> REJECT_PAYWALL_TYPES = new Predicate<String>() {
-
-    @Override
-    public boolean evaluate(String contentType) {
-      contentType = Util.toLowerInvariant(contentType);
-      return !TextUtils.isEmpty(contentType)
-          && (!contentType.contains("text") || contentType.contains("text/vtt"))
-          && !contentType.contains("html") && !contentType.contains("xml");
-    }
-
-  };
+  /** A {@link Predicate} that rejects content types often used for pay-walls. */
+  Predicate<String> REJECT_PAYWALL_TYPES =
+      contentType -> {
+        contentType = Util.toLowerInvariant(contentType);
+        return !TextUtils.isEmpty(contentType)
+            && (!contentType.contains("text") || contentType.contains("text/vtt"))
+            && !contentType.contains("html")
+            && !contentType.contains("xml");
+      };
 
   /**
    * Thrown when an error is encountered when trying to read from a {@link HttpDataSource}.
    */
   class HttpDataSourceException extends IOException {
 
+    @Documented
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({TYPE_OPEN, TYPE_READ, TYPE_CLOSE})
     public @interface Type {}
+
     public static final int TYPE_OPEN = 1;
     public static final int TYPE_READ = 2;
     public static final int TYPE_CLOSE = 3;
@@ -296,20 +298,41 @@ public interface HttpDataSource extends DataSource {
      */
     public final int responseCode;
 
+    /** The http status message. */
+    @Nullable public final String responseMessage;
+
     /**
      * An unmodifiable map of the response header fields and values.
      */
     public final Map<String, List<String>> headerFields;
 
-    public InvalidResponseCodeException(int responseCode, Map<String, List<String>> headerFields,
+    /** @deprecated Use {@link #InvalidResponseCodeException(int, String, Map, DataSpec)}. */
+    @Deprecated
+    public InvalidResponseCodeException(
+        int responseCode, Map<String, List<String>> headerFields, DataSpec dataSpec) {
+      this(responseCode, /* responseMessage= */ null, headerFields, dataSpec);
+    }
+
+    public InvalidResponseCodeException(
+        int responseCode,
+        @Nullable String responseMessage,
+        Map<String, List<String>> headerFields,
         DataSpec dataSpec) {
       super("Response code: " + responseCode, dataSpec, TYPE_OPEN);
       this.responseCode = responseCode;
+      this.responseMessage = responseMessage;
       this.headerFields = headerFields;
     }
 
   }
 
+  /**
+   * Opens the source to read the specified data.
+   *
+   * <p>Note: {@link HttpDataSource} implementations are advised to set request headers passed via
+   * (in order of decreasing priority) the {@code dataSpec}, {@link #setRequestProperty} and the
+   * default parameters set in the {@link Factory}.
+   */
   @Override
   long open(DataSpec dataSpec) throws HttpDataSourceException;
 
@@ -322,6 +345,10 @@ public interface HttpDataSource extends DataSource {
   /**
    * Sets the value of a request header. The value will be used for subsequent connections
    * established by the source.
+   *
+   * <p>Note: If the same header is set as a default parameter in the {@link Factory}, then the
+   * header value set with this method should be preferred when connecting with the data source. See
+   * {@link #open}.
    *
    * @param name The name of the header field.
    * @param value The value of the field.
@@ -342,9 +369,11 @@ public interface HttpDataSource extends DataSource {
   void clearAllRequestProperties();
 
   /**
-   * Returns the headers provided in the response, or {@code null} if response headers are
-   * unavailable.
+   * When the source is open, returns the HTTP response status code associated with the last {@link
+   * #open} call. Otherwise, returns a negative value.
    */
-  Map<String, List<String>> getResponseHeaders();
+  int getResponseCode();
 
+  @Override
+  Map<String, List<String>> getResponseHeaders();
 }

@@ -27,6 +27,7 @@ extern "C" {
 #endif
 #include <libavcodec/avcodec.h>
 #include <libavresample/avresample.h>
+#include <libavutil/channel_layout.h>
 #include <libavutil/error.h>
 #include <libavutil/opt.h>
 }
@@ -57,8 +58,14 @@ extern "C" {
 
 #define ERROR_STRING_BUFFER_LENGTH 256
 
-// Request a format corresponding to AudioFormat.ENCODING_PCM_16BIT.
-static const AVSampleFormat OUTPUT_FORMAT = AV_SAMPLE_FMT_S16;
+// Output format corresponding to AudioFormat.ENCODING_PCM_16BIT.
+static const AVSampleFormat OUTPUT_FORMAT_PCM_16BIT = AV_SAMPLE_FMT_S16;
+// Output format corresponding to AudioFormat.ENCODING_PCM_FLOAT.
+static const AVSampleFormat OUTPUT_FORMAT_PCM_FLOAT = AV_SAMPLE_FMT_FLT;
+
+// Error codes matching FfmpegDecoder.java.
+static const int DECODER_ERROR_INVALID_DATA = -1;
+static const int DECODER_ERROR_OTHER = -2;
 
 /**
  * Returns the AVCodec with the specified name, or NULL if it is not available.
@@ -70,12 +77,13 @@ AVCodec *getCodecByName(JNIEnv* env, jstring codecName);
  * provided extraData as initialization data for the decoder if it is non-NULL.
  * Returns the created context.
  */
-AVCodecContext *createContext(JNIEnv *env, AVCodec *codec,
-                              jbyteArray extraData);
+AVCodecContext *createContext(JNIEnv *env, AVCodec *codec, jbyteArray extraData,
+                              jboolean outputFloat, jint rawSampleRate,
+                              jint rawChannelCount);
 
 /**
  * Decodes the packet into the output buffer, returning the number of bytes
- * written, or a negative value in the case of an error.
+ * written, or a negative DECODER_ERROR constant value in the case of an error.
  */
 int decodePacket(AVCodecContext *context, AVPacket *packet,
                  uint8_t *outputBuffer, int outputSize);
@@ -107,13 +115,15 @@ LIBRARY_FUNC(jboolean, ffmpegHasDecoder, jstring codecName) {
   return getCodecByName(env, codecName) != NULL;
 }
 
-DECODER_FUNC(jlong, ffmpegInitialize, jstring codecName, jbyteArray extraData) {
+DECODER_FUNC(jlong, ffmpegInitialize, jstring codecName, jbyteArray extraData,
+             jboolean outputFloat, jint rawSampleRate, jint rawChannelCount) {
   AVCodec *codec = getCodecByName(env, codecName);
   if (!codec) {
     LOGE("Codec not found.");
     return 0L;
   }
-  return (jlong) createContext(env, codec, extraData);
+  return (jlong)createContext(env, codec, extraData, outputFloat, rawSampleRate,
+                              rawChannelCount);
 }
 
 DECODER_FUNC(jint, ffmpegDecode, jlong context, jobject inputData,
@@ -177,7 +187,11 @@ DECODER_FUNC(jlong, ffmpegReset, jlong jContext, jbyteArray extraData) {
       LOGE("Unexpected error finding codec %d.", codecId);
       return 0L;
     }
-    return (jlong) createContext(env, codec, extraData);
+    jboolean outputFloat =
+        (jboolean)(context->request_sample_fmt == OUTPUT_FORMAT_PCM_FLOAT);
+    return (jlong)createContext(env, codec, extraData, outputFloat,
+                                /* rawSampleRate= */ -1,
+                                /* rawChannelCount= */ -1);
   }
 
   avcodec_flush_buffers(context);
@@ -200,14 +214,16 @@ AVCodec *getCodecByName(JNIEnv* env, jstring codecName) {
   return codec;
 }
 
-AVCodecContext *createContext(JNIEnv *env, AVCodec *codec,
-                              jbyteArray extraData) {
+AVCodecContext *createContext(JNIEnv *env, AVCodec *codec, jbyteArray extraData,
+                              jboolean outputFloat, jint rawSampleRate,
+                              jint rawChannelCount) {
   AVCodecContext *context = avcodec_alloc_context3(codec);
   if (!context) {
     LOGE("Failed to allocate context.");
     return NULL;
   }
-  context->request_sample_fmt = OUTPUT_FORMAT;
+  context->request_sample_fmt =
+      outputFloat ? OUTPUT_FORMAT_PCM_FLOAT : OUTPUT_FORMAT_PCM_16BIT;
   if (extraData) {
     jsize size = env->GetArrayLength(extraData);
     context->extradata_size = size;
@@ -220,6 +236,13 @@ AVCodecContext *createContext(JNIEnv *env, AVCodec *codec,
     }
     env->GetByteArrayRegion(extraData, 0, size, (jbyte *) context->extradata);
   }
+  if (context->codec_id == AV_CODEC_ID_PCM_MULAW ||
+      context->codec_id == AV_CODEC_ID_PCM_ALAW) {
+    context->sample_rate = rawSampleRate;
+    context->channels = rawChannelCount;
+    context->channel_layout = av_get_default_channel_layout(rawChannelCount);
+  }
+  context->err_recognition = AV_EF_IGNORE_ERR;
   int result = avcodec_open2(context, codec, NULL);
   if (result < 0) {
     logError("avcodec_open2", result);
@@ -236,7 +259,8 @@ int decodePacket(AVCodecContext *context, AVPacket *packet,
   result = avcodec_send_packet(context, packet);
   if (result) {
     logError("avcodec_send_packet", result);
-    return result;
+    return result == AVERROR_INVALIDDATA ? DECODER_ERROR_INVALID_DATA
+                                         : DECODER_ERROR_OTHER;
   }
 
   // Dequeue output data until it runs out.
@@ -275,7 +299,9 @@ int decodePacket(AVCodecContext *context, AVPacket *packet,
       av_opt_set_int(resampleContext, "in_sample_rate", sampleRate, 0);
       av_opt_set_int(resampleContext, "out_sample_rate", sampleRate, 0);
       av_opt_set_int(resampleContext, "in_sample_fmt", sampleFormat, 0);
-      av_opt_set_int(resampleContext, "out_sample_fmt", OUTPUT_FORMAT, 0);
+      // The output format is always the requested format.
+      av_opt_set_int(resampleContext, "out_sample_fmt",
+          context->request_sample_fmt, 0);
       result = avresample_open(resampleContext);
       if (result < 0) {
         logError("avresample_open", result);
@@ -285,7 +311,7 @@ int decodePacket(AVCodecContext *context, AVPacket *packet,
       context->opaque = resampleContext;
     }
     int inSampleSize = av_get_bytes_per_sample(sampleFormat);
-    int outSampleSize = av_get_bytes_per_sample(OUTPUT_FORMAT);
+    int outSampleSize = av_get_bytes_per_sample(context->request_sample_fmt);
     int outSamples = avresample_get_out_samples(resampleContext, sampleCount);
     int bufferOutSize = outSampleSize * channelCount * outSamples;
     if (outSize + bufferOutSize > outputSize) {

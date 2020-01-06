@@ -16,7 +16,9 @@
 package com.google.android.exoplayer2.util;
 
 import android.util.Pair;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ParserException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,13 +83,29 @@ public final class CodecSpecificDataUtil {
   private CodecSpecificDataUtil() {}
 
   /**
-   * Parses an AudioSpecificConfig, as defined in ISO 14496-3 1.6.2.1
+   * Parses an AAC AudioSpecificConfig, as defined in ISO 14496-3 1.6.2.1
    *
-   * @param audioSpecificConfig The AudioSpecificConfig to parse.
+   * @param audioSpecificConfig A byte array containing the AudioSpecificConfig to parse.
    * @return A pair consisting of the sample rate in Hz and the channel count.
+   * @throws ParserException If the AudioSpecificConfig cannot be parsed as it's not supported.
    */
-  public static Pair<Integer, Integer> parseAacAudioSpecificConfig(byte[] audioSpecificConfig) {
-    ParsableBitArray bitArray = new ParsableBitArray(audioSpecificConfig);
+  public static Pair<Integer, Integer> parseAacAudioSpecificConfig(byte[] audioSpecificConfig)
+      throws ParserException {
+    return parseAacAudioSpecificConfig(new ParsableBitArray(audioSpecificConfig), false);
+  }
+
+  /**
+   * Parses an AAC AudioSpecificConfig, as defined in ISO 14496-3 1.6.2.1
+   *
+   * @param bitArray A {@link ParsableBitArray} containing the AudioSpecificConfig to parse. The
+   *     position is advanced to the end of the AudioSpecificConfig.
+   * @param forceReadToEnd Whether the entire AudioSpecificConfig should be read. Required for
+   *     knowing the length of the configuration payload.
+   * @return A pair consisting of the sample rate in Hz and the channel count.
+   * @throws ParserException If the AudioSpecificConfig cannot be parsed as it's not supported.
+   */
+  public static Pair<Integer, Integer> parseAacAudioSpecificConfig(
+      ParsableBitArray bitArray, boolean forceReadToEnd) throws ParserException {
     int audioObjectType = getAacAudioObjectType(bitArray);
     int sampleRate = getAacSamplingFrequency(bitArray);
     int channelConfiguration = bitArray.readBits(4);
@@ -104,6 +122,41 @@ public final class CodecSpecificDataUtil {
         channelConfiguration = bitArray.readBits(4);
       }
     }
+
+    if (forceReadToEnd) {
+      switch (audioObjectType) {
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 6:
+        case 7:
+        case 17:
+        case 19:
+        case 20:
+        case 21:
+        case 22:
+        case 23:
+          parseGaSpecificConfig(bitArray, audioObjectType, channelConfiguration);
+          break;
+        default:
+          throw new ParserException("Unsupported audio object type: " + audioObjectType);
+      }
+      switch (audioObjectType) {
+        case 17:
+        case 19:
+        case 20:
+        case 21:
+        case 22:
+        case 23:
+          int epConfig = bitArray.readBits(2);
+          if (epConfig == 2 || epConfig == 3) {
+            throw new ParserException("Unsupported epConfig: " + epConfig);
+          }
+          break;
+      }
+    }
+    // For supported containers, bits_to_decode() is always 0.
     int channelCount = AUDIO_SPECIFIC_CONFIG_CHANNEL_COUNT_TABLE[channelConfiguration];
     Assertions.checkArgument(channelCount != AUDIO_SPECIFIC_CONFIG_CHANNEL_CONFIGURATION_INVALID);
     return Pair.create(sampleRate, channelCount);
@@ -113,10 +166,10 @@ public final class CodecSpecificDataUtil {
    * Builds a simple HE-AAC LC AudioSpecificConfig, as defined in ISO 14496-3 1.6.2.1
    *
    * @param sampleRate The sample rate in Hz.
-   * @param numChannels The number of channels.
+   * @param channelCount The channel count.
    * @return The AudioSpecificConfig.
    */
-  public static byte[] buildAacLcAudioSpecificConfig(int sampleRate, int numChannels) {
+  public static byte[] buildAacLcAudioSpecificConfig(int sampleRate, int channelCount) {
     int sampleRateIndex = C.INDEX_UNSET;
     for (int i = 0; i < AUDIO_SPECIFIC_CONFIG_SAMPLING_RATE_TABLE.length; ++i) {
       if (sampleRate == AUDIO_SPECIFIC_CONFIG_SAMPLING_RATE_TABLE[i]) {
@@ -125,13 +178,13 @@ public final class CodecSpecificDataUtil {
     }
     int channelConfig = C.INDEX_UNSET;
     for (int i = 0; i < AUDIO_SPECIFIC_CONFIG_CHANNEL_COUNT_TABLE.length; ++i) {
-      if (numChannels == AUDIO_SPECIFIC_CONFIG_CHANNEL_COUNT_TABLE[i]) {
+      if (channelCount == AUDIO_SPECIFIC_CONFIG_CHANNEL_COUNT_TABLE[i]) {
         channelConfig = i;
       }
     }
     if (sampleRate == C.INDEX_UNSET || channelConfig == C.INDEX_UNSET) {
-      throw new IllegalArgumentException("Invalid sample rate or number of channels: "
-          + sampleRate + ", " + numChannels);
+      throw new IllegalArgumentException(
+          "Invalid sample rate or number of channels: " + sampleRate + ", " + channelCount);
     }
     return buildAacAudioSpecificConfig(AUDIO_OBJECT_TYPE_AAC_LC, sampleRateIndex, channelConfig);
   }
@@ -153,6 +206,37 @@ public final class CodecSpecificDataUtil {
   }
 
   /**
+   * Parses an ALAC AudioSpecificConfig (i.e. an <a
+   * href="https://github.com/macosforge/alac/blob/master/ALACMagicCookieDescription.txt">ALACSpecificConfig</a>).
+   *
+   * @param audioSpecificConfig A byte array containing the AudioSpecificConfig to parse.
+   * @return A pair consisting of the sample rate in Hz and the channel count.
+   */
+  public static Pair<Integer, Integer> parseAlacAudioSpecificConfig(byte[] audioSpecificConfig) {
+    ParsableByteArray byteArray = new ParsableByteArray(audioSpecificConfig);
+    byteArray.setPosition(9);
+    int channelCount = byteArray.readUnsignedByte();
+    byteArray.setPosition(20);
+    int sampleRate = byteArray.readUnsignedIntToInt();
+    return Pair.create(sampleRate, channelCount);
+  }
+
+  /**
+   * Builds an RFC 6381 AVC codec string using the provided parameters.
+   *
+   * @param profileIdc The encoding profile.
+   * @param constraintsFlagsAndReservedZero2Bits The constraint flags followed by the reserved zero
+   *     2 bits, all contained in the least significant byte of the integer.
+   * @param levelIdc The encoding level.
+   * @return An RFC 6381 AVC codec string built using the provided parameters.
+   */
+  public static String buildAvcCodecString(
+      int profileIdc, int constraintsFlagsAndReservedZero2Bits, int levelIdc) {
+    return String.format(
+        "avc1.%02X%02X%02X", profileIdc, constraintsFlagsAndReservedZero2Bits, levelIdc);
+  }
+
+  /**
    * Constructs a NAL unit consisting of the NAL start code followed by the specified data.
    *
    * @param data An array containing the data that should follow the NAL start code.
@@ -169,8 +253,8 @@ public final class CodecSpecificDataUtil {
 
   /**
    * Splits an array of NAL units.
-   * <p>
-   * If the input consists of NAL start code delimited units, then the returned array consists of
+   *
+   * <p>If the input consists of NAL start code delimited units, then the returned array consists of
    * the split NAL units, each of which is still prefixed with the NAL start code. For any other
    * input, null is returned.
    *
@@ -178,7 +262,7 @@ public final class CodecSpecificDataUtil {
    * @return The individual NAL units, or null if the input did not consist of NAL start code
    *     delimited units.
    */
-  public static byte[][] splitNalUnits(byte[] data) {
+  public static @Nullable byte[][] splitNalUnits(byte[] data) {
     if (!isNalStartCode(data, 0)) {
       // data does not consist of NAL start code delimited units.
       return null;
@@ -267,6 +351,34 @@ public final class CodecSpecificDataUtil {
       samplingFrequency = AUDIO_SPECIFIC_CONFIG_SAMPLING_RATE_TABLE[frequencyIndex];
     }
     return samplingFrequency;
+  }
+
+  private static void parseGaSpecificConfig(ParsableBitArray bitArray, int audioObjectType,
+      int channelConfiguration) {
+    bitArray.skipBits(1); // frameLengthFlag.
+    boolean dependsOnCoreDecoder = bitArray.readBit();
+    if (dependsOnCoreDecoder) {
+      bitArray.skipBits(14); // coreCoderDelay.
+    }
+    boolean extensionFlag = bitArray.readBit();
+    if (channelConfiguration == 0) {
+      throw new UnsupportedOperationException(); // TODO: Implement programConfigElement();
+    }
+    if (audioObjectType == 6 || audioObjectType == 20) {
+      bitArray.skipBits(3); // layerNr.
+    }
+    if (extensionFlag) {
+      if (audioObjectType == 22) {
+        bitArray.skipBits(16); // numOfSubFrame (5), layer_length(11).
+      }
+      if (audioObjectType == 17 || audioObjectType == 19 || audioObjectType == 20
+          || audioObjectType == 23) {
+        // aacSectionDataResilienceFlag, aacScalefactorDataResilienceFlag,
+        // aacSpectralDataResilienceFlag.
+        bitArray.skipBits(3);
+      }
+      bitArray.skipBits(1); // extensionFlag3.
+    }
   }
 
 }

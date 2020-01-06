@@ -15,14 +15,17 @@
  */
 package com.google.android.exoplayer2.testutil;
 
-import android.app.Instrumentation;
+import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
+
+import android.content.Context;
 import android.util.SparseArray;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import junit.framework.Assert;
 
 /**
  * A fake {@link ExtractorOutput}.
@@ -30,9 +33,11 @@ import junit.framework.Assert;
 public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpable {
 
   /**
-   * If true, makes {@link #assertOutput(Instrumentation, String)} method write dump result to
-   * {@code /sdcard/Android/data/apk_package/ + dumpfile} file instead of comparing it with an
-   * existing file.
+   * If true, makes {@link #assertOutput(Context, String)} method write the output to the dump file,
+   * rather than validating that the output matches what the dump file already contains.
+   *
+   * <p>Enabling this option works when tests are run in Android Studio. It may not work when the
+   * tests are run in another environment.
    */
   private static final boolean WRITE_DUMP = false;
 
@@ -50,7 +55,7 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
   public FakeTrackOutput track(int id, int type) {
     FakeTrackOutput output = trackOutputs.get(id);
     if (output == null) {
-      Assert.assertFalse(tracksEnded);
+      assertThat(tracksEnded).isFalse();
       numberOfTracks++;
       output = new FakeTrackOutput();
       trackOutputs.put(id, output);
@@ -65,23 +70,42 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
 
   @Override
   public void seekMap(SeekMap seekMap) {
+    if (seekMap.isSeekable()) {
+      SeekMap.SeekPoints seekPoints = seekMap.getSeekPoints(0);
+      if (!seekPoints.first.equals(seekPoints.second)) {
+        throw new IllegalStateException("SeekMap defines two seek points for t=0");
+      }
+      long durationUs = seekMap.getDurationUs();
+      if (durationUs != C.TIME_UNSET) {
+        seekPoints = seekMap.getSeekPoints(durationUs);
+        if (!seekPoints.first.equals(seekPoints.second)) {
+          throw new IllegalStateException("SeekMap defines two seek points for t=durationUs");
+        }
+      }
+    }
     this.seekMap = seekMap;
   }
 
+  public void clearTrackOutputs() {
+    for (int i = 0; i < numberOfTracks; i++) {
+      trackOutputs.valueAt(i).clear();
+    }
+  }
+
   public void assertEquals(FakeExtractorOutput expected) {
-    Assert.assertEquals(expected.numberOfTracks, numberOfTracks);
-    Assert.assertEquals(expected.tracksEnded, tracksEnded);
+    assertThat(numberOfTracks).isEqualTo(expected.numberOfTracks);
+    assertThat(tracksEnded).isEqualTo(expected.tracksEnded);
     if (expected.seekMap == null) {
-      Assert.assertNull(seekMap);
+      assertThat(seekMap).isNull();
     } else {
       // TODO: Bulk up this check if possible.
-      Assert.assertNotNull(seekMap);
-      Assert.assertEquals(expected.seekMap.getClass(), seekMap.getClass());
-      Assert.assertEquals(expected.seekMap.isSeekable(), seekMap.isSeekable());
-      Assert.assertEquals(expected.seekMap.getPosition(0), seekMap.getPosition(0));
+      assertThat(seekMap).isNotNull();
+      assertThat(seekMap.getClass()).isEqualTo(expected.seekMap.getClass());
+      assertThat(seekMap.isSeekable()).isEqualTo(expected.seekMap.isSeekable());
+      assertThat(seekMap.getSeekPoints(0)).isEqualTo(expected.seekMap.getSeekPoints(0));
     }
     for (int i = 0; i < numberOfTracks; i++) {
-      Assert.assertEquals(expected.trackOutputs.keyAt(i), trackOutputs.keyAt(i));
+      assertThat(trackOutputs.keyAt(i)).isEqualTo(expected.trackOutputs.keyAt(i));
       trackOutputs.valueAt(i).assertEquals(expected.trackOutputs.valueAt(i));
     }
   }
@@ -95,29 +119,30 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
    * actual dump will be written to {@code dumpFile}. This new dump file needs to be copied to the
    * project, {@code library/src/androidTest/assets} folder manually.
    */
-  public void assertOutput(Instrumentation instrumentation, String dumpFile) throws IOException {
+  public void assertOutput(Context context, String dumpFile) throws IOException {
     String actual = new Dumper().add(this).toString();
 
     if (WRITE_DUMP) {
-      File directory = instrumentation.getContext().getExternalFilesDir(null);
-      File file = new File(directory, dumpFile);
+      File file = new File(System.getProperty("user.dir"), "src/test/assets");
+      file = new File(file, dumpFile);
       file.getParentFile().mkdirs();
       PrintWriter out = new PrintWriter(file);
       out.print(actual);
       out.close();
     } else {
-      String expected = TestUtil.getString(instrumentation, dumpFile);
-      Assert.assertEquals(dumpFile, expected, actual);
+      String expected = TestUtil.getString(context, dumpFile);
+      assertWithMessage(dumpFile).that(actual).isEqualTo(expected);
     }
   }
 
   @Override
   public void dump(Dumper dumper) {
     if (seekMap != null) {
-      dumper.startBlock("seekMap")
+      dumper
+          .startBlock("seekMap")
           .add("isSeekable", seekMap.isSeekable())
           .addTime("duration", seekMap.getDurationUs())
-          .add("getPosition(0)", seekMap.getPosition(0))
+          .add("getPosition(0)", seekMap.getSeekPoints(0))
           .endBlock();
     }
     dumper.add("numberOfTracks", numberOfTracks);

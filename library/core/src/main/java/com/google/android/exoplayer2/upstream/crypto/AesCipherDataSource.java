@@ -15,11 +15,17 @@
  */
 package com.google.android.exoplayer2.upstream.crypto;
 
+import static com.google.android.exoplayer2.util.Util.castNonNull;
+
 import android.net.Uri;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import javax.crypto.Cipher;
 
 /**
@@ -30,11 +36,16 @@ public final class AesCipherDataSource implements DataSource {
   private final DataSource upstream;
   private final byte[] secretKey;
 
-  private AesFlushingCipher cipher;
+  @Nullable private AesFlushingCipher cipher;
 
   public AesCipherDataSource(byte[] secretKey, DataSource upstream) {
     this.upstream = upstream;
     this.secretKey = secretKey;
+  }
+
+  @Override
+  public void addTransferListener(TransferListener transferListener) {
+    upstream.addTransferListener(transferListener);
   }
 
   @Override
@@ -55,8 +66,19 @@ public final class AesCipherDataSource implements DataSource {
     if (read == C.RESULT_END_OF_INPUT) {
       return C.RESULT_END_OF_INPUT;
     }
-    cipher.updateInPlace(data, offset, read);
+    castNonNull(cipher).updateInPlace(data, offset, read);
     return read;
+  }
+
+  @Override
+  @Nullable
+  public Uri getUri() {
+    return upstream.getUri();
+  }
+
+  @Override
+  public Map<String, List<String>> getResponseHeaders() {
+    return upstream.getResponseHeaders();
   }
 
   @Override
@@ -64,10 +86,4 @@ public final class AesCipherDataSource implements DataSource {
     cipher = null;
     upstream.close();
   }
-
-  @Override
-  public Uri getUri() {
-    return upstream.getUri();
-  }
-
 }

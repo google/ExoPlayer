@@ -15,94 +15,41 @@
  */
 package com.google.android.exoplayer2.extractor.wav;
 
-import com.google.android.exoplayer2.C;
-
 /** Header for a WAV file. */
-/*package*/ final class WavHeader {
+/* package */ final class WavHeader {
 
-  /** Number of audio chanels. */
-  private final int numChannels;
-  /** Sample rate in Hertz. */
-  private final int sampleRateHz;
-  /** Average bytes per second for the sample data. */
-  private final int averageBytesPerSecond;
-  /** Alignment for frames of audio data; should equal {@code numChannels * bitsPerSample / 8}. */
-  private final int blockAlignment;
-  /** Bits per sample for the audio data. */
-  private final int bitsPerSample;
-  /** The PCM encoding */
-  @C.PcmEncoding
-  private final int encoding;
+  /**
+   * The format type. Standard format types are the "WAVE form Registration Number" constants
+   * defined in RFC 2361 Appendix A.
+   */
+  public final int formatType;
+  /** The number of channels. */
+  public final int numChannels;
+  /** The sample rate in Hertz. */
+  public final int frameRateHz;
+  /** The average bytes per second for the sample data. */
+  public final int averageBytesPerSecond;
+  /** The block size in bytes. */
+  public final int blockSize;
+  /** Bits per sample for a single channel. */
+  public final int bitsPerSample;
+  /** Extra data appended to the format chunk of the header. */
+  public final byte[] extraData;
 
-  /** Offset to the start of sample data. */
-  private long dataStartPosition;
-  /** Total size in bytes of the sample data. */
-  private long dataSize;
-
-  public WavHeader(int numChannels, int sampleRateHz, int averageBytesPerSecond, int blockAlignment,
-      int bitsPerSample, @C.PcmEncoding int encoding) {
+  public WavHeader(
+      int formatType,
+      int numChannels,
+      int frameRateHz,
+      int averageBytesPerSecond,
+      int blockSize,
+      int bitsPerSample,
+      byte[] extraData) {
+    this.formatType = formatType;
     this.numChannels = numChannels;
-    this.sampleRateHz = sampleRateHz;
+    this.frameRateHz = frameRateHz;
     this.averageBytesPerSecond = averageBytesPerSecond;
-    this.blockAlignment = blockAlignment;
+    this.blockSize = blockSize;
     this.bitsPerSample = bitsPerSample;
-    this.encoding = encoding;
+    this.extraData = extraData;
   }
-
-  /** Returns the duration in microseconds of this WAV. */
-  public long getDurationUs() {
-    long numFrames = dataSize / blockAlignment;
-    return (numFrames * C.MICROS_PER_SECOND) / sampleRateHz;
-  }
-
-  /** Returns the bytes per frame of this WAV. */
-  public int getBytesPerFrame() {
-    return blockAlignment;
-  }
-
-  /** Returns the bitrate of this WAV. */
-  public int getBitrate() {
-    return sampleRateHz * bitsPerSample * numChannels;
-  }
-
-  /** Returns the sample rate in Hertz of this WAV. */
-  public int getSampleRateHz() {
-    return sampleRateHz;
-  }
-
-  /** Returns the number of audio channels in this WAV. */
-  public int getNumChannels() {
-    return numChannels;
-  }
-
-  /** Returns the position in bytes in this WAV for the given time in microseconds. */
-  public long getPosition(long timeUs) {
-    long unroundedPosition = (timeUs * averageBytesPerSecond) / C.MICROS_PER_SECOND;
-    // Round down to nearest frame.
-    long position = (unroundedPosition / blockAlignment) * blockAlignment;
-    return Math.min(position, dataSize - blockAlignment) + dataStartPosition;
-  }
-
-  /** Returns the time in microseconds for the given position in bytes in this WAV. */
-  public long getTimeUs(long position) {
-    return position * C.MICROS_PER_SECOND / averageBytesPerSecond;
-  }
-
-  /** Returns true if the data start position and size have been set. */
-  public boolean hasDataBounds() {
-    return dataStartPosition != 0 && dataSize != 0;
-  }
-
-  /** Sets the start position and size in bytes of sample data in this WAV. */
-  public void setDataBounds(long dataStartPosition, long dataSize) {
-    this.dataStartPosition = dataStartPosition;
-    this.dataSize = dataSize;
-  }
-
-  /** Returns the PCM encoding. **/
-  @C.PcmEncoding
-  public int getEncoding() {
-    return encoding;
-  }
-
 }

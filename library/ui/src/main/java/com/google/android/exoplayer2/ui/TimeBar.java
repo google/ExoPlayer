@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer2.ui;
 
-import android.support.annotation.Nullable;
 import android.view.View;
+import androidx.annotation.Nullable;
 
 /**
  * Interface for time bar views that can display a playback position, buffered position, duration
@@ -25,16 +25,23 @@ import android.view.View;
 public interface TimeBar {
 
   /**
+   * Adds a listener for scrubbing events.
+   *
+   * @param listener The listener to add.
+   */
+  void addListener(OnScrubListener listener);
+
+  /**
+   * Removes a listener for scrubbing events.
+   *
+   * @param listener The listener to remove.
+   */
+  void removeListener(OnScrubListener listener);
+
+  /**
    * @see View#isEnabled()
    */
   void setEnabled(boolean enabled);
-
-  /**
-   * Sets the listener for the scrubbing events.
-   *
-   * @param listener The listener for scrubbing events.
-   */
-  void setListener(OnScrubListener listener);
 
   /**
    * Sets the position increment for key presses and accessibility actions, in milliseconds.
@@ -78,13 +85,25 @@ public interface TimeBar {
   void setDuration(long duration);
 
   /**
-   * Sets the times of ad breaks.
+   * Returns the preferred delay in milliseconds of media time after which the time bar position
+   * should be updated.
    *
-   * @param adBreakTimesMs An array where the first {@code adBreakCount} elements are the times of
-   *     ad breaks in milliseconds. May be {@code null} if there are no ad breaks.
-   * @param adBreakCount The number of ad breaks.
+   * @return Preferred delay, in milliseconds of media time.
    */
-  void setAdBreakTimesMs(@Nullable long[] adBreakTimesMs, int adBreakCount);
+  long getPreferredUpdateDelay();
+
+  /**
+   * Sets the times of ad groups and whether each ad group has been played.
+   *
+   * @param adGroupTimesMs An array where the first {@code adGroupCount} elements are the times of
+   *     ad groups in milliseconds. May be {@code null} if there are no ad groups.
+   * @param playedAdGroups An array where the first {@code adGroupCount} elements indicate whether
+   *     the corresponding ad groups have been played. May be {@code null} if there are no ad
+   *     groups.
+   * @param adGroupCount The number of ad groups.
+   */
+  void setAdGroupTimesMs(@Nullable long[] adGroupTimesMs, @Nullable boolean[] playedAdGroups,
+      int adGroupCount);
 
   /**
    * Listener for scrubbing events.
@@ -95,7 +114,7 @@ public interface TimeBar {
      * Called when the user starts moving the scrubber.
      *
      * @param timeBar The time bar.
-     * @param position The position of the scrubber, in milliseconds.
+     * @param position The scrub position in milliseconds.
      */
     void onScrubStart(TimeBar timeBar, long position);
 
@@ -103,7 +122,7 @@ public interface TimeBar {
      * Called when the user moves the scrubber.
      *
      * @param timeBar The time bar.
-     * @param position The position of the scrubber, in milliseconds.
+     * @param position The scrub position in milliseconds.
      */
     void onScrubMove(TimeBar timeBar, long position);
 
@@ -111,11 +130,10 @@ public interface TimeBar {
      * Called when the user stops moving the scrubber.
      *
      * @param timeBar The time bar.
-     * @param position The position of the scrubber, in milliseconds.
+     * @param position The scrub position in milliseconds.
      * @param canceled Whether scrubbing was canceled.
      */
     void onScrubStop(TimeBar timeBar, long position, boolean canceled);
-
   }
 
 }

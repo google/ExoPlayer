@@ -52,17 +52,17 @@ public final class CryptoInfo {
   /**
    * @see android.media.MediaCodec.CryptoInfo.Pattern
    */
-  public int patternBlocksToEncrypt;
+  public int encryptedBlocks;
   /**
    * @see android.media.MediaCodec.CryptoInfo.Pattern
    */
-  public int patternBlocksToSkip;
+  public int clearBlocks;
 
   private final android.media.MediaCodec.CryptoInfo frameworkCryptoInfo;
   private final PatternHolderV24 patternHolder;
 
   public CryptoInfo() {
-    frameworkCryptoInfo = Util.SDK_INT >= 16 ? newFrameworkCryptoInfoV16() : null;
+    frameworkCryptoInfo = new android.media.MediaCodec.CryptoInfo();
     patternHolder = Util.SDK_INT >= 24 ? new PatternHolderV24(frameworkCryptoInfo) : null;
   }
 
@@ -70,51 +70,17 @@ public final class CryptoInfo {
    * @see android.media.MediaCodec.CryptoInfo#set(int, int[], int[], byte[], byte[], int)
    */
   public void set(int numSubSamples, int[] numBytesOfClearData, int[] numBytesOfEncryptedData,
-      byte[] key, byte[] iv, @C.CryptoMode int mode) {
+      byte[] key, byte[] iv, @C.CryptoMode int mode, int encryptedBlocks, int clearBlocks) {
     this.numSubSamples = numSubSamples;
     this.numBytesOfClearData = numBytesOfClearData;
     this.numBytesOfEncryptedData = numBytesOfEncryptedData;
     this.key = key;
     this.iv = iv;
     this.mode = mode;
-    patternBlocksToEncrypt = 0;
-    patternBlocksToSkip = 0;
-    if (Util.SDK_INT >= 16) {
-      updateFrameworkCryptoInfoV16();
-    }
-  }
-
-  public void setPattern(int patternBlocksToEncrypt, int patternBlocksToSkip) {
-    this.patternBlocksToEncrypt = patternBlocksToEncrypt;
-    this.patternBlocksToSkip = patternBlocksToSkip;
-    if (Util.SDK_INT >= 24) {
-      patternHolder.set(patternBlocksToEncrypt, patternBlocksToSkip);
-    }
-  }
-
-  /**
-   * Returns an equivalent {@link android.media.MediaCodec.CryptoInfo} instance.
-   * <p>
-   * Successive calls to this method on a single {@link CryptoInfo} will return the same instance.
-   * Changes to the {@link CryptoInfo} will be reflected in the returned object. The return object
-   * should not be modified directly.
-   *
-   * @return The equivalent {@link android.media.MediaCodec.CryptoInfo} instance.
-   */
-  @TargetApi(16)
-  public android.media.MediaCodec.CryptoInfo getFrameworkCryptoInfoV16() {
-    return frameworkCryptoInfo;
-  }
-
-  @TargetApi(16)
-  private android.media.MediaCodec.CryptoInfo newFrameworkCryptoInfoV16() {
-    return new android.media.MediaCodec.CryptoInfo();
-  }
-
-  @TargetApi(16)
-  private void updateFrameworkCryptoInfoV16() {
-    // Update fields directly because the framework's CryptoInfo.set performs an unnecessary object
-    // allocation on Android N.
+    this.encryptedBlocks = encryptedBlocks;
+    this.clearBlocks = clearBlocks;
+    // Update frameworkCryptoInfo fields directly because CryptoInfo.set performs an unnecessary
+    // object allocation on Android N.
     frameworkCryptoInfo.numSubSamples = numSubSamples;
     frameworkCryptoInfo.numBytesOfClearData = numBytesOfClearData;
     frameworkCryptoInfo.numBytesOfEncryptedData = numBytesOfEncryptedData;
@@ -122,8 +88,27 @@ public final class CryptoInfo {
     frameworkCryptoInfo.iv = iv;
     frameworkCryptoInfo.mode = mode;
     if (Util.SDK_INT >= 24) {
-      patternHolder.set(patternBlocksToEncrypt, patternBlocksToSkip);
+      patternHolder.set(encryptedBlocks, clearBlocks);
     }
+  }
+
+  /**
+   * Returns an equivalent {@link android.media.MediaCodec.CryptoInfo} instance.
+   *
+   * <p>Successive calls to this method on a single {@link CryptoInfo} will return the same
+   * instance. Changes to the {@link CryptoInfo} will be reflected in the returned object. The
+   * return object should not be modified directly.
+   *
+   * @return The equivalent {@link android.media.MediaCodec.CryptoInfo} instance.
+   */
+  public android.media.MediaCodec.CryptoInfo getFrameworkCryptoInfo() {
+    return frameworkCryptoInfo;
+  }
+
+  /** @deprecated Use {@link #getFrameworkCryptoInfo()}. */
+  @Deprecated
+  public android.media.MediaCodec.CryptoInfo getFrameworkCryptoInfoV16() {
+    return getFrameworkCryptoInfo();
   }
 
   @TargetApi(24)
@@ -137,8 +122,8 @@ public final class CryptoInfo {
       pattern = new android.media.MediaCodec.CryptoInfo.Pattern(0, 0);
     }
 
-    private void set(int blocksToEncrypt, int blocksToSkip) {
-      pattern.set(blocksToEncrypt, blocksToSkip);
+    private void set(int encryptedBlocks, int clearBlocks) {
+      pattern.set(encryptedBlocks, clearBlocks);
       frameworkCryptoInfo.setPattern(pattern);
     }
 

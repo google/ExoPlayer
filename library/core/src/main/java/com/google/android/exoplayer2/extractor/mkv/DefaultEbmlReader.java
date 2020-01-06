@@ -15,18 +15,30 @@
  */
 package com.google.android.exoplayer2.extractor.mkv;
 
+
+import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.EOFException;
 import java.io.IOException;
-import java.util.Stack;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayDeque;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * Default implementation of {@link EbmlReader}.
  */
 /* package */ final class DefaultEbmlReader implements EbmlReader {
+
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({ELEMENT_STATE_READ_ID, ELEMENT_STATE_READ_CONTENT_SIZE, ELEMENT_STATE_READ_CONTENT})
+  private @interface ElementState {}
 
   private static final int ELEMENT_STATE_READ_ID = 0;
   private static final int ELEMENT_STATE_READ_CONTENT_SIZE = 1;
@@ -39,18 +51,24 @@ import java.util.Stack;
   private static final int VALID_FLOAT32_ELEMENT_SIZE_BYTES = 4;
   private static final int VALID_FLOAT64_ELEMENT_SIZE_BYTES = 8;
 
-  private final byte[] scratch = new byte[8];
-  private final Stack<MasterElement> masterElementsStack = new Stack<>();
-  private final VarintReader varintReader = new VarintReader();
+  private final byte[] scratch;
+  private final ArrayDeque<MasterElement> masterElementsStack;
+  private final VarintReader varintReader;
 
-  private EbmlReaderOutput output;
-  private int elementState;
+  @MonotonicNonNull private EbmlProcessor processor;
+  private @ElementState int elementState;
   private int elementId;
   private long elementContentSize;
 
+  public DefaultEbmlReader() {
+    scratch = new byte[8];
+    masterElementsStack = new ArrayDeque<>();
+    varintReader = new VarintReader();
+  }
+
   @Override
-  public void init(EbmlReaderOutput eventHandler) {
-    this.output = eventHandler;
+  public void init(EbmlProcessor processor) {
+    this.processor = processor;
   }
 
   @Override
@@ -62,11 +80,11 @@ import java.util.Stack;
 
   @Override
   public boolean read(ExtractorInput input) throws IOException, InterruptedException {
-    Assertions.checkState(output != null);
+    Assertions.checkStateNotNull(processor);
     while (true) {
-      if (!masterElementsStack.isEmpty()
-          && input.getPosition() >= masterElementsStack.peek().elementEndPosition) {
-        output.endMasterElement(masterElementsStack.pop().elementId);
+      MasterElement head = masterElementsStack.peek();
+      if (head != null && input.getPosition() >= head.elementEndPosition) {
+        processor.endMasterElement(masterElementsStack.pop().elementId);
         return true;
       }
 
@@ -88,42 +106,42 @@ import java.util.Stack;
         elementState = ELEMENT_STATE_READ_CONTENT;
       }
 
-      int type = output.getElementType(elementId);
+      @EbmlProcessor.ElementType int type = processor.getElementType(elementId);
       switch (type) {
-        case TYPE_MASTER:
+        case EbmlProcessor.ELEMENT_TYPE_MASTER:
           long elementContentPosition = input.getPosition();
           long elementEndPosition = elementContentPosition + elementContentSize;
-          masterElementsStack.add(new MasterElement(elementId, elementEndPosition));
-          output.startMasterElement(elementId, elementContentPosition, elementContentSize);
+          masterElementsStack.push(new MasterElement(elementId, elementEndPosition));
+          processor.startMasterElement(elementId, elementContentPosition, elementContentSize);
           elementState = ELEMENT_STATE_READ_ID;
           return true;
-        case TYPE_UNSIGNED_INT:
+        case EbmlProcessor.ELEMENT_TYPE_UNSIGNED_INT:
           if (elementContentSize > MAX_INTEGER_ELEMENT_SIZE_BYTES) {
             throw new ParserException("Invalid integer size: " + elementContentSize);
           }
-          output.integerElement(elementId, readInteger(input, (int) elementContentSize));
+          processor.integerElement(elementId, readInteger(input, (int) elementContentSize));
           elementState = ELEMENT_STATE_READ_ID;
           return true;
-        case TYPE_FLOAT:
+        case EbmlProcessor.ELEMENT_TYPE_FLOAT:
           if (elementContentSize != VALID_FLOAT32_ELEMENT_SIZE_BYTES
               && elementContentSize != VALID_FLOAT64_ELEMENT_SIZE_BYTES) {
             throw new ParserException("Invalid float size: " + elementContentSize);
           }
-          output.floatElement(elementId, readFloat(input, (int) elementContentSize));
+          processor.floatElement(elementId, readFloat(input, (int) elementContentSize));
           elementState = ELEMENT_STATE_READ_ID;
           return true;
-        case TYPE_STRING:
+        case EbmlProcessor.ELEMENT_TYPE_STRING:
           if (elementContentSize > Integer.MAX_VALUE) {
             throw new ParserException("String element size: " + elementContentSize);
           }
-          output.stringElement(elementId, readString(input, (int) elementContentSize));
+          processor.stringElement(elementId, readString(input, (int) elementContentSize));
           elementState = ELEMENT_STATE_READ_ID;
           return true;
-        case TYPE_BINARY:
-          output.binaryElement(elementId, (int) elementContentSize, input);
+        case EbmlProcessor.ELEMENT_TYPE_BINARY:
+          processor.binaryElement(elementId, (int) elementContentSize, input);
           elementState = ELEMENT_STATE_READ_ID;
           return true;
-        case TYPE_UNKNOWN:
+        case EbmlProcessor.ELEMENT_TYPE_UNKNOWN:
           input.skipFully((int) elementContentSize);
           elementState = ELEMENT_STATE_READ_ID;
           break;
@@ -144,15 +162,16 @@ import java.util.Stack;
    * @throws IOException If an error occurs reading from the input.
    * @throws InterruptedException If the thread is interrupted.
    */
-  private long maybeResyncToNextLevel1Element(ExtractorInput input) throws IOException,
-      InterruptedException {
+  @RequiresNonNull("processor")
+  private long maybeResyncToNextLevel1Element(ExtractorInput input)
+      throws IOException, InterruptedException {
     input.resetPeekPosition();
     while (true) {
       input.peekFully(scratch, 0, MAX_ID_BYTES);
       int varintLength = VarintReader.parseUnsignedVarintLength(scratch[0]);
       if (varintLength != C.LENGTH_UNSET && varintLength <= MAX_ID_BYTES) {
         int potentialId = (int) VarintReader.assembleVarint(scratch, varintLength, false);
-        if (output.isLevel1Element(potentialId)) {
+        if (processor.isLevel1Element(potentialId)) {
           input.skipFully(varintLength);
           return potentialId;
         }
@@ -202,10 +221,11 @@ import java.util.Stack;
   }
 
   /**
-   * Reads and returns a string of length {@code byteLength} from the {@link ExtractorInput}.
+   * Reads a string of length {@code byteLength} from the {@link ExtractorInput}. Zero padding is
+   * removed, so the returned string may be shorter than {@code byteLength}.
    *
    * @param input The {@link ExtractorInput} from which to read.
-   * @param byteLength The length of the float being read.
+   * @param byteLength The length of the string being read, including zero padding.
    * @return The read string value.
    * @throws IOException If an error occurs reading from the input.
    * @throws InterruptedException If the thread is interrupted.
@@ -217,12 +237,17 @@ import java.util.Stack;
     }
     byte[] stringBytes = new byte[byteLength];
     input.readFully(stringBytes, 0, byteLength);
-    return new String(stringBytes);
+    // Remove zero padding.
+    int trimmedLength = byteLength;
+    while (trimmedLength > 0 && stringBytes[trimmedLength - 1] == 0) {
+      trimmedLength--;
+    }
+    return new String(stringBytes, 0, trimmedLength);
   }
 
   /**
    * Used in {@link #masterElementsStack} to track when the current master element ends, so that
-   * {@link EbmlReaderOutput#endMasterElement(int)} can be called.
+   * {@link EbmlProcessor#endMasterElement(int)} can be called.
    */
   private static final class MasterElement {
 

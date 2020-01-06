@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.chunk;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -32,7 +33,6 @@ public abstract class DataChunk extends Chunk {
   private static final int READ_GRANULARITY = 16 * 1024;
 
   private byte[] data;
-  private int limit;
 
   private volatile boolean loadCanceled;
 
@@ -45,8 +45,14 @@ public abstract class DataChunk extends Chunk {
    * @param trackSelectionData See {@link #trackSelectionData}.
    * @param data An optional recycled array that can be used as a holder for the data.
    */
-  public DataChunk(DataSource dataSource, DataSpec dataSpec, int type, Format trackFormat,
-      int trackSelectionReason, Object trackSelectionData, byte[] data) {
+  public DataChunk(
+      DataSource dataSource,
+      DataSpec dataSpec,
+      int type,
+      Format trackFormat,
+      int trackSelectionReason,
+      @Nullable Object trackSelectionData,
+      byte[] data) {
     super(dataSource, dataSpec, type, trackFormat, trackSelectionReason, trackSelectionData,
         C.TIME_UNSET, C.TIME_UNSET);
     this.data = data;
@@ -63,11 +69,6 @@ public abstract class DataChunk extends Chunk {
     return data;
   }
 
-  @Override
-  public long bytesLoaded() {
-    return limit;
-  }
-
   // Loadable implementation
 
   @Override
@@ -76,18 +77,13 @@ public abstract class DataChunk extends Chunk {
   }
 
   @Override
-  public final boolean isLoadCanceled() {
-    return loadCanceled;
-  }
-
-  @Override
   public final void load() throws IOException, InterruptedException {
     try {
       dataSource.open(dataSpec);
-      limit = 0;
+      int limit = 0;
       int bytesRead = 0;
       while (bytesRead != C.RESULT_END_OF_INPUT && !loadCanceled) {
-        maybeExpandData();
+        maybeExpandData(limit);
         bytesRead = dataSource.read(data, limit, READ_GRANULARITY);
         if (bytesRead != -1) {
           limit += bytesRead;
@@ -111,7 +107,7 @@ public abstract class DataChunk extends Chunk {
    */
   protected abstract void consume(byte[] data, int limit) throws IOException;
 
-  private void maybeExpandData() {
+  private void maybeExpandData(int limit) {
     if (data == null) {
       data = new byte[READ_GRANULARITY];
     } else if (data.length < limit + READ_GRANULARITY) {
@@ -120,5 +116,4 @@ public abstract class DataChunk extends Chunk {
       data = Arrays.copyOf(data, data.length + READ_GRANULARITY);
     }
   }
-
 }

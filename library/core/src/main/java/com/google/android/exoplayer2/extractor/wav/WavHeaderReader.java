@@ -15,24 +15,22 @@
  */
 package com.google.android.exoplayer2.extractor.wav;
 
-import android.util.Log;
+import android.util.Pair;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.audio.WavUtil;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /** Reads a {@code WavHeader} from an input stream; supports resuming from input failures. */
-/*package*/ final class WavHeaderReader {
+/* package */ final class WavHeaderReader {
 
   private static final String TAG = "WavHeaderReader";
-
-  /** Integer PCM audio data. */
-  private static final int TYPE_PCM = 0x0001;
-  /** Extended WAVE format. */
-  private static final int TYPE_WAVE_FORMAT_EXTENSIBLE = 0xFFFE;
 
   /**
    * Peeks and returns a {@code WavHeader}.
@@ -44,6 +42,7 @@ import java.io.IOException;
    * @return A new {@code WavHeader} peeked from {@code input}, or null if the input is not a
    *     supported WAV format.
    */
+  @Nullable
   public static WavHeader peek(ExtractorInput input) throws IOException, InterruptedException {
     Assertions.checkNotNull(input);
 
@@ -52,21 +51,21 @@ import java.io.IOException;
 
     // Attempt to read the RIFF chunk.
     ChunkHeader chunkHeader = ChunkHeader.peek(input, scratch);
-    if (chunkHeader.id != Util.getIntegerCodeForString("RIFF")) {
+    if (chunkHeader.id != WavUtil.RIFF_FOURCC) {
       return null;
     }
 
     input.peekFully(scratch.data, 0, 4);
     scratch.setPosition(0);
     int riffFormat = scratch.readInt();
-    if (riffFormat != Util.getIntegerCodeForString("WAVE")) {
+    if (riffFormat != WavUtil.WAVE_FOURCC) {
       Log.e(TAG, "Unsupported RIFF format: " + riffFormat);
       return null;
     }
 
     // Skip chunks until we find the format chunk.
     chunkHeader = ChunkHeader.peek(input, scratch);
-    while (chunkHeader.id != Util.getIntegerCodeForString("fmt ")) {
+    while (chunkHeader.id != WavUtil.FMT_FOURCC) {
       input.advancePeekPosition((int) chunkHeader.size);
       chunkHeader = ChunkHeader.peek(input, scratch);
     }
@@ -74,54 +73,46 @@ import java.io.IOException;
     Assertions.checkState(chunkHeader.size >= 16);
     input.peekFully(scratch.data, 0, 16);
     scratch.setPosition(0);
-    int type = scratch.readLittleEndianUnsignedShort();
+    int audioFormatType = scratch.readLittleEndianUnsignedShort();
     int numChannels = scratch.readLittleEndianUnsignedShort();
-    int sampleRateHz = scratch.readLittleEndianUnsignedIntToInt();
+    int frameRateHz = scratch.readLittleEndianUnsignedIntToInt();
     int averageBytesPerSecond = scratch.readLittleEndianUnsignedIntToInt();
-    int blockAlignment = scratch.readLittleEndianUnsignedShort();
+    int blockSize = scratch.readLittleEndianUnsignedShort();
     int bitsPerSample = scratch.readLittleEndianUnsignedShort();
 
-    int expectedBlockAlignment = numChannels * bitsPerSample / 8;
-    if (blockAlignment != expectedBlockAlignment) {
-      throw new ParserException("Expected block alignment: " + expectedBlockAlignment + "; got: "
-          + blockAlignment);
+    int bytesLeft = (int) chunkHeader.size - 16;
+    byte[] extraData;
+    if (bytesLeft > 0) {
+      extraData = new byte[bytesLeft];
+      input.peekFully(extraData, 0, bytesLeft);
+    } else {
+      extraData = Util.EMPTY_BYTE_ARRAY;
     }
 
-    @C.PcmEncoding int encoding = Util.getPcmEncoding(bitsPerSample);
-    if (encoding == C.ENCODING_INVALID) {
-      Log.e(TAG, "Unsupported WAV bit depth: " + bitsPerSample);
-      return null;
-    }
-
-    if (type != TYPE_PCM && type != TYPE_WAVE_FORMAT_EXTENSIBLE) {
-      Log.e(TAG, "Unsupported WAV format type: " + type);
-      return null;
-    }
-
-    // If present, skip extensionSize, validBitsPerSample, channelMask, subFormatGuid, ...
-    input.advancePeekPosition((int) chunkHeader.size - 16);
-
-    return new WavHeader(numChannels, sampleRateHz, averageBytesPerSecond, blockAlignment,
-        bitsPerSample, encoding);
+    return new WavHeader(
+        audioFormatType,
+        numChannels,
+        frameRateHz,
+        averageBytesPerSecond,
+        blockSize,
+        bitsPerSample,
+        extraData);
   }
 
   /**
-   * Skips to the data in the given WAV input stream and returns its data size. After calling, the
-   * input stream's position will point to the start of sample data in the WAV.
-   * <p>
-   * If an exception is thrown, the input position will be left pointing to a chunk header.
+   * Skips to the data in the given WAV input stream, and returns its bounds. After calling, the
+   * input stream's position will point to the start of sample data in the WAV. If an exception is
+   * thrown, the input position will be left pointing to a chunk header.
    *
-   * @param input Input stream to skip to the data chunk in. Its peek position must be pointing to
-   *     a valid chunk header.
-   * @param wavHeader WAV header to populate with data bounds.
+   * @param input The input stream, whose read position must be pointing to a valid chunk header.
+   * @return The byte positions at which the data starts (inclusive) and ends (exclusive).
    * @throws ParserException If an error occurs parsing chunks.
    * @throws IOException If reading from the input fails.
    * @throws InterruptedException If interrupted while reading from input.
    */
-  public static void skipToData(ExtractorInput input, WavHeader wavHeader)
+  public static Pair<Long, Long> skipToData(ExtractorInput input)
       throws IOException, InterruptedException {
     Assertions.checkNotNull(input);
-    Assertions.checkNotNull(wavHeader);
 
     // Make sure the peek position is set to the read position before we peek the first header.
     input.resetPeekPosition();
@@ -129,11 +120,13 @@ import java.io.IOException;
     ParsableByteArray scratch = new ParsableByteArray(ChunkHeader.SIZE_IN_BYTES);
     // Skip all chunks until we hit the data header.
     ChunkHeader chunkHeader = ChunkHeader.peek(input, scratch);
-    while (chunkHeader.id != Util.getIntegerCodeForString("data")) {
-      Log.w(TAG, "Ignoring unknown WAV chunk: " + chunkHeader.id);
+    while (chunkHeader.id != WavUtil.DATA_FOURCC) {
+      if (chunkHeader.id != WavUtil.RIFF_FOURCC && chunkHeader.id != WavUtil.FMT_FOURCC) {
+        Log.w(TAG, "Ignoring unknown WAV chunk: " + chunkHeader.id);
+      }
       long bytesToSkip = ChunkHeader.SIZE_IN_BYTES + chunkHeader.size;
       // Override size of RIFF chunk, since it describes its size as the entire file.
-      if (chunkHeader.id == Util.getIntegerCodeForString("RIFF")) {
+      if (chunkHeader.id == WavUtil.RIFF_FOURCC) {
         bytesToSkip = ChunkHeader.SIZE_IN_BYTES + 4;
       }
       if (bytesToSkip > Integer.MAX_VALUE) {
@@ -145,7 +138,18 @@ import java.io.IOException;
     // Skip past the "data" header.
     input.skipFully(ChunkHeader.SIZE_IN_BYTES);
 
-    wavHeader.setDataBounds(input.getPosition(), chunkHeader.size);
+    long dataStartPosition = input.getPosition();
+    long dataEndPosition = dataStartPosition + chunkHeader.size;
+    long inputLength = input.getLength();
+    if (inputLength != C.LENGTH_UNSET && dataEndPosition > inputLength) {
+      Log.w(TAG, "Data exceeds input length: " + dataEndPosition + ", " + inputLength);
+      dataEndPosition = inputLength;
+    }
+    return Pair.create(dataStartPosition, dataEndPosition);
+  }
+
+  private WavHeaderReader() {
+    // Prevent instantiation.
   }
 
   /** Container for a WAV chunk header. */
@@ -175,7 +179,7 @@ import java.io.IOException;
      */
     public static ChunkHeader peek(ExtractorInput input, ParsableByteArray scratch)
         throws IOException, InterruptedException {
-      input.peekFully(scratch.data, 0, SIZE_IN_BYTES);
+      input.peekFully(scratch.data, /* offset= */ 0, /* length= */ SIZE_IN_BYTES);
       scratch.setPosition(0);
 
       int id = scratch.readInt();

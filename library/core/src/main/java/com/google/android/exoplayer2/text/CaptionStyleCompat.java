@@ -18,10 +18,12 @@ package com.google.android.exoplayer2.text;
 import android.annotation.TargetApi;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.support.annotation.IntDef;
 import android.view.accessibility.CaptioningManager;
 import android.view.accessibility.CaptioningManager.CaptionStyle;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -31,11 +33,19 @@ import java.lang.annotation.RetentionPolicy;
 public final class CaptionStyleCompat {
 
   /**
-   * The type of edge, which may be none.
+   * The type of edge, which may be none. One of {@link #EDGE_TYPE_NONE}, {@link
+   * #EDGE_TYPE_OUTLINE}, {@link #EDGE_TYPE_DROP_SHADOW}, {@link #EDGE_TYPE_RAISED} or {@link
+   * #EDGE_TYPE_DEPRESSED}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({EDGE_TYPE_NONE, EDGE_TYPE_OUTLINE, EDGE_TYPE_DROP_SHADOW, EDGE_TYPE_RAISED,
-      EDGE_TYPE_DEPRESSED})
+  @IntDef({
+    EDGE_TYPE_NONE,
+    EDGE_TYPE_OUTLINE,
+    EDGE_TYPE_DROP_SHADOW,
+    EDGE_TYPE_RAISED,
+    EDGE_TYPE_DEPRESSED
+  })
   public @interface EdgeType {}
   /**
    * Edge type value specifying no character edges.
@@ -63,11 +73,15 @@ public final class CaptionStyleCompat {
    */
   public static final int USE_TRACK_COLOR_SETTINGS = 1;
 
-  /**
-   * Default caption style.
-   */
-  public static final CaptionStyleCompat DEFAULT = new CaptionStyleCompat(
-      Color.WHITE, Color.BLACK, Color.TRANSPARENT, EDGE_TYPE_NONE, Color.WHITE, null);
+  /** Default caption style. */
+  public static final CaptionStyleCompat DEFAULT =
+      new CaptionStyleCompat(
+          Color.WHITE,
+          Color.BLACK,
+          Color.TRANSPARENT,
+          EDGE_TYPE_NONE,
+          Color.WHITE,
+          /* typeface= */ null);
 
   /**
    * The preferred foreground color.
@@ -101,10 +115,8 @@ public final class CaptionStyleCompat {
    */
   public final int edgeColor;
 
-  /**
-   * The preferred typeface.
-   */
-  public final Typeface typeface;
+  /** The preferred typeface, or {@code null} if unspecified. */
+  @Nullable public final Typeface typeface;
 
   /**
    * Creates a {@link CaptionStyleCompat} equivalent to a provided {@link CaptionStyle}.
@@ -132,8 +144,13 @@ public final class CaptionStyleCompat {
    * @param edgeColor See {@link #edgeColor}.
    * @param typeface See {@link #typeface}.
    */
-  public CaptionStyleCompat(int foregroundColor, int backgroundColor, int windowColor,
-      @EdgeType int edgeType, int edgeColor, Typeface typeface) {
+  public CaptionStyleCompat(
+      int foregroundColor,
+      int backgroundColor,
+      int windowColor,
+      @EdgeType int edgeType,
+      int edgeColor,
+      @Nullable Typeface typeface) {
     this.foregroundColor = foregroundColor;
     this.backgroundColor = backgroundColor;
     this.windowColor = windowColor;
