@@ -1248,10 +1248,10 @@ public class MatroskaExtractor implements Extractor {
       if (CODEC_ID_SUBRIP.equals(track.codecId) || CODEC_ID_ASS.equals(track.codecId)) {
         if (blockSampleCount > 1) {
           Log.w(TAG, "Skipping subtitle sample in laced block.");
-        } else if (durationUs == C.TIME_UNSET) {
+        } else if (blockDurationUs == C.TIME_UNSET) {
           Log.w(TAG, "Skipping subtitle sample with no duration.");
         } else {
-          setSubtitleEndTime(track.codecId, durationUs, subtitleSample.data);
+          setSubtitleEndTime(track.codecId, blockDurationUs, subtitleSample.data);
           // Note: If we ever want to support DRM protected subtitles then we'll need to output the
           // appropriate encryption data here.
           track.output.sampleData(subtitleSample, subtitleSample.limit());
