@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.text.Spanned;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.text.span.RubySpan;
 import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,6 +47,36 @@ public final class WebvttCueParserTest {
 
     assertThat(text.toString()).isEqualTo("This is text with html tags");
     assertThat(text).hasNoSpans();
+  }
+
+  @Test
+  public void testParseRubyTag() throws Exception {
+    Spanned text =
+        parseCueText("Some <ruby>base text<rt>with ruby</rt></ruby> and undecorated text");
+
+    // The text between the <rt> tags is stripped from Cue.text and only present on the RubySpan.
+    assertThat(text.toString()).isEqualTo("Some base text and undecorated text");
+    assertThat(text)
+        .hasRubySpanBetween("Some ".length(), "Some base text".length())
+        .withTextAndPosition("with ruby", RubySpan.POSITION_OVER);
+  }
+
+  @Test
+  public void testParseRubyTagWithNoTextTag() throws Exception {
+    Spanned text = parseCueText("Some <ruby>base text with no ruby text</ruby>");
+
+    assertThat(text.toString()).isEqualTo("Some base text with no ruby text");
+    assertThat(text).hasNoSpans();
+  }
+
+  @Test
+  public void testParseRubyTagWithEmptyTextTag() throws Exception {
+    Spanned text = parseCueText("Some <ruby>base text with<rt></rt></ruby> empty ruby text");
+
+    assertThat(text.toString()).isEqualTo("Some base text with empty ruby text");
+    assertThat(text)
+        .hasRubySpanBetween("Some ".length(), "Some base text with".length())
+        .withTextAndPosition("", RubySpan.POSITION_OVER);
   }
 
   @Test

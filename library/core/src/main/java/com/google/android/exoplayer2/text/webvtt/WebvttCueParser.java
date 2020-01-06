@@ -37,6 +37,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.Cue;
+import com.google.android.exoplayer2.text.span.RubySpan;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -120,11 +121,13 @@ public final class WebvttCueParser {
   private static final String ENTITY_NON_BREAK_SPACE = "nbsp";
 
   private static final String TAG_BOLD = "b";
-  private static final String TAG_ITALIC = "i";
-  private static final String TAG_UNDERLINE = "u";
   private static final String TAG_CLASS = "c";
-  private static final String TAG_VOICE = "v";
+  private static final String TAG_ITALIC = "i";
   private static final String TAG_LANG = "lang";
+  private static final String TAG_RUBY = "ruby";
+  private static final String TAG_RUBY_TEXT = "rt";
+  private static final String TAG_UNDERLINE = "u";
+  private static final String TAG_VOICE = "v";
 
   private static final int STYLE_BOLD = Typeface.BOLD;
   private static final int STYLE_ITALIC = Typeface.ITALIC;
@@ -197,6 +200,7 @@ public final class WebvttCueParser {
     ArrayDeque<StartTag> startTagStack = new ArrayDeque<>();
     List<StyleMatch> scratchStyleMatches = new ArrayList<>();
     int pos = 0;
+    List<Element> nestedElements = new ArrayList<>();
     while (pos < markup.length()) {
       char curr = markup.charAt(pos);
       switch (curr) {
@@ -225,8 +229,14 @@ public final class WebvttCueParser {
                 break;
               }
               startTag = startTagStack.pop();
-              applySpansForTag(id, startTag, spannedText, styles, scratchStyleMatches);
-            } while(!startTag.name.equals(tagName));
+              applySpansForTag(
+                  id, startTag, nestedElements, spannedText, styles, scratchStyleMatches);
+              if (!startTagStack.isEmpty()) {
+                nestedElements.add(new Element(startTag, spannedText.length()));
+              } else {
+                nestedElements.clear();
+              }
+            } while (!startTag.name.equals(tagName));
           } else if (!isVoidTag) {
             startTagStack.push(StartTag.buildStartTag(fullTagExpression, spannedText.length()));
           }
@@ -256,9 +266,15 @@ public final class WebvttCueParser {
     }
     // apply unclosed tags
     while (!startTagStack.isEmpty()) {
-      applySpansForTag(id, startTagStack.pop(), spannedText, styles, scratchStyleMatches);
+      applySpansForTag(
+          id, startTagStack.pop(), nestedElements, spannedText, styles, scratchStyleMatches);
     }
-    applySpansForTag(id, StartTag.buildWholeCueVirtualTag(), spannedText, styles,
+    applySpansForTag(
+        id,
+        StartTag.buildWholeCueVirtualTag(),
+        /* nestedElements= */ Collections.emptyList(),
+        spannedText,
+        styles,
         scratchStyleMatches);
     return SpannedString.valueOf(spannedText);
   }
@@ -442,6 +458,8 @@ public final class WebvttCueParser {
       case TAG_CLASS:
       case TAG_ITALIC:
       case TAG_LANG:
+      case TAG_RUBY:
+      case TAG_RUBY_TEXT:
       case TAG_UNDERLINE:
       case TAG_VOICE:
         return true;
@@ -453,6 +471,7 @@ public final class WebvttCueParser {
   private static void applySpansForTag(
       @Nullable String cueId,
       StartTag startTag,
+      List<Element> nestedElements,
       SpannableStringBuilder text,
       List<WebvttCssStyle> styles,
       List<StyleMatch> scratchStyleMatches) {
@@ -465,6 +484,29 @@ public final class WebvttCueParser {
         break;
       case TAG_ITALIC:
         text.setSpan(new StyleSpan(STYLE_ITALIC), start, end,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        break;
+      case TAG_RUBY:
+        @Nullable Element rubyTextElement = null;
+        for (int i = 0; i < nestedElements.size(); i++) {
+          if (TAG_RUBY_TEXT.equals(nestedElements.get(i).startTag.name)) {
+            rubyTextElement = nestedElements.get(i);
+            // Behaviour of multiple <rt> tags inside <ruby> is undefined, so use the first one.
+            break;
+          }
+        }
+        if (rubyTextElement == null) {
+          break;
+        }
+        // Move the rubyText from spannedText into the RubySpan.
+        CharSequence rubyText =
+            text.subSequence(rubyTextElement.startTag.position, rubyTextElement.endPosition);
+        text.delete(rubyTextElement.startTag.position, rubyTextElement.endPosition);
+        end -= rubyText.length();
+        text.setSpan(
+            new RubySpan(rubyText.toString(), RubySpan.POSITION_OVER),
+            start,
+            end,
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         break;
       case TAG_UNDERLINE:
@@ -786,5 +828,20 @@ public final class WebvttCueParser {
       return new StartTag("", 0, "", new String[0]);
     }
 
+  }
+
+  /** Information about a complete element (i.e. start tag and end position). */
+  private static class Element {
+    private final StartTag startTag;
+    /**
+     * The position of the end of this element's text in the un-marked-up cue text (i.e. the
+     * corollary to {@link StartTag#position}).
+     */
+    private final int endPosition;
+
+    private Element(StartTag startTag, int endPosition) {
+      this.startTag = startTag;
+      this.endPosition = endPosition;
+    }
   }
 }
