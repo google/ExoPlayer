@@ -36,10 +36,7 @@ public final class WebvttCueParserTest {
     assertThat(text.toString()).isEqualTo("This is text with html tags");
     assertThat(text).hasUnderlineSpanBetween("This ".length(), "This is".length());
     assertThat(text)
-        .hasBoldItalicSpan(
-            "This is text with ".length(),
-            "This is text with html".length(),
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        .hasBoldItalicSpanBetween("This is text with ".length(), "This is text with html".length());
   }
 
   @Test
@@ -60,10 +57,8 @@ public final class WebvttCueParserTest {
     assertThat(text)
         .hasUnderlineSpanBetween("An ".length(), "An unclosed u tag with italic inside".length());
     assertThat(text)
-        .hasItalicSpan(
-            "An unclosed u tag with ".length(),
-            "An unclosed u tag with italic".length(),
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        .hasItalicSpanBetween(
+            "An unclosed u tag with ".length(), "An unclosed u tag with italic".length());
   }
 
   @Test
@@ -72,10 +67,9 @@ public final class WebvttCueParserTest {
 
     assertThat(text.toString()).isEqualTo("An italic tag with unclosed underline inside");
     assertThat(text)
-        .hasItalicSpan(
+        .hasItalicSpanBetween(
             "An italic tag with unclosed ".length(),
-            "An italic tag with unclosed underline".length(),
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            "An italic tag with unclosed underline".length());
     assertThat(text)
         .hasUnderlineSpanBetween(
             "An italic tag with unclosed ".length(),
@@ -88,15 +82,11 @@ public final class WebvttCueParserTest {
 
     String expectedText = "Overlapping u and i tags";
     assertThat(text.toString()).isEqualTo(expectedText);
-    assertThat(text).hasBoldSpan(0, expectedText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    assertThat(text).hasBoldSpanBetween(0, expectedText.length());
     // Text between the <u> tags is underlined.
     assertThat(text).hasUnderlineSpanBetween(0, "Overlapping u and".length());
     // Only text from <i> to <\\u> is italic (unexpected - but simplifies the parsing).
-    assertThat(text)
-        .hasItalicSpan(
-            "Overlapping u ".length(),
-            "Overlapping u and".length(),
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    assertThat(text).hasItalicSpanBetween("Overlapping u ".length(), "Overlapping u and".length());
   }
 
   @Test
@@ -105,8 +95,7 @@ public final class WebvttCueParserTest {
     assertThat(text.toString()).isEqualTo("foobarbazbuzz");
 
     // endIndex should be 9 when valid (i.e. "foobarbaz".length()
-    assertThat(text)
-        .hasBoldSpan("foo".length(), "foobar".length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    assertThat(text).hasBoldSpanBetween("foo".length(), "foobar".length());
   }
 
   @Test
@@ -156,13 +145,8 @@ public final class WebvttCueParserTest {
     Spanned text = parseCueText("blah <b>blah</b> blah <b>foo</b>");
 
     assertThat(text.toString()).isEqualTo("blah blah blah foo");
-    assertThat(text)
-        .hasBoldSpan("blah ".length(), "blah blah".length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-    assertThat(text)
-        .hasBoldSpan(
-            "blah blah blah ".length(),
-            "blah blah blah foo".length(),
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    assertThat(text).hasBoldSpanBetween("blah ".length(), "blah blah".length());
+    assertThat(text).hasBoldSpanBetween("blah blah blah ".length(), "blah blah blah foo".length());
   }
 
   @Test

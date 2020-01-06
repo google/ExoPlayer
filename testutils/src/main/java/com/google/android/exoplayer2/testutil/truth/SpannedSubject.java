@@ -33,6 +33,7 @@ import androidx.annotation.Nullable;
 import com.google.common.truth.FailureMetadata;
 import com.google.common.truth.Subject;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /** A Truth {@link Subject} for assertions on {@link Spanned} instances containing text styling. */
@@ -68,59 +69,59 @@ public final class SpannedSubject extends Subject {
       failWithoutActual(
           simpleFact("Expected no spans"),
           fact("in text", actual),
-          fact("but found", getAllSpansAsStringWithoutFlags(actual)));
+          fact("but found", getAllSpansAsString(actual)));
     }
   }
 
   /**
-   * Checks that the subject has an italic span from {@code startIndex} to {@code endIndex}.
+   * Checks that the subject has an italic span from {@code start} to {@code end}.
    *
-   * @param startIndex The start of the expected span.
-   * @param endIndex The end of the expected span.
-   * @param flags The flags of the expected span. See constants on {@link Spanned} for more
-   *     information.
+   * @param start The start of the expected span.
+   * @param end The end of the expected span.
+   * @return A {@link WithSpanFlags} object for optional additional assertions on the flags.
    */
-  // TODO: swap this to fluent-style.
-  public void hasItalicSpan(int startIndex, int endIndex, int flags) {
-    hasStyleSpan(startIndex, endIndex, flags, Typeface.ITALIC);
+  public WithSpanFlags hasItalicSpanBetween(int start, int end) {
+    return hasStyleSpan(start, end, Typeface.ITALIC);
   }
 
   /**
-   * Checks that the subject has a bold span from {@code startIndex} to {@code endIndex}.
+   * Checks that the subject has a bold span from {@code start} to {@code end}.
    *
-   * @param startIndex The start of the expected span.
-   * @param endIndex The end of the expected span.
-   * @param flags The flags of the expected span. See constants on {@link Spanned} for more
-   *     information.
+   * @param start The start of the expected span.
+   * @param end The end of the expected span.
+   * @return A {@link WithSpanFlags} object for optional additional assertions on the flags.
    */
-  // TODO: swap this to fluent-style.
-  public void hasBoldSpan(int startIndex, int endIndex, int flags) {
-    hasStyleSpan(startIndex, endIndex, flags, Typeface.BOLD);
+  public WithSpanFlags hasBoldSpanBetween(int start, int end) {
+    return hasStyleSpan(start, end, Typeface.BOLD);
   }
 
-  private void hasStyleSpan(int startIndex, int endIndex, int flags, int style) {
+  private WithSpanFlags hasStyleSpan(int start, int end, int style) {
     if (actual == null) {
       failWithoutActual(simpleFact("Spanned must not be null"));
-      return;
+      return ALREADY_FAILED_WITH_FLAGS;
     }
 
-    for (StyleSpan span : findMatchingSpans(startIndex, endIndex, flags, StyleSpan.class)) {
+    List<Integer> allFlags = new ArrayList<>();
+    boolean matchingSpanFound = false;
+    for (StyleSpan span : findMatchingSpans(start, end, StyleSpan.class)) {
+      allFlags.add(actual.getSpanFlags(span));
       if (span.getStyle() == style) {
-        return;
+        matchingSpanFound = true;
+        break;
       }
     }
+    if (matchingSpanFound) {
+      return check("StyleSpan (start=%s,end=%s,style=%s)", start, end, style)
+          .about(spanFlags())
+          .that(allFlags);
+    }
 
-    failWithExpectedSpanWithFlags(
-        startIndex,
-        endIndex,
-        flags,
-        new StyleSpan(style),
-        actual.toString().substring(startIndex, endIndex));
+    failWithExpectedSpan(start, end, StyleSpan.class, actual.toString().substring(start, end));
+    return ALREADY_FAILED_WITH_FLAGS;
   }
 
   /**
-   * Checks that the subject has bold and italic styling from {@code startIndex} to {@code
-   * endIndex}.
+   * Checks that the subject has bold and italic styling from {@code start} to {@code end}.
    *
    * <p>This can either be:
    *
@@ -130,47 +131,41 @@ public final class SpannedSubject extends Subject {
    *       with {@code span.getStyle() == Typeface.ITALIC}.
    * </ul>
    *
-   * @param startIndex The start of the expected span.
-   * @param endIndex The end of the expected span.
-   * @param flags The flags of the expected span. See constants on {@link Spanned} for more
-   *     information.
+   * @param start The start of the expected span.
+   * @param end The end of the expected span.
+   * @return A {@link WithSpanFlags} object for optional additional assertions on the flags.
    */
-  // TODO: swap this to fluent-style.
-  public void hasBoldItalicSpan(int startIndex, int endIndex, int flags) {
+  public WithSpanFlags hasBoldItalicSpanBetween(int start, int end) {
     if (actual == null) {
       failWithoutActual(simpleFact("Spanned must not be null"));
-      return;
+      return ALREADY_FAILED_WITH_FLAGS;
     }
 
+    List<Integer> allFlags = new ArrayList<>();
     List<Integer> styles = new ArrayList<>();
-    for (StyleSpan span : findMatchingSpans(startIndex, endIndex, flags, StyleSpan.class)) {
+    for (StyleSpan span : findMatchingSpans(start, end, StyleSpan.class)) {
+      allFlags.add(actual.getSpanFlags(span));
       styles.add(span.getStyle());
     }
-    if (styles.size() == 1 && styles.contains(Typeface.BOLD_ITALIC)) {
-      return;
-    } else if (styles.size() == 2
-        && styles.contains(Typeface.BOLD)
-        && styles.contains(Typeface.ITALIC)) {
-      return;
+    if (styles.isEmpty()) {
+      failWithExpectedSpan(start, end, StyleSpan.class, actual.subSequence(start, end).toString());
+      return ALREADY_FAILED_WITH_FLAGS;
     }
 
-    String spannedSubstring = actual.toString().substring(startIndex, endIndex);
-    String boldSpan =
-        getSpanAsStringWithFlags(
-            startIndex, endIndex, flags, new StyleSpan(Typeface.BOLD), spannedSubstring);
-    String italicSpan =
-        getSpanAsStringWithFlags(
-            startIndex, endIndex, flags, new StyleSpan(Typeface.ITALIC), spannedSubstring);
-    String boldItalicSpan =
-        getSpanAsStringWithFlags(
-            startIndex, endIndex, flags, new StyleSpan(Typeface.BOLD_ITALIC), spannedSubstring);
-
+    if (styles.size() == 1 && styles.contains(Typeface.BOLD_ITALIC)
+        || styles.size() == 2
+            && styles.contains(Typeface.BOLD)
+            && styles.contains(Typeface.ITALIC)) {
+      return check("StyleSpan (start=%s,end=%s)", start, end).about(spanFlags()).that(allFlags);
+    }
     failWithoutActual(
-        simpleFact("No matching span found"),
+        simpleFact(
+            String.format("No matching StyleSpans found between start=%s,end=%s", start, end)),
         fact("in text", actual.toString()),
-        fact("expected either", boldItalicSpan),
-        fact("or both", boldSpan + "\n" + italicSpan),
-        fact("but found", getAllSpansAsStringWithFlags(actual)));
+        fact("expected either styles", Arrays.asList(Typeface.BOLD_ITALIC)),
+        fact("or styles", Arrays.asList(Typeface.BOLD, Typeface.BOLD_ITALIC)),
+        fact("but found styles", styles));
+    return ALREADY_FAILED_WITH_FLAGS;
   }
 
   /**
@@ -194,8 +189,7 @@ public final class SpannedSubject extends Subject {
     if (underlineSpans.size() == 1) {
       return check("UnderlineSpan (start=%s,end=%s)", start, end).about(spanFlags()).that(allFlags);
     }
-    failWithExpectedSpanWithoutFlags(
-        start, end, UnderlineSpan.class, actual.toString().substring(start, end));
+    failWithExpectedSpan(start, end, UnderlineSpan.class, actual.toString().substring(start, end));
     return ALREADY_FAILED_WITH_FLAGS;
   }
 
@@ -218,7 +212,7 @@ public final class SpannedSubject extends Subject {
     List<ForegroundColorSpan> foregroundColorSpans =
         findMatchingSpans(start, end, ForegroundColorSpan.class);
     if (foregroundColorSpans.isEmpty()) {
-      failWithExpectedSpanWithoutFlags(
+      failWithExpectedSpan(
           start, end, ForegroundColorSpan.class, actual.toString().substring(start, end));
       return ALREADY_FAILED_COLORED;
     }
@@ -246,26 +240,13 @@ public final class SpannedSubject extends Subject {
     List<BackgroundColorSpan> backgroundColorSpans =
         findMatchingSpans(start, end, BackgroundColorSpan.class);
     if (backgroundColorSpans.isEmpty()) {
-      failWithExpectedSpanWithoutFlags(
+      failWithExpectedSpan(
           start, end, BackgroundColorSpan.class, actual.toString().substring(start, end));
       return ALREADY_FAILED_COLORED;
     }
     return check("BackgroundColorSpan (start=%s,end=%s)", start, end)
         .about(backgroundColorSpans(actual))
         .that(backgroundColorSpans);
-  }
-
-  private <T> List<T> findMatchingSpans(
-      int startIndex, int endIndex, int flags, Class<T> spanClazz) {
-    List<T> spans = new ArrayList<>();
-    for (T span : actual.getSpans(startIndex, endIndex, spanClazz)) {
-      if (actual.getSpanStart(span) == startIndex
-          && actual.getSpanEnd(span) == endIndex
-          && actual.getSpanFlags(span) == flags) {
-        spans.add(span);
-      }
-    }
-    return spans;
   }
 
   private <T> List<T> findMatchingSpans(int startIndex, int endIndex, Class<T> spanClazz) {
@@ -278,72 +259,31 @@ public final class SpannedSubject extends Subject {
     return spans;
   }
 
-  private void failWithExpectedSpanWithFlags(
-      int start, int end, int flags, Object span, String spannedSubstring) {
-    failWithoutActual(
-        simpleFact("No matching span found"),
-        fact("in text", actual),
-        fact("expected", getSpanAsStringWithFlags(start, end, flags, span, spannedSubstring)),
-        fact("but found", getAllSpansAsStringWithFlags(actual)));
-  }
-
-  private void failWithExpectedSpanWithoutFlags(
+  private void failWithExpectedSpan(
       int start, int end, Class<?> spanType, String spannedSubstring) {
     failWithoutActual(
         simpleFact("No matching span found"),
         fact("in text", actual),
-        fact("expected", getSpanAsStringWithoutFlags(start, end, spanType, spannedSubstring)),
-        fact("but found", getAllSpansAsStringWithoutFlags(actual)));
+        fact("expected", getSpanAsString(start, end, spanType, spannedSubstring)),
+        fact("but found", getAllSpansAsString(actual)));
   }
 
-  private static String getAllSpansAsStringWithFlags(Spanned spanned) {
+  private static String getAllSpansAsString(Spanned spanned) {
     List<String> actualSpanStrings = new ArrayList<>();
     for (Object span : spanned.getSpans(0, spanned.length(), Object.class)) {
-      actualSpanStrings.add(getSpanAsStringWithFlags(span, spanned));
+      actualSpanStrings.add(getSpanAsString(span, spanned));
     }
     return TextUtils.join("\n", actualSpanStrings);
   }
 
-  private static String getSpanAsStringWithFlags(Object span, Spanned spanned) {
+  private static String getSpanAsString(Object span, Spanned spanned) {
     int spanStart = spanned.getSpanStart(span);
     int spanEnd = spanned.getSpanEnd(span);
-    return getSpanAsStringWithFlags(
-        spanStart,
-        spanEnd,
-        spanned.getSpanFlags(span),
-        span,
-        spanned.toString().substring(spanStart, spanEnd));
-  }
-
-  private static String getSpanAsStringWithFlags(
-      int start, int end, int flags, Object span, String spannedSubstring) {
-    String suffix;
-    if (span instanceof StyleSpan) {
-      suffix = "\tstyle=" + ((StyleSpan) span).getStyle();
-    } else {
-      suffix = "";
-    }
-    return String.format(
-        "start=%s\tend=%s\tflags=%s\ttype=%s\tsubstring='%s'%s",
-        start, end, flags, span.getClass().getSimpleName(), spannedSubstring, suffix);
-  }
-
-  private static String getAllSpansAsStringWithoutFlags(Spanned spanned) {
-    List<String> actualSpanStrings = new ArrayList<>();
-    for (Object span : spanned.getSpans(0, spanned.length(), Object.class)) {
-      actualSpanStrings.add(getSpanAsStringWithoutFlags(span, spanned));
-    }
-    return TextUtils.join("\n", actualSpanStrings);
-  }
-
-  private static String getSpanAsStringWithoutFlags(Object span, Spanned spanned) {
-    int spanStart = spanned.getSpanStart(span);
-    int spanEnd = spanned.getSpanEnd(span);
-    return getSpanAsStringWithoutFlags(
+    return getSpanAsString(
         spanStart, spanEnd, span.getClass(), spanned.toString().substring(spanStart, spanEnd));
   }
 
-  private static String getSpanAsStringWithoutFlags(
+  private static String getSpanAsString(
       int start, int end, Class<?> span, String spannedSubstring) {
     return String.format(
         "start=%s\tend=%s\ttype=%s\tsubstring='%s'",

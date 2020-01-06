@@ -63,7 +63,9 @@ public class SpannedSubjectTest {
     int end = start + "italic".length();
     spannable.setSpan(new StyleSpan(Typeface.ITALIC), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
 
-    assertThat(spannable).hasItalicSpan(start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+    assertThat(spannable)
+        .hasItalicSpanBetween(start, end)
+        .withFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
   }
 
   @Test
@@ -78,14 +80,21 @@ public class SpannedSubjectTest {
             whenTesting ->
                 whenTesting
                     .that(spannable)
-                    .hasItalicSpan(start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE));
+                    .hasItalicSpanBetween(start, end)
+                    .withFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE));
 
-    assertThat(failure).factKeys().contains("No matching span found");
-    assertThat(failure).factValue("in text").isEqualTo(spannable.toString());
-    assertThat(failure).factValue("expected").contains("flags=" + Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
     assertThat(failure)
-        .factValue("but found")
-        .contains("flags=" + Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        .factValue("value of")
+        .isEqualTo(
+            String.format(
+                "spanned.StyleSpan (start=%s,end=%s,style=%s).contains()",
+                start, end, Typeface.ITALIC));
+    assertThat(failure)
+        .factValue("expected to contain")
+        .contains(String.valueOf(Spanned.SPAN_INCLUSIVE_EXCLUSIVE));
+    assertThat(failure)
+        .factValue("but was")
+        .contains(String.valueOf(Spanned.SPAN_EXCLUSIVE_EXCLUSIVE));
   }
 
   @Test
@@ -93,7 +102,10 @@ public class SpannedSubjectTest {
     AssertionError failure =
         expectFailure(
             whenTesting ->
-                whenTesting.that(null).hasItalicSpan(0, 5, Spanned.SPAN_INCLUSIVE_EXCLUSIVE));
+                whenTesting
+                    .that(null)
+                    .hasItalicSpanBetween(0, 5)
+                    .withFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE));
 
     assertThat(failure).factKeys().containsExactly("Spanned must not be null");
   }
@@ -105,7 +117,9 @@ public class SpannedSubjectTest {
     int end = start + "bold".length();
     spannable.setSpan(new StyleSpan(Typeface.BOLD), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
 
-    assertThat(spannable).hasBoldSpan(start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+    assertThat(spannable)
+        .hasBoldSpanBetween(start, end)
+        .withFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
   }
 
   @Test
@@ -116,7 +130,9 @@ public class SpannedSubjectTest {
     spannable.setSpan(
         new StyleSpan(Typeface.BOLD_ITALIC), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
 
-    assertThat(spannable).hasBoldItalicSpan(start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+    assertThat(spannable)
+        .hasBoldItalicSpanBetween(start, end)
+        .withFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
   }
 
   @Test
@@ -127,7 +143,9 @@ public class SpannedSubjectTest {
     spannable.setSpan(new StyleSpan(Typeface.BOLD), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
     spannable.setSpan(new StyleSpan(Typeface.ITALIC), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
 
-    assertThat(spannable).hasBoldItalicSpan(start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+    assertThat(spannable)
+        .hasBoldItalicSpanBetween(start, end)
+        .withFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
   }
 
   @Test
@@ -144,8 +162,9 @@ public class SpannedSubjectTest {
             whenTesting ->
                 whenTesting
                     .that(spannable)
-                    .hasBoldItalicSpan(incorrectStart, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE));
-    assertThat(expected).factValue("expected either").contains("start=" + incorrectStart);
+                    .hasBoldItalicSpanBetween(incorrectStart, end)
+                    .withFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE));
+    assertThat(expected).factValue("expected").contains("start=" + incorrectStart);
     assertThat(expected).factValue("but found").contains("start=" + start);
   }
 
