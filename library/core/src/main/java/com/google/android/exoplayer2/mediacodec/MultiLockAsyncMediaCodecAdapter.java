@@ -27,7 +27,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.IntArrayQueue;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayDeque;
@@ -94,7 +93,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private final HandlerThread handlerThread;
   @MonotonicNonNull private Handler handler;
-  private Runnable onCodecStart;
+  private Runnable codecStartRunnable;
 
   /** Creates a new instance that wraps the specified {@link MediaCodec}. */
   /* package */ MultiLockAsyncMediaCodecAdapter(MediaCodec codec, int trackType) {
@@ -114,25 +113,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     codecException = null;
     state = STATE_CREATED;
     this.handlerThread = handlerThread;
-    onCodecStart = codec::start;
+    codecStartRunnable = codec::start;
   }
 
-  /**
-   * Starts the operation of this instance.
-   *
-   * <p>After a call to this method, make sure to call {@link #shutdown()} to terminate the internal
-   * Thread. You can only call this method once during the lifetime of an instance; calling this
-   * method again will throw an {@link IllegalStateException}.
-   *
-   * @throws IllegalStateException If this method has been called already.
-   */
+  @Override
   public void start() {
     synchronized (objectStateLock) {
-      Assertions.checkState(state == STATE_CREATED);
-
       handlerThread.start();
       handler = new Handler(handlerThread.getLooper());
       codec.setCallback(this, handler);
+      codecStartRunnable.run();
       state = STATE_STARTED;
     }
   }
@@ -140,8 +130,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   public int dequeueInputBufferIndex() {
     synchronized (objectStateLock) {
-      Assertions.checkState(state == STATE_STARTED);
-
       if (isFlushing()) {
         return MediaCodec.INFO_TRY_AGAIN_LATER;
       } else {
@@ -154,8 +142,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   public int dequeueOutputBufferIndex(MediaCodec.BufferInfo bufferInfo) {
     synchronized (objectStateLock) {
-      Assertions.checkState(state == STATE_STARTED);
-
       if (isFlushing()) {
         return MediaCodec.INFO_TRY_AGAIN_LATER;
       } else {
@@ -168,8 +154,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   public MediaFormat getOutputFormat() {
     synchronized (objectStateLock) {
-      Assertions.checkState(state == STATE_STARTED);
-
       if (currentFormat == null) {
         throw new IllegalStateException();
       }
@@ -181,8 +165,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   public void flush() {
     synchronized (objectStateLock) {
-      Assertions.checkState(state == STATE_STARTED);
-
       codec.flush();
       pendingFlush++;
       Util.castNonNull(handler).post(this::onFlushComplete);
@@ -200,8 +182,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @VisibleForTesting
-  /* package */ void setOnCodecStart(Runnable onCodecStart) {
-    this.onCodecStart = onCodecStart;
+  /* package */ void setCodecStartRunnable(Runnable codecStartRunnable) {
+    this.codecStartRunnable = codecStartRunnable;
   }
 
   private int dequeueAvailableInputBufferIndex() {
@@ -307,7 +289,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       clearAvailableOutput();
       codecException = null;
       try {
-        onCodecStart.run();
+        codecStartRunnable.run();
       } catch (IllegalStateException e) {
         codecException = e;
       } catch (Exception e) {

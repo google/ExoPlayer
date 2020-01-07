@@ -38,7 +38,7 @@ import com.google.android.exoplayer2.util.Assertions;
   private final MediaCodec codec;
   @Nullable private IllegalStateException internalException;
   private boolean flushing;
-  private Runnable onCodecStart;
+  private Runnable codecStartRunnable;
 
   /**
    * Create a new {@code AsynchronousMediaCodecAdapter}.
@@ -55,7 +55,12 @@ import com.google.android.exoplayer2.util.Assertions;
     handler = new Handler(looper);
     this.codec = codec;
     this.codec.setCallback(mediaCodecAsyncCallback);
-    onCodecStart = () -> codec.start();
+    codecStartRunnable = codec::start;
+  }
+
+  @Override
+  public void start() {
+    codecStartRunnable.run();
   }
 
   @Override
@@ -105,7 +110,7 @@ import com.google.android.exoplayer2.util.Assertions;
     flushing = false;
     mediaCodecAsyncCallback.flush();
     try {
-      onCodecStart.run();
+      codecStartRunnable.run();
     } catch (IllegalStateException e) {
       // Catch IllegalStateException directly so that we don't have to wrap it.
       internalException = e;
@@ -115,8 +120,8 @@ import com.google.android.exoplayer2.util.Assertions;
   }
 
   @VisibleForTesting
-  /* package */ void setOnCodecStart(Runnable onCodecStart) {
-    this.onCodecStart = onCodecStart;
+  /* package */ void setCodecStartRunnable(Runnable codecStartRunnable) {
+    this.codecStartRunnable = codecStartRunnable;
   }
 
   private void maybeThrowException() throws IllegalStateException {

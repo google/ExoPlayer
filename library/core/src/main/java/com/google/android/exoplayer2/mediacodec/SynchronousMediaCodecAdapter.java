@@ -23,10 +23,16 @@ import android.media.MediaFormat;
  * A {@link MediaCodecAdapter} that operates the underlying {@link MediaCodec} in synchronous mode.
  */
 /* package */ final class SynchronousMediaCodecAdapter implements MediaCodecAdapter {
+
   private final MediaCodec codec;
 
   public SynchronousMediaCodecAdapter(MediaCodec mediaCodec) {
     this.codec = mediaCodec;
+  }
+
+  @Override
+  public void start() {
+    codec.start();
   }
 
   @Override
