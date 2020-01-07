@@ -995,11 +995,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       } else if (mediaCodecOperationMode == OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD
           && Util.SDK_INT >= 23) {
         codecAdapter = new DedicatedThreadAsyncMediaCodecAdapter(codec, getTrackType());
-        ((DedicatedThreadAsyncMediaCodecAdapter) codecAdapter).start();
       } else if (mediaCodecOperationMode == OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD_MULTI_LOCK
           && Util.SDK_INT >= 23) {
         codecAdapter = new MultiLockAsyncMediaCodecAdapter(codec, getTrackType());
-        ((MultiLockAsyncMediaCodecAdapter) codecAdapter).start();
       } else {
         codecAdapter = new SynchronousMediaCodecAdapter(codec);
       }
@@ -1009,7 +1007,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       configureCodec(codecInfo, codec, inputFormat, crypto, codecOperatingRate);
       TraceUtil.endSection();
       TraceUtil.beginSection("startCodec");
-      codec.start();
+      codecAdapter.start();
       TraceUtil.endSection();
       codecInitializedTimestamp = SystemClock.elapsedRealtime();
       getCodecBuffers(codec);
