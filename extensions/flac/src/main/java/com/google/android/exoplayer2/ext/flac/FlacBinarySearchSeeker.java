@@ -126,6 +126,8 @@ import java.nio.ByteBuffer;
       if (targetSampleInLastFrame) {
         // We are holding the target frame in outputFrameHolder. Set its presentation time now.
         outputFrameHolder.timeUs = decoderJni.getLastFrameTimestamp();
+        // The input position is passed even though it does not indicate the frame containing the
+        // target sample because the extractor must continue to read from this position.
         return TimestampSearchResult.targetFoundResult(input.getPosition());
       } else if (nextFrameSampleIndex <= targetSampleIndex) {
         return TimestampSearchResult.underestimatedResult(
