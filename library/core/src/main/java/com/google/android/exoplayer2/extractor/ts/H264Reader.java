@@ -23,15 +23,21 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.NalUnitUtil.SpsData;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.ParsableNalUnitBitArray;
+import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * Parses a continuous H264 byte stream and extracts individual frames.
@@ -51,9 +57,9 @@ public final class H264Reader implements ElementaryStreamReader {
   private long totalBytesWritten;
   private final boolean[] prefixFlags;
 
-  private String formatId;
-  private TrackOutput output;
-  private SampleReader sampleReader;
+  @MonotonicNonNull private String formatId;
+  @MonotonicNonNull private TrackOutput output;
+  @MonotonicNonNull private SampleReader sampleReader;
 
   // State that should not be reset on seek.
   private boolean hasOutputFormat;
@@ -87,13 +93,15 @@ public final class H264Reader implements ElementaryStreamReader {
 
   @Override
   public void seek() {
+    totalBytesWritten = 0;
+    randomAccessIndicator = false;
     NalUnitUtil.clearPrefixFlags(prefixFlags);
     sps.reset();
     pps.reset();
     sei.reset();
-    sampleReader.reset();
-    totalBytesWritten = 0;
-    randomAccessIndicator = false;
+    if (sampleReader != null) {
+      sampleReader.reset();
+    }
   }
 
   @Override
@@ -113,6 +121,8 @@ public final class H264Reader implements ElementaryStreamReader {
 
   @Override
   public void consume(ParsableByteArray data) {
+    assertTracksCreated();
+
     int offset = data.getPosition();
     int limit = data.limit();
     byte[] dataArray = data.data;
@@ -159,6 +169,7 @@ public final class H264Reader implements ElementaryStreamReader {
     // Do nothing.
   }
 
+  @RequiresNonNull("sampleReader")
   private void startNalUnit(long position, int nalUnitType, long pesTimeUs) {
     if (!hasOutputFormat || sampleReader.needsSpsPps()) {
       sps.startNalUnit(nalUnitType);
@@ -168,6 +179,7 @@ public final class H264Reader implements ElementaryStreamReader {
     sampleReader.startNalUnit(position, nalUnitType, pesTimeUs);
   }
 
+  @RequiresNonNull("sampleReader")
   private void nalUnitData(byte[] dataArray, int offset, int limit) {
     if (!hasOutputFormat || sampleReader.needsSpsPps()) {
       sps.appendToNalUnit(dataArray, offset, limit);
@@ -177,6 +189,7 @@ public final class H264Reader implements ElementaryStreamReader {
     sampleReader.appendToNalUnit(dataArray, offset, limit);
   }
 
+  @RequiresNonNull({"output", "sampleReader"})
   private void endNalUnit(long position, int offset, int discardPadding, long pesTimeUs) {
     if (!hasOutputFormat || sampleReader.needsSpsPps()) {
       sps.endNalUnit(discardPadding);
@@ -235,6 +248,12 @@ public final class H264Reader implements ElementaryStreamReader {
       // keyframes until we see another random access indicator.
       randomAccessIndicator = false;
     }
+  }
+
+  @EnsuresNonNull({"output", "sampleReader"})
+  private void assertTracksCreated() {
+    Assertions.checkStateNotNull(output);
+    Util.castNonNull(sampleReader);
   }
 
   /** Consumes a stream of NAL units and outputs samples. */
@@ -478,7 +497,7 @@ public final class H264Reader implements ElementaryStreamReader {
       private boolean isComplete;
       private boolean hasSliceType;
 
-      private SpsData spsData;
+      @Nullable private SpsData spsData;
       private int nalRefIdc;
       private int sliceType;
       private int frameNum;
@@ -542,6 +561,8 @@ public final class H264Reader implements ElementaryStreamReader {
 
       private boolean isFirstVclNalUnitOfPicture(SliceHeaderData other) {
         // See ISO 14496-10 subsection 7.4.1.2.4.
+        SpsData spsData = Assertions.checkStateNotNull(this.spsData);
+        SpsData otherSpsData = Assertions.checkStateNotNull(other.spsData);
         return isComplete
             && (!other.isComplete
                 || frameNum != other.frameNum
@@ -552,15 +573,15 @@ public final class H264Reader implements ElementaryStreamReader {
                     && bottomFieldFlag != other.bottomFieldFlag)
                 || (nalRefIdc != other.nalRefIdc && (nalRefIdc == 0 || other.nalRefIdc == 0))
                 || (spsData.picOrderCountType == 0
-                    && other.spsData.picOrderCountType == 0
+                    && otherSpsData.picOrderCountType == 0
                     && (picOrderCntLsb != other.picOrderCntLsb
                         || deltaPicOrderCntBottom != other.deltaPicOrderCntBottom))
                 || (spsData.picOrderCountType == 1
-                    && other.spsData.picOrderCountType == 1
+                    && otherSpsData.picOrderCountType == 1
                     && (deltaPicOrderCnt0 != other.deltaPicOrderCnt0
                         || deltaPicOrderCnt1 != other.deltaPicOrderCnt1))
                 || idrPicFlag != other.idrPicFlag
-                || (idrPicFlag && other.idrPicFlag && idrPicId != other.idrPicId));
+                || (idrPicFlag && idrPicId != other.idrPicId));
       }
     }
   }

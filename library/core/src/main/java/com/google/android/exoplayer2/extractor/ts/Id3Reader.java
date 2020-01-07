@@ -23,9 +23,11 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Parses ID3 data and extracts individual text information frames.
@@ -36,7 +38,7 @@ public final class Id3Reader implements ElementaryStreamReader {
 
   private final ParsableByteArray id3Header;
 
-  private TrackOutput output;
+  @MonotonicNonNull private TrackOutput output;
 
   // State that should be reset on seek.
   private boolean writingSample;
@@ -76,6 +78,7 @@ public final class Id3Reader implements ElementaryStreamReader {
 
   @Override
   public void consume(ParsableByteArray data) {
+    Assertions.checkStateNotNull(output); // Asserts that createTracks has been called.
     if (!writingSample) {
       return;
     }
@@ -106,6 +109,7 @@ public final class Id3Reader implements ElementaryStreamReader {
 
   @Override
   public void packetFinished() {
+    Assertions.checkStateNotNull(output); // Asserts that createTracks has been called.
     if (!writingSample || sampleSize == 0 || sampleBytesRead != sampleSize) {
       return;
     }

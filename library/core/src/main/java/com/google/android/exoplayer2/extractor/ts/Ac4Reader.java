@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor.ts;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.Ac4Util;
@@ -23,12 +24,15 @@ import com.google.android.exoplayer2.audio.Ac4Util.SyncFrameInfo;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /** Parses a continuous AC-4 byte stream and extracts individual samples. */
 public final class Ac4Reader implements ElementaryStreamReader {
@@ -44,10 +48,10 @@ public final class Ac4Reader implements ElementaryStreamReader {
 
   private final ParsableBitArray headerScratchBits;
   private final ParsableByteArray headerScratchBytes;
-  private final String language;
+  @Nullable private final String language;
 
-  private String trackFormatId;
-  private TrackOutput output;
+  @MonotonicNonNull private String formatId;
+  @MonotonicNonNull private TrackOutput output;
 
   @State private int state;
   private int bytesRead;
@@ -58,7 +62,7 @@ public final class Ac4Reader implements ElementaryStreamReader {
 
   // Used when parsing the header.
   private long sampleDurationUs;
-  private Format format;
+  @MonotonicNonNull private Format format;
   private int sampleSize;
 
   // Used when reading the samples.
@@ -74,7 +78,7 @@ public final class Ac4Reader implements ElementaryStreamReader {
    *
    * @param language Track language.
    */
-  public Ac4Reader(String language) {
+  public Ac4Reader(@Nullable String language) {
     headerScratchBits = new ParsableBitArray(new byte[Ac4Util.HEADER_SIZE_FOR_PARSER]);
     headerScratchBytes = new ParsableByteArray(headerScratchBits.data);
     state = STATE_FINDING_SYNC;
@@ -95,7 +99,7 @@ public final class Ac4Reader implements ElementaryStreamReader {
   @Override
   public void createTracks(ExtractorOutput extractorOutput, TrackIdGenerator generator) {
     generator.generateNewId();
-    trackFormatId = generator.getFormatId();
+    formatId = generator.getFormatId();
     output = extractorOutput.track(generator.getTrackId(), C.TRACK_TYPE_AUDIO);
   }
 
@@ -106,6 +110,7 @@ public final class Ac4Reader implements ElementaryStreamReader {
 
   @Override
   public void consume(ParsableByteArray data) {
+    Assertions.checkStateNotNull(output); // Asserts that createTracks has been called.
     while (data.bytesLeft() > 0) {
       switch (state) {
         case STATE_FINDING_SYNC:
@@ -185,7 +190,7 @@ public final class Ac4Reader implements ElementaryStreamReader {
   }
 
   /** Parses the sample header. */
-  @SuppressWarnings("ReferenceEquality")
+  @RequiresNonNull("output")
   private void parseHeader() {
     headerScratchBits.setPosition(0);
     SyncFrameInfo frameInfo = Ac4Util.parseAc4SyncframeInfo(headerScratchBits);
@@ -195,7 +200,7 @@ public final class Ac4Reader implements ElementaryStreamReader {
         || !MimeTypes.AUDIO_AC4.equals(format.sampleMimeType)) {
       format =
           Format.createAudioSampleFormat(
-              trackFormatId,
+              formatId,
               MimeTypes.AUDIO_AC4,
               /* codecs= */ null,
               /* bitrate= */ Format.NO_VALUE,

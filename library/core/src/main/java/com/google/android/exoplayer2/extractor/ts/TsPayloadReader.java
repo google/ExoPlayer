@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.extractor.ts;
 
 import android.util.SparseArray;
 import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
@@ -53,11 +54,11 @@ public interface TsPayloadReader {
      *
      * @param streamType Stream type value as defined in the PMT entry or associated descriptors.
      * @param esInfo Information associated to the elementary stream provided in the PMT.
-     * @return A {@link TsPayloadReader} for the packet stream carried by the provided pid.
+     * @return A {@link TsPayloadReader} for the packet stream carried by the provided pid, or
      *     {@code null} if the stream is not supported.
      */
+    @Nullable
     TsPayloadReader createPayloadReader(int streamType, EsInfo esInfo);
-
   }
 
   /**
@@ -66,18 +67,21 @@ public interface TsPayloadReader {
   final class EsInfo {
 
     public final int streamType;
-    public final String language;
+    @Nullable public final String language;
     public final List<DvbSubtitleInfo> dvbSubtitleInfos;
     public final byte[] descriptorBytes;
 
     /**
-     * @param streamType The type of the stream as defined by the
-     *     {@link TsExtractor}{@code .TS_STREAM_TYPE_*}.
+     * @param streamType The type of the stream as defined by the {@link TsExtractor}{@code
+     *     .TS_STREAM_TYPE_*}.
      * @param language The language of the stream, as defined by ISO/IEC 13818-1, section 2.6.18.
      * @param dvbSubtitleInfos Information about DVB subtitles associated to the stream.
      * @param descriptorBytes The descriptor bytes associated to the stream.
      */
-    public EsInfo(int streamType, String language, List<DvbSubtitleInfo> dvbSubtitleInfos,
+    public EsInfo(
+        int streamType,
+        @Nullable String language,
+        @Nullable List<DvbSubtitleInfo> dvbSubtitleInfos,
         byte[] descriptorBytes) {
       this.streamType = streamType;
       this.language = language;
@@ -134,6 +138,7 @@ public interface TsPayloadReader {
       this.firstTrackId = firstTrackId;
       this.trackIdIncrement = trackIdIncrement;
       trackId = ID_UNSET;
+      formatId = "";
     }
 
     /**
