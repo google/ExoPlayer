@@ -79,6 +79,11 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   private static final int MAX_PENDING_STREAM_CHANGE_COUNT = 10;
 
   private static final String TAG = "MediaCodecAudioRenderer";
+  /**
+   * Custom key used to indicate bits per sample by some decoders on Vivo devices. For example
+   * OMX.vivo.alac.decoder on the Vivo Z1 Pro.
+   */
+  private static final String VIVO_BITS_PER_SAMPLE_KEY = "v-bits-per-sample";
 
   private final Context context;
   private final EventDispatcher eventDispatcher;
@@ -566,7 +571,11 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
               mediaFormat.getString(MediaFormat.KEY_MIME));
     } else {
       mediaFormat = outputMediaFormat;
-      encoding = getPcmEncoding(inputFormat);
+      if (outputMediaFormat.containsKey(VIVO_BITS_PER_SAMPLE_KEY)) {
+        encoding = Util.getPcmEncoding(outputMediaFormat.getInteger(VIVO_BITS_PER_SAMPLE_KEY));
+      } else {
+        encoding = getPcmEncoding(inputFormat);
+      }
     }
     int channelCount = mediaFormat.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
     int sampleRate = mediaFormat.getInteger(MediaFormat.KEY_SAMPLE_RATE);
