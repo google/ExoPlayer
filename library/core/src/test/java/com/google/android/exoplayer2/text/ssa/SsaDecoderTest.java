@@ -70,10 +70,10 @@ public final class SsaDecoderTest {
     assertWithMessage("Cue.positionAnchor")
         .that(firstCue.positionAnchor)
         .isEqualTo(Cue.ANCHOR_TYPE_MIDDLE);
-    assertWithMessage("Cue.position").that(firstCue.position).isEqualTo(0.5f);
-    assertWithMessage("Cue.lineAnchor").that(firstCue.lineAnchor).isEqualTo(Cue.ANCHOR_TYPE_END);
-    assertWithMessage("Cue.lineType").that(firstCue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
-    assertWithMessage("Cue.line").that(firstCue.line).isEqualTo(0.95f);
+    assertThat(firstCue.position).isEqualTo(0.5f);
+    assertThat(firstCue.lineAnchor).isEqualTo(Cue.ANCHOR_TYPE_END);
+    assertThat(firstCue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
+    assertThat(firstCue.line).isEqualTo(0.95f);
 
     assertTypicalCue1(subtitle, 0);
     assertTypicalCue2(subtitle, 2);
@@ -158,33 +158,33 @@ public final class SsaDecoderTest {
 
     // Check \pos() sets position & line
     Cue firstCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(0)));
-    assertWithMessage("Cue.position").that(firstCue.position).isEqualTo(0.5f);
-    assertWithMessage("Cue.lineType").that(firstCue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
-    assertWithMessage("Cue.line").that(firstCue.line).isEqualTo(0.25f);
+    assertThat(firstCue.position).isEqualTo(0.5f);
+    assertThat(firstCue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
+    assertThat(firstCue.line).isEqualTo(0.25f);
 
     // Check the \pos() doesn't need to be at the start of the line.
     Cue secondCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(2)));
-    assertWithMessage("Cue.position").that(secondCue.position).isEqualTo(0.25f);
-    assertWithMessage("Cue.line").that(secondCue.line).isEqualTo(0.25f);
+    assertThat(secondCue.position).isEqualTo(0.25f);
+    assertThat(secondCue.line).isEqualTo(0.25f);
 
     // Check only the last \pos() value is used.
     Cue thirdCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(4)));
-    assertWithMessage("Cue.position").that(thirdCue.position).isEqualTo(0.25f);
+    assertThat(thirdCue.position).isEqualTo(0.25f);
 
     // Check \move() is treated as \pos()
     Cue fourthCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(6)));
-    assertWithMessage("Cue.position").that(fourthCue.position).isEqualTo(0.5f);
-    assertWithMessage("Cue.line").that(fourthCue.line).isEqualTo(0.25f);
+    assertThat(fourthCue.position).isEqualTo(0.5f);
+    assertThat(fourthCue.line).isEqualTo(0.25f);
 
     // Check alignment override in a separate brace (to bottom-center) affects textAlignment and
     // both line & position anchors.
     Cue fifthCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(8)));
-    assertWithMessage("Cue.position").that(fifthCue.position).isEqualTo(0.5f);
-    assertWithMessage("Cue.line").that(fifthCue.line).isEqualTo(0.5f);
+    assertThat(fifthCue.position).isEqualTo(0.5f);
+    assertThat(fifthCue.line).isEqualTo(0.5f);
     assertWithMessage("Cue.positionAnchor")
         .that(fifthCue.positionAnchor)
         .isEqualTo(Cue.ANCHOR_TYPE_MIDDLE);
-    assertWithMessage("Cue.lineAnchor").that(fifthCue.lineAnchor).isEqualTo(Cue.ANCHOR_TYPE_END);
+    assertThat(fifthCue.lineAnchor).isEqualTo(Cue.ANCHOR_TYPE_END);
     assertWithMessage("Cue.textAlignment")
         .that(fifthCue.textAlignment)
         .isEqualTo(Layout.Alignment.ALIGN_CENTER);
@@ -192,12 +192,12 @@ public final class SsaDecoderTest {
     // Check alignment override in the same brace (to top-right) affects textAlignment and both line
     // & position anchors.
     Cue sixthCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(10)));
-    assertWithMessage("Cue.position").that(sixthCue.position).isEqualTo(0.5f);
-    assertWithMessage("Cue.line").that(sixthCue.line).isEqualTo(0.5f);
+    assertThat(sixthCue.position).isEqualTo(0.5f);
+    assertThat(sixthCue.line).isEqualTo(0.5f);
     assertWithMessage("Cue.positionAnchor")
         .that(sixthCue.positionAnchor)
         .isEqualTo(Cue.ANCHOR_TYPE_END);
-    assertWithMessage("Cue.lineAnchor").that(sixthCue.lineAnchor).isEqualTo(Cue.ANCHOR_TYPE_START);
+    assertThat(sixthCue.lineAnchor).isEqualTo(Cue.ANCHOR_TYPE_START);
     assertWithMessage("Cue.textAlignment")
         .that(sixthCue.textAlignment)
         .isEqualTo(Layout.Alignment.ALIGN_OPPOSITE);
@@ -212,31 +212,31 @@ public final class SsaDecoderTest {
 
     // Negative parameter to \pos() - fall back to the positions implied by middle-left alignment.
     Cue firstCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(0)));
-    assertWithMessage("Cue.position").that(firstCue.position).isEqualTo(0.05f);
-    assertWithMessage("Cue.lineType").that(firstCue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
-    assertWithMessage("Cue.line").that(firstCue.line).isEqualTo(0.5f);
+    assertThat(firstCue.position).isEqualTo(0.05f);
+    assertThat(firstCue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
+    assertThat(firstCue.line).isEqualTo(0.5f);
 
     // Negative parameter to \move() - fall back to the positions implied by middle-left alignment.
     Cue secondCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(2)));
-    assertWithMessage("Cue.position").that(secondCue.position).isEqualTo(0.05f);
-    assertWithMessage("Cue.lineType").that(secondCue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
-    assertWithMessage("Cue.line").that(secondCue.line).isEqualTo(0.5f);
+    assertThat(secondCue.position).isEqualTo(0.05f);
+    assertThat(secondCue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
+    assertThat(secondCue.line).isEqualTo(0.5f);
 
     // Check invalid alignment override (11) is skipped and style-provided one is used (4).
     Cue thirdCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(4)));
     assertWithMessage("Cue.positionAnchor")
         .that(thirdCue.positionAnchor)
         .isEqualTo(Cue.ANCHOR_TYPE_START);
-    assertWithMessage("Cue.lineAnchor").that(thirdCue.lineAnchor).isEqualTo(Cue.ANCHOR_TYPE_MIDDLE);
+    assertThat(thirdCue.lineAnchor).isEqualTo(Cue.ANCHOR_TYPE_MIDDLE);
     assertWithMessage("Cue.textAlignment")
         .that(thirdCue.textAlignment)
         .isEqualTo(Layout.Alignment.ALIGN_NORMAL);
 
     // No braces - fall back to the positions implied by middle-left alignment
     Cue fourthCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(6)));
-    assertWithMessage("Cue.position").that(fourthCue.position).isEqualTo(0.05f);
-    assertWithMessage("Cue.lineType").that(fourthCue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
-    assertWithMessage("Cue.line").that(fourthCue.line).isEqualTo(0.5f);
+    assertThat(fourthCue.position).isEqualTo(0.05f);
+    assertThat(fourthCue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
+    assertThat(fourthCue.line).isEqualTo(0.5f);
   }
 
   @Test
@@ -250,9 +250,9 @@ public final class SsaDecoderTest {
     // The dialogue line has a valid \pos() override, but it's ignored because PlayResY isn't
     // set (so we don't know the denominator).
     Cue firstCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(0)));
-    assertWithMessage("Cue.position").that(firstCue.position).isEqualTo(Cue.DIMEN_UNSET);
-    assertWithMessage("Cue.lineType").that(firstCue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
-    assertWithMessage("Cue.line").that(firstCue.line).isEqualTo(Cue.DIMEN_UNSET);
+    assertThat(firstCue.position).isEqualTo(Cue.DIMEN_UNSET);
+    assertThat(firstCue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
+    assertThat(firstCue.line).isEqualTo(Cue.DIMEN_UNSET);
   }
 
   @Test
