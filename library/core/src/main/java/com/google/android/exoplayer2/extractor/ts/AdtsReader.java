@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor.ts;
 
 import android.util.Pair;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
@@ -23,13 +24,18 @@ import com.google.android.exoplayer2.extractor.DummyTrackOutput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 import java.util.Collections;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * Parses a continuous ADTS byte stream and extracts individual frames.
@@ -62,11 +68,11 @@ public final class AdtsReader implements ElementaryStreamReader {
   private final boolean exposeId3;
   private final ParsableBitArray adtsScratch;
   private final ParsableByteArray id3HeaderBuffer;
-  private final String language;
+  @Nullable private final String language;
 
-  private String formatId;
-  private TrackOutput output;
-  private TrackOutput id3Output;
+  @MonotonicNonNull private String formatId;
+  @MonotonicNonNull private TrackOutput output;
+  @MonotonicNonNull private TrackOutput id3Output;
 
   private int state;
   private int bytesRead;
@@ -90,7 +96,7 @@ public final class AdtsReader implements ElementaryStreamReader {
   // Used when reading the samples.
   private long timeUs;
 
-  private TrackOutput currentOutput;
+  @MonotonicNonNull private TrackOutput currentOutput;
   private long currentSampleDuration;
 
   /**
@@ -104,7 +110,7 @@ public final class AdtsReader implements ElementaryStreamReader {
    * @param exposeId3 True if the reader should expose ID3 information.
    * @param language Track language.
    */
-  public AdtsReader(boolean exposeId3, String language) {
+  public AdtsReader(boolean exposeId3, @Nullable String language) {
     adtsScratch = new ParsableBitArray(new byte[HEADER_SIZE + CRC_SIZE]);
     id3HeaderBuffer = new ParsableByteArray(Arrays.copyOf(ID3_IDENTIFIER, ID3_HEADER_SIZE));
     setFindingSampleState();
@@ -130,6 +136,7 @@ public final class AdtsReader implements ElementaryStreamReader {
     idGenerator.generateNewId();
     formatId = idGenerator.getFormatId();
     output = extractorOutput.track(idGenerator.getTrackId(), C.TRACK_TYPE_AUDIO);
+    currentOutput = output;
     if (exposeId3) {
       idGenerator.generateNewId();
       id3Output = extractorOutput.track(idGenerator.getTrackId(), C.TRACK_TYPE_METADATA);
@@ -147,6 +154,7 @@ public final class AdtsReader implements ElementaryStreamReader {
 
   @Override
   public void consume(ParsableByteArray data) throws ParserException {
+    assertTracksCreated();
     while (data.bytesLeft() > 0) {
       switch (state) {
         case STATE_FINDING_SAMPLE:
@@ -425,9 +433,8 @@ public final class AdtsReader implements ElementaryStreamReader {
     return true;
   }
 
-  /**
-   * Parses the Id3 header.
-   */
+  /** Parses the Id3 header. */
+  @RequiresNonNull("id3Output")
   private void parseId3Header() {
     id3Output.sampleData(id3HeaderBuffer, ID3_HEADER_SIZE);
     id3HeaderBuffer.setPosition(ID3_SIZE_OFFSET);
@@ -435,9 +442,8 @@ public final class AdtsReader implements ElementaryStreamReader {
         id3HeaderBuffer.readSynchSafeInt() + ID3_HEADER_SIZE);
   }
 
-  /**
-   * Parses the sample header.
-   */
+  /** Parses the sample header. */
+  @RequiresNonNull("output")
   private void parseAdtsHeader() throws ParserException {
     adtsScratch.setPosition(0);
 
@@ -487,9 +493,8 @@ public final class AdtsReader implements ElementaryStreamReader {
     setReadingSampleState(output, sampleDurationUs, 0, sampleSize);
   }
 
-  /**
-   * Reads the rest of the sample
-   */
+  /** Reads the rest of the sample */
+  @RequiresNonNull("currentOutput")
   private void readSample(ParsableByteArray data) {
     int bytesToRead = Math.min(data.bytesLeft(), sampleSize - bytesRead);
     currentOutput.sampleData(data, bytesToRead);
@@ -501,4 +506,10 @@ public final class AdtsReader implements ElementaryStreamReader {
     }
   }
 
+  @EnsuresNonNull({"output", "currentOutput", "id3Output"})
+  private void assertTracksCreated() {
+    Assertions.checkNotNull(output);
+    Util.castNonNull(currentOutput);
+    Util.castNonNull(id3Output);
+  }
 }
