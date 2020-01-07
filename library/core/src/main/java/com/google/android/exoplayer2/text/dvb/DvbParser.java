@@ -481,8 +481,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *
    * @return The parsed object data.
    */
-  // incompatible types in argument.
-  @SuppressWarnings("nullness:argument.type.incompatible")
   private static ObjectData parseObjectData(ParsableBitArray data) {
     int objectId = data.readBits(16);
     data.skipBits(4); // Skip object_version_number
@@ -490,8 +488,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     boolean nonModifyingColorFlag = data.readBit();
     data.skipBits(1); // Skip reserved.
 
-    @Nullable byte[] topFieldData = null;
-    @Nullable byte[] bottomFieldData = null;
+    byte[] topFieldData = Util.EMPTY_BYTE_ARRAY;
+    byte[] bottomFieldData = Util.EMPTY_BYTE_ARRAY;
 
     if (objectCodingMethod == OBJECT_CODING_STRING) {
       int numberOfCodes = data.readBits(8);
