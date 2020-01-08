@@ -326,6 +326,7 @@ public class WebvttDecoderTest {
   public void testWithComplexCssSelectors() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_CSS_COMPLEX_SELECTORS);
     Spanned firstCueText = getUniqueSpanTextAt(subtitle, /* timeUs= */ 0);
+    assertThat(firstCueText).hasUnderlineSpanBetween(0, firstCueText.length());
     assertThat(firstCueText)
         .hasForegroundColorSpanBetween(
             "This should be underlined and ".length(), firstCueText.length())

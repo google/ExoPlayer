@@ -1,7 +1,7 @@
 WEBVTT
 
 STYLE
-::cue(\n#id ){text-decoration:underline;}
+::cue(#id ){text-decoration:underline;}
 
 STYLE
 ::cue(#id.class1.class2 ){ color: violet;}
