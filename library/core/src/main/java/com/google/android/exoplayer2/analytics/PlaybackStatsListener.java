@@ -84,6 +84,7 @@ public final class PlaybackStatsListener
   @Player.State private int playbackState;
   private boolean isSuppressed;
   private float playbackSpeed;
+  private boolean isSeeking;
 
   /**
    * Creates listener for playback stats.
@@ -169,6 +170,9 @@ public final class PlaybackStatsListener
   @Override
   public void onSessionCreated(EventTime eventTime, String session) {
     PlaybackStatsTracker tracker = new PlaybackStatsTracker(keepHistory, eventTime);
+    if (isSeeking) {
+      tracker.onSeekStarted(eventTime, /* belongsToPlayback= */ true);
+    }
     tracker.onPlayerStateChanged(
         eventTime, playWhenReady, playbackState, /* belongsToPlayback= */ true);
     tracker.onIsSuppressedChanged(eventTime, isSuppressed, /* belongsToPlayback= */ true);
@@ -288,20 +292,20 @@ public final class PlaybackStatsListener
   public void onSeekStarted(EventTime eventTime) {
     sessionManager.updateSessions(eventTime);
     for (String session : playbackStatsTrackers.keySet()) {
-      if (sessionManager.belongsToSession(eventTime, session)) {
-        playbackStatsTrackers.get(session).onSeekStarted(eventTime);
-      }
+      boolean belongsToPlayback = sessionManager.belongsToSession(eventTime, session);
+      playbackStatsTrackers.get(session).onSeekStarted(eventTime, belongsToPlayback);
     }
+    isSeeking = true;
   }
 
   @Override
   public void onSeekProcessed(EventTime eventTime) {
     sessionManager.updateSessions(eventTime);
     for (String session : playbackStatsTrackers.keySet()) {
-      if (sessionManager.belongsToSession(eventTime, session)) {
-        playbackStatsTrackers.get(session).onSeekProcessed(eventTime);
-      }
+      boolean belongsToPlayback = sessionManager.belongsToSession(eventTime, session);
+      playbackStatsTrackers.get(session).onSeekProcessed(eventTime, belongsToPlayback);
     }
+    isSeeking = false;
   }
 
   @Override
@@ -563,23 +567,27 @@ public final class PlaybackStatsListener
     }
 
     /**
-     * Notifies the tracker of the start of a seek in the current playback.
+     * Notifies the tracker of the start of a seek, including all seeks while the playback is not in
+     * the foreground.
      *
      * @param eventTime The {@link EventTime}.
+     * @param belongsToPlayback Whether the {@code eventTime} belongs to the current playback.
      */
-    public void onSeekStarted(EventTime eventTime) {
+    public void onSeekStarted(EventTime eventTime, boolean belongsToPlayback) {
       isSeeking = true;
-      maybeUpdatePlaybackState(eventTime, /* belongsToPlayback= */ true);
+      maybeUpdatePlaybackState(eventTime, belongsToPlayback);
     }
 
     /**
-     * Notifies the tracker of a seek has been processed in the current playback.
+     * Notifies the tracker that a seek has been processed, including all seeks while the playback
+     * is not in the foreground.
      *
      * @param eventTime The {@link EventTime}.
+     * @param belongsToPlayback Whether the {@code eventTime} belongs to the current playback.
      */
-    public void onSeekProcessed(EventTime eventTime) {
+    public void onSeekProcessed(EventTime eventTime, boolean belongsToPlayback) {
       isSeeking = false;
-      maybeUpdatePlaybackState(eventTime, /* belongsToPlayback= */ true);
+      maybeUpdatePlaybackState(eventTime, belongsToPlayback);
     }
 
     /**
@@ -875,7 +883,7 @@ public final class PlaybackStatsListener
         return currentPlaybackState == PlaybackStats.PLAYBACK_STATE_ENDED
             ? PlaybackStats.PLAYBACK_STATE_ENDED
             : PlaybackStats.PLAYBACK_STATE_ABANDONED;
-      } else if (isSeeking) {
+      } else if (isSeeking && isForeground) {
         // Seeking takes precedence over errors such that we report a seek while in error state.
         return PlaybackStats.PLAYBACK_STATE_SEEKING;
       } else if (hasFatalError) {
