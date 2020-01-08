@@ -14,6 +14,8 @@
   to proceed.
 * Fix handling of E-AC-3 streams that contain AC-3 syncframes
   ([#6602](https://github.com/google/ExoPlayer/issues/6602)).
+* Fix playback of TrueHD streams in Matroska
+  ([#6845](https://github.com/google/ExoPlayer/issues/6845)).
 * Support "twos" codec (big endian PCM) in MP4
   ([#5789](https://github.com/google/ExoPlayer/issues/5789)).
 * WAV: Support IMA ADPCM encoded data.

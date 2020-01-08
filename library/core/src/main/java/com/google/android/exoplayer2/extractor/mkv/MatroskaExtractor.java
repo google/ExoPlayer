@@ -1827,10 +1827,8 @@ public class MatroskaExtractor implements Extractor {
       chunkSize += size;
       chunkOffset = offset; // The offset is to the end of the sample.
       if (chunkSampleCount >= Ac3Util.TRUEHD_RECHUNK_SAMPLE_COUNT) {
-        // We haven't read enough samples to output a chunk.
-        return;
+        outputPendingSampleMetadata(track);
       }
-      outputPendingSampleMetadata(track);
     }
 
     public void outputPendingSampleMetadata(Track track) {
