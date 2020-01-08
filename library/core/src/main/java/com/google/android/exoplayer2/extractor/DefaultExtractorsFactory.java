@@ -62,10 +62,18 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
     Constructor<? extends Extractor> flacExtensionExtractorConstructor = null;
     try {
       // LINT.IfChange
-      flacExtensionExtractorConstructor =
-          Class.forName("com.google.android.exoplayer2.ext.flac.FlacExtractor")
-              .asSubclass(Extractor.class)
-              .getConstructor();
+      @SuppressWarnings("nullness:argument.type.incompatible")
+      boolean isFlacNativeLibraryAvailable =
+          Boolean.TRUE.equals(
+              Class.forName("com.google.android.exoplayer2.ext.flac.FlacLibrary")
+                  .getMethod("isAvailable")
+                  .invoke(/* obj= */ null));
+      if (isFlacNativeLibraryAvailable) {
+        flacExtensionExtractorConstructor =
+            Class.forName("com.google.android.exoplayer2.ext.flac.FlacExtractor")
+                .asSubclass(Extractor.class)
+                .getConstructor();
+      }
       // LINT.ThenChange(../../../../../../../../proguard-rules.txt)
     } catch (ClassNotFoundException e) {
       // Expected if the app was built without the FLAC extension.
