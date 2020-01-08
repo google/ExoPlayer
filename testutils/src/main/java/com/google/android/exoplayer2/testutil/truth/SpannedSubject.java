@@ -26,12 +26,14 @@ import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
+import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
 import androidx.annotation.CheckResult;
 import androidx.annotation.ColorInt;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.span.HorizontalTextInVerticalContextSpan;
 import com.google.android.exoplayer2.text.span.RubySpan;
+import com.google.android.exoplayer2.util.Util;
 import com.google.common.truth.FailureMetadata;
 import com.google.common.truth.Subject;
 import java.util.ArrayList;
@@ -172,6 +174,19 @@ public final class SpannedSubject extends Subject {
   }
 
   /**
+   * Checks that the subject has no {@link StyleSpan}s on any of the text between {@code start} and
+   * {@code end}.
+   *
+   * <p>This fails even if the start and end indexes don't exactly match.
+   *
+   * @param start The start index to start searching for spans.
+   * @param end The end index to stop searching for spans.
+   */
+  public void hasNoStyleSpanBetween(int start, int end) {
+    hasNoSpansOfTypeBetween(StyleSpan.class, start, end);
+  }
+
+  /**
    * Checks that the subject has an {@link UnderlineSpan} from {@code start} to {@code end}.
    *
    * @param start The start of the expected span.
@@ -192,6 +207,19 @@ public final class SpannedSubject extends Subject {
     }
     failWithExpectedSpan(start, end, UnderlineSpan.class, actual.toString().substring(start, end));
     return ALREADY_FAILED_WITH_FLAGS;
+  }
+
+  /**
+   * Checks that the subject has no {@link UnderlineSpan}s on any of the text between {@code start}
+   * and {@code end}.
+   *
+   * <p>This fails even if the start and end indexes don't exactly match.
+   *
+   * @param start The start index to start searching for spans.
+   * @param end The end index to stop searching for spans.
+   */
+  public void hasNoUnderlineSpanBetween(int start, int end) {
+    hasNoSpansOfTypeBetween(UnderlineSpan.class, start, end);
   }
 
   /**
@@ -223,6 +251,19 @@ public final class SpannedSubject extends Subject {
   }
 
   /**
+   * Checks that the subject has no {@link ForegroundColorSpan}s on any of the text between {@code
+   * start} and {@code end}.
+   *
+   * <p>This fails even if the start and end indexes don't exactly match.
+   *
+   * @param start The start index to start searching for spans.
+   * @param end The end index to stop searching for spans.
+   */
+  public void hasNoForegroundColorSpanBetween(int start, int end) {
+    hasNoSpansOfTypeBetween(ForegroundColorSpan.class, start, end);
+  }
+
+  /**
    * Checks that the subject has a {@link BackgroundColorSpan} from {@code start} to {@code end}.
    *
    * <p>The color is asserted in a follow-up method call on the return {@link Colored} object.
@@ -251,6 +292,58 @@ public final class SpannedSubject extends Subject {
   }
 
   /**
+   * Checks that the subject has no {@link BackgroundColorSpan}s on any of the text between {@code
+   * start} and {@code end}.
+   *
+   * <p>This fails even if the start and end indexes don't exactly match.
+   *
+   * @param start The start index to start searching for spans.
+   * @param end The end index to stop searching for spans.
+   */
+  public void hasNoBackgroundColorSpanBetween(int start, int end) {
+    hasNoSpansOfTypeBetween(BackgroundColorSpan.class, start, end);
+  }
+
+  /**
+   * Checks that the subject has a {@link TypefaceSpan} from {@code start} to {@code end}.
+   *
+   * <p>The font is asserted in a follow-up method call on the return {@link Typefaced} object.
+   *
+   * @param start The start of the expected span.
+   * @param end The end of the expected span.
+   * @return A {@link Typefaced} object to assert on the font of the matching spans.
+   */
+  @CheckResult
+  public Typefaced hasTypefaceSpanBetween(int start, int end) {
+    if (actual == null) {
+      failWithoutActual(simpleFact("Spanned must not be null"));
+      return ALREADY_FAILED_TYPEFACED;
+    }
+
+    List<TypefaceSpan> backgroundColorSpans = findMatchingSpans(start, end, TypefaceSpan.class);
+    if (backgroundColorSpans.isEmpty()) {
+      failWithExpectedSpan(start, end, TypefaceSpan.class, actual.toString().substring(start, end));
+      return ALREADY_FAILED_TYPEFACED;
+    }
+    return check("TypefaceSpan (start=%s,end=%s)", start, end)
+        .about(typefaceSpans(actual))
+        .that(backgroundColorSpans);
+  }
+
+  /**
+   * Checks that the subject has no {@link TypefaceSpan}s on any of the text between {@code start}
+   * and {@code end}.
+   *
+   * <p>This fails even if the start and end indexes don't exactly match.
+   *
+   * @param start The start index to start searching for spans.
+   * @param end The end index to stop searching for spans.
+   */
+  public void hasNoTypefaceSpanBetween(int start, int end) {
+    hasNoSpansOfTypeBetween(TypefaceSpan.class, start, end);
+  }
+
+  /**
    * Checks that the subject has a {@link RubySpan} from {@code start} to {@code end}.
    *
    * <p>The ruby-text is asserted in a follow-up method call on the return {@link RubyText} object.
@@ -272,6 +365,19 @@ public final class SpannedSubject extends Subject {
       return ALREADY_FAILED_WITH_TEXT;
     }
     return check("RubySpan (start=%s,end=%s)", start, end).about(rubySpans(actual)).that(rubySpans);
+  }
+
+  /**
+   * Checks that the subject has no {@link RubySpan}s on any of the text between {@code start} and
+   * {@code end}.
+   *
+   * <p>This fails even if the start and end indexes don't exactly match.
+   *
+   * @param start The start index to start searching for spans.
+   * @param end The end index to stop searching for spans.
+   */
+  public void hasNoRubySpanBetween(int start, int end) {
+    hasNoSpansOfTypeBetween(RubySpan.class, start, end);
   }
 
   /**
@@ -301,6 +407,45 @@ public final class SpannedSubject extends Subject {
         HorizontalTextInVerticalContextSpan.class,
         actual.toString().substring(start, end));
     return ALREADY_FAILED_WITH_FLAGS;
+  }
+
+  /**
+   * Checks that the subject has no {@link HorizontalTextInVerticalContextSpan}s on any of the text
+   * between {@code start} and {@code end}.
+   *
+   * <p>This fails even if the start and end indexes don't exactly match.
+   *
+   * @param start The start index to start searching for spans.
+   * @param end The end index to stop searching for spans.
+   */
+  public void hasNoHorizontalTextInVerticalContextSpanBetween(int start, int end) {
+    hasNoSpansOfTypeBetween(HorizontalTextInVerticalContextSpan.class, start, end);
+  }
+
+  /**
+   * Checks that the subject has no spans of type {@code spanClazz} on any of the text between
+   * {@code start} and {@code end}.
+   *
+   * <p>This fails even if the start and end indexes don't exactly match.
+   *
+   * @param start The start index to start searching for spans.
+   * @param end The end index to stop searching for spans.
+   */
+  private void hasNoSpansOfTypeBetween(Class<?> spanClazz, int start, int end) {
+    if (actual == null) {
+      failWithoutActual(simpleFact("Spanned must not be null"));
+      return;
+    }
+    Object[] matchingSpans = actual.getSpans(start, end, spanClazz);
+    if (matchingSpans.length != 0) {
+      failWithoutActual(
+          simpleFact(
+              String.format(
+                  "Found unexpected %ss between start=%s,end=%s",
+                  spanClazz.getSimpleName(), start, end)),
+          simpleFact("expected none"),
+          fact("but found", getAllSpansAsString(actual)));
+    }
   }
 
   private <T> List<T> findMatchingSpans(int startIndex, int endIndex, Class<T> spanClazz) {
@@ -421,8 +566,8 @@ public final class SpannedSubject extends Subject {
 
   private static final Colored ALREADY_FAILED_COLORED = color -> ALREADY_FAILED_AND_FLAGS;
 
-  private Factory<ForegroundColorSpansSubject, List<ForegroundColorSpan>> foregroundColorSpans(
-      Spanned actualSpanned) {
+  private static Factory<ForegroundColorSpansSubject, List<ForegroundColorSpan>>
+      foregroundColorSpans(Spanned actualSpanned) {
     return (FailureMetadata metadata, List<ForegroundColorSpan> spans) ->
         new ForegroundColorSpansSubject(metadata, spans, actualSpanned);
   }
@@ -458,8 +603,8 @@ public final class SpannedSubject extends Subject {
     }
   }
 
-  private Factory<BackgroundColorSpansSubject, List<BackgroundColorSpan>> backgroundColorSpans(
-      Spanned actualSpanned) {
+  private static Factory<BackgroundColorSpansSubject, List<BackgroundColorSpan>>
+      backgroundColorSpans(Spanned actualSpanned) {
     return (FailureMetadata metadata, List<BackgroundColorSpan> spans) ->
         new BackgroundColorSpansSubject(metadata, spans, actualSpanned);
   }
@@ -495,6 +640,55 @@ public final class SpannedSubject extends Subject {
     }
   }
 
+  /** Allows assertions about the typeface of a span. */
+  public interface Typefaced {
+
+    /**
+     * Checks that at least one of the matched spans has the expected {@code fontFamily}.
+     *
+     * @param fontFamily The expected font family.
+     * @return A {@link WithSpanFlags} object for optional additional assertions on the flags.
+     */
+    AndSpanFlags withFamily(String fontFamily);
+  }
+
+  private static final Typefaced ALREADY_FAILED_TYPEFACED = color -> ALREADY_FAILED_AND_FLAGS;
+
+  private static Factory<TypefaceSpansSubject, List<TypefaceSpan>> typefaceSpans(
+      Spanned actualSpanned) {
+    return (FailureMetadata metadata, List<TypefaceSpan> spans) ->
+        new TypefaceSpansSubject(metadata, spans, actualSpanned);
+  }
+
+  private static final class TypefaceSpansSubject extends Subject implements Typefaced {
+
+    private final List<TypefaceSpan> actualSpans;
+    private final Spanned actualSpanned;
+
+    private TypefaceSpansSubject(
+        FailureMetadata metadata, List<TypefaceSpan> actualSpans, Spanned actualSpanned) {
+      super(metadata, actualSpans);
+      this.actualSpans = actualSpans;
+      this.actualSpanned = actualSpanned;
+    }
+
+    @Override
+    public AndSpanFlags withFamily(String fontFamily) {
+      List<Integer> matchingSpanFlags = new ArrayList<>();
+      List<String> spanFontFamilies = new ArrayList<>();
+
+      for (TypefaceSpan span : actualSpans) {
+        spanFontFamilies.add(span.getFamily());
+        if (Util.areEqual(span.getFamily(), fontFamily)) {
+          matchingSpanFlags.add(actualSpanned.getSpanFlags(span));
+        }
+      }
+
+      check("family").that(spanFontFamilies).containsExactly(fontFamily);
+      return check("flags").about(spanFlags()).that(matchingSpanFlags);
+    }
+  }
+
   /** Allows assertions about a span's ruby text and its position. */
   public interface RubyText {
 
@@ -511,7 +705,7 @@ public final class SpannedSubject extends Subject {
   private static final RubyText ALREADY_FAILED_WITH_TEXT =
       (text, position) -> ALREADY_FAILED_AND_FLAGS;
 
-  private Factory<RubySpansSubject, List<RubySpan>> rubySpans(Spanned actualSpanned) {
+  private static Factory<RubySpansSubject, List<RubySpan>> rubySpans(Spanned actualSpanned) {
     return (FailureMetadata metadata, List<RubySpan> spans) ->
         new RubySpansSubject(metadata, spans, actualSpanned);
   }
@@ -544,7 +738,7 @@ public final class SpannedSubject extends Subject {
       return check("flags").about(spanFlags()).that(matchingSpanFlags);
     }
 
-    private static class TextAndPosition {
+    private static final class TextAndPosition {
       private final String text;
       @RubySpan.Position private final int position;
 

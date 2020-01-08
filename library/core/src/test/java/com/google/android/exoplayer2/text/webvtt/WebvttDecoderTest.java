@@ -19,17 +19,14 @@ import static com.google.android.exoplayer2.testutil.truth.SpannedSubject.assert
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
-import android.graphics.Typeface;
 import android.text.Layout.Alignment;
 import android.text.Spanned;
-import android.text.style.ForegroundColorSpan;
-import android.text.style.StyleSpan;
-import android.text.style.TypefaceSpan;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.SubtitleDecoderException;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ColorParser;
 import com.google.common.collect.Iterables;
 import com.google.common.truth.Expect;
@@ -328,41 +325,39 @@ public class WebvttDecoderTest {
   @Test
   public void testWithComplexCssSelectors() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_CSS_COMPLEX_SELECTORS);
-    Spanned text = getUniqueSpanTextAt(subtitle, /* timeUs= */ 0);
-    assertThat(text.getSpans(/* start= */ 30, text.length(), ForegroundColorSpan.class))
-        .hasLength(1);
-    assertThat(
-            text.getSpans(/* start= */ 30, text.length(), ForegroundColorSpan.class)[0]
-                .getForegroundColor())
-        .isEqualTo(0xFFEE82EE);
-    assertThat(text.getSpans(/* start= */ 30, text.length(), TypefaceSpan.class)).hasLength(1);
-    assertThat(text.getSpans(/* start= */ 30, text.length(), TypefaceSpan.class)[0].getFamily())
-        .isEqualTo("courier");
+    Spanned firstCueText = getUniqueSpanTextAt(subtitle, /* timeUs= */ 0);
+    assertThat(firstCueText)
+        .hasForegroundColorSpanBetween(
+            "This should be underlined and ".length(), firstCueText.length())
+        .withColor(ColorParser.parseCssColor("violet"));
+    assertThat(firstCueText)
+        .hasTypefaceSpanBetween("This should be underlined and ".length(), firstCueText.length())
+        .withFamily("courier");
 
-    text = getUniqueSpanTextAt(subtitle, /* timeUs= */ 2000000);
-    assertThat(text.getSpans(/* start= */ 5, text.length(), TypefaceSpan.class)).hasLength(1);
-    assertThat(text.getSpans(/* start= */ 5, text.length(), TypefaceSpan.class)[0].getFamily())
-        .isEqualTo("courier");
+    Spanned secondCueText = getUniqueSpanTextAt(subtitle, /* timeUs= */ 2_000_000);
+    assertThat(secondCueText)
+        .hasTypefaceSpanBetween("This ".length(), secondCueText.length())
+        .withFamily("courier");
+    assertThat(secondCueText)
+        .hasNoForegroundColorSpanBetween("This ".length(), secondCueText.length());
 
-    text = getUniqueSpanTextAt(subtitle, /* timeUs= */ 2500000);
-    assertThat(text.getSpans(/* start= */ 5, text.length(), StyleSpan.class)).hasLength(1);
-    assertThat(text.getSpans(/* start= */ 5, text.length(), StyleSpan.class)[0].getStyle())
-        .isEqualTo(Typeface.BOLD);
-    assertThat(text.getSpans(/* start= */ 5, text.length(), TypefaceSpan.class)).hasLength(1);
-    assertThat(text.getSpans(/* start= */ 5, text.length(), TypefaceSpan.class)[0].getFamily())
-        .isEqualTo("courier");
+    Spanned thirdCueText = getUniqueSpanTextAt(subtitle, /* timeUs= */ 2_500_000);
+    assertThat(thirdCueText).hasBoldSpanBetween("This ".length(), thirdCueText.length());
+    assertThat(thirdCueText)
+        .hasTypefaceSpanBetween("This ".length(), thirdCueText.length())
+        .withFamily("courier");
 
-    text = getUniqueSpanTextAt(subtitle, /* timeUs= */ 4000000);
-    assertThat(text.getSpans(/* start= */ 6, /* end= */ 22, StyleSpan.class)).hasLength(0);
-    assertThat(text.getSpans(/* start= */ 30, text.length(), StyleSpan.class)).hasLength(1);
-    assertThat(text.getSpans(/* start= */ 30, text.length(), StyleSpan.class)[0].getStyle())
-        .isEqualTo(Typeface.BOLD);
+    Spanned fourthCueText = getUniqueSpanTextAt(subtitle, /* timeUs= */ 4_000_000);
+    assertThat(fourthCueText)
+        .hasNoStyleSpanBetween("This ".length(), "shouldn't be bold.".length());
+    assertThat(fourthCueText)
+        .hasBoldSpanBetween("This shouldn't be bold.\nThis ".length(), fourthCueText.length());
 
-    text = getUniqueSpanTextAt(subtitle, /* timeUs= */ 5000000);
-    assertThat(text.getSpans(/* start= */ 9, /* end= */ 17, StyleSpan.class)).hasLength(0);
-    assertThat(text.getSpans(/* start= */ 19, text.length(), StyleSpan.class)).hasLength(1);
-    assertThat(text.getSpans(/* start= */ 19, text.length(), StyleSpan.class)[0].getStyle())
-        .isEqualTo(Typeface.ITALIC);
+    Spanned fifthCueText = getUniqueSpanTextAt(subtitle, /* timeUs= */ 5_000_000);
+    assertThat(fifthCueText)
+        .hasNoStyleSpanBetween("This is ".length(), "This is specific".length());
+    assertThat(fifthCueText)
+        .hasItalicSpanBetween("This is specific\n".length(), fifthCueText.length());
   }
 
   @Test
@@ -387,6 +382,6 @@ public class WebvttDecoderTest {
   }
 
   private Spanned getUniqueSpanTextAt(WebvttSubtitle sub, long timeUs) {
-    return (Spanned) sub.getCues(timeUs).get(0).text;
+    return (Spanned) Assertions.checkNotNull(sub.getCues(timeUs).get(0).text);
   }
 }
