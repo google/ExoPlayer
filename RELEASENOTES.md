@@ -30,6 +30,8 @@
 * OkHttp extension: Upgrade OkHttp dependency to 3.12.7, which fixes a class of
   `SocketTimeoutException` issues when using HTTP/2
   ([#4078](https://github.com/google/ExoPlayer/issues/4078)).
+* Don't use notification chronometer if playback speed is != 1.0
+  ([#6816](https://github.com/google/ExoPlayer/issues/6816)).
 
 ### 2.11.1 (2019-12-20) ###
 
