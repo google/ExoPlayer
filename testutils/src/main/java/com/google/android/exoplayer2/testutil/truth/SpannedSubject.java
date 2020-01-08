@@ -167,8 +167,8 @@ public final class SpannedSubject extends Subject {
         simpleFact(
             String.format("No matching StyleSpans found between start=%s,end=%s", start, end)),
         fact("in text", actual.toString()),
-        fact("expected either styles", Arrays.asList(Typeface.BOLD_ITALIC)),
-        fact("or styles", Arrays.asList(Typeface.BOLD, Typeface.BOLD_ITALIC)),
+        fact("expected either styles", Collections.singletonList(Typeface.BOLD_ITALIC)),
+        fact("or styles", Arrays.asList(Typeface.BOLD, Typeface.ITALIC)),
         fact("but found styles", styles));
     return ALREADY_FAILED_WITH_FLAGS;
   }

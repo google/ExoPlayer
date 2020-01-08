@@ -152,6 +152,23 @@ public class SpannedSubjectTest {
   }
 
   @Test
+  public void boldItalicSpan_onlyItalic() {
+    SpannableString spannable = SpannableString.valueOf("test with italic section");
+    int start = "test with ".length();
+    int end = start + "italic".length();
+    spannable.setSpan(new StyleSpan(Typeface.ITALIC), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+    AssertionError expected =
+        expectFailure(
+            whenTesting -> whenTesting.that(spannable).hasBoldItalicSpanBetween(start, end));
+    assertThat(expected)
+        .factKeys()
+        .contains(
+            String.format("No matching StyleSpans found between start=%s,end=%s", start, end));
+    assertThat(expected).factValue("but found styles").contains("[" + Typeface.ITALIC + "]");
+  }
+
+  @Test
   public void boldItalicSpan_mismatchedStartIndex() {
     SpannableString spannable = SpannableString.valueOf("test with bold & italic section");
     int start = "test with ".length();
