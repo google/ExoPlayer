@@ -110,9 +110,9 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   @Nullable private ParsableByteArray atomData;
 
   private int sampleTrackIndex;
+  private int sampleBytesRead;
   private int sampleBytesWritten;
   private int sampleCurrentNalBytesRemaining;
-  private boolean isAc4HeaderRequired;
 
   // Extractor outputs.
   @MonotonicNonNull private ExtractorOutput extractorOutput;
@@ -160,9 +160,9 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     containerAtoms.clear();
     atomHeaderBytesRead = 0;
     sampleTrackIndex = C.INDEX_UNSET;
+    sampleBytesRead = 0;
     sampleBytesWritten = 0;
     sampleCurrentNalBytesRemaining = 0;
-    isAc4HeaderRequired = false;
     if (position == 0) {
       enterReadingAtomHeaderState();
     } else if (tracks != null) {
@@ -507,15 +507,13 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       if (sampleTrackIndex == C.INDEX_UNSET) {
         return RESULT_END_OF_INPUT;
       }
-      isAc4HeaderRequired =
-          MimeTypes.AUDIO_AC4.equals(tracks[sampleTrackIndex].track.format.sampleMimeType);
     }
     Mp4Track track = tracks[sampleTrackIndex];
     TrackOutput trackOutput = track.trackOutput;
     int sampleIndex = track.sampleIndex;
     long position = track.sampleTable.offsets[sampleIndex];
     int sampleSize = track.sampleTable.sizes[sampleIndex];
-    long skipAmount = position - inputPosition + sampleBytesWritten;
+    long skipAmount = position - inputPosition + sampleBytesRead;
     if (skipAmount < 0 || skipAmount >= RELOAD_MINIMUM_SEEK_DISTANCE) {
       positionHolder.position = position;
       return RESULT_SEEK;
@@ -543,6 +541,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
         if (sampleCurrentNalBytesRemaining == 0) {
           // Read the NAL length so that we know where we find the next one.
           input.readFully(nalLengthData, nalUnitLengthFieldLengthDiff, nalUnitLengthFieldLength);
+          sampleBytesRead += nalUnitLengthFieldLength;
           nalLength.setPosition(0);
           int nalLengthInt = nalLength.readInt();
           if (nalLengthInt < 0) {
@@ -557,21 +556,23 @@ public final class Mp4Extractor implements Extractor, SeekMap {
         } else {
           // Write the payload of the NAL unit.
           int writtenBytes = trackOutput.sampleData(input, sampleCurrentNalBytesRemaining, false);
+          sampleBytesRead += writtenBytes;
           sampleBytesWritten += writtenBytes;
           sampleCurrentNalBytesRemaining -= writtenBytes;
         }
       }
     } else {
-      if (isAc4HeaderRequired) {
-        Ac4Util.getAc4SampleHeader(sampleSize, scratch);
-        int length = scratch.limit();
-        trackOutput.sampleData(scratch, length);
-        sampleSize += length;
-        sampleBytesWritten += length;
-        isAc4HeaderRequired = false;
+      if (MimeTypes.AUDIO_AC4.equals(track.track.format.sampleMimeType)) {
+        if (sampleBytesWritten == 0) {
+          Ac4Util.getAc4SampleHeader(sampleSize, scratch);
+          trackOutput.sampleData(scratch, Ac4Util.SAMPLE_HEADER_SIZE);
+          sampleBytesWritten += Ac4Util.SAMPLE_HEADER_SIZE;
+        }
+        sampleSize += Ac4Util.SAMPLE_HEADER_SIZE;
       }
       while (sampleBytesWritten < sampleSize) {
         int writtenBytes = trackOutput.sampleData(input, sampleSize - sampleBytesWritten, false);
+        sampleBytesRead += writtenBytes;
         sampleBytesWritten += writtenBytes;
         sampleCurrentNalBytesRemaining -= writtenBytes;
       }
@@ -580,6 +581,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
         track.sampleTable.flags[sampleIndex], sampleSize, 0, null);
     track.sampleIndex++;
     sampleTrackIndex = C.INDEX_UNSET;
+    sampleBytesRead = 0;
     sampleBytesWritten = 0;
     sampleCurrentNalBytesRemaining = 0;
     return RESULT_CONTINUE;
