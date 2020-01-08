@@ -927,7 +927,18 @@ public class PlayerNotificationManager {
   }
 
   /**
-   * Sets whether the elapsed time of the media playback should be displayed
+   * Sets whether the elapsed time of the media playback should be displayed.
+   *
+   * <p>Note that this setting only works if all of the following are true:
+   *
+   * <ul>
+   *   <li>The media is {@link Player#isPlaying() actively playing}.
+   *   <li>The media is not {@link Player#isCurrentWindowDynamic() dynamically changing its
+   *       duration} (like for example a live stream).
+   *   <li>The media is not {@link Player#isPlayingAd() interrupted by an ad}.
+   *   <li>The media is played at {@link Player#getPlaybackParameters() regular speed}.
+   *   <li>The device is running at least API 21 (Lollipop).
+   * </ul>
    *
    * <p>See {@link NotificationCompat.Builder#setUsesChronometer(boolean)}.
    *
@@ -1082,7 +1093,8 @@ public class PlayerNotificationManager {
         && useChronometer
         && player.isPlaying()
         && !player.isPlayingAd()
-        && !player.isCurrentWindowDynamic()) {
+        && !player.isCurrentWindowDynamic()
+        && player.getPlaybackParameters().speed == 1f) {
       builder
           .setWhen(System.currentTimeMillis() - player.getContentPosition())
           .setShowWhen(true)
