@@ -49,6 +49,9 @@
   later).
 * Parse `text-combine-upright` CSS property (i.e. tate-chu-yoko) in WebVTT
   subtitles (rendering is coming later).
+* OkHttp extension: Upgrade OkHttp dependency to 3.12.7, which fixes a class of
+  `SocketTimeoutException` issues when using HTTP/2
+  ([#4078](https://github.com/google/ExoPlayer/issues/4078)).
 
 ### 2.11.1 (2019-12-20) ###
 
