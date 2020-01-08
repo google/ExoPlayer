@@ -15,11 +15,11 @@
  */
 package com.google.android.exoplayer2.text.webvtt;
 
+import static com.google.android.exoplayer2.text.SpanUtil.addOrReplaceSpan;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.graphics.Typeface;
 import android.text.Layout;
-import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.SpannedString;
@@ -535,7 +535,12 @@ public final class WebvttCueParser {
       return;
     }
     if (style.getStyle() != WebvttCssStyle.UNSPECIFIED) {
-      addOrReplaceSpan(spannedText, new StyleSpan(style.getStyle()), start, end);
+      addOrReplaceSpan(
+          spannedText,
+          new StyleSpan(style.getStyle()),
+          start,
+          end,
+          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
     if (style.isLinethrough()) {
       spannedText.setSpan(new StrikethroughSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -544,29 +549,62 @@ public final class WebvttCueParser {
       spannedText.setSpan(new UnderlineSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
     if (style.hasFontColor()) {
-      addOrReplaceSpan(spannedText, new ForegroundColorSpan(style.getFontColor()), start, end);
+      addOrReplaceSpan(
+          spannedText,
+          new ForegroundColorSpan(style.getFontColor()),
+          start,
+          end,
+          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
     if (style.hasBackgroundColor()) {
       addOrReplaceSpan(
-          spannedText, new BackgroundColorSpan(style.getBackgroundColor()), start, end);
+          spannedText,
+          new BackgroundColorSpan(style.getBackgroundColor()),
+          start,
+          end,
+          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
     if (style.getFontFamily() != null) {
-      addOrReplaceSpan(spannedText, new TypefaceSpan(style.getFontFamily()), start, end);
+      addOrReplaceSpan(
+          spannedText,
+          new TypefaceSpan(style.getFontFamily()),
+          start,
+          end,
+          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
     Layout.Alignment textAlign = style.getTextAlign();
     if (textAlign != null) {
-      addOrReplaceSpan(spannedText, new AlignmentSpan.Standard(textAlign), start, end);
+      addOrReplaceSpan(
+          spannedText,
+          new AlignmentSpan.Standard(textAlign),
+          start,
+          end,
+          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
     switch (style.getFontSizeUnit()) {
       case WebvttCssStyle.FONT_SIZE_UNIT_PIXEL:
         addOrReplaceSpan(
-            spannedText, new AbsoluteSizeSpan((int) style.getFontSize(), true), start, end);
+            spannedText,
+            new AbsoluteSizeSpan((int) style.getFontSize(), true),
+            start,
+            end,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         break;
       case WebvttCssStyle.FONT_SIZE_UNIT_EM:
-        addOrReplaceSpan(spannedText, new RelativeSizeSpan(style.getFontSize()), start, end);
+        addOrReplaceSpan(
+            spannedText,
+            new RelativeSizeSpan(style.getFontSize()),
+            start,
+            end,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         break;
       case WebvttCssStyle.FONT_SIZE_UNIT_PERCENT:
-        addOrReplaceSpan(spannedText, new RelativeSizeSpan(style.getFontSize() / 100), start, end);
+        addOrReplaceSpan(
+            spannedText,
+            new RelativeSizeSpan(style.getFontSize() / 100),
+            start,
+            end,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         break;
       case WebvttCssStyle.UNSPECIFIED:
         // Do nothing.
@@ -576,26 +614,6 @@ public final class WebvttCueParser {
       spannedText.setSpan(
           new HorizontalTextInVerticalContextSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
-  }
-
-  /**
-   * Adds {@code span} to {@code spannedText} between {@code start} and {@code end}, removing any
-   * existing spans of the same type and with the same indices.
-   *
-   * <p>This is useful for types of spans that don't make sense to duplicate and where the
-   * evaluation order might have an unexpected impact on the final text, e.g. {@link
-   * ForegroundColorSpan}.
-   */
-  private static void addOrReplaceSpan(
-      SpannableStringBuilder spannedText, Object span, int start, int end) {
-    Object[] existingSpans = spannedText.getSpans(start, end, span.getClass());
-    for (Object existingSpan : existingSpans) {
-      if (spannedText.getSpanStart(existingSpan) == start
-          && spannedText.getSpanEnd(existingSpan) == end) {
-        spannedText.removeSpan(existingSpan);
-      }
-    }
-    spannedText.setSpan(span, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
   }
 
   /**
