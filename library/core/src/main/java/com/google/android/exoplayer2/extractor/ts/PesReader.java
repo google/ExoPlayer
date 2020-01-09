@@ -15,13 +15,17 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * Parses PES packet data and extracts samples.
@@ -45,7 +49,7 @@ public final class PesReader implements TsPayloadReader {
   private int state;
   private int bytesRead;
 
-  private TimestampAdjuster timestampAdjuster;
+  @MonotonicNonNull private TimestampAdjuster timestampAdjuster;
   private boolean ptsFlag;
   private boolean dtsFlag;
   private boolean seenFirstDts;
@@ -79,6 +83,8 @@ public final class PesReader implements TsPayloadReader {
 
   @Override
   public final void consume(ParsableByteArray data, @Flags int flags) throws ParserException {
+    Assertions.checkStateNotNull(timestampAdjuster); // Asserts init has been called.
+
     if ((flags & FLAG_PAYLOAD_UNIT_START_INDICATOR) != 0) {
       switch (state) {
         case STATE_FINDING_HEADER:
@@ -119,7 +125,7 @@ public final class PesReader implements TsPayloadReader {
           int readLength = Math.min(MAX_HEADER_EXTENSION_SIZE, extendedHeaderLength);
           // Read as much of the extended header as we're interested in, and skip the rest.
           if (continueRead(data, pesScratch.data, readLength)
-              && continueRead(data, null, extendedHeaderLength)) {
+              && continueRead(data, /* target= */ null, extendedHeaderLength)) {
             parseHeaderExtension();
             flags |= dataAlignmentIndicator ? FLAG_DATA_ALIGNMENT_INDICATOR : 0;
             reader.packetStarted(timeUs, flags);
@@ -162,7 +168,8 @@ public final class PesReader implements TsPayloadReader {
    * @param targetLength The target length of the read.
    * @return Whether the target length has been reached.
    */
-  private boolean continueRead(ParsableByteArray source, byte[] target, int targetLength) {
+  private boolean continueRead(
+      ParsableByteArray source, @Nullable byte[] target, int targetLength) {
     int bytesToRead = Math.min(source.bytesLeft(), targetLength - bytesRead);
     if (bytesToRead <= 0) {
       return true;
@@ -207,6 +214,7 @@ public final class PesReader implements TsPayloadReader {
     return true;
   }
 
+  @RequiresNonNull("timestampAdjuster")
   private void parseHeaderExtension() {
     pesScratch.setPosition(0);
     timeUs = C.TIME_UNSET;

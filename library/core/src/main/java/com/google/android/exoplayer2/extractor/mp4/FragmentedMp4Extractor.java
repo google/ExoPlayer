@@ -168,7 +168,6 @@ public class FragmentedMp4Extractor implements Extractor {
   private int sampleBytesWritten;
   private int sampleCurrentNalBytesRemaining;
   private boolean processSeiNalUnitPayload;
-  private boolean isAc4HeaderRequired;
 
   // Extractor output.
   @MonotonicNonNull private ExtractorOutput extractorOutput;
@@ -302,7 +301,6 @@ public class FragmentedMp4Extractor implements Extractor {
     pendingMetadataSampleBytes = 0;
     pendingSeekTimeUs = timeUs;
     containerAtoms.clear();
-    isAc4HeaderRequired = false;
     enterReadingAtomHeaderState();
   }
 
@@ -1222,7 +1220,6 @@ public class FragmentedMp4Extractor implements Extractor {
    * @throws InterruptedException If the thread is interrupted.
    */
   private boolean readSample(ExtractorInput input) throws IOException, InterruptedException {
-    int outputSampleEncryptionDataSize = 0;
     if (parserState == STATE_READING_SAMPLE_START) {
       if (currentTrackBundle == null) {
         @Nullable TrackBundle currentTrackBundle = getNextFragmentRun(trackBundles);
@@ -1270,11 +1267,14 @@ public class FragmentedMp4Extractor implements Extractor {
       }
       sampleBytesWritten = currentTrackBundle.outputSampleEncryptionData();
       sampleSize += sampleBytesWritten;
-      outputSampleEncryptionDataSize = sampleBytesWritten;
+      if (MimeTypes.AUDIO_AC4.equals(currentTrackBundle.track.format.sampleMimeType)) {
+        Ac4Util.getAc4SampleHeader(sampleSize, scratch);
+        currentTrackBundle.output.sampleData(scratch, Ac4Util.SAMPLE_HEADER_SIZE);
+        sampleBytesWritten += Ac4Util.SAMPLE_HEADER_SIZE;
+        sampleSize += Ac4Util.SAMPLE_HEADER_SIZE;
+      }
       parserState = STATE_READING_SAMPLE_CONTINUE;
       sampleCurrentNalBytesRemaining = 0;
-      isAc4HeaderRequired =
-          MimeTypes.AUDIO_AC4.equals(currentTrackBundle.track.format.sampleMimeType);
     }
 
     TrackFragment fragment = currentTrackBundle.fragment;
@@ -1339,14 +1339,6 @@ public class FragmentedMp4Extractor implements Extractor {
         }
       }
     } else {
-      if (isAc4HeaderRequired) {
-        Ac4Util.getAc4SampleHeader(sampleSize - outputSampleEncryptionDataSize, scratch);
-        int length = scratch.limit();
-        output.sampleData(scratch, length);
-        sampleSize += length;
-        sampleBytesWritten += length;
-        isAc4HeaderRequired = false;
-      }
       while (sampleBytesWritten < sampleSize) {
         int writtenBytes = output.sampleData(input, sampleSize - sampleBytesWritten, false);
         sampleBytesWritten += writtenBytes;

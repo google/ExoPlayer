@@ -165,7 +165,7 @@ public final class Requirements implements Parcelable {
   private static boolean isInternetConnectivityValidated(ConnectivityManager connectivityManager) {
     // It's possible to query NetworkCapabilities from API level 23, but RequirementsWatcher only
     // fires an event to update its Requirements when NetworkCapabilities change from API level 24.
-    // Since Requirements wont be updated, we assume connectivity is validated on API level 23.
+    // Since Requirements won't be updated, we assume connectivity is validated on API level 23.
     if (Util.SDK_INT < 24) {
       return true;
     }

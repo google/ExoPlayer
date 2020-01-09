@@ -19,7 +19,7 @@ package com.google.android.exoplayer2.mediacodec;
 import static com.google.android.exoplayer2.mediacodec.MediaCodecTestUtils.areEqual;
 import static com.google.android.exoplayer2.mediacodec.MediaCodecTestUtils.waitUntilAllEventsAreExecuted;
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import android.media.MediaCodec;
 import android.media.MediaFormat;
@@ -29,7 +29,7 @@ import android.os.Looper;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,27 +45,32 @@ public class AsynchronousMediaCodecAdapterTest {
   private MediaCodec.BufferInfo bufferInfo;
 
   @Before
-  public void setup() throws IOException {
+  public void setUp() throws IOException {
     handlerThread = new HandlerThread("TestHandlerThread");
     handlerThread.start();
     looper = handlerThread.getLooper();
     codec = MediaCodec.createByCodecName("h264");
     adapter = new AsynchronousMediaCodecAdapter(codec, looper);
+    adapter.setCodecStartRunnable(() -> {});
     bufferInfo = new MediaCodec.BufferInfo();
   }
 
   @After
   public void tearDown() {
+    adapter.shutdown();
     handlerThread.quit();
   }
 
   @Test
   public void dequeueInputBufferIndex_withoutInputBuffer_returnsTryAgainLater() {
+    adapter.start();
+
     assertThat(adapter.dequeueInputBufferIndex()).isEqualTo(MediaCodec.INFO_TRY_AGAIN_LATER);
   }
 
   @Test
   public void dequeueInputBufferIndex_withInputBuffer_returnsInputBuffer() {
+    adapter.start();
     adapter.getMediaCodecCallback().onInputBufferAvailable(codec, /* index=*/ 0);
 
     assertThat(adapter.dequeueInputBufferIndex()).isEqualTo(0);
@@ -73,6 +78,7 @@ public class AsynchronousMediaCodecAdapterTest {
 
   @Test
   public void dequeueInputBufferIndex_whileFlushing_returnsTryAgainLater() {
+    adapter.start();
     adapter.getMediaCodecCallback().onInputBufferAvailable(codec, /* index=*/ 0);
     adapter.flush();
     adapter.getMediaCodecCallback().onInputBufferAvailable(codec, /* index=*/ 1);
@@ -83,9 +89,7 @@ public class AsynchronousMediaCodecAdapterTest {
   @Test
   public void dequeueInputBufferIndex_afterFlushCompletes_returnsNextInputBuffer()
       throws InterruptedException {
-    // Disable calling codec.start() after flush() completes to avoid receiving buffers from the
-    // shadow codec impl
-    adapter.setOnCodecStart(() -> {});
+    adapter.start();
     Handler handler = new Handler(looper);
     handler.post(
         () -> adapter.getMediaCodecCallback().onInputBufferAvailable(codec, /* index=*/ 0));
@@ -100,28 +104,35 @@ public class AsynchronousMediaCodecAdapterTest {
   @Test
   public void dequeueInputBufferIndex_afterFlushCompletesWithError_throwsException()
       throws InterruptedException {
-    adapter.setOnCodecStart(
+    AtomicInteger calls = new AtomicInteger(0);
+    adapter.setCodecStartRunnable(
         () -> {
-          throw new IllegalStateException("codec#start() exception");
+          if (calls.incrementAndGet() == 2) {
+            throw new IllegalStateException();
+          }
         });
+    adapter.start();
     adapter.flush();
 
     assertThat(waitUntilAllEventsAreExecuted(looper, /* time= */ 5, TimeUnit.SECONDS)).isTrue();
-    try {
-      adapter.dequeueInputBufferIndex();
-      fail();
-    } catch (IllegalStateException expected) {
-    }
+    assertThrows(
+        IllegalStateException.class,
+        () -> {
+          adapter.dequeueInputBufferIndex();
+        });
   }
 
   @Test
   public void dequeueOutputBufferIndex_withoutOutputBuffer_returnsTryAgainLater() {
+    adapter.start();
+
     assertThat(adapter.dequeueOutputBufferIndex(bufferInfo))
         .isEqualTo(MediaCodec.INFO_TRY_AGAIN_LATER);
   }
 
   @Test
   public void dequeueOutputBufferIndex_withOutputBuffer_returnsOutputBuffer() {
+    adapter.start();
     MediaCodec.BufferInfo outBufferInfo = new MediaCodec.BufferInfo();
     outBufferInfo.presentationTimeUs = 10;
     adapter.getMediaCodecCallback().onOutputBufferAvailable(codec, /* index=*/ 0, outBufferInfo);
@@ -132,6 +143,7 @@ public class AsynchronousMediaCodecAdapterTest {
 
   @Test
   public void dequeueOutputBufferIndex_whileFlushing_returnsTryAgainLater() {
+    adapter.start();
     adapter.getMediaCodecCallback().onOutputBufferAvailable(codec, /* index=*/ 0, bufferInfo);
     adapter.flush();
     adapter.getMediaCodecCallback().onOutputBufferAvailable(codec, /* index=*/ 1, bufferInfo);
@@ -143,9 +155,7 @@ public class AsynchronousMediaCodecAdapterTest {
   @Test
   public void dequeueOutputBufferIndex_afterFlushCompletes_returnsNextOutputBuffer()
       throws InterruptedException {
-    // Disable calling codec.start() after flush() completes to avoid receiving buffers from the
-    // shadow codec impl
-    adapter.setOnCodecStart(() -> {});
+    adapter.start();
     Handler handler = new Handler(looper);
     MediaCodec.BufferInfo info0 = new MediaCodec.BufferInfo();
     handler.post(
@@ -164,31 +174,23 @@ public class AsynchronousMediaCodecAdapterTest {
   @Test
   public void dequeueOutputBufferIndex_afterFlushCompletesWithError_throwsException()
       throws InterruptedException {
-    adapter.setOnCodecStart(
+    AtomicInteger calls = new AtomicInteger(0);
+    adapter.setCodecStartRunnable(
         () -> {
-          throw new RuntimeException("codec#start() exception");
+          if (calls.incrementAndGet() == 2) {
+            throw new RuntimeException("codec#start() exception");
+          }
         });
+    adapter.start();
     adapter.flush();
 
     assertThat(waitUntilAllEventsAreExecuted(looper, /* time= */ 5, TimeUnit.SECONDS)).isTrue();
-    try {
-      adapter.dequeueOutputBufferIndex(bufferInfo);
-      fail();
-    } catch (IllegalStateException expected) {
-    }
-  }
-
-  @Test
-  public void getOutputFormat_withoutFormat_throwsException() {
-    try {
-      adapter.getOutputFormat();
-      fail();
-    } catch (IllegalStateException expected) {
-    }
+    assertThrows(IllegalStateException.class, () -> adapter.dequeueOutputBufferIndex(bufferInfo));
   }
 
   @Test
   public void getOutputFormat_withMultipleFormats_returnsFormatsInCorrectOrder() {
+    adapter.start();
     MediaFormat[] formats = new MediaFormat[10];
     MediaCodec.Callback mediaCodecCallback = adapter.getMediaCodecCallback();
     for (int i = 0; i < formats.length; i++) {
@@ -212,6 +214,7 @@ public class AsynchronousMediaCodecAdapterTest {
 
   @Test
   public void getOutputFormat_afterFlush_returnsPreviousFormat() throws InterruptedException {
+    adapter.start();
     MediaFormat format = new MediaFormat();
     adapter.getMediaCodecCallback().onOutputFormatChanged(codec, format);
     adapter.dequeueOutputBufferIndex(bufferInfo);
@@ -223,13 +226,13 @@ public class AsynchronousMediaCodecAdapterTest {
 
   @Test
   public void shutdown_withPendingFlush_cancelsFlush() throws InterruptedException {
-    AtomicBoolean onCodecStartCalled = new AtomicBoolean(false);
-    Runnable onCodecStart = () -> onCodecStartCalled.set(true);
-    adapter.setOnCodecStart(onCodecStart);
+    AtomicInteger onCodecStartCalled = new AtomicInteger(0);
+    adapter.setCodecStartRunnable(() -> onCodecStartCalled.incrementAndGet());
+    adapter.start();
     adapter.flush();
     adapter.shutdown();
 
     assertThat(waitUntilAllEventsAreExecuted(looper, /* time= */ 5, TimeUnit.SECONDS)).isTrue();
-    assertThat(onCodecStartCalled.get()).isFalse();
+    assertThat(onCodecStartCalled.get()).isEqualTo(1);
   }
 }

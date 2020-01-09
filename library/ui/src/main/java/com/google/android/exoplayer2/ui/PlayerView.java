@@ -79,7 +79,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * during playback, and displays playback controls using a {@link PlayerControlView}.
  *
  * <p>A PlayerView can be customized by setting attributes (or calling corresponding methods),
- * overriding the view's layout file or by specifying a custom view layout file, as outlined below.
+ * overriding drawables, overriding the view's layout file, or by specifying a custom view layout
+ * file.
  *
  * <h3>Attributes</h3>
  *
@@ -171,6 +172,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  *       PlayerControlView} unless the layout is overridden to specify a custom {@code
  *       exo_controller} (see below).
  * </ul>
+ *
+ * <h3>Overriding drawables</h3>
+ *
+ * The drawables used by {@link PlayerControlView} (with its default layout file) can be overridden
+ * by drawables with the same names defined in your application. See the {@link PlayerControlView}
+ * documentation for a list of drawables that can be overridden.
  *
  * <h3>Overriding the layout file</h3>
  *

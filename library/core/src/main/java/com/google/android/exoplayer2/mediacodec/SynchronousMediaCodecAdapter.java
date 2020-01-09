@@ -23,12 +23,16 @@ import android.media.MediaFormat;
  * A {@link MediaCodecAdapter} that operates the underlying {@link MediaCodec} in synchronous mode.
  */
 /* package */ final class SynchronousMediaCodecAdapter implements MediaCodecAdapter {
-  private final MediaCodec codec;
-  private final long dequeueOutputBufferTimeoutMs;
 
-  public SynchronousMediaCodecAdapter(MediaCodec mediaCodec, long dequeueOutputBufferTimeoutMs) {
+  private final MediaCodec codec;
+
+  public SynchronousMediaCodecAdapter(MediaCodec mediaCodec) {
     this.codec = mediaCodec;
-    this.dequeueOutputBufferTimeoutMs = dequeueOutputBufferTimeoutMs;
+  }
+
+  @Override
+  public void start() {
+    codec.start();
   }
 
   @Override
@@ -38,7 +42,7 @@ import android.media.MediaFormat;
 
   @Override
   public int dequeueOutputBufferIndex(MediaCodec.BufferInfo bufferInfo) {
-    return codec.dequeueOutputBuffer(bufferInfo, dequeueOutputBufferTimeoutMs);
+    return codec.dequeueOutputBuffer(bufferInfo, 0);
   }
 
   @Override
