@@ -1265,10 +1265,17 @@ public class FragmentedMp4Extractor implements Extractor {
         sampleSize -= Atom.HEADER_SIZE;
         input.skipFully(Atom.HEADER_SIZE);
       }
-      sampleBytesWritten = currentTrackBundle.outputSampleEncryptionData();
-      sampleSize += sampleBytesWritten;
-      if (MimeTypes.AUDIO_AC4.equals(currentTrackBundle.track.format.sampleMimeType)) {
-        Ac4Util.getAc4SampleHeader(sampleSize, scratch);
+
+      boolean isAc4HeaderRequired =
+          MimeTypes.AUDIO_AC4.equals(currentTrackBundle.track.format.sampleMimeType);
+
+      int encryptionDataBytesWritten = currentTrackBundle.outputSampleEncryptionData(
+          sampleSize, isAc4HeaderRequired ? Ac4Util.SAMPLE_HEADER_SIZE : 0);
+      sampleBytesWritten = encryptionDataBytesWritten;
+      sampleSize += encryptionDataBytesWritten;
+
+      if (isAc4HeaderRequired) {
+        Ac4Util.getAc4SampleHeader(sampleSize - encryptionDataBytesWritten, scratch);
         currentTrackBundle.output.sampleData(scratch, Ac4Util.SAMPLE_HEADER_SIZE);
         sampleBytesWritten += Ac4Util.SAMPLE_HEADER_SIZE;
         sampleSize += Ac4Util.SAMPLE_HEADER_SIZE;
@@ -1555,9 +1562,13 @@ public class FragmentedMp4Extractor implements Extractor {
     /**
      * Outputs the encryption data for the current sample.
      *
+     * @param sampleSize The size of the current sample in bytes, excluding any additional clear
+     *     header that will be prefixed to the sample by the extractor.
+     * @param clearHeaderSize The size of a clear header that will be prefixed to the sample by the
+     *     extractor, or 0.
      * @return The number of written bytes.
      */
-    public int outputSampleEncryptionData() {
+    public int outputSampleEncryptionData(int sampleSize, int clearHeaderSize) {
       TrackEncryptionBox encryptionBox = getEncryptionBoxIfEncrypted();
       if (encryptionBox == null) {
         return 0;
@@ -1576,24 +1587,66 @@ public class FragmentedMp4Extractor implements Extractor {
         vectorSize = initVectorData.length;
       }
 
-      boolean subsampleEncryption = fragment.sampleHasSubsampleEncryptionTable(currentSampleIndex);
+      boolean haveSubsampleEncryptionTable =
+          fragment.sampleHasSubsampleEncryptionTable(currentSampleIndex);
+      boolean writeSubsampleEncryptionData =
+          haveSubsampleEncryptionTable | clearHeaderSize != 0;
 
       // Write the signal byte, containing the vector size and the subsample encryption flag.
-      encryptionSignalByte.data[0] = (byte) (vectorSize | (subsampleEncryption ? 0x80 : 0));
+      encryptionSignalByte.data[0] =
+          (byte) (vectorSize | (writeSubsampleEncryptionData ? 0x80 : 0));
       encryptionSignalByte.setPosition(0);
       output.sampleData(encryptionSignalByte, 1);
       // Write the vector.
       output.sampleData(initializationVectorData, vectorSize);
-      // If we don't have subsample encryption data, we're done.
-      if (!subsampleEncryption) {
+
+      if (!writeSubsampleEncryptionData) {
         return 1 + vectorSize;
       }
-      // Write the subsample encryption data.
+
+      if (!haveSubsampleEncryptionTable) {
+        // Need to synthesize subsample encryption data. The sample is fully encrypted except
+        // for the additional header that the extractor is going to prefix, so we need to write the
+        // following to output.sampleData:
+        // subsampleCount (unsigned short) = 1
+        // clearDataSizes[0] (unsigned short) = clearHeaderSize
+        // encryptedDataSizes[0] (unsigned int) = sampleSize
+        ParsableByteArray encryptionData = new ParsableByteArray(8);
+        encryptionData.data[0] = (byte)0;
+        encryptionData.data[1] = (byte)1;
+        encryptionData.data[2] = (byte)((clearHeaderSize & 0xFF00) >>> 8);
+        encryptionData.data[3] = (byte)( clearHeaderSize & 0x00FF);
+        encryptionData.data[4] = (byte)((sampleSize & 0xFF000000) >>> 24);
+        encryptionData.data[5] = (byte)((sampleSize & 0x00FF0000) >>> 16);
+        encryptionData.data[6] = (byte)((sampleSize & 0x0000FF00) >>>  8);
+        encryptionData.data[7] = (byte)( sampleSize & 0x000000FF);
+        encryptionData.setPosition(0);
+        output.sampleData(encryptionData, 8);
+        return 1 + vectorSize + 8;
+      }
+
       ParsableByteArray subsampleEncryptionData = fragment.sampleEncryptionData;
       int subsampleCount = subsampleEncryptionData.readUnsignedShort();
       subsampleEncryptionData.skipBytes(-2);
       int subsampleDataLength = 2 + 6 * subsampleCount;
-      output.sampleData(subsampleEncryptionData, subsampleDataLength);
+
+      if (clearHeaderSize > 0) {
+        // On the way through, we need to re-write the 3rd and 4th bytes, which hold
+        // clearDataSizes[0], so that clearHeaderSize is added into the value. This must be done
+        // without modifying subsampleEncryptionData itself.
+        ParsableByteArray subsampleEncryptionData2 = new ParsableByteArray(subsampleDataLength);
+        subsampleEncryptionData2.readBytes(subsampleEncryptionData.data,
+            subsampleEncryptionData.getPosition(), subsampleDataLength);
+        int clearDataSize = (subsampleEncryptionData2.data[2] & 0xFF) << 8
+            | (subsampleEncryptionData2.data[3] & 0xFF) + clearHeaderSize;
+        subsampleEncryptionData2.data[2] = (byte)((clearDataSize & 0xFF00) >>> 8);
+        subsampleEncryptionData2.data[3] = (byte)( clearDataSize & 0x00FF);
+        subsampleEncryptionData2.setPosition(0);
+        output.sampleData(subsampleEncryptionData2, subsampleDataLength);
+        subsampleEncryptionData.skipBytes(subsampleDataLength);
+      } else {
+        output.sampleData(subsampleEncryptionData, subsampleDataLength);
+      }
       return 1 + vectorSize + subsampleDataLength;
     }
 
