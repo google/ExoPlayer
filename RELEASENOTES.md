@@ -32,6 +32,10 @@
   ([#4078](https://github.com/google/ExoPlayer/issues/4078)).
 * Don't use notification chronometer if playback speed is != 1.0
   ([#6816](https://github.com/google/ExoPlayer/issues/6816)).
+* FLAC extension: Fix handling of bit depths other than 16 in `FLACDecoder`.
+  This issue caused FLAC streams with other bit depths to sound like white noise
+  on earlier releases, but only when embedded in a non-FLAC container such as
+  Matroska or MP4.
 
 ### 2.11.1 (2019-12-20) ###
 
@@ -198,7 +202,7 @@
     `C.MSG_SET_OUTPUT_BUFFER_RENDERER`.
   * Use `VideoDecoderRenderer` as an implementation of
     `VideoDecoderOutputBufferRenderer`, instead of `VideoDecoderSurfaceView`.
-* Flac extension: Update to use NDK r20.
+* FLAC extension: Update to use NDK r20.
 * Opus extension: Update to use NDK r20.
 * FFmpeg extension:
   * Update to use NDK r20.
@@ -335,7 +339,7 @@
   ([#6241](https://github.com/google/ExoPlayer/issues/6241)).
 * MP3: Use CBR header bitrate, not calculated bitrate. This reverts a change
   from 2.9.3 ([#6238](https://github.com/google/ExoPlayer/issues/6238)).
-* Flac extension: Parse `VORBIS_COMMENT` and `PICTURE` metadata
+* FLAC extension: Parse `VORBIS_COMMENT` and `PICTURE` metadata
   ([#5527](https://github.com/google/ExoPlayer/issues/5527)).
 * Fix issue where initial seek positions get ignored when playing a preroll ad
   ([#6201](https://github.com/google/ExoPlayer/issues/6201)).
@@ -344,7 +348,7 @@
   ([#6153](https://github.com/google/ExoPlayer/issues/6153)).
 * Fix `DataSchemeDataSource` re-opening and range requests
   ([#6192](https://github.com/google/ExoPlayer/issues/6192)).
-* Fix Flac and ALAC playback on some LG devices
+* Fix FLAC and ALAC playback on some LG devices
   ([#5938](https://github.com/google/ExoPlayer/issues/5938)).
 * Fix issue when calling `performClick` on `PlayerView` without
   `PlayerControlView`
