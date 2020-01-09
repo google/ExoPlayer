@@ -102,8 +102,9 @@ public final class FlacStreamMetadata {
   /**
    * Parses binary FLAC stream info metadata.
    *
-   * @param data An array containing binary FLAC stream info block (with or without header).
-   * @param offset The offset of the stream info block in {@code data} (header excluded).
+   * @param data An array containing binary FLAC stream info block.
+   * @param offset The offset of the stream info block in {@code data}, excluding the header (i.e.
+   *     the offset points to the first byte of the minimum block size).
    */
   public FlacStreamMetadata(byte[] data, int offset) {
     ParsableBitArray scratch = new ParsableBitArray(data);
