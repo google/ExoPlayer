@@ -152,6 +152,21 @@ public class SpannedSubjectTest {
   }
 
   @Test
+  // If the span is both BOLD and BOLD_ITALIC then the assertion should still succeed.
+  public void boldItalicSpan_withRepeatSpans() {
+    SpannableString spannable = SpannableString.valueOf("test with bold & italic section");
+    int start = "test with ".length();
+    int end = start + "bold & italic".length();
+    spannable.setSpan(new StyleSpan(Typeface.BOLD), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+    spannable.setSpan(
+        new StyleSpan(Typeface.BOLD_ITALIC), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+    assertThat(spannable)
+        .hasBoldItalicSpanBetween(start, end)
+        .withFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+  }
+
+  @Test
   public void boldItalicSpan_onlyItalic() {
     SpannableString spannable = SpannableString.valueOf("test with italic section");
     int start = "test with ".length();

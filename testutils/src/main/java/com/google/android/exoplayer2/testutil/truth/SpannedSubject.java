@@ -157,18 +157,16 @@ public final class SpannedSubject extends Subject {
       return ALREADY_FAILED_WITH_FLAGS;
     }
 
-    if (styles.size() == 1 && styles.contains(Typeface.BOLD_ITALIC)
-        || styles.size() == 2
-            && styles.contains(Typeface.BOLD)
-            && styles.contains(Typeface.ITALIC)) {
+    if (styles.contains(Typeface.BOLD_ITALIC)
+        || (styles.contains(Typeface.BOLD) && styles.contains(Typeface.ITALIC))) {
       return check("StyleSpan (start=%s,end=%s)", start, end).about(spanFlags()).that(allFlags);
     }
     failWithoutActual(
         simpleFact(
             String.format("No matching StyleSpans found between start=%s,end=%s", start, end)),
         fact("in text", actual.toString()),
-        fact("expected either styles", Collections.singletonList(Typeface.BOLD_ITALIC)),
-        fact("or styles", Arrays.asList(Typeface.BOLD, Typeface.ITALIC)),
+        fact("expected to contain either", Collections.singletonList(Typeface.BOLD_ITALIC)),
+        fact("or both", Arrays.asList(Typeface.BOLD, Typeface.ITALIC)),
         fact("but found styles", styles));
     return ALREADY_FAILED_WITH_FLAGS;
   }
