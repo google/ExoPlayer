@@ -56,7 +56,7 @@
   ([#4078](https://github.com/google/ExoPlayer/issues/4078)).
 * Don't use notification chronometer if playback speed is != 1.0
   ([#6816](https://github.com/google/ExoPlayer/issues/6816)).
-* FLAC extension: Fix handling of bit depths other than 16 in `FLACDecoder`.
+* FLAC extension: Fix handling of bit depths other than 16 in `FlacDecoder`.
   This issue caused FLAC streams with other bit depths to sound like white noise
   on earlier releases, but only when embedded in a non-FLAC container such as
   Matroska or MP4.
