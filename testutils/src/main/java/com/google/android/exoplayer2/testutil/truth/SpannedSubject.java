@@ -21,10 +21,13 @@ import static com.google.common.truth.Fact.simpleFact;
 import static com.google.common.truth.Truth.assertAbout;
 
 import android.graphics.Typeface;
+import android.text.Layout.Alignment;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.style.AlignmentSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
@@ -218,6 +221,84 @@ public final class SpannedSubject extends Subject {
    */
   public void hasNoUnderlineSpanBetween(int start, int end) {
     hasNoSpansOfTypeBetween(UnderlineSpan.class, start, end);
+  }
+
+  /**
+   * Checks that the subject has an {@link StrikethroughSpan} from {@code start} to {@code end}.
+   *
+   * @param start The start of the expected span.
+   * @param end The end of the expected span.
+   * @return A {@link WithSpanFlags} object for optional additional assertions on the flags.
+   */
+  public WithSpanFlags hasStrikethroughSpanBetween(int start, int end) {
+    if (actual == null) {
+      failWithoutActual(simpleFact("Spanned must not be null"));
+      return ALREADY_FAILED_WITH_FLAGS;
+    }
+
+    List<StrikethroughSpan> strikethroughSpans =
+        findMatchingSpans(start, end, StrikethroughSpan.class);
+    if (strikethroughSpans.size() == 1) {
+      return check("StrikethroughSpan (start=%s,end=%s)", start, end)
+          .about(spanFlags())
+          .that(Collections.singletonList(actual.getSpanFlags(strikethroughSpans.get(0))));
+    }
+    failWithExpectedSpan(
+        start, end, StrikethroughSpan.class, actual.toString().substring(start, end));
+    return ALREADY_FAILED_WITH_FLAGS;
+  }
+
+  /**
+   * Checks that the subject has no {@link StrikethroughSpan}s on any of the text between {@code
+   * start} and {@code end}.
+   *
+   * <p>This fails even if the start and end indexes don't exactly match.
+   *
+   * @param start The start index to start searching for spans.
+   * @param end The end index to stop searching for spans.
+   */
+  public void hasNoStrikethroughSpanBetween(int start, int end) {
+    hasNoSpansOfTypeBetween(StrikethroughSpan.class, start, end);
+  }
+
+  /**
+   * Checks that the subject has a {@link AlignmentSpan} from {@code start} to {@code end}.
+   *
+   * <p>The alignment is asserted in a follow-up method call on the return {@link Aligned} object.
+   *
+   * @param start The start of the expected span.
+   * @param end The end of the expected span.
+   * @return A {@link Aligned} object to assert on the alignment of the matching spans.
+   */
+  @CheckResult
+  public Aligned hasAlignmentSpanBetween(int start, int end) {
+    if (actual == null) {
+      failWithoutActual(simpleFact("Spanned must not be null"));
+      return ALREADY_FAILED_ALIGNED;
+    }
+
+    List<AlignmentSpan> alignmentSpans = findMatchingSpans(start, end, AlignmentSpan.class);
+    if (alignmentSpans.isEmpty()) {
+      failWithExpectedSpan(
+          start, end, AlignmentSpan.class, actual.toString().substring(start, end));
+      return ALREADY_FAILED_ALIGNED;
+    }
+    return check("AlignmentSpan (start=%s,end=%s)", start, end)
+        .about(alignmentSpans(actual))
+        .that(alignmentSpans);
+  }
+
+  /**
+   * Checks that the subject has no {@link AlignmentSpan}s on any of the text between {@code start}
+   * and {@code end}.
+   *
+   * <p>This fails even if the start and end indexes don't exactly match.
+   *
+   * @param start The start index to start searching for spans.
+   * @param end The end index to stop searching for spans.
+   */
+  public void hasNoAlignmentSpanBetween(int start, int end) {
+    hasNoSpansOfTypeBetween(AlignmentSpan.class, start, end);
   }
 
   /**
@@ -547,6 +628,55 @@ public final class SpannedSubject extends Subject {
     @Override
     public void withFlags(int flags) {
       andFlags(flags);
+    }
+  }
+
+  /** Allows assertions about the alignment of a span. */
+  public interface Aligned {
+
+    /**
+     * Checks that at least one of the matched spans has the expected {@code alignment}.
+     *
+     * @param alignment The expected alignment.
+     * @return A {@link WithSpanFlags} object for optional additional assertions on the flags.
+     */
+    AndSpanFlags withAlignment(Alignment alignment);
+  }
+
+  private static final Aligned ALREADY_FAILED_ALIGNED = alignment -> ALREADY_FAILED_AND_FLAGS;
+
+  private static Factory<AlignmentSpansSubject, List<AlignmentSpan>> alignmentSpans(
+      Spanned actualSpanned) {
+    return (FailureMetadata metadata, List<AlignmentSpan> spans) ->
+        new AlignmentSpansSubject(metadata, spans, actualSpanned);
+  }
+
+  private static final class AlignmentSpansSubject extends Subject implements Aligned {
+
+    private final List<AlignmentSpan> actualSpans;
+    private final Spanned actualSpanned;
+
+    private AlignmentSpansSubject(
+        FailureMetadata metadata, List<AlignmentSpan> actualSpans, Spanned actualSpanned) {
+      super(metadata, actualSpans);
+      this.actualSpans = actualSpans;
+      this.actualSpanned = actualSpanned;
+    }
+
+    @Override
+    public AndSpanFlags withAlignment(Alignment alignment) {
+      List<Integer> matchingSpanFlags = new ArrayList<>();
+      List<Alignment> spanAlignments = new ArrayList<>();
+
+      for (AlignmentSpan span : actualSpans) {
+        spanAlignments.add(span.getAlignment());
+        if (span.getAlignment().equals(alignment)) {
+          matchingSpanFlags.add(actualSpanned.getSpanFlags(span));
+        }
+      }
+
+      check("alignment").that(spanAlignments).containsExactly(alignment);
+      return check("flags").about(spanFlags()).that(matchingSpanFlags);
     }
   }
 

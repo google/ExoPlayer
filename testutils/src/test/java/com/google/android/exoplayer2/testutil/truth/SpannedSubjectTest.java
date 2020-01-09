@@ -23,10 +23,13 @@ import static com.google.common.truth.ExpectFailure.expectFailureAbout;
 
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.text.Layout.Alignment;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.style.AlignmentSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
@@ -279,6 +282,185 @@ public class SpannedSubjectTest {
     assertThat(expected)
         .factKeys()
         .contains("Found unexpected UnderlineSpans between start=" + (start + 1) + ",end=" + end);
+    assertThat(expected).factKeys().contains("expected none");
+    assertThat(expected).factValue("but found").contains("start=" + start);
+  }
+
+  @Test
+  public void strikethroughSpan_success() {
+    SpannableString spannable = SpannableString.valueOf("test with crossed-out section");
+    int start = "test with ".length();
+    int end = start + "crossed-out".length();
+    spannable.setSpan(new StrikethroughSpan(), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+    assertThat(spannable)
+        .hasStrikethroughSpanBetween(start, end)
+        .withFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+  }
+
+  @Test
+  public void noStrikethroughSpan_success() {
+    SpannableString spannable =
+        SpannableString.valueOf("test with underline then crossed-out spans");
+    spannable.setSpan(
+        new UnderlineSpan(),
+        "test with ".length(),
+        "test with underline".length(),
+        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    spannable.setSpan(
+        new UnderlineSpan(),
+        "test with underline then ".length(),
+        "test with italic then crossed-out".length(),
+        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+    assertThat(spannable).hasNoStrikethroughSpanBetween(0, "test with underline then".length());
+  }
+
+  @Test
+  public void noStrikethroughSpan_failure() {
+    SpannableString spannable = SpannableString.valueOf("test with crossed-out section");
+    int start = "test with ".length();
+    int end = start + "crossed-out".length();
+    spannable.setSpan(new StrikethroughSpan(), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+    AssertionError expected =
+        expectFailure(
+            whenTesting ->
+                whenTesting.that(spannable).hasNoStrikethroughSpanBetween(start + 1, end));
+    assertThat(expected)
+        .factKeys()
+        .contains(
+            "Found unexpected StrikethroughSpans between start=" + (start + 1) + ",end=" + end);
+    assertThat(expected).factKeys().contains("expected none");
+    assertThat(expected).factValue("but found").contains("start=" + start);
+  }
+
+  @Test
+  public void alignmentSpan_success() {
+    SpannableString spannable = SpannableString.valueOf("test with right-aligned section");
+    int start = "test with ".length();
+    int end = start + "right-aligned".length();
+    spannable.setSpan(
+        new AlignmentSpan.Standard(Alignment.ALIGN_OPPOSITE),
+        start,
+        end,
+        Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+    assertThat(spannable)
+        .hasAlignmentSpanBetween(start, end)
+        .withAlignment(Alignment.ALIGN_OPPOSITE)
+        .andFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+  }
+
+  @Test
+  public void alignmentSpan_wrongEndIndex() {
+    SpannableString spannable = SpannableString.valueOf("test with right-aligned section");
+    int start = "test with ".length();
+    int end = start + "right-aligned".length();
+    spannable.setSpan(
+        new AlignmentSpan.Standard(Alignment.ALIGN_OPPOSITE),
+        start,
+        end,
+        Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+    int incorrectEnd = end + 2;
+    AssertionError expected =
+        expectFailure(
+            whenTesting ->
+                whenTesting
+                    .that(spannable)
+                    .hasAlignmentSpanBetween(start, incorrectEnd)
+                    .withAlignment(Alignment.ALIGN_OPPOSITE));
+    assertThat(expected).factValue("expected").contains("end=" + incorrectEnd);
+    assertThat(expected).factValue("but found").contains("end=" + end);
+  }
+
+  @Test
+  public void alignmentSpan_wrongAlignment() {
+    SpannableString spannable = SpannableString.valueOf("test with right-aligned section");
+    int start = "test with ".length();
+    int end = start + "right-aligned".length();
+    spannable.setSpan(
+        new AlignmentSpan.Standard(Alignment.ALIGN_OPPOSITE),
+        start,
+        end,
+        Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+    AssertionError expected =
+        expectFailure(
+            whenTesting ->
+                whenTesting
+                    .that(spannable)
+                    .hasAlignmentSpanBetween(start, end)
+                    .withAlignment(Alignment.ALIGN_CENTER));
+    assertThat(expected).factValue("value of").contains("alignment");
+    assertThat(expected).factValue("expected").contains("ALIGN_CENTER");
+    assertThat(expected).factValue("but was").contains("ALIGN_OPPOSITE");
+  }
+
+  @Test
+  public void alignmentSpan_wrongFlags() {
+    SpannableString spannable = SpannableString.valueOf("test with right-aligned section");
+    int start = "test with ".length();
+    int end = start + "right-aligned".length();
+    spannable.setSpan(
+        new AlignmentSpan.Standard(Alignment.ALIGN_OPPOSITE),
+        start,
+        end,
+        Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+    AssertionError expected =
+        expectFailure(
+            whenTesting ->
+                whenTesting
+                    .that(spannable)
+                    .hasAlignmentSpanBetween(start, end)
+                    .withAlignment(Alignment.ALIGN_OPPOSITE)
+                    .andFlags(Spanned.SPAN_EXCLUSIVE_EXCLUSIVE));
+    assertThat(expected).factValue("value of").contains("flags");
+    assertThat(expected)
+        .factValue("expected to contain")
+        .contains(String.valueOf(Spanned.SPAN_EXCLUSIVE_EXCLUSIVE));
+    assertThat(expected)
+        .factValue("but was")
+        .contains(String.valueOf(Spanned.SPAN_INCLUSIVE_EXCLUSIVE));
+  }
+
+  @Test
+  public void noAlignmentSpan_success() {
+    SpannableString spannable =
+        SpannableString.valueOf("test with underline then right-aligned spans");
+    spannable.setSpan(
+        new UnderlineSpan(),
+        "test with ".length(),
+        "test with underline".length(),
+        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    spannable.setSpan(
+        new AlignmentSpan.Standard(Alignment.ALIGN_OPPOSITE),
+        "test with underline then ".length(),
+        "test with underline then cyan".length(),
+        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+    assertThat(spannable).hasNoAlignmentSpanBetween(0, "test with underline then".length());
+  }
+
+  @Test
+  public void noAlignmentSpan_failure() {
+    SpannableString spannable = SpannableString.valueOf("test with right-aligned section");
+    int start = "test with ".length();
+    int end = start + "cyan".length();
+    spannable.setSpan(
+        new AlignmentSpan.Standard(Alignment.ALIGN_OPPOSITE),
+        start,
+        end,
+        Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+    AssertionError expected =
+        expectFailure(
+            whenTesting -> whenTesting.that(spannable).hasNoAlignmentSpanBetween(start + 1, end));
+    assertThat(expected)
+        .factKeys()
+        .contains("Found unexpected AlignmentSpans between start=" + (start + 1) + ",end=" + end);
     assertThat(expected).factKeys().contains("expected none");
     assertThat(expected).factValue("but found").contains("start=" + start);
   }
