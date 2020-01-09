@@ -534,8 +534,8 @@ public final class Ac3Util {
    *     contain the start of a syncframe.
    */
   public static int parseTrueHdSyncframeAudioSampleCount(byte[] syncframe) {
-    // TODO: Link to specification if available.
-    // The syncword ends 0xBA for TrueHD or 0xBB for MLP.
+    // See "Dolby TrueHD (MLP) high-level bitstream description" on the Dolby developer site,
+    // subsections 2.2 and 4.2.1. The syncword ends 0xBA for TrueHD or 0xBB for MLP.
     if (syncframe[4] != (byte) 0xF8
         || syncframe[5] != (byte) 0x72
         || syncframe[6] != (byte) 0x6F
