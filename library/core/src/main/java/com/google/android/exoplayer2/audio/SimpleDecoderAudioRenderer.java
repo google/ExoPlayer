@@ -101,10 +101,14 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   private Format inputFormat;
   private int encoderDelay;
   private int encoderPadding;
-  private SimpleDecoder<DecoderInputBuffer, ? extends SimpleOutputBuffer,
-        ? extends AudioDecoderException> decoder;
-  private DecoderInputBuffer inputBuffer;
-  private SimpleOutputBuffer outputBuffer;
+
+  @Nullable
+  private SimpleDecoder<
+          DecoderInputBuffer, ? extends SimpleOutputBuffer, ? extends AudioDecoderException>
+      decoder;
+
+  @Nullable private DecoderInputBuffer inputBuffer;
+  @Nullable private SimpleOutputBuffer outputBuffer;
   @Nullable private DrmSession<ExoMediaCrypto> decoderDrmSession;
   @Nullable private DrmSession<ExoMediaCrypto> sourceDrmSession;
 
