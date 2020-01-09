@@ -1,7 +1,7 @@
 WEBVTT
 
 STYLE
-::cue(\n#id ){text-decoration:underline;}
+::cue(#id ){text-decoration:underline;}
 
 STYLE
 ::cue(#id.class1.class2 ){ color: violet;}
@@ -20,7 +20,7 @@ STYLE
 
 id
 00:00.000 --> 00:01.001
-This should be underlined and <lang.class1.class2> courier and violet.
+This should be underlined and <lang.class1.class2>courier and violet.
 
 íd
 00:02.000 --> 00:02.001
@@ -31,10 +31,10 @@ _id
 This <lang.class.another>should be courier and bold.
 
 00:04.000 --> 00:04.001
-This <v Strider Trancos> shouldn't be bold.</v>
-This <v.class.clazz Strider Trancos> should be bold.
+This <v Strider Trancos>shouldn't be bold.</v>
+This <v.class.clazz Strider Trancos>should be bold.
 
 anId
 00:05.000 --> 00:05.001
-This is <v.class1.class3.class2 Pipo> specific </v>
-<v.class1.class3.class2 Robert> But this is more italic</v>
+This is <v.class1.class3.class2 Pipo>specific</v>
+<v.class1.class3.class2 Robert>But this is more italic</v>

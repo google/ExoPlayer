@@ -95,6 +95,7 @@ public final class WebvttCssStyle {
   @FontSizeUnit private int fontSizeUnit;
   private float fontSize;
   @Nullable private Layout.Alignment textAlign;
+  private boolean combineUpright;
 
   // Calling reset() is forbidden because `this` isn't initialized. This can be safely suppressed
   // because reset() only assigns fields, it doesn't read any.
@@ -118,6 +119,7 @@ public final class WebvttCssStyle {
     italic = UNSPECIFIED;
     fontSizeUnit = UNSPECIFIED;
     textAlign = null;
+    combineUpright = false;
   }
 
   public void setTargetId(String targetId) {
@@ -287,35 +289,12 @@ public final class WebvttCssStyle {
     return fontSize;
   }
 
-  public void cascadeFrom(WebvttCssStyle style) {
-    if (style.hasFontColor) {
-      setFontColor(style.fontColor);
-    }
-    if (style.bold != UNSPECIFIED) {
-      bold = style.bold;
-    }
-    if (style.italic != UNSPECIFIED) {
-      italic = style.italic;
-    }
-    if (style.fontFamily != null) {
-      fontFamily = style.fontFamily;
-    }
-    if (linethrough == UNSPECIFIED) {
-      linethrough = style.linethrough;
-    }
-    if (underline == UNSPECIFIED) {
-      underline = style.underline;
-    }
-    if (textAlign == null) {
-      textAlign = style.textAlign;
-    }
-    if (fontSizeUnit == UNSPECIFIED) {
-      fontSizeUnit = style.fontSizeUnit;
-      fontSize = style.fontSize;
-    }
-    if (style.hasBackgroundColor) {
-      setBackgroundColor(style.backgroundColor);
-    }
+  public void setCombineUpright(boolean enabled) {
+    this.combineUpright = enabled;
+  }
+
+  public boolean getCombineUpright() {
+    return combineUpright;
   }
 
   private static int updateScoreForMatch(

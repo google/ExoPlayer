@@ -26,7 +26,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -54,7 +53,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @MonotonicNonNull private Handler handler;
   private long pendingFlushCount;
   private @State int state;
-  private Runnable onCodecStart;
+  private Runnable codecStartRunnable;
   @Nullable private IllegalStateException internalException;
 
   /**
@@ -77,31 +76,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.codec = codec;
     this.handlerThread = handlerThread;
     state = STATE_CREATED;
-    onCodecStart = codec::start;
+    codecStartRunnable = codec::start;
   }
 
-  /**
-   * Starts the operation of the instance.
-   *
-   * <p>After a call to this method, make sure to call {@link #shutdown()} to terminate the internal
-   * Thread. You can only call this method once during the lifetime of this instance; calling this
-   * method again will throw an {@link IllegalStateException}.
-   *
-   * @throws IllegalStateException If this method has been called already.
-   */
+  @Override
   public synchronized void start() {
-    Assertions.checkState(state == STATE_CREATED);
-
     handlerThread.start();
     handler = new Handler(handlerThread.getLooper());
     codec.setCallback(this, handler);
+    codecStartRunnable.run();
     state = STATE_STARTED;
   }
 
   @Override
   public synchronized int dequeueInputBufferIndex() {
-    Assertions.checkState(state == STATE_STARTED);
-
     if (isFlushing()) {
       return MediaCodec.INFO_TRY_AGAIN_LATER;
     } else {
@@ -112,8 +100,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public synchronized int dequeueOutputBufferIndex(MediaCodec.BufferInfo bufferInfo) {
-    Assertions.checkState(state == STATE_STARTED);
-
     if (isFlushing()) {
       return MediaCodec.INFO_TRY_AGAIN_LATER;
     } else {
@@ -124,15 +110,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public synchronized MediaFormat getOutputFormat() {
-    Assertions.checkState(state == STATE_STARTED);
-
     return mediaCodecAsyncCallback.getOutputFormat();
   }
 
   @Override
   public synchronized void flush() {
-    Assertions.checkState(state == STATE_STARTED);
-
     codec.flush();
     ++pendingFlushCount;
     Util.castNonNull(handler).post(this::onFlushCompleted);
@@ -177,8 +159,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @VisibleForTesting
-  /* package */ void setOnCodecStart(Runnable onCodecStart) {
-    this.onCodecStart = onCodecStart;
+  /* package */ void setCodecStartRunnable(Runnable codecStartRunnable) {
+    this.codecStartRunnable = codecStartRunnable;
   }
 
   private synchronized void onFlushCompleted() {
@@ -199,7 +181,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     mediaCodecAsyncCallback.flush();
     try {
-      onCodecStart.run();
+      codecStartRunnable.run();
     } catch (IllegalStateException e) {
       internalException = e;
     } catch (Exception e) {
