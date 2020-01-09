@@ -566,7 +566,9 @@ public final class MediaCodecUtil {
             }
             return 0;
           });
-    } else if (Util.SDK_INT < 21 && decoderInfos.size() > 1) {
+    }
+
+    if (Util.SDK_INT < 21 && decoderInfos.size() > 1) {
       String firstCodecName = decoderInfos.get(0).name;
       if ("OMX.SEC.mp3.dec".equals(firstCodecName)
           || "OMX.SEC.MP3.Decoder".equals(firstCodecName)
@@ -576,6 +578,15 @@ public final class MediaCodecUtil {
         // https://github.com/google/ExoPlayer/issues/398 and
         // https://github.com/google/ExoPlayer/issues/4519.
         sortByScore(decoderInfos, decoderInfo -> decoderInfo.name.startsWith("OMX.google") ? 1 : 0);
+      }
+    }
+
+    if (Util.SDK_INT < 30 && decoderInfos.size() > 1) {
+      String firstCodecName = decoderInfos.get(0).name;
+      // Prefer anything other than OMX.qti.audio.decoder.flac on older devices. See [Internal
+      // ref: b/147278539] and [Internal ref: b/147354613].
+      if ("OMX.qti.audio.decoder.flac".equals(firstCodecName)) {
+        decoderInfos.add(decoderInfos.remove(0));
       }
     }
   }
