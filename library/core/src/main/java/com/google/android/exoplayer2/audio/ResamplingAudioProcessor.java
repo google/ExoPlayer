@@ -29,8 +29,11 @@ import java.nio.ByteBuffer;
   public AudioFormat onConfigure(AudioFormat inputAudioFormat)
       throws UnhandledAudioFormatException {
     @C.PcmEncoding int encoding = inputAudioFormat.encoding;
-    if (encoding != C.ENCODING_PCM_8BIT && encoding != C.ENCODING_PCM_16BIT
-        && encoding != C.ENCODING_PCM_24BIT && encoding != C.ENCODING_PCM_32BIT) {
+    if (encoding != C.ENCODING_PCM_8BIT
+        && encoding != C.ENCODING_PCM_16BIT
+        && encoding != C.ENCODING_PCM_16BIT_BIG_ENDIAN
+        && encoding != C.ENCODING_PCM_24BIT
+        && encoding != C.ENCODING_PCM_32BIT) {
       throw new UnhandledAudioFormatException(inputAudioFormat);
     }
     return encoding != C.ENCODING_PCM_16BIT
@@ -50,6 +53,9 @@ import java.nio.ByteBuffer;
       case C.ENCODING_PCM_8BIT:
         resampledSize = size * 2;
         break;
+      case C.ENCODING_PCM_16BIT_BIG_ENDIAN:
+        resampledSize = size;
+        break;
       case C.ENCODING_PCM_24BIT:
         resampledSize = (size / 3) * 2;
         break;
@@ -58,8 +64,6 @@ import java.nio.ByteBuffer;
         break;
       case C.ENCODING_PCM_16BIT:
       case C.ENCODING_PCM_FLOAT:
-      case C.ENCODING_PCM_A_LAW:
-      case C.ENCODING_PCM_MU_LAW:
       case C.ENCODING_INVALID:
       case Format.NO_VALUE:
       default:
@@ -70,21 +74,28 @@ import java.nio.ByteBuffer;
     ByteBuffer buffer = replaceOutputBuffer(resampledSize);
     switch (inputAudioFormat.encoding) {
       case C.ENCODING_PCM_8BIT:
-        // 8->16 bit resampling. Shift each byte from [0, 256) to [-128, 128) and scale up.
+        // 8 -> 16 bit resampling. Shift each byte from [0, 256) to [-128, 128) and scale up.
         for (int i = position; i < limit; i++) {
           buffer.put((byte) 0);
           buffer.put((byte) ((inputBuffer.get(i) & 0xFF) - 128));
         }
         break;
+      case C.ENCODING_PCM_16BIT_BIG_ENDIAN:
+        // Big endian to little endian resampling. Swap the byte order.
+        for (int i = position; i < limit; i += 2) {
+          buffer.put(inputBuffer.get(i + 1));
+          buffer.put(inputBuffer.get(i));
+        }
+        break;
       case C.ENCODING_PCM_24BIT:
-        // 24->16 bit resampling. Drop the least significant byte.
+        // 24 -> 16 bit resampling. Drop the least significant byte.
         for (int i = position; i < limit; i += 3) {
           buffer.put(inputBuffer.get(i + 1));
           buffer.put(inputBuffer.get(i + 2));
         }
         break;
       case C.ENCODING_PCM_32BIT:
-        // 32->16 bit resampling. Drop the two least significant bytes.
+        // 32 -> 16 bit resampling. Drop the two least significant bytes.
         for (int i = position; i < limit; i += 4) {
           buffer.put(inputBuffer.get(i + 2));
           buffer.put(inputBuffer.get(i + 3));
@@ -92,8 +103,6 @@ import java.nio.ByteBuffer;
         break;
       case C.ENCODING_PCM_16BIT:
       case C.ENCODING_PCM_FLOAT:
-      case C.ENCODING_PCM_A_LAW:
-      case C.ENCODING_PCM_MU_LAW:
       case C.ENCODING_INVALID:
       case Format.NO_VALUE:
       default:

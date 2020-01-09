@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.extractor.ts;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.util.SparseArray;
+import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
@@ -172,6 +173,7 @@ public final class TsExtractorTest {
       }
     }
 
+    @Nullable
     @Override
     public TsPayloadReader createPayloadReader(int streamType, EsInfo esInfo) {
       if (provideCustomEsReader && streamType == 3) {

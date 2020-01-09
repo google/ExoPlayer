@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor.ts;
 
 import android.util.SparseArray;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -25,10 +26,13 @@ import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import java.io.IOException;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * Extracts data from the MPEG-2 PS container format.
@@ -67,8 +71,8 @@ public final class PsExtractor implements Extractor {
   private long lastTrackPosition;
 
   // Accessed only by the loading thread.
-  private PsBinarySearchSeeker psBinarySearchSeeker;
-  private ExtractorOutput output;
+  @Nullable private PsBinarySearchSeeker psBinarySearchSeeker;
+  @MonotonicNonNull private ExtractorOutput output;
   private boolean hasOutputSeekMap;
 
   public PsExtractor() {
@@ -160,6 +164,7 @@ public final class PsExtractor implements Extractor {
   @Override
   public int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
+    Assertions.checkStateNotNull(output); // Asserts init has been called.
 
     long inputLength = input.getLength();
     boolean canReadDuration = inputLength != C.LENGTH_UNSET;
@@ -221,7 +226,7 @@ public final class PsExtractor implements Extractor {
     PesReader payloadReader = psPayloadReaders.get(streamId);
     if (!foundAllTracks) {
       if (payloadReader == null) {
-        ElementaryStreamReader elementaryStreamReader = null;
+        @Nullable ElementaryStreamReader elementaryStreamReader = null;
         if (streamId == PRIVATE_STREAM_1) {
           // Private stream, used for AC3 audio.
           // NOTE: This may need further parsing to determine if its DTS, but that's likely only
@@ -278,6 +283,7 @@ public final class PsExtractor implements Extractor {
 
   // Internals.
 
+  @RequiresNonNull("output")
   private void maybeOutputSeekMap(long inputLength) {
     if (!hasOutputSeekMap) {
       hasOutputSeekMap = true;

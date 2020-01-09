@@ -32,6 +32,13 @@ import android.media.MediaFormat;
 /* package */ interface MediaCodecAdapter {
 
   /**
+   * Starts this instance.
+   *
+   * @see MediaCodec#start().
+   */
+  void start();
+
+  /**
    * Returns the next available input buffer index from the underlying {@link MediaCodec} or {@link
    * MediaCodec#INFO_TRY_AGAIN_LATER} if no such buffer exists.
    *

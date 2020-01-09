@@ -15,13 +15,17 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.DtsUtil;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * Parses a continuous DTS byte stream and extracts individual samples.
@@ -35,10 +39,10 @@ public final class DtsReader implements ElementaryStreamReader {
   private static final int HEADER_SIZE = 18;
 
   private final ParsableByteArray headerScratchBytes;
-  private final String language;
+  @Nullable private final String language;
 
-  private String formatId;
-  private TrackOutput output;
+  @MonotonicNonNull private String formatId;
+  @MonotonicNonNull private TrackOutput output;
 
   private int state;
   private int bytesRead;
@@ -48,7 +52,7 @@ public final class DtsReader implements ElementaryStreamReader {
 
   // Used when parsing the header.
   private long sampleDurationUs;
-  private Format format;
+  @MonotonicNonNull private Format format;
   private int sampleSize;
 
   // Used when reading the samples.
@@ -59,7 +63,7 @@ public final class DtsReader implements ElementaryStreamReader {
    *
    * @param language Track language.
    */
-  public DtsReader(String language) {
+  public DtsReader(@Nullable String language) {
     headerScratchBytes = new ParsableByteArray(new byte[HEADER_SIZE]);
     state = STATE_FINDING_SYNC;
     this.language = language;
@@ -86,6 +90,7 @@ public final class DtsReader implements ElementaryStreamReader {
 
   @Override
   public void consume(ParsableByteArray data) {
+    Assertions.checkStateNotNull(output); // Asserts that createTracks has been called.
     while (data.bytesLeft() > 0) {
       switch (state) {
         case STATE_FINDING_SYNC:
@@ -162,9 +167,8 @@ public final class DtsReader implements ElementaryStreamReader {
     return false;
   }
 
-  /**
-   * Parses the sample header.
-   */
+  /** Parses the sample header. */
+  @RequiresNonNull("output")
   private void parseHeader() {
     byte[] frameData = headerScratchBytes.data;
     if (format == null) {

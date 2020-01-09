@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.text.ttml;
 
-import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.AbsoluteSizeSpan;
@@ -27,6 +26,7 @@ import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
+import com.google.android.exoplayer2.text.SpanUtil;
 import java.util.Map;
 
 /**
@@ -77,32 +77,60 @@ import java.util.Map;
       builder.setSpan(new UnderlineSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
     if (style.hasFontColor()) {
-      builder.setSpan(new ForegroundColorSpan(style.getFontColor()), start, end,
-          Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+      SpanUtil.addOrReplaceSpan(
+          builder,
+          new ForegroundColorSpan(style.getFontColor()),
+          start,
+          end,
+          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
     if (style.hasBackgroundColor()) {
-      builder.setSpan(new BackgroundColorSpan(style.getBackgroundColor()), start, end,
-          Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+      SpanUtil.addOrReplaceSpan(
+          builder,
+          new BackgroundColorSpan(style.getBackgroundColor()),
+          start,
+          end,
+          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
     if (style.getFontFamily() != null) {
-      builder.setSpan(new TypefaceSpan(style.getFontFamily()), start, end,
+      SpanUtil.addOrReplaceSpan(
+          builder,
+          new TypefaceSpan(style.getFontFamily()),
+          start,
+          end,
           Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
     if (style.getTextAlign() != null) {
-      builder.setSpan(new AlignmentSpan.Standard(style.getTextAlign()), start, end,
+      SpanUtil.addOrReplaceSpan(
+          builder,
+          new AlignmentSpan.Standard(style.getTextAlign()),
+          start,
+          end,
           Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
     switch (style.getFontSizeUnit()) {
       case TtmlStyle.FONT_SIZE_UNIT_PIXEL:
-        builder.setSpan(new AbsoluteSizeSpan((int) style.getFontSize(), true), start, end,
+        SpanUtil.addOrReplaceSpan(
+            builder,
+            new AbsoluteSizeSpan((int) style.getFontSize(), true),
+            start,
+            end,
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         break;
       case TtmlStyle.FONT_SIZE_UNIT_EM:
-        builder.setSpan(new RelativeSizeSpan(style.getFontSize()), start, end,
+        SpanUtil.addOrReplaceSpan(
+            builder,
+            new RelativeSizeSpan(style.getFontSize()),
+            start,
+            end,
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         break;
       case TtmlStyle.FONT_SIZE_UNIT_PERCENT:
-        builder.setSpan(new RelativeSizeSpan(style.getFontSize() / 100), start, end,
+        SpanUtil.addOrReplaceSpan(
+            builder,
+            new RelativeSizeSpan(style.getFontSize() / 100),
+            start,
+            end,
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         break;
       case TtmlStyle.UNSPECIFIED:

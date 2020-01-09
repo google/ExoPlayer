@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor.ts;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.Ac3Util;
@@ -23,11 +24,15 @@ import com.google.android.exoplayer2.audio.Ac3Util.SyncFrameInfo;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * Parses a continuous (E-)AC-3 byte stream and extracts individual samples.
@@ -47,10 +52,10 @@ public final class Ac3Reader implements ElementaryStreamReader {
 
   private final ParsableBitArray headerScratchBits;
   private final ParsableByteArray headerScratchBytes;
-  private final String language;
+  @Nullable private final String language;
 
-  private String trackFormatId;
-  private TrackOutput output;
+  @MonotonicNonNull private String formatId;
+  @MonotonicNonNull private TrackOutput output;
 
   @State private int state;
   private int bytesRead;
@@ -60,7 +65,7 @@ public final class Ac3Reader implements ElementaryStreamReader {
 
   // Used when parsing the header.
   private long sampleDurationUs;
-  private Format format;
+  @MonotonicNonNull private Format format;
   private int sampleSize;
 
   // Used when reading the samples.
@@ -78,7 +83,7 @@ public final class Ac3Reader implements ElementaryStreamReader {
    *
    * @param language Track language.
    */
-  public Ac3Reader(String language) {
+  public Ac3Reader(@Nullable String language) {
     headerScratchBits = new ParsableBitArray(new byte[HEADER_SIZE]);
     headerScratchBytes = new ParsableByteArray(headerScratchBits.data);
     state = STATE_FINDING_SYNC;
@@ -95,7 +100,7 @@ public final class Ac3Reader implements ElementaryStreamReader {
   @Override
   public void createTracks(ExtractorOutput extractorOutput, TrackIdGenerator generator) {
     generator.generateNewId();
-    trackFormatId = generator.getFormatId();
+    formatId = generator.getFormatId();
     output = extractorOutput.track(generator.getTrackId(), C.TRACK_TYPE_AUDIO);
   }
 
@@ -106,6 +111,7 @@ public final class Ac3Reader implements ElementaryStreamReader {
 
   @Override
   public void consume(ParsableByteArray data) {
+    Assertions.checkStateNotNull(output); // Asserts that createTracks has been called.
     while (data.bytesLeft() > 0) {
       switch (state) {
         case STATE_FINDING_SYNC:
@@ -185,19 +191,28 @@ public final class Ac3Reader implements ElementaryStreamReader {
     return false;
   }
 
-  /**
-   * Parses the sample header.
-   */
-  @SuppressWarnings("ReferenceEquality")
+  /** Parses the sample header. */
+  @RequiresNonNull("output")
   private void parseHeader() {
     headerScratchBits.setPosition(0);
     SyncFrameInfo frameInfo = Ac3Util.parseAc3SyncframeInfo(headerScratchBits);
-    if (format == null || frameInfo.channelCount != format.channelCount
+    if (format == null
+        || frameInfo.channelCount != format.channelCount
         || frameInfo.sampleRate != format.sampleRate
-        || frameInfo.mimeType != format.sampleMimeType) {
-      format = Format.createAudioSampleFormat(trackFormatId, frameInfo.mimeType, null,
-          Format.NO_VALUE, Format.NO_VALUE, frameInfo.channelCount, frameInfo.sampleRate, null,
-          null, 0, language);
+        || Util.areEqual(frameInfo.mimeType, format.sampleMimeType)) {
+      format =
+          Format.createAudioSampleFormat(
+              formatId,
+              frameInfo.mimeType,
+              null,
+              Format.NO_VALUE,
+              Format.NO_VALUE,
+              frameInfo.channelCount,
+              frameInfo.sampleRate,
+              null,
+              null,
+              0,
+              language);
       output.format(format);
     }
     sampleSize = frameInfo.frameSize;
