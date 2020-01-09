@@ -32,6 +32,30 @@
   ([#6733](https://github.com/google/ExoPlayer/issues/6733)). Incorrect handling
   could previously cause downloads to be paused when they should have been able
   to proceed.
+* Fix handling of E-AC-3 streams that contain AC-3 syncframes
+  ([#6602](https://github.com/google/ExoPlayer/issues/6602)).
+* Fix playback of TrueHD streams in Matroska
+  ([#6845](https://github.com/google/ExoPlayer/issues/6845)).
+* Support "twos" codec (big endian PCM) in MP4
+  ([#5789](https://github.com/google/ExoPlayer/issues/5789)).
+* WAV: Support IMA ADPCM encoded data.
+* Show ad group markers in `DefaultTimeBar` even if they are after the end of
+  the current window
+  ([#6552](https://github.com/google/ExoPlayer/issues/6552)).
+* WAV:
+  * Support IMA ADPCM encoded data.
+  * Improve support for G.711 A-law and mu-law encoded data.
+* Fix MKV subtitles to disappear when intended instead of lasting until the
+  next cue ([#6833](https://github.com/google/ExoPlayer/issues/6833)).
+* Parse \<ruby\> and \<rt\> tags in WebVTT subtitles (rendering is coming
+  later).
+* Parse `text-combine-upright` CSS property (i.e. tate-chu-yoko) in WebVTT
+  subtitles (rendering is coming later).
+* OkHttp extension: Upgrade OkHttp dependency to 3.12.7, which fixes a class of
+  `SocketTimeoutException` issues when using HTTP/2
+  ([#4078](https://github.com/google/ExoPlayer/issues/4078)).
+* Don't use notification chronometer if playback speed is != 1.0
+  ([#6816](https://github.com/google/ExoPlayer/issues/6816)).
 
 ### 2.11.1 (2019-12-20) ###
 

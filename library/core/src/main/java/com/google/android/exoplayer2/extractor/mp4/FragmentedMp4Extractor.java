@@ -168,7 +168,6 @@ public class FragmentedMp4Extractor implements Extractor {
   private int sampleBytesWritten;
   private int sampleCurrentNalBytesRemaining;
   private boolean processSeiNalUnitPayload;
-  private boolean isAc4HeaderRequired;
 
   // Extractor output.
   @MonotonicNonNull private ExtractorOutput extractorOutput;
@@ -302,7 +301,6 @@ public class FragmentedMp4Extractor implements Extractor {
     pendingMetadataSampleBytes = 0;
     pendingSeekTimeUs = timeUs;
     containerAtoms.clear();
-    isAc4HeaderRequired = false;
     enterReadingAtomHeaderState();
   }
 
@@ -1270,11 +1268,18 @@ public class FragmentedMp4Extractor implements Extractor {
       }
       sampleBytesWritten = currentTrackBundle.outputSampleEncryptionData();
       sampleSize += sampleBytesWritten;
+<<<<<<< HEAD
       outputSampleEncryptionDataSize = sampleBytesWritten;
+=======
+      if (MimeTypes.AUDIO_AC4.equals(currentTrackBundle.track.format.sampleMimeType)) {
+        Ac4Util.getAc4SampleHeader(sampleSize, scratch);
+        currentTrackBundle.output.sampleData(scratch, Ac4Util.SAMPLE_HEADER_SIZE);
+        sampleBytesWritten += Ac4Util.SAMPLE_HEADER_SIZE;
+        sampleSize += Ac4Util.SAMPLE_HEADER_SIZE;
+      }
+>>>>>>> 4f15cfaa78f8053c4bf83ef0871df98d29fa6e0b
       parserState = STATE_READING_SAMPLE_CONTINUE;
       sampleCurrentNalBytesRemaining = 0;
-      isAc4HeaderRequired =
-          MimeTypes.AUDIO_AC4.equals(currentTrackBundle.track.format.sampleMimeType);
     }
 
     TrackFragment fragment = currentTrackBundle.fragment;
@@ -1339,6 +1344,7 @@ public class FragmentedMp4Extractor implements Extractor {
         }
       }
     } else {
+<<<<<<< HEAD
       if (isAc4HeaderRequired) {
         Ac4Util.getAc4SampleHeader(sampleSize - outputSampleEncryptionDataSize, scratch);
         int length = scratch.limit();
@@ -1347,6 +1353,8 @@ public class FragmentedMp4Extractor implements Extractor {
         sampleBytesWritten += length;
         isAc4HeaderRequired = false;
       }
+=======
+>>>>>>> 4f15cfaa78f8053c4bf83ef0871df98d29fa6e0b
       while (sampleBytesWritten < sampleSize) {
         int writtenBytes = output.sampleData(input, sampleSize - sampleBytesWritten, false);
         sampleBytesWritten += writtenBytes;

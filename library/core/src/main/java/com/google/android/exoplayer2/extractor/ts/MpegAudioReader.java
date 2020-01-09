@@ -21,7 +21,11 @@ import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.MpegAudioHeader;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * Parses a continuous MPEG Audio byte stream and extracts individual frames.
@@ -36,10 +40,10 @@ public final class MpegAudioReader implements ElementaryStreamReader {
 
   private final ParsableByteArray headerScratch;
   private final MpegAudioHeader header;
-  private final String language;
+  @Nullable private final String language;
 
-  private String formatId;
-  private TrackOutput output;
+  @MonotonicNonNull private TrackOutput output;
+  @MonotonicNonNull private String formatId;
 
   private int state;
   private int frameBytesRead;
@@ -59,7 +63,7 @@ public final class MpegAudioReader implements ElementaryStreamReader {
     this(null);
   }
 
-  public MpegAudioReader(String language) {
+  public MpegAudioReader(@Nullable String language) {
     state = STATE_FINDING_HEADER;
     // The first byte of an MPEG Audio frame header is always 0xFF.
     headerScratch = new ParsableByteArray(4);
@@ -89,6 +93,7 @@ public final class MpegAudioReader implements ElementaryStreamReader {
 
   @Override
   public void consume(ParsableByteArray data) {
+    Assertions.checkStateNotNull(output); // Asserts that createTracks has been called.
     while (data.bytesLeft() > 0) {
       switch (state) {
         case STATE_FINDING_HEADER:
@@ -146,20 +151,21 @@ public final class MpegAudioReader implements ElementaryStreamReader {
 
   /**
    * Attempts to read the remaining two bytes of the frame header.
-   * <p>
-   * If a frame header is read in full then the state is changed to {@link #STATE_READING_FRAME},
+   *
+   * <p>If a frame header is read in full then the state is changed to {@link #STATE_READING_FRAME},
    * the media format is output if this has not previously occurred, the four header bytes are
    * output as sample data, and the position of the source is advanced to the byte that immediately
    * follows the header.
-   * <p>
-   * If a frame header is read in full but cannot be parsed then the state is changed to
-   * {@link #STATE_READING_HEADER}.
-   * <p>
-   * If a frame header is not read in full then the position of the source is advanced to the limit,
-   * and the method should be called again with the next source to continue the read.
+   *
+   * <p>If a frame header is read in full but cannot be parsed then the state is changed to {@link
+   * #STATE_READING_HEADER}.
+   *
+   * <p>If a frame header is not read in full then the position of the source is advanced to the
+   * limit, and the method should be called again with the next source to continue the read.
    *
    * @param source The source from which to read.
    */
+  @RequiresNonNull("output")
   private void readHeaderRemainder(ParsableByteArray source) {
     int bytesToRead = Math.min(source.bytesLeft(), HEADER_SIZE - frameBytesRead);
     source.readBytes(headerScratch.data, frameBytesRead, bytesToRead);
@@ -195,16 +201,17 @@ public final class MpegAudioReader implements ElementaryStreamReader {
 
   /**
    * Attempts to read the remainder of the frame.
-   * <p>
-   * If a frame is read in full then true is returned. The frame will have been output, and the
+   *
+   * <p>If a frame is read in full then true is returned. The frame will have been output, and the
    * position of the source will have been advanced to the byte that immediately follows the end of
    * the frame.
-   * <p>
-   * If a frame is not read in full then the position of the source will have been advanced to the
-   * limit, and the method should be called again with the next source to continue the read.
+   *
+   * <p>If a frame is not read in full then the position of the source will have been advanced to
+   * the limit, and the method should be called again with the next source to continue the read.
    *
    * @param source The source from which to read.
    */
+  @RequiresNonNull("output")
   private void readFrameRemainder(ParsableByteArray source) {
     int bytesToRead = Math.min(source.bytesLeft(), frameSize - frameBytesRead);
     output.sampleData(source, bytesToRead);
@@ -219,5 +226,4 @@ public final class MpegAudioReader implements ElementaryStreamReader {
     frameBytesRead = 0;
     state = STATE_FINDING_HEADER;
   }
-
 }

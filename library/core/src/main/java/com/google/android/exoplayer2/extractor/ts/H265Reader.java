@@ -20,12 +20,18 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.ParsableNalUnitBitArray;
+import com.google.android.exoplayer2.util.Util;
 import java.util.Collections;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * Parses a continuous H.265 byte stream and extracts individual frames.
@@ -46,9 +52,9 @@ public final class H265Reader implements ElementaryStreamReader {
 
   private final SeiReader seiReader;
 
-  private String formatId;
-  private TrackOutput output;
-  private SampleReader sampleReader;
+  @MonotonicNonNull private String formatId;
+  @MonotonicNonNull private TrackOutput output;
+  @MonotonicNonNull private SampleReader sampleReader;
 
   // State that should not be reset on seek.
   private boolean hasOutputFormat;
@@ -84,14 +90,16 @@ public final class H265Reader implements ElementaryStreamReader {
 
   @Override
   public void seek() {
+    totalBytesWritten = 0;
     NalUnitUtil.clearPrefixFlags(prefixFlags);
     vps.reset();
     sps.reset();
     pps.reset();
     prefixSei.reset();
     suffixSei.reset();
-    sampleReader.reset();
-    totalBytesWritten = 0;
+    if (sampleReader != null) {
+      sampleReader.reset();
+    }
   }
 
   @Override
@@ -111,6 +119,8 @@ public final class H265Reader implements ElementaryStreamReader {
 
   @Override
   public void consume(ParsableByteArray data) {
+    assertTracksCreated();
+
     while (data.bytesLeft() > 0) {
       int offset = data.getPosition();
       int limit = data.limit();
@@ -160,6 +170,7 @@ public final class H265Reader implements ElementaryStreamReader {
     // Do nothing.
   }
 
+  @RequiresNonNull("sampleReader")
   private void startNalUnit(long position, int offset, int nalUnitType, long pesTimeUs) {
     if (hasOutputFormat) {
       sampleReader.startNalUnit(position, offset, nalUnitType, pesTimeUs);
@@ -172,6 +183,7 @@ public final class H265Reader implements ElementaryStreamReader {
     suffixSei.startNalUnit(nalUnitType);
   }
 
+  @RequiresNonNull("sampleReader")
   private void nalUnitData(byte[] dataArray, int offset, int limit) {
     if (hasOutputFormat) {
       sampleReader.readNalUnitData(dataArray, offset, limit);
@@ -184,6 +196,7 @@ public final class H265Reader implements ElementaryStreamReader {
     suffixSei.appendToNalUnit(dataArray, offset, limit);
   }
 
+  @RequiresNonNull({"output", "sampleReader"})
   private void endNalUnit(long position, int offset, int discardPadding, long pesTimeUs) {
     if (hasOutputFormat) {
       sampleReader.endNalUnit(position, offset);
@@ -214,8 +227,11 @@ public final class H265Reader implements ElementaryStreamReader {
     }
   }
 
-  private static Format parseMediaFormat(String formatId, NalUnitTargetBuffer vps,
-      NalUnitTargetBuffer sps, NalUnitTargetBuffer pps) {
+  private static Format parseMediaFormat(
+      @Nullable String formatId,
+      NalUnitTargetBuffer vps,
+      NalUnitTargetBuffer sps,
+      NalUnitTargetBuffer pps) {
     // Build codec-specific data.
     byte[] csd = new byte[vps.nalLength + sps.nalLength + pps.nalLength];
     System.arraycopy(vps.nalData, 0, csd, 0, vps.nalLength);
@@ -387,6 +403,12 @@ public final class H265Reader implements ElementaryStreamReader {
         }
       }
     }
+  }
+
+  @EnsuresNonNull({"output", "sampleReader"})
+  private void assertTracksCreated() {
+    Assertions.checkStateNotNull(output);
+    Util.castNonNull(sampleReader);
   }
 
   private static final class SampleReader {

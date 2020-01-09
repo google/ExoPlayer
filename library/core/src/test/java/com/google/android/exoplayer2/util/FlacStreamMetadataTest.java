@@ -17,9 +17,12 @@ package com.google.android.exoplayer2.util;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.flac.VorbisComment;
+import com.google.android.exoplayer2.testutil.TestUtil;
+import java.io.IOException;
 import java.util.ArrayList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,6 +30,27 @@ import org.junit.runner.RunWith;
 /** Unit test for {@link FlacStreamMetadata}. */
 @RunWith(AndroidJUnit4.class)
 public final class FlacStreamMetadataTest {
+
+  @Test
+  public void constructFromByteArray_setsFieldsCorrectly() throws IOException {
+    byte[] fileData =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), "flac/bear.flac");
+
+    FlacStreamMetadata streamMetadata =
+        new FlacStreamMetadata(
+            fileData, FlacConstants.STREAM_MARKER_SIZE + FlacConstants.METADATA_BLOCK_HEADER_SIZE);
+
+    assertThat(streamMetadata.minBlockSizeSamples).isEqualTo(4096);
+    assertThat(streamMetadata.maxBlockSizeSamples).isEqualTo(4096);
+    assertThat(streamMetadata.minFrameSize).isEqualTo(445);
+    assertThat(streamMetadata.maxFrameSize).isEqualTo(5776);
+    assertThat(streamMetadata.sampleRate).isEqualTo(48000);
+    assertThat(streamMetadata.sampleRateLookupKey).isEqualTo(10);
+    assertThat(streamMetadata.channels).isEqualTo(2);
+    assertThat(streamMetadata.bitsPerSample).isEqualTo(16);
+    assertThat(streamMetadata.bitsPerSampleLookupKey).isEqualTo(4);
+    assertThat(streamMetadata.totalSamples).isEqualTo(131568);
+  }
 
   @Test
   public void parseVorbisComments() {

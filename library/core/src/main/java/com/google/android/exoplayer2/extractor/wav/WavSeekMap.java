@@ -49,20 +49,18 @@ import com.google.android.exoplayer2.util.Util;
 
   @Override
   public SeekPoints getSeekPoints(long timeUs) {
-    // Calculate the expected number of bytes of sample data corresponding to the requested time.
-    long positionOffset = (timeUs * wavHeader.averageBytesPerSecond) / C.MICROS_PER_SECOND;
     // Calculate the containing block index, constraining to valid indices.
-    long blockSize = wavHeader.blockSize;
-    long blockIndex = Util.constrainValue(positionOffset / blockSize, 0, blockCount - 1);
+    long blockIndex = (timeUs * wavHeader.frameRateHz) / (C.MICROS_PER_SECOND * framesPerBlock);
+    blockIndex = Util.constrainValue(blockIndex, 0, blockCount - 1);
 
-    long seekPosition = firstBlockPosition + (blockIndex * blockSize);
+    long seekPosition = firstBlockPosition + (blockIndex * wavHeader.blockSize);
     long seekTimeUs = blockIndexToTimeUs(blockIndex);
     SeekPoint seekPoint = new SeekPoint(seekTimeUs, seekPosition);
     if (seekTimeUs >= timeUs || blockIndex == blockCount - 1) {
       return new SeekPoints(seekPoint);
     } else {
       long secondBlockIndex = blockIndex + 1;
-      long secondSeekPosition = firstBlockPosition + (secondBlockIndex * blockSize);
+      long secondSeekPosition = firstBlockPosition + (secondBlockIndex * wavHeader.blockSize);
       long secondSeekTimeUs = blockIndexToTimeUs(secondBlockIndex);
       SeekPoint secondSeekPoint = new SeekPoint(secondSeekTimeUs, secondSeekPosition);
       return new SeekPoints(seekPoint, secondSeekPoint);

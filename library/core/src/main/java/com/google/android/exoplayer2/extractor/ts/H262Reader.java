@@ -16,16 +16,20 @@
 package com.google.android.exoplayer2.extractor.ts;
 
 import android.util.Pair;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 import java.util.Collections;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Parses a continuous H262 byte stream and extracts individual frames.
@@ -38,26 +42,26 @@ public final class H262Reader implements ElementaryStreamReader {
   private static final int START_GROUP = 0xB8;
   private static final int START_USER_DATA = 0xB2;
 
-  private String formatId;
-  private TrackOutput output;
+  @MonotonicNonNull private String formatId;
+  @MonotonicNonNull private TrackOutput output;
 
   // Maps (frame_rate_code - 1) indices to values, as defined in ITU-T H.262 Table 6-4.
   private static final double[] FRAME_RATE_VALUES = new double[] {
       24000d / 1001, 24, 25, 30000d / 1001, 30, 50, 60000d / 1001, 60};
 
+  @Nullable private final UserDataReader userDataReader;
+  @Nullable private final ParsableByteArray userDataParsable;
+
+  // State that should be reset on seek.
+  @Nullable private final NalUnitTargetBuffer userData;
+  private final boolean[] prefixFlags;
+  private final CsdBuffer csdBuffer;
+  private long totalBytesWritten;
+  private boolean startedFirstSample;
+
   // State that should not be reset on seek.
   private boolean hasOutputFormat;
   private long frameDurationUs;
-
-  private final UserDataReader userDataReader;
-  private final ParsableByteArray userDataParsable;
-
-  // State that should be reset on seek.
-  private final boolean[] prefixFlags;
-  private final CsdBuffer csdBuffer;
-  private final NalUnitTargetBuffer userData;
-  private long totalBytesWritten;
-  private boolean startedFirstSample;
 
   // Per packet state that gets reset at the start of each packet.
   private long pesTimeUs;
@@ -72,7 +76,7 @@ public final class H262Reader implements ElementaryStreamReader {
     this(null);
   }
 
-  /* package */ H262Reader(UserDataReader userDataReader) {
+  /* package */ H262Reader(@Nullable UserDataReader userDataReader) {
     this.userDataReader = userDataReader;
     prefixFlags = new boolean[4];
     csdBuffer = new CsdBuffer(128);
@@ -89,7 +93,7 @@ public final class H262Reader implements ElementaryStreamReader {
   public void seek() {
     NalUnitUtil.clearPrefixFlags(prefixFlags);
     csdBuffer.reset();
-    if (userDataReader != null) {
+    if (userData != null) {
       userData.reset();
     }
     totalBytesWritten = 0;
@@ -114,6 +118,7 @@ public final class H262Reader implements ElementaryStreamReader {
 
   @Override
   public void consume(ParsableByteArray data) {
+    Assertions.checkStateNotNull(output); // Asserts that createTracks has been called.
     int offset = data.getPosition();
     int limit = data.limit();
     byte[] dataArray = data.data;
@@ -130,7 +135,7 @@ public final class H262Reader implements ElementaryStreamReader {
         if (!hasOutputFormat) {
           csdBuffer.onData(dataArray, offset, limit);
         }
-        if (userDataReader != null) {
+        if (userData != null) {
           userData.appendToNalUnit(dataArray, offset, limit);
         }
         return;
@@ -157,7 +162,7 @@ public final class H262Reader implements ElementaryStreamReader {
           hasOutputFormat = true;
         }
       }
-      if (userDataReader != null) {
+      if (userData != null) {
         int bytesAlreadyPassed = 0;
         if (lengthToStartCode > 0) {
           userData.appendToNalUnit(dataArray, offset, startCodeOffset);
@@ -167,8 +172,8 @@ public final class H262Reader implements ElementaryStreamReader {
 
         if (userData.endNalUnit(bytesAlreadyPassed)) {
           int unescapedLength = NalUnitUtil.unescapeStream(userData.nalData, userData.nalLength);
-          userDataParsable.reset(userData.nalData, unescapedLength);
-          userDataReader.consume(sampleTimeUs, userDataParsable);
+          Util.castNonNull(userDataParsable).reset(userData.nalData, unescapedLength);
+          Util.castNonNull(userDataReader).consume(sampleTimeUs, userDataParsable);
         }
 
         if (startCodeValue == START_USER_DATA && data.data[startCodeOffset + 2] == 0x1) {
@@ -211,10 +216,10 @@ public final class H262Reader implements ElementaryStreamReader {
    *
    * @param csdBuffer The csd buffer.
    * @param formatId The id for the generated format. May be null.
-   * @return A pair consisting of the {@link Format} and the frame duration in microseconds, or
-   *     0 if the duration could not be determined.
+   * @return A pair consisting of the {@link Format} and the frame duration in microseconds, or 0 if
+   *     the duration could not be determined.
    */
-  private static Pair<Format, Long> parseCsdBuffer(CsdBuffer csdBuffer, String formatId) {
+  private static Pair<Format, Long> parseCsdBuffer(CsdBuffer csdBuffer, @Nullable String formatId) {
     byte[] csdData = Arrays.copyOf(csdBuffer.data, csdBuffer.length);
 
     int firstByte = csdData[4] & 0xFF;
