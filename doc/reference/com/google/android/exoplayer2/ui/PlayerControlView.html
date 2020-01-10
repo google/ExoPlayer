@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <!-- NewPage -->
 <html lang="en">
-<head>
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
 <title>PlayerControlView (ExoPlayer library)</title>
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
 <script type="text/javascript" src="../../../../../script.js"></script>
@@ -134,8 +134,8 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <div class="block">A view for controlling <a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> instances.
 
  <p>A PlayerControlView can be customized by setting attributes (or calling corresponding
- methods), overriding drawables, overriding the view's layout file, or by specifying a custom view
- layout file.
+ methods), overriding the view's layout file or by specifying a custom view layout file, as
+ outlined below.
 
  <h3>Attributes</h3>
 
@@ -189,27 +189,6 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
        layout is overridden to specify a custom <code>exo_progress</code> (see below).
  </ul>
 
- <h3>Overriding drawables</h3>
-
- The drawables used by PlayerControlView (with its default layout file) can be overridden by
- drawables with the same names defined in your application. The drawables that can be overridden
- are:
-
- <ul>
-   <li><b><code>exo_controls_play</code></b> - The play icon.
-   <li><b><code>exo_controls_pause</code></b> - The pause icon.
-   <li><b><code>exo_controls_rewind</code></b> - The rewind icon.
-   <li><b><code>exo_controls_fastforward</code></b> - The fast forward icon.
-   <li><b><code>exo_controls_previous</code></b> - The previous icon.
-   <li><b><code>exo_controls_next</code></b> - The next icon.
-   <li><b><code>exo_controls_repeat_off</code></b> - The repeat icon for <a href="../../../../../com/google/android/exoplayer2/Player.html#REPEAT_MODE_OFF"><code>Player.REPEAT_MODE_OFF</code></a>.
-   <li><b><code>exo_controls_repeat_one</code></b> - The repeat icon for <a href="../../../../../com/google/android/exoplayer2/Player.html#REPEAT_MODE_ONE"><code>Player.REPEAT_MODE_ONE</code></a>.
-   <li><b><code>exo_controls_repeat_all</code></b> - The repeat icon for <a href="../../../../../com/google/android/exoplayer2/Player.html#REPEAT_MODE_ALL"><code>Player.REPEAT_MODE_ALL</code></a>.
-   <li><b><code>exo_controls_shuffle_off</code></b> - The shuffle icon when shuffling is disabled.
-   <li><b><code>exo_controls_shuffle_on</code></b> - The shuffle icon when shuffling is enabled.
-   <li><b><code>exo_controls_vr</code></b> - The VR icon.
- </ul>
-
  <h3>Overriding the layout file</h3>
 
  To customize the layout of PlayerControlView throughout your app, or just for certain
@@ -229,35 +208,29 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
        <ul>
          <li>Type: <a href="https://developer.android.com/reference/android/view/View.html" target="_top" title="class or interface in android.view"><code>View</code></a>
        </ul>
-   <li><b><code>exo_rew</code></b> - The rewind button.
-       <ul>
-         <li>Type: <a href="https://developer.android.com/reference/android/view/View.html" target="_top" title="class or interface in android.view"><code>View</code></a>
-       </ul>
    <li><b><code>exo_ffwd</code></b> - The fast forward button.
        <ul>
          <li>Type: <a href="https://developer.android.com/reference/android/view/View.html" target="_top" title="class or interface in android.view"><code>View</code></a>
        </ul>
-   <li><b><code>exo_prev</code></b> - The previous button.
+   <li><b><code>exo_rew</code></b> - The rewind button.
        <ul>
          <li>Type: <a href="https://developer.android.com/reference/android/view/View.html" target="_top" title="class or interface in android.view"><code>View</code></a>
        </ul>
-   <li><b><code>exo_next</code></b> - The next button.
+   <li><b><code>exo_prev</code></b> - The previous track button.
+       <ul>
+         <li>Type: <a href="https://developer.android.com/reference/android/view/View.html" target="_top" title="class or interface in android.view"><code>View</code></a>
+       </ul>
+   <li><b><code>exo_next</code></b> - The next track button.
        <ul>
          <li>Type: <a href="https://developer.android.com/reference/android/view/View.html" target="_top" title="class or interface in android.view"><code>View</code></a>
        </ul>
    <li><b><code>exo_repeat_toggle</code></b> - The repeat toggle button.
        <ul>
-         <li>Type: <a href="https://developer.android.com/reference/android/widget/ImageView.html" target="_top" title="class or interface in android.widget"><code>ImageView</code></a>
-         <li>Note: PlayerControlView will programmatically set the drawable on the repeat toggle
-             button according to the player's current repeat mode. The drawables used are <code>exo_controls_repeat_off</code>, <code>exo_controls_repeat_one</code> and <code>exo_controls_repeat_all</code>. See the section above for information on overriding these
-             drawables.
+         <li>Type: <a href="https://developer.android.com/reference/android/view/View.html" target="_top" title="class or interface in android.view"><code>View</code></a>
        </ul>
    <li><b><code>exo_shuffle</code></b> - The shuffle button.
        <ul>
-         <li>Type: <a href="https://developer.android.com/reference/android/widget/ImageView.html" target="_top" title="class or interface in android.widget"><code>ImageView</code></a>
-         <li>Note: PlayerControlView will programmatically set the drawable on the shuffle button
-             according to the player's current repeat mode. The drawables used are <code>exo_controls_shuffle_off</code> and <code>exo_controls_shuffle_on</code>. See the section above
-             for information on overriding these drawables.
+         <li>Type: <a href="https://developer.android.com/reference/android/view/View.html" target="_top" title="class or interface in android.view"><code>View</code></a>
        </ul>
    <li><b><code>exo_vr</code></b> - The VR mode button.
        <ul>
