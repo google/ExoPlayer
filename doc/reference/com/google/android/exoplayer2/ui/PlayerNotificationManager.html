@@ -108,27 +108,27 @@ var activeTableTab = "activeTableTab";
 <br>
 <pre>public class <span class="typeNameLabel">PlayerNotificationManager</span>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></pre>
-<div class="block">A notification manager to start, update and cancel a media style notification reflecting the
- player state.
+<div class="block">Starts, updates and cancels a media style notification reflecting the player state. The actions
+ displayed and the drawables used can both be customized, as described below.
 
  <p>The notification is cancelled when <code>null</code> is passed to <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setPlayer-com.google.android.exoplayer2.Player-"><code>setPlayer(Player)</code></a> or
  when the notification is dismissed by the user.
 
- <p>If the player is released it must be removed from the manager by calling <code>setPlayer(null)</code> which will cancel the notification.
+ <p>If the player is released it must be removed from the manager by calling <code>setPlayer(null)</code>.
 
  <h3>Action customization</h3>
 
- Standard playback actions can be shown or omitted as follows:
+ Playback actions can be displayed or omitted as follows:
 
  <ul>
-   <li><b><code>useNavigationActions</code></b> - Sets whether the navigation previous and next actions
-       are displayed.
+   <li><b><code>useNavigationActions</code></b> - Sets whether the previous and next actions are
+       displayed.
        <ul>
          <li>Corresponding setter: <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseNavigationActions-boolean-"><code>setUseNavigationActions(boolean)</code></a>
          <li>Default: <code>true</code>
        </ul>
-   <li><b><code>useNavigationActionsInCompactView</code></b> - Sets whether the navigation previous and
-       next actions should are displayed in compact view (including the lock screen notification).
+   <li><b><code>useNavigationActionsInCompactView</code></b> - Sets whether the previous and next
+       actions are displayed in compact view (including the lock screen notification).
        <ul>
          <li>Corresponding setter: <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseNavigationActionsInCompactView-boolean-"><code>setUseNavigationActionsInCompactView(boolean)</code></a>
          <li>Default: <code>false</code>
@@ -150,12 +150,33 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
          <li>Default: <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#DEFAULT_REWIND_MS"><code>DEFAULT_REWIND_MS</code></a> (5000)
        </ul>
    <li><b><code>fastForwardIncrementMs</code></b> - Sets the fast forward increment. If set to zero the
-       fast forward action is not included in the notification.
+       fast forward action is not displayed.
        <ul>
          <li>Corresponding setter: <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setFastForwardIncrementMs-long-"><code>setFastForwardIncrementMs(long)</code></a>
-         <li>Default: <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#DEFAULT_FAST_FORWARD_MS"><code>DEFAULT_FAST_FORWARD_MS</code></a> (5000)
+         <li>Default: <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#DEFAULT_FAST_FORWARD_MS"><code>DEFAULT_FAST_FORWARD_MS</code></a> (15000)
        </ul>
- </ul></div>
+ </ul>
+
+ <h3>Overriding drawables</h3>
+
+ The drawables used by PlayerNotificationManager can be overridden by drawables with the same
+ names defined in your application. The drawables that can be overridden are:
+
+ <ul>
+   <li><b><code>exo_notification_small_icon</code></b> - The icon passed by default to <code>NotificationCompat.Builder#setSmallIcon(int)</code>. A different icon can also be specified
+       programmatically by calling <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setSmallIcon-int-"><code>setSmallIcon(int)</code></a>.
+   <li><b><code>exo_notification_play</code></b> - The play icon.
+   <li><b><code>exo_notification_pause</code></b> - The pause icon.
+   <li><b><code>exo_notification_rewind</code></b> - The rewind icon.
+   <li><b><code>exo_notification_fastforward</code></b> - The fast forward icon.
+   <li><b><code>exo_notification_previous</code></b> - The previous icon.
+   <li><b><code>exo_notification_next</code></b> - The next icon.
+   <li><b><code>exo_notification_stop</code></b> - The stop icon.
+ </ul>
+
+ Unlike the drawables above, the large icon (i.e. the icon passed to <code>NotificationCompat.Builder#setLargeIcon(Bitmap)</code> cannot be overridden in this way. Instead, the
+ large icon is obtained from the <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.MediaDescriptionAdapter</code></a> injected when creating the
+ PlayerNotificationManager.</div>
 </li>
 </ul>
 </div>
