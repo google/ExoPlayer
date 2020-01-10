@@ -27,6 +27,7 @@ import android.text.Layout.Alignment;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.AlignmentSpan;
+import android.text.style.AlignmentSpan.Standard;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StrikethroughSpan;
@@ -34,6 +35,8 @@ import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.testutil.truth.SpannedSubject.AndSpanFlags;
+import com.google.android.exoplayer2.testutil.truth.SpannedSubject.WithSpanFlags;
 import com.google.android.exoplayer2.text.span.HorizontalTextInVerticalContextSpan;
 import com.google.android.exoplayer2.text.span.RubySpan;
 import com.google.common.truth.ExpectFailure;
@@ -44,6 +47,24 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class SpannedSubjectTest {
 
+  private static final String TEXT_PREFIX = "string with ";
+  private static final String SPANNED_TEXT = "span";
+  private static final String TEXT_SUFFIX = " inside";
+
+  private static final String TEXT_WITH_TARGET_SPAN = TEXT_PREFIX + SPANNED_TEXT + TEXT_SUFFIX;
+  private static final int SPAN_START = TEXT_PREFIX.length();
+  private static final int SPAN_END = (TEXT_PREFIX + SPANNED_TEXT).length();
+
+  private static final String UNRELATED_SPANNED_TEXT = "unrelated span";
+  private static final String TEXT_INFIX = " and ";
+
+  private static final String TEXT_WITH_TARGET_AND_UNRELATED_SPAN =
+      TEXT_PREFIX + SPANNED_TEXT + TEXT_INFIX + UNRELATED_SPANNED_TEXT + TEXT_SUFFIX;
+  private static final int UNRELATED_SPAN_START =
+      (TEXT_PREFIX + SPANNED_TEXT + TEXT_INFIX).length();
+  private static final int UNRELATED_SPAN_END =
+      UNRELATED_SPAN_START + UNRELATED_SPANNED_TEXT.length();
+
   @Test
   public void hasNoSpans_success() {
     SpannableString spannable = SpannableString.valueOf("test with no spans");
@@ -53,345 +74,224 @@ public class SpannedSubjectTest {
 
   @Test
   public void hasNoSpans_failure() {
-    SpannableString spannable = SpannableString.valueOf("test with underlined section");
-    spannable.setSpan(new UnderlineSpan(), 5, 10, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+    Spanned spanned = createSpannable(new UnderlineSpan());
 
-    AssertionError expected =
-        expectFailure(whenTesting -> whenTesting.that(spannable).hasNoSpans());
+    AssertionError expected = expectFailure(whenTesting -> whenTesting.that(spanned).hasNoSpans());
+
     assertThat(expected).factKeys().contains("Expected no spans");
-    assertThat(expected).factValue("but found").contains("start=" + 5);
+    assertThat(expected).factValue("but found").contains("start=" + SPAN_START);
   }
 
   @Test
   public void italicSpan_success() {
-    SpannableString spannable = SpannableString.valueOf("test with italic section");
-    int start = "test with ".length();
-    int end = start + "italic".length();
-    spannable.setSpan(new StyleSpan(Typeface.ITALIC), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+    SpannableString spannable =
+        createSpannable(new StyleSpan(Typeface.ITALIC), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
 
     assertThat(spannable)
-        .hasItalicSpanBetween(start, end)
+        .hasItalicSpanBetween(SPAN_START, SPAN_END)
         .withFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+  }
+
+  @Test
+  public void italicSpan_mismatchedIndex() {
+    checkHasSpanFailsDueToIndexMismatch(
+        new StyleSpan(Typeface.ITALIC), SpannedSubject::hasItalicSpanBetween);
   }
 
   @Test
   public void italicSpan_mismatchedFlags() {
-    SpannableString spannable = SpannableString.valueOf("test with italic section");
-    int start = "test with ".length();
-    int end = start + "italic".length();
-    spannable.setSpan(new StyleSpan(Typeface.ITALIC), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-    AssertionError failure =
-        expectFailure(
-            whenTesting ->
-                whenTesting
-                    .that(spannable)
-                    .hasItalicSpanBetween(start, end)
-                    .withFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE));
-
-    assertThat(failure)
-        .factValue("value of")
-        .isEqualTo(
-            String.format(
-                "spanned.StyleSpan (start=%s,end=%s,style=%s).contains()",
-                start, end, Typeface.ITALIC));
-    assertThat(failure)
-        .factValue("expected to contain")
-        .contains(String.valueOf(Spanned.SPAN_INCLUSIVE_EXCLUSIVE));
-    assertThat(failure)
-        .factValue("but was")
-        .contains(String.valueOf(Spanned.SPAN_EXCLUSIVE_EXCLUSIVE));
+    checkHasSpanFailsDueToFlagMismatch(
+        new StyleSpan(Typeface.ITALIC), SpannedSubject::hasItalicSpanBetween);
   }
 
   @Test
   public void italicSpan_null() {
-    AssertionError failure =
-        expectFailure(
-            whenTesting ->
-                whenTesting
-                    .that(null)
-                    .hasItalicSpanBetween(0, 5)
-                    .withFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE));
+    AssertionError expected =
+        expectFailure(whenTesting -> whenTesting.that(null).hasItalicSpanBetween(0, 5));
 
-    assertThat(failure).factKeys().containsExactly("Spanned must not be null");
+    assertThat(expected).factKeys().containsExactly("Spanned must not be null");
   }
 
   @Test
   public void boldSpan_success() {
-    SpannableString spannable = SpannableString.valueOf("test with bold section");
-    int start = "test with ".length();
-    int end = start + "bold".length();
-    spannable.setSpan(new StyleSpan(Typeface.BOLD), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+    SpannableString spannable =
+        createSpannable(new StyleSpan(Typeface.BOLD), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
 
     assertThat(spannable)
-        .hasBoldSpanBetween(start, end)
+        .hasBoldSpanBetween(SPAN_START, SPAN_END)
         .withFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
   }
 
   @Test
+  public void boldSpan_mismatchedIndex() {
+    checkHasSpanFailsDueToIndexMismatch(
+        new StyleSpan(Typeface.BOLD), SpannedSubject::hasBoldSpanBetween);
+  }
+
+  @Test
+  public void boldSpan_mismatchedFlags() {
+    checkHasSpanFailsDueToFlagMismatch(
+        new StyleSpan(Typeface.BOLD), SpannedSubject::hasBoldSpanBetween);
+  }
+
+  @Test
   public void boldItalicSpan_withOneSpan() {
-    SpannableString spannable = SpannableString.valueOf("test with bold & italic section");
-    int start = "test with ".length();
-    int end = start + "bold & italic".length();
-    spannable.setSpan(
-        new StyleSpan(Typeface.BOLD_ITALIC), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+    SpannableString spannable =
+        createSpannable(new StyleSpan(Typeface.BOLD_ITALIC), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
 
     assertThat(spannable)
-        .hasBoldItalicSpanBetween(start, end)
+        .hasBoldItalicSpanBetween(SPAN_START, SPAN_END)
         .withFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
   }
 
   @Test
   public void boldItalicSpan_withTwoSpans() {
-    SpannableString spannable = SpannableString.valueOf("test with bold & italic section");
-    int start = "test with ".length();
-    int end = start + "bold & italic".length();
-    spannable.setSpan(new StyleSpan(Typeface.BOLD), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-    spannable.setSpan(new StyleSpan(Typeface.ITALIC), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+    SpannableString spannable = createSpannable(new StyleSpan(Typeface.BOLD));
+    spannable.setSpan(
+        new StyleSpan(Typeface.ITALIC), SPAN_START, SPAN_END, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
 
     assertThat(spannable)
-        .hasBoldItalicSpanBetween(start, end)
+        .hasBoldItalicSpanBetween(SPAN_START, SPAN_END)
         .withFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
   }
 
   @Test
   // If the span is both BOLD and BOLD_ITALIC then the assertion should still succeed.
   public void boldItalicSpan_withRepeatSpans() {
-    SpannableString spannable = SpannableString.valueOf("test with bold & italic section");
-    int start = "test with ".length();
-    int end = start + "bold & italic".length();
-    spannable.setSpan(new StyleSpan(Typeface.BOLD), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+    SpannableString spannable = createSpannable(new StyleSpan(Typeface.BOLD_ITALIC));
     spannable.setSpan(
-        new StyleSpan(Typeface.BOLD_ITALIC), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+        new StyleSpan(Typeface.BOLD), SPAN_START, SPAN_END, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
 
     assertThat(spannable)
-        .hasBoldItalicSpanBetween(start, end)
+        .hasBoldItalicSpanBetween(SPAN_START, SPAN_END)
         .withFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
   }
 
   @Test
   public void boldItalicSpan_onlyItalic() {
-    SpannableString spannable = SpannableString.valueOf("test with italic section");
-    int start = "test with ".length();
-    int end = start + "italic".length();
-    spannable.setSpan(new StyleSpan(Typeface.ITALIC), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+    SpannableString spannable = createSpannable(new StyleSpan(Typeface.ITALIC));
 
     AssertionError expected =
         expectFailure(
-            whenTesting -> whenTesting.that(spannable).hasBoldItalicSpanBetween(start, end));
+            whenTesting ->
+                whenTesting.that(spannable).hasBoldItalicSpanBetween(SPAN_START, SPAN_END));
     assertThat(expected)
         .factKeys()
         .contains(
-            String.format("No matching StyleSpans found between start=%s,end=%s", start, end));
+            String.format(
+                "No matching StyleSpans found between start=%s,end=%s", SPAN_START, SPAN_END));
     assertThat(expected).factValue("but found styles").contains("[" + Typeface.ITALIC + "]");
   }
 
   @Test
-  public void boldItalicSpan_mismatchedStartIndex() {
-    SpannableString spannable = SpannableString.valueOf("test with bold & italic section");
-    int start = "test with ".length();
-    int end = start + "bold & italic".length();
-    spannable.setSpan(new StyleSpan(Typeface.BOLD), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-    spannable.setSpan(new StyleSpan(Typeface.ITALIC), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+  public void boldItalicSpan_mismatchedIndex() {
+    checkHasSpanFailsDueToIndexMismatch(
+        new StyleSpan(Typeface.BOLD_ITALIC), SpannedSubject::hasBoldItalicSpanBetween);
+  }
 
-    int incorrectStart = start - 2;
-    AssertionError expected =
-        expectFailure(
-            whenTesting ->
-                whenTesting
-                    .that(spannable)
-                    .hasBoldItalicSpanBetween(incorrectStart, end)
-                    .withFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE));
-    assertThat(expected).factValue("expected").contains("start=" + incorrectStart);
-    assertThat(expected).factValue("but found").contains("start=" + start);
+  @Test
+  public void boldItalicSpan_mismatchedFlags() {
+    checkHasSpanFailsDueToFlagMismatch(
+        new StyleSpan(Typeface.BOLD_ITALIC), SpannedSubject::hasBoldItalicSpanBetween);
   }
 
   @Test
   public void noStyleSpan_success() {
-    SpannableString spannable = SpannableString.valueOf("test with underline then italic spans");
-    spannable.setSpan(
-        new UnderlineSpan(),
-        "test with ".length(),
-        "test with underline".length(),
-        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-    spannable.setSpan(
-        new StyleSpan(Typeface.ITALIC),
-        "test with underline then ".length(),
-        "test with underline then italic".length(),
-        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    SpannableString spannable = createSpannableWithUnrelatedSpanAnd(new StyleSpan(Typeface.ITALIC));
 
-    assertThat(spannable).hasNoStyleSpanBetween(0, "test with underline then".length());
+    assertThat(spannable).hasNoStyleSpanBetween(UNRELATED_SPAN_START, UNRELATED_SPAN_END);
   }
 
   @Test
   public void noStyleSpan_failure() {
-    SpannableString spannable = SpannableString.valueOf("test with italic section");
-    int start = "test with ".length();
-    int end = start + "italic".length();
-    spannable.setSpan(new StyleSpan(Typeface.ITALIC), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-
-    AssertionError expected =
-        expectFailure(
-            whenTesting -> whenTesting.that(spannable).hasNoStyleSpanBetween(start + 1, end));
-    assertThat(expected)
-        .factKeys()
-        .contains("Found unexpected StyleSpans between start=" + (start + 1) + ",end=" + end);
-    assertThat(expected).factKeys().contains("expected none");
-    assertThat(expected).factValue("but found").contains("start=" + start);
+    checkHasNoSpanFails(new StyleSpan(Typeface.ITALIC), SpannedSubject::hasNoStyleSpanBetween);
   }
 
   @Test
   public void underlineSpan_success() {
-    SpannableString spannable = SpannableString.valueOf("test with underlined section");
-    int start = "test with ".length();
-    int end = start + "underlined".length();
-    spannable.setSpan(new UnderlineSpan(), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+    SpannableString spannable =
+        createSpannable(new UnderlineSpan(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
 
     assertThat(spannable)
-        .hasUnderlineSpanBetween(start, end)
+        .hasUnderlineSpanBetween(SPAN_START, SPAN_END)
         .withFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
   }
 
   @Test
-  public void noUnderlineSpan_success() {
-    SpannableString spannable = SpannableString.valueOf("test with italic then underline spans");
-    spannable.setSpan(
-        new StyleSpan(Typeface.ITALIC),
-        "test with ".length(),
-        "test with italic".length(),
-        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-    spannable.setSpan(
-        new UnderlineSpan(),
-        "test with italic then ".length(),
-        "test with italic then underline".length(),
-        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+  public void underlineSpan_mismatchedIndex() {
+    checkHasSpanFailsDueToIndexMismatch(
+        new UnderlineSpan(), SpannedSubject::hasUnderlineSpanBetween);
+  }
 
-    assertThat(spannable).hasNoUnderlineSpanBetween(0, "test with italic then".length());
+  @Test
+  public void underlineSpan_mismatchedFlags() {
+    checkHasSpanFailsDueToFlagMismatch(
+        new UnderlineSpan(), SpannedSubject::hasUnderlineSpanBetween);
+  }
+
+  @Test
+  public void noUnderlineSpan_success() {
+    SpannableString spannable = createSpannableWithUnrelatedSpanAnd(new UnderlineSpan());
+
+    assertThat(spannable).hasNoUnderlineSpanBetween(UNRELATED_SPAN_START, UNRELATED_SPAN_END);
   }
 
   @Test
   public void noUnderlineSpan_failure() {
-    SpannableString spannable = SpannableString.valueOf("test with underline section");
-    int start = "test with ".length();
-    int end = start + "underline".length();
-    spannable.setSpan(new UnderlineSpan(), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-
-    AssertionError expected =
-        expectFailure(
-            whenTesting -> whenTesting.that(spannable).hasNoUnderlineSpanBetween(start + 1, end));
-    assertThat(expected)
-        .factKeys()
-        .contains("Found unexpected UnderlineSpans between start=" + (start + 1) + ",end=" + end);
-    assertThat(expected).factKeys().contains("expected none");
-    assertThat(expected).factValue("but found").contains("start=" + start);
+    checkHasNoSpanFails(new UnderlineSpan(), SpannedSubject::hasNoUnderlineSpanBetween);
   }
 
   @Test
   public void strikethroughSpan_success() {
-    SpannableString spannable = SpannableString.valueOf("test with crossed-out section");
-    int start = "test with ".length();
-    int end = start + "crossed-out".length();
-    spannable.setSpan(new StrikethroughSpan(), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+    SpannableString spannable =
+        createSpannable(new StrikethroughSpan(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
 
     assertThat(spannable)
-        .hasStrikethroughSpanBetween(start, end)
+        .hasStrikethroughSpanBetween(SPAN_START, SPAN_END)
         .withFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
   }
 
   @Test
   public void noStrikethroughSpan_success() {
-    SpannableString spannable =
-        SpannableString.valueOf("test with underline then crossed-out spans");
-    spannable.setSpan(
-        new UnderlineSpan(),
-        "test with ".length(),
-        "test with underline".length(),
-        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-    spannable.setSpan(
-        new UnderlineSpan(),
-        "test with underline then ".length(),
-        "test with italic then crossed-out".length(),
-        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    SpannableString spannable = createSpannableWithUnrelatedSpanAnd(new StrikethroughSpan());
 
-    assertThat(spannable).hasNoStrikethroughSpanBetween(0, "test with underline then".length());
+    assertThat(spannable).hasNoStrikethroughSpanBetween(UNRELATED_SPAN_START, UNRELATED_SPAN_END);
   }
 
   @Test
   public void noStrikethroughSpan_failure() {
-    SpannableString spannable = SpannableString.valueOf("test with crossed-out section");
-    int start = "test with ".length();
-    int end = start + "crossed-out".length();
-    spannable.setSpan(new StrikethroughSpan(), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-
-    AssertionError expected =
-        expectFailure(
-            whenTesting ->
-                whenTesting.that(spannable).hasNoStrikethroughSpanBetween(start + 1, end));
-    assertThat(expected)
-        .factKeys()
-        .contains(
-            "Found unexpected StrikethroughSpans between start=" + (start + 1) + ",end=" + end);
-    assertThat(expected).factKeys().contains("expected none");
-    assertThat(expected).factValue("but found").contains("start=" + start);
+    checkHasNoSpanFails(new UnderlineSpan(), SpannedSubject::hasNoUnderlineSpanBetween);
   }
 
   @Test
   public void alignmentSpan_success() {
-    SpannableString spannable = SpannableString.valueOf("test with right-aligned section");
-    int start = "test with ".length();
-    int end = start + "right-aligned".length();
-    spannable.setSpan(
-        new AlignmentSpan.Standard(Alignment.ALIGN_OPPOSITE),
-        start,
-        end,
-        Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+    SpannableString spannable =
+        createSpannable(
+            new AlignmentSpan.Standard(Alignment.ALIGN_OPPOSITE), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
 
     assertThat(spannable)
-        .hasAlignmentSpanBetween(start, end)
+        .hasAlignmentSpanBetween(SPAN_START, SPAN_END)
         .withAlignment(Alignment.ALIGN_OPPOSITE)
         .andFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
   }
 
   @Test
-  public void alignmentSpan_wrongEndIndex() {
-    SpannableString spannable = SpannableString.valueOf("test with right-aligned section");
-    int start = "test with ".length();
-    int end = start + "right-aligned".length();
-    spannable.setSpan(
-        new AlignmentSpan.Standard(Alignment.ALIGN_OPPOSITE),
-        start,
-        end,
-        Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-
-    int incorrectEnd = end + 2;
-    AssertionError expected =
-        expectFailure(
-            whenTesting ->
-                whenTesting
-                    .that(spannable)
-                    .hasAlignmentSpanBetween(start, incorrectEnd)
-                    .withAlignment(Alignment.ALIGN_OPPOSITE));
-    assertThat(expected).factValue("expected").contains("end=" + incorrectEnd);
-    assertThat(expected).factValue("but found").contains("end=" + end);
+  public void alignmentSpan_mismatchedIndex() {
+    checkHasSpanFailsDueToIndexMismatch(
+        new Standard(Alignment.ALIGN_CENTER), SpannedSubject::hasAlignmentSpanBetween);
   }
 
   @Test
   public void alignmentSpan_wrongAlignment() {
-    SpannableString spannable = SpannableString.valueOf("test with right-aligned section");
-    int start = "test with ".length();
-    int end = start + "right-aligned".length();
-    spannable.setSpan(
-        new AlignmentSpan.Standard(Alignment.ALIGN_OPPOSITE),
-        start,
-        end,
-        Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+    SpannableString spannable =
+        createSpannable(new AlignmentSpan.Standard(Alignment.ALIGN_OPPOSITE));
 
     AssertionError expected =
         expectFailure(
             whenTesting ->
                 whenTesting
                     .that(spannable)
-                    .hasAlignmentSpanBetween(start, end)
+                    .hasAlignmentSpanBetween(SPAN_START, SPAN_END)
                     .withAlignment(Alignment.ALIGN_CENTER));
     assertThat(expected).factValue("value of").contains("alignment");
     assertThat(expected).factValue("expected").contains("ALIGN_CENTER");
@@ -400,103 +300,42 @@ public class SpannedSubjectTest {
 
   @Test
   public void alignmentSpan_wrongFlags() {
-    SpannableString spannable = SpannableString.valueOf("test with right-aligned section");
-    int start = "test with ".length();
-    int end = start + "right-aligned".length();
-    spannable.setSpan(
+    checkHasSpanFailsDueToFlagMismatch(
         new AlignmentSpan.Standard(Alignment.ALIGN_OPPOSITE),
-        start,
-        end,
-        Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-
-    AssertionError expected =
-        expectFailure(
-            whenTesting ->
-                whenTesting
-                    .that(spannable)
-                    .hasAlignmentSpanBetween(start, end)
-                    .withAlignment(Alignment.ALIGN_OPPOSITE)
-                    .andFlags(Spanned.SPAN_EXCLUSIVE_EXCLUSIVE));
-    assertThat(expected).factValue("value of").contains("flags");
-    assertThat(expected)
-        .factValue("expected to contain")
-        .contains(String.valueOf(Spanned.SPAN_EXCLUSIVE_EXCLUSIVE));
-    assertThat(expected)
-        .factValue("but was")
-        .contains(String.valueOf(Spanned.SPAN_INCLUSIVE_EXCLUSIVE));
+        (subject, start, end) ->
+            subject.hasAlignmentSpanBetween(start, end).withAlignment(Alignment.ALIGN_OPPOSITE));
   }
 
   @Test
   public void noAlignmentSpan_success() {
     SpannableString spannable =
-        SpannableString.valueOf("test with underline then right-aligned spans");
-    spannable.setSpan(
-        new UnderlineSpan(),
-        "test with ".length(),
-        "test with underline".length(),
-        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-    spannable.setSpan(
-        new AlignmentSpan.Standard(Alignment.ALIGN_OPPOSITE),
-        "test with underline then ".length(),
-        "test with underline then cyan".length(),
-        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        createSpannableWithUnrelatedSpanAnd(new AlignmentSpan.Standard(Alignment.ALIGN_OPPOSITE));
 
-    assertThat(spannable).hasNoAlignmentSpanBetween(0, "test with underline then".length());
+    assertThat(spannable).hasNoAlignmentSpanBetween(UNRELATED_SPAN_START, UNRELATED_SPAN_END);
   }
 
   @Test
   public void noAlignmentSpan_failure() {
-    SpannableString spannable = SpannableString.valueOf("test with right-aligned section");
-    int start = "test with ".length();
-    int end = start + "cyan".length();
-    spannable.setSpan(
+    checkHasNoSpanFails(
         new AlignmentSpan.Standard(Alignment.ALIGN_OPPOSITE),
-        start,
-        end,
-        Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-
-    AssertionError expected =
-        expectFailure(
-            whenTesting -> whenTesting.that(spannable).hasNoAlignmentSpanBetween(start + 1, end));
-    assertThat(expected)
-        .factKeys()
-        .contains("Found unexpected AlignmentSpans between start=" + (start + 1) + ",end=" + end);
-    assertThat(expected).factKeys().contains("expected none");
-    assertThat(expected).factValue("but found").contains("start=" + start);
+        SpannedSubject::hasNoAlignmentSpanBetween);
   }
 
   @Test
   public void foregroundColorSpan_success() {
-    SpannableString spannable = SpannableString.valueOf("test with cyan section");
-    int start = "test with ".length();
-    int end = start + "cyan".length();
-    spannable.setSpan(
-        new ForegroundColorSpan(Color.CYAN), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+    SpannableString spannable =
+        createSpannable(new ForegroundColorSpan(Color.CYAN), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
 
     assertThat(spannable)
-        .hasForegroundColorSpanBetween(start, end)
+        .hasForegroundColorSpanBetween(SPAN_START, SPAN_END)
         .withColor(Color.CYAN)
         .andFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
   }
 
   @Test
-  public void foregroundColorSpan_wrongEndIndex() {
-    SpannableString spannable = SpannableString.valueOf("test with cyan section");
-    int start = "test with ".length();
-    int end = start + "cyan".length();
-    spannable.setSpan(
-        new ForegroundColorSpan(Color.CYAN), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-
-    int incorrectEnd = end + 2;
-    AssertionError expected =
-        expectFailure(
-            whenTesting ->
-                whenTesting
-                    .that(spannable)
-                    .hasForegroundColorSpanBetween(start, incorrectEnd)
-                    .withColor(Color.CYAN));
-    assertThat(expected).factValue("expected").contains("end=" + incorrectEnd);
-    assertThat(expected).factValue("but found").contains("end=" + end);
+  public void foregroundColorSpan_mismatchedIndex() {
+    checkHasSpanFailsDueToIndexMismatch(
+        new ForegroundColorSpan(Color.CYAN), SpannedSubject::hasForegroundColorSpanBetween);
   }
 
   @Test
@@ -521,115 +360,55 @@ public class SpannedSubjectTest {
 
   @Test
   public void foregroundColorSpan_wrongFlags() {
-    SpannableString spannable = SpannableString.valueOf("test with cyan section");
-    int start = "test with ".length();
-    int end = start + "cyan".length();
-    spannable.setSpan(
-        new ForegroundColorSpan(Color.CYAN), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-
-    AssertionError expected =
-        expectFailure(
-            whenTesting ->
-                whenTesting
-                    .that(spannable)
-                    .hasForegroundColorSpanBetween(start, end)
-                    .withColor(Color.CYAN)
-                    .andFlags(Spanned.SPAN_EXCLUSIVE_EXCLUSIVE));
-    assertThat(expected).factValue("value of").contains("flags");
-    assertThat(expected)
-        .factValue("expected to contain")
-        .contains(String.valueOf(Spanned.SPAN_EXCLUSIVE_EXCLUSIVE));
-    assertThat(expected)
-        .factValue("but was")
-        .contains(String.valueOf(Spanned.SPAN_INCLUSIVE_EXCLUSIVE));
+    checkHasSpanFailsDueToFlagMismatch(
+        new ForegroundColorSpan(Color.CYAN),
+        (subject, start, end) ->
+            subject.hasForegroundColorSpanBetween(start, end).withColor(Color.CYAN));
   }
 
   @Test
   public void noForegroundColorSpan_success() {
-    SpannableString spannable = SpannableString.valueOf("test with underline then cyan spans");
-    spannable.setSpan(
-        new UnderlineSpan(),
-        "test with ".length(),
-        "test with underline".length(),
-        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-    spannable.setSpan(
-        new ForegroundColorSpan(Color.CYAN),
-        "test with underline then ".length(),
-        "test with underline then cyan".length(),
-        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    SpannableString spannable =
+        createSpannableWithUnrelatedSpanAnd(new ForegroundColorSpan(Color.CYAN));
 
-    assertThat(spannable).hasNoForegroundColorSpanBetween(0, "test with underline then".length());
+    assertThat(spannable).hasNoForegroundColorSpanBetween(UNRELATED_SPAN_START, UNRELATED_SPAN_END);
   }
 
   @Test
   public void noForegroundColorSpan_failure() {
-    SpannableString spannable = SpannableString.valueOf("test with cyan section");
-    int start = "test with ".length();
-    int end = start + "cyan".length();
-    spannable.setSpan(
-        new ForegroundColorSpan(Color.CYAN), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-
-    AssertionError expected =
-        expectFailure(
-            whenTesting ->
-                whenTesting.that(spannable).hasNoForegroundColorSpanBetween(start + 1, end));
-    assertThat(expected)
-        .factKeys()
-        .contains(
-            "Found unexpected ForegroundColorSpans between start=" + (start + 1) + ",end=" + end);
-    assertThat(expected).factKeys().contains("expected none");
-    assertThat(expected).factValue("but found").contains("start=" + start);
+    checkHasNoSpanFails(
+        new ForegroundColorSpan(Color.CYAN), SpannedSubject::hasNoForegroundColorSpanBetween);
   }
 
   @Test
   public void backgroundColorSpan_success() {
-    SpannableString spannable = SpannableString.valueOf("test with cyan section");
-    int start = "test with ".length();
-    int end = start + "cyan".length();
-    spannable.setSpan(
-        new BackgroundColorSpan(Color.CYAN), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+    SpannableString spannable =
+        createSpannable(new BackgroundColorSpan(Color.CYAN), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
 
     assertThat(spannable)
-        .hasBackgroundColorSpanBetween(start, end)
+        .hasBackgroundColorSpanBetween(SPAN_START, SPAN_END)
         .withColor(Color.CYAN)
         .andFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
   }
 
   @Test
-  public void backgroundColorSpan_wrongEndIndex() {
-    SpannableString spannable = SpannableString.valueOf("test with cyan section");
-    int start = "test with ".length();
-    int end = start + "cyan".length();
-    spannable.setSpan(
-        new BackgroundColorSpan(Color.CYAN), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-
-    int incorrectEnd = end + 2;
-    AssertionError expected =
-        expectFailure(
-            whenTesting ->
-                whenTesting
-                    .that(spannable)
-                    .hasBackgroundColorSpanBetween(start, incorrectEnd)
-                    .withColor(Color.CYAN));
-    assertThat(expected).factValue("expected").contains("end=" + incorrectEnd);
-    assertThat(expected).factValue("but found").contains("end=" + end);
+  public void backgroundColorSpan_mismatchedIndex() {
+    checkHasSpanFailsDueToIndexMismatch(
+        new BackgroundColorSpan(Color.CYAN), SpannedSubject::hasBackgroundColorSpanBetween);
   }
 
   @Test
   public void backgroundColorSpan_wrongColor() {
-    SpannableString spannable = SpannableString.valueOf("test with cyan section");
-    int start = "test with ".length();
-    int end = start + "cyan".length();
-    spannable.setSpan(
-        new BackgroundColorSpan(Color.CYAN), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+    SpannableString spannable = createSpannable(new BackgroundColorSpan(Color.CYAN));
 
     AssertionError expected =
         expectFailure(
             whenTesting ->
                 whenTesting
                     .that(spannable)
-                    .hasBackgroundColorSpanBetween(start, end)
+                    .hasBackgroundColorSpanBetween(SPAN_START, SPAN_END)
                     .withColor(Color.BLUE));
+
     assertThat(expected).factValue("value of").contains("backgroundColor");
     assertThat(expected).factValue("expected").contains("0xFF0000FF"); // Color.BLUE
     assertThat(expected).factValue("but was").contains("0xFF00FFFF"); // Color.CYAN
@@ -637,112 +416,55 @@ public class SpannedSubjectTest {
 
   @Test
   public void backgroundColorSpan_wrongFlags() {
-    SpannableString spannable = SpannableString.valueOf("test with cyan section");
-    int start = "test with ".length();
-    int end = start + "cyan".length();
-    spannable.setSpan(
-        new BackgroundColorSpan(Color.CYAN), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-
-    AssertionError expected =
-        expectFailure(
-            whenTesting ->
-                whenTesting
-                    .that(spannable)
-                    .hasBackgroundColorSpanBetween(start, end)
-                    .withColor(Color.CYAN)
-                    .andFlags(Spanned.SPAN_EXCLUSIVE_EXCLUSIVE));
-    assertThat(expected).factValue("value of").contains("flags");
-    assertThat(expected)
-        .factValue("expected to contain")
-        .contains(String.valueOf(Spanned.SPAN_EXCLUSIVE_EXCLUSIVE));
-    assertThat(expected)
-        .factValue("but was")
-        .contains(String.valueOf(Spanned.SPAN_INCLUSIVE_EXCLUSIVE));
+    checkHasSpanFailsDueToFlagMismatch(
+        new BackgroundColorSpan(Color.CYAN),
+        (subject, start, end) ->
+            subject.hasBackgroundColorSpanBetween(start, end).withColor(Color.CYAN));
   }
 
   @Test
   public void noBackgroundColorSpan_success() {
-    SpannableString spannable = SpannableString.valueOf("test with underline then cyan spans");
-    spannable.setSpan(
-        new UnderlineSpan(),
-        "test with ".length(),
-        "test with underline".length(),
-        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-    spannable.setSpan(
-        new BackgroundColorSpan(Color.CYAN),
-        "test with underline then ".length(),
-        "test with underline then cyan".length(),
-        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    SpannableString spannable =
+        createSpannableWithUnrelatedSpanAnd(new BackgroundColorSpan(Color.CYAN));
 
-    assertThat(spannable).hasNoBackgroundColorSpanBetween(0, "test with underline then".length());
+    assertThat(spannable).hasNoBackgroundColorSpanBetween(UNRELATED_SPAN_START, UNRELATED_SPAN_END);
   }
 
   @Test
   public void noBackgroundColorSpan_failure() {
-    SpannableString spannable = SpannableString.valueOf("test with cyan section");
-    int start = "test with ".length();
-    int end = start + "cyan".length();
-    spannable.setSpan(
-        new BackgroundColorSpan(Color.CYAN), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-
-    AssertionError expected =
-        expectFailure(
-            whenTesting ->
-                whenTesting.that(spannable).hasNoBackgroundColorSpanBetween(start + 1, end));
-    assertThat(expected)
-        .factKeys()
-        .contains(
-            "Found unexpected BackgroundColorSpans between start=" + (start + 1) + ",end=" + end);
-    assertThat(expected).factKeys().contains("expected none");
-    assertThat(expected).factValue("but found").contains("start=" + start);
+    checkHasNoSpanFails(
+        new BackgroundColorSpan(Color.CYAN), SpannedSubject::hasNoBackgroundColorSpanBetween);
   }
 
   @Test
   public void typefaceSpan_success() {
-    SpannableString spannable = SpannableString.valueOf("test with courier section");
-    int start = "test with ".length();
-    int end = start + "courier".length();
-    spannable.setSpan(new TypefaceSpan("courier"), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+    SpannableString spannable =
+        createSpannable(new TypefaceSpan("courier"), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
 
     assertThat(spannable)
-        .hasTypefaceSpanBetween(start, end)
+        .hasTypefaceSpanBetween(SPAN_START, SPAN_END)
         .withFamily("courier")
         .andFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
   }
 
   @Test
-  public void typefaceSpan_wrongEndIndex() {
-    SpannableString spannable = SpannableString.valueOf("test with courier section");
-    int start = "test with ".length();
-    int end = start + "courier".length();
-    spannable.setSpan(new TypefaceSpan("courier"), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-
-    int incorrectEnd = end + 2;
-    AssertionError expected =
-        expectFailure(
-            whenTesting ->
-                whenTesting
-                    .that(spannable)
-                    .hasTypefaceSpanBetween(start, incorrectEnd)
-                    .withFamily("courier"));
-    assertThat(expected).factValue("expected").contains("end=" + incorrectEnd);
-    assertThat(expected).factValue("but found").contains("end=" + end);
+  public void typefaceSpan_wrongIndex() {
+    checkHasSpanFailsDueToIndexMismatch(
+        new TypefaceSpan("courier"), SpannedSubject::hasTypefaceSpanBetween);
   }
 
   @Test
   public void typefaceSpan_wrongFamily() {
-    SpannableString spannable = SpannableString.valueOf("test with courier section");
-    int start = "test with ".length();
-    int end = start + "courier".length();
-    spannable.setSpan(new TypefaceSpan("courier"), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+    SpannableString spannable = createSpannable(new TypefaceSpan("courier"));
 
     AssertionError expected =
         expectFailure(
             whenTesting ->
                 whenTesting
                     .that(spannable)
-                    .hasTypefaceSpanBetween(start, end)
+                    .hasTypefaceSpanBetween(SPAN_START, SPAN_END)
                     .withFamily("roboto"));
+
     assertThat(expected).factValue("value of").contains("family");
     assertThat(expected).factValue("expected").contains("roboto");
     assertThat(expected).factValue("but was").contains("courier");
@@ -750,120 +472,53 @@ public class SpannedSubjectTest {
 
   @Test
   public void typefaceSpan_wrongFlags() {
-    SpannableString spannable = SpannableString.valueOf("test with courier section");
-    int start = "test with ".length();
-    int end = start + "courier".length();
-    spannable.setSpan(new TypefaceSpan("courier"), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-
-    AssertionError expected =
-        expectFailure(
-            whenTesting ->
-                whenTesting
-                    .that(spannable)
-                    .hasTypefaceSpanBetween(start, end)
-                    .withFamily("courier")
-                    .andFlags(Spanned.SPAN_EXCLUSIVE_EXCLUSIVE));
-    assertThat(expected).factValue("value of").contains("flags");
-    assertThat(expected)
-        .factValue("expected to contain")
-        .contains(String.valueOf(Spanned.SPAN_EXCLUSIVE_EXCLUSIVE));
-    assertThat(expected)
-        .factValue("but was")
-        .contains(String.valueOf(Spanned.SPAN_INCLUSIVE_EXCLUSIVE));
+    checkHasSpanFailsDueToFlagMismatch(
+        new TypefaceSpan("courier"),
+        (subject, start, end) -> subject.hasTypefaceSpanBetween(start, end).withFamily("courier"));
   }
 
   @Test
   public void noTypefaceSpan_success() {
-    SpannableString spannable = SpannableString.valueOf("test with underline then courier spans");
-    spannable.setSpan(
-        new UnderlineSpan(),
-        "test with ".length(),
-        "test with underline".length(),
-        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-    spannable.setSpan(
-        new TypefaceSpan("courier"),
-        "test with underline then ".length(),
-        "test with underline then courier".length(),
-        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    SpannableString spannable = createSpannableWithUnrelatedSpanAnd(new TypefaceSpan("courier"));
 
-    assertThat(spannable).hasNoTypefaceSpanBetween(0, "test with underline then".length());
+    assertThat(spannable).hasNoTypefaceSpanBetween(UNRELATED_SPAN_START, UNRELATED_SPAN_END);
   }
 
   @Test
   public void noTypefaceSpan_failure() {
-    SpannableString spannable = SpannableString.valueOf("test with courier section");
-    int start = "test with ".length();
-    int end = start + "courier".length();
-    spannable.setSpan(new TypefaceSpan("courier"), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-
-    AssertionError expected =
-        expectFailure(
-            whenTesting -> whenTesting.that(spannable).hasNoTypefaceSpanBetween(start + 1, end));
-    assertThat(expected)
-        .factKeys()
-        .contains("Found unexpected TypefaceSpans between start=" + (start + 1) + ",end=" + end);
-    assertThat(expected).factKeys().contains("expected none");
-    assertThat(expected).factValue("but found").contains("start=" + start);
+    checkHasNoSpanFails(new TypefaceSpan("courier"), SpannedSubject::hasNoTypefaceSpanBetween);
   }
 
   @Test
   public void rubySpan_success() {
-    SpannableString spannable = SpannableString.valueOf("test with rubied section");
-    int start = "test with ".length();
-    int end = start + "rubied".length();
-    spannable.setSpan(
-        new RubySpan("ruby text", RubySpan.POSITION_OVER),
-        start,
-        end,
-        Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+    SpannableString spannable =
+        createSpannable(
+            new RubySpan("ruby text", RubySpan.POSITION_OVER), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
 
     assertThat(spannable)
-        .hasRubySpanBetween(start, end)
+        .hasRubySpanBetween(SPAN_START, SPAN_END)
         .withTextAndPosition("ruby text", RubySpan.POSITION_OVER)
         .andFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
   }
 
   @Test
   public void rubySpan_wrongEndIndex() {
-    SpannableString spannable = SpannableString.valueOf("test with cyan section");
-    int start = "test with ".length();
-    int end = start + "cyan".length();
-    spannable.setSpan(
-        new RubySpan("ruby text", RubySpan.POSITION_OVER),
-        start,
-        end,
-        Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-
-    int incorrectEnd = end + 2;
-    AssertionError expected =
-        expectFailure(
-            whenTesting ->
-                whenTesting
-                    .that(spannable)
-                    .hasRubySpanBetween(start, incorrectEnd)
-                    .withTextAndPosition("ruby text", RubySpan.POSITION_OVER));
-    assertThat(expected).factValue("expected").contains("end=" + incorrectEnd);
-    assertThat(expected).factValue("but found").contains("end=" + end);
+    checkHasSpanFailsDueToIndexMismatch(
+        new RubySpan("ruby text", RubySpan.POSITION_OVER), SpannedSubject::hasRubySpanBetween);
   }
 
   @Test
   public void rubySpan_wrongText() {
-    SpannableString spannable = SpannableString.valueOf("test with rubied section");
-    int start = "test with ".length();
-    int end = start + "rubied".length();
-    spannable.setSpan(
-        new RubySpan("ruby text", RubySpan.POSITION_OVER),
-        start,
-        end,
-        Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+    SpannableString spannable = createSpannable(new RubySpan("ruby text", RubySpan.POSITION_OVER));
 
     AssertionError expected =
         expectFailure(
             whenTesting ->
                 whenTesting
                     .that(spannable)
-                    .hasRubySpanBetween(start, end)
+                    .hasRubySpanBetween(SPAN_START, SPAN_END)
                     .withTextAndPosition("incorrect text", RubySpan.POSITION_OVER));
+
     assertThat(expected).factValue("value of").contains("rubyTextAndPosition");
     assertThat(expected).factValue("expected").contains("text='incorrect text'");
     assertThat(expected).factValue("but was").contains("text='ruby text'");
@@ -871,22 +526,16 @@ public class SpannedSubjectTest {
 
   @Test
   public void rubySpan_wrongPosition() {
-    SpannableString spannable = SpannableString.valueOf("test with rubied section");
-    int start = "test with ".length();
-    int end = start + "rubied".length();
-    spannable.setSpan(
-        new RubySpan("ruby text", RubySpan.POSITION_OVER),
-        start,
-        end,
-        Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+    SpannableString spannable = createSpannable(new RubySpan("ruby text", RubySpan.POSITION_OVER));
 
     AssertionError expected =
         expectFailure(
             whenTesting ->
                 whenTesting
                     .that(spannable)
-                    .hasRubySpanBetween(start, end)
+                    .hasRubySpanBetween(SPAN_START, SPAN_END)
                     .withTextAndPosition("ruby text", RubySpan.POSITION_UNDER));
+
     assertThat(expected).factValue("value of").contains("rubyTextAndPosition");
     assertThat(expected).factValue("expected").contains("position=" + RubySpan.POSITION_UNDER);
     assertThat(expected).factValue("but was").contains("position=" + RubySpan.POSITION_OVER);
@@ -894,125 +543,141 @@ public class SpannedSubjectTest {
 
   @Test
   public void rubySpan_wrongFlags() {
-    SpannableString spannable = SpannableString.valueOf("test with rubied section");
-    int start = "test with ".length();
-    int end = start + "rubied".length();
-    spannable.setSpan(
+    checkHasSpanFailsDueToFlagMismatch(
         new RubySpan("ruby text", RubySpan.POSITION_OVER),
-        start,
-        end,
-        Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-
-    AssertionError expected =
-        expectFailure(
-            whenTesting ->
-                whenTesting
-                    .that(spannable)
-                    .hasRubySpanBetween(start, end)
-                    .withTextAndPosition("ruby text", RubySpan.POSITION_OVER)
-                    .andFlags(Spanned.SPAN_EXCLUSIVE_EXCLUSIVE));
-    assertThat(expected).factValue("value of").contains("flags");
-    assertThat(expected)
-        .factValue("expected to contain")
-        .contains(String.valueOf(Spanned.SPAN_EXCLUSIVE_EXCLUSIVE));
-    assertThat(expected)
-        .factValue("but was")
-        .contains(String.valueOf(Spanned.SPAN_INCLUSIVE_EXCLUSIVE));
+        (subject, start, end) ->
+            subject
+                .hasRubySpanBetween(start, end)
+                .withTextAndPosition("ruby text", RubySpan.POSITION_OVER));
   }
 
   @Test
   public void noRubySpan_success() {
-    SpannableString spannable = SpannableString.valueOf("test with underline then ruby spans");
-    spannable.setSpan(
-        new UnderlineSpan(),
-        "test with ".length(),
-        "test with underline".length(),
-        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-    spannable.setSpan(
-        new RubySpan("ruby text", RubySpan.POSITION_OVER),
-        "test with underline then ".length(),
-        "test with underline then ruby".length(),
-        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    SpannableString spannable =
+        createSpannableWithUnrelatedSpanAnd(new RubySpan("ruby text", RubySpan.POSITION_OVER));
 
-    assertThat(spannable).hasNoRubySpanBetween(0, "test with underline then".length());
+    assertThat(spannable).hasNoRubySpanBetween(UNRELATED_SPAN_START, UNRELATED_SPAN_END);
   }
 
   @Test
   public void noRubySpan_failure() {
-    SpannableString spannable = SpannableString.valueOf("test with ruby section");
-    int start = "test with ".length();
-    int end = start + "ruby".length();
-    spannable.setSpan(
-        new RubySpan("ruby text", RubySpan.POSITION_OVER),
-        start,
-        end,
-        Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-
-    AssertionError expected =
-        expectFailure(
-            whenTesting -> whenTesting.that(spannable).hasNoRubySpanBetween(start + 1, end));
-    assertThat(expected)
-        .factKeys()
-        .contains("Found unexpected RubySpans between start=" + (start + 1) + ",end=" + end);
-    assertThat(expected).factKeys().contains("expected none");
-    assertThat(expected).factValue("but found").contains("start=" + start);
+    checkHasNoSpanFails(
+        new RubySpan("ruby text", RubySpan.POSITION_OVER), SpannedSubject::hasNoRubySpanBetween);
   }
 
   @Test
   public void horizontalTextInVerticalContextSpan_success() {
-    SpannableString spannable = SpannableString.valueOf("vertical text with horizontal section");
-    int start = "vertical text with ".length();
-    int end = start + "horizontal".length();
-    spannable.setSpan(
-        new HorizontalTextInVerticalContextSpan(), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+    SpannableString spannable =
+        createSpannable(
+            new HorizontalTextInVerticalContextSpan(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
 
     assertThat(spannable)
-        .hasHorizontalTextInVerticalContextSpanBetween(start, end)
+        .hasHorizontalTextInVerticalContextSpanBetween(SPAN_START, SPAN_END)
         .withFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
   }
 
   @Test
   public void noHorizontalTextInVerticalContextSpan_success() {
     SpannableString spannable =
-        SpannableString.valueOf("test with underline then tate-chu-yoko spans");
-    spannable.setSpan(
-        new UnderlineSpan(),
-        "test with ".length(),
-        "test with underline".length(),
-        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-    spannable.setSpan(
-        new HorizontalTextInVerticalContextSpan(),
-        "test with underline then ".length(),
-        "test with underline then tate-chu-yoko".length(),
-        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        createSpannableWithUnrelatedSpanAnd(new HorizontalTextInVerticalContextSpan());
 
     assertThat(spannable)
-        .hasNoHorizontalTextInVerticalContextSpanBetween(0, "test with underline then".length());
+        .hasNoHorizontalTextInVerticalContextSpanBetween(UNRELATED_SPAN_START, UNRELATED_SPAN_END);
   }
 
   @Test
   public void noHorizontalTextInVerticalContextSpan_failure() {
-    SpannableString spannable = SpannableString.valueOf("test with tate-chu-yoko section");
-    int start = "test with ".length();
-    int end = start + "tate-chu-yoko".length();
-    spannable.setSpan(
-        new HorizontalTextInVerticalContextSpan(), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+    checkHasNoSpanFails(
+        new HorizontalTextInVerticalContextSpan(),
+        SpannedSubject::hasNoHorizontalTextInVerticalContextSpanBetween);
+  }
+
+  private interface HasSpanFunction<T> {
+    T call(SpannedSubject s, int start, int end);
+  }
+
+  private static <T> void checkHasSpanFailsDueToIndexMismatch(
+      Object spanToInsert, HasSpanFunction<T> hasSpanFunction) {
+    SpannableString spannable = createSpannable(spanToInsert);
+    spannable.setSpan(spanToInsert, SPAN_START, SPAN_END, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+    int incorrectStart = SPAN_START + 1;
+    AssertionError expected =
+        expectFailure(
+            whenTesting -> {
+              SpannedSubject subject = whenTesting.that(spannable);
+              hasSpanFunction.call(subject, incorrectStart, SPAN_END);
+            });
+    assertThat(expected).factValue("expected").contains("start=" + incorrectStart);
+    assertThat(expected).factValue("but found").contains("start=" + SPAN_START);
+    assertThat(expected).factValue("but found").contains(spanToInsert.getClass().getSimpleName());
+  }
+
+  private static void checkHasSpanFailsDueToFlagMismatch(
+      Object spanToInsert, HasSpanFunction<?> hasSpanFunction) {
+    SpannableString spannable = createSpannable(spanToInsert, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+    AssertionError failure =
+        expectFailure(
+            whenTesting -> {
+              SpannedSubject subject = whenTesting.that(spannable);
+              Object withOrAndFlags = hasSpanFunction.call(subject, SPAN_START, SPAN_END);
+              if (withOrAndFlags instanceof WithSpanFlags) {
+                ((WithSpanFlags) withOrAndFlags).withFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+              } else if (withOrAndFlags instanceof AndSpanFlags) {
+                ((AndSpanFlags) withOrAndFlags).andFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+              } else {
+                throw new AssertionError(
+                    "Unexpected return type: " + withOrAndFlags.getClass().getCanonicalName());
+              }
+            });
+
+    assertThat(failure)
+        .factValue("value of")
+        .contains(String.format("start=%s,end=%s", SPAN_START, SPAN_END));
+    assertThat(failure)
+        .factValue("expected to contain")
+        .contains(String.valueOf(Spanned.SPAN_INCLUSIVE_EXCLUSIVE));
+    assertThat(failure)
+        .factValue("but was")
+        .contains(String.valueOf(Spanned.SPAN_EXCLUSIVE_EXCLUSIVE));
+  }
+
+  private interface HasNoSpanFunction<T> {
+    void call(SpannedSubject s, int start, int end);
+  }
+
+  private static <T> void checkHasNoSpanFails(
+      Object spanToInsert, HasNoSpanFunction<T> hasNoSpanFunction) {
+    SpannableString spannable = createSpannable(spanToInsert);
 
     AssertionError expected =
         expectFailure(
-            whenTesting ->
-                whenTesting
-                    .that(spannable)
-                    .hasNoHorizontalTextInVerticalContextSpanBetween(start + 1, end));
-    assertThat(expected)
-        .factKeys()
-        .contains(
-            "Found unexpected HorizontalTextInVerticalContextSpans between start="
-                + (start + 1)
-                + ",end="
-                + end);
+            whenTesting -> {
+              SpannedSubject subject = whenTesting.that(spannable);
+              hasNoSpanFunction.call(subject, SPAN_START, SPAN_END);
+            });
+
     assertThat(expected).factKeys().contains("expected none");
-    assertThat(expected).factValue("but found").contains("start=" + start);
+    assertThat(expected).factValue("but found").contains("start=" + SPAN_START);
+  }
+
+  private static SpannableString createSpannable(Object spanToInsert) {
+    return createSpannable(spanToInsert, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+  }
+
+  private static SpannableString createSpannable(Object spanToInsert, int spanFlags) {
+    SpannableString spannable = SpannableString.valueOf(TEXT_WITH_TARGET_SPAN);
+    spannable.setSpan(spanToInsert, SPAN_START, SPAN_END, spanFlags);
+    return spannable;
+  }
+
+  private static SpannableString createSpannableWithUnrelatedSpanAnd(Object spanToInsert) {
+    SpannableString spannable = SpannableString.valueOf(TEXT_WITH_TARGET_AND_UNRELATED_SPAN);
+    spannable.setSpan(spanToInsert, SPAN_START, SPAN_END, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    spannable.setSpan(
+        new Object(), UNRELATED_SPAN_START, UNRELATED_SPAN_END, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    return spannable;
   }
 
   private static AssertionError expectFailure(
