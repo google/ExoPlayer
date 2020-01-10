@@ -284,9 +284,16 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     }
 
     String responseMessage;
+    byte[] errorResponseBody = null;
     try {
       responseCode = connection.getResponseCode();
       responseMessage = connection.getResponseMessage();
+      InputStream errorStream = connection.getErrorStream();
+      // Android Studio says errorStream will never be null, but Android docs say otherwise.
+      // Just check to be sure.
+      if (errorStream != null) {
+        errorResponseBody = Util.toByteArray(errorStream);
+      }
     } catch (IOException e) {
       closeConnectionQuietly();
       throw new HttpDataSourceException("Unable to connect to " + dataSpec.uri.toString(), e,
@@ -298,7 +305,9 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       Map<String, List<String>> headers = connection.getHeaderFields();
       closeConnectionQuietly();
       InvalidResponseCodeException exception =
-          new InvalidResponseCodeException(responseCode, responseMessage, headers, dataSpec);
+          new InvalidResponseCodeException(responseCode, responseMessage, headers, dataSpec,
+              errorResponseBody);
+
       if (responseCode == 416) {
         exception.initCause(new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE));
       }

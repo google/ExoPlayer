@@ -306,6 +306,11 @@ public interface HttpDataSource extends DataSource {
      */
     public final Map<String, List<String>> headerFields;
 
+    /**
+     * The response body, if one was provided.
+     */
+    @Nullable public final byte[] responseBody;
+
     /** @deprecated Use {@link #InvalidResponseCodeException(int, String, Map, DataSpec)}. */
     @Deprecated
     public InvalidResponseCodeException(
@@ -313,15 +318,27 @@ public interface HttpDataSource extends DataSource {
       this(responseCode, /* responseMessage= */ null, headerFields, dataSpec);
     }
 
+    /** @deprecated Use {@link #InvalidResponseCodeException(int, String, Map, DataSpec byte[])}. */
+    @Deprecated
     public InvalidResponseCodeException(
         int responseCode,
         @Nullable String responseMessage,
         Map<String, List<String>> headerFields,
         DataSpec dataSpec) {
+      this(responseCode, responseMessage, headerFields, dataSpec, /* responseBody= */ null);
+    }
+
+    public InvalidResponseCodeException(
+        int responseCode,
+        @Nullable String responseMessage,
+        Map<String, List<String>> headerFields,
+        DataSpec dataSpec,
+        @Nullable byte[] responseBody) {
       super("Response code: " + responseCode, dataSpec, TYPE_OPEN);
       this.responseCode = responseCode;
       this.responseMessage = responseMessage;
       this.headerFields = headerFields;
+      this.responseBody = responseBody;
     }
 
   }
