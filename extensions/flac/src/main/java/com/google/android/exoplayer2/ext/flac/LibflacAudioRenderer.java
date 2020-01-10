@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
+import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.audio.SimpleDecoderAudioRenderer;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
@@ -55,6 +56,24 @@ public final class LibflacAudioRenderer extends SimpleDecoderAudioRenderer {
     super(eventHandler, eventListener, audioProcessors);
   }
 
+  /**
+   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
+   *     null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @param audioSink The sink to which audio will be output.
+   */
+  public LibflacAudioRenderer(
+      @Nullable Handler eventHandler,
+      @Nullable AudioRendererEventListener eventListener,
+      AudioSink audioSink) {
+    super(
+        eventHandler,
+        eventListener,
+        /* drmSessionManager= */ null,
+        /* playClearSamplesWithoutKeys= */ false,
+        audioSink);
+  }
+
   @Override
   @FormatSupport
   protected int supportsFormatInternal(
@@ -68,8 +87,8 @@ public final class LibflacAudioRenderer extends SimpleDecoderAudioRenderer {
     if (format.initializationData.isEmpty()) {
       // The initialization data might not be set if the format was obtained from a manifest (e.g.
       // for DASH playbacks) rather than directly from the media. In this case we assume
-      // ENCODING_PCM_16BIT. If the actual encoding is different, playback will still succeed as
-      // long as the AudioSink supports it (which will always be true when using DefaultAudioSink).
+      // ENCODING_PCM_16BIT. If the actual encoding is different then playback will still succeed as
+      // long as the AudioSink supports it, which will always be true when using DefaultAudioSink.
       pcmEncoding = C.ENCODING_PCM_16BIT;
     } else {
       int streamMetadataOffset =
