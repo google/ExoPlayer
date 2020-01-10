@@ -1257,14 +1257,19 @@ public class FragmentedMp4Extractor implements Extractor {
         sampleSize -= Atom.HEADER_SIZE;
         input.skipFully(Atom.HEADER_SIZE);
       }
-      sampleBytesWritten = currentTrackBundle.outputSampleEncryptionData();
-      sampleSize += sampleBytesWritten;
+
       if (MimeTypes.AUDIO_AC4.equals(currentTrackBundle.track.format.sampleMimeType)) {
+        // AC4 samples need to be prefixed with a clear sample header.
+        sampleBytesWritten =
+            currentTrackBundle.outputSampleEncryptionData(sampleSize, Ac4Util.SAMPLE_HEADER_SIZE);
         Ac4Util.getAc4SampleHeader(sampleSize, scratch);
         currentTrackBundle.output.sampleData(scratch, Ac4Util.SAMPLE_HEADER_SIZE);
         sampleBytesWritten += Ac4Util.SAMPLE_HEADER_SIZE;
-        sampleSize += Ac4Util.SAMPLE_HEADER_SIZE;
+      } else {
+        sampleBytesWritten =
+            currentTrackBundle.outputSampleEncryptionData(sampleSize, /* clearHeaderSize= */ 0);
       }
+      sampleSize += sampleBytesWritten;
       parserState = STATE_READING_SAMPLE_CONTINUE;
       sampleCurrentNalBytesRemaining = 0;
     }
@@ -1462,8 +1467,11 @@ public class FragmentedMp4Extractor implements Extractor {
    */
   private static final class TrackBundle {
 
+    private static final int SINGLE_SUBSAMPLE_ENCRYPTION_DATA_LENGTH = 8;
+
     public final TrackOutput output;
     public final TrackFragment fragment;
+    public final ParsableByteArray scratch;
 
     public Track track;
     public DefaultSampleValues defaultSampleValues;
@@ -1478,6 +1486,7 @@ public class FragmentedMp4Extractor implements Extractor {
     public TrackBundle(TrackOutput output) {
       this.output = output;
       fragment = new TrackFragment();
+      scratch = new ParsableByteArray();
       encryptionSignalByte = new ParsableByteArray(1);
       defaultInitializationVector = new ParsableByteArray();
     }
@@ -1545,9 +1554,13 @@ public class FragmentedMp4Extractor implements Extractor {
     /**
      * Outputs the encryption data for the current sample.
      *
+     * @param sampleSize The size of the current sample in bytes, excluding any additional clear
+     *     header that will be prefixed to the sample by the extractor.
+     * @param clearHeaderSize The size of a clear header that will be prefixed to the sample by the
+     *     extractor, or 0.
      * @return The number of written bytes.
      */
-    public int outputSampleEncryptionData() {
+    public int outputSampleEncryptionData(int sampleSize, int clearHeaderSize) {
       TrackEncryptionBox encryptionBox = getEncryptionBoxIfEncrypted();
       if (encryptionBox == null) {
         return 0;
@@ -1566,23 +1579,61 @@ public class FragmentedMp4Extractor implements Extractor {
         vectorSize = initVectorData.length;
       }
 
-      boolean subsampleEncryption = fragment.sampleHasSubsampleEncryptionTable(currentSampleIndex);
+      boolean haveSubsampleEncryptionTable =
+          fragment.sampleHasSubsampleEncryptionTable(currentSampleIndex);
+      boolean writeSubsampleEncryptionData = haveSubsampleEncryptionTable || clearHeaderSize != 0;
 
       // Write the signal byte, containing the vector size and the subsample encryption flag.
-      encryptionSignalByte.data[0] = (byte) (vectorSize | (subsampleEncryption ? 0x80 : 0));
+      encryptionSignalByte.data[0] =
+          (byte) (vectorSize | (writeSubsampleEncryptionData ? 0x80 : 0));
       encryptionSignalByte.setPosition(0);
       output.sampleData(encryptionSignalByte, 1);
       // Write the vector.
       output.sampleData(initializationVectorData, vectorSize);
-      // If we don't have subsample encryption data, we're done.
-      if (!subsampleEncryption) {
+
+      if (!writeSubsampleEncryptionData) {
         return 1 + vectorSize;
       }
-      // Write the subsample encryption data.
+
+      if (!haveSubsampleEncryptionTable) {
+        // The sample is fully encrypted, except for the additional clear header that the extractor
+        // is going to prefix. We need to synthesize subsample encryption data that takes the header
+        // into account.
+        scratch.reset(SINGLE_SUBSAMPLE_ENCRYPTION_DATA_LENGTH);
+        // subsampleCount = 1 (unsigned short)
+        scratch.data[0] = (byte) 0;
+        scratch.data[1] = (byte) 1;
+        // clearDataSize = clearHeaderSize (unsigned short)
+        scratch.data[2] = (byte) ((clearHeaderSize >> 8) & 0xFF);
+        scratch.data[3] = (byte) (clearHeaderSize & 0xFF);
+        // encryptedDataSize = sampleSize (unsigned short)
+        scratch.data[4] = (byte) ((sampleSize >> 24) & 0xFF);
+        scratch.data[5] = (byte) ((sampleSize >> 16) & 0xFF);
+        scratch.data[6] = (byte) ((sampleSize >> 8) & 0xFF);
+        scratch.data[7] = (byte) (sampleSize & 0xFF);
+        output.sampleData(scratch, SINGLE_SUBSAMPLE_ENCRYPTION_DATA_LENGTH);
+        return 1 + vectorSize + SINGLE_SUBSAMPLE_ENCRYPTION_DATA_LENGTH;
+      }
+
       ParsableByteArray subsampleEncryptionData = fragment.sampleEncryptionData;
       int subsampleCount = subsampleEncryptionData.readUnsignedShort();
       subsampleEncryptionData.skipBytes(-2);
       int subsampleDataLength = 2 + 6 * subsampleCount;
+
+      if (clearHeaderSize != 0) {
+        // We need to account for the additional clear header by adding clearHeaderSize to
+        // clearDataSize for the first subsample specified in the subsample encryption data.
+        scratch.reset(subsampleDataLength);
+        scratch.readBytes(subsampleEncryptionData.data, /* offset= */ 0, subsampleDataLength);
+        subsampleEncryptionData.skipBytes(subsampleDataLength);
+
+        int clearDataSize = (scratch.data[2] & 0xFF) << 8 | (scratch.data[3] & 0xFF);
+        int adjustedClearDataSize = clearDataSize + clearHeaderSize;
+        scratch.data[2] = (byte) ((adjustedClearDataSize >> 8) & 0xFF);
+        scratch.data[3] = (byte) (adjustedClearDataSize & 0xFF);
+        subsampleEncryptionData = scratch;
+      }
+
       output.sampleData(subsampleEncryptionData, subsampleDataLength);
       return 1 + vectorSize + subsampleDataLength;
     }
