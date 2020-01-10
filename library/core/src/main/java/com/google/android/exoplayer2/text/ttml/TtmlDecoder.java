@@ -91,6 +91,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
       new CellResolution(/* columns= */ 32, /* rows= */ 15);
 
   private final XmlPullParserFactory xmlParserFactory;
+  private TtmlRegion previousTtmlRegion = null;
 
   public TtmlDecoder() {
     super("TtmlDecoder");
@@ -352,12 +353,19 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
       }
     } else {
       Log.w(TAG, "Ignoring region without an origin");
-      return null;
+      // return null;
       // TODO: Should default to top left as below in this case, but need to fix
       // https://github.com/google/ExoPlayer/issues/2953 first.
       // Origin is omitted. Default to top left.
       // position = 0;
       // line = 0;
+      if (previousTtmlRegion != null) {
+        position = previousTtmlRegion.position;
+        line = previousTtmlRegion.line;
+      } else {
+        position = 0;
+        line = 0;
+      }
     }
 
     float width;
@@ -395,12 +403,19 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
       }
     } else {
       Log.w(TAG, "Ignoring region without an extent");
-      return null;
+      // return null;
       // TODO: Should default to extent of parent as below in this case, but need to fix
       // https://github.com/google/ExoPlayer/issues/2953 first.
       // Extent is omitted. Default to extent of parent.
       // width = 1;
       // height = 1;
+      if (previousTtmlRegion != null) {
+        width = previousTtmlRegion.width;
+        height = previousTtmlRegion.height;
+      } else {
+        width = 1;
+        height = 1;
+      }
     }
 
     @Cue.AnchorType int lineAnchor = Cue.ANCHOR_TYPE_START;
@@ -423,6 +438,17 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
     }
 
     float regionTextHeight = 1.0f / cellResolution.rows;
+    previousTtmlRegion = new TtmlRegion(
+        regionId,
+        position,
+        line,
+        /* lineType= */ Cue.LINE_TYPE_FRACTION,
+        lineAnchor,
+        width,
+        height,
+        /* textSizeType= */ Cue.TEXT_SIZE_TYPE_FRACTIONAL_IGNORE_PADDING,
+        /* textSize= */ regionTextHeight
+    );
     return new TtmlRegion(
         regionId,
         position,
