@@ -60,6 +60,7 @@
   This issue caused FLAC streams with other bit depths to sound like white noise
   on earlier releases, but only when embedded in a non-FLAC container such as
   Matroska or MP4.
+* Javadocs: Add favicon for easier identification in browser tabs
 
 ### 2.11.1 (2019-12-20) ###
 
