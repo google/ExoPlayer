@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.DummyTrackOutput;
+import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.SeekMap;
@@ -823,13 +824,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @param chunkUid The chunk's uid.
    * @param shouldSpliceIn Whether the samples parsed from the chunk should be spliced into any
    *     samples already queued to the wrapper.
-   * @param reusingExtractor Whether the extractor for the chunk has already been used for preceding
-   *     chunks.
    */
-  public void init(int chunkUid, boolean shouldSpliceIn, boolean reusingExtractor) {
-    if (!reusingExtractor) {
-      sampleQueueMappingDoneByType.clear();
-    }
+  public void init(int chunkUid, boolean shouldSpliceIn) {
     this.chunkUid = chunkUid;
     for (SampleQueue sampleQueue : sampleQueues) {
       sampleQueue.sourceId(chunkUid);
@@ -884,8 +880,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * different ID, then return a {@link DummyTrackOutput} that does nothing.
    *
    * <p>If a {@link SampleQueue} for {@code type} has been created but is not mapped, then map it to
-   * this {@code id} and return it. This situation can happen after a call to {@link #init} with
-   * {@code reusingExtractor=false}.
+   * this {@code id} and return it. This situation can happen after a call to {@link
+   * #onNewExtractor}.
    *
    * @param id The ID of the track.
    * @param type The type of the track, must be one of {@link #MAPPABLE_TYPES}.
@@ -951,6 +947,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   // Called by the loading thread.
+
+  /** Called when an {@link HlsMediaChunk} starts extracting media with a new {@link Extractor}. */
+  public void onNewExtractor() {
+    sampleQueueMappingDoneByType.clear();
+  }
 
   public void setSampleOffsetUs(long sampleOffsetUs) {
     this.sampleOffsetUs = sampleOffsetUs;
