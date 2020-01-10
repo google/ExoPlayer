@@ -26,10 +26,12 @@ import android.graphics.Typeface;
 import android.text.Layout.Alignment;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.style.AbsoluteSizeSpan;
 import android.text.style.AlignmentSpan;
 import android.text.style.AlignmentSpan.Standard;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
 import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
@@ -487,6 +489,118 @@ public class SpannedSubjectTest {
   @Test
   public void noTypefaceSpan_failure() {
     checkHasNoSpanFails(new TypefaceSpan("courier"), SpannedSubject::hasNoTypefaceSpanBetween);
+  }
+
+  @Test
+  public void absoluteSizeSpan_success() {
+    SpannableString spannable =
+        createSpannable(new AbsoluteSizeSpan(/* size= */ 5), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+    assertThat(spannable)
+        .hasAbsoluteSizeSpanBetween(SPAN_START, SPAN_END)
+        .withAbsoluteSize(5)
+        .andFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+  }
+
+  @Test
+  public void absoluteSizeSpan_wrongIndex() {
+    checkHasSpanFailsDueToIndexMismatch(
+        new AbsoluteSizeSpan(/* size= */ 5), SpannedSubject::hasAbsoluteSizeSpanBetween);
+  }
+
+  @Test
+  public void absoluteSizeSpan_wrongSize() {
+    SpannableString spannable = createSpannable(new AbsoluteSizeSpan(/* size= */ 5));
+
+    AssertionError expected =
+        expectFailure(
+            whenTesting ->
+                whenTesting
+                    .that(spannable)
+                    .hasAbsoluteSizeSpanBetween(SPAN_START, SPAN_END)
+                    .withAbsoluteSize(4));
+
+    assertThat(expected).factValue("value of").contains("absoluteSize");
+    assertThat(expected).factValue("expected").contains("4");
+    assertThat(expected).factValue("but was").contains("5");
+  }
+
+  @Test
+  public void absoluteSizeSpan_wrongFlags() {
+    checkHasSpanFailsDueToFlagMismatch(
+        new AbsoluteSizeSpan(/* size= */ 5),
+        (subject, start, end) ->
+            subject.hasAbsoluteSizeSpanBetween(start, end).withAbsoluteSize(5));
+  }
+
+  @Test
+  public void noAbsoluteSizeSpan_success() {
+    SpannableString spannable =
+        createSpannableWithUnrelatedSpanAnd(new AbsoluteSizeSpan(/* size= */ 5));
+
+    assertThat(spannable).hasNoAbsoluteSizeSpanBetween(UNRELATED_SPAN_START, UNRELATED_SPAN_END);
+  }
+
+  @Test
+  public void noAbsoluteSizeSpan_failure() {
+    checkHasNoSpanFails(
+        new AbsoluteSizeSpan(/* size= */ 5), SpannedSubject::hasNoAbsoluteSizeSpanBetween);
+  }
+
+  @Test
+  public void relativeSizeSpan_success() {
+    SpannableString spannable =
+        createSpannable(
+            new RelativeSizeSpan(/* proportion= */ 5), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+    assertThat(spannable)
+        .hasRelativeSizeSpanBetween(SPAN_START, SPAN_END)
+        .withSizeChange(5)
+        .andFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+  }
+
+  @Test
+  public void relativeSizeSpan_wrongIndex() {
+    checkHasSpanFailsDueToIndexMismatch(
+        new RelativeSizeSpan(/* proportion= */ 5), SpannedSubject::hasRelativeSizeSpanBetween);
+  }
+
+  @Test
+  public void relativeSizeSpan_wrongSize() {
+    SpannableString spannable = createSpannable(new RelativeSizeSpan(/* proportion= */ 5));
+
+    AssertionError expected =
+        expectFailure(
+            whenTesting ->
+                whenTesting
+                    .that(spannable)
+                    .hasRelativeSizeSpanBetween(SPAN_START, SPAN_END)
+                    .withSizeChange(4));
+
+    assertThat(expected).factValue("value of").contains("sizeChange");
+    assertThat(expected).factValue("expected").contains("4");
+    assertThat(expected).factValue("but was").contains("5");
+  }
+
+  @Test
+  public void relativeSizeSpan_wrongFlags() {
+    checkHasSpanFailsDueToFlagMismatch(
+        new RelativeSizeSpan(/* proportion= */ 5),
+        (subject, start, end) -> subject.hasRelativeSizeSpanBetween(start, end).withSizeChange(5));
+  }
+
+  @Test
+  public void noRelativeSizeSpan_success() {
+    SpannableString spannable =
+        createSpannableWithUnrelatedSpanAnd(new RelativeSizeSpan(/* proportion= */ 5));
+
+    assertThat(spannable).hasNoRelativeSizeSpanBetween(UNRELATED_SPAN_START, UNRELATED_SPAN_END);
+  }
+
+  @Test
+  public void noRelativeSizeSpan_failure() {
+    checkHasNoSpanFails(
+        new RelativeSizeSpan(/* proportion= */ 5), SpannedSubject::hasNoRelativeSizeSpanBetween);
   }
 
   @Test

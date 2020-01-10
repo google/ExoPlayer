@@ -24,9 +24,11 @@ import android.graphics.Typeface;
 import android.text.Layout.Alignment;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.style.AbsoluteSizeSpan;
 import android.text.style.AlignmentSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
 import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
@@ -423,6 +425,88 @@ public final class SpannedSubject extends Subject {
   }
 
   /**
+   * Checks that the subject has a {@link AbsoluteSizeSpan} from {@code start} to {@code end}.
+   *
+   * <p>The size is asserted in a follow-up method call on the return {@link AbsoluteSized} object.
+   *
+   * @param start The start of the expected span.
+   * @param end The end of the expected span.
+   * @return A {@link AbsoluteSized} object to assert on the size of the matching spans.
+   */
+  @CheckResult
+  public AbsoluteSized hasAbsoluteSizeSpanBetween(int start, int end) {
+    if (actual == null) {
+      failWithoutActual(simpleFact("Spanned must not be null"));
+      return ALREADY_FAILED_ABSOLUTE_SIZED;
+    }
+
+    List<AbsoluteSizeSpan> absoluteSizeSpans =
+        findMatchingSpans(start, end, AbsoluteSizeSpan.class);
+    if (absoluteSizeSpans.isEmpty()) {
+      failWithExpectedSpan(
+          start, end, AbsoluteSizeSpan.class, actual.toString().substring(start, end));
+      return ALREADY_FAILED_ABSOLUTE_SIZED;
+    }
+    return check("AbsoluteSizeSpan (start=%s,end=%s)", start, end)
+        .about(absoluteSizeSpans(actual))
+        .that(absoluteSizeSpans);
+  }
+
+  /**
+   * Checks that the subject has no {@link AbsoluteSizeSpan}s on any of the text between {@code
+   * start} and {@code end}.
+   *
+   * <p>This fails even if the start and end indexes don't exactly match.
+   *
+   * @param start The start index to start searching for spans.
+   * @param end The end index to stop searching for spans.
+   */
+  public void hasNoAbsoluteSizeSpanBetween(int start, int end) {
+    hasNoSpansOfTypeBetween(AbsoluteSizeSpan.class, start, end);
+  }
+
+  /**
+   * Checks that the subject has a {@link RelativeSizeSpan} from {@code start} to {@code end}.
+   *
+   * <p>The size is asserted in a follow-up method call on the return {@link RelativeSized} object.
+   *
+   * @param start The start of the expected span.
+   * @param end The end of the expected span.
+   * @return A {@link RelativeSized} object to assert on the size of the matching spans.
+   */
+  @CheckResult
+  public RelativeSized hasRelativeSizeSpanBetween(int start, int end) {
+    if (actual == null) {
+      failWithoutActual(simpleFact("Spanned must not be null"));
+      return ALREADY_FAILED_RELATIVE_SIZED;
+    }
+
+    List<RelativeSizeSpan> relativeSizeSpans =
+        findMatchingSpans(start, end, RelativeSizeSpan.class);
+    if (relativeSizeSpans.isEmpty()) {
+      failWithExpectedSpan(
+          start, end, RelativeSizeSpan.class, actual.toString().substring(start, end));
+      return ALREADY_FAILED_RELATIVE_SIZED;
+    }
+    return check("RelativeSizeSpan (start=%s,end=%s)", start, end)
+        .about(relativeSizeSpans(actual))
+        .that(relativeSizeSpans);
+  }
+
+  /**
+   * Checks that the subject has no {@link RelativeSizeSpan}s on any of the text between {@code
+   * start} and {@code end}.
+   *
+   * <p>This fails even if the start and end indexes don't exactly match.
+   *
+   * @param start The start index to start searching for spans.
+   * @param end The end index to stop searching for spans.
+   */
+  public void hasNoRelativeSizeSpanBetween(int start, int end) {
+    hasNoSpansOfTypeBetween(RelativeSizeSpan.class, start, end);
+  }
+
+  /**
    * Checks that the subject has a {@link RubySpan} from {@code start} to {@code end}.
    *
    * <p>The ruby-text is asserted in a follow-up method call on the return {@link RubyText} object.
@@ -813,6 +897,105 @@ public final class SpannedSubject extends Subject {
       }
 
       check("family").that(spanFontFamilies).containsExactly(fontFamily);
+      return check("flags").about(spanFlags()).that(matchingSpanFlags);
+    }
+  }
+
+  /** Allows assertions about the absolute size of a span. */
+  public interface AbsoluteSized {
+
+    /**
+     * Checks that at least one of the matched spans has the expected {@code size}.
+     *
+     * @param size The expected size.
+     * @return A {@link WithSpanFlags} object for optional additional assertions on the flags.
+     */
+    AndSpanFlags withAbsoluteSize(int size);
+  }
+
+  private static final AbsoluteSized ALREADY_FAILED_ABSOLUTE_SIZED =
+      size -> ALREADY_FAILED_AND_FLAGS;
+
+  private static Factory<AbsoluteSizeSpansSubject, List<AbsoluteSizeSpan>> absoluteSizeSpans(
+      Spanned actualSpanned) {
+    return (FailureMetadata metadata, List<AbsoluteSizeSpan> spans) ->
+        new AbsoluteSizeSpansSubject(metadata, spans, actualSpanned);
+  }
+
+  private static final class AbsoluteSizeSpansSubject extends Subject implements AbsoluteSized {
+
+    private final List<AbsoluteSizeSpan> actualSpans;
+    private final Spanned actualSpanned;
+
+    private AbsoluteSizeSpansSubject(
+        FailureMetadata metadata, List<AbsoluteSizeSpan> actualSpans, Spanned actualSpanned) {
+      super(metadata, actualSpans);
+      this.actualSpans = actualSpans;
+      this.actualSpanned = actualSpanned;
+    }
+
+    @Override
+    public AndSpanFlags withAbsoluteSize(int size) {
+      List<Integer> matchingSpanFlags = new ArrayList<>();
+      List<Integer> spanSizes = new ArrayList<>();
+
+      for (AbsoluteSizeSpan span : actualSpans) {
+        spanSizes.add(span.getSize());
+        if (span.getSize() == size) {
+          matchingSpanFlags.add(actualSpanned.getSpanFlags(span));
+        }
+      }
+
+      check("absoluteSize").that(spanSizes).containsExactly(size);
+      return check("flags").about(spanFlags()).that(matchingSpanFlags);
+    }
+  }
+
+  /** Allows assertions about the relative size of a span. */
+  public interface RelativeSized {
+    /**
+     * Checks that at least one of the matched spans has the expected {@code sizeChange}.
+     *
+     * @param sizeChange The expected size change.
+     * @return A {@link WithSpanFlags} object for optional additional assertions on the flags.
+     */
+    AndSpanFlags withSizeChange(float sizeChange);
+  }
+
+  private static final RelativeSized ALREADY_FAILED_RELATIVE_SIZED =
+      sizeChange -> ALREADY_FAILED_AND_FLAGS;
+
+  private static Factory<RelativeSizeSpansSubject, List<RelativeSizeSpan>> relativeSizeSpans(
+      Spanned actualSpanned) {
+    return (FailureMetadata metadata, List<RelativeSizeSpan> spans) ->
+        new RelativeSizeSpansSubject(metadata, spans, actualSpanned);
+  }
+
+  private static final class RelativeSizeSpansSubject extends Subject implements RelativeSized {
+
+    private final List<RelativeSizeSpan> actualSpans;
+    private final Spanned actualSpanned;
+
+    private RelativeSizeSpansSubject(
+        FailureMetadata metadata, List<RelativeSizeSpan> actualSpans, Spanned actualSpanned) {
+      super(metadata, actualSpans);
+      this.actualSpans = actualSpans;
+      this.actualSpanned = actualSpanned;
+    }
+
+    @Override
+    public AndSpanFlags withSizeChange(float size) {
+      List<Integer> matchingSpanFlags = new ArrayList<>();
+      List<Float> spanSizes = new ArrayList<>();
+
+      for (RelativeSizeSpan span : actualSpans) {
+        spanSizes.add(span.getSizeChange());
+        if (span.getSizeChange() == size) {
+          matchingSpanFlags.add(actualSpanned.getSpanFlags(span));
+        }
+      }
+
+      check("sizeChange").that(spanSizes).containsExactly(size);
       return check("flags").about(spanFlags()).that(matchingSpanFlags);
     }
   }
