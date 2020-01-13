@@ -24,6 +24,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.Download.State;
 import com.google.android.exoplayer2.scheduler.Requirements;
+import com.google.android.exoplayer2.testutil.DownloadBuilder;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
 import com.google.android.exoplayer2.testutil.DummyMainThread.TestRunnable;
 import com.google.android.exoplayer2.testutil.TestDownloadManagerListener;

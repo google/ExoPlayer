@@ -23,6 +23,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.database.DatabaseIOException;
 import com.google.android.exoplayer2.database.ExoDatabaseProvider;
 import com.google.android.exoplayer2.database.VersionTable;
+import com.google.android.exoplayer2.testutil.DownloadBuilder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

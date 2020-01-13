@@ -13,11 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.offline;
+package com.google.android.exoplayer2.testutil;
 
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.offline.Download;
+import com.google.android.exoplayer2.offline.DownloadProgress;
+import com.google.android.exoplayer2.offline.DownloadRequest;
+import com.google.android.exoplayer2.offline.StreamKey;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -29,7 +33,7 @@ import java.util.List;
  * creation for tests. Tests must avoid depending on the default values but explicitly set tested
  * parameters during test initialization.
  */
-/* package */ final class DownloadBuilder {
+public final class DownloadBuilder {
 
   private final DownloadProgress progress;
 
@@ -47,7 +51,12 @@ import java.util.List;
   private int stopReason;
   private int failureReason;
 
-  /* package */ DownloadBuilder(String id) {
+  /**
+   * Creates a download builder for "uri" with type "type" and no stream keys.
+   *
+   * @param id The unique content identifier for the download.
+   */
+  public DownloadBuilder(String id) {
     this(
         id,
         "type",
@@ -57,7 +66,12 @@ import java.util.List;
         new byte[0]);
   }
 
-  /* package */ DownloadBuilder(DownloadRequest request) {
+  /**
+   * Creates a download builder based on the attributes of the specified request.
+   *
+   * @param request A {@link DownloadRequest} defining the content to download.
+   */
+  public DownloadBuilder(DownloadRequest request) {
     this(
         request.id,
         request.type,
@@ -67,12 +81,13 @@ import java.util.List;
         request.data);
   }
 
-  /* package */ DownloadBuilder(
+  /** Creates a download builder. */
+  private DownloadBuilder(
       String id,
       String type,
       Uri uri,
       List<StreamKey> streamKeys,
-      String cacheKey,
+      @Nullable String cacheKey,
       byte[] customMetadata) {
     this.id = id;
     this.type = type;
@@ -86,76 +101,85 @@ import java.util.List;
     this.progress = new DownloadProgress();
   }
 
-  public DownloadBuilder setId(String id) {
-    this.id = id;
-    return this;
-  }
-
+  /** @see DownloadRequest#type */
   public DownloadBuilder setType(String type) {
     this.type = type;
     return this;
   }
 
+  /** @see DownloadRequest#uri */
   public DownloadBuilder setUri(String uri) {
     this.uri = Uri.parse(uri);
     return this;
   }
 
+  /** @see DownloadRequest#uri */
   public DownloadBuilder setUri(Uri uri) {
     this.uri = uri;
     return this;
   }
 
+  /** @see DownloadRequest#customCacheKey */
   public DownloadBuilder setCacheKey(@Nullable String cacheKey) {
     this.cacheKey = cacheKey;
     return this;
   }
 
+  /** @see Download#state */
   public DownloadBuilder setState(@Download.State int state) {
     this.state = state;
     return this;
   }
 
+  /** @see DownloadProgress#percentDownloaded */
   public DownloadBuilder setPercentDownloaded(float percentDownloaded) {
     progress.percentDownloaded = percentDownloaded;
     return this;
   }
 
+  /** @see DownloadProgress#bytesDownloaded */
   public DownloadBuilder setBytesDownloaded(long bytesDownloaded) {
     progress.bytesDownloaded = bytesDownloaded;
     return this;
   }
 
+  /** @see Download#contentLength */
   public DownloadBuilder setContentLength(long contentLength) {
     this.contentLength = contentLength;
     return this;
   }
 
+  /** @see Download#failureReason */
   public DownloadBuilder setFailureReason(int failureReason) {
     this.failureReason = failureReason;
     return this;
   }
 
+  /** @see Download#stopReason */
   public DownloadBuilder setStopReason(int stopReason) {
     this.stopReason = stopReason;
     return this;
   }
 
+  /** @see Download#startTimeMs */
   public DownloadBuilder setStartTimeMs(long startTimeMs) {
     this.startTimeMs = startTimeMs;
     return this;
   }
 
+  /** @see Download#updateTimeMs */
   public DownloadBuilder setUpdateTimeMs(long updateTimeMs) {
     this.updateTimeMs = updateTimeMs;
     return this;
   }
 
+  /** @see DownloadRequest#streamKeys */
   public DownloadBuilder setStreamKeys(StreamKey... streamKeys) {
     this.streamKeys = Arrays.asList(streamKeys);
     return this;
   }
 
+  /** @see DownloadRequest#data */
   public DownloadBuilder setCustomMetadata(byte[] customMetadata) {
     this.customMetadata = customMetadata;
     return this;
