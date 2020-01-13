@@ -34,6 +34,8 @@ import com.google.android.exoplayer2.util.NotificationUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.util.HashMap;
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /** A {@link Service} for downloading media. */
 public abstract class DownloadService extends Service {
@@ -166,17 +168,18 @@ public abstract class DownloadService extends Service {
 
   private static final String TAG = "DownloadService";
 
-  // Keep DownloadManagerListeners for each DownloadService as long as there are downloads (and the
-  // process is running). This allows DownloadService to restart when there's no scheduler.
+  // Keep a DownloadManagerHelper for each DownloadService as long as the process is running. The
+  // helper is needed to restart the DownloadService when there's no scheduler. Even when there is a
+  // scheduler, the DownloadManagerHelper is typically able to restart the DownloadService faster.
   private static final HashMap<Class<? extends DownloadService>, DownloadManagerHelper>
-      downloadManagerListeners = new HashMap<>();
+      downloadManagerHelpers = new HashMap<>();
 
   @Nullable private final ForegroundNotificationUpdater foregroundNotificationUpdater;
   @Nullable private final String channelId;
   @StringRes private final int channelNameResourceId;
   @StringRes private final int channelDescriptionResourceId;
 
-  @Nullable private DownloadManager downloadManager;
+  @MonotonicNonNull private DownloadManager downloadManager;
   private int lastStartId;
   private boolean startedInForeground;
   private boolean taskRemoved;
@@ -575,16 +578,17 @@ public abstract class DownloadService extends Service {
           NotificationUtil.IMPORTANCE_LOW);
     }
     Class<? extends DownloadService> clazz = getClass();
-    DownloadManagerHelper downloadManagerHelper = downloadManagerListeners.get(clazz);
+    DownloadManagerHelper downloadManagerHelper = downloadManagerHelpers.get(clazz);
     if (downloadManagerHelper == null) {
-      DownloadManager downloadManager = getDownloadManager();
+      downloadManager = getDownloadManager();
       downloadManager.resumeDownloads();
       downloadManagerHelper =
           new DownloadManagerHelper(
               getApplicationContext(), downloadManager, getScheduler(), clazz);
-      downloadManagerListeners.put(clazz, downloadManagerHelper);
+      downloadManagerHelpers.put(clazz, downloadManagerHelper);
+    } else {
+      downloadManager = downloadManagerHelper.downloadManager;
     }
-    downloadManager = downloadManagerHelper.downloadManager;
     downloadManagerHelper.attachService(this);
   }
 
@@ -671,9 +675,8 @@ public abstract class DownloadService extends Service {
   public void onDestroy() {
     isDestroyed = true;
     DownloadManagerHelper downloadManagerHelper =
-        Assertions.checkNotNull(downloadManagerListeners.get(getClass()));
-    boolean unschedule = !downloadManagerHelper.downloadManager.isWaitingForRequirements();
-    downloadManagerHelper.detachService(this, unschedule);
+        Assertions.checkNotNull(downloadManagerHelpers.get(getClass()));
+    downloadManagerHelper.detachService(this);
     if (foregroundNotificationUpdater != null) {
       foregroundNotificationUpdater.stopPeriodicUpdates();
     }
@@ -872,10 +875,9 @@ public abstract class DownloadService extends Service {
       this.scheduler = scheduler;
       this.serviceClass = serviceClass;
       downloadManager.addListener(this);
-      if (scheduler != null) {
+      if (this.scheduler != null) {
         Requirements requirements = downloadManager.getRequirements();
-        setSchedulerEnabled(
-            scheduler, /* enabled= */ !requirements.checkRequirements(context), requirements);
+        setSchedulerEnabled(/* enabled= */ !requirements.checkRequirements(context), requirements);
       }
     }
 
@@ -884,10 +886,10 @@ public abstract class DownloadService extends Service {
       this.downloadService = downloadService;
     }
 
-    public void detachService(DownloadService downloadService, boolean unschedule) {
+    public void detachService(DownloadService downloadService) {
       Assertions.checkState(this.downloadService == downloadService);
       this.downloadService = null;
-      if (scheduler != null && unschedule) {
+      if (scheduler != null && !downloadManager.isWaitingForRequirements()) {
         scheduler.cancel();
       }
     }
@@ -929,12 +931,12 @@ public abstract class DownloadService extends Service {
         }
       }
       if (scheduler != null) {
-        setSchedulerEnabled(scheduler, /* enabled= */ !requirementsMet, requirements);
+        setSchedulerEnabled(/* enabled= */ !requirementsMet, requirements);
       }
     }
 
-    private void setSchedulerEnabled(
-        Scheduler scheduler, boolean enabled, Requirements requirements) {
+    @RequiresNonNull("scheduler")
+    private void setSchedulerEnabled(boolean enabled, Requirements requirements) {
       if (!enabled) {
         scheduler.cancel();
       } else {
