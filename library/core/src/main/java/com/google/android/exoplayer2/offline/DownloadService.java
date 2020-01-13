@@ -731,23 +731,27 @@ public abstract class DownloadService extends Service {
   }
 
   /**
-   * Called when the state of a download changes. The default implementation is a no-op.
-   *
-   * @param download The new state of the download.
+   * @deprecated Some state change events may not be delivered to this method. Instead, use {@link
+   *     DownloadManager#addListener(DownloadManager.Listener)} to register a listener directly to
+   *     the {@link DownloadManager} that you return through {@link #getDownloadManager()}.
    */
+  @Deprecated
   protected void onDownloadChanged(Download download) {
     // Do nothing.
   }
 
   /**
-   * Called when a download is removed. The default implementation is a no-op.
-   *
-   * @param download The last state of the download before it was removed.
+   * @deprecated Some download removal events may not be delivered to this method. Instead, use
+   *     {@link DownloadManager#addListener(DownloadManager.Listener)} to register a listener
+   *     directly to the {@link DownloadManager} that you return through {@link
+   *     #getDownloadManager()}.
    */
+  @Deprecated
   protected void onDownloadRemoved(Download download) {
     // Do nothing.
   }
 
+  @SuppressWarnings("deprecation")
   private void notifyDownloadChanged(Download download) {
     onDownloadChanged(download);
     if (foregroundNotificationUpdater != null) {
@@ -761,6 +765,7 @@ public abstract class DownloadService extends Service {
     }
   }
 
+  @SuppressWarnings("deprecation")
   private void notifyDownloadRemoved(Download download) {
     onDownloadRemoved(download);
     if (foregroundNotificationUpdater != null) {
