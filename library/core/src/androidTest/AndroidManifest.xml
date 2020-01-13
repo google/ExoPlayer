@@ -24,7 +24,6 @@
   <application
       android:allowBackup="false"
       tools:ignore="MissingApplicationIcon,HardcodedDebugMode">
-    <uses-library android:name="android.test.runner"/>
     <provider
       android:authorities="com.google.android.exoplayer2.core.test"
       android:name="com.google.android.exoplayer2.upstream.ContentDataSourceTest$TestContentProvider"/>
