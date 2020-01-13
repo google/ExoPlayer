@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.mediacodec;
 
-import static com.google.android.exoplayer2.mediacodec.MediaCodecTestUtils.areEqual;
+import static com.google.android.exoplayer2.testutil.TestUtil.assertBufferInfosEqual;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
@@ -101,9 +101,9 @@ public class MediaCodecAsyncCallbackTest {
     MediaCodec.BufferInfo outBufferInfo = new MediaCodec.BufferInfo();
 
     assertThat(mediaCodecAsyncCallback.dequeueOutputBufferIndex(outBufferInfo)).isEqualTo(0);
-    assertThat(areEqual(outBufferInfo, bufferInfo1)).isTrue();
+    assertBufferInfosEqual(bufferInfo1, outBufferInfo);
     assertThat(mediaCodecAsyncCallback.dequeueOutputBufferIndex(outBufferInfo)).isEqualTo(1);
-    assertThat(areEqual(outBufferInfo, bufferInfo2)).isTrue();
+    assertBufferInfosEqual(bufferInfo2, outBufferInfo);
     assertThat(mediaCodecAsyncCallback.dequeueOutputBufferIndex(outBufferInfo))
         .isEqualTo(MediaCodec.INFO_TRY_AGAIN_LATER);
   }

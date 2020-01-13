@@ -24,6 +24,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.media.MediaCodec;
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.database.DatabaseProvider;
@@ -37,6 +38,8 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -180,6 +183,26 @@ public class TestUtil {
     return joined;
   }
 
+  /** Writes one byte long dummy test data to the file and returns it. */
+  public static File createTestFile(File directory, String name) throws IOException {
+    return createTestFile(directory, name, /* length= */ 1);
+  }
+
+  /** Writes dummy test data with the specified length to the file and returns it. */
+  public static File createTestFile(File directory, String name, long length) throws IOException {
+    return createTestFile(new File(directory, name), length);
+  }
+
+  /** Writes dummy test data with the specified length to the file and returns it. */
+  public static File createTestFile(File file, long length) throws IOException {
+    FileOutputStream output = new FileOutputStream(file);
+    for (long i = 0; i < length; i++) {
+      output.write((int) i);
+    }
+    output.close();
+    return file;
+  }
+
   /** Returns the bytes of an asset file. */
   public static byte[] getByteArray(Context context, String fileName) throws IOException {
     return Util.toByteArray(getInputStream(context, fileName));
@@ -238,6 +261,15 @@ public class TestUtil {
     } finally {
       dataSource.close();
     }
+  }
+
+  /** Returns whether two {@link android.media.MediaCodec.BufferInfo BufferInfos} are equal. */
+  public static void assertBufferInfosEqual(
+      MediaCodec.BufferInfo expected, MediaCodec.BufferInfo actual) {
+    assertThat(expected.flags).isEqualTo(actual.flags);
+    assertThat(expected.offset).isEqualTo(actual.offset);
+    assertThat(expected.presentationTimeUs).isEqualTo(actual.presentationTimeUs);
+    assertThat(expected.size).isEqualTo(actual.size);
   }
 
   /**

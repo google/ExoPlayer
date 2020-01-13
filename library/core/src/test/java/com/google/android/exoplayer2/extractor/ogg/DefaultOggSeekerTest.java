@@ -15,9 +15,11 @@
  */
 package com.google.android.exoplayer2.extractor.ogg;
 
+import static com.google.android.exoplayer2.testutil.TestUtil.getByteArray;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
@@ -34,7 +36,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class DefaultOggSeekerTest {
 
-  private final Random random = new Random(0);
+  private final Random random = new Random(/* seed= */ 0);
 
   @Test
   public void testSetupWithUnsetEndPositionFails() {
@@ -53,113 +55,24 @@ public final class DefaultOggSeekerTest {
   }
 
   @Test
-  public void testSeeking() throws IOException, InterruptedException {
-    Random random = new Random(0);
-    for (int i = 0; i < 100; i++) {
-      testSeeking(random);
-    }
-  }
+  public void testSeeking() throws Exception {
+    byte[] data =
+        getByteArray(ApplicationProvider.getApplicationContext(), "ogg/random_1000_pages");
+    int granuleCount = 49269395;
+    int firstPayloadPageSize = 2023;
+    int firstPayloadPageGranuleCount = 57058;
+    int lastPayloadPageSize = 282;
+    int lastPayloadPageGranuleCount = 20806;
 
-  @Test
-  public void testSkipToNextPage() throws Exception {
-    FakeExtractorInput extractorInput =
-        OggTestData.createInput(
-            TestUtil.joinByteArrays(
-                TestUtil.buildTestData(4000, random),
-                new byte[] {'O', 'g', 'g', 'S'},
-                TestUtil.buildTestData(4000, random)),
-            false);
-    skipToNextPage(extractorInput);
-    assertThat(extractorInput.getPosition()).isEqualTo(4000);
-  }
-
-  @Test
-  public void testSkipToNextPageOverlap() throws Exception {
-    FakeExtractorInput extractorInput =
-        OggTestData.createInput(
-            TestUtil.joinByteArrays(
-                TestUtil.buildTestData(2046, random),
-                new byte[] {'O', 'g', 'g', 'S'},
-                TestUtil.buildTestData(4000, random)),
-            false);
-    skipToNextPage(extractorInput);
-    assertThat(extractorInput.getPosition()).isEqualTo(2046);
-  }
-
-  @Test
-  public void testSkipToNextPageInputShorterThanPeekLength() throws Exception {
-    FakeExtractorInput extractorInput =
-        OggTestData.createInput(
-            TestUtil.joinByteArrays(new byte[] {'x', 'O', 'g', 'g', 'S'}), false);
-    skipToNextPage(extractorInput);
-    assertThat(extractorInput.getPosition()).isEqualTo(1);
-  }
-
-  @Test
-  public void testSkipToNextPageNoMatch() throws Exception {
-    FakeExtractorInput extractorInput =
-        OggTestData.createInput(new byte[] {'g', 'g', 'S', 'O', 'g', 'g'}, false);
-    try {
-      skipToNextPage(extractorInput);
-      fail();
-    } catch (EOFException e) {
-      // expected
-    }
-  }
-
-  @Test
-  public void testReadGranuleOfLastPage() throws IOException, InterruptedException {
-    FakeExtractorInput input =
-        OggTestData.createInput(
-            TestUtil.joinByteArrays(
-                TestUtil.buildTestData(100, random),
-                OggTestData.buildOggHeader(0x00, 20000, 66, 3),
-                TestUtil.createByteArray(254, 254, 254), // laces
-                TestUtil.buildTestData(3 * 254, random),
-                OggTestData.buildOggHeader(0x00, 40000, 67, 3),
-                TestUtil.createByteArray(254, 254, 254), // laces
-                TestUtil.buildTestData(3 * 254, random),
-                OggTestData.buildOggHeader(0x05, 60000, 68, 3),
-                TestUtil.createByteArray(254, 254, 254), // laces
-                TestUtil.buildTestData(3 * 254, random)),
-            false);
-    assertReadGranuleOfLastPage(input, 60000);
-  }
-
-  @Test
-  public void testReadGranuleOfLastPageAfterLastHeader() throws IOException, InterruptedException {
-    FakeExtractorInput input = OggTestData.createInput(TestUtil.buildTestData(100, random), false);
-    try {
-      assertReadGranuleOfLastPage(input, 60000);
-      fail();
-    } catch (EOFException e) {
-      // Ignored.
-    }
-  }
-
-  @Test
-  public void testReadGranuleOfLastPageWithUnboundedLength()
-      throws IOException, InterruptedException {
-    FakeExtractorInput input = OggTestData.createInput(new byte[0], true);
-    try {
-      assertReadGranuleOfLastPage(input, 60000);
-      fail();
-    } catch (IllegalArgumentException e) {
-      // Ignored.
-    }
-  }
-
-  private void testSeeking(Random random) throws IOException, InterruptedException {
-    OggTestFile testFile = OggTestFile.generate(random, 1000);
-    FakeExtractorInput input = new FakeExtractorInput.Builder().setData(testFile.data).build();
+    FakeExtractorInput input = new FakeExtractorInput.Builder().setData(data).build();
     TestStreamReader streamReader = new TestStreamReader();
     DefaultOggSeeker oggSeeker =
         new DefaultOggSeeker(
-            /* streamReader= */ streamReader,
+            streamReader,
             /* payloadStartPosition= */ 0,
-            /* payloadEndPosition= */ testFile.data.length,
-            /* firstPayloadPageSize= */ testFile.firstPayloadPageSize,
-            /* firstPayloadPageGranulePosition= */ testFile.firstPayloadPageGranuleCount,
+            /* payloadEndPosition= */ data.length,
+            firstPayloadPageSize,
+            /* firstPayloadPageGranulePosition= */ firstPayloadPageGranuleCount,
             /* firstPayloadPageIsLastPage= */ false);
     OggPageHeader pageHeader = new OggPageHeader();
 
@@ -177,34 +90,113 @@ public final class DefaultOggSeekerTest {
     assertThat(input.getPosition()).isEqualTo(0);
 
     // Test granule 0 from file end.
-    granule = seekTo(input, oggSeeker, 0, testFile.data.length - 1);
+    granule = seekTo(input, oggSeeker, 0, data.length - 1);
     assertThat(granule).isEqualTo(0);
     assertThat(input.getPosition()).isEqualTo(0);
 
     // Test last granule.
-    granule = seekTo(input, oggSeeker, testFile.granuleCount - 1, 0);
-    assertThat(granule).isEqualTo(testFile.granuleCount - testFile.lastPayloadPageGranuleCount);
-    assertThat(input.getPosition()).isEqualTo(testFile.data.length - testFile.lastPayloadPageSize);
+    granule = seekTo(input, oggSeeker, granuleCount - 1, 0);
+    assertThat(granule).isEqualTo(granuleCount - lastPayloadPageGranuleCount);
+    assertThat(input.getPosition()).isEqualTo(data.length - lastPayloadPageSize);
 
     for (int i = 0; i < 100; i += 1) {
-      long targetGranule = random.nextInt(testFile.granuleCount);
-      int initialPosition = random.nextInt(testFile.data.length);
+      long targetGranule = random.nextInt(granuleCount);
+      int initialPosition = random.nextInt(data.length);
       granule = seekTo(input, oggSeeker, targetGranule, initialPosition);
-      long currentPosition = input.getPosition();
+      int currentPosition = (int) input.getPosition();
       if (granule == 0) {
         assertThat(currentPosition).isEqualTo(0);
       } else {
-        int previousPageStart = testFile.findPreviousPageStart(currentPosition);
+        int previousPageStart = findPreviousPageStart(data, currentPosition);
         input.setPosition(previousPageStart);
         pageHeader.populate(input, false);
         assertThat(granule).isEqualTo(pageHeader.granulePosition);
       }
 
-      input.setPosition((int) currentPosition);
+      input.setPosition(currentPosition);
       pageHeader.populate(input, false);
       // The target granule should be within the current page.
       assertThat(granule).isAtMost(targetGranule);
       assertThat(targetGranule).isLessThan(pageHeader.granulePosition);
+    }
+  }
+
+  @Test
+  public void testSkipToNextPage() throws Exception {
+    FakeExtractorInput extractorInput =
+        createInput(
+            TestUtil.joinByteArrays(
+                TestUtil.buildTestData(4000, random),
+                new byte[] {'O', 'g', 'g', 'S'},
+                TestUtil.buildTestData(4000, random)),
+            /* simulateUnknownLength= */ false);
+    skipToNextPage(extractorInput);
+    assertThat(extractorInput.getPosition()).isEqualTo(4000);
+  }
+
+  @Test
+  public void testSkipToNextPageOverlap() throws Exception {
+    FakeExtractorInput extractorInput =
+        createInput(
+            TestUtil.joinByteArrays(
+                TestUtil.buildTestData(2046, random),
+                new byte[] {'O', 'g', 'g', 'S'},
+                TestUtil.buildTestData(4000, random)),
+            /* simulateUnknownLength= */ false);
+    skipToNextPage(extractorInput);
+    assertThat(extractorInput.getPosition()).isEqualTo(2046);
+  }
+
+  @Test
+  public void testSkipToNextPageInputShorterThanPeekLength() throws Exception {
+    FakeExtractorInput extractorInput =
+        createInput(
+            TestUtil.joinByteArrays(new byte[] {'x', 'O', 'g', 'g', 'S'}),
+            /* simulateUnknownLength= */ false);
+    skipToNextPage(extractorInput);
+    assertThat(extractorInput.getPosition()).isEqualTo(1);
+  }
+
+  @Test
+  public void testSkipToNextPageNoMatch() throws Exception {
+    FakeExtractorInput extractorInput =
+        createInput(new byte[] {'g', 'g', 'S', 'O', 'g', 'g'}, /* simulateUnknownLength= */ false);
+    try {
+      skipToNextPage(extractorInput);
+      fail();
+    } catch (EOFException e) {
+      // expected
+    }
+  }
+
+  @Test
+  public void testReadGranuleOfLastPage() throws IOException, InterruptedException {
+    // This test stream has three headers with granule numbers 20000, 40000 and 60000.
+    byte[] data = getByteArray(ApplicationProvider.getApplicationContext(), "ogg/three_headers");
+    FakeExtractorInput input = createInput(data, /* simulateUnknownLength= */ false);
+    assertReadGranuleOfLastPage(input, 60000);
+  }
+
+  @Test
+  public void testReadGranuleOfLastPageAfterLastHeader() throws Exception {
+    FakeExtractorInput input =
+        createInput(TestUtil.buildTestData(100, random), /* simulateUnknownLength= */ false);
+    try {
+      assertReadGranuleOfLastPage(input, 60000);
+      fail();
+    } catch (EOFException e) {
+      // Ignored.
+    }
+  }
+
+  @Test
+  public void testReadGranuleOfLastPageWithUnboundedLength() throws Exception {
+    FakeExtractorInput input = createInput(new byte[0], /* simulateUnknownLength= */ true);
+    try {
+      assertReadGranuleOfLastPage(input, 60000);
+      fail();
+    } catch (IllegalArgumentException e) {
+      // Ignored.
     }
   }
 
@@ -248,6 +240,15 @@ public final class DefaultOggSeekerTest {
     }
   }
 
+  private static FakeExtractorInput createInput(byte[] data, boolean simulateUnknownLength) {
+    return new FakeExtractorInput.Builder()
+        .setData(data)
+        .setSimulateIOErrors(true)
+        .setSimulateUnknownLength(simulateUnknownLength)
+        .setSimulatePartialReads(true)
+        .build();
+  }
+
   private static long seekTo(
       FakeExtractorInput input, DefaultOggSeeker oggSeeker, long targetGranule, int initialPosition)
       throws IOException, InterruptedException {
@@ -262,6 +263,16 @@ public final class DefaultOggSeekerTest {
       nextSeekPosition = oggSeeker.read(input);
     }
     return -(nextSeekPosition + 2);
+  }
+
+  private static int findPreviousPageStart(byte[] data, int position) {
+    for (int i = position - 4; i >= 0; i--) {
+      if (data[i] == 'O' && data[i + 1] == 'g' && data[i + 2] == 'g' && data[i + 3] == 'S') {
+        return i;
+      }
+    }
+    fail();
+    return -1;
   }
 
   private static class TestStreamReader extends StreamReader {
