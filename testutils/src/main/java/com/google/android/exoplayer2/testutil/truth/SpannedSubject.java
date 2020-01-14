@@ -45,6 +45,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /** A Truth {@link Subject} for assertions on {@link Spanned} instances containing text styling. */
 // TODO: add support for more Spans i.e. all those used in com.google.android.exoplayer2.text.
@@ -74,6 +76,11 @@ public final class SpannedSubject extends Subject {
   }
 
   public void hasNoSpans() {
+    if (actual == null) {
+      failWithoutActual(simpleFact("Spanned must not be null"));
+      return;
+    }
+
     Object[] spans = actual.getSpans(0, actual.length(), Object.class);
     if (spans.length > 0) {
       failWithoutActual(
@@ -599,7 +606,8 @@ public final class SpannedSubject extends Subject {
       failWithoutActual(simpleFact("Spanned must not be null"));
       return;
     }
-    Object[] matchingSpans = actual.getSpans(start, end, spanClazz);
+
+    @NullableType Object[] matchingSpans = actual.getSpans(start, end, spanClazz);
     if (matchingSpans.length != 0) {
       failWithoutActual(
           simpleFact(
@@ -612,15 +620,21 @@ public final class SpannedSubject extends Subject {
   }
 
   private <T> List<T> findMatchingSpans(int startIndex, int endIndex, Class<T> spanClazz) {
+    if (actual == null) {
+      failWithoutActual(simpleFact("Spanned must not be null"));
+      return Collections.emptyList();
+    }
+
     List<T> spans = new ArrayList<>();
     for (T span : actual.getSpans(startIndex, endIndex, spanClazz)) {
       if (actual.getSpanStart(span) == startIndex && actual.getSpanEnd(span) == endIndex) {
         spans.add(span);
       }
     }
-    return spans;
+    return Collections.unmodifiableList(spans);
   }
 
+  @RequiresNonNull("actual")
   private void failWithExpectedSpan(
       int start, int end, Class<?> spanType, String spannedSubstring) {
     failWithoutActual(
@@ -887,7 +901,7 @@ public final class SpannedSubject extends Subject {
     @Override
     public AndSpanFlags withFamily(String fontFamily) {
       List<Integer> matchingSpanFlags = new ArrayList<>();
-      List<String> spanFontFamilies = new ArrayList<>();
+      List<@NullableType String> spanFontFamilies = new ArrayList<>();
 
       for (TypefaceSpan span : actualSpans) {
         spanFontFamilies.add(span.getFamily());
@@ -1059,7 +1073,7 @@ public final class SpannedSubject extends Subject {
       }
 
       @Override
-      public boolean equals(Object o) {
+      public boolean equals(@Nullable Object o) {
         if (this == o) {
           return true;
         }
