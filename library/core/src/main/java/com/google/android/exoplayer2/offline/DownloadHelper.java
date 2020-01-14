@@ -448,6 +448,7 @@ public final class DownloadHelper {
         break;
       case DownloadRequest.TYPE_PROGRESSIVE:
         return new ProgressiveMediaSource.Factory(dataSourceFactory)
+            .setCustomCacheKey(downloadRequest.customCacheKey)
             .createMediaSource(downloadRequest.uri);
       default:
         throw new IllegalStateException("Unsupported type: " + downloadRequest.type);

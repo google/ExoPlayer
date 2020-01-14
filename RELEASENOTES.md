@@ -11,8 +11,15 @@
 * Rename `MediaCodecRenderer.onOutputFormatChanged` to
   `MediaCodecRenderer.onOutputMediaFormatChanged`, further
   clarifying the distinction between `Format` and `MediaFormat`.
-* Downloads: Merge downloads in `SegmentDownloader` to improve overall download
-  speed ([#5978](https://github.com/google/ExoPlayer/issues/5978)).
+* Downloads:
+  * Merge downloads in `SegmentDownloader` to improve overall download
+    speed ([#5978](https://github.com/google/ExoPlayer/issues/5978)).
+  * Fix handling of network transitions in `RequirementsWatcher`
+    ([#6733](https://github.com/google/ExoPlayer/issues/6733)). Incorrect
+    handling could previously cause downloads to be paused when they should have
+    been able to proceed.
+  * Fix `DownloadHelper.createMediaSource` to use `customCacheKey` when creating
+    `ProgressiveMediaSource` instances.
 * In MP4 streams, store the Android capture frame rate only in
   `Format.metadata`. `Format.frameRate` now stores the calculated frame rate.
 * Add `play` and `pause` methods to `Player`.
@@ -28,10 +35,6 @@
   developers to handle data that's neither UTF-8 nor ISO-8859-1
   ([#6753](https://github.com/google/ExoPlayer/issues/6753)).
 * Add playlist API ([#6161](https://github.com/google/ExoPlayer/issues/6161)).
-* Fix handling of network transitions in `RequirementsWatcher`
-  ([#6733](https://github.com/google/ExoPlayer/issues/6733)). Incorrect handling
-  could previously cause downloads to be paused when they should have been able
-  to proceed.
 * Fix handling of E-AC-3 streams that contain AC-3 syncframes
   ([#6602](https://github.com/google/ExoPlayer/issues/6602)).
 * Fix playback of TrueHD streams in Matroska

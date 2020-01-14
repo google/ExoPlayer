@@ -111,7 +111,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
      * @return This factory, for convenience.
      * @throws IllegalStateException If {@link #createMediaSource(Uri)} has already been called.
      */
-    public Factory setCustomCacheKey(String customCacheKey) {
+    public Factory setCustomCacheKey(@Nullable String customCacheKey) {
       Assertions.checkState(!isCreateCalled);
       this.customCacheKey = customCacheKey;
       return this;
