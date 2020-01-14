@@ -353,7 +353,6 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
       }
     } else {
       Log.w(TAG, "Ignoring region without an origin");
-      // return null;
       // TODO: Should default to top left as below in this case, but need to fix
       // https://github.com/google/ExoPlayer/issues/2953 first.
       // Origin is omitted. Default to top left.
@@ -363,8 +362,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
         position = previousTtmlRegion.position;
         line = previousTtmlRegion.line;
       } else {
-        position = 0;
-        line = 0;
+        return null;
       }
     }
 
@@ -403,7 +401,6 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
       }
     } else {
       Log.w(TAG, "Ignoring region without an extent");
-      // return null;
       // TODO: Should default to extent of parent as below in this case, but need to fix
       // https://github.com/google/ExoPlayer/issues/2953 first.
       // Extent is omitted. Default to extent of parent.
@@ -413,8 +410,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
         width = previousTtmlRegion.width;
         height = previousTtmlRegion.height;
       } else {
-        width = 1;
-        height = 1;
+        return null;
       }
     }
 
