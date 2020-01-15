@@ -112,7 +112,8 @@ public class CameraMotionRenderer extends BaseRenderer {
     return true;
   }
 
-  private @Nullable float[] parseMetadata(ByteBuffer data) {
+  @Nullable
+  private float[] parseMetadata(ByteBuffer data) {
     if (data.remaining() != 16) {
       return null;
     }
