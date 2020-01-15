@@ -42,10 +42,7 @@ public abstract class Chunk implements Loadable {
    * reporting only.
    */
   public final int type;
-  /**
-   * The format of the track to which this chunk belongs, or null if the chunk does not belong to
-   * a track.
-   */
+  /** The format of the track to which this chunk belongs. */
   public final Format trackFormat;
   /**
    * One of the {@link C} {@code SELECTION_REASON_*} constants if the chunk belongs to a track.
