@@ -57,7 +57,7 @@ public final class CacheDataSink implements DataSink {
   @Nullable private OutputStream outputStream;
   private long outputStreamBytesWritten;
   private long dataSpecBytesWritten;
-  @MonotonicNonNull private ReusableBufferedOutputStream bufferedOutputStream;
+  private @MonotonicNonNull ReusableBufferedOutputStream bufferedOutputStream;
 
   /**
    * Thrown when IOException is encountered when writing data into sink.

@@ -50,7 +50,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final MediaCodecAsyncCallback mediaCodecAsyncCallback;
   private final MediaCodec codec;
   private final HandlerThread handlerThread;
-  @MonotonicNonNull private Handler handler;
+  private @MonotonicNonNull Handler handler;
   private long pendingFlushCount;
   private @State int state;
   private Runnable codecStartRunnable;

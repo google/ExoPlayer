@@ -212,9 +212,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final boolean mediaSegmentEncrypted;
   private final boolean initSegmentEncrypted;
 
-  @MonotonicNonNull private Extractor extractor;
+  private @MonotonicNonNull Extractor extractor;
   private boolean isExtractorReusable;
-  @MonotonicNonNull private HlsSampleStreamWrapper output;
+  private @MonotonicNonNull HlsSampleStreamWrapper output;
   // nextLoadPosition refers to the init segment if initDataLoadRequired is true.
   // Otherwise, nextLoadPosition refers to the media segment.
   private int nextLoadPosition;

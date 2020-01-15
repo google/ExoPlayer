@@ -38,7 +38,7 @@ public final class Id3Reader implements ElementaryStreamReader {
 
   private final ParsableByteArray id3Header;
 
-  @MonotonicNonNull private TrackOutput output;
+  private @MonotonicNonNull TrackOutput output;
 
   // State that should be reset on seek.
   private boolean writingSample;

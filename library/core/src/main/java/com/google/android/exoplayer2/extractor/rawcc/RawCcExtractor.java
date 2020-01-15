@@ -49,7 +49,7 @@ public final class RawCcExtractor implements Extractor {
   private final Format format;
   private final ParsableByteArray dataScratch;
 
-  @MonotonicNonNull private TrackOutput trackOutput;
+  private @MonotonicNonNull TrackOutput trackOutput;
   private int parserState;
   private int version;
   private long timestampUs;

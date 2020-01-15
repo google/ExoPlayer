@@ -27,7 +27,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /* package */ final class TrackFragment {
 
   /** The default values for samples from the track fragment header. */
-  @MonotonicNonNull public DefaultSampleValues header;
+  public @MonotonicNonNull DefaultSampleValues header;
   /**
    * The position (byte offset) of the start of fragment.
    */

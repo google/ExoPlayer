@@ -51,9 +51,9 @@ public final class LatmReader implements ElementaryStreamReader {
   private final ParsableBitArray sampleBitArray;
 
   // Track output info.
-  @MonotonicNonNull private TrackOutput output;
-  @MonotonicNonNull private String formatId;
-  @MonotonicNonNull private Format format;
+  private @MonotonicNonNull TrackOutput output;
+  private @MonotonicNonNull String formatId;
+  private @MonotonicNonNull Format format;
 
   // Parser state info.
   private int state;

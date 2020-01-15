@@ -60,7 +60,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private final DatabaseProvider databaseProvider;
 
-  @MonotonicNonNull private String tableName;
+  private @MonotonicNonNull String tableName;
 
   /**
    * Deletes index data for the specified cache.

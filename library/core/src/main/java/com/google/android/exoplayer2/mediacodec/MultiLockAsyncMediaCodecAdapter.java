@@ -78,8 +78,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final ArrayDeque<MediaFormat> formats;
 
   @GuardedBy("objectStateLock")
-  @MonotonicNonNull
-  private MediaFormat currentFormat;
+  private @MonotonicNonNull MediaFormat currentFormat;
 
   @GuardedBy("objectStateLock")
   private long pendingFlush;
@@ -92,7 +91,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private @State int state;
 
   private final HandlerThread handlerThread;
-  @MonotonicNonNull private Handler handler;
+  private @MonotonicNonNull Handler handler;
   private Runnable codecStartRunnable;
 
   /** Creates a new instance that wraps the specified {@link MediaCodec}. */

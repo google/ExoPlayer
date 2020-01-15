@@ -49,7 +49,7 @@ public final class PesReader implements TsPayloadReader {
   private int state;
   private int bytesRead;
 
-  @MonotonicNonNull private TimestampAdjuster timestampAdjuster;
+  private @MonotonicNonNull TimestampAdjuster timestampAdjuster;
   private boolean ptsFlag;
   private boolean dtsFlag;
   private boolean seenFirstDts;

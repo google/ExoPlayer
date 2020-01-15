@@ -87,7 +87,7 @@ public final class AdtsExtractor implements Extractor {
   private final ParsableByteArray scratch;
   private final ParsableBitArray scratchBits;
 
-  @MonotonicNonNull private ExtractorOutput extractorOutput;
+  private @MonotonicNonNull ExtractorOutput extractorOutput;
 
   private long firstSampleTimestampUs;
   private long firstFramePosition;

@@ -57,9 +57,9 @@ public final class H264Reader implements ElementaryStreamReader {
   private long totalBytesWritten;
   private final boolean[] prefixFlags;
 
-  @MonotonicNonNull private String formatId;
-  @MonotonicNonNull private TrackOutput output;
-  @MonotonicNonNull private SampleReader sampleReader;
+  private @MonotonicNonNull String formatId;
+  private @MonotonicNonNull TrackOutput output;
+  private @MonotonicNonNull SampleReader sampleReader;
 
   // State that should not be reset on seek.
   private boolean hasOutputFormat;

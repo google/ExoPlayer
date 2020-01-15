@@ -101,15 +101,15 @@ public final class FlacExtractor implements Extractor {
 
   private final SampleNumberHolder sampleNumberHolder;
 
-  @MonotonicNonNull private ExtractorOutput extractorOutput;
-  @MonotonicNonNull private TrackOutput trackOutput;
+  private @MonotonicNonNull ExtractorOutput extractorOutput;
+  private @MonotonicNonNull TrackOutput trackOutput;
 
   private @State int state;
   @Nullable private Metadata id3Metadata;
-  @MonotonicNonNull private FlacStreamMetadata flacStreamMetadata;
+  private @MonotonicNonNull FlacStreamMetadata flacStreamMetadata;
   private int minFrameSize;
   private int frameStartMarker;
-  @MonotonicNonNull private FlacBinarySearchSeeker binarySearchSeeker;
+  private @MonotonicNonNull FlacBinarySearchSeeker binarySearchSeeker;
   private int currentFrameBytesWritten;
   private long currentFrameFirstSampleNumber;
 

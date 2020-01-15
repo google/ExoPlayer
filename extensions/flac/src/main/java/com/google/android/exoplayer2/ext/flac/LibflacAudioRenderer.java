@@ -37,7 +37,7 @@ public final class LibflacAudioRenderer extends SimpleDecoderAudioRenderer {
 
   private static final int NUM_BUFFERS = 16;
 
-  @MonotonicNonNull private FlacStreamMetadata streamMetadata;
+  private @MonotonicNonNull FlacStreamMetadata streamMetadata;
 
   public LibflacAudioRenderer() {
     this(/* eventHandler= */ null, /* eventListener= */ null);

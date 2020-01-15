@@ -72,7 +72,7 @@ public final class PsExtractor implements Extractor {
 
   // Accessed only by the loading thread.
   @Nullable private PsBinarySearchSeeker psBinarySearchSeeker;
-  @MonotonicNonNull private ExtractorOutput output;
+  private @MonotonicNonNull ExtractorOutput output;
   private boolean hasOutputSeekMap;
 
   public PsExtractor() {

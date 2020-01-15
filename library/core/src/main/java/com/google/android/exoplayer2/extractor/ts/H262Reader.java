@@ -42,8 +42,8 @@ public final class H262Reader implements ElementaryStreamReader {
   private static final int START_GROUP = 0xB8;
   private static final int START_USER_DATA = 0xB2;
 
-  @MonotonicNonNull private String formatId;
-  @MonotonicNonNull private TrackOutput output;
+  private @MonotonicNonNull String formatId;
+  private @MonotonicNonNull TrackOutput output;
 
   // Maps (frame_rate_code - 1) indices to values, as defined in ITU-T H.262 Table 6-4.
   private static final double[] FRAME_RATE_VALUES = new double[] {

@@ -87,7 +87,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final ClutDefinition defaultClutDefinition;
   private final SubtitleService subtitleService;
 
-  @MonotonicNonNull private Bitmap bitmap;
+  private @MonotonicNonNull Bitmap bitmap;
 
   /**
    * Construct an instance for the given subtitle and ancillary page ids.

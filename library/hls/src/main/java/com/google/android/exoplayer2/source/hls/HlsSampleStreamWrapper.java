@@ -132,20 +132,20 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private int[] sampleQueueTrackIds;
   private Set<Integer> sampleQueueMappingDoneByType;
   private SparseIntArray sampleQueueIndicesByType;
-  @MonotonicNonNull private TrackOutput emsgUnwrappingTrackOutput;
+  private @MonotonicNonNull TrackOutput emsgUnwrappingTrackOutput;
   private int primarySampleQueueType;
   private int primarySampleQueueIndex;
   private boolean sampleQueuesBuilt;
   private boolean prepared;
   private int enabledTrackGroupCount;
-  @MonotonicNonNull private Format upstreamTrackFormat;
+  private @MonotonicNonNull Format upstreamTrackFormat;
   @Nullable private Format downstreamTrackFormat;
   private boolean released;
 
   // Tracks are complicated in HLS. See documentation of buildTracksFromSampleStreams for details.
   // Indexed by track (as exposed by this source).
-  @MonotonicNonNull private TrackGroupArray trackGroups;
-  @MonotonicNonNull private Set<TrackGroup> optionalTrackGroups;
+  private @MonotonicNonNull TrackGroupArray trackGroups;
+  private @MonotonicNonNull Set<TrackGroup> optionalTrackGroups;
   // Indexed by track group.
   private int @MonotonicNonNull [] trackGroupToSampleQueueIndex;
   private int primaryTrackGroupIndex;
@@ -1358,7 +1358,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     private final EventMessageDecoder emsgDecoder;
     private final TrackOutput delegate;
     private final Format delegateFormat;
-    @MonotonicNonNull private Format format;
+    private @MonotonicNonNull Format format;
 
     private byte[] buffer;
     private int bufferPosition;

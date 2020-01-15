@@ -390,7 +390,7 @@ public class MatroskaExtractor implements Extractor {
   private boolean sampleInitializationVectorRead;
 
   // Extractor outputs.
-  @MonotonicNonNull private ExtractorOutput extractorOutput;
+  private @MonotonicNonNull ExtractorOutput extractorOutput;
 
   public MatroskaExtractor() {
     this(0);

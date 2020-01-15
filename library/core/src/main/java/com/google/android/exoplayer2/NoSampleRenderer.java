@@ -28,7 +28,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  */
 public abstract class NoSampleRenderer implements Renderer, RendererCapabilities {
 
-  @MonotonicNonNull private RendererConfiguration configuration;
+  private @MonotonicNonNull RendererConfiguration configuration;
   private int index;
   private int state;
   @Nullable private SampleStream stream;

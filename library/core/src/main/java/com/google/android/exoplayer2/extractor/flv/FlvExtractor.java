@@ -74,7 +74,7 @@ public final class FlvExtractor implements Extractor {
   private final ParsableByteArray tagData;
   private final ScriptTagPayloadReader metadataReader;
 
-  @MonotonicNonNull private ExtractorOutput extractorOutput;
+  private @MonotonicNonNull ExtractorOutput extractorOutput;
   private @States int state;
   private boolean outputFirstSample;
   private long mediaTagTimestampOffsetUs;
@@ -83,8 +83,8 @@ public final class FlvExtractor implements Extractor {
   private int tagDataSize;
   private long tagTimestampUs;
   private boolean outputSeekMap;
-  @MonotonicNonNull private AudioTagPayloadReader audioReader;
-  @MonotonicNonNull private VideoTagPayloadReader videoReader;
+  private @MonotonicNonNull AudioTagPayloadReader audioReader;
+  private @MonotonicNonNull VideoTagPayloadReader videoReader;
 
   public FlvExtractor() {
     scratch = new ParsableByteArray(4);

@@ -45,9 +45,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private final OggPacket oggPacket;
 
-  @MonotonicNonNull private TrackOutput trackOutput;
-  @MonotonicNonNull private ExtractorOutput extractorOutput;
-  @MonotonicNonNull private OggSeeker oggSeeker;
+  private @MonotonicNonNull TrackOutput trackOutput;
+  private @MonotonicNonNull ExtractorOutput extractorOutput;
+  private @MonotonicNonNull OggSeeker oggSeeker;
   private long targetGranule;
   private long payloadStartPosition;
   private long currentGranule;

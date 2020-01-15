@@ -55,7 +55,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final ArrayDeque<MasterElement> masterElementsStack;
   private final VarintReader varintReader;
 
-  @MonotonicNonNull private EbmlProcessor processor;
+  private @MonotonicNonNull EbmlProcessor processor;
   private @ElementState int elementState;
   private int elementId;
   private long elementContentSize;
