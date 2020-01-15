@@ -119,7 +119,8 @@ import com.google.android.exoplayer2.util.Assertions;
    * @return The {@link MediaPeriodInfo} for the next media period to load, or {@code null} if not
    *     yet known.
    */
-  public @Nullable MediaPeriodInfo getNextMediaPeriodInfo(
+  @Nullable
+  public MediaPeriodInfo getNextMediaPeriodInfo(
       long rendererPositionUs, PlaybackInfo playbackInfo) {
     return loading == null
         ? getFirstMediaPeriodInfo(playbackInfo)
@@ -536,7 +537,8 @@ import com.google.android.exoplayer2.util.Assertions;
    * @return The following media period's info, or {@code null} if it is not yet possible to get the
    *     next media period info.
    */
-  private @Nullable MediaPeriodInfo getFollowingMediaPeriodInfo(
+  @Nullable
+  private MediaPeriodInfo getFollowingMediaPeriodInfo(
       MediaPeriodHolder mediaPeriodHolder, long rendererPositionUs) {
     // TODO: This method is called repeatedly from ExoPlayerImplInternal.maybeUpdateLoadingPeriod
     // but if the timeline is not ready to provide the next period it can't return a non-null value
