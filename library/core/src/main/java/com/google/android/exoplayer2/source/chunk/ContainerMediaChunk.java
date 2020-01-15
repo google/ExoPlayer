@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
+import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper.TrackOutputProvider;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
@@ -144,16 +145,13 @@ public class ContainerMediaChunk extends BaseMediaChunk {
   }
 
   /**
-   * Returns the {@link ChunkExtractorWrapper.TrackOutputProvider} to be used by the wrapped
-   * extractor.
+   * Returns the {@link TrackOutputProvider} to be used by the wrapped extractor.
    *
    * @param baseMediaChunkOutput The {@link BaseMediaChunkOutput} most recently passed to {@link
    *     #init(BaseMediaChunkOutput)}.
-   * @return A {@link ChunkExtractorWrapper.TrackOutputProvider} to be used by the wrapped
-   *     extractor.
+   * @return A {@link TrackOutputProvider} to be used by the wrapped extractor.
    */
-  protected ChunkExtractorWrapper.TrackOutputProvider getTrackOutputProvider(
-      BaseMediaChunkOutput baseMediaChunkOutput) {
+  protected TrackOutputProvider getTrackOutputProvider(BaseMediaChunkOutput baseMediaChunkOutput) {
     return baseMediaChunkOutput;
   }
 }
