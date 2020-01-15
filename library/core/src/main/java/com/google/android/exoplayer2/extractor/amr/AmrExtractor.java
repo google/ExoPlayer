@@ -141,9 +141,9 @@ public final class AmrExtractor implements Extractor {
   private int numSamplesWithSameSize;
   private long timeOffsetUs;
 
-  @MonotonicNonNull private ExtractorOutput extractorOutput;
-  @MonotonicNonNull private TrackOutput trackOutput;
-  @MonotonicNonNull private SeekMap seekMap;
+  private @MonotonicNonNull ExtractorOutput extractorOutput;
+  private @MonotonicNonNull TrackOutput trackOutput;
+  private @MonotonicNonNull SeekMap seekMap;
   private boolean hasOutputFormat;
 
   public AmrExtractor() {

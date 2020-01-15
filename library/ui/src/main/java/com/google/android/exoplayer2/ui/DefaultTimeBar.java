@@ -202,7 +202,7 @@ public class DefaultTimeBar extends View implements TimeBar {
   private int keyCountIncrement;
   private long keyTimeIncrement;
   private int lastCoarseScrubXPosition;
-  @MonotonicNonNull private Rect lastExclusionRectangle;
+  private @MonotonicNonNull Rect lastExclusionRectangle;
 
   private boolean scrubbing;
   private long scrubPosition;

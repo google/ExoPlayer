@@ -39,8 +39,8 @@ public class OggExtractor implements Extractor {
 
   private static final int MAX_VERIFICATION_BYTES = 8;
 
-  @MonotonicNonNull private ExtractorOutput output;
-  @MonotonicNonNull private StreamReader streamReader;
+  private @MonotonicNonNull ExtractorOutput output;
+  private @MonotonicNonNull StreamReader streamReader;
   private boolean streamReaderInitialized;
 
   @Override

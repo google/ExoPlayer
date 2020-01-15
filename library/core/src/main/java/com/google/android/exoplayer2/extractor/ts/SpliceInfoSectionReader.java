@@ -32,8 +32,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  */
 public final class SpliceInfoSectionReader implements SectionPayloadReader {
 
-  @MonotonicNonNull private TimestampAdjuster timestampAdjuster;
-  @MonotonicNonNull private TrackOutput output;
+  private @MonotonicNonNull TimestampAdjuster timestampAdjuster;
+  private @MonotonicNonNull TrackOutput output;
   private boolean formatDeclared;
 
   @Override

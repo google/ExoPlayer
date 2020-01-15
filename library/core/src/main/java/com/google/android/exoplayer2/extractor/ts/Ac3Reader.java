@@ -54,8 +54,8 @@ public final class Ac3Reader implements ElementaryStreamReader {
   private final ParsableByteArray headerScratchBytes;
   @Nullable private final String language;
 
-  @MonotonicNonNull private String formatId;
-  @MonotonicNonNull private TrackOutput output;
+  private @MonotonicNonNull String formatId;
+  private @MonotonicNonNull TrackOutput output;
 
   @State private int state;
   private int bytesRead;
@@ -65,7 +65,7 @@ public final class Ac3Reader implements ElementaryStreamReader {
 
   // Used when parsing the header.
   private long sampleDurationUs;
-  @MonotonicNonNull private Format format;
+  private @MonotonicNonNull Format format;
   private int sampleSize;
 
   // Used when reading the samples.

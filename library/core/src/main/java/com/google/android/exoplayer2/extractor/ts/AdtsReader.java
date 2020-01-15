@@ -70,9 +70,9 @@ public final class AdtsReader implements ElementaryStreamReader {
   private final ParsableByteArray id3HeaderBuffer;
   @Nullable private final String language;
 
-  @MonotonicNonNull private String formatId;
-  @MonotonicNonNull private TrackOutput output;
-  @MonotonicNonNull private TrackOutput id3Output;
+  private @MonotonicNonNull String formatId;
+  private @MonotonicNonNull TrackOutput output;
+  private @MonotonicNonNull TrackOutput id3Output;
 
   private int state;
   private int bytesRead;
@@ -96,7 +96,7 @@ public final class AdtsReader implements ElementaryStreamReader {
   // Used when reading the samples.
   private long timeUs;
 
-  @MonotonicNonNull private TrackOutput currentOutput;
+  private @MonotonicNonNull TrackOutput currentOutput;
   private long currentSampleDuration;
 
   /**

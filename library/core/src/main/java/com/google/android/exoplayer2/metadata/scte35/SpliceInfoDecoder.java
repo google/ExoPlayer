@@ -40,7 +40,7 @@ public final class SpliceInfoDecoder implements MetadataDecoder {
   private final ParsableByteArray sectionData;
   private final ParsableBitArray sectionHeader;
 
-  @MonotonicNonNull private TimestampAdjuster timestampAdjuster;
+  private @MonotonicNonNull TimestampAdjuster timestampAdjuster;
 
   public SpliceInfoDecoder() {
     sectionData = new ParsableByteArray();

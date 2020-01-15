@@ -112,13 +112,13 @@ public final class Mp3Extractor implements Extractor {
   private final Id3Peeker id3Peeker;
 
   // Extractor outputs.
-  @MonotonicNonNull private ExtractorOutput extractorOutput;
-  @MonotonicNonNull private TrackOutput trackOutput;
+  private @MonotonicNonNull ExtractorOutput extractorOutput;
+  private @MonotonicNonNull TrackOutput trackOutput;
 
   private int synchronizedHeaderData;
 
   @Nullable private Metadata metadata;
-  @MonotonicNonNull private Seeker seeker;
+  private @MonotonicNonNull Seeker seeker;
   private boolean disableSeeking;
   private long basisTimeUs;
   private long samplesRead;

@@ -115,7 +115,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   private int sampleCurrentNalBytesRemaining;
 
   // Extractor outputs.
-  @MonotonicNonNull private ExtractorOutput extractorOutput;
+  private @MonotonicNonNull ExtractorOutput extractorOutput;
   private Mp4Track[] tracks;
   private long[][] accumulatedSampleSizes;
   private int firstVideoTrackIndex;

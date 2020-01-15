@@ -49,9 +49,9 @@ public final class WavExtractor implements Extractor {
   /** Factory for {@link WavExtractor} instances. */
   public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new WavExtractor()};
 
-  @MonotonicNonNull private ExtractorOutput extractorOutput;
-  @MonotonicNonNull private TrackOutput trackOutput;
-  @MonotonicNonNull private OutputWriter outputWriter;
+  private @MonotonicNonNull ExtractorOutput extractorOutput;
+  private @MonotonicNonNull TrackOutput trackOutput;
+  private @MonotonicNonNull OutputWriter outputWriter;
   private int dataStartPosition;
   private long dataEndPosition;
 

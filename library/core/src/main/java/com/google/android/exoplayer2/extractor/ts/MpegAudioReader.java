@@ -42,8 +42,8 @@ public final class MpegAudioReader implements ElementaryStreamReader {
   private final MpegAudioHeader header;
   @Nullable private final String language;
 
-  @MonotonicNonNull private TrackOutput output;
-  @MonotonicNonNull private String formatId;
+  private @MonotonicNonNull TrackOutput output;
+  private @MonotonicNonNull String formatId;
 
   private int state;
   private int frameBytesRead;

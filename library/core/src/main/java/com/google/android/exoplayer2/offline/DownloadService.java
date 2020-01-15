@@ -179,7 +179,7 @@ public abstract class DownloadService extends Service {
   @StringRes private final int channelNameResourceId;
   @StringRes private final int channelDescriptionResourceId;
 
-  @MonotonicNonNull private DownloadManager downloadManager;
+  private @MonotonicNonNull DownloadManager downloadManager;
   private int lastStartId;
   private boolean startedInForeground;
   private boolean taskRemoved;

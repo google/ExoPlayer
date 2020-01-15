@@ -170,7 +170,7 @@ public class FragmentedMp4Extractor implements Extractor {
   private boolean processSeiNalUnitPayload;
 
   // Extractor output.
-  @MonotonicNonNull private ExtractorOutput extractorOutput;
+  private @MonotonicNonNull ExtractorOutput extractorOutput;
   private TrackOutput[] emsgTrackOutputs;
   private TrackOutput[] cea608TrackOutputs;
 
