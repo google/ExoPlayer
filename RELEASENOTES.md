@@ -38,11 +38,12 @@
   Matroska or MP4.
 * Javadocs: Add favicon for easier identification in browser tabs
 * FMP4: Add support for encrypted AC-4 tracks.
-* Reduce startup latency for DASH and SmoothStreaming adaptive playbacks.
-  In previous versions, codec initialization would only occur after the network
-  connection for requesting the first media segment had been established. Codec
-  initialization can now occur before this network connection being established,
-  reducing startup latency.
+* Startup latency optimizations:
+  * Reduce startup latency for DASH and SmoothStreaming playbacks by allowing
+    codec initialization to occur before the network connection for the first
+    media segment has been established.
+  * Reduce startup latency for on-demand DASH playbacks by allowing codec
+    initialization to occur before the sidx box has been loaded.
 
 ### 2.11.1 (2019-12-20) ###
 
