@@ -58,9 +58,7 @@ public final class BaseMediaChunkOutput implements TrackOutputProvider {
   public int[] getWriteIndices() {
     int[] writeIndices = new int[sampleQueues.length];
     for (int i = 0; i < sampleQueues.length; i++) {
-      if (sampleQueues[i] != null) {
-        writeIndices[i] = sampleQueues[i].getWriteIndex();
-      }
+      writeIndices[i] = sampleQueues[i].getWriteIndex();
     }
     return writeIndices;
   }
@@ -71,9 +69,7 @@ public final class BaseMediaChunkOutput implements TrackOutputProvider {
    */
   public void setSampleOffsetUs(long sampleOffsetUs) {
     for (SampleQueue sampleQueue : sampleQueues) {
-      if (sampleQueue != null) {
-        sampleQueue.setSampleOffsetUs(sampleOffsetUs);
-      }
+      sampleQueue.setSampleOffsetUs(sampleOffsetUs);
     }
   }
 

@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A {@link SampleStream} that loads media in {@link Chunk}s, obtained from a {@link ChunkSource}.
@@ -61,8 +62,8 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
 
   public final int primaryTrackType;
 
-  @Nullable private final int[] embeddedTrackTypes;
-  @Nullable private final Format[] embeddedTrackFormats;
+  private final int[] embeddedTrackTypes;
+  private final Format[] embeddedTrackFormats;
   private final boolean[] embeddedTracksSelected;
   private final T chunkSource;
   private final SequenceableLoader.Callback<ChunkSampleStream<T>> callback;
@@ -76,7 +77,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   private final SampleQueue[] embeddedSampleQueues;
   private final BaseMediaChunkOutput chunkOutput;
 
-  private Format primaryDownstreamTrackFormat;
+  private @MonotonicNonNull Format primaryDownstreamTrackFormat;
   @Nullable private ReleaseCallback<T> releaseCallback;
   private long pendingResetPositionUs;
   private long lastSeekPositionUs;
@@ -113,8 +114,8 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       EventDispatcher eventDispatcher) {
     this.primaryTrackType = primaryTrackType;
-    this.embeddedTrackTypes = embeddedTrackTypes;
-    this.embeddedTrackFormats = embeddedTrackFormats;
+    this.embeddedTrackTypes = embeddedTrackTypes == null ? new int[0] : embeddedTrackTypes;
+    this.embeddedTrackFormats = embeddedTrackFormats == null ? new Format[0] : embeddedTrackFormats;
     this.chunkSource = chunkSource;
     this.callback = callback;
     this.eventDispatcher = eventDispatcher;
@@ -124,7 +125,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     mediaChunks = new ArrayList<>();
     readOnlyMediaChunks = Collections.unmodifiableList(mediaChunks);
 
-    int embeddedTrackCount = embeddedTrackTypes == null ? 0 : embeddedTrackTypes.length;
+    int embeddedTrackCount = this.embeddedTrackTypes.length;
     embeddedSampleQueues = new SampleQueue[embeddedTrackCount];
     embeddedTracksSelected = new boolean[embeddedTrackCount];
     int[] trackTypes = new int[1 + embeddedTrackCount];
@@ -139,7 +140,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
           new SampleQueue(allocator, DrmSessionManager.getDummyDrmSessionManager());
       embeddedSampleQueues[i] = sampleQueue;
       sampleQueues[i + 1] = sampleQueue;
-      trackTypes[i + 1] = embeddedTrackTypes[i];
+      trackTypes[i + 1] = this.embeddedTrackTypes[i];
     }
 
     chunkOutput = new BaseMediaChunkOutput(trackTypes, sampleQueues);
@@ -251,7 +252,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     }
 
     // Detect whether the seek is to the start of a chunk that's at least partially buffered.
-    BaseMediaChunk seekToMediaChunk = null;
+    @Nullable BaseMediaChunk seekToMediaChunk = null;
     for (int i = 0; i < mediaChunks.size(); i++) {
       BaseMediaChunk mediaChunk = mediaChunks.get(i);
       long mediaChunkStartTimeUs = mediaChunk.startTimeUs;
@@ -463,7 +464,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
             ? loadErrorHandlingPolicy.getBlacklistDurationMsFor(
                 loadable.type, loadDurationMs, error, errorCount)
             : C.TIME_UNSET;
-    LoadErrorAction loadErrorAction = null;
+    @Nullable LoadErrorAction loadErrorAction = null;
     if (chunkSource.onChunkLoadError(loadable, cancelable, error, blacklistDurationMs)) {
       if (cancelable) {
         loadErrorAction = Loader.DONT_RETRY;
@@ -533,7 +534,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     }
     chunkSource.getNextChunk(positionUs, loadPositionUs, chunkQueue, nextChunkHolder);
     boolean endOfStream = nextChunkHolder.endOfStream;
-    Chunk loadable = nextChunkHolder.chunk;
+    @Nullable Chunk loadable = nextChunkHolder.chunk;
     nextChunkHolder.clear();
 
     if (endOfStream) {
@@ -764,7 +765,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     }
 
     @Override
-    public void maybeThrowError() throws IOException {
+    public void maybeThrowError() {
       // Do nothing. Errors will be thrown from the primary stream.
     }
 

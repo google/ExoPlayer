@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.io.IOException;
 import java.util.List;
@@ -102,7 +103,9 @@ public final class DashUtil {
       throws IOException, InterruptedException {
     ChunkExtractorWrapper extractorWrapper = loadInitializationData(dataSource, trackType,
         representation, false);
-    return extractorWrapper == null ? null : extractorWrapper.getSampleFormats()[0];
+    return extractorWrapper == null
+        ? null
+        : Assertions.checkStateNotNull(extractorWrapper.getSampleFormats())[0];
   }
 
   /**
