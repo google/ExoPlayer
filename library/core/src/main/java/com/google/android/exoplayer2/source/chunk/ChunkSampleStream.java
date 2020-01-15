@@ -74,7 +74,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   private final List<BaseMediaChunk> readOnlyMediaChunks;
   private final SampleQueue primarySampleQueue;
   private final SampleQueue[] embeddedSampleQueues;
-  private final BaseMediaChunkOutput mediaChunkOutput;
+  private final BaseMediaChunkOutput chunkOutput;
 
   private Format primaryDownstreamTrackFormat;
   @Nullable private ReleaseCallback<T> releaseCallback;
@@ -142,7 +142,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       trackTypes[i + 1] = embeddedTrackTypes[i];
     }
 
-    mediaChunkOutput = new BaseMediaChunkOutput(trackTypes, sampleQueues);
+    chunkOutput = new BaseMediaChunkOutput(trackTypes, sampleQueues);
     pendingResetPositionUs = positionUs;
     lastSeekPositionUs = positionUs;
   }
@@ -554,8 +554,10 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
         decodeOnlyUntilPositionUs = resetToMediaChunk ? 0 : pendingResetPositionUs;
         pendingResetPositionUs = C.TIME_UNSET;
       }
-      mediaChunk.init(mediaChunkOutput);
+      mediaChunk.init(chunkOutput);
       mediaChunks.add(mediaChunk);
+    } else if (loadable instanceof InitializationChunk) {
+      ((InitializationChunk) loadable).init(chunkOutput);
     }
     long elapsedRealtimeMs =
         loader.startLoading(
