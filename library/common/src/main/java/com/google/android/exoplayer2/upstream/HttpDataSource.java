@@ -315,10 +315,10 @@ public interface HttpDataSource extends DataSource {
     @Deprecated
     public InvalidResponseCodeException(
         int responseCode, Map<String, List<String>> headerFields, DataSpec dataSpec) {
-      this(responseCode, /* responseMessage= */ null, headerFields, dataSpec);
+      this(responseCode, /* responseMessage= */ null, headerFields, dataSpec, null);
     }
 
-    /** @deprecated Use {@link #InvalidResponseCodeException(int, String, Map, DataSpec byte[])}. */
+    /** @deprecated Use {@link #InvalidResponseCodeException(int, String, Map, DataSpec, byte[])}. */
     @Deprecated
     public InvalidResponseCodeException(
         int responseCode,
