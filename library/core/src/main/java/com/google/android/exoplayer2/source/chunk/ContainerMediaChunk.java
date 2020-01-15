@@ -111,22 +111,21 @@ public class ContainerMediaChunk extends BaseMediaChunk {
   @SuppressWarnings("NonAtomicVolatileUpdate")
   @Override
   public final void load() throws IOException, InterruptedException {
-    DataSpec loadDataSpec = dataSpec.subrange(nextLoadPosition);
+    if (nextLoadPosition == 0) {
+      // Configure the output and set it as the target for the extractor wrapper.
+      BaseMediaChunkOutput output = getOutput();
+      output.setSampleOffsetUs(sampleOffsetUs);
+      extractorWrapper.init(
+          getTrackOutputProvider(output),
+          clippedStartTimeUs == C.TIME_UNSET ? C.TIME_UNSET : (clippedStartTimeUs - sampleOffsetUs),
+          clippedEndTimeUs == C.TIME_UNSET ? C.TIME_UNSET : (clippedEndTimeUs - sampleOffsetUs));
+    }
     try {
       // Create and open the input.
-      ExtractorInput input = new DefaultExtractorInput(dataSource,
-          loadDataSpec.absoluteStreamPosition, dataSource.open(loadDataSpec));
-      if (nextLoadPosition == 0) {
-        // Configure the output and set it as the target for the extractor wrapper.
-        BaseMediaChunkOutput output = getOutput();
-        output.setSampleOffsetUs(sampleOffsetUs);
-        extractorWrapper.init(
-            getTrackOutputProvider(output),
-            clippedStartTimeUs == C.TIME_UNSET
-                ? C.TIME_UNSET
-                : (clippedStartTimeUs - sampleOffsetUs),
-            clippedEndTimeUs == C.TIME_UNSET ? C.TIME_UNSET : (clippedEndTimeUs - sampleOffsetUs));
-      }
+      DataSpec loadDataSpec = dataSpec.subrange(nextLoadPosition);
+      ExtractorInput input =
+          new DefaultExtractorInput(
+              dataSource, loadDataSpec.absoluteStreamPosition, dataSource.open(loadDataSpec));
       // Load and decode the sample data.
       try {
         Extractor extractor = extractorWrapper.extractor;
