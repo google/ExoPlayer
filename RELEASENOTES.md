@@ -44,6 +44,8 @@
     media segment has been established.
   * Reduce startup latency for on-demand DASH playbacks by allowing codec
     initialization to occur before the sidx box has been loaded.
+* Select multiple metadata tracks if multiple metadata renderers are available
+  ([#6676](https://github.com/google/ExoPlayer/issues/6676)).
 
 ### 2.11.1 (2019-12-20) ###
 
