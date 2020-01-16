@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -359,7 +360,11 @@ public abstract class MappingTrackSelector extends TrackSelector {
     for (int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
       TrackGroup group = trackGroups.get(groupIndex);
       // Associate the group to a preferred renderer.
-      int rendererIndex = findRenderer(rendererCapabilities, group);
+      boolean preferUnassociatedRenderer =
+          MimeTypes.getTrackType(group.getFormat(0).sampleMimeType) == C.TRACK_TYPE_METADATA;
+      int rendererIndex =
+          findRenderer(
+              rendererCapabilities, group, rendererTrackGroupCounts, preferUnassociatedRenderer);
       // Evaluate the support that the renderer provides for each track in the group.
       @Capabilities
       int[] rendererFormatSupport =
@@ -431,43 +436,65 @@ public abstract class MappingTrackSelector extends TrackSelector {
 
   /**
    * Finds the renderer to which the provided {@link TrackGroup} should be mapped.
-   * <p>
-   * A {@link TrackGroup} is mapped to the renderer that reports the highest of (listed in
-   * decreasing order of support) {@link RendererCapabilities#FORMAT_HANDLED},
-   * {@link RendererCapabilities#FORMAT_EXCEEDS_CAPABILITIES},
-   * {@link RendererCapabilities#FORMAT_UNSUPPORTED_DRM} and
-   * {@link RendererCapabilities#FORMAT_UNSUPPORTED_SUBTYPE}. In the case that two or more renderers
-   * report the same level of support, the renderer with the lowest index is associated.
-   * <p>
-   * If all renderers report {@link RendererCapabilities#FORMAT_UNSUPPORTED_TYPE} for all of the
+   *
+   * <p>A {@link TrackGroup} is mapped to the renderer that reports the highest of (listed in
+   * decreasing order of support) {@link RendererCapabilities#FORMAT_HANDLED}, {@link
+   * RendererCapabilities#FORMAT_EXCEEDS_CAPABILITIES}, {@link
+   * RendererCapabilities#FORMAT_UNSUPPORTED_DRM} and {@link
+   * RendererCapabilities#FORMAT_UNSUPPORTED_SUBTYPE}.
+   *
+   * <p>In the case that two or more renderers report the same level of support, the assignment
+   * depends on {@code preferUnassociatedRenderer}.
+   *
+   * <ul>
+   *   <li>If {@code preferUnassociatedRenderer} is false, the renderer with the lowest index is
+   *       chosen regardless of how many other track groups are already mapped to this renderer.
+   *   <li>If {@code preferUnassociatedRenderer} is true, the renderer with the lowest index and no
+   *       other mapped track group is chosen, or the renderer with the lowest index if all
+   *       available renderers have already mapped track groups.
+   * </ul>
+   *
+   * <p>If all renderers report {@link RendererCapabilities#FORMAT_UNSUPPORTED_TYPE} for all of the
    * tracks in the group, then {@code renderers.length} is returned to indicate that the group was
    * not mapped to any renderer.
    *
    * @param rendererCapabilities The {@link RendererCapabilities} of the renderers.
    * @param group The track group to map to a renderer.
-   * @return The index of the renderer to which the track group was mapped, or
-   *     {@code renderers.length} if it was not mapped to any renderer.
+   * @param rendererTrackGroupCounts The number of already mapped track groups for each renderer.
+   * @param preferUnassociatedRenderer Whether renderers unassociated to any track group should be
+   *     preferred.
+   * @return The index of the renderer to which the track group was mapped, or {@code
+   *     renderers.length} if it was not mapped to any renderer.
    * @throws ExoPlaybackException If an error occurs finding a renderer.
    */
-  private static int findRenderer(RendererCapabilities[] rendererCapabilities, TrackGroup group)
+  private static int findRenderer(
+      RendererCapabilities[] rendererCapabilities,
+      TrackGroup group,
+      int[] rendererTrackGroupCounts,
+      boolean preferUnassociatedRenderer)
       throws ExoPlaybackException {
     int bestRendererIndex = rendererCapabilities.length;
     @FormatSupport int bestFormatSupportLevel = RendererCapabilities.FORMAT_UNSUPPORTED_TYPE;
+    boolean bestRendererIsUnassociated = true;
     for (int rendererIndex = 0; rendererIndex < rendererCapabilities.length; rendererIndex++) {
       RendererCapabilities rendererCapability = rendererCapabilities[rendererIndex];
+      @FormatSupport int formatSupportLevel = RendererCapabilities.FORMAT_UNSUPPORTED_TYPE;
       for (int trackIndex = 0; trackIndex < group.length; trackIndex++) {
         @FormatSupport
-        int formatSupportLevel =
+        int trackFormatSupportLevel =
             RendererCapabilities.getFormatSupport(
                 rendererCapability.supportsFormat(group.getFormat(trackIndex)));
-        if (formatSupportLevel > bestFormatSupportLevel) {
-          bestRendererIndex = rendererIndex;
-          bestFormatSupportLevel = formatSupportLevel;
-          if (bestFormatSupportLevel == RendererCapabilities.FORMAT_HANDLED) {
-            // We can't do better.
-            return bestRendererIndex;
-          }
-        }
+        formatSupportLevel = Math.max(formatSupportLevel, trackFormatSupportLevel);
+      }
+      boolean rendererIsUnassociated = rendererTrackGroupCounts[rendererIndex] == 0;
+      if (formatSupportLevel > bestFormatSupportLevel
+          || (formatSupportLevel == bestFormatSupportLevel
+              && preferUnassociatedRenderer
+              && !bestRendererIsUnassociated
+              && rendererIsUnassociated)) {
+        bestRendererIndex = rendererIndex;
+        bestFormatSupportLevel = formatSupportLevel;
+        bestRendererIsUnassociated = rendererIsUnassociated;
       }
     }
     return bestRendererIndex;
