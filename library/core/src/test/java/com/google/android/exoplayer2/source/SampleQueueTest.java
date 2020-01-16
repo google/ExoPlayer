@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.source;
 import static com.google.android.exoplayer2.C.RESULT_BUFFER_READ;
 import static com.google.android.exoplayer2.C.RESULT_FORMAT_READ;
 import static com.google.android.exoplayer2.C.RESULT_NOTHING_READ;
-import static com.google.android.exoplayer2.source.SampleQueue.ADVANCE_FAILED;
 import static com.google.common.truth.Truth.assertThat;
 import static java.lang.Long.MIN_VALUE;
 import static java.util.Arrays.copyOfRange;
@@ -320,14 +319,14 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testReadMultiWithRewind() {
+  public void testReadMultiWithSeek() {
     writeTestData();
     assertReadTestData();
     assertThat(sampleQueue.getFirstIndex()).isEqualTo(0);
     assertThat(sampleQueue.getReadIndex()).isEqualTo(8);
     assertAllocationCount(10);
-    // Rewind.
-    sampleQueue.rewind();
+
+    sampleQueue.seekTo(0);
     assertAllocationCount(10);
     // Read again.
     assertThat(sampleQueue.getFirstIndex()).isEqualTo(0);
@@ -496,15 +495,15 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testRewindAfterDiscard() {
+  public void testSeekAfterDiscard() {
     writeTestData();
     assertReadTestData();
     sampleQueue.discardToRead();
     assertThat(sampleQueue.getFirstIndex()).isEqualTo(8);
     assertThat(sampleQueue.getReadIndex()).isEqualTo(8);
     assertAllocationCount(0);
-    // Rewind.
-    sampleQueue.rewind();
+
+    sampleQueue.seekTo(0);
     assertAllocationCount(0);
     // Can't read again.
     assertThat(sampleQueue.getFirstIndex()).isEqualTo(8);
@@ -553,9 +552,9 @@ public final class SampleQueueTest {
   @Test
   public void testAdvanceToBeforeBuffer() {
     writeTestData();
-    int skipCount = sampleQueue.advanceTo(SAMPLE_TIMESTAMPS[0] - 1, true, false);
-    // Should fail and have no effect.
-    assertThat(skipCount).isEqualTo(ADVANCE_FAILED);
+    int skipCount = sampleQueue.advanceTo(SAMPLE_TIMESTAMPS[0] - 1);
+    // Should have no effect (we're already at the first frame).
+    assertThat(skipCount).isEqualTo(0);
     assertReadTestData();
     assertNoSamplesToRead(FORMAT_2);
   }
@@ -563,8 +562,8 @@ public final class SampleQueueTest {
   @Test
   public void testAdvanceToStartOfBuffer() {
     writeTestData();
-    int skipCount = sampleQueue.advanceTo(SAMPLE_TIMESTAMPS[0], true, false);
-    // Should succeed but have no effect (we're already at the first frame).
+    int skipCount = sampleQueue.advanceTo(SAMPLE_TIMESTAMPS[0]);
+    // Should have no effect (we're already at the first frame).
     assertThat(skipCount).isEqualTo(0);
     assertReadTestData();
     assertNoSamplesToRead(FORMAT_2);
@@ -573,8 +572,8 @@ public final class SampleQueueTest {
   @Test
   public void testAdvanceToEndOfBuffer() {
     writeTestData();
-    int skipCount = sampleQueue.advanceTo(LAST_SAMPLE_TIMESTAMP, true, false);
-    // Should succeed and skip to 2nd keyframe (the 4th frame).
+    int skipCount = sampleQueue.advanceTo(LAST_SAMPLE_TIMESTAMP);
+    // Should advance to 2nd keyframe (the 4th frame).
     assertThat(skipCount).isEqualTo(4);
     assertReadTestData(null, DATA_SECOND_KEYFRAME_INDEX);
     assertNoSamplesToRead(FORMAT_2);
@@ -583,20 +582,76 @@ public final class SampleQueueTest {
   @Test
   public void testAdvanceToAfterBuffer() {
     writeTestData();
-    int skipCount = sampleQueue.advanceTo(LAST_SAMPLE_TIMESTAMP + 1, true, false);
-    // Should fail and have no effect.
-    assertThat(skipCount).isEqualTo(ADVANCE_FAILED);
+    int skipCount = sampleQueue.advanceTo(LAST_SAMPLE_TIMESTAMP + 1);
+    // Should advance to 2nd keyframe (the 4th frame).
+    assertThat(skipCount).isEqualTo(4);
+    assertReadTestData(null, DATA_SECOND_KEYFRAME_INDEX);
+    assertNoSamplesToRead(FORMAT_2);
+  }
+
+  @Test
+  public void testSeekToBeforeBuffer() {
+    writeTestData();
+    boolean success = sampleQueue.seekTo(SAMPLE_TIMESTAMPS[0] - 1, false);
+    assertThat(success).isFalse();
+    assertThat(sampleQueue.getReadIndex()).isEqualTo(0);
     assertReadTestData();
     assertNoSamplesToRead(FORMAT_2);
   }
 
   @Test
-  public void testAdvanceToAfterBufferAllowed() {
+  public void testSeekToStartOfBuffer() {
     writeTestData();
-    int skipCount = sampleQueue.advanceTo(LAST_SAMPLE_TIMESTAMP + 1, true, true);
-    // Should succeed and skip to 2nd keyframe (the 4th frame).
-    assertThat(skipCount).isEqualTo(4);
+    boolean success = sampleQueue.seekTo(SAMPLE_TIMESTAMPS[0], false);
+    assertThat(success).isTrue();
+    assertThat(sampleQueue.getReadIndex()).isEqualTo(0);
+    assertReadTestData();
+    assertNoSamplesToRead(FORMAT_2);
+  }
+
+  @Test
+  public void testSeekToEndOfBuffer() {
+    writeTestData();
+    boolean success = sampleQueue.seekTo(LAST_SAMPLE_TIMESTAMP, false);
+    assertThat(success).isTrue();
+    assertThat(sampleQueue.getReadIndex()).isEqualTo(4);
     assertReadTestData(null, DATA_SECOND_KEYFRAME_INDEX);
+    assertNoSamplesToRead(FORMAT_2);
+  }
+
+  @Test
+  public void testSeekToAfterBuffer() {
+    writeTestData();
+    boolean success = sampleQueue.seekTo(LAST_SAMPLE_TIMESTAMP + 1, false);
+    assertThat(success).isFalse();
+    assertThat(sampleQueue.getReadIndex()).isEqualTo(0);
+    assertReadTestData();
+    assertNoSamplesToRead(FORMAT_2);
+  }
+
+  @Test
+  public void testSeekToAfterBufferAllowed() {
+    writeTestData();
+    boolean success = sampleQueue.seekTo(LAST_SAMPLE_TIMESTAMP + 1, true);
+    assertThat(success).isTrue();
+    assertThat(sampleQueue.getReadIndex()).isEqualTo(4);
+    assertReadTestData(null, DATA_SECOND_KEYFRAME_INDEX);
+    assertNoSamplesToRead(FORMAT_2);
+  }
+
+  @Test
+  public void testSeekToEndAndBackToStart() {
+    writeTestData();
+    boolean success = sampleQueue.seekTo(LAST_SAMPLE_TIMESTAMP, false);
+    assertThat(success).isTrue();
+    assertThat(sampleQueue.getReadIndex()).isEqualTo(4);
+    assertReadTestData(null, DATA_SECOND_KEYFRAME_INDEX);
+    assertNoSamplesToRead(FORMAT_2);
+    // Seek back to the start.
+    success = sampleQueue.seekTo(SAMPLE_TIMESTAMPS[0], false);
+    assertThat(success).isTrue();
+    assertThat(sampleQueue.getReadIndex()).isEqualTo(0);
+    assertReadTestData();
     assertNoSamplesToRead(FORMAT_2);
   }
 
@@ -814,7 +869,7 @@ public final class SampleQueueTest {
     assertReadTestData(SAMPLE_FORMATS[3], 4, 4);
     assertReadEndOfStream(false);
 
-    sampleQueue.rewind();
+    sampleQueue.seekTo(0);
     assertReadTestData(null, 0, 4);
     sampleQueue.splice();
     // Splice should succeed, replacing the last 4 samples with the sample being written
@@ -1112,18 +1167,6 @@ public final class SampleQueueTest {
     byte[] readData = new byte[length];
     inputBuffer.data.get(readData);
     assertThat(readData).isEqualTo(copyOfRange(sampleData, offset, offset + length));
-  }
-
-  /** Asserts {@link SampleQueue#read} returns the given result. */
-  private void assertResult(int expectedResult, boolean allowOnlyClearBuffers) {
-    int obtainedResult =
-        sampleQueue.read(
-            formatHolder,
-            inputBuffer,
-            allowOnlyClearBuffers,
-            /* loadingFinished= */ false,
-            /* decodeOnlyUntilUs= */ 0);
-    assertThat(obtainedResult).isEqualTo(expectedResult);
   }
 
   /**

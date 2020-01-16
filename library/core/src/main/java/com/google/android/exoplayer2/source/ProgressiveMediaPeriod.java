@@ -281,13 +281,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         // If there's still a chance of avoiding a seek, try and seek within the sample queue.
         if (!seekRequired) {
           SampleQueue sampleQueue = sampleQueues[track];
-          sampleQueue.rewind();
-          // A seek can be avoided if we're able to advance to the current playback position in the
+          // A seek can be avoided if we're able to seek to the current playback position in the
           // sample queue, or if we haven't read anything from the queue since the previous seek
           // (this case is common for sparse tracks such as metadata tracks). In all other cases a
           // seek is required.
-          seekRequired = sampleQueue.advanceTo(positionUs, true, true) == SampleQueue.ADVANCE_FAILED
-              && sampleQueue.getReadIndex() != 0;
+          seekRequired =
+              !sampleQueue.seekTo(positionUs, /* allowTimeBeyondBuffer= */ true)
+                  && sampleQueue.getReadIndex() != 0;
         }
       }
     }
@@ -493,10 +493,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     if (loadingFinished && positionUs > sampleQueue.getLargestQueuedTimestampUs()) {
       skipCount = sampleQueue.advanceToEnd();
     } else {
-      skipCount = sampleQueue.advanceTo(positionUs, true, true);
-      if (skipCount == SampleQueue.ADVANCE_FAILED) {
-        skipCount = 0;
-      }
+      skipCount = sampleQueue.advanceTo(positionUs);
     }
     if (skipCount == 0) {
       maybeStartDeferredRetry(track);
@@ -840,9 +837,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     int trackCount = sampleQueues.length;
     for (int i = 0; i < trackCount; i++) {
       SampleQueue sampleQueue = sampleQueues[i];
-      sampleQueue.rewind();
-      boolean seekInsideQueue = sampleQueue.advanceTo(positionUs, true, false)
-          != SampleQueue.ADVANCE_FAILED;
+      boolean seekInsideQueue = sampleQueue.seekTo(positionUs, /* allowTimeBeyondBuffer= */ false);
       // If we have AV tracks then an in-buffer seek is successful if the seek into every AV queue
       // is successful. We ignore whether seeks within non-AV queues are successful in this case, as
       // they may be sparse or poorly interleaved. If we only have non-AV tracks then a seek is
