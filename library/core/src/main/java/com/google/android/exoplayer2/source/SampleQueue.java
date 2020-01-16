@@ -48,8 +48,6 @@ public class SampleQueue implements TrackOutput {
     void onUpstreamFormatChanged(Format format);
   }
 
-  public static final int ADVANCE_FAILED = -1;
-
   @VisibleForTesting /* package */ static final int SAMPLE_CAPACITY_INCREMENT = 1000;
 
   private final SampleDataQueue sampleDataQueue;
@@ -271,6 +269,7 @@ public class SampleQueue implements TrackOutput {
    *     the end of stream has been reached. When false, this method returns false if the sample
    *     queue is empty.
    */
+  @SuppressWarnings("ReferenceEquality") // See comments in setUpstreamFormat
   public synchronized boolean isReady(boolean loadingFinished) {
     if (!hasNextSample()) {
       return loadingFinished
@@ -312,7 +311,6 @@ public class SampleQueue implements TrackOutput {
    * @return The result, which can be {@link C#RESULT_NOTHING_READ}, {@link C#RESULT_FORMAT_READ} or
    *     {@link C#RESULT_BUFFER_READ}.
    */
-  @SuppressWarnings("ReferenceEquality")
   public int read(
       FormatHolder formatHolder,
       DecoderInputBuffer buffer,
@@ -328,36 +326,61 @@ public class SampleQueue implements TrackOutput {
     return result;
   }
 
-  /** Rewinds the read position to the first sample in the queue. */
-  public void rewind() {
-    rewindMetadata();
-    sampleDataQueue.rewind();
+  /**
+   * Attempts to seek the read position to the specified sample index.
+   *
+   * @param sampleIndex The sample index.
+   * @return Whether the seek was successful.
+   */
+  public synchronized boolean seekTo(int sampleIndex) {
+    rewind();
+    if (sampleIndex < absoluteFirstIndex || sampleIndex > absoluteFirstIndex + length) {
+      return false;
+    }
+    readPosition = sampleIndex - absoluteFirstIndex;
+    return true;
   }
 
   /**
-   * Attempts to advance the read position to the sample before or at the specified time.
+   * Attempts to seek the read position to the keyframe before or at the specified time.
    *
-   * @param timeUs The time to advance to.
-   * @param toKeyframe If true then attempts to advance to the keyframe before or at the specified
-   *     time, rather than to any sample before or at that time.
+   * @param timeUs The time to seek to.
    * @param allowTimeBeyondBuffer Whether the operation can succeed if {@code timeUs} is beyond the
-   *     end of the queue, by advancing the read position to the last sample (or keyframe).
-   * @return The number of samples that were skipped if the operation was successful, which may be
-   *     equal to 0, or {@link #ADVANCE_FAILED} if the operation was not successful. A successful
-   *     advance is one in which the read position was unchanged or advanced, and is now at a sample
-   *     meeting the specified criteria.
+   *     end of the queue, by seeking to the last sample (or keyframe).
+   * @return Whether the seek was successful.
    */
-  public synchronized int advanceTo(
-      long timeUs, boolean toKeyframe, boolean allowTimeBeyondBuffer) {
+  public synchronized boolean seekTo(long timeUs, boolean allowTimeBeyondBuffer) {
+    rewind();
     int relativeReadIndex = getRelativeIndex(readPosition);
     if (!hasNextSample()
         || timeUs < timesUs[relativeReadIndex]
         || (timeUs > largestQueuedTimestampUs && !allowTimeBeyondBuffer)) {
-      return SampleQueue.ADVANCE_FAILED;
+      return false;
     }
-    int offset = findSampleBefore(relativeReadIndex, length - readPosition, timeUs, toKeyframe);
+    int offset =
+        findSampleBefore(relativeReadIndex, length - readPosition, timeUs, /* keyframe= */ true);
     if (offset == -1) {
-      return SampleQueue.ADVANCE_FAILED;
+      return false;
+    }
+    readPosition += offset;
+    return true;
+  }
+
+  /**
+   * Advances the read position to the keyframe before or at the specified time.
+   *
+   * @param timeUs The time to advance to.
+   * @return The number of samples that were skipped, which may be equal to 0.
+   */
+  public synchronized int advanceTo(long timeUs) {
+    int relativeReadIndex = getRelativeIndex(readPosition);
+    if (!hasNextSample() || timeUs < timesUs[relativeReadIndex]) {
+      return 0;
+    }
+    int offset =
+        findSampleBefore(relativeReadIndex, length - readPosition, timeUs, /* keyframe= */ true);
+    if (offset == -1) {
+      return 0;
     }
     readPosition += offset;
     return offset;
@@ -372,22 +395,6 @@ public class SampleQueue implements TrackOutput {
     int skipCount = length - readPosition;
     readPosition = length;
     return skipCount;
-  }
-
-  /**
-   * Attempts to set the read position to the specified sample index.
-   *
-   * @param sampleIndex The sample index.
-   * @return Whether the read position was set successfully. False is returned if the specified
-   *     index is smaller than the index of the first sample in the queue, or larger than the index
-   *     of the next sample that will be written.
-   */
-  public synchronized boolean setReadPosition(int sampleIndex) {
-    if (absoluteFirstIndex <= sampleIndex && sampleIndex <= absoluteFirstIndex + length) {
-      readPosition = sampleIndex - absoluteFirstIndex;
-      return true;
-    }
-    return false;
   }
 
   /**
@@ -486,10 +493,13 @@ public class SampleQueue implements TrackOutput {
 
   // Internal methods.
 
-  private synchronized void rewindMetadata() {
+  /** Rewinds the read position to the first sample in the queue. */
+  private synchronized void rewind() {
     readPosition = 0;
+    sampleDataQueue.rewind();
   }
 
+  @SuppressWarnings("ReferenceEquality") // See comments in setUpstreamFormat
   private synchronized int readSampleMetadata(
       FormatHolder formatHolder,
       DecoderInputBuffer buffer,
@@ -543,13 +553,13 @@ public class SampleQueue implements TrackOutput {
     upstreamFormatRequired = false;
     if (Util.areEqual(format, upstreamFormat)) {
       // The format is unchanged. If format and upstreamFormat are different objects, we keep the
-      // current upstreamFormat so we can detect format changes in read() using cheap referential
-      // equality.
+      // current upstreamFormat so we can detect format changes on the read side using cheap
+      // referential quality.
       return false;
     } else if (Util.areEqual(format, upstreamCommittedFormat)) {
       // The format has changed back to the format of the last committed sample. If they are
       // different objects, we revert back to using upstreamCommittedFormat as the upstreamFormat
-      // so we can detect format changes in read() using cheap referential equality.
+      // so we can detect format changes on the read side using cheap referential equality.
       upstreamFormat = upstreamCommittedFormat;
       return true;
     } else {

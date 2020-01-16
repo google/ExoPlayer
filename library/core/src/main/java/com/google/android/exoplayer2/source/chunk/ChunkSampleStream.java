@@ -186,8 +186,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       if (embeddedTrackTypes[i] == trackType) {
         Assertions.checkState(!embeddedTracksSelected[i]);
         embeddedTracksSelected[i] = true;
-        embeddedSampleQueues[i].rewind();
-        embeddedSampleQueues[i].advanceTo(positionUs, true, true);
+        embeddedSampleQueues[i].seekTo(positionUs, /* allowTimeBeyondBuffer= */ true);
         return new EmbeddedSampleStream(this, embeddedSampleQueues[i], i);
       }
     }
@@ -267,21 +266,16 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
 
     // See if we can seek inside the primary sample queue.
     boolean seekInsideBuffer;
-    primarySampleQueue.rewind();
     if (seekToMediaChunk != null) {
       // When seeking to the start of a chunk we use the index of the first sample in the chunk
       // rather than the seek position. This ensures we seek to the keyframe at the start of the
       // chunk even if the sample timestamps are slightly offset from the chunk start times.
-      seekInsideBuffer =
-          primarySampleQueue.setReadPosition(seekToMediaChunk.getFirstSampleIndex(0));
+      seekInsideBuffer = primarySampleQueue.seekTo(seekToMediaChunk.getFirstSampleIndex(0));
       decodeOnlyUntilPositionUs = 0;
     } else {
       seekInsideBuffer =
-          primarySampleQueue.advanceTo(
-                  positionUs,
-                  /* toKeyframe= */ true,
-                  /* allowTimeBeyondBuffer= */ positionUs < getNextLoadPositionUs())
-              != SampleQueue.ADVANCE_FAILED;
+          primarySampleQueue.seekTo(
+              positionUs, /* allowTimeBeyondBuffer= */ positionUs < getNextLoadPositionUs());
       decodeOnlyUntilPositionUs = lastSeekPositionUs;
     }
 
@@ -290,10 +284,9 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       nextNotifyPrimaryFormatMediaChunkIndex =
           primarySampleIndexToMediaChunkIndex(
               primarySampleQueue.getReadIndex(), /* minChunkIndex= */ 0);
-      // Advance the embedded sample queues to the seek position.
+      // Seek the embedded sample queues.
       for (SampleQueue embeddedSampleQueue : embeddedSampleQueues) {
-        embeddedSampleQueue.rewind();
-        embeddedSampleQueue.advanceTo(positionUs, true, false);
+        embeddedSampleQueue.seekTo(positionUs, /* allowTimeBeyondBuffer= */ true);
       }
     } else {
       // We can't seek inside the buffer, and so need to reset.
@@ -390,10 +383,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     if (loadingFinished && positionUs > primarySampleQueue.getLargestQueuedTimestampUs()) {
       skipCount = primarySampleQueue.advanceToEnd();
     } else {
-      skipCount = primarySampleQueue.advanceTo(positionUs, true, true);
-      if (skipCount == SampleQueue.ADVANCE_FAILED) {
-        skipCount = 0;
-      }
+      skipCount = primarySampleQueue.advanceTo(positionUs);
     }
     maybeNotifyPrimaryTrackFormatChanged();
     return skipCount;
@@ -756,10 +746,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       if (loadingFinished && positionUs > sampleQueue.getLargestQueuedTimestampUs()) {
         skipCount = sampleQueue.advanceToEnd();
       } else {
-        skipCount = sampleQueue.advanceTo(positionUs, true, true);
-        if (skipCount == SampleQueue.ADVANCE_FAILED) {
-          skipCount = 0;
-        }
+        skipCount = sampleQueue.advanceTo(positionUs);
       }
       return skipCount;
     }
