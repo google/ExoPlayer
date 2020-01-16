@@ -580,11 +580,13 @@ public abstract class DownloadService extends Service {
     Class<? extends DownloadService> clazz = getClass();
     @Nullable DownloadManagerHelper downloadManagerHelper = downloadManagerHelpers.get(clazz);
     if (downloadManagerHelper == null) {
-      @Nullable Scheduler scheduler = foregroundNotificationUpdater == null ? null : getScheduler();
+      boolean foregroundAllowed = foregroundNotificationUpdater != null;
+      @Nullable Scheduler scheduler = foregroundAllowed ? getScheduler() : null;
       downloadManager = getDownloadManager();
       downloadManager.resumeDownloads();
       downloadManagerHelper =
-          new DownloadManagerHelper(getApplicationContext(), downloadManager, scheduler, clazz);
+          new DownloadManagerHelper(
+              getApplicationContext(), downloadManager, foregroundAllowed, scheduler, clazz);
       downloadManagerHelpers.put(clazz, downloadManagerHelper);
     } else {
       downloadManager = downloadManagerHelper.downloadManager;
@@ -891,6 +893,7 @@ public abstract class DownloadService extends Service {
 
     private final Context context;
     private final DownloadManager downloadManager;
+    private final boolean foregroundAllowed;
     @Nullable private final Scheduler scheduler;
     private final Class<? extends DownloadService> serviceClass;
     @Nullable private DownloadService downloadService;
@@ -898,10 +901,12 @@ public abstract class DownloadService extends Service {
     private DownloadManagerHelper(
         Context context,
         DownloadManager downloadManager,
+        boolean foregroundAllowed,
         @Nullable Scheduler scheduler,
         Class<? extends DownloadService> serviceClass) {
       this.context = context;
       this.downloadManager = downloadManager;
+      this.foregroundAllowed = foregroundAllowed;
       this.scheduler = scheduler;
       this.serviceClass = serviceClass;
       downloadManager.addListener(this);
@@ -972,16 +977,9 @@ public abstract class DownloadService extends Service {
       boolean requirementsMet = notMetRequirements == 0;
       // TODO: Fix this logic to only start the service if the DownloadManager is actually going to
       // make progress (in addition to the requirements being met, it also needs to be not paused
-      // and have some current downloads). Start in service in the foreground if the service has a
-      // ForegroundNotificationUpdater.
+      // and have some current downloads).
       if (downloadService == null && requirementsMet) {
-        try {
-          Intent intent = getIntent(context, serviceClass, DownloadService.ACTION_INIT);
-          context.startService(intent);
-        } catch (IllegalStateException e) {
-          /* startService fails if the app is in the background then don't stop the scheduler. */
-          return;
-        }
+        restartService();
       }
       if (scheduler != null) {
         setSchedulerEnabled(/* enabled= */ !requirementsMet, requirements);
@@ -989,6 +987,23 @@ public abstract class DownloadService extends Service {
     }
 
     // Internal methods.
+
+    private void restartService() {
+      if (foregroundAllowed) {
+        Intent intent = getIntent(context, serviceClass, DownloadService.ACTION_RESTART);
+        Util.startForegroundService(context, intent);
+      } else {
+        // The service is background only. Use ACTION_INIT rather than ACTION_RESTART because
+        // ACTION_RESTART is handled as though KEY_FOREGROUND is set to true.
+        try {
+          Intent intent = getIntent(context, serviceClass, DownloadService.ACTION_INIT);
+          context.startService(intent);
+        } catch (IllegalArgumentException e) {
+          // The process is classed as idle by the platform. Starting a background service is not
+          // allowed in this state.
+        }
+      }
+    }
 
     // TODO: Fix callers to this method so that the scheduler is only enabled if the DownloadManager
     // would actually make progress were the requirements met (or if it's not initialized yet, in
