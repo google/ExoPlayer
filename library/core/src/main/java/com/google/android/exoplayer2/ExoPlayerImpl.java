@@ -1029,6 +1029,8 @@ import java.util.concurrent.TimeoutException;
     if (maskingTimeline.getIndexOfPeriod(periodUid) != C.INDEX_UNSET) {
       // Get the window index of the current period that exists in the new timeline also.
       maskingWindowIndex = maskingTimeline.getPeriodByUid(periodUid, period).windowIndex;
+      maskingPeriodIndex = maskingTimeline.getIndexOfPeriod(periodUid);
+      maskingWindowPositionMs = currentPositionMs;
     } else {
       // Period uid not found in new timeline. Try to get subsequent period.
       @Nullable
