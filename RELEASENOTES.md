@@ -4,14 +4,18 @@
 
 * Add Java FLAC extractor
   ([#6406](https://github.com/google/ExoPlayer/issues/6406)).
+* Downloads:
+  * Merge downloads in `SegmentDownloader` to improve overall download
+    speed ([#5978](https://github.com/google/ExoPlayer/issues/5978)).
+  * Fix download resumption when the requirements for them to continue are
+    met ([#6733](https://github.com/google/ExoPlayer/issues/6733),
+    [#6798](https://github.com/google/ExoPlayer/issues/6798)).
+  * Fix `DownloadHelper.createMediaSource` to use `customCacheKey` when creating
+    `ProgressiveMediaSource` instances.
 * Update `IcyDecoder` to try ISO-8859-1 decoding if UTF-8 decoding fails.
   Also change `IcyInfo.rawMetadata` from `String` to `byte[]` to allow
   developers to handle data that's neither UTF-8 nor ISO-8859-1
   ([#6753](https://github.com/google/ExoPlayer/issues/6753)).
-* Fix handling of network transitions in `RequirementsWatcher`
-  ([#6733](https://github.com/google/ExoPlayer/issues/6733)). Incorrect handling
-  could previously cause downloads to be paused when they should have been able
-  to proceed.
 * Fix handling of E-AC-3 streams that contain AC-3 syncframes
   ([#6602](https://github.com/google/ExoPlayer/issues/6602)).
 * Fix playback of TrueHD streams in Matroska
