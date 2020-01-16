@@ -158,7 +158,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   private boolean tunneling;
   private int tunnelingAudioSessionId;
-  /* package */ OnFrameRenderedListenerV23 tunnelingOnFrameRenderedListener;
+  /* package */ @Nullable OnFrameRenderedListenerV23 tunnelingOnFrameRenderedListener;
 
   private long lastInputTimeUs;
   private long outputStreamOffsetUs;
@@ -563,7 +563,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     clearReportedVideoSize();
     clearRenderedFirstFrame();
     frameReleaseTimeHelper.disable();
-    tunnelingOnFrameRenderedListener = null;
+    releaseOnFrameRenderedListener();
     try {
       super.onDisabled();
     } finally {
@@ -1805,15 +1805,54 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   }
 
+  private void releaseOnFrameRenderedListener() {
+    if (tunnelingOnFrameRenderedListener != null) {
+      tunnelingOnFrameRenderedListener.release();
+    }
+    tunnelingOnFrameRenderedListener = null;
+  }
+
   @TargetApi(23)
   private final class OnFrameRenderedListenerV23 implements MediaCodec.OnFrameRenderedListener {
 
-    private OnFrameRenderedListenerV23(MediaCodec codec) {
-      codec.setOnFrameRenderedListener(this, new Handler());
+    private final Handler handler;
+    private final MediaCodec codec;
+
+    public OnFrameRenderedListenerV23(MediaCodec mediaCodec) {
+      handler = new Handler();
+      codec = mediaCodec;
+      codec.setOnFrameRenderedListener(/* listener= */ this, handler);
+    }
+
+    /**
+     * Stop listening for the codec OnFrameRendered events and invalidate all queued such events.
+     *
+     * <p>Not required when switching one frame render listener for another and may cause overhead
+     * (MediaCodec calls native_enableOnFrameRenderedListener() twice then). The stale event logic
+     * prevents issues for a listener switch.
+     */
+    public void release() {
+      codec.setOnFrameRenderedListener(null, null);
+      handler.removeCallbacksAndMessages(null);
     }
 
     @Override
     public void onFrameRendered(MediaCodec codec, long presentationTimeUs, long nanoTime) {
+      // Workaround bug in MediaCodec that causes deadlock if you call directly back into the
+      // MediaCodec from this listener method.
+      // Deadlock occurs because MediaCodec calls this listener method holding a lock,
+      // which may also be required by calls made back into the MediaCodec.
+      // This was fixed in https://android-review.googlesource.com/1156807.
+      //
+      // The workaround queues the event for subsequent processing, where the lock will not be held.
+      if (Util.SDK_INT < 30) {
+        handler.postAtFrontOfQueue(() -> handleFrameRendered(presentationTimeUs));
+      } else {
+        handleFrameRendered(presentationTimeUs);
+      }
+    }
+
+    private void handleFrameRendered(long presentationTimeUs) {
       if (this != tunnelingOnFrameRenderedListener) {
         // Stale event.
         return;
@@ -1824,6 +1863,5 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         onProcessedTunneledBuffer(presentationTimeUs);
       }
     }
-
   }
 }
