@@ -578,13 +578,13 @@ public abstract class DownloadService extends Service {
           NotificationUtil.IMPORTANCE_LOW);
     }
     Class<? extends DownloadService> clazz = getClass();
-    DownloadManagerHelper downloadManagerHelper = downloadManagerHelpers.get(clazz);
+    @Nullable DownloadManagerHelper downloadManagerHelper = downloadManagerHelpers.get(clazz);
     if (downloadManagerHelper == null) {
+      @Nullable Scheduler scheduler = foregroundNotificationUpdater == null ? null : getScheduler();
       downloadManager = getDownloadManager();
       downloadManager.resumeDownloads();
       downloadManagerHelper =
-          new DownloadManagerHelper(
-              getApplicationContext(), downloadManager, getScheduler(), clazz);
+          new DownloadManagerHelper(getApplicationContext(), downloadManager, scheduler, clazz);
       downloadManagerHelpers.put(clazz, downloadManagerHelper);
     } else {
       downloadManager = downloadManagerHelper.downloadManager;
@@ -600,9 +600,9 @@ public abstract class DownloadService extends Service {
     @Nullable String contentId = null;
     if (intent != null) {
       intentAction = intent.getAction();
+      contentId = intent.getStringExtra(KEY_CONTENT_ID);
       startedInForeground |=
           intent.getBooleanExtra(KEY_FOREGROUND, false) || ACTION_RESTART.equals(intentAction);
-      contentId = intent.getStringExtra(KEY_CONTENT_ID);
     }
     // intentAction is null if the service is restarted or no action is specified.
     if (intentAction == null) {
@@ -660,6 +660,10 @@ public abstract class DownloadService extends Service {
         break;
     }
 
+    if (Util.SDK_INT >= 26 && startedInForeground && foregroundNotificationUpdater != null) {
+      // From API level 26, services started in the foreground are required to show a notification.
+      foregroundNotificationUpdater.showNotificationIfNotAlready();
+    }
     if (downloadManager.isIdle()) {
       stop();
     }
@@ -701,21 +705,21 @@ public abstract class DownloadService extends Service {
    * Returns a {@link Scheduler} to restart the service when requirements allowing downloads to take
    * place are met. If {@code null}, the service will only be restarted if the process is still in
    * memory when the requirements are met.
+   *
+   * <p>This method is not called for services whose {@code foregroundNotificationId} is set to
+   * {@link #FOREGROUND_NOTIFICATION_ID_NONE}. Such services will only be restarted if the process
+   * is still in memory and considered non-idle, meaning that it's either in the foreground or was
+   * backgrounded within the last few minutes.
    */
-  protected abstract @Nullable Scheduler getScheduler();
+  @Nullable
+  protected abstract Scheduler getScheduler();
 
   /**
-   * Returns a notification to be displayed when this service running in the foreground. This method
-   * is called when there is a download state change and periodically while there are active
-   * downloads. The periodic update interval can be set using {@link #DownloadService(int, long)}.
-   *
-   * <p>On API level 26 and above, this method may also be called just before the service stops,
-   * with an empty {@code downloads} array. The returned notification is used to satisfy system
-   * requirements for foreground services.
+   * Returns a notification to be displayed when this service running in the foreground.
    *
    * <p>Download services that do not wish to run in the foreground should be created by setting the
    * {@code foregroundNotificationId} constructor argument to {@link
-   * #FOREGROUND_NOTIFICATION_ID_NONE}. This method will not be called in this case, meaning it can
+   * #FOREGROUND_NOTIFICATION_ID_NONE}. This method is not called for such services, meaning it can
    * be implemented to throw {@link UnsupportedOperationException}.
    *
    * @param downloads The current downloads.
@@ -754,13 +758,32 @@ public abstract class DownloadService extends Service {
     // Do nothing.
   }
 
+  /**
+   * Called after the service is created, once the downloads are known.
+   *
+   * @param downloads The current downloads.
+   */
+  private void notifyDownloads(List<Download> downloads) {
+    if (foregroundNotificationUpdater != null) {
+      for (int i = 0; i < downloads.size(); i++) {
+        if (needsForegroundNotification(downloads.get(i).state)) {
+          foregroundNotificationUpdater.startPeriodicUpdates();
+          break;
+        }
+      }
+    }
+  }
+
+  /**
+   * Called when the state of a download changes.
+   *
+   * @param download The state of the download.
+   */
   @SuppressWarnings("deprecation")
   private void notifyDownloadChanged(Download download) {
     onDownloadChanged(download);
     if (foregroundNotificationUpdater != null) {
-      if (download.state == Download.STATE_DOWNLOADING
-          || download.state == Download.STATE_REMOVING
-          || download.state == Download.STATE_RESTARTING) {
+      if (needsForegroundNotification(download.state)) {
         foregroundNotificationUpdater.startPeriodicUpdates();
       } else {
         foregroundNotificationUpdater.invalidate();
@@ -768,6 +791,11 @@ public abstract class DownloadService extends Service {
     }
   }
 
+  /**
+   * Called when a download is removed.
+   *
+   * @param download The last state of the download before it was removed.
+   */
   @SuppressWarnings("deprecation")
   private void notifyDownloadRemoved(Download download) {
     onDownloadRemoved(download);
@@ -779,16 +807,18 @@ public abstract class DownloadService extends Service {
   private void stop() {
     if (foregroundNotificationUpdater != null) {
       foregroundNotificationUpdater.stopPeriodicUpdates();
-      // Make sure startForeground is called before stopping. Workaround for [Internal: b/69424260].
-      if (startedInForeground && Util.SDK_INT >= 26) {
-        foregroundNotificationUpdater.showNotificationIfNotAlready();
-      }
     }
     if (Util.SDK_INT < 28 && taskRemoved) { // See [Internal: b/74248644].
       stopSelf();
     } else {
       stopSelfResult(lastStartId);
     }
+  }
+
+  private static boolean needsForegroundNotification(@Download.State int state) {
+    return state == Download.STATE_DOWNLOADING
+        || state == Download.STATE_REMOVING
+        || state == Download.STATE_RESTARTING;
   }
 
   private static Intent getIntent(
@@ -884,6 +914,16 @@ public abstract class DownloadService extends Service {
     public void attachService(DownloadService downloadService) {
       Assertions.checkState(this.downloadService == null);
       this.downloadService = downloadService;
+      if (downloadManager.isInitialized()) {
+        // The call to DownloadService.notifyDownloads is posted to avoid it being called directly
+        // from DownloadService.onCreate. This is a good idea because it may in turn call
+        // DownloadService.getForegroundNotification, and concrete subclass implementations may
+        // not anticipate the possibility of this method being called before their onCreate
+        // implementation has finished executing.
+        Util.createHandler()
+            .postAtFrontOfQueue(
+                () -> downloadService.notifyDownloads(downloadManager.getCurrentDownloads()));
+      }
     }
 
     public void detachService(DownloadService downloadService) {
@@ -891,6 +931,15 @@ public abstract class DownloadService extends Service {
       this.downloadService = null;
       if (scheduler != null && !downloadManager.isWaitingForRequirements()) {
         scheduler.cancel();
+      }
+    }
+
+    // DownloadManager.Listener implementation.
+
+    @Override
+    public void onInitialized(DownloadManager downloadManager) {
+      if (downloadService != null) {
+        downloadService.notifyDownloads(downloadManager.getCurrentDownloads());
       }
     }
 
@@ -921,6 +970,10 @@ public abstract class DownloadService extends Service {
         Requirements requirements,
         @Requirements.RequirementFlags int notMetRequirements) {
       boolean requirementsMet = notMetRequirements == 0;
+      // TODO: Fix this logic to only start the service if the DownloadManager is actually going to
+      // make progress (in addition to the requirements being met, it also needs to be not paused
+      // and have some current downloads). Start in service in the foreground if the service has a
+      // ForegroundNotificationUpdater.
       if (downloadService == null && requirementsMet) {
         try {
           Intent intent = getIntent(context, serviceClass, DownloadService.ACTION_INIT);
@@ -935,6 +988,12 @@ public abstract class DownloadService extends Service {
       }
     }
 
+    // Internal methods.
+
+    // TODO: Fix callers to this method so that the scheduler is only enabled if the DownloadManager
+    // would actually make progress were the requirements met (or if it's not initialized yet, in
+    // which case we should be cautious until we know better). To implement this properly it'll be
+    // necessary to call this method from some additional places.
     @RequiresNonNull("scheduler")
     private void setSchedulerEnabled(boolean enabled, Requirements requirements) {
       if (!enabled) {

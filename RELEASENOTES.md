@@ -14,10 +14,9 @@
 * Downloads:
   * Merge downloads in `SegmentDownloader` to improve overall download
     speed ([#5978](https://github.com/google/ExoPlayer/issues/5978)).
-  * Fix handling of network transitions in `RequirementsWatcher`
-    ([#6733](https://github.com/google/ExoPlayer/issues/6733)). Incorrect
-    handling could previously cause downloads to be paused when they should have
-    been able to proceed.
+  * Fix download resumption when the requirements for them to continue are
+    met ([#6733](https://github.com/google/ExoPlayer/issues/6733),
+    [#6798](https://github.com/google/ExoPlayer/issues/6798)).
   * Fix `DownloadHelper.createMediaSource` to use `customCacheKey` when creating
     `ProgressiveMediaSource` instances.
 * In MP4 streams, store the Android capture frame rate only in
