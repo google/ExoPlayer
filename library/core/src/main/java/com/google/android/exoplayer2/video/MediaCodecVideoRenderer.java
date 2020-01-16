@@ -26,6 +26,7 @@ import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.os.SystemClock;
 import android.util.Pair;
 import android.view.Surface;
@@ -1800,13 +1801,16 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @TargetApi(23)
-  private final class OnFrameRenderedListenerV23 implements MediaCodec.OnFrameRenderedListener {
+  private final class OnFrameRenderedListenerV23
+      implements MediaCodec.OnFrameRenderedListener, Handler.Callback {
+
+    private static final int HANDLE_FRAME_RENDERED = 0;
 
     private final Handler handler;
     private final MediaCodec codec;
 
     public OnFrameRenderedListenerV23(MediaCodec mediaCodec) {
-      handler = Util.createHandler();
+      handler = Util.createHandler(/* callback= */ this);
       codec = mediaCodec;
       codec.setOnFrameRenderedListener(/* listener= */ this, handler);
     }
@@ -1833,9 +1837,26 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       //
       // The workaround queues the event for subsequent processing, where the lock will not be held.
       if (Util.SDK_INT < 30) {
-        handler.postAtFrontOfQueue(() -> handleFrameRendered(presentationTimeUs));
+        Message message =
+            Message.obtain(
+                handler,
+                /* what= */ HANDLE_FRAME_RENDERED,
+                /* arg1= */ (int) (presentationTimeUs >> 32),
+                /* arg2= */ (int) presentationTimeUs);
+        handler.sendMessageAtFrontOfQueue(message);
       } else {
         handleFrameRendered(presentationTimeUs);
+      }
+    }
+
+    @Override
+    public boolean handleMessage(Message message) {
+      switch (message.what) {
+        case HANDLE_FRAME_RENDERED:
+          handleFrameRendered(Util.toLong(message.arg1, message.arg2));
+          return true;
+        default:
+          return false;
       }
     }
 

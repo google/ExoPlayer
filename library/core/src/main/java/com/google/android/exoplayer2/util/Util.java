@@ -1230,6 +1230,18 @@ public final class Util {
   }
 
   /**
+   * Return the long that is composed of the bits of the 2 specified integers.
+   *
+   * @param mostSignificantBits The 32 most significant bits of the long to return.
+   * @param leastSignificantBits The 32 least significant bits of the long to return.
+   * @return a long where its 32 most significant bits are {@code mostSignificantBits} bits and its
+   *     32 least significant bits are {@code leastSignificantBits}.
+   */
+  public static long toLong(int mostSignificantBits, int leastSignificantBits) {
+    return (toUnsignedLong(mostSignificantBits) << 32) | toUnsignedLong(leastSignificantBits);
+  }
+
+  /**
    * Returns a byte array containing values parsed from the hex string provided.
    *
    * @param hexString The hex string to convert to bytes.
