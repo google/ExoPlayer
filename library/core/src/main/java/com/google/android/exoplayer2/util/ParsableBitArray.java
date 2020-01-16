@@ -195,7 +195,7 @@ public final class ParsableBitArray {
     if (numBits <= 32) {
       return Util.toUnsignedLong(readBits(numBits));
     }
-    return Util.toUnsignedLong(readBits(numBits - 32)) << 32 | Util.toUnsignedLong(readBits(32));
+    return Util.toLong(readBits(numBits - 32), readBits(32));
   }
 
   /**
