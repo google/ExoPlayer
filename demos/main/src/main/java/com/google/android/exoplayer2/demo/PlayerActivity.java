@@ -82,6 +82,7 @@ import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /** An activity that plays media using {@link SimpleExoPlayer}. */
@@ -405,7 +406,7 @@ public class PlayerActivity extends AppCompatActivity
     if (!actionIsListView && !ACTION_VIEW.equals(action)) {
       showToast(getString(R.string.unexpected_intent_action, action));
       finish();
-      return null;
+      return Collections.emptyList();
     }
 
     Sample intentAsSample = Sample.createFromIntent(intent);
@@ -419,17 +420,20 @@ public class PlayerActivity extends AppCompatActivity
       seenAdsTagUri |= sample.adTagUri != null;
       if (!Util.checkCleartextTrafficPermitted(sample.uri)) {
         showToast(R.string.error_cleartext_not_permitted);
-        return null;
+        return Collections.emptyList();
       }
       if (Util.maybeRequestReadExternalStoragePermission(/* activity= */ this, sample.uri)) {
         // The player will be reinitialized if the permission is granted.
-        return null;
+        return Collections.emptyList();
       }
     }
 
     List<MediaSource> mediaSources = new ArrayList<>();
     for (UriSample sample : samples) {
       MediaSource mediaSource = createLeafMediaSource(sample);
+      if (mediaSource == null) {
+        continue;
+      }
       Sample.SubtitleInfo subtitleInfo = sample.subtitleInfo;
       if (subtitleInfo != null) {
         Format subtitleFormat =
@@ -467,6 +471,7 @@ public class PlayerActivity extends AppCompatActivity
     return mediaSources;
   }
 
+  @Nullable
   private MediaSource createLeafMediaSource(UriSample parameters) {
     Sample.DrmInfo drmInfo = parameters.drmInfo;
     int errorStringId = R.string.error_drm_unknown;
@@ -602,7 +607,7 @@ public class PlayerActivity extends AppCompatActivity
     try {
       Class<?> loaderClass = Class.forName("com.google.android.exoplayer2.ext.ima.ImaAdsLoader");
       if (adsLoader == null) {
-        // Full class names used so the LINT.IfChange rule triggers should any of the classes move.
+        // Full class names used so the lint rule triggers should any of the classes move.
         // LINT.IfChange
         Constructor<? extends AdsLoader> loaderConstructor =
             loaderClass
