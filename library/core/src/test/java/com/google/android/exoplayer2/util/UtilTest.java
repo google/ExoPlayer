@@ -236,6 +236,31 @@ public class UtilTest {
   }
 
   @Test
+  public void testToLongZeroValue() {
+    assertThat(Util.toLong(0, 0)).isEqualTo(0);
+  }
+
+  @Test
+  public void testToLongValue() {
+    assertThat(Util.toLong(1, -4)).isEqualTo(0x1FFFFFFFCL);
+  }
+
+  @Test
+  public void testToLongBigValue() {
+    assertThat(Util.toLong(0x7ABCDEF, 0x12345678)).isEqualTo(0x7ABCDEF_12345678L);
+  }
+
+  @Test
+  public void testToLongMaxValue() {
+    assertThat(Util.toLong(0x0FFFFFFF, 0xFFFFFFFF)).isEqualTo(0x0FFFFFFF_FFFFFFFFL);
+  }
+
+  @Test
+  public void testToLongBigNegativeValue() {
+    assertThat(Util.toLong(0xFEDCBA, 0x87654321)).isEqualTo(0xFEDCBA_87654321L);
+  }
+
+  @Test
   public void testGetCodecsOfType() {
     assertThat(getCodecsOfType(null, C.TRACK_TYPE_VIDEO)).isNull();
     assertThat(getCodecsOfType("avc1.64001e,vp9.63.1", C.TRACK_TYPE_AUDIO)).isNull();
