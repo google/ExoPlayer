@@ -507,7 +507,23 @@ public class SampleQueue implements TrackOutput {
       boolean loadingFinished,
       long decodeOnlyUntilUs,
       SampleExtrasHolder extrasHolder) {
-    if (!hasNextSample()) {
+
+    // This is a temporary fix for https://github.com/google/ExoPlayer/issues/6155.
+    // TODO: Remove it and replace it with a fix that discards samples when writing to the queue.
+    boolean hasNextSample;
+    int relativeReadIndex = C.INDEX_UNSET;
+    while ((hasNextSample = hasNextSample())) {
+      relativeReadIndex = getRelativeIndex(readPosition);
+      long timeUs = timesUs[relativeReadIndex];
+      if (timeUs < decodeOnlyUntilUs
+          && MimeTypes.allSamplesAreSyncSamples(formats[relativeReadIndex].sampleMimeType)) {
+        readPosition++;
+      } else {
+        break;
+      }
+    }
+
+    if (!hasNextSample) {
       if (loadingFinished || isLastSampleQueued) {
         buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
         return C.RESULT_BUFFER_READ;
@@ -519,7 +535,6 @@ public class SampleQueue implements TrackOutput {
       }
     }
 
-    int relativeReadIndex = getRelativeIndex(readPosition);
     if (formatRequired || formats[relativeReadIndex] != downstreamFormat) {
       onFormatResult(formats[relativeReadIndex], formatHolder);
       return C.RESULT_FORMAT_READ;
