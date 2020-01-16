@@ -344,7 +344,49 @@ public final class FlacExtractor implements Extractor {
     }
 
     if (foundEndOfInput) {
-      // Reached the end of the file. Assume it's the end of the frame.
+      // Verify whether there is a frame of size < MAX_FRAME_HEADER_SIZE at the end of the stream by
+      // checking at every position at a distance between MAX_FRAME_HEADER_SIZE and minFrameSize
+      // from the buffer limit if it corresponds to a valid frame header.
+      // At every offset, the different possibilities are:
+      // 1. The current offset indicates the start of a valid frame header. In this case, consider
+      //    that a frame has been found and stop searching.
+      // 2. A frame starting at the current offset would be invalid. In this case, keep looking for
+      //    a valid frame header.
+      // 3. The current offset could be the start of a valid frame header, but there is not enough
+      //    bytes remaining to complete the header. As the end of the file has been reached, this
+      //    means that the current offset does not correspond to a new frame and that the last bytes
+      //    of the last frame happen to be a valid partial frame header. This case can occur in two
+      //    ways:
+      //    3.1. An attempt to read past the buffer is made when reading the potential frame header.
+      //    3.2. Reading the potential frame header does not exceed the buffer size, but exceeds the
+      //         buffer limit.
+      // Note that the third case is very unlikely. It never happens if the end of the input has not
+      // been reached as it is always made sure that the buffer has at least MAX_FRAME_HEADER_SIZE
+      // bytes available when reading a potential frame header.
+      while (frameOffset <= data.limit() - minFrameSize) {
+        data.setPosition(frameOffset);
+        boolean frameFound;
+        try {
+          frameFound =
+              FlacFrameReader.checkAndReadFrameHeader(
+                  data, flacStreamMetadata, frameStartMarker, sampleNumberHolder);
+        } catch (IndexOutOfBoundsException e) {
+          // Case 3.1.
+          frameFound = false;
+        }
+        if (data.getPosition() > data.limit()) {
+          // TODO: Remove (and update above comments) once [Internal ref: b/147657250] is fixed.
+          // Case 3.2.
+          frameFound = false;
+        }
+        if (frameFound) {
+          // Case 1.
+          data.setPosition(frameOffset);
+          return sampleNumberHolder.sampleNumber;
+        }
+        frameOffset++;
+      }
+      // The end of the frame is the end of the file.
       data.setPosition(data.limit());
     } else {
       data.setPosition(frameOffset);
