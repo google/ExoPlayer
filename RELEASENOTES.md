@@ -4,6 +4,12 @@
 
 * Add Java FLAC extractor
   ([#6406](https://github.com/google/ExoPlayer/issues/6406)).
+* Startup latency optimization:
+  * Reduce startup latency for DASH and SmoothStreaming playbacks by allowing
+    codec initialization to occur before the network connection for the first
+    media segment has been established.
+  * Reduce startup latency for on-demand DASH playbacks by allowing codec
+    initialization to occur before the sidx box has been loaded.
 * Downloads:
   * Merge downloads in `SegmentDownloader` to improve overall download
     speed ([#5978](https://github.com/google/ExoPlayer/issues/5978)).
@@ -12,45 +18,40 @@
     [#6798](https://github.com/google/ExoPlayer/issues/6798)).
   * Fix `DownloadHelper.createMediaSource` to use `customCacheKey` when creating
     `ProgressiveMediaSource` instances.
-* Update `IcyDecoder` to try ISO-8859-1 decoding if UTF-8 decoding fails.
-  Also change `IcyInfo.rawMetadata` from `String` to `byte[]` to allow
-  developers to handle data that's neither UTF-8 nor ISO-8859-1
-  ([#6753](https://github.com/google/ExoPlayer/issues/6753)).
+* Metadata:
+  * Update `IcyDecoder` to try ISO-8859-1 decoding if UTF-8 decoding fails.
+    Also change `IcyInfo.rawMetadata` from `String` to `byte[]` to allow
+    developers to handle data that's neither UTF-8 nor ISO-8859-1
+    ([#6753](https://github.com/google/ExoPlayer/issues/6753)).
+  * Select multiple metadata tracks if multiple metadata renderers are available
+    ([#6676](https://github.com/google/ExoPlayer/issues/6676)).
+* UI:
+  * Show ad group markers in `DefaultTimeBar` even if they are after the end
+    of the current window
+    ([#6552](https://github.com/google/ExoPlayer/issues/6552)).
+  * Don't use notification chronometer if playback speed is != 1.0
+    ([#6816](https://github.com/google/ExoPlayer/issues/6816)).
+* WAV:
+  * Support IMA ADPCM encoded data.
+  * Improve support for G.711 A-law and mu-law encoded data.
+* MP4: Support "twos" codec (big endian PCM)
+  ([#5789](https://github.com/google/ExoPlayer/issues/5789)).
+* FMP4: Add support for encrypted AC-4 tracks.
+* HLS: Fix slow seeking into long MP3 segments
+  ([#6155](https://github.com/google/ExoPlayer/issues/6155)).
 * Fix handling of E-AC-3 streams that contain AC-3 syncframes
   ([#6602](https://github.com/google/ExoPlayer/issues/6602)).
 * Fix playback of TrueHD streams in Matroska
   ([#6845](https://github.com/google/ExoPlayer/issues/6845)).
-* Support "twos" codec (big endian PCM) in MP4
-  ([#5789](https://github.com/google/ExoPlayer/issues/5789)).
-* Show ad group markers in `DefaultTimeBar` even if they are after the end of
-  the current window
-  ([#6552](https://github.com/google/ExoPlayer/issues/6552)).
-* HLS: Fix slow seeking into long MP3 segments
-  ([#6155](https://github.com/google/ExoPlayer/issues/6155)).
-* WAV:
-  * Support IMA ADPCM encoded data.
-  * Improve support for G.711 A-law and mu-law encoded data.
 * Fix MKV subtitles to disappear when intended instead of lasting until the
   next cue ([#6833](https://github.com/google/ExoPlayer/issues/6833)).
 * OkHttp extension: Upgrade OkHttp dependency to 3.12.7, which fixes a class of
   `SocketTimeoutException` issues when using HTTP/2
   ([#4078](https://github.com/google/ExoPlayer/issues/4078)).
-* Don't use notification chronometer if playback speed is != 1.0
-  ([#6816](https://github.com/google/ExoPlayer/issues/6816)).
 * FLAC extension: Fix handling of bit depths other than 16 in `FLACDecoder`.
   This issue caused FLAC streams with other bit depths to sound like white noise
   on earlier releases, but only when embedded in a non-FLAC container such as
   Matroska or MP4.
-* Javadocs: Add favicon for easier identification in browser tabs
-* FMP4: Add support for encrypted AC-4 tracks.
-* Startup latency optimizations:
-  * Reduce startup latency for DASH and SmoothStreaming playbacks by allowing
-    codec initialization to occur before the network connection for the first
-    media segment has been established.
-  * Reduce startup latency for on-demand DASH playbacks by allowing codec
-    initialization to occur before the sidx box has been loaded.
-* Select multiple metadata tracks if multiple metadata renderers are available
-  ([#6676](https://github.com/google/ExoPlayer/issues/6676)).
 
 ### 2.11.1 (2019-12-20) ###
 
