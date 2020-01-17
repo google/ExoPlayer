@@ -120,14 +120,6 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
   }
 
   @Override
-  public long seekToUs(long positionUs) {
-    for (ChunkSampleStream<FakeChunkSource> sampleStream : sampleStreams) {
-      sampleStream.seekToUs(positionUs);
-    }
-    return super.seekToUs(positionUs);
-  }
-
-  @Override
   public long getNextLoadPositionUs() {
     super.getNextLoadPositionUs();
     return sequenceableLoader.getNextLoadPositionUs();
@@ -145,7 +137,8 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
   }
 
   @Override
-  protected SampleStream createSampleStream(TrackSelection trackSelection) {
+  protected SampleStream createSampleStream(
+      TrackSelection trackSelection, EventDispatcher eventDispatcher) {
     FakeChunkSource chunkSource =
         chunkSourceFactory.createChunkSource(trackSelection, durationUs, transferListener);
     return new ChunkSampleStream<>(
@@ -159,6 +152,12 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
         /* drmSessionManager= */ DrmSessionManager.getDummyDrmSessionManager(),
         new DefaultLoadErrorHandlingPolicy(/* minimumLoadableRetryCount= */ 3),
         eventDispatcher);
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  protected void seekSampleStream(SampleStream sampleStream, long positionUs) {
+    ((ChunkSampleStream<FakeChunkSource>) sampleStream).seekToUs(positionUs);
   }
 
   @Override

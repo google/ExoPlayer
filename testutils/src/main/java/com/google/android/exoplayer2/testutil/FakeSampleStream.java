@@ -24,7 +24,6 @@ import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispat
 import com.google.android.exoplayer2.source.SampleStream;
 import java.io.IOException;
 import java.util.ArrayDeque;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -96,7 +95,7 @@ public final class FakeSampleStream implements SampleStream {
         format,
         eventDispatcher,
         shouldOutputSample
-            ? Arrays.asList(new FakeSampleStreamItem(new byte[] {0}))
+            ? Collections.singletonList(new FakeSampleStreamItem(new byte[] {0}))
             : Collections.emptyList(),
         /* timeUsIncrement= */ 0);
   }
@@ -120,6 +119,18 @@ public final class FakeSampleStream implements SampleStream {
     this.eventDispatcher = eventDispatcher;
     this.fakeSampleStreamItems = new ArrayDeque<>(fakeSampleStreamItems);
     this.timeUsIncrement = timeUsIncrement;
+  }
+
+  /**
+   * Resets the samples provided by this sample stream to the provided list.
+   *
+   * @param fakeSampleStreamItems The list of {@link FakeSampleStreamItem items} to provide.
+   * @param timeUs The time at which samples will start being output, in microseconds.
+   */
+  public void resetSampleStreamItems(List<FakeSampleStreamItem> fakeSampleStreamItems, int timeUs) {
+    this.fakeSampleStreamItems.clear();
+    this.fakeSampleStreamItems.addAll(fakeSampleStreamItems);
+    this.timeUs = timeUs;
   }
 
   @Override
