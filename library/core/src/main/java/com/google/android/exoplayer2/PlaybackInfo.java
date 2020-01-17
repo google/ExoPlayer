@@ -191,6 +191,9 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
    * @param contentPositionUs New content position. See {@link #contentPositionUs}. Value is ignored
    *     if {@code periodId.isAd()} is true.
    * @param totalBufferedDurationUs New buffered duration. See {@link #totalBufferedDurationUs}.
+   * @param trackGroups The track groups for the new position. See {@link #trackGroups}.
+   * @param trackSelectorResult The track selector result for the new position. See {@link
+   *     #trackSelectorResult}.
    * @return Copied playback info with new playing position.
    */
   @CheckResult
@@ -198,7 +201,9 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
       MediaPeriodId periodId,
       long positionUs,
       long contentPositionUs,
-      long totalBufferedDurationUs) {
+      long totalBufferedDurationUs,
+      TrackGroupArray trackGroups,
+      TrackSelectorResult trackSelectorResult) {
     return new PlaybackInfo(
         timeline,
         periodId,
@@ -295,32 +300,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
    */
   @CheckResult
   public PlaybackInfo copyWithIsLoading(boolean isLoading) {
-    return new PlaybackInfo(
-        timeline,
-        periodId,
-        startPositionUs,
-        contentPositionUs,
-        playbackState,
-        playbackError,
-        isLoading,
-        trackGroups,
-        trackSelectorResult,
-        loadingMediaPeriodId,
-        bufferedPositionUs,
-        totalBufferedDurationUs,
-        positionUs);
-  }
-
-  /**
-   * Copies playback info with new track information.
-   *
-   * @param trackGroups New track groups. See {@link #trackGroups}.
-   * @param trackSelectorResult New track selector result. See {@link #trackSelectorResult}.
-   * @return Copied playback info with new track information.
-   */
-  @CheckResult
-  public PlaybackInfo copyWithTrackInfo(
-      TrackGroupArray trackGroups, TrackSelectorResult trackSelectorResult) {
     return new PlaybackInfo(
         timeline,
         periodId,
