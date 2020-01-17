@@ -17,6 +17,7 @@ package com.google.android.exoplayer2;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 import static org.robolectric.Shadows.shadowOf;
 
@@ -5589,6 +5590,72 @@ public final class ExoPlayerTest {
     assertArrayEquals(
         new int[] {Player.STATE_IDLE, Player.STATE_IDLE, Player.STATE_ENDED}, currentStates);
     assertArrayEquals(new int[] {1, 0}, currentWindowIndices);
+  }
+
+  @Test
+  public void errorThrownDuringPeriodTransition_keepsConsistentPlayerState() throws Exception {
+    FakeMediaSource source1 =
+        new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1), Builder.VIDEO_FORMAT);
+    FakeMediaSource source2 =
+        new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1), Builder.AUDIO_FORMAT);
+    FakeRenderer videoRenderer = new FakeRenderer(Builder.VIDEO_FORMAT);
+    FakeRenderer audioRenderer =
+        new FakeRenderer(Builder.AUDIO_FORMAT) {
+          @Override
+          protected void onEnabled(boolean joining) throws ExoPlaybackException {
+            // Fail when enabling the renderer. This will happen during the period transition.
+            throw createRendererException(new IllegalStateException(), Builder.AUDIO_FORMAT);
+          }
+        };
+    AtomicReference<TrackGroupArray> trackGroupsAfterError = new AtomicReference<>();
+    AtomicReference<TrackSelectionArray> trackSelectionsAfterError = new AtomicReference<>();
+    AtomicInteger windowIndexAfterError = new AtomicInteger();
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("errorThrownDuringPeriodTransition_keepsConsistentPlayerState")
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    player.addAnalyticsListener(
+                        new AnalyticsListener() {
+                          @Override
+                          public void onPlayerError(
+                              EventTime eventTime, ExoPlaybackException error) {
+                            trackGroupsAfterError.set(player.getCurrentTrackGroups());
+                            trackSelectionsAfterError.set(player.getCurrentTrackSelections());
+                            windowIndexAfterError.set(player.getCurrentWindowIndex());
+                          }
+                        });
+                  }
+                })
+            .pause()
+            // Wait until fully buffered so that the new renderer can be enabled immediately.
+            .waitForIsLoading(true)
+            .waitForIsLoading(false)
+            .waitForIsLoading(true)
+            .waitForIsLoading(false)
+            .play()
+            .build();
+    ExoPlayerTestRunner testRunner =
+        new Builder()
+            .setMediaSources(source1, source2)
+            .setActionSchedule(actionSchedule)
+            .setRenderers(videoRenderer, audioRenderer)
+            .build(context);
+
+    assertThrows(
+        ExoPlaybackException.class,
+        () ->
+            testRunner
+                .start(/* doPrepare= */ true)
+                .blockUntilActionScheduleFinished(TIMEOUT_MS)
+                .blockUntilEnded(TIMEOUT_MS));
+
+    assertThat(windowIndexAfterError.get()).isEqualTo(1);
+    assertThat(trackGroupsAfterError.get().length).isEqualTo(1);
+    assertThat(trackGroupsAfterError.get().get(0).getFormat(0)).isEqualTo(Builder.AUDIO_FORMAT);
+    assertThat(trackSelectionsAfterError.get().get(0)).isNull(); // Video renderer.
+    assertThat(trackSelectionsAfterError.get().get(1)).isNotNull(); // Audio renderer.
   }
 
   // Internal methods.

@@ -802,7 +802,9 @@ import java.util.concurrent.TimeoutException;
                 playbackInfo.periodId,
                 /* positionUs= */ 0,
                 playbackInfo.contentPositionUs,
-                playbackInfo.totalBufferedDurationUs);
+                playbackInfo.totalBufferedDurationUs,
+                playbackInfo.trackGroups,
+                playbackInfo.trackSelectorResult);
       }
       if (!this.playbackInfo.timeline.isEmpty() && playbackInfo.timeline.isEmpty()) {
         // Update the masking variables, which are used when the timeline becomes empty.
