@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source;
 
 import android.net.Uri;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
@@ -30,9 +31,8 @@ public interface MediaSourceFactory {
    *
    * @param streamKeys A list of {@link StreamKey StreamKeys}.
    * @return This factory, for convenience.
-   * @throws IllegalStateException If {@link #createMediaSource(Uri)} has already been called.
    */
-  default MediaSourceFactory setStreamKeys(List<StreamKey> streamKeys) {
+  default MediaSourceFactory setStreamKeys(@Nullable List<StreamKey> streamKeys) {
     return this;
   }
 
@@ -41,9 +41,8 @@ public interface MediaSourceFactory {
    *
    * @param drmSessionManager The {@link DrmSessionManager}.
    * @return This factory, for convenience.
-   * @throws IllegalStateException If one of the {@code create} methods has already been called.
    */
-  MediaSourceFactory setDrmSessionManager(DrmSessionManager<?> drmSessionManager);
+  MediaSourceFactory setDrmSessionManager(@Nullable DrmSessionManager<?> drmSessionManager);
 
   /**
    * Creates a new {@link MediaSource} with the specified {@code uri}.
