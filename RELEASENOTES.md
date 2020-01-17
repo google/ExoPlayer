@@ -11,8 +11,6 @@
   * Reduce startup latency for on-demand DASH playbacks by allowing codec
     initialization to occur before the sidx box has been loaded.
 * Downloads:
-  * Merge downloads in `SegmentDownloader` to improve overall download
-    speed ([#5978](https://github.com/google/ExoPlayer/issues/5978)).
   * Fix download resumption when the requirements for them to continue are
     met ([#6733](https://github.com/google/ExoPlayer/issues/6733),
     [#6798](https://github.com/google/ExoPlayer/issues/6798)).
