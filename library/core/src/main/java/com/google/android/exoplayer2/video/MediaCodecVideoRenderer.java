@@ -564,7 +564,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     clearReportedVideoSize();
     clearRenderedFirstFrame();
     frameReleaseTimeHelper.disable();
-    releaseOnFrameRenderedListener();
+    tunnelingOnFrameRenderedListener = null;
     try {
       super.onDisabled();
     } finally {
@@ -1806,13 +1806,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   }
 
-  private void releaseOnFrameRenderedListener() {
-    if (tunnelingOnFrameRenderedListener != null) {
-      tunnelingOnFrameRenderedListener.release();
-    }
-    tunnelingOnFrameRenderedListener = null;
-  }
-
   @TargetApi(23)
   private final class OnFrameRenderedListenerV23
       implements MediaCodec.OnFrameRenderedListener, Handler.Callback {
@@ -1820,24 +1813,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     private static final int HANDLE_FRAME_RENDERED = 0;
 
     private final Handler handler;
-    private final MediaCodec codec;
 
-    public OnFrameRenderedListenerV23(MediaCodec mediaCodec) {
+    public OnFrameRenderedListenerV23(MediaCodec codec) {
       handler = new Handler(this);
-      codec = mediaCodec;
       codec.setOnFrameRenderedListener(/* listener= */ this, handler);
-    }
-
-    /**
-     * Stop listening for the codec OnFrameRendered events and invalidate all queued such events.
-     *
-     * <p>Not required when switching one frame render listener for another and may cause overhead
-     * (MediaCodec calls native_enableOnFrameRenderedListener() twice then). The stale event logic
-     * prevents issues for a listener switch.
-     */
-    public void release() {
-      codec.setOnFrameRenderedListener(null, null);
-      handler.removeCallbacksAndMessages(null);
     }
 
     @Override
