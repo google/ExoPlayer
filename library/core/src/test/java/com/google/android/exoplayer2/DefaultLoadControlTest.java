@@ -46,6 +46,7 @@ public class DefaultLoadControlTest {
   @Test
   public void testShouldContinueLoading_untilMaxBufferExceeded() {
     createDefaultLoadControl();
+
     assertThat(loadControl.shouldContinueLoading(/* bufferedDurationUs= */ 0, SPEED)).isTrue();
     assertThat(loadControl.shouldContinueLoading(MIN_BUFFER_US, SPEED)).isTrue();
     assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US - 1, SPEED)).isTrue();
@@ -56,9 +57,25 @@ public class DefaultLoadControlTest {
   public void testShouldNotContinueLoadingOnceBufferingStopped_untilBelowMinBuffer() {
     createDefaultLoadControl();
     assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US, SPEED)).isFalse();
+
     assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US - 1, SPEED)).isFalse();
     assertThat(loadControl.shouldContinueLoading(MIN_BUFFER_US, SPEED)).isFalse();
     assertThat(loadControl.shouldContinueLoading(MIN_BUFFER_US - 1, SPEED)).isTrue();
+  }
+
+  @Test
+  public void
+      testContinueLoadingOnceBufferingStopped_andBufferAlmostEmpty_evenIfMinBufferNotReached() {
+    builder.setBufferDurationsMs(
+        /* minBufferMs= */ 0,
+        /* maxBufferMs= */ (int) C.usToMs(MAX_BUFFER_US),
+        /* bufferForPlaybackMs= */ 0,
+        /* bufferForPlaybackAfterRebufferMs= */ 0);
+    createDefaultLoadControl();
+    assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US, SPEED)).isFalse();
+
+    assertThat(loadControl.shouldContinueLoading(5 * C.MICROS_PER_SECOND, SPEED)).isFalse();
+    assertThat(loadControl.shouldContinueLoading(500L, SPEED)).isTrue();
   }
 
   @Test
@@ -81,6 +98,7 @@ public class DefaultLoadControlTest {
     makeSureTargetBufferBytesReached();
 
     assertThat(loadControl.shouldContinueLoading(/* bufferedDurationUs= */ 0, SPEED)).isFalse();
+    assertThat(loadControl.shouldContinueLoading(MIN_BUFFER_US - 1, SPEED)).isFalse();
     assertThat(loadControl.shouldContinueLoading(MIN_BUFFER_US, SPEED)).isFalse();
     assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US, SPEED)).isFalse();
   }
@@ -91,7 +109,6 @@ public class DefaultLoadControlTest {
 
     // At normal playback speed, we stop buffering when the buffer reaches the minimum.
     assertThat(loadControl.shouldContinueLoading(MIN_BUFFER_US, SPEED)).isFalse();
-
     // At double playback speed, we continue loading.
     assertThat(loadControl.shouldContinueLoading(MIN_BUFFER_US, /* playbackSpeed= */ 2f)).isTrue();
   }
