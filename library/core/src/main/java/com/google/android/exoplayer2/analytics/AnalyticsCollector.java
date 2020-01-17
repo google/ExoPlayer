@@ -76,6 +76,7 @@ public class AnalyticsCollector
   private final MediaPeriodQueueTracker mediaPeriodQueueTracker;
 
   private @MonotonicNonNull Player player;
+  private boolean isSeeking;
 
   /**
    * Creates an analytics collector.
@@ -126,9 +127,9 @@ public class AnalyticsCollector
    * adjusts its state and position to the seek.
    */
   public final void notifySeekStarted() {
-    if (!mediaPeriodQueueTracker.isSeeking()) {
+    if (!isSeeking) {
       EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
-      mediaPeriodQueueTracker.onSeekStarted();
+      isSeeking = true;
       for (AnalyticsListener listener : listeners) {
         listener.onSeekStarted(eventTime);
       }
@@ -309,7 +310,8 @@ public class AnalyticsCollector
 
   @Override
   public final void onMediaPeriodCreated(int windowIndex, MediaPeriodId mediaPeriodId) {
-    mediaPeriodQueueTracker.onMediaPeriodCreated(windowIndex, mediaPeriodId);
+    mediaPeriodQueueTracker.onMediaPeriodCreated(
+        windowIndex, mediaPeriodId, Assertions.checkNotNull(player));
     EventTime eventTime = generateMediaPeriodEventTime(windowIndex, mediaPeriodId);
     for (AnalyticsListener listener : listeners) {
       listener.onMediaPeriodCreated(eventTime);
@@ -319,7 +321,8 @@ public class AnalyticsCollector
   @Override
   public final void onMediaPeriodReleased(int windowIndex, MediaPeriodId mediaPeriodId) {
     EventTime eventTime = generateMediaPeriodEventTime(windowIndex, mediaPeriodId);
-    if (mediaPeriodQueueTracker.onMediaPeriodReleased(mediaPeriodId)) {
+    if (mediaPeriodQueueTracker.onMediaPeriodReleased(
+        mediaPeriodId, Assertions.checkNotNull(player))) {
       for (AnalyticsListener listener : listeners) {
         listener.onMediaPeriodReleased(eventTime);
       }
@@ -411,7 +414,7 @@ public class AnalyticsCollector
 
   @Override
   public final void onTimelineChanged(Timeline timeline, @Player.TimelineChangeReason int reason) {
-    mediaPeriodQueueTracker.onTimelineChanged(timeline);
+    mediaPeriodQueueTracker.onTimelineChanged(timeline, Assertions.checkNotNull(player));
     EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
     for (AnalyticsListener listener : listeners) {
       listener.onTimelineChanged(eventTime, reason);
@@ -478,7 +481,7 @@ public class AnalyticsCollector
 
   @Override
   public final void onPlayerError(ExoPlaybackException error) {
-    EventTime eventTime = generatePlayingMediaPeriodEventTime();
+    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
     for (AnalyticsListener listener : listeners) {
       listener.onPlayerError(eventTime, error);
     }
@@ -486,6 +489,7 @@ public class AnalyticsCollector
 
   @Override
   public final void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
+    mediaPeriodQueueTracker.onPositionDiscontinuity(Assertions.checkNotNull(player));
     EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
     for (AnalyticsListener listener : listeners) {
       listener.onPositionDiscontinuity(eventTime, reason);
@@ -502,8 +506,8 @@ public class AnalyticsCollector
 
   @Override
   public final void onSeekProcessed() {
-    if (mediaPeriodQueueTracker.isSeeking()) {
-      mediaPeriodQueueTracker.onSeekProcessed();
+    if (isSeeking) {
+      isSeeking = false;
       EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
       for (AnalyticsListener listener : listeners) {
         listener.onSeekProcessed(eventTime);
@@ -620,13 +624,10 @@ public class AnalyticsCollector
     Assertions.checkNotNull(player);
     if (mediaPeriodInfo == null) {
       int windowIndex = player.getCurrentWindowIndex();
-      mediaPeriodInfo = mediaPeriodQueueTracker.tryResolveWindowIndex(windowIndex);
-      if (mediaPeriodInfo == null) {
-        Timeline timeline = player.getCurrentTimeline();
-        boolean windowIsInTimeline = windowIndex < timeline.getWindowCount();
-        return generateEventTime(
-            windowIsInTimeline ? timeline : Timeline.EMPTY, windowIndex, /* mediaPeriodId= */ null);
-      }
+      Timeline timeline = player.getCurrentTimeline();
+      boolean windowIsInTimeline = windowIndex < timeline.getWindowCount();
+      return generateEventTime(
+          windowIsInTimeline ? timeline : Timeline.EMPTY, windowIndex, /* mediaPeriodId= */ null);
     }
     return generateEventTime(
         mediaPeriodInfo.timeline, mediaPeriodInfo.windowIndex, mediaPeriodInfo.mediaPeriodId);
@@ -673,10 +674,10 @@ public class AnalyticsCollector
     private final HashMap<MediaPeriodId, MediaPeriodInfo> mediaPeriodIdToInfo;
     private final Period period;
 
-    @Nullable private MediaPeriodInfo playingMediaPeriod;
+    @Nullable private MediaPeriodInfo currentPlayerMediaPeriod;
+    private @MonotonicNonNull MediaPeriodInfo playingMediaPeriod;
     @Nullable private MediaPeriodInfo readingMediaPeriod;
     private Timeline timeline;
-    private boolean isSeeking;
 
     public MediaPeriodQueueTracker() {
       mediaPeriodInfoQueue = new ArrayList<>();
@@ -689,14 +690,11 @@ public class AnalyticsCollector
      * Returns the {@link MediaPeriodInfo} of the media period corresponding the current position of
      * the player.
      *
-     * <p>May be null if no matching media period has been created yet or the player is currently
-     * masking its state.
+     * <p>May be null if no matching media period has been created yet.
      */
     @Nullable
     public MediaPeriodInfo getCurrentPlayerMediaPeriod() {
-      return mediaPeriodInfoQueue.isEmpty() || timeline.isEmpty() || isSeeking
-          ? null
-          : mediaPeriodInfoQueue.get(0);
+      return currentPlayerMediaPeriod;
     }
 
     /**
@@ -739,35 +737,13 @@ public class AnalyticsCollector
       return mediaPeriodIdToInfo.get(mediaPeriodId);
     }
 
-    /** Returns whether the player is currently seeking. */
-    public boolean isSeeking() {
-      return isSeeking;
-    }
-
-    /**
-     * Tries to find an existing media period info from the specified window index. Only returns a
-     * non-null media period info if there is a unique, unambiguous match.
-     */
-    @Nullable
-    public MediaPeriodInfo tryResolveWindowIndex(int windowIndex) {
-      MediaPeriodInfo match = null;
-      for (int i = 0; i < mediaPeriodInfoQueue.size(); i++) {
-        MediaPeriodInfo info = mediaPeriodInfoQueue.get(i);
-        int periodIndex = timeline.getIndexOfPeriod(info.mediaPeriodId.periodUid);
-        if (periodIndex != C.INDEX_UNSET
-            && timeline.getPeriod(periodIndex, period).windowIndex == windowIndex) {
-          if (match != null) {
-            // Ambiguous match.
-            return null;
-          }
-          match = info;
-        }
-      }
-      return match;
+    /** Updates the queue with a reported position discontinuity. */
+    public void onPositionDiscontinuity(Player player) {
+      currentPlayerMediaPeriod = findMatchingMediaPeriodInQueue(player);
     }
 
     /** Updates the queue with a reported timeline change. */
-    public void onTimelineChanged(Timeline timeline) {
+    public void onTimelineChanged(Timeline timeline, Player player) {
       for (int i = 0; i < mediaPeriodInfoQueue.size(); i++) {
         MediaPeriodInfo newMediaPeriodInfo =
             updateMediaPeriodInfoToNewTimeline(mediaPeriodInfoQueue.get(i), timeline);
@@ -781,20 +757,11 @@ public class AnalyticsCollector
         playingMediaPeriod = mediaPeriodInfoQueue.get(0);
       }
       this.timeline = timeline;
-    }
-
-    /** Updates the queue with a reported start of seek. */
-    public void onSeekStarted() {
-      isSeeking = true;
-    }
-
-    /** Updates the queue with a reported processed seek. */
-    public void onSeekProcessed() {
-      isSeeking = false;
+      currentPlayerMediaPeriod = findMatchingMediaPeriodInQueue(player);
     }
 
     /** Updates the queue with a newly created media period. */
-    public void onMediaPeriodCreated(int windowIndex, MediaPeriodId mediaPeriodId) {
+    public void onMediaPeriodCreated(int windowIndex, MediaPeriodId mediaPeriodId, Player player) {
       int periodIndex = timeline.getIndexOfPeriod(mediaPeriodId.periodUid);
       boolean isInTimeline = periodIndex != C.INDEX_UNSET;
       MediaPeriodInfo mediaPeriodInfo =
@@ -805,14 +772,17 @@ public class AnalyticsCollector
       mediaPeriodInfoQueue.add(mediaPeriodInfo);
       mediaPeriodIdToInfo.put(mediaPeriodId, mediaPeriodInfo);
       playingMediaPeriod = mediaPeriodInfoQueue.get(0);
+      if (currentPlayerMediaPeriod == null && isMatchingPlayingMediaPeriod(player)) {
+        currentPlayerMediaPeriod = playingMediaPeriod;
+      }
     }
 
     /**
      * Updates the queue with a released media period. Returns whether the media period was still in
      * the queue.
      */
-    public boolean onMediaPeriodReleased(MediaPeriodId mediaPeriodId) {
-      MediaPeriodInfo mediaPeriodInfo = mediaPeriodIdToInfo.remove(mediaPeriodId);
+    public boolean onMediaPeriodReleased(MediaPeriodId mediaPeriodId, Player player) {
+      @Nullable MediaPeriodInfo mediaPeriodInfo = mediaPeriodIdToInfo.remove(mediaPeriodId);
       if (mediaPeriodInfo == null) {
         // The media period has already been removed from the queue in resetForNewPlaylist().
         return false;
@@ -824,12 +794,108 @@ public class AnalyticsCollector
       if (!mediaPeriodInfoQueue.isEmpty()) {
         playingMediaPeriod = mediaPeriodInfoQueue.get(0);
       }
+      if (currentPlayerMediaPeriod == null && isMatchingPlayingMediaPeriod(player)) {
+        currentPlayerMediaPeriod = playingMediaPeriod;
+      }
       return true;
     }
 
     /** Update the queue with a change in the reading media period. */
     public void onReadingStarted(MediaPeriodId mediaPeriodId) {
       readingMediaPeriod = mediaPeriodIdToInfo.get(mediaPeriodId);
+    }
+
+    @Nullable
+    private MediaPeriodInfo findMatchingMediaPeriodInQueue(Player player) {
+      Timeline playerTimeline = player.getCurrentTimeline();
+      int playerPeriodIndex = player.getCurrentPeriodIndex();
+      @Nullable
+      Object playerPeriodUid =
+          playerTimeline.isEmpty() ? null : playerTimeline.getUidOfPeriod(playerPeriodIndex);
+      int playerNextAdGroupIndex =
+          player.isPlayingAd() || playerTimeline.isEmpty()
+              ? C.INDEX_UNSET
+              : playerTimeline
+                  .getPeriod(playerPeriodIndex, period)
+                  .getAdGroupIndexAfterPositionUs(C.msToUs(player.getCurrentPosition()));
+      for (int i = 0; i < mediaPeriodInfoQueue.size(); i++) {
+        MediaPeriodInfo mediaPeriodInfo = mediaPeriodInfoQueue.get(i);
+        if (isMatchingMediaPeriod(
+            mediaPeriodInfo,
+            playerTimeline,
+            player.getCurrentWindowIndex(),
+            playerPeriodUid,
+            player.isPlayingAd(),
+            player.getCurrentAdGroupIndex(),
+            player.getCurrentAdIndexInAdGroup(),
+            playerNextAdGroupIndex)) {
+          return mediaPeriodInfo;
+        }
+      }
+      if (mediaPeriodInfoQueue.isEmpty() && playingMediaPeriod != null) {
+        if (isMatchingMediaPeriod(
+            playingMediaPeriod,
+            playerTimeline,
+            player.getCurrentWindowIndex(),
+            playerPeriodUid,
+            player.isPlayingAd(),
+            player.getCurrentAdGroupIndex(),
+            player.getCurrentAdIndexInAdGroup(),
+            playerNextAdGroupIndex)) {
+          return playingMediaPeriod;
+        }
+      }
+      return null;
+    }
+
+    private boolean isMatchingPlayingMediaPeriod(Player player) {
+      if (playingMediaPeriod == null) {
+        return false;
+      }
+      Timeline playerTimeline = player.getCurrentTimeline();
+      int playerPeriodIndex = player.getCurrentPeriodIndex();
+      @Nullable
+      Object playerPeriodUid =
+          playerTimeline.isEmpty() ? null : playerTimeline.getUidOfPeriod(playerPeriodIndex);
+      int playerNextAdGroupIndex =
+          player.isPlayingAd() || playerTimeline.isEmpty()
+              ? C.INDEX_UNSET
+              : playerTimeline
+                  .getPeriod(playerPeriodIndex, period)
+                  .getAdGroupIndexAfterPositionUs(C.msToUs(player.getCurrentPosition()));
+      return isMatchingMediaPeriod(
+          playingMediaPeriod,
+          playerTimeline,
+          player.getCurrentWindowIndex(),
+          playerPeriodUid,
+          player.isPlayingAd(),
+          player.getCurrentAdGroupIndex(),
+          player.getCurrentAdIndexInAdGroup(),
+          playerNextAdGroupIndex);
+    }
+
+    private static boolean isMatchingMediaPeriod(
+        MediaPeriodInfo mediaPeriodInfo,
+        Timeline playerTimeline,
+        int playerWindowIndex,
+        @Nullable Object playerPeriodUid,
+        boolean isPlayingAd,
+        int playerAdGroupIndex,
+        int playerAdIndexInAdGroup,
+        int playerNextAdGroupIndex) {
+      if (mediaPeriodInfo.timeline.isEmpty()
+          || !mediaPeriodInfo.timeline.equals(playerTimeline)
+          || mediaPeriodInfo.windowIndex != playerWindowIndex
+          || !mediaPeriodInfo.mediaPeriodId.periodUid.equals(playerPeriodUid)) {
+        return false;
+      }
+      // Timeline period matches. Still need to check ad information.
+      return (isPlayingAd
+              && mediaPeriodInfo.mediaPeriodId.adGroupIndex == playerAdGroupIndex
+              && mediaPeriodInfo.mediaPeriodId.adIndexInAdGroup == playerAdIndexInAdGroup)
+          || (!isPlayingAd
+              && mediaPeriodInfo.mediaPeriodId.adGroupIndex == C.INDEX_UNSET
+              && mediaPeriodInfo.mediaPeriodId.nextAdGroupIndex == playerNextAdGroupIndex);
     }
 
     private MediaPeriodInfo updateMediaPeriodInfoToNewTimeline(
