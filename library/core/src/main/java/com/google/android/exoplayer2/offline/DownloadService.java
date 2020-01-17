@@ -925,7 +925,7 @@ public abstract class DownloadService extends Service {
         // DownloadService.getForegroundNotification, and concrete subclass implementations may
         // not anticipate the possibility of this method being called before their onCreate
         // implementation has finished executing.
-        Util.createHandler()
+        new Handler()
             .postAtFrontOfQueue(
                 () -> downloadService.notifyDownloads(downloadManager.getCurrentDownloads()));
       }

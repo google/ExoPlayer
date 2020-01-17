@@ -293,7 +293,7 @@ public class FlacMetadataReaderTest {
 
     FlacMetadataReader.readMetadataBlock(input, metadataHolder);
 
-    assertThat(input.getPosition()).isGreaterThan(640);
+    assertThat(input.getPosition()).isGreaterThan(new Long(640));
     assertThat(input.getPeekPosition()).isEqualTo(input.getPosition());
   }
 
