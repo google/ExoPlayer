@@ -18,9 +18,11 @@ package com.google.android.exoplayer2.text.ttml;
 import android.graphics.Typeface;
 import android.text.Layout;
 import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Style object of a <code>TtmlNode</code>
@@ -58,7 +60,7 @@ import java.lang.annotation.RetentionPolicy;
   private static final int OFF = 0;
   private static final int ON = 1;
 
-  private String fontFamily;
+  private @MonotonicNonNull String fontFamily;
   private int fontColor;
   private boolean hasFontColor;
   private int backgroundColor;
@@ -69,8 +71,8 @@ import java.lang.annotation.RetentionPolicy;
   @OptionalBoolean private int italic;
   @FontSizeUnit private int fontSizeUnit;
   private float fontSize;
-  private String id;
-  private Layout.Alignment textAlign;
+  private @MonotonicNonNull String id;
+  private Layout.@MonotonicNonNull Alignment textAlign;
 
   public TtmlStyle() {
     linethrough = UNSPECIFIED;
@@ -122,6 +124,7 @@ import java.lang.annotation.RetentionPolicy;
     return this;
   }
 
+  @Nullable
   public String getFontFamily() {
     return fontFamily;
   }
@@ -171,7 +174,7 @@ import java.lang.annotation.RetentionPolicy;
    *
    * @param ancestor the referential style to inherit from
    */
-  public TtmlStyle chain(TtmlStyle ancestor) {
+  public TtmlStyle chain(@Nullable TtmlStyle ancestor) {
     return inherit(ancestor, true);
   }
 
@@ -182,11 +185,11 @@ import java.lang.annotation.RetentionPolicy;
    *
    * @param ancestor the ancestor style to inherit from
    */
-  public TtmlStyle inherit(TtmlStyle ancestor) {
+  public TtmlStyle inherit(@Nullable TtmlStyle ancestor) {
     return inherit(ancestor, false);
   }
 
-  private TtmlStyle inherit(TtmlStyle ancestor, boolean chaining) {
+  private TtmlStyle inherit(@Nullable TtmlStyle ancestor, boolean chaining) {
     if (ancestor != null) {
       if (!hasFontColor && ancestor.hasFontColor) {
         setFontColor(ancestor.fontColor);
@@ -197,7 +200,7 @@ import java.lang.annotation.RetentionPolicy;
       if (italic == UNSPECIFIED) {
         italic = ancestor.italic;
       }
-      if (fontFamily == null) {
+      if (fontFamily == null && ancestor.fontFamily != null) {
         fontFamily = ancestor.fontFamily;
       }
       if (linethrough == UNSPECIFIED) {
@@ -206,7 +209,7 @@ import java.lang.annotation.RetentionPolicy;
       if (underline == UNSPECIFIED) {
         underline = ancestor.underline;
       }
-      if (textAlign == null) {
+      if (textAlign == null && ancestor.textAlign != null) {
         textAlign = ancestor.textAlign;
       }
       if (fontSizeUnit == UNSPECIFIED) {
@@ -226,10 +229,12 @@ import java.lang.annotation.RetentionPolicy;
     return this;
   }
 
+  @Nullable
   public String getId() {
     return id;
   }
 
+  @Nullable
   public Layout.Alignment getTextAlign() {
     return textAlign;
   }

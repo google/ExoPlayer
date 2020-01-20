@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A package internal representation of TTML node.
@@ -93,7 +94,7 @@ import java.util.TreeSet;
   private final HashMap<String, Integer> nodeStartsByRegion;
   private final HashMap<String, Integer> nodeEndsByRegion;
 
-  private List<TtmlNode> children;
+  @MonotonicNonNull private List<TtmlNode> children;
 
   public static TtmlNode buildTextNode(String text) {
     return new TtmlNode(
@@ -196,6 +197,7 @@ import java.util.TreeSet;
     }
   }
 
+  @Nullable
   public String[] getStyleIds() {
     return styleIds;
   }
@@ -217,7 +219,7 @@ import java.util.TreeSet;
 
     // Create image based cues.
     for (Pair<String, String> regionImagePair : regionImageOutputs) {
-      String encodedBitmapData = imageMap.get(regionImagePair.second);
+      @Nullable String encodedBitmapData = imageMap.get(regionImagePair.second);
       if (encodedBitmapData == null) {
         // Image reference points to an invalid image. Do nothing.
         continue;
@@ -225,7 +227,7 @@ import java.util.TreeSet;
 
       byte[] bitmapData = Base64.decode(encodedBitmapData, Base64.DEFAULT);
       Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapData, /* offset= */ 0, bitmapData.length);
-      TtmlRegion region = regionMap.get(regionImagePair.first);
+      TtmlRegion region = Assertions.checkNotNull(regionMap.get(regionImagePair.first));
 
       cues.add(
           new Cue.Builder()
@@ -241,7 +243,7 @@ import java.util.TreeSet;
 
     // Create text based cues.
     for (Entry<String, SpannableStringBuilder> entry : regionTextOutputs.entrySet()) {
-      TtmlRegion region = regionMap.get(entry.getKey());
+      TtmlRegion region = Assertions.checkNotNull(regionMap.get(entry.getKey()));
       cues.add(
           new Cue(
               cleanUpText(entry.getValue()),
@@ -286,7 +288,7 @@ import java.util.TreeSet;
     String resolvedRegionId = ANONYMOUS_REGION_ID.equals(regionId) ? inheritedRegion : regionId;
 
     if (isTextNode && descendsPNode) {
-      getRegionOutput(resolvedRegionId, regionOutputs).append(text);
+      getRegionOutput(resolvedRegionId, regionOutputs).append(Assertions.checkNotNull(text));
     } else if (TAG_BR.equals(tag) && descendsPNode) {
       getRegionOutput(resolvedRegionId, regionOutputs).append('\n');
     } else if (isActive(timeUs)) {
@@ -330,7 +332,7 @@ import java.util.TreeSet;
       int start = nodeStartsByRegion.containsKey(regionId) ? nodeStartsByRegion.get(regionId) : 0;
       int end = entry.getValue();
       if (start != end) {
-        SpannableStringBuilder regionOutput = regionOutputs.get(regionId);
+        SpannableStringBuilder regionOutput = Assertions.checkNotNull(regionOutputs.get(regionId));
         applyStyleToOutput(globalStyles, regionOutput, start, end);
       }
     }
@@ -344,7 +346,7 @@ import java.util.TreeSet;
       SpannableStringBuilder regionOutput,
       int start,
       int end) {
-    TtmlStyle resolvedStyle = TtmlRenderUtil.resolveStyle(style, styleIds, globalStyles);
+    @Nullable TtmlStyle resolvedStyle = TtmlRenderUtil.resolveStyle(style, styleIds, globalStyles);
     if (resolvedStyle != null) {
       TtmlRenderUtil.applyStylesToSpan(regionOutput, start, end, resolvedStyle);
     }
