@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor.mp4;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.GaplessInfoHolder;
@@ -73,7 +74,8 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
   private static final int PICTURE_TYPE_FRONT_COVER = 3;
 
   // Standard genres.
-  private static final String[] STANDARD_GENRES =
+  @VisibleForTesting
+  /* package */ static final String[] STANDARD_GENRES =
       new String[] {
         // These are the official ID3v1 genres.
         "Blues",
@@ -156,7 +158,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
         "Musical",
         "Rock & Roll",
         "Hard Rock",
-        // These were made up by the authors of Winamp and later added to the ID3 spec.
+        // Genres made up by the authors of Winamp (v1.91) and later added to the ID3 spec.
         "Folk",
         "Folk-Rock",
         "National Folk",
@@ -203,7 +205,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
         "A capella",
         "Euro-House",
         "Dance Hall",
-        // These were made up by the authors of Winamp but have not been added to the ID3 spec.
+        // Genres made up by the authors of Winamp (v1.91) but have not been added to the ID3 spec.
         "Goa",
         "Drum & Bass",
         "Club-House",
@@ -225,7 +227,52 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
         "Thrash Metal",
         "Anime",
         "Jpop",
-        "Synthpop"
+        "Synthpop",
+        // Genres made up by the authors of Winamp (v5.6) but have not been added to the ID3 spec.
+        "Abstract",
+        "Art Rock",
+        "Baroque",
+        "Bhangra",
+        "Big beat",
+        "Breakbeat",
+        "Chillout",
+        "Downtempo",
+        "Dub",
+        "EBM",
+        "Eclectic",
+        "Electro",
+        "Electroclash",
+        "Emo",
+        "Experimental",
+        "Garage",
+        "Global",
+        "IDM",
+        "Illbient",
+        "Industro-Goth",
+        "Jam Band",
+        "Krautrock",
+        "Leftfield",
+        "Lounge",
+        "Math Rock",
+        "New Romantic",
+        "Nu-Breakz",
+        "Post-Punk",
+        "Post-Rock",
+        "Psytrance",
+        "Shoegaze",
+        "Space Rock",
+        "Trop Rock",
+        "World Music",
+        "Neoclassical",
+        "Audiobook",
+        "Audio theatre",
+        "Neue Deutsche Welle",
+        "Podcast",
+        "Indie-Rock",
+        "G-Funk",
+        "Dubstep",
+        "Garage Rock",
+        "Psybient"
       };
 
   private static final String LANGUAGE_UNDEFINED = "und";
