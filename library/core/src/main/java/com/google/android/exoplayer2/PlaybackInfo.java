@@ -151,35 +151,8 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
     this.positionUs = positionUs;
   }
 
-  /**
-   * Returns dummy media period id for the first-to-be-played period of the current timeline.
-   *
-   * @param shuffleModeEnabled Whether shuffle mode is enabled.
-   * @param window A writable {@link Timeline.Window}.
-   * @param period A writable {@link Timeline.Period}.
-   * @return A dummy media period id for the first-to-be-played period of the current timeline.
-   */
-  public MediaPeriodId getDummyFirstMediaPeriodId(
-      boolean shuffleModeEnabled, Timeline.Window window, Timeline.Period period) {
-    if (timeline.isEmpty()) {
-      return getDummyPeriodForEmptyTimeline();
-    }
-    int firstWindowIndex = timeline.getFirstWindowIndex(shuffleModeEnabled);
-    int firstPeriodIndex = timeline.getWindow(firstWindowIndex, window).firstPeriodIndex;
-    int currentPeriodIndex = timeline.getIndexOfPeriod(periodId.periodUid);
-    long windowSequenceNumber = C.INDEX_UNSET;
-    if (currentPeriodIndex != C.INDEX_UNSET) {
-      int currentWindowIndex = timeline.getPeriod(currentPeriodIndex, period).windowIndex;
-      if (firstWindowIndex == currentWindowIndex) {
-        // Keep window sequence number if the new position is still in the same window.
-        windowSequenceNumber = periodId.windowSequenceNumber;
-      }
-    }
-    return new MediaPeriodId(timeline.getUidOfPeriod(firstPeriodIndex), windowSequenceNumber);
-  }
-
   /** Returns dummy period id for an empty timeline. */
-  public MediaPeriodId getDummyPeriodForEmptyTimeline() {
+  public static MediaPeriodId getDummyPeriodForEmptyTimeline() {
     return DUMMY_MEDIA_PERIOD_ID;
   }
 
