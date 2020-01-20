@@ -839,7 +839,7 @@ import java.util.concurrent.TimeoutException;
     long startPositionUs = playbackInfo.positionUs;
     if (clearPlaylist) {
       timeline = Timeline.EMPTY;
-      mediaPeriodId = playbackInfo.getDummyPeriodForEmptyTimeline();
+      mediaPeriodId = PlaybackInfo.getDummyPeriodForEmptyTimeline();
       contentPositionUs = C.TIME_UNSET;
       startPositionUs = C.TIME_UNSET;
     }
