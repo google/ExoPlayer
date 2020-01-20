@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.extractor.mp3;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.extractor.MpegAudioHeader;
+import com.google.android.exoplayer2.audio.MpegAudioUtil;
 import com.google.android.exoplayer2.extractor.SeekPoint;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
@@ -44,7 +44,10 @@ import com.google.android.exoplayer2.util.Util;
    */
   @Nullable
   public static XingSeeker create(
-      long inputLength, long position, MpegAudioHeader mpegAudioHeader, ParsableByteArray frame) {
+      long inputLength,
+      long position,
+      MpegAudioUtil.Header mpegAudioHeader,
+      ParsableByteArray frame) {
     int samplesPerFrame = mpegAudioHeader.samplesPerFrame;
     int sampleRate = mpegAudioHeader.sampleRate;
 

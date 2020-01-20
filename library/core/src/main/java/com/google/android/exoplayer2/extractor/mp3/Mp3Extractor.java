@@ -20,13 +20,13 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.audio.MpegAudioUtil;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.extractor.GaplessInfoHolder;
 import com.google.android.exoplayer2.extractor.Id3Peeker;
-import com.google.android.exoplayer2.extractor.MpegAudioHeader;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.mp3.Seeker.UnseekableSeeker;
@@ -107,7 +107,7 @@ public final class Mp3Extractor implements Extractor {
   @Flags private final int flags;
   private final long forcedFirstSampleTimestampUs;
   private final ParsableByteArray scratch;
-  private final MpegAudioHeader synchronizedHeader;
+  private final MpegAudioUtil.Header synchronizedHeader;
   private final GaplessInfoHolder gaplessInfoHolder;
   private final Id3Peeker id3Peeker;
 
@@ -145,7 +145,7 @@ public final class Mp3Extractor implements Extractor {
     this.flags = flags;
     this.forcedFirstSampleTimestampUs = forcedFirstSampleTimestampUs;
     scratch = new ParsableByteArray(SCRATCH_LENGTH);
-    synchronizedHeader = new MpegAudioHeader();
+    synchronizedHeader = new MpegAudioUtil.Header();
     gaplessInfoHolder = new GaplessInfoHolder();
     basisTimeUs = C.TIME_UNSET;
     id3Peeker = new Id3Peeker();
@@ -215,7 +215,7 @@ public final class Mp3Extractor implements Extractor {
               synchronizedHeader.mimeType,
               /* codecs= */ null,
               /* bitrate= */ Format.NO_VALUE,
-              MpegAudioHeader.MAX_FRAME_SIZE_BYTES,
+              MpegAudioUtil.MAX_FRAME_SIZE_BYTES,
               synchronizedHeader.channels,
               synchronizedHeader.sampleRate,
               /* pcmEncoding= */ Format.NO_VALUE,
@@ -258,13 +258,13 @@ public final class Mp3Extractor implements Extractor {
       scratch.setPosition(0);
       int sampleHeaderData = scratch.readInt();
       if (!headersMatch(sampleHeaderData, synchronizedHeaderData)
-          || MpegAudioHeader.getFrameSize(sampleHeaderData) == C.LENGTH_UNSET) {
+          || MpegAudioUtil.getFrameSize(sampleHeaderData) == C.LENGTH_UNSET) {
         // We have lost synchronization, so attempt to resynchronize starting at the next byte.
         extractorInput.skipFully(1);
         synchronizedHeaderData = 0;
         return RESULT_CONTINUE;
       }
-      MpegAudioHeader.populateHeader(sampleHeaderData, synchronizedHeader);
+      synchronizedHeader.setForHeaderData(sampleHeaderData);
       if (basisTimeUs == C.TIME_UNSET) {
         basisTimeUs = seeker.getTimeUs(extractorInput.getPosition());
         if (forcedFirstSampleTimestampUs != C.TIME_UNSET) {
@@ -325,8 +325,8 @@ public final class Mp3Extractor implements Extractor {
       int headerData = scratch.readInt();
       int frameSize;
       if ((candidateSynchronizedHeaderData != 0
-          && !headersMatch(headerData, candidateSynchronizedHeaderData))
-          || (frameSize = MpegAudioHeader.getFrameSize(headerData)) == C.LENGTH_UNSET) {
+              && !headersMatch(headerData, candidateSynchronizedHeaderData))
+          || (frameSize = MpegAudioUtil.getFrameSize(headerData)) == C.LENGTH_UNSET) {
         // The header doesn't match the candidate header or is invalid. Try the next byte offset.
         if (searchedBytes++ == searchLimitBytes) {
           if (!sniffing) {
@@ -346,7 +346,7 @@ public final class Mp3Extractor implements Extractor {
         // The header matches the candidate header and/or is valid.
         validFrameCount++;
         if (validFrameCount == 1) {
-          MpegAudioHeader.populateHeader(headerData, synchronizedHeader);
+          synchronizedHeader.setForHeaderData(headerData);
           candidateSynchronizedHeaderData = headerData;
         } else if (validFrameCount == 4) {
           break;
@@ -439,7 +439,7 @@ public final class Mp3Extractor implements Extractor {
       throws IOException, InterruptedException {
     input.peekFully(scratch.data, 0, 4);
     scratch.setPosition(0);
-    MpegAudioHeader.populateHeader(scratch.readInt(), synchronizedHeader);
+    synchronizedHeader.setForHeaderData(scratch.readInt());
     return new ConstantBitrateSeeker(input.getLength(), input.getPosition(), synchronizedHeader);
   }
 

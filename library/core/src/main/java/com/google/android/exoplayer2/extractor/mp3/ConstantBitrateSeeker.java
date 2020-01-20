@@ -16,8 +16,8 @@
 package com.google.android.exoplayer2.extractor.mp3;
 
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.audio.MpegAudioUtil;
 import com.google.android.exoplayer2.extractor.ConstantBitrateSeekMap;
-import com.google.android.exoplayer2.extractor.MpegAudioHeader;
 
 /**
  * MP3 seeker that doesn't rely on metadata and seeks assuming the source has a constant bitrate.
@@ -30,7 +30,7 @@ import com.google.android.exoplayer2.extractor.MpegAudioHeader;
    * @param mpegAudioHeader The MPEG audio header associated with the first frame.
    */
   public ConstantBitrateSeeker(
-      long inputLength, long firstFramePosition, MpegAudioHeader mpegAudioHeader) {
+      long inputLength, long firstFramePosition, MpegAudioUtil.Header mpegAudioHeader) {
     super(inputLength, firstFramePosition, mpegAudioHeader.bitrate, mpegAudioHeader.frameSize);
   }
 

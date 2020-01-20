@@ -19,7 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.extractor.MpegAudioHeader;
+import com.google.android.exoplayer2.audio.MpegAudioUtil;
 import com.google.android.exoplayer2.extractor.SeekMap.SeekPoints;
 import com.google.android.exoplayer2.extractor.SeekPoint;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -59,8 +59,8 @@ public final class XingSeekerTest {
 
   @Before
   public void setUp() throws Exception {
-    MpegAudioHeader xingFrameHeader = new MpegAudioHeader();
-    MpegAudioHeader.populateHeader(XING_FRAME_HEADER_DATA, xingFrameHeader);
+    MpegAudioUtil.Header xingFrameHeader = new MpegAudioUtil.Header();
+    xingFrameHeader.setForHeaderData(XING_FRAME_HEADER_DATA);
     seeker = XingSeeker.create(C.LENGTH_UNSET, XING_FRAME_POSITION, xingFrameHeader,
         new ParsableByteArray(XING_FRAME_PAYLOAD));
     seekerWithInputLength = XingSeeker.create(STREAM_LENGTH,
