@@ -37,9 +37,11 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * A {@link SubtitleDecoder} for CEA-708 (also known as "EIA-708").
@@ -147,10 +149,10 @@ public final class Cea708Decoder extends CeaDecoder {
   private final CueInfoBuilder[] cueInfoBuilders;
 
   private CueInfoBuilder currentCueInfoBuilder;
-  private List<Cue> cues;
-  private List<Cue> lastCues;
+  @Nullable private List<Cue> cues;
+  @Nullable private List<Cue> lastCues;
 
-  private DtvCcPacket currentDtvCcPacket;
+  @Nullable private DtvCcPacket currentDtvCcPacket;
   private int currentWindow;
 
   // TODO: Retrieve isWideAspectRatio from initializationData and use it.
@@ -165,7 +167,6 @@ public final class Cea708Decoder extends CeaDecoder {
     }
 
     currentCueInfoBuilder = cueInfoBuilders[0];
-    resetCueBuilders();
   }
 
   @Override
@@ -192,15 +193,16 @@ public final class Cea708Decoder extends CeaDecoder {
   @Override
   protected Subtitle createSubtitle() {
     lastCues = cues;
-    return new CeaSubtitle(cues);
+    return new CeaSubtitle(Assertions.checkNotNull(cues));
   }
 
   @Override
   protected void decode(SubtitleInputBuffer inputBuffer) {
     // Subtitle input buffers are non-direct and the position is zero, so calling array() is safe.
+    ByteBuffer subtitleData = Assertions.checkNotNull(inputBuffer.data);
     @SuppressWarnings("ByteBufferBackingArray")
-    byte[] inputBufferData = inputBuffer.data.array();
-    ccData.reset(inputBufferData, inputBuffer.data.limit());
+    byte[] inputBufferData = subtitleData.array();
+    ccData.reset(inputBufferData, subtitleData.limit());
     while (ccData.bytesLeft() >= 3) {
       int ccTypeAndValid = (ccData.readUnsignedByte() & 0x07);
 
@@ -259,6 +261,7 @@ public final class Cea708Decoder extends CeaDecoder {
     currentDtvCcPacket = null;
   }
 
+  @RequiresNonNull("currentDtvCcPacket")
   private void processCurrentPacket() {
     if (currentDtvCcPacket.currentIndex != (currentDtvCcPacket.packetSize * 2 - 1)) {
       Log.w(TAG, "DtvCcPacket ended prematurely; size is " + (currentDtvCcPacket.packetSize * 2 - 1)
@@ -761,7 +764,10 @@ public final class Cea708Decoder extends CeaDecoder {
     List<Cea708CueInfo> displayCueInfos = new ArrayList<>();
     for (int i = 0; i < NUM_WINDOWS; i++) {
       if (!cueInfoBuilders[i].isEmpty() && cueInfoBuilders[i].isVisible()) {
-        displayCueInfos.add(cueInfoBuilders[i].build());
+        @Nullable Cea708CueInfo cueInfo = cueInfoBuilders[i].build();
+        if (cueInfo != null) {
+          displayCueInfos.add(cueInfo);
+        }
       }
     }
     Collections.sort(
@@ -1157,6 +1163,7 @@ public final class Cea708Decoder extends CeaDecoder {
       return new SpannableString(spannableStringBuilder);
     }
 
+    @Nullable
     public Cea708CueInfo build() {
       if (isEmpty()) {
         // The cue is empty.

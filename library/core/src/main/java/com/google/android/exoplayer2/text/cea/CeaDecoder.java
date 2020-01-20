@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.text.cea;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.text.Subtitle;
@@ -24,6 +25,7 @@ import com.google.android.exoplayer2.text.SubtitleDecoderException;
 import com.google.android.exoplayer2.text.SubtitleInputBuffer;
 import com.google.android.exoplayer2.text.SubtitleOutputBuffer;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayDeque;
 import java.util.PriorityQueue;
 
@@ -39,7 +41,7 @@ import java.util.PriorityQueue;
   private final ArrayDeque<SubtitleOutputBuffer> availableOutputBuffers;
   private final PriorityQueue<CeaInputBuffer> queuedInputBuffers;
 
-  private CeaInputBuffer dequeuedInputBuffer;
+  @Nullable private CeaInputBuffer dequeuedInputBuffer;
   private long playbackPositionUs;
   private long queuedInputBufferCount;
 
@@ -64,6 +66,7 @@ import java.util.PriorityQueue;
   }
 
   @Override
+  @Nullable
   public SubtitleInputBuffer dequeueInputBuffer() throws SubtitleDecoderException {
     Assertions.checkState(dequeuedInputBuffer == null);
     if (availableInputBuffers.isEmpty()) {
@@ -76,18 +79,20 @@ import java.util.PriorityQueue;
   @Override
   public void queueInputBuffer(SubtitleInputBuffer inputBuffer) throws SubtitleDecoderException {
     Assertions.checkArgument(inputBuffer == dequeuedInputBuffer);
-    if (inputBuffer.isDecodeOnly()) {
+    CeaInputBuffer ceaInputBuffer = (CeaInputBuffer) inputBuffer;
+    if (ceaInputBuffer.isDecodeOnly()) {
       // We can drop this buffer early (i.e. before it would be decoded) as the CEA formats allow
       // for decoding to begin mid-stream.
-      releaseInputBuffer(dequeuedInputBuffer);
+      releaseInputBuffer(ceaInputBuffer);
     } else {
-      dequeuedInputBuffer.queuedInputBufferCount = queuedInputBufferCount++;
-      queuedInputBuffers.add(dequeuedInputBuffer);
+      ceaInputBuffer.queuedInputBufferCount = queuedInputBufferCount++;
+      queuedInputBuffers.add(ceaInputBuffer);
     }
     dequeuedInputBuffer = null;
   }
 
   @Override
+  @Nullable
   public SubtitleOutputBuffer dequeueOutputBuffer() throws SubtitleDecoderException {
     if (availableOutputBuffers.isEmpty()) {
       return null;
@@ -96,13 +101,14 @@ import java.util.PriorityQueue;
     // to the current playback position; processing input buffers for future content should
     // be deferred until they would be applicable
     while (!queuedInputBuffers.isEmpty()
-        && queuedInputBuffers.peek().timeUs <= playbackPositionUs) {
-      CeaInputBuffer inputBuffer = queuedInputBuffers.poll();
+        && Util.castNonNull(queuedInputBuffers.peek()).timeUs <= playbackPositionUs) {
+      CeaInputBuffer inputBuffer = Util.castNonNull(queuedInputBuffers.poll());
 
       // If the input buffer indicates we've reached the end of the stream, we can
       // return immediately with an output buffer propagating that
       if (inputBuffer.isEndOfStream()) {
-        SubtitleOutputBuffer outputBuffer = availableOutputBuffers.pollFirst();
+        // availableOutputBuffers.isEmpty() is checked at the top of the method, so this is safe.
+        SubtitleOutputBuffer outputBuffer = Util.castNonNull(availableOutputBuffers.pollFirst());
         outputBuffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
         releaseInputBuffer(inputBuffer);
         return outputBuffer;
@@ -116,7 +122,8 @@ import java.util.PriorityQueue;
         // isn't accidentally prepended to the next subtitle
         Subtitle subtitle = createSubtitle();
         if (!inputBuffer.isDecodeOnly()) {
-          SubtitleOutputBuffer outputBuffer = availableOutputBuffers.pollFirst();
+          // availableOutputBuffers.isEmpty() is checked at the top of the method, so this is safe.
+          SubtitleOutputBuffer outputBuffer = Util.castNonNull(availableOutputBuffers.pollFirst());
           outputBuffer.setContent(inputBuffer.timeUs, subtitle, Format.OFFSET_SAMPLE_RELATIVE);
           releaseInputBuffer(inputBuffer);
           return outputBuffer;
@@ -125,7 +132,6 @@ import java.util.PriorityQueue;
 
       releaseInputBuffer(inputBuffer);
     }
-
     return null;
   }
 
@@ -144,7 +150,7 @@ import java.util.PriorityQueue;
     queuedInputBufferCount = 0;
     playbackPositionUs = 0;
     while (!queuedInputBuffers.isEmpty()) {
-      releaseInputBuffer(queuedInputBuffers.poll());
+      releaseInputBuffer(Util.castNonNull(queuedInputBuffers.poll()));
     }
     if (dequeuedInputBuffer != null) {
       releaseInputBuffer(dequeuedInputBuffer);
