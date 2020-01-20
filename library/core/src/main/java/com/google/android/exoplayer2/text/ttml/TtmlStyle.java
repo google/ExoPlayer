@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.text.ttml;
 import android.graphics.Typeface;
 import android.text.Layout;
 import androidx.annotation.IntDef;
-import com.google.android.exoplayer2.util.Assertions;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -71,7 +70,6 @@ import java.lang.annotation.RetentionPolicy;
   @FontSizeUnit private int fontSizeUnit;
   private float fontSize;
   private String id;
-  private TtmlStyle inheritableStyle;
   private Layout.Alignment textAlign;
 
   public TtmlStyle() {
@@ -101,7 +99,6 @@ import java.lang.annotation.RetentionPolicy;
   }
 
   public TtmlStyle setLinethrough(boolean linethrough) {
-    Assertions.checkState(inheritableStyle == null);
     this.linethrough = linethrough ? ON : OFF;
     return this;
   }
@@ -111,19 +108,16 @@ import java.lang.annotation.RetentionPolicy;
   }
 
   public TtmlStyle setUnderline(boolean underline) {
-    Assertions.checkState(inheritableStyle == null);
     this.underline = underline ? ON : OFF;
     return this;
   }
 
   public TtmlStyle setBold(boolean bold) {
-    Assertions.checkState(inheritableStyle == null);
     this.bold = bold ? ON : OFF;
     return this;
   }
 
   public TtmlStyle setItalic(boolean italic) {
-    Assertions.checkState(inheritableStyle == null);
     this.italic = italic ? ON : OFF;
     return this;
   }
@@ -133,7 +127,6 @@ import java.lang.annotation.RetentionPolicy;
   }
 
   public TtmlStyle setFontFamily(String fontFamily) {
-    Assertions.checkState(inheritableStyle == null);
     this.fontFamily = fontFamily;
     return this;
   }
@@ -146,7 +139,6 @@ import java.lang.annotation.RetentionPolicy;
   }
 
   public TtmlStyle setFontColor(int fontColor) {
-    Assertions.checkState(inheritableStyle == null);
     this.fontColor = fontColor;
     hasFontColor = true;
     return this;
