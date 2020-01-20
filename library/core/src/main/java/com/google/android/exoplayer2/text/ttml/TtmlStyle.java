@@ -166,24 +166,24 @@ import java.lang.annotation.RetentionPolicy;
   }
 
   /**
-   * Inherits from an ancestor style. Properties like <i>tts:backgroundColor</i> which
-   * are not inheritable are not inherited as well as properties which are already set locally
-   * are never overridden.
-   *
-   * @param ancestor the ancestor style to inherit from
-   */
-  public TtmlStyle inherit(TtmlStyle ancestor) {
-    return inherit(ancestor, false);
-  }
-
-  /**
-   * Chains this style to referential style. Local properties which are already set
-   * are never overridden.
+   * Chains this style to referential style. Local properties which are already set are never
+   * overridden.
    *
    * @param ancestor the referential style to inherit from
    */
   public TtmlStyle chain(TtmlStyle ancestor) {
     return inherit(ancestor, true);
+  }
+
+  /**
+   * Inherits from an ancestor style. Properties like <i>tts:backgroundColor</i> which are not
+   * inheritable are not inherited as well as properties which are already set locally are never
+   * overridden.
+   *
+   * @param ancestor the ancestor style to inherit from
+   */
+  public TtmlStyle inherit(TtmlStyle ancestor) {
+    return inherit(ancestor, false);
   }
 
   private TtmlStyle inherit(TtmlStyle ancestor, boolean chaining) {
