@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import android.net.Uri;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Timeline;
@@ -160,11 +161,19 @@ public final class FakeTimeline extends Timeline {
     AdPlaybackState adPlaybackState = new AdPlaybackState(adGroupTimesUs);
     long[][] adDurationsUs = new long[adGroupCount][];
     for (int i = 0; i < adGroupCount; i++) {
-      adPlaybackState = adPlaybackState.withAdCount(i, adsPerAdGroup);
+      adPlaybackState = adPlaybackState.withAdCount(/* adGroupIndex= */ i, adsPerAdGroup);
+      for (int j = 0; j < adsPerAdGroup; j++) {
+        adPlaybackState =
+            adPlaybackState.withAdUri(
+                /* adGroupIndex= */ i,
+                /* adIndexInAdGroup= */ j,
+                Uri.parse("https://ad/" + i + "/" + j));
+      }
       adDurationsUs[i] = new long[adsPerAdGroup];
       Arrays.fill(adDurationsUs[i], AD_DURATION_US);
     }
     adPlaybackState = adPlaybackState.withAdDurationsUs(adDurationsUs);
+
     return adPlaybackState;
   }
 
