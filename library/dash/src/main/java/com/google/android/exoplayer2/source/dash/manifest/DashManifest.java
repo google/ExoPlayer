@@ -232,5 +232,4 @@ public class DashManifest implements FilterableManifest<DashManifest> {
     keys.addFirst(key);
     return copyAdaptationSets;
   }
-
 }

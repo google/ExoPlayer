@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.hls;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 
@@ -40,5 +41,4 @@ public final class HlsManifest {
     this.masterPlaylist = masterPlaylist;
     this.mediaPlaylist = mediaPlaylist;
   }
-
 }

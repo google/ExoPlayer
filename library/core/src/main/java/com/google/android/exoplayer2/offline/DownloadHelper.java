@@ -21,9 +21,11 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.util.SparseIntArray;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.Timeline;
@@ -43,6 +45,7 @@ import com.google.android.exoplayer2.trackselection.BaseTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
+import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
@@ -53,6 +56,7 @@ import com.google.android.exoplayer2.upstream.DataSource.Factory;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -538,7 +542,10 @@ public final class DownloadHelper {
   /**
    * Returns the manifest, or null if no manifest is loaded. Must not be called until after
    * preparation completes.
+   * @deprecated Use {@link #getTimeline()} and get {@link com.google.android.exoplayer2.Timeline.Window#manifest}
+   * from the timeline's first Window.
    */
+  @Deprecated
   @Nullable
   public Object getManifest() {
     if (mediaSource == null) {
@@ -548,6 +555,14 @@ public final class DownloadHelper {
     return mediaPreparer.timeline.getWindowCount() > 0
         ? mediaPreparer.timeline.getWindow(/* windowIndex= */ 0, window).manifest
         : null;
+  }
+
+  /**
+   * Returns the timeline. Must not be called until after preparation completes.
+   */
+  public Timeline getTimeline() {
+    assertPreparedWithMedia();
+    return mediaPreparer.timeline;
   }
 
   /**
@@ -771,6 +786,60 @@ public final class DownloadHelper {
       streamKeys.addAll(mediaPreparer.mediaPeriods[periodIndex].getStreamKeys(allSelections));
     }
     return new DownloadRequest(id, downloadType, uri, streamKeys, cacheKey, data);
+  }
+
+  /**
+   * Try to estimate the total size of chunked downloads, based on duration and bitrate.
+   * Must not be called until after preparation completes.
+   *
+   * @param bitrateEstimator Allows the app to provide its own estimate of format bitrate. Should
+   * be used mainly when dealing with HLS alternate audio tracks. If not null, the bitrate returned
+   * is used instead of {@link Format#bitrate}.
+   * @return Estimated total download size, in bytes, or {@link C#LENGTH_UNSET} if not known.
+   */
+  public long estimateTotalSize(@NonNull FormatBitrateEstimator bitrateEstimator) {
+
+    if (mediaSource == null) {
+      return C.LENGTH_UNSET;
+    }
+
+    assertPreparedWithMedia();
+
+    long selectedSize = 0;
+
+    final Timeline timeline = mediaPreparer.timeline;
+    for (int periodIndex = 0; periodIndex < timeline.getPeriodCount(); periodIndex++) {
+      final Timeline.Period period = timeline.getPeriod(periodIndex, new Timeline.Period());
+      final long periodDurationUs = period.durationUs;
+
+      final MappingTrackSelector.MappedTrackInfo mappedTrackInfo = mappedTrackInfos[periodIndex];
+      final int rendererCount = mappedTrackInfo.getRendererCount();
+
+      for (int rendererIndex = 0; rendererIndex < rendererCount; rendererIndex++) {
+        final List<TrackSelection> trackSelections = trackSelectionsByPeriodAndRenderer[periodIndex][rendererIndex];
+        for (TrackSelection selection : trackSelections) {
+          final Format format = selection.getSelectedFormat();
+
+          int bitrate = bitrateEstimator.estimateFormatBitrate(format);
+
+          if (bitrate != Format.NO_VALUE) {
+            selectedSize += (bitrate * periodDurationUs) / C.MICROS_PER_SECOND / 8;
+          }
+        }
+      }
+    }
+
+    return selectedSize;
+  }
+
+  /**
+   * Try to estimate the total size of chunked downloads, based on duration and bitrate.
+   * Must not be called until after preparation completes.
+   *
+   * @return Estimated total download size, in bytes, or {@link C#LENGTH_UNSET} if not known.
+   */
+  public long estimateTotalSize() {
+    return estimateTotalSize(FormatBitrateEstimator.defaultEstimator);
   }
 
   // Initialization of array of Lists.
@@ -1170,5 +1239,22 @@ public final class DownloadHelper {
     public void removeEventListener(EventListener eventListener) {
       // Do nothing.
     }
+  }
+
+  /**
+   * See {@link #estimateTotalSize(FormatBitrateEstimator)} for interface usage.
+   */
+  public interface FormatBitrateEstimator {
+
+    /**
+     * Return the estimated format bitrate, or {@link Format#NO_VALUE} if not known.
+     * @param format The {@link Format} for which a bitrate is required.
+     */
+    int estimateFormatBitrate(Format format);
+
+    /**
+     * The default estimator, simply returns {@link Format#bitrate}.
+     */
+    FormatBitrateEstimator defaultEstimator = format -> format.bitrate;
   }
 }
