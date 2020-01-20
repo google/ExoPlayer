@@ -488,19 +488,18 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
         case TtmlNode.ATTR_TTS_TEXT_ALIGN:
           switch (Util.toLowerInvariant(attributeValue)) {
             case TtmlNode.LEFT:
-              style = createIfNull(style).setTextAlign(Layout.Alignment.ALIGN_NORMAL);
-              break;
             case TtmlNode.START:
               style = createIfNull(style).setTextAlign(Layout.Alignment.ALIGN_NORMAL);
               break;
             case TtmlNode.RIGHT:
-              style = createIfNull(style).setTextAlign(Layout.Alignment.ALIGN_OPPOSITE);
-              break;
             case TtmlNode.END:
               style = createIfNull(style).setTextAlign(Layout.Alignment.ALIGN_OPPOSITE);
               break;
             case TtmlNode.CENTER:
               style = createIfNull(style).setTextAlign(Layout.Alignment.ALIGN_CENTER);
+              break;
+            default:
+              // ignore
               break;
           }
           break;
