@@ -17,8 +17,8 @@ package com.google.android.exoplayer2.extractor.ts;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.audio.MpegAudioUtil;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
-import com.google.android.exoplayer2.extractor.MpegAudioHeader;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.util.Assertions;
@@ -39,7 +39,7 @@ public final class MpegAudioReader implements ElementaryStreamReader {
   private static final int HEADER_SIZE = 4;
 
   private final ParsableByteArray headerScratch;
-  private final MpegAudioHeader header;
+  private final MpegAudioUtil.Header header;
   @Nullable private final String language;
 
   private @MonotonicNonNull TrackOutput output;
@@ -68,7 +68,7 @@ public final class MpegAudioReader implements ElementaryStreamReader {
     // The first byte of an MPEG Audio frame header is always 0xFF.
     headerScratch = new ParsableByteArray(4);
     headerScratch.data[0] = (byte) 0xFF;
-    header = new MpegAudioHeader();
+    header = new MpegAudioUtil.Header();
     this.language = language;
   }
 
@@ -176,7 +176,7 @@ public final class MpegAudioReader implements ElementaryStreamReader {
     }
 
     headerScratch.setPosition(0);
-    boolean parsedHeader = MpegAudioHeader.populateHeader(headerScratch.readInt(), header);
+    boolean parsedHeader = header.setForHeaderData(headerScratch.readInt());
     if (!parsedHeader) {
       // We thought we'd located a frame header, but we hadn't.
       frameBytesRead = 0;
@@ -187,9 +187,19 @@ public final class MpegAudioReader implements ElementaryStreamReader {
     frameSize = header.frameSize;
     if (!hasOutputFormat) {
       frameDurationUs = (C.MICROS_PER_SECOND * header.samplesPerFrame) / header.sampleRate;
-      Format format = Format.createAudioSampleFormat(formatId, header.mimeType, null,
-          Format.NO_VALUE, MpegAudioHeader.MAX_FRAME_SIZE_BYTES, header.channels, header.sampleRate,
-          null, null, 0, language);
+      Format format =
+          Format.createAudioSampleFormat(
+              formatId,
+              header.mimeType,
+              null,
+              Format.NO_VALUE,
+              MpegAudioUtil.MAX_FRAME_SIZE_BYTES,
+              header.channels,
+              header.sampleRate,
+              null,
+              null,
+              0,
+              language);
       output.format(format);
       hasOutputFormat = true;
     }

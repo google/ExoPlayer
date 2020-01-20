@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.audio.Ac3Util;
+import com.google.android.exoplayer2.audio.MpegAudioUtil;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
@@ -31,7 +32,6 @@ import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
-import com.google.android.exoplayer2.extractor.MpegAudioHeader;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
@@ -1989,11 +1989,11 @@ public class MatroskaExtractor implements Extractor {
           break;
         case CODEC_ID_MP2:
           mimeType = MimeTypes.AUDIO_MPEG_L2;
-          maxInputSize = MpegAudioHeader.MAX_FRAME_SIZE_BYTES;
+          maxInputSize = MpegAudioUtil.MAX_FRAME_SIZE_BYTES;
           break;
         case CODEC_ID_MP3:
           mimeType = MimeTypes.AUDIO_MPEG;
-          maxInputSize = MpegAudioHeader.MAX_FRAME_SIZE_BYTES;
+          maxInputSize = MpegAudioUtil.MAX_FRAME_SIZE_BYTES;
           break;
         case CODEC_ID_AC3:
           mimeType = MimeTypes.AUDIO_AC3;

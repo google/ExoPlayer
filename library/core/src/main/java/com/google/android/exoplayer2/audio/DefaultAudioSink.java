@@ -28,7 +28,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.audio.AudioProcessor.UnhandledAudioFormatException;
-import com.google.android.exoplayer2.extractor.MpegAudioHeader;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
@@ -1159,7 +1158,7 @@ public final class DefaultAudioSink implements AudioSink {
   private static int getFramesPerEncodedSample(@C.Encoding int encoding, ByteBuffer buffer) {
     switch (encoding) {
       case C.ENCODING_MP3:
-        return MpegAudioHeader.getFrameSampleCount(buffer.get(buffer.position()));
+        return MpegAudioUtil.parseMpegAudioFrameSampleCount(buffer.get(buffer.position()));
       case C.ENCODING_DTS:
       case C.ENCODING_DTS_HD:
         return DtsUtil.parseDtsAudioSampleCount(buffer);
