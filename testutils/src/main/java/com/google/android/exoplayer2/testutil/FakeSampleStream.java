@@ -133,6 +133,15 @@ public final class FakeSampleStream implements SampleStream {
     this.timeUs = timeUs;
   }
 
+  /**
+   * Adds an item to the end of the queue of {@link FakeSampleStreamItem items}.
+   *
+   * @param item The item to add.
+   */
+  public void addFakeSampleStreamItem(FakeSampleStreamItem item) {
+    this.fakeSampleStreamItems.add(item);
+  }
+
   @Override
   public boolean isReady() {
     return true;
