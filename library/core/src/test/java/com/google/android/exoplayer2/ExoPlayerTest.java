@@ -5593,7 +5593,7 @@ public final class ExoPlayerTest {
   }
 
   @Test
-  public void errorThrownDuringPeriodTransition_keepsConsistentPlayerState() throws Exception {
+  public void errorThrownDuringPeriodTransition_keepsConsistentPlayerState() {
     FakeMediaSource source1 =
         new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1), Builder.VIDEO_FORMAT);
     FakeMediaSource source2 =
@@ -5652,6 +5652,75 @@ public final class ExoPlayerTest {
                 .blockUntilEnded(TIMEOUT_MS));
 
     assertThat(windowIndexAfterError.get()).isEqualTo(1);
+    assertThat(trackGroupsAfterError.get().length).isEqualTo(1);
+    assertThat(trackGroupsAfterError.get().get(0).getFormat(0)).isEqualTo(Builder.AUDIO_FORMAT);
+    assertThat(trackSelectionsAfterError.get().get(0)).isNull(); // Video renderer.
+    assertThat(trackSelectionsAfterError.get().get(1)).isNotNull(); // Audio renderer.
+  }
+
+  @Test
+  public void errorThrownDuringPlaylistUpdate_keepsConsistentPlayerState() {
+    FakeMediaSource source1 =
+        new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1), Builder.VIDEO_FORMAT);
+    FakeMediaSource source2 =
+        new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1), Builder.AUDIO_FORMAT);
+    FakeRenderer videoRenderer = new FakeRenderer(Builder.VIDEO_FORMAT);
+    FakeRenderer audioRenderer =
+        new FakeRenderer(Builder.AUDIO_FORMAT) {
+          @Override
+          protected void onEnabled(boolean joining) throws ExoPlaybackException {
+            // Fail when enabling the renderer. This will happen during the playlist update.
+            throw createRendererException(new IllegalStateException(), Builder.AUDIO_FORMAT);
+          }
+        };
+    AtomicReference<Timeline> timelineAfterError = new AtomicReference<>();
+    AtomicReference<TrackGroupArray> trackGroupsAfterError = new AtomicReference<>();
+    AtomicReference<TrackSelectionArray> trackSelectionsAfterError = new AtomicReference<>();
+    AtomicInteger windowIndexAfterError = new AtomicInteger();
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("errorThrownDuringPlaylistUpdate_keepsConsistentPlayerState")
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    player.addAnalyticsListener(
+                        new AnalyticsListener() {
+                          @Override
+                          public void onPlayerError(
+                              EventTime eventTime, ExoPlaybackException error) {
+                            timelineAfterError.set(player.getCurrentTimeline());
+                            trackGroupsAfterError.set(player.getCurrentTrackGroups());
+                            trackSelectionsAfterError.set(player.getCurrentTrackSelections());
+                            windowIndexAfterError.set(player.getCurrentWindowIndex());
+                          }
+                        });
+                  }
+                })
+            .pause()
+            // Wait until fully buffered so that the new renderer can be enabled immediately.
+            .waitForIsLoading(true)
+            .waitForIsLoading(false)
+            .waitForIsLoading(true)
+            .waitForIsLoading(false)
+            .removeMediaItem(0)
+            .build();
+    ExoPlayerTestRunner testRunner =
+        new Builder()
+            .setMediaSources(source1, source2)
+            .setActionSchedule(actionSchedule)
+            .setRenderers(videoRenderer, audioRenderer)
+            .build(context);
+
+    assertThrows(
+        ExoPlaybackException.class,
+        () ->
+            testRunner
+                .start(/* doPrepare= */ true)
+                .blockUntilActionScheduleFinished(TIMEOUT_MS)
+                .blockUntilEnded(TIMEOUT_MS));
+
+    assertThat(timelineAfterError.get().getWindowCount()).isEqualTo(1);
+    assertThat(windowIndexAfterError.get()).isEqualTo(0);
     assertThat(trackGroupsAfterError.get().length).isEqualTo(1);
     assertThat(trackGroupsAfterError.get().get(0).getFormat(0)).isEqualTo(Builder.AUDIO_FORMAT);
     assertThat(trackSelectionsAfterError.get().get(0)).isNull(); // Video renderer.
