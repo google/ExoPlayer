@@ -25,7 +25,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.SurfaceTexture;
 import android.media.AudioManager;
-import android.net.Uri;
 import android.os.Looper;
 import android.view.Surface;
 import androidx.annotation.Nullable;
@@ -2969,10 +2968,7 @@ public final class ExoPlayerTest {
   @Test
   public void contentWithInitialSeekPositionAfterPrerollAdStartsAtSeekPosition() throws Exception {
     AdPlaybackState adPlaybackState =
-        FakeTimeline.createAdPlaybackState(/* adsPerAdGroup= */ 3, /* adGroupTimesUs= */ 0)
-            .withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, Uri.parse("https://ad1"))
-            .withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 1, Uri.parse("https://ad2"))
-            .withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 2, Uri.parse("https://ad3"));
+        FakeTimeline.createAdPlaybackState(/* adsPerAdGroup= */ 3, /* adGroupTimesUs...= */ 0);
     Timeline fakeTimeline =
         new FakeTimeline(
             new TimelineWindowDefinition(
@@ -4060,15 +4056,14 @@ public final class ExoPlayerTest {
                   }
                 })
             .build();
-    ExoPlayerTestRunner testRunner =
-        new ExoPlayerTestRunner.Builder()
-            .setMediaSources(concatenatingMediaSource)
-            .initialSeek(seekToWindowIndex, 5000)
-            .setActionSchedule(actionSchedule)
-            .build(context)
-            .start()
-            .blockUntilActionScheduleFinished(TIMEOUT_MS)
-            .blockUntilEnded(TIMEOUT_MS);
+    new ExoPlayerTestRunner.Builder()
+        .setMediaSources(concatenatingMediaSource)
+        .initialSeek(seekToWindowIndex, 5000)
+        .setActionSchedule(actionSchedule)
+        .build(context)
+        .start()
+        .blockUntilActionScheduleFinished(TIMEOUT_MS)
+        .blockUntilEnded(TIMEOUT_MS);
     assertArrayEquals(new long[] {5_000}, currentPlaybackPositions);
     assertArrayEquals(new int[] {seekToWindowIndex}, currentWindowIndices);
   }
