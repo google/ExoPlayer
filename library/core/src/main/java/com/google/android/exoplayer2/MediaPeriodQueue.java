@@ -542,7 +542,7 @@ import com.google.android.exoplayer2.util.Assertions;
         playbackInfo.timeline,
         playbackInfo.periodId,
         playbackInfo.contentPositionUs,
-        playbackInfo.startPositionUs);
+        playbackInfo.positionUs);
   }
 
   /**

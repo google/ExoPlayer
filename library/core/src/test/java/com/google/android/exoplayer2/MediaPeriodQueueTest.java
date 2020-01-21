@@ -343,7 +343,6 @@ public final class MediaPeriodQueueTest {
         new PlaybackInfo(
             timeline,
             mediaPeriodQueue.resolveMediaPeriodIdForAds(timeline, periodUid, /* positionUs= */ 0),
-            /* startPositionUs= */ 0,
             /* contentPositionUs= */ 0,
             Player.STATE_READY,
             /* playbackError= */ null,
