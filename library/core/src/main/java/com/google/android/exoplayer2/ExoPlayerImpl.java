@@ -825,17 +825,16 @@ import java.util.concurrent.TimeoutException;
     Timeline timeline = playbackInfo.timeline;
     MediaPeriodId mediaPeriodId = playbackInfo.periodId;
     long contentPositionUs = playbackInfo.contentPositionUs;
-    long startPositionUs = playbackInfo.positionUs;
+    long positionUs = playbackInfo.positionUs;
     if (clearPlaylist) {
       timeline = Timeline.EMPTY;
       mediaPeriodId = PlaybackInfo.getDummyPeriodForEmptyTimeline();
       contentPositionUs = C.TIME_UNSET;
-      startPositionUs = 0;
+      positionUs = 0;
     }
     return new PlaybackInfo(
         timeline,
         mediaPeriodId,
-        startPositionUs,
         contentPositionUs,
         playbackState,
         resetError ? null : playbackInfo.playbackError,
@@ -843,9 +842,9 @@ import java.util.concurrent.TimeoutException;
         clearPlaylist ? TrackGroupArray.EMPTY : playbackInfo.trackGroups,
         clearPlaylist ? emptyTrackSelectorResult : playbackInfo.trackSelectorResult,
         mediaPeriodId,
-        startPositionUs,
+        positionUs,
         /* totalBufferedDurationUs= */ 0,
-        startPositionUs);
+        positionUs);
   }
 
   private void updatePlaybackInfo(

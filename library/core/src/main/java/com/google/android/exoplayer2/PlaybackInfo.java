@@ -38,12 +38,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
   /** The {@link MediaPeriodId} of the currently playing media period in the {@link #timeline}. */
   public final MediaPeriodId periodId;
   /**
-   * The start position at which playback started in {@link #periodId} relative to the start of the
-   * associated period in the {@link #timeline}, in microseconds. Note that this value changes for
-   * each position discontinuity.
-   */
-  public final long startPositionUs;
-  /**
    * If {@link #periodId} refers to an ad, the position of the suspended content relative to the
    * start of the associated period in the {@link #timeline}, in microseconds. {@link C#TIME_UNSET}
    * if {@link #periodId} does not refer to an ad or if the suspended content should be played from
@@ -91,7 +85,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
     return new PlaybackInfo(
         Timeline.EMPTY,
         DUMMY_MEDIA_PERIOD_ID,
-        /* startPositionUs= */ 0,
         /* contentPositionUs= */ C.TIME_UNSET,
         Player.STATE_IDLE,
         /* playbackError= */ null,
@@ -109,7 +102,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
    *
    * @param timeline See {@link #timeline}.
    * @param periodId See {@link #periodId}.
-   * @param startPositionUs See {@link #startPositionUs}.
    * @param contentPositionUs See {@link #contentPositionUs}.
    * @param playbackState See {@link #playbackState}.
    * @param isLoading See {@link #isLoading}.
@@ -123,7 +115,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
   public PlaybackInfo(
       Timeline timeline,
       MediaPeriodId periodId,
-      long startPositionUs,
       long contentPositionUs,
       @Player.State int playbackState,
       @Nullable ExoPlaybackException playbackError,
@@ -136,7 +127,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
       long positionUs) {
     this.timeline = timeline;
     this.periodId = periodId;
-    this.startPositionUs = startPositionUs;
     this.contentPositionUs = contentPositionUs;
     this.playbackState = playbackState;
     this.playbackError = playbackError;
@@ -178,7 +168,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
     return new PlaybackInfo(
         timeline,
         periodId,
-        positionUs,
         periodId.isAd() ? contentPositionUs : C.TIME_UNSET,
         playbackState,
         playbackError,
@@ -202,7 +191,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
     return new PlaybackInfo(
         timeline,
         periodId,
-        startPositionUs,
         contentPositionUs,
         playbackState,
         playbackError,
@@ -226,7 +214,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
     return new PlaybackInfo(
         timeline,
         periodId,
-        startPositionUs,
         contentPositionUs,
         playbackState,
         playbackError,
@@ -250,7 +237,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
     return new PlaybackInfo(
         timeline,
         periodId,
-        startPositionUs,
         contentPositionUs,
         playbackState,
         playbackError,
@@ -274,7 +260,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
     return new PlaybackInfo(
         timeline,
         periodId,
-        startPositionUs,
         contentPositionUs,
         playbackState,
         playbackError,
@@ -298,7 +283,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
     return new PlaybackInfo(
         timeline,
         periodId,
-        startPositionUs,
         contentPositionUs,
         playbackState,
         playbackError,

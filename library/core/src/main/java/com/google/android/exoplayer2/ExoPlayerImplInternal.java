@@ -1167,7 +1167,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
         new PlaybackInfo(
             timeline,
             mediaPeriodId,
-            startPositionUs,
             contentPositionUs,
             playbackInfo.playbackState,
             resetError ? null : playbackInfo.playbackError,
