@@ -28,7 +28,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 
   /**
    * Dummy media period id used while the timeline is empty and no period id is specified. This id
-   * is used when playback infos are created with {@link #createDummy(long, TrackSelectorResult)}.
+   * is used when playback infos are created with {@link #createDummy(TrackSelectorResult)}.
    */
   private static final MediaPeriodId DUMMY_MEDIA_PERIOD_ID =
       new MediaPeriodId(/* periodUid= */ new Object());
@@ -83,17 +83,15 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
    * Creates empty dummy playback info which can be used for masking as long as no real playback
    * info is available.
    *
-   * @param startPositionUs The start position at which playback should start, in microseconds.
    * @param emptyTrackSelectorResult An empty track selector result with null entries for each
    *     renderer.
    * @return A dummy playback info.
    */
-  public static PlaybackInfo createDummy(
-      long startPositionUs, TrackSelectorResult emptyTrackSelectorResult) {
+  public static PlaybackInfo createDummy(TrackSelectorResult emptyTrackSelectorResult) {
     return new PlaybackInfo(
         Timeline.EMPTY,
         DUMMY_MEDIA_PERIOD_ID,
-        startPositionUs,
+        /* startPositionUs= */ 0,
         /* contentPositionUs= */ C.TIME_UNSET,
         Player.STATE_IDLE,
         /* playbackError= */ null,
@@ -101,9 +99,9 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         TrackGroupArray.EMPTY,
         emptyTrackSelectorResult,
         DUMMY_MEDIA_PERIOD_ID,
-        startPositionUs,
+        /* bufferedPositionUs= */ 0,
         /* totalBufferedDurationUs= */ 0,
-        startPositionUs);
+        /* positionUs= */ 0);
   }
 
   /**
