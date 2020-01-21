@@ -28,7 +28,6 @@ import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispat
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Util;
@@ -244,7 +243,10 @@ public class FakeMediaPeriod implements MediaPeriod {
   protected SampleStream createSampleStream(
       TrackSelection selection, EventDispatcher eventDispatcher) {
     return new FakeSampleStream(
-        selection.getSelectedFormat(), eventDispatcher, /* shouldOutputSample= */ true);
+        selection.getSelectedFormat(),
+        eventDispatcher,
+        FakeSampleStream.SINGLE_SAMPLE_THEN_END_OF_STREAM,
+        /* timeUsIncrement= */ 0);
   }
 
   /**
@@ -259,7 +261,7 @@ public class FakeMediaPeriod implements MediaPeriod {
       // When seeking back to 0, queue our single sample at time 0 again.
       ((FakeSampleStream) sampleStream)
           .resetSampleStreamItems(
-              Collections.singletonList(new FakeSampleStreamItem(new byte[] {0})), /* timeUs= */ 0);
+              FakeSampleStream.SINGLE_SAMPLE_THEN_END_OF_STREAM, /* timeUs= */ 0);
     }
   }
 

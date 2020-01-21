@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispat
 import com.google.android.exoplayer2.source.SampleStream;
 import java.io.IOException;
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -38,6 +39,14 @@ public final class FakeSampleStream implements SampleStream {
     @Nullable Format format;
     @Nullable byte[] sampleData;
     int flags;
+
+    /**
+     * Item that designates the end of stream has been reached.
+     *
+     * <p>When this item is read, readData will repeatedly return end of stream.
+     */
+    public static final FakeSampleStreamItem END_OF_STREAM_ITEM =
+        new FakeSampleStreamItem(new byte[] {}, C.BUFFER_FLAG_END_OF_STREAM);
 
     /**
      * Item that, when {@link #readData(FormatHolder, DecoderInputBuffer, boolean)} is called, will
@@ -72,6 +81,11 @@ public final class FakeSampleStream implements SampleStream {
     }
   }
 
+  /** List for use when a single sample is to be output, followed by the end of stream. */
+  public static final List<FakeSampleStreamItem> SINGLE_SAMPLE_THEN_END_OF_STREAM =
+      Arrays.asList(
+          new FakeSampleStreamItem(new byte[] {0}), FakeSampleStreamItem.END_OF_STREAM_ITEM);
+
   private final ArrayDeque<FakeSampleStreamItem> fakeSampleStreamItems;
   private final int timeUsIncrement;
 
@@ -80,6 +94,7 @@ public final class FakeSampleStream implements SampleStream {
   private Format format;
   private int timeUs;
   private boolean readFormat;
+  private boolean readEOSBuffer;
 
   /**
    * Creates fake sample stream which outputs the given {@link Format}, optionally one sample with
@@ -95,8 +110,8 @@ public final class FakeSampleStream implements SampleStream {
         format,
         eventDispatcher,
         shouldOutputSample
-            ? Collections.singletonList(new FakeSampleStreamItem(new byte[] {0}))
-            : Collections.emptyList(),
+            ? SINGLE_SAMPLE_THEN_END_OF_STREAM
+            : Collections.singletonList(FakeSampleStreamItem.END_OF_STREAM_ITEM),
         /* timeUsIncrement= */ 0);
   }
 
@@ -107,7 +122,8 @@ public final class FakeSampleStream implements SampleStream {
    * @param format The {@link Format} to output.
    * @param eventDispatcher An {@link EventDispatcher} to notify of read events.
    * @param fakeSampleStreamItems The list of {@link FakeSampleStreamItem items} to customize the
-   *     return values of {@link #readData(FormatHolder, DecoderInputBuffer, boolean)}.
+   *     return values of {@link #readData(FormatHolder, DecoderInputBuffer, boolean)}. Note that
+   *     once an EOS buffer has been read, that will return every time readData is called.
    * @param timeUsIncrement The time each sample should increase by, in microseconds.
    */
   public FakeSampleStream(
@@ -131,6 +147,7 @@ public final class FakeSampleStream implements SampleStream {
     this.fakeSampleStreamItems.clear();
     this.fakeSampleStreamItems.addAll(fakeSampleStreamItems);
     this.timeUs = timeUs;
+    readEOSBuffer = false;
   }
 
   /**
@@ -156,6 +173,11 @@ public final class FakeSampleStream implements SampleStream {
       notifyEventDispatcher(formatHolder);
       return C.RESULT_FORMAT_READ;
     }
+    // Once an EOS buffer has been read, send EOS every time.
+    if (readEOSBuffer) {
+      buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
+      return C.RESULT_BUFFER_READ;
+    }
     if (!fakeSampleStreamItems.isEmpty()) {
       FakeSampleStreamItem fakeSampleStreamItem = fakeSampleStreamItems.remove();
       if (fakeSampleStreamItem.format != null) {
@@ -172,12 +194,12 @@ public final class FakeSampleStream implements SampleStream {
         buffer.data.put(sampleData);
         if (fakeSampleStreamItem.flags != 0) {
           buffer.setFlags(fakeSampleStreamItem.flags);
+          readEOSBuffer = buffer.isEndOfStream();
         }
         return C.RESULT_BUFFER_READ;
       }
     }
-    buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
-    return C.RESULT_BUFFER_READ;
+    return C.RESULT_NOTHING_READ;
   }
 
   @Override
