@@ -66,6 +66,7 @@ public final class TtmlDecoderTest {
   private static final String BITMAP_REGION_FILE = "ttml/bitmap_percentage_region.xml";
   private static final String BITMAP_PIXEL_REGION_FILE = "ttml/bitmap_pixel_region.xml";
   private static final String BITMAP_UNSUPPORTED_REGION_FILE = "ttml/bitmap_unsupported_region.xml";
+  private static final String VERTICAL_TEXT_FILE = "ttml/vertical_text.xml";
 
   @Test
   public void testInlineAttributes() throws IOException, SubtitleDecoderException {
@@ -585,6 +586,26 @@ public final class TtmlDecoderTest {
     assertThat(cue.line).isEqualTo(Cue.DIMEN_UNSET);
     assertThat(cue.size).isEqualTo(Cue.DIMEN_UNSET);
     assertThat(cue.bitmapHeight).isEqualTo(Cue.DIMEN_UNSET);
+  }
+
+  @Test
+  public void testVerticalText() throws IOException, SubtitleDecoderException {
+    TtmlSubtitle subtitle = getSubtitle(VERTICAL_TEXT_FILE);
+
+    List<Cue> firstCues = subtitle.getCues(10_000_000);
+    assertThat(firstCues).hasSize(1);
+    Cue firstCue = firstCues.get(0);
+    assertThat(firstCue.verticalType).isEqualTo(Cue.VERTICAL_TYPE_RL);
+
+    List<Cue> secondCues = subtitle.getCues(20_000_000);
+    assertThat(secondCues).hasSize(1);
+    Cue secondCue = secondCues.get(0);
+    assertThat(secondCue.verticalType).isEqualTo(Cue.VERTICAL_TYPE_LR);
+
+    List<Cue> thirdCues = subtitle.getCues(30_000_000);
+    assertThat(thirdCues).hasSize(1);
+    Cue thirdCue = thirdCues.get(0);
+    assertThat(thirdCue.verticalType).isEqualTo(Cue.TYPE_UNSET);
   }
 
   private void assertSpans(

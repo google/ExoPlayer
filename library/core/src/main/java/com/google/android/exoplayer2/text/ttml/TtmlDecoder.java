@@ -540,6 +540,21 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
               break;
           }
           break;
+        case TtmlNode.ATTR_TTS_WRITING_MODE:
+          switch (Util.toLowerInvariant(attributeValue)) {
+              // TODO: Support horizontal RTL modes.
+            case TtmlNode.VERTICAL:
+            case TtmlNode.VERTICAL_LR:
+              style = createIfNull(style).setVerticalType(Cue.VERTICAL_TYPE_LR);
+              break;
+            case TtmlNode.VERTICAL_RL:
+              style = createIfNull(style).setVerticalType(Cue.VERTICAL_TYPE_RL);
+              break;
+            default:
+              // ignore
+              break;
+          }
+          break;
         default:
           // ignore
           break;
