@@ -76,8 +76,8 @@ public final class JobDispatcherScheduler implements Scheduler {
    *     {@link #schedule(Requirements, String, String)} or {@link #cancel()} are called.
    */
   public JobDispatcherScheduler(Context context, String jobTag) {
-    this.jobDispatcher =
-        new FirebaseJobDispatcher(new GooglePlayDriver(context.getApplicationContext()));
+    context = context.getApplicationContext();
+    this.jobDispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(context));
     this.jobTag = jobTag;
   }
 

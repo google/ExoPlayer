@@ -138,7 +138,8 @@ public final class CacheDataSource implements DataSource {
   @Nullable private Uri actualUri;
   @HttpMethod private int httpMethod;
   @Nullable private byte[] httpBody;
-  private int flags;
+  private Map<String, String> httpRequestHeaders = Collections.emptyMap();
+  @DataSpec.Flags private int flags;
   @Nullable private String key;
   private long readPosition;
   private long bytesRemaining;
@@ -263,6 +264,7 @@ public final class CacheDataSource implements DataSource {
       actualUri = getRedirectedUriOrDefault(cache, key, /* defaultUri= */ uri);
       httpMethod = dataSpec.httpMethod;
       httpBody = dataSpec.httpBody;
+      httpRequestHeaders = dataSpec.httpRequestHeaders;
       flags = dataSpec.flags;
       readPosition = dataSpec.position;
 
@@ -353,6 +355,10 @@ public final class CacheDataSource implements DataSource {
     actualUri = null;
     httpMethod = DataSpec.HTTP_METHOD_GET;
     httpBody = null;
+    httpRequestHeaders = Collections.emptyMap();
+    flags = 0;
+    readPosition = 0;
+    key = null;
     notifyBytesRead();
     try {
       closeCurrentSource();
@@ -377,7 +383,7 @@ public final class CacheDataSource implements DataSource {
    *     reading from {@link #upstreamDataSource}, which is the currently open source.
    */
   private void openNextSource(boolean checkCache) throws IOException {
-    CacheSpan nextSpan;
+    @Nullable CacheSpan nextSpan;
     if (currentRequestIgnoresCache) {
       nextSpan = null;
     } else if (blockOnCache) {
@@ -399,7 +405,15 @@ public final class CacheDataSource implements DataSource {
       nextDataSource = upstreamDataSource;
       nextDataSpec =
           new DataSpec(
-              uri, httpMethod, httpBody, readPosition, readPosition, bytesRemaining, key, flags);
+              uri,
+              httpMethod,
+              httpBody,
+              readPosition,
+              readPosition,
+              bytesRemaining,
+              key,
+              flags,
+              httpRequestHeaders);
     } else if (nextSpan.isCached) {
       // Data is cached, read from cache.
       Uri fileUri = Uri.fromFile(nextSpan.file);
@@ -408,6 +422,8 @@ public final class CacheDataSource implements DataSource {
       if (bytesRemaining != C.LENGTH_UNSET) {
         length = Math.min(length, bytesRemaining);
       }
+      // Deliberately skip the HTTP-related parameters since we're reading from the cache, not
+      // making an HTTP request.
       nextDataSpec = new DataSpec(fileUri, readPosition, filePosition, length, key, flags);
       nextDataSource = cacheReadDataSource;
     } else {
@@ -422,7 +438,16 @@ public final class CacheDataSource implements DataSource {
         }
       }
       nextDataSpec =
-          new DataSpec(uri, httpMethod, httpBody, readPosition, readPosition, length, key, flags);
+          new DataSpec(
+              uri,
+              httpMethod,
+              httpBody,
+              readPosition,
+              readPosition,
+              length,
+              key,
+              flags,
+              httpRequestHeaders);
       if (cacheWriteDataSource != null) {
         nextDataSource = cacheWriteDataSource;
       } else {
@@ -487,7 +512,7 @@ public final class CacheDataSource implements DataSource {
   }
 
   private static Uri getRedirectedUriOrDefault(Cache cache, String key, Uri defaultUri) {
-    Uri redirectedUri = ContentMetadata.getRedirectedUri(cache.getContentMetadata(key));
+    @Nullable Uri redirectedUri = ContentMetadata.getRedirectedUri(cache.getContentMetadata(key));
     return redirectedUri != null ? redirectedUri : defaultUri;
   }
 

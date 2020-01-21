@@ -272,11 +272,6 @@ public final class ImaAdsLoader
   private static final boolean DEBUG = false;
   private static final String TAG = "ImaAdsLoader";
 
-  /**
-   * Whether to enable preloading of ads in {@link AdsRenderingSettings}.
-   */
-  private static final boolean ENABLE_PRELOADING = true;
-
   private static final String IMA_SDK_SETTINGS_PLAYER_TYPE = "google/exo.ext.ima";
   private static final String IMA_SDK_SETTINGS_PLAYER_VERSION = ExoPlayerLibraryInfo.VERSION;
 
@@ -646,6 +641,11 @@ public final class ImaAdsLoader
   public void release() {
     pendingAdRequestContext = null;
     if (adsManager != null) {
+      adsManager.removeAdErrorListener(this);
+      adsManager.removeAdEventListener(this);
+      if (adEventListener != null) {
+        adsManager.removeAdEventListener(adEventListener);
+      }
       adsManager.destroy();
       adsManager = null;
     }
@@ -1048,7 +1048,7 @@ public final class ImaAdsLoader
 
   private void initializeAdsManager() {
     AdsRenderingSettings adsRenderingSettings = imaFactory.createAdsRenderingSettings();
-    adsRenderingSettings.setEnablePreloading(ENABLE_PRELOADING);
+    adsRenderingSettings.setEnablePreloading(true);
     adsRenderingSettings.setMimeTypes(supportedMimeTypes);
     if (mediaLoadTimeoutMs != TIMEOUT_UNSET) {
       adsRenderingSettings.setLoadVideoTimeout(mediaLoadTimeoutMs);

@@ -46,7 +46,8 @@ public final class MediaPeriodQueueTest {
   private static final long SECOND_AD_START_TIME_US = 20 * C.MICROS_PER_SECOND;
 
   private static final Timeline CONTENT_TIMELINE =
-      new SinglePeriodTimeline(CONTENT_DURATION_US, /* isSeekable= */ true, /* isDynamic= */ false);
+      new SinglePeriodTimeline(
+          CONTENT_DURATION_US, /* isSeekable= */ true, /* isDynamic= */ false, /* isLive= */ false);
   private static final Uri AD_URI = Uri.EMPTY;
 
   private MediaPeriodQueue mediaPeriodQueue;
@@ -83,7 +84,7 @@ public final class MediaPeriodQueueTest {
 
   @Test
   public void getNextMediaPeriodInfo_withPrerollAd_returnsCorrectMediaPeriodInfos() {
-    setupTimeline(/* adGroupTimesUs= */ 0);
+    setupTimeline(/* adGroupTimesUs...= */ 0);
     setAdGroupLoaded(/* adGroupIndex= */ 0);
     assertNextMediaPeriodInfoIsAd(/* adGroupIndex= */ 0, /* contentPositionUs= */ 0);
     advance();
@@ -97,7 +98,7 @@ public final class MediaPeriodQueueTest {
 
   @Test
   public void getNextMediaPeriodInfo_withMidrollAds_returnsCorrectMediaPeriodInfos() {
-    setupTimeline(/* adGroupTimesUs= */ FIRST_AD_START_TIME_US, SECOND_AD_START_TIME_US);
+    setupTimeline(/* adGroupTimesUs...= */ FIRST_AD_START_TIME_US, SECOND_AD_START_TIME_US);
     assertGetNextMediaPeriodInfoReturnsContentMediaPeriod(
         /* startPositionUs= */ 0,
         /* endPositionUs= */ FIRST_AD_START_TIME_US,
@@ -132,7 +133,7 @@ public final class MediaPeriodQueueTest {
 
   @Test
   public void getNextMediaPeriodInfo_withMidrollAndPostroll_returnsCorrectMediaPeriodInfos() {
-    setupTimeline(/* adGroupTimesUs= */ FIRST_AD_START_TIME_US, C.TIME_END_OF_SOURCE);
+    setupTimeline(/* adGroupTimesUs...= */ FIRST_AD_START_TIME_US, C.TIME_END_OF_SOURCE);
     assertGetNextMediaPeriodInfoReturnsContentMediaPeriod(
         /* startPositionUs= */ 0,
         /* endPositionUs= */ FIRST_AD_START_TIME_US,
@@ -165,7 +166,7 @@ public final class MediaPeriodQueueTest {
 
   @Test
   public void getNextMediaPeriodInfo_withPostrollLoadError_returnsEmptyFinalMediaPeriodInfo() {
-    setupTimeline(/* adGroupTimesUs= */ C.TIME_END_OF_SOURCE);
+    setupTimeline(/* adGroupTimesUs...= */ C.TIME_END_OF_SOURCE);
     assertGetNextMediaPeriodInfoReturnsContentMediaPeriod(
         /* startPositionUs= */ 0,
         /* endPositionUs= */ C.TIME_END_OF_SOURCE,
@@ -185,7 +186,7 @@ public final class MediaPeriodQueueTest {
   @Test
   public void
       updateQueuedPeriods_withDurationChangeAfterReadingPeriod_handlesChangeAndRemovesPeriodsAfterChangedPeriod() {
-    setupTimeline(/* adGroupTimesUs= */ FIRST_AD_START_TIME_US, SECOND_AD_START_TIME_US);
+    setupTimeline(/* adGroupTimesUs...= */ FIRST_AD_START_TIME_US, SECOND_AD_START_TIME_US);
     setAdGroupLoaded(/* adGroupIndex= */ 0);
     setAdGroupLoaded(/* adGroupIndex= */ 1);
     enqueueNext(); // Content before first ad.
@@ -196,7 +197,7 @@ public final class MediaPeriodQueueTest {
 
     // Change position of second ad (= change duration of content between ads).
     updateAdPlaybackStateAndTimeline(
-        /* adGroupTimesUs= */ FIRST_AD_START_TIME_US, SECOND_AD_START_TIME_US + 1);
+        /* adGroupTimesUs...= */ FIRST_AD_START_TIME_US, SECOND_AD_START_TIME_US + 1);
     setAdGroupLoaded(/* adGroupIndex= */ 0);
     setAdGroupLoaded(/* adGroupIndex= */ 1);
     boolean changeHandled =
@@ -210,7 +211,7 @@ public final class MediaPeriodQueueTest {
   @Test
   public void
       updateQueuedPeriods_withDurationChangeBeforeReadingPeriod_doesntHandleChangeAndRemovesPeriodsAfterChangedPeriod() {
-    setupTimeline(/* adGroupTimesUs= */ FIRST_AD_START_TIME_US, SECOND_AD_START_TIME_US);
+    setupTimeline(/* adGroupTimesUs...= */ FIRST_AD_START_TIME_US, SECOND_AD_START_TIME_US);
     setAdGroupLoaded(/* adGroupIndex= */ 0);
     setAdGroupLoaded(/* adGroupIndex= */ 1);
     enqueueNext(); // Content before first ad.
@@ -222,7 +223,7 @@ public final class MediaPeriodQueueTest {
 
     // Change position of first ad (= change duration of content before first ad).
     updateAdPlaybackStateAndTimeline(
-        /* adGroupTimesUs= */ FIRST_AD_START_TIME_US + 1, SECOND_AD_START_TIME_US);
+        /* adGroupTimesUs...= */ FIRST_AD_START_TIME_US + 1, SECOND_AD_START_TIME_US);
     setAdGroupLoaded(/* adGroupIndex= */ 0);
     setAdGroupLoaded(/* adGroupIndex= */ 1);
     boolean changeHandled =
@@ -236,9 +237,7 @@ public final class MediaPeriodQueueTest {
   @Test
   public void
       updateQueuedPeriods_withDurationChangeInReadingPeriodAfterReadingPosition_handlesChangeAndRemovesPeriodsAfterChangedPeriod() {
-    setupTimeline(
-        /* adGroupTimesUs= */ FIRST_AD_START_TIME_US,
-        SECOND_AD_START_TIME_US);
+    setupTimeline(/* adGroupTimesUs...= */ FIRST_AD_START_TIME_US, SECOND_AD_START_TIME_US);
     setAdGroupLoaded(/* adGroupIndex= */ 0);
     setAdGroupLoaded(/* adGroupIndex= */ 1);
     enqueueNext(); // Content before first ad.
@@ -251,7 +250,7 @@ public final class MediaPeriodQueueTest {
 
     // Change position of second ad (= change duration of content between ads).
     updateAdPlaybackStateAndTimeline(
-        /* adGroupTimesUs= */ FIRST_AD_START_TIME_US, SECOND_AD_START_TIME_US - 1000);
+        /* adGroupTimesUs...= */ FIRST_AD_START_TIME_US, SECOND_AD_START_TIME_US - 1000);
     setAdGroupLoaded(/* adGroupIndex= */ 0);
     setAdGroupLoaded(/* adGroupIndex= */ 1);
     long readingPositionAtStartOfContentBetweenAds = FIRST_AD_START_TIME_US + AD_DURATION_US;
@@ -267,9 +266,7 @@ public final class MediaPeriodQueueTest {
   @Test
   public void
       updateQueuedPeriods_withDurationChangeInReadingPeriodBeforeReadingPosition_doesntHandleChangeAndRemovesPeriodsAfterChangedPeriod() {
-    setupTimeline(
-        /* adGroupTimesUs= */ FIRST_AD_START_TIME_US,
-        SECOND_AD_START_TIME_US);
+    setupTimeline(/* adGroupTimesUs...= */ FIRST_AD_START_TIME_US, SECOND_AD_START_TIME_US);
     setAdGroupLoaded(/* adGroupIndex= */ 0);
     setAdGroupLoaded(/* adGroupIndex= */ 1);
     enqueueNext(); // Content before first ad.
@@ -282,7 +279,7 @@ public final class MediaPeriodQueueTest {
 
     // Change position of second ad (= change duration of content between ads).
     updateAdPlaybackStateAndTimeline(
-        /* adGroupTimesUs= */ FIRST_AD_START_TIME_US, SECOND_AD_START_TIME_US - 1000);
+        /* adGroupTimesUs...= */ FIRST_AD_START_TIME_US, SECOND_AD_START_TIME_US - 1000);
     setAdGroupLoaded(/* adGroupIndex= */ 0);
     setAdGroupLoaded(/* adGroupIndex= */ 1);
     long readingPositionAtEndOfContentBetweenAds = SECOND_AD_START_TIME_US + AD_DURATION_US;
@@ -298,9 +295,7 @@ public final class MediaPeriodQueueTest {
   @Test
   public void
       updateQueuedPeriods_withDurationChangeInReadingPeriodReadToEnd_doesntHandleChangeAndRemovesPeriodsAfterChangedPeriod() {
-    setupTimeline(
-        /* adGroupTimesUs= */ FIRST_AD_START_TIME_US,
-        SECOND_AD_START_TIME_US);
+    setupTimeline(/* adGroupTimesUs...= */ FIRST_AD_START_TIME_US, SECOND_AD_START_TIME_US);
     setAdGroupLoaded(/* adGroupIndex= */ 0);
     setAdGroupLoaded(/* adGroupIndex= */ 1);
     enqueueNext(); // Content before first ad.
@@ -313,7 +308,7 @@ public final class MediaPeriodQueueTest {
 
     // Change position of second ad (= change duration of content between ads).
     updateAdPlaybackStateAndTimeline(
-        /* adGroupTimesUs= */ FIRST_AD_START_TIME_US, SECOND_AD_START_TIME_US - 1000);
+        /* adGroupTimesUs...= */ FIRST_AD_START_TIME_US, SECOND_AD_START_TIME_US - 1000);
     setAdGroupLoaded(/* adGroupIndex= */ 0);
     setAdGroupLoaded(/* adGroupIndex= */ 1);
     boolean changeHandled =

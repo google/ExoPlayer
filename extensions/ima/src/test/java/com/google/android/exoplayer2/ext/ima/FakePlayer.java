@@ -46,16 +46,10 @@ import java.util.ArrayList;
     timeline = Timeline.EMPTY;
   }
 
-  /**
-   * Sets the timeline on this fake player, which notifies listeners with the changed timeline and
-   * the given timeline change reason.
-   *
-   * @param timeline The new timeline.
-   * @param timelineChangeReason The reason for the timeline change.
-   */
-  public void updateTimeline(Timeline timeline, @TimelineChangeReason int timelineChangeReason) {
+  /** Sets the timeline on this fake player, which notifies listeners with the changed timeline. */
+  public void updateTimeline(Timeline timeline, @TimelineChangeReason int reason) {
     for (Player.EventListener listener : listeners) {
-      listener.onTimelineChanged(timeline, timelineChangeReason);
+      listener.onTimelineChanged(timeline, reason);
     }
   }
 

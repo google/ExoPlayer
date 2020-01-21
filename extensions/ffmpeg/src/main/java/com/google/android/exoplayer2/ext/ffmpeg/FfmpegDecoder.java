@@ -64,9 +64,7 @@ import java.util.List;
       throw new FfmpegDecoderException("Failed to load decoder native libraries.");
     }
     Assertions.checkNotNull(format.sampleMimeType);
-    codecName =
-        Assertions.checkNotNull(
-            FfmpegLibrary.getCodecName(format.sampleMimeType, format.pcmEncoding));
+    codecName = Assertions.checkNotNull(FfmpegLibrary.getCodecName(format.sampleMimeType));
     extraData = getExtraData(format.sampleMimeType, format.initializationData);
     encoding = outputFloat ? C.ENCODING_PCM_FLOAT : C.ENCODING_PCM_16BIT;
     outputBufferSize = outputFloat ? OUTPUT_BUFFER_SIZE_32BIT : OUTPUT_BUFFER_SIZE_16BIT;
@@ -145,16 +143,12 @@ import java.util.List;
     nativeContext = 0;
   }
 
-  /**
-   * Returns the channel count of output audio. May only be called after {@link #decode}.
-   */
+  /** Returns the channel count of output audio. */
   public int getChannelCount() {
     return channelCount;
   }
 
-  /**
-   * Returns the sample rate of output audio. May only be called after {@link #decode}.
-   */
+  /** Returns the sample rate of output audio. */
   public int getSampleRate() {
     return sampleRate;
   }

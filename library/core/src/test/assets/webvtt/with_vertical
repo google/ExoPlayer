@@ -1,0 +1,12 @@
+WEBVTT
+
+NOTE vertical spec: https://www.w3.org/TR/webvtt1/#webvtt-alignment-cue-setting
+
+00:00:00.000 --> 00:00:01.234 vertical:rl
+Vertical right-to-left (e.g. Japanese)
+
+00:02.345 --> 00:03.456 vertical:lr
+Vertical left-to-right (e.g. Mongolian)
+
+00:04.000 --> 00:05.000
+No vertical setting (i.e. horizontal)

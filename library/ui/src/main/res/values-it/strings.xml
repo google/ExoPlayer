@@ -14,6 +14,8 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_show">Mostra i controlli del player</string>
+  <string name="exo_controls_hide">Nascondi i controlli del player</string>
   <string name="exo_controls_previous_description">Traccia precedente</string>
   <string name="exo_controls_next_description">Traccia successiva</string>
   <string name="exo_controls_pause_description">Pausa</string>

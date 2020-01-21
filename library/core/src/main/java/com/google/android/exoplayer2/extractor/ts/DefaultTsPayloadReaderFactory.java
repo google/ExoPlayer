@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.extractor.ts;
 
 import android.util.SparseArray;
 import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.EsInfo;
 import com.google.android.exoplayer2.text.cea.Cea708InitializationData;
@@ -134,6 +135,7 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
     return new SparseArray<>();
   }
 
+  @Nullable
   @Override
   public TsPayloadReader createPayloadReader(int streamType, EsInfo esInfo) {
     switch (streamType) {
@@ -247,7 +249,7 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
           // Skip reserved (8).
           scratchDescriptorData.skipBytes(1);
 
-          List<byte[]> initializationData = null;
+          @Nullable List<byte[]> initializationData = null;
           // The wide_aspect_ratio flag only has meaning for CEA-708.
           if (isDigital) {
             boolean isWideAspectRatio = (flags & 0x40) != 0;

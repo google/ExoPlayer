@@ -81,7 +81,10 @@ public final class DtsUtil {
    * @return The DTS format parsed from data in the header.
    */
   public static Format parseDtsFormat(
-      byte[] frame, String trackId, @Nullable String language, @Nullable DrmInitData drmInitData) {
+      byte[] frame,
+      @Nullable String trackId,
+      @Nullable String language,
+      @Nullable DrmInitData drmInitData) {
     ParsableBitArray frameBits = getNormalizedFrameHeader(frame);
     frameBits.skipBits(32 + 1 + 5 + 1 + 7 + 14); // SYNC, FTYPE, SHORT, CPF, NBLKS, FSIZE
     int amode = frameBits.readBits(6);

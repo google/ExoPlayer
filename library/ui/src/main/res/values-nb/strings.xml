@@ -14,6 +14,8 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_show">Vis avspillingskontrollene</string>
+  <string name="exo_controls_hide">Skjul avspillingskontrollene</string>
   <string name="exo_controls_previous_description">Forrige spor</string>
   <string name="exo_controls_next_description">Neste spor</string>
   <string name="exo_controls_pause_description">Sett på pause</string>

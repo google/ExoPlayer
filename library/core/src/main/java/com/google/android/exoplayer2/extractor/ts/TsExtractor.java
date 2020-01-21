@@ -21,6 +21,7 @@ import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
 import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -268,8 +269,7 @@ public final class TsExtractor implements Extractor {
       }
 
       if (tsBinarySearchSeeker != null && tsBinarySearchSeeker.isSeeking()) {
-        return tsBinarySearchSeeker.handlePendingSeek(
-            input, seekPosition, /* outputFrameHolder= */ null);
+        return tsBinarySearchSeeker.handlePendingSeek(input, seekPosition);
       }
     }
 
@@ -588,8 +588,11 @@ public final class TsExtractor implements Extractor {
           continue;
         }
 
-        TsPayloadReader reader = mode == MODE_HLS && streamType == TS_STREAM_TYPE_ID3 ? id3Reader
-            : payloadReaderFactory.createPayloadReader(streamType, esInfo);
+        @Nullable
+        TsPayloadReader reader =
+            mode == MODE_HLS && streamType == TS_STREAM_TYPE_ID3
+                ? id3Reader
+                : payloadReaderFactory.createPayloadReader(streamType, esInfo);
         if (mode != MODE_HLS
             || elementaryPid < trackIdToPidScratch.get(trackId, MAX_PID_PLUS_ONE)) {
           trackIdToPidScratch.put(trackId, elementaryPid);
@@ -603,7 +606,7 @@ public final class TsExtractor implements Extractor {
         int trackPid = trackIdToPidScratch.valueAt(i);
         trackIds.put(trackId, true);
         trackPids.put(trackPid, true);
-        TsPayloadReader reader = trackIdToReaderScratch.valueAt(i);
+        @Nullable TsPayloadReader reader = trackIdToReaderScratch.valueAt(i);
         if (reader != null) {
           if (reader != id3Reader) {
             reader.init(timestampAdjuster, output,

@@ -19,6 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.extractor.amr.AmrExtractor;
+import com.google.android.exoplayer2.extractor.flac.FlacExtractor;
 import com.google.android.exoplayer2.extractor.flv.FlvExtractor;
 import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer2.extractor.mp3.Mp3Extractor;
@@ -64,7 +65,8 @@ public final class DefaultExtractorsFactoryTest {
           PsExtractor.class,
           WavExtractor.class,
           AmrExtractor.class,
-          Ac4Extractor.class
+          Ac4Extractor.class,
+          FlacExtractor.class
         };
 
     assertThat(listCreatedExtractorClasses).containsNoDuplicates();

@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.extractor.amr;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
@@ -28,6 +27,7 @@ import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
@@ -36,6 +36,9 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * Extracts data from the AMR containers format (either AMR or AMR-WB). This follows RFC-4867,
@@ -138,9 +141,9 @@ public final class AmrExtractor implements Extractor {
   private int numSamplesWithSameSize;
   private long timeOffsetUs;
 
-  private ExtractorOutput extractorOutput;
-  private TrackOutput trackOutput;
-  @Nullable private SeekMap seekMap;
+  private @MonotonicNonNull ExtractorOutput extractorOutput;
+  private @MonotonicNonNull TrackOutput trackOutput;
+  private @MonotonicNonNull SeekMap seekMap;
   private boolean hasOutputFormat;
 
   public AmrExtractor() {
@@ -171,6 +174,7 @@ public final class AmrExtractor implements Extractor {
   @Override
   public int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
+    assertInitialized();
     if (input.getPosition() == 0) {
       if (!readAmrHeader(input)) {
         throw new ParserException("Could not find AMR header.");
@@ -245,6 +249,7 @@ public final class AmrExtractor implements Extractor {
     return Arrays.equals(header, amrSignature);
   }
 
+  @RequiresNonNull("trackOutput")
   private void maybeOutputFormat() {
     if (!hasOutputFormat) {
       hasOutputFormat = true;
@@ -267,6 +272,7 @@ public final class AmrExtractor implements Extractor {
     }
   }
 
+  @RequiresNonNull("trackOutput")
   private int readSample(ExtractorInput extractorInput) throws IOException, InterruptedException {
     if (currentSampleBytesRemaining == 0) {
       try {
@@ -346,6 +352,7 @@ public final class AmrExtractor implements Extractor {
     return !isWideBand && (frameType < 12 || frameType > 14);
   }
 
+  @RequiresNonNull("extractorOutput")
   private void maybeOutputSeekMap(long inputLength, int sampleReadResult) {
     if (hasOutputSeekMap) {
       return;
@@ -368,6 +375,12 @@ public final class AmrExtractor implements Extractor {
   private SeekMap getConstantBitrateSeekMap(long inputLength) {
     int bitrate = getBitrateFromFrameSize(firstSampleSize, SAMPLE_TIME_PER_FRAME_US);
     return new ConstantBitrateSeekMap(inputLength, firstSamplePosition, bitrate, firstSampleSize);
+  }
+
+  @EnsuresNonNull({"extractorOutput", "trackOutput"})
+  private void assertInitialized() {
+    Assertions.checkStateNotNull(trackOutput);
+    Util.castNonNull(extractorOutput);
   }
 
   /**

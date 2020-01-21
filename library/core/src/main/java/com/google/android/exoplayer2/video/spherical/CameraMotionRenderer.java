@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.Renderer;
+import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -48,10 +49,11 @@ public class CameraMotionRenderer extends BaseRenderer {
   }
 
   @Override
+  @Capabilities
   public int supportsFormat(Format format) {
     return MimeTypes.APPLICATION_CAMERA_MOTION.equals(format.sampleMimeType)
-        ? FORMAT_HANDLED
-        : FORMAT_UNSUPPORTED_TYPE;
+        ? RendererCapabilities.create(FORMAT_HANDLED)
+        : RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
   }
 
   @Override
@@ -110,7 +112,8 @@ public class CameraMotionRenderer extends BaseRenderer {
     return true;
   }
 
-  private @Nullable float[] parseMetadata(ByteBuffer data) {
+  @Nullable
+  private float[] parseMetadata(ByteBuffer data) {
     if (data.remaining() != 16) {
       return null;
     }

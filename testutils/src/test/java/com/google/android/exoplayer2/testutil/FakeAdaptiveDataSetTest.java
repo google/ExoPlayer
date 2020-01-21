@@ -90,7 +90,7 @@ public final class FakeAdaptiveDataSetTest {
     for (int i = 0; i < dataSet.getChunkCount() - 1; i++) {
       assertThat(dataSet.getChunkDuration(i)).isEqualTo(chunkDuration);
     }
-    assertThat(dataSet.getChunkDuration(3)).isEqualTo(1 * C.MICROS_PER_SECOND);
+    assertThat(dataSet.getChunkDuration(3)).isEqualTo(C.MICROS_PER_SECOND);
     assertChunkData(dataSet, chunkDuration);
   }
 
@@ -101,7 +101,7 @@ public final class FakeAdaptiveDataSetTest {
         new FakeAdaptiveDataSet(
             TRACK_GROUP,
             100000 * C.MICROS_PER_SECOND,
-            1 * C.MICROS_PER_SECOND,
+            C.MICROS_PER_SECOND,
             expectedStdDev,
             new Random(0));
     for (int i = 0; i < TEST_FORMATS.length; i++) {

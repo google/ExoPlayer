@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.text.webvtt.WebvttParserUtil;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
@@ -34,6 +35,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * A special purpose extractor for WebVTT content in HLS.
@@ -54,7 +57,7 @@ public final class WebvttExtractor implements Extractor {
   private final TimestampAdjuster timestampAdjuster;
   private final ParsableByteArray sampleDataWrapper;
 
-  private ExtractorOutput output;
+  private @MonotonicNonNull ExtractorOutput output;
 
   private byte[] sampleData;
   private int sampleSize;
@@ -107,6 +110,8 @@ public final class WebvttExtractor implements Extractor {
   @Override
   public int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
+    // output == null suggests init() hasn't been called
+    Assertions.checkNotNull(output);
     int currentFileSize = (int) input.getLength();
 
     // Increase the size of sampleData if necessary.
@@ -129,6 +134,7 @@ public final class WebvttExtractor implements Extractor {
     return Extractor.RESULT_END_OF_INPUT;
   }
 
+  @RequiresNonNull("output")
   private void processSample() throws ParserException {
     ParsableByteArray webvttData = new ParsableByteArray(sampleData);
 
@@ -140,8 +146,9 @@ public final class WebvttExtractor implements Extractor {
     long tsTimestampUs = 0;
 
     // Parse the remainder of the header looking for X-TIMESTAMP-MAP.
-    String line;
-    while (!TextUtils.isEmpty(line = webvttData.readLine())) {
+    for (String line = webvttData.readLine();
+        !TextUtils.isEmpty(line);
+        line = webvttData.readLine()) {
       if (line.startsWith("X-TIMESTAMP-MAP")) {
         Matcher localTimestampMatcher = LOCAL_TIMESTAMP.matcher(line);
         if (!localTimestampMatcher.find()) {
@@ -176,6 +183,7 @@ public final class WebvttExtractor implements Extractor {
     trackOutput.sampleMetadata(sampleTimeUs, C.BUFFER_FLAG_KEY_FRAME, sampleSize, 0, null);
   }
 
+  @RequiresNonNull("output")
   private TrackOutput buildTrackOutput(long subsampleOffsetUs) {
     TrackOutput trackOutput = output.track(0, C.TRACK_TYPE_TEXT);
     trackOutput.format(Format.createTextSampleFormat(null, MimeTypes.TEXT_VTT, null,

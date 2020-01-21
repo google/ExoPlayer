@@ -24,8 +24,11 @@ import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * Extracts data from the RawCC container format.
@@ -44,11 +47,9 @@ public final class RawCcExtractor implements Extractor {
   private static final int STATE_READING_SAMPLES = 2;
 
   private final Format format;
-
   private final ParsableByteArray dataScratch;
 
-  private TrackOutput trackOutput;
-
+  private @MonotonicNonNull TrackOutput trackOutput;
   private int parserState;
   private int version;
   private long timestampUs;
@@ -79,6 +80,7 @@ public final class RawCcExtractor implements Extractor {
   @Override
   public int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
+    Assertions.checkStateNotNull(trackOutput); // Asserts that init has been called.
     while (true) {
       switch (parserState) {
         case STATE_READING_HEADER:
@@ -153,6 +155,7 @@ public final class RawCcExtractor implements Extractor {
     return true;
   }
 
+  @RequiresNonNull("trackOutput")
   private void parseSamples(ExtractorInput input) throws IOException, InterruptedException {
     for (; remainingSampleCount > 0; remainingSampleCount--) {
       dataScratch.reset();
@@ -166,5 +169,4 @@ public final class RawCcExtractor implements Extractor {
       trackOutput.sampleMetadata(timestampUs, C.BUFFER_FLAG_KEY_FRAME, sampleBytesWritten, 0, null);
     }
   }
-
 }

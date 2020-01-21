@@ -138,13 +138,7 @@ public final class Format implements Parcelable {
    * The audio sampling rate in Hz, or {@link #NO_VALUE} if unknown or not applicable.
    */
   public final int sampleRate;
-  /**
-   * The encoding for PCM audio streams. If {@link #sampleMimeType} is {@link MimeTypes#AUDIO_RAW}
-   * then one of {@link C#ENCODING_PCM_8BIT}, {@link C#ENCODING_PCM_16BIT}, {@link
-   * C#ENCODING_PCM_24BIT}, {@link C#ENCODING_PCM_32BIT}, {@link C#ENCODING_PCM_FLOAT}, {@link
-   * C#ENCODING_PCM_MU_LAW} or {@link C#ENCODING_PCM_A_LAW}. Set to {@link #NO_VALUE} for other
-   * media types.
-   */
+  /** The {@link C.PcmEncoding} for PCM audio. Set to {@link #NO_VALUE} for other media types. */
   public final @C.PcmEncoding int pcmEncoding;
   /**
    * The number of frames to trim from the start of the decoded audio stream, or 0 if not
@@ -187,8 +181,8 @@ public final class Format implements Parcelable {
   public static Format createVideoContainerFormat(
       @Nullable String id,
       @Nullable String containerMimeType,
-      String sampleMimeType,
-      String codecs,
+      @Nullable String sampleMimeType,
+      @Nullable String codecs,
       int bitrate,
       int width,
       int height,
@@ -215,8 +209,8 @@ public final class Format implements Parcelable {
       @Nullable String id,
       @Nullable String label,
       @Nullable String containerMimeType,
-      String sampleMimeType,
-      String codecs,
+      @Nullable String sampleMimeType,
+      @Nullable String codecs,
       @Nullable Metadata metadata,
       int bitrate,
       int width,
@@ -326,7 +320,7 @@ public final class Format implements Parcelable {
       @Nullable List<byte[]> initializationData,
       int rotationDegrees,
       float pixelWidthHeightRatio,
-      byte[] projectionData,
+      @Nullable byte[] projectionData,
       @C.StereoMode int stereoMode,
       @Nullable ColorInfo colorInfo,
       @Nullable DrmInitData drmInitData) {
@@ -618,7 +612,7 @@ public final class Format implements Parcelable {
 
   public static Format createTextSampleFormat(
       @Nullable String id,
-      String sampleMimeType,
+      @Nullable String sampleMimeType,
       @C.SelectionFlags int selectionFlags,
       @Nullable String language) {
     return createTextSampleFormat(id, sampleMimeType, selectionFlags, language, null);
@@ -626,7 +620,7 @@ public final class Format implements Parcelable {
 
   public static Format createTextSampleFormat(
       @Nullable String id,
-      String sampleMimeType,
+      @Nullable String sampleMimeType,
       @C.SelectionFlags int selectionFlags,
       @Nullable String language,
       @Nullable DrmInitData drmInitData) {
@@ -697,7 +691,7 @@ public final class Format implements Parcelable {
       int accessibilityChannel,
       @Nullable DrmInitData drmInitData,
       long subsampleOffsetUs,
-      List<byte[]> initializationData) {
+      @Nullable List<byte[]> initializationData) {
     return new Format(
         id,
         /* label= */ null,
@@ -1099,6 +1093,39 @@ public final class Format implements Parcelable {
         exoMediaCryptoType);
   }
 
+  public Format copyWithLabel(@Nullable String label) {
+    return new Format(
+        id,
+        label,
+        selectionFlags,
+        roleFlags,
+        bitrate,
+        codecs,
+        metadata,
+        containerMimeType,
+        sampleMimeType,
+        maxInputSize,
+        initializationData,
+        drmInitData,
+        subsampleOffsetUs,
+        width,
+        height,
+        frameRate,
+        rotationDegrees,
+        pixelWidthHeightRatio,
+        projectionData,
+        stereoMode,
+        colorInfo,
+        channelCount,
+        sampleRate,
+        pcmEncoding,
+        encoderDelay,
+        encoderPadding,
+        language,
+        accessibilityChannel,
+        exoMediaCryptoType);
+  }
+
   public Format copyWithContainerInfo(
       @Nullable String id,
       @Nullable String label,
@@ -1439,7 +1466,8 @@ public final class Format implements Parcelable {
         exoMediaCryptoType);
   }
 
-  public Format copyWithExoMediaCryptoType(Class<? extends ExoMediaCrypto> exoMediaCryptoType) {
+  public Format copyWithExoMediaCryptoType(
+      @Nullable Class<? extends ExoMediaCrypto> exoMediaCryptoType) {
     return new Format(
         id,
         label,

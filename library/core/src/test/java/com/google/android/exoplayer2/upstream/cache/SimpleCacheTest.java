@@ -204,7 +204,7 @@ public class SimpleCacheTest {
     simpleCache.releaseHoleSpan(cacheSpan2);
     simpleCache.removeSpan(simpleCache.getCachedSpans(KEY_2).first());
 
-    // Don't release the cache. This means the index file wont have been written to disk after the
+    // Don't release the cache. This means the index file won't have been written to disk after the
     // data for KEY_2 was removed. Move the cache instead, so we can reload it without failing the
     // folder locking check.
     File cacheDir2 =
@@ -322,7 +322,7 @@ public class SimpleCacheTest {
   @Test
   public void testExceptionDuringEvictionByLeastRecentlyUsedCacheEvictorNotHang() throws Exception {
     CachedContentIndex contentIndex =
-        Mockito.spy(new CachedContentIndex(TestUtil.getTestDatabaseProvider()));
+        Mockito.spy(new CachedContentIndex(TestUtil.getInMemoryDatabaseProvider()));
     SimpleCache simpleCache =
         new SimpleCache(
             cacheDir, new LeastRecentlyUsedCacheEvictor(20), contentIndex, /* fileIndex= */ null);

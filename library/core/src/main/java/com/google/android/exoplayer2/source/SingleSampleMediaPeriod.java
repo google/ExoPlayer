@@ -173,6 +173,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
+  public boolean isLoading() {
+    return loader.isLoading();
+  }
+
+  @Override
   public long readDiscontinuity() {
     if (!notifiedReadingStarted) {
       eventDispatcher.readingStarted();

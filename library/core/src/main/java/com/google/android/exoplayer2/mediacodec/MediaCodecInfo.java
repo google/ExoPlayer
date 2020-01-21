@@ -384,13 +384,13 @@ public final class MediaCodecInfo {
 
   /**
    * Whether the decoder supports video with a given width, height and frame rate.
-   * <p>
-   * Must not be called if the device SDK version is less than 21.
+   *
+   * <p>Must not be called if the device SDK version is less than 21.
    *
    * @param width Width in pixels.
    * @param height Height in pixels.
-   * @param frameRate Optional frame rate in frames per second. Ignored if set to
-   *     {@link Format#NO_VALUE} or any value less than or equal to 0.
+   * @param frameRate Optional frame rate in frames per second. Ignored if set to {@link
+   *     Format#NO_VALUE} or any value less than or equal to 0.
    * @return Whether the decoder supports video with the given width, height and frame rate.
    */
   @TargetApi(21)
@@ -405,10 +405,8 @@ public final class MediaCodecInfo {
       return false;
     }
     if (!areSizeAndRateSupportedV21(videoCapabilities, width, height, frameRate)) {
-      // Capabilities are known to be inaccurately reported for vertical resolutions on some devices
-      // (b/31387661). If the video is vertical and the capabilities indicate support if the width
-      // and height are swapped, we assume that the vertical resolution is also supported.
       if (width >= height
+          || !enableRotatedVerticalResolutionWorkaround(name)
           || !areSizeAndRateSupportedV21(videoCapabilities, height, width, frameRate)) {
         logNoSupport("sizeAndRate.support, " + width + "x" + height + "x" + frameRate);
         return false;
@@ -433,18 +431,13 @@ public final class MediaCodecInfo {
   @TargetApi(21)
   public Point alignVideoSizeV21(int width, int height) {
     if (capabilities == null) {
-      logNoSupport("align.caps");
       return null;
     }
     VideoCapabilities videoCapabilities = capabilities.getVideoCapabilities();
     if (videoCapabilities == null) {
-      logNoSupport("align.vCaps");
       return null;
     }
-    int widthAlignment = videoCapabilities.getWidthAlignment();
-    int heightAlignment = videoCapabilities.getHeightAlignment();
-    return new Point(Util.ceilDivide(width, widthAlignment) * widthAlignment,
-        Util.ceilDivide(height, heightAlignment) * heightAlignment);
+    return alignVideoSizeV21(videoCapabilities, width, height);
   }
 
   /**
@@ -575,6 +568,11 @@ public final class MediaCodecInfo {
   @TargetApi(21)
   private static boolean areSizeAndRateSupportedV21(VideoCapabilities capabilities, int width,
       int height, double frameRate) {
+    // Don't ever fail due to alignment. See: https://github.com/google/ExoPlayer/issues/6551.
+    Point alignedSize = alignVideoSizeV21(capabilities, width, height);
+    width = alignedSize.x;
+    height = alignedSize.y;
+
     if (frameRate == Format.NO_VALUE || frameRate <= 0) {
       return capabilities.isSizeSupported(width, height);
     } else {
@@ -586,8 +584,34 @@ public final class MediaCodecInfo {
     }
   }
 
+  @TargetApi(21)
+  private static Point alignVideoSizeV21(VideoCapabilities capabilities, int width, int height) {
+    int widthAlignment = capabilities.getWidthAlignment();
+    int heightAlignment = capabilities.getHeightAlignment();
+    return new Point(
+        Util.ceilDivide(width, widthAlignment) * widthAlignment,
+        Util.ceilDivide(height, heightAlignment) * heightAlignment);
+  }
+
   @TargetApi(23)
   private static int getMaxSupportedInstancesV23(CodecCapabilities capabilities) {
     return capabilities.getMaxSupportedInstances();
+  }
+
+  /**
+   * Capabilities are known to be inaccurately reported for vertical resolutions on some devices.
+   * [Internal ref: b/31387661]. When this workaround is enabled, we also check whether the
+   * capabilities indicate support if the width and height are swapped. If they do, we assume that
+   * the vertical resolution is also supported.
+   *
+   * @param name The name of the codec.
+   * @return Whether to enable the workaround.
+   */
+  private static final boolean enableRotatedVerticalResolutionWorkaround(String name) {
+    if ("OMX.MTK.VIDEO.DECODER.HEVC".equals(name) && "mcv5a".equals(Util.DEVICE)) {
+      // See https://github.com/google/ExoPlayer/issues/6612.
+      return false;
+    }
+    return true;
   }
 }

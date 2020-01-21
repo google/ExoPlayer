@@ -89,7 +89,7 @@ public interface HttpDataSource extends DataSource {
   final class RequestProperties {
 
     private final Map<String, String> requestProperties;
-    private Map<String, String> requestPropertiesSnapshot;
+    @Nullable private Map<String, String> requestPropertiesSnapshot;
 
     public RequestProperties() {
       requestProperties = new HashMap<>();

@@ -19,12 +19,13 @@ import static com.google.android.exoplayer2.extractor.ogg.VorbisReader.readBits;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ogg.VorbisReader.VorbisSetup;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput.SimulatedIOException;
-import com.google.android.exoplayer2.testutil.OggTestData;
+import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
 import org.junit.Test;
@@ -56,7 +57,11 @@ public final class VorbisReaderTest {
 
   @Test
   public void testReadSetupHeadersWithIOExceptions() throws IOException, InterruptedException {
-    byte[] data = OggTestData.getVorbisHeaderPages();
+    // initial two pages of bytes which by spec contain the three Vorbis header packets:
+    // identification, comment and setup header.
+    byte[] data =
+        TestUtil.getByteArray(
+            ApplicationProvider.getApplicationContext(), "binary/ogg/vorbis_header_pages");
     ExtractorInput input = new FakeExtractorInput.Builder().setData(data).setSimulateIOErrors(true)
         .setSimulateUnknownLength(true).setSimulatePartialReads(true).build();
 

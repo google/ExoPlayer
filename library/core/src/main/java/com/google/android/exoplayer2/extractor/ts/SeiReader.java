@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
@@ -45,7 +46,7 @@ public final class SeiReader {
       idGenerator.generateNewId();
       TrackOutput output = extractorOutput.track(idGenerator.getTrackId(), C.TRACK_TYPE_TEXT);
       Format channelFormat = closedCaptionFormats.get(i);
-      String channelMimeType = channelFormat.sampleMimeType;
+      @Nullable String channelMimeType = channelFormat.sampleMimeType;
       Assertions.checkArgument(MimeTypes.APPLICATION_CEA608.equals(channelMimeType)
           || MimeTypes.APPLICATION_CEA708.equals(channelMimeType),
           "Invalid closed caption mime type provided: " + channelMimeType);
@@ -69,5 +70,4 @@ public final class SeiReader {
   public void consume(long pesTimeUs, ParsableByteArray seiBuffer) {
     CeaUtil.consume(pesTimeUs, seiBuffer, outputs);
   }
-
 }

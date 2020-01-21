@@ -14,6 +14,8 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_show">ప్లేయర్ నియంత్రణలను చూపు</string>
+  <string name="exo_controls_hide">ప్లేయర్ నియంత్రణలను దాచిపెట్టు</string>
   <string name="exo_controls_previous_description">మునుపటి ట్రాక్</string>
   <string name="exo_controls_next_description">తదుపరి ట్రాక్</string>
   <string name="exo_controls_pause_description">పాజ్ చేయండి</string>

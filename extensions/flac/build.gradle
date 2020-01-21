@@ -42,7 +42,9 @@ dependencies {
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     androidTestImplementation project(modulePrefix + 'testutils')
-    androidTestImplementation 'androidx.test:runner:' + androidxTestVersion
+    androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion
+    testImplementation 'androidx.test:core:' + androidxTestCoreVersion
+    testImplementation 'androidx.test.ext:junit:' + androidxTestJUnitVersion
     testImplementation project(modulePrefix + 'testutils')
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }

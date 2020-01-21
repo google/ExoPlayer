@@ -26,7 +26,7 @@ import java.util.List;
  */
 public abstract class SegmentBase {
 
-  /* package */ @Nullable final RangedUri initialization;
+  @Nullable /* package */ final RangedUri initialization;
   /* package */ final long timescale;
   /* package */ final long presentationTimeOffset;
 
@@ -116,7 +116,7 @@ public abstract class SegmentBase {
 
     /* package */ final long startNumber;
     /* package */ final long duration;
-    /* package */ @Nullable final List<SegmentTimelineElement> segmentTimeline;
+    @Nullable /* package */ final List<SegmentTimelineElement> segmentTimeline;
 
     /**
      * @param initialization A {@link RangedUri} corresponding to initialization data, if such data
@@ -233,12 +233,10 @@ public abstract class SegmentBase {
 
   }
 
-  /**
-   * A {@link MultiSegmentBase} that uses a SegmentList to define its segments.
-   */
-  public static class SegmentList extends MultiSegmentBase {
+  /** A {@link MultiSegmentBase} that uses a SegmentList to define its segments. */
+  public static final class SegmentList extends MultiSegmentBase {
 
-    /* package */ @Nullable final List<RangedUri> mediaSegments;
+    @Nullable /* package */ final List<RangedUri> mediaSegments;
 
     /**
      * @param initialization A {@link RangedUri} corresponding to initialization data, if such data
@@ -285,13 +283,11 @@ public abstract class SegmentBase {
 
   }
 
-  /**
-   * A {@link MultiSegmentBase} that uses a SegmentTemplate to define its segments.
-   */
-  public static class SegmentTemplate extends MultiSegmentBase {
+  /** A {@link MultiSegmentBase} that uses a SegmentTemplate to define its segments. */
+  public static final class SegmentTemplate extends MultiSegmentBase {
 
-    /* package */ @Nullable final UrlTemplate initializationTemplate;
-    /* package */ @Nullable final UrlTemplate mediaTemplate;
+    @Nullable /* package */ final UrlTemplate initializationTemplate;
+    @Nullable /* package */ final UrlTemplate mediaTemplate;
     /* package */ final long endNumber;
 
     /**
@@ -378,10 +374,8 @@ public abstract class SegmentBase {
     }
   }
 
-  /**
-   * Represents a timeline segment from the MPD's SegmentTimeline list.
-   */
-  public static class SegmentTimelineElement {
+  /** Represents a timeline segment from the MPD's SegmentTimeline list. */
+  public static final class SegmentTimelineElement {
 
     /* package */ final long startTime;
     /* package */ final long duration;

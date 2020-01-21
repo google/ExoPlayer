@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.source;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
-import android.os.Handler;
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
@@ -29,7 +28,6 @@ import com.google.android.exoplayer2.Timeline.Window;
 import com.google.android.exoplayer2.source.ClippingMediaSource.IllegalClippingException;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
-import com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData;
 import com.google.android.exoplayer2.testutil.FakeMediaPeriod;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
@@ -38,6 +36,7 @@ import com.google.android.exoplayer2.testutil.MediaSourceTestRunner;
 import com.google.android.exoplayer2.testutil.TimelineAsserts;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.TransferListener;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
@@ -64,7 +63,12 @@ public final class ClippingMediaSourceTest {
 
   @Test
   public void testNoClipping() throws IOException {
-    Timeline timeline = new SinglePeriodTimeline(TEST_PERIOD_DURATION_US, true, false);
+    Timeline timeline =
+        new SinglePeriodTimeline(
+            TEST_PERIOD_DURATION_US,
+            /* isSeekable= */ true,
+            /* isDynamic= */ false,
+            /* isLive= */ false);
 
     Timeline clippedTimeline = getClippedTimeline(timeline, 0, TEST_PERIOD_DURATION_US);
 
@@ -78,7 +82,12 @@ public final class ClippingMediaSourceTest {
 
   @Test
   public void testClippingUnseekableWindowThrows() throws IOException {
-    Timeline timeline = new SinglePeriodTimeline(TEST_PERIOD_DURATION_US, false, false);
+    Timeline timeline =
+        new SinglePeriodTimeline(
+            TEST_PERIOD_DURATION_US,
+            /* isSeekable= */ false,
+            /* isDynamic= */ false,
+            /* isLive= */ false);
 
     // If the unseekable window isn't clipped, clipping succeeds.
     getClippedTimeline(timeline, 0, TEST_PERIOD_DURATION_US);
@@ -93,7 +102,12 @@ public final class ClippingMediaSourceTest {
 
   @Test
   public void testClippingStart() throws IOException {
-    Timeline timeline = new SinglePeriodTimeline(TEST_PERIOD_DURATION_US, true, false);
+    Timeline timeline =
+        new SinglePeriodTimeline(
+            TEST_PERIOD_DURATION_US,
+            /* isSeekable= */ true,
+            /* isDynamic= */ false,
+            /* isLive= */ false);
 
     Timeline clippedTimeline =
         getClippedTimeline(timeline, TEST_CLIP_AMOUNT_US, TEST_PERIOD_DURATION_US);
@@ -105,7 +119,12 @@ public final class ClippingMediaSourceTest {
 
   @Test
   public void testClippingEnd() throws IOException {
-    Timeline timeline = new SinglePeriodTimeline(TEST_PERIOD_DURATION_US, true, false);
+    Timeline timeline =
+        new SinglePeriodTimeline(
+            TEST_PERIOD_DURATION_US,
+            /* isSeekable= */ true,
+            /* isDynamic= */ false,
+            /* isLive= */ false);
 
     Timeline clippedTimeline =
         getClippedTimeline(timeline, 0, TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US);
@@ -121,7 +140,8 @@ public final class ClippingMediaSourceTest {
     // to it having loaded sufficient data to establish its duration and seekability. Such timelines
     // should not result in clipping failure.
     Timeline timeline =
-        new SinglePeriodTimeline(C.TIME_UNSET, /* isSeekable= */ false, /* isDynamic= */ true);
+        new SinglePeriodTimeline(
+            C.TIME_UNSET, /* isSeekable= */ false, /* isDynamic= */ true, /* isLive= */ true);
 
     Timeline clippedTimeline =
         getClippedTimeline(
@@ -139,7 +159,8 @@ public final class ClippingMediaSourceTest {
         new SinglePeriodTimeline(
             /* durationUs= */ TEST_PERIOD_DURATION_US,
             /* isSeekable= */ true,
-            /* isDynamic= */ false);
+            /* isDynamic= */ false,
+            /* isLive= */ false);
 
     // When clipping to the end, the clipped timeline should also have a duration.
     Timeline clippedTimeline =
@@ -153,7 +174,10 @@ public final class ClippingMediaSourceTest {
     // Create a child timeline that has an unknown duration.
     Timeline timeline =
         new SinglePeriodTimeline(
-            /* durationUs= */ C.TIME_UNSET, /* isSeekable= */ true, /* isDynamic= */ false);
+            /* durationUs= */ C.TIME_UNSET,
+            /* isSeekable= */ true,
+            /* isDynamic= */ false,
+            /* isLive= */ false);
 
     // When clipping to the end, the clipped timeline should also have an unset duration.
     Timeline clippedTimeline =
@@ -164,7 +188,12 @@ public final class ClippingMediaSourceTest {
 
   @Test
   public void testClippingStartAndEnd() throws IOException {
-    Timeline timeline = new SinglePeriodTimeline(TEST_PERIOD_DURATION_US, true, false);
+    Timeline timeline =
+        new SinglePeriodTimeline(
+            TEST_PERIOD_DURATION_US,
+            /* isSeekable= */ true,
+            /* isDynamic= */ false,
+            /* isLive= */ false);
 
     Timeline clippedTimeline =
         getClippedTimeline(
@@ -185,6 +214,7 @@ public final class ClippingMediaSourceTest {
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
             /* isDynamic= */ true,
+            /* isLive= */ true,
             /* manifest= */ null,
             /* tag= */ null);
 
@@ -207,6 +237,7 @@ public final class ClippingMediaSourceTest {
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
             /* isDynamic= */ true,
+            /* isLive= */ true,
             /* manifest= */ null,
             /* tag= */ null);
     Timeline timeline2 =
@@ -217,6 +248,7 @@ public final class ClippingMediaSourceTest {
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
             /* isDynamic= */ true,
+            /* isLive= */ true,
             /* manifest= */ null,
             /* tag= */ null);
 
@@ -256,6 +288,7 @@ public final class ClippingMediaSourceTest {
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
             /* isDynamic= */ true,
+            /* isLive= */ true,
             /* manifest= */ null,
             /* tag= */ null);
     Timeline timeline2 =
@@ -266,6 +299,7 @@ public final class ClippingMediaSourceTest {
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
             /* isDynamic= */ true,
+            /* isLive= */ true,
             /* manifest= */ null,
             /* tag= */ null);
 
@@ -305,6 +339,7 @@ public final class ClippingMediaSourceTest {
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
             /* isDynamic= */ true,
+            /* isLive= */ true,
             /* manifest= */ null,
             /* tag= */ null);
     Timeline timeline2 =
@@ -315,6 +350,7 @@ public final class ClippingMediaSourceTest {
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
             /* isDynamic= */ true,
+            /* isLive= */ true,
             /* manifest= */ null,
             /* tag= */ null);
 
@@ -355,6 +391,7 @@ public final class ClippingMediaSourceTest {
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
             /* isDynamic= */ true,
+            /* isLive= */ true,
             /* manifest= */ null,
             /* tag= */ null);
     Timeline timeline2 =
@@ -365,6 +402,7 @@ public final class ClippingMediaSourceTest {
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
             /* isDynamic= */ true,
+            /* isLive= */ true,
             /* manifest= */ null,
             /* tag= */ null);
 
@@ -480,7 +518,10 @@ public final class ClippingMediaSourceTest {
       throws IOException {
     Timeline timeline =
         new SinglePeriodTimeline(
-            TEST_PERIOD_DURATION_US, /* isSeekable= */ true, /* isDynamic= */ false);
+            TEST_PERIOD_DURATION_US,
+            /* isSeekable= */ true,
+            /* isDynamic= */ false,
+            /* isLive= */ false);
     FakeMediaSource fakeMediaSource =
         new FakeMediaSource(timeline) {
           @Override
@@ -512,8 +553,8 @@ public final class ClippingMediaSourceTest {
       testRunner.runOnPlaybackThread(
           () ->
               clippingMediaSource.addEventListener(
-                  new Handler(),
-                  new DefaultMediaSourceEventListener() {
+                  Util.createHandler(),
+                  new MediaSourceEventListener() {
                     @Override
                     public void onDownstreamFormatChanged(
                         int windowIndex,

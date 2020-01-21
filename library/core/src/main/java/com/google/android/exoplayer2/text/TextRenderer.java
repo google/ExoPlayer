@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -79,11 +80,11 @@ public final class TextRenderer extends BaseRenderer implements Callback {
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
   @ReplacementState private int decoderReplacementState;
-  private Format streamFormat;
-  private SubtitleDecoder decoder;
-  private SubtitleInputBuffer nextInputBuffer;
-  private SubtitleOutputBuffer subtitle;
-  private SubtitleOutputBuffer nextSubtitle;
+  @Nullable private Format streamFormat;
+  @Nullable private SubtitleDecoder decoder;
+  @Nullable private SubtitleInputBuffer nextInputBuffer;
+  @Nullable private SubtitleOutputBuffer subtitle;
+  @Nullable private SubtitleOutputBuffer nextSubtitle;
   private int nextSubtitleEventIndex;
 
   /**
@@ -118,18 +119,20 @@ public final class TextRenderer extends BaseRenderer implements Callback {
   }
 
   @Override
+  @Capabilities
   public int supportsFormat(Format format) {
     if (decoderFactory.supportsFormat(format)) {
-      return supportsFormatDrm(null, format.drmInitData) ? FORMAT_HANDLED : FORMAT_UNSUPPORTED_DRM;
+      return RendererCapabilities.create(
+          supportsFormatDrm(null, format.drmInitData) ? FORMAT_HANDLED : FORMAT_UNSUPPORTED_DRM);
     } else if (MimeTypes.isText(format.sampleMimeType)) {
-      return FORMAT_UNSUPPORTED_SUBTYPE;
+      return RendererCapabilities.create(FORMAT_UNSUPPORTED_SUBTYPE);
     } else {
-      return FORMAT_UNSUPPORTED_TYPE;
+      return RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
     }
   }
 
   @Override
-  protected void onStreamChanged(Format[] formats, long offsetUs) throws ExoPlaybackException {
+  protected void onStreamChanged(Format[] formats, long offsetUs) {
     streamFormat = formats[0];
     if (decoder != null) {
       decoderReplacementState = REPLACEMENT_STATE_SIGNAL_END_OF_STREAM;
@@ -162,7 +165,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
       try {
         nextSubtitle = decoder.dequeueOutputBuffer();
       } catch (SubtitleDecoderException e) {
-        throw ExoPlaybackException.createForRenderer(e, getIndex());
+        throw createRendererException(e, streamFormat);
       }
     }
 
@@ -244,7 +247,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
         }
       }
     } catch (SubtitleDecoderException e) {
-      throw ExoPlaybackException.createForRenderer(e, getIndex());
+      throw createRendererException(e, streamFormat);
     }
   }
 

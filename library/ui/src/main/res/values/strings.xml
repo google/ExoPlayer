@@ -14,6 +14,10 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <!-- Description for a media player view to indicate that tapping on the view shows the playback controls. [CHAR LIMIT=50] -->
+  <string name="exo_controls_show">Show player controls</string>
+  <!-- Description for a media player view to indicate that tapping on the view hides the playback controls [CHAR LIMIT=50] -->
+  <string name="exo_controls_hide">Hide player controls</string>
   <!-- Description for a media control button that causes the previous track to be played. [CHAR LIMIT=30] -->
   <string name="exo_controls_previous_description">Previous track</string>
   <!-- Description for a media control button that causes the next track to be played. [CHAR LIMIT=30] -->

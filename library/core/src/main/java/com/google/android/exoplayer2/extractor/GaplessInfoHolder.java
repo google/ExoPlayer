@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor;
 
+import static com.google.android.exoplayer2.util.Util.castNonNull;
+
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.CommentFrame;
@@ -107,8 +109,8 @@ public final class GaplessInfoHolder {
     Matcher matcher = GAPLESS_COMMENT_PATTERN.matcher(data);
     if (matcher.find()) {
       try {
-        int encoderDelay = Integer.parseInt(matcher.group(1), 16);
-        int encoderPadding = Integer.parseInt(matcher.group(2), 16);
+        int encoderDelay = Integer.parseInt(castNonNull(matcher.group(1)), 16);
+        int encoderPadding = Integer.parseInt(castNonNull(matcher.group(2)), 16);
         if (encoderDelay > 0 || encoderPadding > 0) {
           this.encoderDelay = encoderDelay;
           this.encoderPadding = encoderPadding;

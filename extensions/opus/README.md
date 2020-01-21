@@ -11,7 +11,7 @@ more external libraries as described below. These are licensed separately.
 
 [Apache 2.0]: https://github.com/google/ExoPlayer/blob/release-v2/LICENSE
 
-## Build instructions ##
+## Build instructions (Linux, macOS) ##
 
 To use this extension you need to clone the ExoPlayer repository and depend on
 its modules locally. Instructions for doing this can be found in ExoPlayer's
@@ -28,7 +28,8 @@ EXOPLAYER_ROOT="$(pwd)"
 OPUS_EXT_PATH="${EXOPLAYER_ROOT}/extensions/opus/src/main"
 ```
 
-* Download the [Android NDK][] and set its location in an environment variable:
+* Download the [Android NDK][] and set its location in an environment variable.
+  This build configuration has been tested on NDK r20.
 
 ```
 NDK_PATH="<path to Android NDK>"
@@ -56,6 +57,13 @@ ${NDK_PATH}/ndk-build APP_ABI=all -j4
 
 [top level README]: https://github.com/google/ExoPlayer/blob/release-v2/README.md
 [Android NDK]: https://developer.android.com/tools/sdk/ndk/index.html
+
+## Build instructions (Windows) ##
+
+We do not provide support for building this extension on Windows, however it
+should be possible to follow the Linux instructions in [Windows PowerShell][].
+
+[Windows PowerShell]: https://docs.microsoft.com/en-us/powershell/scripting/getting-started/getting-started-with-windows-powershell
 
 ## Notes ##
 
@@ -92,6 +100,14 @@ Note: These instructions assume you're using `DefaultTrackSelector`. If you have
 a custom track selector the choice of `Renderer` is up to your implementation,
 so you need to make sure you are passing an `LibopusAudioRenderer` to the
 player, then implement your own logic to use the renderer for a given track.
+
+## Using the extension in the demo application ##
+
+To try out playback using the extension in the [demo application][], see
+[enabling extension decoders][].
+
+[demo application]: https://exoplayer.dev/demo-application.html
+[enabling extension decoders]: https://exoplayer.dev/demo-application.html#enabling-extension-decoders
 
 ## Links ##
 

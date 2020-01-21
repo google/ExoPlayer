@@ -23,9 +23,7 @@
 
   <application
       android:allowBackup="false"
-      tools:ignore="MissingApplicationIcon,HardcodedDebugMode">
-    <uses-library android:name="android.test.runner"/>
-  </application>
+      tools:ignore="MissingApplicationIcon,HardcodedDebugMode"/>
 
   <instrumentation
       android:targetPackage="com.google.android.exoplayer2.ext.flac.test"

@@ -15,10 +15,12 @@
  */
 package com.google.android.exoplayer2.extractor.ogg;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
-import com.google.android.exoplayer2.extractor.ogg.VorbisUtil.Mode;
+import com.google.android.exoplayer2.extractor.VorbisUtil;
+import com.google.android.exoplayer2.extractor.VorbisUtil.Mode;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
@@ -29,16 +31,16 @@ import java.util.ArrayList;
  */
 /* package */ final class VorbisReader extends StreamReader {
 
-  private VorbisSetup vorbisSetup;
+  @Nullable private VorbisSetup vorbisSetup;
   private int previousPacketBlockSize;
   private boolean seenFirstAudioPacket;
 
-  private VorbisUtil.VorbisIdHeader vorbisIdHeader;
-  private VorbisUtil.CommentHeader commentHeader;
+  @Nullable private VorbisUtil.VorbisIdHeader vorbisIdHeader;
+  @Nullable private VorbisUtil.CommentHeader commentHeader;
 
   public static boolean verifyBitstreamType(ParsableByteArray data) {
     try {
-      return VorbisUtil.verifyVorbisHeaderCapturePattern(0x01, data, true);
+      return VorbisUtil.verifyVorbisHeaderCapturePattern(/* headerType= */ 0x01, data, true);
     } catch (ParserException e) {
       return false;
     }
@@ -87,7 +89,7 @@ import java.util.ArrayList;
 
   @Override
   protected boolean readHeaders(ParsableByteArray packet, long position, SetupData setupData)
-      throws IOException, InterruptedException {
+      throws IOException {
     if (vorbisSetup != null) {
       return false;
     }
@@ -101,14 +103,24 @@ import java.util.ArrayList;
     codecInitialisationData.add(vorbisSetup.idHeader.data);
     codecInitialisationData.add(vorbisSetup.setupHeaderData);
 
-    setupData.format = Format.createAudioSampleFormat(null, MimeTypes.AUDIO_VORBIS, null,
-        this.vorbisSetup.idHeader.bitrateNominal, Format.NO_VALUE,
-        this.vorbisSetup.idHeader.channels, (int) this.vorbisSetup.idHeader.sampleRate,
-        codecInitialisationData, null, 0, null);
+    setupData.format =
+        Format.createAudioSampleFormat(
+            null,
+            MimeTypes.AUDIO_VORBIS,
+            /* codecs= */ null,
+            this.vorbisSetup.idHeader.bitrateNominal,
+            Format.NO_VALUE,
+            this.vorbisSetup.idHeader.channels,
+            (int) this.vorbisSetup.idHeader.sampleRate,
+            codecInitialisationData,
+            null,
+            /* selectionFlags= */ 0,
+            /* language= */ null);
     return true;
   }
 
   @VisibleForTesting
+  @Nullable
   /* package */ VorbisSetup readSetupHeaders(ParsableByteArray scratch) throws IOException {
 
     if (vorbisIdHeader == null) {

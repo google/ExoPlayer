@@ -75,7 +75,7 @@ import androidx.annotation.Nullable;
     this.listener = listener;
     this.pxPerDegrees = pxPerDegrees;
     gestureDetector = new GestureDetector(context, this);
-    roll = SphericalSurfaceView.UPRIGHT_ROLL;
+    roll = SphericalGLSurfaceView.UPRIGHT_ROLL;
   }
 
   public void setSingleTapListener(@Nullable SingleTapListener listener) {

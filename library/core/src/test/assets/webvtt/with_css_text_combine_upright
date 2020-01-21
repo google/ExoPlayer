@@ -1,0 +1,18 @@
+WEBVTT
+
+NOTE https://developer.mozilla.org/en-US/docs/Web/CSS/text-combine-upright
+NOTE The `digits` values are ignored in CssParser and all assumed to be `all`
+
+STYLE
+::cue(.tcu-all) {
+  text-combine-upright: all;
+}
+::cue(.tcu-digits) {
+  text-combine-upright: digits 4;
+}
+
+00:00:00.000 --> 00:00:01.000 vertical:rl
+Combine <c.tcu-all>all</c> test
+
+00:03.000 --> 00:04.000 vertical:rl
+Combine <c.tcu-digits>0004</c> digits

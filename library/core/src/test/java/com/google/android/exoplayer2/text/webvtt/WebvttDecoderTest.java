@@ -15,24 +15,23 @@
  */
 package com.google.android.exoplayer2.text.webvtt;
 
+import static com.google.android.exoplayer2.testutil.truth.SpannedSubject.assertThat;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
-import android.graphics.Typeface;
 import android.text.Layout.Alignment;
 import android.text.Spanned;
-import android.text.style.BackgroundColorSpan;
-import android.text.style.ForegroundColorSpan;
-import android.text.style.StyleSpan;
-import android.text.style.TypefaceSpan;
-import android.text.style.UnderlineSpan;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.SubtitleDecoderException;
+import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.ColorParser;
+import com.google.common.collect.Iterables;
+import com.google.common.truth.Expect;
 import java.io.IOException;
-import java.util.List;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -45,12 +44,17 @@ public class WebvttDecoderTest {
   private static final String TYPICAL_WITH_IDS_FILE = "webvtt/typical_with_identifiers";
   private static final String TYPICAL_WITH_COMMENTS_FILE = "webvtt/typical_with_comments";
   private static final String WITH_POSITIONING_FILE = "webvtt/with_positioning";
+  private static final String WITH_VERTICAL_FILE = "webvtt/with_vertical";
   private static final String WITH_BAD_CUE_HEADER_FILE = "webvtt/with_bad_cue_header";
   private static final String WITH_TAGS_FILE = "webvtt/with_tags";
   private static final String WITH_CSS_STYLES = "webvtt/with_css_styles";
   private static final String WITH_CSS_COMPLEX_SELECTORS = "webvtt/with_css_complex_selectors";
+  private static final String WITH_CSS_TEXT_COMBINE_UPRIGHT =
+      "webvtt/with_css_text_combine_upright";
   private static final String WITH_BOM = "webvtt/with_bom";
   private static final String EMPTY_FILE = "webvtt/empty";
+
+  @Rule public final Expect expect = Expect.create();
 
   @Test
   public void testDecodeEmpty() throws IOException {
@@ -65,330 +69,310 @@ public class WebvttDecoderTest {
   }
 
   @Test
-  public void testDecodeTypical() throws IOException, SubtitleDecoderException {
+  public void testDecodeTypical() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(TYPICAL_FILE);
 
-    // Test event count.
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
 
-    // Test cues.
-    assertCue(
-        subtitle,
-        /* eventTimeIndex= */ 0,
-        /* startTimeUs= */ 0,
-        /* endTimeUs= */ 1234000,
-        "This is the first subtitle.");
-    assertCue(
-        subtitle,
-        /* eventTimeIndex= */ 2,
-        /* startTimeUs= */ 2345000,
-        /* endTimeUs= */ 3456000,
-        "This is the second subtitle.");
+    assertThat(subtitle.getEventTime(0)).isEqualTo(0L);
+    assertThat(subtitle.getEventTime(1)).isEqualTo(1_234_000L);
+    Cue firstCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(0)));
+    assertThat(firstCue.text.toString()).isEqualTo("This is the first subtitle.");
+
+    assertThat(subtitle.getEventTime(2)).isEqualTo(2_345_000L);
+    assertThat(subtitle.getEventTime(3)).isEqualTo(3_456_000L);
+    Cue secondCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(2)));
+    assertThat(secondCue.text.toString()).isEqualTo("This is the second subtitle.");
   }
 
   @Test
-  public void testDecodeWithBom() throws IOException, SubtitleDecoderException {
+  public void testDecodeWithBom() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_BOM);
 
-    // Test event count.
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
 
-    // Test cues.
-    assertCue(
-        subtitle,
-        /* eventTimeIndex= */ 0,
-        /* startTimeUs= */ 0,
-        /* endTimeUs= */ 1234000,
-        "This is the first subtitle.");
-    assertCue(
-        subtitle,
-        /* eventTimeIndex= */ 2,
-        /* startTimeUs= */ 2345000,
-        /* endTimeUs= */ 3456000,
-        "This is the second subtitle.");
+    assertThat(subtitle.getEventTime(0)).isEqualTo(0L);
+    assertThat(subtitle.getEventTime(1)).isEqualTo(1_234_000L);
+    Cue firstCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(0)));
+    assertThat(firstCue.text.toString()).isEqualTo("This is the first subtitle.");
+
+    assertThat(subtitle.getEventTime(2)).isEqualTo(2_345_000L);
+    assertThat(subtitle.getEventTime(3)).isEqualTo(3_456_000L);
+    Cue secondCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(2)));
+    assertThat(secondCue.text.toString()).isEqualTo("This is the second subtitle.");
   }
 
   @Test
-  public void testDecodeTypicalWithBadTimestamps() throws IOException, SubtitleDecoderException {
+  public void testDecodeTypicalWithBadTimestamps() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(TYPICAL_WITH_BAD_TIMESTAMPS);
 
-    // Test event count.
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
 
-    // Test cues.
-    assertCue(
-        subtitle,
-        /* eventTimeIndex= */ 0,
-        /* startTimeUs= */ 0,
-        /* endTimeUs= */ 1234000,
-        "This is the first subtitle.");
-    assertCue(
-        subtitle,
-        /* eventTimeIndex= */ 2,
-        /* startTimeUs= */ 2345000,
-        /* endTimeUs= */ 3456000,
-        "This is the second subtitle.");
+    assertThat(subtitle.getEventTime(0)).isEqualTo(0L);
+    assertThat(subtitle.getEventTime(1)).isEqualTo(1_234_000L);
+    Cue firstCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(0)));
+    assertThat(firstCue.text.toString()).isEqualTo("This is the first subtitle.");
+
+    assertThat(subtitle.getEventTime(2)).isEqualTo(2_345_000L);
+    assertThat(subtitle.getEventTime(3)).isEqualTo(3_456_000L);
+    Cue secondCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(2)));
+    assertThat(secondCue.text.toString()).isEqualTo("This is the second subtitle.");
   }
 
   @Test
-  public void testDecodeTypicalWithIds() throws IOException, SubtitleDecoderException {
+  public void testDecodeTypicalWithIds() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(TYPICAL_WITH_IDS_FILE);
 
-    // Test event count.
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
 
-    // Test cues.
-    assertCue(
-        subtitle,
-        /* eventTimeIndex= */ 0,
-        /* startTimeUs= */ 0,
-        /* endTimeUs= */ 1234000,
-        "This is the first subtitle.");
-    assertCue(
-        subtitle,
-        /* eventTimeIndex= */ 2,
-        /* startTimeUs= */ 2345000,
-        /* endTimeUs= */ 3456000,
-        "This is the second subtitle.");
+    assertThat(subtitle.getEventTime(0)).isEqualTo(0L);
+    assertThat(subtitle.getEventTime(1)).isEqualTo(1_234_000L);
+    Cue firstCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(0)));
+    assertThat(firstCue.text.toString()).isEqualTo("This is the first subtitle.");
+
+    assertThat(subtitle.getEventTime(2)).isEqualTo(2_345_000L);
+    assertThat(subtitle.getEventTime(3)).isEqualTo(3_456_000L);
+    Cue secondCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(2)));
+    assertThat(secondCue.text.toString()).isEqualTo("This is the second subtitle.");
   }
 
   @Test
-  public void testDecodeTypicalWithComments() throws IOException, SubtitleDecoderException {
+  public void testDecodeTypicalWithComments() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(TYPICAL_WITH_COMMENTS_FILE);
 
-    // test event count
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
 
-    // test cues
-    assertCue(
-        subtitle,
-        /* eventTimeIndex= */ 0,
-        /* startTimeUs= */ 0,
-        /* endTimeUs= */ 1234000,
-        "This is the first subtitle.");
-    assertCue(
-        subtitle,
-        /* eventTimeIndex= */ 2,
-        /* startTimeUs= */ 2345000,
-        /* endTimeUs= */ 3456000,
-        "This is the second subtitle.");
+    assertThat(subtitle.getEventTime(0)).isEqualTo(0L);
+    assertThat(subtitle.getEventTime(0 + 1)).isEqualTo(1_234_000L);
+    Cue firstCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(0)));
+    assertThat(firstCue.text.toString()).isEqualTo("This is the first subtitle.");
+
+    assertThat(subtitle.getEventTime(2)).isEqualTo(2_345_000L);
+    assertThat(subtitle.getEventTime(2 + 1)).isEqualTo(3_456_000L);
+    Cue secondCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(2)));
+    assertThat(secondCue.text.toString()).isEqualTo("This is the second subtitle.");
   }
 
   @Test
-  public void testDecodeWithTags() throws IOException, SubtitleDecoderException {
+  public void testDecodeWithTags() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_TAGS_FILE);
 
-    // Test event count.
     assertThat(subtitle.getEventTimeCount()).isEqualTo(8);
 
-    // Test cues.
-    assertCue(
-        subtitle,
-        /* eventTimeIndex= */ 0,
-        /* startTimeUs= */ 0,
-        /* endTimeUs= */ 1234000,
-        "This is the first subtitle.");
-    assertCue(
-        subtitle,
-        /* eventTimeIndex= */ 2,
-        /* startTimeUs= */ 2345000,
-        /* endTimeUs= */ 3456000,
-        "This is the second subtitle.");
-    assertCue(
-        subtitle,
-        /* eventTimeIndex= */ 4,
-        /* startTimeUs= */ 4000000,
-        /* endTimeUs= */ 5000000,
-        "This is the third subtitle.");
-    assertCue(
-        subtitle,
-        /* eventTimeIndex= */ 6,
-        /* startTimeUs= */ 6000000,
-        /* endTimeUs= */ 7000000,
-        "This is the <fourth> &subtitle.");
+    assertThat(subtitle.getEventTime(0)).isEqualTo(0L);
+    assertThat(subtitle.getEventTime(1)).isEqualTo(1_234_000L);
+    Cue firstCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(0)));
+    assertThat(firstCue.text.toString()).isEqualTo("This is the first subtitle.");
+
+    assertThat(subtitle.getEventTime(2)).isEqualTo(2_345_000L);
+    assertThat(subtitle.getEventTime(3)).isEqualTo(3_456_000L);
+    Cue secondCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(2)));
+    assertThat(secondCue.text.toString()).isEqualTo("This is the second subtitle.");
+
+    assertThat(subtitle.getEventTime(4)).isEqualTo(4_000_000L);
+    assertThat(subtitle.getEventTime(5)).isEqualTo(5_000_000L);
+    Cue thirdCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(4)));
+    assertThat(thirdCue.text.toString()).isEqualTo("This is the third subtitle.");
+
+    assertThat(subtitle.getEventTime(6)).isEqualTo(6_000_000L);
+    assertThat(subtitle.getEventTime(7)).isEqualTo(7_000_000L);
+    Cue fourthCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(6)));
+    assertThat(fourthCue.text.toString()).isEqualTo("This is the <fourth> &subtitle.");
   }
 
   @Test
-  public void testDecodeWithPositioning() throws IOException, SubtitleDecoderException {
+  public void testDecodeWithPositioning() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_POSITIONING_FILE);
-    // Test event count.
+
     assertThat(subtitle.getEventTimeCount()).isEqualTo(12);
-    // Test cues.
-    assertCue(
-        subtitle,
-        /* eventTimeIndex= */ 0,
-        /* startTimeUs= */ 0,
-        /* endTimeUs= */ 1234000,
-        "This is the first subtitle.",
-        Alignment.ALIGN_NORMAL,
-        /* line= */ Cue.DIMEN_UNSET,
-        /* lineType= */ Cue.TYPE_UNSET,
-        /* lineAnchor= */ Cue.TYPE_UNSET,
-        /* position= */ 0.1f,
-        /* positionAnchor= */ Cue.ANCHOR_TYPE_START,
-        /* size= */ 0.35f);
-    assertCue(
-        subtitle,
-        /* eventTimeIndex= */ 2,
-        /* startTimeUs= */ 2345000,
-        /* endTimeUs= */ 3456000,
-        "This is the second subtitle.",
-        Alignment.ALIGN_OPPOSITE,
-        /* line= */ Cue.DIMEN_UNSET,
-        /* lineType= */ Cue.TYPE_UNSET,
-        /* lineAnchor= */ Cue.TYPE_UNSET,
-        /* position= */ Cue.DIMEN_UNSET,
-        /* positionAnchor= */ Cue.TYPE_UNSET,
-        /* size= */ 0.35f);
-    assertCue(
-        subtitle,
-        /* eventTimeIndex= */ 4,
-        /* startTimeUs= */ 4000000,
-        /* endTimeUs= */ 5000000,
-        "This is the third subtitle.",
-        Alignment.ALIGN_CENTER,
-        /* line= */ 0.45f,
-        /* lineType= */ Cue.LINE_TYPE_FRACTION,
-        /* lineAnchor= */ Cue.ANCHOR_TYPE_END,
-        /* position= */ Cue.DIMEN_UNSET,
-        /* positionAnchor= */ Cue.TYPE_UNSET,
-        /* size= */ 0.35f);
-    assertCue(
-        subtitle,
-        /* eventTimeIndex= */ 6,
-        /* startTimeUs= */ 6000000,
-        /* endTimeUs= */ 7000000,
-        "This is the fourth subtitle.",
-        Alignment.ALIGN_CENTER,
-        /* line= */ -11f,
-        /* lineType= */ Cue.LINE_TYPE_NUMBER,
-        /* lineAnchor= */ Cue.TYPE_UNSET,
-        /* position= */ Cue.DIMEN_UNSET,
-        /* positionAnchor= */ Cue.TYPE_UNSET,
-        /* size= */ Cue.DIMEN_UNSET);
-    assertCue(
-        subtitle,
-        /* eventTimeIndex= */ 8,
-        /* startTimeUs= */ 7000000,
-        /* endTimeUs= */ 8000000,
-        "This is the fifth subtitle.",
-        Alignment.ALIGN_OPPOSITE,
-        /* line= */ Cue.DIMEN_UNSET,
-        /* lineType= */ Cue.TYPE_UNSET,
-        /* lineAnchor= */ Cue.TYPE_UNSET,
-        /* position= */ 0.1f,
-        /* positionAnchor= */ Cue.ANCHOR_TYPE_END,
-        /* size= */ 0.1f);
-    assertCue(
-        subtitle,
-        /* eventTimeIndex= */ 10,
-        /* startTimeUs= */ 10000000,
-        /* endTimeUs= */ 11000000,
-        "This is the sixth subtitle.",
-        Alignment.ALIGN_CENTER,
-        /* line= */ 0.45f,
-        /* lineType= */ Cue.LINE_TYPE_FRACTION,
-        /* lineAnchor= */ Cue.ANCHOR_TYPE_END,
-        /* position= */ Cue.DIMEN_UNSET,
-        /* positionAnchor= */ Cue.TYPE_UNSET,
-        /* size= */ 0.35f);
+
+    assertThat(subtitle.getEventTime(0)).isEqualTo(0L);
+    assertThat(subtitle.getEventTime(1)).isEqualTo(1_234_000L);
+    Cue firstCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(0)));
+    assertThat(firstCue.text.toString()).isEqualTo("This is the first subtitle.");
+    assertThat(firstCue.position).isEqualTo(0.1f);
+    assertThat(firstCue.positionAnchor).isEqualTo(Cue.ANCHOR_TYPE_START);
+    assertThat(firstCue.textAlignment).isEqualTo(Alignment.ALIGN_NORMAL);
+    assertThat(firstCue.size).isEqualTo(0.35f);
+    // Unspecified values should use WebVTT defaults
+    assertThat(firstCue.line).isEqualTo(Cue.DIMEN_UNSET);
+    assertThat(firstCue.lineType).isEqualTo(Cue.LINE_TYPE_NUMBER);
+    assertThat(firstCue.verticalType).isEqualTo(Cue.TYPE_UNSET);
+
+    assertThat(subtitle.getEventTime(2)).isEqualTo(2_345_000L);
+    assertThat(subtitle.getEventTime(3)).isEqualTo(3_456_000L);
+    Cue secondCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(2)));
+    assertThat(secondCue.text.toString()).isEqualTo("This is the second subtitle.");
+    // Position is invalid so defaults to 0.5
+    assertThat(secondCue.position).isEqualTo(0.5f);
+    assertThat(secondCue.textAlignment).isEqualTo(Alignment.ALIGN_OPPOSITE);
+
+    assertThat(subtitle.getEventTime(4)).isEqualTo(4_000_000L);
+    assertThat(subtitle.getEventTime(5)).isEqualTo(5_000_000L);
+    Cue thirdCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(4)));
+    assertThat(thirdCue.text.toString()).isEqualTo("This is the third subtitle.");
+    assertThat(thirdCue.line).isEqualTo(0.45f);
+    assertThat(thirdCue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
+    assertThat(thirdCue.lineAnchor).isEqualTo(Cue.ANCHOR_TYPE_END);
+    assertThat(thirdCue.textAlignment).isEqualTo(Alignment.ALIGN_CENTER);
+    // Derived from `align:middle`:
+    assertThat(thirdCue.positionAnchor).isEqualTo(Cue.ANCHOR_TYPE_MIDDLE);
+
+    assertThat(subtitle.getEventTime(6)).isEqualTo(6_000_000L);
+    assertThat(subtitle.getEventTime(7)).isEqualTo(7_000_000L);
+    Cue fourthCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(6)));
+    assertThat(fourthCue.text.toString()).isEqualTo("This is the fourth subtitle.");
+    assertThat(fourthCue.line).isEqualTo(-11f);
+    assertThat(fourthCue.lineAnchor).isEqualTo(Cue.ANCHOR_TYPE_START);
+    assertThat(fourthCue.textAlignment).isEqualTo(Alignment.ALIGN_CENTER);
+    // Derived from `align:middle`:
+    assertThat(fourthCue.position).isEqualTo(0.5f);
+    assertThat(fourthCue.positionAnchor).isEqualTo(Cue.ANCHOR_TYPE_MIDDLE);
+
+    assertThat(subtitle.getEventTime(8)).isEqualTo(8_000_000L);
+    assertThat(subtitle.getEventTime(9)).isEqualTo(9_000_000L);
+    Cue fifthCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(8)));
+    assertThat(fifthCue.text.toString()).isEqualTo("This is the fifth subtitle.");
+    assertThat(fifthCue.textAlignment).isEqualTo(Alignment.ALIGN_OPPOSITE);
+    // Derived from `align:right`:
+    assertThat(fifthCue.position).isEqualTo(1.0f);
+    assertThat(fifthCue.positionAnchor).isEqualTo(Cue.ANCHOR_TYPE_END);
+
+    assertThat(subtitle.getEventTime(10)).isEqualTo(10_000_000L);
+    assertThat(subtitle.getEventTime(11)).isEqualTo(11_000_000L);
+    Cue sixthCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(10)));
+    assertThat(sixthCue.text.toString()).isEqualTo("This is the sixth subtitle.");
+    assertThat(sixthCue.textAlignment).isEqualTo(Alignment.ALIGN_CENTER);
+    // Derived from `align:center`:
+    assertThat(sixthCue.position).isEqualTo(0.5f);
+    assertThat(sixthCue.positionAnchor).isEqualTo(Cue.ANCHOR_TYPE_MIDDLE);
   }
 
   @Test
-  public void testDecodeWithBadCueHeader() throws IOException, SubtitleDecoderException {
+  public void testDecodeWithVertical() throws Exception {
+    WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_VERTICAL_FILE);
+
+    assertThat(subtitle.getEventTimeCount()).isEqualTo(6);
+
+    assertThat(subtitle.getEventTime(0)).isEqualTo(0L);
+    assertThat(subtitle.getEventTime(1)).isEqualTo(1_234_000L);
+    Cue firstCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(0)));
+    assertThat(firstCue.text.toString()).isEqualTo("Vertical right-to-left (e.g. Japanese)");
+    assertThat(firstCue.verticalType).isEqualTo(Cue.VERTICAL_TYPE_RL);
+
+    assertThat(subtitle.getEventTime(2)).isEqualTo(2_345_000L);
+    assertThat(subtitle.getEventTime(3)).isEqualTo(3_456_000L);
+    Cue secondCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(2)));
+    assertThat(secondCue.text.toString()).isEqualTo("Vertical left-to-right (e.g. Mongolian)");
+    assertThat(secondCue.verticalType).isEqualTo(Cue.VERTICAL_TYPE_LR);
+
+    assertThat(subtitle.getEventTime(4)).isEqualTo(4_000_000L);
+    assertThat(subtitle.getEventTime(5)).isEqualTo(5_000_000L);
+    Cue thirdCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(4)));
+    assertThat(thirdCue.text.toString()).isEqualTo("No vertical setting (i.e. horizontal)");
+    assertThat(thirdCue.verticalType).isEqualTo(Cue.TYPE_UNSET);
+  }
+
+  @Test
+  public void testDecodeWithBadCueHeader() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_BAD_CUE_HEADER_FILE);
 
-    // Test event count.
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
 
-    // Test cues.
-    assertCue(
-        subtitle,
-        /* eventTimeIndex= */ 0,
-        /* startTimeUs= */ 0,
-        /* endTimeUs= */ 1234000,
-        "This is the first subtitle.");
-    assertCue(
-        subtitle,
-        /* eventTimeIndex= */ 2,
-        /* startTimeUs= */ 4000000,
-        /* endTimeUs= */ 5000000,
-        "This is the third subtitle.");
+    assertThat(subtitle.getEventTime(0)).isEqualTo(0L);
+    assertThat(subtitle.getEventTime(1)).isEqualTo(1_234_000L);
+    Cue firstCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(0)));
+    assertThat(firstCue.text.toString()).isEqualTo("This is the first subtitle.");
+
+    assertThat(subtitle.getEventTime(2)).isEqualTo(4_000_000L);
+    assertThat(subtitle.getEventTime(3)).isEqualTo(5_000_000L);
+    Cue secondCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(2)));
+    assertThat(secondCue.text.toString()).isEqualTo("This is the third subtitle.");
   }
 
   @Test
-  public void testWebvttWithCssStyle() throws IOException, SubtitleDecoderException {
+  public void testWebvttWithCssStyle() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_CSS_STYLES);
 
-    // Test event count.
-    assertThat(subtitle.getEventTimeCount()).isEqualTo(8);
+    Spanned firstCueText = getUniqueSpanTextAt(subtitle, 0);
+    assertThat(firstCueText.toString()).isEqualTo("This is the first subtitle.");
+    assertThat(firstCueText)
+        .hasForegroundColorSpanBetween(0, firstCueText.length())
+        .withColor(ColorParser.parseCssColor("papayawhip"));
+    assertThat(firstCueText)
+        .hasBackgroundColorSpanBetween(0, firstCueText.length())
+        .withColor(ColorParser.parseCssColor("green"));
 
-    // Test cues.
-    assertCue(
-        subtitle,
-        /* eventTimeIndex= */ 0,
-        /* startTimeUs= */ 0,
-        /* endTimeUs= */ 1234000,
-        "This is the first subtitle.");
-    assertCue(
-        subtitle,
-        /* eventTimeIndex= */ 2,
-        /* startTimeUs= */ 2345000,
-        /* endTimeUs= */ 3456000,
-        "This is the second subtitle.");
+    Spanned secondCueText = getUniqueSpanTextAt(subtitle, 2_345_000);
+    assertThat(secondCueText.toString()).isEqualTo("This is the second subtitle.");
+    assertThat(secondCueText)
+        .hasForegroundColorSpanBetween(0, secondCueText.length())
+        .withColor(ColorParser.parseCssColor("peachpuff"));
 
-    Spanned s1 = getUniqueSpanTextAt(subtitle, /* timeUs= */ 0);
-    Spanned s2 = getUniqueSpanTextAt(subtitle, /* timeUs= */ 2345000);
-    Spanned s3 = getUniqueSpanTextAt(subtitle, /* timeUs= */ 20000000);
-    Spanned s4 = getUniqueSpanTextAt(subtitle, /* timeUs= */ 25000000);
-    assertThat(s1.getSpans(/* start= */ 0, s1.length(), ForegroundColorSpan.class)).hasLength(1);
-    assertThat(s1.getSpans(/* start= */ 0, s1.length(), BackgroundColorSpan.class)).hasLength(1);
-    assertThat(s2.getSpans(/* start= */ 0, s2.length(), ForegroundColorSpan.class)).hasLength(2);
-    assertThat(s3.getSpans(/* start= */ 10, s3.length(), UnderlineSpan.class)).hasLength(1);
-    assertThat(s4.getSpans(/* start= */ 0, /* end= */ 16, BackgroundColorSpan.class)).hasLength(2);
-    assertThat(s4.getSpans(/* start= */ 17, s4.length(), StyleSpan.class)).hasLength(1);
-    assertThat(s4.getSpans(/* start= */ 17, s4.length(), StyleSpan.class)[0].getStyle())
-        .isEqualTo(Typeface.BOLD);
+    Spanned thirdCueText = getUniqueSpanTextAt(subtitle, 20_000_000);
+    assertThat(thirdCueText.toString()).isEqualTo("This is a reference by element");
+    assertThat(thirdCueText).hasUnderlineSpanBetween("This is a ".length(), thirdCueText.length());
+
+    Spanned fourthCueText = getUniqueSpanTextAt(subtitle, 25_000_000);
+    assertThat(fourthCueText.toString()).isEqualTo("You are an idiot\nYou don't have the guts");
+    assertThat(fourthCueText)
+        .hasBackgroundColorSpanBetween(0, "You are an idiot".length())
+        .withColor(ColorParser.parseCssColor("lime"));
+    assertThat(fourthCueText)
+        .hasBoldSpanBetween("You are an idiot\n".length(), fourthCueText.length());
   }
 
   @Test
-  public void testWithComplexCssSelectors() throws IOException, SubtitleDecoderException {
+  public void testWithComplexCssSelectors() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_CSS_COMPLEX_SELECTORS);
-    Spanned text = getUniqueSpanTextAt(subtitle, /* timeUs= */ 0);
-    assertThat(text.getSpans(/* start= */ 30, text.length(), ForegroundColorSpan.class))
-        .hasLength(1);
-    assertThat(
-            text.getSpans(/* start= */ 30, text.length(), ForegroundColorSpan.class)[0]
-                .getForegroundColor())
-        .isEqualTo(0xFFEE82EE);
-    assertThat(text.getSpans(/* start= */ 30, text.length(), TypefaceSpan.class)).hasLength(1);
-    assertThat(text.getSpans(/* start= */ 30, text.length(), TypefaceSpan.class)[0].getFamily())
-        .isEqualTo("courier");
+    Spanned firstCueText = getUniqueSpanTextAt(subtitle, /* timeUs= */ 0);
+    assertThat(firstCueText).hasUnderlineSpanBetween(0, firstCueText.length());
+    assertThat(firstCueText)
+        .hasForegroundColorSpanBetween(
+            "This should be underlined and ".length(), firstCueText.length())
+        .withColor(ColorParser.parseCssColor("violet"));
+    assertThat(firstCueText)
+        .hasTypefaceSpanBetween("This should be underlined and ".length(), firstCueText.length())
+        .withFamily("courier");
 
-    text = getUniqueSpanTextAt(subtitle, /* timeUs= */ 2000000);
-    assertThat(text.getSpans(/* start= */ 5, text.length(), TypefaceSpan.class)).hasLength(1);
-    assertThat(text.getSpans(/* start= */ 5, text.length(), TypefaceSpan.class)[0].getFamily())
-        .isEqualTo("courier");
+    Spanned secondCueText = getUniqueSpanTextAt(subtitle, /* timeUs= */ 2_000_000);
+    assertThat(secondCueText)
+        .hasTypefaceSpanBetween("This ".length(), secondCueText.length())
+        .withFamily("courier");
+    assertThat(secondCueText)
+        .hasNoForegroundColorSpanBetween("This ".length(), secondCueText.length());
 
-    text = getUniqueSpanTextAt(subtitle, /* timeUs= */ 2500000);
-    assertThat(text.getSpans(/* start= */ 5, text.length(), StyleSpan.class)).hasLength(1);
-    assertThat(text.getSpans(/* start= */ 5, text.length(), StyleSpan.class)[0].getStyle())
-        .isEqualTo(Typeface.BOLD);
-    assertThat(text.getSpans(/* start= */ 5, text.length(), TypefaceSpan.class)).hasLength(1);
-    assertThat(text.getSpans(/* start= */ 5, text.length(), TypefaceSpan.class)[0].getFamily())
-        .isEqualTo("courier");
+    Spanned thirdCueText = getUniqueSpanTextAt(subtitle, /* timeUs= */ 2_500_000);
+    assertThat(thirdCueText).hasBoldSpanBetween("This ".length(), thirdCueText.length());
+    assertThat(thirdCueText)
+        .hasTypefaceSpanBetween("This ".length(), thirdCueText.length())
+        .withFamily("courier");
 
-    text = getUniqueSpanTextAt(subtitle, /* timeUs= */ 4000000);
-    assertThat(text.getSpans(/* start= */ 6, /* end= */ 22, StyleSpan.class)).hasLength(0);
-    assertThat(text.getSpans(/* start= */ 30, text.length(), StyleSpan.class)).hasLength(1);
-    assertThat(text.getSpans(/* start= */ 30, text.length(), StyleSpan.class)[0].getStyle())
-        .isEqualTo(Typeface.BOLD);
+    Spanned fourthCueText = getUniqueSpanTextAt(subtitle, /* timeUs= */ 4_000_000);
+    assertThat(fourthCueText)
+        .hasNoStyleSpanBetween("This ".length(), "shouldn't be bold.".length());
+    assertThat(fourthCueText)
+        .hasBoldSpanBetween("This shouldn't be bold.\nThis ".length(), fourthCueText.length());
 
-    text = getUniqueSpanTextAt(subtitle, /* timeUs= */ 5000000);
-    assertThat(text.getSpans(/* start= */ 9, /* end= */ 17, StyleSpan.class)).hasLength(0);
-    assertThat(text.getSpans(/* start= */ 19, text.length(), StyleSpan.class)).hasLength(1);
-    assertThat(text.getSpans(/* start= */ 19, text.length(), StyleSpan.class)[0].getStyle())
-        .isEqualTo(Typeface.ITALIC);
+    Spanned fifthCueText = getUniqueSpanTextAt(subtitle, /* timeUs= */ 5_000_000);
+    assertThat(fifthCueText)
+        .hasNoStyleSpanBetween("This is ".length(), "This is specific".length());
+    assertThat(fifthCueText)
+        .hasItalicSpanBetween("This is specific\n".length(), fifthCueText.length());
+  }
+
+  @Test
+  public void testWebvttWithCssTextCombineUpright() throws Exception {
+    WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_CSS_TEXT_COMBINE_UPRIGHT);
+
+    Spanned firstCueText = getUniqueSpanTextAt(subtitle, 500_000);
+    assertThat(firstCueText)
+        .hasHorizontalTextInVerticalContextSpanBetween("Combine ".length(), "Combine all".length());
+
+    Spanned secondCueText = getUniqueSpanTextAt(subtitle, 3_500_000);
+    assertThat(secondCueText)
+        .hasHorizontalTextInVerticalContextSpanBetween(
+            "Combine ".length(), "Combine 0004".length());
   }
 
   private WebvttSubtitle getSubtitleForTestAsset(String asset)
@@ -399,52 +383,6 @@ public class WebvttDecoderTest {
   }
 
   private Spanned getUniqueSpanTextAt(WebvttSubtitle sub, long timeUs) {
-    return (Spanned) sub.getCues(timeUs).get(0).text;
-  }
-
-  private static void assertCue(
-      WebvttSubtitle subtitle, int eventTimeIndex, long startTimeUs, int endTimeUs, String text) {
-    assertCue(
-        subtitle,
-        eventTimeIndex,
-        startTimeUs,
-        endTimeUs,
-        text,
-        /* textAlignment= */ null,
-        /* line= */ Cue.DIMEN_UNSET,
-        /* lineType= */ Cue.TYPE_UNSET,
-        /* lineAnchor= */ Cue.TYPE_UNSET,
-        /* position= */ Cue.DIMEN_UNSET,
-        /* positionAnchor= */ Cue.TYPE_UNSET,
-        /* size= */ Cue.DIMEN_UNSET);
-  }
-
-  private static void assertCue(
-      WebvttSubtitle subtitle,
-      int eventTimeIndex,
-      long startTimeUs,
-      int endTimeUs,
-      String text,
-      Alignment textAlignment,
-      float line,
-      int lineType,
-      int lineAnchor,
-      float position,
-      int positionAnchor,
-      float size) {
-    assertThat(subtitle.getEventTime(eventTimeIndex)).isEqualTo(startTimeUs);
-    assertThat(subtitle.getEventTime(eventTimeIndex + 1)).isEqualTo(endTimeUs);
-    List<Cue> cues = subtitle.getCues(subtitle.getEventTime(eventTimeIndex));
-    assertThat(cues).hasSize(1);
-    // Assert cue properties.
-    Cue cue = cues.get(0);
-    assertThat(cue.text.toString()).isEqualTo(text);
-    assertThat(cue.textAlignment).isEqualTo(textAlignment);
-    assertThat(cue.line).isEqualTo(line);
-    assertThat(cue.lineType).isEqualTo(lineType);
-    assertThat(cue.lineAnchor).isEqualTo(lineAnchor);
-    assertThat(cue.position).isEqualTo(position);
-    assertThat(cue.positionAnchor).isEqualTo(positionAnchor);
-    assertThat(cue.size).isEqualTo(size);
+    return (Spanned) Assertions.checkNotNull(sub.getCues(timeUs).get(0).text);
   }
 }

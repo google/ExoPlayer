@@ -23,8 +23,10 @@ import android.media.MediaDrm;
 import android.media.MediaDrmException;
 import android.media.NotProvisionedException;
 import android.media.UnsupportedSchemeException;
+import android.os.PersistableBundle;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.extractor.mp4.PsshAtomUtil;
@@ -42,24 +44,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * An {@link ExoMediaDrm} implementation that wraps the framework {@link MediaDrm}.
- */
+/** An {@link ExoMediaDrm} implementation that wraps the framework {@link MediaDrm}. */
 @TargetApi(23)
+@RequiresApi(18)
 public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto> {
+
+  private static final String TAG = "FrameworkMediaDrm";
 
   /**
    * {@link ExoMediaDrm.Provider} that returns a new {@link FrameworkMediaDrm} for the requested
    * UUID. Returns a {@link DummyExoMediaDrm} if the protection scheme identified by the given UUID
    * is not supported by the device.
-   *
-   * <p>This provider should be used to make ExoPlayer handle {@link ExoMediaDrm} resources.
    */
   public static final Provider<FrameworkMediaCrypto> DEFAULT_PROVIDER =
       uuid -> {
         try {
           return newInstance(uuid);
         } catch (UnsupportedDrmException e) {
+          Log.e(TAG, "Failed to instantiate a FrameworkMediaDrm for uuid: " + uuid + ".");
           return new DummyExoMediaDrm<>();
         }
       };
@@ -68,15 +70,14 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
   private static final String MOCK_LA_URL_VALUE = "https://x";
   private static final String MOCK_LA_URL = "<LA_URL>" + MOCK_LA_URL_VALUE + "</LA_URL>";
   private static final int UTF_16_BYTES_PER_CHARACTER = 2;
-  private static final String TAG = "FrameworkMediaDrm";
 
   private final UUID uuid;
   private final MediaDrm mediaDrm;
   private int referenceCount;
 
   /**
-   * Creates an instance with an {@link #acquire() acquired reference} for the specified scheme
-   * UUID.
+   * Creates an instance with an initial reference count of 1. {@link #release()} must be called on
+   * the instance when it's no longer required.
    *
    * @param uuid The scheme uuid.
    * @return The created instance.
@@ -221,6 +222,16 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
   @Override
   public void restoreKeys(byte[] sessionId, byte[] keySetId) {
     mediaDrm.restoreKeys(sessionId, keySetId);
+  }
+
+  @Override
+  @Nullable
+  @TargetApi(28)
+  public PersistableBundle getMetrics() {
+    if (Util.SDK_INT < 28) {
+      return null;
+    }
+    return mediaDrm.getMetrics();
   }
 
   @Override

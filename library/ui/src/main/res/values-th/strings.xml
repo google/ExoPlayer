@@ -14,6 +14,8 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_show">แสดงแผงควบคุมโปรแกรมเล่น</string>
+  <string name="exo_controls_hide">ซ่อนตัวควบคุมโปรแกรมเล่น</string>
   <string name="exo_controls_previous_description">แทร็กก่อนหน้า</string>
   <string name="exo_controls_next_description">แทร็กถัดไป</string>
   <string name="exo_controls_pause_description">หยุด</string>

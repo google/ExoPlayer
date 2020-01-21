@@ -25,6 +25,7 @@ import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import androidx.annotation.WorkerThread;
 import com.google.android.exoplayer2.database.DatabaseIOException;
 import com.google.android.exoplayer2.database.DatabaseProvider;
 import com.google.android.exoplayer2.database.VersionTable;
@@ -104,10 +105,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   /**
    * Deletes index data for the specified cache.
    *
+   * <p>This method may be slow and shouldn't normally be called on the main thread.
+   *
    * @param databaseProvider Provides the database in which the index is stored.
    * @param uid The cache UID.
    * @throws DatabaseIOException If an error occurs deleting the index data.
    */
+  @WorkerThread
   public static void delete(DatabaseProvider databaseProvider, long uid)
       throws DatabaseIOException {
     DatabaseStorage.delete(databaseProvider, uid);
@@ -174,9 +178,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   /**
    * Loads the index data for the given cache UID.
    *
+   * <p>This method may be slow and shouldn't normally be called on the main thread.
+   *
    * @param uid The UID of the cache whose index is to be loaded.
    * @throws IOException If an error occurs initializing the index data.
    */
+  @WorkerThread
   public void initialize(long uid) throws IOException {
     storage.initialize(uid);
     if (previousStorage != null) {
@@ -199,8 +206,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   /**
    * Stores the index data to index file if there is a change.
    *
+   * <p>This method may be slow and shouldn't normally be called on the main thread.
+   *
    * @throws IOException If an error occurs storing the index data.
    */
+  @WorkerThread
   public void store() throws IOException {
     storage.storeIncremental(keyToContent);
     // Make ids that were removed since the index was last stored eligible for re-use.
@@ -219,11 +229,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    * @return A new or existing CachedContent instance with the given key.
    */
   public CachedContent getOrAdd(String key) {
-    CachedContent cachedContent = keyToContent.get(key);
+    @Nullable CachedContent cachedContent = keyToContent.get(key);
     return cachedContent == null ? addNew(key) : cachedContent;
   }
 
   /** Returns a CachedContent instance with the given key or null if there isn't one. */
+  @Nullable
   public CachedContent get(String key) {
     return keyToContent.get(key);
   }
@@ -244,14 +255,15 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     return getOrAdd(key).id;
   }
 
-  /** Returns the key which has the given id assigned. */
+  /** Returns the key which has the given id assigned, or {@code null} if no such key exists. */
+  @Nullable
   public String getKeyForId(int id) {
     return idToKey.get(id);
   }
 
   /** Removes {@link CachedContent} with the given key from index if it's empty and not locked. */
   public void maybeRemove(String key) {
-    CachedContent cachedContent = keyToContent.get(key);
+    @Nullable CachedContent cachedContent = keyToContent.get(key);
     if (cachedContent != null && cachedContent.isEmpty() && !cachedContent.isLocked()) {
       keyToContent.remove(key);
       int id = cachedContent.id;
@@ -616,7 +628,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
 
     private void writeFile(HashMap<String, CachedContent> content) throws IOException {
-      DataOutputStream output = null;
+      @Nullable DataOutputStream output = null;
       try {
         OutputStream outputStream = atomicFile.startWrite();
         if (bufferedOutputStream == null) {
@@ -787,7 +799,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
                 hexUid);
         if (version != TABLE_VERSION) {
           SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
-          writableDatabase.beginTransaction();
+          writableDatabase.beginTransactionNonExclusive();
           try {
             initializeTable(writableDatabase);
             writableDatabase.setTransactionSuccessful();
@@ -822,7 +834,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     public void storeFully(HashMap<String, CachedContent> content) throws IOException {
       try {
         SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
-        writableDatabase.beginTransaction();
+        writableDatabase.beginTransactionNonExclusive();
         try {
           initializeTable(writableDatabase);
           for (CachedContent cachedContent : content.values()) {
@@ -845,7 +857,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       }
       try {
         SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
-        writableDatabase.beginTransaction();
+        writableDatabase.beginTransactionNonExclusive();
         try {
           for (int i = 0; i < pendingUpdates.size(); i++) {
             CachedContent cachedContent = pendingUpdates.valueAt(i);
@@ -921,7 +933,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       try {
         String tableName = getTableName(hexUid);
         SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
-        writableDatabase.beginTransaction();
+        writableDatabase.beginTransactionNonExclusive();
         try {
           VersionTable.removeVersion(
               writableDatabase, VersionTable.FEATURE_CACHE_CONTENT_METADATA, hexUid);

@@ -24,7 +24,7 @@
   </style>
 
   <style name="PlayerTheme.Spherical">
-    <item name="surface_type">spherical_view</item>
+    <item name="surface_type">spherical_gl_surface_view</item>
   </style>
 
 </resources>

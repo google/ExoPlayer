@@ -15,15 +15,12 @@
  */
 package com.google.android.exoplayer2.text.webvtt;
 
-import static android.graphics.Typeface.BOLD;
-import static android.graphics.Typeface.ITALIC;
+import static com.google.android.exoplayer2.testutil.truth.SpannedSubject.assertThat;
 import static com.google.common.truth.Truth.assertThat;
 
-import android.graphics.Typeface;
 import android.text.Spanned;
-import android.text.style.StyleSpan;
-import android.text.style.UnderlineSpan;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.text.span.RubySpan;
 import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,29 +35,48 @@ public final class WebvttCueParserTest {
         + "This <u.style1.style2 some stuff>is</u> text with <b.foo><i.bar>html</i></b> tags");
 
     assertThat(text.toString()).isEqualTo("This is text with html tags");
-
-    UnderlineSpan[] underlineSpans = getSpans(text, UnderlineSpan.class);
-    StyleSpan[] styleSpans = getSpans(text, StyleSpan.class);
-    assertThat(underlineSpans).hasLength(1);
-    assertThat(styleSpans).hasLength(2);
-    assertThat(styleSpans[0].getStyle()).isEqualTo(ITALIC);
-    assertThat(styleSpans[1].getStyle()).isEqualTo(BOLD);
-
-    assertThat(text.getSpanStart(underlineSpans[0])).isEqualTo(5);
-    assertThat(text.getSpanEnd(underlineSpans[0])).isEqualTo(7);
-    assertThat(text.getSpanStart(styleSpans[0])).isEqualTo(18);
-    assertThat(text.getSpanStart(styleSpans[1])).isEqualTo(18);
-    assertThat(text.getSpanEnd(styleSpans[0])).isEqualTo(22);
-    assertThat(text.getSpanEnd(styleSpans[1])).isEqualTo(22);
+    assertThat(text).hasUnderlineSpanBetween("This ".length(), "This is".length());
+    assertThat(text)
+        .hasBoldItalicSpanBetween("This is text with ".length(), "This is text with html".length());
   }
 
   @Test
   public void testParseStrictValidUnsupportedTagsStrippedOut() throws Exception {
     Spanned text = parseCueText("<v.first.loud Esme>This <unsupported>is</unsupported> text with "
         + "<notsupp><invalid>html</invalid></notsupp> tags");
+
     assertThat(text.toString()).isEqualTo("This is text with html tags");
-    assertThat(getSpans(text, UnderlineSpan.class)).hasLength(0);
-    assertThat(getSpans(text, StyleSpan.class)).hasLength(0);
+    assertThat(text).hasNoSpans();
+  }
+
+  @Test
+  public void testParseRubyTag() throws Exception {
+    Spanned text =
+        parseCueText("Some <ruby>base text<rt>with ruby</rt></ruby> and undecorated text");
+
+    // The text between the <rt> tags is stripped from Cue.text and only present on the RubySpan.
+    assertThat(text.toString()).isEqualTo("Some base text and undecorated text");
+    assertThat(text)
+        .hasRubySpanBetween("Some ".length(), "Some base text".length())
+        .withTextAndPosition("with ruby", RubySpan.POSITION_OVER);
+  }
+
+  @Test
+  public void testParseRubyTagWithNoTextTag() throws Exception {
+    Spanned text = parseCueText("Some <ruby>base text with no ruby text</ruby>");
+
+    assertThat(text.toString()).isEqualTo("Some base text with no ruby text");
+    assertThat(text).hasNoSpans();
+  }
+
+  @Test
+  public void testParseRubyTagWithEmptyTextTag() throws Exception {
+    Spanned text = parseCueText("Some <ruby>base text with<rt></rt></ruby> empty ruby text");
+
+    assertThat(text.toString()).isEqualTo("Some base text with empty ruby text");
+    assertThat(text)
+        .hasRubySpanBetween("Some ".length(), "Some base text with".length())
+        .withTextAndPosition("", RubySpan.POSITION_OVER);
   }
 
   @Test
@@ -69,80 +85,54 @@ public final class WebvttCueParserTest {
         + "<i>italic</i> inside");
 
     assertThat(text.toString()).isEqualTo("An unclosed u tag with italic inside");
-
-    UnderlineSpan[] underlineSpans = getSpans(text, UnderlineSpan.class);
-    StyleSpan[] styleSpans = getSpans(text, StyleSpan.class);
-    assertThat(underlineSpans).hasLength(1);
-    assertThat(styleSpans).hasLength(1);
-    assertThat(styleSpans[0].getStyle()).isEqualTo(ITALIC);
-
-    assertThat(text.getSpanStart(underlineSpans[0])).isEqualTo(3);
-    assertThat(text.getSpanStart(styleSpans[0])).isEqualTo(23);
-    assertThat(text.getSpanEnd(styleSpans[0])).isEqualTo(29);
-    assertThat(text.getSpanEnd(underlineSpans[0])).isEqualTo(36);
+    assertThat(text)
+        .hasUnderlineSpanBetween("An ".length(), "An unclosed u tag with italic inside".length());
+    assertThat(text)
+        .hasItalicSpanBetween(
+            "An unclosed u tag with ".length(), "An unclosed u tag with italic".length());
   }
 
   @Test
   public void testParseWellFormedUnclosedEndAtParent() throws Exception {
-    Spanned text = parseCueText("An unclosed u tag with <i><u>underline and italic</i> inside");
+    Spanned text = parseCueText("An italic tag with unclosed <i><u>underline</i> inside");
 
-    assertThat(text.toString()).isEqualTo("An unclosed u tag with underline and italic inside");
-
-    UnderlineSpan[] underlineSpans = getSpans(text, UnderlineSpan.class);
-    StyleSpan[] styleSpans = getSpans(text, StyleSpan.class);
-    assertThat(underlineSpans).hasLength(1);
-    assertThat(styleSpans).hasLength(1);
-
-    assertThat(text.getSpanStart(underlineSpans[0])).isEqualTo(23);
-    assertThat(text.getSpanStart(styleSpans[0])).isEqualTo(23);
-    assertThat(text.getSpanEnd(underlineSpans[0])).isEqualTo(43);
-    assertThat(text.getSpanEnd(styleSpans[0])).isEqualTo(43);
-
-    assertThat(styleSpans[0].getStyle()).isEqualTo(ITALIC);
+    assertThat(text.toString()).isEqualTo("An italic tag with unclosed underline inside");
+    assertThat(text)
+        .hasItalicSpanBetween(
+            "An italic tag with unclosed ".length(),
+            "An italic tag with unclosed underline".length());
+    assertThat(text)
+        .hasUnderlineSpanBetween(
+            "An italic tag with unclosed ".length(),
+            "An italic tag with unclosed underline".length());
   }
 
   @Test
   public void testParseMalformedNestedElements() throws Exception {
-    Spanned text = parseCueText("<b><u>An unclosed u tag with <i>italic</u> inside</i></b>");
-    assertThat(text.toString()).isEqualTo("An unclosed u tag with italic inside");
+    Spanned text = parseCueText("<b><u>Overlapping u <i>and</u> i tags</i></b>");
 
-    UnderlineSpan[] underlineSpans = getSpans(text, UnderlineSpan.class);
-    StyleSpan[] styleSpans = getSpans(text, StyleSpan.class);
-    assertThat(underlineSpans).hasLength(1);
-    assertThat(styleSpans).hasLength(2);
-
-    // all tags applied until matching start tag found
-    assertThat(text.getSpanStart(underlineSpans[0])).isEqualTo(0);
-    assertThat(text.getSpanEnd(underlineSpans[0])).isEqualTo(29);
-    if (styleSpans[0].getStyle() == Typeface.BOLD) {
-      assertThat(text.getSpanStart(styleSpans[0])).isEqualTo(0);
-      assertThat(text.getSpanStart(styleSpans[1])).isEqualTo(23);
-      assertThat(text.getSpanEnd(styleSpans[1])).isEqualTo(29);
-      assertThat(text.getSpanEnd(styleSpans[0])).isEqualTo(36);
-    } else {
-      assertThat(text.getSpanStart(styleSpans[1])).isEqualTo(0);
-      assertThat(text.getSpanStart(styleSpans[0])).isEqualTo(23);
-      assertThat(text.getSpanEnd(styleSpans[0])).isEqualTo(29);
-      assertThat(text.getSpanEnd(styleSpans[1])).isEqualTo(36);
-    }
+    String expectedText = "Overlapping u and i tags";
+    assertThat(text.toString()).isEqualTo(expectedText);
+    assertThat(text).hasBoldSpanBetween(0, expectedText.length());
+    // Text between the <u> tags is underlined.
+    assertThat(text).hasUnderlineSpanBetween(0, "Overlapping u and".length());
+    // Only text from <i> to <\\u> is italic (unexpected - but simplifies the parsing).
+    assertThat(text).hasItalicSpanBetween("Overlapping u ".length(), "Overlapping u and".length());
   }
 
   @Test
   public void testParseCloseNonExistingTag() throws Exception {
-    Spanned text = parseCueText("blah<b>blah</i>blah</b>blah");
-    assertThat(text.toString()).isEqualTo("blahblahblahblah");
+    Spanned text = parseCueText("foo<b>bar</i>baz</b>buzz");
+    assertThat(text.toString()).isEqualTo("foobarbazbuzz");
 
-    StyleSpan[] spans = getSpans(text, StyleSpan.class);
-    assertThat(spans).hasLength(1);
-    assertThat(spans[0].getStyle()).isEqualTo(BOLD);
-    assertThat(text.getSpanStart(spans[0])).isEqualTo(4);
-    assertThat(text.getSpanEnd(spans[0])).isEqualTo(8); // should be 12 when valid
+    // endIndex should be 9 when valid (i.e. "foobarbaz".length()
+    assertThat(text).hasBoldSpanBetween("foo".length(), "foobar".length());
   }
 
   @Test
   public void testParseEmptyTagName() throws Exception {
-    Spanned text = parseCueText("An unclosed u tag with <>italic inside");
-    assertThat(text.toString()).isEqualTo("An unclosed u tag with italic inside");
+    Spanned text = parseCueText("An empty <>tag");
+    assertThat(text.toString()).isEqualTo("An empty tag");
   }
 
   @Test
@@ -186,14 +176,8 @@ public final class WebvttCueParserTest {
     Spanned text = parseCueText("blah <b>blah</b> blah <b>foo</b>");
 
     assertThat(text.toString()).isEqualTo("blah blah blah foo");
-    StyleSpan[] spans = getSpans(text, StyleSpan.class);
-    assertThat(spans).hasLength(2);
-    assertThat(text.getSpanStart(spans[0])).isEqualTo(5);
-    assertThat(text.getSpanEnd(spans[0])).isEqualTo(9);
-    assertThat(text.getSpanStart(spans[1])).isEqualTo(15);
-    assertThat(text.getSpanEnd(spans[1])).isEqualTo(18);
-    assertThat(spans[0].getStyle()).isEqualTo(BOLD);
-    assertThat(spans[1].getStyle()).isEqualTo(BOLD);
+    assertThat(text).hasBoldSpanBetween("blah ".length(), "blah blah".length());
+    assertThat(text).hasBoldSpanBetween("blah blah blah ".length(), "blah blah blah foo".length());
   }
 
   @Test
@@ -201,8 +185,7 @@ public final class WebvttCueParserTest {
     Spanned text = parseCueText("blah <b/.st1.st2 trailing stuff> blah");
 
     assertThat(text.toString()).isEqualTo("blah  blah");
-    StyleSpan[] spans = getSpans(text, StyleSpan.class);
-    assertThat(spans).hasLength(0);
+    assertThat(text).hasNoSpans();
   }
 
   @Test
@@ -243,13 +226,7 @@ public final class WebvttCueParserTest {
   }
 
   private static Spanned parseCueText(String string) {
-    WebvttCue.Builder builder = new WebvttCue.Builder();
-    WebvttCueParser.parseCueText(null, string, builder, Collections.emptyList());
-    return (Spanned) builder.build().text;
+    return WebvttCueParser.parseCueText(
+        /* id= */ null, string, /* styles= */ Collections.emptyList());
   }
-
-  private static <T> T[] getSpans(Spanned text, Class<T> spanType) {
-    return text.getSpans(0, text.length(), spanType);
-  }
-
 }

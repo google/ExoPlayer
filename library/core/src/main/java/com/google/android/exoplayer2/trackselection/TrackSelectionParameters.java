@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.trackselection;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.os.Looper;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
@@ -171,6 +172,11 @@ public class TrackSelectionParameters implements Parcelable {
     @TargetApi(19)
     private void setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettingsV19(
         Context context) {
+      if (Util.SDK_INT < 23 && Looper.myLooper() == null) {
+        // Android platform bug (pre-Marshmallow) that causes RuntimeExceptions when
+        // CaptioningService is instantiated from a non-Looper thread. See [internal: b/143779904].
+        return;
+      }
       CaptioningManager captioningManager =
           (CaptioningManager) context.getSystemService(Context.CAPTIONING_SERVICE);
       if (captioningManager == null || !captioningManager.isEnabled()) {

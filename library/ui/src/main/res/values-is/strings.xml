@@ -14,6 +14,8 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_show">Sýna spilunarstýringar</string>
+  <string name="exo_controls_hide">Fela spilunarstýringar</string>
   <string name="exo_controls_previous_description">Fyrra lag</string>
   <string name="exo_controls_next_description">Næsta lag</string>
   <string name="exo_controls_pause_description">Hlé</string>

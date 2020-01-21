@@ -46,6 +46,29 @@ public final class ExtractorAsserts {
   private static final String UNKNOWN_LENGTH_EXTENSION = ".unklen" + DUMP_EXTENSION;
 
   /**
+   * Asserts that {@link Extractor#sniff(ExtractorInput)} returns the {@code expectedResult} for a
+   * given {@code input}, retrying repeatedly when {@link SimulatedIOException} is thrown.
+   *
+   * @param extractor The extractor to test.
+   * @param input The extractor input.
+   * @param expectedResult The expected return value.
+   * @throws IOException If reading from the input fails.
+   * @throws InterruptedException If interrupted while reading from the input.
+   */
+  public static void assertSniff(
+      Extractor extractor, FakeExtractorInput input, boolean expectedResult)
+      throws IOException, InterruptedException {
+    while (true) {
+      try {
+        assertThat(extractor.sniff(input)).isEqualTo(expectedResult);
+        return;
+      } catch (SimulatedIOException e) {
+        // Ignore.
+      }
+    }
+  }
+
+  /**
    * Asserts that an extractor behaves correctly given valid input data. Can only be used from
    * Robolectric tests.
    *
@@ -148,7 +171,7 @@ public final class ExtractorAsserts {
    * @throws IOException If reading from the input fails.
    * @throws InterruptedException If interrupted while reading from the input.
    */
-  private static FakeExtractorOutput assertOutput(
+  public static FakeExtractorOutput assertOutput(
       Extractor extractor,
       String file,
       byte[] data,
@@ -164,7 +187,7 @@ public final class ExtractorAsserts {
         .setSimulatePartialReads(simulatePartialReads).build();
 
     if (sniffFirst) {
-      assertThat(TestUtil.sniffTestData(extractor, input)).isTrue();
+      assertSniff(extractor, input, /* expectedResult= */ true);
       input.resetPeekPosition();
     }
 
@@ -185,18 +208,21 @@ public final class ExtractorAsserts {
       extractorOutput.assertOutput(context, file + ".0" + DUMP_EXTENSION);
     }
 
-    // If the SeekMap is seekable, test seeking to 4 positions in the stream.
+    // If the SeekMap is seekable, test seeking in the stream.
     SeekMap seekMap = extractorOutput.seekMap;
     if (seekMap.isSeekable()) {
       long durationUs = seekMap.getDurationUs();
       for (int j = 0; j < 4; j++) {
         extractorOutput.clearTrackOutputs();
-        long timeUs = (durationUs * j) / 3;
+        long timeUs = durationUs == C.TIME_UNSET ? 0 : (durationUs * j) / 3;
         long position = seekMap.getSeekPoints(timeUs).first.position;
         input.reset();
         input.setPosition((int) position);
         consumeTestData(extractor, input, timeUs, extractorOutput, false);
         extractorOutput.assertOutput(context, file + '.' + j + DUMP_EXTENSION);
+        if (durationUs == C.TIME_UNSET) {
+          break;
+        }
       }
     }
 

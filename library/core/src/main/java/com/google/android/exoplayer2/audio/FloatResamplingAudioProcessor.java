@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.audio;
 
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 
@@ -29,27 +30,21 @@ import java.nio.ByteBuffer;
   private static final double PCM_32_BIT_INT_TO_PCM_32_BIT_FLOAT_FACTOR = 1.0 / 0x7FFFFFFF;
 
   @Override
-  public boolean configure(int sampleRateHz, int channelCount, @C.PcmEncoding int encoding)
-      throws UnhandledFormatException {
-    if (!Util.isEncodingHighResolutionIntegerPcm(encoding)) {
-      throw new UnhandledFormatException(sampleRateHz, channelCount, encoding);
+  public AudioFormat onConfigure(AudioFormat inputAudioFormat)
+      throws UnhandledAudioFormatException {
+    if (!Util.isEncodingHighResolutionIntegerPcm(inputAudioFormat.encoding)) {
+      throw new UnhandledAudioFormatException(inputAudioFormat);
     }
-    return setInputFormat(sampleRateHz, channelCount, encoding);
-  }
-
-  @Override
-  public boolean isActive() {
-    return Util.isEncodingHighResolutionIntegerPcm(encoding);
-  }
-
-  @Override
-  public int getOutputEncoding() {
-    return C.ENCODING_PCM_FLOAT;
+    return Util.isEncodingHighResolutionIntegerPcm(inputAudioFormat.encoding)
+        ? new AudioFormat(
+            inputAudioFormat.sampleRate, inputAudioFormat.channelCount, C.ENCODING_PCM_FLOAT)
+        : AudioFormat.NOT_SET;
   }
 
   @Override
   public void queueInput(ByteBuffer inputBuffer) {
-    boolean isInput32Bit = encoding == C.ENCODING_PCM_32BIT;
+    Assertions.checkState(Util.isEncodingHighResolutionIntegerPcm(inputAudioFormat.encoding));
+    boolean isInput32Bit = inputAudioFormat.encoding == C.ENCODING_PCM_32BIT;
     int position = inputBuffer.position();
     int limit = inputBuffer.limit();
     int size = limit - position;
@@ -65,7 +60,7 @@ import java.nio.ByteBuffer;
                 | ((inputBuffer.get(i + 3) & 0xFF) << 24);
         writePcm32BitFloat(pcm32BitInteger, buffer);
       }
-    } else {
+    } else { // Input is 24-bit PCM.
       for (int i = position; i < limit; i += 3) {
         int pcm32BitInteger =
             ((inputBuffer.get(i) & 0xFF) << 8)

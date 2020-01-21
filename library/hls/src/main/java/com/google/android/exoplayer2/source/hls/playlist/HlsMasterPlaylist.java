@@ -180,7 +180,7 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
    * explicitly declares no captions are available, or null if the playlist does not declare any
    * captions information.
    */
-  public final List<Format> muxedCaptionFormats;
+  @Nullable public final List<Format> muxedCaptionFormats;
   /** Contains variable definitions, as defined by the #EXT-X-DEFINE tag. */
   public final Map<String, String> variableDefinitions;
   /** DRM initialization data derived from #EXT-X-SESSION-KEY tags. */
@@ -209,7 +209,7 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
       List<Rendition> subtitles,
       List<Rendition> closedCaptions,
       @Nullable Format muxedAudioFormat,
-      List<Format> muxedCaptionFormats,
+      @Nullable List<Format> muxedCaptionFormats,
       boolean hasIndependentSegments,
       Map<String, String> variableDefinitions,
       List<DrmInitData> sessionKeyDrmInitData) {
@@ -258,7 +258,7 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
     List<Variant> variant =
         Collections.singletonList(Variant.createMediaPlaylistVariantUrl(Uri.parse(variantUrl)));
     return new HlsMasterPlaylist(
-        /* baseUri= */ null,
+        /* baseUri= */ "",
         /* tags= */ Collections.emptyList(),
         variant,
         /* videos= */ Collections.emptyList(),

@@ -5,11 +5,11 @@ seekMap:
 numberOfTracks = 1
 track 0:
   format:
-    bitrate = -1
+    bitrate = 1536000
     id = null
     containerMimeType = null
     sampleMimeType = audio/flac
-    maxInputSize = 768000
+    maxInputSize = 5776
     width = -1
     height = -1
     frameRate = -1.0
@@ -24,6 +24,7 @@ track 0:
     selectionFlags = 0
     language = null
     drmInitData = -
+    metadata = null
     initializationData:
       data = length 42, hash 83F6895
   total output bytes = 445

@@ -14,6 +14,8 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_show">Shfaq komandat e luajtësit</string>
+  <string name="exo_controls_hide">Fshih komandat e luajtësit</string>
   <string name="exo_controls_previous_description">Kënga e mëparshme</string>
   <string name="exo_controls_next_description">Kënga tjetër</string>
   <string name="exo_controls_pause_description">Pauzë</string>

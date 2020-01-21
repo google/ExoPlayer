@@ -243,7 +243,7 @@ public class HlsMasterPlaylistParserTest {
     List<HlsMasterPlaylist.Variant> variants = masterPlaylist.variants;
 
     assertThat(variants.get(0).format.bitrate).isEqualTo(1280000);
-    assertThat(variants.get(1).format.bitrate).isEqualTo(1270000);
+    assertThat(variants.get(1).format.bitrate).isEqualTo(1280000);
   }
 
   @Test

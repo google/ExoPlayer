@@ -52,10 +52,10 @@ public final class AesCipherDataSink implements DataSink {
    *
    * @param secretKey The key data.
    * @param wrappedDataSink The wrapped {@link DataSink}.
-   * @param scratch Scratch space. Data is decrypted into this array before being written to the
+   * @param scratch Scratch space. Data is encrypted into this array before being written to the
    *     wrapped {@link DataSink}. It should be of appropriate size for the expected writes. If a
    *     write is larger than the size of this array the write will still succeed, but multiple
-   *     cipher calls will be required to complete the operation. If {@code null} then decryption
+   *     cipher calls will be required to complete the operation. If {@code null} then encryption
    *     will overwrite the input {@code data}.
    */
   public AesCipherDataSink(byte[] secretKey, DataSink wrappedDataSink, @Nullable byte[] scratch) {
@@ -96,5 +96,4 @@ public final class AesCipherDataSink implements DataSink {
     cipher = null;
     wrappedDataSink.close();
   }
-
 }

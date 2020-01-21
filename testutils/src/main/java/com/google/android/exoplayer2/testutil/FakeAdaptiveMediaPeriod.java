@@ -61,6 +61,7 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
     this.transferListener = transferListener;
     this.durationUs = durationUs;
     this.sampleStreams = newSampleStreamArray(0);
+    this.sequenceableLoader = new CompositeSequenceableLoader(new SequenceableLoader[0]);
   }
 
   @Override
@@ -119,14 +120,6 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
   }
 
   @Override
-  public long seekToUs(long positionUs) {
-    for (ChunkSampleStream<FakeChunkSource> sampleStream : sampleStreams) {
-      sampleStream.seekToUs(positionUs);
-    }
-    return super.seekToUs(positionUs);
-  }
-
-  @Override
   public long getNextLoadPositionUs() {
     super.getNextLoadPositionUs();
     return sequenceableLoader.getNextLoadPositionUs();
@@ -139,7 +132,13 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
   }
 
   @Override
-  protected SampleStream createSampleStream(TrackSelection trackSelection) {
+  public boolean isLoading() {
+    return sequenceableLoader.isLoading();
+  }
+
+  @Override
+  protected SampleStream createSampleStream(
+      TrackSelection trackSelection, EventDispatcher eventDispatcher) {
     FakeChunkSource chunkSource =
         chunkSourceFactory.createChunkSource(trackSelection, durationUs, transferListener);
     return new ChunkSampleStream<>(
@@ -156,11 +155,18 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
   }
 
   @Override
+  @SuppressWarnings("unchecked")
+  protected void seekSampleStream(SampleStream sampleStream, long positionUs) {
+    ((ChunkSampleStream<FakeChunkSource>) sampleStream).seekToUs(positionUs);
+  }
+
+  @Override
   public void onContinueLoadingRequested(ChunkSampleStream<FakeChunkSource> source) {
     callback.onContinueLoadingRequested(this);
   }
 
-  @SuppressWarnings("unchecked")
+  // We won't assign the array to a variable that erases the generic type, and then write into it.
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private static ChunkSampleStream<FakeChunkSource>[] newSampleStreamArray(int length) {
     return new ChunkSampleStream[length];
   }

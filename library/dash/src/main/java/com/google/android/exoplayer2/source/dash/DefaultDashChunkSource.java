@@ -136,7 +136,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
    * @param dataSource A {@link DataSource} suitable for loading the media data.
    * @param elapsedRealtimeOffsetMs If known, an estimate of the instantaneous difference between
    *     server-side unix time and {@link SystemClock#elapsedRealtime()} in milliseconds, specified
-   *     as the server's unix time minus the local elapsed time. If unknown, set to 0.
+   *     as the server's unix time minus the local elapsed time. Or {@link C#TIME_UNSET} if unknown.
    * @param maxSegmentsPerLoad The maximum number of segments to combine into a single request. Note
    *     that segments will only be combined if their {@link Uri}s are the same and if their data
    *     ranges are adjacent.
@@ -267,7 +267,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
       return;
     }
 
-    long nowUnixTimeUs = getNowUnixTimeUs();
+    long nowUnixTimeUs = C.msToUs(Util.getNowUnixTimeMs(elapsedRealtimeOffsetMs));
     MediaChunk previous = queue.isEmpty() ? null : queue.get(queue.size() - 1);
     MediaChunkIterator[] chunkIterators = new MediaChunkIterator[trackSelection.length()];
     for (int i = 0; i < chunkIterators.length; i++) {
@@ -474,14 +474,6 @@ public class DefaultDashChunkSource implements DashChunkSource {
         ? representationHolder.getSegmentEndTimeUs(lastAvailableSegmentNum) : C.TIME_UNSET;
   }
 
-  private long getNowUnixTimeUs() {
-    if (elapsedRealtimeOffsetMs != 0) {
-      return (SystemClock.elapsedRealtime() + elapsedRealtimeOffsetMs) * 1000;
-    } else {
-      return System.currentTimeMillis() * 1000;
-    }
-  }
-
   private long resolveTimeToLiveEdgeUs(long playbackPositionUs) {
     boolean resolveTimeToLiveEdgePossible = manifest.dynamic && liveEdgeTimeUs != C.TIME_UNSET;
     return resolveTimeToLiveEdgePossible ? liveEdgeTimeUs - playbackPositionUs : C.TIME_UNSET;
@@ -686,7 +678,9 @@ public class DefaultDashChunkSource implements DashChunkSource {
             newPeriodDurationUs, newRepresentation, extractorWrapper, segmentNumShift, newIndex);
       }
 
-      long oldIndexLastSegmentNum = oldIndex.getFirstSegmentNum() + oldIndexSegmentCount - 1;
+      long oldIndexFirstSegmentNum = oldIndex.getFirstSegmentNum();
+      long oldIndexStartTimeUs = oldIndex.getTimeUs(oldIndexFirstSegmentNum);
+      long oldIndexLastSegmentNum = oldIndexFirstSegmentNum + oldIndexSegmentCount - 1;
       long oldIndexEndTimeUs =
           oldIndex.getTimeUs(oldIndexLastSegmentNum)
               + oldIndex.getDurationUs(oldIndexLastSegmentNum, newPeriodDurationUs);
@@ -700,8 +694,14 @@ public class DefaultDashChunkSource implements DashChunkSource {
         // There's a gap between the old index and the new one which means we've slipped behind the
         // live window and can't proceed.
         throw new BehindLiveWindowException();
+      } else if (newIndexStartTimeUs < oldIndexStartTimeUs) {
+        // The new index overlaps with (but does not have a start position contained within) the old
+        // index. This can only happen if extra segments have been added to the start of the index.
+        newSegmentNumShift -=
+            newIndex.getSegmentNum(oldIndexStartTimeUs, newPeriodDurationUs)
+                - oldIndexFirstSegmentNum;
       } else {
-        // The new index overlaps with the old one.
+        // The new index overlaps with (and has a start position contained within) the old index.
         newSegmentNumShift +=
             oldIndex.getSegmentNum(newIndexStartTimeUs, newPeriodDurationUs)
                 - newIndexFirstSegmentNum;

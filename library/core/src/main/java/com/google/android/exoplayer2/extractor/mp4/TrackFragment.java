@@ -15,19 +15,19 @@
  */
 package com.google.android.exoplayer2.extractor.mp4;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A holder for information corresponding to a single fragment of an mp4 file.
  */
 /* package */ final class TrackFragment {
 
-  /**
-   * The default values for samples from the track fragment header.
-   */
-  public DefaultSampleValues header;
+  /** The default values for samples from the track fragment header. */
+  public @MonotonicNonNull DefaultSampleValues header;
   /**
    * The position (byte offset) of the start of fragment.
    */
@@ -81,20 +81,13 @@ import java.io.IOException;
    * Undefined otherwise.
    */
   public boolean[] sampleHasSubsampleEncryptionTable;
-  /**
-   * Fragment specific track encryption. May be null.
-   */
-  public TrackEncryptionBox trackEncryptionBox;
-  /**
-   * If {@link #definesEncryptionData} is true, indicates the length of the sample encryption data.
-   * Undefined otherwise.
-   */
-  public int sampleEncryptionDataLength;
+  /** Fragment specific track encryption. May be null. */
+  @Nullable public TrackEncryptionBox trackEncryptionBox;
   /**
    * If {@link #definesEncryptionData} is true, contains binary sample encryption data. Undefined
    * otherwise.
    */
-  public ParsableByteArray sampleEncryptionData;
+  public final ParsableByteArray sampleEncryptionData;
   /**
    * Whether {@link #sampleEncryptionData} needs populating with the actual encryption data.
    */
@@ -103,6 +96,17 @@ import java.io.IOException;
    * The absolute decode time of the start of the next fragment.
    */
   public long nextFragmentDecodeTime;
+
+  public TrackFragment() {
+    trunDataPosition = new long[0];
+    trunLength = new int[0];
+    sampleSizeTable = new int[0];
+    sampleCompositionTimeOffsetTable = new int[0];
+    sampleDecodingTimeTable = new long[0];
+    sampleIsSyncFrameTable = new boolean[0];
+    sampleHasSubsampleEncryptionTable = new boolean[0];
+    sampleEncryptionData = new ParsableByteArray();
+  }
 
   /**
    * Resets the fragment.
@@ -130,11 +134,11 @@ import java.io.IOException;
   public void initTables(int trunCount, int sampleCount) {
     this.trunCount = trunCount;
     this.sampleCount = sampleCount;
-    if (trunLength == null || trunLength.length < trunCount) {
+    if (trunLength.length < trunCount) {
       trunDataPosition = new long[trunCount];
       trunLength = new int[trunCount];
     }
-    if (sampleSizeTable == null || sampleSizeTable.length < sampleCount) {
+    if (sampleSizeTable.length < sampleCount) {
       // Size the tables 25% larger than needed, so as to make future resize operations less
       // likely. The choice of 25% is relatively arbitrary.
       int tableSize = (sampleCount * 125) / 100;
@@ -148,18 +152,14 @@ import java.io.IOException;
 
   /**
    * Configures the fragment to be one that defines encryption data of the specified length.
-   * <p>
-   * {@link #definesEncryptionData} is set to true, {@link #sampleEncryptionDataLength} is set to
-   * the specified length, and {@link #sampleEncryptionData} is resized if necessary such that it
-   * is at least this length.
+   *
+   * <p>{@link #definesEncryptionData} is set to true, and the {@link ParsableByteArray#limit()
+   * limit} of {@link #sampleEncryptionData} is set to the specified length.
    *
    * @param length The length in bytes of the encryption data.
    */
   public void initEncryptionData(int length) {
-    if (sampleEncryptionData == null || sampleEncryptionData.limit() < length) {
-      sampleEncryptionData = new ParsableByteArray(length);
-    }
-    sampleEncryptionDataLength = length;
+    sampleEncryptionData.reset(length);
     definesEncryptionData = true;
     sampleEncryptionDataNeedsFill = true;
   }
@@ -170,7 +170,7 @@ import java.io.IOException;
    * @param input An {@link ExtractorInput} from which to read the encryption data.
    */
   public void fillEncryptionData(ExtractorInput input) throws IOException, InterruptedException {
-    input.readFully(sampleEncryptionData.data, 0, sampleEncryptionDataLength);
+    input.readFully(sampleEncryptionData.data, 0, sampleEncryptionData.limit());
     sampleEncryptionData.setPosition(0);
     sampleEncryptionDataNeedsFill = false;
   }
@@ -181,7 +181,7 @@ import java.io.IOException;
    * @param source A source from which to read the encryption data.
    */
   public void fillEncryptionData(ParsableByteArray source) {
-    source.readBytes(sampleEncryptionData.data, 0, sampleEncryptionDataLength);
+    source.readBytes(sampleEncryptionData.data, 0, sampleEncryptionData.limit());
     sampleEncryptionData.setPosition(0);
     sampleEncryptionDataNeedsFill = false;
   }

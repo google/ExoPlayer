@@ -24,6 +24,7 @@ track 0:
     selectionFlags = 0
     language = null
     drmInitData = -
+    metadata = null
     initializationData:
       data = length 29, hash 4746B5D9
       data = length 10, hash 7A0D0F2B
@@ -170,6 +171,7 @@ track 1:
     selectionFlags = 0
     language = und
     drmInitData = -
+    metadata = null
     initializationData:
       data = length 5, hash 2B7623A
   total output bytes = 10

@@ -44,6 +44,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   private long streamOffsetUs;
   private long readingPositionUs;
   private boolean streamIsFinal;
+  private boolean throwRendererExceptionIsExecuting;
 
   /**
    * @param trackType The track type that the renderer handles. One of the {@link C}
@@ -177,6 +178,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   // RendererCapabilities implementation.
 
   @Override
+  @AdaptiveSupport
   public int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
     return ADAPTIVE_NOT_SUPPORTED;
   }
@@ -313,15 +315,15 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     @Nullable DrmSession<T> newSourceDrmSession = null;
     if (newFormat.drmInitData != null) {
       if (drmSessionManager == null) {
-        throw ExoPlaybackException.createForRenderer(
-            new IllegalStateException("Media requires a DrmSessionManager"), getIndex());
+        throw createRendererException(
+            new IllegalStateException("Media requires a DrmSessionManager"), newFormat);
       }
       newSourceDrmSession =
           drmSessionManager.acquireSession(
               Assertions.checkNotNull(Looper.myLooper()), newFormat.drmInitData);
     }
     if (existingSourceSession != null) {
-      existingSourceSession.releaseReference();
+      existingSourceSession.release();
     }
     return newSourceDrmSession;
   }
@@ -334,22 +336,46 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   }
 
   /**
+   * Creates an {@link ExoPlaybackException} of type {@link ExoPlaybackException#TYPE_RENDERER} for
+   * this renderer.
+   *
+   * @param cause The cause of the exception.
+   * @param format The current format used by the renderer. May be null.
+   */
+  protected final ExoPlaybackException createRendererException(
+      Exception cause, @Nullable Format format) {
+    @FormatSupport int formatSupport = RendererCapabilities.FORMAT_HANDLED;
+    if (format != null && !throwRendererExceptionIsExecuting) {
+      // Prevent recursive re-entry from subclass supportsFormat implementations.
+      throwRendererExceptionIsExecuting = true;
+      try {
+        formatSupport = RendererCapabilities.getFormatSupport(supportsFormat(format));
+      } catch (ExoPlaybackException e) {
+        // Ignore, we are already failing.
+      } finally {
+        throwRendererExceptionIsExecuting = false;
+      }
+    }
+    return ExoPlaybackException.createForRenderer(cause, getIndex(), format, formatSupport);
+  }
+
+  /**
    * Reads from the enabled upstream source. If the upstream source has been read to the end then
    * {@link C#RESULT_BUFFER_READ} is only returned if {@link #setCurrentStreamFinal()} has been
    * called. {@link C#RESULT_NOTHING_READ} is returned otherwise.
    *
    * @param formatHolder A {@link FormatHolder} to populate in the case of reading a format.
    * @param buffer A {@link DecoderInputBuffer} to populate in the case of reading a sample or the
-   *     end of the stream. If the end of the stream has been reached, the
-   *     {@link C#BUFFER_FLAG_END_OF_STREAM} flag will be set on the buffer.
+   *     end of the stream. If the end of the stream has been reached, the {@link
+   *     C#BUFFER_FLAG_END_OF_STREAM} flag will be set on the buffer.
    * @param formatRequired Whether the caller requires that the format of the stream be read even if
    *     it's not changing. A sample will never be read if set to true, however it is still possible
    *     for the end of stream or nothing to be read.
    * @return The result, which can be {@link C#RESULT_NOTHING_READ}, {@link C#RESULT_FORMAT_READ} or
    *     {@link C#RESULT_BUFFER_READ}.
    */
-  protected final int readSource(FormatHolder formatHolder, DecoderInputBuffer buffer,
-      boolean formatRequired) {
+  protected final int readSource(
+      FormatHolder formatHolder, DecoderInputBuffer buffer, boolean formatRequired) {
     int result = stream.readData(formatHolder, buffer, formatRequired);
     if (result == C.RESULT_BUFFER_READ) {
       if (buffer.isEndOfStream()) {

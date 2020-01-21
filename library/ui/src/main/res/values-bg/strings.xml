@@ -14,6 +14,8 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_show">Показване на контролите на плейъра</string>
+  <string name="exo_controls_hide">Скриване на контролите на плейъра</string>
   <string name="exo_controls_previous_description">Предишен запис</string>
   <string name="exo_controls_next_description">Следващ запис</string>
   <string name="exo_controls_pause_description">Поставяне на пауза</string>

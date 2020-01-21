@@ -27,7 +27,6 @@ import com.google.android.exoplayer2.metadata.id3.InternalFrame;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
-import java.nio.ByteBuffer;
 
 /** Utilities for handling metadata in MP4. */
 /* package */ final class MetadataUtil {
@@ -74,33 +73,160 @@ import java.nio.ByteBuffer;
   private static final int PICTURE_TYPE_FRONT_COVER = 3;
 
   // Standard genres.
-  private static final String[] STANDARD_GENRES = new String[] {
-      // These are the official ID3v1 genres.
-      "Blues", "Classic Rock", "Country", "Dance", "Disco", "Funk", "Grunge", "Hip-Hop", "Jazz",
-      "Metal", "New Age", "Oldies", "Other", "Pop", "R&B", "Rap", "Reggae", "Rock", "Techno",
-      "Industrial", "Alternative", "Ska", "Death Metal", "Pranks", "Soundtrack", "Euro-Techno",
-      "Ambient", "Trip-Hop", "Vocal", "Jazz+Funk", "Fusion", "Trance", "Classical", "Instrumental",
-      "Acid", "House", "Game", "Sound Clip", "Gospel", "Noise", "AlternRock", "Bass", "Soul",
-      "Punk", "Space", "Meditative", "Instrumental Pop", "Instrumental Rock", "Ethnic", "Gothic",
-      "Darkwave", "Techno-Industrial", "Electronic", "Pop-Folk", "Eurodance", "Dream",
-      "Southern Rock", "Comedy", "Cult", "Gangsta", "Top 40", "Christian Rap", "Pop/Funk", "Jungle",
-      "Native American", "Cabaret", "New Wave", "Psychadelic", "Rave", "Showtunes", "Trailer",
-      "Lo-Fi", "Tribal", "Acid Punk", "Acid Jazz", "Polka", "Retro", "Musical", "Rock & Roll",
-      "Hard Rock",
-      // These were made up by the authors of Winamp and later added to the ID3 spec.
-      "Folk", "Folk-Rock", "National Folk", "Swing", "Fast Fusion", "Bebob", "Latin", "Revival",
-      "Celtic", "Bluegrass", "Avantgarde", "Gothic Rock", "Progressive Rock", "Psychedelic Rock",
-      "Symphonic Rock", "Slow Rock", "Big Band", "Chorus", "Easy Listening", "Acoustic", "Humour",
-      "Speech", "Chanson", "Opera", "Chamber Music", "Sonata", "Symphony", "Booty Bass", "Primus",
-      "Porn Groove", "Satire", "Slow Jam", "Club", "Tango", "Samba", "Folklore", "Ballad",
-      "Power Ballad", "Rhythmic Soul", "Freestyle", "Duet", "Punk Rock", "Drum Solo", "A capella",
-      "Euro-House", "Dance Hall",
-      // These were med up by the authors of Winamp but have not been added to the ID3 spec.
-      "Goa", "Drum & Bass", "Club-House", "Hardcore", "Terror", "Indie", "BritPop", "Negerpunk",
-      "Polsk Punk", "Beat", "Christian Gangsta Rap", "Heavy Metal", "Black Metal", "Crossover",
-      "Contemporary Christian", "Christian Rock", "Merengue", "Salsa", "Thrash Metal", "Anime",
-      "Jpop", "Synthpop"
-  };
+  private static final String[] STANDARD_GENRES =
+      new String[] {
+        // These are the official ID3v1 genres.
+        "Blues",
+        "Classic Rock",
+        "Country",
+        "Dance",
+        "Disco",
+        "Funk",
+        "Grunge",
+        "Hip-Hop",
+        "Jazz",
+        "Metal",
+        "New Age",
+        "Oldies",
+        "Other",
+        "Pop",
+        "R&B",
+        "Rap",
+        "Reggae",
+        "Rock",
+        "Techno",
+        "Industrial",
+        "Alternative",
+        "Ska",
+        "Death Metal",
+        "Pranks",
+        "Soundtrack",
+        "Euro-Techno",
+        "Ambient",
+        "Trip-Hop",
+        "Vocal",
+        "Jazz+Funk",
+        "Fusion",
+        "Trance",
+        "Classical",
+        "Instrumental",
+        "Acid",
+        "House",
+        "Game",
+        "Sound Clip",
+        "Gospel",
+        "Noise",
+        "AlternRock",
+        "Bass",
+        "Soul",
+        "Punk",
+        "Space",
+        "Meditative",
+        "Instrumental Pop",
+        "Instrumental Rock",
+        "Ethnic",
+        "Gothic",
+        "Darkwave",
+        "Techno-Industrial",
+        "Electronic",
+        "Pop-Folk",
+        "Eurodance",
+        "Dream",
+        "Southern Rock",
+        "Comedy",
+        "Cult",
+        "Gangsta",
+        "Top 40",
+        "Christian Rap",
+        "Pop/Funk",
+        "Jungle",
+        "Native American",
+        "Cabaret",
+        "New Wave",
+        "Psychadelic",
+        "Rave",
+        "Showtunes",
+        "Trailer",
+        "Lo-Fi",
+        "Tribal",
+        "Acid Punk",
+        "Acid Jazz",
+        "Polka",
+        "Retro",
+        "Musical",
+        "Rock & Roll",
+        "Hard Rock",
+        // These were made up by the authors of Winamp and later added to the ID3 spec.
+        "Folk",
+        "Folk-Rock",
+        "National Folk",
+        "Swing",
+        "Fast Fusion",
+        "Bebob",
+        "Latin",
+        "Revival",
+        "Celtic",
+        "Bluegrass",
+        "Avantgarde",
+        "Gothic Rock",
+        "Progressive Rock",
+        "Psychedelic Rock",
+        "Symphonic Rock",
+        "Slow Rock",
+        "Big Band",
+        "Chorus",
+        "Easy Listening",
+        "Acoustic",
+        "Humour",
+        "Speech",
+        "Chanson",
+        "Opera",
+        "Chamber Music",
+        "Sonata",
+        "Symphony",
+        "Booty Bass",
+        "Primus",
+        "Porn Groove",
+        "Satire",
+        "Slow Jam",
+        "Club",
+        "Tango",
+        "Samba",
+        "Folklore",
+        "Ballad",
+        "Power Ballad",
+        "Rhythmic Soul",
+        "Freestyle",
+        "Duet",
+        "Punk Rock",
+        "Drum Solo",
+        "A capella",
+        "Euro-House",
+        "Dance Hall",
+        // These were made up by the authors of Winamp but have not been added to the ID3 spec.
+        "Goa",
+        "Drum & Bass",
+        "Club-House",
+        "Hardcore",
+        "Terror",
+        "Indie",
+        "BritPop",
+        "Afro-Punk",
+        "Polsk Punk",
+        "Beat",
+        "Christian Gangsta Rap",
+        "Heavy Metal",
+        "Black Metal",
+        "Crossover",
+        "Contemporary Christian",
+        "Christian Rock",
+        "Merengue",
+        "Salsa",
+        "Thrash Metal",
+        "Anime",
+        "Jpop",
+        "Synthpop"
+      };
 
   private static final String LANGUAGE_UNDEFINED = "und";
 
@@ -108,7 +234,6 @@ import java.nio.ByteBuffer;
   private static final int TYPE_TOP_BYTE_REPLACEMENT = 0xFD; // Truncated value of \uFFFD.
 
   private static final String MDTA_KEY_ANDROID_CAPTURE_FPS = "com.android.capture.fps";
-  private static final int MDTA_TYPE_INDICATOR_FLOAT = 23;
 
   private MetadataUtil() {}
 
@@ -138,15 +263,8 @@ import java.nio.ByteBuffer;
         Metadata.Entry entry = mdtaMetadata.get(i);
         if (entry instanceof MdtaMetadataEntry) {
           MdtaMetadataEntry mdtaMetadataEntry = (MdtaMetadataEntry) entry;
-          if (MDTA_KEY_ANDROID_CAPTURE_FPS.equals(mdtaMetadataEntry.key)
-              && mdtaMetadataEntry.typeIndicator == MDTA_TYPE_INDICATOR_FLOAT) {
-            try {
-              float fps = ByteBuffer.wrap(mdtaMetadataEntry.value).asFloatBuffer().get();
-              format = format.copyWithFrameRate(fps);
-              format = format.copyWithMetadata(new Metadata(mdtaMetadataEntry));
-            } catch (NumberFormatException e) {
-              Log.w(TAG, "Ignoring invalid framerate");
-            }
+          if (MDTA_KEY_ANDROID_CAPTURE_FPS.equals(mdtaMetadataEntry.key)) {
+            format = format.copyWithMetadata(new Metadata(mdtaMetadataEntry));
           }
         }
       }
@@ -334,8 +452,11 @@ import java.nio.ByteBuffer;
   @Nullable
   private static TextInformationFrame parseStandardGenreAttribute(ParsableByteArray data) {
     int genreCode = parseUint8AttributeValue(data);
-    String genreString = (0 < genreCode && genreCode <= STANDARD_GENRES.length)
-        ? STANDARD_GENRES[genreCode - 1] : null;
+    @Nullable
+    String genreString =
+        (0 < genreCode && genreCode <= STANDARD_GENRES.length)
+            ? STANDARD_GENRES[genreCode - 1]
+            : null;
     if (genreString != null) {
       return new TextInformationFrame("TCON", /* description= */ null, genreString);
     }
@@ -350,7 +471,7 @@ import java.nio.ByteBuffer;
     if (atomType == Atom.TYPE_data) {
       int fullVersionInt = data.readInt();
       int flags = Atom.parseFullAtomFlags(fullVersionInt);
-      String mimeType = flags == 13 ? "image/jpeg" : flags == 14 ? "image/png" : null;
+      @Nullable String mimeType = flags == 13 ? "image/jpeg" : flags == 14 ? "image/png" : null;
       if (mimeType == null) {
         Log.w(TAG, "Unrecognized cover art flags: " + flags);
         return null;
@@ -370,8 +491,8 @@ import java.nio.ByteBuffer;
 
   @Nullable
   private static Id3Frame parseInternalAttribute(ParsableByteArray data, int endPosition) {
-    String domain = null;
-    String name = null;
+    @Nullable String domain = null;
+    @Nullable String name = null;
     int dataAtomPosition = -1;
     int dataAtomSize = -1;
     while (data.getPosition() < endPosition) {

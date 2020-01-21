@@ -10,3 +10,5 @@ Format: Layer, Start, End, Style, Name, Text
 Dialogue: 0,Invalid,0:00:01.23,Default,Olly,This is the first subtitle{ignored}.
 Dialogue: 0,0:00:02.34,Invalid,Default,Olly,This is the second subtitle \nwith a newline \Nand another.
 Dialogue: 0,0:00:04:56,0:00:08:90,Default,Olly,This is the third subtitle, with a comma.
+Dialogue: 0,          ,0:00:10:90,Default,Olly,This is the fourth subtitle.
+Dialogue: 0,0:00:12:90,          ,Default,Olly,This is the fifth subtitle.

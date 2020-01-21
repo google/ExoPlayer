@@ -3,14 +3,6 @@
     xmlns:tts="http://www.w3.org/2006/10/ttaf1#style"
     xmlns="http://www.w3.org/ns/ttml"
     xmlns="http://www.w3.org/2006/10/ttaf1">
-  <head>
-    <styling>
-      <style id="s0"
-        tts:textDecoration="underline"/>
-      <style id="s1"
-        tts:textDecoration="lineThrough"/>
-    </styling>
-  </head>
   <body>
     <div>
       <p begin="10s" end="18s" tts:fontSize="32px">text 1</p>

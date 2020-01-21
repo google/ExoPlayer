@@ -91,6 +91,10 @@ public class TimelineTest {
     assertThat(window).isNotEqualTo(otherWindow);
 
     otherWindow = new Timeline.Window();
+    otherWindow.isLive = true;
+    assertThat(window).isNotEqualTo(otherWindow);
+
+    otherWindow = new Timeline.Window();
     otherWindow.defaultPositionUs = C.TIME_UNSET;
     assertThat(window).isNotEqualTo(otherWindow);
 
@@ -117,6 +121,7 @@ public class TimelineTest {
     window.windowStartTimeMs = C.TIME_UNSET;
     window.isSeekable = true;
     window.isDynamic = true;
+    window.isLive = true;
     window.defaultPositionUs = C.TIME_UNSET;
     window.durationUs = C.TIME_UNSET;
     window.firstPeriodIndex = 1;
@@ -129,8 +134,10 @@ public class TimelineTest {
             window.manifest,
             window.presentationStartTimeMs,
             window.windowStartTimeMs,
+            window.elapsedRealtimeEpochOffsetMs,
             window.isSeekable,
             window.isDynamic,
+            window.isLive,
             window.defaultPositionUs,
             window.durationUs,
             window.firstPeriodIndex,

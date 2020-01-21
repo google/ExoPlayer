@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.mkv;
 
+
 import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
@@ -26,6 +27,8 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayDeque;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * Default implementation of {@link EbmlReader}.
@@ -52,7 +55,7 @@ import java.util.ArrayDeque;
   private final ArrayDeque<MasterElement> masterElementsStack;
   private final VarintReader varintReader;
 
-  private EbmlProcessor processor;
+  private @MonotonicNonNull EbmlProcessor processor;
   private @ElementState int elementState;
   private int elementId;
   private long elementContentSize;
@@ -77,10 +80,10 @@ import java.util.ArrayDeque;
 
   @Override
   public boolean read(ExtractorInput input) throws IOException, InterruptedException {
-    Assertions.checkNotNull(processor);
+    Assertions.checkStateNotNull(processor);
     while (true) {
-      if (!masterElementsStack.isEmpty()
-          && input.getPosition() >= masterElementsStack.peek().elementEndPosition) {
+      MasterElement head = masterElementsStack.peek();
+      if (head != null && input.getPosition() >= head.elementEndPosition) {
         processor.endMasterElement(masterElementsStack.pop().elementId);
         return true;
       }
@@ -159,8 +162,9 @@ import java.util.ArrayDeque;
    * @throws IOException If an error occurs reading from the input.
    * @throws InterruptedException If the thread is interrupted.
    */
-  private long maybeResyncToNextLevel1Element(ExtractorInput input) throws IOException,
-      InterruptedException {
+  @RequiresNonNull("processor")
+  private long maybeResyncToNextLevel1Element(ExtractorInput input)
+      throws IOException, InterruptedException {
     input.resetPeekPosition();
     while (true) {
       input.peekFully(scratch, 0, MAX_ID_BYTES);

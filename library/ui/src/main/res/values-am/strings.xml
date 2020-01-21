@@ -14,6 +14,8 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_show">የተጫዋች መቆጣጠሪያዎችን አሳይ</string>
+  <string name="exo_controls_hide">የተጫዋች መቆጣጠሪያዎችን ደብቅ</string>
   <string name="exo_controls_previous_description">ቀዳሚ ትራክ</string>
   <string name="exo_controls_next_description">ቀጣይ ትራክ</string>
   <string name="exo_controls_pause_description">ላፍታ አቁም</string>

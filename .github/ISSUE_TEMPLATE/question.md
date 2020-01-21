@@ -48,8 +48,3 @@ dev.exoplayer@gmail.com using a subject in the format "Issue #1234", where
 "#1234" should be replaced with your issue number. Provide all the metadata we'd
 need to play the content like drm license urls or similar. If the content is
 accessible only in certain countries or regions, please say so.
-
-<!-- DO NOT DELETE
-validate_template=true
-template_path=.github/ISSUE_TEMPLATE/question.md
--->

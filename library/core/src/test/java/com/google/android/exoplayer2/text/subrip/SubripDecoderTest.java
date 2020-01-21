@@ -39,7 +39,6 @@ public final class SubripDecoderTest {
   private static final String TYPICAL_NEGATIVE_TIMESTAMPS = "subrip/typical_negative_timestamps";
   private static final String TYPICAL_UNEXPECTED_END = "subrip/typical_unexpected_end";
   private static final String TYPICAL_WITH_TAGS = "subrip/typical_with_tags";
-  private static final String NO_END_TIMECODES_FILE = "subrip/no_end_timecodes";
 
   @Test
   public void testDecodeEmpty() throws IOException {
@@ -143,28 +142,6 @@ public final class SubripDecoderTest {
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
     assertTypicalCue1(subtitle, 0);
     assertTypicalCue2(subtitle, 2);
-  }
-
-  @Test
-  public void testDecodeNoEndTimecodes() throws IOException {
-    SubripDecoder decoder = new SubripDecoder();
-    byte[] bytes =
-        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), NO_END_TIMECODES_FILE);
-    Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
-
-    assertThat(subtitle.getEventTimeCount()).isEqualTo(3);
-
-    assertThat(subtitle.getEventTime(0)).isEqualTo(0);
-    assertThat(subtitle.getCues(subtitle.getEventTime(0)).get(0).text.toString())
-        .isEqualTo("SubRip doesn't technically allow missing end timecodes.");
-
-    assertThat(subtitle.getEventTime(1)).isEqualTo(2345000);
-    assertThat(subtitle.getCues(subtitle.getEventTime(1)).get(0).text.toString())
-        .isEqualTo("We interpret it to mean that a subtitle extends to the start of the next one.");
-
-    assertThat(subtitle.getEventTime(2)).isEqualTo(3456000);
-    assertThat(subtitle.getCues(subtitle.getEventTime(2)).get(0).text.toString())
-        .isEqualTo("Or to the end of the media.");
   }
 
   @Test

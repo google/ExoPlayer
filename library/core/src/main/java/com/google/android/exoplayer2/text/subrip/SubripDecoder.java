@@ -43,7 +43,7 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
 
   private static final String SUBRIP_TIMECODE = "(?:(\\d+):)?(\\d+):(\\d+),(\\d+)";
   private static final Pattern SUBRIP_TIMING_LINE =
-      Pattern.compile("\\s*(" + SUBRIP_TIMECODE + ")\\s*-->\\s*(" + SUBRIP_TIMECODE + ")?\\s*");
+      Pattern.compile("\\s*(" + SUBRIP_TIMECODE + ")\\s*-->\\s*(" + SUBRIP_TIMECODE + ")\\s*");
 
   private static final Pattern SUBRIP_TAG_PATTERN = Pattern.compile("\\{\\\\.*?\\}");
   private static final String SUBRIP_ALIGNMENT_TAG = "\\{\\\\an[1-9]\\}";
@@ -73,8 +73,8 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
     ArrayList<Cue> cues = new ArrayList<>();
     LongArray cueTimesUs = new LongArray();
     ParsableByteArray subripData = new ParsableByteArray(bytes, length);
-    String currentLine;
 
+    @Nullable String currentLine;
     while ((currentLine = subripData.readLine()) != null) {
       if (currentLine.length() == 0) {
         // Skip blank lines.
@@ -90,7 +90,6 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
       }
 
       // Read and parse the timing line.
-      boolean haveEndTimecode = false;
       currentLine = subripData.readLine();
       if (currentLine == null) {
         Log.w(TAG, "Unexpected end");
@@ -99,11 +98,8 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
 
       Matcher matcher = SUBRIP_TIMING_LINE.matcher(currentLine);
       if (matcher.matches()) {
-        cueTimesUs.add(parseTimecode(matcher, 1));
-        if (!TextUtils.isEmpty(matcher.group(6))) {
-          haveEndTimecode = true;
-          cueTimesUs.add(parseTimecode(matcher, 6));
-        }
+        cueTimesUs.add(parseTimecode(matcher, /* groupOffset= */ 1));
+        cueTimesUs.add(parseTimecode(matcher, /* groupOffset= */ 6));
       } else {
         Log.w(TAG, "Skipping invalid timing: " + currentLine);
         continue;
@@ -123,7 +119,7 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
 
       Spanned text = Html.fromHtml(textBuilder.toString());
 
-      String alignmentTag = null;
+      @Nullable String alignmentTag = null;
       for (int i = 0; i < tags.size(); i++) {
         String tag = tags.get(i);
         if (tag.matches(SUBRIP_ALIGNMENT_TAG)) {
@@ -133,10 +129,7 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
         }
       }
       cues.add(buildCue(text, alignmentTag));
-
-      if (haveEndTimecode) {
-        cues.add(Cue.EMPTY);
-      }
+      cues.add(Cue.EMPTY);
     }
 
     Cue[] cuesArray = new Cue[cues.size()];

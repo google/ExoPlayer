@@ -58,7 +58,9 @@ public final class DefaultExtractorInput implements ExtractorInput {
   public int read(byte[] target, int offset, int length) throws IOException, InterruptedException {
     int bytesRead = readFromPeekBuffer(target, offset, length);
     if (bytesRead == 0) {
-      bytesRead = readFromDataSource(target, offset, length, 0, true);
+      bytesRead =
+          readFromDataSource(
+              target, offset, length, /* bytesAlreadyRead= */ 0, /* allowEndOfInput= */ true);
     }
     commitBytesRead(bytesRead);
     return bytesRead;
@@ -113,16 +115,25 @@ public final class DefaultExtractorInput implements ExtractorInput {
   @Override
   public int peek(byte[] target, int offset, int length) throws IOException, InterruptedException {
     ensureSpaceForPeek(length);
-    int bytesPeeked = Math.min(peekBufferLength - peekBufferPosition, length);
-    if (bytesPeeked < length) {
-      bytesPeeked = readFromDataSource(peekBuffer, peekBufferPosition, length, bytesPeeked, true);
+    int peekBufferRemainingBytes = peekBufferLength - peekBufferPosition;
+    int bytesPeeked;
+    if (peekBufferRemainingBytes == 0) {
+      bytesPeeked =
+          readFromDataSource(
+              peekBuffer,
+              peekBufferPosition,
+              length,
+              /* bytesAlreadyRead= */ 0,
+              /* allowEndOfInput= */ true);
+      if (bytesPeeked == C.RESULT_END_OF_INPUT) {
+        return C.RESULT_END_OF_INPUT;
+      }
+      peekBufferLength += bytesPeeked;
+    } else {
+      bytesPeeked = Math.min(length, peekBufferRemainingBytes);
     }
-
     System.arraycopy(peekBuffer, peekBufferPosition, target, offset, bytesPeeked);
-
     peekBufferPosition += bytesPeeked;
-    peekBufferLength = Math.max(peekBufferLength, peekBufferPosition);
-
     return bytesPeeked;
   }
 
@@ -217,7 +228,7 @@ public final class DefaultExtractorInput implements ExtractorInput {
   }
 
   /**
-   * Reads from the peek buffer
+   * Reads from the peek buffer.
    *
    * @param target A target array into which data should be written.
    * @param offset The offset into the target array at which to write.

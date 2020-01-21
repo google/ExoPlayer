@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source.chunk;
 
+import static com.google.android.exoplayer2.util.Util.castNonNull;
+
 import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -28,6 +30,7 @@ import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * An {@link Extractor} wrapper for loading chunks that contain a single primary track, and possibly
@@ -63,10 +66,10 @@ public final class ChunkExtractorWrapper implements ExtractorOutput {
   private final SparseArray<BindingTrackOutput> bindingTrackOutputs;
 
   private boolean extractorInitialized;
-  private TrackOutputProvider trackOutputProvider;
+  @Nullable private TrackOutputProvider trackOutputProvider;
   private long endTimeUs;
-  private SeekMap seekMap;
-  private Format[] sampleFormats;
+  private @MonotonicNonNull SeekMap seekMap;
+  private Format @MonotonicNonNull [] sampleFormats;
 
   /**
    * @param extractor The extractor to wrap.
@@ -84,15 +87,19 @@ public final class ChunkExtractorWrapper implements ExtractorOutput {
   }
 
   /**
-   * Returns the {@link SeekMap} most recently output by the extractor, or null.
+   * Returns the {@link SeekMap} most recently output by the extractor, or null if the extractor has
+   * not output a {@link SeekMap}.
    */
+  @Nullable
   public SeekMap getSeekMap() {
     return seekMap;
   }
 
   /**
-   * Returns the sample {@link Format}s most recently output by the extractor, or null.
+   * Returns the sample {@link Format}s for the tracks identified by the extractor, or null if the
+   * extractor has not finished identifying tracks.
    */
+  @Nullable
   public Format[] getSampleFormats() {
     return sampleFormats;
   }
@@ -146,7 +153,7 @@ public final class ChunkExtractorWrapper implements ExtractorOutput {
   public void endTracks() {
     Format[] sampleFormats = new Format[bindingTrackOutputs.size()];
     for (int i = 0; i < bindingTrackOutputs.size(); i++) {
-      sampleFormats[i] = bindingTrackOutputs.valueAt(i).sampleFormat;
+      sampleFormats[i] = Assertions.checkStateNotNull(bindingTrackOutputs.valueAt(i).sampleFormat);
     }
     this.sampleFormats = sampleFormats;
   }
@@ -162,21 +169,21 @@ public final class ChunkExtractorWrapper implements ExtractorOutput {
 
     private final int id;
     private final int type;
-    private final Format manifestFormat;
+    @Nullable private final Format manifestFormat;
     private final DummyTrackOutput dummyTrackOutput;
 
-    public Format sampleFormat;
-    private TrackOutput trackOutput;
+    public @MonotonicNonNull Format sampleFormat;
+    private @MonotonicNonNull TrackOutput trackOutput;
     private long endTimeUs;
 
-    public BindingTrackOutput(int id, int type, Format manifestFormat) {
+    public BindingTrackOutput(int id, int type, @Nullable Format manifestFormat) {
       this.id = id;
       this.type = type;
       this.manifestFormat = manifestFormat;
       dummyTrackOutput = new DummyTrackOutput();
     }
 
-    public void bind(TrackOutputProvider trackOutputProvider, long endTimeUs) {
+    public void bind(@Nullable TrackOutputProvider trackOutputProvider, long endTimeUs) {
       if (trackOutputProvider == null) {
         trackOutput = dummyTrackOutput;
         return;
@@ -192,29 +199,31 @@ public final class ChunkExtractorWrapper implements ExtractorOutput {
     public void format(Format format) {
       sampleFormat = manifestFormat != null ? format.copyWithManifestFormatInfo(manifestFormat)
           : format;
-      trackOutput.format(sampleFormat);
+      castNonNull(trackOutput).format(sampleFormat);
     }
 
     @Override
     public int sampleData(ExtractorInput input, int length, boolean allowEndOfInput)
         throws IOException, InterruptedException {
-      return trackOutput.sampleData(input, length, allowEndOfInput);
+      return castNonNull(trackOutput).sampleData(input, length, allowEndOfInput);
     }
 
     @Override
     public void sampleData(ParsableByteArray data, int length) {
-      trackOutput.sampleData(data, length);
+      castNonNull(trackOutput).sampleData(data, length);
     }
 
     @Override
-    public void sampleMetadata(long timeUs, @C.BufferFlags int flags, int size, int offset,
-        CryptoData cryptoData) {
+    public void sampleMetadata(
+        long timeUs,
+        @C.BufferFlags int flags,
+        int size,
+        int offset,
+        @Nullable CryptoData cryptoData) {
       if (endTimeUs != C.TIME_UNSET && timeUs >= endTimeUs) {
         trackOutput = dummyTrackOutput;
       }
-      trackOutput.sampleMetadata(timeUs, flags, size, offset, cryptoData);
+      castNonNull(trackOutput).sampleMetadata(timeUs, flags, size, offset, cryptoData);
     }
-
   }
-
 }

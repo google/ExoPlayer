@@ -35,18 +35,21 @@ public final class DataSpec {
 
   /**
    * The flags that apply to any request for data. Possible flag values are {@link
-   * #FLAG_ALLOW_GZIP}, {@link #FLAG_ALLOW_ICY_METADATA}, {@link #FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN}
-   * , {@link #FLAG_ALLOW_CACHE_FRAGMENTATION} and {@link #FLAG_FORCE_BOUND_LOCAL_ADDRESS}
+   * #FLAG_ALLOW_GZIP}, {@link #FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN}, {@link
+   * #FLAG_ALLOW_CACHE_FRAGMENTATION}, and {@link #FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef(flag = true, value = {
-      FLAG_ALLOW_GZIP,
-      FLAG_ALLOW_ICY_METADATA,
-      FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN,
-      FLAG_ALLOW_CACHE_FRAGMENTATION,
-      FLAG_FORCE_BOUND_LOCAL_ADDRESS
-  })
+  @IntDef(
+      flag = true,
+      value = {
+        FLAG_ALLOW_GZIP,
+        FLAG_ALLOW_ICY_METADATA,
+        FLAG_ALLOW_CACHE_FRAGMENTATION,
+        FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN
+        FLAG_FORCE_BOUND_LOCAL_ADDRESS,
+        FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED
+      })
   public @interface Flags {}
   /**
    * Allows an underlying network stack to request that the server use gzip compression.
@@ -60,17 +63,20 @@ public final class DataSpec {
    * DataSource#read(byte[], int, int)} will be the decompressed data.
    */
   public static final int FLAG_ALLOW_GZIP = 1;
-  /** Allows an underlying network stack to request that the stream contain ICY metadata. */
-  public static final int FLAG_ALLOW_ICY_METADATA = 1 << 1; // 2
   /** Prevents caching if the length cannot be resolved when the {@link DataSource} is opened. */
-  public static final int FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN = 1 << 2; // 4
+  public static final int FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN = 1 << 1;
   /**
    * Allows fragmentation of this request into multiple cache files, meaning a cache eviction policy
    * will be able to evict individual fragments of the data. Depending on the cache implementation,
    * setting this flag may also enable more concurrent access to the data (e.g. reading one fragment
    * whilst writing another).
    */
-  public static final int FLAG_ALLOW_CACHE_FRAGMENTATION = 1 << 3; // 8
+  public static final int FLAG_ALLOW_CACHE_FRAGMENTATION = 1 << 2;
+  /**
+   * Indicates there are known external factors that might prevent the data from being loaded at
+   * full network speed (e.g. server throttling or unfinished live media chunks).
+   */
+  public static final int FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED = 1 << 3;
 
   /**
    * Force the source to bound to local address.
@@ -177,6 +183,36 @@ public final class DataSpec {
   }
 
   /**
+   * Construct a data spec where {@link #position} equals {@link #absoluteStreamPosition} and has
+   * request headers.
+   *
+   * @param uri {@link #uri}.
+   * @param absoluteStreamPosition {@link #absoluteStreamPosition}, equal to {@link #position}.
+   * @param length {@link #length}.
+   * @param key {@link #key}.
+   * @param flags {@link #flags}.
+   * @param httpRequestHeaders {@link #httpRequestHeaders}
+   */
+  public DataSpec(
+      Uri uri,
+      long absoluteStreamPosition,
+      long length,
+      @Nullable String key,
+      @Flags int flags,
+      Map<String, String> httpRequestHeaders) {
+    this(
+        uri,
+        inferHttpMethod(null),
+        null,
+        absoluteStreamPosition,
+        absoluteStreamPosition,
+        length,
+        key,
+        flags,
+        httpRequestHeaders);
+  }
+
+  /**
    * Construct a data spec where {@link #position} may differ from {@link #absoluteStreamPosition}.
    *
    * @param uri {@link #uri}.
@@ -220,7 +256,7 @@ public final class DataSpec {
       @Flags int flags) {
     this(
         uri,
-        /* httpMethod= */ postBody != null ? HTTP_METHOD_POST : HTTP_METHOD_GET,
+        /* httpMethod= */ inferHttpMethod(postBody),
         /* httpBody= */ postBody,
         absoluteStreamPosition,
         position,
@@ -406,5 +442,54 @@ public final class DataSpec {
         key,
         flags,
         httpRequestHeaders);
+  }
+
+  /**
+   * Returns a copy of this data spec with the specified request headers.
+   *
+   * @param requestHeaders The HTTP request headers.
+   * @return The copied data spec with the specified request headers.
+   */
+  public DataSpec withRequestHeaders(Map<String, String> requestHeaders) {
+    return new DataSpec(
+        uri,
+        httpMethod,
+        httpBody,
+        absoluteStreamPosition,
+        position,
+        length,
+        key,
+        flags,
+        requestHeaders);
+  }
+
+  /**
+   * Returns a copy this data spec with additional request headers.
+   *
+   * <p>Note: Values in {@code requestHeaders} will overwrite values with the same header key that
+   * were previously set in this instance's {@code #httpRequestHeaders}.
+   *
+   * @param requestHeaders The additional HTTP request headers.
+   * @return The copied data with the additional HTTP request headers.
+   */
+  public DataSpec withAdditionalHeaders(Map<String, String> requestHeaders) {
+    Map<String, String> totalHeaders = new HashMap<>(this.httpRequestHeaders);
+    totalHeaders.putAll(requestHeaders);
+
+    return new DataSpec(
+        uri,
+        httpMethod,
+        httpBody,
+        absoluteStreamPosition,
+        position,
+        length,
+        key,
+        flags,
+        totalHeaders);
+  }
+
+  @HttpMethod
+  private static int inferHttpMethod(@Nullable byte[] postBody) {
+    return postBody != null ? HTTP_METHOD_POST : HTTP_METHOD_GET;
   }
 }

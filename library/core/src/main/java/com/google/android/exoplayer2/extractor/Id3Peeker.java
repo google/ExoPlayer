@@ -50,7 +50,7 @@ public final class Id3Peeker {
       ExtractorInput input, @Nullable Id3Decoder.FramePredicate id3FramePredicate)
       throws IOException, InterruptedException {
     int peekedId3Bytes = 0;
-    Metadata metadata = null;
+    @Nullable Metadata metadata = null;
     while (true) {
       try {
         input.peekFully(scratch.data, /* offset= */ 0, Id3Decoder.ID3_HEADER_LENGTH);

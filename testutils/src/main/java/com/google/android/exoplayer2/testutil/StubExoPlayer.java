@@ -93,69 +93,89 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
     throw new UnsupportedOperationException();
   }
 
+  /** @deprecated Use {@link #prepare()} instead. */
+  @Deprecated
   @Override
   public void retry() {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #setMediaSource(MediaSource)} and {@link ExoPlayer#prepare()} instead.
+   */
+  @Deprecated
   @Override
   public void prepare() {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #setMediaSource(MediaSource)} and {@link ExoPlayer#prepare()} instead.
+   */
+  @Deprecated
   @Override
   public void prepare(MediaSource mediaSource) {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #setMediaSource(MediaSource, boolean)} and {@link ExoPlayer#prepare()}
+   *     instead.
+   */
+  @Deprecated
   @Override
   public void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void setMediaItems(List<MediaSource> mediaItems, boolean resetPosition) {
+  public void setMediaSource(MediaSource mediaSource) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void setMediaItems(List<MediaSource> mediaItems) {
+  public void setMediaSource(MediaSource mediaSource, long startPositionMs) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void setMediaItems(
-      List<MediaSource> mediaItems, int startWindowIndex, long startPositionMs) {
+  public void setMediaSource(MediaSource mediaSource, boolean resetPosition) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void setMediaItem(MediaSource mediaItem, long startPositionMs) {
+  public void setMediaSources(List<MediaSource> mediaSources) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void setMediaItem(MediaSource mediaItem) {
+  public void setMediaSources(List<MediaSource> mediaSources, boolean resetPosition) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void addMediaItem(MediaSource mediaSource) {
+  public void setMediaSources(
+      List<MediaSource> mediaSources, int startWindowIndex, long startPositionMs) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void addMediaItem(int index, MediaSource mediaSource) {
+  public void addMediaSource(MediaSource mediaSource) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void addMediaItems(List<MediaSource> mediaSources) {
+  public void addMediaSource(int index, MediaSource mediaSource) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void addMediaItems(int index, List<MediaSource> mediaSources) {
+  public void addMediaSources(List<MediaSource> mediaSources) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void addMediaSources(int index, List<MediaSource> mediaSources) {
     throw new UnsupportedOperationException();
   }
 
@@ -170,7 +190,7 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
-  public MediaSource removeMediaItem(int index) {
+  public void removeMediaItem(int index) {
     throw new UnsupportedOperationException();
   }
 

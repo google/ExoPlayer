@@ -14,6 +14,8 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_show">បង្ហាញការគ្រប់គ្រងកម្មវិធីចាក់ចម្រៀង</string>
+  <string name="exo_controls_hide">លាក់ការគ្រប់គ្រងកម្មវិធីចាក់ចម្រៀង</string>
   <string name="exo_controls_previous_description">សំនៀង​​មុន</string>
   <string name="exo_controls_next_description">សំនៀង​បន្ទាប់</string>
   <string name="exo_controls_pause_description">ផ្អាក</string>

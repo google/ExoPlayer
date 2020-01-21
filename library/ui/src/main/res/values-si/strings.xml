@@ -14,6 +14,8 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_show">ධාවක පාලන පෙන්වන්න</string>
+  <string name="exo_controls_hide">ධාවක පාලන සඟවන්න</string>
   <string name="exo_controls_previous_description">පෙර ඛණ්ඩය</string>
   <string name="exo_controls_next_description">ඊළඟ ඛණ්ඩය</string>
   <string name="exo_controls_pause_description">විරාම කරන්න</string>

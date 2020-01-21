@@ -28,11 +28,9 @@ android {
     }
 
     buildTypes {
-        // Re-enable test coverage when the following issue is fixed:
-        // https://issuetracker.google.com/issues/37019591
-        // debug {
-        //    testCoverageEnabled = true
-        // }
+        debug {
+            testCoverageEnabled = true
+        }
     }
 
     testOptions.unitTests.includeAndroidResources = true

@@ -14,6 +14,8 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_show">Ойнатқышты басқару элементтерін көрсету</string>
+  <string name="exo_controls_hide">Ойнатқышты басқару элементтерін жасыру</string>
   <string name="exo_controls_previous_description">Алдыңғы аудиотрек</string>
   <string name="exo_controls_next_description">Келесі аудиотрек</string>
   <string name="exo_controls_pause_description">Кідірту</string>

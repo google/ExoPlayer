@@ -15,18 +15,17 @@
  */
 package com.google.android.exoplayer2.extractor.ogg;
 
+import static com.google.android.exoplayer2.testutil.TestUtil.getByteArray;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
-import com.google.android.exoplayer2.testutil.OggTestData;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -36,14 +35,8 @@ public final class OggPacketTest {
 
   private static final String TEST_FILE = "ogg/bear.opus";
 
-  private Random random;
-  private OggPacket oggPacket;
-
-  @Before
-  public void setUp() throws Exception {
-    random = new Random(0);
-    oggPacket = new OggPacket();
-  }
+  private final Random random = new Random(/* seed= */ 0);
+  private final OggPacket oggPacket = new OggPacket();
 
   @Test
   public void testReadPacketsWithEmptyPage() throws Exception {
@@ -51,26 +44,10 @@ public final class OggPacketTest {
     byte[] secondPacket = TestUtil.buildTestData(272, random);
     byte[] thirdPacket = TestUtil.buildTestData(256, random);
     byte[] fourthPacket = TestUtil.buildTestData(271, random);
-
     FakeExtractorInput input =
-        OggTestData.createInput(
-            TestUtil.joinByteArrays(
-                // First page with a single packet.
-                OggTestData.buildOggHeader(0x02, 0, 1000, 0x01),
-                TestUtil.createByteArray(0x08), // Laces
-                firstPacket,
-                // Second page with a single packet.
-                OggTestData.buildOggHeader(0x00, 16, 1001, 0x02),
-                TestUtil.createByteArray(0xFF, 0x11), // Laces
-                secondPacket,
-                // Third page with zero packets.
-                OggTestData.buildOggHeader(0x00, 16, 1002, 0x00),
-                // Fourth page with two packets.
-                OggTestData.buildOggHeader(0x04, 128, 1003, 0x04),
-                TestUtil.createByteArray(0xFF, 0x01, 0xFF, 0x10), // Laces
-                thirdPacket,
-                fourthPacket),
-            true);
+        createInput(
+            getByteArray(
+                ApplicationProvider.getApplicationContext(), "ogg/four_packets_with_empty_page"));
 
     assertReadPacket(input, firstPacket);
     assertThat((oggPacket.getPageHeader().type & 0x02) == 0x02).isTrue();
@@ -114,15 +91,11 @@ public final class OggPacketTest {
   public void testReadPacketWithZeroSizeTerminator() throws Exception {
     byte[] firstPacket = TestUtil.buildTestData(255, random);
     byte[] secondPacket = TestUtil.buildTestData(8, random);
-
     FakeExtractorInput input =
-        OggTestData.createInput(
-            TestUtil.joinByteArrays(
-                OggTestData.buildOggHeader(0x06, 0, 1000, 0x04),
-                TestUtil.createByteArray(0xFF, 0x00, 0x00, 0x08), // Laces.
-                firstPacket,
-                secondPacket),
-            true);
+        createInput(
+            getByteArray(
+                ApplicationProvider.getApplicationContext(),
+                "ogg/packet_with_zero_size_terminator"));
 
     assertReadPacket(input, firstPacket);
     assertReadPacket(input, secondPacket);
@@ -132,19 +105,11 @@ public final class OggPacketTest {
   @Test
   public void testReadContinuedPacketOverTwoPages() throws Exception {
     byte[] firstPacket = TestUtil.buildTestData(518);
-
     FakeExtractorInput input =
-        OggTestData.createInput(
-            TestUtil.joinByteArrays(
-                // First page.
-                OggTestData.buildOggHeader(0x02, 0, 1000, 0x02),
-                TestUtil.createByteArray(0xFF, 0xFF), // Laces.
-                Arrays.copyOf(firstPacket, 510),
-                // Second page (continued packet).
-                OggTestData.buildOggHeader(0x05, 10, 1001, 0x01),
-                TestUtil.createByteArray(0x08), // Laces.
-                Arrays.copyOfRange(firstPacket, 510, 510 + 8)),
-            true);
+        createInput(
+            getByteArray(
+                ApplicationProvider.getApplicationContext(),
+                "ogg/continued_packet_over_two_pages"));
 
     assertReadPacket(input, firstPacket);
     assertThat((oggPacket.getPageHeader().type & 0x04) == 0x04).isTrue();
@@ -157,27 +122,11 @@ public final class OggPacketTest {
   @Test
   public void testReadContinuedPacketOverFourPages() throws Exception {
     byte[] firstPacket = TestUtil.buildTestData(1028);
-
     FakeExtractorInput input =
-        OggTestData.createInput(
-            TestUtil.joinByteArrays(
-                // First page.
-                OggTestData.buildOggHeader(0x02, 0, 1000, 0x02),
-                TestUtil.createByteArray(0xFF, 0xFF), // Laces.
-                Arrays.copyOf(firstPacket, 510),
-                // Second page (continued packet).
-                OggTestData.buildOggHeader(0x01, 10, 1001, 0x01),
-                TestUtil.createByteArray(0xFF), // Laces.
-                Arrays.copyOfRange(firstPacket, 510, 510 + 255),
-                // Third page (continued packet).
-                OggTestData.buildOggHeader(0x01, 10, 1002, 0x01),
-                TestUtil.createByteArray(0xFF), // Laces.
-                Arrays.copyOfRange(firstPacket, 510 + 255, 510 + 255 + 255),
-                // Fourth page (continued packet).
-                OggTestData.buildOggHeader(0x05, 10, 1003, 0x01),
-                TestUtil.createByteArray(0x08), // Laces.
-                Arrays.copyOfRange(firstPacket, 510 + 255 + 255, 510 + 255 + 255 + 8)),
-            true);
+        createInput(
+            getByteArray(
+                ApplicationProvider.getApplicationContext(),
+                "ogg/continued_packet_over_four_pages"));
 
     assertReadPacket(input, firstPacket);
     assertThat((oggPacket.getPageHeader().type & 0x04) == 0x04).isTrue();
@@ -190,15 +139,10 @@ public final class OggPacketTest {
   @Test
   public void testReadDiscardContinuedPacketAtStart() throws Exception {
     byte[] pageBody = TestUtil.buildTestData(256 + 8);
-
     FakeExtractorInput input =
-        OggTestData.createInput(
-            TestUtil.joinByteArrays(
-                // Page with a continued packet at start.
-                OggTestData.buildOggHeader(0x01, 10, 1001, 0x03),
-                TestUtil.createByteArray(255, 1, 8), // Laces.
-                pageBody),
-            true);
+        createInput(
+            getByteArray(
+                ApplicationProvider.getApplicationContext(), "ogg/continued_packet_at_start"));
 
     // Expect the first partial packet to be discarded.
     assertReadPacket(input, Arrays.copyOfRange(pageBody, 256, 256 + 8));
@@ -210,20 +154,11 @@ public final class OggPacketTest {
     byte[] firstPacket = TestUtil.buildTestData(8, random);
     byte[] secondPacket = TestUtil.buildTestData(8, random);
     byte[] thirdPacket = TestUtil.buildTestData(8, random);
-
     FakeExtractorInput input =
-        OggTestData.createInput(
-            TestUtil.joinByteArrays(
-                OggTestData.buildOggHeader(0x02, 0, 1000, 0x01),
-                TestUtil.createByteArray(0x08), // Laces.
-                firstPacket,
-                OggTestData.buildOggHeader(0x04, 0, 1001, 0x03),
-                TestUtil.createByteArray(0x08, 0x00, 0x00), // Laces.
-                secondPacket,
-                OggTestData.buildOggHeader(0x04, 0, 1002, 0x03),
-                TestUtil.createByteArray(0x08, 0x00, 0x00), // Laces.
-                thirdPacket),
-            true);
+        createInput(
+            getByteArray(
+                ApplicationProvider.getApplicationContext(),
+                "ogg/zero_sized_packets_at_end_of_stream"));
 
     assertReadPacket(input, firstPacket);
     assertReadPacket(input, secondPacket);
@@ -240,6 +175,15 @@ public final class OggPacketTest {
       packetCounter++;
     }
     assertThat(packetCounter).isEqualTo(277);
+  }
+
+  private static FakeExtractorInput createInput(byte[] data) {
+    return new FakeExtractorInput.Builder()
+        .setData(data)
+        .setSimulateIOErrors(true)
+        .setSimulateUnknownLength(true)
+        .setSimulatePartialReads(true)
+        .build();
   }
 
   private void assertReadPacket(FakeExtractorInput extractorInput, byte[] expected)

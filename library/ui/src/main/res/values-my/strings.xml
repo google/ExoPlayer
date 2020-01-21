@@ -14,6 +14,8 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_show">ပလေယာ ခလုတ်များကို ပြရန်</string>
+  <string name="exo_controls_hide">ပလေယာ ခလုတ်များကို ဝှက်ရန်</string>
   <string name="exo_controls_previous_description">ယခင် တစ်ပုဒ်</string>
   <string name="exo_controls_next_description">နောက် တစ်ပုဒ်</string>
   <string name="exo_controls_pause_description">ခဏရပ်ရန်</string>

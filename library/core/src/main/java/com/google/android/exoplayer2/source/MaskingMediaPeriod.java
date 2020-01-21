@@ -222,6 +222,11 @@ public final class MaskingMediaPeriod implements MediaPeriod, MediaPeriod.Callba
   }
 
   @Override
+  public boolean isLoading() {
+    return mediaPeriod != null && mediaPeriod.isLoading();
+  }
+
+  @Override
   public void onContinueLoadingRequested(MediaPeriod source) {
     castNonNull(callback).onContinueLoadingRequested(this);
   }

@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.Renderer;
+import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -110,9 +111,11 @@ public class FakeRenderer extends BaseRenderer {
   }
 
   @Override
+  @Capabilities
   public int supportsFormat(Format format) throws ExoPlaybackException {
     return getTrackType() == MimeTypes.getTrackType(format.sampleMimeType)
-        ? (FORMAT_HANDLED | ADAPTIVE_SEAMLESS) : FORMAT_UNSUPPORTED_TYPE;
+        ? RendererCapabilities.create(FORMAT_HANDLED, ADAPTIVE_SEAMLESS, TUNNELING_NOT_SUPPORTED)
+        : RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
   }
 
   /** Called when the renderer reads a new format. */

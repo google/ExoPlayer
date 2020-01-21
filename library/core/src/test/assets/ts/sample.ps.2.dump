@@ -24,6 +24,7 @@ track 192:
     selectionFlags = 0
     language = null
     drmInitData = -
+    metadata = null
     initializationData:
   total output bytes = 0
   sample count = 0
@@ -48,6 +49,7 @@ track 224:
     selectionFlags = 0
     language = null
     drmInitData = -
+    metadata = null
     initializationData:
       data = length 22, hash 743CC6F8
   total output bytes = 19791

@@ -23,11 +23,14 @@ import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * Extracts data from the FLV container format.
@@ -71,7 +74,7 @@ public final class FlvExtractor implements Extractor {
   private final ParsableByteArray tagData;
   private final ScriptTagPayloadReader metadataReader;
 
-  private ExtractorOutput extractorOutput;
+  private @MonotonicNonNull ExtractorOutput extractorOutput;
   private @States int state;
   private boolean outputFirstSample;
   private long mediaTagTimestampOffsetUs;
@@ -80,8 +83,8 @@ public final class FlvExtractor implements Extractor {
   private int tagDataSize;
   private long tagTimestampUs;
   private boolean outputSeekMap;
-  private AudioTagPayloadReader audioReader;
-  private VideoTagPayloadReader videoReader;
+  private @MonotonicNonNull AudioTagPayloadReader audioReader;
+  private @MonotonicNonNull VideoTagPayloadReader videoReader;
 
   public FlvExtractor() {
     scratch = new ParsableByteArray(4);
@@ -143,6 +146,7 @@ public final class FlvExtractor implements Extractor {
   @Override
   public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException,
       InterruptedException {
+    Assertions.checkStateNotNull(extractorOutput); // Asserts that init has been called.
     while (true) {
       switch (state) {
         case STATE_READING_FLV_HEADER:
@@ -178,6 +182,7 @@ public final class FlvExtractor implements Extractor {
    * @throws IOException If an error occurred reading or parsing data from the source.
    * @throws InterruptedException If the thread was interrupted.
    */
+  @RequiresNonNull("extractorOutput")
   private boolean readFlvHeader(ExtractorInput input) throws IOException, InterruptedException {
     if (!input.readFully(headerBuffer.data, 0, FLV_HEADER_SIZE, true)) {
       // We've reached the end of the stream.
@@ -250,6 +255,7 @@ public final class FlvExtractor implements Extractor {
    * @throws IOException If an error occurred reading or parsing data from the source.
    * @throws InterruptedException If the thread was interrupted.
    */
+  @RequiresNonNull("extractorOutput")
   private boolean readTagData(ExtractorInput input) throws IOException, InterruptedException {
     boolean wasConsumed = true;
     boolean wasSampleOutput = false;
@@ -293,6 +299,7 @@ public final class FlvExtractor implements Extractor {
     return tagData;
   }
 
+  @RequiresNonNull("extractorOutput")
   private void ensureReadyForMediaOutput() {
     if (!outputSeekMap) {
       extractorOutput.seekMap(new SeekMap.Unseekable(C.TIME_UNSET));

@@ -24,6 +24,7 @@ track 0:
     selectionFlags = 0
     language = null
     drmInitData = -
+    metadata = entries=[TSSE: description=null: value=Lavf54.20.4]
     initializationData:
   total output bytes = 14592
   sample count = 38

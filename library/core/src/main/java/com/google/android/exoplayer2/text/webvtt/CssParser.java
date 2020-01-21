@@ -31,14 +31,19 @@ import java.util.regex.Pattern;
  */
 /* package */ final class CssParser {
 
+  private static final String TAG = "CssParser";
+
+  private static final String RULE_START = "{";
+  private static final String RULE_END = "}";
   private static final String PROPERTY_BGCOLOR = "background-color";
   private static final String PROPERTY_FONT_FAMILY = "font-family";
   private static final String PROPERTY_FONT_WEIGHT = "font-weight";
+  private static final String PROPERTY_TEXT_COMBINE_UPRIGHT = "text-combine-upright";
+  private static final String VALUE_ALL = "all";
+  private static final String VALUE_DIGITS = "digits";
   private static final String PROPERTY_TEXT_DECORATION = "text-decoration";
   private static final String VALUE_BOLD = "bold";
   private static final String VALUE_UNDERLINE = "underline";
-  private static final String RULE_START = "{";
-  private static final String RULE_END = "}";
   private static final String PROPERTY_FONT_STYLE = "font-style";
   private static final String VALUE_ITALIC = "italic";
 
@@ -182,6 +187,8 @@ import java.util.regex.Pattern;
       style.setFontColor(ColorParser.parseCssColor(value));
     } else if (PROPERTY_BGCOLOR.equals(property)) {
       style.setBackgroundColor(ColorParser.parseCssColor(value));
+    } else if (PROPERTY_TEXT_COMBINE_UPRIGHT.equals(property)) {
+      style.setCombineUpright(VALUE_ALL.equals(value) || value.startsWith(VALUE_DIGITS));
     } else if (PROPERTY_TEXT_DECORATION.equals(property)) {
       if (VALUE_UNDERLINE.equals(value)) {
         style.setUnderline(true);

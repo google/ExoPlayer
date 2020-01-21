@@ -27,25 +27,19 @@ android {
         targetSdkVersion project.ext.targetSdkVersion
     }
 
-    lintOptions {
-        // Truth depends on JUnit, which depends on java.lang.management, which
-        // is not part of Android. Remove this when JUnit 4.13 or later is used.
-        // See: https://github.com/junit-team/junit4/pull/1187.
-        disable 'InvalidPackage'
-    }
-
     testOptions.unitTests.includeAndroidResources = true
 }
 
 dependencies {
     api 'org.mockito:mockito-core:' + mockitoVersion
-    api 'androidx.test:core:' + androidxTestVersion
-    api 'androidx.test.ext:junit:' + androidxTestVersion
+    api 'androidx.test:core:' + androidxTestCoreVersion
+    api 'androidx.test.ext:junit:' + androidxTestJUnitVersion
+    api 'junit:junit:' + junitVersion
     api 'com.google.truth:truth:' + truthVersion
+    compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
+    compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkVersion
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     implementation project(modulePrefix + 'library-core')
-    implementation 'com.google.auto.value:auto-value-annotations:' + autoValueVersion
-    annotationProcessor 'com.google.auto.value:auto-value:' + autoValueVersion
     testImplementation project(modulePrefix + 'testutils')
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }

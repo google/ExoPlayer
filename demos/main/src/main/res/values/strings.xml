@@ -29,7 +29,7 @@
 
   <string name="error_unrecognized_stereo_mode">Unrecognized stereo mode</string>
 
-  <string name="error_drm_not_supported">Protected content not supported on API levels below 18</string>
+  <string name="error_drm_unsupported_before_api_18">Protected content not supported on API levels below 18</string>
 
   <string name="error_drm_unsupported_scheme">This device does not support the required DRM scheme</string>
 
@@ -63,10 +63,14 @@
 
   <string name="download_scheme_unsupported">This demo app only supports downloading http streams</string>
 
+  <string name="download_live_unsupported">This demo app does not support downloading live content</string>
+
   <string name="download_ads_unsupported">IMA does not support offline ads</string>
 
   <string name="prefer_extension_decoders">Prefer extension decoders</string>
 
   <string name="random_abr">Enable random ABR</string>
+
+  <string name="tunneling">Request multimedia tunneling</string>
 
 </resources>

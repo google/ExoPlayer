@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
+import static com.google.android.exoplayer2.testutil.TestUtil.createTestFile;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
@@ -103,12 +104,9 @@ public class CachedContentIndexTest {
     // add a span
     int cacheFileLength = 20;
     File cacheSpanFile =
-        SimpleCacheSpanTest.createCacheSpanFile(
-            cacheDir,
-            cachedContent1.id,
-            /* offset= */ 10,
-            cacheFileLength,
-            /* lastTouchTimestamp= */ 30);
+        SimpleCacheSpan.getCacheFile(
+            cacheDir, cachedContent1.id, /* position= */ 10, /* timestamp= */ 30);
+    createTestFile(cacheSpanFile, cacheFileLength);
     SimpleCacheSpan span = SimpleCacheSpan.createCacheEntry(cacheSpanFile, cacheFileLength, index);
     assertThat(span).isNotNull();
     cachedContent1.addSpan(span);
@@ -288,12 +286,9 @@ public class CachedContentIndexTest {
     CachedContent cachedContent = index.getOrAdd("key1");
     long cacheFileLength = 20;
     File cacheFile =
-        SimpleCacheSpanTest.createCacheSpanFile(
-            cacheDir,
-            cachedContent.id,
-            /* offset= */ 10,
-            cacheFileLength,
-            /* lastTouchTimestamp= */ 30);
+        SimpleCacheSpan.getCacheFile(
+            cacheDir, cachedContent.id, /* position= */ 10, /* timestamp= */ 30);
+    createTestFile(cacheFile, cacheFileLength);
     SimpleCacheSpan span = SimpleCacheSpan.createCacheEntry(cacheFile, cacheFileLength, index);
     cachedContent.addSpan(span);
 
@@ -334,7 +329,7 @@ public class CachedContentIndexTest {
   }
 
   private CachedContentIndex newInstance() {
-    return new CachedContentIndex(TestUtil.getTestDatabaseProvider());
+    return new CachedContentIndex(TestUtil.getInMemoryDatabaseProvider());
   }
 
   private CachedContentIndex newLegacyInstance() {

@@ -58,6 +58,7 @@ public class SimpleDecoderAudioRendererTest {
     audioRenderer =
         new SimpleDecoderAudioRenderer(null, null, null, false, mockAudioSink) {
           @Override
+          @FormatSupport
           protected int supportsFormatInternal(
               @Nullable DrmSessionManager<ExoMediaCrypto> drmSessionManager, Format format) {
             return FORMAT_HANDLED;
@@ -66,9 +67,13 @@ public class SimpleDecoderAudioRendererTest {
           @Override
           protected SimpleDecoder<
                   DecoderInputBuffer, ? extends SimpleOutputBuffer, ? extends AudioDecoderException>
-              createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
-                  throws AudioDecoderException {
+              createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto) {
             return new FakeDecoder();
+          }
+
+          @Override
+          protected Format getOutputFormat() {
+            return FORMAT;
           }
         };
   }

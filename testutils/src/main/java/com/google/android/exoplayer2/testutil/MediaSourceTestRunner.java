@@ -25,13 +25,13 @@ import android.os.Looper;
 import android.util.Pair;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.source.LoadEventInfo;
+import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
-import com.google.android.exoplayer2.source.MediaSourceEventListener.LoadEventInfo;
-import com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
@@ -89,8 +89,8 @@ public class MediaSourceTestRunner {
    * @param runnable The {@link Runnable} to run.
    */
   public void runOnPlaybackThread(final Runnable runnable) {
-    final Throwable[] throwable = new Throwable[1];
-    final ConditionVariable finishedCondition = new ConditionVariable();
+    Throwable[] throwable = new Throwable[1];
+    CountDownLatch finishedLatch = new CountDownLatch(1);
     playbackHandler.post(
         () -> {
           try {
@@ -98,10 +98,14 @@ public class MediaSourceTestRunner {
           } catch (Throwable e) {
             throwable[0] = e;
           } finally {
-            finishedCondition.open();
+            finishedLatch.countDown();
           }
         });
-    assertThat(finishedCondition.block(TIMEOUT_MS)).isTrue();
+    try {
+      assertThat(finishedLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue();
+    } catch (InterruptedException e) {
+      Util.sneakyThrow(e);
+    }
     if (throwable[0] != null) {
       Util.sneakyThrow(throwable[0]);
     }
@@ -169,14 +173,14 @@ public class MediaSourceTestRunner {
    */
   public CountDownLatch preparePeriod(final MediaPeriod mediaPeriod, final long positionUs) {
     final ConditionVariable prepareCalled = new ConditionVariable();
-    final CountDownLatch preparedCountDown = new CountDownLatch(1);
+    final CountDownLatch preparedLatch = new CountDownLatch(1);
     runOnPlaybackThread(
         () -> {
           mediaPeriod.prepare(
               new MediaPeriod.Callback() {
                 @Override
                 public void onPrepared(MediaPeriod mediaPeriod1) {
-                  preparedCountDown.countDown();
+                  preparedLatch.countDown();
                 }
 
                 @Override
@@ -188,7 +192,7 @@ public class MediaSourceTestRunner {
           prepareCalled.open();
         });
     prepareCalled.block();
-    return preparedCountDown;
+    return preparedLatch;
   }
 
   /**
@@ -267,8 +271,8 @@ public class MediaSourceTestRunner {
       throws InterruptedException {
     MediaPeriod mediaPeriod = createPeriod(mediaPeriodId);
     assertThat(lastCreatedMediaPeriod.getAndSet(/* newValue= */ null)).isEqualTo(mediaPeriodId);
-    CountDownLatch preparedCondition = preparePeriod(mediaPeriod, 0);
-    assertThat(preparedCondition.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue();
+    CountDownLatch preparedLatch = preparePeriod(mediaPeriod, 0);
+    assertThat(preparedLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue();
     // MediaSource is supposed to support multiple calls to createPeriod without an intervening call
     // to releasePeriod.
     MediaPeriodId secondMediaPeriodId =
@@ -280,8 +284,8 @@ public class MediaSourceTestRunner {
     MediaPeriod secondMediaPeriod = createPeriod(secondMediaPeriodId);
     assertThat(lastCreatedMediaPeriod.getAndSet(/* newValue= */ null))
         .isEqualTo(secondMediaPeriodId);
-    CountDownLatch secondPreparedCondition = preparePeriod(secondMediaPeriod, 0);
-    assertThat(secondPreparedCondition.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue();
+    CountDownLatch secondPreparedLatch = preparePeriod(secondMediaPeriod, 0);
+    assertThat(secondPreparedLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue();
     // Release the periods.
     releasePeriod(mediaPeriod);
     assertThat(lastReleasedMediaPeriod.getAndSet(/* newValue= */ null)).isEqualTo(mediaPeriodId);

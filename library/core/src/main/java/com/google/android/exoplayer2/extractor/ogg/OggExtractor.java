@@ -23,8 +23,11 @@ import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Extracts data from the Ogg container format.
@@ -36,8 +39,8 @@ public class OggExtractor implements Extractor {
 
   private static final int MAX_VERIFICATION_BYTES = 8;
 
-  private ExtractorOutput output;
-  private StreamReader streamReader;
+  private @MonotonicNonNull ExtractorOutput output;
+  private @MonotonicNonNull StreamReader streamReader;
   private boolean streamReaderInitialized;
 
   @Override
@@ -69,6 +72,7 @@ public class OggExtractor implements Extractor {
   @Override
   public int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
+    Assertions.checkStateNotNull(output); // Asserts that init has been called.
     if (streamReader == null) {
       if (!sniffInternal(input)) {
         throw new ParserException("Failed to determine bitstream type");
@@ -84,6 +88,7 @@ public class OggExtractor implements Extractor {
     return streamReader.read(input, seekPosition);
   }
 
+  @EnsuresNonNullIf(expression = "streamReader", result = true)
   private boolean sniffInternal(ExtractorInput input) throws IOException, InterruptedException {
     OggPageHeader header = new OggPageHeader();
     if (!header.populate(input, true) || (header.type & 0x02) != 0x02) {

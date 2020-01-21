@@ -14,6 +14,8 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_show">Zobrazit ovládací prvky přehrávače</string>
+  <string name="exo_controls_hide">Skrýt ovládací prvky přehrávače</string>
   <string name="exo_controls_previous_description">Předchozí skladba</string>
   <string name="exo_controls_next_description">Další skladba</string>
   <string name="exo_controls_pause_description">Pozastavit</string>

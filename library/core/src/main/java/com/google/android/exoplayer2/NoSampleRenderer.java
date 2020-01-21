@@ -20,6 +20,7 @@ import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MediaClock;
 import java.io.IOException;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A {@link Renderer} implementation whose track type is {@link C#TRACK_TYPE_NONE} and does not
@@ -27,10 +28,10 @@ import java.io.IOException;
  */
 public abstract class NoSampleRenderer implements Renderer, RendererCapabilities {
 
-  private RendererConfiguration configuration;
+  private @MonotonicNonNull RendererConfiguration configuration;
   private int index;
   private int state;
-  private SampleStream stream;
+  @Nullable private SampleStream stream;
   private boolean streamIsFinal;
 
   @Override
@@ -184,11 +185,13 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
   // RendererCapabilities implementation.
 
   @Override
+  @Capabilities
   public int supportsFormat(Format format) throws ExoPlaybackException {
-    return FORMAT_UNSUPPORTED_TYPE;
+    return RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
   }
 
   @Override
+  @AdaptiveSupport
   public int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
     return ADAPTIVE_NOT_SUPPORTED;
   }
@@ -285,8 +288,10 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
   // Methods to be called by subclasses.
 
   /**
-   * Returns the configuration set when the renderer was most recently enabled.
+   * Returns the configuration set when the renderer was most recently enabled, or {@code null} if
+   * the renderer has never been enabled.
    */
+  @Nullable
   protected final RendererConfiguration getConfiguration() {
     return configuration;
   }

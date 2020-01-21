@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.SimpleDecoderAudioRenderer;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
+import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.util.MimeTypes;
 
 /** Decodes and renders audio using the native Opus decoder. */
@@ -34,7 +35,6 @@ public class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
   /** The default input buffer size. */
   private static final int DEFAULT_INPUT_BUFFER_SIZE = 960 * 6;
 
-  @Nullable private OpusDecoder decoder;
   private int channelCount;
   private int sampleRate;
 
@@ -67,7 +67,11 @@ public class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
    *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
    *     has obtained the keys necessary to decrypt encrypted regions of the media.
    * @param audioProcessors Optional {@link AudioProcessor}s that will process audio before output.
+   * @deprecated Use {@link #LibopusAudioRenderer(Handler, AudioRendererEventListener,
+   *     AudioProcessor...)} instead, and pass DRM-related parameters to the {@link MediaSource}
+   *     factories.
    */
+  @Deprecated
   public LibopusAudioRenderer(
       @Nullable Handler eventHandler,
       @Nullable AudioRendererEventListener eventListener,
@@ -79,6 +83,7 @@ public class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
   }
 
   @Override
+  @FormatSupport
   protected int supportsFormatInternal(
       @Nullable DrmSessionManager<ExoMediaCrypto> drmSessionManager, Format format) {
     boolean drmIsSupported =
@@ -103,7 +108,7 @@ public class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
       throws OpusDecoderException {
     int initialInputBufferSize =
         format.maxInputSize != Format.NO_VALUE ? format.maxInputSize : DEFAULT_INPUT_BUFFER_SIZE;
-    decoder =
+    OpusDecoder decoder =
         new OpusDecoder(
             NUM_BUFFERS,
             NUM_BUFFERS,

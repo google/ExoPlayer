@@ -36,10 +36,10 @@ import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
+import com.google.android.exoplayer2.source.LoadEventInfo;
+import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
-import com.google.android.exoplayer2.source.MediaSourceEventListener.LoadEventInfo;
-import com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.testutil.ActionSchedule;
 import com.google.android.exoplayer2.testutil.ActionSchedule.PlayerRunnable;
@@ -434,10 +434,9 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_DECODER_DISABLED)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_AUDIO_SESSION_ID)).containsExactly(period1Seq2);
     assertThat(listener.getEvents(EVENT_DROPPED_VIDEO_FRAMES))
-        .containsExactly(period0, period0, period1Seq2);
-    assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED)).containsExactly(period0, period1Seq2);
-    assertThat(listener.getEvents(EVENT_RENDERED_FIRST_FRAME))
-        .containsExactly(period0, period1Seq2);
+        .containsExactly(period0, period1Seq2, period1Seq2);
+    assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED)).containsExactly(period0, period0);
+    assertThat(listener.getEvents(EVENT_RENDERED_FIRST_FRAME)).containsExactly(period0, period0);
     listener.assertNoMoreEvents();
   }
 
@@ -451,7 +450,7 @@ public final class AnalyticsCollectorTest {
         new ActionSchedule.Builder("AnalyticsCollectorTest")
             .pause()
             .waitForPlaybackState(Player.STATE_READY)
-            .setMediaItems(/* resetPosition= */ false, mediaSource2)
+            .setMediaSources(/* resetPosition= */ false, mediaSource2)
             .play()
             .build();
     TestAnalyticsListener listener = runAnalyticsTest(mediaSource1, actionSchedule);
@@ -485,7 +484,7 @@ public final class AnalyticsCollectorTest {
         .containsExactly(period0Seq0, period0Seq0, period0Seq1, period0Seq1);
     assertThat(listener.getEvents(EVENT_TRACKS_CHANGED))
         .containsExactly(
-            period0Seq0 /* prepared */, WINDOW_0 /* setMediaItems */, period0Seq1 /* prepared */);
+            period0Seq0 /* prepared */, WINDOW_0 /* setMediaSources */, period0Seq1 /* prepared */);
     assertThat(listener.getEvents(EVENT_LOAD_STARTED))
         .containsExactly(
             WINDOW_0 /* manifest */,

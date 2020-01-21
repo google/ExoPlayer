@@ -19,18 +19,22 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.android.exoplayer2.util.TrackIdGenerator;
+import com.google.android.exoplayer2.util.Util;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Parses splice info sections as defined by SCTE35.
  */
 public final class SpliceInfoSectionReader implements SectionPayloadReader {
 
-  private TimestampAdjuster timestampAdjuster;
-  private TrackOutput output;
+  private @MonotonicNonNull TimestampAdjuster timestampAdjuster;
+  private @MonotonicNonNull TrackOutput output;
   private boolean formatDeclared;
 
   @Override
@@ -45,6 +49,7 @@ public final class SpliceInfoSectionReader implements SectionPayloadReader {
 
   @Override
   public void consume(ParsableByteArray sectionData) {
+    assertInitialized();
     if (!formatDeclared) {
       if (timestampAdjuster.getTimestampOffsetUs() == C.TIME_UNSET) {
         // There is not enough information to initialize the timestamp adjuster.
@@ -60,4 +65,9 @@ public final class SpliceInfoSectionReader implements SectionPayloadReader {
         sampleSize, 0, null);
   }
 
+  @EnsuresNonNull({"timestampAdjuster", "output"})
+  private void assertInitialized() {
+    Assertions.checkStateNotNull(timestampAdjuster);
+    Util.castNonNull(output);
+  }
 }

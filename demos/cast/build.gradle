@@ -26,7 +26,7 @@ android {
         versionName project.ext.releaseVersion
         versionCode project.ext.releaseVersionCode
         minSdkVersion project.ext.minSdkVersion
-        targetSdkVersion project.ext.targetSdkVersion
+        targetSdkVersion project.ext.appTargetSdkVersion
     }
 
     buildTypes {
@@ -56,7 +56,7 @@ dependencies {
     implementation project(modulePrefix + 'library-smoothstreaming')
     implementation project(modulePrefix + 'library-ui')
     implementation project(modulePrefix + 'extension-cast')
-    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'androidx.appcompat:appcompat:' + androidxAppCompatVersion
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
     implementation 'com.google.android.material:material:1.0.0'
 }

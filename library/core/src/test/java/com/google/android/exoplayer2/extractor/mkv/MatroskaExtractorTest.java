@@ -30,6 +30,11 @@ public final class MatroskaExtractorTest {
   }
 
   @Test
+  public void testMkvFullBlocksSample() throws Exception {
+    ExtractorAsserts.assertBehavior(MatroskaExtractor::new, "mkv/full_blocks.mkv");
+  }
+
+  @Test
   public void testWebmSubsampleEncryption() throws Exception {
     ExtractorAsserts.assertBehavior(
         MatroskaExtractor::new, "mkv/subsample_encrypted_noaltref.webm");

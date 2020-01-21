@@ -14,6 +14,8 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_show">Visa spelarkontroller</string>
+  <string name="exo_controls_hide">Dölj spelarkontroller</string>
   <string name="exo_controls_previous_description">Föregående spår</string>
   <string name="exo_controls_next_description">Nästa spår</string>
   <string name="exo_controls_pause_description">Pausa</string>

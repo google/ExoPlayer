@@ -32,7 +32,8 @@ import java.lang.annotation.RetentionPolicy;
  * valid state transitions are shown below, annotated with the methods that are called during each
  * transition.
  *
- * <p align="center"><img src="doc-files/renderer-states.svg" alt="Renderer state transitions">
+ * <p style="align:center"><img src="doc-files/renderer-states.svg" alt="Renderer state
+ * transitions">
  */
 public interface Renderer extends PlayerMessage.Target {
 

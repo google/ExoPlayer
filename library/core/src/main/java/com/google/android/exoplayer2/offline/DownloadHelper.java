@@ -37,6 +37,8 @@ import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.source.chunk.MediaChunk;
+import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import com.google.android.exoplayer2.trackselection.BaseTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters;
@@ -136,6 +138,9 @@ public final class DownloadHelper {
      */
     void onPrepareError(DownloadHelper helper, IOException e);
   }
+
+  /** Thrown at an attempt to download live content. */
+  public static class LiveContentUnsupportedException extends IOException {}
 
   @Nullable
   private static final Constructor<? extends MediaSourceFactory> DASH_FACTORY_CONSTRUCTOR =
@@ -258,9 +263,13 @@ public final class DownloadHelper {
         uri,
         /* cacheKey= */ null,
         createMediaSourceInternal(
-            DASH_FACTORY_CONSTRUCTOR, uri, dataSourceFactory, /* streamKeys= */ null),
+            DASH_FACTORY_CONSTRUCTOR,
+            uri,
+            dataSourceFactory,
+            drmSessionManager,
+            /* streamKeys= */ null),
         trackSelectorParameters,
-        Util.getRendererCapabilities(renderersFactory, drmSessionManager));
+        Util.getRendererCapabilities(renderersFactory));
   }
 
   /** @deprecated Use {@link #forHls(Context, Uri, Factory, RenderersFactory)} */
@@ -324,9 +333,13 @@ public final class DownloadHelper {
         uri,
         /* cacheKey= */ null,
         createMediaSourceInternal(
-            HLS_FACTORY_CONSTRUCTOR, uri, dataSourceFactory, /* streamKeys= */ null),
+            HLS_FACTORY_CONSTRUCTOR,
+            uri,
+            dataSourceFactory,
+            drmSessionManager,
+            /* streamKeys= */ null),
         trackSelectorParameters,
-        Util.getRendererCapabilities(renderersFactory, drmSessionManager));
+        Util.getRendererCapabilities(renderersFactory));
   }
 
   /** @deprecated Use {@link #forSmoothStreaming(Context, Uri, Factory, RenderersFactory)} */
@@ -390,9 +403,24 @@ public final class DownloadHelper {
         uri,
         /* cacheKey= */ null,
         createMediaSourceInternal(
-            SS_FACTORY_CONSTRUCTOR, uri, dataSourceFactory, /* streamKeys= */ null),
+            SS_FACTORY_CONSTRUCTOR,
+            uri,
+            dataSourceFactory,
+            drmSessionManager,
+            /* streamKeys= */ null),
         trackSelectorParameters,
-        Util.getRendererCapabilities(renderersFactory, drmSessionManager));
+        Util.getRendererCapabilities(renderersFactory));
+  }
+
+  /**
+   * Equivalent to {@link #createMediaSource(DownloadRequest, Factory, DrmSessionManager)
+   * createMediaSource(downloadRequest, dataSourceFactory,
+   * DrmSessionManager.getDummyDrmSessionManager())}.
+   */
+  public static MediaSource createMediaSource(
+      DownloadRequest downloadRequest, DataSource.Factory dataSourceFactory) {
+    return createMediaSource(
+        downloadRequest, dataSourceFactory, DrmSessionManager.getDummyDrmSessionManager());
   }
 
   /**
@@ -404,7 +432,9 @@ public final class DownloadHelper {
    * @return A MediaSource which only contains the tracks defined in {@code downloadRequest}.
    */
   public static MediaSource createMediaSource(
-      DownloadRequest downloadRequest, DataSource.Factory dataSourceFactory) {
+      DownloadRequest downloadRequest,
+      DataSource.Factory dataSourceFactory,
+      DrmSessionManager<?> drmSessionManager) {
     @Nullable Constructor<? extends MediaSourceFactory> constructor;
     switch (downloadRequest.type) {
       case DownloadRequest.TYPE_DASH:
@@ -418,12 +448,17 @@ public final class DownloadHelper {
         break;
       case DownloadRequest.TYPE_PROGRESSIVE:
         return new ProgressiveMediaSource.Factory(dataSourceFactory)
+            .setCustomCacheKey(downloadRequest.customCacheKey)
             .createMediaSource(downloadRequest.uri);
       default:
         throw new IllegalStateException("Unsupported type: " + downloadRequest.type);
     }
     return createMediaSourceInternal(
-        constructor, downloadRequest.uri, dataSourceFactory, downloadRequest.streamKeys);
+        constructor,
+        downloadRequest.uri,
+        dataSourceFactory,
+        drmSessionManager,
+        downloadRequest.streamKeys);
   }
 
   private final String downloadType;
@@ -739,7 +774,7 @@ public final class DownloadHelper {
   }
 
   // Initialization of array of Lists.
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private void onMediaPrepared() {
     Assertions.checkNotNull(mediaPreparer);
     Assertions.checkNotNull(mediaPreparer.mediaPeriods);
@@ -883,12 +918,16 @@ public final class DownloadHelper {
       @Nullable Constructor<? extends MediaSourceFactory> constructor,
       Uri uri,
       Factory dataSourceFactory,
+      @Nullable DrmSessionManager<?> drmSessionManager,
       @Nullable List<StreamKey> streamKeys) {
     if (constructor == null) {
       throw new IllegalStateException("Module missing to create media source.");
     }
     try {
       MediaSourceFactory factory = constructor.newInstance(dataSourceFactory);
+      if (drmSessionManager != null) {
+        factory.setDrmSessionManager(drmSessionManager);
+      }
       if (streamKeys != null) {
         factory.setStreamKeys(streamKeys);
       }
@@ -999,6 +1038,14 @@ public final class DownloadHelper {
         // Ignore dynamic updates.
         return;
       }
+      if (timeline.getWindow(/* windowIndex= */ 0, new Timeline.Window()).isLive) {
+        downloadHelperHandler
+            .obtainMessage(
+                DOWNLOAD_HELPER_CALLBACK_MESSAGE_FAILED,
+                /* obj= */ new LiveContentUnsupportedException())
+            .sendToTarget();
+        return;
+      }
       this.timeline = timeline;
       mediaPeriods = new MediaPeriod[timeline.getPeriodCount()];
       for (int i = 0; i < mediaPeriods.length; i++) {
@@ -1088,6 +1135,16 @@ public final class DownloadHelper {
     @Override
     public Object getSelectionData() {
       return null;
+    }
+
+    @Override
+    public void updateSelectedTrack(
+        long playbackPositionUs,
+        long bufferedDurationUs,
+        long availableDurationUs,
+        List<? extends MediaChunk> queue,
+        MediaChunkIterator[] mediaChunkIterators) {
+      // Do nothing.
     }
   }
 
