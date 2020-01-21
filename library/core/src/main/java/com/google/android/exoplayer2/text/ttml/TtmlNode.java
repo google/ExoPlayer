@@ -364,8 +364,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private static void cleanUpText(SpannableStringBuilder builder) {
     // Having joined the text elements, we need to do some final cleanup on the result.
     // 1. Collapse multiple consecutive spaces into a single space.
-    int builderLength = builder.length();
-    for (int i = 0; i < builderLength; i++) {
+    for (int i = 0; i < builder.length(); i++) {
       if (builder.charAt(i) == ' ') {
         int j = i + 1;
         while (j < builder.length() && builder.charAt(j) == ' ') {
@@ -374,36 +373,30 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         int spacesToDelete = j - (i + 1);
         if (spacesToDelete > 0) {
           builder.delete(i, i + spacesToDelete);
-          builderLength -= spacesToDelete;
         }
       }
     }
     // 2. Remove any spaces from the start of each line.
-    if (builderLength > 0 && builder.charAt(0) == ' ') {
+    if (builder.length() > 0 && builder.charAt(0) == ' ') {
       builder.delete(0, 1);
-      builderLength--;
     }
-    for (int i = 0; i < builderLength - 1; i++) {
+    for (int i = 0; i < builder.length() - 1; i++) {
       if (builder.charAt(i) == '\n' && builder.charAt(i + 1) == ' ') {
         builder.delete(i + 1, i + 2);
-        builderLength--;
       }
     }
     // 3. Remove any spaces from the end of each line.
-    if (builderLength > 0 && builder.charAt(builderLength - 1) == ' ') {
-      builder.delete(builderLength - 1, builderLength);
-      builderLength--;
+    if (builder.length() > 0 && builder.charAt(builder.length() - 1) == ' ') {
+      builder.delete(builder.length() - 1, builder.length());
     }
-    for (int i = 0; i < builderLength - 1; i++) {
+    for (int i = 0; i < builder.length() - 1; i++) {
       if (builder.charAt(i) == ' ' && builder.charAt(i + 1) == '\n') {
         builder.delete(i, i + 1);
-        builderLength--;
       }
     }
     // 4. Trim a trailing newline, if there is one.
-    if (builderLength > 0 && builder.charAt(builderLength - 1) == '\n') {
-      builder.delete(builderLength - 1, builderLength);
-      /*builderLength--;*/
+    if (builder.length() > 0 && builder.charAt(builder.length() - 1) == '\n') {
+      builder.delete(builder.length() - 1, builder.length());
     }
   }
 
