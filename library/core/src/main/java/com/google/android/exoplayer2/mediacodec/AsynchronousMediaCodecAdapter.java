@@ -64,6 +64,18 @@ import com.google.android.exoplayer2.util.Assertions;
   }
 
   @Override
+  public void queueInputBuffer(
+      int index, int offset, int size, long presentationTimeUs, int flags) {
+    codec.queueInputBuffer(index, offset, size, presentationTimeUs, flags);
+  }
+
+  @Override
+  public void queueSecureInputBuffer(
+      int index, int offset, MediaCodec.CryptoInfo info, long presentationTimeUs, int flags) {
+    codec.queueSecureInputBuffer(index, offset, info, presentationTimeUs, flags);
+  }
+
+  @Override
   public int dequeueInputBufferIndex() {
     if (flushing) {
       return MediaCodec.INFO_TRY_AGAIN_LATER;
