@@ -1318,13 +1318,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
     if (pendingMessages.isEmpty() || playbackInfo.periodId.isAd()) {
       return;
     }
-    // If this is the first call from the start position, include oldPeriodPositionUs in potential
-    // trigger positions, but make sure we deliver it only once.
-    if (playbackInfo.startPositionUs == oldPeriodPositionUs
-        && deliverPendingMessageAtStartPositionRequired) {
+    // If this is the first call after resetting the renderer position, include oldPeriodPositionUs
+    // in potential trigger positions, but make sure we deliver it only once.
+    if (deliverPendingMessageAtStartPositionRequired) {
       oldPeriodPositionUs--;
+      deliverPendingMessageAtStartPositionRequired = false;
     }
-    deliverPendingMessageAtStartPositionRequired = false;
 
     // Correct next index if necessary (e.g. after seeking, timeline changes, or new messages)
     int currentPeriodIndex =
