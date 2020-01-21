@@ -19,6 +19,8 @@ import android.graphics.Typeface;
 import android.text.Layout;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.text.Cue;
+import com.google.android.exoplayer2.text.Cue.VerticalType;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -73,6 +75,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private float fontSize;
   private @MonotonicNonNull String id;
   private Layout.@MonotonicNonNull Alignment textAlign;
+  @Cue.VerticalType private int verticalType;
 
   public TtmlStyle() {
     linethrough = UNSPECIFIED;
@@ -80,6 +83,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     bold = UNSPECIFIED;
     italic = UNSPECIFIED;
     fontSizeUnit = UNSPECIFIED;
+    verticalType = Cue.TYPE_UNSET;
   }
 
   /**
@@ -220,6 +224,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       if (chaining && !hasBackgroundColor && ancestor.hasBackgroundColor) {
         setBackgroundColor(ancestor.backgroundColor);
       }
+      if (chaining && verticalType != Cue.TYPE_UNSET && ancestor.verticalType == Cue.TYPE_UNSET) {
+        setVerticalType(ancestor.verticalType);
+      }
     }
     return this;
   }
@@ -262,4 +269,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     return fontSize;
   }
 
+  public TtmlStyle setVerticalType(@VerticalType int verticalType) {
+    this.verticalType = verticalType;
+    return this;
+  }
+
+  @VerticalType
+  public int getVerticalType() {
+    return verticalType;
+  }
 }

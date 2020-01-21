@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -67,7 +66,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public static final String ATTR_TTS_COLOR = "color";
   public static final String ATTR_TTS_TEXT_DECORATION = "textDecoration";
   public static final String ATTR_TTS_TEXT_ALIGN = "textAlign";
+  public static final String ATTR_TTS_WRITING_MODE = "writingMode";
 
+  // Values for textDecoration
   public static final String LINETHROUGH = "linethrough";
   public static final String NO_LINETHROUGH = "nolinethrough";
   public static final String UNDERLINE = "underline";
@@ -75,11 +76,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public static final String ITALIC = "italic";
   public static final String BOLD = "bold";
 
+  // Values for textAlign
   public static final String LEFT = "left";
   public static final String CENTER = "center";
   public static final String RIGHT = "right";
   public static final String START = "start";
   public static final String END = "end";
+
+  // Values for writingMode
+  public static final String VERTICAL = "tb";
+  public static final String VERTICAL_LR = "tblr";
+  public static final String VERTICAL_RL = "tbrl";
 
   @Nullable public final String tag;
   @Nullable public final String text;
@@ -211,7 +218,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     List<Pair<String, String>> regionImageOutputs = new ArrayList<>();
     traverseForImage(timeUs, regionId, regionImageOutputs);
 
-    TreeMap<String, SpannableStringBuilder> regionTextOutputs = new TreeMap<>();
+    TreeMap<String, Cue.Builder> regionTextOutputs = new TreeMap<>();
     traverseForText(timeUs, false, regionId, regionTextOutputs);
     traverseForStyle(timeUs, globalStyles, regionTextOutputs);
 
@@ -242,20 +249,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     // Create text based cues.
-    for (Entry<String, SpannableStringBuilder> entry : regionTextOutputs.entrySet()) {
+    for (Map.Entry<String, Cue.Builder> entry : regionTextOutputs.entrySet()) {
       TtmlRegion region = Assertions.checkNotNull(regionMap.get(entry.getKey()));
-      cues.add(
-          new Cue(
-              cleanUpText(entry.getValue()),
-              /* textAlignment= */ null,
-              region.line,
-              region.lineType,
-              region.lineAnchor,
-              region.position,
-              /* positionAnchor= */ Cue.TYPE_UNSET,
-              region.width,
-              region.textSizeType,
-              region.textSize));
+      Cue.Builder regionOutput = entry.getValue();
+      cleanUpText((SpannableStringBuilder) Assertions.checkNotNull(regionOutput.getText()));
+      regionOutput.setLine(region.line, region.lineType);
+      regionOutput.setLineAnchor(region.lineAnchor);
+      regionOutput.setPosition(region.position);
+      regionOutput.setSize(region.width);
+      regionOutput.setTextSize(region.textSize, region.textSizeType);
+      cues.add(regionOutput.build());
     }
 
     return cues;
@@ -277,7 +280,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       long timeUs,
       boolean descendsPNode,
       String inheritedRegion,
-      Map<String, SpannableStringBuilder> regionOutputs) {
+      Map<String, Cue.Builder> regionOutputs) {
     nodeStartsByRegion.clear();
     nodeEndsByRegion.clear();
     if (TAG_METADATA.equals(tag)) {
@@ -288,13 +291,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     String resolvedRegionId = ANONYMOUS_REGION_ID.equals(regionId) ? inheritedRegion : regionId;
 
     if (isTextNode && descendsPNode) {
-      getRegionOutput(resolvedRegionId, regionOutputs).append(Assertions.checkNotNull(text));
+      getRegionOutputText(resolvedRegionId, regionOutputs).append(Assertions.checkNotNull(text));
     } else if (TAG_BR.equals(tag) && descendsPNode) {
-      getRegionOutput(resolvedRegionId, regionOutputs).append('\n');
+      getRegionOutputText(resolvedRegionId, regionOutputs).append('\n');
     } else if (isActive(timeUs)) {
       // This is a container node, which can contain zero or more children.
-      for (Entry<String, SpannableStringBuilder> entry : regionOutputs.entrySet()) {
-        nodeStartsByRegion.put(entry.getKey(), entry.getValue().length());
+      for (Map.Entry<String, Cue.Builder> entry : regionOutputs.entrySet()) {
+        nodeStartsByRegion.put(
+            entry.getKey(), Assertions.checkNotNull(entry.getValue().getText()).length());
       }
 
       boolean isPNode = TAG_P.equals(tag);
@@ -303,36 +307,38 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             regionOutputs);
       }
       if (isPNode) {
-        TtmlRenderUtil.endParagraph(getRegionOutput(resolvedRegionId, regionOutputs));
+        TtmlRenderUtil.endParagraph(getRegionOutputText(resolvedRegionId, regionOutputs));
       }
 
-      for (Entry<String, SpannableStringBuilder> entry : regionOutputs.entrySet()) {
-        nodeEndsByRegion.put(entry.getKey(), entry.getValue().length());
+      for (Map.Entry<String, Cue.Builder> entry : regionOutputs.entrySet()) {
+        nodeEndsByRegion.put(
+            entry.getKey(), Assertions.checkNotNull(entry.getValue().getText()).length());
       }
     }
   }
 
-  private static SpannableStringBuilder getRegionOutput(
-      String resolvedRegionId, Map<String, SpannableStringBuilder> regionOutputs) {
+  private static SpannableStringBuilder getRegionOutputText(
+      String resolvedRegionId, Map<String, Cue.Builder> regionOutputs) {
     if (!regionOutputs.containsKey(resolvedRegionId)) {
-      regionOutputs.put(resolvedRegionId, new SpannableStringBuilder());
+      Cue.Builder regionOutput = new Cue.Builder();
+      regionOutput.setText(new SpannableStringBuilder());
+      regionOutputs.put(resolvedRegionId, regionOutput);
     }
-    return regionOutputs.get(resolvedRegionId);
+    return (SpannableStringBuilder)
+        Assertions.checkNotNull(regionOutputs.get(resolvedRegionId).getText());
   }
 
   private void traverseForStyle(
-      long timeUs,
-      Map<String, TtmlStyle> globalStyles,
-      Map<String, SpannableStringBuilder> regionOutputs) {
+      long timeUs, Map<String, TtmlStyle> globalStyles, Map<String, Cue.Builder> regionOutputs) {
     if (!isActive(timeUs)) {
       return;
     }
-    for (Entry<String, Integer> entry : nodeEndsByRegion.entrySet()) {
+    for (Map.Entry<String, Integer> entry : nodeEndsByRegion.entrySet()) {
       String regionId = entry.getKey();
       int start = nodeStartsByRegion.containsKey(regionId) ? nodeStartsByRegion.get(regionId) : 0;
       int end = entry.getValue();
       if (start != end) {
-        SpannableStringBuilder regionOutput = Assertions.checkNotNull(regionOutputs.get(regionId));
+        Cue.Builder regionOutput = Assertions.checkNotNull(regionOutputs.get(regionId));
         applyStyleToOutput(globalStyles, regionOutput, start, end);
       }
     }
@@ -342,17 +348,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   private void applyStyleToOutput(
-      Map<String, TtmlStyle> globalStyles,
-      SpannableStringBuilder regionOutput,
-      int start,
-      int end) {
+      Map<String, TtmlStyle> globalStyles, Cue.Builder regionOutput, int start, int end) {
     @Nullable TtmlStyle resolvedStyle = TtmlRenderUtil.resolveStyle(style, styleIds, globalStyles);
+    @Nullable SpannableStringBuilder text = (SpannableStringBuilder) regionOutput.getText();
+    if (text == null) {
+      text = new SpannableStringBuilder();
+      regionOutput.setText(text);
+    }
     if (resolvedStyle != null) {
-      TtmlRenderUtil.applyStylesToSpan(regionOutput, start, end, resolvedStyle);
+      TtmlRenderUtil.applyStylesToSpan(text, start, end, resolvedStyle);
+      regionOutput.setVerticalType(resolvedStyle.getVerticalType());
     }
   }
 
-  private SpannableStringBuilder cleanUpText(SpannableStringBuilder builder) {
+  private static void cleanUpText(SpannableStringBuilder builder) {
     // Having joined the text elements, we need to do some final cleanup on the result.
     // 1. Collapse multiple consecutive spaces into a single space.
     int builderLength = builder.length();
@@ -396,7 +405,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       builder.delete(builderLength - 1, builderLength);
       /*builderLength--;*/
     }
-    return builder;
   }
 
 }
