@@ -120,7 +120,7 @@ public class MediaSourceTestRunner {
     final IOException[] prepareError = new IOException[1];
     runOnPlaybackThread(
         () -> {
-          mediaSource.prepareSource(mediaSourceListener, /* mediaTransferListener= */ null);
+          mediaSource.prepareSource(mediaSourceListener, /* mediaTransferListener= */ null, null);
           try {
             // TODO: This only catches errors that are set synchronously in prepareSource. To
             // capture async errors we'll need to poll maybeThrowSourceInfoRefreshError until the

@@ -211,6 +211,14 @@ public final class FakeExtractorInput implements ExtractorInput {
     }
   }
 
+  private boolean checkX(int position, int length)
+          throws EOFException {
+    if (length > 0 && position == data.length) {
+      return false;
+    }
+    return true;
+  }
+
   private boolean checkXFully(boolean allowEndOfInput, int position, int length)
       throws EOFException {
     if (length > 0 && position == data.length) {

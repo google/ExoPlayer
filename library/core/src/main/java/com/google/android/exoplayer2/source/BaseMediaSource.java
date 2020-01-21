@@ -18,6 +18,8 @@ package com.google.android.exoplayer2.source;
 import android.os.Handler;
 import android.os.Looper;
 import androidx.annotation.Nullable;
+
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
@@ -39,6 +41,7 @@ public abstract class BaseMediaSource implements MediaSource {
 
   @Nullable private Looper looper;
   @Nullable private Timeline timeline;
+  @Nullable private ExoPlayer player;
 
   public BaseMediaSource() {
     mediaSourceCallers = new ArrayList<>(/* initialCapacity= */ 1);
@@ -46,9 +49,16 @@ public abstract class BaseMediaSource implements MediaSource {
     eventDispatcher = new MediaSourceEventListener.EventDispatcher();
   }
 
+  @Override
+  public boolean isTcp() { return true; }
+
+  @Override
+  public boolean isLive() {
+    return false;
+  }
+
   /**
-   * Starts source preparation and enables the source, see {@link #prepareSource(MediaSourceCaller,
-   * TransferListener)}. This method is called at most once until the next call to {@link
+   * Starts source preparation and enables the source, see {@link MediaSource#prepareSource(MediaSourceCaller, TransferListener, ExoPlayer)}. This method is called at most once until the next call to {@link
    * #releaseSourceInternal()}.
    *
    * @param mediaTransferListener The transfer listener which should be informed of any media data
@@ -140,13 +150,19 @@ public abstract class BaseMediaSource implements MediaSource {
     eventDispatcher.removeEventListener(eventListener);
   }
 
+  @Nullable
+  public ExoPlayer getPlayer() {
+    return player;
+  }
+
   @Override
   public final void prepareSource(
-      MediaSourceCaller caller, @Nullable TransferListener mediaTransferListener) {
+          MediaSourceCaller caller, @Nullable TransferListener mediaTransferListener, ExoPlayer player) {
     Looper looper = Looper.myLooper();
     Assertions.checkArgument(this.looper == null || this.looper == looper);
     Timeline timeline = this.timeline;
     mediaSourceCallers.add(caller);
+    this.player = player;
     if (this.looper == null) {
       this.looper = looper;
       enabledMediaSourceCallers.add(caller);
@@ -156,6 +172,7 @@ public abstract class BaseMediaSource implements MediaSource {
       caller.onSourceInfoRefreshed(/* source= */ this, timeline);
     }
   }
+
 
   @Override
   public final void enable(MediaSourceCaller caller) {

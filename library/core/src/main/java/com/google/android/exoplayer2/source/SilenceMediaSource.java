@@ -144,6 +144,14 @@ public final class SilenceMediaSource extends BaseMediaSource {
     }
 
     @Override
+    public void pause() {
+    }
+
+    @Override
+    public void resume() {
+    }
+
+    @Override
     public long seekToUs(long positionUs) {
       positionUs = constrainSeekPosition(positionUs);
       for (int i = 0; i < sampleStreams.size(); i++) {

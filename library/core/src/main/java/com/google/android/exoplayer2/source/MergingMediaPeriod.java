@@ -206,6 +206,20 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   @Override
+  public void pause() {
+    for (MediaPeriod enabledPeriod : enabledPeriods) {
+      enabledPeriod.pause();
+    }
+  }
+
+  @Override
+  public void resume() {
+    for (MediaPeriod enabledPeriod : enabledPeriods) {
+      enabledPeriod.resume();
+    }
+  }
+
+  @Override
   public long seekToUs(long positionUs) {
     positionUs = enabledPeriods[0].seekToUs(positionUs);
     // Additional periods must seek to the same position.

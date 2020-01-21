@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source;
 import android.os.Handler;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.TransferListener;
@@ -31,8 +32,7 @@ import java.io.IOException;
  *   <li>To provide the player with a {@link Timeline} defining the structure of its media, and to
  *       provide a new timeline whenever the structure of the media changes. The MediaSource
  *       provides these timelines by calling {@link MediaSourceCaller#onSourceInfoRefreshed} on the
- *       {@link MediaSourceCaller}s passed to {@link #prepareSource(MediaSourceCaller,
- *       TransferListener)}.
+ *       {@link MediaSourceCaller}s passed to {@link #prepareSource(MediaSourceCaller, TransferListener, ExoPlayer)}.
  *   <li>To provide {@link MediaPeriod} instances for the periods in its timeline. MediaPeriods are
  *       obtained by calling {@link #createPeriod(MediaPeriodId, Allocator, long)}, and provide a
  *       way for the player to load and read the media.
@@ -212,6 +212,16 @@ public interface MediaSource {
   }
 
   /**
+   * Returns whether the media source is on TCP.
+   */
+  boolean isTcp();
+
+  /**
+   * Returns whether the media source is a live.
+   */
+  boolean isLive();
+
+  /**
    * Adds a {@link MediaSourceEventListener} to the list of listeners which are notified of media
    * source events.
    *
@@ -272,21 +282,20 @@ public interface MediaSource {
    *
    * <p>For each call to this method, a call to {@link #releaseSource(MediaSourceCaller)} is needed
    * to remove the caller and to release the source if no longer required.
-   *
-   * @param caller The {@link MediaSourceCaller} to be registered.
+   *  @param caller The {@link MediaSourceCaller} to be registered.
    * @param mediaTransferListener The transfer listener which should be informed of any media data
    *     transfers. May be null if no listener is available. Note that this listener should be only
    *     informed of transfers related to the media loads and not of auxiliary loads for manifests
-   *     and other data.
+   * @param player
    */
-  void prepareSource(MediaSourceCaller caller, @Nullable TransferListener mediaTransferListener);
+  void prepareSource(MediaSourceCaller caller, @Nullable TransferListener mediaTransferListener, ExoPlayer player);
 
   /**
    * Throws any pending error encountered while loading or refreshing source information.
    *
    * <p>Should not be called directly from application code.
    *
-   * <p>Must only be called after {@link #prepareSource(MediaSourceCaller, TransferListener)}.
+   * <p>Must only be called after {@link #prepareSource(MediaSourceCaller, TransferListener, ExoPlayer)}.
    */
   void maybeThrowSourceInfoRefreshError() throws IOException;
 
@@ -295,7 +304,7 @@ public interface MediaSource {
    *
    * <p>Should not be called directly from application code.
    *
-   * <p>Must only be called after {@link #prepareSource(MediaSourceCaller, TransferListener)}.
+   * <p>Must only be called after {@link #prepareSource(MediaSourceCaller, TransferListener, ExoPlayer)}.
    *
    * @param caller The {@link MediaSourceCaller} enabling the source.
    */

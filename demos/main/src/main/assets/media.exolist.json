@@ -1,5 +1,118 @@
 [
   {
+    "name": "RTSP Streams",
+    "samples": [
+      {
+        "name": "CCTV Camera Portugal",
+        "uri": "rtsp://213.58.156.180/live/ch00_0"
+      },
+      {
+        "name": "CCTV Camera Spain",
+        "uri": "rtsp://88.26.221.17/live/ch00_0"
+      },
+      {
+        "name": "CCTV United States - Cam 1",
+        "uri": "rtsp://98.163.61.244/live/ch00_0"
+      },
+      {
+        "name": "CCTV United States - Cam 2",
+        "uri": "rtsp://207.224.178.221/live/ch00_0"
+      },
+      {
+        "name": "Interestatal 495 Highway - USA",
+        "uri": "rtsp://170.93.143.139/rtplive/470011e600ef003a004ee33696235daa"
+      },
+      {
+        "name": "Test camera",
+        "uri": "rtsp://31.0.225.93/cam/realmonitor?channel=3&subtype=00&authbasic=YWRtaW46MTIzOTg3"
+      },
+      {
+        "name": "AXIS P7214 - Germany",
+        "uri": "rtsp://root:pass@80.84.207.150/axis-media/media.amp"
+      },
+      {
+        "name": "AXIS M7001 - Korea",
+        "uri": "rtsp://root:pass@121.187.230.163/axis-media/media.amp"
+      },
+      {
+        "name": "Sony SNC-WR632 - USA",
+        "uri": "rtsp://admin:admin@108.58.215.162/media/video1"
+      },
+      {
+        "name": "Sony SNC-DH260 - California, Los Angeles",
+        "uri": "rtsp://admin:admin@172.8.60.173/media/video1"
+      },
+      {
+        "name": "Sony SNC-CH140 - Massachusetts, Ipswich",
+        "uri": "rtsp://admin:admin@71.174.52.92/media/video1"
+      },
+      {
+        "name": "Sony SNC-EP521 - Uttar Pradesh, India",
+        "uri": "rtsp://admin:admin@119.226.50.195/media/video1"
+      },
+      {
+        "name": "Linksys - Florida, Jacksonville",
+        "uri": "rtsp://admin:admin@73.28.232.32/img/video.sav"
+      },
+      {
+        "name": "Live stream from Danmarks plass",
+        "uri": "rtsp://stream.vosskom.no:1935/bt/Danmarksplass.stream"
+      },
+      {
+        "name": "Live stream TV from Hessdalen - Camera 2",
+        "uri": "rtsp://freja.hiof.no:1935/rtplive/_definst_/hessdalen02.stream"
+      },
+      {
+        "name": "Live stream TV from Hessdalen - Camera 3",
+        "uri": "rtsp://freja.hiof.no:1935/rtplive/_definst_/hessdalen03.stream"
+      },
+      {
+        "name": "Live stream from the radar in Hessdalen",
+        "uri": "rtsp://freja.hiof.no:1935/rtplive/_definst_/hessdalen05.stream"
+      },
+      {
+        "name": "Video on Demand - Big Buck Bunny Comedy Film",
+        "uri": "rtsp://184.72.239.149/vod/mp4:BigBuckBunny_175k.mov"
+      },
+      {
+        "name": "University British Columbia Tim Hortons Camera",
+        "uri": "rtsp://streamserve.ok.ubc.ca:1935/timcam/timcam.stream"
+      },
+      {
+        "name": "Live stream TV from France - Grand Lille TV",
+        "uri": "rtsp://str81.creacast.com/grandlilletv/high"
+      },
+      {
+        "name": "Live stream TV from France - Gong TV",
+        "uri": "rtsp://ec.playmedia.fr:1935/gong-base/live"
+      },
+      {
+        "name": "Live stream TV from Bulgaria - Balkanika MTV",
+        "uri": "rtsp://stream.teracomm.bg/balkanika"
+      },
+      {
+        "name": "Live stream TV from Bulgaria - Planeta TV",
+        "uri": "rtsp://stream.teracomm.bg/planeta"
+      },
+      {
+        "name": "Live stream TV from Bulgaria - FEN TV",
+        "uri": "rtsp://stream.teracomm.bg/fen"
+      },
+      {
+        "name": "Live stream TV from Hungarian TV - M1 TV",
+        "uri": "rtsp://live.trm.md:1935/live/M1Mlive"
+      },
+      {
+        "name": "Live stream TV from Italian TV - Alto Adige TV",
+        "uri": "rtsp://77.72.196.214:8554/live/mp4:AltoAdigeTV"
+      },
+      {
+        "name": "Live stream TV from Spanish TV - Logos TV",
+        "uri": "rtsp://streamer1.streamhost.org:1935/salive/GMIalfah"
+      }
+    ]
+  },
+  {
     "name": "YouTube DASH",
     "samples": [
       {

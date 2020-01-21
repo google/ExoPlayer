@@ -636,7 +636,7 @@ public final class ConcatenatingMediaSourceTest {
           () -> {
             MediaSourceCaller caller = mock(MediaSourceCaller.class);
             mediaSource.addMediaSources(Arrays.asList(createMediaSources(2)));
-            mediaSource.prepareSource(caller, /* mediaTransferListener= */ null);
+            mediaSource.prepareSource(caller, /* mediaTransferListener= */ null, player);
             mediaSource.moveMediaSource(
                 /* currentIndex= */ 0,
                 /* newIndex= */ 1,

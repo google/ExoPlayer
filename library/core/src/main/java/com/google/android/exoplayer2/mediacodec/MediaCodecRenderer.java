@@ -749,6 +749,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         // We still don't have a format and can't make progress without one.
         return;
       }
+
       // We have a format.
       maybeInitCodec();
       if (codec != null) {

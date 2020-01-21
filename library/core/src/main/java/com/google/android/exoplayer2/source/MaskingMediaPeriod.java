@@ -187,6 +187,16 @@ public final class MaskingMediaPeriod implements MediaPeriod, MediaPeriod.Callba
   }
 
   @Override
+  public void pause() {
+    mediaPeriod.pause();
+  }
+
+  @Override
+  public void resume() {
+    mediaPeriod.resume();
+  }
+
+  @Override
   public long seekToUs(long positionUs) {
     return castNonNull(mediaPeriod).seekToUs(positionUs);
   }

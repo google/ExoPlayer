@@ -62,6 +62,9 @@ import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
+import com.google.android.exoplayer2.source.rtsp.RtspDefaultClient;
+import com.google.android.exoplayer2.source.rtsp.RtspMediaSource;
+import com.google.android.exoplayer2.source.rtsp.core.Client;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
@@ -506,6 +509,7 @@ public class PlayerActivity extends AppCompatActivity
     if (downloadRequest != null) {
       return DownloadHelper.createMediaSource(downloadRequest, dataSourceFactory);
     }
+
     return createLeafMediaSource(parameters.uri, parameters.extension, drmSessionManager);
   }
 
@@ -526,11 +530,20 @@ public class PlayerActivity extends AppCompatActivity
             .setDrmSessionManager(drmSessionManager)
             .createMediaSource(uri);
       case C.TYPE_OTHER:
+        if (Util.isRtspUri(uri)) {
+          return new RtspMediaSource.Factory(RtspDefaultClient.factory()
+                  .setFlags(Client.FLAG_ENABLE_RTCP_SUPPORT)
+                  .setNatMethod(Client.RTSP_NAT_DUMMY))
+                  .createMediaSource(uri);
+        } else {
+            return new ProgressiveMediaSource.Factory(dataSourceFactory)
+                    .setDrmSessionManager(drmSessionManager)
+                    .createMediaSource(uri);
+        }
+      default:
         return new ProgressiveMediaSource.Factory(dataSourceFactory)
             .setDrmSessionManager(drmSessionManager)
             .createMediaSource(uri);
-      default:
-        throw new IllegalStateException("Unsupported type: " + type);
     }
   }
 

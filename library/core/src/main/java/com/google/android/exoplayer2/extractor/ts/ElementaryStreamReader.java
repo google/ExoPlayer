@@ -19,6 +19,7 @@ import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.TrackIdGenerator;
 
 /**
  * Extracts individual samples from an elementary media stream, preserving original order.
@@ -34,10 +35,10 @@ public interface ElementaryStreamReader {
    * Initializes the reader by providing outputs and ids for the tracks.
    *
    * @param extractorOutput The {@link ExtractorOutput} that receives the extracted data.
-   * @param idGenerator A {@link PesReader.TrackIdGenerator} that generates unique track ids for the
+   * @param idGenerator A {@link TrackIdGenerator} that generates unique track ids for the
    *     {@link TrackOutput}s.
    */
-  void createTracks(ExtractorOutput extractorOutput, PesReader.TrackIdGenerator idGenerator);
+  void createTracks(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator);
 
   /**
    * Called when a packet starts.

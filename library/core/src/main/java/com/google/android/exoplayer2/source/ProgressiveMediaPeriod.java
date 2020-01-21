@@ -402,6 +402,16 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   @Override
+  public void pause() {
+    // Do nothing.
+  }
+
+  @Override
+  public void resume() {
+    // Do nothing.
+  }
+
+  @Override
   public long seekToUs(long positionUs) {
     PreparedState preparedState = getPreparedState();
     SeekMap seekMap = preparedState.seekMap;

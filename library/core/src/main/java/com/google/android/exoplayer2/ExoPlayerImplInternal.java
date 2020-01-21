@@ -88,6 +88,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private static final int MSG_PLAYLIST_UPDATE_REQUESTED = 22;
 
   private static final int ACTIVE_INTERVAL_MS = 10;
+  private static final int LOW_ACTIVE_INTERVAL_MS = 20;
   private static final int IDLE_INTERVAL_MS = 1000;
 
   private final Renderer[] renderers;
@@ -647,15 +648,34 @@ import java.util.concurrent.atomic.AtomicBoolean;
     rebuffering = false;
     this.playWhenReady = playWhenReady;
     if (!playWhenReady) {
-      stopRenderers();
+      stopClockAndRenderers();
+      setPauseInternal();
       updatePlaybackPositions();
     } else {
       if (playbackInfo.playbackState == Player.STATE_READY) {
-        startRenderers();
+        startClockAndRenderers();
+        setResumeInternal();
         handler.sendEmptyMessage(MSG_DO_SOME_WORK);
       } else if (playbackInfo.playbackState == Player.STATE_BUFFERING) {
+        setResumeInternal();
         handler.sendEmptyMessage(MSG_DO_SOME_WORK);
       }
+    }
+  }
+
+  private void setPauseInternal(){
+    MediaPeriodHolder playingPeriodHolder = queue.getPlayingPeriod();
+
+    if (playingPeriodHolder != null) {
+      playingPeriodHolder.mediaPeriod.pause();
+    }
+  }
+
+  private void setResumeInternal(){
+    MediaPeriodHolder playingPeriodHolder = queue.getPlayingPeriod();
+
+    if (playingPeriodHolder != null) {
+      playingPeriodHolder.mediaPeriod.resume();
     }
   }
 
@@ -697,6 +717,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   private void startRenderers() throws ExoPlaybackException {
     rebuffering = false;
+    if (!mediaClock.isStarted()) {
+      mediaClock.start();
+    }
+
+    for (Renderer renderer : enabledRenderers) {
+      renderer.start();
+    }
+  }
+
+  private void startClockAndRenderers() throws ExoPlaybackException {
+    rebuffering = false;
     mediaClock.start();
     for (Renderer renderer : enabledRenderers) {
       renderer.start();
@@ -704,6 +735,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   private void stopRenderers() throws ExoPlaybackException {
+    for (Renderer renderer : enabledRenderers) {
+      ensureStopped(renderer);
+    }
+  }
+
+  private void stopClockAndRenderers() throws ExoPlaybackException {
     mediaClock.stop();
     for (Renderer renderer : enabledRenderers) {
       ensureStopped(renderer);
@@ -812,18 +849,26 @@ import java.util.concurrent.atomic.AtomicBoolean;
             || playingPeriodDurationUs <= playbackInfo.positionUs)
         && playingPeriodHolder.info.isFinal) {
       setState(Player.STATE_ENDED);
-      stopRenderers();
+      stopClockAndRenderers();
     } else if (playbackInfo.playbackState == Player.STATE_BUFFERING
         && shouldTransitionToReadyState(renderersAllowPlayback)) {
       setState(Player.STATE_READY);
       if (playWhenReady) {
-        startRenderers();
+        if (mediaSource.isLive()) {
+          startRenderers();
+        } else {
+          startClockAndRenderers();
+        }
       }
     } else if (playbackInfo.playbackState == Player.STATE_READY
         && !(enabledRenderers.length == 0 ? isTimelineReady() : renderersAllowPlayback)) {
       rebuffering = playWhenReady;
       setState(Player.STATE_BUFFERING);
-      stopRenderers();
+      if (mediaSource.isLive()) {
+        stopRenderers();
+      } else {
+        stopClockAndRenderers();
+      }
     }
 
     if (playbackInfo.playbackState == Player.STATE_BUFFERING) {
@@ -842,7 +887,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
     if ((playWhenReady && playbackInfo.playbackState == Player.STATE_READY)
         || playbackInfo.playbackState == Player.STATE_BUFFERING) {
-      scheduleNextWork(operationStartTimeMs, ACTIVE_INTERVAL_MS);
+      scheduleNextWork(operationStartTimeMs, mediaSource.isTcp() ? ACTIVE_INTERVAL_MS
+              : LOW_ACTIVE_INTERVAL_MS);
     } else if (enabledRenderers.length != 0 && playbackInfo.playbackState != Player.STATE_ENDED) {
       scheduleNextWork(operationStartTimeMs, IDLE_INTERVAL_MS);
     } else {
@@ -952,7 +998,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       boolean forceDisableRenderers,
       boolean forceBufferingState)
       throws ExoPlaybackException {
-    stopRenderers();
+    stopClockAndRenderers();
     rebuffering = false;
     if (forceBufferingState || playbackInfo.playbackState == Player.STATE_READY) {
       setState(Player.STATE_BUFFERING);

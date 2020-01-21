@@ -112,7 +112,7 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
     MediaSourceEventListener eventListener = new ForwardingEventListener(id);
     childSources.put(id, new MediaSourceAndListener(mediaSource, caller, eventListener));
     mediaSource.addEventListener(Assertions.checkNotNull(eventHandler), eventListener);
-    mediaSource.prepareSource(caller, mediaTransferListener);
+    mediaSource.prepareSource(caller, mediaTransferListener, getPlayer());
     if (!isEnabled()) {
       mediaSource.disable(caller);
     }
