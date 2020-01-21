@@ -44,9 +44,8 @@ public final class DataSpec {
       flag = true,
       value = {
         FLAG_ALLOW_GZIP,
-        FLAG_ALLOW_ICY_METADATA,
         FLAG_ALLOW_CACHE_FRAGMENTATION,
-        FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN
+        FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN,
         FLAG_FORCE_BOUND_LOCAL_ADDRESS,
         FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED
       })

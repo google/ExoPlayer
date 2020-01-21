@@ -198,9 +198,7 @@ public final class C {
     ENCODING_PCM_16BIT_BIG_ENDIAN,
     ENCODING_PCM_24BIT,
     ENCODING_PCM_32BIT,
-    ENCODING_PCM_FLOAT,
-    ENCODING_PCM_MU_LAW,
-    ENCODING_PCM_A_LAW
+    ENCODING_PCM_FLOAT
   })
   public @interface PcmEncoding {}
   /** @see AudioFormat#ENCODING_INVALID */
