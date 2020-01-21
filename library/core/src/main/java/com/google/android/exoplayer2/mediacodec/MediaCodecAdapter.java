@@ -66,6 +66,27 @@ import android.media.MediaFormat;
   MediaFormat getOutputFormat();
 
   /**
+   * Submit an input buffer for decoding.
+   *
+   * <p>The {@code index} must be an input buffer index that has been obtained from a previous call
+   * to {@link #dequeueInputBufferIndex()}.
+   *
+   * @see MediaCodec#queueInputBuffer
+   */
+  void queueInputBuffer(int index, int offset, int size, long presentationTimeUs, int flags);
+
+  /**
+   * Submit an input buffer that is potentially encrypted for decoding.
+   *
+   * <p>The {@code index} must be an input buffer index that has been obtained from a previous call
+   * to {@link #dequeueInputBufferIndex()}.
+   *
+   * @see MediaCodec#queueSecureInputBuffer
+   */
+  void queueSecureInputBuffer(
+      int index, int offset, MediaCodec.CryptoInfo info, long presentationTimeUs, int flags);
+
+  /**
    * Flushes the {@code MediaCodecAdapter}.
    *
    * <p>Note: {@link #flush()} should also call any {@link MediaCodec} methods needed to flush the

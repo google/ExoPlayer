@@ -33,8 +33,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * A {@link MediaCodecAdapter} that operates the underlying {@link MediaCodec} in asynchronous mode
  * and routes {@link MediaCodec.Callback} callbacks on a dedicated Thread that is managed
  * internally.
- *
- * <p>After creating an instance, you need to call {@link #start()} to start the internal Thread.
  */
 @RequiresApi(23)
 /* package */ final class DedicatedThreadAsyncMediaCodecAdapter extends MediaCodec.Callback
@@ -86,6 +84,22 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     codec.setCallback(this, handler);
     codecStartRunnable.run();
     state = STATE_STARTED;
+  }
+
+  @Override
+  public void queueInputBuffer(
+      int index, int offset, int size, long presentationTimeUs, int flags) {
+    // This method does not need to be synchronized because it does not interact with the
+    // mediaCodecAsyncCallback.
+    codec.queueInputBuffer(index, offset, size, presentationTimeUs, flags);
+  }
+
+  @Override
+  public void queueSecureInputBuffer(
+      int index, int offset, MediaCodec.CryptoInfo info, long presentationTimeUs, int flags) {
+    // This method does not need to be synchronized because it does not interact with the
+    // mediaCodecAsyncCallback.
+    codec.queueSecureInputBuffer(index, offset, info, presentationTimeUs, flags);
   }
 
   @Override

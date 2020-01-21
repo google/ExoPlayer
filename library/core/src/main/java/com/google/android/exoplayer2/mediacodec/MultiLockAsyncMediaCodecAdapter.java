@@ -46,8 +46,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * MediaCodec.Callback} methods will be accessed by the internal Thread. This class is
  * <strong>NOT</strong> generally thread-safe in the sense that its public methods cannot be called
  * by any thread.
- *
- * <p>After creating an instance, you need to call {@link #start()} to start the internal Thread.
  */
 @RequiresApi(23)
 /* package */ final class MultiLockAsyncMediaCodecAdapter extends MediaCodec.Callback
@@ -159,6 +157,22 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
       return currentFormat;
     }
+  }
+
+  @Override
+  public void queueInputBuffer(
+      int index, int offset, int size, long presentationTimeUs, int flags) {
+    // This method does not need to be synchronized because it is not interacting with
+    // MediaCodec.Callback and dequeueing buffers operations.
+    codec.queueInputBuffer(index, offset, size, presentationTimeUs, flags);
+  }
+
+  @Override
+  public void queueSecureInputBuffer(
+      int index, int offset, MediaCodec.CryptoInfo info, long presentationTimeUs, int flags) {
+    // This method does not need to be synchronized because it is not interacting with
+    // MediaCodec.Callback and dequeueing buffers operations.
+    codec.queueSecureInputBuffer(index, offset, info, presentationTimeUs, flags);
   }
 
   @Override

@@ -1136,7 +1136,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         // Do nothing.
       } else {
         codecReceivedEos = true;
-        codec.queueInputBuffer(inputIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+        codecAdapter.queueInputBuffer(inputIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
         resetInputBuffer();
       }
       codecDrainState = DRAIN_STATE_WAIT_END_OF_STREAM;
@@ -1146,7 +1146,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     if (codecNeedsAdaptationWorkaroundBuffer) {
       codecNeedsAdaptationWorkaroundBuffer = false;
       buffer.data.put(ADAPTATION_WORKAROUND_BUFFER);
-      codec.queueInputBuffer(inputIndex, 0, ADAPTATION_WORKAROUND_BUFFER.length, 0, 0);
+      codecAdapter.queueInputBuffer(inputIndex, 0, ADAPTATION_WORKAROUND_BUFFER.length, 0, 0);
       resetInputBuffer();
       codecReceivedBuffers = true;
       return true;
@@ -1210,7 +1210,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           // Do nothing.
         } else {
           codecReceivedEos = true;
-          codec.queueInputBuffer(inputIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+          codecAdapter.queueInputBuffer(inputIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
           resetInputBuffer();
         }
       } catch (CryptoException e) {
@@ -1261,9 +1261,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       if (bufferEncrypted) {
         MediaCodec.CryptoInfo cryptoInfo = getFrameworkCryptoInfo(buffer,
             adaptiveReconfigurationBytes);
-        codec.queueSecureInputBuffer(inputIndex, 0, cryptoInfo, presentationTimeUs, 0);
+        codecAdapter.queueSecureInputBuffer(inputIndex, 0, cryptoInfo, presentationTimeUs, 0);
       } else {
-        codec.queueInputBuffer(inputIndex, 0, buffer.data.limit(), presentationTimeUs, 0);
+        codecAdapter.queueInputBuffer(inputIndex, 0, buffer.data.limit(), presentationTimeUs, 0);
       }
       resetInputBuffer();
       codecReceivedBuffers = true;

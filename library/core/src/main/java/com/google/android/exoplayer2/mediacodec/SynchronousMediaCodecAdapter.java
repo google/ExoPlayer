@@ -51,6 +51,18 @@ import android.media.MediaFormat;
   }
 
   @Override
+  public void queueInputBuffer(
+      int index, int offset, int size, long presentationTimeUs, int flags) {
+    codec.queueInputBuffer(index, offset, size, presentationTimeUs, flags);
+  }
+
+  @Override
+  public void queueSecureInputBuffer(
+      int index, int offset, MediaCodec.CryptoInfo info, long presentationTimeUs, int flags) {
+    codec.queueSecureInputBuffer(index, offset, info, presentationTimeUs, flags);
+  }
+
+  @Override
   public void flush() {
     codec.flush();
   }
