@@ -436,6 +436,11 @@ public class PlayerActivity extends AppCompatActivity
       }
       Sample.SubtitleInfo subtitleInfo = sample.subtitleInfo;
       if (subtitleInfo != null) {
+        if (Util.maybeRequestReadExternalStoragePermission(
+            /* activity= */ this, subtitleInfo.uri)) {
+          // The player will be reinitialized if the permission is granted.
+          return Collections.emptyList();
+        }
         Format subtitleFormat =
             Format.createTextSampleFormat(
                 /* id= */ null,
