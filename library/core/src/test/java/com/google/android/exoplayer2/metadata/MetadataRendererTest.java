@@ -146,7 +146,7 @@ public class MetadataRendererTest {
         new FakeSampleStream(
             EMSG_FORMAT,
             /* eventDispatcher= */ null,
-            Arrays.asList(new FakeSampleStreamItem(input)),
+            Arrays.asList(new FakeSampleStreamItem(input), FakeSampleStreamItem.END_OF_STREAM_ITEM),
             0),
         /* offsetUs= */ 0L);
     renderer.render(/* positionUs= */ 0, /* elapsedRealtimeUs= */ 0); // Read the format
