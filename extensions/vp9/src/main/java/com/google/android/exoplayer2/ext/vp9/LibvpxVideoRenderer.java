@@ -47,9 +47,9 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
  * on the playback thread:
  *
  * <ul>
- *   <li>Message with type {@link C#MSG_SET_SURFACE} to set the output surface. The message payload
+ *   <li>Message with type {@link #MSG_SET_SURFACE} to set the output surface. The message payload
  *       should be the target {@link Surface}, or null.
- *   <li>Message with type {@link C#MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER} to set the output
+ *   <li>Message with type {@link #MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER} to set the output
  *       buffer renderer. The message payload should be the target {@link
  *       VideoDecoderOutputBufferRenderer}, or null.
  * </ul>
@@ -292,11 +292,11 @@ public class LibvpxVideoRenderer extends SimpleDecoderVideoRenderer {
 
   @Override
   public void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException {
-    if (messageType == C.MSG_SET_SURFACE) {
+    if (messageType == MSG_SET_SURFACE) {
       setOutputSurface((Surface) message);
-    } else if (messageType == C.MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER) {
+    } else if (messageType == MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER) {
       setOutputBufferRenderer((VideoDecoderOutputBufferRenderer) message);
-    } else if (messageType == C.MSG_SET_VIDEO_FRAME_METADATA_LISTENER) {
+    } else if (messageType == MSG_SET_VIDEO_FRAME_METADATA_LISTENER) {
       frameMetadataListener = (VideoFrameMetadataListener) message;
     } else {
       super.handleMessage(messageType, message);

@@ -11,6 +11,8 @@
   * Rename `MediaCodecRenderer.onOutputFormatChanged` to
     `MediaCodecRenderer.onOutputMediaFormatChanged`, further
     clarifying the distinction between `Format` and `MediaFormat`.
+  * Move player message-related constants from `C` to `Renderer`, to avoid
+    having the constants class depend on player/renderer classes.
 * Text:
   * Parse `<ruby>` and `<rt>` tags in WebVTT subtitles (rendering is coming
     later).
