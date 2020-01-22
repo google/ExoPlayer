@@ -41,7 +41,6 @@ import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedT
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -134,7 +133,7 @@ public class DownloadHelperTest {
             TEST_CACHE_KEY,
             new TestMediaSource(),
             DownloadHelper.DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_VIEWPORT,
-            Util.getRendererCapabilities(renderersFactory));
+            DownloadHelper.getRendererCapabilities(renderersFactory));
   }
 
   @Test

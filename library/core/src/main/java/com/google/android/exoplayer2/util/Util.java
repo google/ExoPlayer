@@ -51,13 +51,8 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
-import com.google.android.exoplayer2.Renderer;
-import com.google.android.exoplayer2.RendererCapabilities;
-import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SeekParameters;
-import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
@@ -2006,29 +2001,6 @@ public final class Util {
       getDisplaySizeV16(display, displaySize);
     }
     return displaySize;
-  }
-
-  /**
-   * Extract renderer capabilities for the renderers created by the provided renderers factory.
-   *
-   * @param renderersFactory A {@link RenderersFactory}.
-   * @return The {@link RendererCapabilities} for each renderer created by the {@code
-   *     renderersFactory}.
-   */
-  public static RendererCapabilities[] getRendererCapabilities(RenderersFactory renderersFactory) {
-    Renderer[] renderers =
-        renderersFactory.createRenderers(
-            Util.createHandler(),
-            new VideoRendererEventListener() {},
-            new AudioRendererEventListener() {},
-            (cues) -> {},
-            (metadata) -> {},
-            /* drmSessionManager= */ null);
-    RendererCapabilities[] capabilities = new RendererCapabilities[renderers.length];
-    for (int i = 0; i < renderers.length; i++) {
-      capabilities[i] = renderers[i].getCapabilities();
-    }
-    return capabilities;
   }
 
   /**

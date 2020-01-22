@@ -24,9 +24,11 @@ import android.util.SparseIntArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.source.MediaPeriod;
@@ -54,6 +56,7 @@ import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -153,6 +156,29 @@ public final class DownloadHelper {
   @Nullable
   private static final Constructor<? extends MediaSourceFactory> HLS_FACTORY_CONSTRUCTOR =
       getConstructor("com.google.android.exoplayer2.source.hls.HlsMediaSource$Factory");
+
+  /**
+   * Extracts renderer capabilities for the renderers created by the provided renderers factory.
+   *
+   * @param renderersFactory A {@link RenderersFactory}.
+   * @return The {@link RendererCapabilities} for each renderer created by the {@code
+   *     renderersFactory}.
+   */
+  public static RendererCapabilities[] getRendererCapabilities(RenderersFactory renderersFactory) {
+    Renderer[] renderers =
+        renderersFactory.createRenderers(
+            Util.createHandler(),
+            new VideoRendererEventListener() {},
+            new AudioRendererEventListener() {},
+            (cues) -> {},
+            (metadata) -> {},
+            /* drmSessionManager= */ null);
+    RendererCapabilities[] capabilities = new RendererCapabilities[renderers.length];
+    for (int i = 0; i < renderers.length; i++) {
+      capabilities[i] = renderers[i].getCapabilities();
+    }
+    return capabilities;
+  }
 
   /** @deprecated Use {@link #forProgressive(Context, Uri)} */
   @Deprecated
@@ -269,7 +295,7 @@ public final class DownloadHelper {
             drmSessionManager,
             /* streamKeys= */ null),
         trackSelectorParameters,
-        Util.getRendererCapabilities(renderersFactory));
+        getRendererCapabilities(renderersFactory));
   }
 
   /** @deprecated Use {@link #forHls(Context, Uri, Factory, RenderersFactory)} */
@@ -339,7 +365,7 @@ public final class DownloadHelper {
             drmSessionManager,
             /* streamKeys= */ null),
         trackSelectorParameters,
-        Util.getRendererCapabilities(renderersFactory));
+        getRendererCapabilities(renderersFactory));
   }
 
   /** @deprecated Use {@link #forSmoothStreaming(Context, Uri, Factory, RenderersFactory)} */
@@ -409,7 +435,7 @@ public final class DownloadHelper {
             drmSessionManager,
             /* streamKeys= */ null),
         trackSelectorParameters,
-        Util.getRendererCapabilities(renderersFactory));
+        getRendererCapabilities(renderersFactory));
   }
 
   /**
