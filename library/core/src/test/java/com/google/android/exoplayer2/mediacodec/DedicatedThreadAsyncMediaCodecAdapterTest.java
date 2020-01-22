@@ -290,11 +290,14 @@ public class DedicatedThreadAsyncMediaCodecAdapterTest {
     AtomicInteger onCodecStartCount = new AtomicInteger(0);
     adapter.setCodecStartRunnable(() -> onCodecStartCount.incrementAndGet());
     adapter.start();
+    // Grab reference to Looper before shutting down the adapter otherwise handlerThread.getLooper()
+    // might return null.
+    Looper looper = handlerThread.getLooper();
     adapter.flush();
     adapter.shutdown();
 
     // Wait until all tasks have been handled.
-    Shadows.shadowOf(handlerThread.getLooper()).idle();
+    Shadows.shadowOf(looper).idle();
     // Only adapter.start() calls onCodecStart.
     assertThat(onCodecStartCount.get()).isEqualTo(1);
   }

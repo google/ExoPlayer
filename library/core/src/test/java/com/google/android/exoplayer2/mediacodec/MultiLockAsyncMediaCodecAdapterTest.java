@@ -290,10 +290,13 @@ public class MultiLockAsyncMediaCodecAdapterTest {
     AtomicInteger codecStartCalls = new AtomicInteger(0);
     adapter.setCodecStartRunnable(() -> codecStartCalls.incrementAndGet());
     adapter.start();
+    // Grab reference to Looper before shutting down the adapter otherwise handlerThread.getLooper()
+    // might return null.
+    Looper looper = handlerThread.getLooper();
     adapter.flush();
     adapter.shutdown();
 
-    Shadows.shadowOf(handlerThread.getLooper()).idle();
+    Shadows.shadowOf(looper).idle();
     // Only adapter.start() called codec#start()
     assertThat(codecStartCalls.get()).isEqualTo(1);
   }
