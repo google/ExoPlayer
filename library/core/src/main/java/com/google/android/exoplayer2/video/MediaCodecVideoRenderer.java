@@ -67,10 +67,10 @@ import java.util.List;
  * on the playback thread:
  *
  * <ul>
- *   <li>Message with type {@link C#MSG_SET_SURFACE} to set the output surface. The message payload
+ *   <li>Message with type {@link #MSG_SET_SURFACE} to set the output surface. The message payload
  *       should be the target {@link Surface}, or null.
- *   <li>Message with type {@link C#MSG_SET_SCALING_MODE} to set the video scaling mode. The message
- *       payload should be one of the integer scaling modes in {@link C.VideoScalingMode}. Note that
+ *   <li>Message with type {@link #MSG_SET_SCALING_MODE} to set the video scaling mode. The message
+ *       payload should be one of the integer scaling modes in {@link VideoScalingMode}. Note that
  *       the scaling mode only applies if the {@link Surface} targeted by this renderer is owned by
  *       a {@link android.view.SurfaceView}.
  * </ul>
@@ -134,8 +134,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   private Surface surface;
   private Surface dummySurface;
-  @C.VideoScalingMode
-  private int scalingMode;
+  @VideoScalingMode private int scalingMode;
   private boolean renderedFirstFrame;
   private long initialPositionUs;
   private long joiningDeadlineMs;
@@ -357,7 +356,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     currentHeight = Format.NO_VALUE;
     currentPixelWidthHeightRatio = Format.NO_VALUE;
     pendingPixelWidthHeightRatio = Format.NO_VALUE;
-    scalingMode = C.VIDEO_SCALING_MODE_DEFAULT;
+    scalingMode = VIDEO_SCALING_MODE_DEFAULT;
     clearReportedVideoSize();
   }
 
@@ -589,15 +588,15 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   @Override
   public void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException {
-    if (messageType == C.MSG_SET_SURFACE) {
+    if (messageType == MSG_SET_SURFACE) {
       setSurface((Surface) message);
-    } else if (messageType == C.MSG_SET_SCALING_MODE) {
+    } else if (messageType == MSG_SET_SCALING_MODE) {
       scalingMode = (Integer) message;
       MediaCodec codec = getCodec();
       if (codec != null) {
         codec.setVideoScalingMode(scalingMode);
       }
-    } else if (messageType == C.MSG_SET_VIDEO_FRAME_METADATA_LISTENER) {
+    } else if (messageType == MSG_SET_VIDEO_FRAME_METADATA_LISTENER) {
       frameMetadataListener = (VideoFrameMetadataListener) message;
     } else {
       super.handleMessage(messageType, message);

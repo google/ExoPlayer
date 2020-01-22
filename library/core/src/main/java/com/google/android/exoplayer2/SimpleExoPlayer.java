@@ -434,7 +434,7 @@ public class SimpleExoPlayer extends BasePlayer
     audioVolume = 1;
     audioSessionId = C.AUDIO_SESSION_ID_UNSET;
     audioAttributes = AudioAttributes.DEFAULT;
-    videoScalingMode = C.VIDEO_SCALING_MODE_DEFAULT;
+    videoScalingMode = Renderer.VIDEO_SCALING_MODE_DEFAULT;
     currentCues = Collections.emptyList();
 
     // Build the player and associated objects.
@@ -506,7 +506,7 @@ public class SimpleExoPlayer extends BasePlayer
       if (renderer.getTrackType() == C.TRACK_TYPE_VIDEO) {
         player
             .createMessage(renderer)
-            .setType(C.MSG_SET_SCALING_MODE)
+            .setType(Renderer.MSG_SET_SCALING_MODE)
             .setPayload(videoScalingMode)
             .send();
       }
@@ -678,7 +678,7 @@ public class SimpleExoPlayer extends BasePlayer
         if (renderer.getTrackType() == C.TRACK_TYPE_AUDIO) {
           player
               .createMessage(renderer)
-              .setType(C.MSG_SET_AUDIO_ATTRIBUTES)
+              .setType(Renderer.MSG_SET_AUDIO_ATTRIBUTES)
               .setPayload(audioAttributes)
               .send();
         }
@@ -712,7 +712,7 @@ public class SimpleExoPlayer extends BasePlayer
       if (renderer.getTrackType() == C.TRACK_TYPE_AUDIO) {
         player
             .createMessage(renderer)
-            .setType(C.MSG_SET_AUX_EFFECT_INFO)
+            .setType(Renderer.MSG_SET_AUX_EFFECT_INFO)
             .setPayload(auxEffectInfo)
             .send();
       }
@@ -904,7 +904,7 @@ public class SimpleExoPlayer extends BasePlayer
       if (renderer.getTrackType() == C.TRACK_TYPE_VIDEO) {
         player
             .createMessage(renderer)
-            .setType(C.MSG_SET_VIDEO_FRAME_METADATA_LISTENER)
+            .setType(Renderer.MSG_SET_VIDEO_FRAME_METADATA_LISTENER)
             .setPayload(listener)
             .send();
       }
@@ -921,7 +921,7 @@ public class SimpleExoPlayer extends BasePlayer
       if (renderer.getTrackType() == C.TRACK_TYPE_VIDEO) {
         player
             .createMessage(renderer)
-            .setType(C.MSG_SET_VIDEO_FRAME_METADATA_LISTENER)
+            .setType(Renderer.MSG_SET_VIDEO_FRAME_METADATA_LISTENER)
             .setPayload(null)
             .send();
       }
@@ -936,7 +936,7 @@ public class SimpleExoPlayer extends BasePlayer
       if (renderer.getTrackType() == C.TRACK_TYPE_CAMERA_MOTION) {
         player
             .createMessage(renderer)
-            .setType(C.MSG_SET_CAMERA_MOTION_LISTENER)
+            .setType(Renderer.MSG_SET_CAMERA_MOTION_LISTENER)
             .setPayload(listener)
             .send();
       }
@@ -953,7 +953,7 @@ public class SimpleExoPlayer extends BasePlayer
       if (renderer.getTrackType() == C.TRACK_TYPE_CAMERA_MOTION) {
         player
             .createMessage(renderer)
-            .setType(C.MSG_SET_CAMERA_MOTION_LISTENER)
+            .setType(Renderer.MSG_SET_CAMERA_MOTION_LISTENER)
             .setPayload(null)
             .send();
       }
@@ -1571,7 +1571,11 @@ public class SimpleExoPlayer extends BasePlayer
     for (Renderer renderer : renderers) {
       if (renderer.getTrackType() == C.TRACK_TYPE_VIDEO) {
         messages.add(
-            player.createMessage(renderer).setType(C.MSG_SET_SURFACE).setPayload(surface).send());
+            player
+                .createMessage(renderer)
+                .setType(Renderer.MSG_SET_SURFACE)
+                .setPayload(surface)
+                .send());
       }
     }
     if (this.surface != null && this.surface != surface) {
@@ -1598,7 +1602,7 @@ public class SimpleExoPlayer extends BasePlayer
       if (renderer.getTrackType() == C.TRACK_TYPE_VIDEO) {
         player
             .createMessage(renderer)
-            .setType(C.MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER)
+            .setType(Renderer.MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER)
             .setPayload(videoDecoderOutputBufferRenderer)
             .send();
       }
@@ -1620,7 +1624,11 @@ public class SimpleExoPlayer extends BasePlayer
     float scaledVolume = audioVolume * audioFocusManager.getVolumeMultiplier();
     for (Renderer renderer : renderers) {
       if (renderer.getTrackType() == C.TRACK_TYPE_AUDIO) {
-        player.createMessage(renderer).setType(C.MSG_SET_VOLUME).setPayload(scaledVolume).send();
+        player
+            .createMessage(renderer)
+            .setType(Renderer.MSG_SET_VOLUME)
+            .setPayload(scaledVolume)
+            .send();
       }
     }
   }

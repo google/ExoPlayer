@@ -22,15 +22,8 @@ import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.MediaCodec;
 import android.media.MediaFormat;
-import android.view.Surface;
 import androidx.annotation.IntDef;
-import com.google.android.exoplayer2.PlayerMessage.Target;
-import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.util.Util;
-import com.google.android.exoplayer2.video.SimpleDecoderVideoRenderer;
-import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
-import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
-import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -284,9 +277,9 @@ public final class C {
   public static final int STREAM_TYPE_DEFAULT = STREAM_TYPE_MUSIC;
 
   /**
-   * Content types for {@link com.google.android.exoplayer2.audio.AudioAttributes}. One of {@link
-   * #CONTENT_TYPE_MOVIE}, {@link #CONTENT_TYPE_MUSIC}, {@link #CONTENT_TYPE_SONIFICATION}, {@link
-   * #CONTENT_TYPE_SPEECH} or {@link #CONTENT_TYPE_UNKNOWN}.
+   * Content types for audio attributes. One of {@link #CONTENT_TYPE_MOVIE}, {@link
+   * #CONTENT_TYPE_MUSIC}, {@link #CONTENT_TYPE_SONIFICATION}, {@link #CONTENT_TYPE_SPEECH} or
+   * {@link #CONTENT_TYPE_UNKNOWN}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -323,8 +316,7 @@ public final class C {
       android.media.AudioAttributes.CONTENT_TYPE_UNKNOWN;
 
   /**
-   * Flags for {@link com.google.android.exoplayer2.audio.AudioAttributes}. Possible flag value is
-   * {@link #FLAG_AUDIBILITY_ENFORCED}.
+   * Flags for audio attributes. Possible flag value is {@link #FLAG_AUDIBILITY_ENFORCED}.
    *
    * <p>Note that {@code FLAG_HW_AV_SYNC} is not available because the player takes care of setting
    * the flag when tunneling is enabled via a track selector.
@@ -342,15 +334,14 @@ public final class C {
       android.media.AudioAttributes.FLAG_AUDIBILITY_ENFORCED;
 
   /**
-   * Usage types for {@link com.google.android.exoplayer2.audio.AudioAttributes}. One of {@link
-   * #USAGE_ALARM}, {@link #USAGE_ASSISTANCE_ACCESSIBILITY}, {@link
-   * #USAGE_ASSISTANCE_NAVIGATION_GUIDANCE}, {@link #USAGE_ASSISTANCE_SONIFICATION}, {@link
-   * #USAGE_ASSISTANT}, {@link #USAGE_GAME}, {@link #USAGE_MEDIA}, {@link #USAGE_NOTIFICATION},
-   * {@link #USAGE_NOTIFICATION_COMMUNICATION_DELAYED}, {@link
-   * #USAGE_NOTIFICATION_COMMUNICATION_INSTANT}, {@link #USAGE_NOTIFICATION_COMMUNICATION_REQUEST},
-   * {@link #USAGE_NOTIFICATION_EVENT}, {@link #USAGE_NOTIFICATION_RINGTONE}, {@link
-   * #USAGE_UNKNOWN}, {@link #USAGE_VOICE_COMMUNICATION} or {@link
-   * #USAGE_VOICE_COMMUNICATION_SIGNALLING}.
+   * Usage types for audio attributes. One of {@link #USAGE_ALARM}, {@link
+   * #USAGE_ASSISTANCE_ACCESSIBILITY}, {@link #USAGE_ASSISTANCE_NAVIGATION_GUIDANCE}, {@link
+   * #USAGE_ASSISTANCE_SONIFICATION}, {@link #USAGE_ASSISTANT}, {@link #USAGE_GAME}, {@link
+   * #USAGE_MEDIA}, {@link #USAGE_NOTIFICATION}, {@link #USAGE_NOTIFICATION_COMMUNICATION_DELAYED},
+   * {@link #USAGE_NOTIFICATION_COMMUNICATION_INSTANT}, {@link
+   * #USAGE_NOTIFICATION_COMMUNICATION_REQUEST}, {@link #USAGE_NOTIFICATION_EVENT}, {@link
+   * #USAGE_NOTIFICATION_RINGTONE}, {@link #USAGE_UNKNOWN}, {@link #USAGE_VOICE_COMMUNICATION} or
+   * {@link #USAGE_VOICE_COMMUNICATION_SIGNALLING}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -445,8 +436,8 @@ public final class C {
       android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING;
 
   /**
-   * Capture policies for {@link com.google.android.exoplayer2.audio.AudioAttributes}. One of {@link
-   * #ALLOW_CAPTURE_BY_ALL}, {@link #ALLOW_CAPTURE_BY_NONE} or {@link #ALLOW_CAPTURE_BY_SYSTEM}.
+   * Capture policies for audio attributes. One of {@link #ALLOW_CAPTURE_BY_ALL}, {@link
+   * #ALLOW_CAPTURE_BY_NONE} or {@link #ALLOW_CAPTURE_BY_SYSTEM}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -542,28 +533,22 @@ public final class C {
   //     ../../../../../../../../../extensions/vp9/src/main/jni/vpx_jni.cc
   // )
 
-  /**
-   * Video scaling modes for {@link MediaCodec}-based {@link Renderer}s. One of {@link
-   * #VIDEO_SCALING_MODE_SCALE_TO_FIT} or {@link #VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING}.
-   */
+  /** @deprecated Use {@code Renderer.VideoScalingMode}. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(value = {VIDEO_SCALING_MODE_SCALE_TO_FIT, VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING})
+  @Deprecated
   public @interface VideoScalingMode {}
-  /**
-   * @see MediaCodec#VIDEO_SCALING_MODE_SCALE_TO_FIT
-   */
+  /** @deprecated Use {@code Renderer.VIDEO_SCALING_MODE_SCALE_TO_FIT}. */
+  @Deprecated
   public static final int VIDEO_SCALING_MODE_SCALE_TO_FIT =
       MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT;
-  /**
-   * @see MediaCodec#VIDEO_SCALING_MODE_SCALE_TO_FIT
-   */
+  /** @deprecated Use {@code Renderer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING}. */
+  @Deprecated
   public static final int VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING =
       MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING;
-  /**
-   * A default video scaling mode for {@link MediaCodec}-based {@link Renderer}s.
-   */
-  public static final int VIDEO_SCALING_MODE_DEFAULT = VIDEO_SCALING_MODE_SCALE_TO_FIT;
+  /** @deprecated Use {@code Renderer.VIDEO_SCALING_MODE_DEFAULT}. */
+  @Deprecated public static final int VIDEO_SCALING_MODE_DEFAULT = VIDEO_SCALING_MODE_SCALE_TO_FIT;
 
   /**
    * Track selection flags. Possible flag values are {@link #SELECTION_FLAG_DEFAULT}, {@link
@@ -763,90 +748,32 @@ public final class C {
    */
   public static final UUID PLAYREADY_UUID = new UUID(0x9A04F07998404286L, 0xAB92E65BE0885F95L);
 
-  /**
-   * The type of a message that can be passed to a video {@link Renderer} via {@link
-   * ExoPlayer#createMessage(Target)}. The message payload should be the target {@link Surface}, or
-   * null.
-   */
-  public static final int MSG_SET_SURFACE = 1;
+  /** @deprecated Use {@code Renderer.MSG_SET_SURFACE}. */
+  @Deprecated public static final int MSG_SET_SURFACE = 1;
 
-  /**
-   * A type of a message that can be passed to an audio {@link Renderer} via {@link
-   * ExoPlayer#createMessage(Target)}. The message payload should be a {@link Float} with 0 being
-   * silence and 1 being unity gain.
-   */
-  public static final int MSG_SET_VOLUME = 2;
+  /** @deprecated Use {@code Renderer.MSG_SET_VOLUME}. */
+  @Deprecated public static final int MSG_SET_VOLUME = 2;
 
-  /**
-   * A type of a message that can be passed to an audio {@link Renderer} via {@link
-   * ExoPlayer#createMessage(Target)}. The message payload should be an {@link
-   * com.google.android.exoplayer2.audio.AudioAttributes} instance that will configure the
-   * underlying audio track. If not set, the default audio attributes will be used. They are
-   * suitable for general media playback.
-   *
-   * <p>Setting the audio attributes during playback may introduce a short gap in audio output as
-   * the audio track is recreated. A new audio session id will also be generated.
-   *
-   * <p>If tunneling is enabled by the track selector, the specified audio attributes will be
-   * ignored, but they will take effect if audio is later played without tunneling.
-   *
-   * <p>If the device is running a build before platform API version 21, audio attributes cannot be
-   * set directly on the underlying audio track. In this case, the usage will be mapped onto an
-   * equivalent stream type using {@link Util#getStreamTypeForAudioUsage(int)}.
-   *
-   * <p>To get audio attributes that are equivalent to a legacy stream type, pass the stream type to
-   * {@link Util#getAudioUsageForStreamType(int)} and use the returned {@link C.AudioUsage} to build
-   * an audio attributes instance.
-   */
-  public static final int MSG_SET_AUDIO_ATTRIBUTES = 3;
+  /** @deprecated Use {@code Renderer.MSG_SET_AUDIO_ATTRIBUTES}. */
+  @Deprecated public static final int MSG_SET_AUDIO_ATTRIBUTES = 3;
 
-  /**
-   * The type of a message that can be passed to a {@link MediaCodec}-based video {@link Renderer}
-   * via {@link ExoPlayer#createMessage(Target)}. The message payload should be one of the integer
-   * scaling modes in {@link C.VideoScalingMode}.
-   *
-   * <p>Note that the scaling mode only applies if the {@link Surface} targeted by the renderer is
-   * owned by a {@link android.view.SurfaceView}.
-   */
-  public static final int MSG_SET_SCALING_MODE = 4;
+  /** @deprecated Use {@code Renderer.MSG_SET_SCALING_MODE}. */
+  @Deprecated public static final int MSG_SET_SCALING_MODE = 4;
 
-  /**
-   * A type of a message that can be passed to an audio {@link Renderer} via {@link
-   * ExoPlayer#createMessage(Target)}. The message payload should be an {@link AuxEffectInfo}
-   * instance representing an auxiliary audio effect for the underlying audio track.
-   */
-  public static final int MSG_SET_AUX_EFFECT_INFO = 5;
+  /** @deprecated Use {@code Renderer.MSG_SET_AUX_EFFECT_INFO}. */
+  @Deprecated public static final int MSG_SET_AUX_EFFECT_INFO = 5;
 
-  /**
-   * The type of a message that can be passed to a video {@link Renderer} via {@link
-   * ExoPlayer#createMessage(Target)}. The message payload should be a {@link
-   * VideoFrameMetadataListener} instance, or null.
-   */
-  public static final int MSG_SET_VIDEO_FRAME_METADATA_LISTENER = 6;
+  /** @deprecated Use {@code Renderer.MSG_SET_VIDEO_FRAME_METADATA_LISTENER}. */
+  @Deprecated public static final int MSG_SET_VIDEO_FRAME_METADATA_LISTENER = 6;
 
-  /**
-   * The type of a message that can be passed to a camera motion {@link Renderer} via {@link
-   * ExoPlayer#createMessage(Target)}. The message payload should be a {@link CameraMotionListener}
-   * instance, or null.
-   */
-  public static final int MSG_SET_CAMERA_MOTION_LISTENER = 7;
+  /** @deprecated Use {@code Renderer.MSG_SET_CAMERA_MOTION_LISTENER}. */
+  @Deprecated public static final int MSG_SET_CAMERA_MOTION_LISTENER = 7;
 
-  /**
-   * The type of a message that can be passed to a {@link SimpleDecoderVideoRenderer} via {@link
-   * ExoPlayer#createMessage(Target)}. The message payload should be the target {@link
-   * VideoDecoderOutputBufferRenderer}, or null.
-   *
-   * <p>This message is intended only for use with extension renderers that expect a {@link
-   * VideoDecoderOutputBufferRenderer}. For other use cases, an output surface should be passed via
-   * {@link #MSG_SET_SURFACE} instead.
-   */
-  public static final int MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER = 8;
+  /** @deprecated Use {@code Renderer.MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER}. */
+  @Deprecated public static final int MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER = 8;
 
-  /**
-   * Applications or extensions may define custom {@code MSG_*} constants that can be passed to
-   * {@link Renderer}s. These custom constants must be greater than or equal to this value.
-   */
-  public static final int MSG_CUSTOM_BASE = 10000;
+  /** @deprecated Use {@code Renderer.MSG_CUSTOM_BASE}. */
+  @Deprecated public static final int MSG_CUSTOM_BASE = 10000;
 
   /**
    * The stereo mode for 360/3D/VR videos. One of {@link Format#NO_VALUE}, {@link

@@ -54,14 +54,14 @@ import java.lang.annotation.RetentionPolicy;
  * on the playback thread:
  *
  * <ul>
- *   <li>Message with type {@link C#MSG_SET_VOLUME} to set the volume. The message payload should be
+ *   <li>Message with type {@link #MSG_SET_VOLUME} to set the volume. The message payload should be
  *       a {@link Float} with 0 being silence and 1 being unity gain.
- *   <li>Message with type {@link C#MSG_SET_AUDIO_ATTRIBUTES} to set the audio attributes. The
+ *   <li>Message with type {@link #MSG_SET_AUDIO_ATTRIBUTES} to set the audio attributes. The
  *       message payload should be an {@link com.google.android.exoplayer2.audio.AudioAttributes}
  *       instance that will configure the underlying audio track.
- *   <li>Message with type {@link C#MSG_SET_AUX_EFFECT_INFO} to set the auxiliary effect. The
- *       message payload should be an {@link AuxEffectInfo} instance that will configure the
- *       underlying audio track.
+ *   <li>Message with type {@link #MSG_SET_AUX_EFFECT_INFO} to set the auxiliary effect. The message
+ *       payload should be an {@link AuxEffectInfo} instance that will configure the underlying
+ *       audio track.
  * </ul>
  */
 public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements MediaClock {
@@ -594,14 +594,14 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   @Override
   public void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException {
     switch (messageType) {
-      case C.MSG_SET_VOLUME:
+      case MSG_SET_VOLUME:
         audioSink.setVolume((Float) message);
         break;
-      case C.MSG_SET_AUDIO_ATTRIBUTES:
+      case MSG_SET_AUDIO_ATTRIBUTES:
         AudioAttributes audioAttributes = (AudioAttributes) message;
         audioSink.setAudioAttributes(audioAttributes);
         break;
-      case C.MSG_SET_AUX_EFFECT_INFO:
+      case MSG_SET_AUX_EFFECT_INFO:
         AuxEffectInfo auxEffectInfo = (AuxEffectInfo) message;
         audioSink.setAuxEffectInfo(auxEffectInfo);
         break;
