@@ -256,21 +256,14 @@ import com.google.android.exoplayer2.util.Assertions;
     return removedReading;
   }
 
-  /**
-   * Clears the queue.
-   *
-   * @param keepFrontPeriodUid Whether the queue should keep the id of the media period in the front
-   *     of queue (typically the playing one) for later reuse.
-   */
-  public void clear(boolean keepFrontPeriodUid) {
+  /** Clears the queue. */
+  public void clear() {
     MediaPeriodHolder front = playing;
     if (front != null) {
-      oldFrontPeriodUid = keepFrontPeriodUid ? front.uid : null;
+      oldFrontPeriodUid = front.uid;
       oldFrontPeriodWindowSequenceNumber = front.info.id.windowSequenceNumber;
       removeAfter(front);
       front.release();
-    } else if (!keepFrontPeriodUid) {
-      oldFrontPeriodUid = null;
     }
     playing = null;
     loading = null;
