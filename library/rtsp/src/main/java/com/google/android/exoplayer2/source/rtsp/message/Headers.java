@@ -15,8 +15,11 @@
  */
 package com.google.android.exoplayer2.source.rtsp.message;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -27,8 +30,8 @@ import java.util.TreeSet;
  */
 public final class Headers {
 
-    private final Map<String, String> headers;
-    private Map<String, String> headersSnapshot;
+    private final Map<String, List<String>> headers;
+    private Map<String, List<String>> headersSnapshot;
 
     public Headers() {
         headers = new LinkedHashMap<>();
@@ -43,7 +46,11 @@ public final class Headers {
      */
     public synchronized void add(String name, String value) {
         headersSnapshot = null;
-        headers.put(name, value);
+        if (headers.containsKey(name)) {
+            headers.get(name).add(value);
+        } else {
+            headers.put(name, new ArrayList<>(Arrays.asList(value)));
+        }
     }
 
     /**
@@ -53,7 +60,7 @@ public final class Headers {
      *
      * @param properties The request properties.
      */
-    public synchronized void set(Map<String, String> properties) {
+    public synchronized void set(Map<String,  List<String>> properties) {
         headersSnapshot = null;
         headers.putAll(properties);
     }
@@ -63,7 +70,7 @@ public final class Headers {
      *
      * @param properties The request properties.
      */
-    public synchronized void clearAndSet(Map<String, String> properties) {
+    public synchronized void clearAndSet(Map<String, List<String>> properties) {
         headersSnapshot = null;
         headers.clear();
         headers.putAll(properties);
@@ -92,7 +99,7 @@ public final class Headers {
      *
      * @return A snapshot of the request properties.
      */
-    public synchronized Map<String, String> getSnapshot() {
+    public synchronized Map<String, List<String>> getSnapshot() {
         if (headersSnapshot == null) {
             headersSnapshot = Collections.unmodifiableMap(new LinkedHashMap<>(headers));
         }
@@ -114,7 +121,16 @@ public final class Headers {
      * @return The value of the header given by name.
      */
     public String value(Header header) {
-        if (header == null) throw new NullPointerException("header == null");
+        if (header == null) throw new NullPointerException("header is null");
+        if (headers.containsKey(header.toString())) {
+            return headers.get(header.toString()).get(0);
+        }
+
+        return null;
+    }
+
+    public List<String> values(Header header) {
+        if (header == null) throw new NullPointerException("header is null");
         if (headers.containsKey(header.toString()))
             return headers.get(header.toString());
 
@@ -122,7 +138,7 @@ public final class Headers {
     }
 
     public boolean contains(Header header) {
-        if (header == null) throw new NullPointerException("header == null");
+        if (header == null) throw new NullPointerException("header is null");
         if (headers.containsKey(header.toString()))
             return true;
 
@@ -147,7 +163,7 @@ public final class Headers {
      */
     public Set<String> names() {
         TreeSet<String> result = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-        for (Map.Entry<String, String> entry : headers.entrySet()) {
+        for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
             String header = entry.getKey();
             result.add(header);
         }

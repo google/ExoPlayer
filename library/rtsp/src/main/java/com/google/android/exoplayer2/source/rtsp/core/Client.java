@@ -98,7 +98,8 @@ public abstract class Client implements Dispatcher.EventListener {
         void onClientError(Throwable throwable);
     }
 
-    private static final Pattern regexRtpMap = Pattern.compile("\\d+\\s+([a-zA-Z0-9-]*)/(\\d+){1}(/(\\d+))?",
+    private static final Pattern regexRtpMap = Pattern.compile(
+            "\\d+\\s+([a-zA-Z0-9-]*)/(\\d+){1}(/(\\d+))?",
             Pattern.CASE_INSENSITIVE);
 
     private static final Pattern regexFrameSize = Pattern.compile("(\\d+)\\s+(\\d+)-(\\d+)",
@@ -111,6 +112,9 @@ public abstract class Client implements Dispatcher.EventListener {
             Pattern.CASE_INSENSITIVE);
 
     private static final Pattern regexNumber = Pattern.compile("([\\d\\.]+)\\b");
+
+    private static final Pattern regexAuth = Pattern.compile("(\\S+)\\s+(.+)",
+            Pattern.CASE_INSENSITIVE);
 
     private static final int DEFAULT_PORT = 554;
 
@@ -690,7 +694,6 @@ public abstract class Client implements Dispatcher.EventListener {
 
     @Override
     public final void onUnauthorized(Request request, Response response) {
-        Pattern regexAuth = Pattern.compile("(\\S+)\\s+(.+)", Pattern.CASE_INSENSITIVE);
         String w3Authenticate = response.getHeaders().value(Header.W3Authenticate);
         Matcher matcher = regexAuth.matcher(w3Authenticate);
 

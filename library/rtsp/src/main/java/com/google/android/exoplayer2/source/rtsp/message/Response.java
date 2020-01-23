@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.rtsp.message;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -47,10 +48,12 @@ public final class Response extends Message {
         str.append(protocol).append(' ').append(status.code()).append(' ').
                 append(status.reason()).append("\r\n");
 
-        for (Map.Entry<String, String> entry : headers.getSnapshot().entrySet()) {
+        for (Map.Entry<String, List<String>> entry : headers.getSnapshot().entrySet()) {
             String header = entry.getKey();
-            String value = entry.getValue();
-            str.append(header).append(": ").append(value).append("\r\n");
+            List<String> values = entry.getValue();
+            for (String value : values) {
+                str.append(header).append(": ").append(value).append("\r\n");
+            }
         }
 
         if (body != null) {
