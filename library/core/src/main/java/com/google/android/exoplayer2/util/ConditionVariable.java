@@ -19,7 +19,7 @@ package com.google.android.exoplayer2.util;
  * An interruptible condition variable whose {@link #open()} and {@link #close()} methods return
  * whether they resulted in a change of state.
  */
-public final class ConditionVariable {
+public class ConditionVariable {
 
   private boolean isOpen;
 
