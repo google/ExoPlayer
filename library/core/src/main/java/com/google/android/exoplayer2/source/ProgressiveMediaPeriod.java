@@ -446,8 +446,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       return 0;
     }
     SeekPoints seekPoints = seekMap.getSeekPoints(positionUs);
-    return Util.resolveSeekPositionUs(
-        positionUs, seekParameters, seekPoints.first.timeUs, seekPoints.second.timeUs);
+    return seekParameters.resolveSeekPositionUs(
+        positionUs, seekPoints.first.timeUs, seekPoints.second.timeUs);
   }
 
   // SampleStream methods.

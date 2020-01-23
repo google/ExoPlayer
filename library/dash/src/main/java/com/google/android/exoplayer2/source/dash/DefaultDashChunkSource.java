@@ -198,7 +198,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
             firstSyncUs < positionUs && segmentNum < representationHolder.getSegmentCount() - 1
                 ? representationHolder.getSegmentStartTimeUs(segmentNum + 1)
                 : firstSyncUs;
-        return Util.resolveSeekPositionUs(positionUs, seekParameters, firstSyncUs, secondSyncUs);
+        return seekParameters.resolveSeekPositionUs(positionUs, firstSyncUs, secondSyncUs);
       }
     }
     // We don't have a segment index to adjust the seek position with yet.

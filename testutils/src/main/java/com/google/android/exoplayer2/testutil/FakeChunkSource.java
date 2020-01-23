@@ -32,7 +32,6 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.List;
 
@@ -90,7 +89,7 @@ public final class FakeChunkSource implements ChunkSource {
         firstSyncUs < positionUs && chunkIndex < dataSet.getChunkCount() - 1
             ? dataSet.getStartTime(chunkIndex + 1)
             : firstSyncUs;
-    return Util.resolveSeekPositionUs(positionUs, seekParameters, firstSyncUs, secondSyncUs);
+    return seekParameters.resolveSeekPositionUs(positionUs, firstSyncUs, secondSyncUs);
   }
 
   @Override
