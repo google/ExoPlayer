@@ -38,7 +38,6 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.TransferListener;
-import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.List;
 
@@ -129,7 +128,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
         firstSyncUs < positionUs && chunkIndex < streamElement.chunkCount - 1
             ? streamElement.getStartTimeUs(chunkIndex + 1)
             : firstSyncUs;
-    return Util.resolveSeekPositionUs(positionUs, seekParameters, firstSyncUs, secondSyncUs);
+    return seekParameters.resolveSeekPositionUs(positionUs, firstSyncUs, secondSyncUs);
   }
 
   @Override
