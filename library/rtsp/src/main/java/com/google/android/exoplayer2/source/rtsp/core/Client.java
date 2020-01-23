@@ -694,49 +694,52 @@ public abstract class Client implements Dispatcher.EventListener {
 
     @Override
     public final void onUnauthorized(Request request, Response response) {
-        String w3Authenticate = response.getHeaders().value(Header.W3Authenticate);
-        Matcher matcher = regexAuth.matcher(w3Authenticate);
+        List<String> w3AuthenticateList = response.getHeaders().values(Header.W3Authenticate);
 
-        if (matcher.find()) {
-            try {
+        for (String w3Authenticate : w3AuthenticateList) {
+            Matcher matcher = regexAuth.matcher(w3Authenticate);
 
-                switch (AuthScheme.parse(matcher.group(1))) {
-                    case BASIC:
-                        if (session.username() != null) {
-                            credentials = new BasicCredentials.Builder(matcher.group(2)).
-                                    username(session.username()).
-                                    password(session.password()).
-                                    build();
-                            credentials.applyToRequest(request);
+            if (matcher.find()) {
+                try {
 
-                            request.getHeaders().add(Header.CSeq.toString(),
-                                    String.valueOf(session.nextCSeq()));
+                    switch (AuthScheme.parse(matcher.group(1))) {
+                        case BASIC:
+                            if (session.username() != null) {
+                                credentials = new BasicCredentials.Builder(matcher.group(2)).
+                                        username(session.username()).
+                                        password(session.password()).
+                                        build();
+                                credentials.applyToRequest(request);
 
-                            dispatcher.execute(request);
-                        }
+                                request.getHeaders().add(Header.CSeq.toString(),
+                                        String.valueOf(session.nextCSeq()));
 
-                        break;
+                                dispatcher.execute(request);
+                            }
 
-                    case DIGEST:
-                        if (session.username() != null) {
-                            credentials = new DigestCredentials.Builder(matcher.group(2)).
-                                    username(session.username()).
-                                    password(session.password()).
-                                    setParam(DigestCredentials.URI, session.uri().toString()).
-                                    build();
-                            credentials.applyToRequest(request);
+                            return;
 
-                            request.getHeaders().add(Header.CSeq.toString(),
-                                    String.valueOf(session.nextCSeq()));
+                        case DIGEST:
+                            if (session.username() != null) {
+                                credentials = new DigestCredentials.Builder(matcher.group(2)).
+                                        username(session.username()).
+                                        password(session.password()).
+                                        setParam(DigestCredentials.URI, session.uri().toString()).
+                                        build();
+                                credentials.applyToRequest(request);
 
-                            dispatcher.execute(request);
-                        }
-                        break;
+                                request.getHeaders().add(Header.CSeq.toString(),
+                                        String.valueOf(session.nextCSeq()));
+
+                                dispatcher.execute(request);
+                            }
+                            return;
+                    }
+
+                } catch (IOException ex) {
+                    close();
+                    listener.onClientError(ex);
                 }
-
-            } catch (IOException ex) {
-                close();
-                listener.onClientError(ex);
             }
         }
     }
