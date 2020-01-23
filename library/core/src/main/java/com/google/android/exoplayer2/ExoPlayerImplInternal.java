@@ -1014,7 +1014,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       maybeContinueLoading();
     } else {
       // New period has not been prepared.
-      queue.clear(/* keepFrontPeriodUid= */ true);
+      queue.clear();
       resetRendererPosition(periodPositionUs);
     }
 
@@ -1139,7 +1139,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       }
     }
 
-    queue.clear(/* keepFrontPeriodUid= */ !clearPlaylist);
+    queue.clear();
     shouldContinueLoading = false;
     Timeline timeline = playbackInfo.timeline;
     if (clearPlaylist) {
