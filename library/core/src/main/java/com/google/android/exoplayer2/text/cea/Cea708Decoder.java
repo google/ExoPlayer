@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.text.SubtitleDecoder;
 import com.google.android.exoplayer2.text.SubtitleInputBuffer;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.CeaUtil;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -144,6 +145,9 @@ public final class Cea708Decoder extends CeaDecoder {
 
   private final ParsableByteArray ccData;
   private final ParsableBitArray serviceBlockPacket;
+  // TODO: Use isWideAspectRatio in decoding.
+  @SuppressWarnings({"unused", "FieldCanBeLocal"})
+  private final boolean isWideAspectRatio;
 
   private final int selectedServiceNumber;
   private final CueInfoBuilder[] cueInfoBuilders;
@@ -155,11 +159,12 @@ public final class Cea708Decoder extends CeaDecoder {
   @Nullable private DtvCcPacket currentDtvCcPacket;
   private int currentWindow;
 
-  // TODO: Retrieve isWideAspectRatio from initializationData and use it.
   public Cea708Decoder(int accessibilityChannel, @Nullable List<byte[]> initializationData) {
     ccData = new ParsableByteArray();
     serviceBlockPacket = new ParsableBitArray();
     selectedServiceNumber = accessibilityChannel == Format.NO_VALUE ? 1 : accessibilityChannel;
+    isWideAspectRatio =
+        initializationData != null && CeaUtil.getIsWideAspectRatio(initializationData);
 
     cueInfoBuilders = new CueInfoBuilder[NUM_WINDOWS];
     for (int i = 0; i < NUM_WINDOWS; i++) {
