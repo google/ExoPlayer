@@ -132,7 +132,7 @@ public final class RtspDefaultClient extends Client {
 
     @Override
     public void sendPlayRequest(Range range) {
-        Request.Builder builder = new Request.Builder().play().url(session.uri().toString());
+        Request.Builder builder = new Request.Builder().play().url(getPlayUrl());
         builder.header(Header.CSeq, session.nextCSeq());
         builder.header(Header.UserAgent, USER_AGENT);
         builder.header(Header.Session, session.getId());
@@ -143,7 +143,7 @@ public final class RtspDefaultClient extends Client {
 
     @Override
     public void sendPlayRequest(Range range, float scale) {
-        Request.Builder builder = new Request.Builder().play().url(session.uri().toString());
+        Request.Builder builder = new Request.Builder().play().url(getPlayUrl());
         builder.header(Header.CSeq, session.nextCSeq());
         builder.header(Header.UserAgent, USER_AGENT);
         builder.header(Header.Session, session.getId());

@@ -376,6 +376,8 @@ public abstract class Client implements Dispatcher.EventListener {
             baseUrl = headers.value(Header.ContentLocation);
         }
 
+        session.setBaseUri(Uri.parse(baseUrl));
+
         if (body != null) {
             MediaType mediaType = body.getContentType();
 
@@ -470,10 +472,7 @@ public abstract class Client implements Dispatcher.EventListener {
                                                     String scheme = uriBaseUrl.getScheme();
                                                     if (scheme != null &&
                                                             "rtsp".equalsIgnoreCase(scheme)) {
-                                                        if (!InetUtil.isPrivateIpAddress(
-                                                                uriBaseUrl.getHost())) {
-                                                            url = baseUrl;
-                                                        }
+                                                        url = baseUrl;
                                                     }
                                                 }
 
@@ -831,6 +830,24 @@ public abstract class Client implements Dispatcher.EventListener {
         return false;
     }
 
+    protected final String getPlayUrl() {
+        // determine the URL to use for PLAY requests
+        Uri baseUri = session.getBaseUri();
+        if (baseUri != null) {
+            return baseUri.toString();
+        }
+
+        // remove the user info from the URL if it is present
+        Uri uri = session.uri();
+        String url = uri.toString();
+        String uriUserInfo = uri.getUserInfo();
+        if (uriUserInfo != null && !uriUserInfo.isEmpty()) {
+            uriUserInfo += "@";
+            url = url.replace(uriUserInfo, "");
+        }
+
+        return url;
+    }
 
     public static final class Builder {
         private Uri uri;

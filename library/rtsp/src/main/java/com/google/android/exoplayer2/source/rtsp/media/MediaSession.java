@@ -103,6 +103,7 @@ public final class MediaSession implements VideoListener {
     private final Map<Integer, RtspSampleStreamWrapper> interleavedListeners;
 
     private Uri uri;
+    private Uri baseUri;
     private final String username;
     private final String password;
     private final Client client;
@@ -143,8 +144,6 @@ public final class MediaSession implements VideoListener {
 
     public Uri uri() { return uri; }
 
-    public void setUri(Uri uri) { this.uri = uri; }
-
     public String username() { return username; }
 
     public String password() { return password; }
@@ -156,6 +155,10 @@ public final class MediaSession implements VideoListener {
     public int nextTcpChannel() {
         return (tcpChannels.length == 0) ? 0 : tcpChannels[tcpChannels.length - 1] + 1;
     }
+
+    public Uri getBaseUri() { return baseUri; }
+
+    public void setBaseUri(Uri baseUri) { this.baseUri = baseUri; }
 
     public void setTimeout(int timeout) { this.timeout = timeout; }
 
