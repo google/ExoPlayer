@@ -1125,20 +1125,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
     enabledRenderers = new Renderer[0];
 
-    if (resetPosition) {
-      pendingInitialSeekPosition = null;
-    } else if (clearPlaylist) {
-      // When clearing the playlist, also reset the period-based PlaybackInfo position and convert
-      // existing position to initial seek instead.
-      resetPosition = true;
-      if (pendingInitialSeekPosition == null && !playbackInfo.timeline.isEmpty()) {
-        playbackInfo.timeline.getPeriodByUid(playbackInfo.periodId.periodUid, period);
-        long windowPositionUs = playbackInfo.positionUs + period.getPositionInWindowUs();
-        pendingInitialSeekPosition =
-            new SeekPosition(Timeline.EMPTY, period.windowIndex, windowPositionUs);
-      }
-    }
-
     queue.clear();
     shouldContinueLoading = false;
     Timeline timeline = playbackInfo.timeline;
@@ -1155,6 +1141,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     long contentPositionUs = playbackInfo.contentPositionUs;
     boolean resetTrackInfo = clearPlaylist;
     if (resetPosition) {
+      pendingInitialSeekPosition = null;
       Pair<MediaPeriodId, Long> firstPeriodAndPosition = getDummyFirstMediaPeriodPosition();
       mediaPeriodId = firstPeriodAndPosition.first;
       startPositionUs = firstPeriodAndPosition.second;
