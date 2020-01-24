@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.util;
+package com.google.android.exoplayer2.extractor;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -22,6 +22,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.flac.VorbisComment;
 import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.android.exoplayer2.util.FlacConstants;
 import java.io.IOException;
 import java.util.ArrayList;
 import org.junit.Test;
