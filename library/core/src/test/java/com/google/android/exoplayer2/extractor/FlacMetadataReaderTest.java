@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -161,11 +162,11 @@ public class FlacMetadataReaderTest {
     assertThat(input.getPeekPosition()).isEqualTo(input.getPosition());
   }
 
-  @Test(expected = ParserException.class)
+  @Test
   public void readStreamMarker_invalidData_throwsException() throws Exception {
     ExtractorInput input = buildExtractorInput("mp3/bear.mp3");
 
-    FlacMetadataReader.readStreamMarker(input);
+    assertThrows(ParserException.class, () -> FlacMetadataReader.readStreamMarker(input));
   }
 
   @Test
@@ -297,15 +298,18 @@ public class FlacMetadataReaderTest {
     assertThat(input.getPeekPosition()).isEqualTo(input.getPosition());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void readMetadataBlock_nonStreamInfoBlockWithNullStreamMetadata_throwsException()
       throws Exception {
     ExtractorInput input = buildExtractorInput("flac/bear.flac");
     // Skip to seek table block.
     input.skipFully(FlacConstants.STREAM_MARKER_SIZE + FlacConstants.STREAM_INFO_BLOCK_SIZE);
 
-    FlacMetadataReader.readMetadataBlock(
-        input, new FlacStreamMetadataHolder(/* flacStreamMetadata= */ null));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            FlacMetadataReader.readMetadataBlock(
+                input, new FlacStreamMetadataHolder(/* flacStreamMetadata= */ null)));
   }
 
   @Test
@@ -379,12 +383,12 @@ public class FlacMetadataReaderTest {
     assertThat(result).isEqualTo(0xFFF8);
   }
 
-  @Test(expected = ParserException.class)
+  @Test
   public void getFrameStartMarker_invalidData_throwsException() throws Exception {
     ExtractorInput input = buildExtractorInput("flac/bear.flac");
 
     // Input position is incorrect.
-    FlacMetadataReader.getFrameStartMarker(input);
+    assertThrows(ParserException.class, () -> FlacMetadataReader.getFrameStartMarker(input));
   }
 
   private static ExtractorInput buildExtractorInput(String file) throws IOException {
