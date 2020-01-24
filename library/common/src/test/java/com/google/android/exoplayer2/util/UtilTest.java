@@ -29,7 +29,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
 import java.util.zip.Deflater;
 import org.junit.Test;
@@ -89,222 +88,596 @@ public class UtilTest {
   }
 
   @Test
-  public void testArrayBinarySearchFloor_emptyArray() {
-    long[] array = new long[0];
-    int target = 0;
-
-    assertThat(binarySearchFloor(array, target, /* inclusive= */ false, /* stayInBounds= */ false))
+  public void arrayBinarySearchFloor_emptyArrayAndStayInBoundsFalse_returnsMinus1() {
+    assertThat(
+            binarySearchFloor(
+                new int[0], /* value= */ 0, /* inclusive= */ false, /* stayInBounds= */ false))
         .isEqualTo(-1);
-    assertThat(binarySearchFloor(array, target, /* inclusive= */ false, /* stayInBounds= */ true))
+  }
+
+  @Test
+  public void arrayBinarySearchFloor_emptyArrayAndStayInBoundsTrue_returns0() {
+    assertThat(
+            binarySearchFloor(
+                new int[0], /* value= */ 0, /* inclusive= */ false, /* stayInBounds= */ true))
         .isEqualTo(0);
   }
 
   @Test
-  public void testArrayBinarySearchFloor_targetSmallerThanArrayValues() {
-    long[] array = new long[] {1, 3, 5};
-    int target = 0;
-
-    assertThat(binarySearchFloor(array, target, /* inclusive= */ false, /* stayInBounds= */ false))
+  public void arrayBinarySearchFloor_targetSmallerThanValuesAndStayInBoundsFalse_returnsMinus1() {
+    assertThat(
+            binarySearchFloor(
+                new int[] {1, 3, 5},
+                /* value= */ 0,
+                /* inclusive= */ false,
+                /* stayInBounds= */ false))
         .isEqualTo(-1);
-    assertThat(binarySearchFloor(array, target, /* inclusive= */ false, /* stayInBounds= */ true))
+  }
+
+  @Test
+  public void arrayBinarySearchFloor_targetSmallerThanValuesAndStayInBoundsTrue_returns0() {
+    assertThat(
+            binarySearchFloor(
+                new int[] {1, 3, 5},
+                /* value= */ 0,
+                /* inclusive= */ false,
+                /* stayInBounds= */ true))
         .isEqualTo(0);
   }
 
   @Test
-  public void testArrayBinarySearchFloor_targetBiggerThanArrayValues() {
-    long[] array = new long[] {1, 3, 5};
-    int target = 6;
-
-    assertThat(binarySearchFloor(array, target, /* inclusive= */ false, /* stayInBounds= */ false))
+  public void arrayBinarySearchFloor_targetBiggerThanValues_returnsLastIndex() {
+    assertThat(
+            binarySearchFloor(
+                new int[] {1, 3, 5},
+                /* value= */ 6,
+                /* inclusive= */ false,
+                /* stayInBounds= */ false))
         .isEqualTo(2);
   }
 
   @Test
-  public void testArrayBinarySearchFloor_targetInArray() {
-    long[] array = new long[] {1, 1, 1, 1, 1, 3, 5};
-    int target = 1;
-
-    assertThat(binarySearchFloor(array, target, /* inclusive= */ false, /* stayInBounds= */ false))
+  public void
+      arrayBinarySearchFloor_targetEqualToFirstValueAndInclusiveFalseAndStayInBoundsFalse_returnsMinus1() {
+    assertThat(
+            binarySearchFloor(
+                new int[] {1, 1, 1, 1, 1, 3, 5},
+                /* value= */ 1,
+                /* inclusive= */ false,
+                /* stayInBounds= */ false))
         .isEqualTo(-1);
-    assertThat(binarySearchFloor(array, target, /* inclusive= */ false, /* stayInBounds= */ true))
-        .isEqualTo(0);
-    assertThat(binarySearchFloor(array, target, /* inclusive= */ true, /* stayInBounds= */ false))
+  }
+
+  @Test
+  public void
+      arrayBinarySearchFloor_targetEqualToFirstValueAndInclusiveFalseAndStayInBoundsTrue_returns0() {
+    assertThat(
+            binarySearchFloor(
+                new int[] {1, 1, 1, 1, 1, 3, 5},
+                /* value= */ 1,
+                /* inclusive= */ false,
+                /* stayInBounds= */ true))
         .isEqualTo(0);
   }
 
   @Test
-  public void testArrayBinarySearchFloor_targetBetweenArrayValues() {
-    long[] array = new long[] {1, 1, 1, 1, 1, 3, 5};
-    int target = 2;
+  public void
+      arrayBinarySearchFloor_targetInArrayAndInclusiveTrue_returnsFirstIndexWithValueEqualToTarget() {
+    assertThat(
+            binarySearchFloor(
+                new int[] {1, 1, 1, 1, 1, 3, 5},
+                /* value= */ 1,
+                /* inclusive= */ true,
+                /* stayInBounds= */ false))
+        .isEqualTo(0);
+  }
 
-    assertThat(binarySearchFloor(array, target, /* inclusive= */ false, /* stayInBounds= */ false))
+  @Test
+  public void
+      arrayBinarySearchFloor_targetBetweenValuesAndInclusiveFalse_returnsIndexWhereTargetShouldBeInserted() {
+    assertThat(
+            binarySearchFloor(
+                new int[] {1, 1, 1, 1, 1, 3, 5},
+                /* value= */ 2,
+                /* inclusive= */ false,
+                /* stayInBounds= */ false))
         .isEqualTo(4);
-    assertThat(binarySearchFloor(array, target, /* inclusive= */ true, /* stayInBounds= */ false))
+  }
+
+  @Test
+  public void
+      arrayBinarySearchFloor_targetBetweenValuesAndInclusiveTrue_returnsIndexWhereTargetShouldBeInserted() {
+    assertThat(
+            binarySearchFloor(
+                new int[] {1, 1, 1, 1, 1, 3, 5},
+                /* value= */ 2,
+                /* inclusive= */ true,
+                /* stayInBounds= */ false))
         .isEqualTo(4);
   }
 
   @Test
-  public void testListBinarySearchFloor_emptyList() {
-    List<Integer> list = Arrays.asList(1, 3, 5);
-    int target = 0;
-
-    assertThat(binarySearchFloor(list, target, /* inclusive= */ false, /* stayInBounds= */ false))
+  public void longArrayBinarySearchFloor_emptyArrayAndStayInBoundsFalse_returnsMinus1() {
+    assertThat(
+            binarySearchFloor(
+                new LongArray(), /* value= */ 0, /* inclusive= */ false, /* stayInBounds= */ false))
         .isEqualTo(-1);
-    assertThat(binarySearchFloor(list, target, /* inclusive= */ false, /* stayInBounds= */ true))
+  }
+
+  @Test
+  public void longArrayBinarySearchFloor_emptyArrayAndStayInBoundsTrue_returns0() {
+    assertThat(
+            binarySearchFloor(
+                new LongArray(), /* value= */ 0, /* inclusive= */ false, /* stayInBounds= */ true))
         .isEqualTo(0);
   }
 
   @Test
-  public void testListBinarySearchFloor_targetSmallerThanListValues() {
-    List<Integer> list = Arrays.asList(1, 3, 5);
-    int target = 0;
+  public void
+      longArrayBinarySearchFloor_targetSmallerThanValuesAndStayInBoundsFalse_returnsMinus1() {
+    LongArray longArray = new LongArray();
+    longArray.add(1);
+    longArray.add(3);
+    longArray.add(5);
 
-    assertThat(binarySearchFloor(list, target, /* inclusive= */ false, /* stayInBounds= */ false))
+    assertThat(
+            binarySearchFloor(
+                longArray, /* value= */ 0, /* inclusive= */ false, /* stayInBounds= */ false))
         .isEqualTo(-1);
-    assertThat(binarySearchFloor(list, target, /* inclusive= */ false, /* stayInBounds= */ true))
+  }
+
+  @Test
+  public void longArrayBinarySearchFloor_targetSmallerThanValuesAndStayInBoundsTrue_returns0() {
+    LongArray longArray = new LongArray();
+    longArray.add(1);
+    longArray.add(3);
+    longArray.add(5);
+
+    assertThat(
+            binarySearchFloor(
+                longArray, /* value= */ 0, /* inclusive= */ false, /* stayInBounds= */ true))
         .isEqualTo(0);
   }
 
   @Test
-  public void testListBinarySearchFloor_targetBiggerThanListValues() {
-    List<Integer> list = Arrays.asList(1, 3, 5);
-    int target = 6;
+  public void longArrayBinarySearchFloor_targetBiggerThanValues_returnsLastIndex() {
+    LongArray longArray = new LongArray();
+    longArray.add(1);
+    longArray.add(3);
+    longArray.add(5);
 
-    assertThat(binarySearchFloor(list, target, /* inclusive= */ false, /* stayInBounds= */ false))
+    assertThat(
+            binarySearchFloor(
+                longArray, /* value= */ 6, /* inclusive= */ false, /* stayInBounds= */ false))
         .isEqualTo(2);
   }
 
   @Test
-  public void testListBinarySearchFloor_targetInList() {
-    List<Integer> list = Arrays.asList(1, 1, 1, 1, 1, 3, 5);
-    int target = 1;
+  public void
+      longArrayBinarySearchFloor_targetEqualToFirstValueAndInclusiveFalseAndStayInBoundsFalse_returnsMinus1() {
+    LongArray longArray = new LongArray();
+    longArray.add(1);
+    longArray.add(1);
+    longArray.add(1);
+    longArray.add(1);
+    longArray.add(1);
+    longArray.add(3);
+    longArray.add(5);
 
-    assertThat(binarySearchFloor(list, target, /* inclusive= */ false, /* stayInBounds= */ false))
-        .isEqualTo(-1);
-    assertThat(binarySearchFloor(list, target, /* inclusive= */ false, /* stayInBounds= */ true))
-        .isEqualTo(0);
-    assertThat(binarySearchFloor(list, target, /* inclusive= */ true, /* stayInBounds= */ false))
-        .isEqualTo(0);
-  }
-
-  @Test
-  public void testListBinarySearchFloor_targetBetweenListValues() {
-    List<Integer> list = Arrays.asList(1, 1, 1, 1, 1, 3, 5);
-    int target = 2;
-
-    assertThat(binarySearchFloor(list, target, /* inclusive= */ false, /* stayInBounds= */ false))
-        .isEqualTo(4);
-    assertThat(binarySearchFloor(list, target, /* inclusive= */ true, /* stayInBounds= */ false))
-        .isEqualTo(4);
-  }
-
-  @Test
-  public void testArrayBinarySearchCeil_emptyArray() {
-    long[] array = new long[0];
-    int target = 0;
-
-    assertThat(binarySearchCeil(array, target, /* inclusive= */ false, /* stayInBounds= */ false))
-        .isEqualTo(0);
-    assertThat(binarySearchCeil(array, target, /* inclusive= */ false, /* stayInBounds= */ true))
+    assertThat(
+            binarySearchFloor(
+                longArray, /* value= */ 1, /* inclusive= */ false, /* stayInBounds= */ false))
         .isEqualTo(-1);
   }
 
   @Test
-  public void testArrayBinarySearchCeil_targetSmallerThanArrayValues() {
-    long[] array = new long[] {1, 3, 5};
-    int target = 0;
+  public void
+      longArrayBinarySearchFloor_targetEqualToFirstValueAndInclusiveFalseAndStayInBoundsTrue_returns0() {
+    LongArray longArray = new LongArray();
+    longArray.add(1);
+    longArray.add(1);
+    longArray.add(1);
+    longArray.add(1);
+    longArray.add(1);
+    longArray.add(3);
+    longArray.add(5);
 
-    assertThat(binarySearchCeil(array, target, /* inclusive= */ false, /* stayInBounds= */ false))
+    assertThat(
+            binarySearchFloor(
+                longArray, /* value= */ 1, /* inclusive= */ false, /* stayInBounds= */ true))
         .isEqualTo(0);
   }
 
   @Test
-  public void testArrayBinarySearchCeil_targetBiggerThanArrayValues() {
-    long[] array = new long[] {1, 3, 5};
-    int target = 6;
+  public void
+      longArrayBinarySearchFloor_targetInArrayAndInclusiveTrue_returnsFirstIndexWithValueEqualToTarget() {
+    LongArray longArray = new LongArray();
+    longArray.add(1);
+    longArray.add(1);
+    longArray.add(1);
+    longArray.add(1);
+    longArray.add(1);
+    longArray.add(3);
+    longArray.add(5);
 
-    assertThat(binarySearchCeil(array, target, /* inclusive= */ false, /* stayInBounds= */ false))
+    assertThat(
+            binarySearchFloor(
+                longArray, /* value= */ 1, /* inclusive= */ true, /* stayInBounds= */ false))
+        .isEqualTo(0);
+  }
+
+  @Test
+  public void
+      longArrayBinarySearchFloor_targetBetweenValuesAndInclusiveFalse_returnsIndexWhereTargetShouldBeInserted() {
+    LongArray longArray = new LongArray();
+    longArray.add(1);
+    longArray.add(1);
+    longArray.add(1);
+    longArray.add(1);
+    longArray.add(1);
+    longArray.add(3);
+    longArray.add(5);
+
+    assertThat(
+            binarySearchFloor(
+                longArray, /* value= */ 2, /* inclusive= */ false, /* stayInBounds= */ false))
+        .isEqualTo(4);
+  }
+
+  @Test
+  public void
+      longArrayBinarySearchFloor_targetBetweenValuesAndInclusiveTrue_returnsIndexWhereTargetShouldBeInserted() {
+    LongArray longArray = new LongArray();
+    longArray.add(1);
+    longArray.add(1);
+    longArray.add(1);
+    longArray.add(1);
+    longArray.add(1);
+    longArray.add(3);
+    longArray.add(5);
+
+    assertThat(
+            binarySearchFloor(
+                longArray, /* value= */ 2, /* inclusive= */ true, /* stayInBounds= */ false))
+        .isEqualTo(4);
+  }
+
+  @Test
+  public void listBinarySearchFloor_emptyListAndStayInBoundsFalse_returnsMinus1() {
+    assertThat(
+            binarySearchFloor(
+                new ArrayList<>(),
+                /* value= */ 0,
+                /* inclusive= */ false,
+                /* stayInBounds= */ false))
+        .isEqualTo(-1);
+  }
+
+  @Test
+  public void listBinarySearchFloor_emptyListAndStayInBoundsTrue_returns0() {
+    assertThat(
+            binarySearchFloor(
+                new ArrayList<>(),
+                /* value= */ 0,
+                /* inclusive= */ false,
+                /* stayInBounds= */ true))
+        .isEqualTo(0);
+  }
+
+  @Test
+  public void listBinarySearchFloor_targetSmallerThanValuesAndStayInBoundsFalse_returnsMinus1() {
+    assertThat(
+            binarySearchFloor(
+                Arrays.asList(1, 3, 5),
+                /* value= */ 0,
+                /* inclusive= */ false,
+                /* stayInBounds= */ false))
+        .isEqualTo(-1);
+  }
+
+  @Test
+  public void listBinarySearchFloor_targetSmallerThanValuesAndStayInBoundsTrue_returns0() {
+    assertThat(
+            binarySearchFloor(
+                Arrays.asList(1, 3, 5),
+                /* value= */ 0,
+                /* inclusive= */ false,
+                /* stayInBounds= */ true))
+        .isEqualTo(0);
+  }
+
+  @Test
+  public void listBinarySearchFloor_targetBiggerThanValues_returnsLastIndex() {
+    assertThat(
+            binarySearchFloor(
+                Arrays.asList(1, 3, 5),
+                /* value= */ 6,
+                /* inclusive= */ false,
+                /* stayInBounds= */ false))
+        .isEqualTo(2);
+  }
+
+  @Test
+  public void
+      listBinarySearchFloor_targetEqualToFirstValueAndInclusiveFalseAndStayInBoundsFalse_returnsMinus1() {
+    assertThat(
+            binarySearchFloor(
+                Arrays.asList(1, 1, 1, 1, 1, 3, 5),
+                /* value= */ 1,
+                /* inclusive= */ false,
+                /* stayInBounds= */ false))
+        .isEqualTo(-1);
+  }
+
+  @Test
+  public void
+      listBinarySearchFloor_targetEqualToFirstValueAndInclusiveFalseAndStayInBoundsTrue_returns0() {
+    assertThat(
+            binarySearchFloor(
+                Arrays.asList(1, 1, 1, 1, 1, 3, 5),
+                /* value= */ 1,
+                /* inclusive= */ false,
+                /* stayInBounds= */ true))
+        .isEqualTo(0);
+  }
+
+  @Test
+  public void
+      listBinarySearchFloor_targetInListAndInclusiveTrue_returnsFirstIndexWithValueEqualToTarget() {
+    assertThat(
+            binarySearchFloor(
+                Arrays.asList(1, 1, 1, 1, 1, 3, 5),
+                /* value= */ 1,
+                /* inclusive= */ true,
+                /* stayInBounds= */ false))
+        .isEqualTo(0);
+  }
+
+  @Test
+  public void
+      listBinarySearchFloor_targetBetweenValuesAndInclusiveFalse_returnsIndexWhereTargetShouldBeInserted() {
+    assertThat(
+            binarySearchFloor(
+                Arrays.asList(1, 1, 1, 1, 1, 3, 5),
+                /* value= */ 2,
+                /* inclusive= */ false,
+                /* stayInBounds= */ false))
+        .isEqualTo(4);
+  }
+
+  @Test
+  public void
+      listBinarySearchFloor_targetBetweenValuesAndInclusiveTrue_returnsIndexWhereTargetShouldBeInserted() {
+    assertThat(
+            binarySearchFloor(
+                Arrays.asList(1, 1, 1, 1, 1, 3, 5),
+                /* value= */ 2,
+                /* inclusive= */ true,
+                /* stayInBounds= */ false))
+        .isEqualTo(4);
+  }
+
+  @Test
+  public void arrayBinarySearchCeil_emptyArrayAndStayInBoundsFalse_returns0() {
+    assertThat(
+            binarySearchCeil(
+                new int[0], /* value= */ 0, /* inclusive= */ false, /* stayInBounds= */ false))
+        .isEqualTo(0);
+  }
+
+  @Test
+  public void arrayBinarySearchCeil_emptyArrayAndStayInBoundsTrue_returnsMinus1() {
+    assertThat(
+            binarySearchCeil(
+                new int[0], /* value= */ 0, /* inclusive= */ false, /* stayInBounds= */ true))
+        .isEqualTo(-1);
+  }
+
+  @Test
+  public void arrayBinarySearchCeil_targetSmallerThanValues_returns0() {
+    assertThat(
+            binarySearchCeil(
+                new int[] {1, 3, 5},
+                /* value= */ 0,
+                /* inclusive= */ false,
+                /* stayInBounds= */ false))
+        .isEqualTo(0);
+  }
+
+  @Test
+  public void arrayBinarySearchCeil_targetBiggerThanValuesAndStayInBoundsFalse_returnsLength() {
+    assertThat(
+            binarySearchCeil(
+                new int[] {1, 3, 5},
+                /* value= */ 6,
+                /* inclusive= */ false,
+                /* stayInBounds= */ false))
         .isEqualTo(3);
-    assertThat(binarySearchCeil(array, target, /* inclusive= */ false, /* stayInBounds= */ true))
+  }
+
+  @Test
+  public void arrayBinarySearchCeil_targetBiggerThanValuesAndStayInBoundsTrue_returnsLastIndex() {
+    assertThat(
+            binarySearchCeil(
+                new int[] {1, 3, 5},
+                /* value= */ 6,
+                /* inclusive= */ false,
+                /* stayInBounds= */ true))
         .isEqualTo(2);
   }
 
   @Test
-  public void testArrayBinarySearchCeil_targetInArray() {
-    long[] array = new long[] {1, 3, 5, 5, 5, 5, 5};
-    int target = 5;
-
-    assertThat(binarySearchCeil(array, target, /* inclusive= */ false, /* stayInBounds= */ false))
+  public void
+      arrayBinarySearchCeil_targetEqualToLastValueAndInclusiveFalseAndStayInBoundsFalse_returnsLength() {
+    assertThat(
+            binarySearchCeil(
+                new int[] {1, 3, 5, 5, 5, 5, 5},
+                /* value= */ 5,
+                /* inclusive= */ false,
+                /* stayInBounds= */ false))
         .isEqualTo(7);
-    assertThat(binarySearchCeil(array, target, /* inclusive= */ false, /* stayInBounds= */ true))
-        .isEqualTo(6);
-    assertThat(binarySearchCeil(array, target, /* inclusive= */ true, /* stayInBounds= */ false))
+  }
+
+  @Test
+  public void
+      arrayBinarySearchCeil_targetEqualToLastValueAndInclusiveFalseAndStayInBoundsTrue_returnsLastIndex() {
+    assertThat(
+            binarySearchCeil(
+                new int[] {1, 3, 5, 5, 5, 5, 5},
+                /* value= */ 5,
+                /* inclusive= */ false,
+                /* stayInBounds= */ true))
         .isEqualTo(6);
   }
 
   @Test
-  public void testArrayBinarySearchCeil_targetBetweenArrayValues() {
-    long[] array = new long[] {1, 3, 5, 5, 5, 5, 5};
-    int target = 4;
+  public void
+      arrayBinarySearchCeil_targetInArrayAndInclusiveTrue_returnsLastIndexWithValueEqualToTarget() {
+    assertThat(
+            binarySearchCeil(
+                new int[] {1, 3, 5, 5, 5, 5, 5},
+                /* value= */ 5,
+                /* inclusive= */ true,
+                /* stayInBounds= */ false))
+        .isEqualTo(6);
+  }
 
-    assertThat(binarySearchCeil(array, target, /* inclusive= */ false, /* stayInBounds= */ false))
-        .isEqualTo(2);
-    assertThat(binarySearchCeil(array, target, /* inclusive= */ true, /* stayInBounds= */ false))
+  @Test
+  public void
+      arrayBinarySearchCeil_targetBetweenValuesAndInclusiveFalse_returnsIndexWhereTargetShouldBeInserted() {
+    assertThat(
+            binarySearchCeil(
+                new int[] {1, 3, 5, 5, 5, 5, 5},
+                /* value= */ 4,
+                /* inclusive= */ false,
+                /* stayInBounds= */ false))
         .isEqualTo(2);
   }
 
   @Test
-  public void testListBinarySearchCeil_emptyList() {
-    List<Integer> list = new ArrayList<>();
-    int target = 0;
+  public void
+      arrayBinarySearchCeil_targetBetweenValuesAndInclusiveTrue_returnsIndexWhereTargetShouldBeInserted() {
+    assertThat(
+            binarySearchCeil(
+                new int[] {1, 3, 5, 5, 5, 5, 5},
+                /* value= */ 4,
+                /* inclusive= */ true,
+                /* stayInBounds= */ false))
+        .isEqualTo(2);
+  }
 
-    assertThat(binarySearchCeil(list, target, /* inclusive= */ false, /* stayInBounds= */ false))
+  @Test
+  public void listBinarySearchCeil_emptyListAndStayInBoundsFalse_returns0() {
+    assertThat(
+            binarySearchCeil(
+                new ArrayList<>(),
+                /* value= */ 0,
+                /* inclusive= */ false,
+                /* stayInBounds= */ false))
         .isEqualTo(0);
-    assertThat(binarySearchCeil(list, target, /* inclusive= */ false, /* stayInBounds= */ true))
+  }
+
+  @Test
+  public void listBinarySearchCeil_emptyListAndStayInBoundsTrue_returnsMinus1() {
+    assertThat(
+            binarySearchCeil(
+                new ArrayList<>(),
+                /* value= */ 0,
+                /* inclusive= */ false,
+                /* stayInBounds= */ true))
         .isEqualTo(-1);
   }
 
   @Test
-  public void testListBinarySearchCeil_targetSmallerThanListValues() {
-    List<Integer> list = Arrays.asList(1, 3, 5);
-    int target = 0;
-
-    assertThat(binarySearchCeil(list, target, /* inclusive= */ false, /* stayInBounds= */ false))
+  public void listBinarySearchCeil_targetSmallerThanValues_returns0() {
+    assertThat(
+            binarySearchCeil(
+                Arrays.asList(1, 3, 5),
+                /* value= */ 0,
+                /* inclusive= */ false,
+                /* stayInBounds= */ false))
         .isEqualTo(0);
   }
 
   @Test
-  public void testListBinarySearchCeil_targetBiggerThanListValues() {
-    List<Integer> list = Arrays.asList(1, 3, 5);
-    int target = 6;
-
-    assertThat(binarySearchCeil(list, target, /* inclusive= */ false, /* stayInBounds= */ false))
+  public void listBinarySearchCeil_targetBiggerThanValuesAndStayInBoundsFalse_returnsLength() {
+    assertThat(
+            binarySearchCeil(
+                Arrays.asList(1, 3, 5),
+                /* value= */ 6,
+                /* inclusive= */ false,
+                /* stayInBounds= */ false))
         .isEqualTo(3);
-    assertThat(binarySearchCeil(list, target, /* inclusive= */ false, /* stayInBounds= */ true))
+  }
+
+  @Test
+  public void listBinarySearchCeil_targetBiggerThanValuesAndStayInBoundsTrue_returnsLastIndex() {
+    assertThat(
+            binarySearchCeil(
+                Arrays.asList(1, 3, 5),
+                /* value= */ 6,
+                /* inclusive= */ false,
+                /* stayInBounds= */ true))
         .isEqualTo(2);
   }
 
   @Test
-  public void testListBinarySearchCeil_targetInList() {
-    List<Integer> list = Arrays.asList(1, 3, 5, 5, 5, 5, 5);
-    int target = 5;
-
-    assertThat(binarySearchCeil(list, target, /* inclusive= */ false, /* stayInBounds= */ false))
+  public void
+      listBinarySearchCeil_targetEqualToLastValueAndInclusiveFalseAndStayInBoundsFalse_returnsLength() {
+    assertThat(
+            binarySearchCeil(
+                Arrays.asList(1, 3, 5, 5, 5, 5, 5),
+                /* value= */ 5,
+                /* inclusive= */ false,
+                /* stayInBounds= */ false))
         .isEqualTo(7);
-    assertThat(binarySearchCeil(list, target, /* inclusive= */ false, /* stayInBounds= */ true))
-        .isEqualTo(6);
-    assertThat(binarySearchCeil(list, target, /* inclusive= */ true, /* stayInBounds= */ false))
+  }
+
+  @Test
+  public void
+      listBinarySearchCeil_targetEqualToLastValueAndInclusiveFalseAndStayInBoundsTrue_returnsLastIndex() {
+    assertThat(
+            binarySearchCeil(
+                Arrays.asList(1, 3, 5, 5, 5, 5, 5),
+                /* value= */ 5,
+                /* inclusive= */ false,
+                /* stayInBounds= */ true))
         .isEqualTo(6);
   }
 
   @Test
-  public void testListBinarySearchCeil_targetBetweenListValues() {
-    List<Integer> list = Arrays.asList(1, 3, 5, 5, 5, 5, 5);
-    int target = 4;
+  public void
+      listBinarySearchCeil_targetInListAndInclusiveTrue_returnsLastIndexWithValueEqualToTarget() {
+    assertThat(
+            binarySearchCeil(
+                Arrays.asList(1, 3, 5, 5, 5, 5, 5),
+                /* value= */ 5,
+                /* inclusive= */ true,
+                /* stayInBounds= */ false))
+        .isEqualTo(6);
+  }
 
-    assertThat(binarySearchCeil(list, target, /* inclusive= */ false, /* stayInBounds= */ false))
+  @Test
+  public void
+      listBinarySearchCeil_targetBetweenValuesAndInclusiveFalse_returnsIndexWhereTargetShouldBeInserted() {
+    assertThat(
+            binarySearchCeil(
+                Arrays.asList(1, 3, 5, 5, 5, 5, 5),
+                /* value= */ 4,
+                /* inclusive= */ false,
+                /* stayInBounds= */ false))
         .isEqualTo(2);
-    assertThat(binarySearchCeil(list, target, /* inclusive= */ true, /* stayInBounds= */ false))
+  }
+
+  @Test
+  public void
+      listBinarySearchCeil_targetBetweenValuesAndInclusiveTrue_returnsIndexWhereTargetShouldBeInserted() {
+    assertThat(
+            binarySearchCeil(
+                Arrays.asList(1, 3, 5, 5, 5, 5, 5),
+                /* value= */ 4,
+                /* inclusive= */ true,
+                /* stayInBounds= */ false))
         .isEqualTo(2);
   }
 

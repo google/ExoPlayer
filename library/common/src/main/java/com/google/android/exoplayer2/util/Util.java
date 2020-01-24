@@ -835,6 +835,47 @@ public final class Util {
   }
 
   /**
+   * Returns the index of the largest element in {@code longArray} that is less than (or optionally
+   * equal to) a specified {@code value}.
+   *
+   * <p>The search is performed using a binary search algorithm, so the array must be sorted. If the
+   * array contains multiple elements equal to {@code value} and {@code inclusive} is true, the
+   * index of the first one will be returned.
+   *
+   * @param longArray The array to search.
+   * @param value The value being searched for.
+   * @param inclusive If the value is present in the array, whether to return the corresponding
+   *     index. If false then the returned index corresponds to the largest element strictly less
+   *     than the value.
+   * @param stayInBounds If true, then 0 will be returned in the case that the value is smaller than
+   *     the smallest element in the array. If false then -1 will be returned.
+   * @return The index of the largest element in {@code array} that is less than (or optionally
+   *     equal to) {@code value}.
+   */
+  public static int binarySearchFloor(
+      LongArray longArray, long value, boolean inclusive, boolean stayInBounds) {
+    int lowIndex = 0;
+    int highIndex = longArray.size() - 1;
+
+    while (lowIndex <= highIndex) {
+      int midIndex = (lowIndex + highIndex) >>> 1;
+      if (longArray.get(midIndex) < value) {
+        lowIndex = midIndex + 1;
+      } else {
+        highIndex = midIndex - 1;
+      }
+    }
+
+    if (inclusive && highIndex + 1 < longArray.size() && longArray.get(highIndex + 1) == value) {
+      highIndex++;
+    } else if (stayInBounds && highIndex == -1) {
+      highIndex = 0;
+    }
+
+    return highIndex;
+  }
+
+  /**
    * Returns the index of the smallest element in {@code array} that is greater than (or optionally
    * equal to) a specified {@code value}.
    *
