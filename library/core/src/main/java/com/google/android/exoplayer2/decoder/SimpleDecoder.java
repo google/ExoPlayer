@@ -62,12 +62,13 @@ public abstract class SimpleDecoder<
     for (int i = 0; i < availableOutputBufferCount; i++) {
       availableOutputBuffers[i] = createOutputBuffer();
     }
-    decodeThread = new Thread() {
-      @Override
-      public void run() {
-        SimpleDecoder.this.run();
-      }
-    };
+    decodeThread =
+        new Thread("SimpleDecoder:Decode") {
+          @Override
+          public void run() {
+            SimpleDecoder.this.run();
+          }
+        };
     decodeThread.start();
   }
 
