@@ -18,8 +18,10 @@ if (gradle.ext.has('exoplayerModulePrefix')) {
 }
 
 include modulePrefix + 'library'
+include modulePrefix + 'library-common'
 include modulePrefix + 'library-core'
 include modulePrefix + 'library-dash'
+include modulePrefix + 'library-extractor'
 include modulePrefix + 'library-hls'
 include modulePrefix + 'library-smoothstreaming'
 include modulePrefix + 'library-ui'
@@ -41,8 +43,10 @@ include modulePrefix + 'extension-jobdispatcher'
 include modulePrefix + 'extension-workmanager'
 
 project(modulePrefix + 'library').projectDir = new File(rootDir, 'library/all')
+project(modulePrefix + 'library-common').projectDir = new File(rootDir, 'library/common')
 project(modulePrefix + 'library-core').projectDir = new File(rootDir, 'library/core')
 project(modulePrefix + 'library-dash').projectDir = new File(rootDir, 'library/dash')
+project(modulePrefix + 'library-extractor').projectDir = new File(rootDir, 'library/extractor')
 project(modulePrefix + 'library-hls').projectDir = new File(rootDir, 'library/hls')
 project(modulePrefix + 'library-smoothstreaming').projectDir = new File(rootDir, 'library/smoothstreaming')
 project(modulePrefix + 'library-ui').projectDir = new File(rootDir, 'library/ui')
