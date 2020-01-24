@@ -190,24 +190,7 @@ public final class Mp3Extractor implements Extractor {
       }
     }
     if (seeker == null) {
-      // Read past any seek frame and set the seeker based on metadata or a seek frame. Metadata
-      // takes priority as it can provide greater precision.
-      Seeker seekFrameSeeker = maybeReadSeekFrame(input);
-      Seeker metadataSeeker = maybeHandleSeekMetadata(metadata, input.getPosition());
-
-      if (disableSeeking) {
-        seeker = new UnseekableSeeker();
-      } else {
-        if (metadataSeeker != null) {
-          seeker = metadataSeeker;
-        } else if (seekFrameSeeker != null) {
-          seeker = seekFrameSeeker;
-        }
-        if (seeker == null
-            || (!seeker.isSeekable() && (flags & FLAG_ENABLE_CONSTANT_BITRATE_SEEKING) != 0)) {
-          seeker = getConstantBitrateSeeker(input);
-        }
-      }
+      seeker = computeSeeker(input);
       extractorOutput.seekMap(seeker);
       trackOutput.format(
           Format.createAudioSampleFormat(
@@ -383,6 +366,31 @@ public final class Mp3Extractor implements Extractor {
     } catch (EOFException e) {
       return true;
     }
+  }
+
+  private Seeker computeSeeker(ExtractorInput input) throws IOException, InterruptedException {
+    // Read past any seek frame and set the seeker based on metadata or a seek frame. Metadata
+    // takes priority as it can provide greater precision.
+    Seeker seekFrameSeeker = maybeReadSeekFrame(input);
+    Seeker metadataSeeker = maybeHandleSeekMetadata(metadata, input.getPosition());
+
+    if (disableSeeking) {
+      return new UnseekableSeeker();
+    }
+
+    @Nullable Seeker resultSeeker = null;
+    if (metadataSeeker != null) {
+      resultSeeker = metadataSeeker;
+    } else if (seekFrameSeeker != null) {
+      resultSeeker = seekFrameSeeker;
+    }
+
+    if (resultSeeker == null
+        || (!resultSeeker.isSeekable() && (flags & FLAG_ENABLE_CONSTANT_BITRATE_SEEKING) != 0)) {
+      resultSeeker = getConstantBitrateSeeker(input);
+    }
+
+    return resultSeeker;
   }
 
   /**
