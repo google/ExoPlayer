@@ -73,31 +73,31 @@ public final class DashMediaPeriodTest {
                 createAdaptationSet(
                     /* id= */ 100,
                     /* trackType= */ C.TRACK_TYPE_VIDEO,
-                    /* descriptor= */ createSwitchDescriptor(/* ids= */ 103, 104),
+                    /* descriptor= */ createSwitchDescriptor(/* ids...= */ 103, 104),
                     createVideoRepresentationWithInbandEventStream(/* bitrate= */ 200000),
                     createVideoRepresentationWithInbandEventStream(/* bitrate= */ 400000),
                     createVideoRepresentationWithInbandEventStream(/* bitrate= */ 600000)),
                 createAdaptationSet(
                     /* id= */ 101,
                     /* trackType= */ C.TRACK_TYPE_AUDIO,
-                    /* descriptor= */ createSwitchDescriptor(/* ids= */ 102),
+                    /* descriptor= */ createSwitchDescriptor(/* ids...= */ 102),
                     createAudioRepresentation(/* bitrate= */ 48000),
                     createAudioRepresentation(/* bitrate= */ 96000)),
                 createAdaptationSet(
                     /* id= */ 102,
                     /* trackType= */ C.TRACK_TYPE_AUDIO,
-                    /* descriptor= */ createSwitchDescriptor(/* ids= */ 101),
+                    /* descriptor= */ createSwitchDescriptor(/* ids...= */ 101),
                     createAudioRepresentation(/* bitrate= */ 256000)),
                 createAdaptationSet(
                     /* id= */ 103,
                     /* trackType= */ C.TRACK_TYPE_VIDEO,
-                    /* descriptor= */ createSwitchDescriptor(/* ids= */ 100, 104),
+                    /* descriptor= */ createSwitchDescriptor(/* ids...= */ 100, 104),
                     createVideoRepresentationWithInbandEventStream(/* bitrate= */ 800000),
                     createVideoRepresentationWithInbandEventStream(/* bitrate= */ 1000000)),
                 createAdaptationSet(
                     /* id= */ 104,
                     /* trackType= */ C.TRACK_TYPE_VIDEO,
-                    /* descriptor= */ createSwitchDescriptor(/* ids= */ 100, 103),
+                    /* descriptor= */ createSwitchDescriptor(/* ids...= */ 100, 103),
                     createVideoRepresentationWithInbandEventStream(/* bitrate= */ 2000000)),
                 createAdaptationSet(
                     /* id= */ 105,
