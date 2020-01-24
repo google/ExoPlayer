@@ -20,7 +20,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.EsInfo;
-import com.google.android.exoplayer2.util.CeaUtil;
+import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.lang.annotation.Documented;
@@ -253,7 +253,8 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
           // The wide_aspect_ratio flag only has meaning for CEA-708.
           if (isDigital) {
             boolean isWideAspectRatio = (flags & 0x40) != 0;
-            initializationData = CeaUtil.getCea708InitializationData(isWideAspectRatio);
+            initializationData =
+                CodecSpecificDataUtil.buildCea708InitializationData(isWideAspectRatio);
           }
 
           closedCaptionFormats.add(

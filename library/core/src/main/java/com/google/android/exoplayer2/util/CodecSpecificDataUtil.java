@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -222,6 +223,31 @@ public final class CodecSpecificDataUtil {
   }
 
   /**
+   * Returns initialization data for formats with MIME type {@link MimeTypes#APPLICATION_CEA708}.
+   *
+   * @param isWideAspectRatio Whether the CEA-708 closed caption service is formatted for displays
+   *     with 16:9 aspect ratio.
+   * @return Initialization data for formats with MIME type {@link MimeTypes#APPLICATION_CEA708}.
+   */
+  public static List<byte[]> buildCea708InitializationData(boolean isWideAspectRatio) {
+    return Collections.singletonList(isWideAspectRatio ? new byte[] {1} : new byte[] {0});
+  }
+
+  /**
+   * Returns whether the CEA-708 closed caption service with the given initialization data is
+   * formatted for displays with 16:9 aspect ratio.
+   *
+   * @param initializationData The initialization data to parse.
+   * @return Whether the CEA-708 closed caption service is formatted for displays with 16:9 aspect
+   *     ratio.
+   */
+  public static boolean parseCea708InitializationData(List<byte[]> initializationData) {
+    return initializationData.size() == 1
+        && initializationData.get(0).length == 1
+        && initializationData.get(0)[0] == 1;
+  }
+
+  /**
    * Builds an RFC 6381 AVC codec string using the provided parameters.
    *
    * @param profileIdc The encoding profile.
@@ -380,5 +406,4 @@ public final class CodecSpecificDataUtil {
       bitArray.skipBits(1); // extensionFlag3.
     }
   }
-
 }

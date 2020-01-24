@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.util;
+package com.google.android.exoplayer2.extractor;
 
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.extractor.TrackOutput;
-import java.util.Collections;
-import java.util.List;
+import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.ParsableByteArray;
 
 /** Utility methods for handling CEA-608/708 messages. Defined in A/53 Part 4:2009. */
 public final class CeaUtil {
@@ -32,30 +31,6 @@ public final class CeaUtil {
   private static final int COUNTRY_CODE = 0xB5;
   private static final int PROVIDER_CODE_ATSC = 0x31;
   private static final int PROVIDER_CODE_DIRECTV = 0x2F;
-
-  /**
-   * Returns initialization data for formats with MIME type {@link MimeTypes#APPLICATION_CEA708}.
-   *
-   * @param isWideAspectRatio Whether the closed caption service is formatted for displays with 16:9
-   *     aspect ratio.
-   * @return Initialization data for formats with MIME type {@link MimeTypes#APPLICATION_CEA708}.
-   */
-  public static List<byte[]> getCea708InitializationData(boolean isWideAspectRatio) {
-    return Collections.singletonList(isWideAspectRatio ? new byte[] {1} : new byte[] {0});
-  }
-
-  /**
-   * Returns whether the closed caption service with the given initialization data is formatted for
-   * displays with 16:9 aspect ratio.
-   *
-   * @param initializationData The initialization data to parse.
-   * @return Whether the closed caption service is formatted for displays with 16:9 aspect ratio.
-   */
-  public static boolean getIsWideAspectRatio(List<byte[]> initializationData) {
-    return initializationData.size() == 1
-        && initializationData.get(0).length == 1
-        && initializationData.get(0)[0] == 1;
-  }
 
   /**
    * Consumes the unescaped content of an SEI NAL unit, writing the content of any CEA-608 messages
