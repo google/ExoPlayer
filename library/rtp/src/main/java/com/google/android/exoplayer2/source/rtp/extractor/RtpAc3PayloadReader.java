@@ -137,11 +137,14 @@ import java.util.Arrays;
 
     private void handleMultipleAc3Frames(ParsableByteArray packet, int numFrames) {
         int bytesRead = 0;
+        int offset = packet.getPosition();
         long firstSampleTimestampUs = timestampAdjuster.getSampleTimeUs();
+
         packet.readBytes(headerScratchBytes.data, 0, packet.bytesLeft());
+        packet.setPosition(offset);
 
         while (numFrames-- > 0) {
-            headerScratchBits.setPosition(bytesRead);
+            headerScratchBits.setPosition(bytesRead * 8);
             Ac3Util.SyncFrameInfo frameInfo = Ac3Util.parseAc3SyncframeInfo(headerScratchBits);
 
             output.sampleData(packet, frameInfo.frameSize);
