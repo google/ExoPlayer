@@ -38,12 +38,6 @@
   <init>(android.os.Handler, com.google.android.exoplayer2.audio.AudioRendererEventListener, com.google.android.exoplayer2.audio.AudioProcessor[]);
 }
 
-# Constructors accessed via reflection in DefaultExtractorsFactory
--dontnote com.google.android.exoplayer2.ext.flac.FlacExtractor
--keepclassmembers class com.google.android.exoplayer2.ext.flac.FlacExtractor {
-  <init>();
-}
-
 # Constructors accessed via reflection in DefaultDataSource
 -dontnote com.google.android.exoplayer2.ext.rtmp.RtmpDataSource
 -keepclassmembers class com.google.android.exoplayer2.ext.rtmp.RtmpDataSource {

@@ -1,4 +1,4 @@
-// Copyright (C) 2016 The Android Open Source Project
+// Copyright (C) 2020 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-apply plugin: 'com.android.library'
 apply from: '../../constants.gradle'
+apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion project.ext.compileSdkVersion
@@ -25,14 +25,6 @@ android {
     defaultConfig {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
-        consumerProguardFiles 'proguard-rules.txt'
-
-        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
-
-        // The following argument makes the Android Test Orchestrator run its
-        // "pm clear" command after each test invocation. This command ensures
-        // that the app's state is completely cleared between tests.
-        testInstrumentationRunnerArguments clearPackageData: 'true'
     }
 
     buildTypes {
@@ -45,28 +37,21 @@ android {
 }
 
 dependencies {
-    api project(modulePrefix + 'library-common')
-    api project(modulePrefix + 'library-extractor')
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkVersion
-    androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion
-    androidTestImplementation 'com.google.guava:guava:' + guavaVersion
-    androidTestImplementation 'com.linkedin.dexmaker:dexmaker:' + dexmakerVersion
-    androidTestImplementation 'com.linkedin.dexmaker:dexmaker-mockito:' + dexmakerVersion
-    androidTestImplementation project(modulePrefix + 'testutils')
-    testImplementation 'com.google.guava:guava:' + guavaVersion
-    testImplementation 'org.robolectric:robolectric:' + robolectricVersion
+    implementation project(modulePrefix + 'library-common')
     testImplementation project(modulePrefix + 'testutils')
+    testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
 
 ext {
-    javadocTitle = 'Core module'
+    javadocTitle = 'Extractor module'
 }
 apply from: '../../javadoc_library.gradle'
 
 ext {
-    releaseArtifact = 'exoplayer-core'
-    releaseDescription = 'The ExoPlayer library core module.'
+    releaseArtifact = 'exoplayer-extractor'
+    releaseDescription = 'The ExoPlayer library extractor module.'
 }
 apply from: '../../publish.gradle'
