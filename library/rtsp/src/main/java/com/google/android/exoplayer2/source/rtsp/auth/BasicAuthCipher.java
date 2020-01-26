@@ -38,7 +38,7 @@ public final class BasicAuthCipher extends AuthCipher {
     @Override
     public String token() {
         String token = username + ":" + password;
-        return Base64.encode(token.getBytes(), Base64.DEFAULT).toString();
+        return new String(Base64.encode(token.getBytes(), Base64.NO_WRAP));
     }
 
     public static final class Builder implements AuthCipher.Builder {
