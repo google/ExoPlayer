@@ -44,6 +44,9 @@ cd "${FFMPEG_EXT_PATH}"
 (git -C ffmpeg pull || git clone git://source.ffmpeg.org/ffmpeg ffmpeg)
 cd ffmpeg
 git checkout release/4.2
+
+echo "Common options: $COMMON_OPTIONS"
+make clean
 ./configure \
     --libdir=android-libs/armeabi-v7a \
     --arch=arm \
@@ -77,6 +80,19 @@ make clean
     --cross-prefix="${TOOLCHAIN_PREFIX}/i686-linux-android16-" \
     --nm="${TOOLCHAIN_PREFIX}/i686-linux-android-nm" \
     --strip="${TOOLCHAIN_PREFIX}/i686-linux-android-strip" \
+    --extra-ldexeflags=-pie \
+    --disable-asm \
+    ${COMMON_OPTIONS}
+make -j4
+make install-libs
+make clean
+./configure \
+    --libdir=android-libs/x86_64 \
+    --arch=x86_64 \
+    --cpu=x86_64 \
+    --cross-prefix="${TOOLCHAIN_PREFIX}/x86_64-linux-android21-" \
+    --nm="${TOOLCHAIN_PREFIX}/x86_64-linux-android-nm" \
+    --strip="${TOOLCHAIN_PREFIX}/x86_64-linux-android-strip" \
     --extra-ldexeflags=-pie \
     --disable-asm \
     ${COMMON_OPTIONS}
