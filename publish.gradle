@@ -14,14 +14,21 @@
 if (project.ext.has("exoplayerPublishEnabled")
         && project.ext.exoplayerPublishEnabled) {
     apply plugin: 'bintray-release'
+
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
     publish {
+        bintrayUser = properties.getProperty("bintray.user")
+        bintrayKey = properties.getProperty("bintray.apikey")
         artifactId = releaseArtifact
         desc = releaseDescription
         publishVersion = releaseVersion
-        repoName = getBintrayRepo()
-        userOrg = 'google'
-        groupId = 'com.google.android.exoplayer'
-        website = 'https://github.com/google/ExoPlayer'
+        repoName = 'ExoPlayer'
+        userOrg = 'rsiebert'
+        groupId = 'org.tvheadend.tvhclient.exoplayer'
+        website = 'https://github.com/rsiebert/ExoPlayer'
+        dryRun = false
     }
 
     gradle.taskGraph.whenReady { taskGraph ->
@@ -38,12 +45,6 @@ if (project.ext.has("exoplayerPublishEnabled")
                     }
                 }
     }
-}
-
-def getBintrayRepo() {
-    boolean publicRepo = hasProperty('publicRepo') &&
-        property('publicRepo').toBoolean()
-    return publicRepo ? 'exoplayer' : 'exoplayer-test'
 }
 
 static void addLicense(File pom) {
