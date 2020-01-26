@@ -48,3 +48,9 @@ ext {
     javadocTitle = 'FFmpeg extension'
 }
 apply from: '../../javadoc_library.gradle'
+
+ext {
+    releaseArtifact = 'extension-ffmpeg'
+    releaseDescription = 'FFmpeg extension for ExoPlayer.'
+}
+apply from: '../../publish.gradle'
