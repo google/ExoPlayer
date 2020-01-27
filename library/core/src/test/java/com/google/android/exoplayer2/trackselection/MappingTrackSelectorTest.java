@@ -89,7 +89,7 @@ public final class MappingTrackSelectorTest {
   }
 
   @Test
-  public void selectTracks_audioAndVideo_sameOrderAsRenderers_mappedToCorectRenderer()
+  public void selectTracks_audioAndVideo_sameOrderAsRenderers_mappedToCorrectRenderer()
       throws ExoPlaybackException {
     FakeMappingTrackSelector trackSelector = new FakeMappingTrackSelector();
     RendererCapabilities[] rendererCapabilities =
@@ -103,7 +103,7 @@ public final class MappingTrackSelectorTest {
   }
 
   @Test
-  public void selectTracks_audioAndVideo_reverseOrderToRenderers_mappedToCorectRenderer()
+  public void selectTracks_audioAndVideo_reverseOrderToRenderers_mappedToCorrectRenderer()
       throws ExoPlaybackException {
     FakeMappingTrackSelector trackSelector = new FakeMappingTrackSelector();
     TrackGroupArray trackGroups = new TrackGroupArray(VIDEO_TRACK_GROUP, AUDIO_TRACK_GROUP);

@@ -139,7 +139,7 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
    * starts with {@code [} (i.e. the title of the next section).
    *
    * @param data A {@link ParsableByteArray} with {@link ParsableByteArray#getPosition() position}
-   *     set to the beginning of of the first line after {@code [Script Info]}.
+   *     set to the beginning of the first line after {@code [Script Info]}.
    */
   private void parseScriptInfo(ParsableByteArray data) {
     @Nullable String currentLine;
@@ -175,7 +175,7 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
    * starts with {@code [} (i.e. the title of the next section).
    *
    * @param data A {@link ParsableByteArray} with {@link ParsableByteArray#getPosition()} pointing
-   *     at the beginning of of the first line after {@code [V4+ Styles]}.
+   *     at the beginning of the first line after {@code [V4+ Styles]}.
    */
   private static Map<String, SsaStyle> parseStyles(ParsableByteArray data) {
     Map<String, SsaStyle> styles = new LinkedHashMap<>();
