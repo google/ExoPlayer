@@ -3486,22 +3486,8 @@ public final class ExoPlayerTest {
     MediaSource mediaSource2 = new FakeMediaSource(timeline2);
     Timeline expectedDummyTimeline =
         new FakeTimeline(
-            new TimelineWindowDefinition(
-                /* periodCount= */ 1,
-                /* id= */ 1,
-                /* isSeekable= */ false,
-                /* isDynamic= */ true,
-                /* isLive= */ false,
-                /* durationUs= */ C.TIME_UNSET,
-                AdPlaybackState.NONE),
-            new TimelineWindowDefinition(
-                /* periodCount= */ 1,
-                /* id= */ 2,
-                /* isSeekable= */ false,
-                /* isDynamic= */ true,
-                /* isLive= */ false,
-                /* durationUs= */ C.TIME_UNSET,
-                AdPlaybackState.NONE));
+            TimelineWindowDefinition.createDummy(/* tag= */ 1),
+            TimelineWindowDefinition.createDummy(/* tag= */ 2));
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder("testMoveMediaItem")
             .waitForTimelineChanged(
@@ -3573,30 +3559,9 @@ public final class ExoPlayerTest {
 
     Timeline expectedDummyTimeline =
         new FakeTimeline(
-            new TimelineWindowDefinition(
-                /* periodCount= */ 1,
-                /* id= */ 1,
-                /* isSeekable= */ false,
-                /* isDynamic= */ true,
-                /* isLive= */ false,
-                /* durationUs= */ C.TIME_UNSET,
-                AdPlaybackState.NONE),
-            new TimelineWindowDefinition(
-                /* periodCount= */ 1,
-                /* id= */ 2,
-                /* isSeekable= */ false,
-                /* isDynamic= */ true,
-                /* isLive= */ false,
-                /* durationUs= */ C.TIME_UNSET,
-                AdPlaybackState.NONE),
-            new TimelineWindowDefinition(
-                /* periodCount= */ 1,
-                /* id= */ 3,
-                /* isSeekable= */ false,
-                /* isDynamic= */ true,
-                /* isLive= */ false,
-                /* durationUs= */ C.TIME_UNSET,
-                AdPlaybackState.NONE));
+            TimelineWindowDefinition.createDummy(/* tag= */ 1),
+            TimelineWindowDefinition.createDummy(/* tag= */ 2),
+            TimelineWindowDefinition.createDummy(/* tag= */ 3));
     Timeline expectedRealTimeline =
         new FakeTimeline(firstWindowDefinition, secondWindowDefinition, thirdWindowDefinition);
     Timeline expectedRealTimelineAfterRemove =
@@ -3654,30 +3619,9 @@ public final class ExoPlayerTest {
 
     Timeline expectedDummyTimeline =
         new FakeTimeline(
-            new TimelineWindowDefinition(
-                /* periodCount= */ 1,
-                /* id= */ 1,
-                /* isSeekable= */ false,
-                /* isDynamic= */ true,
-                /* isLive= */ false,
-                /* durationUs= */ C.TIME_UNSET,
-                AdPlaybackState.NONE),
-            new TimelineWindowDefinition(
-                /* periodCount= */ 1,
-                /* id= */ 2,
-                /* isSeekable= */ false,
-                /* isDynamic= */ true,
-                /* isLive= */ false,
-                /* durationUs= */ C.TIME_UNSET,
-                AdPlaybackState.NONE),
-            new TimelineWindowDefinition(
-                /* periodCount= */ 1,
-                /* id= */ 3,
-                /* isSeekable= */ false,
-                /* isDynamic= */ true,
-                /* isLive= */ false,
-                /* durationUs= */ C.TIME_UNSET,
-                AdPlaybackState.NONE));
+            TimelineWindowDefinition.createDummy(/* tag= */ 1),
+            TimelineWindowDefinition.createDummy(/* tag= */ 2),
+            TimelineWindowDefinition.createDummy(/* tag= */ 3));
     Timeline expectedRealTimeline =
         new FakeTimeline(firstWindowDefinition, secondWindowDefinition, thirdWindowDefinition);
     Timeline expectedRealTimelineAfterRemove = new FakeTimeline(firstWindowDefinition);
@@ -3819,22 +3763,8 @@ public final class ExoPlayerTest {
         Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE /* source update after prepare */);
     Timeline expectedSecondDummyTimeline =
         new FakeTimeline(
-            new TimelineWindowDefinition(
-                /* periodCount= */ 1,
-                /* id= */ 0,
-                /* isSeekable= */ false,
-                /* isDynamic= */ true,
-                /* isLive= */ false,
-                /* durationUs= */ C.TIME_UNSET,
-                AdPlaybackState.NONE),
-            new TimelineWindowDefinition(
-                /* periodCount= */ 1,
-                /* id= */ 0,
-                /* isSeekable= */ false,
-                /* isDynamic= */ true,
-                /* isLive= */ false,
-                /* durationUs= */ C.TIME_UNSET,
-                AdPlaybackState.NONE));
+            TimelineWindowDefinition.createDummy(/* tag= */ 0),
+            TimelineWindowDefinition.createDummy(/* tag= */ 0));
     Timeline expectedSecondRealTimeline =
         new FakeTimeline(
             new TimelineWindowDefinition(

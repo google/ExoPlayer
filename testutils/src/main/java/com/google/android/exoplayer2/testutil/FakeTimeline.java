@@ -42,12 +42,31 @@ public final class FakeTimeline extends Timeline {
     public final boolean isSeekable;
     public final boolean isDynamic;
     public final boolean isLive;
+    public final boolean isPlaceholder;
     public final long durationUs;
     public final AdPlaybackState adPlaybackState;
 
     /**
-     * Creates a seekable, non-dynamic window definition with a duration of
-     * {@link #DEFAULT_WINDOW_DURATION_US}.
+     * Creates a window definition that corresponds to a dummy placeholder timeline using the given
+     * tag.
+     *
+     * @param tag The tag to use in the timeline.
+     */
+    public static TimelineWindowDefinition createDummy(Object tag) {
+      return new TimelineWindowDefinition(
+          /* periodCount= */ 1,
+          /* id= */ tag,
+          /* isSeekable= */ false,
+          /* isDynamic= */ true,
+          /* isLive= */ false,
+          /* isPlaceholder= */ true,
+          /* durationUs= */ C.TIME_UNSET,
+          AdPlaybackState.NONE);
+    }
+
+    /**
+     * Creates a seekable, non-dynamic window definition with a duration of {@link
+     * #DEFAULT_WINDOW_DURATION_US}.
      *
      * @param periodCount The number of periods in the window. Each period get an equal slice of the
      *     total window duration.
@@ -107,6 +126,7 @@ public final class FakeTimeline extends Timeline {
           isSeekable,
           isDynamic,
           /* isLive= */ isDynamic,
+          /* isPlaceholder= */ false,
           durationUs,
           adPlaybackState);
     }
@@ -120,6 +140,7 @@ public final class FakeTimeline extends Timeline {
      * @param isSeekable Whether the window is seekable.
      * @param isDynamic Whether the window is dynamic.
      * @param isLive Whether the window is live.
+     * @param isPlaceholder Whether the window is a placeholder.
      * @param durationUs The duration of the window in microseconds.
      * @param adPlaybackState The ad playback state.
      */
@@ -129,6 +150,7 @@ public final class FakeTimeline extends Timeline {
         boolean isSeekable,
         boolean isDynamic,
         boolean isLive,
+        boolean isPlaceholder,
         long durationUs,
         AdPlaybackState adPlaybackState) {
       this.periodCount = periodCount;
@@ -136,10 +158,10 @@ public final class FakeTimeline extends Timeline {
       this.isSeekable = isSeekable;
       this.isDynamic = isDynamic;
       this.isLive = isLive;
+      this.isPlaceholder = isPlaceholder;
       this.durationUs = durationUs;
       this.adPlaybackState = adPlaybackState;
     }
-
   }
 
   private static final long AD_DURATION_US = 10 * C.MICROS_PER_SECOND;
@@ -222,7 +244,7 @@ public final class FakeTimeline extends Timeline {
   @Override
   public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
     TimelineWindowDefinition windowDefinition = windowDefinitions[windowIndex];
-    return window.set(
+    window.set(
         /* uid= */ windowDefinition.id,
         /* tag= */ windowDefinition.id,
         manifests[windowIndex],
@@ -237,6 +259,8 @@ public final class FakeTimeline extends Timeline {
         periodOffsets[windowIndex],
         periodOffsets[windowIndex + 1] - 1,
         /* positionInFirstPeriodUs= */ 0);
+    window.isPlaceholder = windowDefinition.isPlaceholder;
+    return window;
   }
 
   @Override

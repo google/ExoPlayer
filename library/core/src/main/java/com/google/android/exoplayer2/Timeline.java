@@ -176,6 +176,12 @@ public abstract class Timeline {
      */
     public boolean isLive;
 
+    /**
+     * Whether the information in this window is used as a placeholder for as long as the media
+     * hasn't provided the real information.
+     */
+    public boolean isPlaceholder;
+
     /** The index of the first period that belongs to this window. */
     public int firstPeriodIndex;
 
@@ -238,6 +244,7 @@ public abstract class Timeline {
       this.firstPeriodIndex = firstPeriodIndex;
       this.lastPeriodIndex = lastPeriodIndex;
       this.positionInFirstPeriodUs = positionInFirstPeriodUs;
+      this.isPlaceholder = false;
       return this;
     }
 
@@ -319,6 +326,7 @@ public abstract class Timeline {
           && isSeekable == that.isSeekable
           && isDynamic == that.isDynamic
           && isLive == that.isLive
+          && isPlaceholder == that.isPlaceholder
           && defaultPositionUs == that.defaultPositionUs
           && durationUs == that.durationUs
           && firstPeriodIndex == that.firstPeriodIndex
@@ -340,6 +348,7 @@ public abstract class Timeline {
       result = 31 * result + (isSeekable ? 1 : 0);
       result = 31 * result + (isDynamic ? 1 : 0);
       result = 31 * result + (isLive ? 1 : 0);
+      result = 31 * result + (isPlaceholder ? 1 : 0);
       result = 31 * result + (int) (defaultPositionUs ^ (defaultPositionUs >>> 32));
       result = 31 * result + (int) (durationUs ^ (durationUs >>> 32));
       result = 31 * result + firstPeriodIndex;
