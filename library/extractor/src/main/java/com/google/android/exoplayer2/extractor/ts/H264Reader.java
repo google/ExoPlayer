@@ -560,28 +560,32 @@ public final class H264Reader implements ElementaryStreamReader {
       }
 
       private boolean isFirstVclNalUnitOfPicture(SliceHeaderData other) {
+        if (!isComplete) {
+          return false;
+        }
+        if (!other.isComplete) {
+          return true;
+        }
         // See ISO 14496-10 subsection 7.4.1.2.4.
         SpsData spsData = Assertions.checkStateNotNull(this.spsData);
         SpsData otherSpsData = Assertions.checkStateNotNull(other.spsData);
-        return isComplete
-            && (!other.isComplete
-                || frameNum != other.frameNum
-                || picParameterSetId != other.picParameterSetId
-                || fieldPicFlag != other.fieldPicFlag
-                || (bottomFieldFlagPresent
-                    && other.bottomFieldFlagPresent
-                    && bottomFieldFlag != other.bottomFieldFlag)
-                || (nalRefIdc != other.nalRefIdc && (nalRefIdc == 0 || other.nalRefIdc == 0))
-                || (spsData.picOrderCountType == 0
-                    && otherSpsData.picOrderCountType == 0
-                    && (picOrderCntLsb != other.picOrderCntLsb
-                        || deltaPicOrderCntBottom != other.deltaPicOrderCntBottom))
-                || (spsData.picOrderCountType == 1
-                    && otherSpsData.picOrderCountType == 1
-                    && (deltaPicOrderCnt0 != other.deltaPicOrderCnt0
-                        || deltaPicOrderCnt1 != other.deltaPicOrderCnt1))
-                || idrPicFlag != other.idrPicFlag
-                || (idrPicFlag && idrPicId != other.idrPicId));
+        return frameNum != other.frameNum
+            || picParameterSetId != other.picParameterSetId
+            || fieldPicFlag != other.fieldPicFlag
+            || (bottomFieldFlagPresent
+                && other.bottomFieldFlagPresent
+                && bottomFieldFlag != other.bottomFieldFlag)
+            || (nalRefIdc != other.nalRefIdc && (nalRefIdc == 0 || other.nalRefIdc == 0))
+            || (spsData.picOrderCountType == 0
+                && otherSpsData.picOrderCountType == 0
+                && (picOrderCntLsb != other.picOrderCntLsb
+                    || deltaPicOrderCntBottom != other.deltaPicOrderCntBottom))
+            || (spsData.picOrderCountType == 1
+                && otherSpsData.picOrderCountType == 1
+                && (deltaPicOrderCnt0 != other.deltaPicOrderCnt0
+                    || deltaPicOrderCnt1 != other.deltaPicOrderCnt1))
+            || idrPicFlag != other.idrPicFlag
+            || (idrPicFlag && idrPicId != other.idrPicId);
       }
     }
   }
