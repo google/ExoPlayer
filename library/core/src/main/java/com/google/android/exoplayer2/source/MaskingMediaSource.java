@@ -331,7 +331,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
 
     @Override
     public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
-      return window.set(
+      window.set(
           Window.SINGLE_WINDOW_UID,
           tag,
           /* manifest= */ null,
@@ -347,6 +347,8 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
           /* firstPeriodIndex= */ 0,
           /* lastPeriodIndex= */ 0,
           /* positionInFirstPeriodUs= */ 0);
+      window.isPlaceholder = true;
+      return window;
     }
 
     @Override

@@ -95,6 +95,10 @@ public class TimelineTest {
     assertThat(window).isNotEqualTo(otherWindow);
 
     otherWindow = new Timeline.Window();
+    otherWindow.isPlaceholder = true;
+    assertThat(window).isNotEqualTo(otherWindow);
+
+    otherWindow = new Timeline.Window();
     otherWindow.defaultPositionUs = C.TIME_UNSET;
     assertThat(window).isNotEqualTo(otherWindow);
 
