@@ -31,6 +31,9 @@ import com.google.android.exoplayer2.extractor.ConstantBitrateSeekMap;
    */
   public ConstantBitrateSeeker(
       long inputLength, long firstFramePosition, MpegAudioUtil.Header mpegAudioHeader) {
+    // Set the seeker frame size to the size of the first frame (even though some constant bitrate
+    // streams have variable frame sizes) to avoid the need to re-synchronize for constant frame
+    // size streams.
     super(inputLength, firstFramePosition, mpegAudioHeader.bitrate, mpegAudioHeader.frameSize);
   }
 

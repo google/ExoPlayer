@@ -25,8 +25,14 @@ import org.junit.runner.RunWith;
 public final class Mp3ExtractorTest {
 
   @Test
-  public void testMp3Sample() throws Exception {
-    ExtractorAsserts.assertBehavior(Mp3Extractor::new, "mp3/bear.mp3");
+  public void testMp3SampleWithXingHeader() throws Exception {
+    ExtractorAsserts.assertBehavior(Mp3Extractor::new, "mp3/bear-xing-header.mp3");
+  }
+
+  @Test
+  public void testMp3SampleWithCbrSeeker() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        Mp3Extractor::new, "mp3/bear-cbr-variable-frame-size-no-seek-table.mp3");
   }
 
   @Test

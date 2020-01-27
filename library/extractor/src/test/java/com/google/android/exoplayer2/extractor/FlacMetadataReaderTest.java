@@ -103,7 +103,7 @@ public class FlacMetadataReaderTest {
 
   @Test
   public void checkAndPeekStreamMarker_invalidData_isFalse() throws Exception {
-    ExtractorInput input = buildExtractorInput("mp3/bear.mp3");
+    ExtractorInput input = buildExtractorInput("mp3/bear-xing-header.mp3");
 
     boolean result = FlacMetadataReader.checkAndPeekStreamMarker(input);
 
@@ -163,7 +163,7 @@ public class FlacMetadataReaderTest {
 
   @Test
   public void readStreamMarker_invalidData_throwsException() throws Exception {
-    ExtractorInput input = buildExtractorInput("mp3/bear.mp3");
+    ExtractorInput input = buildExtractorInput("mp3/bear-xing-header.mp3");
 
     assertThrows(ParserException.class, () -> FlacMetadataReader.readStreamMarker(input));
   }
