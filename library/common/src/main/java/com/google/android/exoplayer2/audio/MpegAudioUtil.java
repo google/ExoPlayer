@@ -41,9 +41,9 @@ public final class MpegAudioUtil {
     public int samplesPerFrame;
 
     /**
-     * Populates the fields in this instance to reflect the the MPEG audio header in {@code
-     * headerData}, returning whether the header was valid. If false, the values of the fields in
-     * this instance will not be updated.
+     * Populates the fields in this instance to reflect the MPEG audio header in {@code headerData},
+     * returning whether the header was valid. If false, the values of the fields in this instance
+     * will not be updated.
      *
      * @param headerData Header data to parse.
      * @return True if the fields were populated. False otherwise, indicating that {@code
