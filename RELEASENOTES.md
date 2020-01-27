@@ -71,7 +71,7 @@
   ([#6845](https://github.com/google/ExoPlayer/issues/6845)).
 * Fix MKV subtitles to disappear when intended instead of lasting until the
   next cue ([#6833](https://github.com/google/ExoPlayer/issues/6833)).
-* OkHttp extension: Upgrade OkHttp dependency to 3.12.7, which fixes a class of
+* OkHttp extension: Upgrade OkHttp dependency to 3.12.8, which fixes a class of
   `SocketTimeoutException` issues when using HTTP/2
   ([#4078](https://github.com/google/ExoPlayer/issues/4078)).
 * FLAC extension: Fix handling of bit depths other than 16 in `FLACDecoder`.
