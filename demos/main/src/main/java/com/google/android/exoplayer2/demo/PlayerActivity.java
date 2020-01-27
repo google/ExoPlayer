@@ -435,7 +435,7 @@ public class PlayerActivity extends AppCompatActivity
         if (Util.maybeRequestReadExternalStoragePermission(
             /* activity= */ this, subtitleInfo.uri)) {
           // The player will be reinitialized if the permission is granted.
-          return Collections.emptyList();
+          return null;
         }
         Format subtitleFormat =
             Format.createTextSampleFormat(
