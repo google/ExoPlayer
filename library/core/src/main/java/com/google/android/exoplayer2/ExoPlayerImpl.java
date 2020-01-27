@@ -691,9 +691,9 @@ import java.util.concurrent.TimeoutException;
   public long getContentPosition() {
     if (isPlayingAd()) {
       playbackInfo.timeline.getPeriodByUid(playbackInfo.periodId.periodUid, period);
-      return playbackInfo.contentPositionUs == C.TIME_UNSET
+      return playbackInfo.requestedContentPositionUs == C.TIME_UNSET
           ? playbackInfo.timeline.getWindow(getCurrentWindowIndex(), window).getDefaultPositionMs()
-          : period.getPositionInWindowMs() + C.usToMs(playbackInfo.contentPositionUs);
+          : period.getPositionInWindowMs() + C.usToMs(playbackInfo.requestedContentPositionUs);
     } else {
       return getCurrentPosition();
     }
@@ -824,18 +824,18 @@ import java.util.concurrent.TimeoutException;
     }
     Timeline timeline = playbackInfo.timeline;
     MediaPeriodId mediaPeriodId = playbackInfo.periodId;
-    long contentPositionUs = playbackInfo.contentPositionUs;
+    long requestedContentPositionUs = playbackInfo.requestedContentPositionUs;
     long positionUs = playbackInfo.positionUs;
     if (clearPlaylist) {
       timeline = Timeline.EMPTY;
       mediaPeriodId = PlaybackInfo.getDummyPeriodForEmptyTimeline();
-      contentPositionUs = C.TIME_UNSET;
+      requestedContentPositionUs = C.TIME_UNSET;
       positionUs = 0;
     }
     return new PlaybackInfo(
         timeline,
         mediaPeriodId,
-        contentPositionUs,
+        requestedContentPositionUs,
         playbackState,
         resetError ? null : playbackInfo.playbackError,
         /* isLoading= */ false,
