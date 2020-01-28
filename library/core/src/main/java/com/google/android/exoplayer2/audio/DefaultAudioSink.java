@@ -22,7 +22,6 @@ import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.os.ConditionVariable;
 import android.os.SystemClock;
-import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -31,9 +30,6 @@ import com.google.android.exoplayer2.audio.AudioProcessor.UnhandledAudioFormatEx
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayDeque;
@@ -207,16 +203,6 @@ public final class DefaultAudioSink implements AudioSink {
 
   private static final String TAG = "AudioTrack";
 
-  /** Represents states of the {@link #startMediaTimeUs} value. */
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @IntDef({START_NOT_SET, START_IN_SYNC, START_NEED_SYNC})
-  private @interface StartMediaTimeState {}
-
-  private static final int START_NOT_SET = 0;
-  private static final int START_IN_SYNC = 1;
-  private static final int START_NEED_SYNC = 2;
-
   /**
    * Whether to enable a workaround for an issue where an audio effect does not keep its session
    * active across releasing/initializing a new audio track, on platform builds where
@@ -266,7 +252,7 @@ public final class DefaultAudioSink implements AudioSink {
   private long writtenPcmBytes;
   private long writtenEncodedFrames;
   private int framesPerEncodedSample;
-  private @StartMediaTimeState int startMediaTimeState;
+  private boolean startMediaTimeUsNeedsSync;
   private long startMediaTimeUs;
   private float volume;
 
@@ -355,7 +341,6 @@ public final class DefaultAudioSink implements AudioSink {
     toIntPcmAvailableAudioProcessors = toIntPcmAudioProcessors.toArray(new AudioProcessor[0]);
     toFloatPcmAvailableAudioProcessors = new AudioProcessor[] {new FloatResamplingAudioProcessor()};
     volume = 1.0f;
-    startMediaTimeState = START_NOT_SET;
     audioAttributes = AudioAttributes.DEFAULT;
     audioSessionId = C.AUDIO_SESSION_ID_UNSET;
     auxEffectInfo = new AuxEffectInfo(AuxEffectInfo.NO_AUX_EFFECT_ID, 0f);
@@ -393,7 +378,7 @@ public final class DefaultAudioSink implements AudioSink {
 
   @Override
   public long getCurrentPositionUs(boolean sourceEnded) {
-    if (!isInitialized() || startMediaTimeState == START_NOT_SET) {
+    if (!isInitialized()) {
       return CURRENT_POSITION_NOT_SET;
     }
     long positionUs = audioTrackPositionTracker.getCurrentPositionUs(sourceEnded);
@@ -541,7 +526,7 @@ public final class DefaultAudioSink implements AudioSink {
     }
 
     startMediaTimeUs = Math.max(0, presentationTimeUs);
-    startMediaTimeState = START_IN_SYNC;
+    startMediaTimeUsNeedsSync = false;
 
     applyPlaybackParameters(getPlaybackParameters(), presentationTimeUs);
 
@@ -570,9 +555,7 @@ public final class DefaultAudioSink implements AudioSink {
   @Override
   public void handleDiscontinuity() {
     // Force resynchronization after a skipped buffer.
-    if (startMediaTimeState == START_IN_SYNC) {
-      startMediaTimeState = START_NEED_SYNC;
-    }
+    startMediaTimeUsNeedsSync = true;
   }
 
   @Override
@@ -646,7 +629,7 @@ public final class DefaultAudioSink implements AudioSink {
           startMediaTimeUs
               + configuration.inputFramesToDurationUs(
                   getSubmittedFrames() - trimmingAudioProcessor.getTrimmedFrameCount());
-      if (startMediaTimeState == START_IN_SYNC
+      if (!startMediaTimeUsNeedsSync
           && Math.abs(expectedPresentationTimeUs - presentationTimeUs) > 200000) {
         Log.e(
             TAG,
@@ -655,9 +638,9 @@ public final class DefaultAudioSink implements AudioSink {
                 + ", got "
                 + presentationTimeUs
                 + "]");
-        startMediaTimeState = START_NEED_SYNC;
+        startMediaTimeUsNeedsSync = true;
       }
-      if (startMediaTimeState == START_NEED_SYNC) {
+      if (startMediaTimeUsNeedsSync) {
         if (!drainAudioProcessorsToEndOfStream()) {
           // Don't update timing until pending AudioProcessor buffers are completely drained.
           return false;
@@ -666,7 +649,7 @@ public final class DefaultAudioSink implements AudioSink {
         // number of bytes submitted.
         long adjustmentUs = presentationTimeUs - expectedPresentationTimeUs;
         startMediaTimeUs += adjustmentUs;
-        startMediaTimeState = START_IN_SYNC;
+        startMediaTimeUsNeedsSync = false;
         // Re-apply playback parameters because the startMediaTimeUs changed.
         applyPlaybackParameters(getPlaybackParameters(), presentationTimeUs);
         if (listener != null && adjustmentUs != 0) {
@@ -968,7 +951,6 @@ public final class DefaultAudioSink implements AudioSink {
           new MediaPositionParameters(
               getPlaybackParameters(), /* mediaTimeUs= */ 0, /* audioTrackPositionUs= */ 0);
       startMediaTimeUs = 0;
-      startMediaTimeState = START_NOT_SET;
       afterDrainPlaybackParameters = null;
       mediaPositionParametersCheckpoints.clear();
       trimmingAudioProcessor.resetTrimmedFrameCount();
