@@ -16,18 +16,24 @@
  */
 package com.google.android.exoplayer2.ui;
 
+import static java.lang.annotation.RetentionPolicy.SOURCE;
+
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.CaptioningManager;
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.CaptionStyleCompat;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
 import java.util.Collections;
 import java.util.List;
 
@@ -49,20 +55,50 @@ public final class SubtitleView extends ViewGroup implements TextOutput {
    */
   public static final float DEFAULT_BOTTOM_PADDING_FRACTION = 0.08f;
 
-  private final SubtitleTextView subtitleTextView;
+  /**
+   * Indicates a {@link SubtitleTextView} should be used to display subtitles. This is the default.
+   */
+  public static final int VIEW_TYPE_TEXT = 1;
+
+  /**
+   * Indicates a {@link SubtitleWebView} should be used to display subtitles.
+   *
+   * <p>This will instantiate a {@link android.webkit.WebView} and use CSS and HTML styling to
+   * render the subtitles. This supports some additional styling features beyond those supported by
+   * {@link SubtitleTextView} such as vertical text.
+   */
+  public static final int VIEW_TYPE_WEB = 2;
+
+  /**
+   * The type of {@link View} to use to display subtitles.
+   *
+   * <p>One of:
+   *
+   * <ul>
+   *   <li>{@link #VIEW_TYPE_TEXT}
+   *   <li>{@link #VIEW_TYPE_WEB}
+   * </ul>
+   */
+  @IntDef
+  @Documented
+  @Retention(SOURCE)
+  public @interface ViewType {}
+
+  private Output output;
+  private View innerSubtitleView;
 
   public SubtitleView(Context context) {
     this(context, null);
   }
 
-  // The null checker doesn't like the `addView()` call,
-  @SuppressWarnings("nullness:method.invocation.invalid")
   public SubtitleView(Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
-    subtitleTextView = new SubtitleTextView(context, attrs);
-    addView(subtitleTextView);
+    SubtitleTextView subtitleTextView = new SubtitleTextView(context, attrs);
+    output = subtitleTextView;
+    innerSubtitleView = subtitleTextView;
+    addView(innerSubtitleView);
   }
-  
+
   @Override
   public void onCues(List<Cue> cues) {
     setCues(cues);
@@ -74,20 +110,43 @@ public final class SubtitleView extends ViewGroup implements TextOutput {
    * @param cues The cues to display, or null to clear the cues.
    */
   public void setCues(@Nullable List<Cue> cues) {
-    subtitleTextView.onCues(cues != null ? cues : Collections.emptyList());
+    output.onCues(cues != null ? cues : Collections.emptyList());
   }
 
   @Override
   protected void onLayout(boolean changed, int l, int t, int r, int b) {
     if (changed) {
-      subtitleTextView.layout(l, t, r, b);
+      innerSubtitleView.layout(l, t, r, b);
     }
   }
 
   /**
+   * Set the type of {@link View} used to display subtitles.
+   *
+   * <p>NOTE: {@link #VIEW_TYPE_WEB} is currently very experimental, and doesn't support most
+   * styling and layout properties of {@link Cue}.
+   */
+  public void setViewType(@ViewType int viewType) {
+    if (viewType == VIEW_TYPE_TEXT && !(innerSubtitleView instanceof SubtitleTextView)) {
+      setView(new SubtitleTextView(getContext()));
+    } else if (viewType == VIEW_TYPE_WEB && !(innerSubtitleView instanceof SubtitleWebView)) {
+      setView(new SubtitleWebView(getContext()));
+    } else {
+      throw new IllegalArgumentException();
+    }
+  }
+
+  private <T extends View & Output> void setView(T view) {
+    removeView(innerSubtitleView);
+    innerSubtitleView = view;
+    output = view;
+    addView(view);
+  }
+
+  /**
    * Set the text size to a given unit and value.
-   * <p>
-   * See {@link TypedValue} for the possible dimension units.
+   *
+   * <p>See {@link TypedValue} for the possible dimension units.
    *
    * @param unit The desired dimension unit.
    * @param size The desired size in the given units.
@@ -144,7 +203,7 @@ public final class SubtitleView extends ViewGroup implements TextOutput {
   }
 
   private void setTextSize(@Cue.TextSizeType int textSizeType, float textSize) {
-    subtitleTextView.setTextSize(textSizeType, textSize);
+    output.setTextSize(textSizeType, textSize);
   }
 
   /**
@@ -154,7 +213,7 @@ public final class SubtitleView extends ViewGroup implements TextOutput {
    * @param applyEmbeddedStyles Whether styling embedded within the cues should be applied.
    */
   public void setApplyEmbeddedStyles(boolean applyEmbeddedStyles) {
-    subtitleTextView.setApplyEmbeddedStyles(applyEmbeddedStyles);
+    output.setApplyEmbeddedStyles(applyEmbeddedStyles);
   }
 
   /**
@@ -164,7 +223,7 @@ public final class SubtitleView extends ViewGroup implements TextOutput {
    * @param applyEmbeddedFontSizes Whether font sizes embedded within the cues should be applied.
    */
   public void setApplyEmbeddedFontSizes(boolean applyEmbeddedFontSizes) {
-    subtitleTextView.setApplyEmbeddedFontSizes(applyEmbeddedFontSizes);
+    output.setApplyEmbeddedFontSizes(applyEmbeddedFontSizes);
   }
 
   /**
@@ -184,7 +243,7 @@ public final class SubtitleView extends ViewGroup implements TextOutput {
    * @param style A style for the view.
    */
   public void setStyle(CaptionStyleCompat style) {
-    subtitleTextView.setStyle(style);
+    output.setStyle(style);
   }
 
   /**
@@ -197,7 +256,7 @@ public final class SubtitleView extends ViewGroup implements TextOutput {
    * @param bottomPaddingFraction The bottom padding fraction.
    */
   public void setBottomPaddingFraction(float bottomPaddingFraction) {
-    subtitleTextView.setBottomPaddingFraction(bottomPaddingFraction);
+    output.setBottomPaddingFraction(bottomPaddingFraction);
   }
 
   @TargetApi(19)
@@ -223,15 +282,10 @@ public final class SubtitleView extends ViewGroup implements TextOutput {
 
   /* package */ interface Output {
     void onCues(List<Cue> cues);
-
     void setTextSize(@Cue.TextSizeType int textSizeType, float textSize);
-
     void setApplyEmbeddedStyles(boolean applyEmbeddedStyles);
-
     void setApplyEmbeddedFontSizes(boolean applyEmbeddedFontSizes);
-
     void setStyle(CaptionStyleCompat style);
-
     void setBottomPaddingFraction(float bottomPaddingFraction);
   }
 }
