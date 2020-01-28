@@ -177,8 +177,8 @@ public abstract class Timeline {
     public boolean isLive;
 
     /**
-     * Whether the information in this window is used as a placeholder for as long as the media
-     * hasn't provided the real information.
+     * Whether this window contains placeholder information because the real information has yet to
+     * be loaded.
      */
     public boolean isPlaceholder;
 
