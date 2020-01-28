@@ -12,34 +12,32 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 package com.google.android.exoplayer2.ui;
 
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.util.TypedValue;
-import android.view.View;
+import android.view.ViewGroup;
 import android.view.accessibility.CaptioningManager;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.CaptionStyleCompat;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.util.Util;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-/**
- * A view for displaying subtitle {@link Cue}s.
- */
-public final class SubtitleView extends View implements TextOutput {
+/** A view for displaying subtitle {@link Cue}s. */
+public final class SubtitleView extends ViewGroup implements TextOutput {
 
   /**
    * The default fractional text size.
    *
-   * @see #setFractionalTextSize(float, boolean)
+   * @see SubtitleView#setFractionalTextSize(float, boolean)
    */
   public static final float DEFAULT_TEXT_SIZE_FRACTION = 0.0533f;
 
@@ -51,31 +49,20 @@ public final class SubtitleView extends View implements TextOutput {
    */
   public static final float DEFAULT_BOTTOM_PADDING_FRACTION = 0.08f;
 
-  private final List<SubtitlePainter> painters;
-
-  @Nullable private List<Cue> cues;
-  @Cue.TextSizeType private int textSizeType;
-  private float textSize;
-  private boolean applyEmbeddedStyles;
-  private boolean applyEmbeddedFontSizes;
-  private CaptionStyleCompat style;
-  private float bottomPaddingFraction;
+  private final SubtitleTextView subtitleTextView;
 
   public SubtitleView(Context context) {
-    this(context, /* attrs= */ null);
+    this(context, null);
   }
 
+  // The null checker doesn't like the `addView()` call,
+  @SuppressWarnings("nullness:method.invocation.invalid")
   public SubtitleView(Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
-    painters = new ArrayList<>();
-    textSizeType = Cue.TEXT_SIZE_TYPE_FRACTIONAL;
-    textSize = DEFAULT_TEXT_SIZE_FRACTION;
-    applyEmbeddedStyles = true;
-    applyEmbeddedFontSizes = true;
-    style = CaptionStyleCompat.DEFAULT;
-    bottomPaddingFraction = DEFAULT_BOTTOM_PADDING_FRACTION;
+    subtitleTextView = new SubtitleTextView(context, attrs);
+    addView(subtitleTextView);
   }
-
+  
   @Override
   public void onCues(List<Cue> cues) {
     setCues(cues);
@@ -87,17 +74,14 @@ public final class SubtitleView extends View implements TextOutput {
    * @param cues The cues to display, or null to clear the cues.
    */
   public void setCues(@Nullable List<Cue> cues) {
-    if (this.cues == cues) {
-      return;
+    subtitleTextView.onCues(cues != null ? cues : Collections.emptyList());
+  }
+
+  @Override
+  protected void onLayout(boolean changed, int l, int t, int r, int b) {
+    if (changed) {
+      subtitleTextView.layout(l, t, r, b);
     }
-    this.cues = cues;
-    // Ensure we have sufficient painters.
-    int cueCount = (cues == null) ? 0 : cues.size();
-    while (painters.size() < cueCount) {
-      painters.add(new SubtitlePainter(getContext()));
-    }
-    // Invalidate to trigger drawing.
-    invalidate();
   }
 
   /**
@@ -160,13 +144,7 @@ public final class SubtitleView extends View implements TextOutput {
   }
 
   private void setTextSize(@Cue.TextSizeType int textSizeType, float textSize) {
-    if (this.textSizeType == textSizeType && this.textSize == textSize) {
-      return;
-    }
-    this.textSizeType = textSizeType;
-    this.textSize = textSize;
-    // Invalidate to trigger drawing.
-    invalidate();
+    subtitleTextView.setTextSize(textSizeType, textSize);
   }
 
   /**
@@ -176,14 +154,7 @@ public final class SubtitleView extends View implements TextOutput {
    * @param applyEmbeddedStyles Whether styling embedded within the cues should be applied.
    */
   public void setApplyEmbeddedStyles(boolean applyEmbeddedStyles) {
-    if (this.applyEmbeddedStyles == applyEmbeddedStyles
-        && this.applyEmbeddedFontSizes == applyEmbeddedStyles) {
-      return;
-    }
-    this.applyEmbeddedStyles = applyEmbeddedStyles;
-    this.applyEmbeddedFontSizes = applyEmbeddedStyles;
-    // Invalidate to trigger drawing.
-    invalidate();
+    subtitleTextView.setApplyEmbeddedStyles(applyEmbeddedStyles);
   }
 
   /**
@@ -193,12 +164,7 @@ public final class SubtitleView extends View implements TextOutput {
    * @param applyEmbeddedFontSizes Whether font sizes embedded within the cues should be applied.
    */
   public void setApplyEmbeddedFontSizes(boolean applyEmbeddedFontSizes) {
-    if (this.applyEmbeddedFontSizes == applyEmbeddedFontSizes) {
-      return;
-    }
-    this.applyEmbeddedFontSizes = applyEmbeddedFontSizes;
-    // Invalidate to trigger drawing.
-    invalidate();
+    subtitleTextView.setApplyEmbeddedFontSizes(applyEmbeddedFontSizes);
   }
 
   /**
@@ -218,12 +184,7 @@ public final class SubtitleView extends View implements TextOutput {
    * @param style A style for the view.
    */
   public void setStyle(CaptionStyleCompat style) {
-    if (this.style == style) {
-      return;
-    }
-    this.style = style;
-    // Invalidate to trigger drawing.
-    invalidate();
+    subtitleTextView.setStyle(style);
   }
 
   /**
@@ -236,87 +197,7 @@ public final class SubtitleView extends View implements TextOutput {
    * @param bottomPaddingFraction The bottom padding fraction.
    */
   public void setBottomPaddingFraction(float bottomPaddingFraction) {
-    if (this.bottomPaddingFraction == bottomPaddingFraction) {
-      return;
-    }
-    this.bottomPaddingFraction = bottomPaddingFraction;
-    // Invalidate to trigger drawing.
-    invalidate();
-  }
-
-  @Override
-  public void dispatchDraw(Canvas canvas) {
-    List<Cue> cues = this.cues;
-    if (cues == null || cues.isEmpty()) {
-      return;
-    }
-
-    int rawViewHeight = getHeight();
-
-    // Calculate the cue box bounds relative to the canvas after padding is taken into account.
-    int left = getPaddingLeft();
-    int top = getPaddingTop();
-    int right = getWidth() - getPaddingRight();
-    int bottom = rawViewHeight - getPaddingBottom();
-    if (bottom <= top || right <= left) {
-      // No space to draw subtitles.
-      return;
-    }
-    int viewHeightMinusPadding = bottom - top;
-
-    float defaultViewTextSizePx =
-        resolveTextSize(textSizeType, textSize, rawViewHeight, viewHeightMinusPadding);
-    if (defaultViewTextSizePx <= 0) {
-      // Text has no height.
-      return;
-    }
-
-    int cueCount = cues.size();
-    for (int i = 0; i < cueCount; i++) {
-      Cue cue = cues.get(i);
-      float cueTextSizePx = resolveCueTextSize(cue, rawViewHeight, viewHeightMinusPadding);
-      SubtitlePainter painter = painters.get(i);
-      painter.draw(
-          cue,
-          applyEmbeddedStyles,
-          applyEmbeddedFontSizes,
-          style,
-          defaultViewTextSizePx,
-          cueTextSizePx,
-          bottomPaddingFraction,
-          canvas,
-          left,
-          top,
-          right,
-          bottom);
-    }
-  }
-
-  private float resolveCueTextSize(Cue cue, int rawViewHeight, int viewHeightMinusPadding) {
-    if (cue.textSizeType == Cue.TYPE_UNSET || cue.textSize == Cue.DIMEN_UNSET) {
-      return 0;
-    }
-    float defaultCueTextSizePx =
-        resolveTextSize(cue.textSizeType, cue.textSize, rawViewHeight, viewHeightMinusPadding);
-    return Math.max(defaultCueTextSizePx, 0);
-  }
-
-  private float resolveTextSize(
-      @Cue.TextSizeType int textSizeType,
-      float textSize,
-      int rawViewHeight,
-      int viewHeightMinusPadding) {
-    switch (textSizeType) {
-      case Cue.TEXT_SIZE_TYPE_ABSOLUTE:
-        return textSize;
-      case Cue.TEXT_SIZE_TYPE_FRACTIONAL:
-        return textSize * viewHeightMinusPadding;
-      case Cue.TEXT_SIZE_TYPE_FRACTIONAL_IGNORE_PADDING:
-        return textSize * rawViewHeight;
-      case Cue.TYPE_UNSET:
-      default:
-        return Cue.DIMEN_UNSET;
-    }
+    subtitleTextView.setBottomPaddingFraction(bottomPaddingFraction);
   }
 
   @TargetApi(19)
@@ -340,4 +221,17 @@ public final class SubtitleView extends View implements TextOutput {
     return CaptionStyleCompat.createFromCaptionStyle(captioningManager.getUserStyle());
   }
 
+  /* package */ interface Output {
+    void onCues(List<Cue> cues);
+
+    void setTextSize(@Cue.TextSizeType int textSizeType, float textSize);
+
+    void setApplyEmbeddedStyles(boolean applyEmbeddedStyles);
+
+    void setApplyEmbeddedFontSizes(boolean applyEmbeddedFontSizes);
+
+    void setStyle(CaptionStyleCompat style);
+
+    void setBottomPaddingFraction(float bottomPaddingFraction);
+  }
 }
