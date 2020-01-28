@@ -36,6 +36,12 @@ public final class Mp3ExtractorTest {
   }
 
   @Test
+  public void testMp3SampleWithIndexSeeker() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        () -> new Mp3Extractor(Mp3Extractor.FLAG_ENABLE_INDEX_SEEKING), "mp3/bear-vbr.mp3");
+  }
+
+  @Test
   public void testTrimmedMp3Sample() throws Exception {
     ExtractorAsserts.assertBehavior(Mp3Extractor::new, "mp3/play-trimmed.mp3");
   }
