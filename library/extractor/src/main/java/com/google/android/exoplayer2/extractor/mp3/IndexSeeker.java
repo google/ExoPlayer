@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.mp3;
 
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.SeekPoint;
 import com.google.android.exoplayer2.util.LongArray;
@@ -23,7 +24,8 @@ import com.google.android.exoplayer2.util.Util;
 /** MP3 seeker that builds a time-to-byte mapping as the stream is read. */
 /* package */ final class IndexSeeker implements Seeker {
 
-  private static final long MIN_TIME_BETWEEN_POINTS_US = C.MICROS_PER_SECOND / 10;
+  @VisibleForTesting
+  /* package */ static final long MIN_TIME_BETWEEN_POINTS_US = C.MICROS_PER_SECOND / 10;
 
   private final long durationUs;
   private final long dataEndPosition;
@@ -85,11 +87,21 @@ import com.google.android.exoplayer2.util.Util;
    * @param position The position corresponding to the seek point to add in bytes.
    */
   public void maybeAddSeekPoint(long timeUs, long position) {
-    long lastTimeUs = timesUs.get(timesUs.size() - 1);
-    if (timeUs - lastTimeUs < MIN_TIME_BETWEEN_POINTS_US) {
+    if (isTimeUsInIndex(timeUs)) {
       return;
     }
     timesUs.add(timeUs);
     positions.add(position);
+  }
+
+  /**
+   * Returns whether {@code timeUs} (in microseconds) is included in the index.
+   *
+   * <p>A point is included in the index if it is equal to another point, between 2 points, or
+   * sufficiently close to the last point.
+   */
+  public boolean isTimeUsInIndex(long timeUs) {
+    long lastIndexedTimeUs = timesUs.get(timesUs.size() - 1);
+    return timeUs - lastIndexedTimeUs < MIN_TIME_BETWEEN_POINTS_US;
   }
 }

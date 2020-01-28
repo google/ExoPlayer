@@ -22,6 +22,11 @@
 * DRM: Add support for attaching DRM sessions to clear content in the demo app.
 * Downloads: Merge downloads in `SegmentDownloader` to improve overall download
   speed ([#5978](https://github.com/google/ExoPlayer/issues/5978)).
+* MP3: Add `IndexSeeker` for accurate seeks in VBR streams
+  ([#6787](https://github.com/google/ExoPlayer/issues/6787)).
+  This seeker is enabled by passing `FLAG_ENABLE_INDEX_SEEKING` to the
+  `Mp3Extractor`. It may require to scan a significant portion of the file for
+  seeking, which may be costly on large files.
 * MP4: Store the Android capture frame rate only in `Format.metadata`.
   `Format.frameRate` now stores the calculated frame rate.
 * Testing
