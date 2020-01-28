@@ -215,130 +215,94 @@ public class UtilTest {
   @Test
   public void
       longArrayBinarySearchFloor_targetSmallerThanValuesAndStayInBoundsFalse_returnsMinus1() {
-    LongArray longArray = new LongArray();
-    longArray.add(1);
-    longArray.add(3);
-    longArray.add(5);
-
     assertThat(
             binarySearchFloor(
-                longArray, /* value= */ 0, /* inclusive= */ false, /* stayInBounds= */ false))
+                newLongArray(1, 3, 5),
+                /* value= */ 0,
+                /* inclusive= */ false,
+                /* stayInBounds= */ false))
         .isEqualTo(-1);
   }
 
   @Test
   public void longArrayBinarySearchFloor_targetSmallerThanValuesAndStayInBoundsTrue_returns0() {
-    LongArray longArray = new LongArray();
-    longArray.add(1);
-    longArray.add(3);
-    longArray.add(5);
-
     assertThat(
             binarySearchFloor(
-                longArray, /* value= */ 0, /* inclusive= */ false, /* stayInBounds= */ true))
+                newLongArray(1, 3, 5),
+                /* value= */ 0,
+                /* inclusive= */ false,
+                /* stayInBounds= */ true))
         .isEqualTo(0);
   }
 
   @Test
   public void longArrayBinarySearchFloor_targetBiggerThanValues_returnsLastIndex() {
-    LongArray longArray = new LongArray();
-    longArray.add(1);
-    longArray.add(3);
-    longArray.add(5);
-
     assertThat(
             binarySearchFloor(
-                longArray, /* value= */ 6, /* inclusive= */ false, /* stayInBounds= */ false))
+                newLongArray(1, 3, 5),
+                /* value= */ 6,
+                /* inclusive= */ false,
+                /* stayInBounds= */ false))
         .isEqualTo(2);
   }
 
   @Test
   public void
       longArrayBinarySearchFloor_targetEqualToFirstValueAndInclusiveFalseAndStayInBoundsFalse_returnsMinus1() {
-    LongArray longArray = new LongArray();
-    longArray.add(1);
-    longArray.add(1);
-    longArray.add(1);
-    longArray.add(1);
-    longArray.add(1);
-    longArray.add(3);
-    longArray.add(5);
-
     assertThat(
             binarySearchFloor(
-                longArray, /* value= */ 1, /* inclusive= */ false, /* stayInBounds= */ false))
+                newLongArray(1, 1, 1, 1, 1, 3, 5),
+                /* value= */ 1,
+                /* inclusive= */ false,
+                /* stayInBounds= */ false))
         .isEqualTo(-1);
   }
 
   @Test
   public void
       longArrayBinarySearchFloor_targetEqualToFirstValueAndInclusiveFalseAndStayInBoundsTrue_returns0() {
-    LongArray longArray = new LongArray();
-    longArray.add(1);
-    longArray.add(1);
-    longArray.add(1);
-    longArray.add(1);
-    longArray.add(1);
-    longArray.add(3);
-    longArray.add(5);
-
     assertThat(
             binarySearchFloor(
-                longArray, /* value= */ 1, /* inclusive= */ false, /* stayInBounds= */ true))
+                newLongArray(1, 1, 1, 1, 1, 3, 5),
+                /* value= */ 1,
+                /* inclusive= */ false,
+                /* stayInBounds= */ true))
         .isEqualTo(0);
   }
 
   @Test
   public void
       longArrayBinarySearchFloor_targetInArrayAndInclusiveTrue_returnsFirstIndexWithValueEqualToTarget() {
-    LongArray longArray = new LongArray();
-    longArray.add(1);
-    longArray.add(1);
-    longArray.add(1);
-    longArray.add(1);
-    longArray.add(1);
-    longArray.add(3);
-    longArray.add(5);
-
     assertThat(
             binarySearchFloor(
-                longArray, /* value= */ 1, /* inclusive= */ true, /* stayInBounds= */ false))
+                newLongArray(1, 1, 1, 1, 1, 3, 5),
+                /* value= */ 1,
+                /* inclusive= */ true,
+                /* stayInBounds= */ false))
         .isEqualTo(0);
   }
 
   @Test
   public void
       longArrayBinarySearchFloor_targetBetweenValuesAndInclusiveFalse_returnsIndexWhereTargetShouldBeInserted() {
-    LongArray longArray = new LongArray();
-    longArray.add(1);
-    longArray.add(1);
-    longArray.add(1);
-    longArray.add(1);
-    longArray.add(1);
-    longArray.add(3);
-    longArray.add(5);
-
     assertThat(
             binarySearchFloor(
-                longArray, /* value= */ 2, /* inclusive= */ false, /* stayInBounds= */ false))
+                newLongArray(1, 1, 1, 1, 1, 3, 5),
+                /* value= */ 2,
+                /* inclusive= */ false,
+                /* stayInBounds= */ false))
         .isEqualTo(4);
   }
 
   @Test
   public void
       longArrayBinarySearchFloor_targetBetweenValuesAndInclusiveTrue_returnsIndexWhereTargetShouldBeInserted() {
-    LongArray longArray = new LongArray();
-    longArray.add(1);
-    longArray.add(1);
-    longArray.add(1);
-    longArray.add(1);
-    longArray.add(1);
-    longArray.add(3);
-    longArray.add(5);
-
     assertThat(
             binarySearchFloor(
-                longArray, /* value= */ 2, /* inclusive= */ true, /* stayInBounds= */ false))
+                newLongArray(1, 1, 1, 1, 1, 3, 5),
+                /* value= */ 2,
+                /* inclusive= */ true,
+                /* stayInBounds= */ false))
         .isEqualTo(4);
   }
 
@@ -944,5 +908,13 @@ public class UtilTest {
   private static void assertEscapeUnescapeFileName(String fileName) {
     String escapedFileName = Util.escapeFileName(fileName);
     assertThat(unescapeFileName(escapedFileName)).isEqualTo(fileName);
+  }
+
+  private static LongArray newLongArray(long... values) {
+    LongArray longArray = new LongArray();
+    for (long value : values) {
+      longArray.add(value);
+    }
+    return longArray;
   }
 }
