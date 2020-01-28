@@ -56,24 +56,35 @@ public final class Mp3Extractor implements Extractor {
 
   /**
    * Flags controlling the behavior of the extractor. Possible flag values are {@link
-   * #FLAG_ENABLE_CONSTANT_BITRATE_SEEKING} and {@link #FLAG_DISABLE_ID3_METADATA}.
+   * #FLAG_ENABLE_CONSTANT_BITRATE_SEEKING}, {@link #FLAG_ENABLE_INDEX_SEEKING} and {@link
+   * #FLAG_DISABLE_ID3_METADATA}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
       flag = true,
-      value = {FLAG_ENABLE_CONSTANT_BITRATE_SEEKING, FLAG_DISABLE_ID3_METADATA})
+      value = {
+        FLAG_ENABLE_CONSTANT_BITRATE_SEEKING,
+        FLAG_ENABLE_INDEX_SEEKING,
+        FLAG_DISABLE_ID3_METADATA
+      })
   public @interface Flags {}
   /**
    * Flag to force enable seeking using a constant bitrate assumption in cases where seeking would
    * otherwise not be possible.
+   *
+   * <p>This flag is ignored if {@link #FLAG_ENABLE_INDEX_SEEKING} is set.
    */
   public static final int FLAG_ENABLE_CONSTANT_BITRATE_SEEKING = 1;
+  /**
+   * Flag to force index seeking, consisting in building a time-to-byte mapping as the file is read.
+   */
+  public static final int FLAG_ENABLE_INDEX_SEEKING = 1 << 1;
   /**
    * Flag to disable parsing of ID3 metadata. Can be set to save memory if ID3 metadata is not
    * required.
    */
-  public static final int FLAG_DISABLE_ID3_METADATA = 2;
+  public static final int FLAG_DISABLE_ID3_METADATA = 1 << 2;
 
   /** Predicate that matches ID3 frames containing only required gapless/seeking metadata. */
   private static final FramePredicate REQUIRED_ID3_FRAME_PREDICATE =
@@ -256,6 +267,9 @@ public final class Mp3Extractor implements Extractor {
         }
       }
       sampleBytesRemaining = synchronizedHeader.frameSize;
+      maybeAddSeekPointToIndexSeeker(
+          computeTimeUs(samplesRead + synchronizedHeader.samplesPerFrame),
+          extractorInput.getPosition() + synchronizedHeader.frameSize);
     }
     int bytesAppended = trackOutput.sampleData(extractorInput, sampleBytesRemaining, true);
     if (bytesAppended == C.RESULT_END_OF_INPUT) {
@@ -265,12 +279,22 @@ public final class Mp3Extractor implements Extractor {
     if (sampleBytesRemaining > 0) {
       return RESULT_CONTINUE;
     }
-    long timeUs = basisTimeUs + (samplesRead * C.MICROS_PER_SECOND / synchronizedHeader.sampleRate);
-    trackOutput.sampleMetadata(timeUs, C.BUFFER_FLAG_KEY_FRAME, synchronizedHeader.frameSize, 0,
-        null);
+    trackOutput.sampleMetadata(
+        computeTimeUs(samplesRead), C.BUFFER_FLAG_KEY_FRAME, synchronizedHeader.frameSize, 0, null);
     samplesRead += synchronizedHeader.samplesPerFrame;
     sampleBytesRemaining = 0;
     return RESULT_CONTINUE;
+  }
+
+  private long computeTimeUs(long samplesRead) {
+    return basisTimeUs + samplesRead * C.MICROS_PER_SECOND / synchronizedHeader.sampleRate;
+  }
+
+  private void maybeAddSeekPointToIndexSeeker(long timeUs, long position) {
+    if (!(seeker instanceof IndexSeeker)) {
+      return;
+    }
+    ((IndexSeeker) seeker).maybeAddSeekPoint(timeUs, position);
   }
 
   private boolean synchronize(ExtractorInput input, boolean sniffing)
@@ -379,7 +403,20 @@ public final class Mp3Extractor implements Extractor {
     }
 
     @Nullable Seeker resultSeeker = null;
-    if (metadataSeeker != null) {
+    if ((flags & FLAG_ENABLE_INDEX_SEEKING) != 0) {
+      long durationUs = C.TIME_UNSET;
+      long dataEndPosition = C.POSITION_UNSET;
+      if (metadataSeeker != null) {
+        durationUs = metadataSeeker.getDurationUs();
+        dataEndPosition = metadataSeeker.getDataEndPosition();
+      } else if (seekFrameSeeker != null) {
+        durationUs = seekFrameSeeker.getDurationUs();
+        dataEndPosition = seekFrameSeeker.getDataEndPosition();
+      }
+      resultSeeker =
+          new IndexSeeker(
+              durationUs, /* dataStartPosition= */ input.getPosition(), dataEndPosition);
+    } else if (metadataSeeker != null) {
       resultSeeker = metadataSeeker;
     } else if (seekFrameSeeker != null) {
       resultSeeker = seekFrameSeeker;
