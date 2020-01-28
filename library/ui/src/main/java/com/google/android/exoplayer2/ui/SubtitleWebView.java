@@ -22,6 +22,7 @@ import static com.google.android.exoplayer2.ui.SubtitleView.DEFAULT_TEXT_SIZE_FR
 import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import androidx.annotation.Nullable;
@@ -65,7 +66,22 @@ import java.util.List;
     style = CaptionStyleCompat.DEFAULT;
     bottomPaddingFraction = DEFAULT_BOTTOM_PADDING_FRACTION;
 
-    webView = new WebView(context, attrs);
+    webView =
+        new WebView(context, attrs) {
+          @Override
+          public boolean onTouchEvent(MotionEvent event) {
+            super.onTouchEvent(event);
+            // Return false so that touch events are allowed down into @id/exo_content_frame below.
+            return false;
+          }
+
+          @Override
+          public boolean performClick() {
+            super.performClick();
+            // Return false so that clicks are allowed down into @id/exo_content_frame below.
+            return false;
+          }
+        };
     webView.setBackgroundColor(Color.TRANSPARENT);
     addView(webView);
   }
