@@ -26,6 +26,7 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.CaptioningManager;
+import androidx.annotation.Dimension;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.CaptionStyleCompat;
@@ -157,7 +158,7 @@ public final class SubtitleView extends ViewGroup implements TextOutput {
    * @param unit The desired dimension unit.
    * @param size The desired size in the given units.
    */
-  public void setFixedTextSize(int unit, float size) {
+  public void setFixedTextSize(@Dimension int unit, float size) {
     Context context = getContext();
     Resources resources;
     if (context == null) {
