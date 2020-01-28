@@ -18,11 +18,17 @@ package com.google.android.exoplayer2.extractor.ts;
 import android.util.SparseArray;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.extractor.ExtractorOutput;
+import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.EsInfo;
 import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.TimestampAdjuster;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -176,10 +182,40 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
       case TsExtractor.TS_STREAM_TYPE_DVBSUBS:
         return new PesReader(
             new DvbSubtitleReader(esInfo.dvbSubtitleInfos));
+      case TsExtractor.TS_STREAM_TYPE_AIT:
+        return new SectionReader(new SectionPassthrough(MimeTypes.APPLICATION_AIT));
       default:
         return null;
     }
   }
+
+  public class SectionPassthrough implements SectionPayloadReader {
+    private TimestampAdjuster timestampAdjuster = null;
+    private final String mimeType;
+    private TrackOutput output;
+
+    SectionPassthrough(String mimeType) {
+      this.mimeType = mimeType;
+    }
+
+    @Override
+    public void init(TimestampAdjuster timestampAdjuster, ExtractorOutput extractorOutput, TsPayloadReader.TrackIdGenerator idGenerator) {
+      this.timestampAdjuster = timestampAdjuster;
+      idGenerator.generateNewId();
+      output = extractorOutput.track(idGenerator.getTrackId(), C.TRACK_TYPE_METADATA);
+      output.format(Format.createSampleFormat(null, mimeType,
+              timestampAdjuster.getTimestampOffsetUs()));
+    }
+
+    @Override
+    public void consume(ParsableByteArray sectionData) {
+      int sampleSize = sectionData.bytesLeft();
+      output.sampleData(sectionData, sampleSize);
+      output.sampleMetadata(timestampAdjuster.getLastAdjustedTimestampUs(), C.BUFFER_FLAG_KEY_FRAME,
+              sampleSize, 0, null);
+    }
+  }
+
 
   /**
    * If {@link #FLAG_OVERRIDE_CAPTION_DESCRIPTORS} is set, returns a {@link SeiReader} for
