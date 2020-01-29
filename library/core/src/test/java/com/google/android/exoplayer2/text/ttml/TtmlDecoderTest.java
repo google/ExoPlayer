@@ -60,6 +60,7 @@ public final class TtmlDecoderTest {
   private static final String BITMAP_PIXEL_REGION_FILE = "ttml/bitmap_pixel_region.xml";
   private static final String BITMAP_UNSUPPORTED_REGION_FILE = "ttml/bitmap_unsupported_region.xml";
   private static final String VERTICAL_TEXT_FILE = "ttml/vertical_text.xml";
+  private static final String TEXT_COMBINE_FILE = "ttml/text_combine.xml";
 
   @Test
   public void testInlineAttributes() throws IOException, SubtitleDecoderException {
@@ -585,6 +586,24 @@ public final class TtmlDecoderTest {
 
     Cue thirdCue = getOnlyCueAtTimeUs(subtitle, 30_000_000);
     assertThat(thirdCue.verticalType).isEqualTo(Cue.TYPE_UNSET);
+  }
+
+  @Test
+  public void testTextCombine() throws IOException, SubtitleDecoderException {
+    TtmlSubtitle subtitle = getSubtitle(TEXT_COMBINE_FILE);
+
+    Spanned firstCue = getOnlyCueTextAtTimeUs(subtitle, 10_000_000);
+    assertThat(firstCue)
+        .hasHorizontalTextInVerticalContextSpanBetween(
+            "text with ".length(), "text with combined".length());
+
+    Spanned secondCue = getOnlyCueTextAtTimeUs(subtitle, 20_000_000);
+    assertThat(secondCue)
+        .hasNoHorizontalTextInVerticalContextSpanBetween(
+            "text with ".length(), "text with un-combined".length());
+
+    Spanned thirdCue = getOnlyCueTextAtTimeUs(subtitle, 30_000_000);
+    assertThat(thirdCue).hasNoHorizontalTextInVerticalContextSpanBetween(0, thirdCue.length());
   }
 
   private static Spanned getOnlyCueTextAtTimeUs(Subtitle subtitle, long timeUs) {

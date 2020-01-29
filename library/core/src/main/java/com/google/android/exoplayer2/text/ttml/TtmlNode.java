@@ -66,6 +66,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public static final String ATTR_TTS_COLOR = "color";
   public static final String ATTR_TTS_TEXT_DECORATION = "textDecoration";
   public static final String ATTR_TTS_TEXT_ALIGN = "textAlign";
+  public static final String ATTR_TTS_TEXT_COMBINE = "textCombine";
   public static final String ATTR_TTS_WRITING_MODE = "writingMode";
 
   // Values for textDecoration
@@ -82,6 +83,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public static final String RIGHT = "right";
   public static final String START = "start";
   public static final String END = "end";
+
+  // Values for textCombine
+  public static final String COMBINE_NONE = "none";
+  public static final String COMBINE_ALL = "all";
 
   // Values for writingMode
   public static final String VERTICAL = "tb";

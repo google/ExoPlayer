@@ -29,6 +29,7 @@ import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.SpanUtil;
+import com.google.android.exoplayer2.text.span.HorizontalTextInVerticalContextSpan;
 import java.util.Map;
 
 /**
@@ -112,6 +113,14 @@ import java.util.Map;
       SpanUtil.addOrReplaceSpan(
           builder,
           new AlignmentSpan.Standard(textAlign),
+          start,
+          end,
+          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+    if (style.getTextCombine()) {
+      SpanUtil.addOrReplaceSpan(
+          builder,
+          new HorizontalTextInVerticalContextSpan(),
           start,
           end,
           Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);

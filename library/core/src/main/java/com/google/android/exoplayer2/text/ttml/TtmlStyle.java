@@ -75,6 +75,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private float fontSize;
   private @MonotonicNonNull String id;
   private Layout.@MonotonicNonNull Alignment textAlign;
+  @OptionalBoolean private int textCombine;
   @Cue.VerticalType private int verticalType;
 
   public TtmlStyle() {
@@ -216,6 +217,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       if (textAlign == null && ancestor.textAlign != null) {
         textAlign = ancestor.textAlign;
       }
+      if (textCombine == UNSPECIFIED) {
+        textCombine = ancestor.textCombine;
+      }
       if (fontSizeUnit == UNSPECIFIED) {
         fontSizeUnit = ancestor.fontSizeUnit;
         fontSize = ancestor.fontSize;
@@ -248,6 +252,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   public TtmlStyle setTextAlign(Layout.Alignment textAlign) {
     this.textAlign = textAlign;
+    return this;
+  }
+
+  /** Returns true if the source entity has {@code tts:textCombine=all}. */
+  public boolean getTextCombine() {
+    return textCombine == ON;
+  }
+
+  public TtmlStyle setTextCombine(boolean combine) {
+    this.textCombine = combine ? ON : OFF;
     return this;
   }
 
