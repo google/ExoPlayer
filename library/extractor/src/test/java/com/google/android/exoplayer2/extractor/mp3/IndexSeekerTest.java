@@ -39,7 +39,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class IndexSeekerTest {
 
-  private static final String TEST_FILE = "mp3/bear-vbr.mp3";
+  private static final String TEST_FILE = "mp3/bear-vbr-xing-header.mp3";
 
   private Mp3Extractor extractor;
   private FakeExtractorOutput extractorOutput;
