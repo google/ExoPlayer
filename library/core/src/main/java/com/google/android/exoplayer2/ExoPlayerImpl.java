@@ -424,11 +424,16 @@ import java.util.concurrent.TimeoutException;
 
   @Override
   public void setPlayWhenReady(boolean playWhenReady) {
-    setPlayWhenReady(playWhenReady, PLAYBACK_SUPPRESSION_REASON_NONE);
+    setPlayWhenReady(
+        playWhenReady,
+        PLAYBACK_SUPPRESSION_REASON_NONE,
+        PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
   }
 
   public void setPlayWhenReady(
-      boolean playWhenReady, @PlaybackSuppressionReason int playbackSuppressionReason) {
+      boolean playWhenReady,
+      @PlaybackSuppressionReason int playbackSuppressionReason,
+      @PlayWhenReadyChangeReason int playWhenReadyChangeReason) {
     boolean oldIsPlaying = isPlaying();
     boolean oldInternalPlayWhenReady =
         this.playWhenReady && this.playbackSuppressionReason == PLAYBACK_SUPPRESSION_REASON_NONE;
@@ -449,6 +454,9 @@ import java.util.concurrent.TimeoutException;
           listener -> {
             if (playWhenReadyChanged) {
               listener.onPlayerStateChanged(playWhenReady, playbackState);
+            }
+            if (playWhenReadyChanged) {
+              listener.onPlayWhenReadyChanged(playWhenReady, playWhenReadyChangeReason);
             }
             if (suppressionReasonChanged) {
               listener.onPlaybackSuppressionReasonChanged(playbackSuppressionReason);

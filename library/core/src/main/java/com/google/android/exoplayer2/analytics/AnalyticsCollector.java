@@ -447,6 +447,15 @@ public class AnalyticsCollector
   }
 
   @Override
+  public final void onPlayWhenReadyChanged(
+      boolean playWhenReady, @Player.PlayWhenReadyChangeReason int reason) {
+    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
+    for (AnalyticsListener listener : listeners) {
+      listener.onPlayWhenReadyChanged(eventTime, playWhenReady, reason);
+    }
+  }
+
+  @Override
   public void onPlaybackSuppressionReasonChanged(
       @PlaybackSuppressionReason int playbackSuppressionReason) {
     EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();

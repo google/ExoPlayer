@@ -98,7 +98,16 @@ public class EventLogger implements AnalyticsListener {
   @Override
   public void onPlayerStateChanged(
       EventTime eventTime, boolean playWhenReady, @Player.State int state) {
-    logd(eventTime, "state", playWhenReady + ", " + getStateString(state));
+    logd(eventTime, "state", getStateString(state));
+  }
+
+  @Override
+  public void onPlayWhenReadyChanged(
+      EventTime eventTime, boolean playWhenReady, @Player.PlayWhenReadyChangeReason int reason) {
+    logd(
+        eventTime,
+        "playWhenReady",
+        playWhenReady + ", " + getPlayWhenReadyChangeReasonString(reason));
   }
 
   @Override
@@ -633,6 +642,22 @@ public class EventLogger implements AnalyticsListener {
         return "NONE";
       case Player.PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS:
         return "TRANSIENT_AUDIO_FOCUS_LOSS";
+      default:
+        return "?";
+    }
+  }
+
+  private static String getPlayWhenReadyChangeReasonString(
+      @Player.PlayWhenReadyChangeReason int reason) {
+    switch (reason) {
+      case Player.PLAY_WHEN_READY_CHANGE_REASON_AUDIO_BECOMING_NOISY:
+        return "AUDIO_BECOMING_NOISY";
+      case Player.PLAY_WHEN_READY_CHANGE_REASON_AUDIO_FOCUS_LOSS:
+        return "AUDIO_FOCUS_LOSS";
+      case Player.PLAY_WHEN_READY_CHANGE_REASON_REMOTE:
+        return "REMOTE";
+      case Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST:
+        return "USER_REQUEST";
       default:
         return "?";
     }

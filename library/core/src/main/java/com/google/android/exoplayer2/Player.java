@@ -419,6 +419,15 @@ public interface Player {
     default void onPlayerStateChanged(boolean playWhenReady, @State int playbackState) {}
 
     /**
+     * Called when the value returned from {@link #getPlayWhenReady()} changes.
+     *
+     * @param playWhenReady Whether playback will proceed when ready.
+     * @param reason The {@link PlayWhenReadyChangeReason reason} for the change.
+     */
+    default void onPlayWhenReadyChanged(
+        boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {}
+
+    /**
      * Called when the value returned from {@link #getPlaybackSuppressionReason()} changes.
      *
      * @param playbackSuppressionReason The current {@link PlaybackSuppressionReason}.
@@ -548,6 +557,31 @@ public interface Player {
    * The player has finished playing the media.
    */
   int STATE_ENDED = 4;
+
+  /**
+   * Reasons for {@link #getPlayWhenReady() playWhenReady} changes. One of {@link
+   * #PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST}, {@link
+   * #PLAY_WHEN_READY_CHANGE_REASON_AUDIO_FOCUS_LOSS}, {@link
+   * #PLAY_WHEN_READY_CHANGE_REASON_AUDIO_BECOMING_NOISY} or {@link
+   * #PLAY_WHEN_READY_CHANGE_REASON_REMOTE}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
+    PLAY_WHEN_READY_CHANGE_REASON_AUDIO_FOCUS_LOSS,
+    PLAY_WHEN_READY_CHANGE_REASON_AUDIO_BECOMING_NOISY,
+    PLAY_WHEN_READY_CHANGE_REASON_REMOTE
+  })
+  @interface PlayWhenReadyChangeReason {}
+  /** Playback has been started or paused by the user. */
+  int PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST = 1;
+  /** Playback has been paused because of a loss of audio focus. */
+  int PLAY_WHEN_READY_CHANGE_REASON_AUDIO_FOCUS_LOSS = 2;
+  /** Playback has been paused to avoid becoming noisy. */
+  int PLAY_WHEN_READY_CHANGE_REASON_AUDIO_BECOMING_NOISY = 3;
+  /** Playback has been started or paused because of a remote change. */
+  int PLAY_WHEN_READY_CHANGE_REASON_REMOTE = 4;
 
   /**
    * Reason why playback is suppressed even though {@link #getPlayWhenReady()} is {@code true}. One
