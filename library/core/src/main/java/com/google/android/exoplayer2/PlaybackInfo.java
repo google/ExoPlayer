@@ -87,7 +87,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
     return new PlaybackInfo(
         Timeline.EMPTY,
         DUMMY_MEDIA_PERIOD_ID,
-        /* contentPositionUs= */ C.TIME_UNSET,
+        /* requestedContentPositionUs= */ C.TIME_UNSET,
         Player.STATE_IDLE,
         /* playbackError= */ null,
         /* isLoading= */ false,
