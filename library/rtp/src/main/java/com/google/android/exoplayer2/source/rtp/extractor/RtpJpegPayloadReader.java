@@ -156,9 +156,6 @@ import java.util.Arrays;
 
     private TrackOutput output;
 
-    private int lastSequenceNumber;
-    private int sequenceNumber;
-
     private boolean completeIndicator;
 
     private Format format;
@@ -171,8 +168,6 @@ import java.util.Arrays;
 
     public RtpJpegPayloadReader(RtpVideoPayload payloadFormat) {
         this.payloadFormat = payloadFormat;
-
-        lastSequenceNumber = C.POSITION_UNSET;
 
         fragmentedJpegFrame = new FragmentedJpegFrame();
         jpegReader = new JpegHeaderReader(payloadFormat, fragmentedJpegFrame);
@@ -211,12 +206,6 @@ import java.util.Arrays;
             timestampAdjuster.adjustSampleTimestamp(sampleTimeStamp);
         }
 
-        if (lastSequenceNumber == -1) {
-            lastSequenceNumber = sequenceNumber - 1;
-        }
-
-        this.sequenceNumber = sequenceNumber;
-
         return true;
     }
 
@@ -234,11 +223,6 @@ import java.util.Arrays;
 
                     hasOutputFormat = true;
                     output.format(format);
-                }
-
-                if (((lastSequenceNumber + 1) % 65536) != sequenceNumber) {
-                    fragmentedJpegFrame.reset();
-                    return;
                 }
 
                 if (hasOutputFormat) {
@@ -264,8 +248,6 @@ import java.util.Arrays;
         } else {
             fragmentedJpegFrame.reset();
         }
-
-        lastSequenceNumber = sequenceNumber;
     }
 
 
@@ -282,7 +264,7 @@ import java.util.Arrays;
         private SparseArray<byte[]> quantizationTables;
 
         JpegHeaderReader(RtpVideoPayload payloadFormat,
-                                FragmentedJpegFrame fragmentedJpegFrame) {
+                         FragmentedJpegFrame fragmentedJpegFrame) {
             this.payloadFormat = payloadFormat;
             this.fragmentedJpegFrame = fragmentedJpegFrame;
 
@@ -472,7 +454,7 @@ import java.util.Arrays;
         }
 
         private byte[] buildHuffmanHeader(byte[] codelens, byte[] symbols, int tableNo,
-                                                int tableClass) {
+                                          int tableClass) {
             byte[] hdr = new byte[5 + codelens.length + symbols.length];
             hdr[0] = (byte) 0xFF;
             hdr[1] = (byte) 0xC4;                                  // DHT
@@ -494,7 +476,7 @@ import java.util.Arrays;
          * @return the headers
          */
         private byte[] buildHeaders(int type, int width, int height, byte[] quantizationTable,
-                                         int precision, int dri) {
+                                    int precision, int dri) {
             int position = 0;
             byte[] headers = new byte[1000];  // max header length, should be big enough
 
