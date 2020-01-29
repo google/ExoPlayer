@@ -71,8 +71,8 @@
         "uri": "rtsp://freja.hiof.no:1935/rtplive/_definst_/hessdalen05.stream"
       },
       {
-        "name": "Video on Demand - Big Buck Bunny Comedy Film",
-        "uri": "rtsp://184.72.239.149/vod/mp4:BigBuckBunny_175k.mov"
+        "name": "Wowza Amazon EC2 - Big Buck Bunny Comedy Film",
+        "uri": "rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_175k.mov"
       },
       {
         "name": "University British Columbia Tim Hortons Camera",
