@@ -6,6 +6,7 @@
   * Add playlist API ([#6161](https://github.com/google/ExoPlayer/issues/6161)).
   * Add `play` and `pause` methods to `Player`.
   * Add `Player.getCurrentLiveOffset` to conveniently return the live offset.
+  * Add `Player.onPlayWhenReadyChanged` with reasons.
   * Make `MediaSourceEventListener.LoadEventInfo` and
     `MediaSourceEventListener.MediaLoadData` top-level classes.
   * Rename `MediaCodecRenderer.onOutputFormatChanged` to

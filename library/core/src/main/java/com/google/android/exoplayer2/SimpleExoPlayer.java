@@ -688,11 +688,13 @@ public class SimpleExoPlayer extends BasePlayer
       }
     }
 
+    boolean playWhenReady = getPlayWhenReady();
     @AudioFocusManager.PlayerCommand
     int playerCommand =
         audioFocusManager.setAudioAttributes(
-            handleAudioFocus ? audioAttributes : null, getPlayWhenReady(), getPlaybackState());
-    updatePlayWhenReady(getPlayWhenReady(), playerCommand);
+            handleAudioFocus ? audioAttributes : null, playWhenReady, getPlaybackState());
+    updatePlayWhenReady(
+        playWhenReady, playerCommand, getPlayWhenReadyChangeReason(playWhenReady, playerCommand));
   }
 
   @Override
@@ -1179,9 +1181,11 @@ public class SimpleExoPlayer extends BasePlayer
   @Override
   public void prepare() {
     verifyApplicationThread();
+    boolean playWhenReady = getPlayWhenReady();
     @AudioFocusManager.PlayerCommand
-    int playerCommand = audioFocusManager.handlePrepare(getPlayWhenReady());
-    updatePlayWhenReady(getPlayWhenReady(), playerCommand);
+    int playerCommand = audioFocusManager.handlePrepare(playWhenReady);
+    updatePlayWhenReady(
+        playWhenReady, playerCommand, getPlayWhenReadyChangeReason(playWhenReady, playerCommand));
     player.prepare();
   }
 
@@ -1318,7 +1322,8 @@ public class SimpleExoPlayer extends BasePlayer
     verifyApplicationThread();
     @AudioFocusManager.PlayerCommand
     int playerCommand = audioFocusManager.handleSetPlayWhenReady(playWhenReady, getPlaybackState());
-    updatePlayWhenReady(playWhenReady, playerCommand);
+    updatePlayWhenReady(
+        playWhenReady, playerCommand, getPlayWhenReadyChangeReason(playWhenReady, playerCommand));
   }
 
   @Override
@@ -1634,14 +1639,16 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   private void updatePlayWhenReady(
-      boolean playWhenReady, @AudioFocusManager.PlayerCommand int playerCommand) {
+      boolean playWhenReady,
+      @AudioFocusManager.PlayerCommand int playerCommand,
+      @Player.PlayWhenReadyChangeReason int playWhenReadyChangeReason) {
     playWhenReady = playWhenReady && playerCommand != AudioFocusManager.PLAYER_COMMAND_DO_NOT_PLAY;
     @PlaybackSuppressionReason
     int playbackSuppressionReason =
         playWhenReady && playerCommand != AudioFocusManager.PLAYER_COMMAND_PLAY_WHEN_READY
             ? Player.PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS
             : Player.PLAYBACK_SUPPRESSION_REASON_NONE;
-    player.setPlayWhenReady(playWhenReady, playbackSuppressionReason);
+    player.setPlayWhenReady(playWhenReady, playbackSuppressionReason, playWhenReadyChangeReason);
   }
 
   private void verifyApplicationThread() {
@@ -1653,6 +1660,12 @@ public class SimpleExoPlayer extends BasePlayer
           hasNotifiedFullWrongThreadWarning ? null : new IllegalStateException());
       hasNotifiedFullWrongThreadWarning = true;
     }
+  }
+
+  private static int getPlayWhenReadyChangeReason(boolean playWhenReady, int playerCommand) {
+    return playWhenReady && playerCommand != AudioFocusManager.PLAYER_COMMAND_PLAY_WHEN_READY
+        ? PLAY_WHEN_READY_CHANGE_REASON_AUDIO_FOCUS_LOSS
+        : PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST;
   }
 
   private final class ComponentListener
@@ -1872,14 +1885,23 @@ public class SimpleExoPlayer extends BasePlayer
 
     @Override
     public void executePlayerCommand(@AudioFocusManager.PlayerCommand int playerCommand) {
-      updatePlayWhenReady(getPlayWhenReady(), playerCommand);
+      boolean playWhenReady = getPlayWhenReady();
+      updatePlayWhenReady(
+          playWhenReady, playerCommand, getPlayWhenReadyChangeReason(playWhenReady, playerCommand));
     }
 
     // AudioBecomingNoisyManager.EventListener implementation.
 
     @Override
     public void onAudioBecomingNoisy() {
-      pause();
+      // Command is always PLAYER_COMMAND_DO_NOT_PLAY but the call is needed to abandon the
+      // audio focus if the focus is currently held.
+      int playerCommand =
+          audioFocusManager.handleSetPlayWhenReady(/* playWhenReady= */ false, getPlaybackState());
+      updatePlayWhenReady(
+          /* playWhenReady= */ false,
+          playerCommand,
+          Player.PLAY_WHEN_READY_CHANGE_REASON_AUDIO_BECOMING_NOISY);
     }
 
     // Player.EventListener implementation.

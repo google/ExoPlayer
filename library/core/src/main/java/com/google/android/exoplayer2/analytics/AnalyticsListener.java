@@ -134,6 +134,16 @@ public interface AnalyticsListener {
       EventTime eventTime, boolean playWhenReady, @Player.State int playbackState) {}
 
   /**
+   * Called when the value changed that indicates whether playback will proceed when ready.
+   *
+   * @param eventTime The event time.
+   * @param playWhenReady Whether playback will proceed when ready.
+   * @param reason The {@link Player.PlayWhenReadyChangeReason reason} of the change.
+   */
+  default void onPlayWhenReadyChanged(
+      EventTime eventTime, boolean playWhenReady, @Player.PlayWhenReadyChangeReason int reason) {}
+
+  /**
    * Called when playback suppression reason changed.
    *
    * @param eventTime The event time.

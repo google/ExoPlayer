@@ -93,12 +93,17 @@ import java.util.ArrayList;
 
   /** Sets the {@link Player.State} of this player. */
   public void setState(@Player.State int state, boolean playWhenReady) {
-    boolean notify = this.state != state || this.playWhenReady != playWhenReady;
+    boolean playWhenReadyChanged = this.playWhenReady != playWhenReady;
+    boolean playerStateChanged = this.state != state || playWhenReadyChanged;
     this.state = state;
     this.playWhenReady = playWhenReady;
-    if (notify) {
+    if (playerStateChanged) {
       for (Player.EventListener listener : listeners) {
         listener.onPlayerStateChanged(playWhenReady, state);
+        if (playWhenReadyChanged) {
+          listener.onPlayWhenReadyChanged(
+              playWhenReady, PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
+        }
       }
     }
   }
