@@ -524,6 +524,19 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
               break;
           }
           break;
+        case TtmlNode.ATTR_TTS_TEXT_COMBINE:
+          switch (Util.toLowerInvariant(attributeValue)) {
+            case TtmlNode.COMBINE_NONE:
+              style = createIfNull(style).setTextCombine(false);
+              break;
+            case TtmlNode.COMBINE_ALL:
+              style = createIfNull(style).setTextCombine(true);
+              break;
+            default:
+              // ignore
+              break;
+          }
+          break;
         case TtmlNode.ATTR_TTS_TEXT_DECORATION:
           switch (Util.toLowerInvariant(attributeValue)) {
             case TtmlNode.LINETHROUGH:
