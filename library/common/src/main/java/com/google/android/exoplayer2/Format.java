@@ -19,7 +19,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.drm.DrmInitData;
-import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -163,8 +162,8 @@ public final class Format implements Parcelable {
 
   /**
    * The type of the {@link ExoMediaCrypto} provided by the media source, if the media source can
-   * acquire a {@link DrmSession} for {@link #drmInitData}. Null if the media source cannot acquire
-   * a session for {@link #drmInitData}, or if not applicable.
+   * acquire a DRM session for {@link #drmInitData}. Null if the media source cannot acquire a
+   * session for {@link #drmInitData}, or if not applicable.
    */
   @Nullable public final Class<? extends ExoMediaCrypto> exoMediaCryptoType;
 
