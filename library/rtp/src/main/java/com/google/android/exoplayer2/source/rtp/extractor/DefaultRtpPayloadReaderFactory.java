@@ -37,6 +37,8 @@ import com.google.android.exoplayer2.util.MimeTypes;
       return new RtpMp4vPayloadReader((RtpVideoPayload)format);
     } else if (MimeTypes.VIDEO_VP8.equals(format.sampleMimeType())) {
       return new RtpVp8PayloadReader((RtpVideoPayload)format);
+    } else if (MimeTypes.VIDEO_MJPEG.equals(format.sampleMimeType())) {
+      return new RtpJpegPayloadReader((RtpVideoPayload)format);
     } else if (MimeTypes.AUDIO_ALAW.equals(format.sampleMimeType()) ||
             MimeTypes.AUDIO_MLAW.equals(format.sampleMimeType())) {
       return new RtpG711PayloadReader((RtpAudioPayload)format);

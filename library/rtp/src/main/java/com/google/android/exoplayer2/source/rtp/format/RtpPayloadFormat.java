@@ -49,7 +49,7 @@ public abstract class RtpPayloadFormat {
     public static final int APPLICATION = 5;
 
     @Retention(RetentionPolicy.SOURCE)
-    @StringDef({AC3, AMR, G722, EAC3, GSM, H261, H263, H264, H265, L16, MP2T,
+    @StringDef({AC3, AMR, G722, EAC3, JPEG, GSM, H261, H263, H264, H265, L16, MP2T,
             MP4ALATM, MPEG4GENERIC, MP4V_ES, MPA, MPV, PCMA, PCMU, PCMA_WB, PCMU_WB, OPUS, VP8, VP9})
     public @interface MediaCodec {}
     public static final String AC3 = "AC3";
@@ -57,6 +57,7 @@ public abstract class RtpPayloadFormat {
     public static final String G722 = "G722";
     public static final String GSM = "GSM";
     public static final String EAC3 = "EAC3";
+    public static final String JPEG = "JPEG";
     public static final String H261 = "H261";
     public static final String H263 = "H263";
     public static final String H264 = "H264";
@@ -160,6 +161,11 @@ public abstract class RtpPayloadFormat {
                 }
                 break;
 
+            case 26:
+                this.encoding = JPEG;
+                clockrate = 90000;
+                break;
+
             case 31:
                 this.encoding = H261;
                 clockrate = 90000;
@@ -238,8 +244,6 @@ public abstract class RtpPayloadFormat {
                         this.sampleMimeType = MimeTypes.AUDIO_L16;
                         break;
                     case MPA:
-                        this.sampleMimeType = MimeTypes.AUDIO_MP4;
-                        break;
                     case MP4ALATM:
                         this.sampleMimeType = MimeTypes.AUDIO_MP4;
                         break;
@@ -259,6 +263,9 @@ public abstract class RtpPayloadFormat {
                         break;
                     case H265:
                         this.sampleMimeType = MimeTypes.VIDEO_H265;
+                        break;
+                    case JPEG:
+                        this.sampleMimeType = MimeTypes.VIDEO_MJPEG;
                         break;
                     case MP2T:
                         this.sampleMimeType = MimeTypes.VIDEO_MP2T;

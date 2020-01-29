@@ -40,6 +40,7 @@ public final class MimeTypes {
   public static final String VIDEO_MP2T = BASE_TYPE_VIDEO + "/mp2t";
   public static final String VIDEO_AV1 = BASE_TYPE_VIDEO + "/av01";
   public static final String VIDEO_MP4V = BASE_TYPE_VIDEO + "/mp4v-es";
+  public static final String VIDEO_MJPEG = BASE_TYPE_VIDEO + "/mjpeg";
   public static final String VIDEO_MPEG = BASE_TYPE_VIDEO + "/mpeg";
   public static final String VIDEO_MPEG2 = BASE_TYPE_VIDEO + "/mpeg2";
   public static final String VIDEO_VC1 = BASE_TYPE_VIDEO + "/wvc1";
