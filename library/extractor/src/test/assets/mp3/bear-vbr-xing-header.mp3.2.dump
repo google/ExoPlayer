@@ -26,174 +26,158 @@ track 0:
     drmInitData = -
     metadata = entries=[TSSE: description=null: value=Lavf58.29.100]
     initializationData:
-  total output bytes = 12624
-  sample count = 42
+  total output bytes = 11328
+  sample count = 38
   sample 0:
-    time = 1800000
-    flags = 1
-    data = length 336, hash F18837E2
-  sample 1:
-    time = 1824000
-    flags = 1
-    data = length 336, hash ED36B78E
-  sample 2:
-    time = 1848000
-    flags = 1
-    data = length 336, hash B3D28289
-  sample 3:
-    time = 1872000
-    flags = 1
-    data = length 288, hash 8BDE28E1
-  sample 4:
-    time = 1896000
+    time = 1886772
     flags = 1
     data = length 336, hash CFD5E966
-  sample 5:
-    time = 1920000
+  sample 1:
+    time = 1910772
     flags = 1
     data = length 288, hash DC08E267
-  sample 6:
-    time = 1944000
+  sample 2:
+    time = 1934772
     flags = 1
     data = length 336, hash 6530CB78
-  sample 7:
-    time = 1968000
+  sample 3:
+    time = 1958772
     flags = 1
     data = length 336, hash 6CC6636E
-  sample 8:
-    time = 1992000
+  sample 4:
+    time = 1982772
     flags = 1
     data = length 336, hash 613047C1
-  sample 9:
-    time = 2016000
+  sample 5:
+    time = 2006772
     flags = 1
     data = length 288, hash CDC747BF
-  sample 10:
-    time = 2040000
+  sample 6:
+    time = 2030772
     flags = 1
     data = length 336, hash AF22AA74
-  sample 11:
-    time = 2064000
+  sample 7:
+    time = 2054772
     flags = 1
     data = length 384, hash 82F326AA
-  sample 12:
-    time = 2088000
+  sample 8:
+    time = 2078772
     flags = 1
     data = length 384, hash EDA26C4D
-  sample 13:
-    time = 2112000
+  sample 9:
+    time = 2102772
     flags = 1
     data = length 336, hash 94C643DC
-  sample 14:
-    time = 2136000
+  sample 10:
+    time = 2126772
     flags = 1
     data = length 288, hash CB5D9C40
-  sample 15:
-    time = 2160000
+  sample 11:
+    time = 2150772
     flags = 1
     data = length 336, hash 1E69DE3F
-  sample 16:
-    time = 2184000
+  sample 12:
+    time = 2174772
     flags = 1
     data = length 336, hash 7E472219
-  sample 17:
-    time = 2208000
+  sample 13:
+    time = 2198772
     flags = 1
     data = length 336, hash DA47B9FA
-  sample 18:
-    time = 2232000
+  sample 14:
+    time = 2222772
     flags = 1
     data = length 336, hash DD0ABB7C
-  sample 19:
-    time = 2256000
+  sample 15:
+    time = 2246772
     flags = 1
     data = length 288, hash DBF93FAC
-  sample 20:
-    time = 2280000
+  sample 16:
+    time = 2270772
     flags = 1
     data = length 336, hash 243F4B2
-  sample 21:
-    time = 2304000
+  sample 17:
+    time = 2294772
     flags = 1
     data = length 336, hash 2E881490
-  sample 22:
-    time = 2328000
+  sample 18:
+    time = 2318772
     flags = 1
     data = length 288, hash 1C28C8BE
-  sample 23:
-    time = 2352000
+  sample 19:
+    time = 2342772
     flags = 1
     data = length 336, hash C73E5D30
-  sample 24:
-    time = 2376000
+  sample 20:
+    time = 2366772
     flags = 1
     data = length 288, hash 98B5BFF6
-  sample 25:
-    time = 2400000
+  sample 21:
+    time = 2390772
     flags = 1
     data = length 336, hash E0135533
-  sample 26:
-    time = 2424000
+  sample 22:
+    time = 2414772
     flags = 1
     data = length 336, hash D13C9DBC
-  sample 27:
-    time = 2448000
+  sample 23:
+    time = 2438772
     flags = 1
     data = length 336, hash 63D524CA
-  sample 28:
-    time = 2472000
+  sample 24:
+    time = 2462772
     flags = 1
     data = length 288, hash A28514C3
-  sample 29:
-    time = 2496000
+  sample 25:
+    time = 2486772
     flags = 1
     data = length 336, hash 72B647FF
-  sample 30:
-    time = 2520000
+  sample 26:
+    time = 2510772
     flags = 1
     data = length 336, hash 8F740AB1
-  sample 31:
-    time = 2544000
+  sample 27:
+    time = 2534772
     flags = 1
     data = length 336, hash 5E3C7E93
-  sample 32:
-    time = 2568000
+  sample 28:
+    time = 2558772
     flags = 1
     data = length 336, hash 121B913B
-  sample 33:
-    time = 2592000
+  sample 29:
+    time = 2582772
     flags = 1
     data = length 336, hash 578FCCF2
-  sample 34:
-    time = 2616000
+  sample 30:
+    time = 2606772
     flags = 1
     data = length 336, hash 5B5823DE
-  sample 35:
-    time = 2640000
+  sample 31:
+    time = 2630772
     flags = 1
     data = length 384, hash D8B83F78
-  sample 36:
-    time = 2664000
+  sample 32:
+    time = 2654772
     flags = 1
     data = length 240, hash E649682F
-  sample 37:
-    time = 2688000
+  sample 33:
+    time = 2678772
     flags = 1
     data = length 96, hash C559A6F4
-  sample 38:
-    time = 2712000
+  sample 34:
+    time = 2702772
     flags = 1
     data = length 96, hash 792796BC
-  sample 39:
-    time = 2736000
+  sample 35:
+    time = 2726772
     flags = 1
     data = length 120, hash 8172CD0E
-  sample 40:
-    time = 2760000
+  sample 36:
+    time = 2750772
     flags = 1
     data = length 120, hash F562B52F
-  sample 41:
-    time = 2784000
+  sample 37:
+    time = 2774772
     flags = 1
     data = length 96, hash FF8D5B98
 tracksEnded = true

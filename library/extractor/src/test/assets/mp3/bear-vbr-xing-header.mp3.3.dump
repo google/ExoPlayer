@@ -1,7 +1,7 @@
 seekMap:
   isSeekable = true
-  duration = 2784000
-  getPosition(0) = [[timeUs=0, position=201]]
+  duration = 2808000
+  getPosition(0) = [[timeUs=0, position=237]]
 numberOfTracks = 1
 track 0:
   format:
@@ -18,13 +18,13 @@ track 0:
     channelCount = 2
     sampleRate = 48000
     pcmEncoding = -1
-    encoderDelay = 956
-    encoderPadding = 3352
+    encoderDelay = 576
+    encoderPadding = 576
     subsampleOffsetUs = 9223372036854775807
     selectionFlags = 0
     language = null
     drmInitData = -
-    metadata = entries=[TSSE: description=null: value=Lavf54.20.4]
+    metadata = entries=[TSSE: description=null: value=Lavf58.29.100]
     initializationData:
   total output bytes = 0
   sample count = 0

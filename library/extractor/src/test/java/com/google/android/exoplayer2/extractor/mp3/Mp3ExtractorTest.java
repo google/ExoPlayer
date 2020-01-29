@@ -26,7 +26,7 @@ public final class Mp3ExtractorTest {
 
   @Test
   public void testMp3SampleWithXingHeader() throws Exception {
-    ExtractorAsserts.assertBehavior(Mp3Extractor::new, "mp3/bear-xing-header.mp3");
+    ExtractorAsserts.assertBehavior(Mp3Extractor::new, "mp3/bear-vbr-xing-header.mp3");
   }
 
   @Test
@@ -38,7 +38,8 @@ public final class Mp3ExtractorTest {
   @Test
   public void testMp3SampleWithIndexSeeker() throws Exception {
     ExtractorAsserts.assertBehavior(
-        () -> new Mp3Extractor(Mp3Extractor.FLAG_ENABLE_INDEX_SEEKING), "mp3/bear-vbr.mp3");
+        () -> new Mp3Extractor(Mp3Extractor.FLAG_ENABLE_INDEX_SEEKING),
+        "mp3/bear-vbr-no-seek-table.mp3");
   }
 
   @Test
