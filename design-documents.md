@@ -9,12 +9,14 @@ implemented.
 
 ### Design documents in RFC status ###
 
+* [Frame-accurate pausing][] (January 2020)
 * [Index seeking in MP3 streams][] (January 2020)
 * [Low-latency live playback][] (September 2019)
 * [Unwrapping Nested Metadata][] (September 2019)
 * [Playlist API][] (July 2019)
 * [Bandwidth estimation analysis][] (July 2019)
 
+[Frame-accurate pausing]: https://docs.google.com/document/d/1xXGvIMAYDWN4BGUNqAplNN-T7rjrW_1EAVXpyCcAqUI
 [Index seeking in MP3 streams]: https://docs.google.com/document/d/1ZtQsCFvi_LiwFqhHWy20dJ1XwHLOXE4BJ5SzXWJ9a9E
 [Low-latency live playback]: https://docs.google.com/document/d/1z9qwuP7ff9sf3DZboXnhEF9hzW3Ng5rfJVqlGn8N38k
 [Unwrapping Nested Metadata]: https://docs.google.com/document/d/1TS13CVmexaLG1C4TdD-4NkX-BCSr_76FaHVOPo6XP1E
