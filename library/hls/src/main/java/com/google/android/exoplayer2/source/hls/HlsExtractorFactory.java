@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.source.hls;
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
@@ -71,7 +70,6 @@ public interface HlsExtractorFactory {
    * @param format A {@link Format} associated with the chunk to extract.
    * @param muxedCaptionFormats List of muxed caption {@link Format}s. Null if no closed caption
    *     information is available in the master playlist.
-   * @param drmInitData {@link DrmInitData} associated with the chunk.
    * @param timestampAdjuster Adjuster corresponding to the provided discontinuity sequence number.
    * @param responseHeaders The HTTP response headers associated with the media segment or
    *     initialization section to extract.
@@ -87,7 +85,6 @@ public interface HlsExtractorFactory {
       Uri uri,
       Format format,
       @Nullable List<Format> muxedCaptionFormats,
-      @Nullable DrmInitData drmInitData,
       TimestampAdjuster timestampAdjuster,
       Map<String, List<String>> responseHeaders,
       ExtractorInput sniffingExtractorInput)
