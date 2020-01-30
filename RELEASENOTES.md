@@ -35,8 +35,11 @@
     *   Add `showScrubber` and `hideScrubber` methods to `DefaultTimeBar`.
     *   Update `TrackSelectionDialogBuilder` to use AndroidX Compat Dialog
         ([#7357](https://github.com/google/ExoPlayer/issues/7357)).
-*   Text: Use anti-aliasing and bitmap filtering when displaying bitmap
-    subtitles.
+*   Text:
+    *   Use anti-aliasing and bitmap filtering when displaying bitmap
+        subtitles.
+    *   Fix `SubtitlePainter` to render `EDGE_TYPE_OUTLINE` using the correct
+        color.
 *   Cronet extension: Default to using the Cronet implementation in Google Play
     Services rather than Cronet Embedded. This allows Cronet to be used with a
     negligible increase in application size, compared to approximately 8MB when
