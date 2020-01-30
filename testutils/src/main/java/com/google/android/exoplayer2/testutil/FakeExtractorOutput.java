@@ -20,12 +20,15 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.content.Context;
 import android.util.SparseArray;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.SeekMap;
+import com.google.android.exoplayer2.util.Assertions;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A fake {@link ExtractorOutput}.
@@ -45,7 +48,7 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
 
   public int numberOfTracks;
   public boolean tracksEnded;
-  public SeekMap seekMap;
+  public @MonotonicNonNull SeekMap seekMap;
 
   public FakeExtractorOutput() {
     trackOutputs = new SparseArray<>();
@@ -53,7 +56,7 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
 
   @Override
   public FakeTrackOutput track(int id, int type) {
-    FakeTrackOutput output = trackOutputs.get(id);
+    @Nullable FakeTrackOutput output = trackOutputs.get(id);
     if (output == null) {
       assertThat(tracksEnded).isFalse();
       numberOfTracks++;
@@ -99,10 +102,11 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
       assertThat(seekMap).isNull();
     } else {
       // TODO: Bulk up this check if possible.
-      assertThat(seekMap).isNotNull();
-      assertThat(seekMap.getClass()).isEqualTo(expected.seekMap.getClass());
-      assertThat(seekMap.isSeekable()).isEqualTo(expected.seekMap.isSeekable());
-      assertThat(seekMap.getSeekPoints(0)).isEqualTo(expected.seekMap.getSeekPoints(0));
+      SeekMap expectedSeekMap = Assertions.checkNotNull(expected.seekMap);
+      SeekMap seekMap = Assertions.checkNotNull(this.seekMap);
+      assertThat(seekMap.getClass()).isEqualTo(expectedSeekMap.getClass());
+      assertThat(seekMap.isSeekable()).isEqualTo(expectedSeekMap.isSeekable());
+      assertThat(seekMap.getSeekPoints(0)).isEqualTo(expectedSeekMap.getSeekPoints(0));
     }
     for (int i = 0; i < numberOfTracks; i++) {
       assertThat(trackOutputs.keyAt(i)).isEqualTo(expected.trackOutputs.keyAt(i));
@@ -125,7 +129,7 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
     if (WRITE_DUMP) {
       File file = new File(System.getProperty("user.dir"), "src/test/assets");
       file = new File(file, dumpFile);
-      file.getParentFile().mkdirs();
+      Assertions.checkStateNotNull(file.getParentFile()).mkdirs();
       PrintWriter out = new PrintWriter(file);
       out.print(actual);
       out.close();

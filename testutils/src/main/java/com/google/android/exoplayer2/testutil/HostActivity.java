@@ -33,9 +33,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 
-/**
- * A host activity for performing playback tests.
- */
+/** A host activity for performing playback tests. */
 public final class HostActivity extends Activity implements SurfaceHolder.Callback {
 
   /**

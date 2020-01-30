@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.source.chunk.BaseMediaChunkIterator;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import com.google.android.exoplayer2.testutil.FakeDataSet.FakeData.Segment;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.util.Util;
 import java.util.Random;
 
 /**
@@ -92,7 +93,7 @@ public final class FakeAdaptiveDataSet extends FakeDataSet {
       checkInBounds();
       String uri = dataSet.getUri(trackGroupIndex);
       int chunkIndex = (int) getCurrentIndex();
-      Segment fakeDataChunk = dataSet.getData(uri).getSegments().get(chunkIndex);
+      Segment fakeDataChunk = Util.castNonNull(dataSet.getData(uri)).getSegments().get(chunkIndex);
       return new DataSpec(
           Uri.parse(uri), fakeDataChunk.byteOffset, fakeDataChunk.length, /* key= */ null);
     }

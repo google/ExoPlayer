@@ -209,7 +209,7 @@ public final class ExtractorAsserts {
     }
 
     // If the SeekMap is seekable, test seeking in the stream.
-    SeekMap seekMap = extractorOutput.seekMap;
+    SeekMap seekMap = Assertions.checkNotNull(extractorOutput.seekMap);
     if (seekMap.isSeekable()) {
       long durationUs = seekMap.getDurationUs();
       for (int j = 0; j < 4; j++) {
@@ -361,7 +361,7 @@ public final class ExtractorAsserts {
     int i = fileName.lastIndexOf('/');
     String path = i >= 0 ? fileName.substring(0, i) : "";
     String file = i >= 0 ? fileName.substring(i + 1) : fileName;
-    return Arrays.asList(context.getResources().getAssets().list(path)).contains(file);
+    String[] assets = context.getResources().getAssets().list(path);
+    return assets != null && Arrays.asList(assets).contains(file);
   }
-
 }

@@ -821,7 +821,8 @@ public final class ExoPlayerTest {
         new FakeMediaSource(timeline, Builder.VIDEO_FORMAT, Builder.AUDIO_FORMAT);
     FakeRenderer videoRenderer = new FakeRenderer(Builder.VIDEO_FORMAT);
     FakeRenderer audioRenderer = new FakeRenderer(Builder.AUDIO_FORMAT);
-    final FakeTrackSelector trackSelector = new FakeTrackSelector(/* reuse track selection */ true);
+    final FakeTrackSelector trackSelector =
+        new FakeTrackSelector(/* mayReuseTrackSelection= */ true);
     ActionSchedule disableTrackAction =
         new ActionSchedule.Builder("testReuseTrackSelection")
             .pause()

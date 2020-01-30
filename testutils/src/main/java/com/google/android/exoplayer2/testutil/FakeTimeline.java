@@ -24,9 +24,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 
-/**
- * Fake {@link Timeline} which can be setup to return custom {@link TimelineWindowDefinition}s.
- */
+/** Fake {@link Timeline} which can be setup to return custom {@link TimelineWindowDefinition}s. */
 public final class FakeTimeline extends Timeline {
 
   /**
