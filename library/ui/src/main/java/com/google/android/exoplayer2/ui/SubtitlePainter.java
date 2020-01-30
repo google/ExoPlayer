@@ -33,6 +33,7 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.BackgroundColorSpan;
+import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.util.DisplayMetrics;
 import androidx.annotation.Nullable;
@@ -98,6 +99,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   // Derived drawing variables.
   private @MonotonicNonNull StaticLayout textLayout;
+  private @MonotonicNonNull StaticLayout edgeLayout;
   private int textLeft;
   private int textTop;
   private int textPaddingX;
@@ -286,11 +288,38 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       }
     }
 
+    // Remove embedded font color to not destroy edges, otherwise it overrides edge color.
+    SpannableStringBuilder cueTextEdge = new SpannableStringBuilder(cueText);
+    if (edgeType == CaptionStyleCompat.EDGE_TYPE_OUTLINE) {
+      int cueLength = cueTextEdge.length();
+      ForegroundColorSpan[] foregroundColorSpans =
+          cueTextEdge.getSpans(0, cueLength, ForegroundColorSpan.class);
+      for (ForegroundColorSpan foregroundColorSpan : foregroundColorSpans) {
+        cueTextEdge.removeSpan(foregroundColorSpan);
+      }
+    }
+
+    // EDGE_TYPE_NONE & EDGE_TYPE_DROP_SHADOW both paint in one pass, they ignore cueTextEdge.
+    // In other cases we use two painters and we need to apply the background in the first one only,
+    // otherwise the background color gets drawn in front of the edge color
+    // (https://github.com/google/ExoPlayer/pull/6724#issuecomment-564650572).
     if (Color.alpha(backgroundColor) > 0) {
-      SpannableStringBuilder newCueText = new SpannableStringBuilder(cueText);
-      newCueText.setSpan(
-          new BackgroundColorSpan(backgroundColor), 0, newCueText.length(), Spanned.SPAN_PRIORITY);
-      cueText = newCueText;
+      if (edgeType == CaptionStyleCompat.EDGE_TYPE_NONE
+          || edgeType == CaptionStyleCompat.EDGE_TYPE_DROP_SHADOW) {
+        SpannableStringBuilder newCueText = new SpannableStringBuilder(cueText);
+        newCueText.setSpan(
+            new BackgroundColorSpan(backgroundColor),
+            0,
+            newCueText.length(),
+            Spanned.SPAN_PRIORITY);
+        cueText = newCueText;
+      } else {
+        cueTextEdge.setSpan(
+            new BackgroundColorSpan(backgroundColor),
+            0,
+            cueTextEdge.length(),
+            Spanned.SPAN_PRIORITY);
+      }
     }
 
     Alignment textAlignment = cueTextAlignment == null ? Alignment.ALIGN_CENTER : cueTextAlignment;
@@ -366,6 +395,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     // Update the derived drawing variables.
     this.textLayout = new StaticLayout(cueText, textPaint, textWidth, textAlignment, spacingMult,
         spacingAdd, true);
+    this.edgeLayout =
+        new StaticLayout(
+            cueTextEdge, textPaint, textWidth, textAlignment, spacingMult, spacingAdd, true);
     this.textLeft = textLeft;
     this.textTop = textTop;
     this.textPaddingX = textPaddingX;
@@ -405,8 +437,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   private void drawTextLayout(Canvas canvas) {
-    StaticLayout layout = textLayout;
-    if (layout == null) {
+    StaticLayout textLayout = this.textLayout;
+    StaticLayout edgeLayout = this.edgeLayout;
+    if (textLayout == null || edgeLayout == null) {
       // Nothing to draw.
       return;
     }
@@ -416,8 +449,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     if (Color.alpha(windowColor) > 0) {
       paint.setColor(windowColor);
-      canvas.drawRect(-textPaddingX, 0, layout.getWidth() + textPaddingX, layout.getHeight(),
-          paint);
+      canvas.drawRect(
+          -textPaddingX, 0, textLayout.getWidth() + textPaddingX, textLayout.getHeight(), paint);
     }
 
     if (edgeType == CaptionStyleCompat.EDGE_TYPE_OUTLINE) {
@@ -425,7 +458,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       textPaint.setStrokeWidth(outlineWidth);
       textPaint.setColor(edgeColor);
       textPaint.setStyle(Style.FILL_AND_STROKE);
-      layout.draw(canvas);
+      edgeLayout.draw(canvas);
     } else if (edgeType == CaptionStyleCompat.EDGE_TYPE_DROP_SHADOW) {
       textPaint.setShadowLayer(shadowRadius, shadowOffset, shadowOffset, edgeColor);
     } else if (edgeType == CaptionStyleCompat.EDGE_TYPE_RAISED
@@ -437,13 +470,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       textPaint.setColor(foregroundColor);
       textPaint.setStyle(Style.FILL);
       textPaint.setShadowLayer(shadowRadius, -offset, -offset, colorUp);
-      layout.draw(canvas);
+      edgeLayout.draw(canvas);
       textPaint.setShadowLayer(shadowRadius, offset, offset, colorDown);
     }
 
     textPaint.setColor(foregroundColor);
     textPaint.setStyle(Style.FILL);
-    layout.draw(canvas);
+    textLayout.draw(canvas);
     textPaint.setShadowLayer(0, 0, 0, 0);
 
     canvas.restoreToCount(saveCount);
