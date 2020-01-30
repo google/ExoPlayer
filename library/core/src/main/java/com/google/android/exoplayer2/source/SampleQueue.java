@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source;
 
 import android.os.Looper;
+import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
@@ -81,8 +82,8 @@ public class SampleQueue implements TrackOutput {
   private Format upstreamCommittedFormat;
   private int upstreamSourceId;
 
-  private boolean pendingFormatAdjustment;
-  private Format lastUnadjustedFormat;
+  private boolean pendingUpstreamFormatAdjustment;
+  private Format unadjustedUpstreamFormat;
   private long sampleOffsetUs;
   private boolean pendingSplice;
 
@@ -146,6 +147,7 @@ public class SampleQueue implements TrackOutput {
     isLastSampleQueued = false;
     upstreamCommittedFormat = null;
     if (resetUpstreamFormat) {
+      unadjustedUpstreamFormat = null;
       upstreamFormat = null;
       upstreamFormatRequired = true;
     }
@@ -433,7 +435,7 @@ public class SampleQueue implements TrackOutput {
   public void setSampleOffsetUs(long sampleOffsetUs) {
     if (this.sampleOffsetUs != sampleOffsetUs) {
       this.sampleOffsetUs = sampleOffsetUs;
-      pendingFormatAdjustment = true;
+      invalidateUpstreamFormatAdjustment();
     }
   }
 
@@ -449,13 +451,13 @@ public class SampleQueue implements TrackOutput {
   // TrackOutput implementation. Called by the loading thread.
 
   @Override
-  public void format(Format unadjustedFormat) {
-    Format adjustedFormat = getAdjustedSampleFormat(unadjustedFormat, sampleOffsetUs);
-    boolean formatChanged = setUpstreamFormat(adjustedFormat);
-    lastUnadjustedFormat = unadjustedFormat;
-    pendingFormatAdjustment = false;
-    if (upstreamFormatChangeListener != null && formatChanged) {
-      upstreamFormatChangeListener.onUpstreamFormatChanged(adjustedFormat);
+  public final void format(Format unadjustedUpstreamFormat) {
+    Format adjustedUpstreamFormat = getAdjustedUpstreamFormat(unadjustedUpstreamFormat);
+    pendingUpstreamFormatAdjustment = false;
+    this.unadjustedUpstreamFormat = unadjustedUpstreamFormat;
+    boolean upstreamFormatChanged = setUpstreamFormat(adjustedUpstreamFormat);
+    if (upstreamFormatChangeListener != null && upstreamFormatChanged) {
+      upstreamFormatChangeListener.onUpstreamFormatChanged(adjustedUpstreamFormat);
     }
   }
 
@@ -477,8 +479,8 @@ public class SampleQueue implements TrackOutput {
       int size,
       int offset,
       @Nullable CryptoData cryptoData) {
-    if (pendingFormatAdjustment) {
-      format(lastUnadjustedFormat);
+    if (pendingUpstreamFormatAdjustment) {
+      format(unadjustedUpstreamFormat);
     }
     timeUs += sampleOffsetUs;
     if (pendingSplice) {
@@ -489,6 +491,32 @@ public class SampleQueue implements TrackOutput {
     }
     long absoluteOffset = sampleDataQueue.getTotalBytesWritten() - size - offset;
     commitSample(timeUs, flags, absoluteOffset, size, cryptoData);
+  }
+
+  /**
+   * Invalidates the last upstream format adjustment. {@link #getAdjustedUpstreamFormat(Format)}
+   * will be called to adjust the upstream {@link Format} again before the next sample is queued.
+   */
+  protected final void invalidateUpstreamFormatAdjustment() {
+    pendingUpstreamFormatAdjustment = true;
+  }
+
+  /**
+   * Adjusts the upstream {@link Format} (i.e., the {@link Format} that was most recently passed to
+   * {@link #format(Format)}).
+   *
+   * <p>The default implementation incorporates the sample offset passed to {@link
+   * #setSampleOffsetUs(long)} into {@link Format#subsampleOffsetUs}.
+   *
+   * @param format The {@link Format} to adjust.
+   * @return The adjusted {@link Format}.
+   */
+  @CallSuper
+  protected Format getAdjustedUpstreamFormat(Format format) {
+    if (sampleOffsetUs != 0 && format.subsampleOffsetUs != Format.OFFSET_SAMPLE_RELATIVE) {
+      format = format.copyWithSubsampleOffsetUs(format.subsampleOffsetUs + sampleOffsetUs);
+    }
+    return format;
   }
 
   // Internal methods.
@@ -881,23 +909,6 @@ public class SampleQueue implements TrackOutput {
   private int getRelativeIndex(int offset) {
     int relativeIndex = relativeFirstIndex + offset;
     return relativeIndex < capacity ? relativeIndex : relativeIndex - capacity;
-  }
-
-  /**
-   * Adjusts a {@link Format} to incorporate a sample offset into {@link Format#subsampleOffsetUs}.
-   *
-   * @param format The {@link Format} to adjust.
-   * @param sampleOffsetUs The offset to apply.
-   * @return The adjusted {@link Format}.
-   */
-  private static Format getAdjustedSampleFormat(Format format, long sampleOffsetUs) {
-    if (format == null) {
-      return null;
-    }
-    if (sampleOffsetUs != 0 && format.subsampleOffsetUs != Format.OFFSET_SAMPLE_RELATIVE) {
-      format = format.copyWithSubsampleOffsetUs(format.subsampleOffsetUs + sampleOffsetUs);
-    }
-    return format;
   }
 
   /** A holder for sample metadata not held by {@link DecoderInputBuffer}. */
