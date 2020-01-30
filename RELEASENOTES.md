@@ -29,6 +29,8 @@
     ([#6552](https://github.com/google/ExoPlayer/issues/6552)).
   * Don't use notification chronometer if playback speed is != 1.0
     ([#6816](https://github.com/google/ExoPlayer/issues/6816)).
+* HLS: Fix playback of DRM protected content that uses key rotation
+  ([#6903](https://github.com/google/ExoPlayer/issues/6903)).
 * WAV:
   * Support IMA ADPCM encoded data.
   * Improve support for G.711 A-law and mu-law encoded data.

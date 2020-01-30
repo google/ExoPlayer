@@ -47,7 +47,11 @@ public final class FragmentedMp4ExtractorTest {
     ExtractorFactory extractorFactory =
         getExtractorFactory(
             Collections.singletonList(
-                Format.createTextSampleFormat(null, MimeTypes.APPLICATION_CEA608, 0, null)));
+                Format.createTextSampleFormat(
+                    null,
+                    MimeTypes.APPLICATION_CEA608,
+                    /* selectionFlags= */ 0,
+                    /* language= */ null)));
     ExtractorAsserts.assertBehavior(extractorFactory, "mp4/sample_fragmented_sei.mp4");
   }
 
@@ -64,6 +68,11 @@ public final class FragmentedMp4ExtractorTest {
   }
 
   private static ExtractorFactory getExtractorFactory(final List<Format> closedCaptionFormats) {
-    return () -> new FragmentedMp4Extractor(0, null, null, null, closedCaptionFormats);
+    return () ->
+        new FragmentedMp4Extractor(
+            /* flags= */ 0,
+            /* timestampAdjuster= */ null,
+            /* sideloadedTrack= */ null,
+            closedCaptionFormats);
   }
 }
