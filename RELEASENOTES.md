@@ -22,6 +22,8 @@
     subtitles (rendering is coming later).
   * Parse `tts:combineText` property (i.e. tate-chu-yoko) in TTML subtitles
     (rendering is coming later).
+  * Fix `SubtitlePainter` to render `EDGE_TYPE_OUTLINE` using the correct color
+    ([#6724](https://github.com/google/ExoPlayer/pull/6724)).
 * DRM: Add support for attaching DRM sessions to clear content in the demo app.
 * Downloads: Merge downloads in `SegmentDownloader` to improve overall download
   speed ([#5978](https://github.com/google/ExoPlayer/issues/5978)).
