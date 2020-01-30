@@ -1466,12 +1466,14 @@ public class SimpleExoPlayer extends BasePlayer
     }
     if (this.surface != null && this.surface != surface) {
       // We're replacing a surface. Block to ensure that it's not accessed after the method returns.
-      try {
-        for (PlayerMessage message : messages) {
-          message.blockUntilDelivered();
-        }
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
+      for (PlayerMessage message : messages) {
+        new Handler().post(() -> {
+          try {
+            message.blockUntilDelivered();
+          } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+          }
+        });
       }
       // If we created the previous surface, we are responsible for releasing it.
       if (this.ownsSurface) {
