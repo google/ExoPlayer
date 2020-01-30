@@ -667,6 +667,12 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     outputStreamEnded = false;
     pendingOutputEndOfStream = false;
     flushOrReinitializeCodec();
+    // If there is a format change on the input side still pending propagation to the output, we
+    // need to queue a format next time a buffer is read. This is because we may not read a new
+    // input format after the position reset.
+    if (formatQueue.size() > 0) {
+      waitingForFirstSampleInFormat = true;
+    }
     formatQueue.clear();
   }
 
