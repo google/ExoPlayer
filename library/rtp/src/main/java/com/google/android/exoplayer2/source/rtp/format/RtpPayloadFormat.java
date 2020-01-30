@@ -279,6 +279,9 @@ public abstract class RtpPayloadFormat {
                     case VP8:
                         this.sampleMimeType = MimeTypes.VIDEO_VP8;
                         break;
+                    case VP9:
+                        this.sampleMimeType = MimeTypes.VIDEO_VP9;
+                        break;
                 }
                 break;
         }
