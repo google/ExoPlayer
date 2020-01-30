@@ -21,6 +21,7 @@ import android.content.Context;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.audio.ForwardingAudioSink;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.IOException;
@@ -122,7 +123,7 @@ public final class CapturingAudioSink extends ForwardingAudioSink implements Dum
     if (WRITE_DUMP) {
       File directory = context.getExternalFilesDir(null);
       File file = new File(directory, dumpFile);
-      file.getParentFile().mkdirs();
+      Assertions.checkStateNotNull(file.getParentFile()).mkdirs();
       PrintWriter out = new PrintWriter(file);
       out.print(actual);
       out.close();

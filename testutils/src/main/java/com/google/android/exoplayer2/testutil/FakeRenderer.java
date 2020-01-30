@@ -84,7 +84,7 @@ public class FakeRenderer extends BaseRenderer {
       if (result == C.RESULT_FORMAT_READ) {
         formatReadCount++;
         assertThat(expectedFormats).contains(formatHolder.format);
-        onFormatChanged(formatHolder.format);
+        onFormatChanged(Assertions.checkNotNull(formatHolder.format));
       } else if (result == C.RESULT_BUFFER_READ) {
         if (buffer.isEndOfStream()) {
           isEnded = true;

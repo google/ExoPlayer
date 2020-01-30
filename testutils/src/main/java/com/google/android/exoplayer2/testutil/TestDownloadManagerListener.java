@@ -18,13 +18,16 @@ package com.google.android.exoplayer2.testutil;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.offline.Download;
 import com.google.android.exoplayer2.offline.Download.State;
 import com.google.android.exoplayer2.offline.DownloadManager;
+import com.google.android.exoplayer2.util.Util;
 import java.util.HashMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** A {@link DownloadManager.Listener} for testing. */
 public final class TestDownloadManagerListener implements DownloadManager.Listener {
@@ -39,7 +42,7 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
   private final CountDownLatch initializedCondition;
   private final int timeoutMs;
 
-  private CountDownLatch downloadFinishedCondition;
+  private @MonotonicNonNull CountDownLatch downloadFinishedCondition;
   @Download.FailureReason private int failureReason;
 
   public TestDownloadManagerListener(
@@ -57,6 +60,7 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
     downloadManager.addListener(this);
   }
 
+  @Nullable
   public Integer pollStateChange(String taskId, long timeoutMs) throws InterruptedException {
     return getStateQueue(taskId).poll(timeoutMs, TimeUnit.MILLISECONDS);
   }
@@ -112,7 +116,7 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
     dummyMainThread.runOnMainThread(
         () -> {
           if (downloadManager.isIdle()) {
-            downloadFinishedCondition.countDown();
+            Util.castNonNull(downloadFinishedCondition).countDown();
           }
         });
     assertThat(downloadFinishedCondition.await(timeoutMs, TimeUnit.MILLISECONDS)).isTrue();
@@ -120,10 +124,12 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
 
   private ArrayBlockingQueue<Integer> getStateQueue(String taskId) {
     synchronized (downloadStates) {
-      if (!downloadStates.containsKey(taskId)) {
-        downloadStates.put(taskId, new ArrayBlockingQueue<>(10));
+      @Nullable ArrayBlockingQueue<Integer> stateQueue = downloadStates.get(taskId);
+      if (stateQueue == null) {
+        stateQueue = new ArrayBlockingQueue<>(10);
+        downloadStates.put(taskId, stateQueue);
       }
-      return downloadStates.get(taskId);
+      return stateQueue;
     }
   }
 
@@ -137,11 +143,11 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
 
   private void assertStateInternal(String taskId, int expectedState, int timeoutMs) {
     while (true) {
-      Integer state = null;
+      @Nullable Integer state = null;
       try {
         state = pollStateChange(taskId, timeoutMs);
       } catch (InterruptedException e) {
-        fail(e.getMessage());
+        fail("Interrupted: " + e.getMessage());
       }
       if (state != null) {
         if (expectedState == state) {
