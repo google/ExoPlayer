@@ -250,8 +250,8 @@ public class FakeMediaPeriod implements MediaPeriod {
     return new FakeSampleStream(
         selection.getSelectedFormat(),
         eventDispatcher,
-        FakeSampleStream.SINGLE_SAMPLE_THEN_END_OF_STREAM,
-        /* timeUsIncrement= */ 0);
+        /* timeUsIncrement= */ 0,
+        FakeSampleStream.SINGLE_SAMPLE_THEN_END_OF_STREAM);
   }
 
   /**
@@ -266,7 +266,7 @@ public class FakeMediaPeriod implements MediaPeriod {
       // When seeking back to 0, queue our single sample at time 0 again.
       ((FakeSampleStream) sampleStream)
           .resetSampleStreamItems(
-              FakeSampleStream.SINGLE_SAMPLE_THEN_END_OF_STREAM, /* timeUs= */ 0);
+              /* timeUs= */ 0, FakeSampleStream.SINGLE_SAMPLE_THEN_END_OF_STREAM);
     }
   }
 
