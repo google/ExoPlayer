@@ -191,9 +191,9 @@ public final class TimelineQueueEditor
       Player player,
       ControlDispatcher controlDispatcher,
       String command,
-      Bundle extras,
-      ResultReceiver cb) {
-    if (!COMMAND_MOVE_QUEUE_ITEM.equals(command)) {
+      @Nullable Bundle extras,
+      @Nullable ResultReceiver cb) {
+    if (!COMMAND_MOVE_QUEUE_ITEM.equals(command) || extras == null) {
       return false;
     }
     int from = extras.getInt(EXTRA_FROM_INDEX, C.INDEX_UNSET);
