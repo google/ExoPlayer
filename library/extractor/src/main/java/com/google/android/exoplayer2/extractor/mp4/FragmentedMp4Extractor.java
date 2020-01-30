@@ -129,7 +129,6 @@ public class FragmentedMp4Extractor implements Extractor {
 
   // Sideloaded data.
   private final List<Format> closedCaptionFormats;
-  @Nullable private final DrmInitData sideloadedDrmInitData;
 
   // Track-linked data bundle, accessible as a whole through trackID.
   private final SparseArray<TrackBundle> trackBundles;
@@ -185,7 +184,7 @@ public class FragmentedMp4Extractor implements Extractor {
    * @param flags Flags that control the extractor's behavior.
    */
   public FragmentedMp4Extractor(@Flags int flags) {
-    this(flags, null);
+    this(flags, /* timestampAdjuster= */ null);
   }
 
   /**
@@ -193,7 +192,7 @@ public class FragmentedMp4Extractor implements Extractor {
    * @param timestampAdjuster Adjusts sample timestamps. May be null if no adjustment is needed.
    */
   public FragmentedMp4Extractor(@Flags int flags, @Nullable TimestampAdjuster timestampAdjuster) {
-    this(flags, timestampAdjuster, null, null);
+    this(flags, timestampAdjuster, /* sideloadedTrack= */ null, Collections.emptyList());
   }
 
   /**
@@ -201,15 +200,12 @@ public class FragmentedMp4Extractor implements Extractor {
    * @param timestampAdjuster Adjusts sample timestamps. May be null if no adjustment is needed.
    * @param sideloadedTrack Sideloaded track information, in the case that the extractor will not
    *     receive a moov box in the input data. Null if a moov box is expected.
-   * @param sideloadedDrmInitData The {@link DrmInitData} to use for encrypted tracks. If null, the
-   *     pssh boxes (if present) will be used.
    */
   public FragmentedMp4Extractor(
       @Flags int flags,
       @Nullable TimestampAdjuster timestampAdjuster,
-      @Nullable Track sideloadedTrack,
-      @Nullable DrmInitData sideloadedDrmInitData) {
-    this(flags, timestampAdjuster, sideloadedTrack, sideloadedDrmInitData, Collections.emptyList());
+      @Nullable Track sideloadedTrack) {
+    this(flags, timestampAdjuster, sideloadedTrack, Collections.emptyList());
   }
 
   /**
@@ -217,8 +213,6 @@ public class FragmentedMp4Extractor implements Extractor {
    * @param timestampAdjuster Adjusts sample timestamps. May be null if no adjustment is needed.
    * @param sideloadedTrack Sideloaded track information, in the case that the extractor will not
    *     receive a moov box in the input data. Null if a moov box is expected.
-   * @param sideloadedDrmInitData The {@link DrmInitData} to use for encrypted tracks. If null, the
-   *     pssh boxes (if present) will be used.
    * @param closedCaptionFormats For tracks that contain SEI messages, the formats of the closed
    *     caption channels to expose.
    */
@@ -226,10 +220,13 @@ public class FragmentedMp4Extractor implements Extractor {
       @Flags int flags,
       @Nullable TimestampAdjuster timestampAdjuster,
       @Nullable Track sideloadedTrack,
-      @Nullable DrmInitData sideloadedDrmInitData,
       List<Format> closedCaptionFormats) {
-    this(flags, timestampAdjuster, sideloadedTrack, sideloadedDrmInitData,
-        closedCaptionFormats, null);
+    this(
+        flags,
+        timestampAdjuster,
+        sideloadedTrack,
+        closedCaptionFormats,
+        /* additionalEmsgTrackOutput= */ null);
   }
 
   /**
@@ -237,8 +234,6 @@ public class FragmentedMp4Extractor implements Extractor {
    * @param timestampAdjuster Adjusts sample timestamps. May be null if no adjustment is needed.
    * @param sideloadedTrack Sideloaded track information, in the case that the extractor will not
    *     receive a moov box in the input data. Null if a moov box is expected.
-   * @param sideloadedDrmInitData The {@link DrmInitData} to use for encrypted tracks. If null, the
-   *     pssh boxes (if present) will be used.
    * @param closedCaptionFormats For tracks that contain SEI messages, the formats of the closed
    *     caption channels to expose.
    * @param additionalEmsgTrackOutput An extra track output that will receive all emsg messages
@@ -249,13 +244,11 @@ public class FragmentedMp4Extractor implements Extractor {
       @Flags int flags,
       @Nullable TimestampAdjuster timestampAdjuster,
       @Nullable Track sideloadedTrack,
-      @Nullable DrmInitData sideloadedDrmInitData,
       List<Format> closedCaptionFormats,
       @Nullable TrackOutput additionalEmsgTrackOutput) {
     this.flags = flags | (sideloadedTrack != null ? FLAG_SIDELOADED : 0);
     this.timestampAdjuster = timestampAdjuster;
     this.sideloadedTrack = sideloadedTrack;
-    this.sideloadedDrmInitData = sideloadedDrmInitData;
     this.closedCaptionFormats = Collections.unmodifiableList(closedCaptionFormats);
     this.additionalEmsgTrackOutput = additionalEmsgTrackOutput;
     eventMessageEncoder = new EventMessageEncoder();
@@ -470,8 +463,7 @@ public class FragmentedMp4Extractor implements Extractor {
   private void onMoovContainerAtomRead(ContainerAtom moov) throws ParserException {
     Assertions.checkState(sideloadedTrack == null, "Unexpected moov box.");
 
-    DrmInitData drmInitData = sideloadedDrmInitData != null ? sideloadedDrmInitData
-        : getDrmInitDataFromAtoms(moov.leafChildren);
+    @Nullable DrmInitData drmInitData = getDrmInitDataFromAtoms(moov.leafChildren);
 
     // Read declaration of track fragments in the Moov box.
     ContainerAtom mvex = moov.getContainerAtomOfType(Atom.TYPE_mvex);
@@ -550,9 +542,8 @@ public class FragmentedMp4Extractor implements Extractor {
 
   private void onMoofContainerAtomRead(ContainerAtom moof) throws ParserException {
     parseMoof(moof, trackBundles, flags, scratchBytes);
-    // If drm init data is sideloaded, we ignore pssh boxes.
-    DrmInitData drmInitData = sideloadedDrmInitData != null ? null
-        : getDrmInitDataFromAtoms(moof.leafChildren);
+
+    @Nullable DrmInitData drmInitData = getDrmInitDataFromAtoms(moof.leafChildren);
     if (drmInitData != null) {
       int trackCount = trackBundles.size();
       for (int i = 0; i < trackCount; i++) {
@@ -1417,6 +1408,7 @@ public class FragmentedMp4Extractor implements Extractor {
   }
 
   /** Returns DrmInitData from leaf atoms. */
+  @Nullable
   private static DrmInitData getDrmInitDataFromAtoms(List<Atom.LeafAtom> leafChildren) {
     @Nullable ArrayList<SchemeData> schemeDatas = null;
     int leafChildrenSize = leafChildren.size();

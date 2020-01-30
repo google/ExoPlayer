@@ -388,7 +388,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private DefaultExtractorInput prepareExtraction(DataSource dataSource, DataSpec dataSpec)
       throws IOException, InterruptedException {
     long bytesToRead = dataSource.open(dataSpec);
-
     DefaultExtractorInput extractorInput =
         new DefaultExtractorInput(dataSource, dataSpec.absoluteStreamPosition, bytesToRead);
 
@@ -402,7 +401,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
               dataSpec.uri,
               trackFormat,
               muxedCaptionFormats,
-              drmInitData,
               timestampAdjuster,
               dataSource.getResponseHeaders(),
               extractorInput);
@@ -421,7 +419,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       output.onNewExtractor();
       extractor.init(output);
     }
-
+    output.setDrmInitData(drmInitData);
     return extractorInput;
   }
 

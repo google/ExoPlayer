@@ -128,7 +128,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final ArrayList<HlsSampleStream> hlsSampleStreams;
   private final Map<String, DrmInitData> overridingDrmInitData;
 
-  private SampleQueue[] sampleQueues;
+  private FormatAdjustingSampleQueue[] sampleQueues;
   private int[] sampleQueueTrackIds;
   private Set<Integer> sampleQueueMappingDoneByType;
   private SparseIntArray sampleQueueIndicesByType;
@@ -162,6 +162,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   // Accessed only by the loading thread.
   private boolean tracksEnded;
   private long sampleOffsetUs;
+  @Nullable private DrmInitData drmInitData;
   private int chunkUid;
 
   /**
@@ -207,7 +208,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     sampleQueueTrackIds = new int[0];
     sampleQueueMappingDoneByType = new HashSet<>(MAPPABLE_TYPES.size());
     sampleQueueIndicesByType = new SparseIntArray(MAPPABLE_TYPES.size());
-    sampleQueues = new SampleQueue[0];
+    sampleQueues = new FormatAdjustingSampleQueue[0];
     sampleQueueIsAudioVideoFlags = new boolean[0];
     sampleQueuesEnabledStates = new boolean[0];
     mediaChunks = new ArrayList<>();
@@ -904,8 +905,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private SampleQueue createSampleQueue(int id, int type) {
     int trackCount = sampleQueues.length;
 
-    SampleQueue trackOutput =
+    boolean isAudioVideo = type == C.TRACK_TYPE_AUDIO || type == C.TRACK_TYPE_VIDEO;
+    FormatAdjustingSampleQueue trackOutput =
         new FormatAdjustingSampleQueue(allocator, drmSessionManager, overridingDrmInitData);
+    if (isAudioVideo) {
+      trackOutput.setDrmInitData(drmInitData);
+    }
     trackOutput.setSampleOffsetUs(sampleOffsetUs);
     trackOutput.sourceId(chunkUid);
     trackOutput.setUpstreamFormatChangeListener(this);
@@ -913,8 +918,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     sampleQueueTrackIds[trackCount] = id;
     sampleQueues = Util.nullSafeArrayAppend(sampleQueues, trackOutput);
     sampleQueueIsAudioVideoFlags = Arrays.copyOf(sampleQueueIsAudioVideoFlags, trackCount + 1);
-    sampleQueueIsAudioVideoFlags[trackCount] =
-        type == C.TRACK_TYPE_AUDIO || type == C.TRACK_TYPE_VIDEO;
+    sampleQueueIsAudioVideoFlags[trackCount] = isAudioVideo;
     haveAudioVideoSampleQueues |= sampleQueueIsAudioVideoFlags[trackCount];
     sampleQueueMappingDoneByType.add(type);
     sampleQueueIndicesByType.append(type, trackCount);
@@ -951,10 +955,53 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     sampleQueueMappingDoneByType.clear();
   }
 
+  /**
+   * Sets an offset that will be added to the timestamps (and sub-sample timestamps) of samples that
+   * are subsequently loaded by this wrapper.
+   *
+   * @param sampleOffsetUs The timestamp offset in microseconds.
+   */
   public void setSampleOffsetUs(long sampleOffsetUs) {
-    this.sampleOffsetUs = sampleOffsetUs;
-    for (SampleQueue sampleQueue : sampleQueues) {
-      sampleQueue.setSampleOffsetUs(sampleOffsetUs);
+    if (this.sampleOffsetUs != sampleOffsetUs) {
+      this.sampleOffsetUs = sampleOffsetUs;
+      for (SampleQueue sampleQueue : sampleQueues) {
+        sampleQueue.setSampleOffsetUs(sampleOffsetUs);
+      }
+    }
+  }
+
+  /**
+   * Sets default {@link DrmInitData} for samples that are subsequently loaded by this wrapper.
+   *
+   * <p>This method should be called prior to loading each {@link HlsMediaChunk}. The {@link
+   * DrmInitData} passed should be that of an EXT-X-KEY tag that applies to the chunk, or {@code
+   * null} otherwise.
+   *
+   * <p>The final {@link DrmInitData} for subsequently queued samples is determined as followed:
+   *
+   * <ol>
+   *   <li>It is initially set to {@code drmInitData}, unless {@code drmInitData} is null in which
+   *       case it's set to {@link Format#drmInitData} of the upstream {@link Format}.
+   *   <li>If the initial {@link DrmInitData} is non-null and {@link #overridingDrmInitData}
+   *       contains an entry whose key matches the {@link DrmInitData#schemeType}, then the sample's
+   *       {@link DrmInitData} is overridden to be this entry's value.
+   * </ol>
+   *
+   * <p>
+   *
+   * @param drmInitData The default {@link DrmInitData} for samples that are subsequently queued. If
+   *     non-null then it takes precedence over {@link Format#drmInitData} of the upstream {@link
+   *     Format}, but will still be overridden by a matching override in {@link
+   *     #overridingDrmInitData}.
+   */
+  public void setDrmInitData(@Nullable DrmInitData drmInitData) {
+    if (!Util.areEqual(this.drmInitData, drmInitData)) {
+      this.drmInitData = drmInitData;
+      for (int i = 0; i < sampleQueues.length; i++) {
+        if (sampleQueueIsAudioVideoFlags[i]) {
+          sampleQueues[i].setDrmInitData(drmInitData);
+        }
+      }
     }
   }
 
@@ -1280,6 +1327,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private static final class FormatAdjustingSampleQueue extends SampleQueue {
 
     private final Map<String, DrmInitData> overridingDrmInitData;
+    @Nullable private DrmInitData drmInitData;
 
     public FormatAdjustingSampleQueue(
         Allocator allocator,
@@ -1289,9 +1337,15 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       this.overridingDrmInitData = overridingDrmInitData;
     }
 
+    public void setDrmInitData(@Nullable DrmInitData drmInitData) {
+      this.drmInitData = drmInitData;
+      invalidateUpstreamFormatAdjustment();
+    }
+
     @Override
     public Format getAdjustedUpstreamFormat(Format format) {
-      @Nullable DrmInitData drmInitData = format.drmInitData;
+      @Nullable
+      DrmInitData drmInitData = this.drmInitData != null ? this.drmInitData : format.drmInitData;
       if (drmInitData != null) {
         @Nullable
         DrmInitData overridingDrmInitData = this.overridingDrmInitData.get(drmInitData.schemeType);
