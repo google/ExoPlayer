@@ -1290,15 +1290,17 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     @Override
-    public void format(Format format) {
-      DrmInitData drmInitData = format.drmInitData;
+    public Format getAdjustedUpstreamFormat(Format format) {
+      @Nullable DrmInitData drmInitData = format.drmInitData;
       if (drmInitData != null) {
+        @Nullable
         DrmInitData overridingDrmInitData = this.overridingDrmInitData.get(drmInitData.schemeType);
         if (overridingDrmInitData != null) {
           drmInitData = overridingDrmInitData;
         }
       }
-      super.format(format.copyWithAdjustments(drmInitData, getAdjustedMetadata(format.metadata)));
+      return super.getAdjustedUpstreamFormat(
+          format.copyWithAdjustments(drmInitData, getAdjustedMetadata(format.metadata)));
     }
 
     /**
