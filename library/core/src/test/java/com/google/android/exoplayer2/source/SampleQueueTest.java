@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static com.google.android.exoplayer2.C.BUFFER_FLAG_KEY_FRAME;
 import static com.google.android.exoplayer2.C.RESULT_BUFFER_READ;
 import static com.google.android.exoplayer2.C.RESULT_FORMAT_READ;
 import static com.google.android.exoplayer2.C.RESULT_NOTHING_READ;
@@ -40,6 +41,7 @@ import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -136,7 +138,7 @@ public final class SampleQueueTest {
 
   @Before
   @SuppressWarnings("unchecked")
-  public void setUp() throws Exception {
+  public void setUp() {
     allocator = new DefaultAllocator(false, ALLOCATION_SIZE);
     mockDrmSessionManager =
         (DrmSessionManager<ExoMediaCrypto>) Mockito.mock(DrmSessionManager.class);
@@ -149,7 +151,7 @@ public final class SampleQueueTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     allocator = null;
     sampleQueue = null;
     formatHolder = null;
@@ -837,12 +839,93 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testSetSampleOffset() {
+  public void testSetSampleOffsetBeforeData() {
     long sampleOffsetUs = 1000;
     sampleQueue.setSampleOffsetUs(sampleOffsetUs);
     writeTestData();
-    assertReadTestData(null, 0, 8, sampleOffsetUs);
-    assertReadEndOfStream(false);
+    assertReadTestData(
+        /* startFormat= */ null, /* firstSampleIndex= */ 0, /* sampleCount= */ 8, sampleOffsetUs);
+    assertReadEndOfStream(/* formatRequired= */ false);
+  }
+
+  @Test
+  public void testSetSampleOffsetBetweenSamples() {
+    writeTestData();
+    long sampleOffsetUs = 1000;
+    sampleQueue.setSampleOffsetUs(sampleOffsetUs);
+
+    // Write a final sample now the offset is set.
+    long unadjustedTimestampUs = LAST_SAMPLE_TIMESTAMP + 1234;
+    writeSample(DATA, unadjustedTimestampUs, /* sampleFlags= */ 0);
+
+    assertReadTestData();
+    // We expect to read the format adjusted to account for the sample offset, followed by the final
+    // sample and then the end of stream.
+    assertReadFormat(
+        /* formatRequired= */ false, FORMAT_2.copyWithSubsampleOffsetUs(sampleOffsetUs));
+    assertReadSample(
+        unadjustedTimestampUs + sampleOffsetUs,
+        /* isKeyFrame= */ false,
+        /* isEncrypted= */ false,
+        DATA,
+        /* offset= */ 0,
+        DATA.length);
+    assertReadEndOfStream(/* formatRequired= */ false);
+  }
+
+  @Test
+  public void testAdjustUpstreamFormat() {
+    String label = "label";
+    sampleQueue =
+        new SampleQueue(allocator, mockDrmSessionManager) {
+          @Override
+          public Format getAdjustedUpstreamFormat(Format format) {
+            return super.getAdjustedUpstreamFormat(format.copyWithLabel(label));
+          }
+        };
+
+    writeFormat(FORMAT_1);
+    assertReadFormat(/* formatRequired= */ false, FORMAT_1.copyWithLabel(label));
+    assertReadEndOfStream(/* formatRequired= */ false);
+  }
+
+  @Test
+  public void testInvalidateUpstreamFormatAdjustment() {
+    AtomicReference<String> label = new AtomicReference<>("label1");
+    sampleQueue =
+        new SampleQueue(allocator, mockDrmSessionManager) {
+          @Override
+          public Format getAdjustedUpstreamFormat(Format format) {
+            return super.getAdjustedUpstreamFormat(format.copyWithLabel(label.get()));
+          }
+        };
+
+    writeFormat(FORMAT_1);
+    writeSample(DATA, /* timestampUs= */ 0, BUFFER_FLAG_KEY_FRAME);
+
+    // Make a change that'll affect the SampleQueue's format adjustment, and invalidate it.
+    label.set("label2");
+    sampleQueue.invalidateUpstreamFormatAdjustment();
+
+    writeSample(DATA, /* timestampUs= */ 1, /* sampleFlags= */ 0);
+
+    assertReadFormat(/* formatRequired= */ false, FORMAT_1.copyWithLabel("label1"));
+    assertReadSample(
+        /* timeUs= */ 0,
+        /* isKeyFrame= */ true,
+        /* isEncrypted= */ false,
+        DATA,
+        /* offset= */ 0,
+        DATA.length);
+    assertReadFormat(/* formatRequired= */ false, FORMAT_1.copyWithLabel("label2"));
+    assertReadSample(
+        /* timeUs= */ 1,
+        /* isKeyFrame= */ false,
+        /* isEncrypted= */ false,
+        DATA,
+        /* offset= */ 0,
+        DATA.length);
+    assertReadEndOfStream(/* formatRequired= */ false);
   }
 
   @Test
@@ -851,7 +934,8 @@ public final class SampleQueueTest {
     sampleQueue.splice();
     // Splice should succeed, replacing the last 4 samples with the sample being written.
     long spliceSampleTimeUs = SAMPLE_TIMESTAMPS[4];
-    writeSample(DATA, spliceSampleTimeUs, FORMAT_SPLICED, C.BUFFER_FLAG_KEY_FRAME);
+    writeFormat(FORMAT_SPLICED);
+    writeSample(DATA, spliceSampleTimeUs, C.BUFFER_FLAG_KEY_FRAME);
     assertReadTestData(null, 0, 4);
     assertReadFormat(false, FORMAT_SPLICED);
     assertReadSample(spliceSampleTimeUs, true, /* isEncrypted= */ false, DATA, 0, DATA.length);
@@ -865,7 +949,8 @@ public final class SampleQueueTest {
     sampleQueue.splice();
     // Splice should fail, leaving the last 4 samples unchanged.
     long spliceSampleTimeUs = SAMPLE_TIMESTAMPS[3];
-    writeSample(DATA, spliceSampleTimeUs, FORMAT_SPLICED, C.BUFFER_FLAG_KEY_FRAME);
+    writeFormat(FORMAT_SPLICED);
+    writeSample(DATA, spliceSampleTimeUs, C.BUFFER_FLAG_KEY_FRAME);
     assertReadTestData(SAMPLE_FORMATS[3], 4, 4);
     assertReadEndOfStream(false);
 
@@ -874,7 +959,8 @@ public final class SampleQueueTest {
     sampleQueue.splice();
     // Splice should succeed, replacing the last 4 samples with the sample being written
     spliceSampleTimeUs = SAMPLE_TIMESTAMPS[3] + 1;
-    writeSample(DATA, spliceSampleTimeUs, FORMAT_SPLICED, C.BUFFER_FLAG_KEY_FRAME);
+    writeFormat(FORMAT_SPLICED);
+    writeSample(DATA, spliceSampleTimeUs, C.BUFFER_FLAG_KEY_FRAME);
     assertReadFormat(false, FORMAT_SPLICED);
     assertReadSample(spliceSampleTimeUs, true, /* isEncrypted= */ false, DATA, 0, DATA.length);
     assertReadEndOfStream(false);
@@ -888,7 +974,8 @@ public final class SampleQueueTest {
     sampleQueue.splice();
     // Splice should succeed, replacing the last 4 samples with the sample being written.
     long spliceSampleTimeUs = SAMPLE_TIMESTAMPS[4];
-    writeSample(DATA, spliceSampleTimeUs, FORMAT_SPLICED, C.BUFFER_FLAG_KEY_FRAME);
+    writeFormat(FORMAT_SPLICED);
+    writeSample(DATA, spliceSampleTimeUs, C.BUFFER_FLAG_KEY_FRAME);
     assertReadTestData(null, 0, 4, sampleOffsetUs);
     assertReadFormat(false, FORMAT_SPLICED.copyWithSubsampleOffsetUs(sampleOffsetUs));
     assertReadSample(
@@ -938,9 +1025,13 @@ public final class SampleQueueTest {
     }
   }
 
-  /** Writes a single sample to {@code sampleQueue}. */
-  private void writeSample(byte[] data, long timestampUs, Format format, int sampleFlags) {
+  /** Writes a {@link Format} to the {@code sampleQueue}. */
+  private void writeFormat(Format format) {
     sampleQueue.format(format);
+  }
+
+  /** Writes a single sample to {@code sampleQueue}. */
+  private void writeSample(byte[] data, long timestampUs, int sampleFlags) {
     sampleQueue.sampleData(new ParsableByteArray(data), data.length);
     sampleQueue.sampleMetadata(timestampUs, sampleFlags, data.length, 0, null);
   }
