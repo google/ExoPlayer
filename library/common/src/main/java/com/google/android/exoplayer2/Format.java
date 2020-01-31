@@ -1111,11 +1111,11 @@ public final class Format implements Parcelable {
     int trackType = MimeTypes.getTrackType(sampleMimeType);
 
     // Use manifest value only.
-    String id = manifestFormat.id;
+    @Nullable String id = manifestFormat.id;
 
     // Prefer manifest values, but fill in from sample format if missing.
-    String label = manifestFormat.label != null ? manifestFormat.label : this.label;
-    String language = this.language;
+    @Nullable String label = manifestFormat.label != null ? manifestFormat.label : this.label;
+    @Nullable String language = this.language;
     if ((trackType == C.TRACK_TYPE_TEXT || trackType == C.TRACK_TYPE_AUDIO)
         && manifestFormat.language != null) {
       language = manifestFormat.language;
@@ -1123,7 +1123,7 @@ public final class Format implements Parcelable {
 
     // Prefer sample format values, but fill in from manifest if missing.
     int bitrate = this.bitrate == NO_VALUE ? manifestFormat.bitrate : this.bitrate;
-    String codecs = this.codecs;
+    @Nullable String codecs = this.codecs;
     if (codecs == null) {
       // The manifest format may be muxed, so filter only codecs of this format's type. If we still
       // have more than one codec then we're unable to uniquely identify which codec to fill in.
@@ -1133,6 +1133,7 @@ public final class Format implements Parcelable {
       }
     }
 
+    @Nullable
     Metadata metadata =
         this.metadata == null
             ? manifestFormat.metadata
@@ -1146,6 +1147,7 @@ public final class Format implements Parcelable {
     // Merge manifest and sample format values.
     @C.SelectionFlags int selectionFlags = this.selectionFlags | manifestFormat.selectionFlags;
     @C.RoleFlags int roleFlags = this.roleFlags | manifestFormat.roleFlags;
+    @Nullable
     DrmInitData drmInitData =
         DrmInitData.createSessionCreationData(manifestFormat.drmInitData, this.drmInitData);
 
