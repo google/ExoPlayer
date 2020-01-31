@@ -1401,11 +1401,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     // TODO(ibaker): Create a Formats util class with common constants like this.
     private static final Format ID3_FORMAT =
-        Format.createSampleFormat(
-            /* id= */ null, MimeTypes.APPLICATION_ID3, Format.OFFSET_SAMPLE_RELATIVE);
+        Format.createSampleFormat(/* id= */ null, MimeTypes.APPLICATION_ID3);
     private static final Format EMSG_FORMAT =
-        Format.createSampleFormat(
-            /* id= */ null, MimeTypes.APPLICATION_EMSG, Format.OFFSET_SAMPLE_RELATIVE);
+        Format.createSampleFormat(/* id= */ null, MimeTypes.APPLICATION_EMSG);
 
     private final EventMessageDecoder emsgDecoder;
     private final TrackOutput delegate;

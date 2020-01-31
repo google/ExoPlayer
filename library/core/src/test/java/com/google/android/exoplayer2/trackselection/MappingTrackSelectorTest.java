@@ -75,9 +75,7 @@ public final class MappingTrackSelectorTest {
               /* selectionFlags= */ 0,
               /* language= */ null));
   private static final TrackGroup METADATA_TRACK_GROUP =
-      new TrackGroup(
-          Format.createSampleFormat(
-              "metadata", MimeTypes.APPLICATION_ID3, /* subsampleOffsetUs= */ 0));
+      new TrackGroup(Format.createSampleFormat("metadata", MimeTypes.APPLICATION_ID3));
 
   private static final Timeline TIMELINE = new FakeTimeline(/* windowCount= */ 1);
 

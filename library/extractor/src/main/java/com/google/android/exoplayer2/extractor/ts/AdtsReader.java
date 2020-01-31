@@ -140,8 +140,8 @@ public final class AdtsReader implements ElementaryStreamReader {
     if (exposeId3) {
       idGenerator.generateNewId();
       id3Output = extractorOutput.track(idGenerator.getTrackId(), C.TRACK_TYPE_METADATA);
-      id3Output.format(Format.createSampleFormat(idGenerator.getFormatId(),
-          MimeTypes.APPLICATION_ID3, null, Format.NO_VALUE, null));
+      id3Output.format(
+          Format.createSampleFormat(idGenerator.getFormatId(), MimeTypes.APPLICATION_ID3));
     } else {
       id3Output = new DummyTrackOutput();
     }

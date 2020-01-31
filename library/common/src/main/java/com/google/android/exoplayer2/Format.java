@@ -746,6 +746,17 @@ public final class Format implements Parcelable {
         /* exoMediaCryptoType= */ null);
   }
 
+  @SuppressWarnings("deprecation")
+  public static Format createSampleFormat(@Nullable String id, @Nullable String sampleMimeType) {
+    return createSampleFormat(id, sampleMimeType, OFFSET_SAMPLE_RELATIVE);
+  }
+
+  /**
+   * @deprecated Use {@link #createSampleFormat(String, String)} and (for values of {@link
+   *     #subsampleOffsetUs} other than {@link #OFFSET_SAMPLE_RELATIVE}) {@link
+   *     #copyWithSubsampleOffsetUs(long)}.
+   */
+  @Deprecated
   public static Format createSampleFormat(
       @Nullable String id, @Nullable String sampleMimeType, long subsampleOffsetUs) {
     return new Format(
@@ -780,6 +791,11 @@ public final class Format implements Parcelable {
         /* exoMediaCryptoType= */ null);
   }
 
+  /**
+   * @deprecated Most usages should use one of the {@link #createVideoSampleFormat} or {@link
+   *     #createAudioSampleFormat} methods.
+   */
+  @Deprecated
   public static Format createSampleFormat(
       @Nullable String id,
       @Nullable String sampleMimeType,

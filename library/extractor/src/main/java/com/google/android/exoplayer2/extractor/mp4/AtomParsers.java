@@ -813,8 +813,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         parseTextSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, trackId,
             language, out);
       } else if (childAtomType == Atom.TYPE_camm) {
-        out.format = Format.createSampleFormat(Integer.toString(trackId),
-            MimeTypes.APPLICATION_CAMERA_MOTION, null, Format.NO_VALUE, null);
+        out.format =
+            Format.createSampleFormat(
+                Integer.toString(trackId), MimeTypes.APPLICATION_CAMERA_MOTION);
       }
       stsd.setPosition(childStartPosition + childAtomSize);
     }

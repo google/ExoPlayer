@@ -64,7 +64,7 @@ public class MetadataRendererTest {
               0x00, 0x00, 0x00, 0x00)); // CRC_32 (ignored, check happens at extraction).
 
   private static final Format EMSG_FORMAT =
-      Format.createSampleFormat(null, MimeTypes.APPLICATION_EMSG, Format.OFFSET_SAMPLE_RELATIVE);
+      Format.createSampleFormat(null, MimeTypes.APPLICATION_EMSG);
 
   private final EventMessageEncoder eventMessageEncoder = new EventMessageEncoder();
 

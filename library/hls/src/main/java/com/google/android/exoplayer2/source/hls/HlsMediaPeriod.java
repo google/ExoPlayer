@@ -659,13 +659,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
       }
 
       TrackGroup id3TrackGroup =
-          new TrackGroup(
-              Format.createSampleFormat(
-                  /* id= */ "ID3",
-                  MimeTypes.APPLICATION_ID3,
-                  /* codecs= */ null,
-                  /* bitrate= */ Format.NO_VALUE,
-                  /* drmInitData= */ null));
+          new TrackGroup(Format.createSampleFormat(/* id= */ "ID3", MimeTypes.APPLICATION_ID3));
       muxedTrackGroups.add(id3TrackGroup);
 
       sampleStreamWrapper.prepareWithMasterPlaylistInfo(
