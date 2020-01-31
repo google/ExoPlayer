@@ -664,25 +664,22 @@ public final class Format implements Parcelable {
   public static Format createImageSampleFormat(
       @Nullable String id,
       @Nullable String sampleMimeType,
-      @Nullable String codecs,
-      int bitrate,
       @C.SelectionFlags int selectionFlags,
       @Nullable List<byte[]> initializationData,
-      @Nullable String language,
-      @Nullable DrmInitData drmInitData) {
+      @Nullable String language) {
     return new Format(
         id,
         /* label= */ null,
         selectionFlags,
         /* roleFlags= */ 0,
-        bitrate,
-        codecs,
+        /* bitrate= */ NO_VALUE,
+        /* codecs= */ null,
         /* metadata=*/ null,
         /* containerMimeType= */ null,
         sampleMimeType,
         /* maxInputSize= */ NO_VALUE,
         initializationData,
-        drmInitData,
+        /* drmInitData= */ null,
         OFFSET_SAMPLE_RELATIVE,
         /* width= */ NO_VALUE,
         /* height= */ NO_VALUE,
@@ -890,9 +887,8 @@ public final class Format implements Parcelable {
     this.width = width;
     this.height = height;
     this.frameRate = frameRate;
-    this.rotationDegrees = rotationDegrees == Format.NO_VALUE ? 0 : rotationDegrees;
-    this.pixelWidthHeightRatio =
-        pixelWidthHeightRatio == Format.NO_VALUE ? 1 : pixelWidthHeightRatio;
+    this.rotationDegrees = rotationDegrees == NO_VALUE ? 0 : rotationDegrees;
+    this.pixelWidthHeightRatio = pixelWidthHeightRatio == NO_VALUE ? 1 : pixelWidthHeightRatio;
     this.projectionData = projectionData;
     this.stereoMode = stereoMode;
     this.colorInfo = colorInfo;
@@ -900,8 +896,8 @@ public final class Format implements Parcelable {
     this.channelCount = channelCount;
     this.sampleRate = sampleRate;
     this.pcmEncoding = pcmEncoding;
-    this.encoderDelay = encoderDelay == Format.NO_VALUE ? 0 : encoderDelay;
-    this.encoderPadding = encoderPadding == Format.NO_VALUE ? 0 : encoderPadding;
+    this.encoderDelay = encoderDelay == NO_VALUE ? 0 : encoderDelay;
+    this.encoderPadding = encoderPadding == NO_VALUE ? 0 : encoderPadding;
     // Audio and text specific.
     this.language = Util.normalizeLanguageCode(language);
     this.accessibilityChannel = accessibilityChannel;
@@ -1584,22 +1580,22 @@ public final class Format implements Parcelable {
     }
     StringBuilder builder = new StringBuilder();
     builder.append("id=").append(format.id).append(", mimeType=").append(format.sampleMimeType);
-    if (format.bitrate != Format.NO_VALUE) {
+    if (format.bitrate != NO_VALUE) {
       builder.append(", bitrate=").append(format.bitrate);
     }
     if (format.codecs != null) {
       builder.append(", codecs=").append(format.codecs);
     }
-    if (format.width != Format.NO_VALUE && format.height != Format.NO_VALUE) {
+    if (format.width != NO_VALUE && format.height != NO_VALUE) {
       builder.append(", res=").append(format.width).append("x").append(format.height);
     }
-    if (format.frameRate != Format.NO_VALUE) {
+    if (format.frameRate != NO_VALUE) {
       builder.append(", fps=").append(format.frameRate);
     }
-    if (format.channelCount != Format.NO_VALUE) {
+    if (format.channelCount != NO_VALUE) {
       builder.append(", channels=").append(format.channelCount);
     }
-    if (format.sampleRate != Format.NO_VALUE) {
+    if (format.sampleRate != NO_VALUE) {
       builder.append(", sample_rate=").append(format.sampleRate);
     }
     if (format.language != null) {
