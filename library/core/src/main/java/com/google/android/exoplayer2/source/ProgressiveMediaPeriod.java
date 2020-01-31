@@ -94,7 +94,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   private static final Map<String, String> ICY_METADATA_HEADERS = createIcyMetadataHeaders();
 
   private static final Format ICY_FORMAT =
-      Format.createSampleFormat("icy", MimeTypes.APPLICATION_ICY, Format.OFFSET_SAMPLE_RELATIVE);
+      Format.createSampleFormat("icy", MimeTypes.APPLICATION_ICY);
 
   private final Uri uri;
   private final DataSource dataSource;

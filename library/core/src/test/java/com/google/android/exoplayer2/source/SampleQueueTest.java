@@ -56,17 +56,17 @@ public final class SampleQueueTest {
 
   private static final int ALLOCATION_SIZE = 16;
 
-  private static final Format FORMAT_1 = Format.createSampleFormat("1", "mimeType", 0);
-  private static final Format FORMAT_2 = Format.createSampleFormat("2", "mimeType", 0);
-  private static final Format FORMAT_1_COPY = Format.createSampleFormat("1", "mimeType", 0);
-  private static final Format FORMAT_SPLICED = Format.createSampleFormat("spliced", "mimeType", 0);
+  private static final Format FORMAT_1 =
+      Format.createSampleFormat("1", "mimeType").copyWithSubsampleOffsetUs(0);
+  private static final Format FORMAT_2 =
+      Format.createSampleFormat("2", "mimeType").copyWithSubsampleOffsetUs(0);
+  private static final Format FORMAT_1_COPY =
+      Format.createSampleFormat("1", "mimeType").copyWithSubsampleOffsetUs(0);
+  private static final Format FORMAT_SPLICED =
+      Format.createSampleFormat("spliced", "mimeType").copyWithSubsampleOffsetUs(0);
   private static final Format FORMAT_ENCRYPTED =
-      Format.createSampleFormat(
-          /* id= */ "encrypted",
-          "mimeType",
-          /* codecs= */ null,
-          /* bitrate= */ Format.NO_VALUE,
-          new DrmInitData());
+      Format.createSampleFormat(/* id= */ "encrypted", "mimeType")
+          .copyWithDrmInitData(new DrmInitData());
   private static final byte[] DATA = TestUtil.buildTestData(ALLOCATION_SIZE * 10);
 
   /*

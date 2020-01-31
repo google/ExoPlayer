@@ -114,7 +114,7 @@ public class FragmentedMp4Extractor implements Extractor {
   private static final byte[] PIFF_SAMPLE_ENCRYPTION_BOX_EXTENDED_TYPE =
       new byte[] {-94, 57, 79, 82, 90, -101, 79, 20, -94, 68, 108, 66, 124, 100, -115, -12};
   private static final Format EMSG_FORMAT =
-      Format.createSampleFormat(null, MimeTypes.APPLICATION_EMSG, Format.OFFSET_SAMPLE_RELATIVE);
+      Format.createSampleFormat(null, MimeTypes.APPLICATION_EMSG);
 
   // Parser states.
   private static final int STATE_READING_ATOM_HEADER = 0;

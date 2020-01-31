@@ -42,8 +42,8 @@ public final class SpliceInfoSectionReader implements SectionPayloadReader {
     this.timestampAdjuster = timestampAdjuster;
     idGenerator.generateNewId();
     output = extractorOutput.track(idGenerator.getTrackId(), C.TRACK_TYPE_METADATA);
-    output.format(Format.createSampleFormat(idGenerator.getFormatId(), MimeTypes.APPLICATION_SCTE35,
-        null, Format.NO_VALUE, null));
+    output.format(
+        Format.createSampleFormat(idGenerator.getFormatId(), MimeTypes.APPLICATION_SCTE35));
   }
 
   @Override
@@ -54,8 +54,9 @@ public final class SpliceInfoSectionReader implements SectionPayloadReader {
         // There is not enough information to initialize the timestamp adjuster.
         return;
       }
-      output.format(Format.createSampleFormat(null, MimeTypes.APPLICATION_SCTE35,
-          timestampAdjuster.getTimestampOffsetUs()));
+      output.format(
+          Format.createSampleFormat(null, MimeTypes.APPLICATION_SCTE35)
+              .copyWithSubsampleOffsetUs(timestampAdjuster.getTimestampOffsetUs()));
       formatDeclared = true;
     }
     int sampleSize = sectionData.bytesLeft();

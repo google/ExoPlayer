@@ -640,8 +640,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
               eventMessageTrackGroupIndex,
               cea608TrackGroupIndex);
       if (eventMessageTrackGroupIndex != C.INDEX_UNSET) {
-        Format format = Format.createSampleFormat(firstAdaptationSet.id + ":emsg",
-            MimeTypes.APPLICATION_EMSG, null, Format.NO_VALUE, null);
+        Format format =
+            Format.createSampleFormat(firstAdaptationSet.id + ":emsg", MimeTypes.APPLICATION_EMSG);
         trackGroups[eventMessageTrackGroupIndex] = new TrackGroup(format);
         trackGroupInfos[eventMessageTrackGroupIndex] =
             TrackGroupInfo.embeddedEmsgTrack(adaptationSetIndices, primaryTrackGroupIndex);
@@ -659,8 +659,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       TrackGroup[] trackGroups, TrackGroupInfo[] trackGroupInfos, int existingTrackGroupCount) {
     for (int i = 0; i < eventStreams.size(); i++) {
       EventStream eventStream = eventStreams.get(i);
-      Format format = Format.createSampleFormat(eventStream.id(), MimeTypes.APPLICATION_EMSG, null,
-          Format.NO_VALUE, null);
+      Format format = Format.createSampleFormat(eventStream.id(), MimeTypes.APPLICATION_EMSG);
       trackGroups[existingTrackGroupCount] = new TrackGroup(format);
       trackGroupInfos[existingTrackGroupCount++] = TrackGroupInfo.mpdEventTrack(i);
     }
