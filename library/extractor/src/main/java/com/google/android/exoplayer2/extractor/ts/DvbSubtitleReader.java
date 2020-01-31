@@ -64,12 +64,9 @@ public final class DvbSubtitleReader implements ElementaryStreamReader {
           Format.createImageSampleFormat(
               idGenerator.getFormatId(),
               MimeTypes.APPLICATION_DVBSUBS,
-              /* codecs= */ null,
-              Format.NO_VALUE,
               /* selectionFlags= */ 0,
               Collections.singletonList(subtitleInfo.initializationData),
-              subtitleInfo.language,
-              /* drmInitData= */ null));
+              subtitleInfo.language));
       outputs[i] = output;
     }
   }

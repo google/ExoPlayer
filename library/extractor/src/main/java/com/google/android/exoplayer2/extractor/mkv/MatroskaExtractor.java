@@ -2152,14 +2152,12 @@ public class MatroskaExtractor implements Extractor {
         type = C.TRACK_TYPE_TEXT;
         format =
             Format.createImageSampleFormat(
-                Integer.toString(trackId),
-                mimeType,
-                null,
-                Format.NO_VALUE,
-                selectionFlags,
-                initializationData,
-                language,
-                drmInitData);
+                    Integer.toString(trackId),
+                    mimeType,
+                    selectionFlags,
+                    initializationData,
+                    language)
+                .copyWithDrmInitData(drmInitData);
       } else {
         throw new ParserException("Unexpected MIME type.");
       }
