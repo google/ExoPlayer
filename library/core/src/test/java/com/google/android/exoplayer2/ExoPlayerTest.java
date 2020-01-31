@@ -3391,8 +3391,8 @@ public final class ExoPlayerTest {
   }
 
   @Test
-  public void loadControlNeverWantsToLoad_throwsIllegalStateException() throws Exception {
-    LoadControl neverLoadingLoadControl =
+  public void loadControlNeverWantsToLoadOrPlay_playbackDoesNotGetStuck() throws Exception {
+    LoadControl neverLoadingOrPlayingLoadControl =
         new DefaultLoadControl() {
           @Override
           public boolean shouldContinueLoading(long bufferedDurationUs, float playbackSpeed) {
@@ -3402,7 +3402,7 @@ public final class ExoPlayerTest {
           @Override
           public boolean shouldStartPlayback(
               long bufferedDurationUs, float playbackSpeed, boolean rebuffering) {
-            return true;
+            return false;
           }
         };
 
@@ -3416,18 +3416,13 @@ public final class ExoPlayerTest {
             new TrackGroupArray(new TrackGroup(Builder.VIDEO_FORMAT)),
             new FakeChunkSource.Factory(dataSetFactory, new FakeDataSource.Factory()));
 
-    try {
-      new ExoPlayerTestRunner.Builder()
-          .setLoadControl(neverLoadingLoadControl)
-          .setMediaSources(chunkedMediaSource)
-          .build(context)
-          .start()
-          .blockUntilEnded(TIMEOUT_MS);
-      fail();
-    } catch (ExoPlaybackException e) {
-      assertThat(e.type).isEqualTo(ExoPlaybackException.TYPE_UNEXPECTED);
-      assertThat(e.getUnexpectedException()).isInstanceOf(IllegalStateException.class);
-    }
+    new ExoPlayerTestRunner.Builder()
+        .setLoadControl(neverLoadingOrPlayingLoadControl)
+        .setMediaSources(chunkedMediaSource)
+        .build(context)
+        .start()
+        // This throws if playback doesn't finish within timeout.
+        .blockUntilEnded(TIMEOUT_MS);
   }
 
   @Test
