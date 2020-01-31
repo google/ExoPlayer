@@ -84,7 +84,7 @@ public class FakeTrackSelector extends DefaultTrackSelector {
 
     @Override
     public TrackSelection[] createTrackSelections(
-        @NullableType TrackSelection.Definition[] definitions, BandwidthMeter bandwidthMeter) {
+        TrackSelection.@NullableType Definition[] definitions, BandwidthMeter bandwidthMeter) {
       TrackSelection[] selections = new TrackSelection[definitions.length];
       for (int i = 0; i < definitions.length; i++) {
         TrackSelection.Definition definition = definitions[i];
