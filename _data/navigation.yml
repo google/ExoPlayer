@@ -19,6 +19,8 @@ en:
         url:    supported-formats.html
       - title:  Supported devices
         url:    supported-devices.html
+      - title:  Glossary
+        url:    glossary.html
   - title:      Getting started
     children:
       - title:  Hello world
