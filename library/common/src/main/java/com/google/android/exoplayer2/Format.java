@@ -172,38 +172,6 @@ public final class Format implements Parcelable {
 
   // Video.
 
-  /**
-   * @deprecated Use {@link #createVideoContainerFormat(String, String, String, String, String,
-   *     Metadata, int, int, int, float, List, int, int)} instead.
-   */
-  @Deprecated
-  public static Format createVideoContainerFormat(
-      @Nullable String id,
-      @Nullable String containerMimeType,
-      @Nullable String sampleMimeType,
-      @Nullable String codecs,
-      int bitrate,
-      int width,
-      int height,
-      float frameRate,
-      @Nullable List<byte[]> initializationData,
-      @C.SelectionFlags int selectionFlags) {
-    return createVideoContainerFormat(
-        id,
-        /* label= */ null,
-        containerMimeType,
-        sampleMimeType,
-        codecs,
-        /* metadata= */ null,
-        bitrate,
-        width,
-        height,
-        frameRate,
-        initializationData,
-        selectionFlags,
-        /* roleFlags= */ 0);
-  }
-
   public static Format createVideoContainerFormat(
       @Nullable String id,
       @Nullable String label,
@@ -356,38 +324,6 @@ public final class Format implements Parcelable {
   }
 
   // Audio.
-
-  /**
-   * @deprecated Use {@link #createAudioContainerFormat(String, String, String, String, String,
-   *     Metadata, int, int, int, List, int, int, String)} instead.
-   */
-  @Deprecated
-  public static Format createAudioContainerFormat(
-      @Nullable String id,
-      @Nullable String containerMimeType,
-      @Nullable String sampleMimeType,
-      @Nullable String codecs,
-      int bitrate,
-      int channelCount,
-      int sampleRate,
-      @Nullable List<byte[]> initializationData,
-      @C.SelectionFlags int selectionFlags,
-      @Nullable String language) {
-    return createAudioContainerFormat(
-        id,
-        /* label= */ null,
-        containerMimeType,
-        sampleMimeType,
-        codecs,
-        /* metadata= */ null,
-        bitrate,
-        channelCount,
-        sampleRate,
-        initializationData,
-        selectionFlags,
-        /* roleFlags= */ 0,
-        language);
-  }
 
   public static Format createAudioContainerFormat(
       @Nullable String id,
@@ -767,31 +703,6 @@ public final class Format implements Parcelable {
   }
 
   // Generic.
-
-  /**
-   * @deprecated Use {@link #createContainerFormat(String, String, String, String, String, int, int,
-   *     int, String)} instead.
-   */
-  @Deprecated
-  public static Format createContainerFormat(
-      @Nullable String id,
-      @Nullable String containerMimeType,
-      @Nullable String sampleMimeType,
-      @Nullable String codecs,
-      int bitrate,
-      @C.SelectionFlags int selectionFlags,
-      @Nullable String language) {
-    return createContainerFormat(
-        id,
-        /* label= */ null,
-        containerMimeType,
-        sampleMimeType,
-        codecs,
-        bitrate,
-        selectionFlags,
-        /* roleFlags= */ 0,
-        language);
-  }
 
   public static Format createContainerFormat(
       @Nullable String id,
