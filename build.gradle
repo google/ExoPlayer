@@ -36,7 +36,7 @@ allprojects {
         }
         buildDir = "${externalBuildDir}/${project.name}"
     }
-    group = 'com.google.android.exoplayer'
+    group = 'org.tvheadend.tvhclient'
 }
 
 apply from: 'javadoc_combined.gradle'
