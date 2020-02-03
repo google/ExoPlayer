@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.video;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
 import android.os.Handler;
@@ -26,6 +25,7 @@ import android.view.Choreographer.FrameCallback;
 import android.view.Display;
 import android.view.WindowManager;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
 
@@ -187,7 +187,7 @@ public final class VideoFrameReleaseTimeHelper {
     return snappedTimeNs - vsyncOffsetNs;
   }
 
-  @TargetApi(17)
+  @RequiresApi(17)
   private DefaultDisplayListener maybeBuildDefaultDisplayListenerV17(Context context) {
     DisplayManager manager = (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
     return manager == null ? null : new DefaultDisplayListener(manager);
@@ -226,7 +226,7 @@ public final class VideoFrameReleaseTimeHelper {
     return snappedAfterDiff < snappedBeforeDiff ? snappedAfterNs : snappedBeforeNs;
   }
 
-  @TargetApi(17)
+  @RequiresApi(17)
   private final class DefaultDisplayListener implements DisplayManager.DisplayListener {
 
     private final DisplayManager displayManager;

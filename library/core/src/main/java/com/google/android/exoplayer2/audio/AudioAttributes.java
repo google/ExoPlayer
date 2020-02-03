@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer2.audio;
 
-import android.annotation.TargetApi;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
 
@@ -118,7 +118,7 @@ public final class AudioAttributes {
    *
    * <p>Field {@link AudioAttributes#allowedCapturePolicy} is ignored for API levels prior to 29.
    */
-  @TargetApi(21)
+  @RequiresApi(21)
   public android.media.AudioAttributes getAudioAttributesV21() {
     if (audioAttributesV21 == null) {
       android.media.AudioAttributes.Builder builder =

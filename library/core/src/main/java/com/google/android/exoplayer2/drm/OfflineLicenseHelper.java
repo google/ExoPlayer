@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.drm;
 
-import android.annotation.TargetApi;
 import android.media.MediaDrm;
 import android.os.ConditionVariable;
 import android.os.Handler;
@@ -34,7 +33,6 @@ import java.util.Map;
 import java.util.UUID;
 
 /** Helper class to download, renew and release offline licenses. */
-@TargetApi(18)
 @RequiresApi(18)
 public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
 

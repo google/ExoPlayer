@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.scheduler;
 
-import android.annotation.TargetApi;
 import android.app.job.JobInfo;
 import android.app.job.JobParameters;
 import android.app.job.JobScheduler;
@@ -24,6 +23,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.PersistableBundle;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
@@ -42,7 +42,7 @@ import com.google.android.exoplayer2.util.Util;
  *     android:exported="true"/>
  * }</pre>
  */
-@TargetApi(21)
+@RequiresApi(21)
 public final class PlatformScheduler implements Scheduler {
 
   private static final boolean DEBUG = false;

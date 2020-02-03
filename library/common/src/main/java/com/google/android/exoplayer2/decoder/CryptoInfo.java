@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.decoder;
 
-import android.annotation.TargetApi;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
 
@@ -111,7 +111,7 @@ public final class CryptoInfo {
     return getFrameworkCryptoInfo();
   }
 
-  @TargetApi(24)
+  @RequiresApi(24)
   private static final class PatternHolderV24 {
 
     private final android.media.MediaCodec.CryptoInfo frameworkCryptoInfo;

@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.scheduler;
 
-import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -124,7 +123,7 @@ public final class RequirementsWatcher {
     return requirements;
   }
 
-  @TargetApi(24)
+  @RequiresApi(24)
   private void registerNetworkCallbackV24() {
     ConnectivityManager connectivityManager =
         Assertions.checkNotNull(
@@ -133,7 +132,7 @@ public final class RequirementsWatcher {
     connectivityManager.registerDefaultNetworkCallback(networkCallback);
   }
 
-  @TargetApi(24)
+  @RequiresApi(24)
   private void unregisterNetworkCallbackV24() {
     ConnectivityManager connectivityManager =
         (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
