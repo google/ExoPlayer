@@ -719,7 +719,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     TrackGroup[] trackArray = new TrackGroup[trackCount];
     boolean[] trackIsAudioVideoFlags = new boolean[trackCount];
     for (int i = 0; i < trackCount; i++) {
-      Format trackFormat = sampleQueues[i].getUpstreamFormat();
+      Format trackFormat = Assertions.checkNotNull(sampleQueues[i].getUpstreamFormat());
       String mimeType = trackFormat.sampleMimeType;
       boolean isAudio = MimeTypes.isAudio(mimeType);
       boolean isAudioVideo = isAudio || MimeTypes.isVideo(mimeType);

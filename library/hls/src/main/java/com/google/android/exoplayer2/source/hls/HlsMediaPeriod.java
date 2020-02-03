@@ -665,7 +665,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
       sampleStreamWrapper.prepareWithMasterPlaylistInfo(
           muxedTrackGroups.toArray(new TrackGroup[0]),
           /* primaryTrackGroupIndex= */ 0,
-          /* optionalTrackGroupsIndices= */ muxedTrackGroups.indexOf(id3TrackGroup));
+          /* optionalTrackGroupsIndices...= */ muxedTrackGroups.indexOf(id3TrackGroup));
     }
   }
 
