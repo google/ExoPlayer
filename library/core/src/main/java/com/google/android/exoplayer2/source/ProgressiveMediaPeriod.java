@@ -60,6 +60,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** A {@link MediaPeriod} that extracts data using an {@link Extractor}. */
 /* package */ final class ProgressiveMediaPeriod
@@ -118,9 +119,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   private SampleQueue[] sampleQueues;
   private TrackId[] sampleQueueTrackIds;
   private boolean sampleQueuesBuilt;
-  private boolean prepared;
 
-  @Nullable private PreparedState preparedState;
+  private @MonotonicNonNull PreparedState preparedState;
   private boolean haveAudioVideoTracks;
   private int dataType;
 
@@ -200,7 +200,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   public void release() {
-    if (prepared) {
+    if (preparedState != null) {
       // Discard as much as we can synchronously. We only do this if we're prepared, since otherwise
       // sampleQueues may still be being modified by the loading thread.
       for (SampleQueue sampleQueue : sampleQueues) {
@@ -232,14 +232,14 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   @Override
   public void maybeThrowPrepareError() throws IOException {
     maybeThrowError();
-    if (loadingFinished && !prepared) {
+    if (loadingFinished && preparedState == null) {
       throw new ParserException("Loading finished before preparation is complete.");
     }
   }
 
   @Override
   public TrackGroupArray getTrackGroups() {
-    return getPreparedState().tracks;
+    return Assertions.checkNotNull(preparedState).tracks;
   }
 
   @Override
@@ -249,8 +249,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       @NullableType SampleStream[] streams,
       boolean[] streamResetFlags,
       long positionUs) {
-    PreparedState preparedState = getPreparedState();
-    TrackGroupArray tracks = preparedState.tracks;
+    TrackGroupArray tracks = Assertions.checkNotNull(preparedState).tracks;
     boolean[] trackEnabledStates = preparedState.trackEnabledStates;
     int oldEnabledTrackCount = enabledTrackCount;
     // Deselect old tracks.
@@ -323,7 +322,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     if (isPendingReset()) {
       return;
     }
-    boolean[] trackEnabledStates = getPreparedState().trackEnabledStates;
+    boolean[] trackEnabledStates = Assertions.checkNotNull(preparedState).trackEnabledStates;
     int trackCount = sampleQueues.length;
     for (int i = 0; i < trackCount; i++) {
       sampleQueues[i].discardTo(positionUs, toKeyframe, trackEnabledStates[i]);
@@ -340,7 +339,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     if (loadingFinished
         || loader.hasFatalError()
         || pendingDeferredRetry
-        || (prepared && enabledTrackCount == 0)) {
+        || (preparedState != null && enabledTrackCount == 0)) {
       return false;
     }
     boolean continuedLoading = loadCondition.open();
@@ -377,7 +376,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   @Override
   public long getBufferedPositionUs() {
-    boolean[] trackIsAudioVideoFlags = getPreparedState().trackIsAudioVideoFlags;
+    boolean[] trackIsAudioVideoFlags =
+        Assertions.checkNotNull(preparedState).trackIsAudioVideoFlags;
     if (loadingFinished) {
       return C.TIME_END_OF_SOURCE;
     } else if (isPendingReset()) {
@@ -403,8 +403,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   @Override
   public long seekToUs(long positionUs) {
-    PreparedState preparedState = getPreparedState();
-    SeekMap seekMap = preparedState.seekMap;
+    SeekMap seekMap = Assertions.checkNotNull(preparedState).seekMap;
     boolean[] trackIsAudioVideoFlags = preparedState.trackIsAudioVideoFlags;
     // Treat all seeks into non-seekable media as being to t=0.
     positionUs = seekMap.isSeekable() ? positionUs : 0;
@@ -440,7 +439,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   @Override
   public long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters) {
-    SeekMap seekMap = getPreparedState().seekMap;
+    SeekMap seekMap = Assertions.checkNotNull(preparedState).seekMap;
     if (!seekMap.isSeekable()) {
       // Treat all seeks into non-seekable media as being to t=0.
       return 0;
@@ -502,8 +501,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   private void maybeNotifyDownstreamFormat(int track) {
-    PreparedState preparedState = getPreparedState();
-    boolean[] trackNotifiedDownstreamFormats = preparedState.trackNotifiedDownstreamFormats;
+    boolean[] trackNotifiedDownstreamFormats =
+        Assertions.checkNotNull(preparedState).trackNotifiedDownstreamFormats;
     if (!trackNotifiedDownstreamFormats[track]) {
       Format trackFormat = preparedState.tracks.get(track).getFormat(/* index= */ 0);
       eventDispatcher.downstreamFormatChanged(
@@ -517,7 +516,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   private void maybeStartDeferredRetry(int track) {
-    boolean[] trackIsAudioVideoFlags = getPreparedState().trackIsAudioVideoFlags;
+    boolean[] trackIsAudioVideoFlags =
+        Assertions.checkNotNull(preparedState).trackIsAudioVideoFlags;
     if (!pendingDeferredRetry
         || !trackIsAudioVideoFlags[track]
         || sampleQueues[track].isReady(/* loadingFinished= */ false)) {
@@ -693,7 +693,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   private void maybeFinishPrepare() {
     SeekMap seekMap = this.seekMap;
-    if (released || prepared || !sampleQueuesBuilt || seekMap == null) {
+    if (released || preparedState != null || !sampleQueuesBuilt || seekMap == null) {
       return;
     }
     for (SampleQueue sampleQueue : sampleQueues) {
@@ -735,13 +735,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     dataType = isLive ? C.DATA_TYPE_MEDIA_PROGRESSIVE_LIVE : C.DATA_TYPE_MEDIA;
     preparedState =
         new PreparedState(seekMap, new TrackGroupArray(trackArray), trackIsAudioVideoFlags);
-    prepared = true;
     listener.onSourceInfoRefreshed(durationUs, seekMap.isSeekable(), isLive);
     Assertions.checkNotNull(callback).onPrepared(this);
-  }
-
-  private PreparedState getPreparedState() {
-    return Assertions.checkNotNull(preparedState);
   }
 
   private void copyLengthFromLoader(ExtractingLoadable loadable) {
@@ -754,8 +749,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     ExtractingLoadable loadable =
         new ExtractingLoadable(
             uri, dataSource, extractorHolder, /* extractorOutput= */ this, loadCondition);
-    if (prepared) {
-      SeekMap seekMap = getPreparedState().seekMap;
+    if (preparedState != null) {
+      SeekMap seekMap = preparedState.seekMap;
       Assertions.checkState(isPendingReset());
       if (durationUs != C.TIME_UNSET && pendingResetPositionUs > durationUs) {
         loadingFinished = true;
@@ -798,7 +793,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       // request data starting from the point it left off.
       extractedSamplesCountAtStartOfLoad = currentExtractedSampleCount;
       return true;
-    } else if (prepared && !suppressRead()) {
+    } else if (preparedState != null && !suppressRead()) {
       // We're playing a stream of unknown length and duration. Assume it's live, and therefore that
       // the data at the uri is a continuously shifting window of the latest available media. For
       // this case there's no way to continue loading from where a previous load finished, so it's
@@ -815,7 +810,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       // because there's no buffered data to be read. This case also covers an on-demand stream with
       // unknown length that has yet to be prepared. This case cannot be disambiguated from the live
       // stream case, so we have no option but to load from the start.
-      notifyDiscontinuity = prepared;
+      notifyDiscontinuity = preparedState != null;
       lastSeekPositionUs = 0;
       extractedSamplesCountAtStartOfLoad = 0;
       for (SampleQueue sampleQueue : sampleQueues) {
