@@ -550,24 +550,12 @@ public final class Format implements Parcelable {
       @Nullable String sampleMimeType,
       @C.SelectionFlags int selectionFlags,
       @Nullable String language) {
-    return createTextSampleFormat(id, sampleMimeType, selectionFlags, language, null);
-  }
-
-  public static Format createTextSampleFormat(
-      @Nullable String id,
-      @Nullable String sampleMimeType,
-      @C.SelectionFlags int selectionFlags,
-      @Nullable String language,
-      @Nullable DrmInitData drmInitData) {
     return createTextSampleFormat(
         id,
         sampleMimeType,
-        /* codecs= */ null,
-        /* bitrate= */ NO_VALUE,
         selectionFlags,
         language,
         NO_VALUE,
-        drmInitData,
         OFFSET_SAMPLE_RELATIVE,
         Collections.emptyList());
   }
@@ -575,56 +563,9 @@ public final class Format implements Parcelable {
   public static Format createTextSampleFormat(
       @Nullable String id,
       @Nullable String sampleMimeType,
-      @Nullable String codecs,
-      int bitrate,
       @C.SelectionFlags int selectionFlags,
       @Nullable String language,
       int accessibilityChannel,
-      @Nullable DrmInitData drmInitData) {
-    return createTextSampleFormat(
-        id,
-        sampleMimeType,
-        codecs,
-        bitrate,
-        selectionFlags,
-        language,
-        accessibilityChannel,
-        drmInitData,
-        OFFSET_SAMPLE_RELATIVE,
-        Collections.emptyList());
-  }
-
-  public static Format createTextSampleFormat(
-      @Nullable String id,
-      @Nullable String sampleMimeType,
-      @Nullable String codecs,
-      int bitrate,
-      @C.SelectionFlags int selectionFlags,
-      @Nullable String language,
-      @Nullable DrmInitData drmInitData,
-      long subsampleOffsetUs) {
-    return createTextSampleFormat(
-        id,
-        sampleMimeType,
-        codecs,
-        bitrate,
-        selectionFlags,
-        language,
-        /* accessibilityChannel= */ NO_VALUE,
-        drmInitData,
-        subsampleOffsetUs,
-        Collections.emptyList());
-  }
-
-  public static Format createTextSampleFormat(
-      @Nullable String id,
-      @Nullable String sampleMimeType,
-      @Nullable String codecs,
-      int bitrate,
-      @C.SelectionFlags int selectionFlags,
-      @Nullable String language,
-      int accessibilityChannel,
-      @Nullable DrmInitData drmInitData,
       long subsampleOffsetUs,
       @Nullable List<byte[]> initializationData) {
     return new Format(
@@ -632,14 +573,14 @@ public final class Format implements Parcelable {
         /* label= */ null,
         selectionFlags,
         /* roleFlags= */ 0,
-        bitrate,
-        codecs,
+        /* bitrate= */ NO_VALUE,
+        /* codecs= */ null,
         /* metadata= */ null,
         /* containerMimeType= */ null,
         sampleMimeType,
         /* maxInputSize= */ NO_VALUE,
         initializationData,
-        drmInitData,
+        /* drmInitData= */ null,
         subsampleOffsetUs,
         /* width= */ NO_VALUE,
         /* height= */ NO_VALUE,
