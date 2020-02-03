@@ -124,14 +124,20 @@ public interface AnalyticsListener {
   }
 
   /**
-   * Called when the player state changed.
-   *
-   * @param eventTime The event time.
-   * @param playWhenReady Whether the playback will proceed when ready.
-   * @param playbackState The new {@link Player.State playback state}.
+   * @deprecated Use {@link #onPlaybackStateChanged(EventTime, int)} and {@link
+   *     #onPlayWhenReadyChanged(EventTime, boolean, int)} instead.
    */
+  @Deprecated
   default void onPlayerStateChanged(
       EventTime eventTime, boolean playWhenReady, @Player.State int playbackState) {}
+
+  /**
+   * Called when the playback state changed.
+   *
+   * @param eventTime The event time.
+   * @param state The new {@link Player.State playback state}.
+   */
+  default void onPlaybackStateChanged(EventTime eventTime, @Player.State int state) {}
 
   /**
    * Called when the value changed that indicates whether playback will proceed when ready.

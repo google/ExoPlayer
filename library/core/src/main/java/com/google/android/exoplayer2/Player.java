@@ -410,13 +410,18 @@ public interface Player {
     default void onLoadingChanged(boolean isLoading) {}
 
     /**
-     * Called when the value returned from either {@link #getPlayWhenReady()} or {@link
-     * #getPlaybackState()} changes.
-     *
-     * @param playWhenReady Whether playback will proceed when ready.
-     * @param playbackState The new {@link State playback state}.
+     * @deprecated Use {@link #onPlaybackStateChanged(int)} and {@link
+     *     #onPlayWhenReadyChanged(boolean, int)} instead.
      */
+    @Deprecated
     default void onPlayerStateChanged(boolean playWhenReady, @State int playbackState) {}
+
+    /**
+     * Called when the value returned from {@link #getPlaybackState()} changes.
+     *
+     * @param state The new playback {@link State state}.
+     */
+    default void onPlaybackStateChanged(@State int state) {}
 
     /**
      * Called when the value returned from {@link #getPlayWhenReady()} changes.
@@ -492,7 +497,7 @@ public interface Player {
     /**
      * Called when all pending seek requests have been processed by the player. This is guaranteed
      * to happen after any necessary changes to the player state were reported to {@link
-     * #onPlayerStateChanged(boolean, int)}.
+     * #onPlaybackStateChanged(int)}.
      */
     default void onSeekProcessed() {}
   }

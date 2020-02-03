@@ -609,8 +609,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
 
   /**
    * Asserts that the playback states reported by {@link
-   * Player.EventListener#onPlayerStateChanged(boolean, int)} are equal to the provided playback
-   * states.
+   * Player.EventListener#onPlaybackStateChanged(int)} are equal to the provided playback states.
    */
   public void assertPlaybackStatesEqual(Integer... states) {
     assertThat(playbackStates).containsExactlyElementsIn(Arrays.asList(states)).inOrder();
@@ -706,7 +705,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
   }
 
   @Override
-  public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
+  public void onPlaybackStateChanged(@Player.State int playbackState) {
     playbackStates.add(playbackState);
     playerWasPrepared |= playbackState != Player.STATE_IDLE;
     if (playbackState == Player.STATE_ENDED

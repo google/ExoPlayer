@@ -1380,7 +1380,13 @@ public class PlayerNotificationManager {
   private class PlayerListener implements Player.EventListener {
 
     @Override
-    public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
+    public void onPlaybackStateChanged(@Player.State int playbackState) {
+      postStartOrUpdateNotification();
+    }
+
+    @Override
+    public void onPlayWhenReadyChanged(
+        boolean playWhenReady, @Player.PlayWhenReadyChangeReason int reason) {
       postStartOrUpdateNotification();
     }
 

@@ -430,6 +430,7 @@ import java.util.concurrent.TimeoutException;
         PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
   }
 
+  @SuppressWarnings("deprecation")
   public void setPlayWhenReady(
       boolean playWhenReady,
       @PlaybackSuppressionReason int playbackSuppressionReason,
@@ -454,8 +455,6 @@ import java.util.concurrent.TimeoutException;
           listener -> {
             if (playWhenReadyChanged) {
               listener.onPlayerStateChanged(playWhenReady, playbackState);
-            }
-            if (playWhenReadyChanged) {
               listener.onPlayWhenReadyChanged(playWhenReady, playWhenReadyChangeReason);
             }
             if (suppressionReasonChanged) {
@@ -880,6 +879,7 @@ import java.util.concurrent.TimeoutException;
             /* isPlayingChanged= */ previousIsPlaying != isPlaying));
   }
 
+  @SuppressWarnings("deprecation")
   private void setMediaItemsInternal(
       List<MediaSource> mediaItems,
       int startWindowIndex,
@@ -933,6 +933,7 @@ import java.util.concurrent.TimeoutException;
           listener.onTimelineChanged(timeline, TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
           if (playbackStateChanged) {
             listener.onPlayerStateChanged(currentPlayWhenReady, finalMaskingPlaybackState);
+            listener.onPlaybackStateChanged(finalMaskingPlaybackState);
           }
         });
   }
@@ -952,6 +953,7 @@ import java.util.concurrent.TimeoutException;
     return holders;
   }
 
+  @SuppressWarnings("deprecation")
   private void removeMediaItemsInternal(int fromIndex, int toIndex) {
     Assertions.checkArgument(
         fromIndex >= 0 && toIndex >= fromIndex && toIndex <= mediaSourceHolders.size());
@@ -980,6 +982,7 @@ import java.util.concurrent.TimeoutException;
           listener.onTimelineChanged(timeline, TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
           if (transitionsToEnded) {
             listener.onPlayerStateChanged(currentPlayWhenReady, STATE_ENDED);
+            listener.onPlaybackStateChanged(STATE_ENDED);
           }
         });
   }
@@ -1167,6 +1170,7 @@ import java.util.concurrent.TimeoutException;
           previousPlaybackInfo.trackSelectorResult != playbackInfo.trackSelectorResult;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void run() {
       if (timelineChanged) {
@@ -1196,7 +1200,10 @@ import java.util.concurrent.TimeoutException;
       if (playbackStateChanged) {
         invokeAll(
             listenerSnapshot,
-            listener -> listener.onPlayerStateChanged(playWhenReady, playbackInfo.playbackState));
+            listener -> {
+              listener.onPlayerStateChanged(playWhenReady, playbackInfo.playbackState);
+              listener.onPlaybackStateChanged(playbackInfo.playbackState);
+            });
       }
       if (isPlayingChanged) {
         invokeAll(

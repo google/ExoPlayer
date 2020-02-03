@@ -1662,6 +1662,22 @@ public class SimpleExoPlayer extends BasePlayer
     }
   }
 
+  private void updateWakeLock() {
+    @State int playbackState = getPlaybackState();
+    switch (playbackState) {
+      case Player.STATE_READY:
+      case Player.STATE_BUFFERING:
+        wakeLockManager.setStayAwake(getPlayWhenReady());
+        break;
+      case Player.STATE_ENDED:
+      case Player.STATE_IDLE:
+        wakeLockManager.setStayAwake(false);
+        break;
+      default:
+        throw new IllegalStateException();
+    }
+  }
+
   private static int getPlayWhenReadyChangeReason(boolean playWhenReady, int playerCommand) {
     return playWhenReady && playerCommand != AudioFocusManager.PLAYER_COMMAND_PLAY_WHEN_READY
         ? PLAY_WHEN_READY_CHANGE_REASON_AUDIO_FOCUS_LOSS
@@ -1920,17 +1936,14 @@ public class SimpleExoPlayer extends BasePlayer
     }
 
     @Override
-    public void onPlayerStateChanged(boolean playWhenReady, @State int playbackState) {
-      switch (playbackState) {
-        case Player.STATE_READY:
-        case Player.STATE_BUFFERING:
-          wakeLockManager.setStayAwake(playWhenReady);
-          break;
-        case Player.STATE_ENDED:
-        case Player.STATE_IDLE:
-          wakeLockManager.setStayAwake(false);
-          break;
-      }
+    public void onPlaybackStateChanged(@State int playbackState) {
+      updateWakeLock();
+    }
+
+    @Override
+    public void onPlayWhenReadyChanged(
+        boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {
+      updateWakeLock();
     }
   }
 }
