@@ -24,7 +24,6 @@ import com.google.android.exoplayer2.text.Cue.VerticalType;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Style object of a <code>TtmlNode</code>
@@ -62,7 +61,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private static final int OFF = 0;
   private static final int ON = 1;
 
-  private @MonotonicNonNull String fontFamily;
+  @Nullable private String fontFamily;
   private int fontColor;
   private boolean hasFontColor;
   private int backgroundColor;
@@ -73,8 +72,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @OptionalBoolean private int italic;
   @FontSizeUnit private int fontSizeUnit;
   private float fontSize;
-  private @MonotonicNonNull String id;
-  private Layout.@MonotonicNonNull Alignment textAlign;
+  @Nullable private String id;
+  @Nullable private Layout.Alignment textAlign;
   @OptionalBoolean private int textCombine;
   @Cue.VerticalType private int verticalType;
 
@@ -84,6 +83,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     bold = UNSPECIFIED;
     italic = UNSPECIFIED;
     fontSizeUnit = UNSPECIFIED;
+    textCombine = UNSPECIFIED;
     verticalType = Cue.TYPE_UNSET;
   }
 
@@ -134,7 +134,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     return fontFamily;
   }
 
-  public TtmlStyle setFontFamily(String fontFamily) {
+  public TtmlStyle setFontFamily(@Nullable String fontFamily) {
     this.fontFamily = fontFamily;
     return this;
   }
@@ -228,14 +228,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       if (chaining && !hasBackgroundColor && ancestor.hasBackgroundColor) {
         setBackgroundColor(ancestor.backgroundColor);
       }
-      if (chaining && verticalType != Cue.TYPE_UNSET && ancestor.verticalType == Cue.TYPE_UNSET) {
-        setVerticalType(ancestor.verticalType);
+      if (chaining && verticalType == Cue.TYPE_UNSET) {
+        verticalType = ancestor.verticalType;
       }
     }
     return this;
   }
 
-  public TtmlStyle setId(String id) {
+  public TtmlStyle setId(@Nullable String id) {
     this.id = id;
     return this;
   }
@@ -250,7 +250,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     return textAlign;
   }
 
-  public TtmlStyle setTextAlign(Layout.Alignment textAlign) {
+  public TtmlStyle setTextAlign(@Nullable Layout.Alignment textAlign) {
     this.textAlign = textAlign;
     return this;
   }
