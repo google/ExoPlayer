@@ -267,7 +267,7 @@ import java.util.Map;
   // Player.EventListener implementation.
 
   @Override
-  public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
+  public void onPlaybackStateChanged(@Player.State int playbackState) {
     updateCurrentItemIndex();
   }
 

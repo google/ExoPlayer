@@ -80,6 +80,7 @@ public class CastPlayerTest {
     remoteMediaClientListener = listenerArgumentCaptor.getValue();
   }
 
+  @SuppressWarnings("deprecation")
   @Test
   public void testSetPlayWhenReady_masksRemoteState() {
     when(mockRemoteMediaClient.play()).thenReturn(mockPendingResult);
@@ -104,6 +105,7 @@ public class CastPlayerTest {
     verifyNoMoreInteractions(mockListener);
   }
 
+  @SuppressWarnings("deprecation")
   @Test
   public void testSetPlayWhenReadyMasking_updatesUponResultChange() {
     when(mockRemoteMediaClient.play()).thenReturn(mockPendingResult);
@@ -125,6 +127,7 @@ public class CastPlayerTest {
     assertThat(castPlayer.getPlayWhenReady()).isFalse();
   }
 
+  @SuppressWarnings("deprecation")
   @Test
   public void testSetPlayWhenReady_correctChangeReasonOnPause() {
     when(mockRemoteMediaClient.play()).thenReturn(mockPendingResult);
@@ -142,6 +145,7 @@ public class CastPlayerTest {
         .onPlayWhenReadyChanged(false, Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
   }
 
+  @SuppressWarnings("deprecation")
   @Test
   public void testPlayWhenReady_changesOnStatusUpdates() {
     assertThat(castPlayer.getPlayWhenReady()).isFalse();

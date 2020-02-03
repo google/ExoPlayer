@@ -438,11 +438,20 @@ public class AnalyticsCollector
     }
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public final void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
     EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
     for (AnalyticsListener listener : listeners) {
       listener.onPlayerStateChanged(eventTime, playWhenReady, playbackState);
+    }
+  }
+
+  @Override
+  public final void onPlaybackStateChanged(@Player.State int state) {
+    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
+    for (AnalyticsListener listener : listeners) {
+      listener.onPlaybackStateChanged(eventTime, state);
     }
   }
 

@@ -724,18 +724,23 @@ public final class CastPlayer extends BasePlayer {
     }
   }
 
+  @SuppressWarnings("deprecation")
   private void setPlayerStateAndNotifyIfChanged(
       boolean playWhenReady,
       @Player.PlayWhenReadyChangeReason int playWhenReadyChangeReason,
       @Player.State int playbackState) {
     boolean playWhenReadyChanged = this.playWhenReady.value != playWhenReady;
-    if (playWhenReadyChanged || this.playbackState != playbackState) {
+    boolean playbackStateChanged = this.playbackState != playbackState;
+    if (playWhenReadyChanged || playbackStateChanged) {
       this.playbackState = playbackState;
       this.playWhenReady.value = playWhenReady;
       notificationsBatch.add(
           new ListenerNotificationTask(
               listener -> {
                 listener.onPlayerStateChanged(playWhenReady, playbackState);
+                if (playbackStateChanged) {
+                  listener.onPlaybackStateChanged(playbackState);
+                }
                 if (playWhenReadyChanged) {
                   listener.onPlayWhenReadyChanged(playWhenReady, playWhenReadyChangeReason);
                 }

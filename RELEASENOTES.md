@@ -7,6 +7,8 @@
   * Add `play` and `pause` methods to `Player`.
   * Add `Player.getCurrentLiveOffset` to conveniently return the live offset.
   * Add `Player.onPlayWhenReadyChanged` with reasons.
+  * Add `Player.onPlaybackStateChanged` and deprecate
+    `Player.onPlayerStateChanged`.
   * Make `MediaSourceEventListener.LoadEventInfo` and
     `MediaSourceEventListener.MediaLoadData` top-level classes.
   * Rename `MediaCodecRenderer.onOutputFormatChanged` to

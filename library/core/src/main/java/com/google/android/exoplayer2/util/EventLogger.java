@@ -96,8 +96,7 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
-  public void onPlayerStateChanged(
-      EventTime eventTime, boolean playWhenReady, @Player.State int state) {
+  public void onPlaybackStateChanged(EventTime eventTime, @Player.State int state) {
     logd(eventTime, "state", getStateString(state));
   }
 
