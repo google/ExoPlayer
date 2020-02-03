@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispat
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.TransferListener;
+import com.google.android.exoplayer2.util.Util;
 
 /**
  * Fake {@link MediaSource} that provides a given timeline. Creating the period returns a
@@ -47,7 +48,7 @@ public class FakeAdaptiveMediaSource extends FakeMediaSource {
       Allocator allocator,
       EventDispatcher eventDispatcher,
       @Nullable TransferListener transferListener) {
-    Period period = timeline.getPeriodByUid(id.periodUid, new Period());
+    Period period = Util.castNonNull(getTimeline()).getPeriodByUid(id.periodUid, new Period());
     return new FakeAdaptiveMediaPeriod(
         trackGroupArray,
         eventDispatcher,

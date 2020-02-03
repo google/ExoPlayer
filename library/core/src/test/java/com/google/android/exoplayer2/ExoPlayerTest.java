@@ -484,7 +484,7 @@ public final class ExoPlayerTest {
         new ActionSchedule.Builder("testAdGroupWithLoadErrorIsSkipped")
             .pause()
             .waitForPlaybackState(Player.STATE_READY)
-            .executeRunnable(() -> fakeMediaSource.setNewSourceInfo(adErrorTimeline, null))
+            .executeRunnable(() -> fakeMediaSource.setNewSourceInfo(adErrorTimeline))
             .waitForTimelineChanged(
                 adErrorTimeline, /* expectedReason */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
             .play()
@@ -864,7 +864,7 @@ public final class ExoPlayerTest {
             .pause()
             .waitForTimelineChanged(
                 timeline, /* expectedReason */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
-            .executeRunnable(() -> mediaSource.setNewSourceInfo(timeline2, null))
+            .executeRunnable(() -> mediaSource.setNewSourceInfo(timeline2))
             .waitForTimelineChanged(
                 timeline2, /* expectedReason */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
             .play()
@@ -2061,7 +2061,7 @@ public final class ExoPlayerTest {
             .waitForTimelineChanged(
                 timeline, /* expectedReason */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
             .sendMessage(target, /* positionMs= */ 50)
-            .executeRunnable(() -> mediaSource.setNewSourceInfo(secondTimeline, null))
+            .executeRunnable(() -> mediaSource.setNewSourceInfo(secondTimeline))
             .waitForTimelineChanged(
                 secondTimeline, /* expectedReason */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
             .play()
@@ -2137,7 +2137,7 @@ public final class ExoPlayerTest {
             .waitForTimelineChanged(
                 timeline, /* expectedReason */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
             .sendMessage(target, /* windowIndex = */ 1, /* positionMs= */ 50)
-            .executeRunnable(() -> mediaSource.setNewSourceInfo(secondTimeline, null))
+            .executeRunnable(() -> mediaSource.setNewSourceInfo(secondTimeline))
             .waitForTimelineChanged(
                 secondTimeline, /* expectedReason */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
             .seek(/* windowIndex= */ 0, /* positionMs= */ 0)
@@ -2223,7 +2223,7 @@ public final class ExoPlayerTest {
   @Test
   public void testCancelRepeatedMessageAfterDelivery() throws Exception {
     Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
-    final PositionGrabbingMessageTarget target = new PositionGrabbingMessageTarget();
+    final CountingMessageTarget target = new CountingMessageTarget();
     final AtomicReference<PlayerMessage> message = new AtomicReference<>();
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder("testCancelMessage")
@@ -2315,7 +2315,7 @@ public final class ExoPlayerTest {
             .playUntilPosition(
                 /* windowIndex= */ 0,
                 /* positionMs= */ C.usToMs(TimelineWindowDefinition.DEFAULT_WINDOW_DURATION_US))
-            .executeRunnable(() -> mediaSource.setNewSourceInfo(timeline2, /* newManifest= */ null))
+            .executeRunnable(() -> mediaSource.setNewSourceInfo(timeline2))
             .waitForTimelineChanged(
                 timeline2, /* expectedReason */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
             .play()
@@ -2844,7 +2844,7 @@ public final class ExoPlayerTest {
             .waitForPlaybackState(Player.STATE_BUFFERING)
             .seek(/* positionMs= */ 10)
             .waitForSeekProcessed()
-            .executeRunnable(() -> mediaSource.setNewSourceInfo(timeline, /* newManifest= */ null))
+            .executeRunnable(() -> mediaSource.setNewSourceInfo(timeline))
             .waitForTimelineChanged()
             .waitForPlaybackState(Player.STATE_READY)
             .executeRunnable(
@@ -2889,7 +2889,7 @@ public final class ExoPlayerTest {
             // Seek 10ms into the second period.
             .seek(/* positionMs= */ periodDurationMs + 10)
             .waitForSeekProcessed()
-            .executeRunnable(() -> mediaSource.setNewSourceInfo(timeline, /* newManifest= */ null))
+            .executeRunnable(() -> mediaSource.setNewSourceInfo(timeline))
             .waitForTimelineChanged()
             .waitForPlaybackState(Player.STATE_READY)
             .executeRunnable(
@@ -5682,6 +5682,16 @@ public final class ExoPlayerTest {
 
   // Internal classes.
 
+  private static final class CountingMessageTarget implements PlayerMessage.Target {
+
+    public int messageCount;
+
+    @Override
+    public void handleMessage(int x, @Nullable Object message) {
+      messageCount++;
+    }
+  }
+
   private static final class PositionGrabbingMessageTarget extends PlayerTarget {
 
     public int windowIndex;
@@ -5695,10 +5705,8 @@ public final class ExoPlayerTest {
 
     @Override
     public void handleMessage(SimpleExoPlayer player, int messageType, @Nullable Object message) {
-      if (player != null) {
-        windowIndex = player.getCurrentWindowIndex();
-        positionMs = player.getCurrentPosition();
-      }
+      windowIndex = player.getCurrentWindowIndex();
+      positionMs = player.getCurrentPosition();
       messageCount++;
     }
   }

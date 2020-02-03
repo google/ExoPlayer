@@ -18,9 +18,9 @@ package com.google.android.exoplayer2.testutil;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.os.ConditionVariable;
-import android.os.Looper;
 import android.os.SystemClock;
 import android.view.Surface;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -41,6 +41,8 @@ import com.google.android.exoplayer2.util.EventLogger;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** A {@link HostedTest} for {@link ExoPlayer} playback tests. */
 public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
@@ -64,12 +66,12 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
   private final DecoderCounters audioDecoderCounters;
   private final ConditionVariable testFinished;
 
-  private ActionSchedule pendingSchedule;
-  private HandlerWrapper actionHandler;
-  private DefaultTrackSelector trackSelector;
-  private SimpleExoPlayer player;
-  private Surface surface;
-  private ExoPlaybackException playerError;
+  @Nullable private ActionSchedule pendingSchedule;
+  private @MonotonicNonNull SimpleExoPlayer player;
+  private @MonotonicNonNull HandlerWrapper actionHandler;
+  private @MonotonicNonNull DefaultTrackSelector trackSelector;
+  private @MonotonicNonNull Surface surface;
+  private @MonotonicNonNull ExoPlaybackException playerError;
   private boolean playerWasPrepared;
 
   private boolean playing;
@@ -115,7 +117,7 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
    * @param schedule The schedule.
    */
   public final void setSchedule(ActionSchedule schedule) {
-    if (player == null) {
+    if (!isStarted()) {
       pendingSchedule = schedule;
     } else {
       schedule.start(player, trackSelector, surface, actionHandler, /* callback= */ null);
@@ -135,7 +137,7 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
     player.addAnalyticsListener(this);
     player.addAnalyticsListener(new EventLogger(trackSelector, tag));
     // Schedule any pending actions.
-    actionHandler = Clock.DEFAULT.createHandler(Looper.myLooper(), /* callback= */ null);
+    actionHandler = Clock.DEFAULT.createHandler(Util.getLooper(), /* callback= */ null);
     if (pendingSchedule != null) {
       pendingSchedule.start(player, trackSelector, surface, actionHandler, /* callback= */ null);
       pendingSchedule = null;
@@ -216,13 +218,12 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
   // Internal logic
 
   private boolean stopTest() {
-    if (player == null) {
+    if (!isStarted()) {
       return false;
     }
     actionHandler.removeCallbacksAndMessages(null);
     sourceDurationMs = player.getDuration();
     player.release();
-    player = null;
     // We post opening of the finished condition so that any events posted to the main thread as a
     // result of player.release() are guaranteed to be handled before the test returns.
     actionHandler.post(testFinished::open);
@@ -260,5 +261,18 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
 
   protected void onTestFinished(DecoderCounters audioCounters, DecoderCounters videoCounters) {
     // Do nothing. Subclasses may override to add clean-up and assertions.
+  }
+
+  @EnsuresNonNullIf(
+      result = true,
+      expression = {"player", "actionHandler", "trackSelector", "surface"})
+  private boolean isStarted() {
+    if (player == null) {
+      return false;
+    }
+    Util.castNonNull(actionHandler);
+    Util.castNonNull(trackSelector);
+    Util.castNonNull(surface);
+    return true;
   }
 }

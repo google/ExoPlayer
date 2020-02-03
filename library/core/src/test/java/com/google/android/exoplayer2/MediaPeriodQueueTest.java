@@ -374,7 +374,7 @@ public final class MediaPeriodQueueTest {
   private void updateTimeline() {
     SinglePeriodAdTimeline adTimeline =
         new SinglePeriodAdTimeline(CONTENT_TIMELINE, adPlaybackState);
-    fakeMediaSource.setNewSourceInfo(adTimeline, /* manifest */ null);
+    fakeMediaSource.setNewSourceInfo(adTimeline);
     playbackInfo = playbackInfo.copyWithTimeline(createPlaylistTimeline());
   }
 

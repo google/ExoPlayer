@@ -272,7 +272,7 @@ public class FakeMediaPeriod implements MediaPeriod {
 
   private void finishPreparation() {
     prepared = true;
-    prepareCallback.onPrepared(this);
+    Util.castNonNull(prepareCallback).onPrepared(this);
     eventDispatcher.loadCompleted(
         FAKE_DATA_SPEC,
         FAKE_DATA_SPEC.uri,
