@@ -635,7 +635,7 @@ public final class ClippingMediaSourceTest {
                   clippedTimelines[0].getUidOfPeriod(/* periodIndex= */ 0),
                   /* windowSequenceNumber= */ 0));
       for (int i = 0; i < additionalTimelines.length; i++) {
-        fakeMediaSource.setNewSourceInfo(additionalTimelines[i], /* newManifest= */ null);
+        fakeMediaSource.setNewSourceInfo(additionalTimelines[i]);
         clippedTimelines[i + 1] = testRunner.assertTimelineChangeBlocking();
       }
       testRunner.releasePeriod(mediaPeriod);

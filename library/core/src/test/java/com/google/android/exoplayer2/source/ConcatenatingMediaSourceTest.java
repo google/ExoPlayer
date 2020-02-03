@@ -246,8 +246,7 @@ public final class ConcatenatingMediaSourceTest {
 
     // Trigger source info refresh for lazy source and check that the timeline now contains all
     // information for all windows.
-    testRunner.runOnPlaybackThread(
-        () -> lazySources[1].setNewSourceInfo(createFakeTimeline(8), null));
+    testRunner.runOnPlaybackThread(() -> lazySources[1].setNewSourceInfo(createFakeTimeline(8)));
     timeline = testRunner.assertTimelineChangeBlocking();
     TimelineAsserts.assertPeriodCounts(timeline, 1, 9);
     TimelineAsserts.assertWindowTags(timeline, 111, 999);
@@ -281,8 +280,7 @@ public final class ConcatenatingMediaSourceTest {
 
     // Trigger source info refresh for lazy media source. Assert that now all information is
     // available again and the previously created period now also finished preparing.
-    testRunner.runOnPlaybackThread(
-        () -> lazySources[3].setNewSourceInfo(createFakeTimeline(7), null));
+    testRunner.runOnPlaybackThread(() -> lazySources[3].setNewSourceInfo(createFakeTimeline(7)));
     timeline = testRunner.assertTimelineChangeBlocking();
     TimelineAsserts.assertPeriodCounts(timeline, 8, 1, 2, 9);
     TimelineAsserts.assertWindowTags(timeline, 888, 111, 222, 999);
@@ -372,15 +370,15 @@ public final class ConcatenatingMediaSourceTest {
     Timeline timeline = testRunner.prepareSource();
     TimelineAsserts.assertEmpty(timeline);
 
-    childSources[0].setNewSourceInfo(nonEmptyTimeline, /* newManifest== */ null);
+    childSources[0].setNewSourceInfo(nonEmptyTimeline);
     timeline = testRunner.assertTimelineChangeBlocking();
     TimelineAsserts.assertPeriodCounts(timeline, 1);
 
-    childSources[2].setNewSourceInfo(nonEmptyTimeline, /* newManifest== */ null);
+    childSources[2].setNewSourceInfo(nonEmptyTimeline);
     timeline = testRunner.assertTimelineChangeBlocking();
     TimelineAsserts.assertPeriodCounts(timeline, 1, 1);
 
-    childSources[1].setNewSourceInfo(nonEmptyTimeline, /* newManifest== */ null);
+    childSources[1].setNewSourceInfo(nonEmptyTimeline);
     timeline = testRunner.assertTimelineChangeBlocking();
     TimelineAsserts.assertPeriodCounts(timeline, 1, 1, 1);
   }

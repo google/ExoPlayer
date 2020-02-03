@@ -785,8 +785,7 @@ public final class AnalyticsCollectorTest {
                                           /* isSeekable= */ true,
                                           /* isDynamic= */ false,
                                           /* durationUs =*/ 10 * C.MICROS_PER_SECOND,
-                                          adPlaybackState.get())),
-                                  /* newManifest= */ null);
+                                          adPlaybackState.get())));
                             }
                           }
                         });
