@@ -250,7 +250,7 @@ public final class FlacExtractor implements Extractor {
     SeekMap seekMap;
     if (haveSeekTable) {
       seekMap = new FlacSeekMap(streamMetadata.getDurationUs(), decoderJni);
-    } else if (streamLength != C.LENGTH_UNSET) {
+    } else if (streamLength != C.LENGTH_UNSET && streamMetadata.totalSamples > 0) {
       long firstFramePosition = decoderJni.getDecodePosition();
       binarySearchSeeker =
           new FlacBinarySearchSeeker(
