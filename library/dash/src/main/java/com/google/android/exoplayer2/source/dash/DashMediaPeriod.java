@@ -533,8 +533,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         continue;
       }
       adaptationSetUsedFlags[i] = true;
-      Descriptor adaptationSetSwitchingProperty = findAdaptationSetSwitchingProperty(
-          adaptationSets.get(i).supplementalProperties);
+      @Nullable
+      Descriptor adaptationSetSwitchingProperty =
+          findAdaptationSetSwitchingProperty(adaptationSets.get(i).supplementalProperties);
       if (adaptationSetSwitchingProperty == null) {
         groupedAdaptationSetIndices[groupCount++] = new int[] {i};
       } else {
@@ -737,6 +738,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     return stream;
   }
 
+  @Nullable
   private static Descriptor findAdaptationSetSwitchingProperty(List<Descriptor> descriptors) {
     for (int i = 0; i < descriptors.size(); i++) {
       Descriptor descriptor = descriptors.get(i);
@@ -769,7 +771,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       for (int j = 0; j < descriptors.size(); j++) {
         Descriptor descriptor = descriptors.get(j);
         if ("urn:scte:dash:cc:cea-608:2015".equals(descriptor.schemeIdUri)) {
-          String value = descriptor.value;
+          @Nullable String value = descriptor.value;
           if (value == null) {
             // There are embedded CEA-608 tracks, but service information is not declared.
             return new Format[] {buildCea608TrackFormat(adaptationSet.id)};
@@ -801,18 +803,15 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   private static Format buildCea608TrackFormat(
-      int adaptationSetId, String language, int accessibilityChannel) {
+      int adaptationSetId, @Nullable String language, int accessibilityChannel) {
     return Format.createTextSampleFormat(
         adaptationSetId
             + ":cea608"
             + (accessibilityChannel != Format.NO_VALUE ? ":" + accessibilityChannel : ""),
         MimeTypes.APPLICATION_CEA608,
-        /* codecs= */ null,
-        /* bitrate= */ Format.NO_VALUE,
         /* selectionFlags= */ 0,
         language,
         accessibilityChannel,
-        /* drmInitData= */ null,
         Format.OFFSET_SAMPLE_RELATIVE,
         /* initializationData= */ null);
   }

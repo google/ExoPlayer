@@ -186,8 +186,10 @@ public final class WebvttExtractor implements Extractor {
   @RequiresNonNull("output")
   private TrackOutput buildTrackOutput(long subsampleOffsetUs) {
     TrackOutput trackOutput = output.track(0, C.TRACK_TYPE_TEXT);
-    trackOutput.format(Format.createTextSampleFormat(null, MimeTypes.TEXT_VTT, null,
-        Format.NO_VALUE, 0, language, null, subsampleOffsetUs));
+    trackOutput.format(
+        Format.createTextSampleFormat(
+                /* id= */ null, MimeTypes.TEXT_VTT, /* selectionFlags= */ 0, language)
+            .copyWithSubsampleOffsetUs(subsampleOffsetUs));
     output.endTracks();
     return trackOutput;
   }

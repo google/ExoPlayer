@@ -261,12 +261,9 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
               Format.createTextSampleFormat(
                   /* id= */ null,
                   mimeType,
-                  /* codecs= */ null,
-                  /* bitrate= */ Format.NO_VALUE,
                   /* selectionFlags= */ 0,
                   language,
                   accessibilityChannel,
-                  /* drmInitData= */ null,
                   Format.OFFSET_SAMPLE_RELATIVE,
                   initializationData));
         }

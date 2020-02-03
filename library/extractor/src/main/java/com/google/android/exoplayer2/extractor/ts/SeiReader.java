@@ -55,12 +55,9 @@ public final class SeiReader {
           Format.createTextSampleFormat(
               formatId,
               channelMimeType,
-              /* codecs= */ null,
-              /* bitrate= */ Format.NO_VALUE,
               channelFormat.selectionFlags,
               channelFormat.language,
               channelFormat.accessibilityChannel,
-              /* drmInitData= */ null,
               Format.OFFSET_SAMPLE_RELATIVE,
               channelFormat.initializationData));
       outputs[i] = output;

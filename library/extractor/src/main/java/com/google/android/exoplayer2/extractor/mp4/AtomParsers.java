@@ -863,12 +863,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         Format.createTextSampleFormat(
             Integer.toString(trackId),
             mimeType,
-            /* codecs= */ null,
-            /* bitrate= */ Format.NO_VALUE,
             /* selectionFlags= */ 0,
             language,
             /* accessibilityChannel= */ Format.NO_VALUE,
-            /* drmInitData= */ null,
             subsampleOffsetUs,
             initializationData);
   }
