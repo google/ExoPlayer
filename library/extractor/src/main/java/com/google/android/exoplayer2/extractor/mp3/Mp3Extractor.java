@@ -216,6 +216,31 @@ public final class Mp3Extractor implements Extractor {
   public int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
     assertInitialized();
+    int readResult = readInternal(input);
+    if (readResult == RESULT_END_OF_INPUT && seeker instanceof IndexSeeker) {
+      // Duration is exact when index seeker is used.
+      long durationUs = computeTimeUs(samplesRead);
+      if (seeker.getDurationUs() != durationUs) {
+        ((IndexSeeker) seeker).setDurationUs(durationUs);
+        extractorOutput.seekMap(seeker);
+      }
+    }
+    return readResult;
+  }
+
+  /**
+   * Disables the extractor from being able to seek through the media.
+   *
+   * <p>Please note that this needs to be called before {@link #read}.
+   */
+  public void disableSeeking() {
+    disableSeeking = true;
+  }
+
+  // Internal methods.
+
+  @RequiresNonNull({"extractorOutput", "currentTrackOutput", "realTrackOutput"})
+  private int readInternal(ExtractorInput input) throws IOException, InterruptedException {
     if (synchronizedHeaderData == 0) {
       try {
         synchronize(input, false);
@@ -253,17 +278,6 @@ public final class Mp3Extractor implements Extractor {
     }
     return readSample(input);
   }
-
-  /**
-   * Disables the extractor from being able to seek through the media.
-   *
-   * <p>Please note that this needs to be called before {@link #read}.
-   */
-  public void disableSeeking() {
-    disableSeeking = true;
-  }
-
-  // Internal methods.
 
   @RequiresNonNull({"currentTrackOutput", "realTrackOutput", "seeker"})
   private int readSample(ExtractorInput extractorInput) throws IOException, InterruptedException {
