@@ -180,6 +180,7 @@ public final class DashMediaSource extends BaseMediaSource {
       return this;
     }
 
+    /** @deprecated Use {@link #setLivePresentationDelayMs(long, boolean)} instead. */
     @Deprecated
     @SuppressWarnings("deprecation")
     public Factory setLivePresentationDelayMs(long livePresentationDelayMs) {
