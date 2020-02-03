@@ -47,6 +47,7 @@ import android.view.Display;
 import android.view.SurfaceView;
 import android.view.WindowManager;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Format;
@@ -2058,14 +2059,14 @@ public final class Util {
     }
   }
 
-  @TargetApi(23)
+  @RequiresApi(23)
   private static void getDisplaySizeV23(Display display, Point outSize) {
     Display.Mode mode = display.getMode();
     outSize.x = mode.getPhysicalWidth();
     outSize.y = mode.getPhysicalHeight();
   }
 
-  @TargetApi(17)
+  @RequiresApi(17)
   private static void getDisplaySizeV17(Display display, Point outSize) {
     display.getRealSize(outSize);
   }
@@ -2081,12 +2082,12 @@ public final class Util {
         : new String[] {getLocaleLanguageTag(config.locale)};
   }
 
-  @TargetApi(24)
+  @RequiresApi(24)
   private static String[] getSystemLocalesV24(Configuration config) {
     return Util.split(config.getLocales().toLanguageTags(), ",");
   }
 
-  @TargetApi(21)
+  @RequiresApi(21)
   private static String getLocaleLanguageTagV21(Locale locale) {
     return locale.toLanguageTag();
   }

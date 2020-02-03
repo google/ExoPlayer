@@ -15,12 +15,12 @@
  */
 package com.google.android.exoplayer2.playbacktests.gts;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
 import android.os.Handler;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
@@ -189,10 +189,10 @@ import java.util.ArrayList;
       super.renderOutputBuffer(codec, index, presentationTimeUs);
     }
 
-    @TargetApi(21)
+    @RequiresApi(21)
     @Override
-    protected void renderOutputBufferV21(MediaCodec codec, int index, long presentationTimeUs,
-        long releaseTimeNs) {
+    protected void renderOutputBufferV21(
+        MediaCodec codec, int index, long presentationTimeUs, long releaseTimeNs) {
       skipToPositionBeforeRenderingFirstFrame = false;
       super.renderOutputBufferV21(codec, index, presentationTimeUs, releaseTimeNs);
     }

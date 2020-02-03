@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.mediacodec;
 
-import android.annotation.TargetApi;
 import android.media.MediaCodec;
 import android.media.MediaCodec.CodecException;
 import android.media.MediaCodec.CryptoException;
@@ -28,6 +27,7 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.CheckResult;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -192,7 +192,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           fallbackException);
     }
 
-    @TargetApi(21)
+    @RequiresApi(21)
     private static String getDiagnosticInfoV21(Throwable cause) {
       if (cause instanceof CodecException) {
         return ((CodecException) cause).getDiagnosticInfo();
@@ -223,7 +223,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       diagnosticInfo = Util.SDK_INT >= 21 ? getDiagnosticInfoV21(cause) : null;
     }
 
-    @TargetApi(21)
+    @RequiresApi(21)
     private static String getDiagnosticInfoV21(Throwable cause) {
       if (cause instanceof CodecException) {
         return ((CodecException) cause).getDiagnosticInfo();
@@ -1794,7 +1794,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     maybeInitCodec();
   }
 
-  @TargetApi(23)
+  @RequiresApi(23)
   private void updateDrmSessionOrReinitializeCodecV23() throws ExoPlaybackException {
     FrameworkMediaCrypto sessionMediaCrypto = sourceDrmSession.getMediaCrypto();
     if (sessionMediaCrypto == null) {
@@ -1867,7 +1867,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     return stackTrace.length > 0 && stackTrace[0].getClassName().equals("android.media.MediaCodec");
   }
 
-  @TargetApi(21)
+  @RequiresApi(21)
   private static boolean isMediaCodecExceptionV21(IllegalStateException error) {
     return error instanceof MediaCodec.CodecException;
   }

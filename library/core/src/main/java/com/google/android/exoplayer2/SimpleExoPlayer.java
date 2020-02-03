@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
@@ -28,6 +27,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
@@ -852,7 +852,7 @@ public class SimpleExoPlayer extends BasePlayer
    * @param params The {@link PlaybackParams}, or null to clear any previously set parameters.
    */
   @Deprecated
-  @TargetApi(23)
+  @RequiresApi(23)
   public void setPlaybackParams(@Nullable PlaybackParams params) {
     PlaybackParameters playbackParameters;
     if (params != null) {

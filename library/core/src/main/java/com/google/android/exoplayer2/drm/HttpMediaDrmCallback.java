@@ -15,10 +15,10 @@
  */
 package com.google.android.exoplayer2.drm;
 
-import android.annotation.TargetApi;
 import android.net.Uri;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.ProvisionRequest;
@@ -34,10 +34,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * A {@link MediaDrmCallback} that makes requests using {@link HttpDataSource} instances.
- */
-@TargetApi(18)
+/** A {@link MediaDrmCallback} that makes requests using {@link HttpDataSource} instances. */
+@RequiresApi(18)
 public final class HttpMediaDrmCallback implements MediaDrmCallback {
 
   private static final int MAX_MANUAL_REDIRECTS = 5;

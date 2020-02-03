@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.video;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Point;
 import android.media.MediaCodec;
@@ -32,6 +31,7 @@ import android.util.Pair;
 import android.view.Surface;
 import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -1180,7 +1180,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * @param presentationTimeUs The presentation time of the output buffer, in microseconds.
    * @param releaseTimeNs The wallclock time at which the frame should be displayed, in nanoseconds.
    */
-  @TargetApi(21)
+  @RequiresApi(21)
   protected void renderOutputBufferV21(
       MediaCodec codec, int index, long presentationTimeUs, long releaseTimeNs) {
     maybeNotifyVideoSizeChanged();
@@ -1281,19 +1281,19 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     return earlyUs < -500000;
   }
 
-  @TargetApi(29)
+  @RequiresApi(29)
   private static void setHdr10PlusInfoV29(MediaCodec codec, byte[] hdr10PlusInfo) {
     Bundle codecParameters = new Bundle();
     codecParameters.putByteArray(MediaCodec.PARAMETER_KEY_HDR10_PLUS_INFO, hdr10PlusInfo);
     codec.setParameters(codecParameters);
   }
 
-  @TargetApi(23)
+  @RequiresApi(23)
   private static void setOutputSurfaceV23(MediaCodec codec, Surface surface) {
     codec.setOutputSurface(surface);
   }
 
-  @TargetApi(21)
+  @RequiresApi(21)
   private static void configureTunnelingV21(MediaFormat mediaFormat, int tunnelingAudioSessionId) {
     mediaFormat.setFeatureEnabled(CodecCapabilities.FEATURE_TunneledPlayback, true);
     mediaFormat.setInteger(MediaFormat.KEY_AUDIO_SESSION_ID, tunnelingAudioSessionId);
@@ -1797,7 +1797,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   }
 
-  @TargetApi(23)
+  @RequiresApi(23)
   private final class OnFrameRenderedListenerV23
       implements MediaCodec.OnFrameRenderedListener, Handler.Callback {
 

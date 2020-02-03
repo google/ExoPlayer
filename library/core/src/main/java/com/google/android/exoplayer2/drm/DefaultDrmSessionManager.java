@@ -16,12 +16,12 @@
 package com.google.android.exoplayer2.drm;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
@@ -43,7 +43,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /** A {@link DrmSessionManager} that supports playbacks using {@link ExoMediaDrm}. */
-@TargetApi(18)
+@RequiresApi(18)
 public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSessionManager<T> {
 
   /**

@@ -15,9 +15,9 @@
  */
 package com.google.android.exoplayer2.ext.workmanager;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import androidx.annotation.RequiresApi;
 import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
@@ -92,7 +92,7 @@ public final class WorkManagerScheduler implements Scheduler {
     return builder.build();
   }
 
-  @TargetApi(23)
+  @RequiresApi(23)
   private static void setRequiresDeviceIdle(Constraints.Builder builder) {
     builder.setRequiresDeviceIdle(true);
   }

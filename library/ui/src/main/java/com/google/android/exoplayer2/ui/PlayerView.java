@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.ui;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -40,6 +39,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
@@ -1419,7 +1419,7 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
     }
   }
 
-  @TargetApi(23)
+  @RequiresApi(23)
   private static void configureEditModeLogoV23(Resources resources, ImageView logo) {
     logo.setImageDrawable(resources.getDrawable(R.drawable.exo_edit_mode_logo, null));
     logo.setBackgroundColor(resources.getColor(R.color.exo_edit_mode_background_color, null));

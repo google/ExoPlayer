@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.ui;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
 import android.util.AttributeSet;
@@ -29,6 +28,7 @@ import android.view.accessibility.CaptioningManager;
 import androidx.annotation.Dimension;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.text.CaptionStyleCompat;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextOutput;
@@ -266,21 +266,21 @@ public final class SubtitleView extends ViewGroup implements TextOutput {
     output.setBottomPaddingFraction(bottomPaddingFraction);
   }
 
-  @TargetApi(19)
+  @RequiresApi(19)
   private boolean isCaptionManagerEnabled() {
     CaptioningManager captioningManager =
         (CaptioningManager) getContext().getSystemService(Context.CAPTIONING_SERVICE);
     return captioningManager.isEnabled();
   }
 
-  @TargetApi(19)
+  @RequiresApi(19)
   private float getUserCaptionFontScaleV19() {
     CaptioningManager captioningManager =
         (CaptioningManager) getContext().getSystemService(Context.CAPTIONING_SERVICE);
     return captioningManager.getFontScale();
   }
 
-  @TargetApi(19)
+  @RequiresApi(19)
   private CaptionStyleCompat getUserCaptionStyleV19() {
     CaptioningManager captioningManager =
         (CaptioningManager) getContext().getSystemService(Context.CAPTIONING_SERVICE);

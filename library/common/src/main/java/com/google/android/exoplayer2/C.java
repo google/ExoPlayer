@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
@@ -23,6 +22,7 @@ import android.media.AudioManager;
 import android.media.MediaCodec;
 import android.media.MediaFormat;
 import androidx.annotation.IntDef;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -1047,7 +1047,7 @@ public final class C {
    *
    * @see AudioManager#generateAudioSessionId()
    */
-  @TargetApi(21)
+  @RequiresApi(21)
   public static int generateAudioSessionIdV21(Context context) {
     return ((AudioManager) context.getSystemService(Context.AUDIO_SERVICE))
         .generateAudioSessionId();

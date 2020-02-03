@@ -19,7 +19,6 @@ import static com.google.android.exoplayer2.util.EGLSurfaceTexture.SECURE_MODE_N
 import static com.google.android.exoplayer2.util.EGLSurfaceTexture.SECURE_MODE_PROTECTED_PBUFFER;
 import static com.google.android.exoplayer2.util.EGLSurfaceTexture.SECURE_MODE_SURFACELESS_CONTEXT;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.SurfaceTexture;
@@ -31,6 +30,7 @@ import android.os.HandlerThread;
 import android.os.Message;
 import android.view.Surface;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.EGLSurfaceTexture;
 import com.google.android.exoplayer2.util.EGLSurfaceTexture.SecureMode;
@@ -39,10 +39,8 @@ import com.google.android.exoplayer2.util.Util;
 import javax.microedition.khronos.egl.EGL10;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/**
- * A dummy {@link Surface}.
- */
-@TargetApi(17)
+/** A dummy {@link Surface}. */
+@RequiresApi(17)
 public final class DummySurface extends Surface {
 
   private static final String TAG = "DummySurface";
@@ -121,7 +119,7 @@ public final class DummySurface extends Surface {
     }
   }
 
-  @TargetApi(24)
+  @RequiresApi(24)
   private static @SecureMode int getSecureModeV24(Context context) {
     if (Util.SDK_INT < 26 && ("samsung".equals(Util.MANUFACTURER) || "XT1650".equals(Util.MODEL))) {
       // Samsung devices running Nougat are known to be broken. See

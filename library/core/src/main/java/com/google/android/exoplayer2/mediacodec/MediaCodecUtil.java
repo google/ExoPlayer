@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.mediacodec;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaCodecInfo.CodecProfileLevel;
 import android.media.MediaCodecList;
@@ -25,6 +24,7 @@ import android.util.Pair;
 import android.util.SparseIntArray;
 import androidx.annotation.CheckResult;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Log;
@@ -604,7 +604,7 @@ public final class MediaCodecUtil {
     return !isSoftwareOnly(codecInfo);
   }
 
-  @TargetApi(29)
+  @RequiresApi(29)
   private static boolean isHardwareAcceleratedV29(android.media.MediaCodecInfo codecInfo) {
     return codecInfo.isHardwareAccelerated();
   }
@@ -630,7 +630,7 @@ public final class MediaCodecUtil {
         || (!codecName.startsWith("omx.") && !codecName.startsWith("c2."));
   }
 
-  @TargetApi(29)
+  @RequiresApi(29)
   private static boolean isSoftwareOnlyV29(android.media.MediaCodecInfo codecInfo) {
     return codecInfo.isSoftwareOnly();
   }
@@ -649,7 +649,7 @@ public final class MediaCodecUtil {
         && !codecName.startsWith("c2.google.");
   }
 
-  @TargetApi(29)
+  @RequiresApi(29)
   private static boolean isVendorV29(android.media.MediaCodecInfo codecInfo) {
     return codecInfo.isVendor();
   }
@@ -947,7 +947,7 @@ public final class MediaCodecUtil {
     boolean isFeatureRequired(String feature, String mimeType, CodecCapabilities capabilities);
   }
 
-  @TargetApi(21)
+  @RequiresApi(21)
   private static final class MediaCodecListCompatV21 implements MediaCodecListCompat {
 
     private final int codecKind;
