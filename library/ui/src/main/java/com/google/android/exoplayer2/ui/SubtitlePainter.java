@@ -242,7 +242,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @RequiresNonNull("cueText")
   private void setupTextLayout() {
-    CharSequence cueText = this.cueText;
+    SpannableStringBuilder cueText =
+        this.cueText instanceof SpannableStringBuilder
+            ? (SpannableStringBuilder) this.cueText
+            : new SpannableStringBuilder(this.cueText);
     int parentWidth = parentRight - parentLeft;
     int parentHeight = parentBottom - parentTop;
 
@@ -260,40 +263,36 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     // Remove embedded styling or font size if requested.
     if (!applyEmbeddedStyles) {
-      cueText = cueText.toString(); // Equivalent to erasing all spans.
+      // Remove all spans, regardless of type.
+      for (Object span : cueText.getSpans(0, cueText.length(), Object.class)) {
+        cueText.removeSpan(span);
+      }
     } else if (!applyEmbeddedFontSizes) {
-      SpannableStringBuilder newCueText = new SpannableStringBuilder(cueText);
-      int cueLength = newCueText.length();
-      AbsoluteSizeSpan[] absSpans = newCueText.getSpans(0, cueLength, AbsoluteSizeSpan.class);
-      RelativeSizeSpan[] relSpans = newCueText.getSpans(0, cueLength, RelativeSizeSpan.class);
+      AbsoluteSizeSpan[] absSpans = cueText.getSpans(0, cueText.length(), AbsoluteSizeSpan.class);
       for (AbsoluteSizeSpan absSpan : absSpans) {
-        newCueText.removeSpan(absSpan);
+        cueText.removeSpan(absSpan);
       }
+      RelativeSizeSpan[] relSpans = cueText.getSpans(0, cueText.length(), RelativeSizeSpan.class);
       for (RelativeSizeSpan relSpan : relSpans) {
-        newCueText.removeSpan(relSpan);
+        cueText.removeSpan(relSpan);
       }
-      cueText = newCueText;
     } else {
       // Apply embedded styles & font size.
       if (cueTextSizePx > 0) {
-        // Use a SpannableStringBuilder encompassing the whole cue text to apply the default
-        // cueTextSizePx.
-        SpannableStringBuilder newCueText = new SpannableStringBuilder(cueText);
-        newCueText.setSpan(
+        // Use an AbsoluteSizeSpan encompassing the whole text to apply the default cueTextSizePx.
+        cueText.setSpan(
             new AbsoluteSizeSpan((int) cueTextSizePx),
             /* start= */ 0,
-            /* end= */ newCueText.length(),
+            /* end= */ cueText.length(),
             Spanned.SPAN_PRIORITY);
-        cueText = newCueText;
       }
     }
 
     // Remove embedded font color to not destroy edges, otherwise it overrides edge color.
     SpannableStringBuilder cueTextEdge = new SpannableStringBuilder(cueText);
     if (edgeType == CaptionStyleCompat.EDGE_TYPE_OUTLINE) {
-      int cueLength = cueTextEdge.length();
       ForegroundColorSpan[] foregroundColorSpans =
-          cueTextEdge.getSpans(0, cueLength, ForegroundColorSpan.class);
+          cueTextEdge.getSpans(0, cueTextEdge.length(), ForegroundColorSpan.class);
       for (ForegroundColorSpan foregroundColorSpan : foregroundColorSpans) {
         cueTextEdge.removeSpan(foregroundColorSpan);
       }
@@ -306,13 +305,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     if (Color.alpha(backgroundColor) > 0) {
       if (edgeType == CaptionStyleCompat.EDGE_TYPE_NONE
           || edgeType == CaptionStyleCompat.EDGE_TYPE_DROP_SHADOW) {
-        SpannableStringBuilder newCueText = new SpannableStringBuilder(cueText);
-        newCueText.setSpan(
-            new BackgroundColorSpan(backgroundColor),
-            0,
-            newCueText.length(),
-            Spanned.SPAN_PRIORITY);
-        cueText = newCueText;
+        cueText.setSpan(
+            new BackgroundColorSpan(backgroundColor), 0, cueText.length(), Spanned.SPAN_PRIORITY);
       } else {
         cueTextEdge.setSpan(
             new BackgroundColorSpan(backgroundColor),
@@ -499,4 +493,5 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     // equals methods, so we perform one explicitly here.
     return first == second || (first != null && first.equals(second));
   }
+
 }
