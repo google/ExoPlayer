@@ -25,8 +25,6 @@
   * Fix `SubtitlePainter` to render `EDGE_TYPE_OUTLINE` using the correct color
     ([#6724](https://github.com/google/ExoPlayer/pull/6724)).
 * DRM: Add support for attaching DRM sessions to clear content in the demo app.
-* HLS: Fix playback of DRM protected content that uses key rotation
-  ([#6903](https://github.com/google/ExoPlayer/issues/6903)).
 * Downloads: Merge downloads in `SegmentDownloader` to improve overall download
   speed ([#5978](https://github.com/google/ExoPlayer/issues/5978)).
 * MP3: Add `IndexSeeker` for accurate seeks in VBR streams
@@ -69,6 +67,8 @@
     ([#6552](https://github.com/google/ExoPlayer/issues/6552)).
   * Don't use notification chronometer if playback speed is != 1.0
     ([#6816](https://github.com/google/ExoPlayer/issues/6816)).
+* HLS: Fix playback of DRM protected content that uses key rotation
+  ([#6903](https://github.com/google/ExoPlayer/issues/6903)).
 * WAV:
   * Support IMA ADPCM encoded data.
   * Improve support for G.711 A-law and mu-law encoded data.
