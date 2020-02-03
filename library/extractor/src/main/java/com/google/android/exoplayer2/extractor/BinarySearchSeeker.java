@@ -203,9 +203,9 @@ public abstract class BinarySearchSeeker {
               timestampSearchResult.timestampToUpdate, timestampSearchResult.bytePositionToUpdate);
           break;
         case TimestampSearchResult.TYPE_TARGET_TIMESTAMP_FOUND:
+          skipInputUntilPosition(input, timestampSearchResult.bytePositionToUpdate);
           markSeekOperationFinished(
               /* foundTargetFrame= */ true, timestampSearchResult.bytePositionToUpdate);
-          skipInputUntilPosition(input, timestampSearchResult.bytePositionToUpdate);
           return seekToPosition(
               input, timestampSearchResult.bytePositionToUpdate, seekPositionHolder);
         case TimestampSearchResult.TYPE_NO_TIMESTAMP:
