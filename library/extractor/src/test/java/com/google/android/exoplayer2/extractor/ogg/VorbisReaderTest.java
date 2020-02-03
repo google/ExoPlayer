@@ -77,8 +77,8 @@ public final class VorbisReaderTest {
     assertThat(vorbisSetup.idHeader.data).hasLength(30);
     assertThat(vorbisSetup.setupHeaderData).hasLength(3597);
 
-    assertThat(vorbisSetup.idHeader.bitrateMax).isEqualTo(-1);
-    assertThat(vorbisSetup.idHeader.bitrateMin).isEqualTo(-1);
+    assertThat(vorbisSetup.idHeader.bitrateMaximum).isEqualTo(-1);
+    assertThat(vorbisSetup.idHeader.bitrateMinimum).isEqualTo(-1);
     assertThat(vorbisSetup.idHeader.bitrateNominal).isEqualTo(66666);
     assertThat(vorbisSetup.idHeader.blockSize0).isEqualTo(512);
     assertThat(vorbisSetup.idHeader.blockSize1).isEqualTo(1024);
