@@ -653,8 +653,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public void seekMap(SeekMap seekMap) {
-    this.seekMap = icyHeaders == null ? seekMap : new Unseekable(/* durationUs */ C.TIME_UNSET);
-    handler.post(maybeFinishPrepareRunnable);
+    handler.post(() -> setSeekMap(seekMap));
   }
 
   // Icy metadata. Called by the loading thread.
@@ -691,6 +690,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     return trackOutput;
   }
 
+  private void setSeekMap(SeekMap seekMap) {
+    this.seekMap = icyHeaders == null ? seekMap : new Unseekable(/* durationUs */ C.TIME_UNSET);
+    if (preparedState == null) {
+      maybeFinishPrepare();
+    } else {
+      preparedState =
+          new PreparedState(seekMap, preparedState.tracks, preparedState.trackIsAudioVideoFlags);
+    }
+    durationUs = seekMap.getDurationUs();
+    isLive = length == C.LENGTH_UNSET && seekMap.getDurationUs() == C.TIME_UNSET;
+    dataType = isLive ? C.DATA_TYPE_MEDIA_PROGRESSIVE_LIVE : C.DATA_TYPE_MEDIA;
+    listener.onSourceInfoRefreshed(durationUs, seekMap.isSeekable(), isLive);
+  }
+
   private void maybeFinishPrepare() {
     SeekMap seekMap = this.seekMap;
     if (released || preparedState != null || !sampleQueuesBuilt || seekMap == null) {
@@ -705,7 +718,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     int trackCount = sampleQueues.length;
     TrackGroup[] trackArray = new TrackGroup[trackCount];
     boolean[] trackIsAudioVideoFlags = new boolean[trackCount];
-    durationUs = seekMap.getDurationUs();
     for (int i = 0; i < trackCount; i++) {
       Format trackFormat = sampleQueues[i].getUpstreamFormat();
       String mimeType = trackFormat.sampleMimeType;
@@ -731,11 +743,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
       trackArray[i] = new TrackGroup(trackFormat);
     }
-    isLive = length == C.LENGTH_UNSET && seekMap.getDurationUs() == C.TIME_UNSET;
-    dataType = isLive ? C.DATA_TYPE_MEDIA_PROGRESSIVE_LIVE : C.DATA_TYPE_MEDIA;
     preparedState =
         new PreparedState(seekMap, new TrackGroupArray(trackArray), trackIsAudioVideoFlags);
-    listener.onSourceInfoRefreshed(durationUs, seekMap.isSeekable(), isLive);
     Assertions.checkNotNull(callback).onPrepared(this);
   }
 
