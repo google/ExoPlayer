@@ -143,7 +143,7 @@ public class ImaAdsLoaderTest {
 
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
-            new AdPlaybackState(/* adGroupTimesUs= */ 0)
+            new AdPlaybackState(/* adGroupTimesUs...= */ 0)
                 .withAdDurationsUs(PREROLL_ADS_DURATIONS_US)
                 .withContentDurationUs(CONTENT_DURATION_US));
   }
@@ -213,7 +213,7 @@ public class ImaAdsLoaderTest {
     // Verify that the preroll ad has been marked as played.
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
-            new AdPlaybackState(/* adGroupTimesUs= */ 0)
+            new AdPlaybackState(/* adGroupTimesUs...= */ 0)
                 .withContentDurationUs(CONTENT_DURATION_US)
                 .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
                 .withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, /* uri= */ TEST_URI)
