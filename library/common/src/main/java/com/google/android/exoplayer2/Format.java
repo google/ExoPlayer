@@ -684,19 +684,7 @@ public final class Format implements Parcelable {
         /* exoMediaCryptoType= */ null);
   }
 
-  @SuppressWarnings("deprecation")
   public static Format createSampleFormat(@Nullable String id, @Nullable String sampleMimeType) {
-    return createSampleFormat(id, sampleMimeType, OFFSET_SAMPLE_RELATIVE);
-  }
-
-  /**
-   * @deprecated Use {@link #createSampleFormat(String, String)} and (for values of {@link
-   *     #subsampleOffsetUs} other than {@link #OFFSET_SAMPLE_RELATIVE}) {@link
-   *     #copyWithSubsampleOffsetUs(long)}.
-   */
-  @Deprecated
-  public static Format createSampleFormat(
-      @Nullable String id, @Nullable String sampleMimeType, long subsampleOffsetUs) {
     return new Format(
         id,
         /* label= */ null,
@@ -710,49 +698,6 @@ public final class Format implements Parcelable {
         /* maxInputSize= */ NO_VALUE,
         /* initializationData= */ null,
         /* drmInitData= */ null,
-        subsampleOffsetUs,
-        /* width= */ NO_VALUE,
-        /* height= */ NO_VALUE,
-        /* frameRate= */ NO_VALUE,
-        /* rotationDegrees= */ NO_VALUE,
-        /* pixelWidthHeightRatio= */ NO_VALUE,
-        /* projectionData= */ null,
-        /* stereoMode= */ NO_VALUE,
-        /* colorInfo= */ null,
-        /* channelCount= */ NO_VALUE,
-        /* sampleRate= */ NO_VALUE,
-        /* pcmEncoding= */ NO_VALUE,
-        /* encoderDelay= */ NO_VALUE,
-        /* encoderPadding= */ NO_VALUE,
-        /* language= */ null,
-        /* accessibilityChannel= */ NO_VALUE,
-        /* exoMediaCryptoType= */ null);
-  }
-
-  /**
-   * @deprecated Most usages should use one of the {@link #createVideoSampleFormat} or {@link
-   *     #createAudioSampleFormat} methods.
-   */
-  @Deprecated
-  public static Format createSampleFormat(
-      @Nullable String id,
-      @Nullable String sampleMimeType,
-      @Nullable String codecs,
-      int bitrate,
-      @Nullable DrmInitData drmInitData) {
-    return new Format(
-        id,
-        /* label= */ null,
-        /* selectionFlags= */ 0,
-        /* roleFlags= */ 0,
-        bitrate,
-        codecs,
-        /* metadata= */ null,
-        /* containerMimeType= */ null,
-        sampleMimeType,
-        /* maxInputSize= */ NO_VALUE,
-        /* initializationData= */ null,
-        drmInitData,
         OFFSET_SAMPLE_RELATIVE,
         /* width= */ NO_VALUE,
         /* height= */ NO_VALUE,
