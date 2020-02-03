@@ -61,10 +61,9 @@ public final class VorbisUtilTest {
     assertThat(vorbisIdHeader.channels).isEqualTo(2);
     assertThat(vorbisIdHeader.blockSize0).isEqualTo(512);
     assertThat(vorbisIdHeader.blockSize1).isEqualTo(1024);
-    assertThat(vorbisIdHeader.bitrateMax).isEqualTo(-1);
-    assertThat(vorbisIdHeader.bitrateMin).isEqualTo(-1);
+    assertThat(vorbisIdHeader.bitrateMaximum).isEqualTo(-1);
+    assertThat(vorbisIdHeader.bitrateMinimum).isEqualTo(-1);
     assertThat(vorbisIdHeader.bitrateNominal).isEqualTo(66666);
-    assertThat(vorbisIdHeader.getApproximateBitrate()).isEqualTo(66666);
   }
 
   @Test
