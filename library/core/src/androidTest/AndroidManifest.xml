@@ -19,11 +19,11 @@
     package="com.google.android.exoplayer2.core.test">
 
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+  <uses-sdk/>
 
-  <application android:debuggable="true"
+  <application
       android:allowBackup="false"
       tools:ignore="MissingApplicationIcon,HardcodedDebugMode">
-    <uses-library android:name="android.test.runner"/>
     <provider
       android:authorities="com.google.android.exoplayer2.core.test"
       android:name="com.google.android.exoplayer2.upstream.ContentDataSourceTest$TestContentProvider"/>

@@ -20,8 +20,12 @@
 
   <string name="media_route_menu_title">Cast</string>
 
-  <string name="sample_list_dialog_title">Add samples</string>
+  <string name="add_samples">Add samples</string>
 
   <string name="cast_context_error">Failed to get Cast context. Try updating Google Play Services and restart the app.</string>
+
+  <string name="error_unsupported_video">Media includes video tracks, but none are playable by this device</string>
+
+  <string name="error_unsupported_audio">Media includes audio tracks, but none are playable by this device</string>
 
 </resources>

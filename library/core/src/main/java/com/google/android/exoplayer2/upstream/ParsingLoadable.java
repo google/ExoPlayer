@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.upstream;
 
 import android.net.Uri;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.upstream.Loader.Loadable;
@@ -127,7 +127,8 @@ public final class ParsingLoadable<T> implements Loadable {
   }
 
   /** Returns the loaded object, or null if an object has not been loaded. */
-  public final @Nullable T getResult() {
+  @Nullable
+  public final T getResult() {
     return result;
   }
 

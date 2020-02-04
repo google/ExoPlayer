@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.upstream.cache;
 
 import android.net.Uri;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 
 /**
@@ -81,7 +81,7 @@ public interface ContentMetadata {
    */
   @Nullable
   static Uri getRedirectedUri(ContentMetadata contentMetadata) {
-    String redirectedUri = contentMetadata.get(KEY_REDIRECTED_URI, (String) null);
+    @Nullable String redirectedUri = contentMetadata.get(KEY_REDIRECTED_URI, (String) null);
     return redirectedUri == null ? null : Uri.parse(redirectedUri);
   }
 }

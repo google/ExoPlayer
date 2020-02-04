@@ -17,18 +17,18 @@ package com.google.android.exoplayer2.ext.mediasession;
 
 import android.os.Bundle;
 import android.os.ResultReceiver;
-import android.support.annotation.Nullable;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.util.Assertions;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 /**
  * An abstract implementation of the {@link MediaSessionConnector.QueueNavigator} that maps the
@@ -67,6 +67,7 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
    * @param maxQueueSize The maximum queue size.
    */
   public TimelineQueueNavigator(MediaSessionCompat mediaSession, int maxQueueSize) {
+    Assertions.checkState(maxQueueSize > 0);
     this.mediaSession = mediaSession;
     this.maxQueueSize = maxQueueSize;
     activeQueueItemId = MediaSessionCompat.QueueItem.UNKNOWN_ID;
@@ -75,6 +76,11 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
 
   /**
    * Gets the {@link MediaDescriptionCompat} for a given timeline window index.
+   *
+   * <p>Often artworks and icons need to be loaded asynchronously. In such a case, return a {@link
+   * MediaDescriptionCompat} without the images, load your images asynchronously off the main thread
+   * and then call {@link MediaSessionConnector#invalidateMediaSessionQueue()} to make the connector
+   * update the queue by calling this method again.
    *
    * @param player The current player.
    * @param windowIndex The timeline window index for which to provide a description.
@@ -180,30 +186,58 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
       Player player,
       ControlDispatcher controlDispatcher,
       String command,
-      Bundle extras,
-      ResultReceiver cb) {
+      @Nullable Bundle extras,
+      @Nullable ResultReceiver cb) {
     return false;
   }
 
   // Helper methods.
 
   private void publishFloatingQueueWindow(Player player) {
-    if (player.getCurrentTimeline().isEmpty()) {
+    Timeline timeline = player.getCurrentTimeline();
+    if (timeline.isEmpty()) {
       mediaSession.setQueue(Collections.emptyList());
       activeQueueItemId = MediaSessionCompat.QueueItem.UNKNOWN_ID;
       return;
     }
-    int windowCount = player.getCurrentTimeline().getWindowCount();
+    ArrayDeque<MediaSessionCompat.QueueItem> queue = new ArrayDeque<>();
+    int queueSize = Math.min(maxQueueSize, timeline.getWindowCount());
+
+    // Add the active queue item.
     int currentWindowIndex = player.getCurrentWindowIndex();
-    int queueSize = Math.min(maxQueueSize, windowCount);
-    int startIndex = Util.constrainValue(currentWindowIndex - ((queueSize - 1) / 2), 0,
-        windowCount - queueSize);
-    List<MediaSessionCompat.QueueItem> queue = new ArrayList<>();
-    for (int i = startIndex; i < startIndex + queueSize; i++) {
-      queue.add(new MediaSessionCompat.QueueItem(getMediaDescription(player, i), i));
+    queue.add(
+        new MediaSessionCompat.QueueItem(
+            getMediaDescription(player, currentWindowIndex), currentWindowIndex));
+
+    // Fill queue alternating with next and/or previous queue items.
+    int firstWindowIndex = currentWindowIndex;
+    int lastWindowIndex = currentWindowIndex;
+    boolean shuffleModeEnabled = player.getShuffleModeEnabled();
+    while ((firstWindowIndex != C.INDEX_UNSET || lastWindowIndex != C.INDEX_UNSET)
+        && queue.size() < queueSize) {
+      // Begin with next to have a longer tail than head if an even sized queue needs to be trimmed.
+      if (lastWindowIndex != C.INDEX_UNSET) {
+        lastWindowIndex =
+            timeline.getNextWindowIndex(
+                lastWindowIndex, Player.REPEAT_MODE_OFF, shuffleModeEnabled);
+        if (lastWindowIndex != C.INDEX_UNSET) {
+          queue.add(
+              new MediaSessionCompat.QueueItem(
+                  getMediaDescription(player, lastWindowIndex), lastWindowIndex));
+        }
+      }
+      if (firstWindowIndex != C.INDEX_UNSET && queue.size() < queueSize) {
+        firstWindowIndex =
+            timeline.getPreviousWindowIndex(
+                firstWindowIndex, Player.REPEAT_MODE_OFF, shuffleModeEnabled);
+        if (firstWindowIndex != C.INDEX_UNSET) {
+          queue.addFirst(
+              new MediaSessionCompat.QueueItem(
+                  getMediaDescription(player, firstWindowIndex), firstWindowIndex));
+        }
+      }
     }
-    mediaSession.setQueue(queue);
+    mediaSession.setQueue(new ArrayList<>(queue));
     activeQueueItemId = currentWindowIndex;
   }
-
 }

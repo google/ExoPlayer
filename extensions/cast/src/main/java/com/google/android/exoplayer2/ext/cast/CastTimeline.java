@@ -15,53 +15,101 @@
  */
 package com.google.android.exoplayer2.ext.cast;
 
-import android.support.annotation.Nullable;
+import android.util.SparseArray;
 import android.util.SparseIntArray;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.gms.cast.MediaInfo;
-import com.google.android.gms.cast.MediaQueueItem;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 /**
  * A {@link Timeline} for Cast media queues.
  */
 /* package */ final class CastTimeline extends Timeline {
 
+  /** Holds {@link Timeline} related data for a Cast media item. */
+  public static final class ItemData {
+
+    /** Holds no media information. */
+    public static final ItemData EMPTY = new ItemData();
+
+    /** The duration of the item in microseconds, or {@link C#TIME_UNSET} if unknown. */
+    public final long durationUs;
+    /**
+     * The default start position of the item in microseconds, or {@link C#TIME_UNSET} if unknown.
+     */
+    public final long defaultPositionUs;
+    /** Whether the item is live content, or {@code false} if unknown. */
+    public final boolean isLive;
+
+    private ItemData() {
+      this(
+          /* durationUs= */ C.TIME_UNSET, /* defaultPositionUs */
+          C.TIME_UNSET,
+          /* isLive= */ false);
+    }
+
+    /**
+     * Creates an instance.
+     *
+     * @param durationUs See {@link #durationsUs}.
+     * @param defaultPositionUs See {@link #defaultPositionUs}.
+     * @param isLive See {@link #isLive}.
+     */
+    public ItemData(long durationUs, long defaultPositionUs, boolean isLive) {
+      this.durationUs = durationUs;
+      this.defaultPositionUs = defaultPositionUs;
+      this.isLive = isLive;
+    }
+
+    /**
+     * Returns a copy of this instance with the given values.
+     *
+     * @param durationUs The duration in microseconds, or {@link C#TIME_UNSET} if unknown.
+     * @param defaultPositionUs The default start position in microseconds, or {@link C#TIME_UNSET}
+     *     if unknown.
+     * @param isLive Whether the item is live, or {@code false} if unknown.
+     */
+    public ItemData copyWithNewValues(long durationUs, long defaultPositionUs, boolean isLive) {
+      if (durationUs == this.durationUs
+          && defaultPositionUs == this.defaultPositionUs
+          && isLive == this.isLive) {
+        return this;
+      }
+      return new ItemData(durationUs, defaultPositionUs, isLive);
+    }
+  }
+
+  /** {@link Timeline} for a cast queue that has no items. */
   public static final CastTimeline EMPTY_CAST_TIMELINE =
-      new CastTimeline(Collections.emptyList(), Collections.emptyMap());
+      new CastTimeline(new int[0], new SparseArray<>());
 
   private final SparseIntArray idsToIndex;
   private final int[] ids;
   private final long[] durationsUs;
   private final long[] defaultPositionsUs;
+  private final boolean[] isLive;
 
   /**
-   * @param items A list of cast media queue items to represent.
-   * @param contentIdToDurationUsMap A map of content id to duration in microseconds.
+   * Creates a Cast timeline from the given data.
+   *
+   * @param itemIds The ids of the items in the timeline.
+   * @param itemIdToData Maps item ids to {@link ItemData}.
    */
-  public CastTimeline(List<MediaQueueItem> items, Map<String, Long> contentIdToDurationUsMap) {
-    int itemCount = items.size();
-    int index = 0;
+  public CastTimeline(int[] itemIds, SparseArray<ItemData> itemIdToData) {
+    int itemCount = itemIds.length;
     idsToIndex = new SparseIntArray(itemCount);
-    ids = new int[itemCount];
+    ids = Arrays.copyOf(itemIds, itemCount);
     durationsUs = new long[itemCount];
     defaultPositionsUs = new long[itemCount];
-    for (MediaQueueItem item : items) {
-      int itemId = item.getItemId();
-      ids[index] = itemId;
-      idsToIndex.put(itemId, index);
-      MediaInfo mediaInfo = item.getMedia();
-      String contentId = mediaInfo.getContentId();
-      durationsUs[index] =
-          contentIdToDurationUsMap.containsKey(contentId)
-              ? contentIdToDurationUsMap.get(contentId)
-              : CastUtils.getStreamDurationUs(mediaInfo);
-      defaultPositionsUs[index] = (long) (item.getStartTime() * C.MICROS_PER_SECOND);
-      index++;
+    isLive = new boolean[itemCount];
+    for (int i = 0; i < ids.length; i++) {
+      int id = ids[i];
+      idsToIndex.put(id, i);
+      ItemData data = itemIdToData.get(id, ItemData.EMPTY);
+      durationsUs[i] = data.durationUs;
+      defaultPositionsUs[i] = data.defaultPositionUs == C.TIME_UNSET ? 0 : data.defaultPositionUs;
+      isLive[i] = data.isLive;
     }
   }
 
@@ -73,17 +121,19 @@ import java.util.Map;
   }
 
   @Override
-  public Window getWindow(
-      int windowIndex, Window window, boolean setTag, long defaultPositionProjectionUs) {
+  public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
     long durationUs = durationsUs[windowIndex];
     boolean isDynamic = durationUs == C.TIME_UNSET;
-    Object tag = setTag ? ids[windowIndex] : null;
     return window.set(
-        tag,
+        /* uid= */ ids[windowIndex],
+        /* tag= */ ids[windowIndex],
+        /* manifest= */ null,
         /* presentationStartTimeMs= */ C.TIME_UNSET,
         /* windowStartTimeMs= */ C.TIME_UNSET,
+        /* elapsedRealtimeEpochOffsetMs= */ C.TIME_UNSET,
         /* isSeekable= */ !isDynamic,
         isDynamic,
+        isLive[windowIndex],
         defaultPositionsUs[windowIndex],
         durationUs,
         /* firstPeriodIndex= */ windowIndex,
@@ -124,7 +174,8 @@ import java.util.Map;
     CastTimeline that = (CastTimeline) other;
     return Arrays.equals(ids, that.ids)
         && Arrays.equals(durationsUs, that.durationsUs)
-        && Arrays.equals(defaultPositionsUs, that.defaultPositionsUs);
+        && Arrays.equals(defaultPositionsUs, that.defaultPositionsUs)
+        && Arrays.equals(isLive, that.isLive);
   }
 
   @Override
@@ -132,6 +183,7 @@ import java.util.Map;
     int result = Arrays.hashCode(ids);
     result = 31 * result + Arrays.hashCode(durationsUs);
     result = 31 * result + Arrays.hashCode(defaultPositionsUs);
+    result = 31 * result + Arrays.hashCode(isLive);
     return result;
   }
 

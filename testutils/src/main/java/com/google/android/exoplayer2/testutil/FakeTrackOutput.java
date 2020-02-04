@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.testutil;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
@@ -29,6 +30,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A fake {@link TrackOutput}.
@@ -39,10 +42,10 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
   private final ArrayList<Integer> sampleFlags;
   private final ArrayList<Integer> sampleStartOffsets;
   private final ArrayList<Integer> sampleEndOffsets;
-  private final ArrayList<CryptoData> cryptoDatas;
+  private final ArrayList<@NullableType CryptoData> cryptoDatas;
 
   private byte[] sampleData;
-  public Format format;
+  public @MonotonicNonNull Format format;
 
   public FakeTrackOutput() {
     sampleData = Util.EMPTY_BYTE_ARRAY;
@@ -64,6 +67,7 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
 
   @Override
   public void format(Format format) {
+    // TODO: Capture and assert all formats (interleaved with the samples).
     this.format = format;
   }
 
@@ -91,8 +95,18 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
   }
 
   @Override
-  public void sampleMetadata(long timeUs, @C.BufferFlags int flags, int size, int offset,
-      CryptoData cryptoData) {
+  public void sampleMetadata(
+      long timeUs,
+      @C.BufferFlags int flags,
+      int size,
+      int offset,
+      @Nullable CryptoData cryptoData) {
+    if (format == null) {
+      throw new IllegalStateException("TrackOutput must receive format before sampleMetadata");
+    }
+    if (format.maxInputSize != Format.NO_VALUE && size > format.maxInputSize) {
+      throw new IllegalStateException("Sample size exceeds Format.maxInputSize");
+    }
     sampleTimesUs.add(timeUs);
     sampleFlags.add(flags);
     sampleStartOffsets.add(sampleData.length - offset - size);
@@ -104,7 +118,8 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
     assertThat(sampleTimesUs).hasSize(count);
   }
 
-  public void assertSample(int index, byte[] data, long timeUs, int flags, CryptoData cryptoData) {
+  public void assertSample(
+      int index, byte[] data, long timeUs, int flags, @Nullable CryptoData cryptoData) {
     byte[] actualData = getSampleData(index);
     assertThat(actualData).isEqualTo(data);
     assertThat(sampleTimesUs.get(index)).isEqualTo(timeUs);
@@ -125,6 +140,7 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
     return sampleFlags.get(index);
   }
 
+  @Nullable
   public CryptoData getSampleCryptoData(int index) {
     return cryptoDatas.get(index);
   }
@@ -156,32 +172,36 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
 
   @Override
   public void dump(Dumper dumper) {
-    dumper.startBlock("format")
-        .add("bitrate", format.bitrate)
-        .add("id", format.id)
-        .add("containerMimeType", format.containerMimeType)
-        .add("sampleMimeType", format.sampleMimeType)
-        .add("maxInputSize", format.maxInputSize)
-        .add("width", format.width)
-        .add("height", format.height)
-        .add("frameRate", format.frameRate)
-        .add("rotationDegrees", format.rotationDegrees)
-        .add("pixelWidthHeightRatio", format.pixelWidthHeightRatio)
-        .add("channelCount", format.channelCount)
-        .add("sampleRate", format.sampleRate)
-        .add("pcmEncoding", format.pcmEncoding)
-        .add("encoderDelay", format.encoderDelay)
-        .add("encoderPadding", format.encoderPadding)
-        .add("subsampleOffsetUs", format.subsampleOffsetUs)
-        .add("selectionFlags", format.selectionFlags)
-        .add("language", format.language)
-        .add("drmInitData", format.drmInitData != null ? format.drmInitData.hashCode() : "-");
+    if (format != null) {
+      dumper
+          .startBlock("format")
+          .add("bitrate", format.bitrate)
+          .add("id", format.id)
+          .add("containerMimeType", format.containerMimeType)
+          .add("sampleMimeType", format.sampleMimeType)
+          .add("maxInputSize", format.maxInputSize)
+          .add("width", format.width)
+          .add("height", format.height)
+          .add("frameRate", format.frameRate)
+          .add("rotationDegrees", format.rotationDegrees)
+          .add("pixelWidthHeightRatio", format.pixelWidthHeightRatio)
+          .add("channelCount", format.channelCount)
+          .add("sampleRate", format.sampleRate)
+          .add("pcmEncoding", format.pcmEncoding)
+          .add("encoderDelay", format.encoderDelay)
+          .add("encoderPadding", format.encoderPadding)
+          .add("subsampleOffsetUs", format.subsampleOffsetUs)
+          .add("selectionFlags", format.selectionFlags)
+          .add("language", format.language)
+          .add("drmInitData", format.drmInitData != null ? format.drmInitData.hashCode() : "-")
+          .add("metadata", format.metadata);
 
-    dumper.startBlock("initializationData");
-    for (int i = 0; i < format.initializationData.size(); i++) {
-      dumper.add("data", format.initializationData.get(i));
+      dumper.startBlock("initializationData");
+      for (int i = 0; i < format.initializationData.size(); i++) {
+        dumper.add("data", format.initializationData.get(i));
+      }
+      dumper.endBlock().endBlock();
     }
-    dumper.endBlock().endBlock();
 
     dumper.add("total output bytes", sampleData.length);
     dumper.add("sample count", sampleTimesUs.size());

@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.util;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import java.util.Arrays;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
@@ -97,7 +97,8 @@ public final class TimedValueQueue<V> {
    * @return The value with the closest timestamp or null if the buffer is empty or there is no
    *     older value and {@code onlyOlder} is true.
    */
-  private @Nullable V poll(long timestamp, boolean onlyOlder) {
+  @Nullable
+  private V poll(long timestamp, boolean onlyOlder) {
     V value = null;
     long previousTimeDiff = Long.MAX_VALUE;
     while (size > 0) {

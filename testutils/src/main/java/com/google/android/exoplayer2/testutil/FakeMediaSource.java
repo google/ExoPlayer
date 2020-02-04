@@ -20,33 +20,52 @@ import static com.google.common.truth.Truth.assertThat;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.source.BaseMediaSource;
+import com.google.android.exoplayer2.source.ForwardingTimeline;
+import com.google.android.exoplayer2.source.LoadEventInfo;
+import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
-import com.google.android.exoplayer2.source.MediaSourceEventListener.LoadEventInfo;
-import com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Fake {@link MediaSource} that provides a given timeline. Creating the period will return a {@link
  * FakeMediaPeriod} with a {@link TrackGroupArray} using the given {@link Format}s.
  */
 public class FakeMediaSource extends BaseMediaSource {
+
+  /** A forwarding timeline to provide an initial timeline for fake multi window sources. */
+  public static class InitialTimeline extends ForwardingTimeline {
+
+    public InitialTimeline(Timeline timeline) {
+      super(timeline);
+    }
+
+    @Override
+    public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
+      Window childWindow = timeline.getWindow(windowIndex, window, defaultPositionProjectionUs);
+      childWindow.isDynamic = true;
+      childWindow.isSeekable = false;
+      return childWindow;
+    }
+  }
 
   private static final DataSpec FAKE_DATA_SPEC = new DataSpec(Uri.parse("http://manifest.uri"));
   private static final int MANIFEST_LOAD_BYTES = 100;
@@ -55,43 +74,62 @@ public class FakeMediaSource extends BaseMediaSource {
   private final ArrayList<FakeMediaPeriod> activeMediaPeriods;
   private final ArrayList<MediaPeriodId> createdMediaPeriods;
 
-  protected Timeline timeline;
-  private Object manifest;
+  private @MonotonicNonNull Timeline timeline;
   private boolean preparedSource;
   private boolean releasedSource;
-  private Handler sourceInfoRefreshHandler;
-  private @Nullable TransferListener transferListener;
+  @Nullable private Handler sourceInfoRefreshHandler;
+  @Nullable private TransferListener transferListener;
 
   /**
    * Creates a {@link FakeMediaSource}. This media source creates {@link FakeMediaPeriod}s with a
    * {@link TrackGroupArray} using the given {@link Format}s. The provided {@link Timeline} may be
    * null to prevent an immediate source info refresh message when preparing the media source. It
-   * can be manually set later using {@link #setNewSourceInfo(Timeline, Object)}.
+   * can be manually set later using {@link #setNewSourceInfo(Timeline)}.
    */
-  public FakeMediaSource(@Nullable Timeline timeline, Object manifest, Format... formats) {
-    this(timeline, manifest, buildTrackGroupArray(formats));
+  public FakeMediaSource(@Nullable Timeline timeline, Format... formats) {
+    this(timeline, buildTrackGroupArray(formats));
   }
 
   /**
    * Creates a {@link FakeMediaSource}. This media source creates {@link FakeMediaPeriod}s with the
    * given {@link TrackGroupArray}. The provided {@link Timeline} may be null to prevent an
    * immediate source info refresh message when preparing the media source. It can be manually set
-   * later using {@link #setNewSourceInfo(Timeline, Object)}.
+   * later using {@link #setNewSourceInfo(Timeline)}.
    */
-  public FakeMediaSource(@Nullable Timeline timeline, Object manifest,
-      TrackGroupArray trackGroupArray) {
-    this.timeline = timeline;
-    this.manifest = manifest;
+  public FakeMediaSource(@Nullable Timeline timeline, TrackGroupArray trackGroupArray) {
+    if (timeline != null) {
+      this.timeline = timeline;
+    }
+    this.trackGroupArray = trackGroupArray;
     this.activeMediaPeriods = new ArrayList<>();
     this.createdMediaPeriods = new ArrayList<>();
-    this.trackGroupArray = trackGroupArray;
+  }
+
+  @Nullable
+  protected Timeline getTimeline() {
+    return timeline;
   }
 
   @Override
   @Nullable
   public Object getTag() {
-    boolean hasTimeline = timeline != null && !timeline.isEmpty();
-    return hasTimeline ? timeline.getWindow(0, new Timeline.Window()).tag : null;
+    if (timeline == null || timeline.isEmpty()) {
+      return null;
+    }
+    return timeline.getWindow(0, new Timeline.Window()).tag;
+  }
+
+  @Nullable
+  @Override
+  public Timeline getInitialTimeline() {
+    return timeline == null || timeline == Timeline.EMPTY || timeline.getWindowCount() == 1
+        ? null
+        : new InitialTimeline(timeline);
+  }
+
+  @Override
+  public boolean isSingleWindow() {
+    return timeline == null || timeline == Timeline.EMPTY || timeline.getWindowCount() == 1;
   }
 
   @Override
@@ -100,7 +138,7 @@ public class FakeMediaSource extends BaseMediaSource {
     transferListener = mediaTransferListener;
     preparedSource = true;
     releasedSource = false;
-    sourceInfoRefreshHandler = new Handler();
+    sourceInfoRefreshHandler = Util.createHandler();
     if (timeline != null) {
       finishSourcePreparation();
     }
@@ -115,7 +153,7 @@ public class FakeMediaSource extends BaseMediaSource {
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs) {
     assertThat(preparedSource).isTrue();
     assertThat(releasedSource).isFalse();
-    int periodIndex = timeline.getIndexOfPeriod(id.periodUid);
+    int periodIndex = Util.castNonNull(timeline).getIndexOfPeriod(id.periodUid);
     Assertions.checkArgument(periodIndex != C.INDEX_UNSET);
     Period period = timeline.getPeriod(periodIndex, new Period());
     EventDispatcher eventDispatcher =
@@ -137,33 +175,31 @@ public class FakeMediaSource extends BaseMediaSource {
   }
 
   @Override
-  public void releaseSourceInternal() {
+  protected void releaseSourceInternal() {
     assertThat(preparedSource).isTrue();
     assertThat(releasedSource).isFalse();
     assertThat(activeMediaPeriods.isEmpty()).isTrue();
     releasedSource = true;
     preparedSource = false;
-    sourceInfoRefreshHandler.removeCallbacksAndMessages(null);
+    Util.castNonNull(sourceInfoRefreshHandler).removeCallbacksAndMessages(null);
     sourceInfoRefreshHandler = null;
   }
 
   /**
-   * Sets a new timeline and manifest. If the source is already prepared, this triggers a source
-   * info refresh message being sent to the listener.
+   * Sets a new timeline. If the source is already prepared, this triggers a source info refresh
+   * message being sent to the listener.
    */
-  public synchronized void setNewSourceInfo(final Timeline newTimeline, final Object newManifest) {
+  public synchronized void setNewSourceInfo(final Timeline newTimeline) {
     if (sourceInfoRefreshHandler != null) {
       sourceInfoRefreshHandler.post(
           () -> {
             assertThat(releasedSource).isFalse();
             assertThat(preparedSource).isTrue();
             timeline = newTimeline;
-            manifest = newManifest;
             finishSourcePreparation();
           });
     } else {
       timeline = newTimeline;
-      manifest = newManifest;
     }
   }
 
@@ -212,7 +248,7 @@ public class FakeMediaSource extends BaseMediaSource {
   }
 
   private void finishSourcePreparation() {
-    refreshSourceInfo(timeline, manifest);
+    refreshSourceInfo(Assertions.checkStateNotNull(timeline));
     if (!timeline.isEmpty()) {
       MediaLoadData mediaLoadData =
           new MediaLoadData(
@@ -253,5 +289,4 @@ public class FakeMediaSource extends BaseMediaSource {
     }
     return new TrackGroupArray(trackGroups);
   }
-
 }

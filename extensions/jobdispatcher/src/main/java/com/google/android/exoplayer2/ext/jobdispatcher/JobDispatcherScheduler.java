@@ -54,9 +54,13 @@ import com.google.android.exoplayer2.util.Util;
  *
  * @see <a
  *     href="https://developers.google.com/android/reference/com/google/android/gms/common/GoogleApiAvailability#isGooglePlayServicesAvailable(android.content.Context)">GoogleApiAvailability</a>
+ * @deprecated Use com.google.android.exoplayer2.ext.workmanager.WorkManagerScheduler or {@link
+ *     com.google.android.exoplayer2.scheduler.PlatformScheduler}.
  */
+@Deprecated
 public final class JobDispatcherScheduler implements Scheduler {
 
+  private static final boolean DEBUG = false;
   private static final String TAG = "JobDispatcherScheduler";
   private static final String KEY_SERVICE_ACTION = "service_action";
   private static final String KEY_SERVICE_PACKAGE = "service_package";
@@ -72,14 +76,14 @@ public final class JobDispatcherScheduler implements Scheduler {
    *     {@link #schedule(Requirements, String, String)} or {@link #cancel()} are called.
    */
   public JobDispatcherScheduler(Context context, String jobTag) {
-    this.jobDispatcher =
-        new FirebaseJobDispatcher(new GooglePlayDriver(context.getApplicationContext()));
+    context = context.getApplicationContext();
+    this.jobDispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(context));
     this.jobTag = jobTag;
   }
 
   @Override
-  public boolean schedule(Requirements requirements, String serviceAction, String servicePackage) {
-    Job job = buildJob(jobDispatcher, requirements, jobTag, serviceAction, servicePackage);
+  public boolean schedule(Requirements requirements, String servicePackage, String serviceAction) {
+    Job job = buildJob(jobDispatcher, requirements, jobTag, servicePackage, serviceAction);
     int result = jobDispatcher.schedule(job);
     logd("Scheduling job: " + jobTag + " result: " + result);
     return result == FirebaseJobDispatcher.SCHEDULE_RESULT_SUCCESS;
@@ -96,26 +100,18 @@ public final class JobDispatcherScheduler implements Scheduler {
       FirebaseJobDispatcher dispatcher,
       Requirements requirements,
       String tag,
-      String serviceAction,
-      String servicePackage) {
+      String servicePackage,
+      String serviceAction) {
     Job.Builder builder =
         dispatcher
             .newJobBuilder()
             .setService(JobDispatcherSchedulerService.class) // the JobService that will be called
             .setTag(tag);
 
-    switch (requirements.getRequiredNetworkType()) {
-      case Requirements.NETWORK_TYPE_NONE:
-        // do nothing.
-        break;
-      case Requirements.NETWORK_TYPE_ANY:
-        builder.addConstraint(Constraint.ON_ANY_NETWORK);
-        break;
-      case Requirements.NETWORK_TYPE_UNMETERED:
-        builder.addConstraint(Constraint.ON_UNMETERED_NETWORK);
-        break;
-      default:
-        throw new UnsupportedOperationException();
+    if (requirements.isUnmeteredNetworkRequired()) {
+      builder.addConstraint(Constraint.ON_UNMETERED_NETWORK);
+    } else if (requirements.isNetworkRequired()) {
+      builder.addConstraint(Constraint.ON_ANY_NETWORK);
     }
 
     if (requirements.isIdleRequired()) {

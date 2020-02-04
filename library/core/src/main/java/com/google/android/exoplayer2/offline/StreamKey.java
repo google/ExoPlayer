@@ -15,8 +15,9 @@
  */
 package com.google.android.exoplayer2.offline;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.os.Parcel;
+import android.os.Parcelable;
+import androidx.annotation.Nullable;
 
 /**
  * A key for a subset of media which can be separately loaded (a "stream").
@@ -25,7 +26,7 @@ import android.support.annotation.Nullable;
  * within the group. The interpretation of these indices depends on the type of media for which the
  * stream key is used.
  */
-public final class StreamKey implements Comparable<StreamKey> {
+public final class StreamKey implements Comparable<StreamKey>, Parcelable {
 
   /** The period index. */
   public final int periodIndex;
@@ -51,6 +52,12 @@ public final class StreamKey implements Comparable<StreamKey> {
     this.periodIndex = periodIndex;
     this.groupIndex = groupIndex;
     this.trackIndex = trackIndex;
+  }
+
+  /* package */ StreamKey(Parcel in) {
+    periodIndex = in.readInt();
+    groupIndex = in.readInt();
+    trackIndex = in.readInt();
   }
 
   @Override
@@ -84,7 +91,7 @@ public final class StreamKey implements Comparable<StreamKey> {
   // Comparable implementation.
 
   @Override
-  public int compareTo(@NonNull StreamKey o) {
+  public int compareTo(StreamKey o) {
     int result = periodIndex - o.periodIndex;
     if (result == 0) {
       result = groupIndex - o.groupIndex;
@@ -94,4 +101,32 @@ public final class StreamKey implements Comparable<StreamKey> {
     }
     return result;
   }
+
+  // Parcelable implementation.
+
+  @Override
+  public int describeContents() {
+    return 0;
+  }
+
+  @Override
+  public void writeToParcel(Parcel dest, int flags) {
+    dest.writeInt(periodIndex);
+    dest.writeInt(groupIndex);
+    dest.writeInt(trackIndex);
+  }
+
+  public static final Parcelable.Creator<StreamKey> CREATOR =
+      new Parcelable.Creator<StreamKey>() {
+
+        @Override
+        public StreamKey createFromParcel(Parcel in) {
+          return new StreamKey(in);
+        }
+
+        @Override
+        public StreamKey[] newArray(int size) {
+          return new StreamKey[size];
+        }
+      };
 }

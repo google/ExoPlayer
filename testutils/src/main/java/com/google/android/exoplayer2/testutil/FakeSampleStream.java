@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.testutil;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
@@ -23,19 +23,77 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.SampleStream;
 import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.Arrays;
 
 /**
- * Fake {@link SampleStream} that outputs a given {@link Format}, an optional sample containing a
- * single zero byte, then end of stream.
+ * Fake {@link SampleStream} that outputs a given {@link Format}, any amount of {@link
+ * FakeSampleStreamItem items}, then end of stream.
  */
 public final class FakeSampleStream implements SampleStream {
 
-  private final Format format;
-  private final @Nullable EventDispatcher eventDispatcher;
+  /** Item to customize a return value of {@link FakeSampleStream#readData}. */
+  public static final class FakeSampleStreamItem {
+    @Nullable Format format;
+    @Nullable byte[] sampleData;
+    int flags;
 
-  private boolean notifiedDownstreamFormat;
+    /**
+     * Item that designates the end of stream has been reached.
+     *
+     * <p>When this item is read, readData will repeatedly return end of stream.
+     */
+    public static final FakeSampleStreamItem END_OF_STREAM_ITEM =
+        new FakeSampleStreamItem(new byte[] {}, C.BUFFER_FLAG_END_OF_STREAM);
+
+    /**
+     * Item that, when {@link #readData(FormatHolder, DecoderInputBuffer, boolean)} is called, will
+     * return {@link C#RESULT_FORMAT_READ} with the new format.
+     *
+     * @param format The format to be returned.
+     */
+    public FakeSampleStreamItem(Format format) {
+      this.format = format;
+    }
+
+    /**
+     * Item that, when {@link #readData(FormatHolder, DecoderInputBuffer, boolean)} is called, will
+     * return {@link C#RESULT_BUFFER_READ} with the sample data.
+     *
+     * @param sampleData The sample data to be read.
+     */
+    public FakeSampleStreamItem(byte[] sampleData) {
+      this.sampleData = sampleData.clone();
+    }
+
+    /**
+     * Item that, when {@link #readData(FormatHolder, DecoderInputBuffer, boolean)} is called, will
+     * return {@link C#RESULT_BUFFER_READ} with the sample data.
+     *
+     * @param sampleData The sample data to be read.
+     * @param flags The buffer flags to be set.
+     */
+    public FakeSampleStreamItem(byte[] sampleData, int flags) {
+      this.sampleData = sampleData.clone();
+      this.flags = flags;
+    }
+  }
+
+  /** Constant array for use when a single sample is to be output, followed by the end of stream. */
+  public static final FakeSampleStreamItem[] SINGLE_SAMPLE_THEN_END_OF_STREAM =
+      new FakeSampleStreamItem[] {
+        new FakeSampleStreamItem(new byte[] {0}), FakeSampleStreamItem.END_OF_STREAM_ITEM
+      };
+
+  private final ArrayDeque<FakeSampleStreamItem> fakeSampleStreamItems;
+  private final int timeUsIncrement;
+
+  @Nullable private final EventDispatcher eventDispatcher;
+
+  private Format format;
+  private int timeUs;
   private boolean readFormat;
-  private boolean readSample;
+  private boolean readEOSBuffer;
 
   /**
    * Creates fake sample stream which outputs the given {@link Format}, optionally one sample with
@@ -47,9 +105,57 @@ public final class FakeSampleStream implements SampleStream {
    */
   public FakeSampleStream(
       Format format, @Nullable EventDispatcher eventDispatcher, boolean shouldOutputSample) {
+    this(
+        format,
+        eventDispatcher,
+        /* timeUsIncrement= */ 0,
+        shouldOutputSample
+            ? SINGLE_SAMPLE_THEN_END_OF_STREAM
+            : new FakeSampleStreamItem[] {FakeSampleStreamItem.END_OF_STREAM_ITEM});
+  }
+
+  /**
+   * Creates a fake sample stream which outputs the given {@link Format}, any amount of {@link
+   * FakeSampleStreamItem items}, then end of stream.
+   *
+   * @param format The {@link Format} to output.
+   * @param eventDispatcher An {@link EventDispatcher} to notify of read events.
+   * @param timeUsIncrement The time each sample should increase by, in microseconds.
+   * @param fakeSampleStreamItems The {@link FakeSampleStreamItem items} to customize the return
+   *     values of {@link #readData(FormatHolder, DecoderInputBuffer, boolean)}. Note that once an
+   *     EOS buffer has been read, that will return every time readData is called.
+   */
+  public FakeSampleStream(
+      Format format,
+      @Nullable EventDispatcher eventDispatcher,
+      int timeUsIncrement,
+      FakeSampleStreamItem... fakeSampleStreamItems) {
     this.format = format;
     this.eventDispatcher = eventDispatcher;
-    readSample = !shouldOutputSample;
+    this.fakeSampleStreamItems = new ArrayDeque<>(Arrays.asList(fakeSampleStreamItems));
+    this.timeUsIncrement = timeUsIncrement;
+  }
+
+  /**
+   * Clears and assigns new samples provided by this sample stream.
+   *
+   * @param timeUs The time at which samples will start being output, in microseconds.
+   * @param fakeSampleStreamItems The {@link FakeSampleStreamItem items} to provide.
+   */
+  public void resetSampleStreamItems(int timeUs, FakeSampleStreamItem... fakeSampleStreamItems) {
+    this.fakeSampleStreamItems.clear();
+    this.fakeSampleStreamItems.addAll(Arrays.asList(fakeSampleStreamItems));
+    this.timeUs = timeUs;
+    readEOSBuffer = false;
+  }
+
+  /**
+   * Adds an item to the end of the queue of {@link FakeSampleStreamItem items}.
+   *
+   * @param item The item to add.
+   */
+  public void addFakeSampleStreamItem(FakeSampleStreamItem item) {
+    this.fakeSampleStreamItems.add(item);
   }
 
   @Override
@@ -58,32 +164,41 @@ public final class FakeSampleStream implements SampleStream {
   }
 
   @Override
-  public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer,
-      boolean formatRequired) {
-    if (eventDispatcher != null && !notifiedDownstreamFormat) {
-      eventDispatcher.downstreamFormatChanged(
-          C.TRACK_TYPE_UNKNOWN,
-          format,
-          C.SELECTION_REASON_UNKNOWN,
-          /* trackSelectionData= */ null,
-          /* mediaTimeUs= */ 0);
-      notifiedDownstreamFormat = true;
-    }
-    if (formatRequired || !readFormat) {
-      formatHolder.format = format;
+  public int readData(
+      FormatHolder formatHolder, DecoderInputBuffer buffer, boolean formatRequired) {
+    if (!readFormat || formatRequired) {
       readFormat = true;
+      formatHolder.format = format;
+      notifyEventDispatcher(formatHolder);
       return C.RESULT_FORMAT_READ;
-    } else if (!readSample) {
-      buffer.timeUs = 0;
-      buffer.ensureSpaceForWrite(1);
-      buffer.data.put((byte) 0);
-      buffer.flip();
-      readSample = true;
-      return C.RESULT_BUFFER_READ;
-    } else {
+    }
+    // Once an EOS buffer has been read, send EOS every time.
+    if (readEOSBuffer) {
       buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
       return C.RESULT_BUFFER_READ;
     }
+    if (!fakeSampleStreamItems.isEmpty()) {
+      FakeSampleStreamItem fakeSampleStreamItem = fakeSampleStreamItems.remove();
+      if (fakeSampleStreamItem.format != null) {
+        format = fakeSampleStreamItem.format;
+        formatHolder.format = format;
+        notifyEventDispatcher(formatHolder);
+        return C.RESULT_FORMAT_READ;
+      }
+      if (fakeSampleStreamItem.sampleData != null) {
+        byte[] sampleData = fakeSampleStreamItem.sampleData;
+        buffer.timeUs = timeUs;
+        timeUs += timeUsIncrement;
+        buffer.ensureSpaceForWrite(sampleData.length);
+        buffer.data.put(sampleData);
+        if (fakeSampleStreamItem.flags != 0) {
+          buffer.setFlags(fakeSampleStreamItem.flags);
+          readEOSBuffer = buffer.isEndOfStream();
+        }
+        return C.RESULT_BUFFER_READ;
+      }
+    }
+    return C.RESULT_NOTHING_READ;
   }
 
   @Override
@@ -96,4 +211,14 @@ public final class FakeSampleStream implements SampleStream {
     return 0;
   }
 
+  private void notifyEventDispatcher(FormatHolder formatHolder) {
+    if (eventDispatcher != null) {
+      eventDispatcher.downstreamFormatChanged(
+          C.TRACK_TYPE_UNKNOWN,
+          formatHolder.format,
+          C.SELECTION_REASON_UNKNOWN,
+          /* trackSelectionData= */ null,
+          /* mediaTimeUs= */ timeUs);
+    }
+  }
 }

@@ -16,7 +16,6 @@ apply from: '../../constants.gradle'
 
 android {
     compileSdkVersion project.ext.compileSdkVersion
-    buildToolsVersion project.ext.buildToolsVersion
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -36,43 +35,29 @@ android {
         testInstrumentationRunnerArguments clearPackageData: 'true'
     }
 
-    // Workaround to prevent circular dependency on project :testutils.
-    sourceSets {
-        androidTest {
-            java.srcDirs += '../../testutils/src/main/java/'
-        }
-        test {
-            java.srcDirs += '../../testutils/src/main/java/'
-            java.srcDirs += '../../testutils_robolectric/src/main/java/'
+    buildTypes {
+        debug {
+            testCoverageEnabled = true
         }
     }
 
-    buildTypes {
-        // Re-enable test coverage when the following issue is fixed:
-        // https://issuetracker.google.com/issues/37019591
-        // debug {
-        //    testCoverageEnabled = true
-        // }
-    }
+    testOptions.unitTests.includeAndroidResources = true
 }
 
 dependencies {
-    implementation 'com.android.support:support-annotations:' + supportLibraryVersion
+    api project(modulePrefix + 'library-common')
+    api project(modulePrefix + 'library-extractor')
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkVersion
-    androidTestImplementation 'androidx.test:runner:' + testRunnerVersion
-    androidTestImplementation 'com.google.auto.value:auto-value-annotations:' + autoValueVersion
-    androidTestImplementation 'com.google.dexmaker:dexmaker:' + dexmakerVersion
-    androidTestImplementation 'com.google.dexmaker:dexmaker-mockito:' + dexmakerVersion
-    androidTestImplementation 'com.google.truth:truth:' + truthVersion
-    androidTestImplementation 'org.mockito:mockito-core:' + mockitoVersion
-    androidTestAnnotationProcessor 'com.google.auto.value:auto-value:' + autoValueVersion
-    testImplementation 'com.google.truth:truth:' + truthVersion
-    testImplementation 'junit:junit:' + junitVersion
-    testImplementation 'org.mockito:mockito-core:' + mockitoVersion
+    androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion
+    androidTestImplementation 'com.google.guava:guava:' + guavaVersion
+    androidTestImplementation 'com.linkedin.dexmaker:dexmaker:' + dexmakerVersion
+    androidTestImplementation 'com.linkedin.dexmaker:dexmaker-mockito:' + dexmakerVersion
+    androidTestImplementation project(modulePrefix + 'testutils')
+    testImplementation 'com.google.guava:guava:' + guavaVersion
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
-    testImplementation 'com.google.auto.value:auto-value-annotations:' + autoValueVersion
-    testAnnotationProcessor 'com.google.auto.value:auto-value:' + autoValueVersion
+    testImplementation project(modulePrefix + 'testutils')
 }
 
 ext {

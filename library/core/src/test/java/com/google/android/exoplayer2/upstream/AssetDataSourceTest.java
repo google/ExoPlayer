@@ -16,37 +16,37 @@
 package com.google.android.exoplayer2.upstream;
 
 import android.net.Uri;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
 /** Unit tests for {@link AssetDataSource}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class AssetDataSourceTest {
 
   private static final String DATA_PATH = "binary/1024_incrementing_bytes.mp3";
 
   @Test
   public void testReadFileUri() throws Exception {
-    AssetDataSource dataSource = new AssetDataSource(RuntimeEnvironment.application);
+    AssetDataSource dataSource = new AssetDataSource(ApplicationProvider.getApplicationContext());
     DataSpec dataSpec = new DataSpec(Uri.parse("file:///android_asset/" + DATA_PATH));
     TestUtil.assertDataSourceContent(
         dataSource,
         dataSpec,
-        TestUtil.getByteArray(RuntimeEnvironment.application, DATA_PATH),
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), DATA_PATH),
         true);
   }
 
   @Test
   public void testReadAssetUri() throws Exception {
-    AssetDataSource dataSource = new AssetDataSource(RuntimeEnvironment.application);
+    AssetDataSource dataSource = new AssetDataSource(ApplicationProvider.getApplicationContext());
     DataSpec dataSpec = new DataSpec(Uri.parse("asset:///" + DATA_PATH));
     TestUtil.assertDataSourceContent(
         dataSource,
         dataSpec,
-        TestUtil.getByteArray(RuntimeEnvironment.application, DATA_PATH),
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), DATA_PATH),
         true);
   }
 }

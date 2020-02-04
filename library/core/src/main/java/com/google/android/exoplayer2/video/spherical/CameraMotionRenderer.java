@@ -15,13 +15,14 @@
  */
 package com.google.android.exoplayer2.video.spherical;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.Renderer;
+import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -34,31 +35,30 @@ public class CameraMotionRenderer extends BaseRenderer {
   // The amount of time to read samples ahead of the current time.
   private static final int SAMPLE_WINDOW_DURATION_US = 100000;
 
-  private final FormatHolder formatHolder;
   private final DecoderInputBuffer buffer;
   private final ParsableByteArray scratch;
 
   private long offsetUs;
-  private @Nullable CameraMotionListener listener;
+  @Nullable private CameraMotionListener listener;
   private long lastTimestampUs;
 
   public CameraMotionRenderer() {
     super(C.TRACK_TYPE_CAMERA_MOTION);
-    formatHolder = new FormatHolder();
     buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
     scratch = new ParsableByteArray();
   }
 
   @Override
+  @Capabilities
   public int supportsFormat(Format format) {
     return MimeTypes.APPLICATION_CAMERA_MOTION.equals(format.sampleMimeType)
-        ? FORMAT_HANDLED
-        : FORMAT_UNSUPPORTED_TYPE;
+        ? RendererCapabilities.create(FORMAT_HANDLED)
+        : RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
   }
 
   @Override
   public void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException {
-    if (messageType == C.MSG_SET_CAMERA_MOTION_LISTENER) {
+    if (messageType == MSG_SET_CAMERA_MOTION_LISTENER) {
       listener = (CameraMotionListener) message;
     } else {
       super.handleMessage(messageType, message);
@@ -85,6 +85,7 @@ public class CameraMotionRenderer extends BaseRenderer {
     // Keep reading available samples as long as the sample time is not too far into the future.
     while (!hasReadStreamToEnd() && lastTimestampUs < positionUs + SAMPLE_WINDOW_DURATION_US) {
       buffer.clear();
+      FormatHolder formatHolder = getFormatHolder();
       int result = readSource(formatHolder, buffer, /* formatRequired= */ false);
       if (result != C.RESULT_BUFFER_READ || buffer.isEndOfStream()) {
         return;
@@ -93,7 +94,7 @@ public class CameraMotionRenderer extends BaseRenderer {
       buffer.flip();
       lastTimestampUs = buffer.timeUs;
       if (listener != null) {
-        float[] rotation = parseMetadata(buffer.data);
+        float[] rotation = parseMetadata(Util.castNonNull(buffer.data));
         if (rotation != null) {
           Util.castNonNull(listener).onCameraMotion(lastTimestampUs - offsetUs, rotation);
         }
@@ -111,7 +112,8 @@ public class CameraMotionRenderer extends BaseRenderer {
     return true;
   }
 
-  private @Nullable float[] parseMetadata(ByteBuffer data) {
+  @Nullable
+  private float[] parseMetadata(ByteBuffer data) {
     if (data.remaining() != 16) {
       return null;
     }

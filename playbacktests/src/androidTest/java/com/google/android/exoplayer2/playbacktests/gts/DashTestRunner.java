@@ -17,16 +17,12 @@ package com.google.android.exoplayer2.playbacktests.gts;
 
 import static com.google.android.exoplayer2.C.WIDEVINE_UUID;
 
-import android.annotation.TargetApi;
-import android.app.Instrumentation;
 import android.media.MediaDrm;
 import android.media.UnsupportedSchemeException;
 import android.net.Uri;
 import android.view.Surface;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.DefaultLoadControl;
-import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -34,6 +30,7 @@ import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
+import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.drm.MediaDrmCallback;
 import com.google.android.exoplayer2.drm.UnsupportedDrmException;
@@ -43,12 +40,10 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.testutil.ActionSchedule;
-import com.google.android.exoplayer2.testutil.DebugRenderersFactory;
 import com.google.android.exoplayer2.testutil.DecoderCountersUtil;
 import com.google.android.exoplayer2.testutil.ExoHostedTest;
 import com.google.android.exoplayer2.testutil.HostActivity;
 import com.google.android.exoplayer2.testutil.HostActivity.HostedTest;
-import com.google.android.exoplayer2.testutil.MetricsLogger;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.RandomTrackSelection;
@@ -65,15 +60,12 @@ import java.util.Arrays;
 import java.util.List;
 
 /** {@link DashHostedTest} builder. */
-public final class DashTestRunner {
+/* package */ final class DashTestRunner {
 
   static final int VIDEO_RENDERER_INDEX = 0;
   static final int AUDIO_RENDERER_INDEX = 1;
 
   private static final long TEST_TIMEOUT_MS = 5 * 60 * 1000;
-
-  private static final String REPORT_NAME = "GtsExoPlayerTestCases";
-  private static final String REPORT_OBJECT_NAME = "playbacktest";
 
   // Whether adaptive tests should enable video formats beyond those mandated by the Android CDD
   // if the device advertises support for them.
@@ -92,7 +84,6 @@ public final class DashTestRunner {
 
   private final String tag;
   private final HostActivity activity;
-  private final Instrumentation instrumentation;
 
   private String streamName;
   private boolean fullPlaybackNoSeeking;
@@ -111,7 +102,8 @@ public final class DashTestRunner {
     if (Util.SDK_INT >= 18) {
       try {
         // Force L3 if secure decoder is not available.
-        if (MediaCodecUtil.getDecoderInfo(mimeType, true) == null) {
+        if (MediaCodecUtil.getDecoderInfo(mimeType, /* secure= */ true, /* tunneling= */ false)
+            == null) {
           return false;
         }
         MediaDrm mediaDrm = MediaDrmBuilder.build();
@@ -125,10 +117,9 @@ public final class DashTestRunner {
     return false;
   }
 
-  public DashTestRunner(String tag, HostActivity activity, Instrumentation instrumentation) {
+  public DashTestRunner(String tag, HostActivity activity) {
     this.tag = tag;
     this.activity = activity;
-    this.instrumentation = instrumentation;
   }
 
   public DashTestRunner setStreamName(String streamName) {
@@ -182,20 +173,18 @@ public final class DashTestRunner {
   }
 
   public void run() {
-    DashHostedTest test = createDashHostedTest(canIncludeAdditionalVideoFormats, false,
-        instrumentation);
+    DashHostedTest test = createDashHostedTest(canIncludeAdditionalVideoFormats, false);
     activity.runTest(test, TEST_TIMEOUT_MS);
     // Retry test exactly once if adaptive test fails due to excessive dropped buffers when
     // playing non-CDD required formats (b/28220076).
     if (test.needsCddLimitedRetry) {
-      activity.runTest(createDashHostedTest(false, true, instrumentation), TEST_TIMEOUT_MS);
+      activity.runTest(createDashHostedTest(false, true), TEST_TIMEOUT_MS);
     }
   }
 
-  private DashHostedTest createDashHostedTest(boolean canIncludeAdditionalVideoFormats,
-      boolean isCddLimitedRetry, Instrumentation instrumentation) {
-    MetricsLogger metricsLogger = MetricsLogger.Factory.createDefault(instrumentation, tag,
-        REPORT_NAME, REPORT_OBJECT_NAME);
+  private DashHostedTest createDashHostedTest(
+      boolean canIncludeAdditionalVideoFormats, boolean isCddLimitedRetry) {
+    MetricsLogger metricsLogger = MetricsLogger.Factory.createDefault(tag);
     return new DashHostedTest(tag, streamName, manifestUrl, metricsLogger, fullPlaybackNoSeeking,
         audioFormat, canIncludeAdditionalVideoFormats, isCddLimitedRetry, actionSchedule,
         offlineLicenseKeySetId, widevineLicenseUrl, useL1Widevine, dataSourceFactory,
@@ -205,7 +194,6 @@ public final class DashTestRunner {
   /**
    * A {@link HostedTest} for DASH playback tests.
    */
-  @TargetApi(16)
   private static final class DashHostedTest extends ExoHostedTest {
 
     private final String streamName;
@@ -268,19 +256,25 @@ public final class DashTestRunner {
     }
 
     @Override
-    protected DefaultDrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManager(
+    protected DrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManager(
         final String userAgent) {
       if (widevineLicenseUrl == null) {
-        return null;
+        return DrmSessionManager.getDummyDrmSessionManager();
       }
       try {
         MediaDrmCallback drmCallback = new HttpMediaDrmCallback(widevineLicenseUrl,
             new DefaultHttpDataSourceFactory(userAgent));
+        FrameworkMediaDrm frameworkMediaDrm = FrameworkMediaDrm.newInstance(WIDEVINE_UUID);
         DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager =
-            DefaultDrmSessionManager.newWidevineInstance(drmCallback, null);
+            new DefaultDrmSessionManager<>(
+                C.WIDEVINE_UUID,
+                frameworkMediaDrm,
+                drmCallback,
+                /* optionalKeyRequestParameters= */ null,
+                /* multiSession= */ false,
+                DefaultDrmSessionManager.INITIAL_DRM_REQUEST_RETRY_COUNT);
         if (!useL1Widevine) {
-          drmSessionManager.setPropertyString(
-              SECURITY_LEVEL_PROPERTY, WIDEVINE_SECURITY_LEVEL_3);
+          frameworkMediaDrm.setPropertyString(SECURITY_LEVEL_PROPERTY, WIDEVINE_SECURITY_LEVEL_3);
         }
         if (offlineLicenseKeySetId != null) {
           drmSessionManager.setMode(DefaultDrmSessionManager.MODE_PLAYBACK,
@@ -294,29 +288,25 @@ public final class DashTestRunner {
 
     @Override
     protected SimpleExoPlayer buildExoPlayer(
-        HostActivity host,
-        Surface surface,
-        MappingTrackSelector trackSelector,
-        DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
+        HostActivity host, Surface surface, MappingTrackSelector trackSelector) {
       SimpleExoPlayer player =
-          ExoPlayerFactory.newSimpleInstance(
-              host,
-              new DebugRenderersFactory(host),
-              trackSelector,
-              new DefaultLoadControl(),
-              drmSessionManager);
+          new SimpleExoPlayer.Builder(host, new DebugRenderersFactory(host))
+              .setTrackSelector(trackSelector)
+              .build();
       player.setVideoSurface(surface);
       return player;
     }
 
     @Override
-    protected MediaSource buildSource(HostActivity host, String userAgent) {
+    protected MediaSource buildSource(
+        HostActivity host, String userAgent, DrmSessionManager<?> drmSessionManager) {
       DataSource.Factory dataSourceFactory =
           this.dataSourceFactory != null
               ? this.dataSourceFactory
               : new DefaultDataSourceFactory(host, userAgent);
       Uri manifestUri = Uri.parse(manifestUrl);
       return new DashMediaSource.Factory(dataSourceFactory)
+          .setDrmSessionManager(drmSessionManager)
           .setLoadErrorHandlingPolicy(new DefaultLoadErrorHandlingPolicy(MIN_LOADABLE_RETRY_COUNT))
           .createMediaSource(manifestUri);
     }
@@ -393,8 +383,7 @@ public final class DashTestRunner {
         MappedTrackInfo mappedTrackInfo,
         int[][][] rendererFormatSupports,
         int[] rendererMixedMimeTypeAdaptationSupports,
-        Parameters parameters)
-        throws ExoPlaybackException {
+        Parameters parameters) {
       Assertions.checkState(
           mappedTrackInfo.getRendererType(VIDEO_RENDERER_INDEX) == C.TRACK_TYPE_VIDEO);
       Assertions.checkState(
@@ -462,17 +451,17 @@ public final class DashTestRunner {
     }
 
     private static boolean isFormatHandled(int formatSupport) {
-      return (formatSupport & RendererCapabilities.FORMAT_SUPPORT_MASK)
+      return RendererCapabilities.getFormatSupport(formatSupport)
           == RendererCapabilities.FORMAT_HANDLED;
     }
 
   }
 
   /**
-   * Creates a new {@code MediaDrm} object. The encapsulation ensures that the tests can be
-   * executed for API level < 18.
+   * Creates a new {@code MediaDrm} object. The encapsulation ensures that the tests can be executed
+   * for API level < 18.
    */
-  @TargetApi(18)
+  @RequiresApi(18)
   private static final class MediaDrmBuilder {
 
     public static MediaDrm build () {

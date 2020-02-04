@@ -5,7 +5,7 @@ seekMap:
 numberOfTracks = 1
 track 0:
   format:
-    bitrate = 768000
+    bitrate = 1536000
     id = null
     containerMimeType = null
     sampleMimeType = audio/raw
@@ -24,6 +24,7 @@ track 0:
     selectionFlags = 0
     language = null
     drmInitData = -
+    metadata = null
     initializationData:
   total output bytes = 362432
   sample count = 23

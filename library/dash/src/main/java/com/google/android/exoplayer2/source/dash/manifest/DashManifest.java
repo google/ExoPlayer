@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.source.dash.manifest;
 
 import android.net.Uri;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.FilterableManifest;
 import com.google.android.exoplayer2.offline.StreamKey;
@@ -80,12 +80,10 @@ public class DashManifest implements FilterableManifest<DashManifest> {
    * The {@link UtcTimingElement}, or null if not present. Defined in DVB A168:7/2016, Section
    * 4.7.2.
    */
-  public final UtcTimingElement utcTiming;
+  @Nullable public final UtcTimingElement utcTiming;
 
-  /**
-   * The location of this manifest.
-   */
-  public final Uri location;
+  /** The location of this manifest, or null if not present. */
+  @Nullable public final Uri location;
 
   /** The {@link ProgramInformation}, or null if not present. */
   @Nullable public final ProgramInformation programInformation;
@@ -106,8 +104,8 @@ public class DashManifest implements FilterableManifest<DashManifest> {
       long timeShiftBufferDepthMs,
       long suggestedPresentationDelayMs,
       long publishTimeMs,
-      UtcTimingElement utcTiming,
-      Uri location,
+      @Nullable UtcTimingElement utcTiming,
+      @Nullable Uri location,
       List<Period> periods) {
     this(
         availabilityStartTimeMs,
@@ -134,8 +132,8 @@ public class DashManifest implements FilterableManifest<DashManifest> {
       long suggestedPresentationDelayMs,
       long publishTimeMs,
       @Nullable ProgramInformation programInformation,
-      UtcTimingElement utcTiming,
-      Uri location,
+      @Nullable UtcTimingElement utcTiming,
+      @Nullable Uri location,
       List<Period> periods) {
     this.availabilityStartTimeMs = availabilityStartTimeMs;
     this.durationMs = durationMs;

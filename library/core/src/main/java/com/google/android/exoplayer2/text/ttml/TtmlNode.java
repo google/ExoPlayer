@@ -17,10 +17,10 @@ package com.google.android.exoplayer2.text.ttml;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.support.annotation.Nullable;
 import android.text.SpannableStringBuilder;
 import android.util.Base64;
 import android.util.Pair;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.util.Assertions;
@@ -28,9 +28,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A package internal representation of TTML node.
@@ -66,7 +66,10 @@ import java.util.TreeSet;
   public static final String ATTR_TTS_COLOR = "color";
   public static final String ATTR_TTS_TEXT_DECORATION = "textDecoration";
   public static final String ATTR_TTS_TEXT_ALIGN = "textAlign";
+  public static final String ATTR_TTS_TEXT_COMBINE = "textCombine";
+  public static final String ATTR_TTS_WRITING_MODE = "writingMode";
 
+  // Values for textDecoration
   public static final String LINETHROUGH = "linethrough";
   public static final String NO_LINETHROUGH = "nolinethrough";
   public static final String UNDERLINE = "underline";
@@ -74,11 +77,21 @@ import java.util.TreeSet;
   public static final String ITALIC = "italic";
   public static final String BOLD = "bold";
 
+  // Values for textAlign
   public static final String LEFT = "left";
   public static final String CENTER = "center";
   public static final String RIGHT = "right";
   public static final String START = "start";
   public static final String END = "end";
+
+  // Values for textCombine
+  public static final String COMBINE_NONE = "none";
+  public static final String COMBINE_ALL = "all";
+
+  // Values for writingMode
+  public static final String VERTICAL = "tb";
+  public static final String VERTICAL_LR = "tblr";
+  public static final String VERTICAL_RL = "tbrl";
 
   @Nullable public final String tag;
   @Nullable public final String text;
@@ -93,7 +106,7 @@ import java.util.TreeSet;
   private final HashMap<String, Integer> nodeStartsByRegion;
   private final HashMap<String, Integer> nodeEndsByRegion;
 
-  private List<TtmlNode> children;
+  @MonotonicNonNull private List<TtmlNode> children;
 
   public static TtmlNode buildTextNode(String text) {
     return new TtmlNode(
@@ -196,6 +209,7 @@ import java.util.TreeSet;
     }
   }
 
+  @Nullable
   public String[] getStyleIds() {
     return styleIds;
   }
@@ -209,7 +223,7 @@ import java.util.TreeSet;
     List<Pair<String, String>> regionImageOutputs = new ArrayList<>();
     traverseForImage(timeUs, regionId, regionImageOutputs);
 
-    TreeMap<String, SpannableStringBuilder> regionTextOutputs = new TreeMap<>();
+    TreeMap<String, Cue.Builder> regionTextOutputs = new TreeMap<>();
     traverseForText(timeUs, false, regionId, regionTextOutputs);
     traverseForStyle(timeUs, globalStyles, regionTextOutputs);
 
@@ -217,7 +231,7 @@ import java.util.TreeSet;
 
     // Create image based cues.
     for (Pair<String, String> regionImagePair : regionImageOutputs) {
-      String encodedBitmapData = imageMap.get(regionImagePair.second);
+      @Nullable String encodedBitmapData = imageMap.get(regionImagePair.second);
       if (encodedBitmapData == null) {
         // Image reference points to an invalid image. Do nothing.
         continue;
@@ -225,34 +239,31 @@ import java.util.TreeSet;
 
       byte[] bitmapData = Base64.decode(encodedBitmapData, Base64.DEFAULT);
       Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapData, /* offset= */ 0, bitmapData.length);
-      TtmlRegion region = regionMap.get(regionImagePair.first);
+      TtmlRegion region = Assertions.checkNotNull(regionMap.get(regionImagePair.first));
 
       cues.add(
-          new Cue(
-              bitmap,
-              region.position,
-              Cue.ANCHOR_TYPE_MIDDLE,
-              region.line,
-              region.lineAnchor,
-              region.width,
-              /* height= */ Cue.DIMEN_UNSET));
+          new Cue.Builder()
+              .setBitmap(bitmap)
+              .setPosition(region.position)
+              .setPositionAnchor(Cue.ANCHOR_TYPE_START)
+              .setLine(region.line, Cue.LINE_TYPE_FRACTION)
+              .setLineAnchor(region.lineAnchor)
+              .setSize(region.width)
+              .setBitmapHeight(region.height)
+              .build());
     }
 
     // Create text based cues.
-    for (Entry<String, SpannableStringBuilder> entry : regionTextOutputs.entrySet()) {
-      TtmlRegion region = regionMap.get(entry.getKey());
-      cues.add(
-          new Cue(
-              cleanUpText(entry.getValue()),
-              /* textAlignment= */ null,
-              region.line,
-              region.lineType,
-              region.lineAnchor,
-              region.position,
-              /* positionAnchor= */ Cue.TYPE_UNSET,
-              region.width,
-              region.textSizeType,
-              region.textSize));
+    for (Map.Entry<String, Cue.Builder> entry : regionTextOutputs.entrySet()) {
+      TtmlRegion region = Assertions.checkNotNull(regionMap.get(entry.getKey()));
+      Cue.Builder regionOutput = entry.getValue();
+      cleanUpText((SpannableStringBuilder) Assertions.checkNotNull(regionOutput.getText()));
+      regionOutput.setLine(region.line, region.lineType);
+      regionOutput.setLineAnchor(region.lineAnchor);
+      regionOutput.setPosition(region.position);
+      regionOutput.setSize(region.width);
+      regionOutput.setTextSize(region.textSize, region.textSizeType);
+      cues.add(regionOutput.build());
     }
 
     return cues;
@@ -274,7 +285,7 @@ import java.util.TreeSet;
       long timeUs,
       boolean descendsPNode,
       String inheritedRegion,
-      Map<String, SpannableStringBuilder> regionOutputs) {
+      Map<String, Cue.Builder> regionOutputs) {
     nodeStartsByRegion.clear();
     nodeEndsByRegion.clear();
     if (TAG_METADATA.equals(tag)) {
@@ -285,13 +296,14 @@ import java.util.TreeSet;
     String resolvedRegionId = ANONYMOUS_REGION_ID.equals(regionId) ? inheritedRegion : regionId;
 
     if (isTextNode && descendsPNode) {
-      getRegionOutput(resolvedRegionId, regionOutputs).append(text);
+      getRegionOutputText(resolvedRegionId, regionOutputs).append(Assertions.checkNotNull(text));
     } else if (TAG_BR.equals(tag) && descendsPNode) {
-      getRegionOutput(resolvedRegionId, regionOutputs).append('\n');
+      getRegionOutputText(resolvedRegionId, regionOutputs).append('\n');
     } else if (isActive(timeUs)) {
       // This is a container node, which can contain zero or more children.
-      for (Entry<String, SpannableStringBuilder> entry : regionOutputs.entrySet()) {
-        nodeStartsByRegion.put(entry.getKey(), entry.getValue().length());
+      for (Map.Entry<String, Cue.Builder> entry : regionOutputs.entrySet()) {
+        nodeStartsByRegion.put(
+            entry.getKey(), Assertions.checkNotNull(entry.getValue().getText()).length());
       }
 
       boolean isPNode = TAG_P.equals(tag);
@@ -300,36 +312,38 @@ import java.util.TreeSet;
             regionOutputs);
       }
       if (isPNode) {
-        TtmlRenderUtil.endParagraph(getRegionOutput(resolvedRegionId, regionOutputs));
+        TtmlRenderUtil.endParagraph(getRegionOutputText(resolvedRegionId, regionOutputs));
       }
 
-      for (Entry<String, SpannableStringBuilder> entry : regionOutputs.entrySet()) {
-        nodeEndsByRegion.put(entry.getKey(), entry.getValue().length());
+      for (Map.Entry<String, Cue.Builder> entry : regionOutputs.entrySet()) {
+        nodeEndsByRegion.put(
+            entry.getKey(), Assertions.checkNotNull(entry.getValue().getText()).length());
       }
     }
   }
 
-  private static SpannableStringBuilder getRegionOutput(
-      String resolvedRegionId, Map<String, SpannableStringBuilder> regionOutputs) {
+  private static SpannableStringBuilder getRegionOutputText(
+      String resolvedRegionId, Map<String, Cue.Builder> regionOutputs) {
     if (!regionOutputs.containsKey(resolvedRegionId)) {
-      regionOutputs.put(resolvedRegionId, new SpannableStringBuilder());
+      Cue.Builder regionOutput = new Cue.Builder();
+      regionOutput.setText(new SpannableStringBuilder());
+      regionOutputs.put(resolvedRegionId, regionOutput);
     }
-    return regionOutputs.get(resolvedRegionId);
+    return (SpannableStringBuilder)
+        Assertions.checkNotNull(regionOutputs.get(resolvedRegionId).getText());
   }
 
   private void traverseForStyle(
-      long timeUs,
-      Map<String, TtmlStyle> globalStyles,
-      Map<String, SpannableStringBuilder> regionOutputs) {
+      long timeUs, Map<String, TtmlStyle> globalStyles, Map<String, Cue.Builder> regionOutputs) {
     if (!isActive(timeUs)) {
       return;
     }
-    for (Entry<String, Integer> entry : nodeEndsByRegion.entrySet()) {
+    for (Map.Entry<String, Integer> entry : nodeEndsByRegion.entrySet()) {
       String regionId = entry.getKey();
       int start = nodeStartsByRegion.containsKey(regionId) ? nodeStartsByRegion.get(regionId) : 0;
       int end = entry.getValue();
       if (start != end) {
-        SpannableStringBuilder regionOutput = regionOutputs.get(regionId);
+        Cue.Builder regionOutput = Assertions.checkNotNull(regionOutputs.get(regionId));
         applyStyleToOutput(globalStyles, regionOutput, start, end);
       }
     }
@@ -339,21 +353,23 @@ import java.util.TreeSet;
   }
 
   private void applyStyleToOutput(
-      Map<String, TtmlStyle> globalStyles,
-      SpannableStringBuilder regionOutput,
-      int start,
-      int end) {
-    TtmlStyle resolvedStyle = TtmlRenderUtil.resolveStyle(style, styleIds, globalStyles);
+      Map<String, TtmlStyle> globalStyles, Cue.Builder regionOutput, int start, int end) {
+    @Nullable TtmlStyle resolvedStyle = TtmlRenderUtil.resolveStyle(style, styleIds, globalStyles);
+    @Nullable SpannableStringBuilder text = (SpannableStringBuilder) regionOutput.getText();
+    if (text == null) {
+      text = new SpannableStringBuilder();
+      regionOutput.setText(text);
+    }
     if (resolvedStyle != null) {
-      TtmlRenderUtil.applyStylesToSpan(regionOutput, start, end, resolvedStyle);
+      TtmlRenderUtil.applyStylesToSpan(text, start, end, resolvedStyle);
+      regionOutput.setVerticalType(resolvedStyle.getVerticalType());
     }
   }
 
-  private SpannableStringBuilder cleanUpText(SpannableStringBuilder builder) {
+  private static void cleanUpText(SpannableStringBuilder builder) {
     // Having joined the text elements, we need to do some final cleanup on the result.
     // 1. Collapse multiple consecutive spaces into a single space.
-    int builderLength = builder.length();
-    for (int i = 0; i < builderLength; i++) {
+    for (int i = 0; i < builder.length(); i++) {
       if (builder.charAt(i) == ' ') {
         int j = i + 1;
         while (j < builder.length() && builder.charAt(j) == ' ') {
@@ -362,38 +378,31 @@ import java.util.TreeSet;
         int spacesToDelete = j - (i + 1);
         if (spacesToDelete > 0) {
           builder.delete(i, i + spacesToDelete);
-          builderLength -= spacesToDelete;
         }
       }
     }
     // 2. Remove any spaces from the start of each line.
-    if (builderLength > 0 && builder.charAt(0) == ' ') {
+    if (builder.length() > 0 && builder.charAt(0) == ' ') {
       builder.delete(0, 1);
-      builderLength--;
     }
-    for (int i = 0; i < builderLength - 1; i++) {
+    for (int i = 0; i < builder.length() - 1; i++) {
       if (builder.charAt(i) == '\n' && builder.charAt(i + 1) == ' ') {
         builder.delete(i + 1, i + 2);
-        builderLength--;
       }
     }
     // 3. Remove any spaces from the end of each line.
-    if (builderLength > 0 && builder.charAt(builderLength - 1) == ' ') {
-      builder.delete(builderLength - 1, builderLength);
-      builderLength--;
+    if (builder.length() > 0 && builder.charAt(builder.length() - 1) == ' ') {
+      builder.delete(builder.length() - 1, builder.length());
     }
-    for (int i = 0; i < builderLength - 1; i++) {
+    for (int i = 0; i < builder.length() - 1; i++) {
       if (builder.charAt(i) == ' ' && builder.charAt(i + 1) == '\n') {
         builder.delete(i, i + 1);
-        builderLength--;
       }
     }
     // 4. Trim a trailing newline, if there is one.
-    if (builderLength > 0 && builder.charAt(builderLength - 1) == '\n') {
-      builder.delete(builderLength - 1, builderLength);
-      /*builderLength--;*/
+    if (builder.length() > 0 && builder.charAt(builder.length() - 1) == '\n') {
+      builder.delete(builder.length() - 1, builder.length());
     }
-    return builder;
   }
 
 }

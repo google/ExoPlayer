@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.upstream.cache;
 
 import android.net.Uri;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import java.util.ArrayList;
@@ -73,8 +73,7 @@ public class ContentMetadataMutations {
   }
 
   /**
-   * Adds a mutation to set a metadata value. Passing {@code null} as {@code name} or {@code value}
-   * isn't allowed.
+   * Adds a mutation to set a metadata value.
    *
    * @param name The name of the metadata value.
    * @param value The value to be set.
@@ -85,7 +84,7 @@ public class ContentMetadataMutations {
   }
 
   /**
-   * Adds a mutation to set a metadata value. Passing {@code null} as {@code name} isn't allowed.
+   * Adds a mutation to set a metadata value.
    *
    * @param name The name of the metadata value.
    * @param value The value to be set.
@@ -96,8 +95,7 @@ public class ContentMetadataMutations {
   }
 
   /**
-   * Adds a mutation to set a metadata value. Passing {@code null} as {@code name} or {@code value}
-   * isn't allowed.
+   * Adds a mutation to set a metadata value.
    *
    * @param name The name of the metadata value.
    * @param value The value to be set.

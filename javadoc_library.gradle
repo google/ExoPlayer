@@ -18,10 +18,13 @@ android.libraryVariants.all { variant ->
     if (!name.equals("release")) {
         return; // Skip non-release builds.
     }
+    def allSourceDirs = variant.sourceSets.inject ([]) {
+        acc, val -> acc << val.javaDirectories
+    }
     task("generateJavadoc", type: Javadoc) {
         description = "Generates Javadoc for the ${javadocTitle}."
         title = "ExoPlayer ${javadocTitle}"
-        source = variant.javaCompile.source
+        source = allSourceDirs
         options {
             links "http://docs.oracle.com/javase/7/docs/api/"
             linksOffline "https://developer.android.com/reference",
@@ -33,7 +36,7 @@ android.libraryVariants.all { variant ->
         doFirst {
             classpath =
                 files(
-                    variant.javaCompile.classpath.files,
+                    variant.javaCompileProvider.get().classpath.files,
                     project.android.getBootClasspath())
         }
         doLast {

@@ -20,11 +20,15 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.content.Context;
 import android.util.SparseArray;
+import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.SeekMap;
+import com.google.android.exoplayer2.util.Assertions;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A fake {@link ExtractorOutput}.
@@ -32,9 +36,11 @@ import java.io.PrintWriter;
 public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpable {
 
   /**
-   * If true, makes {@link #assertOutput(Context, String)} method write dump result to {@code
-   * /sdcard/Android/data/apk_package/ + dumpfile} file instead of comparing it with an existing
-   * file.
+   * If true, makes {@link #assertOutput(Context, String)} method write the output to the dump file,
+   * rather than validating that the output matches what the dump file already contains.
+   *
+   * <p>Enabling this option works when tests are run in Android Studio. It may not work when the
+   * tests are run in another environment.
    */
   private static final boolean WRITE_DUMP = false;
 
@@ -42,7 +48,7 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
 
   public int numberOfTracks;
   public boolean tracksEnded;
-  public SeekMap seekMap;
+  public @MonotonicNonNull SeekMap seekMap;
 
   public FakeExtractorOutput() {
     trackOutputs = new SparseArray<>();
@@ -50,7 +56,7 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
 
   @Override
   public FakeTrackOutput track(int id, int type) {
-    FakeTrackOutput output = trackOutputs.get(id);
+    @Nullable FakeTrackOutput output = trackOutputs.get(id);
     if (output == null) {
       assertThat(tracksEnded).isFalse();
       numberOfTracks++;
@@ -67,7 +73,26 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
 
   @Override
   public void seekMap(SeekMap seekMap) {
+    if (seekMap.isSeekable()) {
+      SeekMap.SeekPoints seekPoints = seekMap.getSeekPoints(0);
+      if (!seekPoints.first.equals(seekPoints.second)) {
+        throw new IllegalStateException("SeekMap defines two seek points for t=0");
+      }
+      long durationUs = seekMap.getDurationUs();
+      if (durationUs != C.TIME_UNSET) {
+        seekPoints = seekMap.getSeekPoints(durationUs);
+        if (!seekPoints.first.equals(seekPoints.second)) {
+          throw new IllegalStateException("SeekMap defines two seek points for t=durationUs");
+        }
+      }
+    }
     this.seekMap = seekMap;
+  }
+
+  public void clearTrackOutputs() {
+    for (int i = 0; i < numberOfTracks; i++) {
+      trackOutputs.valueAt(i).clear();
+    }
   }
 
   public void assertEquals(FakeExtractorOutput expected) {
@@ -77,10 +102,11 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
       assertThat(seekMap).isNull();
     } else {
       // TODO: Bulk up this check if possible.
-      assertThat(seekMap).isNotNull();
-      assertThat(seekMap.getClass()).isEqualTo(expected.seekMap.getClass());
-      assertThat(seekMap.isSeekable()).isEqualTo(expected.seekMap.isSeekable());
-      assertThat(seekMap.getSeekPoints(0)).isEqualTo(expected.seekMap.getSeekPoints(0));
+      SeekMap expectedSeekMap = Assertions.checkNotNull(expected.seekMap);
+      SeekMap seekMap = Assertions.checkNotNull(this.seekMap);
+      assertThat(seekMap.getClass()).isEqualTo(expectedSeekMap.getClass());
+      assertThat(seekMap.isSeekable()).isEqualTo(expectedSeekMap.isSeekable());
+      assertThat(seekMap.getSeekPoints(0)).isEqualTo(expectedSeekMap.getSeekPoints(0));
     }
     for (int i = 0; i < numberOfTracks; i++) {
       assertThat(trackOutputs.keyAt(i)).isEqualTo(expected.trackOutputs.keyAt(i));
@@ -101,9 +127,9 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
     String actual = new Dumper().add(this).toString();
 
     if (WRITE_DUMP) {
-      File directory = context.getExternalFilesDir(null);
-      File file = new File(directory, dumpFile);
-      file.getParentFile().mkdirs();
+      File file = new File(System.getProperty("user.dir"), "src/test/assets");
+      file = new File(file, dumpFile);
+      Assertions.checkStateNotNull(file.getParentFile()).mkdirs();
       PrintWriter out = new PrintWriter(file);
       out.print(actual);
       out.close();

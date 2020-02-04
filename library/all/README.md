@@ -10,4 +10,4 @@ individually. See ExoPlayer's [top level README][] for more information.
 
 * [Javadoc][]: Note that this Javadoc is combined with that of other modules.
 
-[Javadoc]: https://google.github.io/ExoPlayer/doc/reference/index.html
+[Javadoc]: https://exoplayer.dev/doc/reference/index.html

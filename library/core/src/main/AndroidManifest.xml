@@ -14,7 +14,4 @@
      limitations under the License.
 -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.google.android.exoplayer2.core">
-  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-</manifest>
+<manifest package="com.google.android.exoplayer2.core" />

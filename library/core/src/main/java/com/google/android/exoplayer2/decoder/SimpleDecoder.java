@@ -15,7 +15,8 @@
  */
 package com.google.android.exoplayer2.decoder;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.CallSuper;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import java.util.ArrayDeque;
@@ -61,12 +62,13 @@ public abstract class SimpleDecoder<
     for (int i = 0; i < availableOutputBufferCount; i++) {
       availableOutputBuffers[i] = createOutputBuffer();
     }
-    decodeThread = new Thread() {
-      @Override
-      public void run() {
-        SimpleDecoder.this.run();
-      }
-    };
+    decodeThread =
+        new Thread("SimpleDecoder:Decode") {
+          @Override
+          public void run() {
+            SimpleDecoder.this.run();
+          }
+        };
     decodeThread.start();
   }
 
@@ -86,6 +88,7 @@ public abstract class SimpleDecoder<
   }
 
   @Override
+  @Nullable
   public final I dequeueInputBuffer() throws E {
     synchronized (lock) {
       maybeThrowException();
@@ -108,6 +111,7 @@ public abstract class SimpleDecoder<
   }
 
   @Override
+  @Nullable
   public final O dequeueOutputBuffer() throws E {
     synchronized (lock) {
       maybeThrowException();
@@ -123,6 +127,7 @@ public abstract class SimpleDecoder<
    *
    * @param outputBuffer The output buffer being released.
    */
+  @CallSuper
   protected void releaseOutputBuffer(O outputBuffer) {
     synchronized (lock) {
       releaseOutputBufferInternal(outputBuffer);
@@ -148,6 +153,7 @@ public abstract class SimpleDecoder<
     }
   }
 
+  @CallSuper
   @Override
   public void release() {
     synchronized (lock) {
@@ -301,5 +307,6 @@ public abstract class SimpleDecoder<
    * @param reset Whether the decoder must be reset before decoding.
    * @return A decoder exception if an error occurred, or null if decoding was successful.
    */
-  protected abstract @Nullable E decode(I inputBuffer, O outputBuffer, boolean reset);
+  @Nullable
+  protected abstract E decode(I inputBuffer, O outputBuffer, boolean reset);
 }

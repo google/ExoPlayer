@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.source;
 
 import android.net.Uri;
 import android.os.Handler;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.Allocator;
@@ -59,8 +59,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
 
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
     private boolean treatLoadErrorsAsEndOfStream;
-    private boolean isCreateCalled;
-    private @Nullable Object tag;
+    @Nullable private Object tag;
 
     /**
      * Creates a factory for {@link SingleSampleMediaSource}s.
@@ -81,8 +80,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
      * @return This factory, for convenience.
      * @throws IllegalStateException If one of the {@code create} methods has already been called.
      */
-    public Factory setTag(Object tag) {
-      Assertions.checkState(!isCreateCalled);
+    public Factory setTag(@Nullable Object tag) {
       this.tag = tag;
       return this;
     }
@@ -115,9 +113,12 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
      * @return This factory, for convenience.
      * @throws IllegalStateException If one of the {@code create} methods has already been called.
      */
-    public Factory setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
-      Assertions.checkState(!isCreateCalled);
-      this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
+    public Factory setLoadErrorHandlingPolicy(
+        @Nullable LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
+      this.loadErrorHandlingPolicy =
+          loadErrorHandlingPolicy != null
+              ? loadErrorHandlingPolicy
+              : new DefaultLoadErrorHandlingPolicy();
       return this;
     }
 
@@ -132,21 +133,19 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
      * @throws IllegalStateException If one of the {@code create} methods has already been called.
      */
     public Factory setTreatLoadErrorsAsEndOfStream(boolean treatLoadErrorsAsEndOfStream) {
-      Assertions.checkState(!isCreateCalled);
       this.treatLoadErrorsAsEndOfStream = treatLoadErrorsAsEndOfStream;
       return this;
     }
 
     /**
-     * Returns a new {@link ExtractorMediaSource} using the current parameters.
+     * Returns a new {@link SingleSampleMediaSource} using the current parameters.
      *
      * @param uri The {@link Uri}.
      * @param format The {@link Format} of the media stream.
      * @param durationUs The duration of the media stream in microseconds.
-     * @return The new {@link ExtractorMediaSource}.
+     * @return The new {@link SingleSampleMediaSource}.
      */
     public SingleSampleMediaSource createMediaSource(Uri uri, Format format, long durationUs) {
-      isCreateCalled = true;
       return new SingleSampleMediaSource(
           uri,
           dataSourceFactory,
@@ -186,7 +185,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
   private final Timeline timeline;
   @Nullable private final Object tag;
 
-  private @Nullable TransferListener transferListener;
+  @Nullable private TransferListener transferListener;
 
   /**
    * @param uri The {@link Uri} of the media stream.
@@ -290,7 +289,13 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
     this.tag = tag;
     dataSpec = new DataSpec(uri, DataSpec.FLAG_ALLOW_GZIP);
     timeline =
-        new SinglePeriodTimeline(durationUs, /* isSeekable= */ true, /* isDynamic= */ false, tag);
+        new SinglePeriodTimeline(
+            durationUs,
+            /* isSeekable= */ true,
+            /* isDynamic= */ false,
+            /* isLive= */ false,
+            /* manifest= */ null,
+            tag);
   }
 
   // MediaSource implementation.
@@ -302,9 +307,9 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
   }
 
   @Override
-  public void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
+  protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
     transferListener = mediaTransferListener;
-    refreshSourceInfo(timeline, /* manifest= */ null);
+    refreshSourceInfo(timeline);
   }
 
   @Override
@@ -331,7 +336,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
   }
 
   @Override
-  public void releaseSourceInternal() {
+  protected void releaseSourceInternal() {
     // Do nothing.
   }
 
@@ -341,7 +346,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
    */
   @Deprecated
   @SuppressWarnings("deprecation")
-  private static final class EventListenerWrapper extends DefaultMediaSourceEventListener {
+  private static final class EventListenerWrapper implements MediaSourceEventListener {
 
     private final EventListener eventListener;
     private final int eventSourceId;

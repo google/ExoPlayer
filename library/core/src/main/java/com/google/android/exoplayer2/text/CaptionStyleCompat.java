@@ -15,12 +15,13 @@
  */
 package com.google.android.exoplayer2.text;
 
-import android.annotation.TargetApi;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.support.annotation.IntDef;
 import android.view.accessibility.CaptioningManager;
 import android.view.accessibility.CaptioningManager.CaptionStyle;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -72,11 +73,15 @@ public final class CaptionStyleCompat {
    */
   public static final int USE_TRACK_COLOR_SETTINGS = 1;
 
-  /**
-   * Default caption style.
-   */
-  public static final CaptionStyleCompat DEFAULT = new CaptionStyleCompat(
-      Color.WHITE, Color.BLACK, Color.TRANSPARENT, EDGE_TYPE_NONE, Color.WHITE, null);
+  /** Default caption style. */
+  public static final CaptionStyleCompat DEFAULT =
+      new CaptionStyleCompat(
+          Color.WHITE,
+          Color.BLACK,
+          Color.TRANSPARENT,
+          EDGE_TYPE_NONE,
+          Color.WHITE,
+          /* typeface= */ null);
 
   /**
    * The preferred foreground color.
@@ -110,10 +115,8 @@ public final class CaptionStyleCompat {
    */
   public final int edgeColor;
 
-  /**
-   * The preferred typeface.
-   */
-  public final Typeface typeface;
+  /** The preferred typeface, or {@code null} if unspecified. */
+  @Nullable public final Typeface typeface;
 
   /**
    * Creates a {@link CaptionStyleCompat} equivalent to a provided {@link CaptionStyle}.
@@ -121,7 +124,7 @@ public final class CaptionStyleCompat {
    * @param captionStyle A {@link CaptionStyle}.
    * @return The equivalent {@link CaptionStyleCompat}.
    */
-  @TargetApi(19)
+  @RequiresApi(19)
   public static CaptionStyleCompat createFromCaptionStyle(
       CaptioningManager.CaptionStyle captionStyle) {
     if (Util.SDK_INT >= 21) {
@@ -141,8 +144,13 @@ public final class CaptionStyleCompat {
    * @param edgeColor See {@link #edgeColor}.
    * @param typeface See {@link #typeface}.
    */
-  public CaptionStyleCompat(int foregroundColor, int backgroundColor, int windowColor,
-      @EdgeType int edgeType, int edgeColor, Typeface typeface) {
+  public CaptionStyleCompat(
+      int foregroundColor,
+      int backgroundColor,
+      int windowColor,
+      @EdgeType int edgeType,
+      int edgeColor,
+      @Nullable Typeface typeface) {
     this.foregroundColor = foregroundColor;
     this.backgroundColor = backgroundColor;
     this.windowColor = windowColor;
@@ -151,7 +159,7 @@ public final class CaptionStyleCompat {
     this.typeface = typeface;
   }
 
-  @TargetApi(19)
+  @RequiresApi(19)
   @SuppressWarnings("ResourceType")
   private static CaptionStyleCompat createFromCaptionStyleV19(
       CaptioningManager.CaptionStyle captionStyle) {
@@ -160,7 +168,7 @@ public final class CaptionStyleCompat {
         captionStyle.edgeType, captionStyle.edgeColor, captionStyle.getTypeface());
   }
 
-  @TargetApi(21)
+  @RequiresApi(21)
   @SuppressWarnings("ResourceType")
   private static CaptionStyleCompat createFromCaptionStyleV21(
       CaptioningManager.CaptionStyle captionStyle) {

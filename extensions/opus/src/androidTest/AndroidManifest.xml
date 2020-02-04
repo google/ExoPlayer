@@ -19,15 +19,14 @@
     package="com.google.android.exoplayer2.ext.opus.test">
 
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+  <uses-sdk/>
 
-  <application android:debuggable="true"
+  <application
       android:allowBackup="false"
-      tools:ignore="MissingApplicationIcon,HardcodedDebugMode">
-    <uses-library android:name="android.test.runner"/>
-  </application>
+      tools:ignore="MissingApplicationIcon,HardcodedDebugMode"/>
 
   <instrumentation
       android:targetPackage="com.google.android.exoplayer2.ext.opus.test"
-    android:name="androidx.test.runner.AndroidJUnitRunner"/>
+      android:name="androidx.test.runner.AndroidJUnitRunner"/>
 
 </manifest>

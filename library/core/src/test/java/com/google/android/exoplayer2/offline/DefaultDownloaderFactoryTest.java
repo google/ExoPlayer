@@ -18,16 +18,16 @@ package com.google.android.exoplayer2.offline;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.upstream.DummyDataSource;
 import com.google.android.exoplayer2.upstream.cache.Cache;
 import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.robolectric.RobolectricTestRunner;
 
 /** Unit tests for {@link DefaultDownloaderFactory}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class DefaultDownloaderFactoryTest {
 
   @Test
@@ -38,10 +38,11 @@ public final class DefaultDownloaderFactoryTest {
 
     Downloader downloader =
         factory.createDownloader(
-            DownloadAction.createDownloadAction(
-                DownloadAction.TYPE_PROGRESSIVE,
+            new DownloadRequest(
+                "id",
+                DownloadRequest.TYPE_PROGRESSIVE,
                 Uri.parse("https://www.test.com/download"),
-                /* keys= */ Collections.emptyList(),
+                /* streamKeys= */ Collections.emptyList(),
                 /* customCacheKey= */ null,
                 /* data= */ null));
     assertThat(downloader).isInstanceOf(ProgressiveDownloader.class);
