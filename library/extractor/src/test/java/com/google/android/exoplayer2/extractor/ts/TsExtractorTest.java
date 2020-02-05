@@ -36,17 +36,12 @@ import com.google.android.exoplayer2.testutil.FakeTrackOutput;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
-import java.io.ByteArrayOutputStream;
-import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /** Unit test for {@link TsExtractor}. */
 @RunWith(AndroidJUnit4.class)
 public final class TsExtractorTest {
-
-  private static final int TS_PACKET_SIZE = 188;
-  private static final int TS_SYNC_BYTE = 0x47; // First byte of each TS packet.
 
   @Test
   public void testSample() throws Exception {
@@ -55,28 +50,8 @@ public final class TsExtractorTest {
 
   @Test
   public void testStreamWithJunkData() throws Exception {
-    Random random = new Random(0);
-    byte[] fileData =
-        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), "ts/sample.ts");
-    ByteArrayOutputStream out = new ByteArrayOutputStream(fileData.length * 2);
-    int bytesLeft = fileData.length;
-
-    writeJunkData(out, random.nextInt(TS_PACKET_SIZE - 1) + 1);
-    out.write(fileData, 0, TS_PACKET_SIZE * 5);
-    bytesLeft -= TS_PACKET_SIZE * 5;
-
-    for (int i = TS_PACKET_SIZE * 5; i < fileData.length; i += 5 * TS_PACKET_SIZE) {
-      writeJunkData(out, random.nextInt(TS_PACKET_SIZE));
-      int length = Math.min(5 * TS_PACKET_SIZE, bytesLeft);
-      out.write(fileData, i, length);
-      bytesLeft -= length;
-    }
-    out.write(TS_SYNC_BYTE);
-    writeJunkData(out, random.nextInt(TS_PACKET_SIZE - 1) + 1);
-    fileData = out.toByteArray();
-
-    ExtractorAsserts.assertOutput(
-        TsExtractor::new, "ts/sample.ts", fileData, ApplicationProvider.getApplicationContext());
+    ExtractorAsserts.assertBehavior(
+        TsExtractor::new, "ts/sample_with_junk", ApplicationProvider.getApplicationContext());
   }
 
   @Test
@@ -134,16 +109,6 @@ public final class TsExtractorTest {
       }
     }
     assertThat(factory.sdtReader.consumedSdts).isEqualTo(2);
-  }
-
-  private static void writeJunkData(ByteArrayOutputStream out, int length) {
-    for (int i = 0; i < length; i++) {
-      if (((byte) i) == TS_SYNC_BYTE) {
-        out.write(0);
-      } else {
-        out.write(i);
-      }
-    }
   }
 
   private static final class CustomTsPayloadReaderFactory implements TsPayloadReader.Factory {

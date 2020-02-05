@@ -146,8 +146,18 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
           .startBlock("seekMap")
           .add("isSeekable", seekMap.isSeekable())
           .addTime("duration", seekMap.getDurationUs())
-          .add("getPosition(0)", seekMap.getSeekPoints(0))
-          .endBlock();
+          .add("getPosition(0)", seekMap.getSeekPoints(0));
+      if (seekMap.isSeekable()) {
+        dumper.add("getPosition(1)", seekMap.getSeekPoints(1));
+        if (seekMap.getDurationUs() != C.TIME_UNSET) {
+          // Dump seek points at the mid point and duration.
+          long durationUs = seekMap.getDurationUs();
+          long midPointUs = durationUs / 2;
+          dumper.add("getPosition(" + midPointUs + ")", seekMap.getSeekPoints(midPointUs));
+          dumper.add("getPosition(" + durationUs + ")", seekMap.getSeekPoints(durationUs));
+        }
+      }
+      dumper.endBlock();
     }
     dumper.add("numberOfTracks", numberOfTracks);
     for (int i = 0; i < numberOfTracks; i++) {

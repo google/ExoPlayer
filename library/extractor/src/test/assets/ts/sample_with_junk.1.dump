@@ -3,8 +3,8 @@ seekMap:
   duration = 66733
   getPosition(0) = [[timeUs=0, position=0]]
   getPosition(1) = [[timeUs=1, position=0]]
-  getPosition(33366) = [[timeUs=33366, position=25709]]
-  getPosition(66733) = [[timeUs=66733, position=51606]]
+  getPosition(33366) = [[timeUs=33366, position=28281]]
+  getPosition(66733) = [[timeUs=66733, position=56751]]
 numberOfTracks = 3
 track 256:
   format:
@@ -33,11 +33,11 @@ track 256:
   total output bytes = 45026
   sample count = 2
   sample 0:
-    time = 33366
+    time = 55610
     flags = 1
     data = length 20711, hash 34341E8
   sample 1:
-    time = 66733
+    time = 88977
     flags = 0
     data = length 18112, hash EC44B35B
 track 257:
@@ -66,19 +66,19 @@ track 257:
   total output bytes = 5015
   sample count = 4
   sample 0:
-    time = 22455
+    time = 44699
     flags = 1
     data = length 1253, hash 727FD1C6
   sample 1:
-    time = 48577
+    time = 70821
     flags = 1
     data = length 1254, hash 73FB07B8
   sample 2:
-    time = 74700
+    time = 96944
     flags = 1
     data = length 1254, hash 73FB07B8
   sample 3:
-    time = 100822
+    time = 123066
     flags = 1
     data = length 1254, hash 73FB07B8
 track 8448:
