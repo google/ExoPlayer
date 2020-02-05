@@ -965,31 +965,30 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
   /**
    * Sets the {@link ControlDispatcher}.
    *
-   * @param controlDispatcher The {@link ControlDispatcher}, or null to use {@link
-   *     DefaultControlDispatcher}.
+   * @param controlDispatcher The {@link ControlDispatcher}.
    */
-  public void setControlDispatcher(@Nullable ControlDispatcher controlDispatcher) {
+  public void setControlDispatcher(ControlDispatcher controlDispatcher) {
     Assertions.checkStateNotNull(controller);
     controller.setControlDispatcher(controlDispatcher);
   }
 
   /**
-   * Sets the rewind increment in milliseconds.
-   *
-   * @param rewindMs The rewind increment in milliseconds. A non-positive value will cause the
-   *     rewind button to be disabled.
+   * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} with {@link
+   *     DefaultControlDispatcher#DefaultControlDispatcher(long, long)}.
    */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   public void setRewindIncrementMs(int rewindMs) {
     Assertions.checkStateNotNull(controller);
     controller.setRewindIncrementMs(rewindMs);
   }
 
   /**
-   * Sets the fast forward increment in milliseconds.
-   *
-   * @param fastForwardMs The fast forward increment in milliseconds. A non-positive value will
-   *     cause the fast forward button to be disabled.
+   * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} with {@link
+   *     DefaultControlDispatcher#DefaultControlDispatcher(long, long)}.
    */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   public void setFastForwardIncrementMs(int fastForwardMs) {
     Assertions.checkStateNotNull(controller);
     controller.setFastForwardIncrementMs(fastForwardMs);
