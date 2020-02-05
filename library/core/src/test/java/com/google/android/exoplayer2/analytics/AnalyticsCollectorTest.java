@@ -609,6 +609,7 @@ public final class AnalyticsCollectorTest {
                     concatenatedMediaSource.moveMediaSource(
                         /* currentIndex= */ 0, /* newIndex= */ 1))
             .waitForTimelineChanged()
+            .waitForPlaybackState(Player.STATE_READY)
             .play()
             .build();
     TestAnalyticsListener listener = runAnalyticsTest(concatenatedMediaSource, actionSchedule);
@@ -624,6 +625,7 @@ public final class AnalyticsCollectorTest {
             window0Period1Seq0 /* setPlayWhenReady=false */,
             period1Seq0 /* setPlayWhenReady=true */,
             period1Seq0 /* BUFFERING */,
+            period1Seq0 /* READY */,
             period1Seq0 /* ENDED */);
     assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED))
         .containsExactly(
@@ -659,8 +661,10 @@ public final class AnalyticsCollectorTest {
         .containsExactly(window0Period1Seq0, window1Period0Seq1);
     assertThat(listener.getEvents(EVENT_DECODER_DISABLED)).containsExactly(window0Period1Seq0);
     assertThat(listener.getEvents(EVENT_DROPPED_VIDEO_FRAMES)).containsExactly(window0Period1Seq0);
-    assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED)).containsExactly(window0Period1Seq0);
-    assertThat(listener.getEvents(EVENT_RENDERED_FIRST_FRAME)).containsExactly(window0Period1Seq0);
+    assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED))
+        .containsExactly(window0Period1Seq0, period1Seq0);
+    assertThat(listener.getEvents(EVENT_RENDERED_FIRST_FRAME))
+        .containsExactly(window0Period1Seq0, period1Seq0);
     listener.assertNoMoreEvents();
   }
 
