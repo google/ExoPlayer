@@ -3,8 +3,8 @@ seekMap:
   duration = 66733
   getPosition(0) = [[timeUs=0, position=0]]
   getPosition(1) = [[timeUs=1, position=0]]
-  getPosition(33366) = [[timeUs=33366, position=25709]]
-  getPosition(66733) = [[timeUs=66733, position=51606]]
+  getPosition(33366) = [[timeUs=33366, position=28281]]
+  getPosition(66733) = [[timeUs=66733, position=56751]]
 numberOfTracks = 3
 track 256:
   format:
