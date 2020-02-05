@@ -744,6 +744,7 @@ import com.google.android.exoplayer2.util.Assertions;
       long startPositionUs,
       long requestedContentPositionUs,
       long windowSequenceNumber) {
+    timeline.getPeriodByUid(periodUid, period);
     int nextAdGroupIndex = period.getAdGroupIndexAfterPositionUs(startPositionUs);
     MediaPeriodId id = new MediaPeriodId(periodUid, windowSequenceNumber, nextAdGroupIndex);
     boolean isLastInPeriod = isLastInPeriod(id);
