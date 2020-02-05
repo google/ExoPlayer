@@ -171,7 +171,7 @@ public class FakeMediaPeriod implements MediaPeriod {
         int indexInTrackGroup = selection.getIndexInTrackGroup(selection.getSelectedIndex());
         assertThat(indexInTrackGroup).isAtLeast(0);
         assertThat(indexInTrackGroup).isLessThan(trackGroup.length);
-        streams[i] = createSampleStream(selection, eventDispatcher);
+        streams[i] = createSampleStream(positionUs, selection, eventDispatcher);
         sampleStreams.add(streams[i]);
         streamResetFlags[i] = true;
       }
@@ -241,15 +241,17 @@ public class FakeMediaPeriod implements MediaPeriod {
   /**
    * Creates a sample stream for the provided selection.
    *
+   * @param positionUs The position at which the tracks were selected, in microseconds.
    * @param selection A selection of tracks.
    * @param eventDispatcher A dispatcher for events that should be used by the sample stream.
    * @return A {@link SampleStream} for this selection.
    */
   protected SampleStream createSampleStream(
-      TrackSelection selection, EventDispatcher eventDispatcher) {
+      long positionUs, TrackSelection selection, EventDispatcher eventDispatcher) {
     return new FakeSampleStream(
         selection.getSelectedFormat(),
         eventDispatcher,
+        positionUs,
         /* timeUsIncrement= */ 0,
         FakeSampleStream.SINGLE_SAMPLE_THEN_END_OF_STREAM);
   }
@@ -258,16 +260,13 @@ public class FakeMediaPeriod implements MediaPeriod {
    * Seeks inside the given sample stream.
    *
    * @param sampleStream A sample stream that was created by a call to {@link
-   *     #createSampleStream(TrackSelection, EventDispatcher)}.
+   *     #createSampleStream(long, TrackSelection, EventDispatcher)}.
    * @param positionUs The position to seek to, in microseconds.
    */
   protected void seekSampleStream(SampleStream sampleStream, long positionUs) {
-    if (positionUs == 0) {
-      // When seeking back to 0, queue our single sample at time 0 again.
-      ((FakeSampleStream) sampleStream)
-          .resetSampleStreamItems(
-              /* timeUs= */ 0, FakeSampleStream.SINGLE_SAMPLE_THEN_END_OF_STREAM);
-    }
+    // Queue a single sample from the seek position again.
+    ((FakeSampleStream) sampleStream)
+        .resetSampleStreamItems(positionUs, FakeSampleStream.SINGLE_SAMPLE_THEN_END_OF_STREAM);
   }
 
   private void finishPreparation() {

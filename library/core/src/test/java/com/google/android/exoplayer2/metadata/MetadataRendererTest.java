@@ -145,6 +145,7 @@ public class MetadataRendererTest {
         new FakeSampleStream(
             EMSG_FORMAT,
             /* eventDispatcher= */ null,
+            /* firstSampleTimeUs= */ 0,
             /* timeUsIncrement= */ 0,
             new FakeSampleStreamItem(input),
             FakeSampleStreamItem.END_OF_STREAM_ITEM),
