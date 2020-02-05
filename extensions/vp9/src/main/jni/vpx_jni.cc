@@ -535,7 +535,7 @@ DECODER_FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer) {
   // LINT.IfChange
   const int kOutputModeYuv = 0;
   const int kOutputModeSurfaceYuv = 1;
-  // LINT.ThenChange(../../../../../library/core/src/main/java/com/google/android/exoplayer2/C.java)
+  // LINT.ThenChange(../../../../../library/common/src/main/java/com/google/android/exoplayer2/C.java)
 
   int outputMode = env->GetIntField(jOutputBuffer, outputModeField);
   if (outputMode == kOutputModeYuv) {
