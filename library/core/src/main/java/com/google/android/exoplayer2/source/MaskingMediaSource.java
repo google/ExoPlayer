@@ -141,6 +141,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
   @Override
   protected synchronized void onChildSourceInfoRefreshed(
       Void id, MediaSource mediaSource, Timeline newTimeline) {
+    @Nullable MediaPeriodId idForMaskingPeriodPreparation = null;
     if (isPrepared) {
       timeline = timeline.cloneWithUpdatedTimeline(newTimeline);
     } else if (newTimeline.isEmpty()) {
@@ -183,14 +184,17 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
       if (unpreparedMaskingMediaPeriod != null) {
         MaskingMediaPeriod maskingPeriod = unpreparedMaskingMediaPeriod;
         maskingPeriod.overridePreparePositionUs(periodPositionUs);
-        MediaPeriodId idInSource =
+        idForMaskingPeriodPreparation =
             maskingPeriod.id.copyWithPeriodUid(getInternalPeriodUid(maskingPeriod.id.periodUid));
-        maskingPeriod.createPeriod(idInSource);
       }
     }
     hasRealTimeline = true;
     isPrepared = true;
     refreshSourceInfo(this.timeline);
+    if (idForMaskingPeriodPreparation != null) {
+      Assertions.checkNotNull(unpreparedMaskingMediaPeriod)
+          .createPeriod(idForMaskingPeriodPreparation);
+    }
   }
 
   @Nullable
