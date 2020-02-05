@@ -2988,7 +2988,7 @@ public final class ExoPlayerTest {
                 /* isDynamic= */ false,
                 /* durationUs= */ 10_000_000,
                 adPlaybackState));
-    final FakeMediaSource fakeMediaSource = new FakeMediaSource(fakeTimeline);
+    FakeMediaSource fakeMediaSource = new FakeMediaSource(/* timeline= */ null);
     AtomicReference<Player> playerReference = new AtomicReference<>();
     AtomicLong contentStartPositionMs = new AtomicLong(C.TIME_UNSET);
     EventListener eventListener =
@@ -3011,6 +3011,59 @@ public final class ExoPlayerTest {
                   }
                 })
             .seek(/* positionMs= */ 5_000)
+            .waitForPlaybackState(Player.STATE_BUFFERING)
+            .executeRunnable(() -> fakeMediaSource.setNewSourceInfo(fakeTimeline))
+            .build();
+    new ExoPlayerTestRunner.Builder()
+        .setMediaSources(fakeMediaSource)
+        .setActionSchedule(actionSchedule)
+        .build(context)
+        .start()
+        .blockUntilEnded(TIMEOUT_MS);
+
+    assertThat(contentStartPositionMs.get()).isAtLeast(5_000L);
+  }
+
+  @Test
+  public void contentWithoutInitialSeekStartsAtDefaultPositionAfterPrerollAd() throws Exception {
+    AdPlaybackState adPlaybackState =
+        FakeTimeline.createAdPlaybackState(/* adsPerAdGroup= */ 3, /* adGroupTimesUs...= */ 0);
+    Timeline fakeTimeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ false,
+                /* isLive= */ false,
+                /* isPlaceholder= */ false,
+                /* durationUs= */ 10_000_000,
+                /* defaultPositionUs= */ 5_000_000,
+                adPlaybackState));
+    FakeMediaSource fakeMediaSource = new FakeMediaSource(/* timeline= */ null);
+    AtomicReference<Player> playerReference = new AtomicReference<>();
+    AtomicLong contentStartPositionMs = new AtomicLong(C.TIME_UNSET);
+    EventListener eventListener =
+        new EventListener() {
+          @Override
+          public void onPositionDiscontinuity(@DiscontinuityReason int reason) {
+            if (reason == Player.DISCONTINUITY_REASON_AD_INSERTION) {
+              contentStartPositionMs.set(playerReference.get().getContentPosition());
+            }
+          }
+        };
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("contentWithoutInitialSeekStartsAtDefaultPositionAfterPrerollAd")
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    playerReference.set(player);
+                    player.addListener(eventListener);
+                  }
+                })
+            .waitForPlaybackState(Player.STATE_BUFFERING)
+            .executeRunnable(() -> fakeMediaSource.setNewSourceInfo(fakeTimeline))
             .build();
     new ExoPlayerTestRunner.Builder()
         .setMediaSources(fakeMediaSource)

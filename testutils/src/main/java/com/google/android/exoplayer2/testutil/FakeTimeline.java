@@ -42,6 +42,7 @@ public final class FakeTimeline extends Timeline {
     public final boolean isLive;
     public final boolean isPlaceholder;
     public final long durationUs;
+    public final long defaultPositionUs;
     public final AdPlaybackState adPlaybackState;
 
     /**
@@ -59,6 +60,7 @@ public final class FakeTimeline extends Timeline {
           /* isLive= */ false,
           /* isPlaceholder= */ true,
           /* durationUs= */ C.TIME_UNSET,
+          /* defaultPositionUs= */ 0,
           AdPlaybackState.NONE);
     }
 
@@ -126,6 +128,7 @@ public final class FakeTimeline extends Timeline {
           /* isLive= */ isDynamic,
           /* isPlaceholder= */ false,
           durationUs,
+          /* defaultPositionUs= */ 0,
           adPlaybackState);
     }
 
@@ -140,6 +143,7 @@ public final class FakeTimeline extends Timeline {
      * @param isLive Whether the window is live.
      * @param isPlaceholder Whether the window is a placeholder.
      * @param durationUs The duration of the window in microseconds.
+     * @param defaultPositionUs The default position of the window in microseconds.
      * @param adPlaybackState The ad playback state.
      */
     public TimelineWindowDefinition(
@@ -150,6 +154,7 @@ public final class FakeTimeline extends Timeline {
         boolean isLive,
         boolean isPlaceholder,
         long durationUs,
+        long defaultPositionUs,
         AdPlaybackState adPlaybackState) {
       this.periodCount = periodCount;
       this.id = id;
@@ -158,6 +163,7 @@ public final class FakeTimeline extends Timeline {
       this.isLive = isLive;
       this.isPlaceholder = isPlaceholder;
       this.durationUs = durationUs;
+      this.defaultPositionUs = defaultPositionUs;
       this.adPlaybackState = adPlaybackState;
     }
   }
@@ -252,7 +258,7 @@ public final class FakeTimeline extends Timeline {
         windowDefinition.isSeekable,
         windowDefinition.isDynamic,
         windowDefinition.isLive,
-        /* defaultPositionUs= */ 0,
+        windowDefinition.defaultPositionUs,
         windowDefinition.durationUs,
         periodOffsets[windowIndex],
         periodOffsets[windowIndex + 1] - 1,
