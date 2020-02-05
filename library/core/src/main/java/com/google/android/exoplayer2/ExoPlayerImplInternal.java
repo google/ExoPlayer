@@ -1206,7 +1206,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
       pendingMessages.add(new PendingMessageInfo(message));
     } else {
       PendingMessageInfo pendingMessageInfo = new PendingMessageInfo(message);
-      if (resolvePendingMessagePosition(pendingMessageInfo)) {
+      if (resolvePendingMessagePosition(
+          pendingMessageInfo,
+          /* newTimeline= */ playbackInfo.timeline,
+          /* previousTimeline= */ playbackInfo.timeline,
+          repeatMode,
+          shuffleModeEnabled,
+          window,
+          period)) {
         pendingMessages.add(pendingMessageInfo);
         // Ensure new message is inserted according to playback order.
         Collections.sort(pendingMessages);
@@ -1258,9 +1265,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
   }
 
-  private void resolvePendingMessagePositions() {
+  private void resolvePendingMessagePositions(Timeline newTimeline, Timeline previousTimeline) {
+    if (newTimeline.isEmpty() && previousTimeline.isEmpty()) {
+      // Keep all messages unresolved until we have a non-empty timeline.
+      return;
+    }
     for (int i = pendingMessages.size() - 1; i >= 0; i--) {
-      if (!resolvePendingMessagePosition(pendingMessages.get(i))) {
+      if (!resolvePendingMessagePosition(
+          pendingMessages.get(i),
+          newTimeline,
+          previousTimeline,
+          repeatMode,
+          shuffleModeEnabled,
+          window,
+          period)) {
         // Unable to resolve a new position for the message. Remove it.
         pendingMessages.get(i).message.markAsProcessed(/* isDelivered= */ false);
         pendingMessages.remove(i);
@@ -1268,40 +1286,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
     // Re-sort messages by playback order.
     Collections.sort(pendingMessages);
-  }
-
-  private boolean resolvePendingMessagePosition(PendingMessageInfo pendingMessageInfo) {
-    if (pendingMessageInfo.resolvedPeriodUid == null) {
-      // Position is still unresolved. Try to find window in current timeline.
-      @Nullable
-      Pair<Object, Long> periodPosition =
-          resolveSeekPosition(
-              playbackInfo.timeline,
-              new SeekPosition(
-                  pendingMessageInfo.message.getTimeline(),
-                  pendingMessageInfo.message.getWindowIndex(),
-                  C.msToUs(pendingMessageInfo.message.getPositionMs())),
-              /* trySubsequentPeriods= */ false,
-              repeatMode,
-              shuffleModeEnabled,
-              window,
-              period);
-      if (periodPosition == null) {
-        return false;
-      }
-      pendingMessageInfo.setResolvedPosition(
-          playbackInfo.timeline.getIndexOfPeriod(periodPosition.first),
-          periodPosition.second,
-          periodPosition.first);
-    } else {
-      // Position has been resolved for a previous timeline. Try to find the updated period index.
-      int index = playbackInfo.timeline.getIndexOfPeriod(pendingMessageInfo.resolvedPeriodUid);
-      if (index == C.INDEX_UNSET) {
-        return false;
-      }
-      pendingMessageInfo.resolvedPeriodIndex = index;
-    }
-    return true;
   }
 
   private void maybeTriggerPendingMessages(long oldPeriodPositionUs, long newPeriodPositionUs)
@@ -1582,8 +1566,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
         playbackInfo =
             copyWithNewPosition(newPeriodId, newPositionUs, newRequestedContentPositionUs);
       }
+      resolvePendingMessagePositions(
+          /* newTimeline= */ timeline, /* previousTimeline= */ playbackInfo.timeline);
       playbackInfo = playbackInfo.copyWithTimeline(timeline);
-      resolvePendingMessagePositions();
       if (!timeline.isEmpty()) {
         // Retain pending seek position only while the timeline is still empty.
         pendingInitialSeekPosition = null;
@@ -2235,6 +2220,74 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   /**
+   * Updates pending message to a new timeline.
+   *
+   * @param pendingMessageInfo The pending message.
+   * @param newTimeline The new timeline.
+   * @param previousTimeline The previous timeline used to set the message positions.
+   * @param repeatMode The current repeat mode.
+   * @param shuffleModeEnabled The current shuffle mode.
+   * @param window A scratch window.
+   * @param period A scratch period.
+   * @return Whether the message position could be resolved to the current timeline.
+   */
+  private static boolean resolvePendingMessagePosition(
+      PendingMessageInfo pendingMessageInfo,
+      Timeline newTimeline,
+      Timeline previousTimeline,
+      @Player.RepeatMode int repeatMode,
+      boolean shuffleModeEnabled,
+      Timeline.Window window,
+      Timeline.Period period) {
+    if (pendingMessageInfo.resolvedPeriodUid == null) {
+      // Position is still unresolved. Try to find window in new timeline.
+      @Nullable
+      Pair<Object, Long> periodPosition =
+          resolveSeekPosition(
+              newTimeline,
+              new SeekPosition(
+                  pendingMessageInfo.message.getTimeline(),
+                  pendingMessageInfo.message.getWindowIndex(),
+                  C.msToUs(pendingMessageInfo.message.getPositionMs())),
+              /* trySubsequentPeriods= */ false,
+              repeatMode,
+              shuffleModeEnabled,
+              window,
+              period);
+      if (periodPosition == null) {
+        return false;
+      }
+      pendingMessageInfo.setResolvedPosition(
+          /* periodIndex= */ newTimeline.getIndexOfPeriod(periodPosition.first),
+          /* periodTimeUs= */ periodPosition.second,
+          /* periodUid= */ periodPosition.first);
+    } else {
+      // Position has been resolved for a previous timeline. Try to find the updated period index.
+      int index = newTimeline.getIndexOfPeriod(pendingMessageInfo.resolvedPeriodUid);
+      if (index == C.INDEX_UNSET) {
+        return false;
+      }
+      pendingMessageInfo.resolvedPeriodIndex = index;
+      previousTimeline.getPeriodByUid(pendingMessageInfo.resolvedPeriodUid, period);
+      if (previousTimeline.getWindow(period.windowIndex, window).isPlaceholder) {
+        // The position needs to be re-resolved because the window in the previous timeline wasn't
+        // fully prepared.
+        long windowPositionUs =
+            pendingMessageInfo.resolvedPeriodTimeUs + period.getPositionInWindowUs();
+        int windowIndex =
+            newTimeline.getPeriodByUid(pendingMessageInfo.resolvedPeriodUid, period).windowIndex;
+        Pair<Object, Long> periodPosition =
+            newTimeline.getPeriodPosition(window, period, windowIndex, windowPositionUs);
+        pendingMessageInfo.setResolvedPosition(
+            /* periodIndex= */ newTimeline.getIndexOfPeriod(periodPosition.first),
+            /* periodTimeUs= */ periodPosition.second,
+            /* periodUid= */ periodPosition.first);
+      }
+    }
+    return true;
+  }
+
+  /**
    * Converts a {@link SeekPosition} into the corresponding (periodUid, periodPositionUs) for the
    * internal timeline.
    *
@@ -2282,6 +2335,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
     int periodIndex = timeline.getIndexOfPeriod(periodPosition.first);
     if (periodIndex != C.INDEX_UNSET) {
       // We successfully located the period in the internal timeline.
+      seekTimeline.getPeriodByUid(periodPosition.first, period);
+      if (seekTimeline.getWindow(period.windowIndex, window).isPlaceholder) {
+        // The seek timeline was using a placeholder, so we need to re-resolve using the updated
+        // timeline in case the resolved position changed.
+        int newWindowIndex = timeline.getPeriodByUid(periodPosition.first, period).windowIndex;
+        periodPosition =
+            timeline.getPeriodPosition(
+                window, period, newWindowIndex, seekPosition.windowPositionUs);
+      }
       return periodPosition;
     }
     if (trySubsequentPeriods) {
