@@ -24,6 +24,7 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.provider.Settings.Global;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 
@@ -115,10 +116,10 @@ public final class AudioCapabilities {
   /**
    * Returns whether this device supports playback of the specified audio {@code encoding}.
    *
-   * @param encoding One of {@link android.media.AudioFormat}'s {@code ENCODING_*} constants.
+   * @param encoding One of {@link C.Encoding}'s {@code ENCODING_*} constants.
    * @return Whether this device supports playback the specified audio {@code encoding}.
    */
-  public boolean supportsEncoding(int encoding) {
+  public boolean supportsEncoding(@C.Encoding int encoding) {
     return Arrays.binarySearch(supportedEncodings, encoding) >= 0;
   }
 
