@@ -15,12 +15,16 @@
  */
 package com.google.android.exoplayer2.source;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.IdentityHashMap;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
  * Merges multiple {@link MediaPeriod}s.
@@ -30,25 +34,31 @@ import java.util.IdentityHashMap;
   public final MediaPeriod[] periods;
 
   private final IdentityHashMap<SampleStream, Integer> streamPeriodIndices;
+  private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
+  private final ArrayList<MediaPeriod> childrenPendingPreparation;
 
-  private Callback callback;
-  private int pendingChildPrepareCount;
-  private TrackGroupArray trackGroups;
-
+  @Nullable private Callback callback;
+  @Nullable private TrackGroupArray trackGroups;
   private MediaPeriod[] enabledPeriods;
-  private SequenceableLoader sequenceableLoader;
+  private SequenceableLoader compositeSequenceableLoader;
 
-  public MergingMediaPeriod(MediaPeriod... periods) {
+  public MergingMediaPeriod(CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
+      MediaPeriod... periods) {
+    this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
     this.periods = periods;
+    childrenPendingPreparation = new ArrayList<>();
+    compositeSequenceableLoader =
+        compositeSequenceableLoaderFactory.createCompositeSequenceableLoader();
     streamPeriodIndices = new IdentityHashMap<>();
+    enabledPeriods = new MediaPeriod[0];
   }
 
   @Override
-  public void prepare(Callback callback) {
+  public void prepare(Callback callback, long positionUs) {
     this.callback = callback;
-    pendingChildPrepareCount = periods.length;
+    Collections.addAll(childrenPendingPreparation, periods);
     for (MediaPeriod period : periods) {
-      period.prepare(this);
+      period.prepare(this, positionUs);
     }
   }
 
@@ -61,12 +71,16 @@ import java.util.IdentityHashMap;
 
   @Override
   public TrackGroupArray getTrackGroups() {
-    return trackGroups;
+    return Assertions.checkNotNull(trackGroups);
   }
 
   @Override
-  public long selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
-      SampleStream[] streams, boolean[] streamResetFlags, long positionUs) {
+  public long selectTracks(
+      @NullableType TrackSelection[] selections,
+      boolean[] mayRetainStreamFlags,
+      @NullableType SampleStream[] streams,
+      boolean[] streamResetFlags,
+      long positionUs) {
     // Map each selection and stream onto a child period index.
     int[] streamChildIndices = new int[selections.length];
     int[] selectionChildIndices = new int[selections.length];
@@ -86,9 +100,9 @@ import java.util.IdentityHashMap;
     }
     streamPeriodIndices.clear();
     // Select tracks for each child, copying the resulting streams back into a new streams array.
-    SampleStream[] newStreams = new SampleStream[selections.length];
-    SampleStream[] childStreams = new SampleStream[selections.length];
-    TrackSelection[] childSelections = new TrackSelection[selections.length];
+    @NullableType SampleStream[] newStreams = new SampleStream[selections.length];
+    @NullableType SampleStream[] childStreams = new SampleStream[selections.length];
+    @NullableType TrackSelection[] childSelections = new TrackSelection[selections.length];
     ArrayList<MediaPeriod> enabledPeriodsList = new ArrayList<>(periods.length);
     for (int i = 0; i < periods.length; i++) {
       for (int j = 0; j < selections.length; j++) {
@@ -100,16 +114,16 @@ import java.util.IdentityHashMap;
       if (i == 0) {
         positionUs = selectPositionUs;
       } else if (selectPositionUs != positionUs) {
-        throw new IllegalStateException("Children enabled at different positions");
+        throw new IllegalStateException("Children enabled at different positions.");
       }
       boolean periodEnabled = false;
       for (int j = 0; j < selections.length; j++) {
         if (selectionChildIndices[j] == i) {
           // Assert that the child provided a stream for the selection.
-          Assertions.checkState(childStreams[j] != null);
+          SampleStream childStream = Assertions.checkNotNull(childStreams[j]);
           newStreams[j] = childStreams[j];
           periodEnabled = true;
-          streamPeriodIndices.put(childStreams[j], i);
+          streamPeriodIndices.put(childStream, i);
         } else if (streamChildIndices[j] == i) {
           // Assert that the child cleared any previous stream.
           Assertions.checkState(childStreams[j] == null);
@@ -124,25 +138,45 @@ import java.util.IdentityHashMap;
     // Update the local state.
     enabledPeriods = new MediaPeriod[enabledPeriodsList.size()];
     enabledPeriodsList.toArray(enabledPeriods);
-    sequenceableLoader = new CompositeSequenceableLoader(enabledPeriods);
+    compositeSequenceableLoader =
+        compositeSequenceableLoaderFactory.createCompositeSequenceableLoader(enabledPeriods);
     return positionUs;
   }
 
   @Override
-  public void discardBuffer(long positionUs) {
+  public void discardBuffer(long positionUs, boolean toKeyframe) {
     for (MediaPeriod period : enabledPeriods) {
-      period.discardBuffer(positionUs);
+      period.discardBuffer(positionUs, toKeyframe);
     }
   }
 
   @Override
+  public void reevaluateBuffer(long positionUs) {
+    compositeSequenceableLoader.reevaluateBuffer(positionUs);
+  }
+
+  @Override
   public boolean continueLoading(long positionUs) {
-    return sequenceableLoader.continueLoading(positionUs);
+    if (!childrenPendingPreparation.isEmpty()) {
+      // Preparation is still going on.
+      int childrenPendingPreparationSize = childrenPendingPreparation.size();
+      for (int i = 0; i < childrenPendingPreparationSize; i++) {
+        childrenPendingPreparation.get(i).continueLoading(positionUs);
+      }
+      return false;
+    } else {
+      return compositeSequenceableLoader.continueLoading(positionUs);
+    }
+  }
+
+  @Override
+  public boolean isLoading() {
+    return compositeSequenceableLoader.isLoading();
   }
 
   @Override
   public long getNextLoadPositionUs() {
-    return sequenceableLoader.getNextLoadPositionUs();
+    return compositeSequenceableLoader.getNextLoadPositionUs();
   }
 
   @Override
@@ -151,7 +185,7 @@ import java.util.IdentityHashMap;
     // Periods other than the first one are not allowed to report discontinuities.
     for (int i = 1; i < periods.length; i++) {
       if (periods[i].readDiscontinuity() != C.TIME_UNSET) {
-        throw new IllegalStateException("Child reported discontinuity");
+        throw new IllegalStateException("Child reported discontinuity.");
       }
     }
     // It must be possible to seek enabled periods to the new position, if there is one.
@@ -159,7 +193,7 @@ import java.util.IdentityHashMap;
       for (MediaPeriod enabledPeriod : enabledPeriods) {
         if (enabledPeriod != periods[0]
             && enabledPeriod.seekToUs(positionUs) != positionUs) {
-          throw new IllegalStateException("Children seeked to different positions");
+          throw new IllegalStateException("Unexpected child seekToUs result.");
         }
       }
     }
@@ -168,14 +202,7 @@ import java.util.IdentityHashMap;
 
   @Override
   public long getBufferedPositionUs() {
-    long bufferedPositionUs = Long.MAX_VALUE;
-    for (MediaPeriod period : enabledPeriods) {
-      long rendererBufferedPositionUs = period.getBufferedPositionUs();
-      if (rendererBufferedPositionUs != C.TIME_END_OF_SOURCE) {
-        bufferedPositionUs = Math.min(bufferedPositionUs, rendererBufferedPositionUs);
-      }
-    }
-    return bufferedPositionUs == Long.MAX_VALUE ? C.TIME_END_OF_SOURCE : bufferedPositionUs;
+    return compositeSequenceableLoader.getBufferedPositionUs();
   }
 
   @Override
@@ -184,17 +211,24 @@ import java.util.IdentityHashMap;
     // Additional periods must seek to the same position.
     for (int i = 1; i < enabledPeriods.length; i++) {
       if (enabledPeriods[i].seekToUs(positionUs) != positionUs) {
-        throw new IllegalStateException("Children seeked to different positions");
+        throw new IllegalStateException("Unexpected child seekToUs result.");
       }
     }
     return positionUs;
   }
 
+  @Override
+  public long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters) {
+    MediaPeriod queryPeriod = enabledPeriods.length > 0 ? enabledPeriods[0] : periods[0];
+    return queryPeriod.getAdjustedSeekPositionUs(positionUs, seekParameters);
+  }
+
   // MediaPeriod.Callback implementation
 
   @Override
-  public void onPrepared(MediaPeriod ignored) {
-    if (--pendingChildPrepareCount > 0) {
+  public void onPrepared(MediaPeriod preparedPeriod) {
+    childrenPendingPreparation.remove(preparedPeriod);
+    if (!childrenPendingPreparation.isEmpty()) {
       return;
     }
     int totalTrackGroupCount = 0;
@@ -211,16 +245,12 @@ import java.util.IdentityHashMap;
       }
     }
     trackGroups = new TrackGroupArray(trackGroupArray);
-    callback.onPrepared(this);
+    Assertions.checkNotNull(callback).onPrepared(this);
   }
 
   @Override
   public void onContinueLoadingRequested(MediaPeriod ignored) {
-    if (trackGroups == null) {
-      // Still preparing.
-      return;
-    }
-    callback.onContinueLoadingRequested(this);
+    Assertions.checkNotNull(callback).onContinueLoadingRequested(this);
   }
 
 }

@@ -15,28 +15,31 @@
  */
 package com.google.android.exoplayer2.ext.vp9;
 
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
+
 import android.content.Context;
 import android.net.Uri;
 import android.os.Looper;
-import android.test.InstrumentationTestCase;
-import android.util.Log;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.ExoPlayerFactory;
-import com.google.android.exoplayer2.PlaybackParameters;
-import com.google.android.exoplayer2.Renderer;
-import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
-import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.video.VideoDecoderGLSurfaceView;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-/**
- * Playback tests using {@link LibvpxVideoRenderer}.
- */
-public class VpxPlaybackTest extends InstrumentationTestCase {
+/** Playback tests using {@link LibvpxVideoRenderer}. */
+@RunWith(AndroidJUnit4.class)
+public class VpxPlaybackTest {
 
   private static final String BEAR_URI = "asset:///bear-vp9.webm";
   private static final String BEAR_ODD_DIMENSIONS_URI = "asset:///bear-vp9-odd-dimensions.webm";
@@ -45,15 +48,25 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
 
   private static final String TAG = "VpxPlaybackTest";
 
-  public void testBasicPlayback() throws ExoPlaybackException {
+  @Before
+  public void setUp() {
+    if (!VpxLibrary.isAvailable()) {
+      fail("Vpx library not available.");
+    }
+  }
+
+  @Test
+  public void testBasicPlayback() throws Exception {
     playUri(BEAR_URI);
   }
 
-  public void testOddDimensionsPlayback() throws ExoPlaybackException {
+  @Test
+  public void testOddDimensionsPlayback() throws Exception {
     playUri(BEAR_ODD_DIMENSIONS_URI);
   }
 
-  public void test10BitProfile2Playback() throws ExoPlaybackException {
+  @Test
+  public void test10BitProfile2Playback() throws Exception {
     if (VpxLibrary.isHighBitDepthSupported()) {
       Log.d(TAG, "High Bit Depth supported.");
       playUri(ROADTRIP_10BIT_URI);
@@ -62,31 +75,29 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
     Log.d(TAG, "High Bit Depth not supported.");
   }
 
+  @Test
   public void testInvalidBitstream() {
     try {
       playUri(INVALID_BITSTREAM_URI);
       fail();
     } catch (Exception e) {
-      assertNotNull(e.getCause());
-      assertTrue(e.getCause() instanceof VpxDecoderException);
+      assertThat(e.getCause()).isNotNull();
+      assertThat(e.getCause()).isInstanceOf(VpxDecoderException.class);
     }
   }
 
-  private void playUri(String uri) throws ExoPlaybackException {
-    TestPlaybackThread thread = new TestPlaybackThread(Uri.parse(uri),
-        getInstrumentation().getContext());
+  private void playUri(String uri) throws Exception {
+    TestPlaybackRunnable testPlaybackRunnable =
+        new TestPlaybackRunnable(Uri.parse(uri), ApplicationProvider.getApplicationContext());
+    Thread thread = new Thread(testPlaybackRunnable);
     thread.start();
-    try {
-      thread.join();
-    } catch (InterruptedException e) {
-      fail(); // Should never happen.
-    }
-    if (thread.playbackException != null) {
-      throw thread.playbackException;
+    thread.join();
+    if (testPlaybackRunnable.playbackException != null) {
+      throw testPlaybackRunnable.playbackException;
     }
   }
 
-  private static class TestPlaybackThread extends Thread implements ExoPlayer.EventListener {
+  private static class TestPlaybackRunnable implements Player.EventListener, Runnable {
 
     private final Context context;
     private final Uri uri;
@@ -94,7 +105,7 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
     private ExoPlayer player;
     private ExoPlaybackException playbackException;
 
-    public TestPlaybackThread(Uri uri, Context context) {
+    public TestPlaybackRunnable(Uri uri, Context context) {
       this.uri = uri;
       this.context = context;
     }
@@ -102,47 +113,22 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
     @Override
     public void run() {
       Looper.prepare();
-      LibvpxVideoRenderer videoRenderer = new LibvpxVideoRenderer(true, 0);
-      DefaultTrackSelector trackSelector = new DefaultTrackSelector();
-      player = ExoPlayerFactory.newInstance(new Renderer[] {videoRenderer}, trackSelector);
+      LibvpxVideoRenderer videoRenderer = new LibvpxVideoRenderer(0);
+      player = new ExoPlayer.Builder(context, videoRenderer).build();
       player.addListener(this);
-      ExtractorMediaSource mediaSource = new ExtractorMediaSource(
-          uri,
-          new DefaultDataSourceFactory(context, "ExoPlayerExtVp9Test"),
-          MatroskaExtractor.FACTORY,
-          null,
-          null);
-      player.sendMessages(new ExoPlayer.ExoPlayerMessage(videoRenderer,
-          LibvpxVideoRenderer.MSG_SET_OUTPUT_BUFFER_RENDERER,
-          new VpxVideoSurfaceView(context)));
+      MediaSource mediaSource =
+          new ProgressiveMediaSource.Factory(
+                  new DefaultDataSourceFactory(context, "ExoPlayerExtVp9Test"),
+                  MatroskaExtractor.FACTORY)
+              .createMediaSource(uri);
+      player
+          .createMessage(videoRenderer)
+          .setType(C.MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER)
+          .setPayload(new VideoDecoderGLSurfaceView(context).getVideoDecoderOutputBufferRenderer())
+          .send();
       player.prepare(mediaSource);
-      player.setPlayWhenReady(true);
+      player.play();
       Looper.loop();
-    }
-
-    @Override
-    public void onLoadingChanged(boolean isLoading) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onPositionDiscontinuity() {
-      // Do nothing.
-    }
-
-    @Override
-    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onTimelineChanged(Timeline timeline, Object manifest) {
-      // Do nothing.
     }
 
     @Override
@@ -151,18 +137,13 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
     }
 
     @Override
-    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-      if (playbackState == ExoPlayer.STATE_ENDED
-          || (playbackState == ExoPlayer.STATE_IDLE && playbackException != null)) {
-        releasePlayerAndQuitLooper();
+    public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
+      if (playbackState == Player.STATE_ENDED
+          || (playbackState == Player.STATE_IDLE && playbackException != null)) {
+        player.release();
+        Looper.myLooper().quit();
       }
     }
-
-    private void releasePlayerAndQuitLooper() {
-      player.release();
-      Looper.myLooper().quit();
-    }
-
   }
 
 }

@@ -15,58 +15,51 @@
  */
 package com.google.android.exoplayer2.testutil;
 
-import android.app.Instrumentation;
-import android.test.InstrumentationTestCase;
-import android.test.MoreAsserts;
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
+
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.media.MediaCodec;
+import android.net.Uri;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.database.DatabaseProvider;
+import com.google.android.exoplayer2.database.DefaultDatabaseProvider;
+import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer2.extractor.Extractor;
+import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
-import com.google.android.exoplayer2.testutil.FakeExtractorInput.SimulatedIOException;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Random;
-import junit.framework.Assert;
-import org.mockito.MockitoAnnotations;
 
 /**
  * Utility methods for tests.
  */
 public class TestUtil {
 
-  /**
-   * A factory for {@link Extractor} instances.
-   */
-  public interface ExtractorFactory {
-    Extractor create();
-  }
-
-  private static final String DUMP_EXTENSION = ".dump";
-  private static final String UNKNOWN_LENGTH_EXTENSION = ".unklen" + DUMP_EXTENSION;
-
   private TestUtil() {}
 
-  public static boolean sniffTestData(Extractor extractor, byte[] data)
-      throws IOException, InterruptedException {
-    return sniffTestData(extractor, newExtractorInput(data));
-  }
-
-  public static boolean sniffTestData(Extractor extractor, FakeExtractorInput input)
-      throws IOException, InterruptedException {
-    while (true) {
-      try {
-        return extractor.sniff(input);
-      } catch (SimulatedIOException e) {
-        // Ignore.
-      }
-    }
-  }
-
+  /**
+   * Given an open {@link DataSource}, repeatedly calls {@link DataSource#read(byte[], int, int)}
+   * until {@link C#RESULT_END_OF_INPUT} is returned.
+   *
+   * @param dataSource The source from which to read.
+   * @return The concatenation of all read data.
+   * @throws IOException If an error occurs reading from the source.
+   */
   public static byte[] readToEnd(DataSource dataSource) throws IOException {
     byte[] data = new byte[1024];
     int position = 0;
@@ -83,70 +76,71 @@ public class TestUtil {
     return Arrays.copyOf(data, position);
   }
 
-  public static FakeExtractorOutput consumeTestData(Extractor extractor, FakeExtractorInput input,
-      long timeUs) throws IOException, InterruptedException {
-    return consumeTestData(extractor, input, timeUs, false);
-  }
-
-  public static FakeExtractorOutput consumeTestData(Extractor extractor, FakeExtractorInput input,
-      long timeUs, boolean retryFromStartIfLive) throws IOException, InterruptedException {
-    FakeExtractorOutput output = new FakeExtractorOutput();
-    extractor.init(output);
-    consumeTestData(extractor, input, timeUs, output, retryFromStartIfLive);
-    return output;
-  }
-
-  private static void consumeTestData(Extractor extractor, FakeExtractorInput input, long timeUs,
-      FakeExtractorOutput output, boolean retryFromStartIfLive)
-      throws IOException, InterruptedException {
-    extractor.seek(input.getPosition(), timeUs);
-    PositionHolder seekPositionHolder = new PositionHolder();
-    int readResult = Extractor.RESULT_CONTINUE;
-    while (readResult != Extractor.RESULT_END_OF_INPUT) {
-      try {
-        // Extractor.read should not read seekPositionHolder.position. Set it to a value that's
-        // likely to cause test failure if a read does occur.
-        seekPositionHolder.position = Long.MIN_VALUE;
-        readResult = extractor.read(input, seekPositionHolder);
-        if (readResult == Extractor.RESULT_SEEK) {
-          long seekPosition = seekPositionHolder.position;
-          Assertions.checkState(0 <= seekPosition && seekPosition <= Integer.MAX_VALUE);
-          input.setPosition((int) seekPosition);
-        }
-      } catch (SimulatedIOException e) {
-        if (!retryFromStartIfLive) {
-          continue;
-        }
-        boolean isOnDemand = input.getLength() != C.LENGTH_UNSET
-            || (output.seekMap != null && output.seekMap.getDurationUs() != C.TIME_UNSET);
-        if (isOnDemand) {
-          continue;
-        }
-        input.setPosition(0);
-        for (int i = 0; i < output.numberOfTracks; i++) {
-          output.trackOutputs.valueAt(i).clear();
-        }
-        extractor.seek(0, 0);
+  /**
+   * Given an open {@link DataSource}, repeatedly calls {@link DataSource#read(byte[], int, int)}
+   * until exactly {@code length} bytes have been read.
+   *
+   * @param dataSource The source from which to read.
+   * @return The read data.
+   * @throws IOException If an error occurs reading from the source.
+   */
+  public static byte[] readExactly(DataSource dataSource, int length) throws IOException {
+    byte[] data = new byte[length];
+    int position = 0;
+    while (position < length) {
+      int bytesRead = dataSource.read(data, position, data.length - position);
+      if (bytesRead == C.RESULT_END_OF_INPUT) {
+        fail("Not enough data could be read: " + position + " < " + length);
+      } else {
+        position += bytesRead;
       }
     }
+    return data;
   }
 
+  /**
+   * Equivalent to {@code buildTestData(length, length)}.
+   *
+   * @param length The length of the array.
+   * @return The generated array.
+   */
   public static byte[] buildTestData(int length) {
     return buildTestData(length, length);
   }
 
+  /**
+   * Generates an array of random bytes with the specified length.
+   *
+   * @param length The length of the array.
+   * @param seed A seed for an internally created {@link Random source of randomness}.
+   * @return The generated array.
+   */
   public static byte[] buildTestData(int length, int seed) {
     return buildTestData(length, new Random(seed));
   }
 
+  /**
+   * Generates an array of random bytes with the specified length.
+   *
+   * @param length The length of the array.
+   * @param random A source of randomness.
+   * @return The generated array.
+   */
   public static byte[] buildTestData(int length, Random random) {
     byte[] source = new byte[length];
     random.nextBytes(source);
     return source;
   }
 
-  public static String buildTestString(int maxLength, Random random) {
-    int length = random.nextInt(maxLength);
+  /**
+   * Generates a random string with the specified maximum length.
+   *
+   * @param maximumLength The maximum length of the string.
+   * @param random A source of randomness.
+   * @return The generated string.
+   */
+  public static String buildTestString(int maximumLength, Random random) {
+    int length = random.nextInt(maximumLength);
     StringBuilder builder = new StringBuilder(length);
     for (int i = 0; i < length; i++) {
       builder.append((char) random.nextInt());
@@ -169,6 +163,12 @@ public class TestUtil {
     return byteArray;
   }
 
+  /**
+   * Concatenates the provided byte arrays.
+   *
+   * @param byteArrays The byte arrays to concatenate.
+   * @return The concatenated result.
+   */
   public static byte[] joinByteArrays(byte[]... byteArrays) {
     int length = 0;
     for (byte[] byteArray : byteArrays) {
@@ -183,213 +183,61 @@ public class TestUtil {
     return joined;
   }
 
-  public static void setUpMockito(InstrumentationTestCase instrumentationTestCase) {
-    // Workaround for https://code.google.com/p/dexmaker/issues/detail?id=2.
-    System.setProperty("dexmaker.dexcache",
-        instrumentationTestCase.getInstrumentation().getTargetContext().getCacheDir().getPath());
-    MockitoAnnotations.initMocks(instrumentationTestCase);
+  /** Writes one byte long dummy test data to the file and returns it. */
+  public static File createTestFile(File directory, String name) throws IOException {
+    return createTestFile(directory, name, /* length= */ 1);
   }
 
-  public static boolean assetExists(Instrumentation instrumentation, String fileName)
-      throws IOException {
-    int i = fileName.lastIndexOf('/');
-    String path = i >= 0 ? fileName.substring(0, i) : "";
-    String file = i >= 0 ? fileName.substring(i + 1) : fileName;
-    return Arrays.asList(instrumentation.getContext().getResources().getAssets().list(path))
-        .contains(file);
+  /** Writes dummy test data with the specified length to the file and returns it. */
+  public static File createTestFile(File directory, String name, long length) throws IOException {
+    return createTestFile(new File(directory, name), length);
   }
 
-  public static byte[] getByteArray(Instrumentation instrumentation, String fileName)
-      throws IOException {
-    return Util.toByteArray(getInputStream(instrumentation, fileName));
-  }
-
-  public static InputStream getInputStream(Instrumentation instrumentation, String fileName)
-      throws IOException {
-    return instrumentation.getContext().getResources().getAssets().open(fileName);
-  }
-
-  public static String getString(Instrumentation instrumentation, String fileName)
-      throws IOException {
-    return new String(getByteArray(instrumentation, fileName));
-  }
-
-  private static FakeExtractorInput newExtractorInput(byte[] data) {
-    return new FakeExtractorInput.Builder().setData(data).build();
-  }
-
-  /**
-   * Calls {@link #assertOutput(Extractor, String, byte[], Instrumentation, boolean, boolean,
-   * boolean)} with all possible combinations of "simulate" parameters.
-   *
-   * @param factory An {@link ExtractorFactory} which creates instances of the {@link Extractor}
-   *     class which is to be tested.
-   * @param sampleFile The path to the input sample.
-   * @param instrumentation To be used to load the sample file.
-   * @throws IOException If reading from the input fails.
-   * @throws InterruptedException If interrupted while reading from the input.
-   * @see #assertOutput(Extractor, String, byte[], Instrumentation, boolean, boolean, boolean)
-   */
-  public static void assertOutput(ExtractorFactory factory, String sampleFile,
-      Instrumentation instrumentation) throws IOException, InterruptedException {
-    byte[] fileData = getByteArray(instrumentation, sampleFile);
-    assertOutput(factory, sampleFile, fileData, instrumentation);
-  }
-
-  /**
-   * Calls {@link #assertOutput(Extractor, String, byte[], Instrumentation, boolean, boolean,
-   * boolean)} with all possible combinations of "simulate" parameters.
-   *
-   * @param factory An {@link ExtractorFactory} which creates instances of the {@link Extractor}
-   *     class which is to be tested.
-   * @param sampleFile The path to the input sample.
-   * @param fileData Content of the input file.
-   * @param instrumentation To be used to load the sample file.
-   * @throws IOException If reading from the input fails.
-   * @throws InterruptedException If interrupted while reading from the input.
-   * @see #assertOutput(Extractor, String, byte[], Instrumentation, boolean, boolean, boolean)
-   */
-  public static void assertOutput(ExtractorFactory factory, String sampleFile, byte[] fileData,
-      Instrumentation instrumentation) throws IOException, InterruptedException {
-    assertOutput(factory.create(), sampleFile, fileData, instrumentation, false, false, false);
-    assertOutput(factory.create(), sampleFile, fileData, instrumentation,  true, false, false);
-    assertOutput(factory.create(), sampleFile, fileData, instrumentation, false,  true, false);
-    assertOutput(factory.create(), sampleFile, fileData, instrumentation,  true,  true, false);
-    assertOutput(factory.create(), sampleFile, fileData, instrumentation, false, false,  true);
-    assertOutput(factory.create(), sampleFile, fileData, instrumentation,  true, false,  true);
-    assertOutput(factory.create(), sampleFile, fileData, instrumentation, false,  true,  true);
-    assertOutput(factory.create(), sampleFile, fileData, instrumentation,  true,  true,  true);
-  }
-
-  /**
-   * Asserts that {@code extractor} consumes {@code sampleFile} successfully and its output equals
-   * to a prerecorded output dump file with the name {@code sampleFile} + "{@value
-   * #DUMP_EXTENSION}". If {@code simulateUnknownLength} is true and {@code sampleFile} + "{@value
-   * #UNKNOWN_LENGTH_EXTENSION}" exists, it's preferred.
-   *
-   * @param extractor The {@link Extractor} to be tested.
-   * @param sampleFile The path to the input sample.
-   * @param fileData Content of the input file.
-   * @param instrumentation To be used to load the sample file.
-   * @param simulateIOErrors If true simulates IOErrors.
-   * @param simulateUnknownLength If true simulates unknown input length.
-   * @param simulatePartialReads If true simulates partial reads.
-   * @return The {@link FakeExtractorOutput} used in the test.
-   * @throws IOException If reading from the input fails.
-   * @throws InterruptedException If interrupted while reading from the input.
-   */
-  public static FakeExtractorOutput assertOutput(Extractor extractor, String sampleFile,
-      byte[] fileData, Instrumentation instrumentation, boolean simulateIOErrors,
-      boolean simulateUnknownLength, boolean simulatePartialReads) throws IOException,
-      InterruptedException {
-    FakeExtractorInput input = new FakeExtractorInput.Builder().setData(fileData)
-        .setSimulateIOErrors(simulateIOErrors)
-        .setSimulateUnknownLength(simulateUnknownLength)
-        .setSimulatePartialReads(simulatePartialReads).build();
-
-    Assert.assertTrue(sniffTestData(extractor, input));
-    input.resetPeekPosition();
-    FakeExtractorOutput extractorOutput = consumeTestData(extractor, input, 0, true);
-
-    if (simulateUnknownLength
-        && assetExists(instrumentation, sampleFile + UNKNOWN_LENGTH_EXTENSION)) {
-      extractorOutput.assertOutput(instrumentation, sampleFile + UNKNOWN_LENGTH_EXTENSION);
-    } else {
-      extractorOutput.assertOutput(instrumentation, sampleFile + ".0" + DUMP_EXTENSION);
+  /** Writes dummy test data with the specified length to the file and returns it. */
+  public static File createTestFile(File file, long length) throws IOException {
+    FileOutputStream output = new FileOutputStream(file);
+    for (long i = 0; i < length; i++) {
+      output.write((int) i);
     }
-
-    SeekMap seekMap = extractorOutput.seekMap;
-    if (seekMap.isSeekable()) {
-      long durationUs = seekMap.getDurationUs();
-      for (int j = 0; j < 4; j++) {
-        long timeUs = (durationUs * j) / 3;
-        long position = seekMap.getPosition(timeUs);
-        input.setPosition((int) position);
-        for (int i = 0; i < extractorOutput.numberOfTracks; i++) {
-          extractorOutput.trackOutputs.valueAt(i).clear();
-        }
-
-        consumeTestData(extractor, input, timeUs, extractorOutput, false);
-        extractorOutput.assertOutput(instrumentation, sampleFile + '.' + j + DUMP_EXTENSION);
-      }
-    }
-
-    return extractorOutput;
+    output.close();
+    return file;
   }
 
-  /**
-   * Calls {@link #assertThrows(Extractor, byte[], Class, boolean, boolean, boolean)} with all
-   * possible combinations of "simulate" parameters.
-   *
-   * @param factory An {@link ExtractorFactory} which creates instances of the {@link Extractor}
-   *     class which is to be tested.
-   * @param sampleFile The path to the input sample.
-   * @param instrumentation To be used to load the sample file.
-   * @param expectedThrowable Expected {@link Throwable} class.
-   * @throws IOException If reading from the input fails.
-   * @throws InterruptedException If interrupted while reading from the input.
-   * @see #assertThrows(Extractor, byte[], Class, boolean, boolean, boolean)
-   */
-  public static void assertThrows(ExtractorFactory factory, String sampleFile,
-      Instrumentation instrumentation, Class<? extends Throwable> expectedThrowable)
-      throws IOException, InterruptedException {
-    byte[] fileData = getByteArray(instrumentation, sampleFile);
-    assertThrows(factory, fileData, expectedThrowable);
+  /** Returns the bytes of an asset file. */
+  public static byte[] getByteArray(Context context, String fileName) throws IOException {
+    return Util.toByteArray(getInputStream(context, fileName));
   }
 
-  /**
-   * Calls {@link #assertThrows(Extractor, byte[], Class, boolean, boolean, boolean)} with all
-   * possible combinations of "simulate" parameters.
-   *
-   * @param factory An {@link ExtractorFactory} which creates instances of the {@link Extractor}
-   *     class which is to be tested.
-   * @param fileData Content of the input file.
-   * @param expectedThrowable Expected {@link Throwable} class.
-   * @throws IOException If reading from the input fails.
-   * @throws InterruptedException If interrupted while reading from the input.
-   * @see #assertThrows(Extractor, byte[], Class, boolean, boolean, boolean)
-   */
-  public static void assertThrows(ExtractorFactory factory, byte[] fileData,
-      Class<? extends Throwable> expectedThrowable) throws IOException, InterruptedException {
-    assertThrows(factory.create(), fileData, expectedThrowable, false, false, false);
-    assertThrows(factory.create(), fileData, expectedThrowable,  true, false, false);
-    assertThrows(factory.create(), fileData, expectedThrowable, false,  true, false);
-    assertThrows(factory.create(), fileData, expectedThrowable,  true,  true, false);
-    assertThrows(factory.create(), fileData, expectedThrowable, false, false,  true);
-    assertThrows(factory.create(), fileData, expectedThrowable,  true, false,  true);
-    assertThrows(factory.create(), fileData, expectedThrowable, false,  true,  true);
-    assertThrows(factory.create(), fileData, expectedThrowable,  true,  true,  true);
+  /** Returns an {@link InputStream} for reading from an asset file. */
+  public static InputStream getInputStream(Context context, String fileName) throws IOException {
+    return context.getResources().getAssets().open(fileName);
   }
 
-  /**
-   * Asserts {@code extractor} throws {@code expectedThrowable} while consuming {@code sampleFile}.
-   *
-   * @param extractor The {@link Extractor} to be tested.
-   * @param fileData Content of the input file.
-   * @param expectedThrowable Expected {@link Throwable} class.
-   * @param simulateIOErrors If true simulates IOErrors.
-   * @param simulateUnknownLength If true simulates unknown input length.
-   * @param simulatePartialReads If true simulates partial reads.
-   * @throws IOException If reading from the input fails.
-   * @throws InterruptedException If interrupted while reading from the input.
-   */
-  public static void assertThrows(Extractor extractor, byte[] fileData,
-      Class<? extends Throwable> expectedThrowable, boolean simulateIOErrors,
-      boolean simulateUnknownLength, boolean simulatePartialReads) throws IOException,
-      InterruptedException {
-    FakeExtractorInput input = new FakeExtractorInput.Builder().setData(fileData)
-        .setSimulateIOErrors(simulateIOErrors)
-        .setSimulateUnknownLength(simulateUnknownLength)
-        .setSimulatePartialReads(simulatePartialReads).build();
-    try {
-      consumeTestData(extractor, input, 0, true);
-      throw new AssertionError(expectedThrowable.getSimpleName() + " expected but not thrown");
-    } catch (Throwable throwable) {
-      if (expectedThrowable.equals(throwable.getClass())) {
-        return; // Pass!
-      }
-      throw throwable;
-    }
+  /** Returns a {@link String} read from an asset file. */
+  public static String getString(Context context, String fileName) throws IOException {
+    return Util.fromUtf8Bytes(getByteArray(context, fileName));
+  }
+
+  /** Returns a {@link Bitmap} read from an asset file. */
+  public static Bitmap getBitmap(Context context, String fileName) throws IOException {
+    return BitmapFactory.decodeStream(getInputStream(context, fileName));
+  }
+
+  /** Returns a {@link DatabaseProvider} that provides an in-memory database. */
+  public static DatabaseProvider getInMemoryDatabaseProvider() {
+    return new DefaultDatabaseProvider(
+        new SQLiteOpenHelper(
+            /* context= */ null, /* name= */ null, /* factory= */ null, /* version= */ 1) {
+          @Override
+          public void onCreate(SQLiteDatabase db) {
+            // Do nothing.
+          }
+
+          @Override
+          public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+            // Do nothing.
+          }
+        });
   }
 
   /**
@@ -398,18 +246,231 @@ public class TestUtil {
    * @param dataSource The {@link DataSource} through which to read.
    * @param dataSpec The {@link DataSpec} to use when opening the {@link DataSource}.
    * @param expectedData The expected data.
+   * @param expectKnownLength Whether to assert that {@link DataSource#open} returns the expected
+   *     data length. If false then it's asserted that {@link C#LENGTH_UNSET} is returned.
    * @throws IOException If an error occurs reading fom the {@link DataSource}.
    */
-  public static void assertDataSourceContent(DataSource dataSource, DataSpec dataSpec,
-      byte[] expectedData) throws IOException {
+  public static void assertDataSourceContent(
+      DataSource dataSource, DataSpec dataSpec, byte[] expectedData, boolean expectKnownLength)
+      throws IOException {
     try {
       long length = dataSource.open(dataSpec);
-      Assert.assertEquals(length, expectedData.length);
-      byte[] readData = TestUtil.readToEnd(dataSource);
-      MoreAsserts.assertEquals(expectedData, readData);
+      assertThat(length).isEqualTo(expectKnownLength ? expectedData.length : C.LENGTH_UNSET);
+      byte[] readData = readToEnd(dataSource);
+      assertThat(readData).isEqualTo(expectedData);
     } finally {
       dataSource.close();
     }
   }
 
+  /** Returns whether two {@link android.media.MediaCodec.BufferInfo BufferInfos} are equal. */
+  public static void assertBufferInfosEqual(
+      MediaCodec.BufferInfo expected, MediaCodec.BufferInfo actual) {
+    assertThat(expected.flags).isEqualTo(actual.flags);
+    assertThat(expected.offset).isEqualTo(actual.offset);
+    assertThat(expected.presentationTimeUs).isEqualTo(actual.presentationTimeUs);
+    assertThat(expected.size).isEqualTo(actual.size);
+  }
+
+  /**
+   * Asserts whether actual bitmap is very similar to the expected bitmap at some quality level.
+   *
+   * <p>This is defined as their PSNR value is greater than or equal to the threshold. The higher
+   * the threshold, the more similar they are.
+   *
+   * @param expectedBitmap The expected bitmap.
+   * @param actualBitmap The actual bitmap.
+   * @param psnrThresholdDb The PSNR threshold (in dB), at or above which bitmaps are considered
+   *     very similar.
+   */
+  public static void assertBitmapsAreSimilar(
+      Bitmap expectedBitmap, Bitmap actualBitmap, double psnrThresholdDb) {
+    assertThat(getPsnr(expectedBitmap, actualBitmap)).isAtLeast(psnrThresholdDb);
+  }
+
+  /**
+   * Calculates the Peak-Signal-to-Noise-Ratio value for 2 bitmaps.
+   *
+   * <p>This is the logarithmic decibel(dB) value of the average mean-squared-error of normalized
+   * (0.0-1.0) R/G/B values from the two bitmaps. The higher the value, the more similar they are.
+   *
+   * @param firstBitmap The first bitmap.
+   * @param secondBitmap The second bitmap.
+   * @return The PSNR value calculated from these 2 bitmaps.
+   */
+  private static double getPsnr(Bitmap firstBitmap, Bitmap secondBitmap) {
+    assertThat(firstBitmap.getWidth()).isEqualTo(secondBitmap.getWidth());
+    assertThat(firstBitmap.getHeight()).isEqualTo(secondBitmap.getHeight());
+    long mse = 0;
+    for (int i = 0; i < firstBitmap.getWidth(); i++) {
+      for (int j = 0; j < firstBitmap.getHeight(); j++) {
+        int firstColorInt = firstBitmap.getPixel(i, j);
+        int firstRed = Color.red(firstColorInt);
+        int firstGreen = Color.green(firstColorInt);
+        int firstBlue = Color.blue(firstColorInt);
+        int secondColorInt = secondBitmap.getPixel(i, j);
+        int secondRed = Color.red(secondColorInt);
+        int secondGreen = Color.green(secondColorInt);
+        int secondBlue = Color.blue(secondColorInt);
+        mse +=
+            ((firstRed - secondRed) * (firstRed - secondRed)
+                + (firstGreen - secondGreen) * (firstGreen - secondGreen)
+                + (firstBlue - secondBlue) * (firstBlue - secondBlue));
+      }
+    }
+    double normalizedMse =
+        mse / (255.0 * 255.0 * 3.0 * firstBitmap.getWidth() * firstBitmap.getHeight());
+    return 10 * Math.log10(1.0 / normalizedMse);
+  }
+
+  /** Returns the {@link Uri} for the given asset path. */
+  public static Uri buildAssetUri(String assetPath) {
+    return Uri.parse("asset:///" + assetPath);
+  }
+
+  /**
+   * Reads from the given input using the given {@link Extractor}, until it can produce the {@link
+   * SeekMap} and all of the tracks have been identified, or until the extractor encounters EOF.
+   *
+   * @param extractor The {@link Extractor} to extractor from input.
+   * @param output The {@link FakeTrackOutput} to store the extracted {@link SeekMap} and track.
+   * @param dataSource The {@link DataSource} that will be used to read from the input.
+   * @param uri The Uri of the input.
+   * @return The extracted {@link SeekMap}.
+   * @throws IOException If an error occurred reading from the input, or if the extractor finishes
+   *     reading from input without extracting any {@link SeekMap}.
+   * @throws InterruptedException If the thread was interrupted.
+   */
+  public static SeekMap extractSeekMap(
+      Extractor extractor, FakeExtractorOutput output, DataSource dataSource, Uri uri)
+      throws IOException, InterruptedException {
+    ExtractorInput input = getExtractorInputFromPosition(dataSource, /* position= */ 0, uri);
+    extractor.init(output);
+    PositionHolder positionHolder = new PositionHolder();
+    int readResult = Extractor.RESULT_CONTINUE;
+    while (true) {
+      try {
+        // Keep reading until we can get the seek map
+        while (readResult == Extractor.RESULT_CONTINUE
+            && (output.seekMap == null || !output.tracksEnded)) {
+          readResult = extractor.read(input, positionHolder);
+        }
+      } finally {
+        Util.closeQuietly(dataSource);
+      }
+
+      if (readResult == Extractor.RESULT_SEEK) {
+        input = getExtractorInputFromPosition(dataSource, positionHolder.position, uri);
+        readResult = Extractor.RESULT_CONTINUE;
+      } else if (readResult == Extractor.RESULT_END_OF_INPUT) {
+        throw new IOException("EOF encountered without seekmap");
+      }
+      if (output.seekMap != null) {
+        return output.seekMap;
+      }
+    }
+  }
+
+  /**
+   * Extracts all samples from the given file into a {@link FakeTrackOutput}.
+   *
+   * @param extractor The {@link Extractor} to extractor from input.
+   * @param context A {@link Context}.
+   * @param fileName The name of the input file.
+   * @return The {@link FakeTrackOutput} containing the extracted samples.
+   * @throws IOException If an error occurred reading from the input, or if the extractor finishes
+   *     reading from input without extracting any {@link SeekMap}.
+   * @throws InterruptedException If the thread was interrupted.
+   */
+  public static FakeExtractorOutput extractAllSamplesFromFile(
+      Extractor extractor, Context context, String fileName)
+      throws IOException, InterruptedException {
+    byte[] data = TestUtil.getByteArray(context, fileName);
+    FakeExtractorOutput expectedOutput = new FakeExtractorOutput();
+    extractor.init(expectedOutput);
+    FakeExtractorInput input = new FakeExtractorInput.Builder().setData(data).build();
+
+    PositionHolder positionHolder = new PositionHolder();
+    int readResult = Extractor.RESULT_CONTINUE;
+    while (readResult != Extractor.RESULT_END_OF_INPUT) {
+      while (readResult == Extractor.RESULT_CONTINUE) {
+        readResult = extractor.read(input, positionHolder);
+      }
+      if (readResult == Extractor.RESULT_SEEK) {
+        input.setPosition((int) positionHolder.position);
+        readResult = Extractor.RESULT_CONTINUE;
+      }
+    }
+    return expectedOutput;
+  }
+
+  /**
+   * Seeks to the given seek time of the stream from the given input, and keeps reading from the
+   * input until we can extract at least one sample following the seek position, or until
+   * end-of-input is reached.
+   *
+   * @param extractor The {@link Extractor} to extract from input.
+   * @param seekMap The {@link SeekMap} of the stream from the given input.
+   * @param seekTimeUs The seek time, in micro-seconds.
+   * @param trackOutput The {@link FakeTrackOutput} to store the extracted samples.
+   * @param dataSource The {@link DataSource} that will be used to read from the input.
+   * @param uri The Uri of the input.
+   * @return The index of the first extracted sample written to the given {@code trackOutput} after
+   *     the seek is completed, or {@link C#INDEX_UNSET} if the seek is completed without any
+   *     extracted sample.
+   */
+  public static int seekToTimeUs(
+      Extractor extractor,
+      SeekMap seekMap,
+      long seekTimeUs,
+      DataSource dataSource,
+      FakeTrackOutput trackOutput,
+      Uri uri)
+      throws IOException, InterruptedException {
+    int numSampleBeforeSeek = trackOutput.getSampleCount();
+    SeekMap.SeekPoints seekPoints = seekMap.getSeekPoints(seekTimeUs);
+
+    long initialSeekLoadPosition = seekPoints.first.position;
+    extractor.seek(initialSeekLoadPosition, seekTimeUs);
+
+    PositionHolder positionHolder = new PositionHolder();
+    positionHolder.position = C.POSITION_UNSET;
+    ExtractorInput extractorInput =
+        TestUtil.getExtractorInputFromPosition(dataSource, initialSeekLoadPosition, uri);
+    int extractorReadResult = Extractor.RESULT_CONTINUE;
+    while (true) {
+      try {
+        // Keep reading until we can read at least one sample after seek
+        while (extractorReadResult == Extractor.RESULT_CONTINUE
+            && trackOutput.getSampleCount() == numSampleBeforeSeek) {
+          extractorReadResult = extractor.read(extractorInput, positionHolder);
+        }
+      } finally {
+        Util.closeQuietly(dataSource);
+      }
+
+      if (extractorReadResult == Extractor.RESULT_SEEK) {
+        extractorInput =
+            TestUtil.getExtractorInputFromPosition(dataSource, positionHolder.position, uri);
+        extractorReadResult = Extractor.RESULT_CONTINUE;
+      } else if (extractorReadResult == Extractor.RESULT_END_OF_INPUT
+          && trackOutput.getSampleCount() == numSampleBeforeSeek) {
+        return C.INDEX_UNSET;
+      } else if (trackOutput.getSampleCount() > numSampleBeforeSeek) {
+        // First index after seek = num sample before seek.
+        return numSampleBeforeSeek;
+      }
+    }
+  }
+
+  /** Returns an {@link ExtractorInput} to read from the given input at given position. */
+  public static ExtractorInput getExtractorInputFromPosition(
+      DataSource dataSource, long position, Uri uri) throws IOException {
+    DataSpec dataSpec = new DataSpec(uri, position, C.LENGTH_UNSET, /* key= */ null);
+    long length = dataSource.open(dataSpec);
+    if (length != C.LENGTH_UNSET) {
+      length += position;
+    }
+    return new DefaultExtractorInput(dataSource, position, length);
+  }
 }

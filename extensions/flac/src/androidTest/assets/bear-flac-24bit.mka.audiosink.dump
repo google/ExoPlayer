@@ -1,0 +1,91 @@
+config:
+  encoding = 536870912 (24 bit)
+  channel count = 2
+  sample rate = 48000
+buffer:
+  time = 0
+  data = 225023649
+buffer:
+  time = 96000
+  data = 455106306
+buffer:
+  time = 192000
+  data = 2025727297
+buffer:
+  time = 288000
+  data = 758514657
+buffer:
+  time = 384000
+  data = 1044986473
+buffer:
+  time = 480000
+  data = -2030029695
+buffer:
+  time = 576000
+  data = 1907053281
+buffer:
+  time = 672000
+  data = -1974954431
+buffer:
+  time = 768000
+  data = -206248383
+buffer:
+  time = 864000
+  data = 1484984417
+buffer:
+  time = 960000
+  data = -1306117439
+buffer:
+  time = 1056000
+  data = 692829792
+buffer:
+  time = 1152000
+  data = 1070563058
+buffer:
+  time = 1248000
+  data = -1444096479
+buffer:
+  time = 1344000
+  data = 1753016419
+buffer:
+  time = 1440000
+  data = 1947797953
+buffer:
+  time = 1536000
+  data = 266121411
+buffer:
+  time = 1632000
+  data = 1275494369
+buffer:
+  time = 1728000
+  data = 372077825
+buffer:
+  time = 1824000
+  data = -993079679
+buffer:
+  time = 1920000
+  data = 177307937
+buffer:
+  time = 2016000
+  data = 2037083009
+buffer:
+  time = 2112000
+  data = -435776287
+buffer:
+  time = 2208000
+  data = 1867447329
+buffer:
+  time = 2304000
+  data = 1884495937
+buffer:
+  time = 2400000
+  data = -804673375
+buffer:
+  time = 2496000
+  data = -588531007
+buffer:
+  time = 2592000
+  data = -1064642970
+buffer:
+  time = 2688000
+  data = -1771406207
