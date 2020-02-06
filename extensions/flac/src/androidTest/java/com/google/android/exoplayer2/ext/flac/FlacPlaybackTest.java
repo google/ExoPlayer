@@ -42,8 +42,8 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class FlacPlaybackTest {
 
-  private static final String BEAR_FLAC_16BIT = "bear-flac-16bit.mka";
-  private static final String BEAR_FLAC_24BIT = "bear-flac-24bit.mka";
+  private static final String BEAR_FLAC_16BIT = "flac/ext-bear-flac-16bit.mka";
+  private static final String BEAR_FLAC_24BIT = "flac/ext-bear-flac-24bit.mka";
 
   @Before
   public void setUp() {

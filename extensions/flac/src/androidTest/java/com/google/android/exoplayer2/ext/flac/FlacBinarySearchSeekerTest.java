@@ -34,7 +34,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class FlacBinarySearchSeekerTest {
 
-  private static final String NOSEEKTABLE_FLAC = "bear_no_seek.flac";
+  private static final String NOSEEKTABLE_FLAC = "flac/ext-bear_no_seek.flac";
   private static final int DURATION_US = 2_741_000;
 
   @Before
