@@ -42,6 +42,10 @@
 * UI
   * move logic of prev, next, fast forward and rewind to ControlDispatcher
   [#6926](https://github.com/google/ExoPlayer/issues/6926)).
+* Demo apps: Add
+  [GL demo app](https://github.com/google/ExoPlayer/tree/dev-v2/demos/gl) to
+  show how to render video to a `GLSurfaceView` while applying a GL shader.
+  ([#6920](https://github.com/google/ExoPlayer/issues/6920)).
 
 ### 2.11.2 (TBD) ###
 
