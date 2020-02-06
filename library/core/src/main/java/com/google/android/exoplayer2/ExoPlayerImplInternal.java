@@ -683,7 +683,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
     if ((playWhenReady && playbackInfo.playbackState == Player.STATE_READY)
         || playbackInfo.playbackState == Player.STATE_BUFFERING) {
-      scheduleNextWork(operationStartTimeMs, mediaSource.isTcp() ? ACTIVE_INTERVAL_MS
+      scheduleNextWork(operationStartTimeMs, mediaSource.isTcp() ?
+              (mediaSource.isLive() ? LOW_ACTIVE_INTERVAL_MS : ACTIVE_INTERVAL_MS)
               : LOW_ACTIVE_INTERVAL_MS);
     } else if (enabledRenderers.length != 0 && playbackInfo.playbackState != Player.STATE_ENDED) {
       scheduleNextWork(operationStartTimeMs, IDLE_INTERVAL_MS);

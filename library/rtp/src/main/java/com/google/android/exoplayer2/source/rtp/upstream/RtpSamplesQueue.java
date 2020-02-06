@@ -78,8 +78,38 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
     public synchronized RtpPacket pop() {
         if (isStarted && samples.size() > 0) {
+            long nowTimestamp = System.currentTimeMillis();
+
             RtpPacket packet = samples.poll();
             statsInfo.baseSequence = packet.sequenceNumber();
+
+            long deadlineTimestamp = 0;
+
+            if (statsInfo.jitter > 0 && clockrate > 0) {
+                deadlineTimestamp = (C.MICROS_PER_SECOND * 3 * statsInfo.jitter) / clockrate;
+            }
+
+            // Make sure we wait at least for 25 msec
+            if (deadlineTimestamp < (C.MICROS_PER_SECOND / 40)) {
+                deadlineTimestamp = C.MICROS_PER_SECOND / 40;
+            }
+
+            deadlineTimestamp /= 1000;
+            deadlineTimestamp += packet.timestamp();
+
+            if (nowTimestamp >= deadlineTimestamp) {
+                //samples.pollFirst();
+                // Discontinuity detection
+                int deltaSequence = packet.sequenceNumber() - ((statsInfo.baseSequence + 1) % RTP_SEQ_MOD);
+                if (deltaSequence != 0 && deltaSequence >= 0x8000) {
+                    // Trash too late packets
+                    return null;
+                }
+
+                statsInfo.baseSequence = packet.sequenceNumber();
+                return packet;
+            }
+
 
             return packet;
         }
