@@ -67,6 +67,12 @@ public final class FragmentedMp4ExtractorTest {
         getExtractorFactory(Collections.emptyList()), "mp4/sample_ac4_protected.mp4");
   }
 
+  @Test
+  public void testSampleWithEac3Track() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        getExtractorFactory(Collections.emptyList()), "mp4/sample_eac3_fragmented.mp4");
+  }
+
   private static ExtractorFactory getExtractorFactory(final List<Format> closedCaptionFormats) {
     return () ->
         new FragmentedMp4Extractor(
