@@ -199,7 +199,7 @@ public final class Ac3Reader implements ElementaryStreamReader {
     if (format == null
         || frameInfo.channelCount != format.channelCount
         || frameInfo.sampleRate != format.sampleRate
-        || Util.areEqual(frameInfo.mimeType, format.sampleMimeType)) {
+        || !Util.areEqual(frameInfo.mimeType, format.sampleMimeType)) {
       format =
           Format.createAudioSampleFormat(
               formatId,
