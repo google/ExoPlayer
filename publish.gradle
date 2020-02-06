@@ -11,14 +11,58 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-apply plugin: 'bintray-release'
+if (project.ext.has("exoplayerPublishEnabled")
+        && project.ext.exoplayerPublishEnabled) {
+    apply plugin: 'bintray-release'
+    publish {
+        artifactId = releaseArtifact
+        desc = releaseDescription
+        publishVersion = releaseVersion
+        repoName = getBintrayRepo()
+        userOrg = 'google'
+        groupId = 'com.google.android.exoplayer'
+        website = 'https://github.com/google/ExoPlayer'
+    }
 
-publish {
-    artifactId = releaseArtifact
-    description = releaseDescription
-    repoName = releaseRepoName
-    userOrg = releaseUserOrg
-    groupId = releaseGroupId
-    version = releaseVersion
-    website = releaseWebsite
+    gradle.taskGraph.whenReady { taskGraph ->
+        project.tasks
+                .findAll { task -> task.name.contains("generatePomFileFor") }
+                .forEach { task ->
+                    task.doLast {
+                        task.outputs.files
+                                .filter { File file ->
+                                    file.path.contains("publications") \
+                                        && file.name.matches("^pom-.+\\.xml\$")
+                                }
+                                .forEach { File file -> addLicense(file) }
+                    }
+                }
+    }
+}
+
+def getBintrayRepo() {
+    boolean publicRepo = hasProperty('publicRepo') &&
+        property('publicRepo').toBoolean()
+    return publicRepo ? 'exoplayer' : 'exoplayer-test'
+}
+
+static void addLicense(File pom) {
+    def licenseNode = new Node(null, "license")
+    licenseNode.append(
+        new Node(null, "name", "The Apache Software License, Version 2.0"))
+    licenseNode.append(
+        new Node(null, "url", "http://www.apache.org/licenses/LICENSE-2.0.txt"))
+    licenseNode.append(new Node(null, "distribution", "repo"))
+    def licensesNode = new Node(null, "licenses")
+    licensesNode.append(licenseNode)
+
+    def xml = new XmlParser().parse(pom)
+    xml.append(licensesNode)
+
+    def writer = new PrintWriter(new FileWriter(pom))
+    writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
+    def printer = new XmlNodePrinter(writer)
+    printer.preserveWhitespace = true
+    printer.print(xml)
+    writer.close()
 }

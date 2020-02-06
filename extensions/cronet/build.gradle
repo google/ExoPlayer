@@ -11,36 +11,42 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+apply from: '../../constants.gradle'
 apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion project.ext.compileSdkVersion
-    buildToolsVersion project.ext.buildToolsVersion
 
     defaultConfig {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
-    sourceSets.main {
-        jniLibs.srcDirs = ['jniLibs']
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    testOptions.unitTests.includeAndroidResources = true
 }
 
 dependencies {
-    compile project(':library-core')
-    compile files('libs/cronet_api.jar')
-    compile files('libs/cronet_impl_common_java.jar')
-    compile files('libs/cronet_impl_native_java.jar')
-    androidTestCompile project(':library')
-    androidTestCompile 'com.google.dexmaker:dexmaker:' + dexmakerVersion
-    androidTestCompile 'com.google.dexmaker:dexmaker-mockito:' + dexmakerVersion
-    androidTestCompile 'org.mockito:mockito-core:' + mockitoVersion
-    androidTestCompile 'com.android.support.test:runner:' + testSupportLibraryVersion
+    api 'org.chromium.net:cronet-embedded:76.3809.111'
+    implementation project(modulePrefix + 'library-core')
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+    compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
+    testImplementation project(modulePrefix + 'library')
+    testImplementation project(modulePrefix + 'testutils')
+    testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
 
 ext {
     javadocTitle = 'Cronet extension'
 }
 apply from: '../../javadoc_library.gradle'
+
+ext {
+    releaseArtifact = 'extension-cronet'
+    releaseDescription = 'Cronet extension for ExoPlayer.'
+}
+apply from: '../../publish.gradle'

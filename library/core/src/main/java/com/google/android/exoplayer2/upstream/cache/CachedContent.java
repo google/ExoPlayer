@@ -15,80 +15,69 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
-import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.upstream.cache.Cache.CacheException;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Assertions;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import com.google.android.exoplayer2.util.Log;
+import java.io.File;
 import java.util.TreeSet;
 
-/**
- * Defines the cached content for a single stream.
- */
-/*package*/ final class CachedContent {
+/** Defines the cached content for a single stream. */
+/* package */ final class CachedContent {
 
-  /**
-   * The cache file id that uniquely identifies the original stream.
-   */
+  private static final String TAG = "CachedContent";
+
+  /** The cache file id that uniquely identifies the original stream. */
   public final int id;
-  /**
-   * The cache key that uniquely identifies the original stream.
-   */
+  /** The cache key that uniquely identifies the original stream. */
   public final String key;
-  /**
-   * The cached spans of this content.
-   */
+  /** The cached spans of this content. */
   private final TreeSet<SimpleCacheSpan> cachedSpans;
-  /**
-   * The length of the original stream, or {@link C#LENGTH_UNSET} if the length is unknown.
-   */
-  private long length;
-
-  /**
-   * Reads an instance from a {@link DataInputStream}.
-   *
-   * @param input Input stream containing values needed to initialize CachedContent instance.
-   * @throws IOException If an error occurs during reading values.
-   */
-  public CachedContent(DataInputStream input) throws IOException {
-    this(input.readInt(), input.readUTF(), input.readLong());
-  }
+  /** Metadata values. */
+  private DefaultContentMetadata metadata;
+  /** Whether the content is locked. */
+  private boolean locked;
 
   /**
    * Creates a CachedContent.
    *
    * @param id The cache file id.
    * @param key The cache stream key.
-   * @param length The length of the original stream.
    */
-  public CachedContent(int id, String key, long length) {
+  public CachedContent(int id, String key) {
+    this(id, key, DefaultContentMetadata.EMPTY);
+  }
+
+  public CachedContent(int id, String key, DefaultContentMetadata metadata) {
     this.id = id;
     this.key = key;
-    this.length = length;
+    this.metadata = metadata;
     this.cachedSpans = new TreeSet<>();
   }
 
+  /** Returns the metadata. */
+  public DefaultContentMetadata getMetadata() {
+    return metadata;
+  }
+
   /**
-   * Writes the instance to a {@link DataOutputStream}.
+   * Applies {@code mutations} to the metadata.
    *
-   * @param output Output stream to store the values.
-   * @throws IOException If an error occurs during writing values to output.
+   * @return Whether {@code mutations} changed any metadata.
    */
-  public void writeToStream(DataOutputStream output) throws IOException {
-    output.writeInt(id);
-    output.writeUTF(key);
-    output.writeLong(length);
+  public boolean applyMetadataMutations(ContentMetadataMutations mutations) {
+    DefaultContentMetadata oldMetadata = metadata;
+    metadata = metadata.copyWithMutationsApplied(mutations);
+    return !metadata.equals(oldMetadata);
   }
 
-  /** Returns the length of the content. */
-  public long getLength() {
-    return length;
+  /** Returns whether the content is locked. */
+  public boolean isLocked() {
+    return locked;
   }
 
-  /** Sets the length of the content. */
-  public void setLength(long length) {
-    this.length = length;
+  /** Sets the locked state of the content. */
+  public void setLocked(boolean locked) {
+    this.locked = locked;
   }
 
   /** Adds the given {@link SimpleCacheSpan} which contains a part of the content. */
@@ -125,7 +114,7 @@ import java.util.TreeSet;
    * @param length The maximum length of the data to be returned.
    * @return the length of the cached or not cached data block length.
    */
-  public long getCachedBytes(long position, long length) {
+  public long getCachedBytesLength(long position, long length) {
     SimpleCacheSpan span = getSpan(position);
     if (span.isHoleSpan()) {
       // We don't have a span covering the start of the queried region.
@@ -152,24 +141,30 @@ import java.util.TreeSet;
   }
 
   /**
-   * Copies the given span with an updated last access time. Passed span becomes invalid after this
-   * call.
+   * Sets the given span's last touch timestamp. The passed span becomes invalid after this call.
    *
    * @param cacheSpan Span to be copied and updated.
-   * @return a span with the updated last access time.
-   * @throws CacheException If renaming of the underlying span file failed.
+   * @param lastTouchTimestamp The new last touch timestamp.
+   * @param updateFile Whether the span file should be renamed to have its timestamp match the new
+   *     last touch time.
+   * @return A span with the updated last touch timestamp.
    */
-  public SimpleCacheSpan touch(SimpleCacheSpan cacheSpan) throws CacheException {
-    // Remove the old span from the in-memory representation.
+  public SimpleCacheSpan setLastTouchTimestamp(
+      SimpleCacheSpan cacheSpan, long lastTouchTimestamp, boolean updateFile) {
     Assertions.checkState(cachedSpans.remove(cacheSpan));
-    // Obtain a new span with updated last access timestamp.
-    SimpleCacheSpan newCacheSpan = cacheSpan.copyWithUpdatedLastAccessTime(id);
-    // Rename the cache file
-    if (!cacheSpan.file.renameTo(newCacheSpan.file)) {
-      throw new CacheException("Renaming of " + cacheSpan.file + " to " + newCacheSpan.file
-          + " failed.");
+    File file = cacheSpan.file;
+    if (updateFile) {
+      File directory = file.getParentFile();
+      long position = cacheSpan.position;
+      File newFile = SimpleCacheSpan.getCacheFile(directory, id, position, lastTouchTimestamp);
+      if (file.renameTo(newFile)) {
+        file = newFile;
+      } else {
+        Log.w(TAG, "Failed to rename " + file + " to " + newFile);
+      }
     }
-    // Add the updated span back into the in-memory representation.
+    SimpleCacheSpan newCacheSpan =
+        cacheSpan.copyWithFileAndLastTouchTimestamp(file, lastTouchTimestamp);
     cachedSpans.add(newCacheSpan);
     return newCacheSpan;
   }
@@ -188,12 +183,26 @@ import java.util.TreeSet;
     return false;
   }
 
-  /** Calculates a hash code for the header of this {@code CachedContent}. */
-  public int headerHashCode() {
+  @Override
+  public int hashCode() {
     int result = id;
     result = 31 * result + key.hashCode();
-    result = 31 * result + (int) (length ^ (length >>> 32));
+    result = 31 * result + metadata.hashCode();
     return result;
   }
 
+  @Override
+  public boolean equals(@Nullable Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    CachedContent that = (CachedContent) o;
+    return id == that.id
+        && key.equals(that.key)
+        && cachedSpans.equals(that.cachedSpans)
+        && metadata.equals(that.metadata);
+  }
 }
