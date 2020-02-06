@@ -25,6 +25,7 @@
     ([#6753](https://github.com/google/ExoPlayer/issues/6753)).
   * Select multiple metadata tracks if multiple metadata renderers are available
     ([#6676](https://github.com/google/ExoPlayer/issues/6676)).
+  * Add support for ID3 genres added in Wimamp 5.6 (2010).
 * UI:
   * Show ad group markers in `DefaultTimeBar` even if they are after the end
     of the current window
@@ -54,7 +55,10 @@
   This issue caused FLAC streams with other bit depths to sound like white noise
   on earlier releases, but only when embedded in a non-FLAC container such as
   Matroska or MP4.
-* Add support for ID3 genres added in Wimamp 5.6 (2010).
+* Demo apps: Add
+  [GL demo app](https://github.com/google/ExoPlayer/tree/dev-v2/demos/gl) to
+  show how to render video to a `GLSurfaceView` while applying a GL shader.
+  ([#6920](https://github.com/google/ExoPlayer/issues/6920)).
 
 ### 2.11.1 (2019-12-20) ###
 
