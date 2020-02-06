@@ -48,7 +48,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class FlacExtractorSeekTest {
 
-  private static final String NO_SEEKTABLE_FLAC = "bear_no_seek.flac";
+  private static final String NO_SEEKTABLE_FLAC = "flac/ext-bear_no_seek.flac";
   private static final int DURATION_US = 2_741_000;
   private static final Uri FILE_URI = Uri.parse("file:///android_asset/" + NO_SEEKTABLE_FLAC);
   private static final Random RANDOM = new Random(1234L);

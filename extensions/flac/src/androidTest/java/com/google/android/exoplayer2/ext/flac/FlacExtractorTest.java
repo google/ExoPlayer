@@ -38,12 +38,14 @@ public class FlacExtractorTest {
   @Test
   public void testExtractFlacSample() throws Exception {
     ExtractorAsserts.assertBehavior(
-        FlacExtractor::new, "bear.flac", ApplicationProvider.getApplicationContext());
+        FlacExtractor::new, "flac/ext-bear.flac", ApplicationProvider.getApplicationContext());
   }
 
   @Test
   public void testExtractFlacSampleWithId3Header() throws Exception {
     ExtractorAsserts.assertBehavior(
-        FlacExtractor::new, "bear_with_id3.flac", ApplicationProvider.getApplicationContext());
+        FlacExtractor::new,
+        "flac/ext-bear_with_id3.flac",
+        ApplicationProvider.getApplicationContext());
   }
 }
