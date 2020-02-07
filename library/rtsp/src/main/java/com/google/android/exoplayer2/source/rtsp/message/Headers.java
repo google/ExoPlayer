@@ -39,7 +39,8 @@ public final class Headers {
 
     /**
      * Added a specified header {@code value} for the specified {@code name}. If a header for
-     * this name previously existed, the old value is replaced by the specified value.
+     * this name previously existed, the old value is replaced by the specified value except for
+     * the W3Authenticate header.
      *
      * @param name The name of the header.
      * @param value The value of the header.
@@ -47,7 +48,12 @@ public final class Headers {
     public synchronized void add(String name, String value) {
         headersSnapshot = null;
         if (headers.containsKey(name)) {
-            headers.get(name).add(value);
+            List<String> values = headers.get(name);
+            if (Header.W3Authenticate.toString().equals(name)) {
+                values.add(value);
+            } else {
+                values.set(0, value);
+            }
         } else {
             headers.put(name, new ArrayList<>(Arrays.asList(value)));
         }
