@@ -403,8 +403,7 @@ int Libgav1GetFrameBuffer(void* callback_private_data, int bitdepth,
     return -1;
   }
 
-  JniContext* const context =
-      reinterpret_cast<JniContext*>(callback_private_data);
+  JniContext* const context = static_cast<JniContext*>(callback_private_data);
   JniFrameBuffer* jni_buffer;
   context->jni_status_code = context->buffer_manager.GetBuffer(
       static_cast<size_t>(y_plane_size), static_cast<size_t>(uv_plane_size),
@@ -443,8 +442,7 @@ int Libgav1GetFrameBuffer(void* callback_private_data, int bitdepth,
 
 void Libgav1ReleaseFrameBuffer(void* callback_private_data,
                                void* buffer_private_data) {
-  JniContext* const context =
-      reinterpret_cast<JniContext*>(callback_private_data);
+  JniContext* const context = static_cast<JniContext*>(callback_private_data);
   const int buffer_id = reinterpret_cast<int>(buffer_private_data);
   context->jni_status_code = context->buffer_manager.ReleaseBuffer(buffer_id);
   if (context->jni_status_code != kJniStatusOk) {
