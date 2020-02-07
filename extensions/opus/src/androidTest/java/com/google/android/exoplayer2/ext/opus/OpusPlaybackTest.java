@@ -38,7 +38,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class OpusPlaybackTest {
 
-  private static final String BEAR_OPUS_URI = "asset:///bear-opus.webm";
+  private static final String BEAR_OPUS_URI = "asset:///ogg/bear-opus.webm";
 
   @Before
   public void setUp() {
