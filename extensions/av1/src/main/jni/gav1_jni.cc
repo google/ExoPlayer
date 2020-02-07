@@ -27,6 +27,7 @@
 #endif  // CPU_FEATURES_COMPILED_ANY_ARM_NEON
 #include <jni.h>
 
+#include <cstdint>
 #include <cstring>
 #include <mutex>  // NOLINT
 #include <new>
@@ -121,15 +122,13 @@ const char* GetJniErrorMessage(JniStatusCode error_code) {
   }
 }
 
-// Manages Libgav1FrameBuffer and reference information.
+// Manages frame buffer and reference information.
 class JniFrameBuffer {
  public:
-  explicit JniFrameBuffer(int id) : id_(id), reference_count_(0) {
-    gav1_frame_buffer_.private_data = &id_;
-  }
+  explicit JniFrameBuffer(int id) : id_(id), reference_count_(0) {}
   ~JniFrameBuffer() {
     for (int plane_index = kPlaneY; plane_index < kMaxPlanes; plane_index++) {
-      delete[] gav1_frame_buffer_.data[plane_index];
+      delete[] raw_buffer_[plane_index];
     }
   }
 
@@ -160,9 +159,8 @@ class JniFrameBuffer {
   void RemoveReference() { reference_count_--; }
   bool InUse() const { return reference_count_ != 0; }
 
-  const Libgav1FrameBuffer& GetGav1FrameBuffer() const {
-    return gav1_frame_buffer_;
-  }
+  uint8_t* RawBuffer(int plane_index) const { return raw_buffer_[plane_index]; }
+  int Id() const { return id_; }
 
   // Attempts to reallocate data planes if the existing ones don't have enough
   // capacity. Returns true if the allocation was successful or wasn't needed,
@@ -172,15 +170,14 @@ class JniFrameBuffer {
     for (int plane_index = kPlaneY; plane_index < kMaxPlanes; plane_index++) {
       const int min_size =
           (plane_index == kPlaneY) ? y_plane_min_size : uv_plane_min_size;
-      if (gav1_frame_buffer_.size[plane_index] >= min_size) continue;
-      delete[] gav1_frame_buffer_.data[plane_index];
-      gav1_frame_buffer_.data[plane_index] =
-          new (std::nothrow) uint8_t[min_size];
-      if (!gav1_frame_buffer_.data[plane_index]) {
-        gav1_frame_buffer_.size[plane_index] = 0;
+      if (raw_buffer_size_[plane_index] >= min_size) continue;
+      delete[] raw_buffer_[plane_index];
+      raw_buffer_[plane_index] = new (std::nothrow) uint8_t[min_size];
+      if (!raw_buffer_[plane_index]) {
+        raw_buffer_size_[plane_index] = 0;
         return false;
       }
-      gav1_frame_buffer_.size[plane_index] = min_size;
+      raw_buffer_size_[plane_index] = min_size;
     }
     return true;
   }
@@ -190,9 +187,12 @@ class JniFrameBuffer {
   uint8_t* plane_[kMaxPlanes];
   int displayed_width_[kMaxPlanes];
   int displayed_height_[kMaxPlanes];
-  int id_;
+  const int id_;
   int reference_count_;
-  Libgav1FrameBuffer gav1_frame_buffer_ = {};
+  // Pointers to the raw buffers allocated for the data planes.
+  uint8_t* raw_buffer_[kMaxPlanes] = {};
+  // Sizes of the raw buffers in bytes.
+  size_t raw_buffer_size_[kMaxPlanes] = {};
 };
 
 // Manages frame buffers used by libgav1 decoder and ExoPlayer.
@@ -210,7 +210,7 @@ class JniBufferManager {
   }
 
   JniStatusCode GetBuffer(size_t y_plane_min_size, size_t uv_plane_min_size,
-                          Libgav1FrameBuffer* frame_buffer) {
+                          JniFrameBuffer** jni_buffer) {
     std::lock_guard<std::mutex> lock(mutex_);
 
     JniFrameBuffer* output_buffer;
@@ -230,7 +230,7 @@ class JniBufferManager {
     }
 
     output_buffer->AddReference();
-    *frame_buffer = output_buffer->GetGav1FrameBuffer();
+    *jni_buffer = output_buffer;
 
     return kJniStatusOk;
   }
@@ -316,32 +316,141 @@ struct JniContext {
   JniStatusCode jni_status_code = kJniStatusOk;
 };
 
-int Libgav1GetFrameBuffer(void* private_data, size_t y_plane_min_size,
-                          size_t uv_plane_min_size,
-                          Libgav1FrameBuffer* frame_buffer) {
-  JniContext* const context = reinterpret_cast<JniContext*>(private_data);
+// Aligns |value| to the desired |alignment|. |alignment| must be a power of 2.
+template <typename T>
+constexpr T Align(T value, T alignment) {
+  const T alignment_mask = alignment - 1;
+  return (value + alignment_mask) & ~alignment_mask;
+}
+
+// Aligns |addr| to the desired |alignment|. |alignment| must be a power of 2.
+uint8_t* AlignAddr(uint8_t* const addr, const size_t alignment) {
+  const auto value = reinterpret_cast<size_t>(addr);
+  return reinterpret_cast<uint8_t*>(Align(value, alignment));
+}
+
+// Libgav1 frame buffer callbacks return 0 on success, -1 on failure.
+
+int Libgav1OnFrameBufferSizeChanged(void* /*callback_private_data*/,
+                                    int /*bitdepth*/,
+                                    libgav1::ImageFormat /*image_format*/,
+                                    int /*width*/, int /*height*/,
+                                    int /*left_border*/, int /*right_border*/,
+                                    int /*top_border*/, int /*bottom_border*/,
+                                    int /*stride_alignment*/) {
+  // The libgav1 decoder calls this callback to provide information on the
+  // subsequent frames in the video. JniBufferManager ignores this information.
+  return 0;
+}
+
+int Libgav1GetFrameBuffer(void* callback_private_data, int bitdepth,
+                          libgav1::ImageFormat image_format, int width,
+                          int height, int left_border, int right_border,
+                          int top_border, int bottom_border,
+                          int stride_alignment,
+                          libgav1::FrameBuffer2* frame_buffer) {
+  bool is_monochrome = false;
+  int8_t subsampling_x = 1;
+  int8_t subsampling_y = 1;
+  switch (image_format) {
+    case libgav1::kImageFormatYuv420:
+      break;
+    case libgav1::kImageFormatYuv422:
+      subsampling_y = 0;
+      break;
+    case libgav1::kImageFormatYuv444:
+      subsampling_x = subsampling_y = 0;
+      break;
+    default:
+      // image_format is libgav1::kImageFormatMonochrome400. (AV1 has only four
+      // image formats, hardcoded in the spec).
+      is_monochrome = true;
+      break;
+  }
+
+  // Calculate y_stride (in bytes). It is padded to a multiple of
+  // |stride_alignment| bytes.
+  int y_stride = width + left_border + right_border;
+  if (bitdepth > 8) y_stride *= sizeof(uint16_t);
+  y_stride = Align(y_stride, stride_alignment);
+  // Size of the Y plane in bytes.
+  const uint64_t y_plane_size =
+      (height + top_border + bottom_border) * static_cast<uint64_t>(y_stride) +
+      (stride_alignment - 1);
+
+  const int uv_width = is_monochrome ? 0 : width >> subsampling_x;
+  const int uv_height = is_monochrome ? 0 : height >> subsampling_y;
+  const int uv_left_border = is_monochrome ? 0 : left_border >> subsampling_x;
+  const int uv_right_border = is_monochrome ? 0 : right_border >> subsampling_x;
+  const int uv_top_border = is_monochrome ? 0 : top_border >> subsampling_y;
+  const int uv_bottom_border =
+      is_monochrome ? 0 : bottom_border >> subsampling_y;
+
+  // Calculate uv_stride (in bytes). It is padded to a multiple of
+  // |stride_alignment| bytes.
+  int uv_stride = uv_width + uv_left_border + uv_right_border;
+  if (bitdepth > 8) uv_stride *= sizeof(uint16_t);
+  uv_stride = Align(uv_stride, stride_alignment);
+  // Size of the U or V plane in bytes.
+  const uint64_t uv_plane_size =
+      is_monochrome ? 0
+                    : (uv_height + uv_top_border + uv_bottom_border) *
+                              static_cast<uint64_t>(uv_stride) +
+                          (stride_alignment - 1);
+
+  // Check if it is safe to cast y_plane_size and uv_plane_size to size_t.
+  if (y_plane_size > SIZE_MAX || uv_plane_size > SIZE_MAX) {
+    return -1;
+  }
+
+  JniContext* const context =
+      reinterpret_cast<JniContext*>(callback_private_data);
+  JniFrameBuffer* jni_buffer;
   context->jni_status_code = context->buffer_manager.GetBuffer(
-      y_plane_min_size, uv_plane_min_size, frame_buffer);
+      static_cast<size_t>(y_plane_size), static_cast<size_t>(uv_plane_size),
+      &jni_buffer);
   if (context->jni_status_code != kJniStatusOk) {
     LOGE("%s", GetJniErrorMessage(context->jni_status_code));
     return -1;
   }
+
+  uint8_t* const y_buffer = jni_buffer->RawBuffer(0);
+  uint8_t* const u_buffer = !is_monochrome ? jni_buffer->RawBuffer(1) : nullptr;
+  uint8_t* const v_buffer = !is_monochrome ? jni_buffer->RawBuffer(2) : nullptr;
+
+  int left_border_bytes = left_border;
+  int uv_left_border_bytes = uv_left_border;
+  if (bitdepth > 8) {
+    left_border_bytes *= sizeof(uint16_t);
+    uv_left_border_bytes *= sizeof(uint16_t);
+  }
+  frame_buffer->plane[0] = AlignAddr(
+      y_buffer + (top_border * y_stride) + left_border_bytes, stride_alignment);
+  frame_buffer->plane[1] =
+      AlignAddr(u_buffer + (uv_top_border * uv_stride) + uv_left_border_bytes,
+                stride_alignment);
+  frame_buffer->plane[2] =
+      AlignAddr(v_buffer + (uv_top_border * uv_stride) + uv_left_border_bytes,
+                stride_alignment);
+
+  frame_buffer->stride[0] = y_stride;
+  frame_buffer->stride[1] = frame_buffer->stride[2] = uv_stride;
+
+  frame_buffer->private_data = reinterpret_cast<void*>(jni_buffer->Id());
+
   return 0;
 }
 
-int Libgav1ReleaseFrameBuffer(void* private_data,
-                              Libgav1FrameBuffer* frame_buffer) {
-  JniContext* const context = reinterpret_cast<JniContext*>(private_data);
-  const int buffer_id = *reinterpret_cast<int*>(frame_buffer->private_data);
+void Libgav1ReleaseFrameBuffer(void* callback_private_data,
+                               void* buffer_private_data) {
+  JniContext* const context =
+      reinterpret_cast<JniContext*>(callback_private_data);
+  const int buffer_id = reinterpret_cast<int>(buffer_private_data);
   context->jni_status_code = context->buffer_manager.ReleaseBuffer(buffer_id);
   if (context->jni_status_code != kJniStatusOk) {
     LOGE("%s", GetJniErrorMessage(context->jni_status_code));
-    return -1;
   }
-  return 0;
 }
-
-constexpr int AlignTo16(int value) { return (value + 15) & (~15); }
 
 void CopyPlane(const uint8_t* source, int source_stride, uint8_t* destination,
                int destination_stride, int width, int height) {
@@ -508,8 +617,9 @@ DECODER_FUNC(jlong, gav1Init, jint threads) {
 
   libgav1::DecoderSettings settings;
   settings.threads = threads;
-  settings.get = Libgav1GetFrameBuffer;
-  settings.release = Libgav1ReleaseFrameBuffer;
+  settings.on_frame_buffer_size_changed = Libgav1OnFrameBufferSizeChanged;
+  settings.get_frame_buffer = Libgav1GetFrameBuffer;
+  settings.release_frame_buffer = Libgav1ReleaseFrameBuffer;
   settings.callback_private_data = context;
 
   context->libgav1_status_code = context->decoder.Init(&settings);
@@ -619,7 +729,7 @@ DECODER_FUNC(jint, gav1GetFrame, jlong jContext, jobject jOutputBuffer,
     }
 
     const int buffer_id =
-        *reinterpret_cast<int*>(decoder_buffer->buffer_private_data);
+        reinterpret_cast<int>(decoder_buffer->buffer_private_data);
     context->buffer_manager.AddBufferReference(buffer_id);
     JniFrameBuffer* const jni_buffer =
         context->buffer_manager.GetBuffer(buffer_id);
@@ -680,7 +790,7 @@ DECODER_FUNC(jint, gav1RenderFrame, jlong jContext, jobject jSurface,
   const int32_t native_window_buffer_uv_height =
       (native_window_buffer.height + 1) / 2;
   const int native_window_buffer_uv_stride =
-      AlignTo16(native_window_buffer.stride / 2);
+      Align(native_window_buffer.stride / 2, 16);
 
   // TODO(b/140606738): Handle monochrome videos.
 
