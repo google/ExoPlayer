@@ -27,8 +27,8 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class SsManifestParserTest {
 
-  private static final String SAMPLE_ISMC_1 = "sample_ismc_1";
-  private static final String SAMPLE_ISMC_2 = "sample_ismc_2";
+  private static final String SAMPLE_ISMC_1 = "smooth-streaming/sample_ismc_1";
+  private static final String SAMPLE_ISMC_2 = "smooth-streaming/sample_ismc_2";
 
   /** Simple test to ensure the sample manifests parse without any exceptions being thrown. */
   @Test
