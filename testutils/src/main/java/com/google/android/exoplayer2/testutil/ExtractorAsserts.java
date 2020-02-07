@@ -28,7 +28,6 @@ import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput.SimulatedIOException;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
-import java.util.Arrays;
 
 /**
  * Assertion methods for {@link Extractor}.
@@ -210,7 +209,7 @@ public final class ExtractorAsserts {
     }
 
     FakeExtractorOutput extractorOutput = consumeTestData(extractor, input, 0, true);
-    if (simulateUnknownLength && assetExists(context, dumpFilesPrefix + UNKNOWN_LENGTH_EXTENSION)) {
+    if (simulateUnknownLength) {
       extractorOutput.assertOutput(context, dumpFilesPrefix + UNKNOWN_LENGTH_EXTENSION);
     } else {
       extractorOutput.assertOutput(context, dumpFilesPrefix + ".0" + DUMP_EXTENSION);
@@ -220,7 +219,7 @@ public final class ExtractorAsserts {
     extractorOutput.clearTrackOutputs();
     input.reset();
     consumeTestData(extractor, input, /* timeUs= */ 0, extractorOutput, false);
-    if (simulateUnknownLength && assetExists(context, dumpFilesPrefix + UNKNOWN_LENGTH_EXTENSION)) {
+    if (simulateUnknownLength) {
       extractorOutput.assertOutput(context, dumpFilesPrefix + UNKNOWN_LENGTH_EXTENSION);
     } else {
       extractorOutput.assertOutput(context, dumpFilesPrefix + ".0" + DUMP_EXTENSION);
@@ -373,13 +372,5 @@ public final class ExtractorAsserts {
         extractor.seek(0, 0);
       }
     }
-  }
-
-  private static boolean assetExists(Context context, String fileName) throws IOException {
-    int i = fileName.lastIndexOf('/');
-    String path = i >= 0 ? fileName.substring(0, i) : "";
-    String file = i >= 0 ? fileName.substring(i + 1) : fileName;
-    String[] assets = context.getResources().getAssets().list(path);
-    return assets != null && Arrays.asList(assets).contains(file);
   }
 }
