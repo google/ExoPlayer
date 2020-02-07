@@ -42,10 +42,10 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class VpxPlaybackTest {
 
-  private static final String BEAR_URI = "asset:///bear-vp9.webm";
-  private static final String BEAR_ODD_DIMENSIONS_URI = "asset:///bear-vp9-odd-dimensions.webm";
-  private static final String ROADTRIP_10BIT_URI = "asset:///roadtrip-vp92-10bit.webm";
-  private static final String INVALID_BITSTREAM_URI = "asset:///invalid-bitstream.webm";
+  private static final String BEAR_URI = "asset:///vp9/bear-vp9.webm";
+  private static final String BEAR_ODD_DIMENSIONS_URI = "asset:///vp9/bear-vp9-odd-dimensions.webm";
+  private static final String ROADTRIP_10BIT_URI = "asset:///vp9/roadtrip-vp92-10bit.webm";
+  private static final String INVALID_BITSTREAM_URI = "asset:///vp9/invalid-bitstream.webm";
 
   private static final String TAG = "VpxPlaybackTest";
 
