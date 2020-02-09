@@ -89,8 +89,14 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
     throw new UnsupportedOperationException();
   }
 
+  @Deprecated
   @Override
   public ExoPlaybackException getPlaybackError() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public ExoPlaybackException getPlayerError() {
     throw new UnsupportedOperationException();
   }
 

@@ -337,9 +337,16 @@ public final class CastPlayer extends BasePlayer {
     return Player.PLAYBACK_SUPPRESSION_REASON_NONE;
   }
 
+  @Deprecated
   @Override
   @Nullable
   public ExoPlaybackException getPlaybackError() {
+    return getPlayerError();
+  }
+
+  @Override
+  @Nullable
+  public ExoPlaybackException getPlayerError() {
     return null;
   }
 

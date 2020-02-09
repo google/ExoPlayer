@@ -752,7 +752,7 @@ public final class MediaSessionConnector {
     customActionMap = Collections.unmodifiableMap(currentActions);
 
     Bundle extras = new Bundle();
-    @Nullable ExoPlaybackException playbackError = player.getPlaybackError();
+    @Nullable ExoPlaybackException playbackError = player.getPlayerError();
     boolean reportError = playbackError != null || customError != null;
     int sessionPlaybackState =
         reportError

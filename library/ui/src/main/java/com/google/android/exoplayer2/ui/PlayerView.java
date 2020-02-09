@@ -1393,7 +1393,7 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
         errorMessageView.setVisibility(View.VISIBLE);
         return;
       }
-      @Nullable ExoPlaybackException error = player != null ? player.getPlaybackError() : null;
+      @Nullable ExoPlaybackException error = player != null ? player.getPlayerError() : null;
       if (error != null && errorMessageProvider != null) {
         CharSequence errorMessage = errorMessageProvider.getErrorMessage(error).second;
         errorMessageView.setText(errorMessage);
