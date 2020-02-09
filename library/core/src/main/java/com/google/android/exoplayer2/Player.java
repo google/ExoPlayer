@@ -755,6 +755,11 @@ public interface Player {
    * @return The error, or {@code null}.
    */
   @Nullable
+  ExoPlaybackException getPlayerError();
+
+  /** @deprecated Use {@link #getPlayerError()} instead. */
+  @Deprecated
+  @Nullable
   ExoPlaybackException getPlaybackError();
 
   /**

@@ -240,9 +240,16 @@ import java.util.concurrent.TimeoutException;
     return playbackSuppressionReason;
   }
 
+  @Deprecated
   @Override
   @Nullable
   public ExoPlaybackException getPlaybackError() {
+    return getPlayerError();
+  }
+
+  @Override
+  @Nullable
+  public ExoPlaybackException getPlayerError() {
     return playbackInfo.playbackError;
   }
 
