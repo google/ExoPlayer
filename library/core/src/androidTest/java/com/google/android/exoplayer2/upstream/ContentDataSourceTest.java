@@ -43,7 +43,7 @@ import org.junit.runner.RunWith;
 public final class ContentDataSourceTest {
 
   private static final String AUTHORITY = "com.google.android.exoplayer2.core.test";
-  private static final String DATA_PATH = "binary/1024_incrementing_bytes.mp3";
+  private static final String DATA_PATH = "mp3/1024_incrementing_bytes.mp3";
 
   @Test
   public void testRead() throws Exception {
