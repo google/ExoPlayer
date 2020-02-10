@@ -52,6 +52,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private long pendingFlushCount;
   private @State int state;
   private Runnable codecStartRunnable;
+  private final MediaCodecInputBufferEnqueuer bufferEnqueuer;
   @Nullable private IllegalStateException internalException;
 
   /**
@@ -75,6 +76,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.handlerThread = handlerThread;
     state = STATE_CREATED;
     codecStartRunnable = codec::start;
+    bufferEnqueuer = new SynchronousMediaCodecBufferEnqueuer(this.codec);
   }
 
   @Override
@@ -82,6 +84,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     handlerThread.start();
     handler = new Handler(handlerThread.getLooper());
     codec.setCallback(this, handler);
+    bufferEnqueuer.start();
     codecStartRunnable.run();
     state = STATE_STARTED;
   }
@@ -91,7 +94,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       int index, int offset, int size, long presentationTimeUs, int flags) {
     // This method does not need to be synchronized because it does not interact with the
     // mediaCodecAsyncCallback.
-    codec.queueInputBuffer(index, offset, size, presentationTimeUs, flags);
+    bufferEnqueuer.queueInputBuffer(index, offset, size, presentationTimeUs, flags);
   }
 
   @Override
@@ -99,7 +102,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       int index, int offset, MediaCodec.CryptoInfo info, long presentationTimeUs, int flags) {
     // This method does not need to be synchronized because it does not interact with the
     // mediaCodecAsyncCallback.
-    codec.queueSecureInputBuffer(index, offset, info, presentationTimeUs, flags);
+    bufferEnqueuer.queueSecureInputBuffer(index, offset, info, presentationTimeUs, flags);
   }
 
   @Override
@@ -129,6 +132,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public synchronized void flush() {
+    bufferEnqueuer.flush();
     codec.flush();
     ++pendingFlushCount;
     Util.castNonNull(handler).post(this::onFlushCompleted);
@@ -137,10 +141,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   public synchronized void shutdown() {
     if (state == STATE_STARTED) {
+      bufferEnqueuer.shutdown();
       handlerThread.quit();
       mediaCodecAsyncCallback.flush();
     }
-
     state = STATE_SHUT_DOWN;
   }
 
