@@ -1221,7 +1221,14 @@ public class PlayerControlView extends FrameLayout {
     }
 
     @Override
-    public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
+    public void onPlaybackStateChanged(@Player.State int playbackState) {
+      updatePlayPauseButton();
+      updateProgress();
+    }
+
+    @Override
+    public void onPlayWhenReadyChanged(
+        boolean playWhenReady, @Player.PlayWhenReadyChangeReason int reason) {
       updatePlayPauseButton();
       updateProgress();
     }

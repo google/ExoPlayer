@@ -1418,6 +1418,14 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
     }
   }
 
+  private void updateControllerVisibility() {
+    if (isPlayingAd() && controllerHideDuringAds) {
+      hideController();
+    } else {
+      maybeShowController(false);
+    }
+  }
+
   @RequiresApi(23)
   private static void configureEditModeLogoV23(Resources resources, ImageView logo) {
     logo.setImageDrawable(resources.getDrawable(R.drawable.exo_edit_mode_logo, null));
@@ -1532,14 +1540,17 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
     // Player.EventListener implementation
 
     @Override
-    public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
+    public void onPlaybackStateChanged(@Player.State int playbackState) {
       updateBuffering();
       updateErrorMessage();
-      if (isPlayingAd() && controllerHideDuringAds) {
-        hideController();
-      } else {
-        maybeShowController(false);
-      }
+      updateControllerVisibility();
+    }
+
+    @Override
+    public void onPlayWhenReadyChanged(
+        boolean playWhenReady, @Player.PlayWhenReadyChangeReason int reason) {
+      updateBuffering();
+      updateControllerVisibility();
     }
 
     @Override
