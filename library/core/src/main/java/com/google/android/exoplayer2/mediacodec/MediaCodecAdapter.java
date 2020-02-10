@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.mediacodec;
 
 import android.media.MediaCodec;
 import android.media.MediaFormat;
+import com.google.android.exoplayer2.decoder.CryptoInfo;
 
 /**
  * Abstracts {@link MediaCodec} operations.
@@ -81,10 +82,14 @@ import android.media.MediaFormat;
    * <p>The {@code index} must be an input buffer index that has been obtained from a previous call
    * to {@link #dequeueInputBufferIndex()}.
    *
+   * <p>Note: This method behaves as {@link MediaCodec#queueSecureInputBuffer} with the difference
+   * that {@code info} is of type {@link CryptoInfo} and not {@link
+   * android.media.MediaCodec.CryptoInfo}.
+   *
    * @see MediaCodec#queueSecureInputBuffer
    */
   void queueSecureInputBuffer(
-      int index, int offset, MediaCodec.CryptoInfo info, long presentationTimeUs, int flags);
+      int index, int offset, CryptoInfo info, long presentationTimeUs, int flags);
 
   /**
    * Flushes the {@code MediaCodecAdapter}.

@@ -15,9 +15,11 @@
  */
 package com.google.android.exoplayer2.decoder;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
+import java.util.Arrays;
 
 /**
  * Compatibility wrapper for {@link android.media.MediaCodec.CryptoInfo}.
@@ -105,10 +107,74 @@ public final class CryptoInfo {
     return frameworkCryptoInfo;
   }
 
+  /** Performs a deep copy to {@code cryptoInfo}. */
+  public void copyTo(android.media.MediaCodec.CryptoInfo cryptoInfo) {
+    // Update cryptoInfo fields directly because CryptoInfo.set performs an unnecessary
+    // object allocation on Android N.
+    cryptoInfo.numSubSamples = numSubSamples;
+    cryptoInfo.numBytesOfClearData = copyOrNull(frameworkCryptoInfo.numBytesOfClearData);
+    cryptoInfo.numBytesOfEncryptedData = copyOrNull(frameworkCryptoInfo.numBytesOfEncryptedData);
+    cryptoInfo.key = copyOrNull(frameworkCryptoInfo.key);
+    cryptoInfo.iv = copyOrNull(frameworkCryptoInfo.iv);
+    cryptoInfo.mode = mode;
+    if (Util.SDK_INT >= 24) {
+      android.media.MediaCodec.CryptoInfo.Pattern pattern = patternHolder.pattern;
+      android.media.MediaCodec.CryptoInfo.Pattern patternCopy =
+          new android.media.MediaCodec.CryptoInfo.Pattern(
+              pattern.getEncryptBlocks(), pattern.getSkipBlocks());
+      cryptoInfo.setPattern(patternCopy);
+    }
+  }
+
   /** @deprecated Use {@link #getFrameworkCryptoInfo()}. */
   @Deprecated
   public android.media.MediaCodec.CryptoInfo getFrameworkCryptoInfoV16() {
     return getFrameworkCryptoInfo();
+  }
+
+  /**
+   * Increases the number of clear data for the first sub sample by {@code count}.
+   *
+   * <p>If {@code count} is 0, this method is a no-op. Otherwise, it adds {@code count} to {@link
+   * #numBytesOfClearData}[0].
+   *
+   * <p>If {@link #numBytesOfClearData} is null (which is permitted), this method will instantiate
+   * it to a new {@code int[1]}.
+   *
+   * @param count The number of bytes to be added to the first subSample of {@link
+   *     #numBytesOfClearData}.
+   */
+  public void increaseClearDataFirstSubSampleBy(int count) {
+    if (count == 0) {
+      return;
+    }
+
+    if (numBytesOfClearData == null) {
+      numBytesOfClearData = new int[1];
+    }
+    numBytesOfClearData[0] += count;
+
+    // It is OK to have numBytesOfClearData and frameworkCryptoInfo.numBytesOfClearData  point to
+    // the same array, see set().
+    if (frameworkCryptoInfo.numBytesOfClearData == null) {
+      frameworkCryptoInfo.numBytesOfClearData = numBytesOfClearData;
+    }
+
+    // Update frameworkCryptoInfo.numBytesOfClearData only if it points to a different array than
+    // numBytesOfClearData (all fields are public and non-final, therefore they can set be set
+    // directly without calling set()). Otherwise, the array has been updated already in the steps
+    // above.
+    if (frameworkCryptoInfo.numBytesOfClearData != numBytesOfClearData) {
+      frameworkCryptoInfo.numBytesOfClearData[0] += count;
+    }
+  }
+
+  private static int[] copyOrNull(@Nullable int[] array) {
+    return array != null ? Arrays.copyOf(array, array.length) : null;
+  }
+
+  private static byte[] copyOrNull(@Nullable byte[] array) {
+    return array != null ? Arrays.copyOf(array, array.length) : null;
   }
 
   @RequiresApi(24)

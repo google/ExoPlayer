@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.mediacodec;
 
 import android.media.MediaCodec;
 import android.media.MediaFormat;
+import com.google.android.exoplayer2.decoder.CryptoInfo;
 
 /**
  * A {@link MediaCodecAdapter} that operates the underlying {@link MediaCodec} in synchronous mode.
@@ -58,8 +59,9 @@ import android.media.MediaFormat;
 
   @Override
   public void queueSecureInputBuffer(
-      int index, int offset, MediaCodec.CryptoInfo info, long presentationTimeUs, int flags) {
-    codec.queueSecureInputBuffer(index, offset, info, presentationTimeUs, flags);
+      int index, int offset, CryptoInfo info, long presentationTimeUs, int flags) {
+    codec.queueSecureInputBuffer(
+        index, offset, info.getFrameworkCryptoInfo(), presentationTimeUs, flags);
   }
 
   @Override
