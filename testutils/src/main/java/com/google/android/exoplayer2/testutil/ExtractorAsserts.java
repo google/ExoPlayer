@@ -170,10 +170,8 @@ public final class ExtractorAsserts {
   }
 
   /**
-   * Asserts that {@code extractor} consumes {@code sampleFile} successfully and its output equals
-   * to a prerecorded output dump file with the name {@code sampleFile} + "{@value
-   * #DUMP_EXTENSION}". If {@code simulateUnknownLength} is true and {@code sampleFile} + "{@value
-   * #UNKNOWN_LENGTH_EXTENSION}" exists, it's preferred.
+   * Asserts that {@code extractor} consumes {@code data} successfully and that its output for
+   * various initial seek times and for a known and unknown length matches prerecorded dump files.
    *
    * @param extractor The {@link Extractor} to be tested.
    * @param dumpFilesPrefix The dump files prefix appended to the dump files path.
@@ -295,7 +293,7 @@ public final class ExtractorAsserts {
   }
 
   /**
-   * Asserts {@code extractor} throws {@code expectedThrowable} while consuming {@code sampleFile}.
+   * Asserts {@code extractor} throws {@code expectedThrowable} while consuming {@code fileData}.
    *
    * @param extractor The {@link Extractor} to be tested.
    * @param fileData Content of the input file.
