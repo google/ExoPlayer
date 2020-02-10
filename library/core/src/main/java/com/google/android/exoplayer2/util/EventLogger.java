@@ -91,7 +91,7 @@ public class EventLogger implements AnalyticsListener {
   // AnalyticsListener
 
   @Override
-  public void onLoadingChanged(EventTime eventTime, boolean isLoading) {
+  public void onIsLoadingChanged(EventTime eventTime, boolean isLoading) {
     logd(eventTime, "loading", Boolean.toString(isLoading));
   }
 

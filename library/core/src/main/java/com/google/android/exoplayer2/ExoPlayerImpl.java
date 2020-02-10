@@ -1202,7 +1202,11 @@ import java.util.concurrent.TimeoutException;
                     playbackInfo.trackGroups, playbackInfo.trackSelectorResult.selections));
       }
       if (isLoadingChanged) {
-        invokeAll(listenerSnapshot, listener -> listener.onLoadingChanged(playbackInfo.isLoading));
+        invokeAll(
+            listenerSnapshot,
+            listener -> {
+              listener.onIsLoadingChanged(playbackInfo.isLoading);
+            });
       }
       if (playbackStateChanged) {
         invokeAll(

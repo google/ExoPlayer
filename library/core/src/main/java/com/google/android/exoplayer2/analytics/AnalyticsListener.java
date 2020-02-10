@@ -227,6 +227,13 @@ public interface AnalyticsListener {
    * @param eventTime The event time.
    * @param isLoading Whether the player is loading.
    */
+  @SuppressWarnings("deprecation")
+  default void onIsLoadingChanged(EventTime eventTime, boolean isLoading) {
+    onLoadingChanged(eventTime, isLoading);
+  }
+
+  /** @deprecated Use {@link #onIsLoadingChanged(EventTime, boolean)} instead. */
+  @Deprecated
   default void onLoadingChanged(EventTime eventTime, boolean isLoading) {}
 
   /**

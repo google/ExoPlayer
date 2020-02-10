@@ -407,6 +407,13 @@ public interface Player {
      *
      * @param isLoading Whether the source is currently being loaded.
      */
+    @SuppressWarnings("deprecation")
+    default void onIsLoadingChanged(boolean isLoading) {
+      onLoadingChanged(isLoading);
+    }
+
+    /** @deprecated Use {@link #onIsLoadingChanged(boolean)} instead. */
+    @Deprecated
     default void onLoadingChanged(boolean isLoading) {}
 
     /**
