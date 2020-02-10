@@ -26,7 +26,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class AssetDataSourceTest {
 
-  private static final String DATA_PATH = "binary/1024_incrementing_bytes.mp3";
+  private static final String DATA_PATH = "mp3/1024_incrementing_bytes.mp3";
 
   @Test
   public void testReadFileUri() throws Exception {
