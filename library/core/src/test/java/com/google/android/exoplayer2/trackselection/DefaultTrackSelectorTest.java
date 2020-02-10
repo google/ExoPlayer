@@ -1283,6 +1283,37 @@ public final class DefaultTrackSelectorTest {
   }
 
   @Test
+  public void selectTracks_multipleAudioTracks_selectsAllTracksInBestConfigurationOnly()
+      throws Exception {
+    TrackGroupArray trackGroups =
+        singleTrackGroup(
+            buildAudioFormatWithConfiguration(
+                /* id= */ "0", /* channelCount= */ 6, MimeTypes.AUDIO_AAC, /* sampleRate= */ 44100),
+            buildAudioFormatWithConfiguration(
+                /* id= */ "1", /* channelCount= */ 2, MimeTypes.AUDIO_AAC, /* sampleRate= */ 44100),
+            buildAudioFormatWithConfiguration(
+                /* id= */ "2", /* channelCount= */ 6, MimeTypes.AUDIO_AC3, /* sampleRate= */ 44100),
+            buildAudioFormatWithConfiguration(
+                /* id= */ "3", /* channelCount= */ 6, MimeTypes.AUDIO_AAC, /* sampleRate= */ 22050),
+            buildAudioFormatWithConfiguration(
+                /* id= */ "4", /* channelCount= */ 6, MimeTypes.AUDIO_AAC, /* sampleRate= */ 22050),
+            buildAudioFormatWithConfiguration(
+                /* id= */ "5", /* channelCount= */ 6, MimeTypes.AUDIO_AAC, /* sampleRate= */ 22050),
+            buildAudioFormatWithConfiguration(
+                /* id= */ "6",
+                /* channelCount= */ 6,
+                MimeTypes.AUDIO_AAC,
+                /* sampleRate= */ 44100));
+
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+
+    assertThat(result.length).isEqualTo(1);
+    assertAdaptiveSelection(result.selections.get(0), trackGroups.get(0), 0, 6);
+  }
+
+  @Test
   public void testSelectTracksWithMultipleAudioTracksWithMixedSampleRates() throws Exception {
     Format highSampleRateAudioFormat =
         buildAudioFormatWithSampleRate("44100", /* sampleRate= */ 44100);
@@ -1707,6 +1738,18 @@ public final class DefaultTrackSelectorTest {
         /* selectionFlags= */ 0,
         /* channelCount= */ 2,
         /* sampleRate= */ 44100);
+  }
+
+  private static Format buildAudioFormatWithConfiguration(
+      String id, int channelCount, String mimeType, int sampleRate) {
+    return buildAudioFormat(
+        id,
+        mimeType,
+        /* bitrate= */ Format.NO_VALUE,
+        /* language= */ null,
+        /* selectionFlags= */ 0,
+        channelCount,
+        sampleRate);
   }
 
   private static Format buildAudioFormat(String id) {
