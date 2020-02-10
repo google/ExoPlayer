@@ -325,6 +325,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private final ArrayList<Long> decodeOnlyPresentationTimestamps;
   private final MediaCodec.BufferInfo outputBufferInfo;
 
+  private boolean drmResourcesAcquired;
   @Nullable private Format inputFormat;
   private Format outputFormat;
   @Nullable private DrmSession<FrameworkMediaCrypto> codecDrmSession;
@@ -597,6 +598,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   @Override
   protected void onEnabled(boolean joining) throws ExoPlaybackException {
+    if (drmSessionManager != null && !drmResourcesAcquired) {
+      drmResourcesAcquired = true;
+      drmSessionManager.prepare();
+    }
     decoderCounters = new DecoderCounters();
   }
 
@@ -636,6 +641,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       releaseCodec();
     } finally {
       setSourceDrmSession(null);
+    }
+    if (drmSessionManager != null && drmResourcesAcquired) {
+      drmResourcesAcquired = false;
+      drmSessionManager.release();
     }
   }
 

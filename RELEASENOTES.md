@@ -16,6 +16,8 @@
     [#6798](https://github.com/google/ExoPlayer/issues/6798)).
   * Fix `DownloadHelper.createMediaSource` to use `customCacheKey` when creating
     `ProgressiveMediaSource` instances.
+* DRM: Fix `NullPointerException` when playing DRM-protected content
+  ([#6951](https://github.com/google/ExoPlayer/issues/6951)).
 * Metadata:
   * Update `IcyDecoder` to try ISO-8859-1 decoding if UTF-8 decoding fails.
     Also change `IcyInfo.rawMetadata` from `String` to `byte[]` to allow

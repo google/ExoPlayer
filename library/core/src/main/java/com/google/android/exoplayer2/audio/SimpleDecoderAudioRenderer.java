@@ -97,6 +97,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   private final AudioSink audioSink;
   private final DecoderInputBuffer flagsOnlyBuffer;
 
+  private boolean drmResourcesAcquired;
   private DecoderCounters decoderCounters;
   private Format inputFormat;
   private int encoderDelay;
@@ -539,6 +540,10 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
 
   @Override
   protected void onEnabled(boolean joining) throws ExoPlaybackException {
+    if (drmSessionManager != null && !drmResourcesAcquired) {
+      drmResourcesAcquired = true;
+      drmSessionManager.prepare();
+    }
     decoderCounters = new DecoderCounters();
     eventDispatcher.enabled(decoderCounters);
     int tunnelingAudioSessionId = getConfiguration().tunnelingAudioSessionId;
@@ -584,6 +589,14 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
       audioSink.reset();
     } finally {
       eventDispatcher.disabled(decoderCounters);
+    }
+  }
+
+  @Override
+  protected void onReset() {
+    if (drmSessionManager != null && drmResourcesAcquired) {
+      drmResourcesAcquired = false;
+      drmSessionManager.release();
     }
   }
 
