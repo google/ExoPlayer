@@ -2133,11 +2133,12 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           getAdaptiveAudioTracks(
               selectedGroup,
               formatSupports[selectedGroupIndex],
+              selectedTrackIndex,
               params.maxAudioBitrate,
               params.allowAudioMixedMimeTypeAdaptiveness,
               params.allowAudioMixedSampleRateAdaptiveness,
               params.allowAudioMixedChannelCountAdaptiveness);
-      if (adaptiveTracks.length > 0) {
+      if (adaptiveTracks.length > 1) {
         definition = new TrackSelection.Definition(selectedGroup, adaptiveTracks);
       }
     }
@@ -2152,100 +2153,49 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   private static int[] getAdaptiveAudioTracks(
       TrackGroup group,
       @Capabilities int[] formatSupport,
+      int primaryTrackIndex,
       int maxAudioBitrate,
       boolean allowMixedMimeTypeAdaptiveness,
       boolean allowMixedSampleRateAdaptiveness,
       boolean allowAudioMixedChannelCountAdaptiveness) {
-    int selectedConfigurationTrackCount = 0;
-    AudioConfigurationTuple selectedConfiguration = null;
-    HashSet<AudioConfigurationTuple> seenConfigurationTuples = new HashSet<>();
-    for (int i = 0; i < group.length; i++) {
-      Format format = group.getFormat(i);
-      AudioConfigurationTuple configuration =
-          new AudioConfigurationTuple(
-              format.channelCount, format.sampleRate, format.sampleMimeType);
-      if (seenConfigurationTuples.add(configuration)) {
-        int configurationCount =
-            getAdaptiveAudioTrackCount(
-                group,
-                formatSupport,
-                configuration,
-                maxAudioBitrate,
-                allowMixedMimeTypeAdaptiveness,
-                allowMixedSampleRateAdaptiveness,
-                allowAudioMixedChannelCountAdaptiveness);
-        if (configurationCount > selectedConfigurationTrackCount) {
-          selectedConfiguration = configuration;
-          selectedConfigurationTrackCount = configurationCount;
-        }
-      }
-    }
-
-    if (selectedConfigurationTrackCount > 1) {
-      Assertions.checkNotNull(selectedConfiguration);
-      int[] adaptiveIndices = new int[selectedConfigurationTrackCount];
-      int index = 0;
-      for (int i = 0; i < group.length; i++) {
-        Format format = group.getFormat(i);
-        if (isSupportedAdaptiveAudioTrack(
-            format,
-            formatSupport[i],
-            selectedConfiguration,
-            maxAudioBitrate,
-            allowMixedMimeTypeAdaptiveness,
-            allowMixedSampleRateAdaptiveness,
-            allowAudioMixedChannelCountAdaptiveness)) {
-          adaptiveIndices[index++] = i;
-        }
-      }
-      return adaptiveIndices;
-    }
-    return NO_TRACKS;
-  }
-
-  private static int getAdaptiveAudioTrackCount(
-      TrackGroup group,
-      @Capabilities int[] formatSupport,
-      AudioConfigurationTuple configuration,
-      int maxAudioBitrate,
-      boolean allowMixedMimeTypeAdaptiveness,
-      boolean allowMixedSampleRateAdaptiveness,
-      boolean allowAudioMixedChannelCountAdaptiveness) {
+    Format primaryFormat = group.getFormat(primaryTrackIndex);
+    int[] adaptiveIndices = new int[group.length];
     int count = 0;
     for (int i = 0; i < group.length; i++) {
-      if (isSupportedAdaptiveAudioTrack(
-          group.getFormat(i),
-          formatSupport[i],
-          configuration,
-          maxAudioBitrate,
-          allowMixedMimeTypeAdaptiveness,
-          allowMixedSampleRateAdaptiveness,
-          allowAudioMixedChannelCountAdaptiveness)) {
-        count++;
+      if (i == primaryTrackIndex
+          || isSupportedAdaptiveAudioTrack(
+              group.getFormat(i),
+              formatSupport[i],
+              primaryFormat,
+              maxAudioBitrate,
+              allowMixedMimeTypeAdaptiveness,
+              allowMixedSampleRateAdaptiveness,
+              allowAudioMixedChannelCountAdaptiveness)) {
+        adaptiveIndices[count++] = i;
       }
     }
-    return count;
+    return Arrays.copyOf(adaptiveIndices, count);
   }
 
   private static boolean isSupportedAdaptiveAudioTrack(
       Format format,
       @Capabilities int formatSupport,
-      AudioConfigurationTuple configuration,
+      Format primaryFormat,
       int maxAudioBitrate,
       boolean allowMixedMimeTypeAdaptiveness,
       boolean allowMixedSampleRateAdaptiveness,
       boolean allowAudioMixedChannelCountAdaptiveness) {
-    return isSupported(formatSupport, false)
+    return isSupported(formatSupport, /* allowExceedsCapabilities= */ false)
         && (format.bitrate == Format.NO_VALUE || format.bitrate <= maxAudioBitrate)
         && (allowAudioMixedChannelCountAdaptiveness
             || (format.channelCount != Format.NO_VALUE
-                && format.channelCount == configuration.channelCount))
+                && format.channelCount == primaryFormat.channelCount))
         && (allowMixedMimeTypeAdaptiveness
             || (format.sampleMimeType != null
-                && TextUtils.equals(format.sampleMimeType, configuration.mimeType)))
+                && TextUtils.equals(format.sampleMimeType, primaryFormat.sampleMimeType)))
         && (allowMixedSampleRateAdaptiveness
             || (format.sampleRate != Format.NO_VALUE
-                && format.sampleRate == configuration.sampleRate));
+                && format.sampleRate == primaryFormat.sampleRate));
   }
 
   // Text track selection implementation.
@@ -2703,41 +2653,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       }
       return 0;
     }
-  }
-
-  private static final class AudioConfigurationTuple {
-
-    public final int channelCount;
-    public final int sampleRate;
-    @Nullable public final String mimeType;
-
-    public AudioConfigurationTuple(int channelCount, int sampleRate, @Nullable String mimeType) {
-      this.channelCount = channelCount;
-      this.sampleRate = sampleRate;
-      this.mimeType = mimeType;
-    }
-
-    @Override
-    public boolean equals(@Nullable Object obj) {
-      if (this == obj) {
-        return true;
-      }
-      if (obj == null || getClass() != obj.getClass()) {
-        return false;
-      }
-      AudioConfigurationTuple other = (AudioConfigurationTuple) obj;
-      return channelCount == other.channelCount && sampleRate == other.sampleRate
-          && TextUtils.equals(mimeType, other.mimeType);
-    }
-
-    @Override
-    public int hashCode() {
-      int result = channelCount;
-      result = 31 * result + sampleRate;
-      result = 31 * result + (mimeType != null ? mimeType.hashCode() : 0);
-      return result;
-    }
-
   }
 
   /** Represents how well a text track matches the selection {@link Parameters}. */
