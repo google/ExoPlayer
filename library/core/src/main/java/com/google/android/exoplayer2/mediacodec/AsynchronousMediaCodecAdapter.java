@@ -23,6 +23,7 @@ import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
+import com.google.android.exoplayer2.decoder.CryptoInfo;
 import com.google.android.exoplayer2.util.Assertions;
 
 /**
@@ -71,8 +72,9 @@ import com.google.android.exoplayer2.util.Assertions;
 
   @Override
   public void queueSecureInputBuffer(
-      int index, int offset, MediaCodec.CryptoInfo info, long presentationTimeUs, int flags) {
-    codec.queueSecureInputBuffer(index, offset, info, presentationTimeUs, flags);
+      int index, int offset, CryptoInfo info, long presentationTimeUs, int flags) {
+    codec.queueSecureInputBuffer(
+        index, offset, info.getFrameworkCryptoInfo(), presentationTimeUs, flags);
   }
 
   @Override

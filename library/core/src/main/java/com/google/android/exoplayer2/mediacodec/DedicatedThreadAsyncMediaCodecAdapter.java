@@ -26,6 +26,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.decoder.CryptoInfo;
 import com.google.android.exoplayer2.util.Util;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -33,6 +34,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * A {@link MediaCodecAdapter} that operates the underlying {@link MediaCodec} in asynchronous mode
  * and routes {@link MediaCodec.Callback} callbacks on a dedicated Thread that is managed
  * internally.
+ *
+ * <p>This adapter supports queueing input buffers asynchronously.
  */
 @RequiresApi(23)
 /* package */ final class DedicatedThreadAsyncMediaCodecAdapter extends MediaCodec.Callback
@@ -56,27 +59,56 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Nullable private IllegalStateException internalException;
 
   /**
+   * Creates an instance that wraps the specified {@link MediaCodec}. Instances created with this
+   * constructor will queue input buffers to the {@link MediaCodec} synchronously.
+   *
+   * @param codec The {@link MediaCodec} to wrap.
+   * @param trackType One of {@link C#TRACK_TYPE_AUDIO} or {@link C#TRACK_TYPE_VIDEO}. Used for
+   *     labelling the internal Thread accordingly.
+   */
+  /* package */ DedicatedThreadAsyncMediaCodecAdapter(MediaCodec codec, int trackType) {
+    this(
+        codec,
+        /* enableAsynchronousQueueing= */ false,
+        trackType,
+        new HandlerThread(createThreadLabel(trackType)));
+  }
+
+  /**
    * Creates an instance that wraps the specified {@link MediaCodec}.
    *
    * @param codec The {@link MediaCodec} to wrap.
+   * @param enableAsynchronousQueueing Whether input buffers will be queued asynchronously.
    * @param trackType One of {@link C#TRACK_TYPE_AUDIO} or {@link C#TRACK_TYPE_VIDEO}. Used for
    *     labelling the internal Thread accordingly.
    * @throws IllegalArgumentException If {@code trackType} is not one of {@link C#TRACK_TYPE_AUDIO}
    *     or {@link C#TRACK_TYPE_VIDEO}.
    */
-  /* package */ DedicatedThreadAsyncMediaCodecAdapter(MediaCodec codec, int trackType) {
-    this(codec, new HandlerThread(createThreadLabel(trackType)));
+  /* package */ DedicatedThreadAsyncMediaCodecAdapter(
+      MediaCodec codec, boolean enableAsynchronousQueueing, int trackType) {
+    this(
+        codec,
+        enableAsynchronousQueueing,
+        trackType,
+        new HandlerThread(createThreadLabel(trackType)));
   }
 
   @VisibleForTesting
   /* package */ DedicatedThreadAsyncMediaCodecAdapter(
-      MediaCodec codec, HandlerThread handlerThread) {
+      MediaCodec codec,
+      boolean enableAsynchronousQueueing,
+      int trackType,
+      HandlerThread handlerThread) {
     mediaCodecAsyncCallback = new MediaCodecAsyncCallback();
     this.codec = codec;
     this.handlerThread = handlerThread;
     state = STATE_CREATED;
     codecStartRunnable = codec::start;
-    bufferEnqueuer = new SynchronousMediaCodecBufferEnqueuer(this.codec);
+    if (enableAsynchronousQueueing) {
+      bufferEnqueuer = new AsynchronousMediaCodecBufferEnqueuer(codec, trackType);
+    } else {
+      bufferEnqueuer = new SynchronousMediaCodecBufferEnqueuer(this.codec);
+    }
   }
 
   @Override
@@ -99,7 +131,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public void queueSecureInputBuffer(
-      int index, int offset, MediaCodec.CryptoInfo info, long presentationTimeUs, int flags) {
+      int index, int offset, CryptoInfo info, long presentationTimeUs, int flags) {
     // This method does not need to be synchronized because it does not interact with the
     // mediaCodecAsyncCallback.
     bufferEnqueuer.queueSecureInputBuffer(index, offset, info, presentationTimeUs, flags);

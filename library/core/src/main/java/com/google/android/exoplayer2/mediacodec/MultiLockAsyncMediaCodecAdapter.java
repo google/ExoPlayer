@@ -27,6 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.decoder.CryptoInfo;
 import com.google.android.exoplayer2.util.IntArrayQueue;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayDeque;
@@ -169,10 +170,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public void queueSecureInputBuffer(
-      int index, int offset, MediaCodec.CryptoInfo info, long presentationTimeUs, int flags) {
+      int index, int offset, CryptoInfo info, long presentationTimeUs, int flags) {
     // This method does not need to be synchronized because it is not interacting with
     // MediaCodec.Callback and dequeueing buffers operations.
-    codec.queueSecureInputBuffer(index, offset, info, presentationTimeUs, flags);
+    codec.queueSecureInputBuffer(
+        index, offset, info.getFrameworkCryptoInfo(), presentationTimeUs, flags);
   }
 
   @Override

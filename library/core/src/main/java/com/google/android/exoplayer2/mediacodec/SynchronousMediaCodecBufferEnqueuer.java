@@ -17,6 +17,7 @@
 package com.google.android.exoplayer2.mediacodec;
 
 import android.media.MediaCodec;
+import com.google.android.exoplayer2.decoder.CryptoInfo;
 
 /**
  * A {@link MediaCodecInputBufferEnqueuer} that forwards queueing methods directly to {@link
@@ -45,8 +46,9 @@ class SynchronousMediaCodecBufferEnqueuer implements MediaCodecInputBufferEnqueu
 
   @Override
   public void queueSecureInputBuffer(
-      int index, int offset, MediaCodec.CryptoInfo info, long presentationTimeUs, int flags) {
-    codec.queueSecureInputBuffer(index, offset, info, presentationTimeUs, flags);
+      int index, int offset, CryptoInfo info, long presentationTimeUs, int flags) {
+    codec.queueSecureInputBuffer(
+        index, offset, info.getFrameworkCryptoInfo(), presentationTimeUs, flags);
   }
 
   @Override
