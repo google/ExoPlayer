@@ -23,7 +23,6 @@ import com.google.android.exoplayer2.util.Assertions;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -77,32 +76,50 @@ public final class DataSpec {
   public static final int FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED = 1 << 3;
 
   /**
-   * The set of HTTP methods that are supported by ExoPlayer {@link HttpDataSource}s. One of {@link
-   * #HTTP_METHOD_GET}, {@link #HTTP_METHOD_POST} or {@link #HTTP_METHOD_HEAD}.
+   * HTTP methods supported by ExoPlayer {@link HttpDataSource}s. One of {@link #HTTP_METHOD_GET},
+   * {@link #HTTP_METHOD_POST} or {@link #HTTP_METHOD_HEAD}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({HTTP_METHOD_GET, HTTP_METHOD_POST, HTTP_METHOD_HEAD})
   public @interface HttpMethod {}
-
+  /** HTTP GET method. */
   public static final int HTTP_METHOD_GET = 1;
+  /** HTTP POST method. */
   public static final int HTTP_METHOD_POST = 2;
+  /** HTTP HEAD method. */
   public static final int HTTP_METHOD_HEAD = 3;
 
   /**
-   * The source from which data should be read.
+   * Returns an uppercase HTTP method name (e.g., "GET", "POST", "HEAD") corresponding to the given
+   * {@link HttpMethod}.
    */
+  public static String getStringForHttpMethod(@HttpMethod int httpMethod) {
+    switch (httpMethod) {
+      case HTTP_METHOD_GET:
+        return "GET";
+      case HTTP_METHOD_POST:
+        return "POST";
+      case HTTP_METHOD_HEAD:
+        return "HEAD";
+      default:
+        // Never happens.
+        throw new IllegalStateException();
+    }
+  }
+
+  /** The {@link Uri} from which data should be read. */
   public final Uri uri;
 
   /**
-   * The HTTP method, which will be used by {@link HttpDataSource} when requesting this DataSpec.
-   * This value will be ignored by non-http {@link DataSource}s.
+   * The HTTP method to use when requesting the data. This value will be ignored by non-HTTP {@link
+   * DataSource} implementations.
    */
   public final @HttpMethod int httpMethod;
 
   /**
-   * The HTTP request body, null otherwise. If the body is non-null, then httpBody.length will be
-   * non-zero.
+   * The HTTP request body, null otherwise. If the body is non-null, then {@code httpBody.length}
+   * will be non-zero.
    */
   @Nullable public final byte[] httpBody;
 
@@ -111,6 +128,7 @@ public final class DataSpec {
 
   /** The absolute position of the data in the full stream. */
   public final long absoluteStreamPosition;
+
   /**
    * The position of the data when read from {@link #uri}.
    * <p>
@@ -118,15 +136,18 @@ public final class DataSpec {
    * of a subset of the underlying data.
    */
   public final long position;
+
   /**
    * The length of the data, or {@link C#LENGTH_UNSET}.
    */
   public final long length;
+
   /**
    * A key that uniquely identifies the original stream. Used for cache indexing. May be null if the
    * data spec is not intended to be used in conjunction with a cache.
    */
   @Nullable public final String key;
+
   /** Request {@link Flags flags}. */
   public final @Flags int flags;
 
@@ -136,7 +157,7 @@ public final class DataSpec {
    * @param uri {@link #uri}.
    */
   public DataSpec(Uri uri) {
-    this(uri, 0);
+    this(uri, /* flags= */ 0);
   }
 
   /**
@@ -146,33 +167,32 @@ public final class DataSpec {
    * @param flags {@link #flags}.
    */
   public DataSpec(Uri uri, @Flags int flags) {
-    this(uri, 0, C.LENGTH_UNSET, null, flags);
+    this(uri, /* position= */ 0, C.LENGTH_UNSET, /* key= */ null, flags);
   }
 
   /**
    * Construct a data spec where {@link #position} equals {@link #absoluteStreamPosition}.
    *
    * @param uri {@link #uri}.
-   * @param absoluteStreamPosition {@link #absoluteStreamPosition}, equal to {@link #position}.
+   * @param position {@link #position}, equal to {@link #absoluteStreamPosition}.
    * @param length {@link #length}.
    * @param key {@link #key}.
    */
-  public DataSpec(Uri uri, long absoluteStreamPosition, long length, @Nullable String key) {
-    this(uri, absoluteStreamPosition, absoluteStreamPosition, length, key, 0);
+  public DataSpec(Uri uri, long position, long length, @Nullable String key) {
+    this(uri, position, position, length, key, /* flags= */ 0);
   }
 
   /**
    * Construct a data spec where {@link #position} equals {@link #absoluteStreamPosition}.
    *
    * @param uri {@link #uri}.
-   * @param absoluteStreamPosition {@link #absoluteStreamPosition}, equal to {@link #position}.
+   * @param position {@link #position}, equal to {@link #absoluteStreamPosition}.
    * @param length {@link #length}.
    * @param key {@link #key}.
    * @param flags {@link #flags}.
    */
-  public DataSpec(
-      Uri uri, long absoluteStreamPosition, long length, @Nullable String key, @Flags int flags) {
-    this(uri, absoluteStreamPosition, absoluteStreamPosition, length, key, flags);
+  public DataSpec(Uri uri, long position, long length, @Nullable String key, @Flags int flags) {
+    this(uri, position, position, length, key, flags);
   }
 
   /**
@@ -180,7 +200,7 @@ public final class DataSpec {
    * request headers.
    *
    * @param uri {@link #uri}.
-   * @param absoluteStreamPosition {@link #absoluteStreamPosition}, equal to {@link #position}.
+   * @param position {@link #position}, equal to {@link #absoluteStreamPosition}.
    * @param length {@link #length}.
    * @param key {@link #key}.
    * @param flags {@link #flags}.
@@ -188,17 +208,17 @@ public final class DataSpec {
    */
   public DataSpec(
       Uri uri,
-      long absoluteStreamPosition,
+      long position,
       long length,
       @Nullable String key,
       @Flags int flags,
       Map<String, String> httpRequestHeaders) {
     this(
         uri,
-        inferHttpMethod(null),
-        null,
-        absoluteStreamPosition,
-        absoluteStreamPosition,
+        HTTP_METHOD_GET,
+        /* httpBody= */ null,
+        position,
+        position,
         length,
         key,
         flags,
@@ -222,7 +242,7 @@ public final class DataSpec {
       long length,
       @Nullable String key,
       @Flags int flags) {
-    this(uri, null, absoluteStreamPosition, position, length, key, flags);
+    this(uri, /* postBody= */ null, absoluteStreamPosition, position, length, key, flags);
   }
 
   /**
@@ -249,7 +269,7 @@ public final class DataSpec {
       @Flags int flags) {
     this(
         uri,
-        /* httpMethod= */ inferHttpMethod(postBody),
+        /* httpMethod= */ postBody != null ? HTTP_METHOD_POST : HTTP_METHOD_GET,
         /* httpBody= */ postBody,
         absoluteStreamPosition,
         position,
@@ -337,50 +357,12 @@ public final class DataSpec {
     return (this.flags & flag) == flag;
   }
 
-  @Override
-  public String toString() {
-    return "DataSpec["
-        + getHttpMethodString()
-        + " "
-        + uri
-        + ", "
-        + Arrays.toString(httpBody)
-        + ", "
-        + absoluteStreamPosition
-        + ", "
-        + position
-        + ", "
-        + length
-        + ", "
-        + key
-        + ", "
-        + flags
-        + "]";
-  }
-
   /**
-   * Returns an uppercase HTTP method name (e.g., "GET", "POST", "HEAD") corresponding to the {@link
-   * #httpMethod}.
+   * Returns the uppercase HTTP method name (e.g., "GET", "POST", "HEAD") corresponding to the
+   * {@link #httpMethod}.
    */
   public final String getHttpMethodString() {
     return getStringForHttpMethod(httpMethod);
-  }
-
-  /**
-   * Returns an uppercase HTTP method name (e.g., "GET", "POST", "HEAD") corresponding to the {@code
-   * httpMethod}.
-   */
-  public static String getStringForHttpMethod(@HttpMethod int httpMethod) {
-    switch (httpMethod) {
-      case HTTP_METHOD_GET:
-        return "GET";
-      case HTTP_METHOD_POST:
-        return "POST";
-      case HTTP_METHOD_HEAD:
-        return "HEAD";
-      default:
-        throw new AssertionError(httpMethod);
-    }
   }
 
   /**
@@ -438,12 +420,13 @@ public final class DataSpec {
   }
 
   /**
-   * Returns a copy of this data spec with the specified request headers.
+   * Returns a copy of this data spec with the specified HTTP request headers. Headers already in
+   * the data spec are not copied to the new instance.
    *
-   * @param requestHeaders The HTTP request headers.
-   * @return The copied data spec with the specified request headers.
+   * @param httpRequestHeaders The HTTP request headers.
+   * @return The copied data spec with the specified HTTP request headers.
    */
-  public DataSpec withRequestHeaders(Map<String, String> requestHeaders) {
+  public DataSpec withRequestHeaders(Map<String, String> httpRequestHeaders) {
     return new DataSpec(
         uri,
         httpMethod,
@@ -453,22 +436,20 @@ public final class DataSpec {
         length,
         key,
         flags,
-        requestHeaders);
+        httpRequestHeaders);
   }
 
   /**
-   * Returns a copy this data spec with additional request headers.
+   * Returns a copy this data spec with additional HTTP request headers. Headers in {@code
+   * additionalHttpRequestHeaders} will overwrite any headers already in the data spec that have the
+   * same keys.
    *
-   * <p>Note: Values in {@code requestHeaders} will overwrite values with the same header key that
-   * were previously set in this instance's {@code #httpRequestHeaders}.
-   *
-   * @param requestHeaders The additional HTTP request headers.
-   * @return The copied data with the additional HTTP request headers.
+   * @param additionalHttpRequestHeaders The additional HTTP request headers.
+   * @return The copied data spec with the additional HTTP request headers.
    */
-  public DataSpec withAdditionalHeaders(Map<String, String> requestHeaders) {
-    Map<String, String> totalHeaders = new HashMap<>(this.httpRequestHeaders);
-    totalHeaders.putAll(requestHeaders);
-
+  public DataSpec withAdditionalHeaders(Map<String, String> additionalHttpRequestHeaders) {
+    Map<String, String> httpRequestHeaders = new HashMap<>(this.httpRequestHeaders);
+    httpRequestHeaders.putAll(additionalHttpRequestHeaders);
     return new DataSpec(
         uri,
         httpMethod,
@@ -478,11 +459,23 @@ public final class DataSpec {
         length,
         key,
         flags,
-        totalHeaders);
+        httpRequestHeaders);
   }
 
-  @HttpMethod
-  private static int inferHttpMethod(@Nullable byte[] postBody) {
-    return postBody != null ? HTTP_METHOD_POST : HTTP_METHOD_GET;
+  @Override
+  public String toString() {
+    return "DataSpec["
+        + getHttpMethodString()
+        + " "
+        + uri
+        + ", "
+        + position
+        + ", "
+        + length
+        + ", "
+        + key
+        + ", "
+        + flags
+        + "]";
   }
 }
