@@ -10,6 +10,7 @@
   * Add `Player.onPlaybackStateChanged` and deprecate
     `Player.onPlayerStateChanged`.
   * Deprecate and rename getPlaybackError to getPlayerError for consistency.
+  * Deprecate and rename onLoadingChanged to onIsLoadingChanged for consistency.
   * Make `MediaSourceEventListener.LoadEventInfo` and
     `MediaSourceEventListener.MediaLoadData` top-level classes.
   * Rename `MediaCodecRenderer.onOutputFormatChanged` to

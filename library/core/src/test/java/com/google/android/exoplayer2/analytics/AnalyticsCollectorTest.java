@@ -1393,7 +1393,7 @@ public final class AnalyticsCollectorTest {
     }
 
     @Override
-    public void onLoadingChanged(EventTime eventTime, boolean isLoading) {
+    public void onIsLoadingChanged(EventTime eventTime, boolean isLoading) {
       reportedEvents.add(new ReportedEvent(EVENT_LOADING_CHANGED, eventTime));
     }
 

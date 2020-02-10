@@ -984,7 +984,7 @@ public abstract class Action {
 
   /**
    * Waits for a specified loading state, returning either immediately or after a call to {@link
-   * Player.EventListener#onLoadingChanged(boolean)}.
+   * Player.EventListener#onIsLoadingChanged(boolean)}.
    */
   public static final class WaitForIsLoading extends Action {
 
@@ -1015,7 +1015,7 @@ public abstract class Action {
         player.addListener(
             new Player.EventListener() {
               @Override
-              public void onLoadingChanged(boolean isLoading) {
+              public void onIsLoadingChanged(boolean isLoading) {
                 if (targetIsLoading == isLoading) {
                   player.removeListener(this);
                   nextAction.schedule(player, trackSelector, surface, handler);

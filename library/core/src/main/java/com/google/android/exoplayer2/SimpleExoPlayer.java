@@ -1931,7 +1931,7 @@ public class SimpleExoPlayer extends BasePlayer
     // Player.EventListener implementation.
 
     @Override
-    public void onLoadingChanged(boolean isLoading) {
+    public void onIsLoadingChanged(boolean isLoading) {
       if (priorityTaskManager != null) {
         if (isLoading && !isPriorityTaskManagerRegistered) {
           priorityTaskManager.add(C.PRIORITY_PLAYBACK);

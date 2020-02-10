@@ -431,10 +431,10 @@ public class AnalyticsCollector
   }
 
   @Override
-  public final void onLoadingChanged(boolean isLoading) {
+  public final void onIsLoadingChanged(boolean isLoading) {
     EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
     for (AnalyticsListener listener : listeners) {
-      listener.onLoadingChanged(eventTime, isLoading);
+      listener.onIsLoadingChanged(eventTime, isLoading);
     }
   }
 
