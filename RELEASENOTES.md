@@ -19,7 +19,7 @@
   * Move player message-related constants from `C` to `Renderer`, to avoid
     having the constants class depend on player/renderer classes.
   * Split out `common` and `extractor` submodules.
-  * Add `DataSpec.Builder`.
+  * Add `DataSpec.Builder` and `DataSpec.customData`.
 * Text:
   * Parse `<ruby>` and `<rt>` tags in WebVTT subtitles (rendering is coming
     later).

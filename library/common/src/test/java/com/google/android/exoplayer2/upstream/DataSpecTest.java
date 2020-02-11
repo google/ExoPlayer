@@ -141,6 +141,7 @@ public class DataSpecTest {
     Uri uri = Uri.parse("www.google.com");
     Map<String, String> httpRequestHeaders = createHttpRequestHeaders(3);
     byte[] httpBody = new byte[] {0, 1, 2, 3};
+    Object customData = new Object();
 
     DataSpec dataSpec =
         new DataSpec.Builder()
@@ -153,6 +154,7 @@ public class DataSpecTest {
             .setKey("key")
             .setFlags(DataSpec.FLAG_ALLOW_GZIP)
             .setHttpRequestHeaders(httpRequestHeaders)
+            .setCustomData(customData)
             .build();
 
     assertThat(dataSpec.uri).isEqualTo(uri);
@@ -166,6 +168,7 @@ public class DataSpecTest {
     assertThat(dataSpec.length).isEqualTo(5);
     assertThat(dataSpec.key).isEqualTo("key");
     assertThat(dataSpec.flags).isEqualTo(DataSpec.FLAG_ALLOW_GZIP);
+    assertThat(dataSpec.customData).isEqualTo(customData);
     assertHttpRequestHeadersReadOnly(dataSpec);
   }
 
@@ -175,6 +178,7 @@ public class DataSpecTest {
     Uri uri = Uri.parse("www.google.com");
     Map<String, String> httpRequestHeaders = createHttpRequestHeaders(3);
     byte[] httpBody = new byte[] {0, 1, 2, 3};
+    Object customData = new Object();
 
     DataSpec dataSpec =
         new DataSpec.Builder()
@@ -187,6 +191,7 @@ public class DataSpecTest {
             .setKey("key")
             .setFlags(DataSpec.FLAG_ALLOW_GZIP)
             .setHttpRequestHeaders(httpRequestHeaders)
+            .setCustomData(customData)
             .build();
 
     // Build upon the DataSpec.
@@ -203,6 +208,7 @@ public class DataSpecTest {
     assertThat(dataSpec.length).isEqualTo(5);
     assertThat(dataSpec.key).isEqualTo("key");
     assertThat(dataSpec.flags).isEqualTo(DataSpec.FLAG_ALLOW_GZIP);
+    assertThat(dataSpec.customData).isEqualTo(customData);
     assertHttpRequestHeadersReadOnly(dataSpec);
   }
 
@@ -347,6 +353,7 @@ public class DataSpecTest {
     assertThat(dataSpec.length).isEqualTo(C.LENGTH_UNSET);
     assertThat(dataSpec.key).isNull();
     assertThat(dataSpec.flags).isEqualTo(0);
+    assertThat(dataSpec.customData).isNull();
     assertHttpRequestHeadersReadOnly(dataSpec);
   }
 
