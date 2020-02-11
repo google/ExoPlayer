@@ -32,6 +32,163 @@ import java.util.Map;
  */
 public final class DataSpec {
 
+  /** Builds {@link DataSpec} instances. */
+  public static final class Builder {
+
+    @Nullable private Uri uri;
+    private long uriPositionOffset;
+    @HttpMethod private int httpMethod;
+    @Nullable private byte[] httpBody;
+    private Map<String, String> httpRequestHeaders;
+    private long position;
+    private long length;
+    @Nullable private String key;
+    @Flags private int flags;
+
+    /** Creates a new instance with default values. */
+    public Builder() {
+      httpMethod = HTTP_METHOD_GET;
+      httpRequestHeaders = Collections.emptyMap();
+      length = C.LENGTH_UNSET;
+    }
+
+    /**
+     * Creates a new instance to build upon the provided {@link DataSpec}.
+     *
+     * @param dataSpec The {@link DataSpec} to build upon.
+     */
+    private Builder(DataSpec dataSpec) {
+      uri = dataSpec.uri;
+      uriPositionOffset = dataSpec.uriPositionOffset;
+      httpMethod = dataSpec.httpMethod;
+      httpBody = dataSpec.httpBody;
+      httpRequestHeaders = dataSpec.httpRequestHeaders;
+      position = dataSpec.position;
+      length = dataSpec.length;
+      key = dataSpec.key;
+      flags = dataSpec.flags;
+    }
+
+    /**
+     * Sets {@link DataSpec#uri}. Must be called before {@link #build()}.
+     *
+     * @param uri The {@link DataSpec#uri}.
+     * @return The builder.
+     */
+    public Builder setUri(Uri uri) {
+      this.uri = uri;
+      return this;
+    }
+
+    /**
+     * Sets the {@link DataSpec#uriPositionOffset}. The default value is 0.
+     *
+     * @param uriPositionOffset The {@link DataSpec#uriPositionOffset}.
+     * @return The builder.
+     */
+    public Builder setUriPositionOffset(long uriPositionOffset) {
+      this.uriPositionOffset = uriPositionOffset;
+      return this;
+    }
+
+    /**
+     * Sets {@link DataSpec#httpMethod}. The default value is {@link #HTTP_METHOD_GET}.
+     *
+     * @param httpMethod The {@link DataSpec#httpMethod}.
+     * @return The builder.
+     */
+    public Builder setHttpMethod(@HttpMethod int httpMethod) {
+      this.httpMethod = httpMethod;
+      return this;
+    }
+
+    /**
+     * Sets {@link DataSpec#httpBody}. The default value is {@code null}.
+     *
+     * @param httpBody The {@link DataSpec#httpBody}.
+     * @return The builder.
+     */
+    public Builder setHttpBody(@Nullable byte[] httpBody) {
+      this.httpBody = httpBody;
+      return this;
+    }
+
+    /**
+     * Sets the {@link DataSpec#httpRequestHeaders}. The default value is an empty map.
+     *
+     * @param httpRequestHeaders The {@link DataSpec#httpRequestHeaders}.
+     * @return The builder.
+     */
+    public Builder setHttpRequestHeaders(Map<String, String> httpRequestHeaders) {
+      this.httpRequestHeaders = httpRequestHeaders;
+      return this;
+    }
+
+    /**
+     * Sets the {@link DataSpec#position}. The default value is 0.
+     *
+     * @param position The {@link DataSpec#position}.
+     * @return The builder.
+     */
+    public Builder setPosition(long position) {
+      this.position = position;
+      return this;
+    }
+
+    /**
+     * Sets the {@link DataSpec#length}. The default value is {@link C#LENGTH_UNSET}.
+     *
+     * @param length The {@link DataSpec#length}.
+     * @return The builder.
+     */
+    public Builder setLength(long length) {
+      this.length = length;
+      return this;
+    }
+
+    /**
+     * Sets the {@link DataSpec#key}. The default value is {@code null}.
+     *
+     * @param key The {@link DataSpec#key}.
+     * @return The builder.
+     */
+    public Builder setKey(@Nullable String key) {
+      this.key = key;
+      return this;
+    }
+
+    /**
+     * Sets the {@link DataSpec#flags}. The default value is 0.
+     *
+     * @param flags The {@link DataSpec#flags}.
+     * @return The builder.
+     */
+    public Builder setFlags(@Flags int flags) {
+      this.flags = flags;
+      return this;
+    }
+
+    /**
+     * Builds a {@link DataSpec} with the builder's current values.
+     *
+     * @return The build {@link DataSpec}.
+     * @throws IllegalStateException If {@link #setUri(Uri)} has not been called.
+     */
+    public DataSpec build() {
+      Assertions.checkStateNotNull(uri, "The uri must be set.");
+      return new DataSpec(
+          uri,
+          uriPositionOffset,
+          httpMethod,
+          httpBody,
+          httpRequestHeaders,
+          position,
+          length,
+          key,
+          flags);
+    }
+  }
+
   /**
    * The flags that apply to any request for data. Possible flag values are {@link
    * #FLAG_ALLOW_GZIP}, {@link #FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN}, {@link
@@ -131,7 +288,7 @@ public final class DataSpec {
    * The HTTP method to use when requesting the data. This value will be ignored by non-HTTP {@link
    * DataSource} implementations.
    */
-  public final @HttpMethod int httpMethod;
+  @HttpMethod public final int httpMethod;
 
   /**
    * The HTTP request body, null otherwise. If the body is non-null, then {@code httpBody.length}
@@ -166,7 +323,7 @@ public final class DataSpec {
   @Nullable public final String key;
 
   /** Request {@link Flags flags}. */
-  public final @Flags int flags;
+  @Flags public final int flags;
 
   /**
    * Constructs an instance.
@@ -406,6 +563,11 @@ public final class DataSpec {
    */
   public final String getHttpMethodString() {
     return getStringForHttpMethod(httpMethod);
+  }
+
+  /** Returns a {@link DataSpec.Builder} initialized with the values of this instance. */
+  public DataSpec.Builder buildUpon() {
+    return new Builder(this);
   }
 
   /**

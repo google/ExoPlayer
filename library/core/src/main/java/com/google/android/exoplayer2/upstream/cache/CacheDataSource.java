@@ -23,7 +23,6 @@ import com.google.android.exoplayer2.upstream.DataSink;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.upstream.DataSpec.HttpMethod;
 import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.upstream.TeeDataSource;
 import com.google.android.exoplayer2.upstream.TransferListener;
@@ -132,15 +131,10 @@ public final class CacheDataSource implements DataSource {
   private final boolean ignoreCacheOnError;
   private final boolean ignoreCacheForUnsetLengthRequests;
 
+  @Nullable private Uri actualUri;
+  @Nullable private DataSpec requestDataSpec;
   @Nullable private DataSource currentDataSource;
   private boolean currentDataSpecLengthUnset;
-  @Nullable private Uri uri;
-  @Nullable private Uri actualUri;
-  @HttpMethod private int httpMethod;
-  @Nullable private byte[] httpBody;
-  private Map<String, String> httpRequestHeaders = Collections.emptyMap();
-  @DataSpec.Flags private int flags;
-  @Nullable private String key;
   private long readPosition;
   private long bytesRemaining;
   @Nullable private CacheSpan currentHoleSpan;
@@ -259,13 +253,9 @@ public final class CacheDataSource implements DataSource {
   @Override
   public long open(DataSpec dataSpec) throws IOException {
     try {
-      key = cacheKeyFactory.buildCacheKey(dataSpec);
-      uri = dataSpec.uri;
-      actualUri = getRedirectedUriOrDefault(cache, key, /* defaultUri= */ uri);
-      httpMethod = dataSpec.httpMethod;
-      httpBody = dataSpec.httpBody;
-      httpRequestHeaders = dataSpec.httpRequestHeaders;
-      flags = dataSpec.flags;
+      String key = cacheKeyFactory.buildCacheKey(dataSpec);
+      requestDataSpec = dataSpec.buildUpon().setKey(key).build();
+      actualUri = getRedirectedUriOrDefault(cache, key, /* defaultUri= */ requestDataSpec.uri);
       readPosition = dataSpec.position;
 
       int reason = shouldIgnoreCacheForRequest(dataSpec);
@@ -351,14 +341,9 @@ public final class CacheDataSource implements DataSource {
 
   @Override
   public void close() throws IOException {
-    uri = null;
+    requestDataSpec = null;
     actualUri = null;
-    httpMethod = DataSpec.HTTP_METHOD_GET;
-    httpBody = null;
-    httpRequestHeaders = Collections.emptyMap();
-    flags = 0;
     readPosition = 0;
-    key = null;
     notifyBytesRead();
     try {
       closeCurrentSource();
@@ -384,6 +369,7 @@ public final class CacheDataSource implements DataSource {
    */
   private void openNextSource(boolean checkCache) throws IOException {
     @Nullable CacheSpan nextSpan;
+    String key = requestDataSpec.key;
     if (currentRequestIgnoresCache) {
       nextSpan = null;
     } else if (blockOnCache) {
@@ -404,27 +390,24 @@ public final class CacheDataSource implements DataSource {
       // from upstream.
       nextDataSource = upstreamDataSource;
       nextDataSpec =
-          new DataSpec(
-              uri,
-              httpMethod,
-              httpBody,
-              readPosition,
-              readPosition,
-              bytesRemaining,
-              key,
-              flags,
-              httpRequestHeaders);
+          requestDataSpec.buildUpon().setPosition(readPosition).setLength(bytesRemaining).build();
     } else if (nextSpan.isCached) {
-      // Data is cached, read from cache.
+      // Data is cached in a span file starting at nextSpan.position.
       Uri fileUri = Uri.fromFile(nextSpan.file);
-      long filePosition = readPosition - nextSpan.position;
-      long length = nextSpan.length - filePosition;
+      long filePositionOffset = nextSpan.position;
+      long positionInFile = readPosition - filePositionOffset;
+      long length = nextSpan.length - positionInFile;
       if (bytesRemaining != C.LENGTH_UNSET) {
         length = Math.min(length, bytesRemaining);
       }
-      // Deliberately skip the HTTP-related parameters since we're reading from the cache, not
-      // making an HTTP request.
-      nextDataSpec = new DataSpec(fileUri, readPosition, filePosition, length, key, flags);
+      nextDataSpec =
+          requestDataSpec
+              .buildUpon()
+              .setUri(fileUri)
+              .setUriPositionOffset(filePositionOffset)
+              .setPosition(positionInFile)
+              .setLength(length)
+              .build();
       nextDataSource = cacheReadDataSource;
     } else {
       // Data is not cached, and data is not locked, read from upstream with cache backing.
@@ -438,16 +421,7 @@ public final class CacheDataSource implements DataSource {
         }
       }
       nextDataSpec =
-          new DataSpec(
-              uri,
-              httpMethod,
-              httpBody,
-              readPosition,
-              readPosition,
-              length,
-              key,
-              flags,
-              httpRequestHeaders);
+          requestDataSpec.buildUpon().setPosition(readPosition).setLength(length).build();
       if (cacheWriteDataSource != null) {
         nextDataSource = cacheWriteDataSource;
       } else {
@@ -494,7 +468,7 @@ public final class CacheDataSource implements DataSource {
     }
     if (isReadingFromUpstream()) {
       actualUri = currentDataSource.getUri();
-      boolean isRedirected = !uri.equals(actualUri);
+      boolean isRedirected = !requestDataSpec.uri.equals(actualUri);
       ContentMetadataMutations.setRedirectedUri(mutations, isRedirected ? actualUri : null);
     }
     if (isWritingToCache()) {
@@ -507,7 +481,7 @@ public final class CacheDataSource implements DataSource {
     if (isWritingToCache()) {
       ContentMetadataMutations mutations = new ContentMetadataMutations();
       ContentMetadataMutations.setContentLength(mutations, readPosition);
-      cache.applyContentMetadataMutations(key, mutations);
+      cache.applyContentMetadataMutations(requestDataSpec.key, mutations);
     }
   }
 
