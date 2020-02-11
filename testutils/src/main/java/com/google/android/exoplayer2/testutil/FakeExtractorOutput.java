@@ -127,7 +127,7 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
     String actual = new Dumper().add(this).toString();
 
     if (WRITE_DUMP) {
-      File file = new File(System.getProperty("user.dir"), "src/test/assets");
+      File file = new File(System.getProperty("user.dir"), "../../testdata/src/test/assets");
       file = new File(file, dumpFile);
       Assertions.checkStateNotNull(file.getParentFile()).mkdirs();
       PrintWriter out = new PrintWriter(file);
