@@ -32,7 +32,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A {@link MediaCodecAdapter} that operates the underlying {@link MediaCodec} in asynchronous mode
- * and routes {@link MediaCodec.Callback} callbacks on a dedicated Thread that is managed
+ * and routes {@link MediaCodec.Callback} callbacks on a dedicated thread that is managed
  * internally.
  *
  * <p>This adapter supports queueing input buffers asynchronously.
@@ -64,7 +64,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *
    * @param codec The {@link MediaCodec} to wrap.
    * @param trackType One of {@link C#TRACK_TYPE_AUDIO} or {@link C#TRACK_TYPE_VIDEO}. Used for
-   *     labelling the internal Thread accordingly.
+   *     labelling the internal thread accordingly.
    */
   /* package */ DedicatedThreadAsyncMediaCodecAdapter(MediaCodec codec, int trackType) {
     this(
@@ -80,9 +80,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param codec The {@link MediaCodec} to wrap.
    * @param enableAsynchronousQueueing Whether input buffers will be queued asynchronously.
    * @param trackType One of {@link C#TRACK_TYPE_AUDIO} or {@link C#TRACK_TYPE_VIDEO}. Used for
-   *     labelling the internal Thread accordingly.
-   * @throws IllegalArgumentException If {@code trackType} is not one of {@link C#TRACK_TYPE_AUDIO}
-   *     or {@link C#TRACK_TYPE_VIDEO}.
+   *     labelling the internal thread accordingly.
    */
   /* package */ DedicatedThreadAsyncMediaCodecAdapter(
       MediaCodec codec, boolean enableAsynchronousQueueing, int trackType) {
