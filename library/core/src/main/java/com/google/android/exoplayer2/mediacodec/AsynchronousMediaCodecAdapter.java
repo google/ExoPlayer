@@ -29,7 +29,7 @@ import com.google.android.exoplayer2.util.Assertions;
 /**
  * A {@link MediaCodecAdapter} that operates the {@link MediaCodec} in asynchronous mode.
  *
- * <p>The AsynchronousMediaCodecAdapter routes callbacks to the current Thread's {@link Looper}
+ * <p>The AsynchronousMediaCodecAdapter routes callbacks to the current thread's {@link Looper}
  * obtained via {@link Looper#myLooper()}
  */
 @RequiresApi(21)
