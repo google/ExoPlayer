@@ -49,6 +49,8 @@ public final class Format implements Parcelable {
   @Nullable public final String id;
   /** The human readable label, or null if unknown or not applicable. */
   @Nullable public final String label;
+  /** The language as an IETF BCP 47 conformant tag, or null if unknown or not applicable. */
+  @Nullable public final String language;
   /** Track selection flags. */
   @C.SelectionFlags public final int selectionFlags;
   /** Track role flags. */
@@ -149,13 +151,9 @@ public final class Format implements Parcelable {
    */
   public final int encoderPadding;
 
-  // Audio and text specific.
+  // Text specific.
 
-  /** The language as an IETF BCP 47 conformant tag, or null if unknown or not applicable. */
-  @Nullable public final String language;
-  /**
-   * The Accessibility channel, or {@link #NO_VALUE} if not known or applicable.
-   */
+  /** The Accessibility channel, or {@link #NO_VALUE} if not known or applicable. */
   public final int accessibilityChannel;
 
   // Provided by source.
@@ -189,6 +187,7 @@ public final class Format implements Parcelable {
     return new Format(
         id,
         label,
+        /* language= */ null,
         selectionFlags,
         roleFlags,
         bitrate,
@@ -213,7 +212,6 @@ public final class Format implements Parcelable {
         /* pcmEncoding= */ NO_VALUE,
         /* encoderDelay= */ NO_VALUE,
         /* encoderPadding= */ NO_VALUE,
-        /* language= */ null,
         /* accessibilityChannel= */ NO_VALUE,
         /* exoMediaCryptoType= */ null);
   }
@@ -294,6 +292,7 @@ public final class Format implements Parcelable {
     return new Format(
         id,
         /* label= */ null,
+        /* language= */ null,
         /* selectionFlags= */ 0,
         /* roleFlags= */ 0,
         bitrate,
@@ -318,7 +317,6 @@ public final class Format implements Parcelable {
         /* pcmEncoding= */ NO_VALUE,
         /* encoderDelay= */ NO_VALUE,
         /* encoderPadding= */ NO_VALUE,
-        /* language= */ null,
         /* accessibilityChannel= */ NO_VALUE,
         /* exoMediaCryptoType= */ null);
   }
@@ -342,6 +340,7 @@ public final class Format implements Parcelable {
     return new Format(
         id,
         label,
+        language,
         selectionFlags,
         roleFlags,
         bitrate,
@@ -366,7 +365,6 @@ public final class Format implements Parcelable {
         /* pcmEncoding= */ NO_VALUE,
         /* encoderDelay= */ NO_VALUE,
         /* encoderPadding= */ NO_VALUE,
-        language,
         /* accessibilityChannel= */ NO_VALUE,
         /* exoMediaCryptoType= */ null);
   }
@@ -448,6 +446,7 @@ public final class Format implements Parcelable {
     return new Format(
         id,
         /* label= */ null,
+        language,
         selectionFlags,
         /* roleFlags= */ 0,
         bitrate,
@@ -472,7 +471,6 @@ public final class Format implements Parcelable {
         pcmEncoding,
         encoderDelay,
         encoderPadding,
-        language,
         /* accessibilityChannel= */ NO_VALUE,
         /* exoMediaCryptoType= */ null);
   }
@@ -516,6 +514,7 @@ public final class Format implements Parcelable {
     return new Format(
         id,
         label,
+        language,
         selectionFlags,
         roleFlags,
         bitrate,
@@ -540,7 +539,6 @@ public final class Format implements Parcelable {
         /* pcmEncoding= */ NO_VALUE,
         /* encoderDelay= */ NO_VALUE,
         /* encoderPadding= */ NO_VALUE,
-        language,
         accessibilityChannel,
         /* exoMediaCryptoType= */ null);
   }
@@ -571,6 +569,7 @@ public final class Format implements Parcelable {
     return new Format(
         id,
         /* label= */ null,
+        language,
         selectionFlags,
         /* roleFlags= */ 0,
         /* bitrate= */ NO_VALUE,
@@ -595,7 +594,6 @@ public final class Format implements Parcelable {
         /* pcmEncoding= */ NO_VALUE,
         /* encoderDelay= */ NO_VALUE,
         /* encoderPadding= */ NO_VALUE,
-        language,
         accessibilityChannel,
         /* exoMediaCryptoType= */ null);
   }
@@ -611,6 +609,7 @@ public final class Format implements Parcelable {
     return new Format(
         id,
         /* label= */ null,
+        language,
         selectionFlags,
         /* roleFlags= */ 0,
         /* bitrate= */ NO_VALUE,
@@ -635,7 +634,6 @@ public final class Format implements Parcelable {
         /* pcmEncoding= */ NO_VALUE,
         /* encoderDelay= */ NO_VALUE,
         /* encoderPadding= */ NO_VALUE,
-        language,
         /* accessibilityChannel= */ NO_VALUE,
         /* exoMediaCryptoType= */ null);
   }
@@ -655,6 +653,7 @@ public final class Format implements Parcelable {
     return new Format(
         id,
         label,
+        language,
         selectionFlags,
         roleFlags,
         bitrate,
@@ -679,7 +678,6 @@ public final class Format implements Parcelable {
         /* pcmEncoding= */ NO_VALUE,
         /* encoderDelay= */ NO_VALUE,
         /* encoderPadding= */ NO_VALUE,
-        language,
         /* accessibilityChannel= */ NO_VALUE,
         /* exoMediaCryptoType= */ null);
   }
@@ -688,6 +686,7 @@ public final class Format implements Parcelable {
     return new Format(
         id,
         /* label= */ null,
+        /* language= */ null,
         /* selectionFlags= */ 0,
         /* roleFlags= */ 0,
         /* bitrate= */ NO_VALUE,
@@ -712,7 +711,6 @@ public final class Format implements Parcelable {
         /* pcmEncoding= */ NO_VALUE,
         /* encoderDelay= */ NO_VALUE,
         /* encoderPadding= */ NO_VALUE,
-        /* language= */ null,
         /* accessibilityChannel= */ NO_VALUE,
         /* exoMediaCryptoType= */ null);
   }
@@ -720,6 +718,7 @@ public final class Format implements Parcelable {
   /* package */ Format(
       @Nullable String id,
       @Nullable String label,
+      @Nullable String language,
       @C.SelectionFlags int selectionFlags,
       @C.RoleFlags int roleFlags,
       int bitrate,
@@ -748,13 +747,13 @@ public final class Format implements Parcelable {
       @C.PcmEncoding int pcmEncoding,
       int encoderDelay,
       int encoderPadding,
-      // Audio and text specific.
-      @Nullable String language,
+      // Text specific.
       int accessibilityChannel,
       // Provided by source.
       @Nullable Class<? extends ExoMediaCrypto> exoMediaCryptoType) {
     this.id = id;
     this.label = label;
+    this.language = Util.normalizeLanguageCode(language);
     this.selectionFlags = selectionFlags;
     this.roleFlags = roleFlags;
     this.bitrate = bitrate;
@@ -784,8 +783,7 @@ public final class Format implements Parcelable {
     this.pcmEncoding = pcmEncoding;
     this.encoderDelay = encoderDelay == NO_VALUE ? 0 : encoderDelay;
     this.encoderPadding = encoderPadding == NO_VALUE ? 0 : encoderPadding;
-    // Audio and text specific.
-    this.language = Util.normalizeLanguageCode(language);
+    // Text specific.
     this.accessibilityChannel = accessibilityChannel;
     // Provided by source.
     this.exoMediaCryptoType = exoMediaCryptoType;
@@ -795,6 +793,7 @@ public final class Format implements Parcelable {
   /* package */ Format(Parcel in) {
     id = in.readString();
     label = in.readString();
+    language = in.readString();
     selectionFlags = in.readInt();
     roleFlags = in.readInt();
     bitrate = in.readInt();
@@ -828,8 +827,7 @@ public final class Format implements Parcelable {
     pcmEncoding = in.readInt();
     encoderDelay = in.readInt();
     encoderPadding = in.readInt();
-    // Audio and text specific.
-    language = in.readString();
+    // Text specific.
     accessibilityChannel = in.readInt();
     // Provided by source.
     exoMediaCryptoType = null;
@@ -839,6 +837,7 @@ public final class Format implements Parcelable {
     return new Format(
         id,
         label,
+        language,
         selectionFlags,
         roleFlags,
         bitrate,
@@ -863,7 +862,6 @@ public final class Format implements Parcelable {
         pcmEncoding,
         encoderDelay,
         encoderPadding,
-        language,
         accessibilityChannel,
         exoMediaCryptoType);
   }
@@ -872,6 +870,7 @@ public final class Format implements Parcelable {
     return new Format(
         id,
         label,
+        language,
         selectionFlags,
         roleFlags,
         bitrate,
@@ -896,7 +895,6 @@ public final class Format implements Parcelable {
         pcmEncoding,
         encoderDelay,
         encoderPadding,
-        language,
         accessibilityChannel,
         exoMediaCryptoType);
   }
@@ -905,6 +903,7 @@ public final class Format implements Parcelable {
     return new Format(
         id,
         label,
+        language,
         selectionFlags,
         roleFlags,
         bitrate,
@@ -929,7 +928,6 @@ public final class Format implements Parcelable {
         pcmEncoding,
         encoderDelay,
         encoderPadding,
-        language,
         accessibilityChannel,
         exoMediaCryptoType);
   }
@@ -954,6 +952,7 @@ public final class Format implements Parcelable {
     return new Format(
         id,
         label,
+        language,
         selectionFlags,
         roleFlags,
         bitrate,
@@ -978,7 +977,6 @@ public final class Format implements Parcelable {
         pcmEncoding,
         encoderDelay,
         encoderPadding,
-        language,
         accessibilityChannel,
         exoMediaCryptoType);
   }
@@ -1036,6 +1034,7 @@ public final class Format implements Parcelable {
     return new Format(
         id,
         label,
+        language,
         selectionFlags,
         roleFlags,
         bitrate,
@@ -1060,7 +1059,6 @@ public final class Format implements Parcelable {
         pcmEncoding,
         encoderDelay,
         encoderPadding,
-        language,
         accessibilityChannel,
         exoMediaCryptoType);
   }
@@ -1069,6 +1067,7 @@ public final class Format implements Parcelable {
     return new Format(
         id,
         label,
+        language,
         selectionFlags,
         roleFlags,
         bitrate,
@@ -1093,7 +1092,6 @@ public final class Format implements Parcelable {
         pcmEncoding,
         encoderDelay,
         encoderPadding,
-        language,
         accessibilityChannel,
         exoMediaCryptoType);
   }
@@ -1102,6 +1100,7 @@ public final class Format implements Parcelable {
     return new Format(
         id,
         label,
+        language,
         selectionFlags,
         roleFlags,
         bitrate,
@@ -1126,7 +1125,6 @@ public final class Format implements Parcelable {
         pcmEncoding,
         encoderDelay,
         encoderPadding,
-        language,
         accessibilityChannel,
         exoMediaCryptoType);
   }
@@ -1148,6 +1146,7 @@ public final class Format implements Parcelable {
     return new Format(
         id,
         label,
+        language,
         selectionFlags,
         roleFlags,
         bitrate,
@@ -1172,7 +1171,6 @@ public final class Format implements Parcelable {
         pcmEncoding,
         encoderDelay,
         encoderPadding,
-        language,
         accessibilityChannel,
         exoMediaCryptoType);
   }
@@ -1181,6 +1179,7 @@ public final class Format implements Parcelable {
     return new Format(
         id,
         label,
+        language,
         selectionFlags,
         roleFlags,
         bitrate,
@@ -1205,7 +1204,6 @@ public final class Format implements Parcelable {
         pcmEncoding,
         encoderDelay,
         encoderPadding,
-        language,
         accessibilityChannel,
         exoMediaCryptoType);
   }
@@ -1214,6 +1212,7 @@ public final class Format implements Parcelable {
     return new Format(
         id,
         label,
+        language,
         selectionFlags,
         roleFlags,
         bitrate,
@@ -1238,7 +1237,6 @@ public final class Format implements Parcelable {
         pcmEncoding,
         encoderDelay,
         encoderPadding,
-        language,
         accessibilityChannel,
         exoMediaCryptoType);
   }
@@ -1247,6 +1245,7 @@ public final class Format implements Parcelable {
     return new Format(
         id,
         label,
+        language,
         selectionFlags,
         roleFlags,
         bitrate,
@@ -1271,7 +1270,6 @@ public final class Format implements Parcelable {
         pcmEncoding,
         encoderDelay,
         encoderPadding,
-        language,
         accessibilityChannel,
         exoMediaCryptoType);
   }
@@ -1281,6 +1279,7 @@ public final class Format implements Parcelable {
     return new Format(
         id,
         label,
+        language,
         selectionFlags,
         roleFlags,
         bitrate,
@@ -1305,7 +1304,6 @@ public final class Format implements Parcelable {
         pcmEncoding,
         encoderDelay,
         encoderPadding,
-        language,
         accessibilityChannel,
         exoMediaCryptoType);
   }
@@ -1355,6 +1353,7 @@ public final class Format implements Parcelable {
       int result = 17;
       result = 31 * result + (id == null ? 0 : id.hashCode());
       result = 31 * result + (label != null ? label.hashCode() : 0);
+      result = 31 * result + (language == null ? 0 : language.hashCode());
       result = 31 * result + selectionFlags;
       result = 31 * result + roleFlags;
       result = 31 * result + bitrate;
@@ -1383,8 +1382,7 @@ public final class Format implements Parcelable {
       result = 31 * result + pcmEncoding;
       result = 31 * result + encoderDelay;
       result = 31 * result + encoderPadding;
-      // Audio and text specific.
-      result = 31 * result + (language == null ? 0 : language.hashCode());
+      // Text specific.
       result = 31 * result + accessibilityChannel;
       // Provided by source.
       result = 31 * result + (exoMediaCryptoType == null ? 0 : exoMediaCryptoType.hashCode());
@@ -1504,6 +1502,7 @@ public final class Format implements Parcelable {
   public void writeToParcel(Parcel dest, int flags) {
     dest.writeString(id);
     dest.writeString(label);
+    dest.writeString(language);
     dest.writeInt(selectionFlags);
     dest.writeInt(roleFlags);
     dest.writeInt(bitrate);
@@ -1539,8 +1538,7 @@ public final class Format implements Parcelable {
     dest.writeInt(pcmEncoding);
     dest.writeInt(encoderDelay);
     dest.writeInt(encoderPadding);
-    // Audio and text specific.
-    dest.writeString(language);
+    // Text specific.
     dest.writeInt(accessibilityChannel);
   }
 
