@@ -56,7 +56,43 @@ public final class Format implements Parcelable {
   /** Track role flags. */
   @C.RoleFlags public final int roleFlags;
   /**
-   * The average bandwidth in bits per second, or {@link #NO_VALUE} if unknown or not applicable.
+   * The average bitrate in bits per second, or {@link #NO_VALUE} if unknown or not applicable. This
+   * field may be populated from the following sources, depending on media type and the type of the
+   * track within the media:
+   *
+   * <ul>
+   *   <li>DASH: Always {@link Format#NO_VALUE}.
+   *   <li>HLS: The {@code AVERAGE-BANDWIDTH} attribute defined on the corresponding {@code
+   *       EXT-X-STREAM-INF} tag in the master playlist, or {@link Format#NO_VALUE} if not present.
+   *   <li>SmoothStreaming: The {@code Bitrate} attribute defined on the corresponding {@code
+   *       TrackElement} in the manifest, or {@link Format#NO_VALUE} if not present.
+   *   <li>Progressive container formats: Often {@link Format#NO_VALUE}, but may be populated with
+   *       the average bitrate if defined by the container.
+   * </ul>
+   */
+  // TODO: Make public.
+  private final int averageBitrate;
+  /**
+   * The peak bitrate in bits per second, or {@link #NO_VALUE} if unknown or not applicable. This
+   * field may be populated from the following sources, depending on media type and the type of the
+   * track within the media:
+   *
+   * <ul>
+   *   <li>DASH: The {@code @bandwidth} attribute of the corresponding {@code Representation}
+   *       element in the manifest.
+   *   <li>HLS: The {@code BANDWIDTH} attribute defined on the corresponding {@code
+   *       EXT-X-STREAM-INF} tag.
+   *   <li>SmoothStreaming: Always {@link Format#NO_VALUE}.
+   *   <li>Progressive container formats: Often {@link Format#NO_VALUE}, but may be populated with
+   *       the peak bitrate if defined by the container.
+   * </ul>
+   */
+  // TODO: Make public.
+  private final int peakBitrate;
+  /**
+   * The bitrate in bits per second. This is the peak bitrate if known, or else the average bitrate
+   * if known, or else {@link Format#NO_VALUE}. Equivalent to: {@code peakBitrate != NO_VALUE ?
+   * peakBitrate : averageBitrate}.
    */
   public final int bitrate;
   /** Codecs of the format as described in RFC 6381, or null if unknown or not applicable. */
@@ -190,7 +226,8 @@ public final class Format implements Parcelable {
         /* language= */ null,
         selectionFlags,
         roleFlags,
-        bitrate,
+        /* averageBitrate= */ bitrate,
+        /* peakBitrate= */ bitrate,
         codecs,
         metadata,
         containerMimeType,
@@ -295,7 +332,8 @@ public final class Format implements Parcelable {
         /* language= */ null,
         /* selectionFlags= */ 0,
         /* roleFlags= */ 0,
-        bitrate,
+        /* averageBitrate= */ bitrate,
+        /* peakBitrate= */ bitrate,
         codecs,
         /* metadata= */ null,
         /* containerMimeType= */ null,
@@ -343,7 +381,8 @@ public final class Format implements Parcelable {
         language,
         selectionFlags,
         roleFlags,
-        bitrate,
+        /* averageBitrate= */ bitrate,
+        /* peakBitrate= */ bitrate,
         codecs,
         metadata,
         containerMimeType,
@@ -449,7 +488,8 @@ public final class Format implements Parcelable {
         language,
         selectionFlags,
         /* roleFlags= */ 0,
-        bitrate,
+        /* averageBitrate= */ bitrate,
+        /* peakBitrate= */ bitrate,
         codecs,
         metadata,
         /* containerMimeType= */ null,
@@ -517,7 +557,8 @@ public final class Format implements Parcelable {
         language,
         selectionFlags,
         roleFlags,
-        bitrate,
+        /* averageBitrate= */ bitrate,
+        /* peakBitrate= */ bitrate,
         codecs,
         /* metadata= */ null,
         containerMimeType,
@@ -572,7 +613,8 @@ public final class Format implements Parcelable {
         language,
         selectionFlags,
         /* roleFlags= */ 0,
-        /* bitrate= */ NO_VALUE,
+        /* averageBitrate= */ NO_VALUE,
+        /* peakBitrate= */ NO_VALUE,
         /* codecs= */ null,
         /* metadata= */ null,
         /* containerMimeType= */ null,
@@ -612,7 +654,8 @@ public final class Format implements Parcelable {
         language,
         selectionFlags,
         /* roleFlags= */ 0,
-        /* bitrate= */ NO_VALUE,
+        /* averageBitrate= */ NO_VALUE,
+        /* peakBitrate= */ NO_VALUE,
         /* codecs= */ null,
         /* metadata=*/ null,
         /* containerMimeType= */ null,
@@ -656,7 +699,8 @@ public final class Format implements Parcelable {
         language,
         selectionFlags,
         roleFlags,
-        bitrate,
+        /* averageBitrate= */ bitrate,
+        /* peakBitrate= */ bitrate,
         codecs,
         /* metadata= */ null,
         containerMimeType,
@@ -689,7 +733,8 @@ public final class Format implements Parcelable {
         /* language= */ null,
         /* selectionFlags= */ 0,
         /* roleFlags= */ 0,
-        /* bitrate= */ NO_VALUE,
+        /* averageBitrate= */ NO_VALUE,
+        /* peakBitrate= */ NO_VALUE,
         /* codecs= */ null,
         /* metadata= */ null,
         /* containerMimeType= */ null,
@@ -721,7 +766,8 @@ public final class Format implements Parcelable {
       @Nullable String language,
       @C.SelectionFlags int selectionFlags,
       @C.RoleFlags int roleFlags,
-      int bitrate,
+      int averageBitrate,
+      int peakBitrate,
       @Nullable String codecs,
       @Nullable Metadata metadata,
       // Container specific.
@@ -756,7 +802,9 @@ public final class Format implements Parcelable {
     this.language = Util.normalizeLanguageCode(language);
     this.selectionFlags = selectionFlags;
     this.roleFlags = roleFlags;
-    this.bitrate = bitrate;
+    this.averageBitrate = averageBitrate;
+    this.peakBitrate = peakBitrate;
+    this.bitrate = peakBitrate != NO_VALUE ? peakBitrate : averageBitrate;
     this.codecs = codecs;
     this.metadata = metadata;
     // Container specific.
@@ -796,7 +844,9 @@ public final class Format implements Parcelable {
     language = in.readString();
     selectionFlags = in.readInt();
     roleFlags = in.readInt();
-    bitrate = in.readInt();
+    averageBitrate = in.readInt();
+    peakBitrate = in.readInt();
+    bitrate = peakBitrate != NO_VALUE ? peakBitrate : averageBitrate;
     codecs = in.readString();
     metadata = in.readParcelable(Metadata.class.getClassLoader());
     // Container specific.
@@ -840,7 +890,8 @@ public final class Format implements Parcelable {
         language,
         selectionFlags,
         roleFlags,
-        bitrate,
+        averageBitrate,
+        peakBitrate,
         codecs,
         metadata,
         containerMimeType,
@@ -873,7 +924,8 @@ public final class Format implements Parcelable {
         language,
         selectionFlags,
         roleFlags,
-        bitrate,
+        averageBitrate,
+        peakBitrate,
         codecs,
         metadata,
         containerMimeType,
@@ -906,7 +958,8 @@ public final class Format implements Parcelable {
         language,
         selectionFlags,
         roleFlags,
-        bitrate,
+        averageBitrate,
+        peakBitrate,
         codecs,
         metadata,
         containerMimeType,
@@ -955,7 +1008,8 @@ public final class Format implements Parcelable {
         language,
         selectionFlags,
         roleFlags,
-        bitrate,
+        /* averageBitrate= */ bitrate,
+        /* peakBitrate= */ bitrate,
         codecs,
         metadata,
         containerMimeType,
@@ -1002,12 +1056,14 @@ public final class Format implements Parcelable {
     }
 
     // Prefer sample format values, but fill in from manifest if missing.
-    int bitrate = this.bitrate == NO_VALUE ? manifestFormat.bitrate : this.bitrate;
+    int averageBitrate =
+        this.averageBitrate == NO_VALUE ? manifestFormat.averageBitrate : this.averageBitrate;
+    int peakBitrate = this.peakBitrate == NO_VALUE ? manifestFormat.peakBitrate : this.peakBitrate;
     @Nullable String codecs = this.codecs;
     if (codecs == null) {
       // The manifest format may be muxed, so filter only codecs of this format's type. If we still
       // have more than one codec then we're unable to uniquely identify which codec to fill in.
-      String codecsOfType = Util.getCodecsOfType(manifestFormat.codecs, trackType);
+      @Nullable String codecsOfType = Util.getCodecsOfType(manifestFormat.codecs, trackType);
       if (Util.splitCodecs(codecsOfType).length == 1) {
         codecs = codecsOfType;
       }
@@ -1037,7 +1093,8 @@ public final class Format implements Parcelable {
         language,
         selectionFlags,
         roleFlags,
-        bitrate,
+        averageBitrate,
+        peakBitrate,
         codecs,
         metadata,
         containerMimeType,
@@ -1070,7 +1127,8 @@ public final class Format implements Parcelable {
         language,
         selectionFlags,
         roleFlags,
-        bitrate,
+        averageBitrate,
+        peakBitrate,
         codecs,
         metadata,
         containerMimeType,
@@ -1103,7 +1161,8 @@ public final class Format implements Parcelable {
         language,
         selectionFlags,
         roleFlags,
-        bitrate,
+        averageBitrate,
+        peakBitrate,
         codecs,
         metadata,
         containerMimeType,
@@ -1149,7 +1208,8 @@ public final class Format implements Parcelable {
         language,
         selectionFlags,
         roleFlags,
-        bitrate,
+        averageBitrate,
+        peakBitrate,
         codecs,
         metadata,
         containerMimeType,
@@ -1182,7 +1242,8 @@ public final class Format implements Parcelable {
         language,
         selectionFlags,
         roleFlags,
-        bitrate,
+        averageBitrate,
+        peakBitrate,
         codecs,
         metadata,
         containerMimeType,
@@ -1215,7 +1276,8 @@ public final class Format implements Parcelable {
         language,
         selectionFlags,
         roleFlags,
-        bitrate,
+        averageBitrate,
+        peakBitrate,
         codecs,
         metadata,
         containerMimeType,
@@ -1248,7 +1310,8 @@ public final class Format implements Parcelable {
         language,
         selectionFlags,
         roleFlags,
-        bitrate,
+        averageBitrate,
+        peakBitrate,
         codecs,
         metadata,
         containerMimeType,
@@ -1282,7 +1345,8 @@ public final class Format implements Parcelable {
         language,
         selectionFlags,
         roleFlags,
-        bitrate,
+        averageBitrate,
+        peakBitrate,
         codecs,
         metadata,
         containerMimeType,
@@ -1505,7 +1569,8 @@ public final class Format implements Parcelable {
     dest.writeString(language);
     dest.writeInt(selectionFlags);
     dest.writeInt(roleFlags);
-    dest.writeInt(bitrate);
+    dest.writeInt(averageBitrate);
+    dest.writeInt(peakBitrate);
     dest.writeString(codecs);
     dest.writeParcelable(metadata, 0);
     // Container specific.
