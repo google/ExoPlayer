@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.offline.DefaultDownloadIndex;
 import com.google.android.exoplayer2.offline.DefaultDownloaderFactory;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
+import com.google.android.exoplayer2.ui.DownloadNotificationHelper;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
@@ -45,6 +46,8 @@ import java.io.IOException;
  */
 public class DemoApplication extends Application {
 
+  public static final String DOWNLOAD_NOTIFICATION_CHANNEL_ID = "download_channel";
+
   private static final String TAG = "DemoApplication";
   private static final String DOWNLOAD_ACTION_FILE = "actions";
   private static final String DOWNLOAD_TRACKER_ACTION_FILE = "tracked_actions";
@@ -57,6 +60,7 @@ public class DemoApplication extends Application {
   private Cache downloadCache;
   private DownloadManager downloadManager;
   private DownloadTracker downloadTracker;
+  private DownloadNotificationHelper downloadNotificationHelper;
 
   @Override
   public void onCreate() {
@@ -91,6 +95,14 @@ public class DemoApplication extends Application {
             : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF;
     return new DefaultRenderersFactory(/* context= */ this)
         .setExtensionRendererMode(extensionRendererMode);
+  }
+
+  public DownloadNotificationHelper getDownloadNotificationHelper() {
+    if (downloadNotificationHelper == null) {
+      downloadNotificationHelper =
+          new DownloadNotificationHelper(this, DOWNLOAD_NOTIFICATION_CHANNEL_ID);
+    }
+    return downloadNotificationHelper;
   }
 
   public DownloadManager getDownloadManager() {
