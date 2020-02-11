@@ -169,9 +169,7 @@ public final class CacheDataSink implements DataSink {
         dataSpec.length == C.LENGTH_UNSET
             ? C.LENGTH_UNSET
             : Math.min(dataSpec.length - dataSpecBytesWritten, dataSpecFragmentSize);
-    file =
-        cache.startFile(
-            dataSpec.key, dataSpec.absoluteStreamPosition + dataSpecBytesWritten, length);
+    file = cache.startFile(dataSpec.key, dataSpec.position + dataSpecBytesWritten, length);
     FileOutputStream underlyingFileOutputStream = new FileOutputStream(file);
     if (bufferSize > 0) {
       if (bufferedOutputStream == null) {

@@ -546,7 +546,7 @@ public final class CacheDataSourceTest {
   private void assertReadData(
       CacheDataSource cacheDataSource, DataSpec dataSpec, boolean unknownLength)
       throws IOException {
-    int position = (int) dataSpec.absoluteStreamPosition;
+    int position = (int) dataSpec.position;
     int requestLength = (int) dataSpec.length;
     int readLength = TEST_DATA.length - position;
     if (requestLength != C.LENGTH_UNSET) {

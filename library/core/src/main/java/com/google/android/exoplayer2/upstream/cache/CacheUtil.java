@@ -79,7 +79,7 @@ public final class CacheUtil {
   public static Pair<Long, Long> getCached(
       DataSpec dataSpec, Cache cache, @Nullable CacheKeyFactory cacheKeyFactory) {
     String key = buildCacheKey(dataSpec, cacheKeyFactory);
-    long position = dataSpec.absoluteStreamPosition;
+    long position = dataSpec.position;
     long requestLength = getRequestLength(dataSpec, cache, key);
     long bytesAlreadyCached = 0;
     long bytesLeft = requestLength;
@@ -193,7 +193,7 @@ public final class CacheUtil {
       bytesLeft = getRequestLength(dataSpec, cache, key);
     }
 
-    long position = dataSpec.absoluteStreamPosition;
+    long position = dataSpec.position;
     boolean lengthUnset = bytesLeft == C.LENGTH_UNSET;
     while (bytesLeft != 0) {
       throwExceptionIfInterruptedOrCancelled(isCanceled);
@@ -238,18 +238,16 @@ public final class CacheUtil {
       return dataSpec.length;
     } else {
       long contentLength = ContentMetadata.getContentLength(cache.getContentMetadata(key));
-      return contentLength == C.LENGTH_UNSET
-          ? C.LENGTH_UNSET
-          : contentLength - dataSpec.absoluteStreamPosition;
+      return contentLength == C.LENGTH_UNSET ? C.LENGTH_UNSET : contentLength - dataSpec.position;
     }
   }
 
   /**
    * Reads and discards all data specified by the {@code dataSpec}.
    *
-   * @param dataSpec Defines the data to be read. {@code absoluteStreamPosition} and {@code length}
-   *     fields are overwritten by the following parameters.
-   * @param absoluteStreamPosition The absolute position of the data to be read.
+   * @param dataSpec Defines the data to be read. The {@code position} and {@code length} fields are
+   *     overwritten by the following parameters.
+   * @param position The position of the data to be read.
    * @param length Length of the data to be read, or {@link C#LENGTH_UNSET} if it is unknown.
    * @param dataSource The {@link DataSource} to read the data from.
    * @param buffer The buffer to be used while downloading.
@@ -264,7 +262,7 @@ public final class CacheUtil {
    */
   private static long readAndDiscard(
       DataSpec dataSpec,
-      long absoluteStreamPosition,
+      long position,
       long length,
       DataSource dataSource,
       byte[] buffer,
@@ -274,7 +272,7 @@ public final class CacheUtil {
       boolean isLastBlock,
       @Nullable AtomicBoolean isCanceled)
       throws IOException, InterruptedException {
-    long positionOffset = absoluteStreamPosition - dataSpec.absoluteStreamPosition;
+    long positionOffset = position - dataSpec.position;
     long initialPositionOffset = positionOffset;
     long endOffset = length != C.LENGTH_UNSET ? positionOffset + length : C.POSITION_UNSET;
     while (true) {

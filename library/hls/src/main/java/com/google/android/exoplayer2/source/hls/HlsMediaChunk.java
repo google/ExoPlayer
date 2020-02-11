@@ -376,7 +376,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           result = extractor.read(input, DUMMY_POSITION_HOLDER);
         }
       } finally {
-        nextLoadPosition = (int) (input.getPosition() - dataSpec.absoluteStreamPosition);
+        nextLoadPosition = (int) (input.getPosition() - dataSpec.position);
       }
     } finally {
       Util.closeQuietly(dataSource);
@@ -389,7 +389,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       throws IOException, InterruptedException {
     long bytesToRead = dataSource.open(dataSpec);
     DefaultExtractorInput extractorInput =
-        new DefaultExtractorInput(dataSource, dataSpec.absoluteStreamPosition, bytesToRead);
+        new DefaultExtractorInput(dataSource, dataSpec.position, bytesToRead);
 
     if (extractor == null) {
       long id3Timestamp = peekId3PrivTimestamp(extractorInput);
