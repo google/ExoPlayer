@@ -487,20 +487,19 @@ public class DefaultDashChunkSource implements DashChunkSource {
       Object trackSelectionData,
       RangedUri initializationUri,
       RangedUri indexUri) {
+    Representation representation = representationHolder.representation;
     RangedUri requestUri;
-    String baseUrl = representationHolder.representation.baseUrl;
     if (initializationUri != null) {
       // It's common for initialization and index data to be stored adjacently. Attempt to merge
       // the two requests together to request both at once.
-      requestUri = initializationUri.attemptMerge(indexUri, baseUrl);
+      requestUri = initializationUri.attemptMerge(indexUri, representation.baseUrl);
       if (requestUri == null) {
         requestUri = initializationUri;
       }
     } else {
       requestUri = indexUri;
     }
-    DataSpec dataSpec = new DataSpec(requestUri.resolveUri(baseUrl), requestUri.start,
-        requestUri.length, representationHolder.representation.getCacheKey());
+    DataSpec dataSpec = DashUtil.buildDataSpec(representation, requestUri);
     return new InitializationChunk(dataSource, dataSpec, trackFormat,
         trackSelectionReason, trackSelectionData, representationHolder.extractorWrapper);
   }
@@ -521,15 +520,14 @@ public class DefaultDashChunkSource implements DashChunkSource {
     String baseUrl = representation.baseUrl;
     if (representationHolder.extractorWrapper == null) {
       long endTimeUs = representationHolder.getSegmentEndTimeUs(firstSegmentNum);
-      DataSpec dataSpec = new DataSpec(segmentUri.resolveUri(baseUrl),
-          segmentUri.start, segmentUri.length, representation.getCacheKey());
+      DataSpec dataSpec = DashUtil.buildDataSpec(representation, segmentUri);
       return new SingleSampleMediaChunk(dataSource, dataSpec, trackFormat, trackSelectionReason,
           trackSelectionData, startTimeUs, endTimeUs, firstSegmentNum, trackType, trackFormat);
     } else {
       int segmentCount = 1;
       for (int i = 1; i < maxSegmentCount; i++) {
         RangedUri nextSegmentUri = representationHolder.getSegmentUrl(firstSegmentNum + i);
-        RangedUri mergedSegmentUri = segmentUri.attemptMerge(nextSegmentUri, baseUrl);
+        @Nullable RangedUri mergedSegmentUri = segmentUri.attemptMerge(nextSegmentUri, baseUrl);
         if (mergedSegmentUri == null) {
           // Unable to merge segment fetches because the URIs do not merge.
           break;
@@ -543,8 +541,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
           periodDurationUs != C.TIME_UNSET && periodDurationUs <= endTimeUs
               ? periodDurationUs
               : C.TIME_UNSET;
-      DataSpec dataSpec = new DataSpec(segmentUri.resolveUri(baseUrl),
-          segmentUri.start, segmentUri.length, representation.getCacheKey());
+      DataSpec dataSpec = DashUtil.buildDataSpec(representation, segmentUri);
       long sampleOffsetUs = -representation.presentationTimeOffsetUs;
       return new ContainerMediaChunk(
           dataSource,
@@ -588,11 +585,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
     @Override
     public DataSpec getDataSpec() {
       checkInBounds();
-      Representation representation = representationHolder.representation;
       RangedUri segmentUri = representationHolder.getSegmentUrl(getCurrentIndex());
-      Uri resolvedUri = segmentUri.resolveUri(representation.baseUrl);
-      String cacheKey = representation.getCacheKey();
-      return new DataSpec(resolvedUri, segmentUri.start, segmentUri.length, cacheKey);
+      return DashUtil.buildDataSpec(representationHolder.representation, segmentUri);
     }
 
     @Override

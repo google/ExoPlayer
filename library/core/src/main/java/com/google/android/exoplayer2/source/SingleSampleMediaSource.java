@@ -287,7 +287,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     this.treatLoadErrorsAsEndOfStream = treatLoadErrorsAsEndOfStream;
     this.tag = tag;
-    dataSpec = new DataSpec(uri, DataSpec.FLAG_ALLOW_GZIP);
+    dataSpec = new DataSpec.Builder().setUri(uri).setFlags(DataSpec.FLAG_ALLOW_GZIP).build();
     timeline =
         new SinglePeriodTimeline(
             durationUs,

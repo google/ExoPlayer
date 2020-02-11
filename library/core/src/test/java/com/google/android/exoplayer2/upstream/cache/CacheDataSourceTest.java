@@ -286,11 +286,7 @@ public final class CacheDataSourceTest {
 
     // An unbounded request with offset for not cached content.
     dataSpec =
-        new DataSpec(
-            Uri.parse("https://www.test.com/other"),
-            TEST_DATA.length - 2,
-            C.LENGTH_UNSET,
-            /* key= */ null);
+        new DataSpec(Uri.parse("https://www.test.com/other"), TEST_DATA.length - 2, C.LENGTH_UNSET);
     assertThat(cacheDataSource.open(dataSpec)).isEqualTo(C.LENGTH_UNSET);
   }
 
@@ -624,12 +620,13 @@ public final class CacheDataSourceTest {
   }
 
   private DataSpec buildDataSpec(long position, long length, @Nullable String key) {
-    return new DataSpec(
-        testDataUri,
-        position,
-        length,
-        key,
-        DataSpec.FLAG_ALLOW_CACHE_FRAGMENTATION,
-        httpRequestHeaders);
+    return new DataSpec.Builder()
+        .setUri(testDataUri)
+        .setPosition(position)
+        .setLength(length)
+        .setKey(key)
+        .setFlags(DataSpec.FLAG_ALLOW_CACHE_FRAGMENTATION)
+        .setHttpRequestHeaders(httpRequestHeaders)
+        .build();
   }
 }

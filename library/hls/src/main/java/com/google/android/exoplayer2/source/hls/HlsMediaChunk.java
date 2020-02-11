@@ -94,9 +94,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         new DataSpec(
             UriUtil.resolveToUri(mediaPlaylist.baseUri, mediaSegment.url),
             mediaSegment.byterangeOffset,
-            mediaSegment.byterangeLength,
-            /* key= */ null);
+            mediaSegment.byterangeLength);
     boolean mediaSegmentEncrypted = mediaSegmentKey != null;
+    @Nullable
     byte[] mediaSegmentIv =
         mediaSegmentEncrypted
             ? getEncryptionIvArray(Assertions.checkNotNull(mediaSegment.encryptionIV))
@@ -107,20 +107,17 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     HlsMediaPlaylist.Segment initSegment = mediaSegment.initializationSegment;
     DataSpec initDataSpec = null;
     boolean initSegmentEncrypted = false;
-    DataSource initDataSource = null;
+    @Nullable DataSource initDataSource = null;
     if (initSegment != null) {
       initSegmentEncrypted = initSegmentKey != null;
+      @Nullable
       byte[] initSegmentIv =
           initSegmentEncrypted
               ? getEncryptionIvArray(Assertions.checkNotNull(initSegment.encryptionIV))
               : null;
       Uri initSegmentUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, initSegment.url);
       initDataSpec =
-          new DataSpec(
-              initSegmentUri,
-              initSegment.byterangeOffset,
-              initSegment.byterangeLength,
-              /* key= */ null);
+          new DataSpec(initSegmentUri, initSegment.byterangeOffset, initSegment.byterangeLength);
       initDataSource = buildDataSource(dataSource, initSegmentKey, initSegmentIv);
     }
 
@@ -129,7 +126,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     int discontinuitySequenceNumber =
         mediaPlaylist.discontinuitySequence + mediaSegment.relativeDiscontinuitySequence;
 
-    Extractor previousExtractor = null;
+    @Nullable Extractor previousExtractor = null;
     Id3Decoder id3Decoder;
     ParsableByteArray scratchId3Data;
     boolean shouldSpliceIn;

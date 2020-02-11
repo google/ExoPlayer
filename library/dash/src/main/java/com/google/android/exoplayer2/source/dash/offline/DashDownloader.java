@@ -153,7 +153,7 @@ public final class DashDownloader extends SegmentDownloader<DashManifest> {
   private static void addSegment(
       long startTimeUs, String baseUrl, RangedUri rangedUri, ArrayList<Segment> out) {
     DataSpec dataSpec =
-        new DataSpec(rangedUri.resolveUri(baseUrl), rangedUri.start, rangedUri.length, null);
+        new DataSpec(rangedUri.resolveUri(baseUrl), rangedUri.start, rangedUri.length);
     out.add(new Segment(startTimeUs, dataSpec));
   }
 

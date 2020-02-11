@@ -151,7 +151,7 @@ public final class DataSchemeDataSourceTest {
   }
 
   private static DataSpec buildDataSpec(String uriString, int position, int length) {
-    return new DataSpec(Uri.parse(uriString), position, length, /* key= */ null);
+    return new DataSpec(Uri.parse(uriString), position, length);
   }
 
   /**

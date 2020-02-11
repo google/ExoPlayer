@@ -1022,13 +1022,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     private DataSpec buildDataSpec(long position) {
       // Disable caching if the content length cannot be resolved, since this is indicative of a
       // progressive live stream.
-      return new DataSpec(
-          uri,
-          position,
-          C.LENGTH_UNSET,
-          customCacheKey,
-          DataSpec.FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN | DataSpec.FLAG_ALLOW_CACHE_FRAGMENTATION,
-          ICY_METADATA_HEADERS);
+      return new DataSpec.Builder()
+          .setUri(uri)
+          .setPosition(position)
+          .setKey(customCacheKey)
+          .setFlags(
+              DataSpec.FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN | DataSpec.FLAG_ALLOW_CACHE_FRAGMENTATION)
+          .setHttpRequestHeaders(ICY_METADATA_HEADERS)
+          .build();
     }
 
     private void setLoadPosition(long position, long timeUs) {

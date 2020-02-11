@@ -9,8 +9,9 @@
   * Add `Player.onPlayWhenReadyChanged` with reasons.
   * Add `Player.onPlaybackStateChanged` and deprecate
     `Player.onPlayerStateChanged`.
-  * Deprecate and rename getPlaybackError to getPlayerError for consistency.
-  * Deprecate and rename onLoadingChanged to onIsLoadingChanged for consistency.
+  * Deprecate and rename `getPlaybackError` to `getPlayerError` for consistency.
+  * Deprecate and rename `onLoadingChanged` to `onIsLoadingChanged` for
+    consistency.
   * Make `MediaSourceEventListener.LoadEventInfo` and
     `MediaSourceEventListener.MediaLoadData` top-level classes.
   * Rename `MediaCodecRenderer.onOutputFormatChanged` to
@@ -19,7 +20,9 @@
   * Move player message-related constants from `C` to `Renderer`, to avoid
     having the constants class depend on player/renderer classes.
   * Split out `common` and `extractor` submodules.
-  * Add `DataSpec.Builder` and `DataSpec.customData`.
+  * Add `DataSpec.Builder` and deprecate most `DataSpec` constructors.
+  * Add `DataSpec.customData` to allow applications to pass custom data through
+    `DataSource` chains.
 * Text:
   * Parse `<ruby>` and `<rt>` tags in WebVTT subtitles (rendering is coming
     later).

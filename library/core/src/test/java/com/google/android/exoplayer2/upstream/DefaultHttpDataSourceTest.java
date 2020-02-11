@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.upstream;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -89,16 +88,13 @@ public class DefaultHttpDataSourceTest {
     dataSpecRequestProperties.put("5", dataSpecParameter);
 
     DataSpec dataSpec =
-        new DataSpec(
-            /* uri= */ Uri.parse("http://www.google.com"),
-            /* httpMethod= */ 1,
-            /* httpBody= */ new byte[] {0, 0, 0, 0},
-            /* absoluteStreamPosition= */ 0,
-            /* position= */ 0,
-            /* length= */ 1,
-            /* key= */ "key",
-            /* flags= */ 0,
-            dataSpecRequestProperties);
+        new DataSpec.Builder()
+            .setUri("http://www.google.com")
+            .setHttpBody(new byte[] {0, 0, 0, 0})
+            .setLength(1)
+            .setKey("key")
+            .setHttpRequestHeaders(dataSpecRequestProperties)
+            .build();
 
     defaultHttpDataSource.open(dataSpec);
 

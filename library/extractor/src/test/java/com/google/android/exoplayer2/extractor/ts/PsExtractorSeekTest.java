@@ -201,8 +201,7 @@ public final class PsExtractorSeekTest {
   // Internal methods
 
   private long readInputLength() throws IOException {
-    DataSpec dataSpec =
-        new DataSpec(Uri.parse("asset:///" + PS_FILE_PATH), 0, C.LENGTH_UNSET, null);
+    DataSpec dataSpec = new DataSpec(Uri.parse("asset:///" + PS_FILE_PATH));
     long totalInputLength = dataSource.open(dataSpec);
     Util.closeQuietly(dataSource);
     return totalInputLength;
@@ -343,8 +342,7 @@ public final class PsExtractorSeekTest {
 
   private ExtractorInput getExtractorInputFromPosition(long position) throws IOException {
     DataSpec dataSpec =
-        new DataSpec(
-            Uri.parse("asset:///" + PS_FILE_PATH), position, C.LENGTH_UNSET, /* key= */ null);
+        new DataSpec(Uri.parse("asset:///" + PS_FILE_PATH), position, C.LENGTH_UNSET);
     dataSource.open(dataSpec);
     return new DefaultExtractorInput(dataSource, position, totalInputLength);
   }

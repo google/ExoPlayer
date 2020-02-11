@@ -130,8 +130,8 @@ public final class FakeChunkSource implements ChunkSource {
       String uri = dataSet.getUri(trackGroupIndex);
       Segment fakeDataChunk =
           Assertions.checkStateNotNull(dataSet.getData(uri)).getSegments().get(chunkIndex);
-      DataSpec dataSpec = new DataSpec(Uri.parse(uri), fakeDataChunk.byteOffset,
-          fakeDataChunk.length, null);
+      DataSpec dataSpec =
+          new DataSpec(Uri.parse(uri), fakeDataChunk.byteOffset, fakeDataChunk.length);
       int trackType = MimeTypes.getTrackType(selectedFormat.sampleMimeType);
       out.chunk = new SingleSampleMediaChunk(dataSource, dataSpec, selectedFormat,
           trackSelection.getSelectionReason(), trackSelection.getSelectionData(), startTimeUs,

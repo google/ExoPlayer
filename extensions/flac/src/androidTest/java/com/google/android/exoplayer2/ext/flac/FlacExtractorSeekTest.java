@@ -187,7 +187,7 @@ public final class FlacExtractorSeekTest {
   // Internal methods
 
   private long readInputLength() throws IOException {
-    DataSpec dataSpec = new DataSpec(FILE_URI, 0, C.LENGTH_UNSET, null);
+    DataSpec dataSpec = new DataSpec(FILE_URI, /* position= */ 0, C.LENGTH_UNSET);
     long totalInputLength = dataSource.open(dataSpec);
     Util.closeQuietly(dataSource);
     return totalInputLength;
@@ -276,7 +276,7 @@ public final class FlacExtractorSeekTest {
   }
 
   private ExtractorInput getExtractorInputFromPosition(long position) throws IOException {
-    DataSpec dataSpec = new DataSpec(FILE_URI, position, totalInputLength, /* key= */ null);
+    DataSpec dataSpec = new DataSpec(FILE_URI, position, totalInputLength);
     dataSource.open(dataSpec);
     return new DefaultExtractorInput(dataSource, position, totalInputLength);
   }

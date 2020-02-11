@@ -97,7 +97,7 @@ public final class ContentDataSourceTest {
     ContentDataSource dataSource =
         new ContentDataSource(InstrumentationRegistry.getTargetContext());
     try {
-      DataSpec dataSpec = new DataSpec(contentUri, offset, length, null);
+      DataSpec dataSpec = new DataSpec(contentUri, offset, length);
       byte[] completeData =
           TestUtil.getByteArray(InstrumentationRegistry.getTargetContext(), DATA_PATH);
       byte[] expectedData = Arrays.copyOfRange(completeData, offset,
