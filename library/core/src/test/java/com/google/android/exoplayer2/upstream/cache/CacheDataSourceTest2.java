@@ -112,7 +112,7 @@ public final class CacheDataSourceTest2 {
     byte[] scratch = new byte[4096];
     Random random = new Random(0);
     source.open(dataSpec);
-    int position = (int) dataSpec.absoluteStreamPosition;
+    int position = (int) dataSpec.position;
     int bytesRead = 0;
     while (bytesRead != C.RESULT_END_OF_INPUT) {
       int maxBytesToRead = random.nextInt(scratch.length) + 1;
@@ -134,7 +134,6 @@ public final class CacheDataSourceTest2 {
     DataSpec[] openedDataSpecs = upstreamSource.getAndClearOpenedDataSpecs();
     assertThat(openedDataSpecs).hasLength(1);
     assertThat(openedDataSpecs[0].position).isEqualTo(start);
-    assertThat(openedDataSpecs[0].absoluteStreamPosition).isEqualTo(start);
     assertThat(openedDataSpecs[0].length).isEqualTo(end - start);
   }
 

@@ -112,6 +112,22 @@ public final class DataSpec {
   public final Uri uri;
 
   /**
+   * The offset of the data located at {@link #uri} within an original resource.
+   *
+   * <p>Equal to 0 unless {@link #uri} provides access to a subset of an original resource. As an
+   * example, consider a resource that can be requested over the network and is 1000 bytes long. If
+   * {@link #uri} points to a local file that contains just bytes [200-300], then this field will be
+   * set to {@code 200}.
+   *
+   * <p>This field can be ignored except for in specific circumstances where the absolute position
+   * in the original resource is required in a {@link DataSource} chain. One example is when a
+   * {@link DataSource} needs to decrypt the content as it's read. In this case the absolute
+   * position in the original resource is typically needed to correctly initialize the decryption
+   * algorithm.
+   */
+  public final long uriPositionOffset;
+
+  /**
    * The HTTP method to use when requesting the data. This value will be ignored by non-HTTP {@link
    * DataSource} implementations.
    */
@@ -126,15 +142,16 @@ public final class DataSpec {
   /** Immutable map containing the headers to use in HTTP requests. */
   public final Map<String, String> httpRequestHeaders;
 
-  /** The absolute position of the data in the full stream. */
-  public final long absoluteStreamPosition;
-
   /**
-   * The position of the data when read from {@link #uri}.
-   * <p>
-   * Always equal to {@link #absoluteStreamPosition} unless the {@link #uri} defines the location
-   * of a subset of the underlying data.
+   * The absolute position of the data in the full stream.
+   *
+   * @deprecated Use {@link #position} except for specific use cases where the absolute position
+   *     within the original resource is required within a {@link DataSource} chain. Where the
+   *     absolute position is required, use {@code uriPositionOffset + position}.
    */
+  @Deprecated public final long absoluteStreamPosition;
+
+  /** The position of the data when read from {@link #uri}. */
   public final long position;
 
   /**
@@ -152,7 +169,7 @@ public final class DataSpec {
   public final @Flags int flags;
 
   /**
-   * Construct a data spec for the given uri and with {@link #key} set to null.
+   * Constructs an instance.
    *
    * @param uri {@link #uri}.
    */
@@ -161,7 +178,7 @@ public final class DataSpec {
   }
 
   /**
-   * Construct a data spec for the given uri and with {@link #key} set to null.
+   * Constructs an instance.
    *
    * @param uri {@link #uri}.
    * @param flags {@link #flags}.
@@ -171,10 +188,10 @@ public final class DataSpec {
   }
 
   /**
-   * Construct a data spec where {@link #position} equals {@link #absoluteStreamPosition}.
+   * Constructs an instance.
    *
    * @param uri {@link #uri}.
-   * @param position {@link #position}, equal to {@link #absoluteStreamPosition}.
+   * @param position {@link #position}.
    * @param length {@link #length}.
    * @param key {@link #key}.
    */
@@ -183,10 +200,10 @@ public final class DataSpec {
   }
 
   /**
-   * Construct a data spec where {@link #position} equals {@link #absoluteStreamPosition}.
+   * Constructs an instance.
    *
    * @param uri {@link #uri}.
-   * @param position {@link #position}, equal to {@link #absoluteStreamPosition}.
+   * @param position {@link #position}.
    * @param length {@link #length}.
    * @param key {@link #key}.
    * @param flags {@link #flags}.
@@ -196,11 +213,10 @@ public final class DataSpec {
   }
 
   /**
-   * Construct a data spec where {@link #position} equals {@link #absoluteStreamPosition} and has
-   * request headers.
+   * Constructs an instance.
    *
    * @param uri {@link #uri}.
-   * @param position {@link #position}, equal to {@link #absoluteStreamPosition}.
+   * @param position {@link #position}, equal to {@link #position}.
    * @param length {@link #length}.
    * @param key {@link #key}.
    * @param flags {@link #flags}.
@@ -226,10 +242,10 @@ public final class DataSpec {
   }
 
   /**
-   * Construct a data spec where {@link #position} may differ from {@link #absoluteStreamPosition}.
+   * Constructs an instance where {@link #uriPositionOffset} may be non-zero.
    *
    * @param uri {@link #uri}.
-   * @param absoluteStreamPosition {@link #absoluteStreamPosition}.
+   * @param absoluteStreamPosition The sum of {@link #uriPositionOffset} and {@link #position}.
    * @param position {@link #position}.
    * @param length {@link #length}.
    * @param key {@link #key}.
@@ -246,14 +262,15 @@ public final class DataSpec {
   }
 
   /**
-   * Construct a data spec by inferring the {@link #httpMethod} based on the {@code postBody}
-   * parameter. If postBody is non-null, then httpMethod is set to {@link #HTTP_METHOD_POST}. If
-   * postBody is null, then httpMethod is set to {@link #HTTP_METHOD_GET}.
+   * Construct a instance where {@link #uriPositionOffset} may be non-zero. The {@link #httpMethod}
+   * is inferred from {@code postBody}. If {@code postBody} is non-null then {@link #httpMethod} is
+   * set to {@link #HTTP_METHOD_POST}. If {@code postBody} is null then {@link #httpMethod} is set
+   * to {@link #HTTP_METHOD_GET}.
    *
    * @param uri {@link #uri}.
    * @param postBody {@link #httpBody} The body of the HTTP request, which is also used to infer the
    *     {@link #httpMethod}.
-   * @param absoluteStreamPosition {@link #absoluteStreamPosition}.
+   * @param absoluteStreamPosition The sum of {@link #uriPositionOffset} and {@link #position}.
    * @param position {@link #position}.
    * @param length {@link #length}.
    * @param key {@link #key}.
@@ -279,12 +296,12 @@ public final class DataSpec {
   }
 
   /**
-   * Construct a data spec where {@link #position} may differ from {@link #absoluteStreamPosition}.
+   * Construct a instance where {@link #uriPositionOffset} may be non-zero.
    *
    * @param uri {@link #uri}.
    * @param httpMethod {@link #httpMethod}.
    * @param httpBody {@link #httpBody}.
-   * @param absoluteStreamPosition {@link #absoluteStreamPosition}.
+   * @param absoluteStreamPosition The sum of {@link #uriPositionOffset} and {@link #position}.
    * @param position {@link #position}.
    * @param length {@link #length}.
    * @param key {@link #key}.
@@ -312,12 +329,12 @@ public final class DataSpec {
   }
 
   /**
-   * Construct a data spec with request parameters to be used as HTTP headers inside HTTP requests.
+   * Construct a instance where {@link #uriPositionOffset} may be non-zero.
    *
    * @param uri {@link #uri}.
    * @param httpMethod {@link #httpMethod}.
    * @param httpBody {@link #httpBody}.
-   * @param absoluteStreamPosition {@link #absoluteStreamPosition}.
+   * @param absoluteStreamPosition The sum of {@link #uriPositionOffset} and {@link #position}.
    * @param position {@link #position}.
    * @param length {@link #length}.
    * @param key {@link #key}.
@@ -334,18 +351,44 @@ public final class DataSpec {
       @Nullable String key,
       @Flags int flags,
       Map<String, String> httpRequestHeaders) {
-    Assertions.checkArgument(absoluteStreamPosition >= 0);
+    this(
+        uri,
+        /* uriPositionOffset= */ absoluteStreamPosition - position,
+        httpMethod,
+        httpBody,
+        httpRequestHeaders,
+        position,
+        length,
+        key,
+        flags);
+  }
+
+  @SuppressWarnings("deprecation")
+  private DataSpec(
+      Uri uri,
+      long uriPositionOffset,
+      @HttpMethod int httpMethod,
+      @Nullable byte[] httpBody,
+      Map<String, String> httpRequestHeaders,
+      long position,
+      long length,
+      @Nullable String key,
+      @Flags int flags) {
+    // TODO: Replace this assertion with a stricter one checking "uriPositionOffset >= 0", after
+    // validating there are no violations in ExoPlayer and 1P apps.
+    Assertions.checkArgument(uriPositionOffset + position >= 0);
     Assertions.checkArgument(position >= 0);
     Assertions.checkArgument(length > 0 || length == C.LENGTH_UNSET);
     this.uri = uri;
+    this.uriPositionOffset = uriPositionOffset;
     this.httpMethod = httpMethod;
-    this.httpBody = (httpBody != null && httpBody.length != 0) ? httpBody : null;
-    this.absoluteStreamPosition = absoluteStreamPosition;
+    this.httpBody = httpBody != null && httpBody.length != 0 ? httpBody : null;
+    this.httpRequestHeaders = Collections.unmodifiableMap(new HashMap<>(httpRequestHeaders));
     this.position = position;
+    this.absoluteStreamPosition = uriPositionOffset + position;
     this.length = length;
     this.key = key;
     this.flags = flags;
-    this.httpRequestHeaders = Collections.unmodifiableMap(new HashMap<>(httpRequestHeaders));
   }
 
   /**
@@ -389,14 +432,14 @@ public final class DataSpec {
     } else {
       return new DataSpec(
           uri,
+          uriPositionOffset,
           httpMethod,
           httpBody,
-          absoluteStreamPosition + offset,
+          httpRequestHeaders,
           position + offset,
           length,
           key,
-          flags,
-          httpRequestHeaders);
+          flags);
     }
   }
 
@@ -409,14 +452,14 @@ public final class DataSpec {
   public DataSpec withUri(Uri uri) {
     return new DataSpec(
         uri,
+        uriPositionOffset,
         httpMethod,
         httpBody,
-        absoluteStreamPosition,
+        httpRequestHeaders,
         position,
         length,
         key,
-        flags,
-        httpRequestHeaders);
+        flags);
   }
 
   /**
@@ -429,14 +472,14 @@ public final class DataSpec {
   public DataSpec withRequestHeaders(Map<String, String> httpRequestHeaders) {
     return new DataSpec(
         uri,
+        uriPositionOffset,
         httpMethod,
         httpBody,
-        absoluteStreamPosition,
+        httpRequestHeaders,
         position,
         length,
         key,
-        flags,
-        httpRequestHeaders);
+        flags);
   }
 
   /**
@@ -452,14 +495,14 @@ public final class DataSpec {
     httpRequestHeaders.putAll(additionalHttpRequestHeaders);
     return new DataSpec(
         uri,
+        uriPositionOffset,
         httpMethod,
         httpBody,
-        absoluteStreamPosition,
+        httpRequestHeaders,
         position,
         length,
         key,
-        flags,
-        httpRequestHeaders);
+        flags);
   }
 
   @Override

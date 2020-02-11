@@ -126,7 +126,7 @@ public class ContainerMediaChunk extends BaseMediaChunk {
       DataSpec loadDataSpec = dataSpec.subrange(nextLoadPosition);
       ExtractorInput input =
           new DefaultExtractorInput(
-              dataSource, loadDataSpec.absoluteStreamPosition, dataSource.open(loadDataSpec));
+              dataSource, loadDataSpec.position, dataSource.open(loadDataSpec));
       // Load and decode the sample data.
       try {
         Extractor extractor = extractorWrapper.extractor;
@@ -136,7 +136,7 @@ public class ContainerMediaChunk extends BaseMediaChunk {
         }
         Assertions.checkState(result != Extractor.RESULT_SEEK);
       } finally {
-        nextLoadPosition = input.getPosition() - dataSpec.absoluteStreamPosition;
+        nextLoadPosition = input.getPosition() - dataSpec.position;
       }
     } finally {
       Util.closeQuietly(dataSource);
