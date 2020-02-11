@@ -926,7 +926,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
         redirectUrlDataSpec =
             dataSpec
                 .buildUpon()
-                .setUri(Uri.parse(newLocationUrl))
+                .setUri(newLocationUrl)
                 .setHttpMethod(DataSpec.HTTP_METHOD_GET)
                 .setHttpBody(null)
                 .build();

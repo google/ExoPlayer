@@ -241,7 +241,6 @@ public class DefaultSsChunkSource implements SsChunkSource {
             trackSelection.getSelectedFormat(),
             dataSource,
             uri,
-            null,
             currentAbsoluteChunkIndex,
             chunkStartTimeUs,
             chunkEndTimeUs,
@@ -270,7 +269,6 @@ public class DefaultSsChunkSource implements SsChunkSource {
       Format format,
       DataSource dataSource,
       Uri uri,
-      String cacheKey,
       int chunkIndex,
       long chunkStartTimeUs,
       long chunkEndTimeUs,
@@ -278,7 +276,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
       int trackSelectionReason,
       Object trackSelectionData,
       ChunkExtractorWrapper extractorWrapper) {
-    DataSpec dataSpec = new DataSpec(uri, 0, C.LENGTH_UNSET, cacheKey);
+    DataSpec dataSpec = new DataSpec(uri);
     // In SmoothStreaming each chunk contains sample timestamps relative to the start of the chunk.
     // To convert them the absolute timestamps, we need to set sampleOffsetUs to chunkStartTimeUs.
     long sampleOffsetUs = chunkStartTimeUs;

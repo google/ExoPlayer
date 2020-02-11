@@ -512,7 +512,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return null;
     }
 
-    byte[] encryptionKey = keyCache.remove(keyUri);
+    @Nullable byte[] encryptionKey = keyCache.remove(keyUri);
     if (encryptionKey != null) {
       // The key was present in the key cache. We re-insert it to prevent it from being evicted by
       // the following key addition. Note that removal of the key is necessary to affect the
@@ -520,7 +520,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       keyCache.put(keyUri, encryptionKey);
       return null;
     }
-    DataSpec dataSpec = new DataSpec(keyUri, 0, C.LENGTH_UNSET, null, DataSpec.FLAG_ALLOW_GZIP);
+    DataSpec dataSpec =
+        new DataSpec.Builder().setUri(keyUri).setFlags(DataSpec.FLAG_ALLOW_GZIP).build();
     return new EncryptionKeyChunk(
         encryptionDataSource,
         dataSpec,
@@ -646,8 +647,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       checkInBounds();
       Segment segment = playlist.segments.get((int) getCurrentIndex());
       Uri chunkUri = UriUtil.resolveToUri(playlist.baseUri, segment.url);
-      return new DataSpec(
-          chunkUri, segment.byterangeOffset, segment.byterangeLength, /* key= */ null);
+      return new DataSpec(chunkUri, segment.byterangeOffset, segment.byterangeLength);
     }
 
     @Override

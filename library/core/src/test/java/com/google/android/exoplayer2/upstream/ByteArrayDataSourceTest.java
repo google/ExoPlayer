@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.upstream;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
+import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import java.io.IOException;
@@ -112,7 +113,7 @@ public final class ByteArrayDataSourceTest {
     boolean opened = false;
     try {
       // Open the source.
-      long length = dataSource.open(new DataSpec(null, dataOffset, dataLength, null));
+      long length = dataSource.open(new DataSpec(Uri.EMPTY, dataOffset, dataLength));
       opened = true;
       assertThat(expectFailOnOpen).isFalse();
 

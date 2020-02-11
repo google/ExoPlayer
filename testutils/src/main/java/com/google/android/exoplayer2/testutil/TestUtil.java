@@ -466,7 +466,7 @@ public class TestUtil {
   /** Returns an {@link ExtractorInput} to read from the given input at given position. */
   public static ExtractorInput getExtractorInputFromPosition(
       DataSource dataSource, long position, Uri uri) throws IOException {
-    DataSpec dataSpec = new DataSpec(uri, position, C.LENGTH_UNSET, /* key= */ null);
+    DataSpec dataSpec = new DataSpec(uri, position, C.LENGTH_UNSET);
     long length = dataSource.open(dataSpec);
     if (length != C.LENGTH_UNSET) {
       length += position;

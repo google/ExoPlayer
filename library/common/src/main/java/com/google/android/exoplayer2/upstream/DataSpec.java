@@ -72,7 +72,18 @@ public final class DataSpec {
     }
 
     /**
-     * Sets {@link DataSpec#uri}. Must be called before {@link #build()}.
+     * Sets {@link DataSpec#uri}.
+     *
+     * @param uriString The {@link DataSpec#uri}.
+     * @return The builder.
+     */
+    public Builder setUri(String uriString) {
+      this.uri = Uri.parse(uriString);
+      return this;
+    }
+
+    /**
+     * Sets {@link DataSpec#uri}.
      *
      * @param uri The {@link DataSpec#uri}.
      * @return The builder.
@@ -185,7 +196,7 @@ public final class DataSpec {
      * Builds a {@link DataSpec} with the builder's current values.
      *
      * @return The build {@link DataSpec}.
-     * @throws IllegalStateException If {@link #setUri(Uri)} has not been called.
+     * @throws IllegalStateException If {@link #setUri} has not been called.
      */
     public DataSpec build() {
       Assertions.checkStateNotNull(uri, "The uri must be set.");
@@ -353,15 +364,39 @@ public final class DataSpec {
    * @param uri {@link #uri}.
    */
   public DataSpec(Uri uri) {
-    this(uri, /* flags= */ 0);
+    this(uri, /* position= */ 0, /* length= */ C.LENGTH_UNSET);
   }
 
   /**
    * Constructs an instance.
    *
    * @param uri {@link #uri}.
+   * @param position {@link #position}.
+   * @param length {@link #length}.
+   */
+  public DataSpec(Uri uri, long position, long length) {
+    this(
+        uri,
+        /* uriPositionOffset= */ 0,
+        HTTP_METHOD_GET,
+        /* httpBody= */ null,
+        /* httpRequestHeaders= */ Collections.emptyMap(),
+        position,
+        length,
+        /* key= */ null,
+        /* flags= */ 0,
+        /* customData= */ null);
+  }
+
+  /**
+   * Constructs an instance.
+   *
+   * @deprecated Use {@link Builder}.
+   * @param uri {@link #uri}.
    * @param flags {@link #flags}.
    */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   public DataSpec(Uri uri, @Flags int flags) {
     this(uri, /* position= */ 0, C.LENGTH_UNSET, /* key= */ null, flags);
   }
@@ -369,11 +404,14 @@ public final class DataSpec {
   /**
    * Constructs an instance.
    *
+   * @deprecated Use {@link Builder}.
    * @param uri {@link #uri}.
    * @param position {@link #position}.
    * @param length {@link #length}.
    * @param key {@link #key}.
    */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   public DataSpec(Uri uri, long position, long length, @Nullable String key) {
     this(uri, position, position, length, key, /* flags= */ 0);
   }
@@ -381,12 +419,15 @@ public final class DataSpec {
   /**
    * Constructs an instance.
    *
+   * @deprecated Use {@link Builder}.
    * @param uri {@link #uri}.
    * @param position {@link #position}.
    * @param length {@link #length}.
    * @param key {@link #key}.
    * @param flags {@link #flags}.
    */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   public DataSpec(Uri uri, long position, long length, @Nullable String key, @Flags int flags) {
     this(uri, position, position, length, key, flags);
   }
@@ -394,6 +435,7 @@ public final class DataSpec {
   /**
    * Constructs an instance.
    *
+   * @deprecated Use {@link Builder}.
    * @param uri {@link #uri}.
    * @param position {@link #position}, equal to {@link #position}.
    * @param length {@link #length}.
@@ -401,6 +443,8 @@ public final class DataSpec {
    * @param flags {@link #flags}.
    * @param httpRequestHeaders {@link #httpRequestHeaders}
    */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   public DataSpec(
       Uri uri,
       long position,
@@ -423,6 +467,7 @@ public final class DataSpec {
   /**
    * Constructs an instance where {@link #uriPositionOffset} may be non-zero.
    *
+   * @deprecated Use {@link Builder}.
    * @param uri {@link #uri}.
    * @param absoluteStreamPosition The sum of {@link #uriPositionOffset} and {@link #position}.
    * @param position {@link #position}.
@@ -430,6 +475,8 @@ public final class DataSpec {
    * @param key {@link #key}.
    * @param flags {@link #flags}.
    */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   public DataSpec(
       Uri uri,
       long absoluteStreamPosition,
@@ -446,6 +493,7 @@ public final class DataSpec {
    * set to {@link #HTTP_METHOD_POST}. If {@code postBody} is null then {@link #httpMethod} is set
    * to {@link #HTTP_METHOD_GET}.
    *
+   * @deprecated Use {@link Builder}.
    * @param uri {@link #uri}.
    * @param postBody {@link #httpBody} The body of the HTTP request, which is also used to infer the
    *     {@link #httpMethod}.
@@ -455,6 +503,8 @@ public final class DataSpec {
    * @param key {@link #key}.
    * @param flags {@link #flags}.
    */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   public DataSpec(
       Uri uri,
       @Nullable byte[] postBody,
@@ -477,6 +527,7 @@ public final class DataSpec {
   /**
    * Construct a instance where {@link #uriPositionOffset} may be non-zero.
    *
+   * @deprecated Use {@link Builder}.
    * @param uri {@link #uri}.
    * @param httpMethod {@link #httpMethod}.
    * @param httpBody {@link #httpBody}.
@@ -486,6 +537,8 @@ public final class DataSpec {
    * @param key {@link #key}.
    * @param flags {@link #flags}.
    */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   public DataSpec(
       Uri uri,
       @HttpMethod int httpMethod,
@@ -510,6 +563,7 @@ public final class DataSpec {
   /**
    * Construct a instance where {@link #uriPositionOffset} may be non-zero.
    *
+   * @deprecated Use {@link Builder}.
    * @param uri {@link #uri}.
    * @param httpMethod {@link #httpMethod}.
    * @param httpBody {@link #httpBody}.
@@ -520,6 +574,7 @@ public final class DataSpec {
    * @param flags {@link #flags}.
    * @param httpRequestHeaders {@link #httpRequestHeaders}.
    */
+  @Deprecated
   public DataSpec(
       Uri uri,
       @HttpMethod int httpMethod,

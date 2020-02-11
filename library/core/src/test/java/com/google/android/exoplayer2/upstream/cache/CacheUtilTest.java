@@ -126,12 +126,12 @@ public final class CacheUtilTest {
     // If DataSpec.key is present, returns it.
     assertThat(
             CacheUtil.DEFAULT_CACHE_KEY_FACTORY.buildCacheKey(
-                new DataSpec(testUri, 0, LENGTH_UNSET, key)))
+                new DataSpec.Builder().setUri(testUri).setKey(key).build()))
         .isEqualTo(key);
     // If not generates a new one using DataSpec.uri.
     assertThat(
             CacheUtil.DEFAULT_CACHE_KEY_FACTORY.buildCacheKey(
-                new DataSpec(testUri, 0, LENGTH_UNSET, null)))
+                new DataSpec(testUri, /* position= */ 0, /* length= */ LENGTH_UNSET)))
         .isEqualTo(testUri.toString());
   }
 
@@ -186,11 +186,7 @@ public final class CacheUtilTest {
     mockCache.spansAndGaps = new int[] {100, 100, 200};
     Pair<Long, Long> contentLengthAndBytesCached =
         CacheUtil.getCached(
-            new DataSpec(
-                Uri.parse("test"),
-                /* absoluteStreamPosition= */ 100,
-                /* length= */ C.LENGTH_UNSET,
-                /* key= */ null),
+            new DataSpec(Uri.parse("test"), /* position= */ 100, /* length= */ C.LENGTH_UNSET),
             mockCache,
             /* cacheKeyFactory= */ null);
 
@@ -222,7 +218,7 @@ public final class CacheUtilTest {
     FakeDataSource dataSource = new FakeDataSource(fakeDataSet);
 
     Uri testUri = Uri.parse("test_data");
-    DataSpec dataSpec = new DataSpec(testUri, 10, 20, null);
+    DataSpec dataSpec = new DataSpec(testUri, /* position= */ 10, /* length= */ 20);
     CachingCounters counters = new CachingCounters();
     CacheUtil.cache(
         dataSpec, cache, /* cacheKeyFactory= */ null, dataSource, counters, /* isCanceled= */ null);
@@ -266,7 +262,7 @@ public final class CacheUtilTest {
     FakeDataSource dataSource = new FakeDataSource(fakeDataSet);
 
     Uri testUri = Uri.parse("test_data");
-    DataSpec dataSpec = new DataSpec(testUri, 10, 20, null);
+    DataSpec dataSpec = new DataSpec(testUri, /* position= */ 10, /* length= */ 20);
     CachingCounters counters = new CachingCounters();
     CacheUtil.cache(
         dataSpec, cache, /* cacheKeyFactory= */ null, dataSource, counters, /* isCanceled= */ null);
@@ -292,7 +288,7 @@ public final class CacheUtilTest {
     FakeDataSource dataSource = new FakeDataSource(fakeDataSet);
 
     Uri testUri = Uri.parse("test_data");
-    DataSpec dataSpec = new DataSpec(testUri, 0, 1000, null);
+    DataSpec dataSpec = new DataSpec(testUri, /* position= */ 0, /* length= */ 1000);
     CachingCounters counters = new CachingCounters();
     CacheUtil.cache(
         dataSpec, cache, /* cacheKeyFactory= */ null, dataSource, counters, /* isCanceled= */ null);
@@ -307,7 +303,7 @@ public final class CacheUtilTest {
     FakeDataSource dataSource = new FakeDataSource(fakeDataSet);
 
     Uri testUri = Uri.parse("test_data");
-    DataSpec dataSpec = new DataSpec(testUri, 0, 1000, null);
+    DataSpec dataSpec = new DataSpec(testUri, /* position= */ 0, /* length= */ 1000);
 
     try {
       CacheUtil.cache(
@@ -358,8 +354,11 @@ public final class CacheUtilTest {
     FakeDataSet fakeDataSet = new FakeDataSet().setRandomData("test_data", 100);
     FakeDataSource dataSource = new FakeDataSource(fakeDataSet);
 
-    Uri uri = Uri.parse("test_data");
-    DataSpec dataSpec = new DataSpec(uri, DataSpec.FLAG_ALLOW_CACHE_FRAGMENTATION);
+    DataSpec dataSpec =
+        new DataSpec.Builder()
+            .setUri("test_data")
+            .setFlags(DataSpec.FLAG_ALLOW_CACHE_FRAGMENTATION)
+            .build();
     CacheUtil.cache(
         dataSpec,
         cache,

@@ -228,12 +228,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
   }
 
   protected static DataSpec getCompressibleDataSpec(Uri uri) {
-    return new DataSpec(
-        uri,
-        /* absoluteStreamPosition= */ 0,
-        /* length= */ C.LENGTH_UNSET,
-        /* key= */ null,
-        /* flags= */ DataSpec.FLAG_ALLOW_GZIP);
+    return new DataSpec.Builder().setUri(uri).setFlags(DataSpec.FLAG_ALLOW_GZIP).build();
   }
 
   private static void mergeSegments(List<Segment> segments, CacheKeyFactory keyFactory) {

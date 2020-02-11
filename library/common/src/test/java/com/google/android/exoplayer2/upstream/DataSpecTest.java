@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static junit.framework.TestCase.fail;
 
 import android.net.Uri;
+import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import java.util.HashMap;
@@ -31,6 +32,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class DataSpecTest {
 
+  @SuppressWarnings("deprecation")
   @Test
   public void createDataSpec_withDefaultValues() {
     Uri uri = Uri.parse("www.google.com");
@@ -212,11 +214,12 @@ public class DataSpecTest {
     assertHttpRequestHeadersReadOnly(dataSpec);
   }
 
+  @SuppressWarnings("deprecation")
   @Test
   public void createDataSpec_setsHttpMethodAndPostBody() {
     Uri uri = Uri.parse("www.google.com");
 
-    byte[] postBody = new byte[] {0, 1, 2, 3};
+    @Nullable byte[] postBody = new byte[] {0, 1, 2, 3};
     DataSpec dataSpec =
         new DataSpec(
             uri,
@@ -259,7 +262,7 @@ public class DataSpecTest {
   @Test
   public void withUri_copiesHttpRequestHeaders() {
     Map<String, String> httpRequestHeaders = createHttpRequestHeaders(5);
-    DataSpec dataSpec = createDataSpecWithHeaders(httpRequestHeaders);
+    DataSpec dataSpec = createDataSpecWithHttpRequestHeaders(httpRequestHeaders);
 
     DataSpec dataSpecCopy = dataSpec.withUri(Uri.parse("www.new-uri.com"));
 
@@ -269,7 +272,7 @@ public class DataSpecTest {
   @Test
   public void subrange_copiesHttpRequestHeaders() {
     Map<String, String> httpRequestHeaders = createHttpRequestHeaders(5);
-    DataSpec dataSpec = createDataSpecWithHeaders(httpRequestHeaders);
+    DataSpec dataSpec = createDataSpecWithHttpRequestHeaders(httpRequestHeaders);
 
     DataSpec dataSpecCopy = dataSpec.subrange(2);
 
@@ -279,7 +282,7 @@ public class DataSpecTest {
   @Test
   public void subrange_withOffsetAndLength_copiesHttpRequestHeaders() {
     Map<String, String> httpRequestHeaders = createHttpRequestHeaders(5);
-    DataSpec dataSpec = createDataSpecWithHeaders(httpRequestHeaders);
+    DataSpec dataSpec = createDataSpecWithHttpRequestHeaders(httpRequestHeaders);
 
     DataSpec dataSpecCopy = dataSpec.subrange(2, 2);
 
@@ -289,7 +292,7 @@ public class DataSpecTest {
   @Test
   public void withRequestHeaders_setsCorrectHeaders() {
     Map<String, String> httpRequestHeaders = createHttpRequestHeaders(5);
-    DataSpec dataSpec = createDataSpecWithHeaders(httpRequestHeaders);
+    DataSpec dataSpec = createDataSpecWithHttpRequestHeaders(httpRequestHeaders);
 
     Map<String, String> newRequestHeaders = createHttpRequestHeaders(5, 10);
     DataSpec dataSpecCopy = dataSpec.withRequestHeaders(newRequestHeaders);
@@ -300,7 +303,7 @@ public class DataSpecTest {
   @Test
   public void withAdditionalHeaders_setsCorrectHeaders() {
     Map<String, String> httpRequestHeaders = createHttpRequestHeaders(5);
-    DataSpec dataSpec = createDataSpecWithHeaders(httpRequestHeaders);
+    DataSpec dataSpec = createDataSpecWithHttpRequestHeaders(httpRequestHeaders);
     Map<String, String> additionalHeaders = createHttpRequestHeaders(5, 10);
     // additionalHeaders may overwrite a header key
     String existingKey = httpRequestHeaders.keySet().iterator().next();
@@ -328,17 +331,12 @@ public class DataSpecTest {
     return httpRequestParameters;
   }
 
-  private static DataSpec createDataSpecWithHeaders(Map<String, String> httpRequestHeaders) {
-    return new DataSpec(
-        Uri.parse("www.google.com"),
-        /* httpMethod= */ 0,
-        /* httpBody= */ new byte[] {0, 0, 0, 0},
-        /* absoluteStreamPosition= */ 0,
-        /* position= */ 0,
-        /* length= */ 1,
-        /* key= */ "key",
-        /* flags= */ 0,
-        httpRequestHeaders);
+  private static DataSpec createDataSpecWithHttpRequestHeaders(
+      Map<String, String> httpRequestHeaders) {
+    return new DataSpec.Builder()
+        .setUri("www.google.com")
+        .setHttpRequestHeaders(httpRequestHeaders)
+        .build();
   }
 
   @SuppressWarnings("deprecation")
