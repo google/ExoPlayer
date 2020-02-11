@@ -203,6 +203,7 @@ public class DefaultTimeBar extends View implements TimeBar {
   private int lastCoarseScrubXPosition;
   @MonotonicNonNull private Rect lastExclusionRectangle;
 
+  private float scrubberScale;
   private boolean scrubbing;
   private long scrubPosition;
   private long duration;
@@ -329,6 +330,7 @@ public class DefaultTimeBar extends View implements TimeBar {
           (Math.max(scrubberDisabledSize, Math.max(scrubberEnabledSize, scrubberDraggedSize)) + 1)
               / 2;
     }
+    scrubberScale = 1.0f;
     duration = C.TIME_UNSET;
     keyTimeIncrement = C.TIME_UNSET;
     keyCountIncrement = DEFAULT_INCREMENT_COUNT;
@@ -356,6 +358,18 @@ public class DefaultTimeBar extends View implements TimeBar {
    */
   public void setScrubberColor(@ColorInt int scrubberColor) {
     scrubberPaint.setColor(scrubberColor);
+    invalidate(seekBounds);
+  }
+
+  /**
+   * Sets the scale factor for the scrubber handle. Scrubber enabled size, scrubber disabled size,
+   * scrubber dragged size are scaled by the scale factor. If scrubber drawable is set, the scale
+   * factor isn't applied.
+   *
+   * @param scrubberScale The scale factor for the scrubber handle.
+   */
+  public void setScrubberScale(float scrubberScale) {
+    this.scrubberScale = scrubberScale;
     invalidate(seekBounds);
   }
 
@@ -815,7 +829,7 @@ public class DefaultTimeBar extends View implements TimeBar {
     if (scrubberDrawable == null) {
       int scrubberSize = (scrubbing || isFocused()) ? scrubberDraggedSize
           : (isEnabled() ? scrubberEnabledSize : scrubberDisabledSize);
-      int playheadRadius = scrubberSize / 2;
+      int playheadRadius = (int) ((scrubberSize * scrubberScale) / 2);
       canvas.drawCircle(playheadX, playheadY, playheadRadius, scrubberPaint);
     } else {
       int scrubberDrawableWidth = scrubberDrawable.getIntrinsicWidth();
