@@ -35,7 +35,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A {@link MediaCodecAdapter} that operates the underlying {@link MediaCodec} in asynchronous mode
- * and routes {@link MediaCodec.Callback} callbacks on a dedicated Thread that is managed
+ * and routes {@link MediaCodec.Callback} callbacks on a dedicated thread that is managed
  * internally.
  *
  * <p>The main difference of this class compared to the {@link
@@ -43,8 +43,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * locking. The {@link DedicatedThreadAsyncMediaCodecAdapter} uses a single lock to synchronize
  * access, whereas this class uses a different lock to access the available input and available
  * output buffer indexes returned from the {@link MediaCodec}. This class assumes that the {@link
- * MediaCodecAdapter} methods will be accessed by the Playback Thread and the {@link
- * MediaCodec.Callback} methods will be accessed by the internal Thread. This class is
+ * MediaCodecAdapter} methods will be accessed by the playback thread and the {@link
+ * MediaCodec.Callback} methods will be accessed by the internal thread. This class is
  * <strong>NOT</strong> generally thread-safe in the sense that its public methods cannot be called
  * by any thread.
  */
@@ -86,20 +86,54 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Nullable
   private IllegalStateException codecException;
 
-  @GuardedBy("objectStateLock")
-  private @State int state;
-
   private final HandlerThread handlerThread;
   private @MonotonicNonNull Handler handler;
   private Runnable codecStartRunnable;
+  private final MediaCodecInputBufferEnqueuer bufferEnqueuer;
 
-  /** Creates a new instance that wraps the specified {@link MediaCodec}. */
+  @GuardedBy("objectStateLock")
+  @State
+  private int state;
+
+  /**
+   * Creates a new instance that wraps the specified {@link MediaCodec}. An instance created with
+   * this constructor will queue input buffers synchronously.
+   *
+   * @param codec The {@link MediaCodec} to wrap.
+   * @param trackType One of {@link C#TRACK_TYPE_AUDIO} or {@link C#TRACK_TYPE_VIDEO}. Used for
+   *     labelling the internal thread accordingly.
+   */
   /* package */ MultiLockAsyncMediaCodecAdapter(MediaCodec codec, int trackType) {
-    this(codec, new HandlerThread(createThreadLabel(trackType)));
+    this(
+        codec,
+        /* enableAsynchronousQueueing= */ false,
+        trackType,
+        new HandlerThread(createThreadLabel(trackType)));
+  }
+
+  /**
+   * Creates a new instance that wraps the specified {@link MediaCodec}.
+   *
+   * @param codec The {@link MediaCodec} to wrap.
+   * @param enableAsynchronousQueueing Whether input buffers will be queued asynchronously.
+   * @param trackType One of {@link C#TRACK_TYPE_AUDIO} or {@link C#TRACK_TYPE_VIDEO}. Used for
+   *     labelling the internal thread accordingly.
+   */
+  /* package */ MultiLockAsyncMediaCodecAdapter(
+      MediaCodec codec, boolean enableAsynchronousQueueing, int trackType) {
+    this(
+        codec,
+        enableAsynchronousQueueing,
+        trackType,
+        new HandlerThread(createThreadLabel(trackType)));
   }
 
   @VisibleForTesting
-  /* package */ MultiLockAsyncMediaCodecAdapter(MediaCodec codec, HandlerThread handlerThread) {
+  /* package */ MultiLockAsyncMediaCodecAdapter(
+      MediaCodec codec,
+      boolean enableAsynchronousQueueing,
+      int trackType,
+      HandlerThread handlerThread) {
     this.codec = codec;
     inputBufferLock = new Object();
     outputBufferLock = new Object();
@@ -109,9 +143,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     bufferInfos = new ArrayDeque<>();
     formats = new ArrayDeque<>();
     codecException = null;
-    state = STATE_CREATED;
     this.handlerThread = handlerThread;
     codecStartRunnable = codec::start;
+    if (enableAsynchronousQueueing) {
+      bufferEnqueuer = new AsynchronousMediaCodecBufferEnqueuer(codec, trackType);
+    } else {
+      bufferEnqueuer = new SynchronousMediaCodecBufferEnqueuer(codec);
+    }
+    state = STATE_CREATED;
   }
 
   @Override
@@ -120,6 +159,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       handlerThread.start();
       handler = new Handler(handlerThread.getLooper());
       codec.setCallback(this, handler);
+      bufferEnqueuer.start();
       codecStartRunnable.run();
       state = STATE_STARTED;
     }
@@ -165,7 +205,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       int index, int offset, int size, long presentationTimeUs, int flags) {
     // This method does not need to be synchronized because it is not interacting with
     // MediaCodec.Callback and dequeueing buffers operations.
-    codec.queueInputBuffer(index, offset, size, presentationTimeUs, flags);
+    bufferEnqueuer.queueInputBuffer(index, offset, size, presentationTimeUs, flags);
   }
 
   @Override
@@ -173,13 +213,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       int index, int offset, CryptoInfo info, long presentationTimeUs, int flags) {
     // This method does not need to be synchronized because it is not interacting with
     // MediaCodec.Callback and dequeueing buffers operations.
-    codec.queueSecureInputBuffer(
-        index, offset, info.getFrameworkCryptoInfo(), presentationTimeUs, flags);
+    bufferEnqueuer.queueSecureInputBuffer(index, offset, info, presentationTimeUs, flags);
   }
 
   @Override
   public void flush() {
     synchronized (objectStateLock) {
+      bufferEnqueuer.flush();
       codec.flush();
       pendingFlush++;
       Util.castNonNull(handler).post(this::onFlushComplete);
@@ -190,6 +230,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public void shutdown() {
     synchronized (objectStateLock) {
       if (state == STATE_STARTED) {
+        bufferEnqueuer.shutdown();
         handlerThread.quit();
       }
       state = STATE_SHUT_DOWN;
@@ -246,7 +287,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
-  // Called by the internal Thread.
+  // Called by the internal thread.
 
   @Override
   public void onInputBufferAvailable(@NonNull MediaCodec codec, int index) {

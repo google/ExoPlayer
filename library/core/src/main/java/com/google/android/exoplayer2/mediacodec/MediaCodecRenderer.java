@@ -83,7 +83,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     OPERATION_MODE_ASYNCHRONOUS_PLAYBACK_THREAD,
     OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD,
     OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD_MULTI_LOCK,
-    OPERATION_MODE_ASYNCHRONOUS_QUEUEING
+    OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD_ASYNCHRONOUS_QUEUEING,
+    OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD_MULTI_LOCK_ASYNCHRONOUS_QUEUEING
   })
   public @interface MediaCodecOperationMode {}
 
@@ -91,24 +92,30 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   public static final int OPERATION_MODE_SYNCHRONOUS = 0;
   /**
    * Operates the {@link MediaCodec} in asynchronous mode and routes {@link MediaCodec.Callback}
-   * callbacks to the playback Thread.
+   * callbacks to the playback thread.
    */
   public static final int OPERATION_MODE_ASYNCHRONOUS_PLAYBACK_THREAD = 1;
   /**
    * Operates the {@link MediaCodec} in asynchronous mode and routes {@link MediaCodec.Callback}
-   * callbacks to a dedicated Thread.
+   * callbacks to a dedicated thread.
    */
   public static final int OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD = 2;
   /**
    * Operates the {@link MediaCodec} in asynchronous mode and routes {@link MediaCodec.Callback}
-   * callbacks to a dedicated Thread. Uses granular locking for input and output buffers.
+   * callbacks to a dedicated thread. Uses granular locking for input and output buffers.
    */
   public static final int OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD_MULTI_LOCK = 3;
   /**
-   * Operates the {@link MediaCodec} in asynchronous mode, routes {@link MediaCodec.Callback}
-   * callbacks to a dedicated Thread, and offloads queueing to another Thread.
+   * Same as {@link #OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD}, and offloads queueing to another
+   * thread.
    */
-  public static final int OPERATION_MODE_ASYNCHRONOUS_QUEUEING = 4;
+  public static final int OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD_ASYNCHRONOUS_QUEUEING = 4;
+  /**
+   * Same as {@link #OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD_MULTI_LOCK}, and offloads queueing
+   * to another thread.
+   */
+  public static final int
+      OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD_MULTI_LOCK_ASYNCHRONOUS_QUEUEING = 5;
 
   /** Thrown when a failure occurs instantiating a decoder. */
   public static class DecoderInitializationException extends Exception {
@@ -493,21 +500,27 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    *
    * @param mode The mode of the MediaCodec. The supported modes are:
    *     <ul>
-   *       <li>{@link MediaCodecRenderer#OPERATION_MODE_SYNCHRONOUS}: The {@link MediaCodec} will
-   *           operate in synchronous mode.
-   *       <li>{@link MediaCodecRenderer#OPERATION_MODE_ASYNCHRONOUS_PLAYBACK_THREAD}: The {@link
-   *           MediaCodec} will operate in asynchronous mode and {@link MediaCodec.Callback}
-   *           callbacks will be routed to the Playback Thread. This mode requires API level &ge;
-   *           21; if the API level is &le; 20, the operation mode will be set to {@link
+   *       <li>{@link #OPERATION_MODE_SYNCHRONOUS}: The {@link MediaCodec} will operate in
+   *           synchronous mode.
+   *       <li>{@link #OPERATION_MODE_ASYNCHRONOUS_PLAYBACK_THREAD}: The {@link MediaCodec} will
+   *           operate in asynchronous mode and {@link MediaCodec.Callback} callbacks will be routed
+   *           to the playback thread. This mode requires API level &ge; 21; if the API level is
+   *           &le; 20, the operation mode will be set to {@link
    *           MediaCodecRenderer#OPERATION_MODE_SYNCHRONOUS}.
-   *       <li>{@link MediaCodecRenderer#OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD}: The {@link
-   *           MediaCodec} will operate in asynchronous mode and {@link MediaCodec.Callback}
-   *           callbacks will be routed to a dedicated Thread. This mode requires API level &ge; 23;
-   *           if the API level is &le; 22, the operation mode will be set to {@link
-   *           MediaCodecRenderer#OPERATION_MODE_SYNCHRONOUS}.
-   *       <li>{@link MediaCodecRenderer#OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD_MULTI_LOCK}:
-   *           Same as {@link MediaCodecRenderer#OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD} but
-   *           it will internally use a finer grained locking mechanism for increased performance.
+   *       <li>{@link #OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD}: The {@link MediaCodec} will
+   *           operate in asynchronous mode and {@link MediaCodec.Callback} callbacks will be routed
+   *           to a dedicated thread. This mode requires API level &ge; 23; if the API level is &le;
+   *           22, the operation mode will be set to {@link #OPERATION_MODE_SYNCHRONOUS}.
+   *       <li>{@link #OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD_MULTI_LOCK}: Same as {@link
+   *           #OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD} and, in addition, input buffers will
+   *           submitted to the {@link MediaCodec} in a separate thread.
+   *       <li>{@link #OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD_ASYNCHRONOUS_QUEUEING}: Same as
+   *           {@link #OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD} and, in addition, input buffers
+   *           will be submitted to the {@link MediaCodec} in a separate thread.
+   *       <li>{@link
+   *           #OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD_MULTI_LOCK_ASYNCHRONOUS_QUEUEING}: Same
+   *           as {@link #OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD_MULTI_LOCK} and, in addition,
+   *           input buffers will be submitted to the {@link MediaCodec} in a separate thread.
    *     </ul>
    *     By default, the operation mode is set to {@link
    *     MediaCodecRenderer#OPERATION_MODE_SYNCHRONOUS}.
@@ -1027,10 +1040,17 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       } else if (mediaCodecOperationMode == OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD_MULTI_LOCK
           && Util.SDK_INT >= 23) {
         codecAdapter = new MultiLockAsyncMediaCodecAdapter(codec, getTrackType());
-      } else if (mediaCodecOperationMode == OPERATION_MODE_ASYNCHRONOUS_QUEUEING
+      } else if (mediaCodecOperationMode
+              == OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD_ASYNCHRONOUS_QUEUEING
           && Util.SDK_INT >= 23) {
         codecAdapter =
             new DedicatedThreadAsyncMediaCodecAdapter(
+                codec, /* enableAsynchronousQueueing= */ true, getTrackType());
+      } else if (mediaCodecOperationMode
+              == OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD_MULTI_LOCK_ASYNCHRONOUS_QUEUEING
+          && Util.SDK_INT >= 23) {
+        codecAdapter =
+            new MultiLockAsyncMediaCodecAdapter(
                 codec, /* enableAsynchronousQueueing= */ true, getTrackType());
       } else {
         codecAdapter = new SynchronousMediaCodecAdapter(codec);
