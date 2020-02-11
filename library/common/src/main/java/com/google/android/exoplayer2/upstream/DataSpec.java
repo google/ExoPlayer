@@ -44,6 +44,7 @@ public final class DataSpec {
     private long length;
     @Nullable private String key;
     @Flags private int flags;
+    @Nullable private Object customData;
 
     /** Creates a new instance with default values. */
     public Builder() {
@@ -67,6 +68,7 @@ public final class DataSpec {
       length = dataSpec.length;
       key = dataSpec.key;
       flags = dataSpec.flags;
+      customData = dataSpec.customData;
     }
 
     /**
@@ -169,6 +171,17 @@ public final class DataSpec {
     }
 
     /**
+     * Sets the {@link DataSpec#customData}. The default value is {@code null}.
+     *
+     * @param customData The {@link DataSpec#customData}.
+     * @return The builder.
+     */
+    public Builder setCustomData(@Nullable Object customData) {
+      this.customData = customData;
+      return this;
+    }
+
+    /**
      * Builds a {@link DataSpec} with the builder's current values.
      *
      * @return The build {@link DataSpec}.
@@ -185,7 +198,8 @@ public final class DataSpec {
           position,
           length,
           key,
-          flags);
+          flags,
+          customData);
     }
   }
 
@@ -324,6 +338,14 @@ public final class DataSpec {
 
   /** Request {@link Flags flags}. */
   @Flags public final int flags;
+
+  /**
+   * Application specific data.
+   *
+   * <p>This field is intended for advanced use cases in which applications require the ability to
+   * attach custom data to {@link DataSpec} instances. The custom data should be immutable.
+   */
+  @Nullable public final Object customData;
 
   /**
    * Constructs an instance.
@@ -517,7 +539,8 @@ public final class DataSpec {
         position,
         length,
         key,
-        flags);
+        flags,
+        /* customData= */ null);
   }
 
   @SuppressWarnings("deprecation")
@@ -530,7 +553,8 @@ public final class DataSpec {
       long position,
       long length,
       @Nullable String key,
-      @Flags int flags) {
+      @Flags int flags,
+      @Nullable Object customData) {
     // TODO: Replace this assertion with a stricter one checking "uriPositionOffset >= 0", after
     // validating there are no violations in ExoPlayer and 1P apps.
     Assertions.checkArgument(uriPositionOffset + position >= 0);
@@ -546,6 +570,7 @@ public final class DataSpec {
     this.length = length;
     this.key = key;
     this.flags = flags;
+    this.customData = customData;
   }
 
   /**
@@ -601,7 +626,8 @@ public final class DataSpec {
           position + offset,
           length,
           key,
-          flags);
+          flags,
+          customData);
     }
   }
 
@@ -621,7 +647,8 @@ public final class DataSpec {
         position,
         length,
         key,
-        flags);
+        flags,
+        customData);
   }
 
   /**
@@ -641,7 +668,8 @@ public final class DataSpec {
         position,
         length,
         key,
-        flags);
+        flags,
+        customData);
   }
 
   /**
@@ -664,7 +692,8 @@ public final class DataSpec {
         position,
         length,
         key,
-        flags);
+        flags,
+        customData);
   }
 
   @Override
