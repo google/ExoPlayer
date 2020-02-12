@@ -2305,20 +2305,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
       Timeline.Window window,
       Timeline.Period period) {
     int windowIndex = timeline.getPeriodByUid(messageInfo.resolvedPeriodUid, period).windowIndex;
-    timeline.getWindow(windowIndex, window);
-    if (!window.isDynamic && window.durationUs != C.TIME_UNSET) {
-      Pair<Object, Long> periodPosition =
-          timeline.getPeriodPosition(window, period, windowIndex, window.durationUs);
-      messageInfo.setResolvedPosition(
-          /* periodIndex= */ timeline.getIndexOfPeriod(periodPosition.first),
-          /* periodTimeUs= */ periodPosition.second,
-          /* periodUid= */ periodPosition.first);
-    } else {
-      int lastPeriodIndex = timeline.getWindow(windowIndex, window).lastPeriodIndex;
-      Object lastPeriodUid = timeline.getUidOfPeriod(lastPeriodIndex);
-      messageInfo.setResolvedPosition(
-          lastPeriodIndex, /* periodTimeUs= */ Long.MAX_VALUE, lastPeriodUid);
-    }
+    int lastPeriodIndex = timeline.getWindow(windowIndex, window).lastPeriodIndex;
+    Object lastPeriodUid = timeline.getPeriod(lastPeriodIndex, period, /* setIds= */ true).uid;
+    long positionUs = period.durationUs != C.TIME_UNSET ? period.durationUs - 1 : Long.MAX_VALUE;
+    messageInfo.setResolvedPosition(lastPeriodIndex, positionUs, lastPeriodUid);
   }
 
   /**

@@ -1892,14 +1892,18 @@ public final class ExoPlayerTest {
         new ActionSchedule.Builder("testSendMessagesAtStartAndEndOfPeriod")
             .sendMessage(targetStartFirstPeriod, /* windowIndex= */ 0, /* positionMs= */ 0)
             .sendMessage(
-                targetEndMiddlePeriodResolved, /* windowIndex= */ 0, /* positionMs= */ duration1Ms)
+                targetEndMiddlePeriodResolved,
+                /* windowIndex= */ 0,
+                /* positionMs= */ duration1Ms - 1)
             .sendMessage(
                 targetEndMiddlePeriodUnresolved,
                 /* windowIndex= */ 0,
                 /* positionMs= */ C.TIME_END_OF_SOURCE)
             .sendMessage(targetStartMiddlePeriod, /* windowIndex= */ 1, /* positionMs= */ 0)
             .sendMessage(
-                targetEndLastPeriodResolved, /* windowIndex= */ 1, /* positionMs= */ duration2Ms)
+                targetEndLastPeriodResolved,
+                /* windowIndex= */ 1,
+                /* positionMs= */ duration2Ms - 1)
             .sendMessage(
                 targetEndLastPeriodUnresolved,
                 /* windowIndex= */ 1,
@@ -1916,17 +1920,17 @@ public final class ExoPlayerTest {
     assertThat(targetStartFirstPeriod.windowIndex).isEqualTo(0);
     assertThat(targetStartFirstPeriod.positionMs).isAtLeast(0L);
     assertThat(targetEndMiddlePeriodResolved.windowIndex).isEqualTo(0);
-    assertThat(targetEndMiddlePeriodResolved.positionMs).isAtLeast(duration1Ms);
+    assertThat(targetEndMiddlePeriodResolved.positionMs).isAtLeast(duration1Ms - 1);
     assertThat(targetEndMiddlePeriodUnresolved.windowIndex).isEqualTo(0);
-    assertThat(targetEndMiddlePeriodUnresolved.positionMs).isAtLeast(duration1Ms);
+    assertThat(targetEndMiddlePeriodUnresolved.positionMs).isAtLeast(duration1Ms - 1);
     assertThat(targetEndMiddlePeriodResolved.positionMs)
         .isEqualTo(targetEndMiddlePeriodUnresolved.positionMs);
     assertThat(targetStartMiddlePeriod.windowIndex).isEqualTo(1);
     assertThat(targetStartMiddlePeriod.positionMs).isAtLeast(0L);
     assertThat(targetEndLastPeriodResolved.windowIndex).isEqualTo(1);
-    assertThat(targetEndLastPeriodResolved.positionMs).isAtLeast(duration2Ms);
+    assertThat(targetEndLastPeriodResolved.positionMs).isAtLeast(duration2Ms - 1);
     assertThat(targetEndLastPeriodUnresolved.windowIndex).isEqualTo(1);
-    assertThat(targetEndLastPeriodUnresolved.positionMs).isAtLeast(duration2Ms);
+    assertThat(targetEndLastPeriodUnresolved.positionMs).isAtLeast(duration2Ms - 1);
     assertThat(targetEndLastPeriodResolved.positionMs)
         .isEqualTo(targetEndLastPeriodUnresolved.positionMs);
   }
