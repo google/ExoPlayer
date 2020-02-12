@@ -262,6 +262,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   private static final long MAX_CODEC_HOTSWAP_TIME_MS = 1000;
 
+  // Generally there is zero or one pending output stream offset. We track more offsets to allow for
+  // pending output streams that have fewer frames than the codec latency.
+  private static final int MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT = 10;
+
   /**
    * The possible return values for {@link #canKeepCodec(MediaCodec, MediaCodecInfo, Format,
    * Format)}.
@@ -384,6 +388,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private final TimedValueQueue<Format> formatQueue;
   private final ArrayList<Long> decodeOnlyPresentationTimestamps;
   private final MediaCodec.BufferInfo outputBufferInfo;
+  private final long[] pendingOutputStreamOffsetsUs;
+  private final long[] pendingOutputStreamSwitchTimesUs;
 
   private boolean drmResourcesAcquired;
   @Nullable private Format inputFormat;
@@ -435,6 +441,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private boolean pendingOutputEndOfStream;
   @MediaCodecOperationMode private int mediaCodecOperationMode;
   protected DecoderCounters decoderCounters;
+  private long outputStreamOffsetUs;
+  private int pendingOutputStreamOffsetCount;
 
   /**
    * @param trackType The track type that the renderer handles. One of the {@code C.TRACK_TYPE_*}
@@ -475,6 +483,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     rendererOperatingRate = 1f;
     renderTimeLimitMs = C.TIME_UNSET;
     mediaCodecOperationMode = OPERATION_MODE_SYNCHRONOUS;
+    pendingOutputStreamOffsetsUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
+    pendingOutputStreamSwitchTimesUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
+    outputStreamOffsetUs = C.TIME_UNSET;
     resetCodecStateForRelease();
   }
 
@@ -688,6 +699,25 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   @Override
+  protected void onStreamChanged(Format[] formats, long offsetUs) throws ExoPlaybackException {
+    if (outputStreamOffsetUs == C.TIME_UNSET) {
+      outputStreamOffsetUs = offsetUs;
+    } else {
+      if (pendingOutputStreamOffsetCount == pendingOutputStreamOffsetsUs.length) {
+        Log.w(
+            TAG,
+            "Too many stream changes, so dropping offset: "
+                + pendingOutputStreamOffsetsUs[pendingOutputStreamOffsetCount - 1]);
+      } else {
+        pendingOutputStreamOffsetCount++;
+      }
+      pendingOutputStreamOffsetsUs[pendingOutputStreamOffsetCount - 1] = offsetUs;
+      pendingOutputStreamSwitchTimesUs[pendingOutputStreamOffsetCount - 1] =
+          largestQueuedPresentationTimeUs;
+    }
+  }
+
+  @Override
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
     inputStreamEnded = false;
     outputStreamEnded = false;
@@ -700,6 +730,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       waitingForFirstSampleInFormat = true;
     }
     formatQueue.clear();
+    if (pendingOutputStreamOffsetCount != 0) {
+      outputStreamOffsetUs = pendingOutputStreamOffsetsUs[pendingOutputStreamOffsetCount - 1];
+      pendingOutputStreamOffsetCount = 0;
+    }
   }
 
   @Override
@@ -715,6 +749,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @Override
   protected void onDisabled() {
     inputFormat = null;
+    outputStreamOffsetUs = C.TIME_UNSET;
+    pendingOutputStreamOffsetCount = 0;
     if (sourceDrmSession != null || codecDrmSession != null) {
       // TODO: Do something better with this case.
       onReset();
@@ -1473,12 +1509,33 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   /**
    * Called when an output buffer is successfully processed.
-   * <p>
-   * The default implementation is a no-op.
    *
    * @param presentationTimeUs The timestamp associated with the output buffer.
    */
+  @CallSuper
   protected void onProcessedOutputBuffer(long presentationTimeUs) {
+    while (pendingOutputStreamOffsetCount != 0
+        && presentationTimeUs >= pendingOutputStreamSwitchTimesUs[0]) {
+      outputStreamOffsetUs = pendingOutputStreamOffsetsUs[0];
+      pendingOutputStreamOffsetCount--;
+      System.arraycopy(
+          pendingOutputStreamOffsetsUs,
+          /* srcPos= */ 1,
+          pendingOutputStreamOffsetsUs,
+          /* destPos= */ 0,
+          pendingOutputStreamOffsetCount);
+      System.arraycopy(
+          pendingOutputStreamSwitchTimesUs,
+          /* srcPos= */ 1,
+          pendingOutputStreamSwitchTimesUs,
+          /* destPos= */ 0,
+          pendingOutputStreamOffsetCount);
+      onProcessedStreamChange();
+    }
+  }
+
+  /** Called after the last output buffer before a stream change has been processed. */
+  protected void onProcessedStreamChange() {
     // Do nothing.
   }
 
@@ -1831,6 +1888,20 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   protected final void setPendingOutputEndOfStream() {
     pendingOutputEndOfStream = true;
+  }
+
+  /** Returns the largest queued input presentation time, in microseconds. */
+  protected final long getLargestQueuedPresentationTimeUs() {
+    return largestQueuedPresentationTimeUs;
+  }
+
+  /**
+   * Returns the offset that should be subtracted from {@code bufferPresentationTimeUs} in {@link
+   * #processOutputBuffer(long, long, MediaCodec, ByteBuffer, int, int, long, boolean, boolean,
+   * Format)} to get the playback position with respect to the media.
+   */
+  protected final long getOutputStreamOffsetUs() {
+    return outputStreamOffsetUs;
   }
 
   private void reinitializeCodec() throws ExoPlaybackException {

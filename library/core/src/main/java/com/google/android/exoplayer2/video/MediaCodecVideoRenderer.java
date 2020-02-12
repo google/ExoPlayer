@@ -87,9 +87,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private static final int[] STANDARD_LONG_EDGE_VIDEO_PX = new int[] {
       1920, 1600, 1440, 1280, 960, 854, 640, 540, 480};
 
-  // Generally there is zero or one pending output stream offset. We track more offsets to allow for
-  // pending output streams that have fewer frames than the codec latency.
-  private static final int MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT = 10;
   /**
    * Scale factor for the initial maximum input size used to configure the codec in non-adaptive
    * playbacks. See {@link #getCodecMaxValues(MediaCodecInfo, Format, Format[])}.
@@ -125,8 +122,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private final long allowedJoiningTimeMs;
   private final int maxDroppedFramesToNotify;
   private final boolean deviceNeedsNoPostProcessWorkaround;
-  private final long[] pendingOutputStreamOffsetsUs;
-  private final long[] pendingOutputStreamSwitchTimesUs;
 
   private CodecMaxValues codecMaxValues;
   private boolean codecNeedsSetOutputSurfaceWorkaround;
@@ -159,10 +154,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private boolean tunneling;
   private int tunnelingAudioSessionId;
   /* package */ @Nullable OnFrameRenderedListenerV23 tunnelingOnFrameRenderedListener;
-
-  private long lastInputTimeUs;
-  private long outputStreamOffsetUs;
-  private int pendingOutputStreamOffsetCount;
   @Nullable private VideoFrameMetadataListener frameMetadataListener;
 
   /**
@@ -347,10 +338,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     frameReleaseTimeHelper = new VideoFrameReleaseTimeHelper(this.context);
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     deviceNeedsNoPostProcessWorkaround = deviceNeedsNoPostProcessWorkaround();
-    pendingOutputStreamOffsetsUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
-    pendingOutputStreamSwitchTimesUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
-    outputStreamOffsetUs = C.TIME_UNSET;
-    lastInputTimeUs = C.TIME_UNSET;
     joiningDeadlineMs = C.TIME_UNSET;
     currentWidth = Format.NO_VALUE;
     currentHeight = Format.NO_VALUE;
@@ -485,33 +472,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @Override
-  protected void onStreamChanged(Format[] formats, long offsetUs) throws ExoPlaybackException {
-    if (outputStreamOffsetUs == C.TIME_UNSET) {
-      outputStreamOffsetUs = offsetUs;
-    } else {
-      if (pendingOutputStreamOffsetCount == pendingOutputStreamOffsetsUs.length) {
-        Log.w(TAG, "Too many stream changes, so dropping offset: "
-            + pendingOutputStreamOffsetsUs[pendingOutputStreamOffsetCount - 1]);
-      } else {
-        pendingOutputStreamOffsetCount++;
-      }
-      pendingOutputStreamOffsetsUs[pendingOutputStreamOffsetCount - 1] = offsetUs;
-      pendingOutputStreamSwitchTimesUs[pendingOutputStreamOffsetCount - 1] = lastInputTimeUs;
-    }
-    super.onStreamChanged(formats, offsetUs);
-  }
-
-  @Override
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
     super.onPositionReset(positionUs, joining);
     clearRenderedFirstFrame();
     initialPositionUs = C.TIME_UNSET;
     consecutiveDroppedFrameCount = 0;
-    lastInputTimeUs = C.TIME_UNSET;
-    if (pendingOutputStreamOffsetCount != 0) {
-      outputStreamOffsetUs = pendingOutputStreamOffsetsUs[pendingOutputStreamOffsetCount - 1];
-      pendingOutputStreamOffsetCount = 0;
-    }
     if (joining) {
       setJoiningDeadlineMs();
     } else {
@@ -556,9 +521,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   @Override
   protected void onDisabled() {
-    lastInputTimeUs = C.TIME_UNSET;
-    outputStreamOffsetUs = C.TIME_UNSET;
-    pendingOutputStreamOffsetCount = 0;
     currentMediaFormat = null;
     clearReportedVideoSize();
     clearRenderedFirstFrame();
@@ -759,7 +721,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (!tunneling) {
       buffersInCodecCount++;
     }
-    lastInputTimeUs = Math.max(buffer.timeUs, lastInputTimeUs);
     if (Util.SDK_INT < 23 && tunneling) {
       // In tunneled mode before API 23 we don't have a way to know when the buffer is output, so
       // treat it as if it were output immediately.
@@ -838,6 +799,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       initialPositionUs = positionUs;
     }
 
+    long outputStreamOffsetUs = getOutputStreamOffsetUs();
     long presentationTimeUs = bufferPresentationTimeUs - outputStreamOffsetUs;
 
     if (isDecodeOnlyBuffer && !isLastBuffer) {
@@ -970,15 +932,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
   }
 
-  /**
-   * Returns the offset that should be subtracted from {@code bufferPresentationTimeUs} in {@link
-   * #processOutputBuffer(long, long, MediaCodec, ByteBuffer, int, int, long, boolean, boolean,
-   * Format)} to get the playback position with respect to the media.
-   */
-  protected long getOutputStreamOffsetUs() {
-    return outputStreamOffsetUs;
-  }
-
   /** Called when a buffer was processed in tunneling mode. */
   protected void onProcessedTunneledBuffer(long presentationTimeUs) {
     @Nullable Format format = updateOutputFormatForTime(presentationTimeUs);
@@ -995,35 +948,19 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     setPendingOutputEndOfStream();
   }
 
-  /**
-   * Called when an output buffer is successfully processed.
-   *
-   * @param presentationTimeUs The timestamp associated with the output buffer.
-   */
   @CallSuper
   @Override
   protected void onProcessedOutputBuffer(long presentationTimeUs) {
+    super.onProcessedOutputBuffer(presentationTimeUs);
     if (!tunneling) {
       buffersInCodecCount--;
     }
-    while (pendingOutputStreamOffsetCount != 0
-        && presentationTimeUs >= pendingOutputStreamSwitchTimesUs[0]) {
-      outputStreamOffsetUs = pendingOutputStreamOffsetsUs[0];
-      pendingOutputStreamOffsetCount--;
-      System.arraycopy(
-          pendingOutputStreamOffsetsUs,
-          /* srcPos= */ 1,
-          pendingOutputStreamOffsetsUs,
-          /* destPos= */ 0,
-          pendingOutputStreamOffsetCount);
-      System.arraycopy(
-          pendingOutputStreamSwitchTimesUs,
-          /* srcPos= */ 1,
-          pendingOutputStreamSwitchTimesUs,
-          /* destPos= */ 0,
-          pendingOutputStreamOffsetCount);
-      clearRenderedFirstFrame();
-    }
+  }
+
+  @Override
+  protected void onProcessedStreamChange() {
+    super.onProcessedStreamChange();
+    clearRenderedFirstFrame();
   }
 
   /**
