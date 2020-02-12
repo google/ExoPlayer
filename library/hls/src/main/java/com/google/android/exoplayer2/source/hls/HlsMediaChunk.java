@@ -27,11 +27,13 @@ import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
 import com.google.android.exoplayer2.metadata.id3.PrivFrame;
+import com.google.android.exoplayer2.source.UnreportedDiscontinuityException;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.android.exoplayer2.util.UriUtil;
@@ -49,6 +51,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * An HLS {@link MediaChunk}.
  */
 /* package */ final class HlsMediaChunk extends MediaChunk {
+  private static final String TAG = "HlsMediaChunk";
 
   /**
    * Creates a new instance.
@@ -372,6 +375,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
           result = extractor.read(input, DUMMY_POSITION_HOLDER);
         }
+      } catch (UnreportedDiscontinuityException e) {
+        Log.d(TAG, "Unreported discontinuity at timeUs: "+ e.timesUs + " uri: " + dataSpec.uri);
+        throw new IOException("Timestamp error", e);
+        
       } finally {
         nextLoadPosition = (int) (input.getPosition() - dataSpec.position);
       }

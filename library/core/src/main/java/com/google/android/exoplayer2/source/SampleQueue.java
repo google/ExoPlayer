@@ -30,14 +30,17 @@ import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataReader;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.util.Locale;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /** A queue of media samples. */
 public class SampleQueue implements TrackOutput {
+  private static final String TAG = "SampleMetadataQueue";
 
   /** A listener for changes to the upstream format. */
   public interface UpstreamFormatChangedListener {
@@ -669,6 +672,23 @@ public class SampleQueue implements TrackOutput {
     largestQueuedTimestampUs = Math.max(largestQueuedTimestampUs, timeUs);
 
     int relativeEndIndex = getRelativeIndex(length);
+
+    // Check for obvious discontinuities in the content
+    if ( length > 0 && (sampleFlags & C.BUFFER_FLAG_KEY_FRAME) == 1) {
+      int prev = getRelativeIndex(length - 1);
+      long delta = timeUs - timesUs[prev];
+      if (Math.abs(delta) > (10 * C.MICROS_PER_SECOND)) {
+        Log.w(TAG, String.format(Locale.getDefault(),
+            "commitSample(%d, ...) - PTS delta exceeds 10sec - leap %s: prev=%d delta=%ds mime=%s",
+            timeUs,
+            delta > 0 ? "forward" : "back",
+            timesUs[prev],
+            delta / C.MICROS_PER_SECOND,
+            upstreamFormat));
+        throw new UnreportedDiscontinuityException(timesUs[prev], sourceIds[prev]);
+      }
+    }
+
     timesUs[relativeEndIndex] = timeUs;
     offsets[relativeEndIndex] = offset;
     sizes[relativeEndIndex] = size;
