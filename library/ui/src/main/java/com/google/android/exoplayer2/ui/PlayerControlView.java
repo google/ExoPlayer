@@ -138,8 +138,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * ExoPlayer library, and will be inflated for use by PlayerControlView. The view identifies and
  * binds its children by looking for the following ids:
  *
- * <p>
- *
  * <ul>
  *   <li><b>{@code exo_play}</b> - The play button.
  *       <ul>

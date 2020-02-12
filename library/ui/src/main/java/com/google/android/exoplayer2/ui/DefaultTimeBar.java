@@ -55,8 +55,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  *
  * The following attributes can be set on a DefaultTimeBar when used in a layout XML file:
  *
- * <p>
- *
  * <ul>
  *   <li><b>{@code bar_height}</b> - Dimension for the height of the time bar.
  *       <ul>
