@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.decoder;
 
+import com.google.android.exoplayer2.util.Util;
+
 /**
  * Maintains decoder event counts, for debugging purposes only.
  * <p>
@@ -73,6 +75,23 @@ public final class DecoderCounters {
    * dropped from the source to advance to the keyframe.
    */
   public int droppedToKeyframeCount;
+  /**
+   * The sum of video frame processing offset samples in microseconds.
+   *
+   * <p>Video frame processing offset measures how early a video frame was processed by a video
+   * renderer compared to the player's current position.
+   *
+   * <p>Note: Use {@link #addVideoFrameProcessingOffsetSample(long)} to update this field instead of
+   * updating it directly.
+   */
+  public long videoFrameProcessingOffsetUsSum;
+  /**
+   * The number of video frame processing offset samples added.
+   *
+   * <p>Note: Use {@link #addVideoFrameProcessingOffsetSample(long)} to update this field instead of
+   * updating it directly.
+   */
+  public int videoFrameProcessingOffsetUsCount;
 
   /**
    * Should be called to ensure counter values are made visible across threads. The playback thread
@@ -100,6 +119,31 @@ public final class DecoderCounters {
     maxConsecutiveDroppedBufferCount = Math.max(maxConsecutiveDroppedBufferCount,
         other.maxConsecutiveDroppedBufferCount);
     droppedToKeyframeCount += other.droppedToKeyframeCount;
+
+    addVideoFrameProcessingOffsetSamples(
+        other.videoFrameProcessingOffsetUsSum, other.videoFrameProcessingOffsetUsCount);
   }
 
+  /**
+   * Adds a video frame processing offset sample to {@link #videoFrameProcessingOffsetUsSum} and
+   * increases {@link #videoFrameProcessingOffsetUsCount} by one.
+   *
+   * <p>This method checks if adding {@code sampleUs} to {@link #videoFrameProcessingOffsetUsSum}
+   * will cause an overflow, in which case this method is a no-op.
+   *
+   * @param sampleUs The sample in microseconds.
+   */
+  public void addVideoFrameProcessingOffsetSample(long sampleUs) {
+    addVideoFrameProcessingOffsetSamples(sampleUs, /* count= */ 1);
+  }
+
+  private void addVideoFrameProcessingOffsetSamples(long sampleUs, int count) {
+    long overflowFlag = videoFrameProcessingOffsetUsSum > 0 ? Long.MIN_VALUE : Long.MAX_VALUE;
+    long newSampleSum =
+        Util.addWithOverflowDefault(videoFrameProcessingOffsetUsSum, sampleUs, overflowFlag);
+    if (newSampleSum != overflowFlag) {
+      videoFrameProcessingOffsetUsCount += count;
+      videoFrameProcessingOffsetUsSum = newSampleSum;
+    }
+  }
 }

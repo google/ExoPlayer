@@ -812,6 +812,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       // Skip frames in sync with playback, so we'll be at the right frame if the mode changes.
       if (isBufferLate(earlyUs)) {
         skipOutputBuffer(codec, bufferIndex, presentationTimeUs);
+        decoderCounters.addVideoFrameProcessingOffsetSample(earlyUs);
         return true;
       }
       return false;
@@ -834,6 +835,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       } else {
         renderOutputBuffer(codec, bufferIndex, presentationTimeUs);
       }
+      decoderCounters.addVideoFrameProcessingOffsetSample(earlyUs);
       return true;
     }
 
@@ -866,6 +868,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       } else {
         dropOutputBuffer(codec, bufferIndex, presentationTimeUs);
       }
+      decoderCounters.addVideoFrameProcessingOffsetSample(earlyUs);
       return true;
     }
 
@@ -875,6 +878,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         notifyFrameMetadataListener(
             presentationTimeUs, adjustedReleaseTimeNs, format, currentMediaFormat);
         renderOutputBufferV21(codec, bufferIndex, presentationTimeUs, adjustedReleaseTimeNs);
+        decoderCounters.addVideoFrameProcessingOffsetSample(earlyUs);
         return true;
       }
     } else {
@@ -894,6 +898,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         notifyFrameMetadataListener(
             presentationTimeUs, adjustedReleaseTimeNs, format, currentMediaFormat);
         renderOutputBuffer(codec, bufferIndex, presentationTimeUs);
+        decoderCounters.addVideoFrameProcessingOffsetSample(earlyUs);
         return true;
       }
     }

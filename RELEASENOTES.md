@@ -3,6 +3,9 @@
 ### dev-v2 (not yet released) ###
 
 * Core library:
+  * Add fields `videoFrameProcessingOffsetUsSum` and
+    `videoFrameProcessingOffsetUsCount` in `DecoderCounters` to compute
+    the average video frame processing offset.
   * Add playlist API ([#6161](https://github.com/google/ExoPlayer/issues/6161)).
   * Add `play` and `pause` methods to `Player`.
   * Add `Player.getCurrentLiveOffset` to conveniently return the live offset.
