@@ -157,6 +157,8 @@ public class DebugTextViewHelper implements Player.EventListener, Runnable {
         + format.height
         + getPixelAspectRatioString(format.pixelWidthHeightRatio)
         + getDecoderCountersBufferCountString(decoderCounters)
+        + " vfpo: "
+        + getVideoFrameProcessingOffsetAverageString(decoderCounters)
         + ")";
   }
 
@@ -197,4 +199,14 @@ public class DebugTextViewHelper implements Player.EventListener, Runnable {
         : (" par:" + String.format(Locale.US, "%.02f", pixelAspectRatio));
   }
 
+  private static String getVideoFrameProcessingOffsetAverageString(DecoderCounters counters) {
+    counters.ensureUpdated();
+    int sampleCount = counters.videoFrameProcessingOffsetUsCount;
+    if (sampleCount == 0) {
+      return "N/A";
+    } else {
+      long averageUs = (long) ((double) counters.videoFrameProcessingOffsetUsSum / sampleCount);
+      return String.valueOf(averageUs);
+    }
+  }
 }
