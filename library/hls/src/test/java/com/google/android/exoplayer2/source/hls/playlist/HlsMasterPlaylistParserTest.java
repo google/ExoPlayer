@@ -352,24 +352,24 @@ public class HlsMasterPlaylistParserTest {
     assertThat(playlist.variants.get(0).format.metadata)
         .isEqualTo(
             createExtXStreamInfMetadata(
-                createVariantInfo(/* bitrate= */ 2227464, /* audioGroupId= */ "aud1"),
-                createVariantInfo(/* bitrate= */ 2448841, /* audioGroupId= */ "aud2"),
-                createVariantInfo(/* bitrate= */ 2256841, /* audioGroupId= */ "aud3")));
+                createVariantInfo(/* peakBitrate= */ 2227464, /* audioGroupId= */ "aud1"),
+                createVariantInfo(/* peakBitrate= */ 2448841, /* audioGroupId= */ "aud2"),
+                createVariantInfo(/* peakBitrate= */ 2256841, /* audioGroupId= */ "aud3")));
     assertThat(playlist.variants.get(1).format.metadata)
         .isEqualTo(
             createExtXStreamInfMetadata(
-                createVariantInfo(/* bitrate= */ 6453202, /* audioGroupId= */ "aud1"),
-                createVariantInfo(/* bitrate= */ 6482579, /* audioGroupId= */ "aud3")));
+                createVariantInfo(/* peakBitrate= */ 6453202, /* audioGroupId= */ "aud1"),
+                createVariantInfo(/* peakBitrate= */ 6482579, /* audioGroupId= */ "aud3")));
     assertThat(playlist.variants.get(2).format.metadata)
         .isEqualTo(
             createExtXStreamInfMetadata(
-                createVariantInfo(/* bitrate= */ 5054232, /* audioGroupId= */ "aud1"),
-                createVariantInfo(/* bitrate= */ 5275609, /* audioGroupId= */ "aud2")));
+                createVariantInfo(/* peakBitrate= */ 5054232, /* audioGroupId= */ "aud1"),
+                createVariantInfo(/* peakBitrate= */ 5275609, /* audioGroupId= */ "aud2")));
     assertThat(playlist.variants.get(3).format.metadata)
         .isEqualTo(
             createExtXStreamInfMetadata(
-                createVariantInfo(/* bitrate= */ 8399417, /* audioGroupId= */ "aud2"),
-                createVariantInfo(/* bitrate= */ 8207417, /* audioGroupId= */ "aud3")));
+                createVariantInfo(/* peakBitrate= */ 8399417, /* audioGroupId= */ "aud2"),
+                createVariantInfo(/* peakBitrate= */ 8207417, /* audioGroupId= */ "aud3")));
 
     assertThat(playlist.audios).hasSize(3);
     assertThat(playlist.audios.get(0).format.metadata)
@@ -390,9 +390,10 @@ public class HlsMasterPlaylistParserTest {
   }
 
   private static HlsTrackMetadataEntry.VariantInfo createVariantInfo(
-      long bitrate, String audioGroupId) {
+      int peakBitrate, String audioGroupId) {
     return new HlsTrackMetadataEntry.VariantInfo(
-        bitrate,
+        /* averageBitrate= */ Format.NO_VALUE,
+        /* peakBitrate= */ peakBitrate,
         /* videoGroupId= */ null,
         audioGroupId,
         /* subtitleGroupId= */ "sub1",

@@ -303,8 +303,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         }
       } else if (line.startsWith(TAG_STREAM_INF)) {
         noClosedCaptions |= line.contains(ATTR_CLOSED_CAPTIONS_NONE);
-        int bitrate = parseIntAttr(line, REGEX_BANDWIDTH);
-        // TODO: Plumb this into Format.
+        int peakBitrate = parseIntAttr(line, REGEX_BANDWIDTH);
         int averageBitrate = parseOptionalIntAttr(line, REGEX_AVERAGE_BANDWIDTH, -1);
         String codecs = parseOptionalStringAttr(line, REGEX_CODECS, variableDefinitions);
         String resolutionString =
@@ -343,6 +342,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             replaceVariableReferences(
                 iterator.next(), variableDefinitions); // #EXT-X-STREAM-INF's URI.
         Uri uri = UriUtil.resolveToUri(baseUri, line);
+        // TODO: Set Format.averageBitrate.
         Format format =
             Format.createVideoContainerFormat(
                 /* id= */ Integer.toString(variants.size()),
@@ -351,7 +351,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                 /* sampleMimeType= */ null,
                 codecs,
                 /* metadata= */ null,
-                bitrate,
+                peakBitrate,
                 width,
                 height,
                 frameRate,
@@ -362,14 +362,19 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             new Variant(
                 uri, format, videoGroupId, audioGroupId, subtitlesGroupId, closedCaptionsGroupId);
         variants.add(variant);
-        ArrayList<VariantInfo> variantInfosForUrl = urlToVariantInfos.get(uri);
+        @Nullable ArrayList<VariantInfo> variantInfosForUrl = urlToVariantInfos.get(uri);
         if (variantInfosForUrl == null) {
           variantInfosForUrl = new ArrayList<>();
           urlToVariantInfos.put(uri, variantInfosForUrl);
         }
         variantInfosForUrl.add(
             new VariantInfo(
-                bitrate, videoGroupId, audioGroupId, subtitlesGroupId, closedCaptionsGroupId));
+                averageBitrate,
+                peakBitrate,
+                videoGroupId,
+                audioGroupId,
+                subtitlesGroupId,
+                closedCaptionsGroupId));
       }
     }
 
