@@ -72,7 +72,7 @@ public final class AdaptiveTrackSelectionTest {
         new AdaptiveTrackSelection.Factory(initialBandwidthMeter)
             .createTrackSelections(
                 new Definition[] {
-                  new Definition(new TrackGroup(format1, format2), /* tracks= */ 0, 1)
+                  new Definition(new TrackGroup(format1, format2), /* tracks=... */ 0, 1)
                 },
                 injectedBandwidthMeter);
     trackSelections[0].updateSelectedTrack(

@@ -187,8 +187,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * inflated for use by PlayerView. The view identifies and binds its children by looking for the
  * following ids:
  *
- * <p>
- *
  * <ul>
  *   <li><b>{@code exo_content_frame}</b> - A frame whose aspect ratio is resized based on the video
  *       or album art of the media being played, and the configured {@code resize_mode}. The video

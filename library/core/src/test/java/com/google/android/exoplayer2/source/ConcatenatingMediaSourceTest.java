@@ -666,7 +666,7 @@ public final class ConcatenatingMediaSourceTest {
                 false,
                 10 * C.MICROS_PER_SECOND,
                 FakeTimeline.createAdPlaybackState(
-                    /* adsPerAdGroup= */ 1, /* adGroupTimesUs= */ 0)));
+                    /* adsPerAdGroup= */ 1, /* adGroupTimesUs=... */ 0)));
     FakeMediaSource mediaSourceContentOnly = new FakeMediaSource(timelineContentOnly);
     FakeMediaSource mediaSourceWithAds = new FakeMediaSource(timelineWithAds);
     mediaSource.addMediaSource(mediaSourceContentOnly);
@@ -837,7 +837,7 @@ public final class ConcatenatingMediaSourceTest {
             new MediaPeriodId(childPeriodUid1, /* windowSequenceNumber= */ 5),
             new MediaPeriodId(childPeriodUid1, /* windowSequenceNumber= */ 7));
     // Assert that only one manifest load is reported because the source is reused.
-    testRunner.assertCompletedManifestLoads(/* windowIndices= */ 0);
+    testRunner.assertCompletedManifestLoads(/* windowIndices=... */ 0);
     assertCompletedAllMediaPeriodLoads(timeline);
 
     testRunner.releaseSource();
@@ -870,7 +870,7 @@ public final class ConcatenatingMediaSourceTest {
             new MediaPeriodId(childPeriodUid, /* windowSequenceNumber= */ 3),
             new MediaPeriodId(childPeriodUid, /* windowSequenceNumber= */ 4));
     // Assert that only one manifest load is needed because the source is reused.
-    testRunner.assertCompletedManifestLoads(/* windowIndices= */ 0);
+    testRunner.assertCompletedManifestLoads(/* windowIndices=... */ 0);
     assertCompletedAllMediaPeriodLoads(timeline);
 
     testRunner.releaseSource();

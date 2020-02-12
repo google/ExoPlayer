@@ -1455,7 +1455,7 @@ public final class DefaultTrackSelectorTest {
             .setSelectionOverride(
                 /* rendererIndex= */ 0,
                 trackGroups,
-                new SelectionOverride(/* groupIndex= */ 0, /* tracks= */ 1, 2)));
+                new SelectionOverride(/* groupIndex= */ 0, /* tracks=... */ 1, 2)));
     TrackSelectorResult result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
@@ -1593,7 +1593,7 @@ public final class DefaultTrackSelectorTest {
             .setSelectionOverride(
                 /* rendererIndex= */ 0,
                 trackGroups,
-                new SelectionOverride(/* groupIndex= */ 0, /* tracks= */ 1, 2)));
+                new SelectionOverride(/* groupIndex= */ 0, /* tracks=... */ 1, 2)));
     TrackSelectorResult result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {VIDEO_CAPABILITIES}, trackGroups, periodId, TIMELINE);

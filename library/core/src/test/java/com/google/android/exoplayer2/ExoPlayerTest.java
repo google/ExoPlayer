@@ -459,7 +459,7 @@ public final class ExoPlayerTest {
   public void testAdGroupWithLoadErrorIsSkipped() throws Exception {
     AdPlaybackState initialAdPlaybackState =
         FakeTimeline.createAdPlaybackState(
-            /* adsPerAdGroup= */ 1, /* adGroupTimesUs= */ 5 * C.MICROS_PER_SECOND);
+            /* adsPerAdGroup= */ 1, /* adGroupTimesUs=... */ 5 * C.MICROS_PER_SECOND);
     Timeline fakeTimeline =
         new FakeTimeline(
             new TimelineWindowDefinition(
