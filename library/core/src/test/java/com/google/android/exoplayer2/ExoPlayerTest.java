@@ -1878,18 +1878,33 @@ public final class ExoPlayerTest {
   public void testSendMessagesAtStartAndEndOfPeriod() throws Exception {
     Timeline timeline = new FakeTimeline(/* windowCount= */ 2);
     PositionGrabbingMessageTarget targetStartFirstPeriod = new PositionGrabbingMessageTarget();
-    PositionGrabbingMessageTarget targetEndMiddlePeriod = new PositionGrabbingMessageTarget();
+    PositionGrabbingMessageTarget targetEndMiddlePeriodResolved =
+        new PositionGrabbingMessageTarget();
+    PositionGrabbingMessageTarget targetEndMiddlePeriodUnresolved =
+        new PositionGrabbingMessageTarget();
     PositionGrabbingMessageTarget targetStartMiddlePeriod = new PositionGrabbingMessageTarget();
-    PositionGrabbingMessageTarget targetEndLastPeriod = new PositionGrabbingMessageTarget();
+    PositionGrabbingMessageTarget targetEndLastPeriodResolved = new PositionGrabbingMessageTarget();
+    PositionGrabbingMessageTarget targetEndLastPeriodUnresolved =
+        new PositionGrabbingMessageTarget();
     long duration1Ms = timeline.getWindow(0, new Window()).getDurationMs();
     long duration2Ms = timeline.getWindow(1, new Window()).getDurationMs();
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder("testSendMessagesAtStartAndEndOfPeriod")
             .sendMessage(targetStartFirstPeriod, /* windowIndex= */ 0, /* positionMs= */ 0)
-            .sendMessage(targetEndMiddlePeriod, /* windowIndex= */ 0, /* positionMs= */ duration1Ms)
+            .sendMessage(
+                targetEndMiddlePeriodResolved, /* windowIndex= */ 0, /* positionMs= */ duration1Ms)
+            .sendMessage(
+                targetEndMiddlePeriodUnresolved,
+                /* windowIndex= */ 0,
+                /* positionMs= */ C.TIME_END_OF_SOURCE)
             .sendMessage(targetStartMiddlePeriod, /* windowIndex= */ 1, /* positionMs= */ 0)
-            .sendMessage(targetEndLastPeriod, /* windowIndex= */ 1, /* positionMs= */ duration2Ms)
-            .waitForMessage(targetEndLastPeriod)
+            .sendMessage(
+                targetEndLastPeriodResolved, /* windowIndex= */ 1, /* positionMs= */ duration2Ms)
+            .sendMessage(
+                targetEndLastPeriodUnresolved,
+                /* windowIndex= */ 1,
+                /* positionMs= */ C.TIME_END_OF_SOURCE)
+            .waitForMessage(targetEndLastPeriodUnresolved)
             .build();
     new Builder()
         .setTimeline(timeline)
@@ -1900,12 +1915,20 @@ public final class ExoPlayerTest {
         .blockUntilEnded(TIMEOUT_MS);
     assertThat(targetStartFirstPeriod.windowIndex).isEqualTo(0);
     assertThat(targetStartFirstPeriod.positionMs).isAtLeast(0L);
-    assertThat(targetEndMiddlePeriod.windowIndex).isEqualTo(0);
-    assertThat(targetEndMiddlePeriod.positionMs).isAtLeast(duration1Ms);
+    assertThat(targetEndMiddlePeriodResolved.windowIndex).isEqualTo(0);
+    assertThat(targetEndMiddlePeriodResolved.positionMs).isAtLeast(duration1Ms);
+    assertThat(targetEndMiddlePeriodUnresolved.windowIndex).isEqualTo(0);
+    assertThat(targetEndMiddlePeriodUnresolved.positionMs).isAtLeast(duration1Ms);
+    assertThat(targetEndMiddlePeriodResolved.positionMs)
+        .isEqualTo(targetEndMiddlePeriodUnresolved.positionMs);
     assertThat(targetStartMiddlePeriod.windowIndex).isEqualTo(1);
     assertThat(targetStartMiddlePeriod.positionMs).isAtLeast(0L);
-    assertThat(targetEndLastPeriod.windowIndex).isEqualTo(1);
-    assertThat(targetEndLastPeriod.positionMs).isAtLeast(duration2Ms);
+    assertThat(targetEndLastPeriodResolved.windowIndex).isEqualTo(1);
+    assertThat(targetEndLastPeriodResolved.positionMs).isAtLeast(duration2Ms);
+    assertThat(targetEndLastPeriodUnresolved.windowIndex).isEqualTo(1);
+    assertThat(targetEndLastPeriodUnresolved.positionMs).isAtLeast(duration2Ms);
+    assertThat(targetEndLastPeriodResolved.positionMs)
+        .isEqualTo(targetEndLastPeriodUnresolved.positionMs);
   }
 
   @Test

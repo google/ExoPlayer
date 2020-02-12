@@ -2241,6 +2241,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
       Timeline.Period period) {
     if (pendingMessageInfo.resolvedPeriodUid == null) {
       // Position is still unresolved. Try to find window in new timeline.
+      long requestPositionUs =
+          pendingMessageInfo.message.getPositionMs() == C.TIME_END_OF_SOURCE
+              ? C.TIME_UNSET
+              : C.msToUs(pendingMessageInfo.message.getPositionMs());
       @Nullable
       Pair<Object, Long> periodPosition =
           resolveSeekPosition(
@@ -2248,7 +2252,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
               new SeekPosition(
                   pendingMessageInfo.message.getTimeline(),
                   pendingMessageInfo.message.getWindowIndex(),
-                  C.msToUs(pendingMessageInfo.message.getPositionMs())),
+                  requestPositionUs),
               /* trySubsequentPeriods= */ false,
               repeatMode,
               shuffleModeEnabled,
@@ -2261,30 +2265,60 @@ import java.util.concurrent.atomic.AtomicBoolean;
           /* periodIndex= */ newTimeline.getIndexOfPeriod(periodPosition.first),
           /* periodTimeUs= */ periodPosition.second,
           /* periodUid= */ periodPosition.first);
-    } else {
-      // Position has been resolved for a previous timeline. Try to find the updated period index.
-      int index = newTimeline.getIndexOfPeriod(pendingMessageInfo.resolvedPeriodUid);
-      if (index == C.INDEX_UNSET) {
-        return false;
+      if (pendingMessageInfo.message.getPositionMs() == C.TIME_END_OF_SOURCE) {
+        resolvePendingMessageEndOfStreamPosition(newTimeline, pendingMessageInfo, window, period);
       }
-      pendingMessageInfo.resolvedPeriodIndex = index;
-      previousTimeline.getPeriodByUid(pendingMessageInfo.resolvedPeriodUid, period);
-      if (previousTimeline.getWindow(period.windowIndex, window).isPlaceholder) {
-        // The position needs to be re-resolved because the window in the previous timeline wasn't
-        // fully prepared.
-        long windowPositionUs =
-            pendingMessageInfo.resolvedPeriodTimeUs + period.getPositionInWindowUs();
-        int windowIndex =
-            newTimeline.getPeriodByUid(pendingMessageInfo.resolvedPeriodUid, period).windowIndex;
-        Pair<Object, Long> periodPosition =
-            newTimeline.getPeriodPosition(window, period, windowIndex, windowPositionUs);
-        pendingMessageInfo.setResolvedPosition(
-            /* periodIndex= */ newTimeline.getIndexOfPeriod(periodPosition.first),
-            /* periodTimeUs= */ periodPosition.second,
-            /* periodUid= */ periodPosition.first);
-      }
+      return true;
+    }
+    // Position has been resolved for a previous timeline. Try to find the updated period index.
+    int index = newTimeline.getIndexOfPeriod(pendingMessageInfo.resolvedPeriodUid);
+    if (index == C.INDEX_UNSET) {
+      return false;
+    }
+    if (pendingMessageInfo.message.getPositionMs() == C.TIME_END_OF_SOURCE) {
+      // Re-resolve end of stream in case the duration changed.
+      resolvePendingMessageEndOfStreamPosition(newTimeline, pendingMessageInfo, window, period);
+      return true;
+    }
+    pendingMessageInfo.resolvedPeriodIndex = index;
+    previousTimeline.getPeriodByUid(pendingMessageInfo.resolvedPeriodUid, period);
+    if (previousTimeline.getWindow(period.windowIndex, window).isPlaceholder) {
+      // The position needs to be re-resolved because the window in the previous timeline wasn't
+      // fully prepared.
+      long windowPositionUs =
+          pendingMessageInfo.resolvedPeriodTimeUs + period.getPositionInWindowUs();
+      int windowIndex =
+          newTimeline.getPeriodByUid(pendingMessageInfo.resolvedPeriodUid, period).windowIndex;
+      Pair<Object, Long> periodPosition =
+          newTimeline.getPeriodPosition(window, period, windowIndex, windowPositionUs);
+      pendingMessageInfo.setResolvedPosition(
+          /* periodIndex= */ newTimeline.getIndexOfPeriod(periodPosition.first),
+          /* periodTimeUs= */ periodPosition.second,
+          /* periodUid= */ periodPosition.first);
     }
     return true;
+  }
+
+  private static void resolvePendingMessageEndOfStreamPosition(
+      Timeline timeline,
+      PendingMessageInfo messageInfo,
+      Timeline.Window window,
+      Timeline.Period period) {
+    int windowIndex = timeline.getPeriodByUid(messageInfo.resolvedPeriodUid, period).windowIndex;
+    timeline.getWindow(windowIndex, window);
+    if (!window.isDynamic && window.durationUs != C.TIME_UNSET) {
+      Pair<Object, Long> periodPosition =
+          timeline.getPeriodPosition(window, period, windowIndex, window.durationUs);
+      messageInfo.setResolvedPosition(
+          /* periodIndex= */ timeline.getIndexOfPeriod(periodPosition.first),
+          /* periodTimeUs= */ periodPosition.second,
+          /* periodUid= */ periodPosition.first);
+    } else {
+      int lastPeriodIndex = timeline.getWindow(windowIndex, window).lastPeriodIndex;
+      Object lastPeriodUid = timeline.getUidOfPeriod(lastPeriodIndex);
+      messageInfo.setResolvedPosition(
+          lastPeriodIndex, /* periodTimeUs= */ Long.MAX_VALUE, lastPeriodUid);
+    }
   }
 
   /**
