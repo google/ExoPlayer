@@ -16,27 +16,28 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion project.ext.compileSdkVersion
-    buildToolsVersion project.ext.buildToolsVersion
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 
     defaultConfig {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'proguard-rules.txt'
     }
+
+    testOptions.unitTests.includeAndroidResources = true
 }
 
 dependencies {
-    // This dependency is necessary to force the supportLibraryVersion of
-    // com.android.support:support-v4 to be used. Else an older version (25.2.0)
-    // is included via:
-    // com.google.android.gms:play-services-ads:11.4.2
-    // |-- com.google.android.gms:play-services-ads-lite:11.4.2
-    //   |-- com.google.android.gms:play-services-basement:11.4.2
-    //     |-- com.android.support:support-v4:25.2.0
-    api 'com.android.support:support-v4:' + supportLibraryVersion
-    api 'com.google.ads.interactivemedia.v3:interactivemedia:3.7.4'
+    api 'com.google.ads.interactivemedia.v3:interactivemedia:3.11.3'
     implementation project(modulePrefix + 'library-core')
-    implementation 'com.google.android.gms:play-services-ads:' + playServicesLibraryVersion
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+    implementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
+    testImplementation project(modulePrefix + 'testutils')
+    testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
 
 ext {

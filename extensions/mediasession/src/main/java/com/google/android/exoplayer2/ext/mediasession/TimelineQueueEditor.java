@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,12 @@ package com.google.android.exoplayer2.ext.mediasession;
 
 import android.os.Bundle;
 import android.os.ResultReceiver;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -64,13 +64,6 @@ public final class TimelineQueueEditor
    * {@link MediaSessionConnector}.
    */
   public interface QueueDataAdapter {
-    /**
-     * Gets the {@link MediaDescriptionCompat} for a {@code position}.
-     *
-     * @param position The position in the queue for which to provide a description.
-     * @return A {@link MediaDescriptionCompat}.
-     */
-    MediaDescriptionCompat getMediaDescription(int position);
     /**
      * Adds a {@link MediaDescriptionCompat} at the given {@code position}.
      *
@@ -135,10 +128,10 @@ public final class TimelineQueueEditor
    * @param sourceFactory The {@link MediaSourceFactory} to build media sources.
    */
   public TimelineQueueEditor(
-      @NonNull MediaControllerCompat mediaController,
-      @NonNull ConcatenatingMediaSource queueMediaSource,
-      @NonNull QueueDataAdapter queueDataAdapter,
-      @NonNull MediaSourceFactory sourceFactory) {
+      MediaControllerCompat mediaController,
+      ConcatenatingMediaSource queueMediaSource,
+      QueueDataAdapter queueDataAdapter,
+      MediaSourceFactory sourceFactory) {
     this(mediaController, queueMediaSource, queueDataAdapter, sourceFactory,
         new MediaIdEqualityChecker());
   }
@@ -153,11 +146,11 @@ public final class TimelineQueueEditor
    * @param equalityChecker The {@link MediaDescriptionEqualityChecker} to match queue items.
    */
   public TimelineQueueEditor(
-      @NonNull MediaControllerCompat mediaController,
-      @NonNull ConcatenatingMediaSource queueMediaSource,
-      @NonNull QueueDataAdapter queueDataAdapter,
-      @NonNull MediaSourceFactory sourceFactory,
-      @NonNull MediaDescriptionEqualityChecker equalityChecker) {
+      MediaControllerCompat mediaController,
+      ConcatenatingMediaSource queueMediaSource,
+      QueueDataAdapter queueDataAdapter,
+      MediaSourceFactory sourceFactory,
+      MediaDescriptionEqualityChecker equalityChecker) {
     this.mediaController = mediaController;
     this.queueMediaSource = queueMediaSource;
     this.queueDataAdapter = queueDataAdapter;
@@ -172,7 +165,7 @@ public final class TimelineQueueEditor
 
   @Override
   public void onAddQueueItem(Player player, MediaDescriptionCompat description, int index) {
-    MediaSource mediaSource = sourceFactory.createMediaSource(description);
+    @Nullable MediaSource mediaSource = sourceFactory.createMediaSource(description);
     if (mediaSource != null) {
       queueDataAdapter.add(index, description);
       queueMediaSource.addMediaSource(index, mediaSource);
@@ -184,34 +177,32 @@ public final class TimelineQueueEditor
     List<MediaSessionCompat.QueueItem> queue = mediaController.getQueue();
     for (int i = 0; i < queue.size(); i++) {
       if (equalityChecker.equals(queue.get(i).getDescription(), description)) {
-        onRemoveQueueItemAt(player, i);
+        queueDataAdapter.remove(i);
+        queueMediaSource.removeMediaSource(i);
         return;
       }
     }
   }
 
-  @Override
-  public void onRemoveQueueItemAt(Player player, int index) {
-    queueDataAdapter.remove(index);
-    queueMediaSource.removeMediaSource(index);
-  }
-
   // CommandReceiver implementation.
 
-  @NonNull
   @Override
-  public String[] getCommands() {
-    return new String[] {COMMAND_MOVE_QUEUE_ITEM};
-  }
-
-  @Override
-  public void onCommand(Player player, String command, Bundle extras, ResultReceiver cb) {
+  public boolean onCommand(
+      Player player,
+      ControlDispatcher controlDispatcher,
+      String command,
+      @Nullable Bundle extras,
+      @Nullable ResultReceiver cb) {
+    if (!COMMAND_MOVE_QUEUE_ITEM.equals(command) || extras == null) {
+      return false;
+    }
     int from = extras.getInt(EXTRA_FROM_INDEX, C.INDEX_UNSET);
     int to = extras.getInt(EXTRA_TO_INDEX, C.INDEX_UNSET);
     if (from != C.INDEX_UNSET && to != C.INDEX_UNSET) {
       queueDataAdapter.move(from, to);
       queueMediaSource.moveMediaSource(from, to);
     }
+    return true;
   }
 
 }

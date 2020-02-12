@@ -15,16 +15,17 @@
  */
 package com.google.android.exoplayer2.source.chunk;
 
-import android.util.Log;
 import com.google.android.exoplayer2.extractor.DummyTrackOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.source.SampleQueue;
 import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper.TrackOutputProvider;
+import com.google.android.exoplayer2.util.Log;
 
 /**
- * An output for {@link BaseMediaChunk}s.
+ * A {@link TrackOutputProvider} that provides {@link TrackOutput TrackOutputs} based on a
+ * predefined mapping from track type to output.
  */
-/* package */ final class BaseMediaChunkOutput implements TrackOutputProvider {
+public final class BaseMediaChunkOutput implements TrackOutputProvider {
 
   private static final String TAG = "BaseMediaChunkOutput";
 
@@ -57,9 +58,7 @@ import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper.TrackOut
   public int[] getWriteIndices() {
     int[] writeIndices = new int[sampleQueues.length];
     for (int i = 0; i < sampleQueues.length; i++) {
-      if (sampleQueues[i] != null) {
-        writeIndices[i] = sampleQueues[i].getWriteIndex();
-      }
+      writeIndices[i] = sampleQueues[i].getWriteIndex();
     }
     return writeIndices;
   }
@@ -70,9 +69,7 @@ import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper.TrackOut
    */
   public void setSampleOffsetUs(long sampleOffsetUs) {
     for (SampleQueue sampleQueue : sampleQueues) {
-      if (sampleQueue != null) {
-        sampleQueue.setSampleOffsetUs(sampleOffsetUs);
-      }
+      sampleQueue.setSampleOffsetUs(sampleOffsetUs);
     }
   }
 

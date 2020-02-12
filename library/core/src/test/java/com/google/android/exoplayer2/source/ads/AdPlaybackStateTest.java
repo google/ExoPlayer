@@ -19,14 +19,14 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import android.net.Uri;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
 /** Unit test for {@link AdPlaybackState}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class AdPlaybackStateTest {
 
   private static final long[] TEST_AD_GROUP_TMES_US = new long[] {0, C.msToUs(10_000)};
@@ -53,7 +53,7 @@ public final class AdPlaybackStateTest {
 
     assertThat(state.adGroups[0].uris[0]).isNull();
     assertThat(state.adGroups[0].states[0]).isEqualTo(AdPlaybackState.AD_STATE_UNAVAILABLE);
-    assertThat(state.adGroups[0].uris[1]).isSameAs(TEST_URI);
+    assertThat(state.adGroups[0].uris[1]).isSameInstanceAs(TEST_URI);
     assertThat(state.adGroups[0].states[1]).isEqualTo(AdPlaybackState.AD_STATE_AVAILABLE);
   }
 
@@ -83,6 +83,19 @@ public final class AdPlaybackStateTest {
     state = state.withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 2, TEST_URI);
 
     state = state.withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0);
+
+    assertThat(state.adGroups[0].getFirstAdIndexToPlay()).isEqualTo(1);
+    assertThat(state.adGroups[0].states[1]).isEqualTo(AdPlaybackState.AD_STATE_UNAVAILABLE);
+    assertThat(state.adGroups[0].states[2]).isEqualTo(AdPlaybackState.AD_STATE_AVAILABLE);
+  }
+
+  @Test
+  public void testGetFirstAdIndexToPlaySkipsSkippedAd() {
+    state = state.withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 3);
+    state = state.withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, TEST_URI);
+    state = state.withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 2, TEST_URI);
+
+    state = state.withSkippedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0);
 
     assertThat(state.adGroups[0].getFirstAdIndexToPlay()).isEqualTo(1);
     assertThat(state.adGroups[0].states[1]).isEqualTo(AdPlaybackState.AD_STATE_UNAVAILABLE);

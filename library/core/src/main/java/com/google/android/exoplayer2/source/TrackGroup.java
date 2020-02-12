@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Assertions;
@@ -71,11 +72,14 @@ public final class TrackGroup implements Parcelable {
   }
 
   /**
-   * Returns the index of the track with the given format in the group.
+   * Returns the index of the track with the given format in the group. The format is located by
+   * identity so, for example, {@code group.indexOf(group.getFormat(index)) == index} even if
+   * multiple tracks have formats that contain the same values.
    *
    * @param format The format.
    * @return The index of the track, or {@link C#INDEX_UNSET} if no such track exists.
    */
+  @SuppressWarnings("ReferenceEquality")
   public int indexOf(Format format) {
     for (int i = 0; i < formats.length; i++) {
       if (format == formats[i]) {
@@ -96,7 +100,7 @@ public final class TrackGroup implements Parcelable {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     if (this == obj) {
       return true;
     }

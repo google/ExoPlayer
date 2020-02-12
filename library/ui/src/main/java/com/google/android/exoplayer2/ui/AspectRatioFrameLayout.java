@@ -17,9 +17,11 @@ package com.google.android.exoplayer2.ui;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.support.annotation.IntDef;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -45,7 +47,12 @@ public final class AspectRatioFrameLayout extends FrameLayout {
   }
 
   // LINT.IfChange
-  /** Resize modes for {@link AspectRatioFrameLayout}. */
+  /**
+   * Resize modes for {@link AspectRatioFrameLayout}. One of {@link #RESIZE_MODE_FIT}, {@link
+   * #RESIZE_MODE_FIXED_WIDTH}, {@link #RESIZE_MODE_FIXED_HEIGHT}, {@link #RESIZE_MODE_FILL} or
+   * {@link #RESIZE_MODE_ZOOM}.
+   */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     RESIZE_MODE_FIT,
@@ -91,16 +98,16 @@ public final class AspectRatioFrameLayout extends FrameLayout {
 
   private final AspectRatioUpdateDispatcher aspectRatioUpdateDispatcher;
 
-  private AspectRatioListener aspectRatioListener;
+  @Nullable private AspectRatioListener aspectRatioListener;
 
   private float videoAspectRatio;
-  private @ResizeMode int resizeMode;
+  @ResizeMode private int resizeMode;
 
   public AspectRatioFrameLayout(Context context) {
-    this(context, null);
+    this(context, /* attrs= */ null);
   }
 
-  public AspectRatioFrameLayout(Context context, AttributeSet attrs) {
+  public AspectRatioFrameLayout(Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
     resizeMode = RESIZE_MODE_FIT;
     if (attrs != null) {
@@ -130,23 +137,22 @@ public final class AspectRatioFrameLayout extends FrameLayout {
   /**
    * Sets the {@link AspectRatioListener}.
    *
-   * @param listener The listener to be notified about aspect ratios changes.
+   * @param listener The listener to be notified about aspect ratios changes, or null to clear a
+   *     listener that was previously set.
    */
-  public void setAspectRatioListener(AspectRatioListener listener) {
+  public void setAspectRatioListener(@Nullable AspectRatioListener listener) {
     this.aspectRatioListener = listener;
   }
 
-  /**
-   * Returns the resize mode.
-   */
+  /** Returns the {@link ResizeMode}. */
   public @ResizeMode int getResizeMode() {
     return resizeMode;
   }
 
   /**
-   * Sets the resize mode.
+   * Sets the {@link ResizeMode}
    *
-   * @param resizeMode The resize mode.
+   * @param resizeMode The {@link ResizeMode}.
    */
   public void setResizeMode(@ResizeMode int resizeMode) {
     if (this.resizeMode != resizeMode) {

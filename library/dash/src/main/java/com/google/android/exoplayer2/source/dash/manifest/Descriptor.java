@@ -15,8 +15,7 @@
  */
 package com.google.android.exoplayer2.source.dash.manifest;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Util;
 
 /**
@@ -24,10 +23,8 @@ import com.google.android.exoplayer2.util.Util;
  */
 public final class Descriptor {
 
-  /**
-   * The scheme URI.
-   */
-  @NonNull public final String schemeIdUri;
+  /** The scheme URI. */
+  public final String schemeIdUri;
   /**
    * The value, or null.
    */
@@ -42,14 +39,14 @@ public final class Descriptor {
    * @param value The value, or null.
    * @param id The identifier, or null.
    */
-  public Descriptor(@NonNull String schemeIdUri, @Nullable String value, @Nullable String id) {
+  public Descriptor(String schemeIdUri, @Nullable String value, @Nullable String id) {
     this.schemeIdUri = schemeIdUri;
     this.value = value;
     this.id = id;
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     if (this == obj) {
       return true;
     }
@@ -63,10 +60,9 @@ public final class Descriptor {
 
   @Override
   public int hashCode() {
-    int result = (schemeIdUri != null ? schemeIdUri.hashCode() : 0);
+    int result = schemeIdUri.hashCode();
     result = 31 * result + (value != null ? value.hashCode() : 0);
     result = 31 * result + (id != null ? id.hashCode() : 0);
     return result;
   }
-
 }

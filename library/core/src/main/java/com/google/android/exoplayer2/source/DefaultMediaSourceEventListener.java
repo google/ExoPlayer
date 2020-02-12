@@ -15,45 +15,9 @@
  */
 package com.google.android.exoplayer2.source;
 
-import java.io.IOException;
-
 /**
- * A {@link MediaSourceEventListener} allowing selective overrides. All methods are implemented as
- * no-ops.
+ * @deprecated Use {@link MediaSourceEventListener} interface directly for selective overrides as
+ *     all methods are implemented as no-op default methods.
  */
-public abstract class DefaultMediaSourceEventListener implements MediaSourceEventListener {
-
-  @Override
-  public void onLoadStarted(LoadEventInfo loadEventInfo, MediaLoadData mediaLoadData) {
-    // Do nothing.
-  }
-
-  @Override
-  public void onLoadCompleted(LoadEventInfo loadEventInfo, MediaLoadData mediaLoadData) {
-    // Do nothing.
-  }
-
-  @Override
-  public void onLoadCanceled(LoadEventInfo loadEventInfo, MediaLoadData mediaLoadData) {
-    // Do nothing.
-  }
-
-  @Override
-  public void onLoadError(
-      LoadEventInfo loadEventInfo,
-      MediaLoadData mediaLoadData,
-      IOException error,
-      boolean wasCanceled) {
-    // Do nothing.
-  }
-
-  @Override
-  public void onUpstreamDiscarded(MediaLoadData mediaLoadData) {
-    // Do nothing.
-  }
-
-  @Override
-  public void onDownstreamFormatChanged(MediaLoadData mediaLoadData) {
-    // Do nothing.
-  }
-}
+@Deprecated
+public abstract class DefaultMediaSourceEventListener implements MediaSourceEventListener {}

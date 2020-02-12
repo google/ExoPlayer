@@ -47,6 +47,38 @@ public interface ControlDispatcher {
   boolean dispatchSeekTo(Player player, int windowIndex, long positionMs);
 
   /**
+   * Dispatches a {@link Player#previous()} operation.
+   *
+   * @param player The {@link Player} to which the operation should be dispatched.
+   * @return True if the operation was dispatched. False if suppressed.
+   */
+  boolean dispatchPrevious(Player player);
+
+  /**
+   * Dispatches a {@link Player#next()} operation.
+   *
+   * @param player The {@link Player} to which the operation should be dispatched.
+   * @return True if the operation was dispatched. False if suppressed.
+   */
+  boolean dispatchNext(Player player);
+
+  /**
+   * Dispatches a rewind operation.
+   *
+   * @param player The {@link Player} to which the operation should be dispatched.
+   * @return True if the operation was dispatched. False if suppressed.
+   */
+  boolean dispatchRewind(Player player);
+
+  /**
+   * Dispatches a fast forward operation.
+   *
+   * @param player The {@link Player} to which the operation should be dispatched.
+   * @return True if the operation was dispatched. False if suppressed.
+   */
+  boolean dispatchFastForward(Player player);
+
+  /**
    * Dispatches a {@link Player#setRepeatMode(int)} operation.
    *
    * @param player The {@link Player} to which the operation should be dispatched.
@@ -72,4 +104,10 @@ public interface ControlDispatcher {
    * @return True if the operation was dispatched. False if suppressed.
    */
   boolean dispatchStop(Player player, boolean reset);
+
+  /** Returns {@code true} if rewind is enabled, {@code false} otherwise. */
+  boolean isRewindEnabled();
+
+  /** Returns {@code true} if fast forward is enabled, {@code false} otherwise. */
+  boolean isFastForwardEnabled();
 }

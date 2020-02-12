@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.text.pgs;
 
 import android.graphics.Bitmap;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.SimpleSubtitleDecoder;
 import com.google.android.exoplayer2.text.Subtitle;
@@ -25,6 +26,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.zip.Inflater;
 
 /** A {@link SimpleSubtitleDecoder} for PGS subtitles. */
 public final class PgsDecoder extends SimpleSubtitleDecoder {
@@ -34,18 +36,25 @@ public final class PgsDecoder extends SimpleSubtitleDecoder {
   private static final int SECTION_TYPE_IDENTIFIER = 0x16;
   private static final int SECTION_TYPE_END = 0x80;
 
+  private static final byte INFLATE_HEADER = 0x78;
+
   private final ParsableByteArray buffer;
+  private final ParsableByteArray inflatedBuffer;
   private final CueBuilder cueBuilder;
+
+  @Nullable private Inflater inflater;
 
   public PgsDecoder() {
     super("PgsDecoder");
     buffer = new ParsableByteArray();
+    inflatedBuffer = new ParsableByteArray();
     cueBuilder = new CueBuilder();
   }
 
   @Override
   protected Subtitle decode(byte[] data, int size, boolean reset) throws SubtitleDecoderException {
     buffer.reset(data, size);
+    maybeInflateData(buffer);
     cueBuilder.reset();
     ArrayList<Cue> cues = new ArrayList<>();
     while (buffer.bytesLeft() >= 3) {
@@ -57,6 +66,18 @@ public final class PgsDecoder extends SimpleSubtitleDecoder {
     return new PgsSubtitle(Collections.unmodifiableList(cues));
   }
 
+  private void maybeInflateData(ParsableByteArray buffer) {
+    if (buffer.bytesLeft() > 0 && buffer.peekUnsignedByte() == INFLATE_HEADER) {
+      if (inflater == null) {
+        inflater = new Inflater();
+      }
+      if (Util.inflate(buffer, inflatedBuffer, inflater)) {
+        buffer.reset(inflatedBuffer.data, inflatedBuffer.limit());
+      } // else assume data is not compressed.
+    }
+  }
+
+  @Nullable
   private static Cue readNextSection(ParsableByteArray buffer, CueBuilder cueBuilder) {
     int limit = buffer.limit();
     int sectionType = buffer.readUnsignedByte();
@@ -178,6 +199,7 @@ public final class PgsDecoder extends SimpleSubtitleDecoder {
       bitmapY = buffer.readUnsignedShort();
     }
 
+    @Nullable
     public Cue build() {
       if (planeWidth == 0
           || planeHeight == 0
@@ -213,14 +235,15 @@ public final class PgsDecoder extends SimpleSubtitleDecoder {
       Bitmap bitmap =
           Bitmap.createBitmap(argbBitmapData, bitmapWidth, bitmapHeight, Bitmap.Config.ARGB_8888);
       // Build the cue.
-      return new Cue(
-          bitmap,
-          (float) bitmapX / planeWidth,
-          Cue.ANCHOR_TYPE_START,
-          (float) bitmapY / planeHeight,
-          Cue.ANCHOR_TYPE_START,
-          (float) bitmapWidth / planeWidth,
-          (float) bitmapHeight / planeHeight);
+      return new Cue.Builder()
+          .setBitmap(bitmap)
+          .setPosition((float) bitmapX / planeWidth)
+          .setPositionAnchor(Cue.ANCHOR_TYPE_START)
+          .setLine((float) bitmapY / planeHeight, Cue.LINE_TYPE_FRACTION)
+          .setLineAnchor(Cue.ANCHOR_TYPE_START)
+          .setSize((float) bitmapWidth / planeWidth)
+          .setBitmapHeight((float) bitmapHeight / planeHeight)
+          .build();
     }
 
     public void reset() {

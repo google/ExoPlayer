@@ -15,27 +15,31 @@
  */
 package com.google.android.exoplayer2.source;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.AbstractConcatenatedTimeline;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.ShuffleOrder.UnshuffledShuffleOrder;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Loops a {@link MediaSource} a specified number of times.
  *
  * <p>Note: To loop a {@link MediaSource} indefinitely, it is usually better to use {@link
- * ExoPlayer#setRepeatMode(int)}.
+ * ExoPlayer#setRepeatMode(int)} instead of this class.
  */
 public final class LoopingMediaSource extends CompositeMediaSource<Void> {
 
-  private final MediaSource childSource;
+  private final MaskingMediaSource maskingMediaSource;
   private final int loopCount;
-
-  private int childPeriodCount;
+  private final Map<MediaPeriodId, MediaPeriodId> childMediaPeriodIdToMediaPeriodId;
+  private final Map<MediaPeriod, MediaPeriodId> mediaPeriodToChildMediaPeriodId;
 
   /**
    * Loops the provided source indefinitely. Note that it is usually better to use
@@ -55,44 +59,75 @@ public final class LoopingMediaSource extends CompositeMediaSource<Void> {
    */
   public LoopingMediaSource(MediaSource childSource, int loopCount) {
     Assertions.checkArgument(loopCount > 0);
-    this.childSource = childSource;
+    this.maskingMediaSource = new MaskingMediaSource(childSource, /* useLazyPreparation= */ false);
     this.loopCount = loopCount;
+    childMediaPeriodIdToMediaPeriodId = new HashMap<>();
+    mediaPeriodToChildMediaPeriodId = new HashMap<>();
   }
 
   @Override
-  public void prepareSourceInternal(ExoPlayer player, boolean isTopLevelSource) {
-    super.prepareSourceInternal(player, isTopLevelSource);
-    prepareChildSource(/* id= */ null, childSource);
+  @Nullable
+  public Object getTag() {
+    return maskingMediaSource.getTag();
   }
 
+  @Nullable
   @Override
-  public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
+  public Timeline getInitialTimeline() {
     return loopCount != Integer.MAX_VALUE
-        ? childSource.createPeriod(id.copyWithPeriodIndex(id.periodIndex % childPeriodCount),
-            allocator)
-        : childSource.createPeriod(id, allocator);
+        ? new LoopingTimeline(maskingMediaSource.getTimeline(), loopCount)
+        : new InfinitelyLoopingTimeline(maskingMediaSource.getTimeline());
+  }
+
+  @Override
+  public boolean isSingleWindow() {
+    return false;
+  }
+
+  @Override
+  protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
+    super.prepareSourceInternal(mediaTransferListener);
+    prepareChildSource(/* id= */ null, maskingMediaSource);
+  }
+
+  @Override
+  public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs) {
+    if (loopCount == Integer.MAX_VALUE) {
+      return maskingMediaSource.createPeriod(id, allocator, startPositionUs);
+    }
+    Object childPeriodUid = LoopingTimeline.getChildPeriodUidFromConcatenatedUid(id.periodUid);
+    MediaPeriodId childMediaPeriodId = id.copyWithPeriodUid(childPeriodUid);
+    childMediaPeriodIdToMediaPeriodId.put(childMediaPeriodId, id);
+    MediaPeriod mediaPeriod =
+        maskingMediaSource.createPeriod(childMediaPeriodId, allocator, startPositionUs);
+    mediaPeriodToChildMediaPeriodId.put(mediaPeriod, childMediaPeriodId);
+    return mediaPeriod;
   }
 
   @Override
   public void releasePeriod(MediaPeriod mediaPeriod) {
-    childSource.releasePeriod(mediaPeriod);
+    maskingMediaSource.releasePeriod(mediaPeriod);
+    MediaPeriodId childMediaPeriodId = mediaPeriodToChildMediaPeriodId.remove(mediaPeriod);
+    if (childMediaPeriodId != null) {
+      childMediaPeriodIdToMediaPeriodId.remove(childMediaPeriodId);
+    }
   }
 
   @Override
-  public void releaseSourceInternal() {
-    super.releaseSourceInternal();
-    childPeriodCount = 0;
-  }
-
-  @Override
-  protected void onChildSourceInfoRefreshed(
-      Void id, MediaSource mediaSource, Timeline timeline, @Nullable Object manifest) {
-    childPeriodCount = timeline.getPeriodCount();
+  protected void onChildSourceInfoRefreshed(Void id, MediaSource mediaSource, Timeline timeline) {
     Timeline loopingTimeline =
         loopCount != Integer.MAX_VALUE
             ? new LoopingTimeline(timeline, loopCount)
             : new InfinitelyLoopingTimeline(timeline);
-    refreshSourceInfo(loopingTimeline, manifest);
+    refreshSourceInfo(loopingTimeline);
+  }
+
+  @Override
+  protected @Nullable MediaPeriodId getMediaPeriodIdForChildMediaPeriodId(
+      Void id, MediaPeriodId mediaPeriodId) {
+    return loopCount != Integer.MAX_VALUE
+        ? childMediaPeriodIdToMediaPeriodId.get(mediaPeriodId)
+        : mediaPeriodId;
   }
 
   private static final class LoopingTimeline extends AbstractConcatenatedTimeline {

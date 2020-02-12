@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.text.ttml;
 
-import android.text.Spannable;
+import android.text.Layout.Alignment;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.AbsoluteSizeSpan;
@@ -27,6 +27,9 @@ import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
+import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.text.SpanUtil;
+import com.google.android.exoplayer2.text.span.HorizontalTextInVerticalContextSpan;
 import java.util.Map;
 
 /**
@@ -34,30 +37,35 @@ import java.util.Map;
  */
 /* package */ final class TtmlRenderUtil {
 
-  public static TtmlStyle resolveStyle(TtmlStyle style, String[] styleIds,
-      Map<String, TtmlStyle> globalStyles) {
-    if (style == null && styleIds == null) {
-      // No styles at all.
-      return null;
-    } else if (style == null && styleIds.length == 1) {
-      // Only one single referential style present.
-      return globalStyles.get(styleIds[0]);
-    } else if (style == null && styleIds.length > 1) {
-      // Only multiple referential styles present.
-      TtmlStyle chainedStyle = new TtmlStyle();
-      for (String id : styleIds) {
-        chainedStyle.chain(globalStyles.get(id));
+  @Nullable
+  public static TtmlStyle resolveStyle(
+      @Nullable TtmlStyle style, @Nullable String[] styleIds, Map<String, TtmlStyle> globalStyles) {
+    if (style == null) {
+      if (styleIds == null) {
+        // No styles at all.
+        return null;
+      } else if (styleIds.length == 1) {
+        // Only one single referential style present.
+        return globalStyles.get(styleIds[0]);
+      } else if (styleIds.length > 1) {
+        // Only multiple referential styles present.
+        TtmlStyle chainedStyle = new TtmlStyle();
+        for (String id : styleIds) {
+          chainedStyle.chain(globalStyles.get(id));
+        }
+        return chainedStyle;
       }
-      return chainedStyle;
-    } else if (style != null && styleIds != null && styleIds.length == 1) {
-      // Merge a single referential style into inline style.
-      return style.chain(globalStyles.get(styleIds[0]));
-    } else if (style != null && styleIds != null && styleIds.length > 1) {
-      // Merge multiple referential styles into inline style.
-      for (String id : styleIds) {
-        style.chain(globalStyles.get(id));
+    } else /* style != null */ {
+      if (styleIds != null && styleIds.length == 1) {
+        // Merge a single referential style into inline style.
+        return style.chain(globalStyles.get(styleIds[0]));
+      } else if (styleIds != null && styleIds.length > 1) {
+        // Merge multiple referential styles into inline style.
+        for (String id : styleIds) {
+          style.chain(globalStyles.get(id));
+        }
+        return style;
       }
-      return style;
     }
     // Only inline styles available.
     return style;
@@ -77,32 +85,69 @@ import java.util.Map;
       builder.setSpan(new UnderlineSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
     if (style.hasFontColor()) {
-      builder.setSpan(new ForegroundColorSpan(style.getFontColor()), start, end,
-          Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-    }
-    if (style.hasBackgroundColor()) {
-      builder.setSpan(new BackgroundColorSpan(style.getBackgroundColor()), start, end,
-          Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-    }
-    if (style.getFontFamily() != null) {
-      builder.setSpan(new TypefaceSpan(style.getFontFamily()), start, end,
+      SpanUtil.addOrReplaceSpan(
+          builder,
+          new ForegroundColorSpan(style.getFontColor()),
+          start,
+          end,
           Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
-    if (style.getTextAlign() != null) {
-      builder.setSpan(new AlignmentSpan.Standard(style.getTextAlign()), start, end,
+    if (style.hasBackgroundColor()) {
+      SpanUtil.addOrReplaceSpan(
+          builder,
+          new BackgroundColorSpan(style.getBackgroundColor()),
+          start,
+          end,
+          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+    if (style.getFontFamily() != null) {
+      SpanUtil.addOrReplaceSpan(
+          builder,
+          new TypefaceSpan(style.getFontFamily()),
+          start,
+          end,
+          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+    @Nullable Alignment textAlign = style.getTextAlign();
+    if (textAlign != null) {
+      SpanUtil.addOrReplaceSpan(
+          builder,
+          new AlignmentSpan.Standard(textAlign),
+          start,
+          end,
+          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+    if (style.getTextCombine()) {
+      SpanUtil.addOrReplaceSpan(
+          builder,
+          new HorizontalTextInVerticalContextSpan(),
+          start,
+          end,
           Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
     switch (style.getFontSizeUnit()) {
       case TtmlStyle.FONT_SIZE_UNIT_PIXEL:
-        builder.setSpan(new AbsoluteSizeSpan((int) style.getFontSize(), true), start, end,
+        SpanUtil.addOrReplaceSpan(
+            builder,
+            new AbsoluteSizeSpan((int) style.getFontSize(), true),
+            start,
+            end,
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         break;
       case TtmlStyle.FONT_SIZE_UNIT_EM:
-        builder.setSpan(new RelativeSizeSpan(style.getFontSize()), start, end,
+        SpanUtil.addOrReplaceSpan(
+            builder,
+            new RelativeSizeSpan(style.getFontSize()),
+            start,
+            end,
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         break;
       case TtmlStyle.FONT_SIZE_UNIT_PERCENT:
-        builder.setSpan(new RelativeSizeSpan(style.getFontSize() / 100), start, end,
+        SpanUtil.addOrReplaceSpan(
+            builder,
+            new RelativeSizeSpan(style.getFontSize() / 100),
+            start,
+            end,
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         break;
       case TtmlStyle.UNSPECIFIED:

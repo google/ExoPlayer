@@ -18,21 +18,21 @@ package com.google.android.exoplayer2.source;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Parcel;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.MimeTypes;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
 /** Unit test for {@link TrackGroupArray}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class TrackGroupArrayTest {
 
   @Test
   public void testParcelable() {
-    Format format1 = Format.createSampleFormat("1", MimeTypes.VIDEO_H264, 0);
-    Format format2 = Format.createSampleFormat("2", MimeTypes.AUDIO_AAC, 0);
-    Format format3 = Format.createSampleFormat("3", MimeTypes.VIDEO_H264, 0);
+    Format format1 = Format.createSampleFormat("1", MimeTypes.VIDEO_H264);
+    Format format2 = Format.createSampleFormat("2", MimeTypes.AUDIO_AAC);
+    Format format3 = Format.createSampleFormat("3", MimeTypes.VIDEO_H264);
 
     TrackGroup trackGroup1 = new TrackGroup(format1, format2);
     TrackGroup trackGroup2 = new TrackGroup(format3);

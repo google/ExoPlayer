@@ -16,25 +16,26 @@
 package com.google.android.exoplayer2.upstream;
 
 import android.net.Uri;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 
-/**
- * A {@link DataSource} for reading from a byte array.
- */
-public final class ByteArrayDataSource implements DataSource {
+/** A {@link DataSource} for reading from a byte array. */
+public final class ByteArrayDataSource extends BaseDataSource {
 
   private final byte[] data;
 
-  private Uri uri;
+  @Nullable private Uri uri;
   private int readPosition;
   private int bytesRemaining;
+  private boolean opened;
 
   /**
    * @param data The data to be read.
    */
   public ByteArrayDataSource(byte[] data) {
+    super(/* isNetwork= */ false);
     Assertions.checkNotNull(data);
     Assertions.checkArgument(data.length > 0);
     this.data = data;
@@ -43,6 +44,7 @@ public final class ByteArrayDataSource implements DataSource {
   @Override
   public long open(DataSpec dataSpec) throws IOException {
     uri = dataSpec.uri;
+    transferInitializing(dataSpec);
     readPosition = (int) dataSpec.position;
     bytesRemaining = (int) ((dataSpec.length == C.LENGTH_UNSET)
         ? (data.length - dataSpec.position) : dataSpec.length);
@@ -50,11 +52,13 @@ public final class ByteArrayDataSource implements DataSource {
       throw new IOException("Unsatisfiable range: [" + readPosition + ", " + dataSpec.length
           + "], length: " + data.length);
     }
+    opened = true;
+    transferStarted(dataSpec);
     return bytesRemaining;
   }
 
   @Override
-  public int read(byte[] buffer, int offset, int readLength) throws IOException {
+  public int read(byte[] buffer, int offset, int readLength) {
     if (readLength == 0) {
       return 0;
     } else if (bytesRemaining == 0) {
@@ -65,16 +69,22 @@ public final class ByteArrayDataSource implements DataSource {
     System.arraycopy(data, readPosition, buffer, offset, readLength);
     readPosition += readLength;
     bytesRemaining -= readLength;
+    bytesTransferred(readLength);
     return readLength;
   }
 
   @Override
+  @Nullable
   public Uri getUri() {
     return uri;
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
+    if (opened) {
+      opened = false;
+      transferEnded();
+    }
     uri = null;
   }
 

@@ -16,425 +16,557 @@
 package com.google.android.exoplayer2.offline;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
 
-import android.os.ConditionVariable;
-import android.support.annotation.Nullable;
+import android.net.Uri;
+import androidx.annotation.Nullable;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.offline.DownloadManager.DownloadListener;
-import com.google.android.exoplayer2.offline.DownloadManager.DownloadState;
-import com.google.android.exoplayer2.offline.DownloadManager.DownloadState.State;
+import com.google.android.exoplayer2.offline.Download.State;
+import com.google.android.exoplayer2.scheduler.Requirements;
+import com.google.android.exoplayer2.testutil.DownloadBuilder;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
-import com.google.android.exoplayer2.testutil.RobolectricUtil;
-import com.google.android.exoplayer2.upstream.DummyDataSource;
-import com.google.android.exoplayer2.upstream.cache.Cache;
-import com.google.android.exoplayer2.util.Util;
-import java.io.DataOutputStream;
-import java.io.File;
+import com.google.android.exoplayer2.testutil.DummyMainThread.TestRunnable;
+import com.google.android.exoplayer2.testutil.TestDownloadManagerListener;
+import com.google.android.exoplayer2.testutil.TestUtil;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Locale;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
+import org.robolectric.annotation.LooperMode;
+import org.robolectric.annotation.LooperMode.Mode;
+import org.robolectric.shadows.ShadowLog;
 
 /** Tests {@link DownloadManager}. */
-@RunWith(RobolectricTestRunner.class)
-@Config(shadows = {RobolectricUtil.CustomLooper.class, RobolectricUtil.CustomMessageQueue.class})
+@RunWith(AndroidJUnit4.class)
+@LooperMode(Mode.PAUSED)
 public class DownloadManagerTest {
 
-  /* Used to check if condition becomes true in this time interval. */
+  /** Used to check if condition becomes true in this time interval. */
   private static final int ASSERT_TRUE_TIMEOUT = 10000;
-  /* Used to check if condition stays false for this time interval. */
+  /** Used to check if condition stays false for this time interval. */
   private static final int ASSERT_FALSE_TIME = 1000;
-  /* Maximum retry delay in DownloadManager. */
+  /** Maximum retry delay in DownloadManager. */
   private static final int MAX_RETRY_DELAY = 5000;
-
+  /** Maximum number of times a downloader can be restarted before doing a released check. */
+  private static final int MAX_STARTS_BEFORE_RELEASED = 1;
+  /** A stop reason. */
+  private static final int APP_STOP_REASON = 1;
+  /** The minimum number of times a task must be retried before failing. */
   private static final int MIN_RETRY_COUNT = 3;
+  /** Dummy value for the current time. */
+  private static final long NOW_MS = 1234;
 
-  private DownloadManager downloadManager;
-  private File actionFile;
-  private TestDownloadListener testDownloadListener;
+  private Uri uri1;
+  private Uri uri2;
+  private Uri uri3;
   private DummyMainThread dummyMainThread;
+  private DefaultDownloadIndex downloadIndex;
+  private TestDownloadManagerListener downloadManagerListener;
+  private FakeDownloaderFactory downloaderFactory;
+  private DownloadManager downloadManager;
 
   @Before
   public void setUp() throws Exception {
+    ShadowLog.stream = System.out;
     MockitoAnnotations.initMocks(this);
+    uri1 = Uri.parse("http://abc.com/media1");
+    uri2 = Uri.parse("http://abc.com/media2");
+    uri3 = Uri.parse("http://abc.com/media3");
     dummyMainThread = new DummyMainThread();
-    actionFile = Util.createTempFile(RuntimeEnvironment.application, "ExoPlayerTest");
-    testDownloadListener = new TestDownloadListener();
+    downloadIndex = new DefaultDownloadIndex(TestUtil.getInMemoryDatabaseProvider());
+    downloaderFactory = new FakeDownloaderFactory();
     setUpDownloadManager(100);
   }
 
   @After
   public void tearDown() throws Exception {
     releaseDownloadManager();
-    actionFile.delete();
     dummyMainThread.release();
   }
 
   @Test
-  public void testDownloadActionRuns() throws Throwable {
-    doTestActionRuns(createDownloadAction("media 1"));
+  public void downloadRunner_multipleInstancePerContent_throwsException() {
+    boolean exceptionThrown = false;
+    try {
+      new DownloadRunner(uri1);
+      new DownloadRunner(uri1);
+      // can't put fail() here as it would be caught in the catch below.
+    } catch (Throwable e) {
+      exceptionThrown = true;
+    }
+    assertThat(exceptionThrown).isTrue();
   }
 
   @Test
-  public void testRemoveActionRuns() throws Throwable {
-    doTestActionRuns(createRemoveAction("media 1"));
+  public void multipleRequestsForTheSameContent_executedOnTheSameTask() {
+    // Two download requests on first task
+    new DownloadRunner(uri1).postDownloadRequest().postDownloadRequest();
+    // One download, one remove requests on second task
+    new DownloadRunner(uri2).postDownloadRequest().postRemoveRequest();
+    // Two remove requests on third task
+    new DownloadRunner(uri3).postRemoveRequest().postRemoveRequest();
   }
 
   @Test
-  public void testDownloadRetriesThenFails() throws Throwable {
-    FakeDownloadAction downloadAction = createDownloadAction("media 1");
-    downloadAction.post();
-    FakeDownloader fakeDownloader = downloadAction.getFakeDownloader();
-    fakeDownloader.enableDownloadIOException = true;
+  public void requestsForDifferentContent_executedOnDifferentTasks() {
+    TaskWrapper task1 = new DownloadRunner(uri1).postDownloadRequest().getTask();
+    TaskWrapper task2 = new DownloadRunner(uri2).postDownloadRequest().getTask();
+    TaskWrapper task3 = new DownloadRunner(uri3).postRemoveRequest().getTask();
+
+    assertThat(task1).isNoneOf(task2, task3);
+    assertThat(task2).isNotEqualTo(task3);
+  }
+
+  @Test
+  public void postDownloadRequest_downloads() throws Throwable {
+    DownloadRunner runner = new DownloadRunner(uri1);
+    TaskWrapper task = runner.postDownloadRequest().getTask();
+    task.assertDownloading();
+    runner.getDownloader(0).unblock().assertReleased().assertStartCount(1);
+    task.assertCompleted();
+    runner.assertCreatedDownloaderCount(1);
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    assertThat(downloadManager.getCurrentDownloads()).isEmpty();
+  }
+
+  @Test
+  public void postRemoveRequest_removes() throws Throwable {
+    DownloadRunner runner = new DownloadRunner(uri1);
+    TaskWrapper task = runner.postDownloadRequest().postRemoveRequest().getTask();
+    task.assertRemoving();
+    runner.getDownloader(1).unblock().assertReleased().assertStartCount(1);
+    task.assertRemoved();
+    runner.assertCreatedDownloaderCount(2);
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    assertThat(downloadManager.getCurrentDownloads()).isEmpty();
+  }
+
+  @Test
+  public void downloadFails_retriesThenTaskFails() throws Throwable {
+    DownloadRunner runner = new DownloadRunner(uri1);
+    runner.postDownloadRequest();
+    FakeDownloader downloader = runner.getDownloader(0);
+
     for (int i = 0; i <= MIN_RETRY_COUNT; i++) {
-      fakeDownloader.assertStarted(MAX_RETRY_DELAY).unblock();
+      downloader.assertStarted(MAX_RETRY_DELAY).fail();
     }
-    downloadAction.assertError();
-    testDownloadListener.clearDownloadError();
 
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloader.assertReleased().assertStartCount(MIN_RETRY_COUNT + 1);
+    runner.getTask().assertFailed();
+    downloadManagerListener.blockUntilTasksComplete();
+    assertThat(downloadManager.getCurrentDownloads()).isEmpty();
   }
 
   @Test
-  public void testDownloadNoRetryWhenCancelled() throws Throwable {
-    FakeDownloadAction downloadAction = createDownloadAction("media 1").ignoreInterrupts();
-    downloadAction.getFakeDownloader().enableDownloadIOException = true;
-    downloadAction.post().assertStarted();
+  public void downloadFails_retries() throws Throwable {
+    DownloadRunner runner = new DownloadRunner(uri1);
+    runner.postDownloadRequest();
+    FakeDownloader downloader = runner.getDownloader(0);
 
-    FakeDownloadAction removeAction = createRemoveAction("media 1").post();
-
-    downloadAction.unblock().assertCancelled();
-    removeAction.unblock();
-
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
-  }
-
-  @Test
-  public void testDownloadRetriesThenContinues() throws Throwable {
-    FakeDownloadAction downloadAction = createDownloadAction("media 1");
-    downloadAction.post();
-    FakeDownloader fakeDownloader = downloadAction.getFakeDownloader();
-    fakeDownloader.enableDownloadIOException = true;
-    for (int i = 0; i <= MIN_RETRY_COUNT; i++) {
-      fakeDownloader.assertStarted(MAX_RETRY_DELAY);
-      if (i == MIN_RETRY_COUNT) {
-        fakeDownloader.enableDownloadIOException = false;
-      }
-      fakeDownloader.unblock();
+    for (int i = 0; i < MIN_RETRY_COUNT; i++) {
+      downloader.assertStarted(MAX_RETRY_DELAY).fail();
     }
-    downloadAction.assertEnded();
+    downloader.assertStarted(MAX_RETRY_DELAY).unblock();
 
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloader.assertReleased().assertStartCount(MIN_RETRY_COUNT + 1);
+    runner.getTask().assertCompleted();
+    downloadManagerListener.blockUntilTasksComplete();
+    assertThat(downloadManager.getCurrentDownloads()).isEmpty();
   }
 
   @Test
-  @SuppressWarnings({"NonAtomicVolatileUpdate", "NonAtomicOperationOnVolatileField"})
-  public void testDownloadRetryCountResetsOnProgress() throws Throwable {
-    FakeDownloadAction downloadAction = createDownloadAction("media 1");
-    downloadAction.post();
-    FakeDownloader fakeDownloader = downloadAction.getFakeDownloader();
-    fakeDownloader.enableDownloadIOException = true;
-    fakeDownloader.downloadedBytes = 0;
-    for (int i = 0; i <= MIN_RETRY_COUNT + 10; i++) {
-      fakeDownloader.assertStarted(MAX_RETRY_DELAY);
-      fakeDownloader.downloadedBytes++;
-      if (i == MIN_RETRY_COUNT + 10) {
-        fakeDownloader.enableDownloadIOException = false;
-      }
-      fakeDownloader.unblock();
+  public void downloadProgressOnRetry_retryCountResets() throws Throwable {
+    DownloadRunner runner = new DownloadRunner(uri1);
+    runner.postDownloadRequest();
+    FakeDownloader downloader = runner.getDownloader(0);
+
+    int tooManyRetries = MIN_RETRY_COUNT + 10;
+    for (int i = 0; i < tooManyRetries; i++) {
+      downloader.incrementBytesDownloaded();
+      downloader.assertStarted(MAX_RETRY_DELAY).fail();
     }
-    downloadAction.assertEnded();
+    downloader.assertStarted(MAX_RETRY_DELAY).unblock();
 
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloader.assertReleased().assertStartCount(tooManyRetries + 1);
+    runner.getTask().assertCompleted();
+    downloadManagerListener.blockUntilTasksComplete();
   }
 
   @Test
-  public void testDifferentMediaDownloadActionsStartInParallel() throws Throwable {
-    doTestActionsRunInParallel(createDownloadAction("media 1"), createDownloadAction("media 2"));
+  public void removeCancelsDownload() throws Throwable {
+    DownloadRunner runner = new DownloadRunner(uri1);
+    FakeDownloader downloader1 = runner.getDownloader(0);
+
+    runner.postDownloadRequest();
+    downloader1.assertStarted();
+    runner.postRemoveRequest();
+
+    downloader1.assertCanceled().assertStartCount(1);
+    runner.getDownloader(1).unblock().assertNotCanceled();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   @Test
-  public void testDifferentMediaDifferentActionsStartInParallel() throws Throwable {
-    doTestActionsRunInParallel(createDownloadAction("media 1"), createRemoveAction("media 2"));
+  public void downloadNotCancelRemove() throws Throwable {
+    DownloadRunner runner = new DownloadRunner(uri1);
+    FakeDownloader downloader1 = runner.getDownloader(1);
+
+    runner.postDownloadRequest().postRemoveRequest();
+    downloader1.assertStarted();
+    runner.postDownloadRequest();
+
+    downloader1.unblock().assertNotCanceled();
+    runner.getDownloader(2).unblock().assertNotCanceled();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   @Test
-  public void testSameMediaDownloadActionsStartInParallel() throws Throwable {
-    doTestActionsRunInParallel(createDownloadAction("media 1"), createDownloadAction("media 1"));
+  public void secondSameRemoveRequestIgnored() throws Throwable {
+    DownloadRunner runner = new DownloadRunner(uri1);
+    FakeDownloader downloader1 = runner.getDownloader(1);
+
+    runner.postDownloadRequest().postRemoveRequest();
+    downloader1.assertStarted();
+    runner.postRemoveRequest();
+
+    downloader1.unblock().assertNotCanceled();
+    runner.getTask().assertRemoved();
+    runner.assertCreatedDownloaderCount(2);
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   @Test
-  public void testSameMediaRemoveActionWaitsDownloadAction() throws Throwable {
-    doTestActionsRunSequentially(createDownloadAction("media 1"), createRemoveAction("media 1"));
+  public void removeAllDownloads_removesAllDownloads() throws Throwable {
+    // Finish one download and keep one running.
+    DownloadRunner runner1 = new DownloadRunner(uri1);
+    DownloadRunner runner2 = new DownloadRunner(uri2);
+    runner1.postDownloadRequest();
+    runner1.getDownloader(0).unblock();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    runner2.postDownloadRequest();
+
+    runner1.postRemoveAllRequest();
+    runner1.getDownloader(1).unblock();
+    runner2.getDownloader(1).unblock();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+
+    runner1.getTask().assertRemoved();
+    runner2.getTask().assertRemoved();
+    assertThat(downloadManager.getCurrentDownloads()).isEmpty();
+    assertThat(downloadIndex.getDownloads().getCount()).isEqualTo(0);
   }
 
   @Test
-  public void testSameMediaDownloadActionWaitsRemoveAction() throws Throwable {
-    doTestActionsRunSequentially(createRemoveAction("media 1"), createDownloadAction("media 1"));
+  public void differentDownloadRequestsMerged() throws Throwable {
+    DownloadRunner runner = new DownloadRunner(uri1);
+    FakeDownloader downloader1 = runner.getDownloader(0);
+
+    StreamKey streamKey1 = new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 0);
+    StreamKey streamKey2 = new StreamKey(/* groupIndex= */ 1, /* trackIndex= */ 1);
+
+    runner.postDownloadRequest(streamKey1);
+    downloader1.assertStarted();
+    runner.postDownloadRequest(streamKey2);
+
+    downloader1.assertCanceled();
+
+    FakeDownloader downloader2 = runner.getDownloader(1);
+    downloader2.assertStarted();
+    assertThat(downloader2.request.streamKeys).containsExactly(streamKey1, streamKey2);
+    downloader2.unblock();
+
+    runner.getTask().assertCompleted();
+    runner.assertCreatedDownloaderCount(2);
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   @Test
-  public void testSameMediaRemoveActionWaitsRemoveAction() throws Throwable {
-    doTestActionsRunSequentially(createRemoveAction("media 1"), createRemoveAction("media 1"));
+  public void requestsForDifferentContent_executedInParallel() throws Throwable {
+    DownloadRunner runner1 = new DownloadRunner(uri1).postDownloadRequest();
+    DownloadRunner runner2 = new DownloadRunner(uri2).postDownloadRequest();
+    FakeDownloader downloader1 = runner1.getDownloader(0);
+    FakeDownloader downloader2 = runner2.getDownloader(0);
+
+    downloader1.assertStarted();
+    downloader2.assertStarted();
+    downloader1.unblock();
+    downloader2.unblock();
+
+    runner1.getTask().assertCompleted();
+    runner2.getTask().assertCompleted();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   @Test
-  public void testSameMediaMultipleActions() throws Throwable {
-    FakeDownloadAction downloadAction1 = createDownloadAction("media 1").ignoreInterrupts();
-    FakeDownloadAction downloadAction2 = createDownloadAction("media 1").ignoreInterrupts();
-    FakeDownloadAction removeAction1 = createRemoveAction("media 1");
-    FakeDownloadAction downloadAction3 = createDownloadAction("media 1");
-    FakeDownloadAction removeAction2 = createRemoveAction("media 1");
+  public void requestsForDifferentContent_ifMaxDownloadIs1_executedSequentially() throws Throwable {
+    setUpDownloadManager(1);
+    DownloadRunner runner1 = new DownloadRunner(uri1).postDownloadRequest();
+    DownloadRunner runner2 = new DownloadRunner(uri2).postDownloadRequest();
+    FakeDownloader downloader1 = runner1.getDownloader(0);
+    FakeDownloader downloader2 = runner2.getDownloader(0);
 
-    // Two download actions run in parallel.
-    downloadAction1.post().assertStarted();
-    downloadAction2.post().assertStarted();
-    // removeAction1 is added. It interrupts the two download actions' threads but they are
-    // configured to ignore it so removeAction1 doesn't start.
-    removeAction1.post().assertDoesNotStart();
+    downloader1.assertStarted();
+    downloader2.assertDoesNotStart();
+    runner2.getTask().assertQueued();
+    downloader1.unblock();
+    downloader2.assertStarted();
+    downloader2.unblock();
 
-    // downloadAction2 finishes but it isn't enough to start removeAction1.
-    downloadAction2.unblock().assertCancelled();
-    removeAction1.assertDoesNotStart();
-    // downloadAction3 is post to DownloadManager but it waits for removeAction1 to finish.
-    downloadAction3.post().assertDoesNotStart();
-
-    // When downloadAction1 finishes, removeAction1 starts.
-    downloadAction1.unblock().assertCancelled();
-    removeAction1.assertStarted();
-    // downloadAction3 still waits removeAction1
-    downloadAction3.assertDoesNotStart();
-
-    // removeAction2 is posted. removeAction1 and downloadAction3 is canceled so removeAction2
-    // starts immediately.
-    removeAction2.post();
-    removeAction1.assertCancelled();
-    downloadAction3.assertCancelled();
-    removeAction2.assertStarted().unblock().assertEnded();
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    runner1.getTask().assertCompleted();
+    runner2.getTask().assertCompleted();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   @Test
-  public void testMultipleRemoveActionWaitsLastCancelsAllOther() throws Throwable {
-    FakeDownloadAction removeAction1 = createRemoveAction("media 1").ignoreInterrupts();
-    FakeDownloadAction removeAction2 = createRemoveAction("media 1");
-    FakeDownloadAction removeAction3 = createRemoveAction("media 1");
+  public void removeRequestForDifferentContent_ifMaxDownloadIs1_executedInParallel()
+      throws Throwable {
+    setUpDownloadManager(1);
+    DownloadRunner runner1 = new DownloadRunner(uri1).postDownloadRequest();
+    DownloadRunner runner2 = new DownloadRunner(uri2).postDownloadRequest().postRemoveRequest();
+    FakeDownloader downloader1 = runner1.getDownloader(0);
+    FakeDownloader downloader2 = runner2.getDownloader(0);
 
-    removeAction1.post().assertStarted();
-    removeAction2.post().assertDoesNotStart();
-    removeAction3.post().assertDoesNotStart();
+    downloader1.assertStarted();
+    downloader2.assertStarted();
+    downloader1.unblock();
+    downloader2.unblock();
 
-    removeAction2.assertCancelled();
-
-    removeAction1.unblock().assertCancelled();
-    removeAction3.assertStarted().unblock().assertEnded();
-
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    runner1.getTask().assertCompleted();
+    runner2.getTask().assertRemoved();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   @Test
-  public void testGetTasks() throws Throwable {
-    FakeDownloadAction removeAction = createRemoveAction("media 1");
-    FakeDownloadAction downloadAction1 = createDownloadAction("media 1");
-    FakeDownloadAction downloadAction2 = createDownloadAction("media 1");
+  public void downloadRequestFollowingRemove_ifMaxDownloadIs1_isNotStarted() throws Throwable {
+    setUpDownloadManager(1);
+    DownloadRunner runner1 = new DownloadRunner(uri1).postDownloadRequest();
+    DownloadRunner runner2 = new DownloadRunner(uri2).postDownloadRequest().postRemoveRequest();
+    runner2.postDownloadRequest();
+    FakeDownloader downloader1 = runner1.getDownloader(0);
+    FakeDownloader downloader2 = runner2.getDownloader(0);
+    FakeDownloader downloader3 = runner2.getDownloader(1);
 
-    removeAction.post().assertStarted();
-    downloadAction1.post().assertDoesNotStart();
-    downloadAction2.post().assertDoesNotStart();
+    downloader1.assertStarted();
+    downloader2.assertStarted();
+    downloader2.unblock();
+    downloader3.assertDoesNotStart();
+    downloader1.unblock();
+    downloader3.assertStarted();
+    downloader3.unblock();
 
-    DownloadState[] states = downloadManager.getDownloadStates();
-    assertThat(states).hasLength(3);
-    assertThat(states[0].downloadAction).isEqualTo(removeAction);
-    assertThat(states[1].downloadAction).isEqualTo(downloadAction1);
-    assertThat(states[2].downloadAction).isEqualTo(downloadAction2);
+    runner1.getTask().assertCompleted();
+    runner2.getTask().assertCompleted();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   @Test
-  public void testMultipleWaitingDownloadActionStartsInParallel() throws Throwable {
-    FakeDownloadAction removeAction = createRemoveAction("media 1");
-    FakeDownloadAction downloadAction1 = createDownloadAction("media 1");
-    FakeDownloadAction downloadAction2 = createDownloadAction("media 1");
+  public void getCurrentDownloads_returnsCurrentDownloads() {
+    TaskWrapper task1 = new DownloadRunner(uri1).postDownloadRequest().getTask();
+    TaskWrapper task2 = new DownloadRunner(uri2).postDownloadRequest().getTask();
+    TaskWrapper task3 =
+        new DownloadRunner(uri3).postDownloadRequest().postRemoveRequest().getTask();
 
-    removeAction.post().assertStarted();
-    downloadAction1.post().assertDoesNotStart();
-    downloadAction2.post().assertDoesNotStart();
+    task3.assertRemoving();
+    List<Download> downloads = downloadManager.getCurrentDownloads();
 
-    removeAction.unblock().assertEnded();
-    downloadAction1.assertStarted();
-    downloadAction2.assertStarted();
-    downloadAction1.unblock().assertEnded();
-    downloadAction2.unblock().assertEnded();
-
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    assertThat(downloads).hasSize(3);
+    String[] taskIds = {task1.taskId, task2.taskId, task3.taskId};
+    String[] downloadIds = {
+      downloads.get(0).request.id, downloads.get(1).request.id, downloads.get(2).request.id
+    };
+    assertThat(downloadIds).isEqualTo(taskIds);
   }
 
   @Test
-  public void testDifferentMediaDownloadActionsPreserveOrder() throws Throwable {
-    FakeDownloadAction removeAction = createRemoveAction("media 1").ignoreInterrupts();
-    FakeDownloadAction downloadAction1 = createDownloadAction("media 1");
-    FakeDownloadAction downloadAction2 = createDownloadAction("media 2");
+  public void pauseAndResume() throws Throwable {
+    DownloadRunner runner1 = new DownloadRunner(uri1);
+    DownloadRunner runner2 = new DownloadRunner(uri2);
+    DownloadRunner runner3 = new DownloadRunner(uri3);
 
-    removeAction.post().assertStarted();
-    downloadAction1.post().assertDoesNotStart();
-    downloadAction2.post().assertDoesNotStart();
+    runner1.postDownloadRequest().getTask().assertDownloading();
+    runner2.postDownloadRequest().postRemoveRequest().getTask().assertRemoving();
+    runner2.postDownloadRequest();
 
-    removeAction.unblock().assertEnded();
-    downloadAction1.assertStarted();
-    downloadAction2.assertStarted();
-    downloadAction1.unblock().assertEnded();
-    downloadAction2.unblock().assertEnded();
+    runOnMainThread(() -> downloadManager.pauseDownloads());
 
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    runner1.getTask().assertQueued();
+
+    // remove requests aren't stopped.
+    runner2.getDownloader(1).unblock().assertReleased();
+    runner2.getTask().assertQueued();
+    // Although remove2 is finished, download2 doesn't start.
+    runner2.getDownloader(2).assertDoesNotStart();
+
+    // When a new remove request is added, it cancels stopped download requests with the same media.
+    runner1.postRemoveRequest();
+    runner1.getDownloader(1).assertStarted().unblock();
+    runner1.getTask().assertRemoved();
+
+    // New download requests can be added but they don't start.
+    runner3.postDownloadRequest().getDownloader(0).assertDoesNotStart();
+
+    runOnMainThread(() -> downloadManager.resumeDownloads());
+
+    runner2.getDownloader(2).assertStarted().unblock();
+    runner3.getDownloader(0).assertStarted().unblock();
+
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   @Test
-  public void testDifferentMediaRemoveActionsDoNotPreserveOrder() throws Throwable {
-    FakeDownloadAction downloadAction = createDownloadAction("media 1").ignoreInterrupts();
-    FakeDownloadAction removeAction1 = createRemoveAction("media 1");
-    FakeDownloadAction removeAction2 = createRemoveAction("media 2");
+  public void setAndClearSingleDownloadStopReason() throws Throwable {
+    DownloadRunner runner = new DownloadRunner(uri1).postDownloadRequest();
+    TaskWrapper task = runner.getTask();
 
-    downloadAction.post().assertStarted();
-    removeAction1.post().assertDoesNotStart();
-    removeAction2.post().assertStarted();
+    task.assertDownloading();
 
-    downloadAction.unblock().assertCancelled();
-    removeAction2.unblock().assertEnded();
+    runOnMainThread(() -> downloadManager.setStopReason(task.taskId, APP_STOP_REASON));
 
-    removeAction1.assertStarted();
-    removeAction1.unblock().assertEnded();
+    task.assertStopped();
 
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    runOnMainThread(() -> downloadManager.setStopReason(task.taskId, Download.STOP_REASON_NONE));
+
+    runner.getDownloader(1).assertStarted().unblock();
+
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   @Test
-  public void testStopAndResume() throws Throwable {
-    FakeDownloadAction download1Action = createDownloadAction("media 1");
-    FakeDownloadAction remove2Action = createRemoveAction("media 2");
-    FakeDownloadAction download2Action = createDownloadAction("media 2");
-    FakeDownloadAction remove1Action = createRemoveAction("media 1");
-    FakeDownloadAction download3Action = createDownloadAction("media 3");
+  public void setSingleDownloadStopReasonThenRemove_removesDownload() throws Throwable {
+    DownloadRunner runner = new DownloadRunner(uri1).postDownloadRequest();
+    TaskWrapper task = runner.getTask();
 
-    download1Action.post().assertStarted();
-    remove2Action.post().assertStarted();
-    download2Action.post().assertDoesNotStart();
+    task.assertDownloading();
 
-    runOnMainThread(
-        new Runnable() {
-          @Override
-          public void run() {
-            downloadManager.stopDownloads();
-          }
-        });
+    runOnMainThread(() -> downloadManager.setStopReason(task.taskId, APP_STOP_REASON));
 
-    download1Action.assertStopped();
+    task.assertStopped();
 
-    // remove actions aren't stopped.
-    remove2Action.unblock().assertEnded();
-    // Although remove2Action is finished, download2Action doesn't start.
-    download2Action.assertDoesNotStart();
+    runner.postRemoveRequest();
+    runner.getDownloader(1).assertStarted().unblock();
+    task.assertRemoved();
 
-    // When a new remove action is added, it cancels stopped download actions with the same media.
-    remove1Action.post();
-    download1Action.assertCancelled();
-    remove1Action.assertStarted().unblock().assertEnded();
-
-    // New download actions can be added but they don't start.
-    download3Action.post().assertDoesNotStart();
-
-    runOnMainThread(
-        new Runnable() {
-          @Override
-          public void run() {
-            downloadManager.startDownloads();
-          }
-        });
-
-    download2Action.assertStarted().unblock().assertEnded();
-    download3Action.assertStarted().unblock().assertEnded();
-
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   @Test
-  public void testResumeBeforeTotallyStopped() throws Throwable {
-    setUpDownloadManager(2);
-    FakeDownloadAction download1Action = createDownloadAction("media 1").ignoreInterrupts();
-    FakeDownloadAction download2Action = createDownloadAction("media 2");
-    FakeDownloadAction download3Action = createDownloadAction("media 3");
+  public void setSingleDownloadStopReason_doesNotAffectOtherDownloads() throws Throwable {
+    DownloadRunner runner1 = new DownloadRunner(uri1);
+    DownloadRunner runner2 = new DownloadRunner(uri2);
+    DownloadRunner runner3 = new DownloadRunner(uri3);
 
-    download1Action.post().assertStarted();
-    download2Action.post().assertStarted();
-    // download3Action doesn't start as DM was configured to run two downloads in parallel.
-    download3Action.post().assertDoesNotStart();
+    runner1.postDownloadRequest().getTask().assertDownloading();
+    runner2.postDownloadRequest().postRemoveRequest().getTask().assertRemoving();
 
-    runOnMainThread(
-        new Runnable() {
-          @Override
-          public void run() {
-            downloadManager.stopDownloads();
-          }
-        });
+    runOnMainThread(() -> downloadManager.setStopReason(runner1.getTask().taskId, APP_STOP_REASON));
 
-    // download1Action doesn't stop yet as it ignores interrupts.
-    download2Action.assertStopped();
+    runner1.getTask().assertStopped();
 
-    runOnMainThread(
-        new Runnable() {
-          @Override
-          public void run() {
-            downloadManager.startDownloads();
-          }
-        });
+    // Other downloads aren't affected.
+    runner2.getDownloader(1).unblock().assertReleased();
 
-    // download2Action starts immediately.
-    download2Action.assertStarted();
+    // New download requests can be added and they start.
+    runner3.postDownloadRequest().getDownloader(0).assertStarted().unblock();
 
-    // download3Action doesn't start as download1Action still holds its slot.
-    download3Action.assertDoesNotStart();
-
-    // when unblocked download1Action stops and starts immediately.
-    download1Action.unblock().assertStopped().assertStarted();
-
-    download1Action.unblock();
-    download2Action.unblock();
-    download3Action.unblock();
-
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
-  private void setUpDownloadManager(final int maxActiveDownloadTasks) throws Exception {
+  @Test
+  public void mergeRequest_removing_becomesRestarting() {
+    DownloadRequest downloadRequest = createDownloadRequest();
+    DownloadBuilder downloadBuilder =
+        new DownloadBuilder(downloadRequest).setState(Download.STATE_REMOVING);
+    Download download = downloadBuilder.build();
+
+    Download mergedDownload =
+        DownloadManager.mergeRequest(download, downloadRequest, download.stopReason, NOW_MS);
+
+    Download expectedDownload =
+        downloadBuilder.setStartTimeMs(NOW_MS).setState(Download.STATE_RESTARTING).build();
+    assertEqualIgnoringUpdateTime(mergedDownload, expectedDownload);
+  }
+
+  @Test
+  public void mergeRequest_failed_becomesQueued() {
+    DownloadRequest downloadRequest = createDownloadRequest();
+    DownloadBuilder downloadBuilder =
+        new DownloadBuilder(downloadRequest)
+            .setState(Download.STATE_FAILED)
+            .setFailureReason(Download.FAILURE_REASON_UNKNOWN);
+    Download download = downloadBuilder.build();
+
+    Download mergedDownload =
+        DownloadManager.mergeRequest(download, downloadRequest, download.stopReason, NOW_MS);
+
+    Download expectedDownload =
+        downloadBuilder
+            .setStartTimeMs(NOW_MS)
+            .setState(Download.STATE_QUEUED)
+            .setFailureReason(Download.FAILURE_REASON_NONE)
+            .build();
+    assertEqualIgnoringUpdateTime(mergedDownload, expectedDownload);
+  }
+
+  @Test
+  public void mergeRequest_stopped_staysStopped() {
+    DownloadRequest downloadRequest = createDownloadRequest();
+    DownloadBuilder downloadBuilder =
+        new DownloadBuilder(downloadRequest)
+            .setState(Download.STATE_STOPPED)
+            .setStopReason(/* stopReason= */ 1);
+    Download download = downloadBuilder.build();
+
+    Download mergedDownload =
+        DownloadManager.mergeRequest(download, downloadRequest, download.stopReason, NOW_MS);
+
+    assertEqualIgnoringUpdateTime(mergedDownload, download);
+  }
+
+  @Test
+  public void mergeRequest_completedWithStopReason_becomesStopped() {
+    DownloadRequest downloadRequest = createDownloadRequest();
+    DownloadBuilder downloadBuilder =
+        new DownloadBuilder(downloadRequest)
+            .setState(Download.STATE_COMPLETED)
+            .setStopReason(/* stopReason= */ 1);
+    Download download = downloadBuilder.build();
+
+    Download mergedDownload =
+        DownloadManager.mergeRequest(download, downloadRequest, download.stopReason, NOW_MS);
+
+    Download expectedDownload =
+        downloadBuilder.setStartTimeMs(NOW_MS).setState(Download.STATE_STOPPED).build();
+    assertEqualIgnoringUpdateTime(mergedDownload, expectedDownload);
+  }
+
+  private void setUpDownloadManager(final int maxParallelDownloads) throws Exception {
     if (downloadManager != null) {
       releaseDownloadManager();
     }
     try {
       runOnMainThread(
-          new Runnable() {
-            @Override
-            public void run() {
-              downloadManager =
-                  new DownloadManager(
-                      new DownloaderConstructorHelper(
-                          Mockito.mock(Cache.class), DummyDataSource.FACTORY),
-                      maxActiveDownloadTasks,
-                      MIN_RETRY_COUNT,
-                      actionFile.getAbsolutePath());
-              downloadManager.addListener(testDownloadListener);
-              downloadManager.startDownloads();
-            }
+          () -> {
+            downloadManager =
+                new DownloadManager(
+                    ApplicationProvider.getApplicationContext(), downloadIndex, downloaderFactory);
+            downloadManager.setMaxParallelDownloads(maxParallelDownloads);
+            downloadManager.setMinRetryCount(MIN_RETRY_COUNT);
+            downloadManager.setRequirements(new Requirements(0));
+            downloadManager.resumeDownloads();
+            downloadManagerListener =
+                new TestDownloadManagerListener(downloadManager, dummyMainThread);
           });
+      downloadManagerListener.waitUntilInitialized();
     } catch (Throwable throwable) {
       throw new Exception(throwable);
     }
@@ -442,275 +574,242 @@ public class DownloadManagerTest {
 
   private void releaseDownloadManager() throws Exception {
     try {
-      runOnMainThread(
-          new Runnable() {
-            @Override
-            public void run() {
-              downloadManager.release();
-            }
-          });
+      runOnMainThread(() -> downloadManager.release());
     } catch (Throwable throwable) {
       throw new Exception(throwable);
     }
   }
 
-  private void doTestActionRuns(FakeDownloadAction action) throws Throwable {
-    action.post().assertStarted().unblock().assertEnded();
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+  private void runOnMainThread(TestRunnable r) {
+    dummyMainThread.runTestOnMainThread(r);
   }
 
-  private void doTestActionsRunSequentially(FakeDownloadAction action1, FakeDownloadAction action2)
-      throws Throwable {
-    action1.ignoreInterrupts().post().assertStarted();
-    action2.post().assertDoesNotStart();
-
-    action1.unblock();
-    action2.assertStarted();
-
-    action2.unblock().assertEnded();
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+  private static void assertEqualIgnoringUpdateTime(Download download, Download that) {
+    assertThat(download.request).isEqualTo(that.request);
+    assertThat(download.state).isEqualTo(that.state);
+    assertThat(download.startTimeMs).isEqualTo(that.startTimeMs);
+    assertThat(download.contentLength).isEqualTo(that.contentLength);
+    assertThat(download.failureReason).isEqualTo(that.failureReason);
+    assertThat(download.stopReason).isEqualTo(that.stopReason);
+    assertThat(download.getPercentDownloaded()).isEqualTo(that.getPercentDownloaded());
+    assertThat(download.getBytesDownloaded()).isEqualTo(that.getBytesDownloaded());
   }
 
-  private void doTestActionsRunInParallel(FakeDownloadAction action1, FakeDownloadAction action2)
-      throws Throwable {
-    action1.post().assertStarted();
-    action2.post().assertStarted();
-    action1.unblock().assertEnded();
-    action2.unblock().assertEnded();
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+  private static DownloadRequest createDownloadRequest() {
+    return new DownloadRequest(
+        "id",
+        DownloadRequest.TYPE_DASH,
+        Uri.parse("https://www.test.com/download"),
+        Collections.emptyList(),
+        /* customCacheKey= */ null,
+        /* data= */ null);
   }
 
-  private FakeDownloadAction createDownloadAction(String mediaId) {
-    return new FakeDownloadAction(mediaId, false);
-  }
+  private final class DownloadRunner {
 
-  private FakeDownloadAction createRemoveAction(String mediaId) {
-    return new FakeDownloadAction(mediaId, true);
-  }
+    private final Uri uri;
+    private final String id;
+    private final ArrayList<FakeDownloader> downloaders;
+    private int createdDownloaderCount = 0;
+    private FakeDownloader downloader;
+    private final TaskWrapper taskWrapper;
 
-  private void runOnMainThread(final Runnable r) throws Throwable {
-    dummyMainThread.runOnMainThread(r);
-  }
-
-  private static final class TestDownloadListener implements DownloadListener {
-
-    private ConditionVariable downloadFinishedCondition;
-    private Throwable downloadError;
-
-    private TestDownloadListener() {
-      downloadFinishedCondition = new ConditionVariable();
+    private DownloadRunner(Uri uri) {
+      this.uri = uri;
+      id = uri.toString();
+      downloaders = new ArrayList<>();
+      downloader = addDownloader();
+      downloaderFactory.registerDownloadRunner(this);
+      taskWrapper = new TaskWrapper(id);
     }
 
-    @Override
-    public void onStateChange(DownloadManager downloadManager, DownloadState downloadState) {
-      if (downloadState.state == DownloadState.STATE_ERROR && downloadError == null) {
-        downloadError = downloadState.error;
+    private DownloadRunner postRemoveRequest() {
+      runOnMainThread(() -> downloadManager.removeDownload(id));
+      return this;
+    }
+
+    private DownloadRunner postRemoveAllRequest() {
+      runOnMainThread(() -> downloadManager.removeAllDownloads());
+      return this;
+    }
+
+    private DownloadRunner postDownloadRequest(StreamKey... keys) {
+      DownloadRequest downloadRequest =
+          new DownloadRequest(
+              id,
+              DownloadRequest.TYPE_PROGRESSIVE,
+              uri,
+              Arrays.asList(keys),
+              /* customCacheKey= */ null,
+              /* data= */ null);
+      runOnMainThread(() -> downloadManager.addDownload(downloadRequest));
+      return this;
+    }
+
+    private synchronized FakeDownloader addDownloader() {
+      FakeDownloader fakeDownloader = new FakeDownloader();
+      downloaders.add(fakeDownloader);
+      return fakeDownloader;
+    }
+
+    private synchronized FakeDownloader getDownloader(int index) {
+      while (downloaders.size() <= index) {
+        addDownloader();
       }
-      ((FakeDownloadAction) downloadState.downloadAction).onStateChange(downloadState.state);
+      return downloaders.get(index);
     }
 
-    @Override
-    public void onIdle(DownloadManager downloadManager) {
-      downloadFinishedCondition.open();
-    }
-
-    private void clearDownloadError() {
-      this.downloadError = null;
-    }
-
-    private void blockUntilTasksCompleteAndThrowAnyDownloadError() throws Throwable {
-      assertThat(downloadFinishedCondition.block(ASSERT_TRUE_TIMEOUT)).isTrue();
-      downloadFinishedCondition.close();
-      if (downloadError != null) {
-        throw new Exception(downloadError);
-      }
-    }
-  }
-
-  private class FakeDownloadAction extends DownloadAction {
-
-    private final String mediaId;
-    private final boolean removeAction;
-    private final FakeDownloader downloader;
-    private final BlockingQueue<Integer> states;
-
-    private FakeDownloadAction(String mediaId, boolean removeAction) {
-      super(mediaId);
-      this.mediaId = mediaId;
-      this.removeAction = removeAction;
-      this.downloader = new FakeDownloader(removeAction);
-      this.states = new ArrayBlockingQueue<>(10);
-    }
-
-    @Override
-    protected String getType() {
-      return "FakeDownloadAction";
-    }
-
-    @Override
-    protected void writeToStream(DataOutputStream output) throws IOException {
-      // do nothing.
-    }
-
-    @Override
-    public boolean isRemoveAction() {
-      return removeAction;
-    }
-
-    @Override
-    protected boolean isSameMedia(DownloadAction other) {
-      return other instanceof FakeDownloadAction
-          && mediaId.equals(((FakeDownloadAction) other).mediaId);
-    }
-
-    @Override
-    protected Downloader createDownloader(DownloaderConstructorHelper downloaderConstructorHelper) {
+    private synchronized Downloader createDownloader(DownloadRequest request) {
+      downloader = getDownloader(createdDownloaderCount++);
+      downloader.request = request;
       return downloader;
     }
 
-    private FakeDownloader getFakeDownloader() {
-      return downloader;
+    private TaskWrapper getTask() {
+      return taskWrapper;
     }
 
-    private FakeDownloadAction post() throws Throwable {
-      runOnMainThread(
-          new Runnable() {
-            @Override
-            public void run() {
-              downloadManager.handleAction(FakeDownloadAction.this);
-            }
-          });
-      return this;
-    }
-
-    private FakeDownloadAction assertDoesNotStart() throws InterruptedException {
-      Thread.sleep(ASSERT_FALSE_TIME);
-      assertThat(downloader.started.getCount()).isEqualTo(1);
-      return this;
-    }
-
-    private FakeDownloadAction assertStarted() throws InterruptedException {
-      downloader.assertStarted(ASSERT_TRUE_TIMEOUT);
-      return assertState(DownloadState.STATE_STARTED);
-    }
-
-    private FakeDownloadAction assertEnded() {
-      return assertState(DownloadState.STATE_ENDED);
-    }
-
-    private FakeDownloadAction assertError() {
-      return assertState(DownloadState.STATE_ERROR);
-    }
-
-    private FakeDownloadAction assertCancelled() {
-      return assertState(DownloadState.STATE_CANCELED);
-    }
-
-    private FakeDownloadAction assertStopped() {
-      return assertState(DownloadState.STATE_QUEUED);
-    }
-
-    private FakeDownloadAction assertState(@State int expectedState) {
-      ArrayList<Integer> receivedStates = new ArrayList<>();
-      while (true) {
-        Integer state = null;
-        try {
-          state = states.poll(ASSERT_TRUE_TIMEOUT, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-          fail(e.getMessage());
-        }
-        if (state != null) {
-          if (expectedState == state) {
-            return this;
-          }
-          receivedStates.add(state);
-        } else {
-          StringBuilder sb = new StringBuilder();
-          for (int i = 0; i < receivedStates.size(); i++) {
-            if (i > 0) {
-              sb.append(',');
-            }
-            sb.append(DownloadState.getStateString(receivedStates.get(i)));
-          }
-          fail(
-              String.format(
-                  Locale.US,
-                  "expected:<%s> but was:<%s>",
-                  DownloadState.getStateString(expectedState),
-                  sb));
-        }
-      }
-    }
-
-    private FakeDownloadAction unblock() {
-      downloader.unblock();
-      return this;
-    }
-
-    private FakeDownloadAction ignoreInterrupts() {
-      downloader.ignoreInterrupts = true;
-      return this;
-    }
-
-    private void onStateChange(int state) {
-      states.add(state);
+    private void assertCreatedDownloaderCount(int count) {
+      assertThat(createdDownloaderCount).isEqualTo(count);
     }
   }
 
-  private static class FakeDownloader implements Downloader {
+  private final class TaskWrapper {
+    private final String taskId;
+
+    private TaskWrapper(String taskId) {
+      this.taskId = taskId;
+    }
+
+    private TaskWrapper assertDownloading() {
+      return assertState(Download.STATE_DOWNLOADING);
+    }
+
+    private TaskWrapper assertCompleted() {
+      return assertState(Download.STATE_COMPLETED);
+    }
+
+    private TaskWrapper assertRemoving() {
+      return assertState(Download.STATE_REMOVING);
+    }
+
+    private TaskWrapper assertFailed() {
+      return assertState(Download.STATE_FAILED);
+    }
+
+    private TaskWrapper assertQueued() {
+      return assertState(Download.STATE_QUEUED);
+    }
+
+    private TaskWrapper assertStopped() {
+      return assertState(Download.STATE_STOPPED);
+    }
+
+    private TaskWrapper assertState(@State int expectedState) {
+      downloadManagerListener.assertState(taskId, expectedState, ASSERT_TRUE_TIMEOUT);
+      return this;
+    }
+
+    private TaskWrapper assertRemoved() {
+      downloadManagerListener.assertRemoved(taskId, ASSERT_TRUE_TIMEOUT);
+      return this;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      return taskId.equals(((TaskWrapper) o).taskId);
+    }
+
+    @Override
+    public int hashCode() {
+      return taskId.hashCode();
+    }
+  }
+
+  private static final class FakeDownloaderFactory implements DownloaderFactory {
+
+    private final HashMap<Uri, DownloadRunner> downloaders;
+
+    public FakeDownloaderFactory() {
+      downloaders = new HashMap<>();
+    }
+
+    public void registerDownloadRunner(DownloadRunner downloadRunner) {
+      assertThat(downloaders.put(downloadRunner.uri, downloadRunner)).isNull();
+    }
+
+    @Override
+    public Downloader createDownloader(DownloadRequest request) {
+      return downloaders.get(request.uri).createDownloader(request);
+    }
+  }
+
+  private static final class FakeDownloader implements Downloader {
 
     private final com.google.android.exoplayer2.util.ConditionVariable blocker;
-    private final boolean removeAction;
 
+    private DownloadRequest request;
     private CountDownLatch started;
-    private boolean ignoreInterrupts;
+    private volatile boolean interrupted;
+    private volatile boolean cancelled;
     private volatile boolean enableDownloadIOException;
-    private volatile int downloadedBytes = C.LENGTH_UNSET;
+    private volatile int startCount;
+    private volatile int bytesDownloaded;
 
-    private FakeDownloader(boolean removeAction) {
-      this.removeAction = removeAction;
+    private FakeDownloader() {
       this.started = new CountDownLatch(1);
       this.blocker = new com.google.android.exoplayer2.util.ConditionVariable();
     }
 
+    @SuppressWarnings({"NonAtomicOperationOnVolatileField", "NonAtomicVolatileUpdate"})
     @Override
-    public void init() throws InterruptedException, IOException {
-      // do nothing.
-    }
-
-    @Override
-    public void download(@Nullable ProgressListener listener)
-        throws InterruptedException, IOException {
-      assertThat(removeAction).isFalse();
+    public void download(ProgressListener listener) throws InterruptedException, IOException {
+      // It's ok to update this directly as no other thread will update it.
+      startCount++;
       started.countDown();
       block();
+      if (bytesDownloaded > 0) {
+        listener.onProgress(C.LENGTH_UNSET, bytesDownloaded, C.PERCENTAGE_UNSET);
+      }
       if (enableDownloadIOException) {
+        enableDownloadIOException = false;
         throw new IOException();
       }
     }
 
     @Override
+    public void cancel() {
+      cancelled = true;
+    }
+
+    @SuppressWarnings({"NonAtomicOperationOnVolatileField", "NonAtomicVolatileUpdate"})
+    @Override
     public void remove() throws InterruptedException {
-      assertThat(removeAction).isTrue();
+      // It's ok to update this directly as no other thread will update it.
+      startCount++;
       started.countDown();
       block();
     }
 
     private void block() throws InterruptedException {
       try {
-        while (true) {
-          try {
-            blocker.block();
-            break;
-          } catch (InterruptedException e) {
-            if (!ignoreInterrupts) {
-              throw e;
-            }
-          }
-        }
+        blocker.block();
+      } catch (InterruptedException e) {
+        interrupted = true;
+        throw e;
       } finally {
         blocker.close();
       }
+    }
+
+    private FakeDownloader assertStarted() throws InterruptedException {
+      return assertStarted(ASSERT_TRUE_TIMEOUT);
     }
 
     private FakeDownloader assertStarted(int timeout) throws InterruptedException {
@@ -719,19 +818,54 @@ public class DownloadManagerTest {
       return this;
     }
 
+    private FakeDownloader assertStartCount(int count) {
+      assertThat(startCount).isEqualTo(count);
+      return this;
+    }
+
+    private FakeDownloader assertReleased() throws InterruptedException {
+      int count = 0;
+      while (started.await(ASSERT_TRUE_TIMEOUT, TimeUnit.MILLISECONDS)) {
+        if (count++ >= MAX_STARTS_BEFORE_RELEASED) {
+          fail();
+        }
+        started = new CountDownLatch(1);
+      }
+      return this;
+    }
+
+    private FakeDownloader assertCanceled() throws InterruptedException {
+      assertReleased();
+      assertThat(interrupted).isTrue();
+      assertThat(cancelled).isTrue();
+      return this;
+    }
+
+    private FakeDownloader assertNotCanceled() throws InterruptedException {
+      assertReleased();
+      assertThat(interrupted).isFalse();
+      assertThat(cancelled).isFalse();
+      return this;
+    }
+
     private FakeDownloader unblock() {
       blocker.open();
       return this;
     }
 
-    @Override
-    public long getDownloadedBytes() {
-      return downloadedBytes;
+    private FakeDownloader fail() {
+      enableDownloadIOException = true;
+      return unblock();
     }
 
-    @Override
-    public float getDownloadPercentage() {
-      return Float.NaN;
+    private void assertDoesNotStart() throws InterruptedException {
+      Thread.sleep(ASSERT_FALSE_TIME);
+      assertThat(started.getCount()).isEqualTo(1);
+    }
+
+    @SuppressWarnings({"NonAtomicOperationOnVolatileField", "NonAtomicVolatileUpdate"})
+    private void incrementBytesDownloaded() {
+      bytesDownloaded++;
     }
   }
 }

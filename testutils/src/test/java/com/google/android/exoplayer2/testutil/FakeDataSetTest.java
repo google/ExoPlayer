@@ -18,15 +18,15 @@ package com.google.android.exoplayer2.testutil;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.FakeDataSet.FakeData.Segment;
 import java.io.IOException;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
 /** Unit test for {@link FakeDataSet} */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class FakeDataSetTest {
 
   @Test
@@ -65,11 +65,8 @@ public final class FakeDataSetTest {
   public void testSegmentTypes() {
     byte[] testData = TestUtil.buildTestData(3);
     Runnable runnable =
-        new Runnable() {
-          @Override
-          public void run() {
-            // Do nothing.
-          }
+        () -> {
+          // Do nothing.
         };
     IOException exception = new IOException();
     FakeDataSet fakeDataSet =

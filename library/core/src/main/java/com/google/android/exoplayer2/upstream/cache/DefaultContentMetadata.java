@@ -15,83 +15,146 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 /** Default implementation of {@link ContentMetadata}. Values are stored as byte arrays. */
 public final class DefaultContentMetadata implements ContentMetadata {
 
+  /** An empty DefaultContentMetadata. */
+  public static final DefaultContentMetadata EMPTY =
+      new DefaultContentMetadata(Collections.emptyMap());
+
+  private int hashCode;
+
   private final Map<String, byte[]> metadata;
 
-  /** Constructs an empty {@link DefaultContentMetadata}. */
   public DefaultContentMetadata() {
-    this.metadata = new HashMap<>();
+    this(Collections.emptyMap());
+  }
+
+  /** @param metadata The metadata entries in their raw byte array form. */
+  public DefaultContentMetadata(Map<String, byte[]> metadata) {
+    this.metadata = Collections.unmodifiableMap(metadata);
   }
 
   /**
-   * Constructs a {@link DefaultContentMetadata} by copying metadata values from {@code other} and
-   * applying {@code mutations}.
+   * Returns a copy {@link DefaultContentMetadata} with {@code mutations} applied. If {@code
+   * mutations} don't change anything, returns this instance.
    */
-  public DefaultContentMetadata(DefaultContentMetadata other, ContentMetadataMutations mutations) {
-    this.metadata = new HashMap<>(other.metadata);
-    applyMutations(mutations);
+  public DefaultContentMetadata copyWithMutationsApplied(ContentMetadataMutations mutations) {
+    Map<String, byte[]> mutatedMetadata = applyMutations(metadata, mutations);
+    if (isMetadataEqual(metadata, mutatedMetadata)) {
+      return this;
+    }
+    return new DefaultContentMetadata(mutatedMetadata);
+  }
+
+  /** Returns the set of metadata entries in their raw byte array form. */
+  public Set<Entry<String, byte[]>> entrySet() {
+    return metadata.entrySet();
   }
 
   @Override
-  public final byte[] get(String name, byte[] defaultValue) {
-    synchronized (metadata) {
-      if (metadata.containsKey(name)) {
-        return metadata.get(name);
-      } else {
-        return defaultValue;
-      }
+  @Nullable
+  public final byte[] get(String name, @Nullable byte[] defaultValue) {
+    @Nullable byte[] bytes = metadata.get(name);
+    if (bytes != null) {
+      return Arrays.copyOf(bytes, bytes.length);
+    } else {
+      return defaultValue;
     }
   }
 
   @Override
-  public final String get(String name, String defaultValue) {
-    synchronized (metadata) {
-      if (metadata.containsKey(name)) {
-        byte[] bytes = metadata.get(name);
-        return new String(bytes, Charset.forName(C.UTF8_NAME));
-      } else {
-        return defaultValue;
-      }
+  @Nullable
+  public final String get(String name, @Nullable String defaultValue) {
+    @Nullable byte[] bytes = metadata.get(name);
+    if (bytes != null) {
+      return new String(bytes, Charset.forName(C.UTF8_NAME));
+    } else {
+      return defaultValue;
     }
   }
 
   @Override
   public final long get(String name, long defaultValue) {
-    synchronized (metadata) {
-      if (metadata.containsKey(name)) {
-        byte[] bytes = metadata.get(name);
-        return ByteBuffer.wrap(bytes).getLong();
-      } else {
-        return defaultValue;
-      }
+    @Nullable byte[] bytes = metadata.get(name);
+    if (bytes != null) {
+      return ByteBuffer.wrap(bytes).getLong();
+    } else {
+      return defaultValue;
     }
   }
 
   @Override
   public final boolean contains(String name) {
-    synchronized (metadata) {
-      return metadata.containsKey(name);
+    return metadata.containsKey(name);
+  }
+
+  @Override
+  public boolean equals(@Nullable Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    return isMetadataEqual(metadata, ((DefaultContentMetadata) o).metadata);
+  }
+
+  @Override
+  public int hashCode() {
+    if (hashCode == 0) {
+      int result = 0;
+      for (Entry<String, byte[]> entry : metadata.entrySet()) {
+        result += entry.getKey().hashCode() ^ Arrays.hashCode(entry.getValue());
+      }
+      hashCode = result;
+    }
+    return hashCode;
+  }
+
+  private static boolean isMetadataEqual(Map<String, byte[]> first, Map<String, byte[]> second) {
+    if (first.size() != second.size()) {
+      return false;
+    }
+    for (Entry<String, byte[]> entry : first.entrySet()) {
+      byte[] value = entry.getValue();
+      @Nullable byte[] otherValue = second.get(entry.getKey());
+      if (!Arrays.equals(value, otherValue)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private static Map<String, byte[]> applyMutations(
+      Map<String, byte[]> otherMetadata, ContentMetadataMutations mutations) {
+    HashMap<String, byte[]> metadata = new HashMap<>(otherMetadata);
+    removeValues(metadata, mutations.getRemovedValues());
+    addValues(metadata, mutations.getEditedValues());
+    return metadata;
+  }
+
+  private static void removeValues(HashMap<String, byte[]> metadata, List<String> names) {
+    for (int i = 0; i < names.size(); i++) {
+      metadata.remove(names.get(i));
     }
   }
 
-  private void applyMutations(ContentMetadataMutations mutations) {
-    List<String> removedValues = mutations.getRemovedValues();
-    for (int i = 0; i < removedValues.size(); i++) {
-      metadata.remove(removedValues.get(i));
-    }
-    Map<String, Object> editedValues = mutations.getEditedValues();
-    for (String name : editedValues.keySet()) {
-      Object value = editedValues.get(name);
-      metadata.put(name, getBytes(value));
+  private static void addValues(HashMap<String, byte[]> metadata, Map<String, Object> values) {
+    for (Entry<String, Object> entry : values.entrySet()) {
+      metadata.put(entry.getKey(), getBytes(entry.getValue()));
     }
   }
 
@@ -103,7 +166,7 @@ public final class DefaultContentMetadata implements ContentMetadata {
     } else if (value instanceof byte[]) {
       return (byte[]) value;
     } else {
-      throw new IllegalStateException();
+      throw new IllegalArgumentException();
     }
   }
 

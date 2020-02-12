@@ -15,50 +15,45 @@
  */
 package com.google.android.exoplayer2.drm;
 
-import android.annotation.TargetApi;
 import android.media.MediaCrypto;
-import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
+import java.util.UUID;
 
 /**
- * An {@link ExoMediaCrypto} implementation that wraps the framework {@link MediaCrypto}.
+ * An {@link ExoMediaCrypto} implementation that contains the necessary information to build or
+ * update a framework {@link MediaCrypto}.
  */
-@TargetApi(16)
 public final class FrameworkMediaCrypto implements ExoMediaCrypto {
 
-  private final MediaCrypto mediaCrypto;
-  private final boolean forceAllowInsecureDecoderComponents;
+  /**
+   * Whether the device needs keys to have been loaded into the {@link DrmSession} before codec
+   * configuration.
+   */
+  public static final boolean WORKAROUND_DEVICE_NEEDS_KEYS_TO_CONFIGURE_CODEC =
+      "Amazon".equals(Util.MANUFACTURER)
+          && ("AFTM".equals(Util.MODEL) // Fire TV Stick Gen 1
+              || "AFTB".equals(Util.MODEL)); // Fire TV Gen 1
+
+  /** The DRM scheme UUID. */
+  public final UUID uuid;
+  /** The DRM session id. */
+  public final byte[] sessionId;
+  /**
+   * Whether to allow use of insecure decoder components even if the underlying platform says
+   * otherwise.
+   */
+  public final boolean forceAllowInsecureDecoderComponents;
 
   /**
-   * @param mediaCrypto The {@link MediaCrypto} to wrap.
+   * @param uuid The DRM scheme UUID.
+   * @param sessionId The DRM session id.
+   * @param forceAllowInsecureDecoderComponents Whether to allow use of insecure decoder components
+   *     even if the underlying platform says otherwise.
    */
-  public FrameworkMediaCrypto(MediaCrypto mediaCrypto) {
-    this(mediaCrypto, false);
-  }
-
-  /**
-   * @param mediaCrypto The {@link MediaCrypto} to wrap.
-   * @param forceAllowInsecureDecoderComponents Whether to force
-   *     {@link #requiresSecureDecoderComponent(String)} to return {@code false}, rather than
-   *     {@link MediaCrypto#requiresSecureDecoderComponent(String)} of the wrapped
-   *     {@link MediaCrypto}.
-   */
-  public FrameworkMediaCrypto(MediaCrypto mediaCrypto,
-      boolean forceAllowInsecureDecoderComponents) {
-    this.mediaCrypto = Assertions.checkNotNull(mediaCrypto);
+  public FrameworkMediaCrypto(
+      UUID uuid, byte[] sessionId, boolean forceAllowInsecureDecoderComponents) {
+    this.uuid = uuid;
+    this.sessionId = sessionId;
     this.forceAllowInsecureDecoderComponents = forceAllowInsecureDecoderComponents;
   }
-
-  /**
-   * Returns the wrapped {@link MediaCrypto}.
-   */
-  public MediaCrypto getWrappedMediaCrypto() {
-    return mediaCrypto;
-  }
-
-  @Override
-  public boolean requiresSecureDecoderComponent(String mimeType) {
-    return !forceAllowInsecureDecoderComponents
-        && mediaCrypto.requiresSecureDecoderComponent(mimeType);
-  }
-
 }

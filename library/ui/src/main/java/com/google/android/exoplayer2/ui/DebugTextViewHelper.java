@@ -16,18 +16,20 @@
 package com.google.android.exoplayer2.ui;
 
 import android.annotation.SuppressLint;
+import android.os.Looper;
 import android.widget.TextView;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.util.Assertions;
 import java.util.Locale;
 
 /**
  * A helper class for periodically updating a {@link TextView} with debug information obtained from
  * a {@link SimpleExoPlayer}.
  */
-public class DebugTextViewHelper extends Player.DefaultEventListener implements Runnable {
+public class DebugTextViewHelper implements Player.EventListener, Runnable {
 
   private static final int REFRESH_INTERVAL_MS = 1000;
 
@@ -37,10 +39,13 @@ public class DebugTextViewHelper extends Player.DefaultEventListener implements 
   private boolean started;
 
   /**
-   * @param player The {@link SimpleExoPlayer} from which debug information should be obtained.
+   * @param player The {@link SimpleExoPlayer} from which debug information should be obtained. Only
+   *     players which are accessed on the main thread are supported ({@code
+   *     player.getApplicationLooper() == Looper.getMainLooper()}).
    * @param textView The {@link TextView} that should be updated to display the information.
    */
   public DebugTextViewHelper(SimpleExoPlayer player, TextView textView) {
+    Assertions.checkArgument(player.getApplicationLooper() == Looper.getMainLooper());
     this.player = player;
     this.textView = textView;
   }
@@ -74,7 +79,13 @@ public class DebugTextViewHelper extends Player.DefaultEventListener implements 
   // Player.EventListener implementation.
 
   @Override
-  public final void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+  public final void onPlaybackStateChanged(@Player.State int playbackState) {
+    updateAndPost();
+  }
+
+  @Override
+  public final void onPlayWhenReadyChanged(
+      boolean playWhenReady, @Player.PlayWhenReadyChangeReason int playbackState) {
     updateAndPost();
   }
 
@@ -132,23 +143,40 @@ public class DebugTextViewHelper extends Player.DefaultEventListener implements 
   /** Returns a string containing video debugging information. */
   protected String getVideoString() {
     Format format = player.getVideoFormat();
-    if (format == null) {
+    DecoderCounters decoderCounters = player.getVideoDecoderCounters();
+    if (format == null || decoderCounters == null) {
       return "";
     }
-    return "\n" + format.sampleMimeType + "(id:" + format.id + " r:" + format.width + "x"
-        + format.height + getPixelAspectRatioString(format.pixelWidthHeightRatio)
-        + getDecoderCountersBufferCountString(player.getVideoDecoderCounters()) + ")";
+    return "\n"
+        + format.sampleMimeType
+        + "(id:"
+        + format.id
+        + " r:"
+        + format.width
+        + "x"
+        + format.height
+        + getPixelAspectRatioString(format.pixelWidthHeightRatio)
+        + getDecoderCountersBufferCountString(decoderCounters)
+        + ")";
   }
 
   /** Returns a string containing audio debugging information. */
   protected String getAudioString() {
     Format format = player.getAudioFormat();
-    if (format == null) {
+    DecoderCounters decoderCounters = player.getAudioDecoderCounters();
+    if (format == null || decoderCounters == null) {
       return "";
     }
-    return "\n" + format.sampleMimeType + "(id:" + format.id + " hz:" + format.sampleRate + " ch:"
+    return "\n"
+        + format.sampleMimeType
+        + "(id:"
+        + format.id
+        + " hz:"
+        + format.sampleRate
+        + " ch:"
         + format.channelCount
-        + getDecoderCountersBufferCountString(player.getAudioDecoderCounters()) + ")";
+        + getDecoderCountersBufferCountString(decoderCounters)
+        + ")";
   }
 
   private static String getDecoderCountersBufferCountString(DecoderCounters counters) {

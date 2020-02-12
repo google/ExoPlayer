@@ -14,12 +14,14 @@
      limitations under the License.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
   android:layout_gravity="bottom"
   android:layoutDirection="ltr"
   android:background="#CC000000"
-  android:orientation="vertical">
+  android:orientation="vertical"
+  tools:targetApi="28">
 
   <LinearLayout
     android:layout_width="match_parent"
@@ -35,7 +37,7 @@
       style="@style/ExoMediaButton.Rewind"/>
 
     <ImageButton android:id="@id/exo_shuffle"
-      style="@style/ExoMediaButton.Shuffle"/>
+      style="@style/ExoMediaButton"/>
 
     <ImageButton android:id="@id/exo_repeat_toggle"
       style="@style/ExoMediaButton"/>
@@ -51,6 +53,9 @@
 
     <ImageButton android:id="@id/exo_next"
       style="@style/ExoMediaButton.Next"/>
+
+    <ImageButton android:id="@id/exo_vr"
+      style="@style/ExoMediaButton.VR"/>
 
   </LinearLayout>
 
@@ -71,8 +76,7 @@
       android:includeFontPadding="false"
       android:textColor="#FFBEBEBE"/>
 
-    <com.google.android.exoplayer2.ui.DefaultTimeBar
-      android:id="@id/exo_progress"
+    <View android:id="@id/exo_progress_placeholder"
       android:layout_width="0dp"
       android:layout_weight="1"
       android:layout_height="26dp"/>

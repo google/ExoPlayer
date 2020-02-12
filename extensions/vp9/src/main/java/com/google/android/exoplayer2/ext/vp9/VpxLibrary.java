@@ -15,8 +15,11 @@
  */
 package com.google.android.exoplayer2.ext.vp9;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
+import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.LibraryLoader;
+import com.google.android.exoplayer2.util.Util;
 
 /**
  * Configures and queries the underlying native library.
@@ -27,7 +30,8 @@ public final class VpxLibrary {
     ExoPlayerLibraryInfo.registerModule("goog.exo.vpx");
   }
 
-  private static final LibraryLoader LOADER = new LibraryLoader("vpx", "vpxJNI");
+  private static final LibraryLoader LOADER = new LibraryLoader("vpx", "vpxV2JNI");
+  @Nullable private static Class<? extends ExoMediaCrypto> exoMediaCryptoType;
 
   private VpxLibrary() {}
 
@@ -36,10 +40,14 @@ public final class VpxLibrary {
    * it must do so before calling any other method defined by this class, and before instantiating a
    * {@link LibvpxVideoRenderer} instance.
    *
+   * @param exoMediaCryptoType The {@link ExoMediaCrypto} type required for decoding protected
+   *     content.
    * @param libraries The names of the Vpx native libraries.
    */
-  public static void setLibraries(String... libraries) {
+  public static void setLibraries(
+      Class<? extends ExoMediaCrypto> exoMediaCryptoType, String... libraries) {
     LOADER.setLibraries(libraries);
+    VpxLibrary.exoMediaCryptoType = exoMediaCryptoType;
   }
 
   /**
@@ -49,9 +57,8 @@ public final class VpxLibrary {
     return LOADER.isAvailable();
   }
 
-  /**
-   * Returns the version of the underlying library if available, or null otherwise.
-   */
+  /** Returns the version of the underlying library if available, or null otherwise. */
+  @Nullable
   public static String getVersion() {
     return isAvailable() ? vpxGetVersion() : null;
   }
@@ -60,6 +67,7 @@ public final class VpxLibrary {
    * Returns the configuration string with which the underlying library was built if available, or
    * null otherwise.
    */
+  @Nullable
   public static String getBuildConfig() {
     return isAvailable() ? vpxGetBuildConfig() : null;
   }
@@ -72,6 +80,15 @@ public final class VpxLibrary {
     int indexHbd = config != null
         ? config.indexOf("--enable-vp9-highbitdepth") : -1;
     return indexHbd >= 0;
+  }
+
+  /**
+   * Returns whether the given {@link ExoMediaCrypto} type matches the one required for decoding
+   * protected content.
+   */
+  public static boolean matchesExpectedExoMediaCryptoType(
+      @Nullable Class<? extends ExoMediaCrypto> exoMediaCryptoType) {
+    return Util.areEqual(VpxLibrary.exoMediaCryptoType, exoMediaCryptoType);
   }
 
   private static native String vpxGetVersion();

@@ -16,44 +16,53 @@ apply from: '../../constants.gradle'
 
 android {
     compileSdkVersion project.ext.compileSdkVersion
-    buildToolsVersion project.ext.buildToolsVersion
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 
     defaultConfig {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
         consumerProguardFiles 'proguard-rules.txt'
-    }
 
-    // Workaround to prevent circular dependency on project :testutils.
-    sourceSets {
-        androidTest {
-            java.srcDirs += "../../testutils/src/main/java/"
-        }
-        test {
-            java.srcDirs += "../../testutils/src/main/java/"
-            java.srcDirs += "../../testutils_robolectric/src/main/java/"
-        }
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+
+        // The following argument makes the Android Test Orchestrator run its
+        // "pm clear" command after each test invocation. This command ensures
+        // that the app's state is completely cleared between tests.
+        testInstrumentationRunnerArguments clearPackageData: 'true'
     }
 
     buildTypes {
-        // Re-enable test coverage when the following issue is fixed:
-        // https://issuetracker.google.com/issues/37019591
-        // debug {
-        //    testCoverageEnabled = true
-        // }
+        debug {
+            testCoverageEnabled = true
+        }
     }
+
+    sourceSets {
+        androidTest.assets.srcDir '../../testdata/src/test/assets/'
+        test.assets.srcDir '../../testdata/src/test/assets/'
+    }
+
+    testOptions.unitTests.includeAndroidResources = true
 }
 
 dependencies {
-    implementation 'com.android.support:support-annotations:' + supportLibraryVersion
-    androidTestImplementation 'com.google.dexmaker:dexmaker:' + dexmakerVersion
-    androidTestImplementation 'com.google.dexmaker:dexmaker-mockito:' + dexmakerVersion
-    androidTestImplementation 'com.google.truth:truth:' + truthVersion
-    androidTestImplementation 'org.mockito:mockito-core:' + mockitoVersion
-    testImplementation 'com.google.truth:truth:' + truthVersion
-    testImplementation 'junit:junit:' + junitVersion
-    testImplementation 'org.mockito:mockito-core:' + mockitoVersion
+    api project(modulePrefix + 'library-common')
+    api project(modulePrefix + 'library-extractor')
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+    compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
+    compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkVersion
+    androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion
+    androidTestImplementation 'com.google.guava:guava:' + guavaVersion
+    androidTestImplementation 'com.linkedin.dexmaker:dexmaker:' + dexmakerVersion
+    androidTestImplementation 'com.linkedin.dexmaker:dexmaker-mockito:' + dexmakerVersion
+    androidTestImplementation project(modulePrefix + 'testutils')
+    testImplementation 'com.google.guava:guava:' + guavaVersion
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
+    testImplementation project(modulePrefix + 'testutils')
 }
 
 ext {

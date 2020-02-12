@@ -15,24 +15,23 @@
  */
 package com.google.android.exoplayer2.video;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
-import android.support.annotation.Nullable;
 import android.view.Choreographer;
 import android.view.Choreographer.FrameCallback;
 import android.view.Display;
 import android.view.WindowManager;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
 
 /**
  * Makes a best effort to adjust frame release timestamps for a smoother visual result.
  */
-@TargetApi(16)
 public final class VideoFrameReleaseTimeHelper {
 
   private static final long CHOREOGRAPHER_SAMPLE_DELAY_MILLIS = 500;
@@ -72,8 +71,12 @@ public final class VideoFrameReleaseTimeHelper {
    * @param context A context from which information about the default display can be retrieved.
    */
   public VideoFrameReleaseTimeHelper(@Nullable Context context) {
-    windowManager = context == null ? null
-        : (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+    if (context != null) {
+      context = context.getApplicationContext();
+      windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+    } else {
+      windowManager = null;
+    }
     if (windowManager != null) {
       displayListener = Util.SDK_INT >= 17 ? maybeBuildDefaultDisplayListenerV17(context) : null;
       vsyncSampler = VSyncSampler.getInstance();
@@ -184,7 +187,7 @@ public final class VideoFrameReleaseTimeHelper {
     return snappedTimeNs - vsyncOffsetNs;
   }
 
-  @TargetApi(17)
+  @RequiresApi(17)
   private DefaultDisplayListener maybeBuildDefaultDisplayListenerV17(Context context) {
     DisplayManager manager = (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
     return manager == null ? null : new DefaultDisplayListener(manager);
@@ -223,7 +226,7 @@ public final class VideoFrameReleaseTimeHelper {
     return snappedAfterDiff < snappedBeforeDiff ? snappedAfterNs : snappedBeforeNs;
   }
 
-  @TargetApi(17)
+  @RequiresApi(17)
   private final class DefaultDisplayListener implements DisplayManager.DisplayListener {
 
     private final DisplayManager displayManager;
@@ -287,7 +290,7 @@ public final class VideoFrameReleaseTimeHelper {
       sampledVsyncTimeNs = C.TIME_UNSET;
       choreographerOwnerThread = new HandlerThread("ChoreographerOwner:Handler");
       choreographerOwnerThread.start();
-      handler = new Handler(choreographerOwnerThread.getLooper(), this);
+      handler = Util.createHandler(choreographerOwnerThread.getLooper(), /* callback= */ this);
       handler.sendEmptyMessage(CREATE_CHOREOGRAPHER);
     }
 

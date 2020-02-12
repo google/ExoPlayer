@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright (C) 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,108 +20,102 @@ import android.net.Uri;
 import android.view.KeyEvent;
 import android.view.View;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.DefaultRenderersFactory;
-import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.Player.DefaultEventListener;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
+import com.google.android.exoplayer2.Player.EventListener;
 import com.google.android.exoplayer2.Player.TimelineChangeReason;
-import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
-import com.google.android.exoplayer2.castdemo.DemoUtil.Sample;
+import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.ExoMediaCrypto;
+import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
+import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.ext.cast.CastPlayer;
+import com.google.android.exoplayer2.ext.cast.DefaultMediaItemConverter;
+import com.google.android.exoplayer2.ext.cast.MediaItem;
+import com.google.android.exoplayer2.ext.cast.MediaItemConverter;
+import com.google.android.exoplayer2.ext.cast.SessionAvailabilityListener;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
+import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
-import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
-import com.google.android.exoplayer2.source.smoothstreaming.DefaultSsChunkSource;
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
-import com.google.android.gms.cast.MediaInfo;
-import com.google.android.gms.cast.MediaMetadata;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.gms.cast.MediaQueueItem;
 import com.google.android.gms.cast.framework.CastContext;
 import java.util.ArrayList;
+import java.util.Map;
 
-/**
- * Manages players and an internal media queue for the ExoPlayer/Cast demo app.
- */
-/* package */ final class PlayerManager extends DefaultEventListener
-    implements CastPlayer.SessionAvailabilityListener {
+/** Manages players and an internal media queue for the demo app. */
+/* package */ class PlayerManager implements EventListener, SessionAvailabilityListener {
 
-  /**
-   * Listener for changes in the media queue playback position.
-   */
-  public interface QueuePositionListener {
+  /** Listener for events. */
+  interface Listener {
 
-    /**
-     * Called when the currently played item of the media queue changes.
-     */
+    /** Called when the currently played item of the media queue changes. */
     void onQueuePositionChanged(int previousIndex, int newIndex);
 
+    /**
+     * Called when a track of type {@code trackType} is not supported by the player.
+     *
+     * @param trackType One of the {@link C}{@code .TRACK_TYPE_*} constants.
+     */
+    void onUnsupportedTrack(int trackType);
   }
 
   private static final String USER_AGENT = "ExoCastDemoPlayer";
-  private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
   private static final DefaultHttpDataSourceFactory DATA_SOURCE_FACTORY =
-      new DefaultHttpDataSourceFactory(USER_AGENT, BANDWIDTH_METER);
+      new DefaultHttpDataSourceFactory(USER_AGENT);
 
   private final PlayerView localPlayerView;
   private final PlayerControlView castControlView;
+  private final DefaultTrackSelector trackSelector;
   private final SimpleExoPlayer exoPlayer;
   private final CastPlayer castPlayer;
-  private final ArrayList<DemoUtil.Sample> mediaQueue;
-  private final QueuePositionListener queuePositionListener;
+  private final ArrayList<MediaItem> mediaQueue;
+  private final Listener listener;
   private final ConcatenatingMediaSource concatenatingMediaSource;
+  private final MediaItemConverter mediaItemConverter;
 
-  private boolean castMediaQueueCreationPending;
+  private TrackGroupArray lastSeenTrackGroupArray;
   private int currentItemIndex;
   private Player currentPlayer;
 
   /**
-   * @param queuePositionListener A {@link QueuePositionListener} for queue position changes.
+   * Creates a new manager for {@link SimpleExoPlayer} and {@link CastPlayer}.
+   *
+   * @param listener A {@link Listener} for queue position changes.
    * @param localPlayerView The {@link PlayerView} for local playback.
    * @param castControlView The {@link PlayerControlView} to control remote playback.
    * @param context A {@link Context}.
    * @param castContext The {@link CastContext}.
    */
-  public static PlayerManager createPlayerManager(
-      QueuePositionListener queuePositionListener,
+  public PlayerManager(
+      Listener listener,
       PlayerView localPlayerView,
       PlayerControlView castControlView,
       Context context,
       CastContext castContext) {
-    PlayerManager playerManager =
-        new PlayerManager(
-            queuePositionListener, localPlayerView, castControlView, context, castContext);
-    playerManager.init();
-    return playerManager;
-  }
-
-  private PlayerManager(
-      QueuePositionListener queuePositionListener,
-      PlayerView localPlayerView,
-      PlayerControlView castControlView,
-      Context context,
-      CastContext castContext) {
-    this.queuePositionListener = queuePositionListener;
+    this.listener = listener;
     this.localPlayerView = localPlayerView;
     this.castControlView = castControlView;
     mediaQueue = new ArrayList<>();
     currentItemIndex = C.INDEX_UNSET;
     concatenatingMediaSource = new ConcatenatingMediaSource();
+    mediaItemConverter = new DefaultMediaItemConverter();
 
-    DefaultTrackSelector trackSelector = new DefaultTrackSelector(BANDWIDTH_METER);
-    RenderersFactory renderersFactory = new DefaultRenderersFactory(context, null);
-    exoPlayer = ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector);
+    trackSelector = new DefaultTrackSelector(context);
+    exoPlayer = new SimpleExoPlayer.Builder(context).setTrackSelector(trackSelector).build();
     exoPlayer.addListener(this);
     localPlayerView.setPlayer(exoPlayer);
 
@@ -129,6 +123,8 @@ import java.util.ArrayList;
     castPlayer.addListener(this);
     castPlayer.setSessionAvailabilityListener(this);
     castControlView.setPlayer(castPlayer);
+
+    setCurrentPlayer(castPlayer.isCastSessionAvailable() ? castPlayer : exoPlayer);
   }
 
   // Queue manipulation methods.
@@ -142,29 +138,25 @@ import java.util.ArrayList;
     setCurrentItem(itemIndex, C.TIME_UNSET, true);
   }
 
-  /**
-   * Returns the index of the currently played item.
-   */
+  /** Returns the index of the currently played item. */
   public int getCurrentItemIndex() {
     return currentItemIndex;
   }
 
   /**
-   * Appends {@code sample} to the media queue.
+   * Appends {@code item} to the media queue.
    *
-   * @param sample The {@link Sample} to append.
+   * @param item The {@link MediaItem} to append.
    */
-  public void addItem(Sample sample) {
-    mediaQueue.add(sample);
-    concatenatingMediaSource.addMediaSource(buildMediaSource(sample));
+  public void addItem(MediaItem item) {
+    mediaQueue.add(item);
+    concatenatingMediaSource.addMediaSource(buildMediaSource(item));
     if (currentPlayer == castPlayer) {
-      castPlayer.addItems(buildMediaQueueItem(sample));
+      castPlayer.addItems(mediaItemConverter.toMediaQueueItem(item));
     }
   }
 
-  /**
-   * Returns the size of the media queue.
-   */
+  /** Returns the size of the media queue. */
   public int getMediaQueueSize() {
     return mediaQueue.size();
   }
@@ -175,17 +167,21 @@ import java.util.ArrayList;
    * @param position The index of the item.
    * @return The item at the given index in the media queue.
    */
-  public Sample getItem(int position) {
+  public MediaItem getItem(int position) {
     return mediaQueue.get(position);
   }
 
   /**
    * Removes the item at the given index from the media queue.
    *
-   * @param itemIndex The index of the item to remove.
+   * @param item The item to remove.
    * @return Whether the removal was successful.
    */
-  public boolean removeItem(int itemIndex) {
+  public boolean removeItem(MediaItem item) {
+    int itemIndex = mediaQueue.indexOf(item);
+    if (itemIndex == -1) {
+      return false;
+    }
     concatenatingMediaSource.removeMediaSource(itemIndex);
     if (currentPlayer == castPlayer) {
       if (castPlayer.getPlaybackState() != Player.STATE_IDLE) {
@@ -208,11 +204,15 @@ import java.util.ArrayList;
   /**
    * Moves an item within the queue.
    *
-   * @param fromIndex The index of the item to move.
+   * @param item The item to move.
    * @param toIndex The target index of the item in the queue.
    * @return Whether the item move was successful.
    */
-  public boolean moveItem(int fromIndex, int toIndex) {
+  public boolean moveItem(MediaItem item, int toIndex) {
+    int fromIndex = mediaQueue.indexOf(item);
+    if (fromIndex == -1) {
+      return false;
+    }
     // Player update.
     concatenatingMediaSource.moveMediaSource(fromIndex, toIndex);
     if (currentPlayer == castPlayer && castPlayer.getPlaybackState() != Player.STATE_IDLE) {
@@ -239,8 +239,6 @@ import java.util.ArrayList;
     return true;
   }
 
-  // Miscellaneous methods.
-
   /**
    * Dispatches a given {@link KeyEvent} to the corresponding view of the current player.
    *
@@ -255,9 +253,7 @@ import java.util.ArrayList;
     }
   }
 
-  /**
-   * Releases the manager and the players that it holds.
-   */
+  /** Releases the manager and the players that it holds. */
   public void release() {
     currentItemIndex = C.INDEX_UNSET;
     mediaQueue.clear();
@@ -271,7 +267,7 @@ import java.util.ArrayList;
   // Player.EventListener implementation.
 
   @Override
-  public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+  public void onPlaybackStateChanged(@Player.State int playbackState) {
     updateCurrentItemIndex();
   }
 
@@ -281,11 +277,26 @@ import java.util.ArrayList;
   }
 
   @Override
-  public void onTimelineChanged(
-      Timeline timeline, Object manifest, @TimelineChangeReason int reason) {
+  public void onTimelineChanged(Timeline timeline, @TimelineChangeReason int reason) {
     updateCurrentItemIndex();
-    if (timeline.isEmpty()) {
-      castMediaQueueCreationPending = true;
+  }
+
+  @Override
+  public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+    if (currentPlayer == exoPlayer && trackGroups != lastSeenTrackGroupArray) {
+      MappingTrackSelector.MappedTrackInfo mappedTrackInfo =
+          trackSelector.getCurrentMappedTrackInfo();
+      if (mappedTrackInfo != null) {
+        if (mappedTrackInfo.getTypeSupport(C.TRACK_TYPE_VIDEO)
+            == MappingTrackSelector.MappedTrackInfo.RENDERER_SUPPORT_UNSUPPORTED_TRACKS) {
+          listener.onUnsupportedTrack(C.TRACK_TYPE_VIDEO);
+        }
+        if (mappedTrackInfo.getTypeSupport(C.TRACK_TYPE_AUDIO)
+            == MappingTrackSelector.MappedTrackInfo.RENDERER_SUPPORT_UNSUPPORTED_TRACKS) {
+          listener.onUnsupportedTrack(C.TRACK_TYPE_AUDIO);
+        }
+      }
+      lastSeenTrackGroupArray = trackGroups;
     }
   }
 
@@ -303,15 +314,12 @@ import java.util.ArrayList;
 
   // Internal methods.
 
-  private void init() {
-    setCurrentPlayer(castPlayer.isCastSessionAvailable() ? castPlayer : exoPlayer);
-  }
-
   private void updateCurrentItemIndex() {
     int playbackState = currentPlayer.getPlaybackState();
     maybeSetCurrentItemAndNotify(
         playbackState != Player.STATE_IDLE && playbackState != Player.STATE_ENDED
-        ? currentPlayer.getCurrentWindowIndex() : C.INDEX_UNSET);
+            ? currentPlayer.getCurrentWindowIndex()
+            : C.INDEX_UNSET);
   }
 
   private void setCurrentPlayer(Player currentPlayer) {
@@ -332,26 +340,26 @@ import java.util.ArrayList;
     long playbackPositionMs = C.TIME_UNSET;
     int windowIndex = C.INDEX_UNSET;
     boolean playWhenReady = false;
-    if (this.currentPlayer != null) {
-      int playbackState = this.currentPlayer.getPlaybackState();
+
+    Player previousPlayer = this.currentPlayer;
+    if (previousPlayer != null) {
+      // Save state from the previous player.
+      int playbackState = previousPlayer.getPlaybackState();
       if (playbackState != Player.STATE_ENDED) {
-        playbackPositionMs = this.currentPlayer.getCurrentPosition();
-        playWhenReady = this.currentPlayer.getPlayWhenReady();
-        windowIndex = this.currentPlayer.getCurrentWindowIndex();
+        playbackPositionMs = previousPlayer.getCurrentPosition();
+        playWhenReady = previousPlayer.getPlayWhenReady();
+        windowIndex = previousPlayer.getCurrentWindowIndex();
         if (windowIndex != currentItemIndex) {
           playbackPositionMs = C.TIME_UNSET;
           windowIndex = currentItemIndex;
         }
       }
-      this.currentPlayer.stop(true);
-    } else {
-      // This is the initial setup. No need to save any state.
+      previousPlayer.stop(true);
     }
 
     this.currentPlayer = currentPlayer;
 
     // Media queue management.
-    castMediaQueueCreationPending = currentPlayer == castPlayer;
     if (currentPlayer == exoPlayer) {
       exoPlayer.prepare(concatenatingMediaSource);
     }
@@ -371,12 +379,11 @@ import java.util.ArrayList;
    */
   private void setCurrentItem(int itemIndex, long positionMs, boolean playWhenReady) {
     maybeSetCurrentItemAndNotify(itemIndex);
-    if (castMediaQueueCreationPending) {
+    if (currentPlayer == castPlayer && castPlayer.getCurrentTimeline().isEmpty()) {
       MediaQueueItem[] items = new MediaQueueItem[mediaQueue.size()];
       for (int i = 0; i < items.length; i++) {
-        items[i] = buildMediaQueueItem(mediaQueue.get(i));
+        items[i] = mediaItemConverter.toMediaQueueItem(mediaQueue.get(i));
       }
-      castMediaQueueCreationPending = false;
       castPlayer.loadItems(items, itemIndex, positionMs, Player.REPEAT_MODE_OFF);
     } else {
       currentPlayer.seekTo(itemIndex, positionMs);
@@ -388,38 +395,65 @@ import java.util.ArrayList;
     if (this.currentItemIndex != currentItemIndex) {
       int oldIndex = this.currentItemIndex;
       this.currentItemIndex = currentItemIndex;
-      queuePositionListener.onQueuePositionChanged(oldIndex, currentItemIndex);
+      listener.onQueuePositionChanged(oldIndex, currentItemIndex);
     }
   }
 
-  private static MediaSource buildMediaSource(DemoUtil.Sample sample) {
-    Uri uri = Uri.parse(sample.uri);
-    switch (sample.mimeType) {
-      case DemoUtil.MIME_TYPE_SS:
-        return new SsMediaSource.Factory(
-                new DefaultSsChunkSource.Factory(DATA_SOURCE_FACTORY), DATA_SOURCE_FACTORY)
-            .createMediaSource(uri);
-      case DemoUtil.MIME_TYPE_DASH:
-        return new DashMediaSource.Factory(
-                new DefaultDashChunkSource.Factory(DATA_SOURCE_FACTORY), DATA_SOURCE_FACTORY)
-            .createMediaSource(uri);
-      case DemoUtil.MIME_TYPE_HLS:
-        return new HlsMediaSource.Factory(DATA_SOURCE_FACTORY).createMediaSource(uri);
-      case DemoUtil.MIME_TYPE_VIDEO_MP4:
-        return new ExtractorMediaSource.Factory(DATA_SOURCE_FACTORY).createMediaSource(uri);
-      default: {
-        throw new IllegalStateException("Unsupported type: " + sample.mimeType);
+  private MediaSource buildMediaSource(MediaItem item) {
+    Uri uri = item.uri;
+    String mimeType = item.mimeType;
+    if (mimeType == null) {
+      throw new IllegalArgumentException("mimeType is required");
+    }
+
+    DrmSessionManager<ExoMediaCrypto> drmSessionManager =
+        DrmSessionManager.getDummyDrmSessionManager();
+    MediaItem.DrmConfiguration drmConfiguration = item.drmConfiguration;
+    if (drmConfiguration != null && Util.SDK_INT >= 18) {
+      String licenseServerUrl =
+          drmConfiguration.licenseUri != null ? drmConfiguration.licenseUri.toString() : "";
+      HttpMediaDrmCallback drmCallback =
+          new HttpMediaDrmCallback(licenseServerUrl, DATA_SOURCE_FACTORY);
+      for (Map.Entry<String, String> requestHeader : drmConfiguration.requestHeaders.entrySet()) {
+        drmCallback.setKeyRequestProperty(requestHeader.getKey(), requestHeader.getValue());
       }
+      drmSessionManager =
+          new DefaultDrmSessionManager.Builder()
+              .setMultiSession(/* multiSession= */ true)
+              .setUuidAndExoMediaDrmProvider(
+                  drmConfiguration.uuid, FrameworkMediaDrm.DEFAULT_PROVIDER)
+              .build(drmCallback);
     }
-  }
 
-  private static MediaQueueItem buildMediaQueueItem(DemoUtil.Sample sample) {
-    MediaMetadata movieMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE);
-    movieMetadata.putString(MediaMetadata.KEY_TITLE, sample.name);
-    MediaInfo mediaInfo = new MediaInfo.Builder(sample.uri)
-        .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED).setContentType(sample.mimeType)
-        .setMetadata(movieMetadata).build();
-    return new MediaQueueItem.Builder(mediaInfo).build();
+    MediaSource createdMediaSource;
+    switch (mimeType) {
+      case DemoUtil.MIME_TYPE_SS:
+        createdMediaSource =
+            new SsMediaSource.Factory(DATA_SOURCE_FACTORY)
+                .setDrmSessionManager(drmSessionManager)
+                .createMediaSource(uri);
+        break;
+      case DemoUtil.MIME_TYPE_DASH:
+        createdMediaSource =
+            new DashMediaSource.Factory(DATA_SOURCE_FACTORY)
+                .setDrmSessionManager(drmSessionManager)
+                .createMediaSource(uri);
+        break;
+      case DemoUtil.MIME_TYPE_HLS:
+        createdMediaSource =
+            new HlsMediaSource.Factory(DATA_SOURCE_FACTORY)
+                .setDrmSessionManager(drmSessionManager)
+                .createMediaSource(uri);
+        break;
+      case DemoUtil.MIME_TYPE_VIDEO_MP4:
+        createdMediaSource =
+            new ProgressiveMediaSource.Factory(DATA_SOURCE_FACTORY)
+                .setDrmSessionManager(drmSessionManager)
+                .createMediaSource(uri);
+        break;
+      default:
+        throw new IllegalArgumentException("mimeType is unsupported: " + mimeType);
+    }
+    return createdMediaSource;
   }
-
 }

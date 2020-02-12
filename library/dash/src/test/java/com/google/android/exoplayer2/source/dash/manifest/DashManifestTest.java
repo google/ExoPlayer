@@ -18,7 +18,9 @@ package com.google.android.exoplayer2.source.dash.manifest;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SingleSegmentBase;
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,18 +28,18 @@ import java.util.List;
 import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
 /** Unit tests for {@link DashManifest}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class DashManifestTest {
 
   private static final UtcTimingElement DUMMY_UTC_TIMING = new UtcTimingElement("", "");
   private static final SingleSegmentBase DUMMY_SEGMENT_BASE = new SingleSegmentBase();
-  private static final Format DUMMY_FORMAT = Format.createSampleFormat("", "", 0);
+  private static final Format DUMMY_FORMAT =
+      Format.createSampleFormat(/* id= */ "", /* sampleMimeType= */ "");
 
   @Test
-  public void testCopy() throws Exception {
+  public void testCopy() {
     Representation[][][] representations = newRepresentations(3, 2, 3);
     DashManifest sourceManifest =
         newDashManifest(
@@ -58,17 +60,17 @@ public class DashManifestTest {
                 newAdaptationSet(8, representations[2][0]),
                 newAdaptationSet(9, representations[2][1])));
 
-    List<RepresentationKey> keys =
+    List<StreamKey> keys =
         Arrays.asList(
-            new RepresentationKey(0, 0, 0),
-            new RepresentationKey(0, 0, 1),
-            new RepresentationKey(0, 1, 2),
-            new RepresentationKey(1, 0, 1),
-            new RepresentationKey(1, 1, 0),
-            new RepresentationKey(1, 1, 2),
-            new RepresentationKey(2, 0, 1),
-            new RepresentationKey(2, 0, 2),
-            new RepresentationKey(2, 1, 0));
+            new StreamKey(0, 0, 0),
+            new StreamKey(0, 0, 1),
+            new StreamKey(0, 1, 2),
+            new StreamKey(1, 0, 1),
+            new StreamKey(1, 1, 0),
+            new StreamKey(1, 1, 2),
+            new StreamKey(2, 0, 1),
+            new StreamKey(2, 0, 2),
+            new StreamKey(2, 1, 0));
     // Keys don't need to be in any particular order
     Collections.shuffle(keys, new Random(0));
 
@@ -96,7 +98,7 @@ public class DashManifestTest {
   }
 
   @Test
-  public void testCopySameAdaptationIndexButDifferentPeriod() throws Exception {
+  public void testCopySameAdaptationIndexButDifferentPeriod() {
     Representation[][][] representations = newRepresentations(2, 1, 1);
     DashManifest sourceManifest =
         newDashManifest(
@@ -105,8 +107,7 @@ public class DashManifestTest {
             newPeriod("4", 4, newAdaptationSet(5, representations[1][0])));
 
     DashManifest copyManifest =
-        sourceManifest.copy(
-            Arrays.asList(new RepresentationKey(0, 0, 0), new RepresentationKey(1, 0, 0)));
+        sourceManifest.copy(Arrays.asList(new StreamKey(0, 0, 0), new StreamKey(1, 0, 0)));
 
     DashManifest expectedManifest =
         newDashManifest(
@@ -117,7 +118,7 @@ public class DashManifestTest {
   }
 
   @Test
-  public void testCopySkipPeriod() throws Exception {
+  public void testCopySkipPeriod() {
     Representation[][][] representations = newRepresentations(3, 2, 3);
     DashManifest sourceManifest =
         newDashManifest(
@@ -141,12 +142,12 @@ public class DashManifestTest {
     DashManifest copyManifest =
         sourceManifest.copy(
             Arrays.asList(
-                new RepresentationKey(0, 0, 0),
-                new RepresentationKey(0, 0, 1),
-                new RepresentationKey(0, 1, 2),
-                new RepresentationKey(2, 0, 1),
-                new RepresentationKey(2, 0, 2),
-                new RepresentationKey(2, 1, 0)));
+                new StreamKey(0, 0, 0),
+                new StreamKey(0, 0, 1),
+                new StreamKey(0, 1, 2),
+                new StreamKey(2, 0, 1),
+                new StreamKey(2, 0, 2),
+                new StreamKey(2, 1, 0)));
 
     DashManifest expectedManifest =
         newDashManifest(
@@ -214,12 +215,24 @@ public class DashManifestTest {
   }
 
   private static Representation newRepresentation() {
-    return Representation.newInstance("", 0, DUMMY_FORMAT, "", DUMMY_SEGMENT_BASE);
+    return Representation.newInstance(
+        /* revisionId= */ 0, DUMMY_FORMAT, /* baseUrl= */ "", DUMMY_SEGMENT_BASE);
   }
 
   private static DashManifest newDashManifest(int duration, Period... periods) {
     return new DashManifest(
-        0, duration, 1, false, 2, 3, 4, 12345, DUMMY_UTC_TIMING, Uri.EMPTY, Arrays.asList(periods));
+        /* availabilityStartTimeMs= */ 0,
+        duration,
+        /* minBufferTimeMs= */ 1,
+        /* dynamic= */ false,
+        /* minUpdatePeriodMs= */ 2,
+        /* timeShiftBufferDepthMs= */ 3,
+        /* suggestedPresentationDelayMs= */ 4,
+        /* publishTimeMs= */ 12345,
+        /* programInformation= */ null,
+        DUMMY_UTC_TIMING,
+        Uri.EMPTY,
+        Arrays.asList(periods));
   }
 
   private static Period newPeriod(String id, int startMs, AdaptationSet... adaptationSets) {

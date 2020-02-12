@@ -69,12 +69,14 @@ public class AdaptationSet {
     this.id = id;
     this.type = type;
     this.representations = Collections.unmodifiableList(representations);
-    this.accessibilityDescriptors = accessibilityDescriptors == null
-        ? Collections.<Descriptor>emptyList()
-        : Collections.unmodifiableList(accessibilityDescriptors);
-    this.supplementalProperties = supplementalProperties == null
-        ? Collections.<Descriptor>emptyList()
-        : Collections.unmodifiableList(supplementalProperties);
+    this.accessibilityDescriptors =
+        accessibilityDescriptors == null
+            ? Collections.emptyList()
+            : Collections.unmodifiableList(accessibilityDescriptors);
+    this.supplementalProperties =
+        supplementalProperties == null
+            ? Collections.emptyList()
+            : Collections.unmodifiableList(supplementalProperties);
   }
 
 }
