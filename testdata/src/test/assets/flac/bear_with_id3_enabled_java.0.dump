@@ -7,7 +7,9 @@ seekMap:
   getPosition(2741000) = [[timeUs=2645333, position=215886]]
 numberOfTracks = 1
 track 0:
-  format:
+  total output bytes = 164431
+  sample count = 33
+  format 0:
     bitrate = 1536000
     id = null
     containerMimeType = null
@@ -30,8 +32,6 @@ track 0:
     metadata = entries=[TXXX: description=ID: value=105519843, TIT2: description=null: value=那么爱你为什么, TPE1: description=null: value=阿强, TALB: description=null: value=华丽的外衣, TXXX: description=ID: value=105519843, APIC: mimeType=image/jpeg, description=]
     initializationData:
       data = length 42, hash 83F6895
-  total output bytes = 164431
-  sample count = 33
   sample 0:
     time = 0
     flags = 1

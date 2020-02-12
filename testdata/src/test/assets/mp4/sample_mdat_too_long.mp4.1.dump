@@ -7,7 +7,9 @@ seekMap:
   getPosition(1024000) = [[timeUs=0, position=2192]]
 numberOfTracks = 2
 track 0:
-  format:
+  total output bytes = 89876
+  sample count = 30
+  format 0:
     bitrate = -1
     id = 1
     containerMimeType = null
@@ -31,8 +33,6 @@ track 0:
     initializationData:
       data = length 29, hash 4746B5D9
       data = length 10, hash 7A0D0F2B
-  total output bytes = 89876
-  sample count = 30
   sample 0:
     time = 0
     flags = 1
@@ -154,7 +154,9 @@ track 0:
     flags = 536870912
     data = length 568, hash 4FE5C8EA
 track 1:
-  format:
+  total output bytes = 7464
+  sample count = 33
+  format 0:
     bitrate = -1
     id = 2
     containerMimeType = null
@@ -177,8 +179,6 @@ track 1:
     metadata = entries=[TSSE: description=null: value=Lavf56.1.0]
     initializationData:
       data = length 2, hash 5F7
-  total output bytes = 7464
-  sample count = 33
   sample 0:
     time = 322639
     flags = 1

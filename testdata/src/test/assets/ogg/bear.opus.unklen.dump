@@ -4,7 +4,9 @@ seekMap:
   getPosition(0) = [[timeUs=0, position=0]]
 numberOfTracks = 1
 track 0:
-  format:
+  total output bytes = 25541
+  sample count = 275
+  format 0:
     bitrate = -1
     id = null
     containerMimeType = null
@@ -29,8 +31,6 @@ track 0:
       data = length 19, hash BFE794DB
       data = length 8, hash CA22068C
       data = length 8, hash 79C07075
-  total output bytes = 25541
-  sample count = 275
   sample 0:
     time = 0
     flags = 1
