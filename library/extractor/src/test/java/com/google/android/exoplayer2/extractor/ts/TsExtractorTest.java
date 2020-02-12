@@ -81,7 +81,7 @@ public final class TsExtractorTest {
     assertThat(reader.packetsRead).isEqualTo(2);
     TrackOutput trackOutput = reader.getTrackOutput();
     assertThat(trackOutput == output.trackOutputs.get(257 /* PID of audio track. */)).isTrue();
-    assertThat(((FakeTrackOutput) trackOutput).format)
+    assertThat(((FakeTrackOutput) trackOutput).lastFormat)
         .isEqualTo(Format.createTextSampleFormat("1/257", "mime", /* selectionFlags= */ 0, "und"));
   }
 

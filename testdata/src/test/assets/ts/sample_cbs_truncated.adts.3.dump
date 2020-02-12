@@ -7,7 +7,9 @@ seekMap:
   getPosition(3355717) = [[timeUs=3332497, position=31575]]
 numberOfTracks = 2
 track 0:
-  format:
+  total output bytes = 164
+  sample count = 0
+  format 0:
     bitrate = -1
     id = 0
     containerMimeType = null
@@ -30,10 +32,10 @@ track 0:
     metadata = null
     initializationData:
       data = length 2, hash 5F7
-  total output bytes = 164
-  sample count = 0
 track 1:
-  format:
+  total output bytes = 0
+  sample count = 0
+  format 0:
     bitrate = -1
     id = 1
     containerMimeType = null
@@ -55,6 +57,4 @@ track 1:
     drmInitData = -
     metadata = null
     initializationData:
-  total output bytes = 0
-  sample count = 0
 tracksEnded = true
